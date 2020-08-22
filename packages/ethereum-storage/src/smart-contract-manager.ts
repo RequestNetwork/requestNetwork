@@ -292,7 +292,7 @@ export default class SmartContractManager {
         // Keep the transaction hash for future needs
         let transactionHash: string = '';
 
-        this.requestHashSubmitter.methods
+        const transaction = this.requestHashSubmitter.methods
           .submitHash(contentHash, feesParametersAsBytes)
           .send({
             from: account,
@@ -344,6 +344,16 @@ export default class SmartContractManager {
                 );
               }
             } else {
+              const logObject = JSON.stringify({
+                contentHash,
+                fee,
+                feesParametersAsBytes,
+                from: account,
+                gasPrice: gasPriceToUse,
+                nonce,
+                transaction,
+              });
+              this.logger.error(`Failed transaction: ${logObject}`);
               reject(Error(`Ethereum transaction error:  ${transactionError}`));
             }
           })
@@ -375,6 +385,7 @@ export default class SmartContractManager {
                 });
             }
           });
+        this.logger.debug(`Ethereum SubmitHash transaction: ${JSON.stringify(transaction)}`);
       },
     );
   }
