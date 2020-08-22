@@ -60,7 +60,7 @@ export default class PersistTransaction {
 
         logger.debug(
           `Persisting Transaction: ${JSON.stringify({
-            channelId: clientRequest.body.transactionData,
+            channelId: clientRequest.body.channelId,
             topics: clientRequest.body.topics,
             transactionData: clientRequest.body.transactionData,
           })}`,
