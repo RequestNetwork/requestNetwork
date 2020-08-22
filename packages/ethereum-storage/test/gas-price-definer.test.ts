@@ -42,7 +42,7 @@ describe('GasPriceDefiner', () => {
       expect(gasPrice).to.equals(config.getDefaultEthereumGasPrice());
     });
 
-    it('returns the means of values returned by providers', async () => {
+    it('returns the max of values returned by providers', async () => {
       gasPriceDefiner.gasPriceProviderList = [
         {
           getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
@@ -76,7 +76,7 @@ describe('GasPriceDefiner', () => {
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
       );
 
-      expect(gasPrice).to.equals('188');
+      expect(gasPrice).to.equals('300');
     });
   });
 

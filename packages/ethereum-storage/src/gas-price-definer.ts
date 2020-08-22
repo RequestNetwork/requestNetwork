@@ -17,7 +17,10 @@ export default class GasPriceDefiner {
    * List of gas price api provider to call to determine the used gas price
    * This array is left public for mocking purpose
    */
-  public gasPriceProviderList: StorageTypes.IGasPriceProvider[] = [new EtherchainProvider(), new EthGasStationProvider()];
+  public gasPriceProviderList: StorageTypes.IGasPriceProvider[] = [
+    new EtherchainProvider(),
+    new EthGasStationProvider(),
+  ];
 
   /**
    * Logger instance
@@ -40,17 +43,18 @@ export default class GasPriceDefiner {
    * @returns Big number representing the gas price to use
    */
   public async getGasPrice(type: StorageTypes.GasPriceType, networkName: string): Promise<string> {
-    if (networkName === EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)) {
+    if (
+      networkName ===
+      EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)
+    ) {
       const gasPriceArray: Array<typeof bigNumber> = await this.pollProviders(type);
 
       if (gasPriceArray.length > 0) {
-        // Divide the sum of gas prices to get the mean
-        const gasPriceSum = gasPriceArray.reduce(
-          (currentGasPriceSum, gasPrice) => currentGasPriceSum.add(gasPrice),
+        // Get the highest gas price from the providers
+        return gasPriceArray.reduce(
+          (currentMax, gasPrice: typeof bigNumber) => bigNumber.max(currentMax, gasPrice),
           new bigNumber(0),
         );
-
-        return gasPriceSum.div(new bigNumber(this.gasPriceProviderList.length)).toString();
       } else {
         this.logger.warn('Cannot determine gas price: There is no available gas price provider', [
           'ethereum',
