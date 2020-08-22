@@ -5,7 +5,7 @@ import { StorageTypes } from '@requestnetwork/types';
 const config: any = {
   ethereum: {
     default: 'private',
-    gasPriceDefault: '4000000000',
+    gasPriceDefault: '100000000000',
     maxRetries: 5,
     nodeUrlDefault: {
       private: {
@@ -14,7 +14,7 @@ const config: any = {
       },
     },
     retryDelay: 0,
-    safeGasPriceLimit: '200000000000',
+    safeGasPriceLimit: '500000000000',
     transactionPollingTimeout: 300,
   },
   ipfs: {
