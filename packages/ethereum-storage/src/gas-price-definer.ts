@@ -51,10 +51,12 @@ export default class GasPriceDefiner {
 
       if (gasPriceArray.length > 0) {
         // Get the highest gas price from the providers
-        return gasPriceArray.reduce(
-          (currentMax, gasPrice: typeof bigNumber) => bigNumber.max(currentMax, gasPrice),
-          new bigNumber(0),
-        );
+        return gasPriceArray
+          .reduce(
+            (currentMax, gasPrice: typeof bigNumber) => bigNumber.max(currentMax, gasPrice),
+            new bigNumber(0),
+          )
+          .toString();
       } else {
         this.logger.warn('Cannot determine gas price: There is no available gas price provider', [
           'ethereum',
