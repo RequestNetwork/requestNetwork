@@ -291,19 +291,25 @@ export default class SmartContractManager {
 
         // Keep the transaction hash for future needs
         let transactionHash: string = '';
-
-        const transaction = this.requestHashSubmitter.methods
+        const transactionParameters = {
+          from: account,
+          gas: '100000',
+          gasPrice: gasPriceToUse,
+          nonce,
+          value: fee,
+        };
+        this.requestHashSubmitter.methods
           .submitHash(contentHash, feesParametersAsBytes)
-          .send({
-            from: account,
-            gas: '100000',
-            gasPrice: gasPriceToUse,
-            nonce,
-            value: fee,
-          })
+          .send(transactionParameters)
           .on('transactionHash', (hash: any) => {
             // Store the transaction hash in case we need it in the future
             transactionHash = hash;
+            this.logger.debug(
+              `Ethereum SubmitHash transaction: ${JSON.stringify({
+                hash,
+                ...transactionParameters,
+              })}`,
+            );
           })
           .on('error', async (transactionError: string) => {
             // If failed because of polling timeout, try to resubmit the transaction with more gas
@@ -351,7 +357,6 @@ export default class SmartContractManager {
                 from: account,
                 gasPrice: gasPriceToUse,
                 nonce,
-                transaction,
               });
               this.logger.error(`Failed transaction: ${logObject}`);
               reject(Error(`Ethereum transaction error:  ${transactionError}`));
@@ -385,7 +390,6 @@ export default class SmartContractManager {
                 });
             }
           });
-        this.logger.debug(`Ethereum SubmitHash transaction: ${JSON.stringify(transaction)}`);
       },
     );
   }
