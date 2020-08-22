@@ -85,7 +85,7 @@ export function getDefaultEthereumNetwork(): string {
  * @returns the gas price as a string
  */
 export function getDefaultEthereumGasPrice(): string {
-  return config.ethereum.gasPriceDefault;
+  return process.env.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault;
 }
 
 /**
@@ -111,7 +111,7 @@ export function getEthereumMaxRetries(): number {
  * @returns safe gas price limit
  */
 export function getSafeGasPriceLimit(): string {
-  return config.ethereum.safeGasPriceLimit;
+  return process.env.SAFE_GAS_PRICE_LIMIT || config.ethereum.safeGasPriceLimit;
 }
 
 /**
