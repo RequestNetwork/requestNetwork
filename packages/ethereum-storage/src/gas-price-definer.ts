@@ -1,6 +1,7 @@
 import * as config from './config';
 import EthereumUtils from './ethereum-utils';
 import EtherchainProvider from './gas-price-providers/etherchain-provider';
+import EtherscanProvider from './gas-price-providers/etherscan-provider';
 import EthGasStationProvider from './gas-price-providers/ethgasstation-provider';
 
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
@@ -20,6 +21,7 @@ export default class GasPriceDefiner {
   public gasPriceProviderList: StorageTypes.IGasPriceProvider[] = [
     new EtherchainProvider(),
     new EthGasStationProvider(),
+    new EtherscanProvider(),
   ];
 
   /**
