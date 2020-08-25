@@ -55,6 +55,7 @@ if (!(await hasSufficientFunds(requestData, account))) {
 const tx = await payRequest(requestData);
 await tx.wait(1);
 ```
+Important: when testing on Rinkeby, the request currency should be `ETH-rinkeby`.
 
 #### ERC20 request
 ```typescript
