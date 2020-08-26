@@ -7408,10 +7408,10 @@ eth-contract-metadata@1.13.0:
   resolved "https://registry.yarnpkg.com/eth-contract-metadata/-/eth-contract-metadata-1.13.0.tgz#9819d0e556ea2187da91d6b49ce96abc5fce2a73"
   integrity sha512-9CjXHX8IdXysUEvOHdbCsjdAwM1E98jaeK2HeOqm/9S/vOZ8YryaBBt/YSiBq3MkpCwf+d1pEQ53p96rsdy52w==
 
-eth-crypto@1.5.2:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/eth-crypto/-/eth-crypto-1.5.2.tgz#bf9f7aece69d68752097498310c921621fbe5726"
-  integrity sha512-xhu7rt3CdNKSQ5VcqiFwfp50YVtc1+VPiqYEfMa8Omx9rGn5QHdIjImSoEnlej3VbfHv25Kvpu6A5oPoSI6iUA==
+eth-crypto@1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/eth-crypto/-/eth-crypto-1.6.0.tgz#c91e687e31b0456e08164567b49821683c32c853"
+  integrity sha512-BRnSxQ/DyaI1YvBWk7FiA2HSO+q7WqxZrAm/ErgIZxG4MCBsuiCXpxiBfwatOhlbkf6h76bEZq8tzTfbfEibEg==
   dependencies:
     "@types/bn.js" "4.11.6"
     babel-runtime "6.26.0"
@@ -7419,8 +7419,8 @@ eth-crypto@1.5.2:
     eth-lib "0.2.8"
     ethereumjs-tx "2.1.2"
     ethereumjs-util "6.2.0"
-    ethers "4.0.44"
-    secp256k1 "3.8.0"
+    ethers "4.0.47"
+    secp256k1 "4.0.1"
 
 eth-ens-namehash@2.0.8:
   version "2.0.8"
@@ -7549,10 +7549,10 @@ ethers@4.0.0-beta.3:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@4.0.44:
-  version "4.0.44"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.44.tgz#f2608cbc0b4d099b7e10a01c0efc3a1037013b4e"
-  integrity sha512-kCkMPkpYjBkxzqjcuYUfDY7VHDbf5EXnfRPUOazdqdf59SvXaT+w5lgauxLlk1UjxnAiNfeNS87rkIXnsTaM7Q==
+ethers@4.0.45:
+  version "4.0.45"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.45.tgz#8d4cd764d7c7690836b583d4849203c225eb56e2"
+  integrity sha512-N/Wmc6Mw4pQO+Sss1HnKDCSS6KSCx0luoBMiPNq+1GbOaO3YaZOyplBEhj+NEoYsizZYODtkITg2oecPeNnidQ==
   dependencies:
     aes-js "3.0.0"
     bn.js "^4.4.0"
@@ -7564,10 +7564,10 @@ ethers@4.0.44:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@4.0.45:
-  version "4.0.45"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.45.tgz#8d4cd764d7c7690836b583d4849203c225eb56e2"
-  integrity sha512-N/Wmc6Mw4pQO+Sss1HnKDCSS6KSCx0luoBMiPNq+1GbOaO3YaZOyplBEhj+NEoYsizZYODtkITg2oecPeNnidQ==
+ethers@4.0.47:
+  version "4.0.47"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.47.tgz#91b9cd80473b1136dd547095ff9171bd1fc68c85"
+  integrity sha512-hssRYhngV4hiDNeZmVU/k5/E8xmLG8UpcNUzg6mb7lqhgpFPH/t7nuv20RjRrEf0gblzvi2XwR5Te+V3ZFc9pQ==
   dependencies:
     aes-js "3.0.0"
     bn.js "^4.4.0"
@@ -15716,7 +15716,16 @@ secp256k1@3.7.1:
     nan "^2.14.0"
     safe-buffer "^5.1.2"
 
-secp256k1@3.8.0, secp256k1@^3.0.1:
+secp256k1@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-4.0.1.tgz#b9570ca26ace9e74c3171512bba253da9c0b6d60"
+  integrity sha512-iGRjbGAKfXMqhtdkkuNxsgJQfJO8Oo78Rm7DAvsG3XKngq+nJIOGqrCSXcQqIVsmCj0wFanE5uTKFxV3T9j2wg==
+  dependencies:
+    elliptic "^6.5.2"
+    node-addon-api "^2.0.0"
+    node-gyp-build "^4.2.0"
+
+secp256k1@^3.0.1:
   version "3.8.0"
   resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-3.8.0.tgz#28f59f4b01dbee9575f56a47034b7d2e3b3b352d"
   integrity sha512-k5ke5avRZbtl9Tqx/SA7CbY3NF6Ro+Sj9cZxezFzuBlLDmyqPiL8hJJ+EmzD8Ig4LUDByHJ3/iPOVoRixs/hmw==
