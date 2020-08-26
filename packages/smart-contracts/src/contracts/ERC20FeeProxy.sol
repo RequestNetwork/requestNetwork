@@ -1,7 +1,5 @@
 pragma solidity ^0.5.0;
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-
 
 /**
  * @title ERC20FeeProxy
@@ -41,13 +39,9 @@ contract ERC20FeeProxy {
     address _feeAddress
     ) external
     {
-    ERC20 erc20 = ERC20(_tokenAddress);
-    require(erc20.transferFrom(msg.sender, _to, _amount), "payment transferFrom() failed");
+    require(safeTransferFrom(_tokenAddress, _to, _amount), "payment transferFrom() failed");
     if (_feeAmount > 0 && _feeAddress != address(0)) {
-      require(
-        erc20.transferFrom(msg.sender, _feeAddress, _feeAmount),
-        "fee transferFrom() failed"
-      );
+      require(safeTransferFrom(_tokenAddress, _feeAddress, _feeAmount), "fee transferFrom() failed");
     }
     emit TransferWithReferenceAndFee(
       _tokenAddress,
@@ -57,5 +51,38 @@ contract ERC20FeeProxy {
       _feeAmount,
       _feeAddress
     );
+  }
+
+  /**
+   * @notice Call transferFrom ERC20 function and validates the return data of a ERC20 contract call.
+   * @dev This is necessary because of non-standard ERC20 tokens that don't have a return value.
+   * @return The return value of the ERC20 call, returning true for non-standard tokens
+   */
+  function safeTransferFrom(address _tokenAddress, address _to, uint256 _amount) internal returns (bool result) {
+    
+    // solium-disable-next-line security/no-low-level-calls
+    (result,) = _tokenAddress.call(abi.encodeWithSignature(
+      "transferFrom(address,address,uint256)",
+      msg.sender,
+      _to,
+      _amount
+    ));
+
+    /* solium-disable security/no-inline-assembly */
+    assembly {
+        switch returndatasize()
+        case 0 { // not a standard erc20
+            result := 1
+        }
+        case 32 { // standard erc20
+            returndatacopy(0, 0, 32)
+            result := mload(0)
+        }
+        default { // anything else, should revert for safety
+            revert(0, 0)
+        }
+    }
+    /* solium-enable security/no-inline-assembly */
+    return result;
   }
 }
