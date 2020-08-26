@@ -59,6 +59,11 @@ contract ERC20FeeProxy {
    * @return The return value of the ERC20 call, returning true for non-standard tokens
    */
   function safeTransferFrom(address _tokenAddress, address _to, uint256 _amount) internal returns (bool result) {
+    /* solium-disable security/no-inline-assembly */
+    // check if the address is a contract
+    assembly {
+      if iszero(extcodesize(_tokenAddress)) { revert(0, 0) }
+    }
     
     // solium-disable-next-line security/no-low-level-calls
     (result,) = _tokenAddress.call(abi.encodeWithSignature(
@@ -68,7 +73,6 @@ contract ERC20FeeProxy {
       _amount
     ));
 
-    /* solium-disable security/no-inline-assembly */
     assembly {
         switch returndatasize()
         case 0 { // not a standard erc20
