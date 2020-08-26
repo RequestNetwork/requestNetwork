@@ -86,7 +86,7 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
  * For example, for a European transfer, we could provide the IBAN and the BIC of the receiving bank account
  */
 
-const declarativePaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
+const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
     paymentInfo: {
@@ -97,7 +97,7 @@ const declarativePaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCre
 };
 
 const declarativeCreateParams = {
-  declarativePaymentNetwork,
+  paymentNetwork,
   requestInfo,
   signer: payeeIdentity,
 };

@@ -7,8 +7,11 @@ module.exports = {
   organizationName: 'requestNetwork',
   projectName: 'requestNetwork/packages/docs',
   plugins: ['axios'],
+  onBrokenLinks: 'log',
   themeConfig: {
-    disableDarkMode: true,
+    colorMode: {
+      disableSwitch: true,
+    },
     image: 'img/request_docs_thumbnail.png',
     navbar: {
       title: 'Request Docs',
@@ -16,7 +19,7 @@ module.exports = {
         alt: 'Request Network',
         src: 'img/logo.svg',
       },
-      links: [
+      items: [
         { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
         { to: 'integration-options', label: 'Integration', position: 'left' },
         { to: 'docs/client/index', label: 'Request-client.js', position: 'left' },

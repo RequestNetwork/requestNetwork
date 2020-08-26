@@ -5,7 +5,7 @@ import { StorageTypes } from '@requestnetwork/types';
 const config: any = {
   ethereum: {
     default: 'private',
-    gasPriceDefault: '4000000000',
+    gasPriceDefault: '100000000000',
     maxRetries: 5,
     nodeUrlDefault: {
       private: {
@@ -14,7 +14,7 @@ const config: any = {
       },
     },
     retryDelay: 0,
-    safeGasPriceLimit: '200000000000',
+    safeGasPriceLimit: '500000000000',
     transactionPollingTimeout: 300,
   },
   ipfs: {
@@ -85,7 +85,7 @@ export function getDefaultEthereumNetwork(): string {
  * @returns the gas price as a string
  */
 export function getDefaultEthereumGasPrice(): string {
-  return config.ethereum.gasPriceDefault;
+  return process?.env?.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault;
 }
 
 /**
@@ -111,7 +111,7 @@ export function getEthereumMaxRetries(): number {
  * @returns safe gas price limit
  */
 export function getSafeGasPriceLimit(): string {
-  return config.ethereum.safeGasPriceLimit;
+  return process?.env?.SAFE_GAS_PRICE_LIMIT || config.ethereum.safeGasPriceLimit;
 }
 
 /**

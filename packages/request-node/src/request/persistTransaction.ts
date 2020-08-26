@@ -58,6 +58,14 @@ export default class PersistTransaction {
           clientRequest.body.transactionData,
         );
 
+        logger.debug(
+          `Persisting Transaction: ${JSON.stringify({
+            channelId: clientRequest.body.channelId,
+            topics: clientRequest.body.topics,
+            transactionData: clientRequest.body.transactionData,
+          })}`,
+        );
+
         dataAccessResponse = await dataAccess.persistTransaction(
           clientRequest.body.transactionData,
           clientRequest.body.channelId,
@@ -83,7 +91,7 @@ export default class PersistTransaction {
             'topics',
             clientRequest.body.topics,
             'transactionData',
-            clientRequest.body.transactionData,
+            JSON.stringify(clientRequest.body.transactionData),
           ].join('\n');
 
           logger.error(`persistTransaction error: ${e}. \n${logData}`);
