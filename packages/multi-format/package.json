@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/multi-format",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,7 +40,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.18.0"
+    "@requestnetwork/types": "0.19.0"
   },
   "devDependencies": {
     "@types/chai": "4.1.7",
