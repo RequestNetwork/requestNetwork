@@ -1,6 +1,7 @@
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.sol');
 const erc20 = artifacts.require('./TestERC20.sol');
+const BadERC20 = artifacts.require('./BadERC20.sol');
 const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 const EthereumProxy = artifacts.require('./EthereumProxy.sol');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
@@ -57,6 +58,10 @@ module.exports = async function(deployer) {
     const instanceRequestERC20FeeProxy = await deployer.deploy(ERC20FeeProxy);
     console.log('ERC20FeeProxy Contract deployed: ' + ERC20FeeProxy.address);
 
+    // Deploy the BadERC20 contract
+    const instanceBadERC20 = await deployer.deploy(BadERC20, 1000, 'BadERC20', 'BAD', 8);
+    console.log('BadERC20 Contract deployed: ' + BadERC20.address);
+
     // ----------------------------------
     console.log('Contracts initialized');
     console.log(`
@@ -66,6 +71,7 @@ module.exports = async function(deployer) {
       ERC20Proxy:               ${ERC20Proxy.address}
       EthereumProxy:            ${EthereumProxy.address}
       ERC20FeeProxy:            ${ERC20FeeProxy.address}
+      BadERC20:                 ${BadERC20.address}
     `);
   } catch (e) {
     console.error(e);

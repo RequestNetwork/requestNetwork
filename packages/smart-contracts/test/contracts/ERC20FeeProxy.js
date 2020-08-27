@@ -3,6 +3,7 @@ const ethers = require('ethers');
 const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
+const BadERC20 = artifacts.require('./BadERC20.sol');
 
 contract('ERC20FeeProxy', function(accounts) {
   const from = accounts[0];
@@ -184,5 +185,37 @@ contract('ERC20FeeProxy', function(accounts) {
       feeAmount: '0',
       feeAddress,
     });
+  });
+
+  it('transfers tokens for payment and fees on BadERC20', async function() {
+    badERC20 = await BadERC20.new(1000, 'BadERC20', 'BAD', 8, {
+      from,
+    });
+    await badERC20.approve(erc20FeeProxy.address, '102', { from });
+
+    const fromOldBalance = await badERC20.balanceOf(from);
+    const toOldBalance = await badERC20.balanceOf(to);
+    const feeOldBalance = await badERC20.balanceOf(feeAddress);
+
+    await erc20FeeProxy.transferFromWithReferenceAndFee(
+      badERC20.address,
+      to,
+      '100',
+      referenceExample,
+      '2',
+      feeAddress,
+      {
+        from,
+      },
+    );
+
+    const fromNewBalance = await badERC20.balanceOf(from);
+    const toNewBalance = await badERC20.balanceOf(to);
+    const feeNewBalance = await badERC20.balanceOf(feeAddress);
+
+    // Check balance changes
+    expect(fromNewBalance.toNumber()).to.equals(fromOldBalance.toNumber() - 102);
+    expect(toNewBalance.toNumber()).to.equals(toOldBalance.toNumber() + 100);
+    expect(feeNewBalance.toNumber()).to.equals(feeOldBalance.toNumber() + 2);
   });
 });

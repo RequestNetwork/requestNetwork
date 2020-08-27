@@ -8,12 +8,12 @@
         "creationBlockNumber": 0
       },
       "mainnet": {
-        "address": "0x766C3828De4bCae600a2B061E4f3c104b7133b6b",
-        "creationBlockNumber": 10598208
+        "address": "0x0aBdF90C2b9e605346d4064654a5d9fb67bE1189",
+        "creationBlockNumber": 10740670
       },
       "rinkeby": {
-        "address": "0x53bE39555F4871f88cB492b20a4e2D398242a480",
-        "creationBlockNumber": 6963492
+        "address": "0xf1BEB66c545aDC53dC7e43Ad0D187494e68daA1b",
+        "creationBlockNumber": 7089964
       }
     }
   }
