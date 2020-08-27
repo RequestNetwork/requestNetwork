@@ -73,8 +73,8 @@ export default class ProxyERC20InfoRetriever
       null,
       null,
     ) as ethers.providers.Filter;
-    filter.fromBlock = this.proxyCreationBlockNumber;
-    filter.toBlock = 'latest';
+    feeFilter.fromBlock = this.proxyCreationBlockNumber;
+    feeFilter.toBlock = 'latest';
 
     // Get the fee proxy contract event logs
     const feeProxyLogs = await this.provider.getLogs(feeFilter);
