@@ -47,8 +47,8 @@ TODO: [See smart contract source]()
 
 | Network | Contract Address                           |
 | ------- | ------------------------------------------ |
-| Mainnet | 0x0aBdF90C2b9e605346d4064654a5d9fb67bE1189 |
-| Rinkeby | 0xf1BEB66c545aDC53dC7e43Ad0D187494e68daA1b |
+| Mainnet | TODO                                       |
+| Rinkeby | 0xa39807e4123ebd80adb8198676a4743db898e9d5 |
 | Private | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
 
 ## Properties

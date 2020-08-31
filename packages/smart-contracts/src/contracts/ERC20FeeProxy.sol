@@ -66,7 +66,7 @@ contract ERC20FeeProxy {
     }
     
     // solium-disable-next-line security/no-low-level-calls
-    (result,) = _tokenAddress.call(abi.encodeWithSignature(
+    (bool success, ) = _tokenAddress.call(abi.encodeWithSignature(
       "transferFrom(address,address,uint256)",
       msg.sender,
       _to,
@@ -86,6 +86,10 @@ contract ERC20FeeProxy {
             revert(0, 0)
         }
     }
+
+    require(success, "transferFrom() failed");
+    require(result, "transferFrom() failed");
+
     /* solium-enable security/no-inline-assembly */
     return result;
   }
