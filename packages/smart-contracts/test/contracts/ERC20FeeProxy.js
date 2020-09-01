@@ -4,6 +4,10 @@ const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
+const ERC20True = artifacts.require('ERC20True');
+const ERC20False = artifacts.require('ERC20False');
+const ERC20NoReturn = artifacts.require('ERC20NoReturn');
+const ERC20Revert = artifacts.require('ERC20Revert');
 
 contract('ERC20FeeProxy', function(accounts) {
   const from = accounts[0];
@@ -217,5 +221,50 @@ contract('ERC20FeeProxy', function(accounts) {
     expect(fromNewBalance.toNumber()).to.equals(fromOldBalance.toNumber() - 102);
     expect(toNewBalance.toNumber()).to.equals(toOldBalance.toNumber() + 100);
     expect(feeNewBalance.toNumber()).to.equals(feeOldBalance.toNumber() + 2);
+  });
+
+  it('transfers tokens for payment and fees on a variety of ERC20 contract formats', async function() {
+    const passContracts = [await ERC20True.new(), await ERC20NoReturn.new()];
+
+    const failContracts = [await ERC20False.new(), await ERC20Revert.new()];
+
+    for (let contract of passContracts) {
+      let { logs } = await erc20FeeProxy.transferFromWithReferenceAndFee(
+        contract.address,
+        to,
+        '100',
+        referenceExample,
+        '2',
+        feeAddress,
+        {
+          from,
+        },
+      );
+
+      expectEvent.inLogs(logs, 'TransferWithReferenceAndFee', {
+        tokenAddress: contract.address,
+        to,
+        amount: '100',
+        paymentReference: ethers.utils.keccak256(referenceExample),
+        feeAmount: '2',
+        feeAddress,
+      });
+    }
+
+    for (let contract of failContracts) {
+      await shouldFail.reverting(
+        erc20FeeProxy.transferFromWithReferenceAndFee(
+          contract.address,
+          to,
+          '100',
+          referenceExample,
+          '2',
+          feeAddress,
+          {
+            from,
+          },
+        ),
+      );
+    }
   });
 });

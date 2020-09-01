@@ -15,3 +15,29 @@ contract TestERC20 is ERC20, ERC20Detailed {
     transfer(0xf17f52151EbEF6C7334FAD080c5704D77216b732, 10);
   }
 }
+
+
+contract ERC20True {
+  function transferFrom(address _from, address _to, uint _value) public returns (bool) {
+    return true;
+  }
+}
+
+
+contract ERC20False {
+  function transferFrom(address _from, address _to, uint _value) public returns (bool) {
+    return false;
+  }
+}
+
+
+contract ERC20NoReturn {
+  function transferFrom(address _from, address _to, uint _value) public {}
+}
+
+
+contract ERC20Revert {
+  function transferFrom(address _from, address _to, uint _value) public {
+    revert("bad thing happened");
+  }
+}

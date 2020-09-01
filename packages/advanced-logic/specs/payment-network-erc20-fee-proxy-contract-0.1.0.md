@@ -43,12 +43,12 @@ The contract contains one function called `transferFromWithReferenceAndFee` whic
 
 The `TransferWithReferenceAndFee` event is emitted when the tokens are transfered. This event contains the same 6 arguments as the `transferFromWithReferenceAndFee` function.
 
-TODO: [See smart contract source]()
+[See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC20FeeProxy.sol)
 
 | Network | Contract Address                           |
 | ------- | ------------------------------------------ |
-| Mainnet | 0x0aBdF90C2b9e605346d4064654a5d9fb67bE1189 |
-| Rinkeby | 0xf1BEB66c545aDC53dC7e43Ad0D187494e68daA1b |
+| Mainnet | 0x370DE27fdb7D1Ff1e1BaA7D11c5820a324Cf623C |
+| Rinkeby | 0xda46309973bffddd5a10ce12c44d2ee266f45a44 |
 | Private | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
 
 ## Properties
