@@ -87,8 +87,7 @@ contract ERC20FeeProxy {
         }
     }
 
-    require(success, "transferFrom() failed");
-    require(result, "transferFrom() failed");
+    require(success, "transferFrom() has been reverted");
 
     /* solium-enable security/no-inline-assembly */
     return result;
