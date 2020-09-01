@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-access",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,9 +40,9 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/multi-format": "0.4.0",
-    "@requestnetwork/types": "0.18.0",
-    "@requestnetwork/utils": "0.17.0",
+    "@requestnetwork/multi-format": "0.5.0",
+    "@requestnetwork/types": "0.19.0",
+    "@requestnetwork/utils": "0.18.0",
     "bluebird": "3.5.5",
     "keyv": "3.1.0"
   },
