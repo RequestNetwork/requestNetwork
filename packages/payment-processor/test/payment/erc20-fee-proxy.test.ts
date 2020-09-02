@@ -16,13 +16,11 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
+import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import {
-  _getErc20FeePaymentUrl,
-  approveErc20FeeProxy,
-  hasErc20FeeProxyApproval,
+  _getErc20FeeProxyPaymentUrl,
   payErc20FeeProxyRequest,
 } from '../../src/payment/erc20-fee-proxy';
-import { getErc20Balance } from '../../src/payment/erc20-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
 // tslint:disable: no-magic-numbers
@@ -97,35 +95,6 @@ describe('erc20-fee-proxy', () => {
     });
   });
 
-  describe('hasErc20FeeProxyApproval & approveErc20FeeProxy', () => {
-    it('should consider override parameters', async () => {
-      const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
-      await approveErc20FeeProxy(validRequest, wallet, {
-        gasPrice: '20000000000',
-      });
-      expect(spy).to.have.been.called.with({
-        data:
-          '0x095ea7b300000000000000000000000075c35c980c0d37ef46df04d31a140b65503c0eedffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
-        gasPrice: '20000000000',
-        to: '0x9FBDa871d559710256a2502A2517b794B482Db40',
-        value: 0,
-      });
-      sandbox.restore();
-    });
-    it('can check and approve', async () => {
-      // use another address so it doesn't mess with other tests.
-      const otherWallet = new Wallet(
-        '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
-      ).connect(provider);
-      let hasApproval = await hasErc20FeeProxyApproval(validRequest, otherWallet.address, provider);
-      // Warning: this test can run only once!
-      expect(hasApproval, 'already has approval').to.be.false;
-      await approveErc20FeeProxy(validRequest, otherWallet);
-      hasApproval = await hasErc20FeeProxyApproval(validRequest, otherWallet.address, provider);
-      expect(hasApproval, 'approval did not succeed').to.be.true;
-    });
-  });
-
   describe('payErc20FeeProxyRequest', () => {
     it('should throw an error if the request is not erc20', async () => {
       const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
@@ -178,7 +147,7 @@ describe('erc20-fee-proxy', () => {
 
     it('should pay an ERC20 request with fees', async () => {
       // first approve the contract
-      const approvalTx = await approveErc20FeeProxy(validRequest, wallet);
+      const approvalTx = await approveErc20(validRequest, wallet);
       await approvalTx.wait(1);
 
       // get the balance to compare after payment
@@ -212,7 +181,7 @@ describe('erc20-fee-proxy', () => {
 
   describe('getErc20FeePaymentUrl', () => {
     it('can get an ERC20 url', () => {
-      expect(_getErc20FeePaymentUrl(validRequest)).to.eq(
+      expect(_getErc20FeeProxyPaymentUrl(validRequest)).to.eq(
         'ethereum:0x75c35C980C0d37ef46DF04d31A140b65503c0eEd/transferFromWithReferenceAndFee?address=0x9FBDa871d559710256a2502A2517b794B482Db40&address=0xf17f52151EbEF6C7334FAD080c5704D77216b732&uint256=100&bytes=86dfbccad783599a&uint256=2&address=0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
       );
     });
