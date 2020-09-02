@@ -168,5 +168,5 @@ function getProxyAddress(request: ClientTypes.IRequestData): string {
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
     throw new Error(`ERC20 address based payment network doesn't need approval`);
   }
-  throw new Error('Not an ERC20 request');
+  throw new Error(`Unsupported payment network: ${id}`);
 }
