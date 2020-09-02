@@ -1,17 +1,14 @@
-import { ContractTransaction, Signer, utils } from 'ethers';
-import { Provider, Web3Provider } from 'ethers/providers';
-import { BigNumber, BigNumberish } from 'ethers/utils';
+import { ContractTransaction, Signer } from 'ethers';
+import { Web3Provider } from 'ethers/providers';
+import { BigNumberish } from 'ethers/utils';
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { ERC20Contract } from '../contracts/Erc20Contract';
 import { Erc20ProxyContract } from '../contracts/Erc20ProxyContract';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
-  getNetworkProvider,
-  getPaymentNetworkExtension,
   getProvider,
   getRequestPaymentValues,
   getSigner,
@@ -73,105 +70,13 @@ export function encodePayErc20Request(
 }
 
 /**
- * Checks if a given account has the necessary allowance to pay an ERC20 request.
- * @param request request to pay
- * @param account account that will be used to pay the request
- * @param provider the web3 provider. Defaults to Etherscan.
- */
-export async function hasErc20Approval(
-  request: ClientTypes.IRequestData,
-  account: string,
-  provider: Provider = getNetworkProvider(request),
-): Promise<boolean> {
-  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, provider);
-  const allowance = await erc20Contract.allowance(
-    account,
-    erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
-  );
-  return allowance.gt(request.expectedAmount);
-}
-
-/**
- * Processes the approval transaction of the targeted ERC20.
- * @param request request to pay
- * @param provider the web3 provider. Defaults to Etherscan.
- * @param overrides optionally, override default transaction values, like gas.
- * @param paymentNetworkId the payment network id
- * @param proxyContractAddress the address of the proxy contract to set the approval.
- */
-export async function approveErc20(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
-  overrides?: ITransactionOverrides,
-  proxyContractAddress: string = erc20ProxyArtifact.getAddress(request.currencyInfo.network!),
-): Promise<ContractTransaction> {
-  const encodedTx = encodeApproveErc20(request, signerOrProvider, proxyContractAddress);
-  const signer = getSigner(signerOrProvider);
-  const tokenAddress = request.currencyInfo.value;
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: tokenAddress,
-    value: 0,
-    ...overrides,
-  });
-  return tx;
-}
-
-/**
- * Encodes the approval call, can be used with a Multisig contract.
- * @param request the request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param proxyContractAddress the address of the proxy contract to set the approval.
- */
-export function encodeApproveErc20(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
-  proxyContractAddress: string,
-): string {
-  const paymentNetworkId = (getPaymentNetworkExtension(request)
-    ?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
-  if (!paymentNetworkId) {
-    throw new Error('No payment network Id');
-  }
-  validateRequest(request, paymentNetworkId);
-  const signer = getSigner(signerOrProvider);
-
-  const tokenAddress = request.currencyInfo.value;
-  const erc20interface = ERC20Contract.connect(tokenAddress, signer).interface;
-  const encodedApproveCall = erc20interface.functions.approve.encode([
-    proxyContractAddress,
-    utils
-      .bigNumberify(2)
-      // tslint:disable-next-line: no-magic-numbers
-      .pow(256)
-      .sub(1),
-  ]);
-  return encodedApproveCall;
-}
-
-/**
- * Gets ERC20 balance of an address, based on the request currency information
- * @param request the request that contains currency information
- * @param address the address to check
- * @param provider the web3 provider. Defaults to Etherscan
- */
-export async function getErc20Balance(
-  request: ClientTypes.IRequestData,
-  address: string,
-  provider: Provider = getNetworkProvider(request),
-): Promise<BigNumber> {
-  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, provider);
-  return erc20Contract.balanceOf(address);
-}
-
-/**
  * Return the EIP-681 format URL with the transaction to pay an ERC20
  * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
  *
  * @param request
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function _getErc20PaymentUrl(
+export function _getErc20ProxyPaymentUrl(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): string {

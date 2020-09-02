@@ -9,7 +9,7 @@ import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork
 
 import { _getPaymentUrl, hasSufficientFunds, payRequest } from '../../src/payment';
 import * as btcModule from '../../src/payment/btc-address-based';
-import * as erc20Module from '../../src/payment/erc20-proxy';
+import * as erc20Module from '../../src/payment/erc20';
 import * as ethModule from '../../src/payment/eth-input-data';
 
 // tslint:disable: no-unused-expression
@@ -75,7 +75,7 @@ describe('payRequest', () => {
   });
 
   it('should call the ERC20 payment method', async () => {
-    const spy = stub(erc20Module, 'payErc20ProxyRequest');
+    const spy = stub(erc20Module, 'payErc20Request');
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {

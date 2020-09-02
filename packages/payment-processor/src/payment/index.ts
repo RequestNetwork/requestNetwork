@@ -5,8 +5,8 @@ import { bigNumberify, BigNumberish } from 'ethers/utils';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
-import { _getErc20FeePaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
-import { _getErc20PaymentUrl, getErc20Balance, payErc20ProxyRequest } from './erc20-proxy';
+import { _getErc20PaymentUrl, getErc20Balance } from './erc20';
+import { payErc20Request } from './erc20';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
@@ -45,11 +45,10 @@ export async function payRequest(
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      return payErc20ProxyRequest(request, signer, amount, overrides);
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
+      return payErc20Request(request, signer, amount, undefined, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
       return payEthInputDataRequest(request, signer, amount, overrides);
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return payErc20FeeProxyRequest(request, signer, amount, undefined, overrides);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
@@ -121,14 +120,13 @@ export function _getPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNu
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
       return _getErc20PaymentUrl(request, amount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
       return _getEthPaymentUrl(request, amount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED:
     case ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED:
       return getBtcPaymentUrl(request, amount);
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return _getErc20FeePaymentUrl(request, amount);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }

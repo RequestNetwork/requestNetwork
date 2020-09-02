@@ -1,3 +1,4 @@
+/* eslint-disable spellcheck/spell-checker */
 import 'mocha';
 
 import * as chai from 'chai';
@@ -14,14 +15,8 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-
-import {
-  _getErc20PaymentUrl,
-  approveErc20,
-  getErc20Balance,
-  hasErc20Approval,
-  payErc20ProxyRequest,
-} from '../../src/payment/erc20-proxy';
+import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
+import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from '../../src/payment/erc20-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
 // tslint:disable: no-unused-expression
@@ -86,42 +81,6 @@ describe('getRequestPaymentValues', () => {
     const values = getRequestPaymentValues(validRequest);
     expect(values.paymentAddress).to.eq(paymentAddress);
     expect(values.paymentReference).to.eq('86dfbccad783599a');
-  });
-});
-
-describe('getErc20Balance', () => {
-  it('should read the balance', async () => {
-    const balance = await getErc20Balance(validRequest, wallet.address, provider);
-    chai.assert.isTrue(balance.gte('100'));
-  });
-});
-
-describe('hasErc20Approval & approveErc20', () => {
-  it('should consider override parameters', async () => {
-    const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
-    await approveErc20(validRequest, wallet, {
-      gasPrice: '20000000000',
-    });
-    expect(spy).to.have.been.called.with({
-      data:
-        '0x095ea7b30000000000000000000000002c2b9c9a4a25e24b174f26114e8926a9f2128fe4ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
-      gasPrice: '20000000000',
-      to: '0x9FBDa871d559710256a2502A2517b794B482Db40',
-      value: 0,
-    });
-    sandbox.restore();
-  });
-  it('can check and approve', async () => {
-    // use another address so it doesn't mess with other tests.
-    const otherWallet = new Wallet(
-      '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
-    ).connect(provider);
-    let hasApproval = await hasErc20Approval(validRequest, otherWallet.address, provider);
-    // Warning: this test can run only once!
-    expect(hasApproval, 'already has approval').to.be.false;
-    await approveErc20(validRequest, otherWallet);
-    hasApproval = await hasErc20Approval(validRequest, otherWallet.address, provider);
-    expect(hasApproval, 'approval did not succeed').to.be.true;
   });
 });
 
@@ -205,7 +164,7 @@ describe('payErc20ProxyRequest', () => {
 
 describe('getErc20PaymentUrl', () => {
   it('can get an ERC20 url', () => {
-    expect(_getErc20PaymentUrl(validRequest)).to.eq(
+    expect(_getErc20ProxyPaymentUrl(validRequest)).to.eq(
       'ethereum:0x2c2b9c9a4a25e24b174f26114e8926a9f2128fe4/transferFromWithReference?address=0x9FBDa871d559710256a2502A2517b794B482Db40&address=0xf17f52151EbEF6C7334FAD080c5704D77216b732&uint256=100&bytes=86dfbccad783599a',
     );
   });
