@@ -53,7 +53,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
     }
     const apiResponse = await res.json();
 
-    if (apiResponse.status !== '1') {
+    if (apiResponse.status && apiResponse.status !== '1') {
       throw new Error(`Etherscan error: ${apiResponse.message} ${apiResponse.result}`);
     }
 
@@ -61,6 +61,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
 
     // Check if the API response has the correct format
     if (
+      !result ||
       !result.FastGasPrice ||
       !result.ProposeGasPrice ||
       !result.SafeGasPrice ||
@@ -73,19 +74,18 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
 
     // Retrieve the gas price from the provided gas price type and the format of the API response
     const apiGasPrice = new bigNumber(
-      parseFloat(
+      parseInt(
         {
-          [StorageTypes.GasPriceType.FAST as StorageTypes.GasPriceType]: apiResponse.FastGasPrice,
-          [StorageTypes.GasPriceType
-            .STANDARD as StorageTypes.GasPriceType]: apiResponse.ProposeGasPrice,
-          [StorageTypes.GasPriceType
-            .SAFELOW as StorageTypes.GasPriceType]: apiResponse.SafeGasPrice,
+          [StorageTypes.GasPriceType.FAST]: result.FastGasPrice,
+          [StorageTypes.GasPriceType.STANDARD]: result.ProposeGasPrice,
+          [StorageTypes.GasPriceType.SAFELOW]: result.SafeGasPrice,
         }[type],
+        10,
       ) * API_MULTIPLIER,
     );
 
     if (!EthereumUtils.isGasPriceSafe(apiGasPrice)) {
-      throw Error('Etherscan provided gas price not safe to use');
+      throw Error(`Etherscan provided gas price not safe to use: ${apiGasPrice}`);
     }
 
     return apiGasPrice;
