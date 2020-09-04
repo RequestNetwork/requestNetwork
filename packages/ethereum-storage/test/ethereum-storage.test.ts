@@ -160,7 +160,7 @@ describe('EthereumStorage', () => {
         web3Connection,
       );
       await expect(ethereumStorageNotInitialized.initialize()).to.eventually.rejectedWith(
-        'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent nonexistent:5001',
+        'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent',
       );
     });
     it('cannot initialize if ipfs node not in the right network', async () => {
@@ -568,7 +568,7 @@ describe('EthereumStorage', () => {
       await expect(
         ethereumStorage.updateIpfsGateway(invalidHostIpfsGatewayConnection),
       ).to.eventually.rejectedWith(
-        'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent nonexistent:5001',
+        'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent',
       );
     });
 
