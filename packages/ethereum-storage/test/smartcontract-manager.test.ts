@@ -28,7 +28,6 @@ const web3Utils = require('web3-utils');
 const web3Eth = require('web3-eth');
 const eth = new web3Eth(provider);
 
-// eslint-disable-next-line spellcheck/spell-checker
 const{ time } = require('@openzeppelin/test-helpers');
 
 const invalidHostProvider = new web3HttpProvider('http://nonexistent:8545');

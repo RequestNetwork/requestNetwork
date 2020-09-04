@@ -1,5 +1,6 @@
 const BigNumber = require('bn.js');
-const { expectEvent, shouldFail, expect } = require('@openzeppelin/test-helpers');
+
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const StorageFeeCollector = artifacts.require('./StorageFeeCollector.sol');
 
 contract('StorageFeeCollector', function(accounts) {
@@ -24,7 +25,7 @@ contract('StorageFeeCollector', function(accounts) {
     });
 
     it('Non admin should not be able to change the admin whitelist', async function() {
-      await shouldFail.reverting(
+      await expectRevert(
         storageFeeCollector.addWhitelistAdmin(otherGuy, { from: otherGuy }),
       );
     });
@@ -43,7 +44,7 @@ contract('StorageFeeCollector', function(accounts) {
     });
 
     it('Non admin should not be able to change burnerContract', async function() {
-      await shouldFail.reverting(
+      await expectRevert(
         storageFeeCollector.setRequestBurnerContract(burner2, { from: otherGuy }),
       );
     });
@@ -86,7 +87,7 @@ contract('StorageFeeCollector', function(accounts) {
       const rateFeesNumerator = new BigNumber(2);
       const rateFeesDenominator = new BigNumber(3);
 
-      await shouldFail.reverting(
+      await expectRevert(
         storageFeeCollector.setFeeParameters(minimumFee, rateFeesNumerator, rateFeesDenominator, {
           from: otherGuy,
         }),
@@ -170,7 +171,7 @@ contract('StorageFeeCollector', function(accounts) {
       );
       const contentSize = new BigNumber(1000);
 
-      await shouldFail.reverting(storageFeeCollector.getFeesAmount(contentSize));
+      await expectRevert(storageFeeCollector.getFeesAmount(contentSize));
     });
   });
 });

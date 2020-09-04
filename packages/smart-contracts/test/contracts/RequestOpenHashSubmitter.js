@@ -1,7 +1,8 @@
+import { expect } from 'chai';
 const BigNumber = require('bn.js');
 const utils = require('./utils.js');
 
-const { expect, expectEvent, shouldFail } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.sol');
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 
@@ -41,8 +42,8 @@ contract('RequestOpenHashSubmitter', function(accounts) {
     });
 
     it('Non admin should not be able to change the whitelist', async function() {
-      await shouldFail.reverting(requestHashStorage.addWhitelisted(otherGuy, { from: otherGuy }));
-      await shouldFail.reverting(requestHashStorage.addWhitelisted(admin, { from: otherGuy }));
+      await expectRevert(requestHashStorage.addWhitelisted(otherGuy, { from: otherGuy }));
+      await expectRevert(requestHashStorage.addWhitelisted(admin, { from: otherGuy }));
     });
   });
 
@@ -117,10 +118,10 @@ contract('RequestOpenHashSubmitter', function(accounts) {
       );
 
       // No fees
-      await shouldFail.reverting(requestOpenHashSubmitter.submitHash(hashExample, feesParameters));
+      await expectRevert(requestOpenHashSubmitter.submitHash(hashExample, feesParameters));
 
       // Fees too big
-      await shouldFail.reverting(
+      await expectRevert(
         requestOpenHashSubmitter.submitHash(hashExample, feesParameters, {
           value: new BigNumber(1000),
         }),

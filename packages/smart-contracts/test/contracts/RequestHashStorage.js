@@ -1,4 +1,4 @@
-const { expectEvent, shouldFail } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 
 contract('RequestHashStorage', function(accounts) {
@@ -24,7 +24,7 @@ contract('RequestHashStorage', function(accounts) {
   });
 
   it('Non admin should not be able to change the admin whitelist', async function() {
-    await shouldFail.reverting(requestHashStorage.addWhitelistAdmin(otherGuy, { from: otherGuy }));
+    await expectRevert(requestHashStorage.addWhitelistAdmin(otherGuy, { from: otherGuy }));
   });
 
   it('Allows the whitelist to be changed', async function() {
@@ -40,8 +40,8 @@ contract('RequestHashStorage', function(accounts) {
   });
 
   it('Non admin should not be able to change the whitelist', async function() {
-    await shouldFail.reverting(requestHashStorage.addWhitelisted(otherGuy, { from: otherGuy }));
-    await shouldFail.reverting(requestHashStorage.addWhitelisted(admin, { from: otherGuy }));
+    await expectRevert(requestHashStorage.addWhitelisted(otherGuy, { from: otherGuy }));
+    await expectRevert(requestHashStorage.addWhitelisted(admin, { from: otherGuy }));
   });
 
   it('Allows address whitelisted to submit hash', async function() {
@@ -57,10 +57,10 @@ contract('RequestHashStorage', function(accounts) {
   });
 
   it('Non whitelisted should not be able to submit hash', async function() {
-    await shouldFail.reverting(
+    await expectRevert(
       requestHashStorage.declareNewHash(hashExample, feesParameters, { from: admin }),
     );
-    await shouldFail.reverting(
+    await expectRevert(
       requestHashStorage.declareNewHash(hashExample, feesParameters, { from: otherGuy }),
     );
   });

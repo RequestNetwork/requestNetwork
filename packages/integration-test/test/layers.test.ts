@@ -21,7 +21,6 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-// eslint-disable-next-line spellcheck/spell-checker
 const { time } = require('@openzeppelin/test-helpers');
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;

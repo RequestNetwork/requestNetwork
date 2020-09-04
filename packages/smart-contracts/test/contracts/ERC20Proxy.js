@@ -1,6 +1,6 @@
 const ethers = require('ethers');
 
-const { expectEvent, shouldFail } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 
@@ -60,7 +60,7 @@ contract('ERC20Proxy', function(accounts) {
   });
 
   it('should revert if no fund', async function() {
-    await shouldFail.reverting(
+    await expectRevert(
       erc20Proxy.transferFromWithReference(testERC20.address, to, '100', referenceExample, {
         from: otherGuy,
       }),

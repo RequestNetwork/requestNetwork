@@ -1,6 +1,6 @@
 const ethers = require('ethers');
 
-const { expectEvent, shouldFail } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const EthereumProxy = artifacts.require('./EthereumProxy.sol');
 
 contract('EthereumProxy', function(accounts) {

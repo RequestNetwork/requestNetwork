@@ -1,6 +1,6 @@
 const ethers = require('ethers');
 
-const { expectEvent, shouldFail } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
@@ -85,7 +85,7 @@ contract('ERC20FeeProxy', function(accounts) {
     const toOldBalance = await testERC20.balanceOf(to);
     const feeOldBalance = await testERC20.balanceOf(feeAddress);
 
-    await shouldFail.reverting(
+    await expectRevert(
       erc20FeeProxy.transferFromWithReferenceAndFee(
         testERC20.address,
         to,
@@ -113,7 +113,7 @@ contract('ERC20FeeProxy', function(accounts) {
     const toOldBalance = await testERC20.balanceOf(to);
     const feeOldBalance = await testERC20.balanceOf(feeAddress);
 
-    await shouldFail.reverting(
+    await expectRevert(
       erc20FeeProxy.transferFromWithReferenceAndFee(
         testERC20.address,
         to,
@@ -138,7 +138,7 @@ contract('ERC20FeeProxy', function(accounts) {
   });
 
   it('should revert if no fund', async function() {
-    await shouldFail.reverting(
+    await expectRevert(
       erc20FeeProxy.transferFromWithReferenceAndFee(
         testERC20.address,
         to,
@@ -252,7 +252,7 @@ contract('ERC20FeeProxy', function(accounts) {
     }
 
     for (let contract of failContracts) {
-      await shouldFail.reverting(
+      await expectRevert(
         erc20FeeProxy.transferFromWithReferenceAndFee(
           contract.address,
           to,
