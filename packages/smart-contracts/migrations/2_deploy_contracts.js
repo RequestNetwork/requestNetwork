@@ -11,6 +11,9 @@ const ERC20False = artifacts.require('ERC20False');
 const ERC20NoReturn = artifacts.require('ERC20NoReturn');
 const ERC20Revert = artifacts.require('ERC20Revert');
 
+const FakeSwapRouter = artifacts.require('FakeSwapRouter');
+const SwapToPay = artifacts.require('SwapToPay');
+
 const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 
 // Deploys, set up the contracts
@@ -79,6 +82,9 @@ module.exports = async function(deployer) {
 
     await deployer.deploy(ERC20Revert);
     console.log('ERC20Revert Contract deployed: ' + ERC20Revert.address);
+    
+    await deployer.deploy(FakeSwapRouter);
+    console.log('FakeSwapRouter Contract deployed: ' + FakeSwapRouter.address);
 
     // ----------------------------------
     console.log('Contracts initialized');
