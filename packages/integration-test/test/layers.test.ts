@@ -127,11 +127,15 @@ describe('Request system', () => {
 
     // Logic setup
     requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
+    // tslint:disable-next-line: no-console
+    console.log('before');
   });
 
-  after(() => {
+  after(async () => {
     // Stop web3 provider
-    provider.disconnect();
+    await provider.disconnect();
+    // tslint:disable-next-line: no-console
+    console.log('after');
   });
 
   it('can create a request', async () => {
