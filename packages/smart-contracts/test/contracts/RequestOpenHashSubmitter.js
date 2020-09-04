@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+const { expect } = require('chai');
 const BigNumber = require('bn.js');
 const utils = require('./utils.js');
 
