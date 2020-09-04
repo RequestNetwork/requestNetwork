@@ -124,7 +124,7 @@ interface IFeePaymentNetwork {
  * 
  * - Now start the actual payment -
  * 
- * EXEC transferMkrFromDaiWithReference
+ * EXEC swapTransferWithReference
  * _to: 0xAa0c45D2877373ad1AB2aa5Eab15563301e9b7b3
  * _amount: 10000000000000000000 (10 FAU)
  * _amountInMax: 10300300000000000000 (10.3003 CTBK = 3% slippage of the total amount)
@@ -180,7 +180,7 @@ contract SwapToPay {
   *
   * TODO test the behaviour when the deadline is passed
   */
-  function transferMkrFromDaiWithReference(
+  function swapTransferWithReference(
     address _to,
     uint256 _amount, // requestedToken
     uint256 _amountInMax, // spentToken
