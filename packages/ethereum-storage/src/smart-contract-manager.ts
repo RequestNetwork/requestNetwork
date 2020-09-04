@@ -386,6 +386,10 @@ export default class SmartContractManager {
                 .catch(e => {
                   if (confirmationNumber >= CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS) {
                     reject(Error(`Maximum number of confirmation reached: ${e}`));
+                  } else {
+                    this.logger.debug(
+                      `confirmation ${confirmationNumber} / ${CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS}`,
+                    );
                   }
                 });
             }
