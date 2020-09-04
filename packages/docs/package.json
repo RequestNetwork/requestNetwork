@@ -34,10 +34,10 @@
     "clean": "shx rm -rf docs/client"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.61",
-    "@docusaurus/preset-classic": "2.0.0-alpha.61",
-    "@docusaurus/theme-live-codeblock": "2.0.0-alpha.61",
-    "@docusaurus/utils": "2.0.0-alpha.61",
+    "@docusaurus/core": "2.0.0-alpha.63",
+    "@docusaurus/preset-classic": "2.0.0-alpha.63",
+    "@docusaurus/theme-live-codeblock": "2.0.0-alpha.63",
+    "@docusaurus/utils": "2.0.0-alpha.63",
     "@requestnetwork/payment-processor": "0.21.0",
     "@requestnetwork/request-client.js": "0.21.0",
     "@requestnetwork/smart-contracts": "0.12.0",
@@ -50,7 +50,7 @@
     "mobx": "5.15.4",
     "react": "16.8.4",
     "react-dom": "16.8.4",
-    "redoc": "2.0.0-rc.23",
+    "redoc": "2.0.0-rc.40",
     "styled-components": "5.0.1"
   },
   "browserslist": {
