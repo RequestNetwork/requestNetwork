@@ -55,7 +55,7 @@
     "yargs": "15.4.1"
   },
   "devDependencies": {
-    "@truffle/hdwallet-provider": "1.0.18",
+    "@truffle/hdwallet-provider": "1.0.43",
     "@types/bluebird": "3.5.32",
     "@types/chai": "4.2.12",
     "@types/chai-as-promised": "7.1.3",
