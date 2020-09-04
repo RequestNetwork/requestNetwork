@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "ajv": "6.12.4",
-    "tslib": "1.10.0"
+    "tslib": "2.0.1"
   },
   "devDependencies": {
     "@types/chai": "4.2.12",
