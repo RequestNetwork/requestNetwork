@@ -43,10 +43,10 @@
     "@requestnetwork/types": "0.20.0"
   },
   "devDependencies": {
-    "@types/chai": "4.1.7",
-    "@types/mocha": "5.2.7",
-    "@types/sinon": "7.5.0",
-    "@typescript-eslint/parser": "1.2.0",
+    "@types/chai": "4.2.12",
+    "@types/mocha": "8.0.3",
+    "@types/sinon": "9.0.5",
+    "@typescript-eslint/parser": "4.0.1",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
     "chai-spies": "1.0.0",

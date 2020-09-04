@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "build:watch": "tsc -b --watch",
+    "build:watch": "tsc --watch",
     "test": "nyc mocha --timeout=10000 --exit --extension ts --require source-map-support/register test/**/*.ts",
     "test:watch": "yarn test --watch",
     "start": "ts-node src/server.ts",
@@ -57,9 +57,9 @@
     "yargs": "15.4.1"
   },
   "devDependencies": {
-    "@types/cors": "2.8.6",
-    "@types/express": "4.17.7",
-    "@types/supertest": "2.0.7",
+    "@types/cors": "2.8.7",
+    "@types/express": "4.17.8",
+    "@types/supertest": "2.0.10",
     "@types/yargs": "15.0.5",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",

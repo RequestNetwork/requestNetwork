@@ -45,9 +45,9 @@
     "typescript": "3.7.2"
   },
   "devDependencies": {
-    "@types/chai": "4.1.7",
-    "@types/mocha": "5.2.7",
-    "@types/node": "10.12.21",
+    "@types/chai": "4.2.12",
+    "@types/mocha": "8.0.3",
+    "@types/node": "13.13.16",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
     "chai-spies": "1.0.0",
