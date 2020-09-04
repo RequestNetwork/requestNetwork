@@ -21,8 +21,6 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-const { time } = require('@openzeppelin/test-helpers');
-
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
 let provider: any;
@@ -36,6 +34,26 @@ let decryptionProvider: any;
 let signatureProvider: any;
 
 let dataAccess: DataAccessTypes.IDataAccess;
+
+const { time } = require('@openzeppelin/test-helpers');
+
+let nbBlocks = 0;
+let testsFinished = false;
+const interval = setInterval(async () => {
+  await time.advanceBlock();
+  if (testsFinished) {
+    nbBlocks++;
+  }
+  // tslint:disable-next-line: no-magic-numbers
+  if (nbBlocks > 25) {
+    clearInterval(interval);
+  }
+  // tslint:disable-next-line: no-magic-numbers
+}, 1000);
+
+after(() => {
+  testsFinished = true;
+});
 
 describe('Request system', () => {
   beforeEach(async () => {
@@ -129,20 +147,9 @@ describe('Request system', () => {
 
     // Logic setup
     requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
-    // tslint:disable-next-line: no-console
-    console.log('before');
   });
 
-  let blockInterval: NodeJS.Timeout;
-  before(() => {
-    // fake the creation of new blocks on ethereum
-    blockInterval = setInterval(async () => {
-      await time.advanceBlock();
-      // tslint:disable-next-line: no-magic-numbers
-    }, 50);
-  });
   after(() => {
-    clearInterval(blockInterval);
     // Stop web3 provider
     provider.disconnect();
   });
