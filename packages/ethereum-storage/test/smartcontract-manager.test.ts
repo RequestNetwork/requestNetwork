@@ -260,7 +260,7 @@ describe('SmartContractManager', () => {
       Error,
       'Maximum number of confirmation reached',
     );
-  }).timeout(30000);
+  }).timeout(60000);
 
   it('allows to get all hashes', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
