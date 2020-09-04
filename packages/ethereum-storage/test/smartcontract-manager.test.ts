@@ -28,7 +28,7 @@ const web3Utils = require('web3-utils');
 const web3Eth = require('web3-eth');
 const eth = new web3Eth(provider);
 
-const{ time } = require('@openzeppelin/test-helpers');
+const { time } = require('@openzeppelin/test-helpers');
 
 const invalidHostProvider = new web3HttpProvider('http://nonexistent:8545');
 const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
@@ -191,16 +191,6 @@ const txPerBlockConfiguration5 = [100, 200, 150, 400, 1, 670, 300, 140, 20, 600]
 
 // tslint:disable:no-magic-numbers
 describe('SmartContractManager', () => {
-  let blockInterval: NodeJS.Timeout;
-  before(()=>{
-    // fake the creation of new blocks on ethereum
-    blockInterval = setInterval(async ()=>{
-      await time.advanceBlock()
-    },50)
-  });
-  after(()=>{
-    clearInterval(blockInterval);
-  });
   beforeEach(() => {
     smartContractManager = new SmartContractManager(web3Connection);
     smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
@@ -262,6 +252,11 @@ describe('SmartContractManager', () => {
   });
 
   it('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
+    // fake the creation of new blocks on ethereum
+    const blockInterval = setInterval(async () => {
+      await time.advanceBlock()
+    }, 50);
+
     // This mock is used to ensure any block is never fetchable
     smartContractManager.eth.getBlock = (_block: any): any => {
       return null;
@@ -272,6 +267,8 @@ describe('SmartContractManager', () => {
       Error,
       'Maximum number of confirmation reached',
     );
+    clearInterval(blockInterval);
+
   }).timeout(30000);
 
   it('allows to get all hashes', async () => {
