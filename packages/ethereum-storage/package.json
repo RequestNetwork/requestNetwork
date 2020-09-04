@@ -50,8 +50,8 @@
     "keyv": "3.1.0",
     "node-fetch": "2.6.0",
     "shelljs": "0.8.3",
-    "web3-eth": "1.2.1",
-    "web3-utils": "1.2.1",
+    "web3-eth": "1.2.11",
+    "web3-utils": "1.2.11",
     "yargs": "15.4.1"
   },
   "devDependencies": {
@@ -85,7 +85,7 @@
     "ts-node": "8.6.2",
     "tslint": "5.12.1",
     "typescript": "3.7.2",
-    "web3-providers-http": "1.2.1"
+    "web3-providers-http": "1.2.11"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }
