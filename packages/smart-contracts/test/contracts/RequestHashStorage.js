@@ -1,4 +1,4 @@
-const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { expectEvent, shouldFail } = require('@openzeppelin/test-helpers');
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 
 contract('RequestHashStorage', function(accounts) {

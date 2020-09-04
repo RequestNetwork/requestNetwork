@@ -1,7 +1,7 @@
 const BigNumber = require('bn.js');
 const utils = require('./utils.js');
 
-const { expect, expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { expect, expectEvent, shouldFail } = require('@openzeppelin/test-helpers');
 const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.sol');
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 

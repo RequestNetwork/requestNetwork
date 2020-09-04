@@ -1,6 +1,6 @@
 const ethers = require('ethers');
 
-const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { expectEvent, shouldFail } = require('@openzeppelin/test-helpers');
 const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 

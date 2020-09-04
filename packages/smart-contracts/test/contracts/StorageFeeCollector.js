@@ -1,5 +1,5 @@
 const BigNumber = require('bn.js');
-const { expectEvent, shouldFail, expect } = require('openzeppelin-test-helpers');
+const { expectEvent, shouldFail, expect } = require('@openzeppelin/test-helpers');
 const StorageFeeCollector = artifacts.require('./StorageFeeCollector.sol');
 
 contract('StorageFeeCollector', function(accounts) {

@@ -28,6 +28,9 @@ const web3Utils = require('web3-utils');
 const web3Eth = require('web3-eth');
 const eth = new web3Eth(provider);
 
+// eslint-disable-next-line spellcheck/spell-checker
+const{ time } = require('@openzeppelin/test-helpers');
+
 const invalidHostProvider = new web3HttpProvider('http://nonexistent:8545');
 const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
@@ -189,6 +192,16 @@ const txPerBlockConfiguration5 = [100, 200, 150, 400, 1, 670, 300, 140, 20, 600]
 
 // tslint:disable:no-magic-numbers
 describe('SmartContractManager', () => {
+  let blockInterval: NodeJS.Timeout;
+  before(()=>{
+    // fake the creation of new blocks on ethereum
+    blockInterval = setInterval(async ()=>{
+      await time.advanceBlock()
+    },50)
+  });
+  after(()=>{
+    clearInterval(blockInterval);
+  });
   beforeEach(() => {
     smartContractManager = new SmartContractManager(web3Connection);
     smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;

@@ -21,6 +21,9 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
+// eslint-disable-next-line spellcheck/spell-checker
+const { time } = require('@openzeppelin/test-helpers');
+
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
 let provider: any;
@@ -131,14 +134,18 @@ describe('Request system', () => {
     console.log('before');
   });
 
-  after(async () => {
-    // tslint:disable-next-line: no-console
-    console.log('after (start)');
-
+  let blockInterval: NodeJS.Timeout;
+  before(() => {
+    // fake the creation of new blocks on ethereum
+    blockInterval = setInterval(async () => {
+      await time.advanceBlock();
+      // tslint:disable-next-line: no-magic-numbers
+    }, 50);
+  });
+  after(() => {
+    clearInterval(blockInterval);
     // Stop web3 provider
-    await provider.disconnect();
-    // tslint:disable-next-line: no-console
-    console.log('after (end)');
+    provider.disconnect();
   });
 
   it('can create a request', async () => {

@@ -38,6 +38,7 @@
     "test:btc": "mocha --timeout=10000 --extension ts --require ts-node/register \"test/scheduled/btc.test.ts\""
   },
   "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.6",
     "@requestnetwork/advanced-logic": "0.18.0",
     "@requestnetwork/data-access": "0.14.0",
     "@requestnetwork/epk-decryption": "0.3.15",

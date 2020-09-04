@@ -384,14 +384,8 @@ export default class SmartContractManager {
                   resolve(ethereumMetadata);
                 })
                 .catch(e => {
-                  // tslint:disable-next-line: no-console
-                  console.log(confirmationNumber,e)
                   if (confirmationNumber >= CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS) {
                     reject(Error(`Maximum number of confirmation reached: ${e}`));
-                  } else {
-                    this.logger.debug(
-                      `confirmation ${confirmationNumber} / ${CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS}`,
-                    );
                   }
                 });
             }
