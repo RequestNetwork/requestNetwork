@@ -64,6 +64,7 @@
     "@types/form-data": "2.5.0",
     "@types/keyv": "3.1.1",
     "@types/mocha": "8.0.3",
+    "@types/node": "^14.6.4",
     "@types/sinon": "9.0.5",
     "@typescript-eslint/parser": "4.0.1",
     "chai": "4.2.0",

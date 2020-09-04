@@ -41,6 +41,7 @@
     "simple-statistics": "7.0.2"
   },
   "devDependencies": {
+    "@types/node": "14.6.4",
     "prettier": "1.16.4",
     "ts-node": "8.6.2",
     "typescript": "3.7.2"
