@@ -11339,28 +11339,28 @@ keccak@^3.0.0:
     node-addon-api "^2.0.0"
     node-gyp-build "^4.2.0"
 
-keyv-file@0.1.13:
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/keyv-file/-/keyv-file-0.1.13.tgz#c4930c1c3908f1c090a47a31bc93b85cf7935d2a"
-  integrity sha512-dXjzhVgmCxPDzr1BoYBn9bmHdAArmQtc0uSf4Cido1+CQydbfYyliwMybkSfcELu4oOwDAJ1ui1EKn3H9jgDmg==
+keyv-file@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/keyv-file/-/keyv-file-0.2.0.tgz#3442b07a00c1d7bd0242f4a91bcf498afbd6ea6a"
+  integrity sha512-zUQ11eZRmilEUpV1gJSj8mBAHjyXpleQo1iCS0khb+GFRhiPfwavWgn4eDUKNlOyMZzmExnISl8HE1hNbim0gw==
   dependencies:
     debug "^4.1.1"
     fs-extra "^4.0.1"
     tslib "^1.9.3"
 
-keyv@3.1.0, keyv@^3.0.0:
+keyv@4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/keyv/-/keyv-4.0.1.tgz#9fe703cb4a94d6d11729d320af033307efd02ee6"
+  integrity sha512-xz6Jv6oNkbhrFCvCP7HQa8AaII8y8LRpoSm661NOKLr4uHuBwhX4epXrPQgF3+xdJnN4Esm5X0xwY4bOlALOtw==
+  dependencies:
+    json-buffer "3.0.1"
+
+keyv@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/keyv/-/keyv-3.1.0.tgz#ecc228486f69991e49e9476485a5be1e8fc5c4d9"
   integrity sha512-9ykJ/46SN/9KPM/sichzQ7OvXyGDYKGTaDlKMGCAlg2UK8KRy4jb0d8sFc+0Tt0YYnThq8X2RZgCg74RPxgcVA==
   dependencies:
     json-buffer "3.0.0"
-
-keyv@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/keyv/-/keyv-4.0.0.tgz#2d1dab694926b2d427e4c74804a10850be44c12f"
-  integrity sha512-U7ioE8AimvRVLfw4LffyOIRhL2xVgmE8T22L6i0BucSnBUyv4w+I7VN/zVZwRKHOI6ZRUcdMdWHQ8KSUvGpEog==
-  dependencies:
-    json-buffer "3.0.1"
 
 killable@^1.0.1:
   version "1.0.1"
