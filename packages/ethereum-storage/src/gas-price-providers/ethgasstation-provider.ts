@@ -68,15 +68,15 @@ export default class EthGasStationProvider implements StorageTypes.IGasPriceProv
     const apiGasPrice = new bigNumber(
       parseFloat(
         {
-          [StorageTypes.GasPriceType.FAST as StorageTypes.GasPriceType]: apiResponse.fast,
-          [StorageTypes.GasPriceType.STANDARD as StorageTypes.GasPriceType]: apiResponse.average,
-          [StorageTypes.GasPriceType.SAFELOW as StorageTypes.GasPriceType]: apiResponse.safeLow,
+          [StorageTypes.GasPriceType.FAST]: apiResponse.fast,
+          [StorageTypes.GasPriceType.STANDARD]: apiResponse.average,
+          [StorageTypes.GasPriceType.SAFELOW]: apiResponse.safeLow,
         }[type],
       ) * API_MULTIPLIER,
     );
 
     if (!EthereumUtils.isGasPriceSafe(apiGasPrice)) {
-      throw Error('EthGasStation provided gas price not safe to use');
+      throw Error(`EthGasStation provided gas price not safe to use: ${apiGasPrice}`);
     }
 
     return apiGasPrice;
