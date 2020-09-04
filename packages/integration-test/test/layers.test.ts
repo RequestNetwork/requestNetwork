@@ -132,10 +132,13 @@ describe('Request system', () => {
   });
 
   after(async () => {
+    // tslint:disable-next-line: no-console
+    console.log('after (start)');
+
     // Stop web3 provider
     await provider.disconnect();
     // tslint:disable-next-line: no-console
-    console.log('after');
+    console.log('after (end)');
   });
 
   it('can create a request', async () => {
