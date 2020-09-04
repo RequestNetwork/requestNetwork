@@ -43,7 +43,7 @@
   "devDependencies": {
     "@types/node": "14.6.4",
     "prettier": "1.16.4",
-    "ts-node": "8.6.2",
+    "ts-node": "9.0.0",
     "typescript": "3.7.2"
   }
 }
