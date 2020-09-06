@@ -2833,6 +2833,25 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
+"@truffle/blockchain-utils@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@truffle/blockchain-utils/-/blockchain-utils-0.0.11.tgz#9886f4cb7a9f20deded4451ac78f8567ae5c0d75"
+  integrity sha512-9MyQ/20M96clhIcC7fVFIckGSB8qMsmcdU6iYt98HXJ9GOLNKsCaJFz1OVsJncVreYwTUhoEXTrVBc8zrmPDJQ==
+
+"@truffle/contract-schema@^3.0.14":
+  version "3.2.4"
+  resolved "https://registry.yarnpkg.com/@truffle/contract-schema/-/contract-schema-3.2.4.tgz#4e1227cfdecd31919f771c05fc845b1da4d1332d"
+  integrity sha512-CkacOyA7WE71nOJ7vHjlY3gqyeM++SplVJcTNc91BaLTh7TNhMa8Qr6pyNNiQJCZ8V7HNiMAlNw7wqQKNTpyBQ==
+  dependencies:
+    ajv "^6.10.0"
+    crypto-js "^3.1.9-1"
+    debug "^4.1.0"
+
+"@truffle/error@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@truffle/error/-/error-0.0.6.tgz#75d499845b4b3a40537889e7d04c663afcaee85d"
+  integrity sha512-QUM9ZWiwlXGixFGpV18g5I6vua6/r+ZV9W/5DQA5go9A3eZUNPHPaTKMIQPJLYn6+ZV5jg5H28zCHq56LHF3yA==
+
 "@truffle/hdwallet-provider@1.0.18":
   version "1.0.18"
   resolved "https://registry.yarnpkg.com/@truffle/hdwallet-provider/-/hdwallet-provider-1.0.18.tgz#575451ae872d5d715839be6efad8c7e75497ef81"
@@ -3678,6 +3697,16 @@ ajv@^6.1.0, ajv@^6.10.2, ajv@^6.12.2, ajv@^6.12.3, ajv@^6.5.3:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
+ajv@^6.10.0:
+  version "6.12.4"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.12.4.tgz#0614facc4522127fa713445c6bfd3ebd376e2234"
+  integrity sha512-eienB2c9qVQs2KWexhkrdMLVDoIQCz5KSeLxwg9Lzk4DOfBtIK9PQwwufcsn1jjGuf9WZmqPMbGxOzfcuphJCQ==
+  dependencies:
+    fast-deep-equal "^3.1.1"
+    fast-json-stable-stringify "^2.0.0"
+    json-schema-traverse "^0.4.1"
+    uri-js "^4.2.2"
+
 algoliasearch-helper@^3.1.1:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/algoliasearch-helper/-/algoliasearch-helper-3.2.2.tgz#12451c8e368935348453c8879785b20e1788c33c"
@@ -3739,7 +3768,7 @@ ansi-colors@^1.0.1:
   dependencies:
     ansi-wrap "^0.1.0"
 
-ansi-colors@^3.0.0:
+ansi-colors@^3.0.0, ansi-colors@^3.2.3:
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/ansi-colors/-/ansi-colors-3.2.4.tgz#e3a3da4bfbae6c86a9c285625de124a234026fbf"
   integrity sha512-hHUXGagefjN2iRrID63xckIvotOXOojhQKWIPUZ4mNUZ9nLZW+7FMNoE1lOkEhNWYsx/7ysGIuJYCiMAA9FnrA==
@@ -4359,6 +4388,11 @@ big.js@^5.2.2:
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
   integrity sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==
 
+bignumber.js@^7.2.1:
+  version "7.2.1"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
+  integrity sha512-S4XzBk5sMB+Rcb/LNcpzXr57VRTxgAvaAEDAl1AwRx27j00hT84O6OkteE7u8UB3NuaaygCRrEpqox4uDOrbdQ==
+
 binary-extensions@^1.0.0:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.13.1.tgz#598afe54755b2868a5330d2aff9d4ebb53209b65"
@@ -4426,7 +4460,7 @@ bn.js@5.1.1:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.1.1.tgz#48efc4031a9c4041b9c99c6941d903463ab62eb5"
   integrity sha512-IUTD/REb78Z2eodka1QZyyEk66pciRcP6Sroka0aI3tG/iwIdYLrBD62RsubR7vqdt3WyX8p4jxeatzmRSphtA==
 
-bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.0, bn.js@^4.11.1, bn.js@^4.11.6, bn.js@^4.11.8, bn.js@^4.4.0:
+bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.0, bn.js@^4.11.1, bn.js@^4.11.6, bn.js@^4.11.8, bn.js@^4.11.9, bn.js@^4.4.0:
   version "4.11.9"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.9.tgz#26d556829458f9d1e81fc48952493d0ba3507828"
   integrity sha512-E6QoYqCKZfgatHTdHzs1RRKP7ip4vvm+EyRUeE2RF0NblwVvb0p6jSVeNTOFxPn26QXN2o6SMfNxKp6kU8zQaw==
@@ -5045,7 +5079,7 @@ chai-spies@1.0.0:
   resolved "https://registry.yarnpkg.com/chai-spies/-/chai-spies-1.0.0.tgz#d16b39336fb316d03abf8c375feb23c0c8bb163d"
   integrity sha512-elF2ZUczBsFoP07qCfMO/zeggs8pqCf3fZGyK5+2X4AndS8jycZYID91ztD9oQ7d/0tnS963dPkd0frQEThDsg==
 
-chai@4.2.0, chai@^4.2.0:
+chai@4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/chai/-/chai-4.2.0.tgz#760aa72cf20e3795e84b12877ce0e83737aa29e5"
   integrity sha512-XQU3bhBukrOsQCuwZndwGcCVQHyZi53fQ6Ys1Fym7E4olpIqqZZhhoFJoaKVvV17lWQoXYwgWN2nF5crA8J2jw==
@@ -6943,7 +6977,7 @@ elliptic@6.5.2:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.0"
 
-elliptic@^6.4.0, elliptic@^6.4.1, elliptic@^6.5.2, elliptic@^6.5.3:
+elliptic@6.5.3, elliptic@^6.4.0, elliptic@^6.4.1, elliptic@^6.5.2, elliptic@^6.5.3:
   version "6.5.3"
   resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.5.3.tgz#cb59eb2efdaf73a0bd78ccd7015a62ad6e0f93d6"
   integrity sha512-IMqzv5wNQf+E6aHeIqATs0tOLeOTwj1QKbRcS3jBbYkl5oLAserA8yJTT7/VyHUYG91PRmPyeQDObKLPpeS4dw==
@@ -7460,6 +7494,13 @@ eth-lib@^0.1.26:
     ws "^3.0.0"
     xhr-request-promise "^0.1.2"
 
+ethereum-bloom-filters@^1.0.6:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/ethereum-bloom-filters/-/ethereum-bloom-filters-1.0.7.tgz#b7b80735e385dbb7f944ce6b4533e24511306060"
+  integrity sha512-cDcJJSJ9GMAcURiAWO3DxIEhTL/uWqlQnvgKpuYQzYPrt/izuGU+1ntQmHt0IRq6ADoSYHFnB+aCEFIldjhkMQ==
+  dependencies:
+    js-sha3 "^0.8.0"
+
 ethereum-cryptography@^0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/ethereum-cryptography/-/ethereum-cryptography-0.1.3.tgz#8d6143cfc3d74bf79bbd8edecdf29e4ae20dd191"
@@ -7572,6 +7613,21 @@ ethers@4.0.45:
     aes-js "3.0.0"
     bn.js "^4.4.0"
     elliptic "6.5.2"
+    hash.js "1.1.3"
+    js-sha3 "0.5.7"
+    scrypt-js "2.0.4"
+    setimmediate "1.0.4"
+    uuid "2.0.1"
+    xmlhttprequest "1.8.0"
+
+ethers@^4.0.0-beta.1, ethers@^4.0.32:
+  version "4.0.48"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.48.tgz#330c65b8133e112b0613156e57e92d9009d8fbbe"
+  integrity sha512-sZD5K8H28dOrcidzx9f8KYh8083n5BexIO3+SbE4jK83L85FxtpXZBCQdXb8gkg+7sBqomcLhhkU7UHL+F7I2g==
+  dependencies:
+    aes-js "3.0.0"
+    bn.js "^4.4.0"
+    elliptic "6.5.3"
     hash.js "1.1.3"
     js-sha3 "0.5.7"
     scrypt-js "2.0.4"
@@ -10572,6 +10628,11 @@ js-sha3@0.5.7, js-sha3@^0.5.7:
   resolved "https://registry.yarnpkg.com/js-sha3/-/js-sha3-0.5.7.tgz#0d4ffd8002d5333aabaf4a23eed2f6374c9f28e7"
   integrity sha1-DU/9gALVMzqrr0oj7tL2N0yfKOc=
 
+js-sha3@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/js-sha3/-/js-sha3-0.8.0.tgz#b9b7a5da73afad7dedd0f8c463954cbde6818840"
+  integrity sha512-gF1cRrHhIzNfToc802P800N8PpXS+evLLXfsVpowqmAFR9uwbi89WvXg2QspOmXL8QL86J4T1EpFu+yUkwJY3Q==
+
 js-string-escape@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/js-string-escape/-/js-string-escape-1.0.1.tgz#e2625badbc0d67c7533e9edc1068c587ae4137ef"
@@ -11316,6 +11377,11 @@ lodash@4.17.19, lodash@^4.14.2, lodash@^4.15.0, lodash@^4.17.10, lodash@^4.17.11
   version "4.17.19"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
   integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
+
+lodash@^4.17.13:
+  version "4.17.20"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
+  integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
 
 log-driver@^1.2.7:
   version "1.2.7"
@@ -13007,15 +13073,17 @@ openzeppelin-solidity@2.1.2:
   resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.2.tgz#94e2bb92b60e91abb22c6fe27d983d92850fb324"
   integrity sha512-1ggh+AZFpMAgGfgnVMQ8dwYawjD2QN4xuWkQS4FUbeUz1fnCKJpguUl2cyadyfDYjBq1XJ6MA6VkzYpTZtJMqw==
 
-openzeppelin-test-helpers@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/openzeppelin-test-helpers/-/openzeppelin-test-helpers-0.1.2.tgz#ffef3f3674e7eab6a29a33b98c641c5574bec21d"
-  integrity sha512-qk0ROyh5g43Zcq5+7ZiznfaVJo+WTiB+iTtpLVHqkMSqwn9PkM9tXys72BwP1ehB+z5n/Wha5FrpXlBX6YXL4Q==
+openzeppelin-test-helpers@0.4.3:
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/openzeppelin-test-helpers/-/openzeppelin-test-helpers-0.4.3.tgz#f1eaa3df6d31f12d7a24b5b35c23367376058db6"
+  integrity sha512-ln5Exl5fciLIKIUZ6yX6Q2kO/XMQLhNh8G/uEcVfIPZCl/Q0z64ayqZZmsQLGJx1HpSZS27XjC5d48PjX72eEw==
   dependencies:
-    chai "^4.2.0"
+    ansi-colors "^3.2.3"
     chai-bn "^0.1.1"
     ethjs-abi "^0.2.1"
     semver "^5.6.0"
+    truffle-contract "^4.0.26"
+    web3-utils "^1.2.0"
 
 opn@^5.5.0:
   version "5.5.0"
@@ -17416,6 +17484,32 @@ trough@^1.0.0:
   resolved "https://registry.yarnpkg.com/trough/-/trough-1.0.5.tgz#b8b639cefad7d0bb2abd37d433ff8293efa5f406"
   integrity sha512-rvuRbTarPXmMb79SmzEp8aqXNKcK+y0XaB298IXueQ8I2PsrATcPBCSPyK/dDNa2iWOhKlfNnOjdAOTBU/nkFA==
 
+truffle-contract@^4.0.26:
+  version "4.0.31"
+  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.31.tgz#e43b7f648e2db352c857d1202d710029b107b68d"
+  integrity sha512-u3q+p1wiX5C2GpnluGx/d2iaJk7bcWshk2/TohiJyA2iQiTfkS7M4n9D9tY3JqpXR8PmD/TrA69RylO0RhITFA==
+  dependencies:
+    "@truffle/blockchain-utils" "^0.0.11"
+    "@truffle/contract-schema" "^3.0.14"
+    "@truffle/error" "^0.0.6"
+    bignumber.js "^7.2.1"
+    ethers "^4.0.0-beta.1"
+    truffle-interface-adapter "^0.2.5"
+    web3 "1.2.1"
+    web3-core-promievent "1.2.1"
+    web3-eth-abi "1.2.1"
+    web3-utils "1.2.1"
+
+truffle-interface-adapter@^0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/truffle-interface-adapter/-/truffle-interface-adapter-0.2.5.tgz#aa0bee635517b4a8e06adcdc99eacb993e68c243"
+  integrity sha512-EL39OpP8FcZ99ne1Rno3jImfb92Nectd4iVsZzoEUCBfbwHe7sr0k+i45guoruSoP8nMUE81Mov2s8I5pi6d9Q==
+  dependencies:
+    bn.js "^4.11.8"
+    ethers "^4.0.32"
+    lodash "^4.17.13"
+    web3 "1.2.1"
+
 truffle@5.1.2:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.1.2.tgz#516f28126fdb623bd5eff20c665b2f2bfbaa4eba"
@@ -18509,6 +18603,20 @@ web3-utils@1.2.1:
     ethjs-unit "0.1.6"
     number-to-bn "1.7.0"
     randomhex "0.1.5"
+    underscore "1.9.1"
+    utf8 "3.0.0"
+
+web3-utils@^1.2.0:
+  version "1.2.11"
+  resolved "https://registry.yarnpkg.com/web3-utils/-/web3-utils-1.2.11.tgz#af1942aead3fb166ae851a985bed8ef2c2d95a82"
+  integrity sha512-3Tq09izhD+ThqHEaWYX4VOT7dNPdZiO+c/1QMA0s5X2lDFKK/xHJb7cyTRRVzN2LvlHbR7baS1tmQhSua51TcQ==
+  dependencies:
+    bn.js "^4.11.9"
+    eth-lib "0.2.8"
+    ethereum-bloom-filters "^1.0.6"
+    ethjs-unit "0.1.6"
+    number-to-bn "1.7.0"
+    randombytes "^2.1.0"
     underscore "1.9.1"
     utf8 "3.0.0"
 
