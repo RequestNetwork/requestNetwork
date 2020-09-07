@@ -1,67 +1,111 @@
 const ethers = require('ethers');
+//import "truffle/DeployedAddresses.sol";
 
 const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { expect } = require('openzeppelin-test-helpers/src/setup');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
-const BadERC20 = artifacts.require('./BadERC20.sol');
-const ERC20True = artifacts.require('ERC20True');
-const ERC20False = artifacts.require('ERC20False');
-const ERC20NoReturn = artifacts.require('ERC20NoReturn');
-const ERC20Revert = artifacts.require('ERC20Revert');
+const ERC20Alpha = artifacts.require('ERC20Alpha');
+const FakeSwapRouter = artifacts.require('./FakeSwapRouter.sol');
+const SwapToPay = artifacts.require('./SwapToPay.sol');
 
 contract('SwapToPay', function(accounts) {
   const admin = accounts[0];
   const from = accounts[1];
   const to = accounts[2];
   const builder = accounts[3];
-  const feeAddress = '0xF4255c5e53a08f72b0573D1b8905C5a50aA9c2De';
   let erc20FeeProxy;
   let fakeRouter;
-  let testPmtERC20, testRqdERC20;
+  let paymentErc20;
+  let requestedErc20;
+  let testSwapToPay;
   const referenceExample = '0xaaaa';
 
   beforeEach(async () => {
-    testPmtERC20 = await TestERC20.new(10000, {
-      admin,
+    paymentErc20 = await ERC20Alpha.new(10000, {
+      from: admin,
     });
-    testRqdERC20 = await TestERC20.new(10000, {
-      admin,
+    requestedErc20 = await TestERC20.new(1000, {
+      from: admin,
     });
     
+    
     fakeRouter = await FakeSwapRouter.new({
-      admin,
+      from: admin,
     });
-    await testPmtERC20.transfer(fakeRouter, 1000, {
-      admin,
+    await paymentErc20.transfer(fakeRouter.address, 200, {
+      from: admin,
     });
-    await testRqdERC20.transfer(fakeRouter, 1000, {
-      admin,
+    await requestedErc20.transfer(fakeRouter.address, 100, {
+      from: admin,
+    });
+
+    await paymentErc20.transfer(from, 200, {
+      from: admin,
     });
     
     erc20FeeProxy = await ERC20FeeProxy.new({
-      admin,
+      from: admin,
     });
 
-    testSwapToPay = await SwapToPay.new(fakeRouter.address, erc20FeeProxy.address, {
-      admin,
-    });
-    testSwapToPay.approvePaymentProxyToSpend(testPmtERC20.address, {admin});
-    testSwapToPay.approveRouterToSpend(testRqdERC20.address, {admin});
+    testSwapToPay = await SwapToPay.new(
+      fakeRouter.address, 
+      erc20FeeProxy.address, 
+      {from: admin}
+    );
   });
 
-  it('swaps and pays the request', async function() {
-    await testPmtERC20.approve(testSwapToPay.address, '1015', { from });
+  it.only('swaps and pays the request', async function() {
+    await testSwapToPay.approvePaymentProxyToSpend(requestedErc20.address, {
+      from: admin,
+    });
+    await testSwapToPay.approveRouterToSpend(paymentErc20.address, {
+      from: admin,
+    });
+    console.log(`stp = await SwapToPay.at("${testSwapToPay.address}");`);
+    console.log(`pmt = await ERC20Alpha.at("${paymentErc20.address}");`);
+    console.log(`req = await TestERC20.at("${requestedErc20.address}");`);
+    console.log(`uniswapRouter = await FakeSwapRouter.at("${fakeRouter.address}");`);
+    console.log("await pmt.approve(uniswapRouter.address, 210, {from: accounts[1]});");
+
+    let { logsTemp } = await paymentErc20.approve(testSwapToPay.address, '200', { from });
 
     let { logs } = await testSwapToPay.swapTransferWithReference(
       to,
-      '998',
-      '1015',
-      [testPmtERC20.address, testRqdERC20.address],
+      10,
+      22,
+      [paymentErc20.address, requestedErc20.address],
       referenceExample,
-      '2',
-      builder.address,
-      Date.now() + 15
+      1,
+      builder,
+      Date.now() + 15,
       { from },
+    );
+    expectEvent.inLogs(logs, 'TransferWithReferenceAndFee', {
+      tokenAddress: requestedErc20.address,
+      to,
+      amount: 10,
+      //paymentReference: ethers.utils.keccak256(referenceExample),
+      feeAmount: 1,
+      feeAddress: builder,
+    });
+  });
+
+  it('cannot swap if too few payment tokens', async function() {
+    await paymentErc20.approve(testSwapToPay.address, '22', { from });
+
+    await shouldFail.reverting(
+      testSwapToPay.swapTransferWithReference(
+        to,
+        10,
+        21, // Should be at least (10 + 1) * 2
+        [paymentErc20.address, requestedErc20.address],
+        referenceExample,
+        1,
+        builder,
+        Date.now() - 15,
+        { from },
+      )
     );
   });
 });
