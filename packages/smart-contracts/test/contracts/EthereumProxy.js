@@ -1,9 +1,9 @@
 const ethers = require('ethers');
 
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const EthereumProxy = artifacts.require('./EthereumProxy.sol');
 
-contract('EthereumProxy', function(accounts) {
+contract('EthereumProxy', function (accounts) {
   const from = accounts[0];
   const to = accounts[1];
   const otherGuy = accounts[2];
@@ -19,7 +19,7 @@ contract('EthereumProxy', function(accounts) {
     });
   });
 
-  it('allows to store a reference', async function() {
+  it('allows to store a reference', async function () {
     let { logs } = await ethProxy.transferWithReference(to, referenceExample, {
       from,
       value: amount,
@@ -33,7 +33,7 @@ contract('EthereumProxy', function(accounts) {
     });
   });
 
-  it('allows to transfer ethers', async function() {
+  it('allows to transfer ethers', async function () {
     const fromOldBalance = await provider.getBalance(from);
     const toOldBalance = await provider.getBalance(to);
 
@@ -49,12 +49,7 @@ contract('EthereumProxy', function(accounts) {
     const toNewBalance = await provider.getBalance(to);
 
     // Check balance changes
-    expect(fromNewBalance.toString()).to.equals(
-      fromOldBalance
-        .sub(gasCost)
-        .sub(amount)
-        .toString(),
-    );
+    expect(fromNewBalance.toString()).to.equals(fromOldBalance.sub(gasCost).sub(amount).toString());
     expect(toNewBalance.toString()).to.equals(toOldBalance.add(amount).toString());
   });
 });

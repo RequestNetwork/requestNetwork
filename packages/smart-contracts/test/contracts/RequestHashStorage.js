@@ -1,7 +1,7 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 
-contract('RequestHashStorage', function(accounts) {
+contract('RequestHashStorage', function (accounts) {
   const admin = accounts[0];
   const hashSubmitter = accounts[1];
   const otherGuy = accounts[2];
@@ -16,18 +16,20 @@ contract('RequestHashStorage', function(accounts) {
     requestHashStorage.addWhitelisted(hashSubmitter);
   });
 
-  it('Allows the admin whitelist to be changed', async function() {
+  it('Allows the admin whitelist to be changed', async function () {
     let { logs } = await requestHashStorage.addWhitelistAdmin(otherGuy, { from: admin });
     expectEvent.inLogs(logs, 'WhitelistAdminAdded', {
       account: otherGuy,
     });
   });
 
-  it('Non admin should not be able to change the admin whitelist', async function() {
-    await expectRevert(requestHashStorage.addWhitelistAdmin(otherGuy, { from: otherGuy }));
+  it('Non admin should not be able to change the admin whitelist', async function () {
+    await expectRevert.unspecified(
+      requestHashStorage.addWhitelistAdmin(otherGuy, { from: otherGuy }),
+    );
   });
 
-  it('Allows the whitelist to be changed', async function() {
+  it('Allows the whitelist to be changed', async function () {
     let { logs } = await requestHashStorage.addWhitelisted(otherGuy, { from: admin });
     expectEvent.inLogs(logs, 'WhitelistedAdded', {
       account: otherGuy,
@@ -39,12 +41,12 @@ contract('RequestHashStorage', function(accounts) {
     });
   });
 
-  it('Non admin should not be able to change the whitelist', async function() {
-    await expectRevert(requestHashStorage.addWhitelisted(otherGuy, { from: otherGuy }));
-    await expectRevert(requestHashStorage.addWhitelisted(admin, { from: otherGuy }));
+  it('Non admin should not be able to change the whitelist', async function () {
+    await expectRevert.unspecified(requestHashStorage.addWhitelisted(otherGuy, { from: otherGuy }));
+    await expectRevert.unspecified(requestHashStorage.addWhitelisted(admin, { from: otherGuy }));
   });
 
-  it('Allows address whitelisted to submit hash', async function() {
+  it('Allows address whitelisted to submit hash', async function () {
     let { logs } = await requestHashStorage.declareNewHash(hashExample, feesParameters, {
       from: hashSubmitter,
     });
@@ -56,11 +58,11 @@ contract('RequestHashStorage', function(accounts) {
     });
   });
 
-  it('Non whitelisted should not be able to submit hash', async function() {
-    await expectRevert(
+  it('Non whitelisted should not be able to submit hash', async function () {
+    await expectRevert.unspecified(
       requestHashStorage.declareNewHash(hashExample, feesParameters, { from: admin }),
     );
-    await expectRevert(
+    await expectRevert.unspecified(
       requestHashStorage.declareNewHash(hashExample, feesParameters, { from: otherGuy }),
     );
   });

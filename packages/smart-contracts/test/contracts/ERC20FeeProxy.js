@@ -1,5 +1,6 @@
 const ethers = require('ethers');
 
+const { expect } = require('chai');
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
@@ -9,7 +10,7 @@ const ERC20False = artifacts.require('ERC20False');
 const ERC20NoReturn = artifacts.require('ERC20NoReturn');
 const ERC20Revert = artifacts.require('ERC20Revert');
 
-contract('ERC20FeeProxy', function(accounts) {
+contract('ERC20FeeProxy', function (accounts) {
   const from = accounts[0];
   const to = accounts[1];
   const otherGuy = accounts[2];
@@ -27,7 +28,7 @@ contract('ERC20FeeProxy', function(accounts) {
     });
   });
 
-  it('stores reference and paid fee', async function() {
+  it('stores reference and paid fee', async function () {
     await testERC20.approve(erc20FeeProxy.address, '102', { from });
 
     let { logs } = await erc20FeeProxy.transferFromWithReferenceAndFee(
@@ -51,7 +52,7 @@ contract('ERC20FeeProxy', function(accounts) {
     });
   });
 
-  it('transfers tokens for payment and fees', async function() {
+  it('transfers tokens for payment and fees', async function () {
     await testERC20.approve(erc20FeeProxy.address, '102', { from });
 
     const fromOldBalance = await testERC20.balanceOf(from);
@@ -80,12 +81,12 @@ contract('ERC20FeeProxy', function(accounts) {
     expect(feeNewBalance.toNumber()).to.equals(feeOldBalance.toNumber() + 2);
   });
 
-  it('should revert fee is no allowance', async function() {
+  it('should revert fee is no allowance', async function () {
     const fromOldBalance = await testERC20.balanceOf(from);
     const toOldBalance = await testERC20.balanceOf(to);
     const feeOldBalance = await testERC20.balanceOf(feeAddress);
 
-    await expectRevert(
+    await expectRevert.unspecified(
       erc20FeeProxy.transferFromWithReferenceAndFee(
         testERC20.address,
         to,
@@ -108,12 +109,12 @@ contract('ERC20FeeProxy', function(accounts) {
     expect(toNewBalance.toNumber()).to.equals(toOldBalance.toNumber());
     expect(feeNewBalance.toNumber()).to.equals(feeOldBalance.toNumber());
   });
-  it('should revert fee if error', async function() {
+  it('should revert fee if error', async function () {
     const fromOldBalance = await testERC20.balanceOf(from);
     const toOldBalance = await testERC20.balanceOf(to);
     const feeOldBalance = await testERC20.balanceOf(feeAddress);
 
-    await expectRevert(
+    await expectRevert.unspecified(
       erc20FeeProxy.transferFromWithReferenceAndFee(
         testERC20.address,
         to,
@@ -137,8 +138,8 @@ contract('ERC20FeeProxy', function(accounts) {
     expect(feeNewBalance.toNumber()).to.equals(feeOldBalance.toNumber());
   });
 
-  it('should revert if no fund', async function() {
-    await expectRevert(
+  it('should revert if no fund', async function () {
+    await expectRevert.unspecified(
       erc20FeeProxy.transferFromWithReferenceAndFee(
         testERC20.address,
         to,
@@ -153,7 +154,7 @@ contract('ERC20FeeProxy', function(accounts) {
     );
   });
 
-  it('no fee transfer if amount is 0', async function() {
+  it('no fee transfer if amount is 0', async function () {
     await testERC20.approve(erc20FeeProxy.address, '100', { from });
     const fromOldBalance = await testERC20.balanceOf(from);
     const toOldBalance = await testERC20.balanceOf(to);
@@ -191,7 +192,7 @@ contract('ERC20FeeProxy', function(accounts) {
     });
   });
 
-  it('transfers tokens for payment and fees on BadERC20', async function() {
+  it('transfers tokens for payment and fees on BadERC20', async function () {
     badERC20 = await BadERC20.new(1000, 'BadERC20', 'BAD', 8, {
       from,
     });
@@ -223,7 +224,7 @@ contract('ERC20FeeProxy', function(accounts) {
     expect(feeNewBalance.toNumber()).to.equals(feeOldBalance.toNumber() + 2);
   });
 
-  it('transfers tokens for payment and fees on a variety of ERC20 contract formats', async function() {
+  it('transfers tokens for payment and fees on a variety of ERC20 contract formats', async function () {
     const passContracts = [await ERC20True.new(), await ERC20NoReturn.new()];
 
     const failContracts = [await ERC20False.new(), await ERC20Revert.new()];
@@ -252,7 +253,7 @@ contract('ERC20FeeProxy', function(accounts) {
     }
 
     for (let contract of failContracts) {
-      await expectRevert(
+      await expectRevert.unspecified(
         erc20FeeProxy.transferFromWithReferenceAndFee(
           contract.address,
           to,

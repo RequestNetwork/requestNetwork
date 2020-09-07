@@ -6,7 +6,7 @@ const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.sol');
 const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
 
-contract('RequestOpenHashSubmitter', function(accounts) {
+contract('RequestOpenHashSubmitter', function (accounts) {
   const admin = accounts[0];
   const otherGuy = accounts[1];
   const submitter = accounts[2];
@@ -29,7 +29,7 @@ contract('RequestOpenHashSubmitter', function(accounts) {
   });
 
   describe('addWhitelisted', () => {
-    it('Allows the whitelist to be changed', async function() {
+    it('Allows the whitelist to be changed', async function () {
       let { logs } = await requestHashStorage.addWhitelisted(otherGuy, { from: admin });
       expectEvent.inLogs(logs, 'WhitelistedAdded', {
         account: otherGuy,
@@ -41,14 +41,16 @@ contract('RequestOpenHashSubmitter', function(accounts) {
       });
     });
 
-    it('Non admin should not be able to change the whitelist', async function() {
-      await expectRevert(requestHashStorage.addWhitelisted(otherGuy, { from: otherGuy }));
-      await expectRevert(requestHashStorage.addWhitelisted(admin, { from: otherGuy }));
+    it('Non admin should not be able to change the whitelist', async function () {
+      await expectRevert.unspecified(
+        requestHashStorage.addWhitelisted(otherGuy, { from: otherGuy }),
+      );
+      await expectRevert.unspecified(requestHashStorage.addWhitelisted(admin, { from: otherGuy }));
     });
   });
 
   describe('submitHash', () => {
-    it('Allows submitHash without fee', async function() {
+    it('Allows submitHash without fee', async function () {
       let oldBurnerBalance = await web3.eth.getBalance(burner);
 
       let { receipt, logs } = await requestOpenHashSubmitter.submitHash(
@@ -70,7 +72,7 @@ contract('RequestOpenHashSubmitter', function(accounts) {
       );
     });
 
-    it('Allows submitHash with fees', async function() {
+    it('Allows submitHash with fees', async function () {
       let oldBurnerBalance = new BigNumber(await web3.eth.getBalance(burner));
 
       const minimumFee = new BigNumber(100);
@@ -105,7 +107,7 @@ contract('RequestOpenHashSubmitter', function(accounts) {
       );
     });
 
-    it('should not be able to submitHash with the wrong fees', async function() {
+    it('should not be able to submitHash with the wrong fees', async function () {
       const minimumFee = new BigNumber(100);
       const rateFeesNumerator = new BigNumber(3);
       const rateFeesDenominator = new BigNumber(5);
@@ -118,10 +120,12 @@ contract('RequestOpenHashSubmitter', function(accounts) {
       );
 
       // No fees
-      await expectRevert(requestOpenHashSubmitter.submitHash(hashExample, feesParameters));
+      await expectRevert.unspecified(
+        requestOpenHashSubmitter.submitHash(hashExample, feesParameters),
+      );
 
       // Fees too big
-      await expectRevert(
+      await expectRevert.unspecified(
         requestOpenHashSubmitter.submitHash(hashExample, feesParameters, {
           value: new BigNumber(1000),
         }),
