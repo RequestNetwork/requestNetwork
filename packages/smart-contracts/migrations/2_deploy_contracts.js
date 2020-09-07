@@ -7,6 +7,7 @@ const FakeSwapRouter = artifacts.require('FakeSwapRouter');
 const ERC20SwapToPay = artifacts.require('ERC20SwapToPay');
 
 const erc20 = artifacts.require('./TestERC20.sol');
+const erc20Alpha = artifacts.require('./ERC20Alpha.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
 const ERC20True = artifacts.require('ERC20True');
 const ERC20False = artifacts.require('ERC20False');
@@ -101,6 +102,7 @@ module.exports = async function(deployer) {
       RequestHashStorage:       ${RequestHashStorage.address}
       RequestOpenHashSubmitter: ${RequestOpenHashSubmitter.address}
       TestERC20:                ${erc20.address}
+      ERC20Alpha:               ${erc20Alpha.address}
       ERC20Proxy:               ${ERC20Proxy.address}
       EthereumProxy:            ${EthereumProxy.address}
       ERC20FeeProxy:            ${ERC20FeeProxy.address}
@@ -109,9 +111,14 @@ module.exports = async function(deployer) {
       ERC20False:               ${ERC20False.address}
       ERC20NoReturn:            ${ERC20NoReturn.address}
       ERC20Revert:              ${ERC20Revert.address}
+<<<<<<< HEAD
       ERC20Alpha:               ${erc20AlphaInstance.address}
       FakeSwapRouter:           ${FakeSwapRouter.address}
       SwapToPay:                ${ERC20SwapToPay.address}
+=======
+      FakeSwapRouter:           ${FakeSwapRouter.address}
+      SwapToPay:                ${SwapToPay.address}
+>>>>>>> WIP: tests still failing but payment event emmitted
       `);
     } catch (e) {
     console.error(e);
