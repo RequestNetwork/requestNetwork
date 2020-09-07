@@ -9,7 +9,7 @@ RUN npm install
 ADD src src
 RUN npm install -g typescript
 ADD docker/docker-tsconfig.json tsconfig.json
-RUN tsc
+RUN tsc -b
 
 # Launch the server
 FROM node:14-alpine

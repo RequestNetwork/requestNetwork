@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "build:watch": "tsc --watch",
+    "build:watch": "tsc -b --watch",
     "test": "nyc mocha --timeout=10000 --exit --extension ts --require source-map-support/register test/**/*.ts",
     "test:watch": "yarn test --watch",
     "start": "ts-node src/server.ts",
