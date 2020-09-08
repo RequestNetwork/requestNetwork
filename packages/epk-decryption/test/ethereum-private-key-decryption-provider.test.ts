@@ -3,12 +3,6 @@ import Utils from '@requestnetwork/utils';
 
 import EthereumPrivateKeyDecryptionProvider from '../src/ethereum-private-key-decryption-provider';
 
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-
 export const id1Raw = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
   decryptionParams: {
@@ -60,43 +54,36 @@ describe('ethereum-private-key-decryption-provider', () => {
     it('can construct', async () => {
       const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
-      expect(
-        decryptionProvider.supportedIdentityTypes,
-        'decryptionProvider.supportedIdentityTypes is wrong',
-      ).to.be.deep.equal([IdentityTypes.TYPE.ETHEREUM_ADDRESS]);
-      expect(
-        decryptionProvider.supportedMethods,
-        'decryptionProvider.supportedMethods is wrong',
-      ).to.be.deep.equal([EncryptionTypes.METHOD.ECIES]);
+      // 'decryptionProvider.supportedIdentityTypes is wrong'
+      expect(decryptionProvider.supportedIdentityTypes).toEqual([
+        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+      ]);
+      // 'decryptionProvider.supportedMethods is wrong'
+      expect(decryptionProvider.supportedMethods).toEqual([EncryptionTypes.METHOD.ECIES]);
 
-      expect(
-        decryptionProvider.getAllRegisteredIdentities(),
-        'getAllRegisteredIdentities is wrong',
-      ).to.be.deep.equal([id1Raw.identity]);
+      // 'getAllRegisteredIdentities is wrong'
+      expect(decryptionProvider.getAllRegisteredIdentities()).toEqual([id1Raw.identity]);
     });
     it('cannot construct with decryption parameter not supported', async () => {
+      // 'should have thrown'
       expect(
         () =>
           new EthereumPrivateKeyDecryptionProvider({
             key: '0x0',
             method: 'not_supported',
           } as any),
-        'should have thrown',
-      ).to.throw('Encryption method not supported not_supported');
+      ).toThrowError('Encryption method not supported not_supported');
     });
-    it(
-      'cannot construct with decryption parameter value not valid',
-      async () => {
-        expect(
-          () =>
-            new EthereumPrivateKeyDecryptionProvider({
-              key: '0x0',
-              method: EncryptionTypes.METHOD.ECIES,
-            }),
-          'should have thrown',
-        ).to.throw('The private key must be a string representing 32 bytes');
-      }
-    );
+    it('cannot construct with decryption parameter value not valid', async () => {
+      // 'should have thrown'
+      expect(
+        () =>
+          new EthereumPrivateKeyDecryptionProvider({
+            key: '0x0',
+            method: EncryptionTypes.METHOD.ECIES,
+          }),
+      ).toThrowError('The private key must be a string representing 32 bytes');
+    });
   });
 
   describe('addDecryptionParameters', () => {
@@ -106,12 +93,14 @@ describe('ethereum-private-key-decryption-provider', () => {
       const identityAdded: IdentityTypes.IIdentity = decryptionProvider.addDecryptionParameters(
         id2Raw.decryptionParams,
       );
-      expect(identityAdded, 'identityAdded is wrong').to.deep.equal(id2Raw.identity);
+      // 'identityAdded is wrong'
+      expect(identityAdded).toEqual(id2Raw.identity);
 
-      expect(
-        decryptionProvider.getAllRegisteredIdentities(),
-        'getAllRegisteredIdentities is wrong',
-      ).to.be.deep.equal([id1Raw.identity, id2Raw.identity]);
+      // 'getAllRegisteredIdentities is wrong'
+      expect(decryptionProvider.getAllRegisteredIdentities()).toEqual([
+        id1Raw.identity,
+        id2Raw.identity,
+      ]);
     });
 
     it('cannot addDecryptionParameters if method not supported', () => {
@@ -121,9 +110,10 @@ describe('ethereum-private-key-decryption-provider', () => {
         method: 'unknown method',
         privateKey: '0x000',
       };
+      // 'should throw'
       expect(() => {
         decryptionProvider.addDecryptionParameters(arbitraryParams);
-      }, 'should throw').to.throw('Encryption method not supported unknown method');
+      }).toThrowError('Encryption method not supported unknown method');
     });
   });
   describe('removeDecryptionParameters', () => {
@@ -133,10 +123,8 @@ describe('ethereum-private-key-decryption-provider', () => {
 
       decryptionProvider.removeRegisteredIdentity(id2Raw.identity);
 
-      expect(
-        decryptionProvider.getAllRegisteredIdentities(),
-        'getAllRegisteredIdentities is wrong',
-      ).to.be.deep.equal([id1Raw.identity]);
+      // 'getAllRegisteredIdentities is wrong'
+      expect(decryptionProvider.getAllRegisteredIdentities()).toEqual([id1Raw.identity]);
     });
 
     it('cannot removeDecryptionParameters if method not supported', () => {
@@ -146,9 +134,10 @@ describe('ethereum-private-key-decryption-provider', () => {
         type: 'unknown type',
         value: '0x000',
       };
+      // 'should throw'
       expect(() => {
         decryptionProvider.removeRegisteredIdentity(arbitraryIdentity);
-      }, 'should throw').to.throw('Identity type not supported unknown type');
+      }).toThrowError('Identity type not supported unknown type');
     });
   });
 
@@ -159,10 +148,8 @@ describe('ethereum-private-key-decryption-provider', () => {
 
       decryptionProvider.clearAllRegisteredIdentities();
 
-      expect(
-        decryptionProvider.getAllRegisteredIdentities(),
-        'getAllRegisteredIdentities is wrong',
-      ).to.be.deep.equal([]);
+      // 'getAllRegisteredIdentities is wrong'
+      expect(decryptionProvider.getAllRegisteredIdentities()).toEqual([]);
     });
   });
 
@@ -180,17 +167,15 @@ describe('ethereum-private-key-decryption-provider', () => {
         id1Raw.identity,
       );
 
-      expect(decryptedData, 'decryptedData is wrong').to.be.deep.equal(decryptedDataExpected);
+      // 'decryptedData is wrong'
+      expect(decryptedData).toEqual(decryptedDataExpected);
     });
 
     it('cannot decrypt if encryption not supported', async () => {
       const encryptedData = { type: EncryptionTypes.METHOD.AES256_CBC, value: '0000000' };
       const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
-      await expect(
-        decryptionProvider.decrypt(encryptedData, id1Raw.identity),
-        'should throw',
-      ).to.eventually.be.rejectedWith(
+      await expect(decryptionProvider.decrypt(encryptedData, id1Raw.identity)).rejects.toThrowError(
         `The data must be encrypted with ${EncryptionTypes.METHOD.ECIES}`,
       );
     });
@@ -205,8 +190,7 @@ describe('ethereum-private-key-decryption-provider', () => {
       const arbitraryIdentity: any = { type: 'unknown type', value: '0x000' };
       await expect(
         decryptionProvider.decrypt(encryptedData, arbitraryIdentity),
-        'should throw',
-      ).to.eventually.be.rejectedWith('Identity type not supported unknown type');
+      ).rejects.toThrowError('Identity type not supported unknown type');
     });
 
     it('cannot decrypt if private key of the identity not given', async () => {
@@ -222,26 +206,21 @@ describe('ethereum-private-key-decryption-provider', () => {
       };
       await expect(
         decryptionProvider.decrypt(encryptedData, arbitraryIdentity),
-        'should throw',
-      ).to.eventually.be.rejectedWith('private key unknown for the identity: 0x000');
+      ).rejects.toThrowError('private key unknown for the identity: 0x000');
     });
   });
   describe('isIdentityRegistered', () => {
     it('can check if an identity is registered', async () => {
       const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
 
-      expect(
-        await decryptionProvider.isIdentityRegistered(id1Raw.identity),
-        'id1Raw must be registered',
-      ).to.be.true;
+      // 'id1Raw must be registered'
+      expect(await decryptionProvider.isIdentityRegistered(id1Raw.identity)).toBe(true);
     });
 
     it('can check if an identity is NOT registered', async () => {
       const decryptionProvider = new EthereumPrivateKeyDecryptionProvider(id1Raw.decryptionParams);
-      expect(
-        await decryptionProvider.isIdentityRegistered(id2Raw.identity),
-        'id2Raw must not be registered',
-      ).to.be.false;
+      // 'id2Raw must not be registered'
+      expect(await decryptionProvider.isIdentityRegistered(id2Raw.identity)).toBe(false);
     });
   });
 });
