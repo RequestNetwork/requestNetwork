@@ -24,6 +24,7 @@ contract('SwapToPay', function(accounts) {
   let fakeRouter;
   let testSwapToPay;
   let initialFromBalance;
+  let maxGasUsed;
 
   beforeEach(async () => {
     paymentErc20 = await ERC20Alpha.new(10000, {
@@ -59,6 +60,7 @@ contract('SwapToPay', function(accounts) {
     );
 
     initialFromBalance = await paymentErc20.balanceOf(from);
+    await paymentErc20.approve(testSwapToPay.address, initialFromBalance, { from });
   });
 
   afterEach(async() => {
@@ -75,16 +77,7 @@ contract('SwapToPay', function(accounts) {
   }
 
   it('swaps and pays the request', async function() {
-    await testSwapToPay.approvePaymentProxyToSpend(requestErc20.address, {
-      from: admin,
-    });
-    await testSwapToPay.approveRouterToSpend(paymentErc20.address, {
-      from: admin,
-    });
-
-    await paymentErc20.approve(testSwapToPay.address, '200', { from });
-
-    let { tx } = await testSwapToPay.swapTransferWithReference(
+    let { tx, receipt: { gasUsed } } = await testSwapToPay.swapTransferWithReference(
       to,
       10,
       22,
@@ -108,10 +101,48 @@ contract('SwapToPay', function(accounts) {
     const finalIssuerBalance = await requestErc20.balanceOf(to);
     expect(finalBuilderBalance.toNumber()).to.equals(1);
     expect(finalIssuerBalance.toNumber()).to.equals(10);
+    maxGasUsed = gasUsed;
+  });
+
+  it('swaps and pays the request with less gas', async function() {
+    await testSwapToPay.approvePaymentProxyToSpend(requestErc20.address, {
+      from: admin,
+    });
+    await testSwapToPay.approveRouterToSpend(paymentErc20.address, {
+      from: admin,
+    });
+
+    let { tx, receipt: { gasUsed }  } = await testSwapToPay.swapTransferWithReference(
+      to,
+      10,
+      22,
+      [paymentErc20.address, requestErc20.address],
+      referenceExample,
+      1,
+      builder,
+      exchangeRateOrigin + 15,
+      { from },
+    );
+    await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
+      tokenAddress: requestErc20.address,
+      to,
+      amount: '10',
+      paymentReference: ethers.utils.keccak256(referenceExample),
+      feeAmount: '1',
+      feeAddress: builder,
+    });
+
+    const finalBuilderBalance = await requestErc20.balanceOf(builder);
+    const finalIssuerBalance = await requestErc20.balanceOf(to);
+    expect(finalBuilderBalance.toNumber()).to.equals(1);
+    expect(finalIssuerBalance.toNumber()).to.equals(10);
+    // Everything should behave exactly the same, except gas usage.
+    // 50k gas units are saved by approving the router and proxy in advance for first users, per token
+    // console.log(`${maxGasUsed - gasUsed} gas units saved by approving in advance`);
+    expect(gasUsed).to.below(maxGasUsed);
   });
 
   it('cannot swap if too few payment tokens', async function() {
-    await paymentErc20.approve(testSwapToPay.address, '22', { from });
 
     await shouldFail.reverting(
       testSwapToPay.swapTransferWithReference(
@@ -130,7 +161,6 @@ contract('SwapToPay', function(accounts) {
   });
 
   it('cannot swap with a past deadline', async function() {
-    await paymentErc20.approve(testSwapToPay.address, '22', { from });
 
     await shouldFail.reverting(
       testSwapToPay.swapTransferWithReference(
