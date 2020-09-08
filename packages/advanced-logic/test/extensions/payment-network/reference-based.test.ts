@@ -4,8 +4,6 @@ import { ExtensionTypes } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';
 
-import { expect } from 'chai';
-
 import * as DataAddPaymentAddress from '../../utils/payment-network/reference-based-add-payment-address-data-generator';
 import * as DataCreate from '../../utils/payment-network/reference-based-data-generator';
 import * as TestData from '../../utils/test-data-generator';
@@ -18,77 +16,71 @@ const PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED = 'do-not-use!-pn-test-refere
 describe('extensions/payment-network/reference-based', () => {
   describe('createCreationAction', () => {
     it('can createCreationAction with payment and refund', () => {
-      expect(
+      // 'extensionsdata is wrong'
+      expect(referenceBasedManager.createCreationAction(
+        PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+        {
+          paymentAddress: DataCreate.paymentAddress,
+          refundAddress: DataCreate.refundAddress,
+          salt: DataCreate.salt,
+        },
+        '0.1.0',
+      )).toEqual(DataCreate.actionCreationWithPaymentAndRefund);
+    });
+
+    it('can createCreationAction with paymentAddress', () => {
+      // deep copy to remove the undefined properties to comply deep.equal()
+      // 'extensionsdata is wrong'
+      expect(Utils.deepCopy(
         referenceBasedManager.createCreationAction(
           PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
           {
             paymentAddress: DataCreate.paymentAddress,
+            salt: DataCreate.salt,
+          },
+          '0.1.0',
+        ),
+      )).toEqual(DataCreate.actionCreationOnlyPayment);
+    });
+    it('can createCreationAction with refundAddress', () => {
+      // deep copy to remove the undefined properties to comply deep.equal()
+      // 'extensionsdata is wrong'
+      expect(Utils.deepCopy(
+        referenceBasedManager.createCreationAction(
+          PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+          {
             refundAddress: DataCreate.refundAddress,
             salt: DataCreate.salt,
           },
           '0.1.0',
         ),
-        'extensionsdata is wrong',
-      ).to.deep.equal(DataCreate.actionCreationWithPaymentAndRefund);
-    });
-
-    it('can createCreationAction with paymentAddress', () => {
-      // deep copy to remove the undefined properties to comply deep.equal()
-      expect(
-        Utils.deepCopy(
-          referenceBasedManager.createCreationAction(
-            PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
-            {
-              paymentAddress: DataCreate.paymentAddress,
-              salt: DataCreate.salt,
-            },
-            '0.1.0',
-          ),
-        ),
-        'extensionsdata is wrong',
-      ).to.deep.equal(DataCreate.actionCreationOnlyPayment);
-    });
-    it('can createCreationAction with refundAddress', () => {
-      // deep copy to remove the undefined properties to comply deep.equal()
-      expect(
-        Utils.deepCopy(
-          referenceBasedManager.createCreationAction(
-            PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
-            {
-              refundAddress: DataCreate.refundAddress,
-              salt: DataCreate.salt,
-            },
-            '0.1.0',
-          ),
-        ),
-        'extensionsdata is wrong',
-      ).to.deep.equal(DataCreate.actionCreationOnlyRefund);
+      )).toEqual(DataCreate.actionCreationOnlyRefund);
     });
     it('can createCreationAction with only salt', () => {
       // deep copy to remove the undefined properties to comply deep.equal()
-      expect(
-        Utils.deepCopy(
-          referenceBasedManager.createCreationAction(
-            PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
-            {
-              salt: DataCreate.salt,
-            },
-            '0.1.0',
-          ),
+      // 'extensionsdata is wrong'
+      expect(Utils.deepCopy(
+        referenceBasedManager.createCreationAction(
+          PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+          {
+            salt: DataCreate.salt,
+          },
+          '0.1.0',
         ),
-        'extensionsdata is wrong',
-      ).to.deep.equal(DataCreate.actionCreationEmpty);
+      )).toEqual(DataCreate.actionCreationEmpty);
     });
     it('prevent createCreationAction with no salt', () => {
+      // 'must throw'
       expect(() => {
         referenceBasedManager.createCreationAction(
           PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
           {} as ExtensionTypes.PnReferenceBased.ICreationParameters,
           '0.1.0',
         );
-      }, 'must throw').to.throw('salt should not be empty');
+      }).toThrowError('salt should not be empty');
     });
     it('prevent createCreationAction with invalid salt', () => {
+      // 'must throw'
       expect(() => {
         referenceBasedManager.createCreationAction(
           PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
@@ -97,37 +89,33 @@ describe('extensions/payment-network/reference-based', () => {
           },
           '0.1.0',
         );
-      }, 'must throw').to.throw(
-        `The salt must be a string of minimum 16 hexadecimal characters. Example: 'ea3bc7caf64110ca'`,
+      }).toThrowError(
+        `The salt must be a string of minimum 16 hexadecimal characters. Example: 'ea3bc7caf64110ca'`
       );
     });
   });
 
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
-      expect(
-        referenceBasedManager.createAddPaymentAddressAction(
-          PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
-          {
-            paymentAddress: DataAddPaymentAddress.paymentAddress,
-          },
-        ),
-        'extensionsdata is wrong',
-      ).to.deep.equal(DataAddPaymentAddress.actionAddPaymentAddress);
+      // 'extensionsdata is wrong'
+      expect(referenceBasedManager.createAddPaymentAddressAction(
+        PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+        {
+          paymentAddress: DataAddPaymentAddress.paymentAddress,
+        },
+      )).toEqual(DataAddPaymentAddress.actionAddPaymentAddress);
     });
   });
 
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
-      expect(
-        referenceBasedManager.createAddRefundAddressAction(
-          PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
-          {
-            refundAddress: DataAddPaymentAddress.refundAddress,
-          },
-        ),
-        'extensionsdata is wrong',
-      ).to.deep.equal(DataAddPaymentAddress.actionAddRefundAddress);
+      // 'extensionsdata is wrong'
+      expect(referenceBasedManager.createAddRefundAddressAction(
+        PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED,
+        {
+          refundAddress: DataAddPaymentAddress.refundAddress,
+        },
+      )).toEqual(DataAddPaymentAddress.actionAddRefundAddress);
     });
   });
 
@@ -136,6 +124,7 @@ describe('extensions/payment-network/reference-based', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
         const unknownAction = Utils.deepCopy(DataAddPaymentAddress.actionAddPaymentAddress);
         unknownAction.action = 'unknown action';
+        // 'must throw'
         expect(() => {
           referenceBasedManager.applyActionToExtension(
             isValidAddressMock(),
@@ -145,28 +134,27 @@ describe('extensions/payment-network/reference-based', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }, 'must throw').to.throw('Unknown action: unknown action');
+        }).toThrowError('Unknown action: unknown action');
       });
     });
 
     describe('applyActionToExtension/create', () => {
       it('can applyActionToExtensions of creation', () => {
-        expect(
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            DataCreate.requestStateNoExtensions.extensions,
-            DataCreate.actionCreationWithPaymentAndRefund,
-            DataCreate.requestStateNoExtensions,
-            TestData.otherIdRaw.identity,
-            TestData.arbitraryTimestamp,
-          ),
-          'new extension state wrong',
-        ).to.deep.equal(DataCreate.extensionStateWithPaymentAndRefund);
+        // 'new extension state wrong'
+        expect(referenceBasedManager.applyActionToExtension(
+          isValidAddressMock(),
+          DataCreate.requestStateNoExtensions.extensions,
+          DataCreate.actionCreationWithPaymentAndRefund,
+          DataCreate.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        )).toEqual(DataCreate.extensionStateWithPaymentAndRefund);
       });
 
       it(
         'cannot applyActionToExtensions of creation with a previous state',
         () => {
+          // 'must throw'
           expect(() => {
             referenceBasedManager.applyActionToExtension(
               isValidAddressMock(),
@@ -176,28 +164,27 @@ describe('extensions/payment-network/reference-based', () => {
               TestData.otherIdRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }, 'must throw').to.throw('This extension has already been created');
+          }).toThrowError('This extension has already been created');
         }
       );
     });
 
     describe('applyActionToExtension/addPaymentAddress', () => {
       it('can applyActionToExtensions of addPaymentAddress', () => {
-        expect(
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            DataCreate.requestStateCreatedEmpty.extensions,
-            DataAddPaymentAddress.actionAddPaymentAddress,
-            DataCreate.requestStateCreatedEmpty,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          ),
-          'new extension state wrong',
-        ).to.deep.equal(DataAddPaymentAddress.extensionStateWithPaymentAfterCreation);
+        // 'new extension state wrong'
+        expect(referenceBasedManager.applyActionToExtension(
+          isValidAddressMock(),
+          DataCreate.requestStateCreatedEmpty.extensions,
+          DataAddPaymentAddress.actionAddPaymentAddress,
+          DataCreate.requestStateCreatedEmpty,
+          TestData.payeeRaw.identity,
+          TestData.arbitraryTimestamp,
+        )).toEqual(DataAddPaymentAddress.extensionStateWithPaymentAfterCreation);
       });
       it(
         'cannot applyActionToExtensions of addPaymentAddress without a previous state',
         () => {
+          // 'must throw'
           expect(() => {
             referenceBasedManager.applyActionToExtension(
               isValidAddressMock(),
@@ -207,9 +194,7 @@ describe('extensions/payment-network/reference-based', () => {
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }, 'must throw').to.throw(
-            `The extension should be created before receiving any other action`,
-          );
+          }).toThrowError(`The extension should be created before receiving any other action`);
         }
       );
       it(
@@ -217,6 +202,7 @@ describe('extensions/payment-network/reference-based', () => {
         () => {
           const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
           previousState.payee = undefined;
+          // 'must throw'
           expect(() => {
             referenceBasedManager.applyActionToExtension(
               isValidAddressMock(),
@@ -226,13 +212,14 @@ describe('extensions/payment-network/reference-based', () => {
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }, 'must throw').to.throw(`The request must have a payee`);
+          }).toThrowError(`The request must have a payee`);
         }
       );
       it(
         'cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee',
         () => {
           const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
+          // 'must throw'
           expect(() => {
             referenceBasedManager.applyActionToExtension(
               isValidAddressMock(),
@@ -242,12 +229,13 @@ describe('extensions/payment-network/reference-based', () => {
               TestData.payerRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }, 'must throw').to.throw(`The signer must be the payee`);
+          }).toThrowError(`The signer must be the payee`);
         }
       );
       it(
         'cannot applyActionToExtensions of addPaymentAddress with payment address already given',
         () => {
+          // 'must throw'
           expect(() => {
             referenceBasedManager.applyActionToExtension(
               isValidAddressMock(),
@@ -257,28 +245,27 @@ describe('extensions/payment-network/reference-based', () => {
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }, 'must throw').to.throw(`Payment address already given`);
+          }).toThrowError(`Payment address already given`);
         }
       );
     });
 
     describe('applyActionToExtension/addRefundAddress', () => {
       it('can applyActionToExtensions of addRefundAddress', () => {
-        expect(
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            DataCreate.requestStateCreatedEmpty.extensions,
-            DataAddPaymentAddress.actionAddRefundAddress,
-            DataCreate.requestStateCreatedEmpty,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          ),
-          'new extension state wrong',
-        ).to.deep.equal(DataAddPaymentAddress.extensionStateWithRefundAfterCreation);
+        // 'new extension state wrong'
+        expect(referenceBasedManager.applyActionToExtension(
+          isValidAddressMock(),
+          DataCreate.requestStateCreatedEmpty.extensions,
+          DataAddPaymentAddress.actionAddRefundAddress,
+          DataCreate.requestStateCreatedEmpty,
+          TestData.payerRaw.identity,
+          TestData.arbitraryTimestamp,
+        )).toEqual(DataAddPaymentAddress.extensionStateWithRefundAfterCreation);
       });
       it(
         'cannot applyActionToExtensions of addRefundAddress without a previous state',
         () => {
+          // 'must throw'
           expect(() => {
             referenceBasedManager.applyActionToExtension(
               isValidAddressMock(),
@@ -288,9 +275,7 @@ describe('extensions/payment-network/reference-based', () => {
               TestData.payerRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }, 'must throw').to.throw(
-            `The extension should be created before receiving any other action`,
-          );
+          }).toThrowError(`The extension should be created before receiving any other action`);
         }
       );
       it(
@@ -298,6 +283,7 @@ describe('extensions/payment-network/reference-based', () => {
         () => {
           const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
           previousState.payer = undefined;
+          // 'must throw'
           expect(() => {
             referenceBasedManager.applyActionToExtension(
               isValidAddressMock(),
@@ -307,13 +293,14 @@ describe('extensions/payment-network/reference-based', () => {
               TestData.payerRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }, 'must throw').to.throw(`The request must have a payer`);
+          }).toThrowError(`The request must have a payer`);
         }
       );
       it(
         'cannot applyActionToExtensions of addRefundAddress signed by someone else than the payer',
         () => {
           const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
+          // 'must throw'
           expect(() => {
             referenceBasedManager.applyActionToExtension(
               isValidAddressMock(),
@@ -323,12 +310,13 @@ describe('extensions/payment-network/reference-based', () => {
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }, 'must throw').to.throw(`The signer must be the payer`);
+          }).toThrowError(`The signer must be the payer`);
         }
       );
       it(
         'cannot applyActionToExtensions of addRefundAddress with payment address already given',
         () => {
+          // 'must throw'
           expect(() => {
             referenceBasedManager.applyActionToExtension(
               isValidAddressMock(),
@@ -338,7 +326,7 @@ describe('extensions/payment-network/reference-based', () => {
               TestData.payerRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }, 'must throw').to.throw(`Refund address already given`);
+          }).toThrowError(`Refund address already given`);
         }
       );
     });

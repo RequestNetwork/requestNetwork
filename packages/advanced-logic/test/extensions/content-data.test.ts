@@ -3,8 +3,6 @@ import Utils from '@requestnetwork/utils';
 
 import ContentData from '../../src/extensions/content-data';
 
-import { expect } from 'chai';
-
 import * as TestData from '../utils/test-data-generator';
 
 /* tslint:disable:no-unused-expression */
@@ -21,15 +19,13 @@ describe('content-data', () => {
         TestData.arbitraryTimestamp,
       );
 
-      expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
-        TestData.expectedCreatedContentDataState,
-      );
+      // 'newExtensionState wrong'
+      expect(newExtensionState).toEqual(TestData.expectedCreatedContentDataState);
 
-      expect(previousState, 'previous extension state must not change').to.deep.equal({});
-      expect(
-        requestCreatedNoExtensionBefore,
-        'previous request state must not change',
-      ).to.deep.equal(TestData.requestCreatedNoExtension);
+      // 'previous extension state must not change'
+      expect(previousState).toEqual({});
+      // 'previous request state must not change'
+      expect(requestCreatedNoExtensionBefore).toEqual(TestData.requestCreatedNoExtension);
     });
     it('cannot create state if already state', () => {
       expect(() =>
@@ -45,7 +41,7 @@ describe('content-data', () => {
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         ),
-      ).to.throw('This extension has already been created');
+      ).toThrowError('This extension has already been created');
     });
 
     it('cannot create state if action parameters do not have content', () => {
@@ -62,10 +58,11 @@ describe('content-data', () => {
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         ),
-      ).to.throw('No content has been given for the extension content-data');
+      ).toThrowError('No content has been given for the extension content-data');
     });
 
     it('cannot create state if action unknown', () => {
+      // 'must throw'
       expect(() => {
         ContentData.applyActionToExtension(
           {},
@@ -79,7 +76,7 @@ describe('content-data', () => {
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         );
-      }, 'must throw').to.throw('Unknown action: unknown action');
+      }).toThrowError('Unknown action: unknown action');
     });
   });
 
@@ -89,14 +86,11 @@ describe('content-data', () => {
         content: { what: 'ever', it: 'is' },
       });
 
-      expect(extensionDataCreated, 'extensionDataCreated wrong').to.deep.equal(
-        TestData.createContentDataExtensionData,
-      );
+      // 'extensionDataCreated wrong'
+      expect(extensionDataCreated).toEqual(TestData.createContentDataExtensionData);
     });
     it('cannot create extension data if parameters do not have content', () => {
-      expect(() => ContentData.createCreationAction({} as any)).to.throw(
-        'No content has been given for the extension content-data',
-      );
+      expect(() => ContentData.createCreationAction({} as any)).toThrowError('No content has been given for the extension content-data');
     });
   });
 });
