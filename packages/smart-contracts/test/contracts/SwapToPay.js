@@ -55,22 +55,17 @@ contract('SwapToPay', function(accounts) {
     );
   });
 
-  it.only('swaps and pays the request', async function() {
+  it('swaps and pays the request', async function() {
     await testSwapToPay.approvePaymentProxyToSpend(requestedErc20.address, {
       from: admin,
     });
     await testSwapToPay.approveRouterToSpend(paymentErc20.address, {
       from: admin,
     });
-    console.log(`stp = await SwapToPay.at("${testSwapToPay.address}");`);
-    console.log(`pmt = await ERC20Alpha.at("${paymentErc20.address}");`);
-    console.log(`req = await TestERC20.at("${requestedErc20.address}");`);
-    console.log(`uniswapRouter = await FakeSwapRouter.at("${fakeRouter.address}");`);
-    console.log("await pmt.approve(uniswapRouter.address, 210, {from: accounts[1]});");
 
-    let { logsTemp } = await paymentErc20.approve(testSwapToPay.address, '200', { from });
+    await paymentErc20.approve(testSwapToPay.address, '200', { from });
 
-    let { logs } = await testSwapToPay.swapTransferWithReference(
+    let { tx } = await testSwapToPay.swapTransferWithReference(
       to,
       10,
       22,
@@ -81,12 +76,12 @@ contract('SwapToPay', function(accounts) {
       Date.now() + 15,
       { from },
     );
-    expectEvent.inLogs(logs, 'TransferWithReferenceAndFee', {
+    await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
       tokenAddress: requestedErc20.address,
       to,
-      amount: 10,
-      //paymentReference: ethers.utils.keccak256(referenceExample),
-      feeAmount: 1,
+      amount: '10',
+      paymentReference: ethers.utils.keccak256(referenceExample),
+      feeAmount: '1',
       feeAddress: builder,
     });
   });
