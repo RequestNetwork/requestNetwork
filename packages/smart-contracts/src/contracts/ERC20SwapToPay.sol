@@ -124,7 +124,6 @@ contract ERC20SwapToPay is Ownable {
     }
   }
 
-
   /*
   * Admin functions to edit the admin, router address or proxy address
   */
