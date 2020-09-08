@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import { DataAccessTypes } from '@requestnetwork/types';
 import RequestDataAccessBlock from '../src/block';
 
@@ -46,12 +44,14 @@ describe('block', () => {
   describe('createEmptyBlock', () => {
     it('can create an empty block', () => {
       const emptyblock1 = RequestDataAccessBlock.createEmptyBlock();
-      expect(emptyblock1.header, 'header is wrong').to.be.deep.equal({
+      // 'header is wrong'
+      expect(emptyblock1.header).toEqual({
         channelIds: {},
         topics: {},
         version: CURRENT_VERSION,
       });
-      expect(emptyblock1.transactions, 'transactions are wrong').to.be.deep.equal([]);
+      // 'transactions are wrong'
+      expect(emptyblock1.transactions).toEqual([]);
     });
   });
 
@@ -64,14 +64,17 @@ describe('block', () => {
         [arbitraryTopic1, arbitraryTopic2],
       );
       // empty block mush remain empty
-      expect(emptyblock.header, 'previous header must not change').to.be.deep.equal({
+      // 'previous header must not change'
+      expect(emptyblock.header).toEqual({
         channelIds: {},
         topics: {},
         version: CURRENT_VERSION,
       });
-      expect(emptyblock.transactions, 'previous transactions must not change').to.be.deep.equal([]);
+      // 'previous transactions must not change'
+      expect(emptyblock.transactions).toEqual([]);
 
-      expect(newBlock.header, 'header is wrong').to.be.deep.equal({
+      // 'header is wrong'
+      expect(newBlock.header).toEqual({
         channelIds: {
           [arbitraryId1]: [0],
         },
@@ -80,7 +83,8 @@ describe('block', () => {
         },
         version: CURRENT_VERSION,
       });
-      expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([transactionMock]);
+      // 'transactions are wrong'
+      expect(newBlock.transactions).toEqual([transactionMock]);
     });
     it('can pushTransaction with topics a NOT empty block', () => {
       const previousBlock = RequestDataAccessBlock.pushTransaction(
@@ -96,18 +100,21 @@ describe('block', () => {
         [arbitraryTopic1, arbitraryTopic2],
       );
 
-      expect(previousBlock.header, 'previous header must not change').to.be.deep.equal({
+      // 'previous header must not change'
+      expect(previousBlock.header).toEqual({
         channelIds: {
           [arbitraryId1]: [0],
         },
         topics: {},
         version: CURRENT_VERSION,
       });
-      expect(previousBlock.transactions, 'transactions are wrong').to.be.deep.equal([
+      // 'transactions are wrong'
+      expect(previousBlock.transactions).toEqual([
         transactionMock,
       ]);
 
-      expect(newBlock.header, 'header is wrong').to.be.deep.equal({
+      // 'header is wrong'
+      expect(newBlock.header).toEqual({
         channelIds: {
           [arbitraryId1]: [0],
           [arbitraryId2]: [1],
@@ -117,7 +124,8 @@ describe('block', () => {
         },
         version: CURRENT_VERSION,
       });
-      expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
+      // 'transactions are wrong'
+      expect(newBlock.transactions).toEqual([
         transactionMock,
         transactionMock2,
       ]);
@@ -129,21 +137,25 @@ describe('block', () => {
         arbitraryId1,
       );
       // empty block mush remain empty
-      expect(emptyblock.header, 'previous header must not change').to.be.deep.equal({
+      // 'previous header must not change'
+      expect(emptyblock.header).toEqual({
         channelIds: {},
         topics: {},
         version: CURRENT_VERSION,
       });
-      expect(emptyblock.transactions, 'previous transactions must not change').to.be.deep.equal([]);
+      // 'previous transactions must not change'
+      expect(emptyblock.transactions).toEqual([]);
 
-      expect(newBlock.header, 'header is wrong').to.be.deep.equal({
+      // 'header is wrong'
+      expect(newBlock.header).toEqual({
         channelIds: {
           [arbitraryId1]: [0],
         },
         topics: {},
         version: CURRENT_VERSION,
       });
-      expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([transactionMock]);
+      // 'transactions are wrong'
+      expect(newBlock.transactions).toEqual([transactionMock]);
     });
     it('can pushTransaction without topics on a NOT empty block', () => {
       const previousBlock = RequestDataAccessBlock.pushTransaction(
@@ -157,18 +169,21 @@ describe('block', () => {
         arbitraryId2,
       );
 
-      expect(previousBlock.header, 'previous header must not change').to.be.deep.equal({
+      // 'previous header must not change'
+      expect(previousBlock.header).toEqual({
         channelIds: {
           [arbitraryId1]: [0],
         },
         topics: {},
         version: CURRENT_VERSION,
       });
-      expect(previousBlock.transactions, 'transactions are wrong').to.be.deep.equal([
+      // 'transactions are wrong'
+      expect(previousBlock.transactions).toEqual([
         transactionMock,
       ]);
 
-      expect(newBlock.header, 'header is wrong').to.be.deep.equal({
+      // 'header is wrong'
+      expect(newBlock.header).toEqual({
         channelIds: {
           [arbitraryId1]: [0],
           [arbitraryId2]: [1],
@@ -176,7 +191,8 @@ describe('block', () => {
         topics: {},
         version: CURRENT_VERSION,
       });
-      expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
+      // 'transactions are wrong'
+      expect(newBlock.transactions).toEqual([
         transactionMock,
         transactionMock2,
       ]);
@@ -189,7 +205,8 @@ describe('block', () => {
         [arbitraryTopic2],
       );
 
-      expect(newBlock.header, 'header is wrong').to.be.deep.equal({
+      // 'header is wrong'
+      expect(newBlock.header).toEqual({
         channelIds: {
           [arbitraryId1]: [0],
           [arbitraryId2]: [1],
@@ -200,12 +217,14 @@ describe('block', () => {
         },
         version: CURRENT_VERSION,
       });
-      expect(newBlock.transactions, 'transactions are wrong').to.be.deep.equal([
+      // 'transactions are wrong'
+      expect(newBlock.transactions).toEqual([
         transactionMock,
         transactionMock2,
       ]);
     });
     it('cannot pushTransaction without property data', () => {
+      // 'must throw'
       expect(() => {
         RequestDataAccessBlock.pushTransaction(
           emptyblock,
@@ -213,14 +232,15 @@ describe('block', () => {
           arbitraryId1,
           [],
         );
-      }, 'must throw').to.throw('The transaction is missing the data property');
+      }).toThrowError('The transaction is missing the data property');
     });
   });
 
   describe('getAllTransactions', () => {
     it('can getAllTransactions on empty block', () => {
       const allTxs = RequestDataAccessBlock.getAllTransactions(emptyblock);
-      expect(allTxs, 'transactions must be empty').to.be.deep.equal([]);
+      // 'transactions must be empty'
+      expect(allTxs).toEqual([]);
     });
     it('can getAllTransactions on NOT empty block', () => {
       let newBlock = RequestDataAccessBlock.pushTransaction(
@@ -231,7 +251,8 @@ describe('block', () => {
       );
       newBlock = RequestDataAccessBlock.pushTransaction(newBlock, transactionMock2, arbitraryId2);
       const allTxs = RequestDataAccessBlock.getAllTransactions(newBlock);
-      expect(allTxs, 'transactions must be empty').to.be.deep.equal([
+      // 'transactions must be empty'
+      expect(allTxs).toEqual([
         transactionMock,
         transactionMock2,
       ]);
@@ -241,11 +262,13 @@ describe('block', () => {
   describe('getAllTopic', () => {
     it('can getAllTopic on empty block', () => {
       const allTopices = RequestDataAccessBlock.getAllTopics(emptyblock);
-      expect(allTopices, 'transactions must be empty').to.be.deep.equal({});
+      // 'transactions must be empty'
+      expect(allTopices).toEqual({});
     });
     it('can getAllTopic on NOT empty block', () => {
       const allTopices = RequestDataAccessBlock.getAllTopics(blockWith2tx);
-      expect(allTopices, 'transactions must be empty').to.be.deep.equal({
+      // 'transactions must be empty'
+      expect(allTopices).toEqual({
         [arbitraryId1]: [arbitraryTopic1, arbitraryTopic2],
         [arbitraryId2]: [arbitraryTopic2],
       });
@@ -255,11 +278,13 @@ describe('block', () => {
   describe('getAllChannelIds', () => {
     it('can getAllChannelIds on empty block', () => {
       const allIds = RequestDataAccessBlock.getAllChannelIds(emptyblock);
-      expect(allIds, 'transactions must be empty').to.be.deep.equal({});
+      // 'transactions must be empty'
+      expect(allIds).toEqual({});
     });
     it('can getAllChannelIds on NOT empty block', () => {
       const allIds = RequestDataAccessBlock.getAllChannelIds(blockWith2tx);
-      expect(allIds, 'transactions must be empty').to.be.deep.equal({
+      // 'transactions must be empty'
+      expect(allIds).toEqual({
         [arbitraryId1]: [0],
         [arbitraryId2]: [1],
       });
@@ -269,12 +294,14 @@ describe('block', () => {
   describe('getTransactionFromPosition', () => {
     it('can getTransactionFromPosition on an empty block', () => {
       const tx = RequestDataAccessBlock.getTransactionFromPosition(emptyblock, 0);
-      expect(tx, 'tx must be undefined').to.be.undefined;
+      // 'tx must be undefined'
+      expect(tx).toBeUndefined();
     });
     it('can getTransactionFromPosition with transaction existing', () => {
       const tx = RequestDataAccessBlock.getTransactionFromPosition(blockWith1tx, 0);
 
-      expect(tx, 'transactions is wrong').to.be.deep.equal(transactionMock);
+      // 'transactions is wrong'
+      expect(tx).toEqual(transactionMock);
     });
   });
 
@@ -284,35 +311,41 @@ describe('block', () => {
         emptyblock,
         arbitraryId1,
       );
-      expect(txTopic, 'txTopic is wrong').to.be.deep.equal([]);
+      // 'txTopic is wrong'
+      expect(txTopic).toEqual([]);
     });
     it('can getTransactionPositionFromChannelId with topics existing', () => {
       const txTopic = RequestDataAccessBlock.getTransactionPositionFromChannelId(
         blockWith1tx,
         arbitraryId1,
       );
-      expect(txTopic, 'txTopic is wrong').to.be.deep.equal([0]);
+      // 'txTopic is wrong'
+      expect(txTopic).toEqual([0]);
     });
   });
 
   describe('getTransactionsByPositions', () => {
     it('can getTransactionsByPositions on an empty block', () => {
       const txs = RequestDataAccessBlock.getTransactionsByPositions(emptyblock, [0, 1]);
-      expect(txs, 'txs must be empty').to.be.deep.equal([]);
+      // 'txs must be empty'
+      expect(txs).toEqual([]);
     });
     it('can getTransactionsByPositions on missing transaction', () => {
       const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith1tx, [0, 1]);
-      expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock]);
+      // 'txs is wrong'
+      expect(txs).toEqual([transactionMock]);
     });
     it('can getTransactionsByPositions on more than one transaction', () => {
       const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [0, 1]);
-      expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock, transactionMock2]);
+      // 'txs is wrong'
+      expect(txs).toEqual([transactionMock, transactionMock2]);
     });
     it(
       'can getTransactionsByPositions on more than one transaction with array not sorted',
       () => {
         const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [1, 0]);
-        expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock, transactionMock2]);
+        // 'txs is wrong'
+        expect(txs).toEqual([transactionMock, transactionMock2]);
       }
     );
     it(
@@ -326,7 +359,8 @@ describe('block', () => {
           0,
           0,
         ]);
-        expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock, transactionMock2]);
+        // 'txs is wrong'
+        expect(txs).toEqual([transactionMock, transactionMock2]);
       }
     );
   });
@@ -337,14 +371,16 @@ describe('block', () => {
         arbitraryId1,
         arbitraryId2,
       ]);
-      expect(txs, 'txs must be empty').to.be.deep.equal([]);
+      // 'txs must be empty'
+      expect(txs).toEqual([]);
     });
     it('can getTransactionPositionsByChannelIds on missing transaction', () => {
       const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith1tx, [
         arbitraryId1,
         arbitraryId2,
       ]);
-      expect(txs, 'txs is wrong').to.be.deep.equal([0]);
+      // 'txs is wrong'
+      expect(txs).toEqual([0]);
     });
     it(
       'can getTransactionPositionsByChannelIds on more than one transaction',
@@ -353,7 +389,8 @@ describe('block', () => {
           arbitraryId1,
           arbitraryId2,
         ]);
-        expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
+        // 'txs is wrong'
+        expect(txs).toEqual([0, 1]);
       }
     );
     it(
@@ -363,7 +400,8 @@ describe('block', () => {
           arbitraryId2,
           arbitraryId1,
         ]);
-        expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
+        // 'txs is wrong'
+        expect(txs).toEqual([0, 1]);
       }
     );
     it(
@@ -378,7 +416,8 @@ describe('block', () => {
           arbitraryId1,
           arbitraryId1,
         ]);
-        expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
+        // 'txs is wrong'
+        expect(txs).toEqual([0, 1]);
       }
     );
   });
@@ -386,21 +425,17 @@ describe('block', () => {
   describe('parseBlock', () => {
     it('can parse a data', async () => {
       const block = RequestDataAccessBlock.parseBlock(JSON.stringify(blockWith2tx));
-      expect(block).to.deep.equal(blockWith2tx);
+      expect(block).toEqual(blockWith2tx);
     });
 
     it('cannot parse a data not following the block standard', async () => {
       const blockNotJson = 'This is not JSON';
-      expect(() => RequestDataAccessBlock.parseBlock(blockNotJson)).to.throw(
-        `Impossible to JSON parse the data: `,
-      );
+      expect(() => RequestDataAccessBlock.parseBlock(blockNotJson)).toThrowError(`Impossible to JSON parse the data: `);
 
       const blockWithoutHeader = {
         transactions: [{ data: 'any data' }],
       };
-      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutHeader))).to.throw(
-        `Data do not follow the block standard`,
-      );
+      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutHeader))).toThrowError(`Data do not follow the block standard`);
 
       const blockWithoutChannelIds = {
         header: { topics: {}, version: '0.1.0' },
@@ -408,30 +443,26 @@ describe('block', () => {
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutChannelIds)),
-      ).to.throw(`Header do not follow the block standard`);
+      ).toThrowError(`Header do not follow the block standard`);
 
       const blockWithoutTopics = {
         header: { channelIds: {}, version: '0.1.0' },
         transactions: [{ data: 'any data' }],
       };
-      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTopics))).to.throw(
-        `Header do not follow the block standard`,
-      );
+      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTopics))).toThrowError(`Header do not follow the block standard`);
 
       const blockWithoutVersion = {
         header: { channelIds: {}, topics: {} },
         transactions: [{ data: 'any data' }],
       };
-      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutVersion))).to.throw(
-        `Header do not follow the block standard`,
-      );
+      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutVersion))).toThrowError(`Header do not follow the block standard`);
 
       const blockWithoutTransactions = {
         header: { channelIds: {}, topics: {}, version: '0.1.0' },
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTransactions)),
-      ).to.throw(`Data do not follow the block standard`);
+      ).toThrowError(`Data do not follow the block standard`);
 
       const blockWithoutTransactionData = {
         header: { channelIds: {}, topics: {}, version: '0.1.0' },
@@ -439,15 +470,13 @@ describe('block', () => {
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTransactionData)),
-      ).to.throw(`Transactions do not follow the block standard`);
+      ).toThrowError(`Transactions do not follow the block standard`);
 
       const blockWrongVersion = {
         header: { channelIds: {}, topics: {}, version: '0.0.0' },
         transactions: [{ data: 'any data' }],
       };
-      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWrongVersion))).to.throw(
-        `Version not supported`,
-      );
+      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWrongVersion))).toThrowError(`Version not supported`);
 
       const blockWithChannelIdNotHash = {
         header: { channelIds: { ['0x111']: [0] }, topics: {}, version: '0.1.0' },
@@ -455,7 +484,7 @@ describe('block', () => {
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithChannelIdNotHash)),
-      ).to.throw(`Channel ids in header.channelIds must be formatted keccak256 hashes`);
+      ).toThrowError(`Channel ids in header.channelIds must be formatted keccak256 hashes`);
 
       const blockWithTxPositionNotExisting = {
         header: { channelIds: { [arbitraryId1]: [1] }, topics: {}, version: '0.1.0' },
@@ -463,7 +492,7 @@ describe('block', () => {
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithTxPositionNotExisting)),
-      ).to.throw(`transactions in channel ids must refer to transaction in the blocks`);
+      ).toThrowError(`transactions in channel ids must refer to transaction in the blocks`);
 
       const blockWithNegativePosition = {
         header: { channelIds: { [arbitraryId1]: [-1] }, topics: {}, version: '0.1.0' },
@@ -471,7 +500,7 @@ describe('block', () => {
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithNegativePosition)),
-      ).to.throw(`transactions in channel ids must refer to transaction in the blocks`);
+      ).toThrowError(`transactions in channel ids must refer to transaction in the blocks`);
 
       const blockWithChannelIdInTopicsNotHash = {
         header: { channelIds: {}, topics: { ['Ox111']: [arbitraryTopic1] }, version: '0.1.0' },
@@ -479,7 +508,7 @@ describe('block', () => {
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithChannelIdInTopicsNotHash)),
-      ).to.throw(`Channel ids in header.topics must be formatted keccak256 hashes`);
+      ).toThrowError(`Channel ids in header.topics must be formatted keccak256 hashes`);
 
       const blockWithTopicsNotHash = {
         header: { channelIds: {}, topics: { [arbitraryId1]: ['0x111'] }, version: '0.1.0' },
@@ -487,7 +516,7 @@ describe('block', () => {
       };
       expect(() =>
         RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithTopicsNotHash)),
-      ).to.throw(`topics in header.topics must be formatted keccak256 hashes`);
+      ).toThrowError(`topics in header.topics must be formatted keccak256 hashes`);
     });
   });
 
@@ -522,9 +551,11 @@ describe('block', () => {
           },
         ],
       });
-      expect(JSON.stringify(block), 'Error stringify-ing a block').to.be.equal(strExpected);
+      // 'Error stringify-ing a block'
+      expect(JSON.stringify(block)).toBe(strExpected);
 
-      expect(JSON.parse(strExpected), 'Error parsing a block').to.be.deep.equal(block);
+      // 'Error parsing a block'
+      expect(JSON.parse(strExpected)).toEqual(block);
     });
   });
 });

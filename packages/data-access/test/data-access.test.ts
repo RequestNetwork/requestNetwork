@@ -2,14 +2,6 @@ import * as sinon from 'sinon';
 
 import { EventEmitter } from 'events';
 
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-const spies = require('chai-spies');
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-chai.use(spies);
-
 import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 
 import RequestDataAccessBlock from '../src/block';
@@ -18,12 +10,10 @@ import DataAccess from '../src/data-access';
 // We use this function to flush the call stack
 // If we don't use this function, the fake timer will be increased before the interval function being called
 const flushCallStack = (): Promise<any> => {
-  return new Promise(
-    (resolve): any => {
-      setTimeout(resolve, 0);
-      clock.tick(1);
-    },
-  );
+  return new Promise((resolve): any => {
+    setTimeout(resolve, 0);
+    clock.tick(1);
+  });
 };
 
 const transactionDataMock1String = JSON.stringify({
@@ -126,28 +116,24 @@ const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise
 );
 
 const defaultFakeStorage: StorageTypes.IStorage = {
-  _getStatus: chai.spy(
-    (): any => ({
-      fake: 'status',
-    }),
-  ),
-  _ipfsAdd: chai.spy(),
-  append: chai.spy(
-    (): any => {
-      const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
-      setTimeout(
-        () => {
-          appendResultWithEvent.emit('confirmed', appendResultConfirmed);
-        },
-        // tslint:disable-next-line:no-magic-numbers
-        10,
-      );
-      return appendResultWithEvent;
-    },
-  ),
+  _getStatus: jest.fn((): any => ({
+    fake: 'status',
+  })),
+  _ipfsAdd: jest.fn(),
+  append: jest.fn((): any => {
+    const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
+    setTimeout(
+      () => {
+        appendResultWithEvent.emit('confirmed', appendResultConfirmed);
+      },
+      // tslint:disable-next-line:no-magic-numbers
+      10,
+    );
+    return appendResultWithEvent;
+  }),
   getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
   getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
-  initialize: chai.spy(),
+  initialize: jest.fn(),
   read: (param: string): any => {
     const dataIdBlock2txFake: any = {
       meta: {},
@@ -193,7 +179,7 @@ describe('data-access', () => {
 
       const dataAccess = new DataAccess(customFakeStorage);
 
-      await expect(dataAccess.initialize()).to.be.rejectedWith(
+      await expect(dataAccess.initialize()).rejects.toThrowError(
         'data from storage do not follow the standard',
       );
     });
@@ -202,7 +188,7 @@ describe('data-access', () => {
       const dataAccess = new DataAccess(defaultFakeStorage);
       await dataAccess.initialize();
 
-      await expect(dataAccess.initialize()).to.be.rejectedWith('already initialized');
+      await expect(dataAccess.initialize()).rejects.toThrowError('already initialized');
     });
 
     it('cannot getChannelsByTopic if not initialized', async () => {
@@ -223,7 +209,7 @@ describe('data-access', () => {
 
       const dataAccess = new DataAccess(fakeStorage);
 
-      await expect(dataAccess.getChannelsByTopic(arbitraryTopic1)).to.be.rejectedWith(
+      await expect(dataAccess.getChannelsByTopic(arbitraryTopic1)).rejects.toThrowError(
         'DataAccess must be initialized',
       );
     });
@@ -255,8 +241,7 @@ describe('data-access', () => {
     it('can getTransactionsByChannelId() with boundaries', async () => {
       expect(
         await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 9, to: 100 }),
-        'result with arbitraryId1 wrong',
-      ).to.deep.equal({
+      ).toMatchObject({
         meta: {
           storageMeta: [
             {
@@ -278,21 +263,17 @@ describe('data-access', () => {
       });
     });
 
-    it(
-      'can getTransactionsByChannelId() with boundaries too restrictive',
-      async () => {
-        expect(
-          await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 11, to: 100 }),
-          'result with arbitraryId1 wrong',
-        ).to.deep.equal({
-          meta: {
-            storageMeta: [],
-            transactionsStorageLocation: [],
-          },
-          result: { transactions: [] },
-        });
-      }
-    );
+    it('can getTransactionsByChannelId() with boundaries too restrictive', async () => {
+      expect(
+        await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 11, to: 100 }),
+      ).toMatchObject({
+        meta: {
+          storageMeta: [],
+          transactionsStorageLocation: [],
+        },
+        result: { transactions: [] },
+      });
+    });
   });
 
   describe('getChannelByTopic', () => {
@@ -321,8 +302,7 @@ describe('data-access', () => {
     it('can getChannelByTopic() with boundaries', async () => {
       expect(
         await dataAccess.getChannelsByTopic(arbitraryTopic1, { from: 9, to: 100 }),
-        'result with arbitraryTopic1 wrong',
-      ).to.deep.equal({
+      ).toMatchObject({
         meta: {
           storageMeta: {
             [arbitraryId1]: [
@@ -351,8 +331,7 @@ describe('data-access', () => {
     it('can getChannelByTopic() with boundaries too restrictive', async () => {
       expect(
         await dataAccess.getChannelsByTopic(arbitraryTopic1, { from: 11, to: 100 }),
-        'result with arbitraryTopic1 wrong',
-      ).to.deep.equal({
+      ).toMatchObject({
         meta: {
           storageMeta: {},
           transactionsStorageLocation: {},
@@ -391,7 +370,7 @@ describe('data-access', () => {
         to: 100,
       });
 
-      expect(ret.meta, 'meta wrong').to.deep.equal({
+      expect(ret.meta).toMatchObject({
         storageMeta: {
           [arbitraryId1]: [
             {
@@ -411,7 +390,7 @@ describe('data-access', () => {
           [arbitraryId2]: [dataIdBlock2tx],
         },
       });
-      expect(ret.result, 'result meta wrong').to.deep.equal({
+      expect(ret.result).toMatchObject({
         transactions: {
           [arbitraryId1]: [
             {
@@ -437,8 +416,7 @@ describe('data-access', () => {
           from: 11,
           to: 100,
         }),
-        'result with arbitraryTopic1 wrong',
-      ).to.deep.equal({
+      ).toMatchObject({
         meta: {
           storageMeta: {},
           transactionsStorageLocation: {},
@@ -453,12 +431,12 @@ describe('data-access', () => {
       const dataAccess = new DataAccess(defaultFakeStorage);
       await dataAccess.initialize();
 
-      const errFunction = chai.spy();
+      const errFunction = jest.fn();
       const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
         arbitraryTopic1,
       ]);
-      result.on('error', errFunction).on('confirmed', resultConfirmed1 => {
-        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+      result.on('error', errFunction).on('confirmed', (resultConfirmed1) => {
+        expect(resultConfirmed1).toMatchObject({
           meta: {
             storageMeta: {
               state: DataAccessTypes.TransactionState.CONFIRMED,
@@ -473,10 +451,10 @@ describe('data-access', () => {
 
       clock.tick(11);
 
-      expect(errFunction).to.not.be.called();
+      expect(errFunction).not.toHaveBeenCalled();
       /* tslint:disable:object-literal-sort-keys  */
       /* tslint:disable:object-literal-key-quotes  */
-      expect(defaultFakeStorage.append).to.have.been.called.with(
+      expect(defaultFakeStorage.append).toHaveBeenCalledWith(
         JSON.stringify({
           header: {
             channelIds: {
@@ -494,7 +472,7 @@ describe('data-access', () => {
           ],
         }),
       );
-      expect(result.meta, 'result wrong').to.deep.equal({
+      expect(result.meta).toMatchObject({
         storageMeta: {
           state: DataAccessTypes.TransactionState.PENDING,
           timestamp: 1,
@@ -509,84 +487,78 @@ describe('data-access', () => {
 
       await expect(
         dataAccess.persistTransaction(transactionMock1, arbitraryId1, [arbitraryTopic1]),
-      ).to.be.rejectedWith('DataAccess must be initialized');
+      ).rejects.toThrowError('DataAccess must be initialized');
     });
 
-    it(
-      'cannot persistTransaction() if a topic is not well formatted',
-      async () => {
-        const dataAccess = new DataAccess(defaultFakeStorage);
-        const notFormattedTopic = 'This topic is not formatted';
-        await dataAccess.initialize();
+    it('cannot persistTransaction() if a topic is not well formatted', async () => {
+      const dataAccess = new DataAccess(defaultFakeStorage);
+      const notFormattedTopic = 'This topic is not formatted';
+      await dataAccess.initialize();
 
-        await expect(
-          dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
-            notFormattedTopic,
-            arbitraryTopic2,
-          ]),
-        ).to.be.rejectedWith(
-          `The following topics are not well formatted: ["This topic is not formatted"]`,
-        );
-      }
-    );
+      await expect(
+        dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+          notFormattedTopic,
+          arbitraryTopic2,
+        ]),
+      ).rejects.toThrowError(
+        `The following topics are not well formatted: ["This topic is not formatted"]`,
+      );
+    });
 
-    it(
-      'cannot persistTransaction() and emit error if confirmation failed',
-      async () => {
-        const mockStorageEmittingError: StorageTypes.IStorage = {
-          _getStatus: chai.spy(),
-          _ipfsAdd: chai.spy(),
-          append: chai.spy(
-            (): any => {
-              const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
-              setTimeout(
-                () => {
-                  appendResultWithEvent.emit('error', 'error for test purpose');
-                },
-                // tslint:disable-next-line:no-magic-numbers
-                10,
-              );
-              return appendResultWithEvent;
+    it('cannot persistTransaction() and emit error if confirmation failed', async () => {
+      const mockStorageEmittingError: StorageTypes.IStorage = {
+        _getStatus: jest.fn(),
+        _ipfsAdd: jest.fn(),
+        append: jest.fn((): any => {
+          const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
+          setTimeout(
+            () => {
+              appendResultWithEvent.emit('error', 'error for test purpose');
             },
-          ),
-          getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
-          getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
-          initialize: chai.spy(),
-          read: (param: string): any => {
-            const dataIdBlock2txFake: any = {
-              meta: {},
-            };
-            const resultRead: any = {
-              dataIdBlock2tx: dataIdBlock2txFake,
-            };
-            return resultRead[param];
-          },
-          readMany(params: string[]): Promise<any[]> {
-            return Promise.all(params.map(testContext.read));
-          },
-        };
+            // tslint:disable-next-line:no-magic-numbers
+            10,
+          );
+          return appendResultWithEvent;
+        }),
+        getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
+        getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
+        initialize: jest.fn(),
+        read: (param: string): any => {
+          const dataIdBlock2txFake: any = {
+            meta: {},
+          };
+          const resultRead: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return resultRead[param];
+        },
+        readMany(params: string[]): Promise<any[]> {
+          return Promise.all(params.map(testContext.read));
+        },
+      };
 
-        const dataAccess = new DataAccess(mockStorageEmittingError);
-        await dataAccess.initialize();
+      const dataAccess = new DataAccess(mockStorageEmittingError);
+      await dataAccess.initialize();
 
-        const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
-          arbitraryTopic1,
-        ]);
-        result.on('error', error => {
-          expect(error, 'result Confirmed wrong').to.equal('error for test purpose');
-        });
-        clock.tick(11);
+      const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+        arbitraryTopic1,
+      ]);
+      result.on('error', (error) => {
+        // result Confirmed wrong
+        expect(error).toEqual('error for test purpose');
+      });
+      clock.tick(11);
 
-        expect(result.meta, 'result wrong').to.deep.equal({
-          storageMeta: {
-            state: DataAccessTypes.TransactionState.PENDING,
-            timestamp: 1,
-          },
-          topics: [arbitraryTopic1],
-          transactionStorageLocation: dataIdBlock2tx,
-        });
-      }
-    );
+      // result wrong
+      expect(result.meta).toMatchObject({
+        storageMeta: {
+          state: DataAccessTypes.TransactionState.PENDING,
+          timestamp: 1,
+        },
+        topics: [arbitraryTopic1],
+        transactionStorageLocation: dataIdBlock2tx,
+      });
+    });
   });
 
   describe('_getStatus', () => {
@@ -613,7 +585,7 @@ describe('data-access', () => {
     });
 
     it('can _getStatus()', async () => {
-      expect(await dataAccess._getStatus(), 'result with arbitraryTopic1 wrong').to.deep.equal({
+      expect(await dataAccess._getStatus()).toMatchObject({
         filesIgnored: { count: 0, list: undefined },
         filesRetrieved: { count: 1, lastTimestamp: 10, list: undefined },
         lastSynchronizationTimestamp: 0,
@@ -625,7 +597,7 @@ describe('data-access', () => {
       });
     });
     it('can _getStatus() with details', async () => {
-      expect(await dataAccess._getStatus(true), 'result with arbitraryTopic1 wrong').to.deep.equal({
+      expect(await dataAccess._getStatus(true)).toMatchObject({
         filesIgnored: { count: 0, list: {} },
         filesRetrieved: { count: 1, lastTimestamp: 10, list: ['dataIdBlock2tx'] },
         lastSynchronizationTimestamp: 0,
@@ -638,240 +610,220 @@ describe('data-access', () => {
     });
   });
 
-  it(
-    'synchronizeNewDataId() should throw an error if not initialized',
-    async () => {
-      const dataAccess = new DataAccess(defaultFakeStorage);
+  it('synchronizeNewDataId() should throw an error if not initialized', async () => {
+    const dataAccess = new DataAccess(defaultFakeStorage);
 
-      await expect(dataAccess.synchronizeNewDataIds()).to.be.rejectedWith(
-        'DataAccess must be initialized',
-      );
-    }
-  );
+    await expect(dataAccess.synchronizeNewDataIds()).rejects.toThrowError(
+      'DataAccess must be initialized',
+    );
+  });
 
-  it(
-    'synchronizeNewDataId() should ignore data not following the block standard',
-    async () => {
-      const blockWithoutHeader = {
-        transactions: [{ data: '' }],
-      };
+  it('synchronizeNewDataId() should ignore data not following the block standard', async () => {
+    const blockWithoutHeader = {
+      transactions: [{ data: '' }],
+    };
 
-      const testDataNotJsonData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve({
-        entries: [
-          {
-            content: JSON.stringify(blockWithoutHeader),
-            id: 'whatever',
-            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
-          },
-        ],
-        lastTimestamp: 0,
-      });
-
-      const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
-        _ipfsAdd: chai.spy(),
-        append: chai.spy(),
-        getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
-        getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
-        _getStatus: chai.spy(),
-        initialize: chai.spy(),
-        read: chai.spy(),
-        readMany: chai.spy(),
-      };
-
-      const dataAccess = new DataAccess(fakeStorageWithNotJsonData);
-      await dataAccess.initialize();
-
-      dataAccess.transactionIndex.addTransaction = chai.spy();
-      await dataAccess.synchronizeNewDataIds();
-
-      expect(dataAccess.transactionIndex.addTransaction).to.have.been.called.exactly(0);
-    }
-  );
-
-  it(
-    'allows to get new transactions after synchronizeNewDataId() call',
-    async () => {
-      // We create a fakeStorage where getData() called at initialization returns empty structure
-      const fakeStorage = {
-        ...defaultFakeStorage,
-        getData: async (options: any): Promise<StorageTypes.IEntriesWithLastTimestamp> => {
-          if (!options) {
-            return Promise.resolve(emptyDataResult);
-          }
-          return getDataResult;
+    const testDataNotJsonData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve({
+      entries: [
+        {
+          content: JSON.stringify(blockWithoutHeader),
+          id: 'whatever',
+          meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
         },
-        getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => getIgnoredDataResult,
-        read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IEntry = {
-            content: JSON.stringify(blockWith2tx),
-            id: '1',
-            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
-          };
-          const result: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-            dataIdBlock1txBis: getIgnoredDataResult[0],
-          };
-          return result[param];
+      ],
+      lastTimestamp: 0,
+    });
+
+    const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
+      _ipfsAdd: jest.fn(),
+      append: jest.fn(),
+      getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
+      getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
+      _getStatus: jest.fn(),
+      initialize: jest.fn(),
+      read: jest.fn(),
+      readMany: jest.fn(),
+    };
+
+    const dataAccess = new DataAccess(fakeStorageWithNotJsonData);
+    await dataAccess.initialize();
+    const spy = jest.fn();
+    dataAccess.transactionIndex.addTransaction = spy;
+    await dataAccess.synchronizeNewDataIds();
+
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('allows to get new transactions after synchronizeNewDataId() call', async () => {
+    // We create a fakeStorage where getData() called at initialization returns empty structure
+    const fakeStorage = {
+      ...defaultFakeStorage,
+      getData: async (options: any): Promise<StorageTypes.IEntriesWithLastTimestamp> => {
+        if (!options) {
+          return Promise.resolve(emptyDataResult);
+        }
+        return getDataResult;
+      },
+      getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => getIgnoredDataResult,
+      read: (param: string): any => {
+        const dataIdBlock2txFake: StorageTypes.IEntry = {
+          content: JSON.stringify(blockWith2tx),
+          id: '1',
+          meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+        };
+        const result: any = {
+          dataIdBlock2tx: dataIdBlock2txFake,
+          dataIdBlock1txBis: getIgnoredDataResult[0],
+        };
+        return result[param];
+      },
+    };
+
+    const dataAccess = new DataAccess(fakeStorage);
+    await dataAccess.initialize();
+
+    expect(await dataAccess.getChannelsByTopic(arbitraryTopic1)).toMatchObject({
+      meta: {
+        storageMeta: {},
+        transactionsStorageLocation: {},
+      },
+      result: { transactions: {} },
+    });
+
+    // Transactions should be available after synchronization
+    await dataAccess.synchronizeNewDataIds();
+
+    // result with arbitraryTopic1 wrong
+    await expect(dataAccess.getChannelsByTopic(arbitraryTopic1)).resolves.toMatchObject({
+      meta: {
+        storageMeta: {
+          [arbitraryId1]: [
+            { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+            { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+          ],
         },
-      };
-
-      const dataAccess = new DataAccess(fakeStorage);
-      await dataAccess.initialize();
-
-      expect(
-        await dataAccess.getChannelsByTopic(arbitraryTopic1),
-        'result with arbitraryTopic1 not empty',
-      ).to.deep.equal({
-        meta: {
-          storageMeta: {},
-          transactionsStorageLocation: {},
+        transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis] },
+      },
+      result: {
+        transactions: {
+          [arbitraryId1]: [
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              transaction: transactionMock1,
+              timestamp: 1,
+            },
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              transaction: transactionMock3,
+              timestamp: 1,
+            },
+          ],
         },
-        result: { transactions: {} },
-      });
-
-      // Transactions should be available after synchronization
-      await expect(dataAccess.synchronizeNewDataIds()).to.be.fulfilled;
-
-      expect(
-        await dataAccess.getChannelsByTopic(arbitraryTopic1),
-        'result with arbitraryTopic1 wrong',
-      ).to.deep.equal({
-        meta: {
-          storageMeta: {
-            [arbitraryId1]: [
-              { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
-              { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
-            ],
-          },
-          transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis] },
+      },
+    });
+    // result with arbitraryTopic2 wrong
+    await expect(dataAccess.getChannelsByTopic(arbitraryTopic2)).resolves.toMatchObject({
+      meta: {
+        storageMeta: {
+          [arbitraryId1]: [
+            { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
+            { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
+          ],
+          [arbitraryId2]: [{ state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 }],
         },
-        result: {
-          transactions: {
-            [arbitraryId1]: [
-              {
-                state: DataAccessTypes.TransactionState.CONFIRMED,
-                transaction: transactionMock1,
-                timestamp: 1,
-              },
-              {
-                state: DataAccessTypes.TransactionState.CONFIRMED,
-                transaction: transactionMock3,
-                timestamp: 1,
-              },
-            ],
-          },
+        transactionsStorageLocation: {
+          [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis],
+          [arbitraryId2]: [dataIdBlock2tx],
         },
-      });
-      expect(
-        await dataAccess.getChannelsByTopic(arbitraryTopic2),
-        'result with arbitraryTopic2 wrong',
-      ).to.deep.equal({
-        meta: {
-          storageMeta: {
-            [arbitraryId1]: [
-              { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
-              { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
-            ],
-            [arbitraryId2]: [{ state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 }],
-          },
-          transactionsStorageLocation: {
-            [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis],
-            [arbitraryId2]: [dataIdBlock2tx],
-          },
+      },
+      result: {
+        transactions: {
+          [arbitraryId1]: [
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              transaction: transactionMock1,
+              timestamp: 1,
+            },
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              transaction: transactionMock3,
+              timestamp: 1,
+            },
+          ],
+          [arbitraryId2]: [
+            {
+              state: DataAccessTypes.TransactionState.CONFIRMED,
+              transaction: transactionMock2,
+              timestamp: 1,
+            },
+          ],
         },
-        result: {
-          transactions: {
-            [arbitraryId1]: [
-              {
-                state: DataAccessTypes.TransactionState.CONFIRMED,
-                transaction: transactionMock1,
-                timestamp: 1,
-              },
-              {
-                state: DataAccessTypes.TransactionState.CONFIRMED,
-                transaction: transactionMock3,
-                timestamp: 1,
-              },
-            ],
-            [arbitraryId2]: [
-              {
-                state: DataAccessTypes.TransactionState.CONFIRMED,
-                transaction: transactionMock2,
-                timestamp: 1,
-              },
-            ],
-          },
-        },
-      });
-    }
-  );
+      },
+    });
+  });
 
-  it(
-    'startSynchronizationTimer() should throw an error if not initialized',
-    async () => {
-      const fakeStorageSpied: StorageTypes.IStorage = {
-        _ipfsAdd: chai.spy(),
-        append: chai.spy.returns(appendResult),
-        getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
-        getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
-        _getStatus: chai.spy(),
-        initialize: chai.spy(),
-        read: chai.spy(),
-        readMany: chai.spy(),
-      };
-      const dataAccess = new DataAccess(fakeStorageSpied);
+  it('startSynchronizationTimer() should throw an error if not initialized', async () => {
+    const fakeStorageSpied: StorageTypes.IStorage = {
+      _ipfsAdd: jest.fn(),
+      append: jest.fn().mockReturnValue(appendResult),
+      getData: jest.fn(() => Promise.resolve({} as any)),
+      getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
+      _getStatus: jest.fn(),
+      initialize: jest.fn(),
+      read: jest.fn(),
+      readMany: jest.fn(),
+    };
+    const dataAccess = new DataAccess(fakeStorageSpied);
 
-      expect(() => dataAccess.startAutoSynchronization()).to.throw('DataAccess must be initialized');
-    }
-  );
+    expect(() => dataAccess.startAutoSynchronization()).toThrowError(
+      'DataAccess must be initialized',
+    );
+  });
 
-  it(
-    'allows to get new transactions automatically if startSynchronizationTimer() is called',
-    async () => {
-      const fakeStorage = {
-        ...defaultFakeStorage,
-        read: (param: string): any => {
-          const dataIdBlock2txFake: StorageTypes.IEntry = {
-            content: JSON.stringify(blockWith2tx),
-            id: '1',
-            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
-          };
-          const result: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-          };
-          return result[param];
-        },
-      };
+  it('allows to get new transactions automatically if startSynchronizationTimer() is called', async () => {
+    const fakeStorage = {
+      ...defaultFakeStorage,
+      read: (param: string): any => {
+        const dataIdBlock2txFake: StorageTypes.IEntry = {
+          content: JSON.stringify(blockWith2tx),
+          id: '1',
+          meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+        };
+        const result: any = {
+          dataIdBlock2tx: dataIdBlock2txFake,
+        };
+        return result[param];
+      },
+    };
 
-      const dataAccess = new DataAccess(fakeStorage, {
-        synchronizationIntervalTime: 1000,
-      });
-      dataAccess.synchronizeNewDataIds = chai.spy();
-      await dataAccess.initialize();
+    const dataAccess = new DataAccess(fakeStorage, {
+      synchronizationIntervalTime: 1000,
+    });
+    dataAccess.synchronizeNewDataIds = jest.fn();
+    await dataAccess.initialize();
 
-      expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(0);
+    expect(dataAccess.synchronizeNewDataIds).not.toHaveBeenCalled();
 
-      dataAccess.startAutoSynchronization();
-      clock.tick(1100);
-      await flushCallStack();
+    dataAccess.startAutoSynchronization();
+    clock.tick(1100);
+    await flushCallStack();
 
-      // Should have been called once after 1100ms
-      expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(1);
+    // Should have been called once after 1100ms
+    expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(1);
 
-      clock.tick(1000);
-      await flushCallStack();
+    clock.tick(1000);
+    await flushCallStack();
 
-      // Should have been called once after 2100ms
-      expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
+    // Should have been called once after 2100ms
+    expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(2);
 
-      dataAccess.stopAutoSynchronization();
-      clock.tick(1000);
-      await flushCallStack();
+    dataAccess.stopAutoSynchronization();
+    clock.tick(1000);
+    await flushCallStack();
 
-      // Not called anymore after stopAutoSynchronization()
-      expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
-    }
-  );
+    // Not called anymore after stopAutoSynchronization()
+    expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(2);
+  });
 
   it(`should not get twice the same data during synchronization`, async () => {
     let args;
@@ -896,7 +848,7 @@ describe('data-access', () => {
 
     // At initialization, getData is called with no time boundaries
     args = (fakeStorageSpied.getData as any).getCall(0).args[0];
-    expect(args).to.be.undefined;
+    expect(args).toBeUndefined();
 
     dataAccess.startAutoSynchronization();
 
@@ -907,7 +859,7 @@ describe('data-access', () => {
     await flushCallStack();
 
     args = (fakeStorageSpied.getData as any).getCall(1).args[0];
-    expect(args).to.deep.equal({ from: 501, to: 1000 });
+    expect(args).toMatchObject({ from: 501, to: 1000 });
 
     dataAccess.stopAutoSynchronization();
   });
