@@ -13,7 +13,7 @@ const ERC20NoReturn = artifacts.require('ERC20NoReturn');
 const ERC20Revert = artifacts.require('ERC20Revert');
 
 const FakeSwapRouter = artifacts.require('FakeSwapRouter');
-const SwapToPay = artifacts.require('SwapToPay');
+const ERC20SwapToPay = artifacts.require('ERC20SwapToPay');
 
 const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 
@@ -86,8 +86,8 @@ module.exports = async function(deployer) {
     
     await deployer.deploy(erc20Alpha, 10000); // 10000 initial supply
     await deployer.deploy(FakeSwapRouter);
-    await deployer.deploy(SwapToPay, FakeSwapRouter.address, ERC20FeeProxy.address);
-    console.log('SwapToPay Contract deployed: ' + SwapToPay.address);
+    await deployer.deploy(ERC20SwapToPay, FakeSwapRouter.address, ERC20FeeProxy.address);
+    console.log('SwapToPay Contract deployed: ' + ERC20SwapToPay.address);
     
     // ----------------------------------
     console.log('Contracts initialized');
@@ -105,7 +105,7 @@ module.exports = async function(deployer) {
       ERC20Revert:              ${ERC20Revert.address}
       ERC20Alpha:               ${erc20Alpha.address}
       FakeSwapRouter:           ${FakeSwapRouter.address}
-      SwapToPay:                ${SwapToPay.address}
+      SwapToPay:                ${ERC20SwapToPay.address}
       `);
     } catch (e) {
     console.error(e);

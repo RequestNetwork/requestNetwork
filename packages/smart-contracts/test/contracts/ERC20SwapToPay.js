@@ -1,4 +1,5 @@
 const ethers = require('ethers');
+// TODO remove when understood
 //import "truffle/DeployedAddresses.sol";
 
 const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');

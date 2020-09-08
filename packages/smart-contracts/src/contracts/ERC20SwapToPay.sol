@@ -71,10 +71,10 @@ interface IFeePaymentNetwork {
  * _deadline: 1600136572 (15th of Sep)
 
 /**
- * @title SwapToPay
+ * @title ERC20SwapToPay
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
   */
-contract SwapToPay {
+contract ERC20SwapToPay {
 
   IUniswapV2Router02 public uniswapRouter;
   IFeePaymentNetwork public paymentProxy;
