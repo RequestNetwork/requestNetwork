@@ -35,7 +35,6 @@
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
-    "stryker": "stryker run",
     "test": "jest",
     "test:watch": "yarn test --watch"
   },
@@ -47,11 +46,6 @@
     "wallet-address-validator": "0.2.4"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "3.3.1",
-    "@stryker-mutator/html-reporter": "3.1.0",
-    "@stryker-mutator/mocha-framework": "3.3.1",
-    "@stryker-mutator/mocha-runner": "3.3.1",
-    "@stryker-mutator/typescript": "3.3.1",
     "@types/jest": "^26.0.13",
     "@types/lodash": "4.14.161",
     "@types/mocha": "8.0.3",
