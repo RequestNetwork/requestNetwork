@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 
 import { DataAccessTypes } from '@requestnetwork/types';
 import RequestDataAccessBlock from '../src/block';
@@ -309,21 +308,27 @@ describe('block', () => {
       const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [0, 1]);
       expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock, transactionMock2]);
     });
-    it('can getTransactionsByPositions on more than one transaction with array not sorted', () => {
-      const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [1, 0]);
-      expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock, transactionMock2]);
-    });
-    it('can getTransactionsByPositions on more than one transaction with array duplication', () => {
-      const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [
-        1,
-        1,
-        0,
-        1,
-        0,
-        0,
-      ]);
-      expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock, transactionMock2]);
-    });
+    it(
+      'can getTransactionsByPositions on more than one transaction with array not sorted',
+      () => {
+        const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [1, 0]);
+        expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock, transactionMock2]);
+      }
+    );
+    it(
+      'can getTransactionsByPositions on more than one transaction with array duplication',
+      () => {
+        const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [
+          1,
+          1,
+          0,
+          1,
+          0,
+          0,
+        ]);
+        expect(txs, 'txs is wrong').to.be.deep.equal([transactionMock, transactionMock2]);
+      }
+    );
   });
 
   describe('getTransactionPositionsByChannelIds', () => {
@@ -341,32 +346,41 @@ describe('block', () => {
       ]);
       expect(txs, 'txs is wrong').to.be.deep.equal([0]);
     });
-    it('can getTransactionPositionsByChannelIds on more than one transaction', () => {
-      const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
-        arbitraryId1,
-        arbitraryId2,
-      ]);
-      expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
-    });
-    it('can getTransactionPositionsByChannelIds on more than one transaction with array not sorted', () => {
-      const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
-        arbitraryId2,
-        arbitraryId1,
-      ]);
-      expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
-    });
-    it('can getTransactionPositionsByChannelIds on more than one transaction with array duplication', () => {
-      const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
-        arbitraryId2,
-        arbitraryId1,
-        arbitraryId2,
-        arbitraryId2,
-        arbitraryId1,
-        arbitraryId1,
-        arbitraryId1,
-      ]);
-      expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
-    });
+    it(
+      'can getTransactionPositionsByChannelIds on more than one transaction',
+      () => {
+        const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
+          arbitraryId1,
+          arbitraryId2,
+        ]);
+        expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
+      }
+    );
+    it(
+      'can getTransactionPositionsByChannelIds on more than one transaction with array not sorted',
+      () => {
+        const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
+          arbitraryId2,
+          arbitraryId1,
+        ]);
+        expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
+      }
+    );
+    it(
+      'can getTransactionPositionsByChannelIds on more than one transaction with array duplication',
+      () => {
+        const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
+          arbitraryId2,
+          arbitraryId1,
+          arbitraryId2,
+          arbitraryId2,
+          arbitraryId1,
+          arbitraryId1,
+          arbitraryId1,
+        ]);
+        expect(txs, 'txs is wrong').to.be.deep.equal([0, 1]);
+      }
+    );
   });
 
   describe('parseBlock', () => {

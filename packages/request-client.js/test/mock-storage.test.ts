@@ -7,7 +7,6 @@ chai.use(chaiAsPromised);
 const expect = chai.expect;
 const assert = chai.assert;
 
-import 'mocha';
 import MockStorage from '../src/mock-storage';
 
 describe('mock-storage', () => {

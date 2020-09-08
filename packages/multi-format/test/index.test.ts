@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 import { MultiFormatTypes } from '@requestnetwork/types';
 
 import MultiFormat from '../src/index';
@@ -36,24 +35,27 @@ describe('Utils.multiFormat', () => {
       });
     });
 
-    it('should return false if an incorrect format hash is given to isDeserializableString', () => {
-      expect(() => {
-        MultiFormat.deserialize(
-          'zzaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+    it(
+      'should return false if an incorrect format hash is given to isDeserializableString',
+      () => {
+        expect(() => {
+          MultiFormat.deserialize(
+            'zzaf91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+          );
+        }, 'should throw with an incorrect prefix').to.throw(
+          'No format found to deserialize this string',
         );
-      }, 'should throw with an incorrect prefix').to.throw(
-        'No format found to deserialize this string',
-      );
 
-      expect(() => {
-        MultiFormat.deserialize('01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f9');
-      }, 'should throw with a shorter size').to.throw('No format found to deserialize this string');
+        expect(() => {
+          MultiFormat.deserialize('01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f9');
+        }, 'should throw with a shorter size').to.throw('No format found to deserialize this string');
 
-      expect(() => {
-        MultiFormat.deserialize(
-          '01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f90799',
-        );
-      }, 'should throw with a longer size').to.throw('No format found to deserialize this string');
-    });
+        expect(() => {
+          MultiFormat.deserialize(
+            '01af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f90799',
+          );
+        }, 'should throw with a longer size').to.throw('No format found to deserialize this string');
+      }
+    );
   });
 });

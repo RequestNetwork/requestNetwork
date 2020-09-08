@@ -4,7 +4,6 @@ import { PaymentTypes } from '@requestnetwork/types';
 import ERC20InfoRetriever from '../../src/erc20/address-based-info-retriever';
 
 import 'chai';
-import 'mocha';
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -38,16 +37,19 @@ describe('api/erc20/address-based-info-retriever', () => {
       expect(events[0].parameters!.txHash).to.be.a('string');
     });
 
-    it('gets an empty list of events for an address without ERC20 on localhost', async () => {
-      const infoRetriever = new ERC20InfoRetriever(
-        erc20LocalhostContractAddress,
-        emptyAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'private',
-      );
+    it(
+      'gets an empty list of events for an address without ERC20 on localhost',
+      async () => {
+        const infoRetriever = new ERC20InfoRetriever(
+          erc20LocalhostContractAddress,
+          emptyAddress,
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+          'private',
+        );
 
-      const events = await infoRetriever.getTransferEvents();
-      expect(events).to.be.empty;
-    });
+        const events = await infoRetriever.getTransferEvents();
+        expect(events).to.be.empty;
+      }
+    );
   });
 });

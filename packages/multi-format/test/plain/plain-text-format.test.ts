@@ -1,6 +1,5 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 import { expect } from 'chai';
-import 'mocha';
 
 import PlainTextFormat from '../../src/plain/plain-text-format';
 
@@ -83,10 +82,13 @@ describe('plain/plain-text-format', () => {
       });
     });
 
-    it('should return false if an incorrect format is given to isDeserializableString', () => {
-      expect(() => {
-        plainTextFormat.deserialize('01this is a plain text');
-      }, 'should throw with an incorrect prefix').to.throw('string is not a serialized string');
-    });
+    it(
+      'should return false if an incorrect format is given to isDeserializableString',
+      () => {
+        expect(() => {
+          plainTextFormat.deserialize('01this is a plain text');
+        }, 'should throw with an incorrect prefix').to.throw('string is not a serialized string');
+      }
+    );
   });
 });

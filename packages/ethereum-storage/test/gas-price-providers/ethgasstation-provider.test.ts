@@ -75,47 +75,53 @@ describe('EtherchainProvider', () => {
       );
     });
 
-    it('throws when API returns a response with the incorrect format', async () => {
-      let mock = fetchMock.sandbox().mock(ethGasStationProvider.providerUrl, apiIncorrectResponse);
-      ethGasStationProvider.fetch = mock as any;
+    it(
+      'throws when API returns a response with the incorrect format',
+      async () => {
+        let mock = fetchMock.sandbox().mock(ethGasStationProvider.providerUrl, apiIncorrectResponse);
+        ethGasStationProvider.fetch = mock as any;
 
-      // When format is incorrect
-      await expect(
-        ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`EthGasStation API response doesn't contain the correct format`);
+        // When format is incorrect
+        await expect(
+          ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
+        ).to.be.rejectedWith(`EthGasStation API response doesn't contain the correct format`);
 
-      mock = fetchMock.sandbox().mock(ethGasStationProvider.providerUrl, apiUncompleteResponse);
-      ethGasStationProvider.fetch = mock as any;
+        mock = fetchMock.sandbox().mock(ethGasStationProvider.providerUrl, apiUncompleteResponse);
+        ethGasStationProvider.fetch = mock as any;
 
-      // When a field is missing
-      await expect(
-        ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`EthGasStation API response doesn't contain the correct format`);
+        // When a field is missing
+        await expect(
+          ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
+        ).to.be.rejectedWith(`EthGasStation API response doesn't contain the correct format`);
 
-      mock = fetchMock.sandbox().mock(ethGasStationProvider.providerUrl, apiNotANumber);
-      ethGasStationProvider.fetch = mock as any;
+        mock = fetchMock.sandbox().mock(ethGasStationProvider.providerUrl, apiNotANumber);
+        ethGasStationProvider.fetch = mock as any;
 
-      // When a field is not a number
-      await expect(
-        ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`EthGasStation API response doesn't contain the correct format`);
-    });
+        // When a field is not a number
+        await expect(
+          ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
+        ).to.be.rejectedWith(`EthGasStation API response doesn't contain the correct format`);
+      }
+    );
 
-    it('throws when API returns a response with a gas price not safe to use', async () => {
-      const mock = fetchMock
-        .sandbox()
-        .mock(ethGasStationProvider.providerUrl, apiNotSafeGasPriceResponse);
-      ethGasStationProvider.fetch = mock as any;
+    it(
+      'throws when API returns a response with a gas price not safe to use',
+      async () => {
+        const mock = fetchMock
+          .sandbox()
+          .mock(ethGasStationProvider.providerUrl, apiNotSafeGasPriceResponse);
+        ethGasStationProvider.fetch = mock as any;
 
-      // When over the limit
-      await expect(
-        ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`EthGasStation provided gas price not safe to use`);
+        // When over the limit
+        await expect(
+          ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
+        ).to.be.rejectedWith(`EthGasStation provided gas price not safe to use`);
 
-      // When 0
-      await expect(
-        ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.FAST),
-      ).to.be.rejectedWith(`EthGasStation provided gas price not safe to use`);
-    });
+        // When 0
+        await expect(
+          ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.FAST),
+        ).to.be.rejectedWith(`EthGasStation provided gas price not safe to use`);
+      }
+    );
   });
 });

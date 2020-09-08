@@ -1,5 +1,3 @@
-import 'mocha';
-
 import referenceBasedManager from '../../../src/extensions/payment-network/reference-based';
 
 import { ExtensionTypes } from '@requestnetwork/types';
@@ -166,18 +164,21 @@ describe('extensions/payment-network/reference-based', () => {
         ).to.deep.equal(DataCreate.extensionStateWithPaymentAndRefund);
       });
 
-      it('cannot applyActionToExtensions of creation with a previous state', () => {
-        expect(() => {
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            DataCreate.requestStateCreatedWithPaymentAndRefund.extensions,
-            DataCreate.actionCreationWithPaymentAndRefund,
-            DataCreate.requestStateCreatedWithPaymentAndRefund,
-            TestData.otherIdRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw('This extension has already been created');
-      });
+      it(
+        'cannot applyActionToExtensions of creation with a previous state',
+        () => {
+          expect(() => {
+            referenceBasedManager.applyActionToExtension(
+              isValidAddressMock(),
+              DataCreate.requestStateCreatedWithPaymentAndRefund.extensions,
+              DataCreate.actionCreationWithPaymentAndRefund,
+              DataCreate.requestStateCreatedWithPaymentAndRefund,
+              TestData.otherIdRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw('This extension has already been created');
+        }
+      );
     });
 
     describe('applyActionToExtension/addPaymentAddress', () => {
@@ -194,59 +195,71 @@ describe('extensions/payment-network/reference-based', () => {
           'new extension state wrong',
         ).to.deep.equal(DataAddPaymentAddress.extensionStateWithPaymentAfterCreation);
       });
-      it('cannot applyActionToExtensions of addPaymentAddress without a previous state', () => {
-        expect(() => {
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            DataCreate.requestStateNoExtensions.extensions,
-            DataAddPaymentAddress.actionAddPaymentAddress,
-            DataCreate.requestStateNoExtensions,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
+      it(
+        'cannot applyActionToExtensions of addPaymentAddress without a previous state',
+        () => {
+          expect(() => {
+            referenceBasedManager.applyActionToExtension(
+              isValidAddressMock(),
+              DataCreate.requestStateNoExtensions.extensions,
+              DataAddPaymentAddress.actionAddPaymentAddress,
+              DataCreate.requestStateNoExtensions,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(
+            `The extension should be created before receiving any other action`,
           );
-        }, 'must throw').to.throw(
-          `The extension should be created before receiving any other action`,
-        );
-      });
-      it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
-        const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
-        previousState.payee = undefined;
-        expect(() => {
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            previousState.extensions,
-            DataAddPaymentAddress.actionAddPaymentAddress,
-            previousState,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The request must have a payee`);
-      });
-      it('cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
-        expect(() => {
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            previousState.extensions,
-            DataAddPaymentAddress.actionAddPaymentAddress,
-            previousState,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The signer must be the payee`);
-      });
-      it('cannot applyActionToExtensions of addPaymentAddress with payment address already given', () => {
-        expect(() => {
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            DataCreate.requestStateCreatedWithPaymentAndRefund.extensions,
-            DataAddPaymentAddress.actionAddPaymentAddress,
-            DataCreate.requestStateCreatedWithPaymentAndRefund,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`Payment address already given`);
-      });
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addPaymentAddress without a payee',
+        () => {
+          const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
+          previousState.payee = undefined;
+          expect(() => {
+            referenceBasedManager.applyActionToExtension(
+              isValidAddressMock(),
+              previousState.extensions,
+              DataAddPaymentAddress.actionAddPaymentAddress,
+              previousState,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The request must have a payee`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee',
+        () => {
+          const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
+          expect(() => {
+            referenceBasedManager.applyActionToExtension(
+              isValidAddressMock(),
+              previousState.extensions,
+              DataAddPaymentAddress.actionAddPaymentAddress,
+              previousState,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The signer must be the payee`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addPaymentAddress with payment address already given',
+        () => {
+          expect(() => {
+            referenceBasedManager.applyActionToExtension(
+              isValidAddressMock(),
+              DataCreate.requestStateCreatedWithPaymentAndRefund.extensions,
+              DataAddPaymentAddress.actionAddPaymentAddress,
+              DataCreate.requestStateCreatedWithPaymentAndRefund,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`Payment address already given`);
+        }
+      );
     });
 
     describe('applyActionToExtension/addRefundAddress', () => {
@@ -263,59 +276,71 @@ describe('extensions/payment-network/reference-based', () => {
           'new extension state wrong',
         ).to.deep.equal(DataAddPaymentAddress.extensionStateWithRefundAfterCreation);
       });
-      it('cannot applyActionToExtensions of addRefundAddress without a previous state', () => {
-        expect(() => {
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            DataCreate.requestStateNoExtensions.extensions,
-            DataAddPaymentAddress.actionAddRefundAddress,
-            DataCreate.requestStateNoExtensions,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
+      it(
+        'cannot applyActionToExtensions of addRefundAddress without a previous state',
+        () => {
+          expect(() => {
+            referenceBasedManager.applyActionToExtension(
+              isValidAddressMock(),
+              DataCreate.requestStateNoExtensions.extensions,
+              DataAddPaymentAddress.actionAddRefundAddress,
+              DataCreate.requestStateNoExtensions,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(
+            `The extension should be created before receiving any other action`,
           );
-        }, 'must throw').to.throw(
-          `The extension should be created before receiving any other action`,
-        );
-      });
-      it('cannot applyActionToExtensions of addRefundAddress without a payer', () => {
-        const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
-        previousState.payer = undefined;
-        expect(() => {
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            previousState.extensions,
-            DataAddPaymentAddress.actionAddRefundAddress,
-            previousState,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The request must have a payer`);
-      });
-      it('cannot applyActionToExtensions of addRefundAddress signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
-        expect(() => {
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            previousState.extensions,
-            DataAddPaymentAddress.actionAddRefundAddress,
-            previousState,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The signer must be the payer`);
-      });
-      it('cannot applyActionToExtensions of addRefundAddress with payment address already given', () => {
-        expect(() => {
-          referenceBasedManager.applyActionToExtension(
-            isValidAddressMock(),
-            DataCreate.requestStateCreatedWithPaymentAndRefund.extensions,
-            DataAddPaymentAddress.actionAddRefundAddress,
-            DataCreate.requestStateCreatedWithPaymentAndRefund,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`Refund address already given`);
-      });
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addRefundAddress without a payer',
+        () => {
+          const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
+          previousState.payer = undefined;
+          expect(() => {
+            referenceBasedManager.applyActionToExtension(
+              isValidAddressMock(),
+              previousState.extensions,
+              DataAddPaymentAddress.actionAddRefundAddress,
+              previousState,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The request must have a payer`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addRefundAddress signed by someone else than the payer',
+        () => {
+          const previousState = Utils.deepCopy(DataCreate.requestStateCreatedEmpty);
+          expect(() => {
+            referenceBasedManager.applyActionToExtension(
+              isValidAddressMock(),
+              previousState.extensions,
+              DataAddPaymentAddress.actionAddRefundAddress,
+              previousState,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The signer must be the payer`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addRefundAddress with payment address already given',
+        () => {
+          expect(() => {
+            referenceBasedManager.applyActionToExtension(
+              isValidAddressMock(),
+              DataCreate.requestStateCreatedWithPaymentAndRefund.extensions,
+              DataAddPaymentAddress.actionAddRefundAddress,
+              DataCreate.requestStateCreatedWithPaymentAndRefund,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`Refund address already given`);
+        }
+      );
     });
   });
 });

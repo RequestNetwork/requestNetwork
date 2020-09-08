@@ -1,4 +1,3 @@
-import 'mocha';
 import * as sinon from 'sinon';
 import cachedThrottle from '../src/cached-throttle';
 

@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
@@ -10,7 +8,7 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('ipfsAdd', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
@@ -18,7 +16,7 @@ describe('ipfsAdd', () => {
     server = requestNodeInstance.listen(3000, () => 0);
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 
@@ -59,13 +57,16 @@ describe('ipfsAdd', () => {
       .expect(httpStatus.BAD_REQUEST);
   });
 
-  it('responds with status 400 to requests with badly formatted value', async () => {
-    await request(server)
-      .post('/ipfsAdd')
-      .send({
-        data: 'not parsable',
-      })
-      .set('Accept', 'application/json')
-      .expect(httpStatus.BAD_REQUEST);
-  });
+  it(
+    'responds with status 400 to requests with badly formatted value',
+    async () => {
+      await request(server)
+        .post('/ipfsAdd')
+        .send({
+          data: 'not parsable',
+        })
+        .set('Accept', 'application/json')
+        .expect(httpStatus.BAD_REQUEST);
+    }
+  );
 });

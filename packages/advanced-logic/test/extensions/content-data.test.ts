@@ -1,5 +1,3 @@
-import 'mocha';
-
 import { ExtensionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 

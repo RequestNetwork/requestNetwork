@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as spies from 'chai-as-promised';
@@ -56,15 +54,18 @@ describe('Encryption', () => {
       );
     });
 
-    it('cannot getIdentityFromEncryptionParams with encryption method not supported', async () => {
-      const params: any = {
-        method: 'notECIES',
-        publicKey: otherIdRaw.publicKey,
-      };
-      expect(() => Encryption.getIdentityFromEncryptionParams(params)).to.be.throw(
-        'encryptionParams.method not supported',
-      );
-    });
+    it(
+      'cannot getIdentityFromEncryptionParams with encryption method not supported',
+      async () => {
+        const params: any = {
+          method: 'notECIES',
+          publicKey: otherIdRaw.publicKey,
+        };
+        expect(() => Encryption.getIdentityFromEncryptionParams(params)).to.be.throw(
+          'encryptionParams.method not supported',
+        );
+      }
+    );
   });
 
   describe('encrypt', () => {

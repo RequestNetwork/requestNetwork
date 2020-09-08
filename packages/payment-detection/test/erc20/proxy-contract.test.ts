@@ -3,7 +3,6 @@ import ERC20ProxyContract from '../../src/erc20/proxy-contract';
 
 import * as chai from 'chai';
 import * as spies from 'chai-spies';
-import 'mocha';
 
 const expect = chai.expect;
 chai.use(spies);

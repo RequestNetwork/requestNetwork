@@ -9,7 +9,6 @@ import ERC20FeeProxyContract from '../../src/erc20/fee-proxy-contract';
 
 import * as chai from 'chai';
 import * as spies from 'chai-spies';
-import 'mocha';
 
 const expect = chai.expect;
 chai.use(spies);
@@ -66,27 +65,30 @@ describe('api/erc20/fee-proxy-contract', () => {
     });
   });
 
-  it('can createExtensionsDataForCreation with fee amount and address', async () => {
-    const spy = sandbox.on(
-      mockAdvancedLogic.extensions.feeProxyContractErc20,
-      'createCreationAction',
-    );
+  it(
+    'can createExtensionsDataForCreation with fee amount and address',
+    async () => {
+      const spy = sandbox.on(
+        mockAdvancedLogic.extensions.feeProxyContractErc20,
+        'createCreationAction',
+      );
 
-    await erc20FeeProxyContract.createExtensionsDataForCreation({
-      feeAddress: 'fee address',
-      feeAmount: '2000',
-      paymentAddress: 'ethereum address',
-      salt: 'ea3bc7caf64110ca',
-    });
+      await erc20FeeProxyContract.createExtensionsDataForCreation({
+        feeAddress: 'fee address',
+        feeAmount: '2000',
+        paymentAddress: 'ethereum address',
+        salt: 'ea3bc7caf64110ca',
+      });
 
-    expect(spy).to.have.been.called.with({
-      feeAddress: 'fee address',
-      feeAmount: '2000',
-      paymentAddress: 'ethereum address',
-      refundAddress: undefined,
-      salt: 'ea3bc7caf64110ca',
-    });
-  });
+      expect(spy).to.have.been.called.with({
+        feeAddress: 'fee address',
+        feeAmount: '2000',
+        paymentAddress: 'ethereum address',
+        refundAddress: undefined,
+        salt: 'ea3bc7caf64110ca',
+      });
+    }
+  );
 
   it('can createExtensionsDataForCreation without salt', async () => {
     const spy = sandbox.on(

@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as spies from 'chai-spies';
@@ -105,90 +103,96 @@ describe('TransactionIndex', () => {
       await expect(transactionIndex.getChannelIdsForTopic('')).to.be.fulfilled;
     });
 
-    it('getChannelIdsForTopic() should support multiple channel ids for topic', async () => {
-      await transactionIndex.addTransaction(
-        'dataId1',
-        {
-          channelIds: {
-            'channel-1': [1],
-            'channel-2': [2],
+    it(
+      'getChannelIdsForTopic() should support multiple channel ids for topic',
+      async () => {
+        await transactionIndex.addTransaction(
+          'dataId1',
+          {
+            channelIds: {
+              'channel-1': [1],
+              'channel-2': [2],
+            },
+            topics: {
+              'channel-1': ['topic-a'],
+              'channel-2': ['topic-a'],
+            },
+            version: '2.0',
           },
-          topics: {
-            'channel-1': ['topic-a'],
-            'channel-2': ['topic-a'],
-          },
-          version: '2.0',
-        },
-        1,
-      );
-      const channels = await transactionIndex.getChannelIdsForTopic('topic-a');
-      expect(channels).to.deep.equal(['channel-1', 'channel-2']);
-    });
+          1,
+        );
+        const channels = await transactionIndex.getChannelIdsForTopic('topic-a');
+        expect(channels).to.deep.equal(['channel-1', 'channel-2']);
+      }
+    );
 
-    it('getChannelIdsForTopic() should support multiple channel ids for topic with time boundaries', async () => {
-      await transactionIndex.addTransaction(
-        'dataId1',
-        {
-          channelIds: {
-            'channel-1': [1],
-            'channel-2': [2],
+    it(
+      'getChannelIdsForTopic() should support multiple channel ids for topic with time boundaries',
+      async () => {
+        await transactionIndex.addTransaction(
+          'dataId1',
+          {
+            channelIds: {
+              'channel-1': [1],
+              'channel-2': [2],
+            },
+            topics: {
+              'channel-1': ['topic-a'],
+              'channel-2': ['topic-a'],
+            },
+            version: '2.0',
           },
-          topics: {
-            'channel-1': ['topic-a'],
-            'channel-2': ['topic-a'],
+          2,
+        );
+
+        await transactionIndex.addTransaction(
+          'dataId2',
+          {
+            channelIds: {
+              'channel-2': [1],
+              'channel-3': [2],
+            },
+            topics: {},
+            version: '2.0',
           },
-          version: '2.0',
-        },
-        2,
-      );
+          10,
+        );
 
-      await transactionIndex.addTransaction(
-        'dataId2',
-        {
-          channelIds: {
-            'channel-2': [1],
-            'channel-3': [2],
+        await transactionIndex.addTransaction(
+          'dataId3',
+          {
+            channelIds: {
+              'channel-3': [0],
+            },
+            topics: {
+              'channel-3': ['topic-b'],
+            },
+            version: '2.0',
           },
-          topics: {},
-          version: '2.0',
-        },
-        10,
-      );
+          20,
+        );
 
-      await transactionIndex.addTransaction(
-        'dataId3',
-        {
-          channelIds: {
-            'channel-3': [0],
-          },
-          topics: {
-            'channel-3': ['topic-b'],
-          },
-          version: '2.0',
-        },
-        20,
-      );
+        expect(await transactionIndex.getChannelIdsForTopic('topic-a', { from: 3 })).to.deep.equal([
+          'channel-2',
+        ]);
+        expect(await transactionIndex.getChannelIdsForTopic('topic-a', { to: 3 })).to.deep.equal([
+          'channel-1',
+          'channel-2',
+        ]);
 
-      expect(await transactionIndex.getChannelIdsForTopic('topic-a', { from: 3 })).to.deep.equal([
-        'channel-2',
-      ]);
-      expect(await transactionIndex.getChannelIdsForTopic('topic-a', { to: 3 })).to.deep.equal([
-        'channel-1',
-        'channel-2',
-      ]);
+        expect(await transactionIndex.getChannelIdsForTopic('topic-a', { from: 11 })).to.deep.equal(
+          [],
+        );
+        expect(await transactionIndex.getChannelIdsForTopic('topic-a', { to: 1 })).to.deep.equal([]);
 
-      expect(await transactionIndex.getChannelIdsForTopic('topic-a', { from: 11 })).to.deep.equal(
-        [],
-      );
-      expect(await transactionIndex.getChannelIdsForTopic('topic-a', { to: 1 })).to.deep.equal([]);
-
-      expect(await transactionIndex.getChannelIdsForTopic('topic-b', { to: 11 })).to.deep.equal([
-        'channel-3',
-      ]);
-      expect(await transactionIndex.getChannelIdsForTopic('topic-b', { from: 11 })).to.deep.equal([
-        'channel-3',
-      ]);
-    });
+        expect(await transactionIndex.getChannelIdsForTopic('topic-b', { to: 11 })).to.deep.equal([
+          'channel-3',
+        ]);
+        expect(await transactionIndex.getChannelIdsForTopic('topic-b', { from: 11 })).to.deep.equal([
+          'channel-3',
+        ]);
+      }
+    );
   });
 
   describe('getChannelIdsForMultipleTopics', () => {
@@ -196,164 +200,170 @@ describe('TransactionIndex', () => {
       await expect(transactionIndex.getChannelIdsForMultipleTopics([])).to.be.fulfilled;
     });
 
-    it('getChannelIdsForMultipleTopics() should support multiple channel ids for multiple topics', async () => {
-      await transactionIndex.addTransaction(
-        'dataId1',
-        {
-          channelIds: {
-            'channel-1': [1],
-            'channel-2': [2],
-            'channel-3': [3],
+    it(
+      'getChannelIdsForMultipleTopics() should support multiple channel ids for multiple topics',
+      async () => {
+        await transactionIndex.addTransaction(
+          'dataId1',
+          {
+            channelIds: {
+              'channel-1': [1],
+              'channel-2': [2],
+              'channel-3': [3],
+            },
+            topics: {
+              'channel-1': ['topic-a'],
+              'channel-2': ['topic-a'],
+              'channel-3': ['topic-b'],
+              'channel-4': ['topic-b', 'topic-c'],
+            },
+            version: '2.0',
           },
-          topics: {
-            'channel-1': ['topic-a'],
-            'channel-2': ['topic-a'],
-            'channel-3': ['topic-b'],
-            'channel-4': ['topic-b', 'topic-c'],
-          },
-          version: '2.0',
-        },
-        1,
-      );
-      expect(await transactionIndex.getChannelIdsForMultipleTopics(['topic-a'])).to.deep.equal([
-        'channel-1',
-        'channel-2',
-      ]);
-      expect(await transactionIndex.getChannelIdsForMultipleTopics(['topic-b'])).to.deep.equal([
-        'channel-3',
-        'channel-4',
-      ]);
-      expect(await transactionIndex.getChannelIdsForMultipleTopics(['topic-c'])).to.deep.equal([
-        'channel-4',
-      ]);
-    });
+          1,
+        );
+        expect(await transactionIndex.getChannelIdsForMultipleTopics(['topic-a'])).to.deep.equal([
+          'channel-1',
+          'channel-2',
+        ]);
+        expect(await transactionIndex.getChannelIdsForMultipleTopics(['topic-b'])).to.deep.equal([
+          'channel-3',
+          'channel-4',
+        ]);
+        expect(await transactionIndex.getChannelIdsForMultipleTopics(['topic-c'])).to.deep.equal([
+          'channel-4',
+        ]);
+      }
+    );
 
-    it('getChannelIdsForMultipleTopics() should support multiple channel ids for multiple topics with boundaries', async () => {
-      await transactionIndex.addTransaction(
-        'dataId1',
-        {
-          channelIds: {
-            'channel-1': [1],
-            'channel-2': [2],
+    it(
+      'getChannelIdsForMultipleTopics() should support multiple channel ids for multiple topics with boundaries',
+      async () => {
+        await transactionIndex.addTransaction(
+          'dataId1',
+          {
+            channelIds: {
+              'channel-1': [1],
+              'channel-2': [2],
+            },
+            topics: {
+              'channel-1': ['topic-a'],
+              'channel-2': ['topic-b'],
+            },
+            version: '2.0',
           },
-          topics: {
-            'channel-1': ['topic-a'],
-            'channel-2': ['topic-b'],
+          1,
+        );
+        await transactionIndex.addTransaction(
+          'dataId2',
+          {
+            channelIds: {
+              'channel-1': [1],
+              'channel-3': [2],
+            },
+            topics: {
+              'channel-3': ['topic-c', 'topic-b'],
+            },
+            version: '2.0',
           },
-          version: '2.0',
-        },
-        1,
-      );
-      await transactionIndex.addTransaction(
-        'dataId2',
-        {
-          channelIds: {
-            'channel-1': [1],
-            'channel-3': [2],
+          3,
+        );
+        await transactionIndex.addTransaction(
+          'dataId3',
+          {
+            channelIds: {
+              'channel-4': [1],
+              'channel-5': [2],
+            },
+            topics: {
+              'channel-4': ['topic-c'],
+              'channel-5': ['topic-d', 'topic-a'],
+            },
+            version: '2.0',
           },
-          topics: {
-            'channel-3': ['topic-c', 'topic-b'],
-          },
-          version: '2.0',
-        },
-        3,
-      );
-      await transactionIndex.addTransaction(
-        'dataId3',
-        {
-          channelIds: {
-            'channel-4': [1],
-            'channel-5': [2],
-          },
-          topics: {
-            'channel-4': ['topic-c'],
-            'channel-5': ['topic-d', 'topic-a'],
-          },
-          version: '2.0',
-        },
-        10,
-      );
+          10,
+        );
 
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-a', 'topic-b'], { from: 2 }),
-      ).to.deep.equal(['channel-1', 'channel-5', 'channel-3']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-a', 'topic-b'], { from: 4 }),
-      ).to.deep.equal(['channel-5']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-a', 'topic-b'], { to: 2 }),
-      ).to.deep.equal(['channel-1', 'channel-2']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-a', 'topic-b'], {
-          from: 2,
-          to: 4,
-        }),
-      ).to.deep.equal(['channel-1', 'channel-3']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-a', 'topic-b'], { from: 2 }),
+        ).to.deep.equal(['channel-1', 'channel-5', 'channel-3']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-a', 'topic-b'], { from: 4 }),
+        ).to.deep.equal(['channel-5']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-a', 'topic-b'], { to: 2 }),
+        ).to.deep.equal(['channel-1', 'channel-2']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-a', 'topic-b'], {
+            from: 2,
+            to: 4,
+          }),
+        ).to.deep.equal(['channel-1', 'channel-3']);
 
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-b', 'topic-c'], { from: 2 }),
-      ).to.deep.equal(['channel-3', 'channel-4']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-b', 'topic-c'], { from: 4 }),
-      ).to.deep.equal(['channel-4']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-b', 'topic-c'], { to: 2 }),
-      ).to.deep.equal(['channel-2']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-b', 'topic-c'], {
-          from: 2,
-          to: 4,
-        }),
-      ).to.deep.equal(['channel-3']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-b', 'topic-c'], { from: 2 }),
+        ).to.deep.equal(['channel-3', 'channel-4']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-b', 'topic-c'], { from: 4 }),
+        ).to.deep.equal(['channel-4']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-b', 'topic-c'], { to: 2 }),
+        ).to.deep.equal(['channel-2']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-b', 'topic-c'], {
+            from: 2,
+            to: 4,
+          }),
+        ).to.deep.equal(['channel-3']);
 
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-d', 'topic-c'], { from: 2 }),
-      ).to.deep.equal(['channel-5', 'channel-3', 'channel-4']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-d', 'topic-c'], { from: 4 }),
-      ).to.deep.equal(['channel-5', 'channel-4']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-d', 'topic-c'], { to: 2 }),
-      ).to.deep.equal([]);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(['topic-d', 'topic-c'], {
-          from: 2,
-          to: 4,
-        }),
-      ).to.deep.equal(['channel-3']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-d', 'topic-c'], { from: 2 }),
+        ).to.deep.equal(['channel-5', 'channel-3', 'channel-4']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-d', 'topic-c'], { from: 4 }),
+        ).to.deep.equal(['channel-5', 'channel-4']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-d', 'topic-c'], { to: 2 }),
+        ).to.deep.equal([]);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(['topic-d', 'topic-c'], {
+            from: 2,
+            to: 4,
+          }),
+        ).to.deep.equal(['channel-3']);
 
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics([
-          'topic-a',
-          'topic-b',
-          'topic-c',
-          'topic-d',
-        ]),
-      ).to.deep.equal(['channel-1', 'channel-5', 'channel-2', 'channel-3', 'channel-4']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(
-          ['topic-a', 'topic-b', 'topic-c', 'topic-d'],
-          { from: 2 },
-        ),
-      ).to.deep.equal(['channel-1', 'channel-5', 'channel-3', 'channel-4']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(
-          ['topic-a', 'topic-b', 'topic-c', 'topic-d'],
-          { from: 4 },
-        ),
-      ).to.deep.equal(['channel-5', 'channel-4']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(
-          ['topic-a', 'topic-b', 'topic-c', 'topic-d'],
-          { to: 2 },
-        ),
-      ).to.deep.equal(['channel-1', 'channel-2']);
-      expect(
-        await transactionIndex.getChannelIdsForMultipleTopics(
-          ['topic-a', 'topic-b', 'topic-c', 'topic-d'],
-          { from: 2, to: 4 },
-        ),
-      ).to.deep.equal(['channel-1', 'channel-3']);
-    });
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics([
+            'topic-a',
+            'topic-b',
+            'topic-c',
+            'topic-d',
+          ]),
+        ).to.deep.equal(['channel-1', 'channel-5', 'channel-2', 'channel-3', 'channel-4']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(
+            ['topic-a', 'topic-b', 'topic-c', 'topic-d'],
+            { from: 2 },
+          ),
+        ).to.deep.equal(['channel-1', 'channel-5', 'channel-3', 'channel-4']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(
+            ['topic-a', 'topic-b', 'topic-c', 'topic-d'],
+            { from: 4 },
+          ),
+        ).to.deep.equal(['channel-5', 'channel-4']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(
+            ['topic-a', 'topic-b', 'topic-c', 'topic-d'],
+            { to: 2 },
+          ),
+        ).to.deep.equal(['channel-1', 'channel-2']);
+        expect(
+          await transactionIndex.getChannelIdsForMultipleTopics(
+            ['topic-a', 'topic-b', 'topic-c', 'topic-d'],
+            { from: 2, to: 4 },
+          ),
+        ).to.deep.equal(['channel-1', 'channel-3']);
+      }
+    );
   });
 });

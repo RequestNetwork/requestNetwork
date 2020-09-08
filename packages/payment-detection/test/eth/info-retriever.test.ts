@@ -3,7 +3,6 @@ import EthInfoRetriever from '../../src/eth/info-retriever';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 
 import { expect } from 'chai';
-import 'mocha';
 
 describe('api/eth/info-retriever', () => {
   // In this test, we're looking this transaction:

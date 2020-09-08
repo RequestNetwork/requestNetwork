@@ -2,7 +2,6 @@ import { DataAccessTypes, TransactionTypes } from '@requestnetwork/types';
 
 import { Block } from '@requestnetwork/data-access';
 
-import 'mocha';
 import HttpMetamaskDataAccess from '../src/http-metamask-data-access';
 
 const chai = require('chai');

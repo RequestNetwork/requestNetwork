@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 const bigNumber: any = require('bn.js');
 
 import Amount from '../src/amount';

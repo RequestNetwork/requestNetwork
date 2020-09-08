@@ -1,5 +1,3 @@
-import 'mocha';
-
 import Utils from '@requestnetwork/utils';
 import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
@@ -17,7 +15,7 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('getConfirmedTransaction', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
@@ -25,7 +23,7 @@ describe('getConfirmedTransaction', () => {
     server = requestNodeInstance.listen(3000, () => 0);
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 

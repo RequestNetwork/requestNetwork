@@ -1,5 +1,4 @@
 import * as chai from 'chai';
-import 'mocha';
 
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
@@ -75,16 +74,19 @@ describe('Utils.ecUtils', () => {
       );
       expect(id, 'recover() error').to.be.deep.equal(rawId.address);
     });
-    it('cannot recover address from signature if signature is not well formatted', () => {
-      expect(
-        () =>
-          ecUtils.recover(
-            '0xaa',
-            '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f',
-          ),
-        'sign() error',
-      ).to.throw('The signature must be a string representing 66 bytes');
-    });
+    it(
+      'cannot recover address from signature if signature is not well formatted',
+      () => {
+        expect(
+          () =>
+            ecUtils.recover(
+              '0xaa',
+              '0xfd6201dabdd4d7177f7c3baba47c5533b12f0a8127ab5d8c71d831fa4df2b19f',
+            ),
+          'sign() error',
+        ).to.throw('The signature must be a string representing 66 bytes');
+      }
+    );
   });
 
   describe('encrypt', () => {
@@ -122,22 +124,28 @@ describe('Utils.ecUtils', () => {
       ).to.eventually.rejectedWith('The private key must be a string representing 32 bytes');
     });
 
-    it('cannot decrypt data with a wrong encrypted data: public key too short', async () => {
-      await expect(
-        ecUtils.decrypt(rawId.privateKey, 'aa'),
-        'encrypt() error',
-      ).to.eventually.rejectedWith('The encrypted data is not well formatted');
-    });
+    it(
+      'cannot decrypt data with a wrong encrypted data: public key too short',
+      async () => {
+        await expect(
+          ecUtils.decrypt(rawId.privateKey, 'aa'),
+          'encrypt() error',
+        ).to.eventually.rejectedWith('The encrypted data is not well formatted');
+      }
+    );
 
-    it('cannot decrypt data with a wrong encrypted data: public key not parsable', async () => {
-      await expect(
-        ecUtils.decrypt(
-          rawId.privateKey,
-          'e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
-        ),
-        'encrypt() error',
-      ).to.eventually.rejectedWith('The encrypted data is not well formatted');
-    });
+    it(
+      'cannot decrypt data with a wrong encrypted data: public key not parsable',
+      async () => {
+        await expect(
+          ecUtils.decrypt(
+            rawId.privateKey,
+            'e50aa90008961e3d68acc35b314e98020e3280bf4ce4258419dbb775185e60b43e7b88038a776a9322ff7cb3e886b2d92060cff2951ef3beedcc7',
+          ),
+          'encrypt() error',
+        ).to.eventually.rejectedWith('The encrypted data is not well formatted');
+      }
+    );
 
     it('cannot decrypt data with a wrong encrypted data: bad MAC', async () => {
       await expect(

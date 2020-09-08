@@ -4,7 +4,6 @@ import { PaymentTypes } from '@requestnetwork/types';
 import ProxyETHInfoRetriever from '../../src/eth/proxy-info-retriever';
 
 import 'chai';
-import 'mocha';
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -64,23 +63,26 @@ describe('api/eth/proxy-info-retriever', () => {
       expect(events[0].parameters!.txHash).to.be.a('string');
     });
 
-    it('gets an empty list of events for an address without ETH on localhost', async () => {
-      const infoRetriever = new ProxyETHInfoRetriever(
-        paymentReferenceMock,
-        proxyContractAddress,
-        0,
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'private',
-      );
+    it(
+      'gets an empty list of events for an address without ETH on localhost',
+      async () => {
+        const infoRetriever = new ProxyETHInfoRetriever(
+          paymentReferenceMock,
+          proxyContractAddress,
+          0,
+          paymentAddress,
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+          'private',
+        );
 
-      // inject mock provider.getLogs()
-      infoRetriever.provider.getLogs = (): any => {
-        return [];
-      };
+        // inject mock provider.getLogs()
+        infoRetriever.provider.getLogs = (): any => {
+          return [];
+        };
 
-      const events = await infoRetriever.getTransferEvents();
-      expect(events).to.be.empty;
-    });
+        const events = await infoRetriever.getTransferEvents();
+        expect(events).to.be.empty;
+      }
+    );
   });
 });

@@ -21,26 +21,32 @@ describe('GasPriceDefiner', () => {
   });
 
   describe('getGasPrice', () => {
-    it('returns default gas price from config if network is not mainnet', async () => {
-      const gasPrice = await gasPriceDefiner.getGasPrice(
-        StorageTypes.GasPriceType.STANDARD,
-        EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY),
-      );
+    it(
+      'returns default gas price from config if network is not mainnet',
+      async () => {
+        const gasPrice = await gasPriceDefiner.getGasPrice(
+          StorageTypes.GasPriceType.STANDARD,
+          EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY),
+        );
 
-      expect(gasPrice).to.equals(config.getDefaultEthereumGasPrice());
-    });
+        expect(gasPrice).to.equals(config.getDefaultEthereumGasPrice());
+      }
+    );
 
-    it('returns default gas price from config if no provider is available', async () => {
-      gasPriceDefiner.pollProviders = async (
-        _type: StorageTypes.GasPriceType,
-      ): Promise<typeof bigNumber> => [];
-      const gasPrice = await gasPriceDefiner.getGasPrice(
-        StorageTypes.GasPriceType.STANDARD,
-        EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
-      );
+    it(
+      'returns default gas price from config if no provider is available',
+      async () => {
+        gasPriceDefiner.pollProviders = async (
+          _type: StorageTypes.GasPriceType,
+        ): Promise<typeof bigNumber> => [];
+        const gasPrice = await gasPriceDefiner.getGasPrice(
+          StorageTypes.GasPriceType.STANDARD,
+          EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
+        );
 
-      expect(gasPrice).to.equals(config.getDefaultEthereumGasPrice());
-    });
+        expect(gasPrice).to.equals(config.getDefaultEthereumGasPrice());
+      }
+    );
 
     it('returns the max of values returned by providers', async () => {
       gasPriceDefiner.gasPriceProviderList = [

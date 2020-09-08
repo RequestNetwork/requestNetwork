@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as sinon from 'sinon';
 
 import * as SmartContracts from '@requestnetwork/smart-contracts';
@@ -305,51 +303,57 @@ describe('EthereumStorage', () => {
           });
       });
     });
-    it(`allows to save dataId's Ethereum metadata into the metadata cache when append is called`, async () => {
-      await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.be
-        .undefined;
+    it(
+      `allows to save dataId's Ethereum metadata into the metadata cache when append is called`,
+      async () => {
+        await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.be
+          .undefined;
 
-      const result = await ethereumStorage.append(content1);
-      await expect(
-        ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1),
-      ).to.eventually.deep.equal(result.meta.ethereum);
-    });
+        const result = await ethereumStorage.append(content1);
+        await expect(
+          ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1),
+        ).to.eventually.deep.equal(result.meta.ethereum);
+      }
+    );
 
-    it(`prevents already saved dataId's Ethereum metadata to be erased in the metadata cache when append is called`, async () => {
-      await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.be
-        .undefined;
+    it(
+      `prevents already saved dataId's Ethereum metadata to be erased in the metadata cache when append is called`,
+      async () => {
+        await expect(ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1)).to.eventually.be
+          .undefined;
 
-      const result1 = await ethereumStorage.append(content1);
+        const result1 = await ethereumStorage.append(content1);
 
-      // Ethereum metadata is determined by the return data of addHashAndSizeToEthereum
-      // We change the return data of this function to ensure the second call of append contain different metadata
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
-        StorageTypes.IEthereumMetadata
-      > => {
-        return {
-          blockConfirmation: 20,
-          blockNumber: 11,
-          blockTimestamp: 1545816416,
-          cost: '110',
-          fee: '1',
-          gasFee: '100',
-          networkName: 'private',
-          smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-          transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+        // Ethereum metadata is determined by the return data of addHashAndSizeToEthereum
+        // We change the return data of this function to ensure the second call of append contain different metadata
+        ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
+          StorageTypes.IEthereumMetadata
+        > => {
+          return {
+            blockConfirmation: 20,
+            blockNumber: 11,
+            blockTimestamp: 1545816416,
+            cost: '110',
+            fee: '1',
+            gasFee: '100',
+            networkName: 'private',
+            smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+            transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+          };
         };
-      };
 
-      const result2 = await ethereumStorage.append(content1);
+        const result2 = await ethereumStorage.append(content1);
 
-      result1.on('confirmed', resultConfirmed1 => {
-        result2.on('confirmed', async resultConfirmed2 => {
-          await assert.notDeepEqual(resultConfirmed1, resultConfirmed2);
-          await expect(
-            ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1),
-          ).to.eventually.deep.equal(resultConfirmed1.meta.ethereum);
+        result1.on('confirmed', resultConfirmed1 => {
+          result2.on('confirmed', async resultConfirmed2 => {
+            await assert.notDeepEqual(resultConfirmed1, resultConfirmed2);
+            await expect(
+              ethereumStorage.ethereumMetadataCache.metadataCache.get(hash1),
+            ).to.eventually.deep.equal(resultConfirmed1.meta.ethereum);
+          });
         });
-      });
-    });
+      }
+    );
 
     it('allows to read a file', async () => {
       // For this test, we don't want to use the ethereum metadata cache
@@ -564,72 +568,84 @@ describe('EthereumStorage', () => {
       await assert.isRejected(ethereumStorage.read(''), Error, 'No id provided');
     });
 
-    it('append and read on an invalid ipfs gateway should throw an error', async () => {
-      await expect(
-        ethereumStorage.updateIpfsGateway(invalidHostIpfsGatewayConnection),
-      ).to.eventually.rejectedWith(
-        'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent',
-      );
-    });
+    it(
+      'append and read on an invalid ipfs gateway should throw an error',
+      async () => {
+        await expect(
+          ethereumStorage.updateIpfsGateway(invalidHostIpfsGatewayConnection),
+        ).to.eventually.rejectedWith(
+          'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent',
+        );
+      }
+    );
 
-    it('failed getContentLength from ipfs-manager in append and read functions should throw an error', async () => {
-      // To test this case, we create a mock for getContentLength of the ipfs manager that always throws an error
-      ethereumStorage.ipfsManager.getContentLength = async _hash => {
-        throw Error('Any error in getContentLength');
-      };
+    it(
+      'failed getContentLength from ipfs-manager in append and read functions should throw an error',
+      async () => {
+        // To test this case, we create a mock for getContentLength of the ipfs manager that always throws an error
+        ethereumStorage.ipfsManager.getContentLength = async _hash => {
+          throw Error('Any error in getContentLength');
+        };
 
-      await assert.isRejected(
-        ethereumStorage.append(content1),
-        Error,
-        'Ipfs get length request error',
-      );
-    });
+        await assert.isRejected(
+          ethereumStorage.append(content1),
+          Error,
+          'Ipfs get length request error',
+        );
+      }
+    );
 
-    it('append content with an invalid web3 connection should throw an error', async () => {
-      await expect(
-        ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection),
-      ).to.eventually.rejectedWith(
-        'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider: Error: Invalid JSON RPC response: ""',
-      );
-    });
+    it(
+      'append content with an invalid web3 connection should throw an error',
+      async () => {
+        await expect(
+          ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection),
+        ).to.eventually.rejectedWith(
+          'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider: Error: Invalid JSON RPC response: ""',
+        );
+      }
+    );
 
-    it('getData should throw an error when data from getEntriesFromEthereum are incorrect', async () => {
-      // Mock getEntriesFromEthereum of smartContractManager to return unexpected promise value
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<any> => {
-        return Promise.resolve({
-          ethereumEntries: [
-            {
-              feesParameters: { contentSize: 10 },
-              meta: {} as StorageTypes.IEthereumMetadata,
-            } as StorageTypes.IEthereumEntry,
-          ],
-          lastTimestamp: 0,
-        });
-      };
+    it(
+      'getData should throw an error when data from getEntriesFromEthereum are incorrect',
+      async () => {
+        // Mock getEntriesFromEthereum of smartContractManager to return unexpected promise value
+        ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<any> => {
+          return Promise.resolve({
+            ethereumEntries: [
+              {
+                feesParameters: { contentSize: 10 },
+                meta: {} as StorageTypes.IEthereumMetadata,
+              } as StorageTypes.IEthereumEntry,
+            ],
+            lastTimestamp: 0,
+          });
+        };
 
-      await assert.isRejected(
-        ethereumStorage.getData(),
-        Error,
-        'The event log has no hash or feesParameters',
-      );
+        await assert.isRejected(
+          ethereumStorage.getData(),
+          Error,
+          'The event log has no hash or feesParameters',
+        );
 
-      // Test with no meta
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
-        StorageTypes.IEthereumEntriesWithLastTimestamp
-      > => {
-        return Promise.resolve({
-          ethereumEntries: [
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0xad',
-            } as StorageTypes.IEthereumEntry,
-          ],
-          lastTimestamp: 0,
-        });
-      };
+        // Test with no meta
+        ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
+          StorageTypes.IEthereumEntriesWithLastTimestamp
+        > => {
+          return Promise.resolve({
+            ethereumEntries: [
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0xad',
+              } as StorageTypes.IEthereumEntry,
+            ],
+            lastTimestamp: 0,
+          });
+        };
 
-      await assert.isRejected(ethereumStorage.getData(), Error, 'The event log has no metadata');
-    });
+        await assert.isRejected(ethereumStorage.getData(), Error, 'The event log has no metadata');
+      }
+    );
 
     it('allows to read a file', async () => {
       ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};

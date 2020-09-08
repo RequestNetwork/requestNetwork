@@ -1,5 +1,3 @@
-import 'mocha';
-
 import { StorageTypes } from '@requestnetwork/types';
 import IgnoredDataIds from '../src/ignored-dataIds';
 

@@ -1,5 +1,4 @@
 import * as chai from 'chai';
-import 'mocha';
 
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);

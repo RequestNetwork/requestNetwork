@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as spies from 'chai-spies';
@@ -18,16 +16,19 @@ const arbitraryTimestamp = 10;
 
 /* tslint:disable:no-unused-expression */
 describe('LocationTimestamp', () => {
-  it('can pushTimestampByLocation() and getTimestampFromLocation()', async () => {
-    const timestampLocation = new TimestampByLocationTransactionIndex();
-    await timestampLocation.pushTimestampByLocation(arbitraryDataId1, arbitraryTimestamp);
+  it(
+    'can pushTimestampByLocation() and getTimestampFromLocation()',
+    async () => {
+      const timestampLocation = new TimestampByLocationTransactionIndex();
+      await timestampLocation.pushTimestampByLocation(arbitraryDataId1, arbitraryTimestamp);
 
-    const result = await timestampLocation.isDataInBoundaries(arbitraryDataId1, {
-      from: arbitraryTimestamp,
-      to: arbitraryTimestamp,
-    });
-    expect(result, 'timestampLocation is wrong').to.be.true;
-  });
+      const result = await timestampLocation.isDataInBoundaries(arbitraryDataId1, {
+        from: arbitraryTimestamp,
+        to: arbitraryTimestamp,
+      });
+      expect(result, 'timestampLocation is wrong').to.be.true;
+    }
+  );
 
   describe('isDataInBoundaries', () => {
     it('can isDataInBoundaries()', async () => {

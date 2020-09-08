@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as sinon from 'sinon';
 
 import { StorageTypes } from '@requestnetwork/types';

@@ -1,6 +1,4 @@
 /* eslint-disable spellcheck/spell-checker */
-import 'mocha';
-
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as spies from 'chai-spies';
@@ -182,10 +180,13 @@ describe('hasErc20approval & approveErc20', () => {
 });
 
 describe('getErc20Balance', () => {
-  it('should read the balance for ERC20 Fee Proxy payment network', async () => {
-    const balance = await getErc20Balance(erc20FeeProxyRequest, wallet.address, provider);
-    chai.assert.isTrue(balance.gte('100'));
-  });
+  it(
+    'should read the balance for ERC20 Fee Proxy payment network',
+    async () => {
+      const balance = await getErc20Balance(erc20FeeProxyRequest, wallet.address, provider);
+      chai.assert.isTrue(balance.gte('100'));
+    }
+  );
 
   it('should read the balance for ERC20 Proxy payment network', async () => {
     const balance = await getErc20Balance(erc20ProxyRequest, wallet.address, provider);

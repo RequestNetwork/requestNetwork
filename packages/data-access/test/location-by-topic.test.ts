@@ -5,8 +5,6 @@ const expect = chai.expect;
 chai.use(spies);
 
 
-import 'mocha';
-
 import LocationByTopic from '../src/transaction-index/location-by-topic';
 
 const arbitraryId1 = 'id1';
@@ -149,68 +147,74 @@ describe('LocationByTopic', () => {
   });
 
   describe('getChannelIdsFromMultipleTopics', () => {
-    it('can get ChannelIds From Multiple Topic giving only one topic', async () => {
-      const localIndex = new LocationByTopic();
-      await localIndex.pushStorageLocationIndexedWithBlockTopics(
-        arbitraryDataId1,
-        arbitraryBlockHeader1,
-      );
+    it(
+      'can get ChannelIds From Multiple Topic giving only one topic',
+      async () => {
+        const localIndex = new LocationByTopic();
+        await localIndex.pushStorageLocationIndexedWithBlockTopics(
+          arbitraryDataId1,
+          arbitraryBlockHeader1,
+        );
 
-      await localIndex.pushStorageLocationIndexedWithBlockTopics(
-        arbitraryDataId2,
-        arbitraryBlockHeader2,
-      );
+        await localIndex.pushStorageLocationIndexedWithBlockTopics(
+          arbitraryDataId2,
+          arbitraryBlockHeader2,
+        );
 
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic1, arbitraryTxTopic2]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId1, arbitraryId2]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([
-          arbitraryTxTopic1,
-          arbitraryTxTopic2,
-          arbitraryTxTopic3,
-        ]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId1, arbitraryId2, arbitraryId3]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics(['topic not used', arbitraryTxTopic3]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId3]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([]);
-    });
+        expect(
+          await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic1, arbitraryTxTopic2]),
+          'getChannelIdsFromTopic is wrong',
+        ).to.deep.equal([arbitraryId1, arbitraryId2]);
+        expect(
+          await localIndex.getChannelIdsFromMultipleTopics([
+            arbitraryTxTopic1,
+            arbitraryTxTopic2,
+            arbitraryTxTopic3,
+          ]),
+          'getChannelIdsFromTopic is wrong',
+        ).to.deep.equal([arbitraryId1, arbitraryId2, arbitraryId3]);
+        expect(
+          await localIndex.getChannelIdsFromMultipleTopics(['topic not used', arbitraryTxTopic3]),
+          'getChannelIdsFromTopic is wrong',
+        ).to.deep.equal([arbitraryId3]);
+        expect(
+          await localIndex.getChannelIdsFromMultipleTopics([]),
+          'getChannelIdsFromTopic is wrong',
+        ).to.deep.equal([]);
+      }
+    );
 
-    it('can get ChannelIds From Multiple Topic giving only one topic', async () => {
-      const localIndex = new LocationByTopic();
-      await localIndex.pushStorageLocationIndexedWithBlockTopics(
-        arbitraryDataId1,
-        arbitraryBlockHeader1,
-      );
+    it(
+      'can get ChannelIds From Multiple Topic giving only one topic',
+      async () => {
+        const localIndex = new LocationByTopic();
+        await localIndex.pushStorageLocationIndexedWithBlockTopics(
+          arbitraryDataId1,
+          arbitraryBlockHeader1,
+        );
 
-      await localIndex.pushStorageLocationIndexedWithBlockTopics(
-        arbitraryDataId2,
-        arbitraryBlockHeader2,
-      );
+        await localIndex.pushStorageLocationIndexedWithBlockTopics(
+          arbitraryDataId2,
+          arbitraryBlockHeader2,
+        );
 
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic1]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId1, arbitraryId2]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic2]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId2]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic3]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId3]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics(['topic not used']),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([]);
-    });
+        expect(
+          await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic1]),
+          'getChannelIdsFromTopic is wrong',
+        ).to.deep.equal([arbitraryId1, arbitraryId2]);
+        expect(
+          await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic2]),
+          'getChannelIdsFromTopic is wrong',
+        ).to.deep.equal([arbitraryId2]);
+        expect(
+          await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic3]),
+          'getChannelIdsFromTopic is wrong',
+        ).to.deep.equal([arbitraryId3]);
+        expect(
+          await localIndex.getChannelIdsFromMultipleTopics(['topic not used']),
+          'getChannelIdsFromTopic is wrong',
+        ).to.deep.equal([]);
+      }
+    );
   });
 });

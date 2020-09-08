@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 import DataFormat from '../src/index';
 
 // tslint:disable:no-unused-expression

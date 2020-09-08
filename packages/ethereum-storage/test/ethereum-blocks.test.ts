@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as chaiAsPromised from 'chai-as-promised';
 import * as sinon from 'sinon';
 
@@ -193,13 +191,16 @@ describe('EthereumBlocks', () => {
       expect(await ethereumBlocks.getBlockTimestamp(50)).to.be.equal(mockBlocksEthereum[50]);
     });
 
-    it('can getBlockTimestamp without asking twice the same block number', async () => {
-      sandbox.on(mockEth, ['getBlock']);
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
-      expect(await ethereumBlocks.getBlockTimestamp(50)).to.be.equal(mockBlocksEthereum[50]);
-      expect(await ethereumBlocks.getBlockTimestamp(50)).to.be.equal(mockBlocksEthereum[50]);
-      expect(mockEth.getBlock).to.have.been.called.once;
-    });
+    it(
+      'can getBlockTimestamp without asking twice the same block number',
+      async () => {
+        sandbox.on(mockEth, ['getBlock']);
+        const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+        expect(await ethereumBlocks.getBlockTimestamp(50)).to.be.equal(mockBlocksEthereum[50]);
+        expect(await ethereumBlocks.getBlockTimestamp(50)).to.be.equal(mockBlocksEthereum[50]);
+        expect(mockEth.getBlock).to.have.been.called.once;
+      }
+    );
 
     it('cannot getBlockTimestamp of a block that doest not exist', async () => {
       const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);

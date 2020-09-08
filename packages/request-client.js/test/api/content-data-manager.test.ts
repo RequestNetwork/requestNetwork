@@ -5,7 +5,6 @@ import ContentDataExtension from '../../src/api/content-data-extension';
 import * as TestData from './data-for-content-data-extension.test';
 
 import 'chai';
-import 'mocha';
 
 const chai = require('chai');
 const spies = require('chai-spies');
@@ -52,12 +51,15 @@ describe('api/content-data-extension', () => {
 
       expect(spy).to.have.been.called.once;
     });
-    it('cannot createExtensionsDataForCreation with content data following data-format but wrong', async () => {
-      const content = { meta: { format: 'rnf_invoice', version: '0.0.2' } };
+    it(
+      'cannot createExtensionsDataForCreation with content data following data-format but wrong',
+      async () => {
+        const content = { meta: { format: 'rnf_invoice', version: '0.0.2' } };
 
-      expect(() => {
-        contentDataExtension.createExtensionsDataForCreation(content);
-      }).to.throw();
-    });
+        expect(() => {
+          contentDataExtension.createExtensionsDataForCreation(content);
+        }).to.throw();
+      }
+    );
   });
 });

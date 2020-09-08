@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 
 import { IdentityTypes } from '@requestnetwork/types';
 import Identity from '../src/identity';

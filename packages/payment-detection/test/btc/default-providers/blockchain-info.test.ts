@@ -9,8 +9,6 @@ import * as chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
-import 'mocha';
-
 // Most of the tests are done as integration tests in ../index.test.ts
 /* tslint:disable:no-unused-expression */
 describe('api/btc/default-providers/blockchainInfo', () => {

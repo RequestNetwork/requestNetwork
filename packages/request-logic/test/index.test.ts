@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as sinon from 'sinon';
 
 import { EventEmitter } from 'events';
@@ -89,36 +87,39 @@ describe('index', () => {
       ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
 
-    it('cannot createRequest if apply fails in the advanced request logic', async () => {
-      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
-          throw new Error('Expected throw');
-        },
-        extensions: {},
-      };
+    it(
+      'cannot createRequest if apply fails in the advanced request logic',
+      async () => {
+        const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+          applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+            throw new Error('Expected throw');
+          },
+          extensions: {},
+        };
 
-      const requestLogic = new RequestLogic(
-        fakeTransactionManager,
-        TestData.fakeSignatureProvider,
-        fakeAdvancedLogic,
-      );
+        const requestLogic = new RequestLogic(
+          fakeTransactionManager,
+          TestData.fakeSignatureProvider,
+          fakeAdvancedLogic,
+        );
 
-      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
-        expectedAmount: TestData.arbitraryExpectedAmount,
-        extensionsData: ['whatever'],
-        payee: TestData.payeeRaw.identity,
-        payer: TestData.payerRaw.identity,
-        timestamp: 1544426030,
-      };
+        const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          extensionsData: ['whatever'],
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544426030,
+        };
 
-      await expect(
-        requestLogic.createRequest(createParamsWithExtensions, TestData.payeeRaw.identity),
-      ).to.eventually.be.rejectedWith('Expected throw');
-    });
+        await expect(
+          requestLogic.createRequest(createParamsWithExtensions, TestData.payeeRaw.identity),
+        ).to.eventually.be.rejectedWith('Expected throw');
+      }
+    );
 
     it('can createRequest', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
@@ -217,51 +218,57 @@ describe('index', () => {
   });
 
   describe('createEncryptedRequest', () => {
-    it('cannot create encrypted request without signature provider', async () => {
-      const requestLogic = new RequestLogic(fakeTransactionManager);
+    it(
+      'cannot create encrypted request without signature provider',
+      async () => {
+        const requestLogic = new RequestLogic(fakeTransactionManager);
 
-      await expect(
-        requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, [
-          TestData.payeeRaw.encryptionParams,
-          TestData.payerRaw.encryptionParams,
-        ]),
-      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
-    });
+        await expect(
+          requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, [
+            TestData.payeeRaw.encryptionParams,
+            TestData.payerRaw.encryptionParams,
+          ]),
+        ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+      }
+    );
 
-    it('cannot create an encrypted request if apply fails in the advanced request logic', async () => {
-      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
-          throw new Error('Expected throw');
-        },
-        extensions: {},
-      };
+    it(
+      'cannot create an encrypted request if apply fails in the advanced request logic',
+      async () => {
+        const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+          applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+            throw new Error('Expected throw');
+          },
+          extensions: {},
+        };
 
-      const requestLogic = new RequestLogic(
-        fakeTransactionManager,
-        TestData.fakeSignatureProvider,
-        fakeAdvancedLogic,
-      );
+        const requestLogic = new RequestLogic(
+          fakeTransactionManager,
+          TestData.fakeSignatureProvider,
+          fakeAdvancedLogic,
+        );
 
-      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
-        expectedAmount: TestData.arbitraryExpectedAmount,
-        extensionsData: ['whatever'],
-        payee: TestData.payeeRaw.identity,
-        payer: TestData.payerRaw.identity,
-        timestamp: 1544426030,
-      };
+        const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          extensionsData: ['whatever'],
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544426030,
+        };
 
-      await expect(
-        requestLogic.createEncryptedRequest(
-          createParamsWithExtensions,
-          TestData.payeeRaw.identity,
-          [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
-        ),
-      ).to.eventually.be.rejectedWith('Expected throw');
-    });
+        await expect(
+          requestLogic.createEncryptedRequest(
+            createParamsWithExtensions,
+            TestData.payeeRaw.identity,
+            [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
+          ),
+        ).to.eventually.be.rejectedWith('Expected throw');
+      }
+    );
 
     it('can create en encrypted request', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
@@ -320,15 +327,18 @@ describe('index', () => {
       );
     });
 
-    it('cannot create en encrypted request without encryption parameteres', async () => {
-      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+    it(
+      'cannot create en encrypted request without encryption parameteres',
+      async () => {
+        const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
 
-      await expect(
-        requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, []),
-      ).to.eventually.be.rejectedWith(
-        'You must give at least one encryption parameter to create an encrypted request',
-      );
-    });
+        await expect(
+          requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, []),
+        ).to.eventually.be.rejectedWith(
+          'You must give at least one encryption parameter to create an encrypted request',
+        );
+      }
+    );
 
     it('can createEncryptedRequest if persist emit error', async () => {
       const clock = sinon.useFakeTimers();
@@ -389,36 +399,39 @@ describe('index', () => {
       ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
     });
 
-    it('cannot compute request id if apply fails in the advanced request logic', async () => {
-      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
-          throw new Error('Expected throw');
-        },
-        extensions: {},
-      };
+    it(
+      'cannot compute request id if apply fails in the advanced request logic',
+      async () => {
+        const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+          applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+            throw new Error('Expected throw');
+          },
+          extensions: {},
+        };
 
-      const requestLogic = new RequestLogic(
-        fakeTransactionManager,
-        TestData.fakeSignatureProvider,
-        fakeAdvancedLogic,
-      );
+        const requestLogic = new RequestLogic(
+          fakeTransactionManager,
+          TestData.fakeSignatureProvider,
+          fakeAdvancedLogic,
+        );
 
-      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
-        expectedAmount: TestData.arbitraryExpectedAmount,
-        extensionsData: ['whatever'],
-        payee: TestData.payeeRaw.identity,
-        payer: TestData.payerRaw.identity,
-        timestamp: 1544426030,
-      };
+        const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          extensionsData: ['whatever'],
+          payee: TestData.payeeRaw.identity,
+          payer: TestData.payerRaw.identity,
+          timestamp: 1544426030,
+        };
 
-      await expect(
-        requestLogic.computeRequestId(createParamsWithExtensions, TestData.payeeRaw.identity),
-      ).to.eventually.be.rejectedWith('Expected throw');
-    });
+        await expect(
+          requestLogic.computeRequestId(createParamsWithExtensions, TestData.payeeRaw.identity),
+        ).to.eventually.be.rejectedWith('Expected throw');
+      }
+    );
 
     it('can computeRequestId', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
@@ -661,17 +674,20 @@ describe('index', () => {
         requestId,
       );
     });
-    it('cannot increaseExpectedAmountRequest without signature provider', async () => {
-      const requestLogic = new RequestLogic(fakeTransactionManager);
-      const increaseRequest = {
-        deltaAmount: '1000',
-        requestId,
-      };
+    it(
+      'cannot increaseExpectedAmountRequest without signature provider',
+      async () => {
+        const requestLogic = new RequestLogic(fakeTransactionManager);
+        const increaseRequest = {
+          deltaAmount: '1000',
+          requestId,
+        };
 
-      await expect(
-        requestLogic.increaseExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity),
-      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
-    });
+        await expect(
+          requestLogic.increaseExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity),
+        ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+      }
+    );
     it('cannot increaseExpectedAmountRequest as payee', async () => {
       const actionCreate = Utils.signature.sign(
         {
@@ -765,17 +781,20 @@ describe('index', () => {
         requestId,
       );
     });
-    it('cannot reduceExpectedAmountRequest without signature provider', async () => {
-      const requestLogic = new RequestLogic(fakeTransactionManager);
-      const reduceRequest = {
-        deltaAmount: '1000',
-        requestId,
-      };
+    it(
+      'cannot reduceExpectedAmountRequest without signature provider',
+      async () => {
+        const requestLogic = new RequestLogic(fakeTransactionManager);
+        const reduceRequest = {
+          deltaAmount: '1000',
+          requestId,
+        };
 
-      await expect(
-        requestLogic.reduceExpectedAmountRequest(reduceRequest, TestData.payeeRaw.identity),
-      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
-    });
+        await expect(
+          requestLogic.reduceExpectedAmountRequest(reduceRequest, TestData.payeeRaw.identity),
+        ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+      }
+    );
     it('cannot reduceExpectedAmountRequest as payer', async () => {
       const actionCreate = Utils.signature.sign(
         {
@@ -865,75 +884,81 @@ describe('index', () => {
         requestId,
       );
     });
-    it('cannot addExtensionsDataRequest without signature provider', async () => {
-      const requestLogic = new RequestLogic(fakeTransactionManager);
-      const addExtRequest = {
-        extensionsData: TestData.oneExtension,
-        requestId,
-      };
+    it(
+      'cannot addExtensionsDataRequest without signature provider',
+      async () => {
+        const requestLogic = new RequestLogic(fakeTransactionManager);
+        const addExtRequest = {
+          extensionsData: TestData.oneExtension,
+          requestId,
+        };
 
-      await expect(
-        requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity),
-      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
-    });
-    it('cannot addExtension if apply fail in the advanced request logic', async () => {
-      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
-          throw new Error('Expected throw');
-        },
-        extensions: {},
-      };
-
-      const actionCreate = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.CREATE,
-          parameters: {
-            currency: {
-              type: RequestLogicTypes.CURRENCY.ETH,
-              value: 'ETH',
-            },
-            expectedAmount: '123400000000000000',
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            timestamp: 1544426030,
+        await expect(
+          requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity),
+        ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+      }
+    );
+    it(
+      'cannot addExtension if apply fail in the advanced request logic',
+      async () => {
+        const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+          applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+            throw new Error('Expected throw');
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
-      const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
-        getTransactionsByChannelId: chai.spy.returns(
-          Promise.resolve({
-            meta: { ignoredTransactions: [] },
-            result: {
-              transactions: [
-                {
-                  state: TransactionTypes.TransactionState.CONFIRMED,
-                  timestamp: 1,
-                  transaction: { data: JSON.stringify(actionCreate) },
-                },
-              ],
-            },
-          }),
-        ),
-        persistTransaction: chai.spy() as any,
-      };
-      const addExtensionParams = {
-        extensionsData: ['whatever'],
-        requestId,
-      };
-      const requestLogic = new RequestLogic(
-        transactionManager,
-        TestData.fakeSignatureProvider,
-        fakeAdvancedLogic,
-      );
+          extensions: {},
+        };
 
-      await expect(
-        requestLogic.addExtensionsDataRequest(addExtensionParams, TestData.payeeRaw.identity, true),
-      ).to.eventually.be.rejectedWith('Expected throw');
-    });
+        const actionCreate = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.CREATE,
+            parameters: {
+              currency: {
+                type: RequestLogicTypes.CURRENCY.ETH,
+                value: 'ETH',
+              },
+              expectedAmount: '123400000000000000',
+              payee: TestData.payeeRaw.identity,
+              payer: TestData.payerRaw.identity,
+              timestamp: 1544426030,
+            },
+            version: CURRENT_VERSION,
+          },
+          TestData.payeeRaw.signatureParams,
+        );
+        const transactionManager: TransactionTypes.ITransactionManager = {
+          getChannelsByMultipleTopics: chai.spy() as any,
+          getChannelsByTopic: chai.spy() as any,
+          getTransactionsByChannelId: chai.spy.returns(
+            Promise.resolve({
+              meta: { ignoredTransactions: [] },
+              result: {
+                transactions: [
+                  {
+                    state: TransactionTypes.TransactionState.CONFIRMED,
+                    timestamp: 1,
+                    transaction: { data: JSON.stringify(actionCreate) },
+                  },
+                ],
+              },
+            }),
+          ),
+          persistTransaction: chai.spy() as any,
+        };
+        const addExtensionParams = {
+          extensionsData: ['whatever'],
+          requestId,
+        };
+        const requestLogic = new RequestLogic(
+          transactionManager,
+          TestData.fakeSignatureProvider,
+          fakeAdvancedLogic,
+        );
+
+        await expect(
+          requestLogic.addExtensionsDataRequest(addExtensionParams, TestData.payeeRaw.identity, true),
+        ).to.eventually.be.rejectedWith('Expected throw');
+      }
+    );
   });
 
   describe('getRequestFromId', () => {
@@ -1349,328 +1374,334 @@ describe('index', () => {
       });
     });
 
-    it('can getRequestFromId ignore the same transactions even with different case', async () => {
-      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.CREATE,
-          parameters: {
-            currency: {
-              type: RequestLogicTypes.CURRENCY.ETH,
-              value: 'ETH',
+    it(
+      'can getRequestFromId ignore the same transactions even with different case',
+      async () => {
+        const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.CREATE,
+            parameters: {
+              currency: {
+                type: RequestLogicTypes.CURRENCY.ETH,
+                value: 'ETH',
+              },
+              expectedAmount: '123400000000000000',
+              payee: TestData.payeeRaw.identity,
+              payer: TestData.payerRaw.identity,
+              timestamp: 1544426030,
             },
-            expectedAmount: '123400000000000000',
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            timestamp: 1544426030,
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
+          TestData.payeeRaw.signatureParams,
+        );
 
-      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-          parameters: {
-            requestId,
+        const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+            parameters: {
+              requestId,
+            },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payerRaw.signatureParams,
-      );
+          TestData.payerRaw.signatureParams,
+        );
 
-      const actionReduce: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-          parameters: {
-            deltaAmount: '1000',
-            requestId,
+        const actionReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+            parameters: {
+              deltaAmount: '1000',
+              requestId,
+            },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
+          TestData.payeeRaw.signatureParams,
+        );
 
-      const actionReduce2: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-          parameters: {
-            deltaAmount: '1000',
-            requestId: requestId.toUpperCase(),
+        const actionReduce2: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+            parameters: {
+              deltaAmount: '1000',
+              requestId: requestId.toUpperCase(),
+            },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
+          TestData.payeeRaw.signatureParams,
+        );
 
-      const meta = { ignoredTransactions: [] };
-      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-        meta,
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.CONFIRMED,
-              timestamp: 1,
-              transaction: { data: JSON.stringify(actionCreate) },
-            },
-            {
-              state: TransactionTypes.TransactionState.CONFIRMED,
-              timestamp: 2,
-              transaction: { data: JSON.stringify(actionAccept) },
-            },
-            {
-              state: TransactionTypes.TransactionState.CONFIRMED,
-              timestamp: 3,
-              transaction: { data: JSON.stringify(actionReduce) },
-            },
-            {
-              state: TransactionTypes.TransactionState.CONFIRMED,
-              timestamp: 4,
-              transaction: { data: JSON.stringify(actionReduce2) },
-            },
-          ],
-        },
-      });
-
-      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
-        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
-          listActions,
-        persistTransaction: chai.spy() as any,
-      };
-      const requestLogic = new RequestLogic(
-        fakeTransactionManagerGet,
-        TestData.fakeSignatureProvider,
-      );
-
-      const request = await requestLogic.getRequestFromId(requestId);
-
-      expect(request, 'request result is wrong').to.deep.equal({
-        meta: {
-          ignoredTransactions: [
-            {
-              reason: 'Duplicated transaction',
-              transaction: {
-                action: actionReduce2,
+        const meta = { ignoredTransactions: [] };
+        const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+          meta,
+          result: {
+            transactions: [
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 1,
+                transaction: { data: JSON.stringify(actionCreate) },
+              },
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 2,
+                transaction: { data: JSON.stringify(actionAccept) },
+              },
+              {
+                state: TransactionTypes.TransactionState.CONFIRMED,
+                timestamp: 3,
+                transaction: { data: JSON.stringify(actionReduce) },
+              },
+              {
                 state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 4,
-              },
-            },
-          ],
-          transactionManagerMeta: meta,
-        },
-        result: {
-          pending: null,
-          request: {
-            creator: TestData.payeeRaw.identity,
-            currency: {
-              type: RequestLogicTypes.CURRENCY.ETH,
-              value: 'ETH',
-            },
-            events: [
-              {
-                actionSigner: TestData.payeeRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.CREATE,
-                parameters: {
-                  expectedAmount: '123400000000000000',
-                  extensionsDataLength: 0,
-                  isSignedRequest: false,
-                },
-                timestamp: 1,
-              },
-              {
-                actionSigner: TestData.payerRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-                parameters: {
-                  extensionsDataLength: 0,
-                },
-                timestamp: 2,
-              },
-              {
-                actionSigner: TestData.payeeRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-                parameters: {
-                  deltaAmount: '1000',
-                  extensionsDataLength: 0,
-                },
-                timestamp: 3,
+                transaction: { data: JSON.stringify(actionReduce2) },
               },
             ],
-            expectedAmount: '123399999999999000',
-            extensions: {},
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            requestId,
-            state: RequestLogicTypes.STATE.ACCEPTED,
-            timestamp: 1544426030,
+          },
+        });
+
+        const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+          getChannelsByMultipleTopics: chai.spy() as any,
+          getChannelsByTopic: chai.spy() as any,
+          getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
+            listActions,
+          persistTransaction: chai.spy() as any,
+        };
+        const requestLogic = new RequestLogic(
+          fakeTransactionManagerGet,
+          TestData.fakeSignatureProvider,
+        );
+
+        const request = await requestLogic.getRequestFromId(requestId);
+
+        expect(request, 'request result is wrong').to.deep.equal({
+          meta: {
+            ignoredTransactions: [
+              {
+                reason: 'Duplicated transaction',
+                transaction: {
+                  action: actionReduce2,
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 4,
+                },
+              },
+            ],
+            transactionManagerMeta: meta,
+          },
+          result: {
+            pending: null,
+            request: {
+              creator: TestData.payeeRaw.identity,
+              currency: {
+                type: RequestLogicTypes.CURRENCY.ETH,
+                value: 'ETH',
+              },
+              events: [
+                {
+                  actionSigner: TestData.payeeRaw.identity,
+                  name: RequestLogicTypes.ACTION_NAME.CREATE,
+                  parameters: {
+                    expectedAmount: '123400000000000000',
+                    extensionsDataLength: 0,
+                    isSignedRequest: false,
+                  },
+                  timestamp: 1,
+                },
+                {
+                  actionSigner: TestData.payerRaw.identity,
+                  name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+                  parameters: {
+                    extensionsDataLength: 0,
+                  },
+                  timestamp: 2,
+                },
+                {
+                  actionSigner: TestData.payeeRaw.identity,
+                  name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                  parameters: {
+                    deltaAmount: '1000',
+                    extensionsDataLength: 0,
+                  },
+                  timestamp: 3,
+                },
+              ],
+              expectedAmount: '123399999999999000',
+              extensions: {},
+              payee: TestData.payeeRaw.identity,
+              payer: TestData.payerRaw.identity,
+              requestId,
+              state: RequestLogicTypes.STATE.ACCEPTED,
+              timestamp: 1544426030,
+              version: CURRENT_VERSION,
+            },
+          },
+        });
+      }
+    );
+
+    it(
+      'can getRequestFromId do not ignore the same transactions if different nonces',
+      async () => {
+        const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.CREATE,
+            parameters: {
+              currency: {
+                type: RequestLogicTypes.CURRENCY.ETH,
+                value: 'ETH',
+              },
+              expectedAmount: '123400000000000000',
+              payee: TestData.payeeRaw.identity,
+              payer: TestData.payerRaw.identity,
+              timestamp: 1544426030,
+            },
             version: CURRENT_VERSION,
           },
-        },
-      });
-    });
+          TestData.payeeRaw.signatureParams,
+        );
 
-    it('can getRequestFromId do not ignore the same transactions if different nonces', async () => {
-      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.CREATE,
-          parameters: {
-            currency: {
-              type: RequestLogicTypes.CURRENCY.ETH,
-              value: 'ETH',
+        const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+            parameters: {
+              requestId,
             },
-            expectedAmount: '123400000000000000',
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            timestamp: 1544426030,
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
+          TestData.payerRaw.signatureParams,
+        );
 
-      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-          parameters: {
-            requestId,
+        const actionReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+            parameters: {
+              deltaAmount: '1000',
+              requestId,
+            },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payerRaw.signatureParams,
-      );
+          TestData.payeeRaw.signatureParams,
+        );
 
-      const actionReduce: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-          parameters: {
-            deltaAmount: '1000',
-            requestId,
+        const actionReduce2: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+            parameters: {
+              deltaAmount: '1000',
+              nonce: 1,
+              requestId: requestId.toUpperCase(),
+            },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
+          TestData.payeeRaw.signatureParams,
+        );
 
-      const actionReduce2: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-          parameters: {
-            deltaAmount: '1000',
-            nonce: 1,
-            requestId: requestId.toUpperCase(),
-          },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
-
-      const meta = { ignoredTransactions: [] };
-      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-        meta,
-        result: {
-          transactions: [
-            {
-              state: TransactionTypes.TransactionState.CONFIRMED,
-              timestamp: 1,
-              transaction: { data: JSON.stringify(actionCreate) },
-            },
-            {
-              state: TransactionTypes.TransactionState.CONFIRMED,
-              timestamp: 2,
-              transaction: { data: JSON.stringify(actionAccept) },
-            },
-            {
-              state: TransactionTypes.TransactionState.CONFIRMED,
-              timestamp: 3,
-              transaction: { data: JSON.stringify(actionReduce) },
-            },
-            {
-              state: TransactionTypes.TransactionState.CONFIRMED,
-              timestamp: 4,
-              transaction: { data: JSON.stringify(actionReduce2) },
-            },
-          ],
-        },
-      });
-
-      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
-        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
-          listActions,
-        persistTransaction: chai.spy() as any,
-      };
-      const requestLogic = new RequestLogic(
-        fakeTransactionManagerGet,
-        TestData.fakeSignatureProvider,
-      );
-
-      const request = await requestLogic.getRequestFromId(requestId);
-
-      expect(request, 'request result is wrong').to.deep.equal({
-        meta: {
-          ignoredTransactions: [],
-          transactionManagerMeta: meta,
-        },
-        result: {
-          pending: null,
-          request: {
-            creator: TestData.payeeRaw.identity,
-            currency: {
-              type: RequestLogicTypes.CURRENCY.ETH,
-              value: 'ETH',
-            },
-            events: [
+        const meta = { ignoredTransactions: [] };
+        const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+          meta,
+          result: {
+            transactions: [
               {
-                actionSigner: TestData.payeeRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.CREATE,
-                parameters: {
-                  expectedAmount: '123400000000000000',
-                  extensionsDataLength: 0,
-                  isSignedRequest: false,
-                },
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 1,
+                transaction: { data: JSON.stringify(actionCreate) },
               },
               {
-                actionSigner: TestData.payerRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-                parameters: {
-                  extensionsDataLength: 0,
-                },
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 2,
+                transaction: { data: JSON.stringify(actionAccept) },
               },
               {
-                actionSigner: TestData.payeeRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-                parameters: {
-                  deltaAmount: '1000',
-                  extensionsDataLength: 0,
-                },
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 3,
+                transaction: { data: JSON.stringify(actionReduce) },
               },
               {
-                actionSigner: TestData.payeeRaw.identity,
-                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-                parameters: {
-                  deltaAmount: '1000',
-                  extensionsDataLength: 0,
-                },
+                state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 4,
+                transaction: { data: JSON.stringify(actionReduce2) },
               },
             ],
-            expectedAmount: '123399999999998000',
-            extensions: {},
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            requestId,
-            state: RequestLogicTypes.STATE.ACCEPTED,
-            timestamp: 1544426030,
-            version: CURRENT_VERSION,
           },
-        },
-      });
-    });
+        });
+
+        const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+          getChannelsByMultipleTopics: chai.spy() as any,
+          getChannelsByTopic: chai.spy() as any,
+          getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
+            listActions,
+          persistTransaction: chai.spy() as any,
+        };
+        const requestLogic = new RequestLogic(
+          fakeTransactionManagerGet,
+          TestData.fakeSignatureProvider,
+        );
+
+        const request = await requestLogic.getRequestFromId(requestId);
+
+        expect(request, 'request result is wrong').to.deep.equal({
+          meta: {
+            ignoredTransactions: [],
+            transactionManagerMeta: meta,
+          },
+          result: {
+            pending: null,
+            request: {
+              creator: TestData.payeeRaw.identity,
+              currency: {
+                type: RequestLogicTypes.CURRENCY.ETH,
+                value: 'ETH',
+              },
+              events: [
+                {
+                  actionSigner: TestData.payeeRaw.identity,
+                  name: RequestLogicTypes.ACTION_NAME.CREATE,
+                  parameters: {
+                    expectedAmount: '123400000000000000',
+                    extensionsDataLength: 0,
+                    isSignedRequest: false,
+                  },
+                  timestamp: 1,
+                },
+                {
+                  actionSigner: TestData.payerRaw.identity,
+                  name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+                  parameters: {
+                    extensionsDataLength: 0,
+                  },
+                  timestamp: 2,
+                },
+                {
+                  actionSigner: TestData.payeeRaw.identity,
+                  name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                  parameters: {
+                    deltaAmount: '1000',
+                    extensionsDataLength: 0,
+                  },
+                  timestamp: 3,
+                },
+                {
+                  actionSigner: TestData.payeeRaw.identity,
+                  name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                  parameters: {
+                    deltaAmount: '1000',
+                    extensionsDataLength: 0,
+                  },
+                  timestamp: 4,
+                },
+              ],
+              expectedAmount: '123399999999998000',
+              extensions: {},
+              payee: TestData.payeeRaw.identity,
+              payer: TestData.payerRaw.identity,
+              requestId,
+              state: RequestLogicTypes.STATE.ACCEPTED,
+              timestamp: 1544426030,
+              version: CURRENT_VERSION,
+            },
+          },
+        });
+      }
+    );
 
     it('should ignored the corrupted data (not parsable JSON)', async () => {
       const transactionNotParsable = {
@@ -2136,84 +2167,87 @@ describe('index', () => {
       );
     });
 
-    it('should ignore the transaction none parsable and the rejected action', async () => {
-      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.CREATE,
-          parameters: {
-            currency: {
-              type: RequestLogicTypes.CURRENCY.ETH,
-              value: 'ETH',
+    it(
+      'should ignore the transaction none parsable and the rejected action',
+      async () => {
+        const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.CREATE,
+            parameters: {
+              currency: {
+                type: RequestLogicTypes.CURRENCY.ETH,
+                value: 'ETH',
+              },
+              expectedAmount: '123400000000000000',
+              payee: TestData.payeeRaw.identity,
+              payer: TestData.payerRaw.identity,
+              timestamp: 1544426030,
             },
-            expectedAmount: '123400000000000000',
-            payee: TestData.payeeRaw.identity,
-            payer: TestData.payerRaw.identity,
-            timestamp: 1544426030,
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
+          TestData.payeeRaw.signatureParams,
+        );
 
-      const acceptNotValid: RequestLogicTypes.IAction = Utils.signature.sign(
-        {
-          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-          parameters: {
-            requestId,
+        const acceptNotValid: RequestLogicTypes.IAction = Utils.signature.sign(
+          {
+            name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+            parameters: {
+              requestId,
+            },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        TestData.payeeRaw.signatureParams,
-      );
+          TestData.payeeRaw.signatureParams,
+        );
 
-      const meta = {
-        dataAccessMeta: { [requestId]: [] },
-        ignoredTransactions: {},
-      };
-      const listActions: Promise<
-        TransactionTypes.IReturnGetTransactionsByChannels
-      > = Promise.resolve({
-        meta,
-        result: {
-          transactions: {
-            [requestId]: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(actionCreate) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 2,
-                transaction: { data: 'Not a json' },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(acceptNotValid) },
-              },
-            ],
+        const meta = {
+          dataAccessMeta: { [requestId]: [] },
+          ignoredTransactions: {},
+        };
+        const listActions: Promise<
+          TransactionTypes.IReturnGetTransactionsByChannels
+        > = Promise.resolve({
+          meta,
+          result: {
+            transactions: {
+              [requestId]: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 2,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 2,
+                  transaction: { data: 'Not a json' },
+                },
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 2,
+                  transaction: { data: JSON.stringify(acceptNotValid) },
+                },
+              ],
+            },
           },
-        },
-      });
+        });
 
-      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
-          return listActions;
-        },
-        getTransactionsByChannelId: chai.spy() as any,
-        persistTransaction: chai.spy() as any,
-      };
-      const requestLogic = new RequestLogic(
-        fakeTransactionManagerGet,
-        TestData.fakeSignatureProvider,
-      );
+        const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+          getChannelsByMultipleTopics: chai.spy() as any,
+          getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
+            return listActions;
+          },
+          getTransactionsByChannelId: chai.spy() as any,
+          persistTransaction: chai.spy() as any,
+        };
+        const requestLogic = new RequestLogic(
+          fakeTransactionManagerGet,
+          TestData.fakeSignatureProvider,
+        );
 
-      const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
+        const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
 
-      expect(requests.result.requests.length, 'requests result is wrong').to.equal(1);
-    });
+        expect(requests.result.requests.length, 'requests result is wrong').to.equal(1);
+      }
+    );
   });
 
   describe('getRequestsByMultipleTopic', () => {

@@ -1,5 +1,4 @@
 import * as chai from 'chai';
-import 'mocha';
 import * as sinon from 'sinon';
 
 import Utils from '../src/utils';

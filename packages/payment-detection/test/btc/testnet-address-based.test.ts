@@ -3,7 +3,6 @@ import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnet
 import AddressBasedTestnetBtc from '../../src/btc/testnet-address-based';
 
 import 'chai';
-import 'mocha';
 
 const chai = require('chai');
 const spies = require('chai-spies');

@@ -12,7 +12,6 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { ethers } from 'ethers';
-import 'mocha';
 import * as sinon from 'sinon';
 const mockAdapter = require('axios-mock-adapter');
 import { Request, RequestNetwork, Types } from '../src/index';
@@ -180,37 +179,40 @@ describe('index', () => {
     await request.waitForConfirmation();
   });
 
-  it('uses http://localhost:3000 with signatureProvider and paymentNetwork', async () => {
-    const mock = new mockAdapter(axios);
+  it(
+    'uses http://localhost:3000 with signatureProvider and paymentNetwork',
+    async () => {
+      const mock = new mockAdapter(axios);
 
-    const callback = (config: any): any => {
-      expect(config.baseURL).to.equal('http://localhost:3000');
-      return [200, {}];
-    };
-    const spy = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spy);
-    mock
-      .onGet('/getTransactionsByChannelId')
-      .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
-    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
+      const callback = (config: any): any => {
+        expect(config.baseURL).to.equal('http://localhost:3000');
+        return [200, {}];
+      };
+      const spy = chai.spy(callback);
+      mock.onPost('/persistTransaction').reply(spy);
+      mock
+        .onGet('/getTransactionsByChannelId')
+        .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
+      mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
+      requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
-      parameters: {},
-    };
-    const request = await requestNetwork.createRequest({
-      paymentNetwork,
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
-    expect(spy).to.have.been.called.once;
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {},
+      };
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      expect(spy).to.have.been.called.once;
 
-    await request.waitForConfirmation();
-  });
+      await request.waitForConfirmation();
+    }
+  );
 
   it('uses http://localhost:3000 with persist from local', async () => {
     const mock = new mockAdapter(axios);
@@ -252,40 +254,43 @@ describe('index', () => {
     await request.waitForConfirmation();
   });
 
-  it('uses http://localhost:3000 with signatureProvider and paymentNetwork real btc', async () => {
-    const mock = new mockAdapter(axios);
+  it(
+    'uses http://localhost:3000 with signatureProvider and paymentNetwork real btc',
+    async () => {
+      const mock = new mockAdapter(axios);
 
-    const callback = (config: any): any => {
-      expect(config.baseURL).to.equal('http://localhost:3000');
-      return [200, {}];
-    };
-    const spy = chai.spy(callback);
-    mock.onPost('/persistTransaction').reply(spy);
-    mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestDataRealBTC.timestampedTransaction] },
-    });
-    mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
+      const callback = (config: any): any => {
+        expect(config.baseURL).to.equal('http://localhost:3000');
+        return [200, {}];
+      };
+      const spy = chai.spy(callback);
+      mock.onPost('/persistTransaction').reply(spy);
+      mock.onGet('/getTransactionsByChannelId').reply(200, {
+        result: { transactions: [TestDataRealBTC.timestampedTransaction] },
+      });
+      mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
+      requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
-      parameters: {
-        paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
-      },
-    };
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+        parameters: {
+          paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
+        },
+      };
 
-    const request = await requestNetwork.createRequest({
-      paymentNetwork,
-      requestInfo: requestParameters,
-      signer: payeeIdentity,
-    });
-    expect(spy).to.have.been.called.once;
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: requestParameters,
+        signer: payeeIdentity,
+      });
+      expect(spy).to.have.been.called.once;
 
-    await request.waitForConfirmation();
-  });
+      await request.waitForConfirmation();
+    }
+  );
 
   it('uses http://localhost:3000 with signatureProvider', async () => {
     const mock = new mockAdapter(axios);
@@ -382,34 +387,37 @@ describe('index', () => {
     expect(requestId.length).to.equal(requestIdLength);
   });
 
-  it('allows to compute a request id, then generate the request with the same id', async () => {
-    mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+  it(
+    'allows to compute a request id, then generate the request with the same id',
+    async () => {
+      mockAxios();
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
-    const axiosSpyGet = sandbox.on(axios, 'get');
-    const axiosSpyPost = sandbox.on(axios, 'post');
+      const axiosSpyGet = sandbox.on(axios, 'get');
+      const axiosSpyPost = sandbox.on(axios, 'post');
 
-    const requestId = await requestNetwork.computeRequestId({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
-    // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
-    const requestIdLength = 66;
-    expect(requestId.length).to.equal(requestIdLength);
+      const requestId = await requestNetwork.computeRequestId({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
+      const requestIdLength = 66;
+      expect(requestId.length).to.equal(requestIdLength);
 
-    await new Promise((resolve): any => setTimeout(resolve, 150));
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
+      await new Promise((resolve): any => setTimeout(resolve, 150));
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
 
-    expect(request).to.be.instanceOf(Request);
-    expect(request.requestId).to.equal(requestId);
-    expect(axiosSpyGet).to.have.been.called.exactly(3);
-    expect(axiosSpyPost).to.have.been.called.once;
+      expect(request).to.be.instanceOf(Request);
+      expect(request.requestId).to.equal(requestId);
+      expect(axiosSpyGet).to.have.been.called.exactly(3);
+      expect(axiosSpyPost).to.have.been.called.once;
 
-    await request.waitForConfirmation();
-  });
+      await request.waitForConfirmation();
+    }
+  );
 
   it('allows to get a request from its ID', async () => {
     mockAxios();
@@ -507,35 +515,38 @@ describe('index', () => {
     await expect(request.refresh()).to.eventually.be.rejectedWith('request confirmation failed');
   });
 
-  it('works with mocked storage emitting error when append waitForConfirmation will throw', async () => {
-    const requestNetwork = new RequestNetwork({
-      signatureProvider: fakeSignatureProvider,
-      useMockStorage: true,
-    });
+  it(
+    'works with mocked storage emitting error when append waitForConfirmation will throw',
+    async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
 
-    // ask mock up storage to emit error next append call()
-    requestNetwork._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
+      // ask mock up storage to emit error next append call()
+      requestNetwork._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
 
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
 
-    const data = request.getData();
-    expect(data).to.exist;
-    expect(data.balance).to.null;
-    expect(data.meta).to.exist;
-    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
-    expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
-    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
+      const data = request.getData();
+      expect(data).to.exist;
+      expect(data.balance).to.null;
+      expect(data.meta).to.exist;
+      expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
+      expect(data.state).to.equal(RequestLogicTypes.STATE.PENDING);
+      expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.CREATED);
 
-    await expect(request.waitForConfirmation()).to.eventually.be.rejectedWith(
-      'forced error asked by _makeNextAppendFailInsteadOfConfirmed()',
-    );
+      await expect(request.waitForConfirmation()).to.eventually.be.rejectedWith(
+        'forced error asked by _makeNextAppendFailInsteadOfConfirmed()',
+      );
 
-    expect(() => request.getData()).to.throw('request confirmation failed');
-    await expect(request.refresh()).to.eventually.be.rejectedWith('request confirmation failed');
-  });
+      expect(() => request.getData()).to.throw('request confirmation failed');
+      await expect(request.refresh()).to.eventually.be.rejectedWith('request confirmation failed');
+    }
+  );
 
   it('creates a request with error event', async () => {
     const requestNetwork = new RequestNetwork({
@@ -643,43 +654,46 @@ describe('index', () => {
     expect(axiosSpyPost).to.have.been.called.once;
   });
 
-  it('works with mocked storage emitting error when append an accept', async () => {
-    const requestNetwork = new RequestNetwork({
-      signatureProvider: fakeSignatureProvider,
-      useMockStorage: true,
-    });
+  it(
+    'works with mocked storage emitting error when append an accept',
+    async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
 
-    const request = await requestNetwork.createRequest({
-      requestInfo: TestData.parametersWithoutExtensionsData,
-      signer: payeeIdentity,
-    });
-    await request.waitForConfirmation();
+      const request = await requestNetwork.createRequest({
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      await request.waitForConfirmation();
 
-    // ask mock up storage to emit error next append call()
-    requestNetwork._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
-    await request.accept(payerIdentity);
+      // ask mock up storage to emit error next append call()
+      requestNetwork._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
+      await request.accept(payerIdentity);
 
-    let data = request.getData();
-    expect(data).to.exist;
-    expect(data.balance).to.null;
-    expect(data.meta).to.exist;
-    expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
-    expect(data.state).to.equal(RequestLogicTypes.STATE.CREATED);
-    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+      let data = request.getData();
+      expect(data).to.exist;
+      expect(data.balance).to.null;
+      expect(data.meta).to.exist;
+      expect(data.currencyInfo).to.deep.equal(TestData.parametersWithoutExtensionsData.currency);
+      expect(data.state).to.equal(RequestLogicTypes.STATE.CREATED);
+      expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
 
-    const errorEmitted: string = await new Promise((resolve): any => request.on('error', resolve));
-    expect(errorEmitted).to.equal('forced error asked by _makeNextAppendFailInsteadOfConfirmed()');
+      const errorEmitted: string = await new Promise((resolve): any => request.on('error', resolve));
+      expect(errorEmitted).to.equal('forced error asked by _makeNextAppendFailInsteadOfConfirmed()');
 
-    data = request.getData();
-    expect(data.state).to.equal(RequestLogicTypes.STATE.CREATED);
-    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+      data = request.getData();
+      expect(data.state).to.equal(RequestLogicTypes.STATE.CREATED);
+      expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
 
-    // TODO: For now data will be pending forever.
-    // Ethereum-storage should treat the errors and clean up.
-    data = await request.refresh();
-    expect(data.state).to.equal(RequestLogicTypes.STATE.CREATED);
-    expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
-  });
+      // TODO: For now data will be pending forever.
+      // Ethereum-storage should treat the errors and clean up.
+      data = await request.refresh();
+      expect(data.state).to.equal(RequestLogicTypes.STATE.CREATED);
+      expect(data.pending?.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+    }
+  );
 
   it('allows to cancel a request', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
@@ -904,62 +918,65 @@ describe('index', () => {
       expect(requestData.balance?.events[1].parameters).to.deep.equal({ note: 'received payment' });
     });
 
-    it('cannot use declarative function if payment network is not declarative', async () => {
-      const requestNetwork = new RequestNetwork({
-        signatureProvider: fakeSignatureProvider,
-        useMockStorage: true,
-      });
+    it(
+      'cannot use declarative function if payment network is not declarative',
+      async () => {
+        const requestNetwork = new RequestNetwork({
+          signatureProvider: fakeSignatureProvider,
+          useMockStorage: true,
+        });
 
-      const salt = 'ea3bc7caf64110ca';
+        const salt = 'ea3bc7caf64110ca';
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
-        parameters: {
-          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          salt,
-        },
-      };
+        const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+          id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+          parameters: {
+            paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+            refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+            salt,
+          },
+        };
 
-      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
-        currency: {
-          network: 'rinkeby',
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
-      });
+        const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+          currency: {
+            network: 'rinkeby',
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+        });
 
-      const request = await requestNetwork.createRequest({
-        paymentNetwork,
-        requestInfo,
-        signer: payeeIdentity,
-      });
-      await request.waitForConfirmation();
+        const request = await requestNetwork.createRequest({
+          paymentNetwork,
+          requestInfo,
+          signer: payeeIdentity,
+        });
+        await request.waitForConfirmation();
 
-      await expect(
-        request.declareReceivedRefund('10', 'received refund', payeeIdentity),
-      ).to.eventually.be.rejectedWith(
-        'Cannot declare received refund without declarative payment network',
-      );
+        await expect(
+          request.declareReceivedRefund('10', 'received refund', payeeIdentity),
+        ).to.eventually.be.rejectedWith(
+          'Cannot declare received refund without declarative payment network',
+        );
 
-      await expect(
-        request.declareReceivedPayment('10', 'received payment', payeeIdentity),
-      ).to.eventually.be.rejectedWith(
-        'Cannot declare received payment without declarative payment network',
-      );
+        await expect(
+          request.declareReceivedPayment('10', 'received payment', payeeIdentity),
+        ).to.eventually.be.rejectedWith(
+          'Cannot declare received payment without declarative payment network',
+        );
 
-      await expect(
-        request.declareSentRefund('10', 'sent refund', payeeIdentity),
-      ).to.eventually.be.rejectedWith(
-        'Cannot declare sent refund without declarative payment network',
-      );
+        await expect(
+          request.declareSentRefund('10', 'sent refund', payeeIdentity),
+        ).to.eventually.be.rejectedWith(
+          'Cannot declare sent refund without declarative payment network',
+        );
 
-      await expect(
-        request.declareSentPayment('10', 'sent payment', payeeIdentity),
-      ).to.eventually.be.rejectedWith(
-        'Cannot declare sent payment without declarative payment network',
-      );
-    });
+        await expect(
+          request.declareSentPayment('10', 'sent payment', payeeIdentity),
+        ).to.eventually.be.rejectedWith(
+          'Cannot declare sent payment without declarative payment network',
+        );
+      }
+    );
   });
 
   describe('tests with encryption', () => {
@@ -989,25 +1006,28 @@ describe('index', () => {
       );
     });
 
-    it('cannot create an encrypted request without encryption parameters', async () => {
-      const requestNetwork = new RequestNetwork({
-        decryptionProvider: fakeDecryptionProvider,
-        signatureProvider: fakeSignatureProvider,
-        useMockStorage: true,
-      });
+    it(
+      'cannot create an encrypted request without encryption parameters',
+      async () => {
+        const requestNetwork = new RequestNetwork({
+          decryptionProvider: fakeDecryptionProvider,
+          signatureProvider: fakeSignatureProvider,
+          useMockStorage: true,
+        });
 
-      await expect(
-        requestNetwork._createEncryptedRequest(
-          {
-            requestInfo: TestData.parametersWithoutExtensionsData,
-            signer: payeeIdentity,
-          },
-          [],
-        ),
-      ).to.eventually.be.rejectedWith(
-        'You must give at least one encryption parameter to create an encrypted request',
-      );
-    });
+        await expect(
+          requestNetwork._createEncryptedRequest(
+            {
+              requestInfo: TestData.parametersWithoutExtensionsData,
+              signer: payeeIdentity,
+            },
+            [],
+          ),
+        ).to.eventually.be.rejectedWith(
+          'You must give at least one encryption parameter to create an encrypted request',
+        );
+      }
+    );
 
     it('creates an encrypted request and recovers it by topic', async () => {
       const requestNetwork = new RequestNetwork({
@@ -1036,50 +1056,53 @@ describe('index', () => {
       );
     });
 
-    it('creates multiple encrypted requests and recovers it by multiple topic', async () => {
-      const requestNetwork = new RequestNetwork({
-        decryptionProvider: fakeDecryptionProvider,
-        signatureProvider: fakeSignatureProvider,
-        useMockStorage: true,
-      });
+    it(
+      'creates multiple encrypted requests and recovers it by multiple topic',
+      async () => {
+        const requestNetwork = new RequestNetwork({
+          decryptionProvider: fakeDecryptionProvider,
+          signatureProvider: fakeSignatureProvider,
+          useMockStorage: true,
+        });
 
-      const request = await requestNetwork._createEncryptedRequest(
-        {
-          requestInfo: TestData.parametersWithoutExtensionsData,
-          signer: payeeIdentity,
-          topics: ['my amazing test topic'],
-        },
-        [encryptionData.encryptionParams],
-      );
-
-      const request2 = await requestNetwork._createEncryptedRequest(
-        {
-          requestInfo: {
-            ...TestData.parametersWithoutExtensionsData,
-            timestamp: (TestData.parametersWithoutExtensionsData.timestamp || 1) + 1,
+        const request = await requestNetwork._createEncryptedRequest(
+          {
+            requestInfo: TestData.parametersWithoutExtensionsData,
+            signer: payeeIdentity,
+            topics: ['my amazing test topic'],
           },
-          signer: payeeIdentity,
-          topics: ['my second best test topic'],
-        },
-        [encryptionData.encryptionParams],
-      );
-
-      const requestsFromTopic = await requestNetwork.fromMultipleTopics([
-        'my amazing test topic',
-        'my second best test topic',
-      ]);
-      expect(requestsFromTopic).to.have.length(2);
-      expect(requestsFromTopic[0]).to.deep.equal(request);
-      expect(requestsFromTopic[1]).to.deep.equal(request2);
-
-      requestsFromTopic.forEach(req => {
-        const requestData = req.getData();
-        expect(requestData.meta).to.not.be.null;
-        expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-          'ecies-aes256-gcm',
+          [encryptionData.encryptionParams],
         );
-      });
-    });
+
+        const request2 = await requestNetwork._createEncryptedRequest(
+          {
+            requestInfo: {
+              ...TestData.parametersWithoutExtensionsData,
+              timestamp: (TestData.parametersWithoutExtensionsData.timestamp || 1) + 1,
+            },
+            signer: payeeIdentity,
+            topics: ['my second best test topic'],
+          },
+          [encryptionData.encryptionParams],
+        );
+
+        const requestsFromTopic = await requestNetwork.fromMultipleTopics([
+          'my amazing test topic',
+          'my second best test topic',
+        ]);
+        expect(requestsFromTopic).to.have.length(2);
+        expect(requestsFromTopic[0]).to.deep.equal(request);
+        expect(requestsFromTopic[1]).to.deep.equal(request2);
+
+        requestsFromTopic.forEach(req => {
+          const requestData = req.getData();
+          expect(requestData.meta).to.not.be.null;
+          expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+            'ecies-aes256-gcm',
+          );
+        });
+      }
+    );
 
     it('creates an encrypted request and recovers it by identity', async () => {
       const requestNetwork = new RequestNetwork({
@@ -1177,107 +1200,113 @@ describe('index', () => {
       sinon.restore();
     });
 
-    it('creates an encrypted request, increase and decrease the amount', async () => {
-      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
-      const requestNetwork = new RequestNetwork({
-        decryptionProvider: fakeDecryptionProvider,
-        signatureProvider: fakeSignatureProvider,
-        useMockStorage: true,
-      });
+    it(
+      'creates an encrypted request, increase and decrease the amount',
+      async () => {
+        const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+        const requestNetwork = new RequestNetwork({
+          decryptionProvider: fakeDecryptionProvider,
+          signatureProvider: fakeSignatureProvider,
+          useMockStorage: true,
+        });
 
-      const request = await requestNetwork._createEncryptedRequest(
-        {
-          requestInfo: TestData.parametersWithoutExtensionsData,
-          signer: payeeIdentity,
-        },
-        [encryptionData.encryptionParams],
-      );
+        const request = await requestNetwork._createEncryptedRequest(
+          {
+            requestInfo: TestData.parametersWithoutExtensionsData,
+            signer: payeeIdentity,
+          },
+          [encryptionData.encryptionParams],
+        );
 
-      const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
-      expect(fetchedRequest).to.deep.equal(request);
+        const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+        expect(fetchedRequest).to.deep.equal(request);
 
-      const requestData = fetchedRequest.getData();
-      expect(requestData.meta).to.not.be.null;
-      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-        'ecies-aes256-gcm',
-      );
+        const requestData = fetchedRequest.getData();
+        expect(requestData.meta).to.not.be.null;
+        expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+          'ecies-aes256-gcm',
+        );
 
-      clock.tick(150);
-      await fetchedRequest.increaseExpectedAmountRequest(
-        TestData.parametersWithoutExtensionsData.expectedAmount,
-        payerIdentity,
-      );
+        clock.tick(150);
+        await fetchedRequest.increaseExpectedAmountRequest(
+          TestData.parametersWithoutExtensionsData.expectedAmount,
+          payerIdentity,
+        );
 
-      clock.tick(150);
-      expect((await fetchedRequest.refresh()).expectedAmount).to.equal(
-        String(new BigNumber(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2)),
-      );
+        clock.tick(150);
+        expect((await fetchedRequest.refresh()).expectedAmount).to.equal(
+          String(new BigNumber(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2)),
+        );
 
-      await fetchedRequest.reduceExpectedAmountRequest(
-        new BigNumber(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2).toString(),
-        payeeIdentity,
-      );
+        await fetchedRequest.reduceExpectedAmountRequest(
+          new BigNumber(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2).toString(),
+          payeeIdentity,
+        );
 
-      clock.tick(150);
-      expect((await fetchedRequest.refresh()).expectedAmount).to.equal('0');
-      sinon.restore();
-    });
+        clock.tick(150);
+        expect((await fetchedRequest.refresh()).expectedAmount).to.equal('0');
+        sinon.restore();
+      }
+    );
 
-    it('creates an encrypted declarative request, accepts it and declares a payment on it', async () => {
-      const requestNetwork = new RequestNetwork({
-        decryptionProvider: fakeDecryptionProvider,
-        signatureProvider: fakeSignatureProvider,
-        useMockStorage: true,
-      });
+    it(
+      'creates an encrypted declarative request, accepts it and declares a payment on it',
+      async () => {
+        const requestNetwork = new RequestNetwork({
+          decryptionProvider: fakeDecryptionProvider,
+          signatureProvider: fakeSignatureProvider,
+          useMockStorage: true,
+        });
 
-      const request = await requestNetwork._createEncryptedRequest(
-        {
-          paymentNetwork: TestData.declarativePaymentNetwork,
-          requestInfo: TestData.parametersWithoutExtensionsData,
-          signer: payeeIdentity,
-        },
-        [encryptionData.encryptionParams],
-      );
+        const request = await requestNetwork._createEncryptedRequest(
+          {
+            paymentNetwork: TestData.declarativePaymentNetwork,
+            requestInfo: TestData.parametersWithoutExtensionsData,
+            signer: payeeIdentity,
+          },
+          [encryptionData.encryptionParams],
+        );
 
-      const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
-      expect(fetchedRequest).to.deep.equal(request);
+        const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
+        expect(fetchedRequest).to.deep.equal(request);
 
-      const requestData = fetchedRequest.getData();
-      expect(requestData.meta).to.not.be.null;
-      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
-        'ecies-aes256-gcm',
-      );
+        const requestData = fetchedRequest.getData();
+        expect(requestData.meta).to.not.be.null;
+        expect(requestData.meta!.transactionManagerMeta.encryptionMethod).to.equal(
+          'ecies-aes256-gcm',
+        );
 
-      const acceptResult = await fetchedRequest.accept(payerIdentity);
+        const acceptResult = await fetchedRequest.accept(payerIdentity);
 
-      let dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
-        acceptResult.on('confirmed', resolve),
-      );
-      expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
+        let dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
+          acceptResult.on('confirmed', resolve),
+        );
+        expect(dataConfirmed.state).to.equal(RequestLogicTypes.STATE.ACCEPTED);
 
-      const declareSentPaymentResult = await fetchedRequest.declareSentPayment(
-        TestData.parametersWithoutExtensionsData.expectedAmount,
-        'PAID',
-        payerIdentity,
-      );
-      dataConfirmed = await new Promise((resolve): any =>
-        declareSentPaymentResult.on('confirmed', resolve),
-      );
-      expect(dataConfirmed.balance!.balance).to.equal('0');
+        const declareSentPaymentResult = await fetchedRequest.declareSentPayment(
+          TestData.parametersWithoutExtensionsData.expectedAmount,
+          'PAID',
+          payerIdentity,
+        );
+        dataConfirmed = await new Promise((resolve): any =>
+          declareSentPaymentResult.on('confirmed', resolve),
+        );
+        expect(dataConfirmed.balance!.balance).to.equal('0');
 
-      const declareReceivedPaymentResult = await fetchedRequest.declareReceivedPayment(
-        TestData.parametersWithoutExtensionsData.expectedAmount as string,
-        'payment received',
-        payeeIdentity,
-      );
+        const declareReceivedPaymentResult = await fetchedRequest.declareReceivedPayment(
+          TestData.parametersWithoutExtensionsData.expectedAmount as string,
+          'payment received',
+          payeeIdentity,
+        );
 
-      dataConfirmed = await new Promise((resolve): any =>
-        declareReceivedPaymentResult.on('confirmed', resolve),
-      );
-      expect(dataConfirmed.balance!.balance).to.equal(
-        TestData.parametersWithoutExtensionsData.expectedAmount,
-      );
-    });
+        dataConfirmed = await new Promise((resolve): any =>
+          declareReceivedPaymentResult.on('confirmed', resolve),
+        );
+        expect(dataConfirmed.balance!.balance).to.equal(
+          TestData.parametersWithoutExtensionsData.expectedAmount,
+        );
+      }
+    );
   });
 
   describe('ETH requests', () => {
@@ -1400,7 +1429,7 @@ describe('index', () => {
     });
 
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
-    it('can get the balance of an ETH request', async function(): Promise<void> {
+    it('can get the balance of an ETH request', async () => {
       const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
 
       // tslint:disable-next-line: no-invalid-this
@@ -1465,182 +1494,186 @@ describe('index', () => {
       sinon.restore();
     });
 
-    it('can skip the get the balance of a request', async function(): Promise<void> {
-      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+    it(
+      'can skip the get the balance of a request',
+      async () => {
+        const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
 
-      // tslint:disable-next-line: no-invalid-this
-      this.timeout(20000);
-      const requestNetwork = new RequestNetwork({
-        signatureProvider: fakeSignatureProvider,
-        useMockStorage: true,
-      });
+        // tslint:disable-next-line: no-invalid-this
+        this.timeout(20000);
+        const requestNetwork = new RequestNetwork({
+          signatureProvider: fakeSignatureProvider,
+          useMockStorage: true,
+        });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
-        parameters: {
-          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          refundAddress: '0x0000000000000000000000000000000000000002',
-          salt: 'a1a2a3a4a5a6a7a8',
-        },
-      };
+        const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+          id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+          parameters: {
+            paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+            refundAddress: '0x0000000000000000000000000000000000000002',
+            salt: 'a1a2a3a4a5a6a7a8',
+          },
+        };
 
-      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
-        currency: {
-          network: 'mainnet',
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
-      });
+        const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+          currency: {
+            network: 'mainnet',
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+        });
 
-      const request = await requestNetwork.createRequest({
-        disablePaymentDetection: true,
-        paymentNetwork,
-        requestInfo,
-        signer: payeeIdentity,
-      });
+        const request = await requestNetwork.createRequest({
+          disablePaymentDetection: true,
+          paymentNetwork,
+          requestInfo,
+          signer: payeeIdentity,
+        });
 
-      clock.tick(150);
-      const data = await request.refresh();
+        clock.tick(150);
+        const data = await request.refresh();
 
-      // Payment reference should be fixed
-      expect(
-        PaymentReferenceCalculator.calculate(
-          data.requestId,
-          data.extensionsData[0].parameters.salt,
-          data.extensionsData[0].parameters.paymentAddress,
-        ),
-      ).to.equal('c19da4923539c37f');
+        // Payment reference should be fixed
+        expect(
+          PaymentReferenceCalculator.calculate(
+            data.requestId,
+            data.extensionsData[0].parameters.salt,
+            data.extensionsData[0].parameters.paymentAddress,
+          ),
+        ).to.equal('c19da4923539c37f');
 
-      clock.tick(150);
-      let dataAfterRefresh = await request.refresh();
-      expect(dataAfterRefresh.balance).to.be.null;
+        clock.tick(150);
+        let dataAfterRefresh = await request.refresh();
+        expect(dataAfterRefresh.balance).to.be.null;
 
-      request.enablePaymentDetection();
-      clock.tick(150);
-      dataAfterRefresh = await request.refresh();
+        request.enablePaymentDetection();
+        clock.tick(150);
+        dataAfterRefresh = await request.refresh();
 
-      expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
-      expect(dataAfterRefresh.balance?.events.length).to.equal(2);
+        expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
+        expect(dataAfterRefresh.balance?.events.length).to.equal(2);
 
-      expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
-      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
-        '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
-      );
+        expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
+        expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
+        expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
+          '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
+        );
 
-      expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
-        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
-      );
+        expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
+        expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
+        expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
+          '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
+        );
 
-      request.disablePaymentDetection();
-      clock.tick(150);
-      dataAfterRefresh = await request.refresh();
+        request.disablePaymentDetection();
+        clock.tick(150);
+        dataAfterRefresh = await request.refresh();
 
-      expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
-      expect(dataAfterRefresh.balance?.events.length).to.equal(2);
+        expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
+        expect(dataAfterRefresh.balance?.events.length).to.equal(2);
 
-      expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
-      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
-        '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
-      );
+        expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
+        expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
+        expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
+          '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
+        );
 
-      expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
-        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
-      );
-      sinon.restore();
-    });
+        expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
+        expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
+        expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
+          '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
+        );
+        sinon.restore();
+      }
+    );
 
-    it('can get the balance on a skipped payment detection request', async function(): Promise<
-      void
-    > {
-      const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
+    it(
+      'can get the balance on a skipped payment detection request',
+      async () => {
+        const clock: sinon.SinonFakeTimers = sinon.useFakeTimers();
 
-      // tslint:disable-next-line: no-invalid-this
-      this.timeout(20000);
-      const requestNetwork = new RequestNetwork({
-        signatureProvider: fakeSignatureProvider,
-        useMockStorage: true,
-      });
+        // tslint:disable-next-line: no-invalid-this
+        this.timeout(20000);
+        const requestNetwork = new RequestNetwork({
+          signatureProvider: fakeSignatureProvider,
+          useMockStorage: true,
+        });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
-        parameters: {
-          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          refundAddress: '0x0000000000000000000000000000000000000002',
-          salt: 'a1a2a3a4a5a6a7a8',
-        },
-      };
+        const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+          id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+          parameters: {
+            paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+            refundAddress: '0x0000000000000000000000000000000000000002',
+            salt: 'a1a2a3a4a5a6a7a8',
+          },
+        };
 
-      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
-        currency: {
-          network: 'mainnet',
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
-      });
+        const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+          currency: {
+            network: 'mainnet',
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+        });
 
-      const request = await requestNetwork.createRequest({
-        disablePaymentDetection: true,
-        paymentNetwork,
-        requestInfo,
-        signer: payeeIdentity,
-      });
+        const request = await requestNetwork.createRequest({
+          disablePaymentDetection: true,
+          paymentNetwork,
+          requestInfo,
+          signer: payeeIdentity,
+        });
 
-      clock.tick(150);
-      const data = await request.refresh();
+        clock.tick(150);
+        const data = await request.refresh();
 
-      // Payment reference should be fixed
-      expect(
-        PaymentReferenceCalculator.calculate(
-          data.requestId,
-          data.extensionsData[0].parameters.salt,
-          data.extensionsData[0].parameters.paymentAddress,
-        ),
-      ).to.equal('c19da4923539c37f');
+        // Payment reference should be fixed
+        expect(
+          PaymentReferenceCalculator.calculate(
+            data.requestId,
+            data.extensionsData[0].parameters.salt,
+            data.extensionsData[0].parameters.paymentAddress,
+          ),
+        ).to.equal('c19da4923539c37f');
 
-      clock.tick(150);
-      let dataAfterRefresh = await request.refresh();
-      expect(dataAfterRefresh.balance).to.be.null;
+        clock.tick(150);
+        let dataAfterRefresh = await request.refresh();
+        expect(dataAfterRefresh.balance).to.be.null;
 
-      const balance = await request.refreshBalance();
-      expect(balance?.balance).to.equal('12345600000');
-      expect(balance?.events.length).to.equal(2);
+        const balance = await request.refreshBalance();
+        expect(balance?.balance).to.equal('12345600000');
+        expect(balance?.events.length).to.equal(2);
 
-      expect(balance?.events[0].name).to.equal('payment');
-      expect(balance?.events[0].amount).to.equal('12300000000');
-      expect(balance?.events[0].parameters!.txHash).to.equal(
-        '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
-      );
+        expect(balance?.events[0].name).to.equal('payment');
+        expect(balance?.events[0].amount).to.equal('12300000000');
+        expect(balance?.events[0].parameters!.txHash).to.equal(
+          '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
+        );
 
-      expect(balance?.events[1].name).to.equal('payment');
-      expect(balance?.events[1].amount).to.equal('45600000');
-      expect(balance?.events[1].parameters!.txHash).to.equal(
-        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
-      );
-      dataAfterRefresh = await request.getData();
+        expect(balance?.events[1].name).to.equal('payment');
+        expect(balance?.events[1].amount).to.equal('45600000');
+        expect(balance?.events[1].parameters!.txHash).to.equal(
+          '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
+        );
+        dataAfterRefresh = await request.getData();
 
-      expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
-      expect(dataAfterRefresh.balance?.events.length).to.equal(2);
+        expect(dataAfterRefresh.balance?.balance).to.equal('12345600000');
+        expect(dataAfterRefresh.balance?.events.length).to.equal(2);
 
-      expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
-      expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
-        '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
-      );
+        expect(dataAfterRefresh.balance?.events[0].name).to.equal('payment');
+        expect(dataAfterRefresh.balance?.events[0].amount).to.equal('12300000000');
+        expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).to.equal(
+          '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
+        );
 
-      expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
-      expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
-        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
-      );
+        expect(dataAfterRefresh.balance?.events[1].name).to.equal('payment');
+        expect(dataAfterRefresh.balance?.events[1].amount).to.equal('45600000');
+        expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).to.equal(
+          '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
+        );
 
-      sinon.restore();
-    });
+        sinon.restore();
+      }
+    );
   });
 
   describe('ERC20 address based requests', () => {

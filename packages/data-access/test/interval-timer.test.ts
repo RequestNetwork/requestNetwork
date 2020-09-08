@@ -1,4 +1,3 @@
-import 'mocha';
 import * as sinon from 'sinon';
 
 import { LogTypes } from '@requestnetwork/types';
@@ -71,90 +70,105 @@ describe('interval-timer', () => {
     sinon.restore();
   });
 
-  it('should throw an error if started twice without stop() being called', async () => {
-    intervalTimer.start();
-    expect(() => intervalTimer.start()).to.throw('IntervalTimer already started');
+  it(
+    'should throw an error if started twice without stop() being called',
+    async () => {
+      intervalTimer.start();
+      expect(() => intervalTimer.start()).to.throw('IntervalTimer already started');
 
-    intervalTimer.stop();
-  });
+      intervalTimer.stop();
+    }
+  );
 
-  it('should throw an error if stopped without start() being called', async () => {
-    expect(() => intervalTimer.stop()).to.throw(
-      `Can't stop IntervalTimer if it has not been started`,
-    );
-  });
+  it(
+    'should throw an error if stopped without start() being called',
+    async () => {
+      expect(() => intervalTimer.stop()).to.throw(
+        `Can't stop IntervalTimer if it has not been started`,
+      );
+    }
+  );
 
-  it('should periodically call the interval function provided when start() is called', async () => {
-    const callback = sinon.spy(async () => {});
+  it(
+    'should periodically call the interval function provided when start() is called',
+    async () => {
+      const callback = sinon.spy(async () => {});
 
-    intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);
-    intervalTimer.start();
+      intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);
+      intervalTimer.start();
 
-    expect(callback.callCount).to.equal(0);
+      expect(callback.callCount).to.equal(0);
 
-    clock.tick(500);
-    expect(callback.callCount).to.equal(0);
+      clock.tick(500);
+      expect(callback.callCount).to.equal(0);
 
-    clock.tick(600); // 1100
-    expect(callback.callCount).to.equal(1);
+      clock.tick(600); // 1100
+      expect(callback.callCount).to.equal(1);
 
-    await flushCallStack();
+      await flushCallStack();
 
-    clock.tick(1000); // 2100
-    expect(callback.callCount).to.equal(2);
+      clock.tick(1000); // 2100
+      expect(callback.callCount).to.equal(2);
 
-    await flushCallStack();
+      await flushCallStack();
 
-    clock.tick(1000); // 3100
-    expect(callback.callCount).to.equal(3);
+      clock.tick(1000); // 3100
+      expect(callback.callCount).to.equal(3);
 
-    await flushCallStack();
+      await flushCallStack();
 
-    clock.tick(1000); // 4100
-    expect(callback.callCount).to.equal(4);
+      clock.tick(1000); // 4100
+      expect(callback.callCount).to.equal(4);
 
-    await flushCallStack();
+      await flushCallStack();
 
-    clock.tick(1000); // 5100
-    expect(callback.callCount).to.equal(5);
-  });
+      clock.tick(1000); // 5100
+      expect(callback.callCount).to.equal(5);
+    }
+  );
 
-  it('should stop calling the interval function when stop() is called', async () => {
-    const callback = sinon.spy();
+  it(
+    'should stop calling the interval function when stop() is called',
+    async () => {
+      const callback = sinon.spy();
 
-    intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);
-    intervalTimer.start();
+      intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);
+      intervalTimer.start();
 
-    expect(callback.callCount).to.equal(0);
-    clock.tick(1100);
-    expect(callback.callCount).to.equal(1);
+      expect(callback.callCount).to.equal(0);
+      clock.tick(1100);
+      expect(callback.callCount).to.equal(1);
 
-    intervalTimer.stop();
+      intervalTimer.stop();
 
-    clock.tick(1000); // 2100
-    expect(callback.callCount).to.equal(1);
-  });
+      clock.tick(1000); // 2100
+      expect(callback.callCount).to.equal(1);
+    }
+  );
 
-  it('allows to restart the periodical call of the interval function', async () => {
-    const callback = sinon.spy();
+  it(
+    'allows to restart the periodical call of the interval function',
+    async () => {
+      const callback = sinon.spy();
 
-    intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);
-    intervalTimer.start();
+      intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);
+      intervalTimer.start();
 
-    expect(callback.callCount).to.equal(0);
-    clock.tick(1100);
-    expect(callback.callCount).to.equal(1);
+      expect(callback.callCount).to.equal(0);
+      clock.tick(1100);
+      expect(callback.callCount).to.equal(1);
 
-    intervalTimer.stop();
+      intervalTimer.stop();
 
-    clock.tick(1000); // 2100
-    expect(callback.callCount).to.equal(1);
+      clock.tick(1000); // 2100
+      expect(callback.callCount).to.equal(1);
 
-    intervalTimer.start();
+      intervalTimer.start();
 
-    clock.tick(1000); // 3100
-    expect(callback.callCount).to.equal(2);
-  });
+      clock.tick(1000); // 3100
+      expect(callback.callCount).to.equal(2);
+    }
+  );
 
   it('should not stop if the interval function fail', async () => {
     // Trigger the rejection of the interval function
@@ -197,39 +211,42 @@ describe('interval-timer', () => {
     expect(callback.callCount).to.equal(3);
   });
 
-  it('intervalFunctionSuccessiveFailureCount should be incremented when the interval function fails', async () => {
-    intervalTimer = new IntervalTimer(intervalFunctionWithErrorMock, 1000, emptyLogger, 5);
-    intervalTimer.start();
+  it(
+    'intervalFunctionSuccessiveFailureCount should be incremented when the interval function fails',
+    async () => {
+      intervalTimer = new IntervalTimer(intervalFunctionWithErrorMock, 1000, emptyLogger, 5);
+      intervalTimer.start();
 
-    // Simulate clock to call interval function
-    clock.tick(1001);
-    await flushCallStack();
-    expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(0);
+      // Simulate clock to call interval function
+      clock.tick(1001);
+      await flushCallStack();
+      expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(0);
 
-    clock.tick(1000);
-    await flushCallStack();
-    expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(1);
+      clock.tick(1000);
+      await flushCallStack();
+      expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(1);
 
-    clock.tick(1000);
-    await flushCallStack();
-    expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(2);
+      clock.tick(1000);
+      await flushCallStack();
+      expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(2);
 
-    clock.tick(1000);
-    await flushCallStack();
-    expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(3);
+      clock.tick(1000);
+      await flushCallStack();
+      expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(3);
 
-    clock.tick(1000);
-    await flushCallStack();
-    expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(4);
+      clock.tick(1000);
+      await flushCallStack();
+      expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(4);
 
-    clock.tick(1000);
-    await flushCallStack();
-    expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(5);
+      clock.tick(1000);
+      await flushCallStack();
+      expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(5);
 
-    clock.tick(1000);
-    await flushCallStack();
-    expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(0);
-  });
+      clock.tick(1000);
+      await flushCallStack();
+      expect(intervalTimer.intervalFunctionSuccessiveFailureCount).to.equal(0);
+    }
+  );
 
   it('should display log messages when interval function fails', async () => {
     // Mock to test logger message

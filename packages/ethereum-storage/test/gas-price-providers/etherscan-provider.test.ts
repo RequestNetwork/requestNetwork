@@ -98,57 +98,63 @@ describe('EtherscanProvider', () => {
       );
     });
 
-    it('throws when API returns a response with the incorrect format', async () => {
-      let mock = fetchMock.sandbox().mock(etherscanProvider.providerUrl, apiIncorrectResponse);
-      etherscanProvider.fetch = mock as any;
+    it(
+      'throws when API returns a response with the incorrect format',
+      async () => {
+        let mock = fetchMock.sandbox().mock(etherscanProvider.providerUrl, apiIncorrectResponse);
+        etherscanProvider.fetch = mock as any;
 
-      // When format is incorrect
-      await expect(
-        etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`Etherscan API response doesn't contain the correct format`);
+        // When format is incorrect
+        await expect(
+          etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
+        ).to.be.rejectedWith(`Etherscan API response doesn't contain the correct format`);
 
-      mock = fetchMock.sandbox().mock(etherscanProvider.providerUrl, apiIncompleteResponse);
-      etherscanProvider.fetch = mock as any;
+        mock = fetchMock.sandbox().mock(etherscanProvider.providerUrl, apiIncompleteResponse);
+        etherscanProvider.fetch = mock as any;
 
-      // When a field is missing
-      await expect(
-        etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`Etherscan API response doesn't contain the correct format`);
+        // When a field is missing
+        await expect(
+          etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
+        ).to.be.rejectedWith(`Etherscan API response doesn't contain the correct format`);
 
-      mock = fetchMock.sandbox().mock(etherscanProvider.providerUrl, apiNotANumber);
-      etherscanProvider.fetch = mock as any;
+        mock = fetchMock.sandbox().mock(etherscanProvider.providerUrl, apiNotANumber);
+        etherscanProvider.fetch = mock as any;
 
-      // When a field is not a number
-      await expect(
-        etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`Etherscan API response doesn't contain the correct format`);
+        // When a field is not a number
+        await expect(
+          etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
+        ).to.be.rejectedWith(`Etherscan API response doesn't contain the correct format`);
 
-      mock = fetchMock.sandbox().mock(etherscanProvider.providerUrl, apiRateLimitResponse);
-      etherscanProvider.fetch = mock as any;
+        mock = fetchMock.sandbox().mock(etherscanProvider.providerUrl, apiRateLimitResponse);
+        etherscanProvider.fetch = mock as any;
 
-      // When status is not 1
-      await expect(
-        etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(
-        `Etherscan error: NOTOK Max rate limit reached, please use API Key for higher rate limit`,
-      );
-    });
+        // When status is not 1
+        await expect(
+          etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
+        ).to.be.rejectedWith(
+          `Etherscan error: NOTOK Max rate limit reached, please use API Key for higher rate limit`,
+        );
+      }
+    );
 
-    it('throws when API returns a response with a gas price not safe to use', async () => {
-      const mock = fetchMock
-        .sandbox()
-        .mock(etherscanProvider.providerUrl, apiNotSafeGasPriceResponse);
-      etherscanProvider.fetch = mock as any;
+    it(
+      'throws when API returns a response with a gas price not safe to use',
+      async () => {
+        const mock = fetchMock
+          .sandbox()
+          .mock(etherscanProvider.providerUrl, apiNotSafeGasPriceResponse);
+        etherscanProvider.fetch = mock as any;
 
-      // When over the limit
-      await expect(
-        etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`Etherscan provided gas price not safe to use: 10000`);
+        // When over the limit
+        await expect(
+          etherscanProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
+        ).to.be.rejectedWith(`Etherscan provided gas price not safe to use: 10000`);
 
-      // When 0
-      await expect(
-        etherscanProvider.getGasPrice(StorageTypes.GasPriceType.FAST),
-      ).to.be.rejectedWith(`Etherscan provided gas price not safe to use: 0`);
-    });
+        // When 0
+        await expect(
+          etherscanProvider.getGasPrice(StorageTypes.GasPriceType.FAST),
+        ).to.be.rejectedWith(`Etherscan provided gas price not safe to use: 0`);
+      }
+    );
   });
 });

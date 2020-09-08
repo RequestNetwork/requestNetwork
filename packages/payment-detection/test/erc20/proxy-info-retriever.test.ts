@@ -5,7 +5,6 @@ import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever';
 import { ethers } from 'ethers';
 
 import 'chai';
-import 'mocha';
 
 const chai = require('chai');
 const expect = chai.expect;
@@ -140,24 +139,27 @@ describe('api/erc20/proxy-info-retriever', () => {
 
     });
 
-    it('gets an empty list of events for an address without ERC20 on localhost', async () => {
-      const infoRetriever = new ProxyERC20InfoRetriever(
-        paymentReferenceMock,
-        proxyContractAddress,
-        0,
-        erc20LocalhostContractAddress,
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'private',
-      );
+    it(
+      'gets an empty list of events for an address without ERC20 on localhost',
+      async () => {
+        const infoRetriever = new ProxyERC20InfoRetriever(
+          paymentReferenceMock,
+          proxyContractAddress,
+          0,
+          erc20LocalhostContractAddress,
+          paymentAddress,
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+          'private',
+        );
 
-      // inject mock provider.getLogs()
-      infoRetriever.provider.getLogs = (): any => {
-        return [];
-      };
+        // inject mock provider.getLogs()
+        infoRetriever.provider.getLogs = (): any => {
+          return [];
+        };
 
-      const events = await infoRetriever.getTransferEvents();
-      expect(events).to.be.empty;
-    });
+        const events = await infoRetriever.getTransferEvents();
+        expect(events).to.be.empty;
+      }
+    );
   });
 });

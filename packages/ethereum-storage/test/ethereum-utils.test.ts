@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 
 import { StorageTypes } from '@requestnetwork/types';
 import { getSafeGasPriceLimit } from '../src/config';

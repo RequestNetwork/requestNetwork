@@ -1,5 +1,3 @@
-import 'mocha';
-
 const chai = require('chai');
 const spies = require('chai-spies');
 const chaiAsPromised = require('chai-as-promised');
@@ -52,111 +50,123 @@ describe('api/btc/bitcoin-info-retriever', () => {
       ).to.eventually.be.deep.equal({ balance: '1', events: [] });
     });
 
-    it('should give the right value with two identical responses and one fail', async () => {
-      const btcRetriever = new DefaultBitcoinDetectionProvider();
+    it(
+      'should give the right value with two identical responses and one fail',
+      async () => {
+        const btcRetriever = new DefaultBitcoinDetectionProvider();
 
-      btcRetriever.providers = [btcProviderMockMinus1, btcProviderMock1, btcProviderMock1];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+        btcRetriever.providers = [btcProviderMockMinus1, btcProviderMock1, btcProviderMock1];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
-      btcRetriever.providers = [btcProviderMock1, btcProviderMockMinus1, btcProviderMock1];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
-    });
+        btcRetriever.providers = [btcProviderMock1, btcProviderMockMinus1, btcProviderMock1];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+      }
+    );
 
-    it('should give the right value with two identical responses and one different', async () => {
-      const btcRetriever = new DefaultBitcoinDetectionProvider();
+    it(
+      'should give the right value with two identical responses and one different',
+      async () => {
+        const btcRetriever = new DefaultBitcoinDetectionProvider();
 
-      btcRetriever.providers = [btcProviderMock0, btcProviderMock1, btcProviderMock1];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+        btcRetriever.providers = [btcProviderMock0, btcProviderMock1, btcProviderMock1];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
-      btcRetriever.providers = [btcProviderMock1, btcProviderMock0, btcProviderMock1];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
-    });
+        btcRetriever.providers = [btcProviderMock1, btcProviderMock0, btcProviderMock1];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+      }
+    );
 
-    it('should give the right value with two identical responses and two different', async () => {
-      const btcRetriever = new DefaultBitcoinDetectionProvider();
+    it(
+      'should give the right value with two identical responses and two different',
+      async () => {
+        const btcRetriever = new DefaultBitcoinDetectionProvider();
 
-      btcRetriever.providers = [
-        btcProviderMock0,
-        btcProviderMock1,
-        btcProviderMock2,
-        btcProviderMock1,
-      ];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+        btcRetriever.providers = [
+          btcProviderMock0,
+          btcProviderMock1,
+          btcProviderMock2,
+          btcProviderMock1,
+        ];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
-      btcRetriever.providers = [
-        btcProviderMock2,
-        btcProviderMock0,
-        btcProviderMock1,
-        btcProviderMock1,
-      ];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+        btcRetriever.providers = [
+          btcProviderMock2,
+          btcProviderMock0,
+          btcProviderMock1,
+          btcProviderMock1,
+        ];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
-      btcRetriever.providers = [
-        btcProviderMock0,
-        btcProviderMock2,
-        btcProviderMock1,
-        btcProviderMock1,
-      ];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+        btcRetriever.providers = [
+          btcProviderMock0,
+          btcProviderMock2,
+          btcProviderMock1,
+          btcProviderMock1,
+        ];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
-      btcRetriever.providers = [
-        btcProviderMock1,
-        btcProviderMock0,
-        btcProviderMock2,
-        btcProviderMock1,
-      ];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
-    });
+        btcRetriever.providers = [
+          btcProviderMock1,
+          btcProviderMock0,
+          btcProviderMock2,
+          btcProviderMock1,
+        ];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+      }
+    );
 
-    it('should give the right value with two identical responses and two failed', async () => {
-      const btcRetriever = new DefaultBitcoinDetectionProvider();
+    it(
+      'should give the right value with two identical responses and two failed',
+      async () => {
+        const btcRetriever = new DefaultBitcoinDetectionProvider();
 
-      btcRetriever.providers = [
-        btcProviderMockMinus1,
-        btcProviderMock1,
-        btcProviderMockMinus1,
-        btcProviderMock1,
-      ];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+        btcRetriever.providers = [
+          btcProviderMockMinus1,
+          btcProviderMock1,
+          btcProviderMockMinus1,
+          btcProviderMock1,
+        ];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
-      btcRetriever.providers = [
-        btcProviderMockMinus1,
-        btcProviderMockMinus1,
-        btcProviderMock1,
-        btcProviderMock1,
-      ];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+        btcRetriever.providers = [
+          btcProviderMockMinus1,
+          btcProviderMockMinus1,
+          btcProviderMock1,
+          btcProviderMock1,
+        ];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
 
-      btcRetriever.providers = [
-        btcProviderMock1,
-        btcProviderMockMinus1,
-        btcProviderMockMinus1,
-        btcProviderMock1,
-      ];
-      await expect(
-        btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
-      ).to.eventually.be.deep.equal({ balance: '1', events: [] });
-    });
+        btcRetriever.providers = [
+          btcProviderMock1,
+          btcProviderMockMinus1,
+          btcProviderMockMinus1,
+          btcProviderMock1,
+        ];
+        await expect(
+          btcRetriever.getAddressBalanceWithEvents(0, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
+        ).to.eventually.be.deep.equal({ balance: '1', events: [] });
+      }
+    );
 
     it('should throw with two failed', async () => {
       const btcRetriever = new DefaultBitcoinDetectionProvider();

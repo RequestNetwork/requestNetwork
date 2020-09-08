@@ -1,5 +1,3 @@
-import 'mocha';
-
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -86,16 +84,19 @@ describe('ethereum-private-key-decryption-provider', () => {
         'should have thrown',
       ).to.throw('Encryption method not supported not_supported');
     });
-    it('cannot construct with decryption parameter value not valid', async () => {
-      expect(
-        () =>
-          new EthereumPrivateKeyDecryptionProvider({
-            key: '0x0',
-            method: EncryptionTypes.METHOD.ECIES,
-          }),
-        'should have thrown',
-      ).to.throw('The private key must be a string representing 32 bytes');
-    });
+    it(
+      'cannot construct with decryption parameter value not valid',
+      async () => {
+        expect(
+          () =>
+            new EthereumPrivateKeyDecryptionProvider({
+              key: '0x0',
+              method: EncryptionTypes.METHOD.ECIES,
+            }),
+          'should have thrown',
+        ).to.throw('The private key must be a string representing 32 bytes');
+      }
+    );
   });
 
   describe('addDecryptionParameters', () => {

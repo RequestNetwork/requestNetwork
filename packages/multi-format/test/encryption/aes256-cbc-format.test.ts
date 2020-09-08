@@ -1,6 +1,5 @@
 import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 import { expect } from 'chai';
-import 'mocha';
 
 import Aes256CbcFormat from '../../src/encryption/aes256-cbc-format';
 let aes256CbcFormat: Aes256CbcFormat;
@@ -86,12 +85,15 @@ describe('encryption/aes256-cbc-format', () => {
       });
     });
 
-    it('should return false if an incorrect format is given to isDeserializableString', () => {
-      expect(() => {
-        aes256CbcFormat.deserialize(
-          '00af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
-        );
-      }, 'should throw with an incorrect prefix').to.throw('string is not a serialized string');
-    });
+    it(
+      'should return false if an incorrect format is given to isDeserializableString',
+      () => {
+        expect(() => {
+          aes256CbcFormat.deserialize(
+            '00af91330fe78ccde898f10a39d6088568e24275a6cfbe9e80f4c2f42a4308f907',
+          );
+        }, 'should throw with an incorrect prefix').to.throw('string is not a serialized string');
+      }
+    );
   });
 });

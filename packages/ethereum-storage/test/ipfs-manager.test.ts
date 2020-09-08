@@ -1,5 +1,3 @@
-import 'mocha';
-
 import { StorageTypes } from '@requestnetwork/types';
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -79,10 +77,13 @@ describe('Ipfs manager', () => {
     assert.isArray(bootstrapList);
   });
 
-  it('must throw if the ipfs node is not reachable when using getBootstrapList()', async () => {
-    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
-    await assert.isRejected(ipfsManager.getBootstrapList(), Error, 'getaddrinfo ENOTFOUND');
-  });
+  it(
+    'must throw if the ipfs node is not reachable when using getBootstrapList()',
+    async () => {
+      ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
+      await assert.isRejected(ipfsManager.getBootstrapList(), Error, 'getaddrinfo ENOTFOUND');
+    }
+  );
 
   it('allows to add files to ipfs', async () => {
     let hashReturned = await ipfsManager.add(content);
@@ -133,37 +134,52 @@ describe('Ipfs manager', () => {
     assert.equal(contentLengthOnIpfs2, sizeReturned);
   });
 
-  it('operations with a invalid host network should throw ENOTFOUND errors', async () => {
-    ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
+  it(
+    'operations with a invalid host network should throw ENOTFOUND errors',
+    async () => {
+      ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
 
-    await assert.isRejected(ipfsManager.add(content), Error, 'getaddrinfo ENOTFOUND');
-    await assert.isRejected(ipfsManager.read(hash), Error, 'getaddrinfo ENOTFOUND');
-    await assert.isRejected(ipfsManager.getContentLength(hash), Error, 'getaddrinfo ENOTFOUND');
-  });
+      await assert.isRejected(ipfsManager.add(content), Error, 'getaddrinfo ENOTFOUND');
+      await assert.isRejected(ipfsManager.read(hash), Error, 'getaddrinfo ENOTFOUND');
+      await assert.isRejected(ipfsManager.getContentLength(hash), Error, 'getaddrinfo ENOTFOUND');
+    }
+  );
 
-  it('read a non-existent hash on an existent network should throw a timeout error', async () => {
-    await assert.isRejected(ipfsManager.read(notAddedHash), Error, 'Ipfs read request timeout');
-  });
+  it(
+    'read a non-existent hash on an existent network should throw a timeout error',
+    async () => {
+      await assert.isRejected(ipfsManager.read(notAddedHash), Error, 'Ipfs read request timeout');
+    }
+  );
 
-  it('getContentLength on a non-existent hash on an existent network should throw a timeout error', async () => {
-    await assert.isRejected(
-      ipfsManager.getContentLength(notAddedHash),
-      Error,
-      'Ipfs stat request timeout',
-    );
-  });
+  it(
+    'getContentLength on a non-existent hash on an existent network should throw a timeout error',
+    async () => {
+      await assert.isRejected(
+        ipfsManager.getContentLength(notAddedHash),
+        Error,
+        'Ipfs stat request timeout',
+      );
+    }
+  );
 
-  it('initializing ipfs-manager with default values should not throw an error', async () => {
-    assert.doesNotThrow(() => new IpfsManager(), Error);
-  });
+  it(
+    'initializing ipfs-manager with default values should not throw an error',
+    async () => {
+      assert.doesNotThrow(() => new IpfsManager(), Error);
+    }
+  );
 
-  it('initializing ipfs-manager with an invalid protocol should throw an error', async () => {
-    assert.throws(
-      () => new IpfsManager(invalidProtocolIpfsGatewayConnection, testErrorHandling),
-      Error,
-      'Protocol not implemented for IPFS',
-    );
-  });
+  it(
+    'initializing ipfs-manager with an invalid protocol should throw an error',
+    async () => {
+      assert.throws(
+        () => new IpfsManager(invalidProtocolIpfsGatewayConnection, testErrorHandling),
+        Error,
+        'Protocol not implemented for IPFS',
+      );
+    }
+  );
 
   it('aborting read request should throw an error', async () => {
     let hookedRequest: any;
@@ -238,92 +254,104 @@ describe('Ipfs manager', () => {
     );
   });
 
-  it('aborting getContentLength request response should throw an error', async () => {
-    let hookedRequestResponse: any;
+  it(
+    'aborting getContentLength request response should throw an error',
+    async () => {
+      let hookedRequestResponse: any;
 
-    // Hook the response of the request response to send customized event ot it
-    const requestHook = (request: string, resCallback: any): EventEmitter => {
-      hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
-        resCallback(hookedRequestResponse);
-      });
-    };
-    const hookedIpfsConnectionModule = { get: requestHook };
-    ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
+      // Hook the response of the request response to send customized event ot it
+      const requestHook = (request: string, resCallback: any): EventEmitter => {
+        hookedRequestResponse = new EventEmitter();
+        return http.get(request, _res => {
+          resCallback(hookedRequestResponse);
+        });
+      };
+      const hookedIpfsConnectionModule = { get: requestHook };
+      ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
-    setTimeout(() => hookedRequestResponse.emit('aborted'), 1000);
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
-      'Ipfs stat request response has been aborted',
-    );
-  });
+      setTimeout(() => hookedRequestResponse.emit('aborted'), 1000);
+      await assert.isRejected(
+        ipfsManager.getContentLength(hash),
+        Error,
+        'Ipfs stat request response has been aborted',
+      );
+    }
+  );
 
-  it('error on getContentLength request response should throw an error', async () => {
-    let hookedRequestResponse: any;
+  it(
+    'error on getContentLength request response should throw an error',
+    async () => {
+      let hookedRequestResponse: any;
 
-    // Hook the response of the request response to send customized event ot it
-    const requestHook = (request: string, resCallback: any): EventEmitter => {
-      hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
-        resCallback(hookedRequestResponse);
-      });
-    };
-    const hookedIpfsConnectionModule = { get: requestHook };
-    ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
+      // Hook the response of the request response to send customized event ot it
+      const requestHook = (request: string, resCallback: any): EventEmitter => {
+        hookedRequestResponse = new EventEmitter();
+        return http.get(request, _res => {
+          resCallback(hookedRequestResponse);
+        });
+      };
+      const hookedIpfsConnectionModule = { get: requestHook };
+      ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
-    setTimeout(() => hookedRequestResponse.emit('error'), 1000);
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
-      'Ipfs stat request response error',
-    );
-  });
+      setTimeout(() => hookedRequestResponse.emit('error'), 1000);
+      await assert.isRejected(
+        ipfsManager.getContentLength(hash),
+        Error,
+        'Ipfs stat request response error',
+      );
+    }
+  );
 
-  it('empty getContentLength request response should throw an error', async () => {
-    let hookedRequestResponse: any;
+  it(
+    'empty getContentLength request response should throw an error',
+    async () => {
+      let hookedRequestResponse: any;
 
-    // Hook the response of the request response to send customized event ot it
-    const requestHook = (request: string, resCallback: any): EventEmitter => {
-      hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
-        resCallback(hookedRequestResponse);
-      });
-    };
-    const hookedIpfsConnectionModule = { get: requestHook };
-    ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
+      // Hook the response of the request response to send customized event ot it
+      const requestHook = (request: string, resCallback: any): EventEmitter => {
+        hookedRequestResponse = new EventEmitter();
+        return http.get(request, _res => {
+          resCallback(hookedRequestResponse);
+        });
+      };
+      const hookedIpfsConnectionModule = { get: requestHook };
+      ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
-    // We emit end event directly, we will call end callball with no response data
-    setTimeout(() => hookedRequestResponse.emit('end'), 1000);
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
-      'Ipfs stat request response cannot be parsed into JSON format',
-    );
-  });
+      // We emit end event directly, we will call end callball with no response data
+      setTimeout(() => hookedRequestResponse.emit('end'), 1000);
+      await assert.isRejected(
+        ipfsManager.getContentLength(hash),
+        Error,
+        'Ipfs stat request response cannot be parsed into JSON format',
+      );
+    }
+  );
 
-  it('getContentLength request response with no field DataSize should throw an error', async () => {
-    let hookedRequestResponse: any;
+  it(
+    'getContentLength request response with no field DataSize should throw an error',
+    async () => {
+      let hookedRequestResponse: any;
 
-    // Hook the response of the request response to send customized event ot it
-    const requestHook = (request: string, resCallback: any): EventEmitter => {
-      hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
-        resCallback(hookedRequestResponse);
-      });
-    };
-    const hookedIpfsConnectionModule = { get: requestHook };
-    ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
+      // Hook the response of the request response to send customized event ot it
+      const requestHook = (request: string, resCallback: any): EventEmitter => {
+        hookedRequestResponse = new EventEmitter();
+        return http.get(request, _res => {
+          resCallback(hookedRequestResponse);
+        });
+      };
+      const hookedIpfsConnectionModule = { get: requestHook };
+      ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
-    // We emit custom json data with no DataSize field
-    setTimeout(() => hookedRequestResponse.emit('data', `{"name":"John"}`), 500);
-    setTimeout(() => hookedRequestResponse.emit('end'), 1000);
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
-      'Ipfs stat request response has no DataSize field',
-    );
-  });
+      // We emit custom json data with no DataSize field
+      setTimeout(() => hookedRequestResponse.emit('data', `{"name":"John"}`), 500);
+      setTimeout(() => hookedRequestResponse.emit('end'), 1000);
+      await assert.isRejected(
+        ipfsManager.getContentLength(hash),
+        Error,
+        'Ipfs stat request response has no DataSize field',
+      );
+    }
+  );
 
   it('timeout should not retry', async () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);

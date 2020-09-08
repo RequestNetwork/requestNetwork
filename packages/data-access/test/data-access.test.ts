@@ -1,4 +1,3 @@
-import 'mocha';
 import * as sinon from 'sinon';
 
 import { EventEmitter } from 'events';
@@ -168,6 +167,12 @@ let clock: sinon.SinonFakeTimers;
 // tslint:disable:no-magic-numbers
 /* tslint:disable:no-unused-expression */
 describe('data-access', () => {
+  let testContext: any;
+
+  beforeEach(() => {
+    testContext = {};
+  });
+
   beforeEach(async () => {
     clock = sinon.useFakeTimers();
   });
@@ -273,18 +278,21 @@ describe('data-access', () => {
       });
     });
 
-    it('can getTransactionsByChannelId() with boundaries too restrictive', async () => {
-      expect(
-        await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 11, to: 100 }),
-        'result with arbitraryId1 wrong',
-      ).to.deep.equal({
-        meta: {
-          storageMeta: [],
-          transactionsStorageLocation: [],
-        },
-        result: { transactions: [] },
-      });
-    });
+    it(
+      'can getTransactionsByChannelId() with boundaries too restrictive',
+      async () => {
+        expect(
+          await dataAccess.getTransactionsByChannelId(arbitraryId1, { from: 11, to: 100 }),
+          'result with arbitraryId1 wrong',
+        ).to.deep.equal({
+          meta: {
+            storageMeta: [],
+            transactionsStorageLocation: [],
+          },
+          result: { transactions: [] },
+        });
+      }
+    );
   });
 
   describe('getChannelByTopic', () => {
@@ -504,75 +512,81 @@ describe('data-access', () => {
       ).to.be.rejectedWith('DataAccess must be initialized');
     });
 
-    it('cannot persistTransaction() if a topic is not well formatted', async () => {
-      const dataAccess = new DataAccess(defaultFakeStorage);
-      const notFormattedTopic = 'This topic is not formatted';
-      await dataAccess.initialize();
+    it(
+      'cannot persistTransaction() if a topic is not well formatted',
+      async () => {
+        const dataAccess = new DataAccess(defaultFakeStorage);
+        const notFormattedTopic = 'This topic is not formatted';
+        await dataAccess.initialize();
 
-      await expect(
-        dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
-          notFormattedTopic,
-          arbitraryTopic2,
-        ]),
-      ).to.be.rejectedWith(
-        `The following topics are not well formatted: ["This topic is not formatted"]`,
-      );
-    });
+        await expect(
+          dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+            notFormattedTopic,
+            arbitraryTopic2,
+          ]),
+        ).to.be.rejectedWith(
+          `The following topics are not well formatted: ["This topic is not formatted"]`,
+        );
+      }
+    );
 
-    it('cannot persistTransaction() and emit error if confirmation failed', async () => {
-      const mockStorageEmittingError: StorageTypes.IStorage = {
-        _getStatus: chai.spy(),
-        _ipfsAdd: chai.spy(),
-        append: chai.spy(
-          (): any => {
-            const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
-            setTimeout(
-              () => {
-                appendResultWithEvent.emit('error', 'error for test purpose');
-              },
-              // tslint:disable-next-line:no-magic-numbers
-              10,
-            );
-            return appendResultWithEvent;
+    it(
+      'cannot persistTransaction() and emit error if confirmation failed',
+      async () => {
+        const mockStorageEmittingError: StorageTypes.IStorage = {
+          _getStatus: chai.spy(),
+          _ipfsAdd: chai.spy(),
+          append: chai.spy(
+            (): any => {
+              const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
+              setTimeout(
+                () => {
+                  appendResultWithEvent.emit('error', 'error for test purpose');
+                },
+                // tslint:disable-next-line:no-magic-numbers
+                10,
+              );
+              return appendResultWithEvent;
+            },
+          ),
+          getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
+          getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
+          initialize: chai.spy(),
+          read: (param: string): any => {
+            const dataIdBlock2txFake: any = {
+              meta: {},
+            };
+            const resultRead: any = {
+              dataIdBlock2tx: dataIdBlock2txFake,
+            };
+            return resultRead[param];
           },
-        ),
-        getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => defaultTestData,
-        getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
-        initialize: chai.spy(),
-        read: (param: string): any => {
-          const dataIdBlock2txFake: any = {
-            meta: {},
-          };
-          const resultRead: any = {
-            dataIdBlock2tx: dataIdBlock2txFake,
-          };
-          return resultRead[param];
-        },
-        readMany(params: string[]): Promise<any[]> {
-          return Promise.all(params.map(this.read));
-        },
-      };
+          readMany(params: string[]): Promise<any[]> {
+            return Promise.all(params.map(testContext.read));
+          },
+        };
 
-      const dataAccess = new DataAccess(mockStorageEmittingError);
-      await dataAccess.initialize();
+        const dataAccess = new DataAccess(mockStorageEmittingError);
+        await dataAccess.initialize();
 
-      const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
-        arbitraryTopic1,
-      ]);
-      result.on('error', error => {
-        expect(error, 'result Confirmed wrong').to.equal('error for test purpose');
-      });
-      clock.tick(11);
+        const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+          arbitraryTopic1,
+        ]);
+        result.on('error', error => {
+          expect(error, 'result Confirmed wrong').to.equal('error for test purpose');
+        });
+        clock.tick(11);
 
-      expect(result.meta, 'result wrong').to.deep.equal({
-        storageMeta: {
-          state: DataAccessTypes.TransactionState.PENDING,
-          timestamp: 1,
-        },
-        topics: [arbitraryTopic1],
-        transactionStorageLocation: dataIdBlock2tx,
-      });
-    });
+        expect(result.meta, 'result wrong').to.deep.equal({
+          storageMeta: {
+            state: DataAccessTypes.TransactionState.PENDING,
+            timestamp: 1,
+          },
+          topics: [arbitraryTopic1],
+          transactionStorageLocation: dataIdBlock2tx,
+        });
+      }
+    );
   });
 
   describe('_getStatus', () => {
@@ -624,225 +638,240 @@ describe('data-access', () => {
     });
   });
 
-  it('synchronizeNewDataId() should throw an error if not initialized', async () => {
-    const dataAccess = new DataAccess(defaultFakeStorage);
+  it(
+    'synchronizeNewDataId() should throw an error if not initialized',
+    async () => {
+      const dataAccess = new DataAccess(defaultFakeStorage);
 
-    await expect(dataAccess.synchronizeNewDataIds()).to.be.rejectedWith(
-      'DataAccess must be initialized',
-    );
-  });
+      await expect(dataAccess.synchronizeNewDataIds()).to.be.rejectedWith(
+        'DataAccess must be initialized',
+      );
+    }
+  );
 
-  it('synchronizeNewDataId() should ignore data not following the block standard', async () => {
-    const blockWithoutHeader = {
-      transactions: [{ data: '' }],
-    };
+  it(
+    'synchronizeNewDataId() should ignore data not following the block standard',
+    async () => {
+      const blockWithoutHeader = {
+        transactions: [{ data: '' }],
+      };
 
-    const testDataNotJsonData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve({
-      entries: [
-        {
-          content: JSON.stringify(blockWithoutHeader),
-          id: 'whatever',
-          meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
+      const testDataNotJsonData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve({
+        entries: [
+          {
+            content: JSON.stringify(blockWithoutHeader),
+            id: 'whatever',
+            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 10 },
+          },
+        ],
+        lastTimestamp: 0,
+      });
+
+      const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
+        _ipfsAdd: chai.spy(),
+        append: chai.spy(),
+        getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
+        getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
+        _getStatus: chai.spy(),
+        initialize: chai.spy(),
+        read: chai.spy(),
+        readMany: chai.spy(),
+      };
+
+      const dataAccess = new DataAccess(fakeStorageWithNotJsonData);
+      await dataAccess.initialize();
+
+      dataAccess.transactionIndex.addTransaction = chai.spy();
+      await dataAccess.synchronizeNewDataIds();
+
+      expect(dataAccess.transactionIndex.addTransaction).to.have.been.called.exactly(0);
+    }
+  );
+
+  it(
+    'allows to get new transactions after synchronizeNewDataId() call',
+    async () => {
+      // We create a fakeStorage where getData() called at initialization returns empty structure
+      const fakeStorage = {
+        ...defaultFakeStorage,
+        getData: async (options: any): Promise<StorageTypes.IEntriesWithLastTimestamp> => {
+          if (!options) {
+            return Promise.resolve(emptyDataResult);
+          }
+          return getDataResult;
         },
-      ],
-      lastTimestamp: 0,
-    });
-
-    const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
-      _ipfsAdd: chai.spy(),
-      append: chai.spy(),
-      getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
-      getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
-      _getStatus: chai.spy(),
-      initialize: chai.spy(),
-      read: chai.spy(),
-      readMany: chai.spy(),
-    };
-
-    const dataAccess = new DataAccess(fakeStorageWithNotJsonData);
-    await dataAccess.initialize();
-
-    dataAccess.transactionIndex.addTransaction = chai.spy();
-    await dataAccess.synchronizeNewDataIds();
-
-    expect(dataAccess.transactionIndex.addTransaction).to.have.been.called.exactly(0);
-  });
-
-  it('allows to get new transactions after synchronizeNewDataId() call', async () => {
-    // We create a fakeStorage where getData() called at initialization returns empty structure
-    const fakeStorage = {
-      ...defaultFakeStorage,
-      getData: async (options: any): Promise<StorageTypes.IEntriesWithLastTimestamp> => {
-        if (!options) {
-          return Promise.resolve(emptyDataResult);
-        }
-        return getDataResult;
-      },
-      getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => getIgnoredDataResult,
-      read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IEntry = {
-          content: JSON.stringify(blockWith2tx),
-          id: '1',
-          meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
-        };
-        const result: any = {
-          dataIdBlock2tx: dataIdBlock2txFake,
-          dataIdBlock1txBis: getIgnoredDataResult[0],
-        };
-        return result[param];
-      },
-    };
-
-    const dataAccess = new DataAccess(fakeStorage);
-    await dataAccess.initialize();
-
-    expect(
-      await dataAccess.getChannelsByTopic(arbitraryTopic1),
-      'result with arbitraryTopic1 not empty',
-    ).to.deep.equal({
-      meta: {
-        storageMeta: {},
-        transactionsStorageLocation: {},
-      },
-      result: { transactions: {} },
-    });
-
-    // Transactions should be available after synchronization
-    await expect(dataAccess.synchronizeNewDataIds()).to.be.fulfilled;
-
-    expect(
-      await dataAccess.getChannelsByTopic(arbitraryTopic1),
-      'result with arbitraryTopic1 wrong',
-    ).to.deep.equal({
-      meta: {
-        storageMeta: {
-          [arbitraryId1]: [
-            { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
-            { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
-          ],
+        getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => getIgnoredDataResult,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
+            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+            dataIdBlock1txBis: getIgnoredDataResult[0],
+          };
+          return result[param];
         },
-        transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis] },
-      },
-      result: {
-        transactions: {
-          [arbitraryId1]: [
-            {
-              state: DataAccessTypes.TransactionState.CONFIRMED,
-              transaction: transactionMock1,
-              timestamp: 1,
-            },
-            {
-              state: DataAccessTypes.TransactionState.CONFIRMED,
-              transaction: transactionMock3,
-              timestamp: 1,
-            },
-          ],
+      };
+
+      const dataAccess = new DataAccess(fakeStorage);
+      await dataAccess.initialize();
+
+      expect(
+        await dataAccess.getChannelsByTopic(arbitraryTopic1),
+        'result with arbitraryTopic1 not empty',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: {},
+          transactionsStorageLocation: {},
         },
-      },
-    });
-    expect(
-      await dataAccess.getChannelsByTopic(arbitraryTopic2),
-      'result with arbitraryTopic2 wrong',
-    ).to.deep.equal({
-      meta: {
-        storageMeta: {
-          [arbitraryId1]: [
-            { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
-            { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
-          ],
-          [arbitraryId2]: [{ state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 }],
+        result: { transactions: {} },
+      });
+
+      // Transactions should be available after synchronization
+      await expect(dataAccess.synchronizeNewDataIds()).to.be.fulfilled;
+
+      expect(
+        await dataAccess.getChannelsByTopic(arbitraryTopic1),
+        'result with arbitraryTopic1 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: {
+            [arbitraryId1]: [
+              { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+              { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+            ],
+          },
+          transactionsStorageLocation: { [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis] },
         },
-        transactionsStorageLocation: {
-          [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis],
-          [arbitraryId2]: [dataIdBlock2tx],
+        result: {
+          transactions: {
+            [arbitraryId1]: [
+              {
+                state: DataAccessTypes.TransactionState.CONFIRMED,
+                transaction: transactionMock1,
+                timestamp: 1,
+              },
+              {
+                state: DataAccessTypes.TransactionState.CONFIRMED,
+                transaction: transactionMock3,
+                timestamp: 1,
+              },
+            ],
+          },
         },
-      },
-      result: {
-        transactions: {
-          [arbitraryId1]: [
-            {
-              state: DataAccessTypes.TransactionState.CONFIRMED,
-              transaction: transactionMock1,
-              timestamp: 1,
-            },
-            {
-              state: DataAccessTypes.TransactionState.CONFIRMED,
-              transaction: transactionMock3,
-              timestamp: 1,
-            },
-          ],
-          [arbitraryId2]: [
-            {
-              state: DataAccessTypes.TransactionState.CONFIRMED,
-              transaction: transactionMock2,
-              timestamp: 1,
-            },
-          ],
+      });
+      expect(
+        await dataAccess.getChannelsByTopic(arbitraryTopic2),
+        'result with arbitraryTopic2 wrong',
+      ).to.deep.equal({
+        meta: {
+          storageMeta: {
+            [arbitraryId1]: [
+              { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
+              { state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 },
+            ],
+            [arbitraryId2]: [{ state: DataAccessTypes.TransactionState.CONFIRMED, timestamp: 1 }],
+          },
+          transactionsStorageLocation: {
+            [arbitraryId1]: [dataIdBlock2tx, dataIdBlock1txBis],
+            [arbitraryId2]: [dataIdBlock2tx],
+          },
         },
-      },
-    });
-  });
+        result: {
+          transactions: {
+            [arbitraryId1]: [
+              {
+                state: DataAccessTypes.TransactionState.CONFIRMED,
+                transaction: transactionMock1,
+                timestamp: 1,
+              },
+              {
+                state: DataAccessTypes.TransactionState.CONFIRMED,
+                transaction: transactionMock3,
+                timestamp: 1,
+              },
+            ],
+            [arbitraryId2]: [
+              {
+                state: DataAccessTypes.TransactionState.CONFIRMED,
+                transaction: transactionMock2,
+                timestamp: 1,
+              },
+            ],
+          },
+        },
+      });
+    }
+  );
 
-  it('startSynchronizationTimer() should throw an error if not initialized', async () => {
-    const fakeStorageSpied: StorageTypes.IStorage = {
-      _ipfsAdd: chai.spy(),
-      append: chai.spy.returns(appendResult),
-      getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
-      getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
-      _getStatus: chai.spy(),
-      initialize: chai.spy(),
-      read: chai.spy(),
-      readMany: chai.spy(),
-    };
-    const dataAccess = new DataAccess(fakeStorageSpied);
+  it(
+    'startSynchronizationTimer() should throw an error if not initialized',
+    async () => {
+      const fakeStorageSpied: StorageTypes.IStorage = {
+        _ipfsAdd: chai.spy(),
+        append: chai.spy.returns(appendResult),
+        getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => chai.spy(),
+        getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
+        _getStatus: chai.spy(),
+        initialize: chai.spy(),
+        read: chai.spy(),
+        readMany: chai.spy(),
+      };
+      const dataAccess = new DataAccess(fakeStorageSpied);
 
-    expect(() => dataAccess.startAutoSynchronization()).to.throw('DataAccess must be initialized');
-  });
+      expect(() => dataAccess.startAutoSynchronization()).to.throw('DataAccess must be initialized');
+    }
+  );
 
-  it('allows to get new transactions automatically if startSynchronizationTimer() is called', async () => {
-    const fakeStorage = {
-      ...defaultFakeStorage,
-      read: (param: string): any => {
-        const dataIdBlock2txFake: StorageTypes.IEntry = {
-          content: JSON.stringify(blockWith2tx),
-          id: '1',
-          meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
-        };
-        const result: any = {
-          dataIdBlock2tx: dataIdBlock2txFake,
-        };
-        return result[param];
-      },
-    };
+  it(
+    'allows to get new transactions automatically if startSynchronizationTimer() is called',
+    async () => {
+      const fakeStorage = {
+        ...defaultFakeStorage,
+        read: (param: string): any => {
+          const dataIdBlock2txFake: StorageTypes.IEntry = {
+            content: JSON.stringify(blockWith2tx),
+            id: '1',
+            meta: { state: StorageTypes.ContentState.CONFIRMED, timestamp: 1 },
+          };
+          const result: any = {
+            dataIdBlock2tx: dataIdBlock2txFake,
+          };
+          return result[param];
+        },
+      };
 
-    const dataAccess = new DataAccess(fakeStorage, {
-      synchronizationIntervalTime: 1000,
-    });
-    dataAccess.synchronizeNewDataIds = chai.spy();
-    await dataAccess.initialize();
+      const dataAccess = new DataAccess(fakeStorage, {
+        synchronizationIntervalTime: 1000,
+      });
+      dataAccess.synchronizeNewDataIds = chai.spy();
+      await dataAccess.initialize();
 
-    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(0);
+      expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(0);
 
-    dataAccess.startAutoSynchronization();
-    clock.tick(1100);
-    await flushCallStack();
+      dataAccess.startAutoSynchronization();
+      clock.tick(1100);
+      await flushCallStack();
 
-    // Should have been called once after 1100ms
-    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(1);
+      // Should have been called once after 1100ms
+      expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(1);
 
-    clock.tick(1000);
-    await flushCallStack();
+      clock.tick(1000);
+      await flushCallStack();
 
-    // Should have been called once after 2100ms
-    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
+      // Should have been called once after 2100ms
+      expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
 
-    dataAccess.stopAutoSynchronization();
-    clock.tick(1000);
-    await flushCallStack();
+      dataAccess.stopAutoSynchronization();
+      clock.tick(1000);
+      await flushCallStack();
 
-    // Not called anymore after stopAutoSynchronization()
-    expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
-  });
+      // Not called anymore after stopAutoSynchronization()
+      expect(dataAccess.synchronizeNewDataIds).to.have.been.called.exactly(2);
+    }
+  );
 
   it(`should not get twice the same data during synchronization`, async () => {
     let args;

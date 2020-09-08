@@ -210,7 +210,7 @@ describe('Request client using a request node', () => {
     // wait 1,5 sec and store the timestamp
     // tslint:disable:no-magic-numbers
     // tslint:disable-next-line:typedef
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 1500));
     const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
 
     // reduce request 1
@@ -287,7 +287,7 @@ describe('Request client using a request node', () => {
     // wait 1,5 sec and store the timestamp
     // tslint:disable:no-magic-numbers
     // tslint:disable-next-line:typedef
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise((r) => setTimeout(r, 1500));
 
     // get requests with boundaries
     const requests = await requestNetwork.fromIdentity(payerSmartContract, {

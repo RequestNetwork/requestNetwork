@@ -1,5 +1,3 @@
-import 'mocha';
-
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 
 import Web3SignatureProvider from '../src/web3-signature-provider';

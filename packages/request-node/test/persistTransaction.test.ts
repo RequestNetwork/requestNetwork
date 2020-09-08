@@ -1,5 +1,3 @@
-import 'mocha';
-
 import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
@@ -18,7 +16,7 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('persistTransaction', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
@@ -26,7 +24,7 @@ describe('persistTransaction', () => {
     server = requestNodeInstance.listen(3000, () => 0);
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 
@@ -59,14 +57,17 @@ describe('persistTransaction', () => {
       .expect(httpStatus.UNPROCESSABLE_ENTITY);
   });
 
-  it('responds with status 500 to requests with badly formatted value', async () => {
-    await request(server)
-      .post('/persistTransaction')
-      .send({
-        channelId,
-        transactionData: badlyFormattedTransactionData,
-      })
-      .set('Accept', 'application/json')
-      .expect(httpStatus.INTERNAL_SERVER_ERROR);
-  });
+  it(
+    'responds with status 500 to requests with badly formatted value',
+    async () => {
+      await request(server)
+        .post('/persistTransaction')
+        .send({
+          channelId,
+          transactionData: badlyFormattedTransactionData,
+        })
+        .set('Accept', 'application/json')
+        .expect(httpStatus.INTERNAL_SERVER_ERROR);
+    }
+  );
 });

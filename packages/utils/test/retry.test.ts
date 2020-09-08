@@ -1,4 +1,3 @@
-import 'mocha';
 import * as sinon from 'sinon';
 import retry from '../src/retry';
 
@@ -28,21 +27,24 @@ describe('Retry', () => {
     expect(spy).to.have.been.called.once;
   });
 
-  it('does not throw when a function retries less than the retry limit', async () => {
-    const spy = chai.spy();
-    const maxRetries = 5;
-    let retries = 0;
-    function throwUntil(): Promise<any> {
-      if (retries === maxRetries) {
-        return Promise.resolve(spy());
+  it(
+    'does not throw when a function retries less than the retry limit',
+    async () => {
+      const spy = chai.spy();
+      const maxRetries = 5;
+      let retries = 0;
+      function throwUntil(): Promise<any> {
+        if (retries === maxRetries) {
+          return Promise.resolve(spy());
+        }
+        retries++;
+        throw new Error(`this method will throw ${maxRetries} times`);
       }
-      retries++;
-      throw new Error(`this method will throw ${maxRetries} times`);
-    }
 
-    await expect(retry(throwUntil, { maxRetries })()).to.eventually.be.fulfilled;
-    expect(spy).to.have.been.called.once;
-  });
+      await expect(retry(throwUntil, { maxRetries })()).to.eventually.be.fulfilled;
+      expect(spy).to.have.been.called.once;
+    }
+  );
 
   it('throws when a function retries more than the retry limit', async () => {
     const spy = chai.spy();

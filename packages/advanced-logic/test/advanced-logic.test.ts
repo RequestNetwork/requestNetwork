@@ -1,5 +1,3 @@
-import 'mocha';
-
 import { AdvancedLogicTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import * as DataBTCCreate from './utils/payment-network/bitcoin/generator-data-create';
@@ -66,27 +64,30 @@ describe('advanced-logic.ts', () => {
       ).to.deep.equal(DataBTCCreate.requestStateNoExtensions);
     });
 
-    it('can applyActionToExtensions with pn testnet bitcoin address based', () => {
-      const requestCreatedNoExtensionBefore = Utils.deepCopy(
-        DataTestnetBTCCreate.requestStateNoExtensions,
-      );
+    it(
+      'can applyActionToExtensions with pn testnet bitcoin address based',
+      () => {
+        const requestCreatedNoExtensionBefore = Utils.deepCopy(
+          DataTestnetBTCCreate.requestStateNoExtensions,
+        );
 
-      const newExtensionState = advancedLogic.applyActionToExtensions(
-        requestCreatedNoExtensionBefore.extensions,
-        DataTestnetBTCCreate.actionCreationWithPaymentAndRefund,
-        requestCreatedNoExtensionBefore,
-        TestData.payeeRaw.identity,
-        TestData.arbitraryTimestamp,
-      );
+        const newExtensionState = advancedLogic.applyActionToExtensions(
+          requestCreatedNoExtensionBefore.extensions,
+          DataTestnetBTCCreate.actionCreationWithPaymentAndRefund,
+          requestCreatedNoExtensionBefore,
+          TestData.payeeRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
 
-      expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
-        DataTestnetBTCCreate.extensionStateWithPaymentAndRefund,
-      );
-      expect(
-        requestCreatedNoExtensionBefore,
-        'previous extension state must not change',
-      ).to.deep.equal(DataTestnetBTCCreate.requestStateNoExtensions);
-    });
+        expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
+          DataTestnetBTCCreate.extensionStateWithPaymentAndRefund,
+        );
+        expect(
+          requestCreatedNoExtensionBefore,
+          'previous extension state must not change',
+        ).to.deep.equal(DataTestnetBTCCreate.requestStateNoExtensions);
+      }
+    );
 
     it('can applyActionToExtensions with declarative payment network', () => {
       const requestCreatedNoExtensionBefore = Utils.deepCopy(

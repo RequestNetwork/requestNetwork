@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as httpStatus from 'http-status-codes';
@@ -23,7 +21,7 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('requestNode server', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
@@ -31,7 +29,7 @@ describe('requestNode server', () => {
     server = requestNodeInstance.listen(3000, () => 0);
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 
@@ -51,22 +49,28 @@ describe('requestNode server', () => {
       });
   });
 
-  it('responds with status 200 to readyness check requests when ready', async () => {
-    await request(server)
-      .post('/readyz')
-      .end((_err, res) => {
-        expect(res.status).to.equal(httpStatus.OK);
-      });
-  });
+  it(
+    'responds with status 200 to readyness check requests when ready',
+    async () => {
+      await request(server)
+        .post('/readyz')
+        .end((_err, res) => {
+          expect(res.status).to.equal(httpStatus.OK);
+        });
+    }
+  );
 
-  it('responds with status 503 to readyness check requests when not ready', async () => {
-    requestNodeInstance = new requestNode();
-    await request(server)
-      .post('/readyz')
-      .end((_err, res) => {
-        expect(res.status).to.equal(httpStatus.SERVICE_UNAVAILABLE);
-      });
-  });
+  it(
+    'responds with status 503 to readyness check requests when not ready',
+    async () => {
+      requestNodeInstance = new requestNode();
+      await request(server)
+        .post('/readyz')
+        .end((_err, res) => {
+          expect(res.status).to.equal(httpStatus.SERVICE_UNAVAILABLE);
+        });
+    }
+  );
 
   it('responds with status 503 if server is uninitialized', async () => {
     // Import directly requestNode to create a server where we don't call requestNodeInstance.initialize()

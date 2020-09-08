@@ -1,5 +1,3 @@
-import 'mocha';
-
 import PnAnyDeclarative from '../../../src/extensions/payment-network/declarative';
 
 import Utils from '@requestnetwork/utils';
@@ -153,17 +151,20 @@ describe('extensions/payment-network/any/declarative', () => {
           'new extension state wrong',
         ).to.deep.equal(TestDataDeclarative.extensionStateWithPaymentAndRefund);
       });
-      it('cannot applyActionToExtensions of creation with a previous state', () => {
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
-            TestDataDeclarative.actionCreationWithPaymentAndRefund,
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
-            TestData.otherIdRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw('This extension has already been created');
-      });
+      it(
+        'cannot applyActionToExtensions of creation with a previous state',
+        () => {
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
+              TestDataDeclarative.actionCreationWithPaymentAndRefund,
+              TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
+              TestData.otherIdRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw('This extension has already been created');
+        }
+      );
     });
 
     describe('applyActionToExtension/addPaymentInstruction', () => {
@@ -179,53 +180,65 @@ describe('extensions/payment-network/any/declarative', () => {
           'new extension state wrong',
         ).to.deep.equal(TestDataDeclarative.extensionStateCreatedEmptyPaymentInstructionAdded);
       });
-      it('cannot applyActionToExtensions of addPaymentInstruction without a previous state', () => {
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
-            TestDataDeclarative.requestStateNoExtensions,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`This extension must have been already created`);
-      });
-      it('cannot applyActionToExtensions of addPaymentInstruction without a payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        previousState.payee = undefined;
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
-            previousState,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The request must have a payee`);
-      });
-      it('cannot applyActionToExtensions of addPaymentInstruction signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
-            previousState,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The signer must be the payee`);
-      });
-      it('cannot applyActionToExtensions of addPaymentInstruction with payment instruction already given', () => {
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The payment instruction already given`);
-      });
+      it(
+        'cannot applyActionToExtensions of addPaymentInstruction without a previous state',
+        () => {
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateNoExtensions.extensions,
+              TestDataDeclarative.actionPaymentInstruction,
+              TestDataDeclarative.requestStateNoExtensions,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`This extension must have been already created`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addPaymentInstruction without a payee',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          previousState.payee = undefined;
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionPaymentInstruction,
+              previousState,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The request must have a payee`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addPaymentInstruction signed by someone else than the payee',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionPaymentInstruction,
+              previousState,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The signer must be the payee`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addPaymentInstruction with payment instruction already given',
+        () => {
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
+              TestDataDeclarative.actionPaymentInstruction,
+              TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The payment instruction already given`);
+        }
+      );
     });
 
     describe('applyActionToExtension/addRefundInstruction', () => {
@@ -241,53 +254,65 @@ describe('extensions/payment-network/any/declarative', () => {
           'new extension state wrong',
         ).to.deep.equal(TestDataDeclarative.extensionStateCreatedEmptyRefundInstructionAdded);
       });
-      it('cannot applyActionToExtensions of addRefundInstruction without a previous state', () => {
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionRefundInstruction,
-            TestDataDeclarative.requestStateNoExtensions,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`This extension must have been already created`);
-      });
-      it('cannot applyActionToExtensions of addRefundInstruction without a payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        previousState.payer = undefined;
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionRefundInstruction,
-            previousState,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The request must have a payer`);
-      });
-      it('cannot applyActionToExtensions of addRefundInstruction signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionRefundInstruction,
-            previousState,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The signer must be the payer`);
-      });
-      it('cannot applyActionToExtensions of addRefundInstruction with payment instruction already given', () => {
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
-            TestDataDeclarative.actionRefundInstruction,
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The refund instruction already given`);
-      });
+      it(
+        'cannot applyActionToExtensions of addRefundInstruction without a previous state',
+        () => {
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateNoExtensions.extensions,
+              TestDataDeclarative.actionRefundInstruction,
+              TestDataDeclarative.requestStateNoExtensions,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`This extension must have been already created`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addRefundInstruction without a payer',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          previousState.payer = undefined;
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionRefundInstruction,
+              previousState,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The request must have a payer`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addRefundInstruction signed by someone else than the payer',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionRefundInstruction,
+              previousState,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The signer must be the payer`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of addRefundInstruction with payment instruction already given',
+        () => {
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
+              TestDataDeclarative.actionRefundInstruction,
+              TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The refund instruction already given`);
+        }
+      );
     });
 
     describe('applyActionToExtension/declareSentPayment', () => {
@@ -303,55 +328,67 @@ describe('extensions/payment-network/any/declarative', () => {
           'new extension state wrong',
         ).to.deep.equal(TestDataDeclarative.extensionStateCreatedEmptySentPayment);
       });
-      it('cannot applyActionToExtensions of declareSentPayment without a previous state', () => {
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
-            TestDataDeclarative.requestStateNoExtensions,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`This extension must have been already created`);
-      });
-      it('cannot applyActionToExtensions of declareSentPayment without a payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        previousState.payer = undefined;
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
-            previousState,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The request must have a payer`);
-      });
-      it('cannot applyActionToExtensions of declareSentPayment signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
-            previousState,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The signer must be the payer`);
-      });
-      it('cannot applyActionToExtensions of declareSentPayment with an invalid amount', () => {
-        TestDataDeclarative.actionDeclareSentPayment.parameters.amount = 'invalid amount';
+      it(
+        'cannot applyActionToExtensions of declareSentPayment without a previous state',
+        () => {
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateNoExtensions.extensions,
+              TestDataDeclarative.actionDeclareSentPayment,
+              TestDataDeclarative.requestStateNoExtensions,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`This extension must have been already created`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareSentPayment without a payer',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          previousState.payer = undefined;
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionDeclareSentPayment,
+              previousState,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The request must have a payer`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareSentPayment signed by someone else than the payer',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionDeclareSentPayment,
+              previousState,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The signer must be the payer`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareSentPayment with an invalid amount',
+        () => {
+          TestDataDeclarative.actionDeclareSentPayment.parameters.amount = 'invalid amount';
 
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
-            TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The amount is not a valid amount`);
-      });
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateCreatedEmpty.extensions,
+              TestDataDeclarative.actionDeclareSentPayment,
+              TestDataDeclarative.requestStateCreatedEmpty,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The amount is not a valid amount`);
+        }
+      );
     });
 
     describe('applyActionToExtension/declareReceivedRefund', () => {
@@ -367,55 +404,67 @@ describe('extensions/payment-network/any/declarative', () => {
           'new extension state wrong',
         ).to.deep.equal(TestDataDeclarative.extensionStateCreatedEmptyReceivedRefund);
       });
-      it('cannot applyActionToExtensions of declareReceivedRefund without a previous state', () => {
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
-            TestDataDeclarative.requestStateNoExtensions,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`This extension must have been already created`);
-      });
-      it('cannot applyActionToExtensions of declareReceivedRefund without a payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        previousState.payer = undefined;
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
-            previousState,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The request must have a payer`);
-      });
-      it('cannot applyActionToExtensions of declareReceivedRefund signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
-            previousState,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The signer must be the payer`);
-      });
-      it('cannot applyActionToExtensions of declareReceivedRefund with an invalid amount', () => {
-        TestDataDeclarative.actionDeclareReceivedRefund.parameters.amount = 'invalid amount';
+      it(
+        'cannot applyActionToExtensions of declareReceivedRefund without a previous state',
+        () => {
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateNoExtensions.extensions,
+              TestDataDeclarative.actionDeclareReceivedRefund,
+              TestDataDeclarative.requestStateNoExtensions,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`This extension must have been already created`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareReceivedRefund without a payer',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          previousState.payer = undefined;
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionDeclareReceivedRefund,
+              previousState,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The request must have a payer`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareReceivedRefund signed by someone else than the payer',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionDeclareReceivedRefund,
+              previousState,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The signer must be the payer`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareReceivedRefund with an invalid amount',
+        () => {
+          TestDataDeclarative.actionDeclareReceivedRefund.parameters.amount = 'invalid amount';
 
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
-            TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The amount is not a valid amount`);
-      });
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateCreatedEmpty.extensions,
+              TestDataDeclarative.actionDeclareReceivedRefund,
+              TestDataDeclarative.requestStateCreatedEmpty,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The amount is not a valid amount`);
+        }
+      );
     });
 
     describe('applyActionToExtension/declareSentRefund', () => {
@@ -431,55 +480,67 @@ describe('extensions/payment-network/any/declarative', () => {
           'new extension state wrong',
         ).to.deep.equal(TestDataDeclarative.extensionStateCreatedEmptySentRefund);
       });
-      it('cannot applyActionToExtensions of declareSentRefund without a previous state', () => {
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
-            TestDataDeclarative.requestStateNoExtensions,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`This extension must have been already created`);
-      });
-      it('cannot applyActionToExtensions of declareSentRefund without a payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        previousState.payee = undefined;
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
-            previousState,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The request must have a payee`);
-      });
-      it('cannot applyActionToExtensions of declareSentRefund signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
-            previousState,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The signer must be the payee`);
-      });
-      it('cannot applyActionToExtensions of declareSentRefund with an invalid amount', () => {
-        TestDataDeclarative.actionDeclareSentRefund.parameters.amount = 'invalid amount';
+      it(
+        'cannot applyActionToExtensions of declareSentRefund without a previous state',
+        () => {
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateNoExtensions.extensions,
+              TestDataDeclarative.actionDeclareSentRefund,
+              TestDataDeclarative.requestStateNoExtensions,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`This extension must have been already created`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareSentRefund without a payee',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          previousState.payee = undefined;
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionDeclareSentRefund,
+              previousState,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The request must have a payee`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareSentRefund signed by someone else than the payee',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionDeclareSentRefund,
+              previousState,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The signer must be the payee`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareSentRefund with an invalid amount',
+        () => {
+          TestDataDeclarative.actionDeclareSentRefund.parameters.amount = 'invalid amount';
 
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
-            TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The amount is not a valid amount`);
-      });
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateCreatedEmpty.extensions,
+              TestDataDeclarative.actionDeclareSentRefund,
+              TestDataDeclarative.requestStateCreatedEmpty,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The amount is not a valid amount`);
+        }
+      );
     });
 
     describe('applyActionToExtension/declareReceivedPayment', () => {
@@ -495,55 +556,67 @@ describe('extensions/payment-network/any/declarative', () => {
           'new extension state wrong',
         ).to.deep.equal(TestDataDeclarative.extensionStateCreatedEmptyReceivedPayment);
       });
-      it('cannot applyActionToExtensions of declareReceivedPayment without a previous state', () => {
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
-            TestDataDeclarative.requestStateNoExtensions,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`This extension must have been already created`);
-      });
-      it('cannot applyActionToExtensions of declareReceivedPayment without a payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        previousState.payee = undefined;
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
-            previousState,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The request must have a payee`);
-      });
-      it('cannot applyActionToExtensions of declareReceivedPayment signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            previousState.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
-            previousState,
-            TestData.payerRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The signer must be the payee`);
-      });
-      it('cannot applyActionToExtensions of declareReceivedPayment with an invalid amount', () => {
-        TestDataDeclarative.actionDeclareReceivedPayment.parameters.amount = 'invalid amount';
+      it(
+        'cannot applyActionToExtensions of declareReceivedPayment without a previous state',
+        () => {
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateNoExtensions.extensions,
+              TestDataDeclarative.actionDeclareReceivedPayment,
+              TestDataDeclarative.requestStateNoExtensions,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`This extension must have been already created`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareReceivedPayment without a payee',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          previousState.payee = undefined;
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionDeclareReceivedPayment,
+              previousState,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The request must have a payee`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareReceivedPayment signed by someone else than the payee',
+        () => {
+          const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              previousState.extensions,
+              TestDataDeclarative.actionDeclareReceivedPayment,
+              previousState,
+              TestData.payerRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The signer must be the payee`);
+        }
+      );
+      it(
+        'cannot applyActionToExtensions of declareReceivedPayment with an invalid amount',
+        () => {
+          TestDataDeclarative.actionDeclareReceivedPayment.parameters.amount = 'invalid amount';
 
-        expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
-            TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }, 'must throw').to.throw(`The amount is not a valid amount`);
-      });
+          expect(() => {
+            PnAnyDeclarative.applyActionToExtension(
+              TestDataDeclarative.requestStateCreatedEmpty.extensions,
+              TestDataDeclarative.actionDeclareReceivedPayment,
+              TestDataDeclarative.requestStateCreatedEmpty,
+              TestData.payeeRaw.identity,
+              TestData.arbitraryTimestamp,
+            );
+          }, 'must throw').to.throw(`The amount is not a valid amount`);
+        }
+      );
     });
   });
 });

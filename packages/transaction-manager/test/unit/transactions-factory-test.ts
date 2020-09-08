@@ -1,5 +1,4 @@
 import * as chai from 'chai';
-import 'mocha';
 
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
@@ -71,27 +70,33 @@ describe('transaction-factory', () => {
       ).to.be.true;
     });
 
-    it('cannot create encrypted transaction with encryption parameters not ECIES', async () => {
-      await expect(
-        TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
-          TestData.idRaw1.encryptionParams,
-          TestData.idRaw2.encryptionParams,
-          { method: EncryptionTypes.METHOD.AES256_CBC, key: '0123456789' },
-        ]),
-      ).to.eventually.rejectedWith(
-        `encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES}`,
-      );
-    });
+    it(
+      'cannot create encrypted transaction with encryption parameters not ECIES',
+      async () => {
+        await expect(
+          TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
+            TestData.idRaw1.encryptionParams,
+            TestData.idRaw2.encryptionParams,
+            { method: EncryptionTypes.METHOD.AES256_CBC, key: '0123456789' },
+          ]),
+        ).to.eventually.rejectedWith(
+          `encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES}`,
+        );
+      }
+    );
 
-    it('cannot create encrypted transaction with not parsable data', async () => {
-      await expect(
-        TransactionsFactory.createEncryptedTransactionInNewChannel('Not parsable', [
-          TestData.idRaw1.encryptionParams,
-          TestData.idRaw2.encryptionParams,
-        ]),
-        'transaction not right',
-      ).to.eventually.be.rejectedWith('Data not parsable');
-    });
+    it(
+      'cannot create encrypted transaction with not parsable data',
+      async () => {
+        await expect(
+          TransactionsFactory.createEncryptedTransactionInNewChannel('Not parsable', [
+            TestData.idRaw1.encryptionParams,
+            TestData.idRaw2.encryptionParams,
+          ]),
+          'transaction not right',
+        ).to.eventually.be.rejectedWith('Data not parsable');
+      }
+    );
   });
 
   describe('createEncryptedTransaction', async () => {
@@ -118,27 +123,33 @@ describe('transaction-factory', () => {
       expect(encryptedTx.keys, 'keys not right').to.be.undefined;
     });
 
-    it('cannot create encrypted transaction with encryption parameters not AES256-CBC', async () => {
-      const channelKeyWrong = {
-        key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
-        method: EncryptionTypes.METHOD.ECIES,
-      };
-      await expect(
-        TransactionsFactory.createEncryptedTransaction(data, channelKeyWrong),
-      ).to.eventually.rejectedWith(
-        `encryption method not supported for the channel key: ${channelKeyWrong.method}`,
-      );
-    });
+    it(
+      'cannot create encrypted transaction with encryption parameters not AES256-CBC',
+      async () => {
+        const channelKeyWrong = {
+          key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
+          method: EncryptionTypes.METHOD.ECIES,
+        };
+        await expect(
+          TransactionsFactory.createEncryptedTransaction(data, channelKeyWrong),
+        ).to.eventually.rejectedWith(
+          `encryption method not supported for the channel key: ${channelKeyWrong.method}`,
+        );
+      }
+    );
 
-    it('cannot create encrypted transaction with not parsable data', async () => {
-      const channelKey = {
-        key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
-        method: EncryptionTypes.METHOD.AES256_GCM,
-      };
-      await expect(
-        TransactionsFactory.createEncryptedTransaction('Not parsable', channelKey),
-        'transaction not right',
-      ).to.eventually.be.rejectedWith('Data not parsable');
-    });
+    it(
+      'cannot create encrypted transaction with not parsable data',
+      async () => {
+        const channelKey = {
+          key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
+          method: EncryptionTypes.METHOD.AES256_GCM,
+        };
+        await expect(
+          TransactionsFactory.createEncryptedTransaction('Not parsable', channelKey),
+          'transaction not right',
+        ).to.eventually.be.rejectedWith('Data not parsable');
+      }
+    );
   });
 });

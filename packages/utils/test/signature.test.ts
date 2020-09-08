@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 import Crypto from '../src/crypto';
@@ -43,15 +42,18 @@ describe('Signature', () => {
       );
     });
 
-    it('cannot getIdentityFromSignatureParams with signature method not supported', () => {
-      const params: any = {
-        method: 'notECDSA',
-        privateKey: otherIdRaw.privateKey,
-      };
-      expect(() => Signature.getIdentityFromSignatureParams(params)).to.throw(
-        'signatureParams.method not supported',
-      );
-    });
+    it(
+      'cannot getIdentityFromSignatureParams with signature method not supported',
+      () => {
+        const params: any = {
+          method: 'notECDSA',
+          privateKey: otherIdRaw.privateKey,
+        };
+        expect(() => Signature.getIdentityFromSignatureParams(params)).to.throw(
+          'signatureParams.method not supported',
+        );
+      }
+    );
   });
 
   describe('sign', () => {

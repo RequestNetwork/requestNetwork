@@ -1,5 +1,3 @@
-import 'mocha';
-
 import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
@@ -21,7 +19,7 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('getTransactionsByChannelId', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
@@ -29,59 +27,65 @@ describe('getTransactionsByChannelId', () => {
     server = requestNodeInstance.listen(3000, () => 0);
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 
-  it('responds with the correct transactions to requests with an existing channel id', async () => {
-    await request(server)
-      .post('/persistTransaction')
-      .send({
-        channelId,
-        transactionData,
-      })
-      .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+  it(
+    'responds with the correct transactions to requests with an existing channel id',
+    async () => {
+      await request(server)
+        .post('/persistTransaction')
+        .send({
+          channelId,
+          transactionData,
+        })
+        .set('Accept', 'application/json')
+        .expect(httpStatus.OK);
 
-    let serverResponse = await request(server)
-      .get('/getTransactionsByChannelId')
-      .query({ channelId })
-      .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      let serverResponse = await request(server)
+        .get('/getTransactionsByChannelId')
+        .query({ channelId })
+        .set('Accept', 'application/json')
+        .expect(httpStatus.OK);
 
-    expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(transactionData);
+      expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
+      expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(transactionData);
 
-    await request(server)
-      .post('/persistTransaction')
-      .send({
-        channelId: anotherChannelId,
-        transactionData: otherTransactionData,
-      })
-      .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      await request(server)
+        .post('/persistTransaction')
+        .send({
+          channelId: anotherChannelId,
+          transactionData: otherTransactionData,
+        })
+        .set('Accept', 'application/json')
+        .expect(httpStatus.OK);
 
-    serverResponse = await request(server)
-      .get('/getTransactionsByChannelId')
-      .query({ channelId: anotherChannelId })
-      .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      serverResponse = await request(server)
+        .get('/getTransactionsByChannelId')
+        .query({ channelId: anotherChannelId })
+        .set('Accept', 'application/json')
+        .expect(httpStatus.OK);
 
-    expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(
-      otherTransactionData,
-    );
-  });
+      expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
+      expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(
+        otherTransactionData,
+      );
+    }
+  );
 
-  it('responds with no transaction to requests with a non-existent channel id', async () => {
-    const serverResponse = await request(server)
-      .get('/getTransactionsByChannelId')
-      .query({ channelId: nonExistentChannelId })
-      .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+  it(
+    'responds with no transaction to requests with a non-existent channel id',
+    async () => {
+      const serverResponse = await request(server)
+        .get('/getTransactionsByChannelId')
+        .query({ channelId: nonExistentChannelId })
+        .set('Accept', 'application/json')
+        .expect(httpStatus.OK);
 
-    expect(serverResponse.body.result.transactions).to.be.empty;
-  });
+      expect(serverResponse.body.result.transactions).to.be.empty;
+    }
+  );
 
   it('responds with status 422 to requests with no value', async () => {
     await request(server)

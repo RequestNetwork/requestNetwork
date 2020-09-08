@@ -12,7 +12,6 @@ import {
 import { account, tokens } from './erc20-mainnet-test-data';
 
 import { expect } from 'chai';
-import 'mocha';
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {

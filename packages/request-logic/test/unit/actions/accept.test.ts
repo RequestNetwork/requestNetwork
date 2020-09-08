@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 
 import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -273,193 +272,202 @@ describe('actions/accept', () => {
       ).to.throw('the request state must be created');
     });
 
-    it('can apply accept with extensionsData and no extensionsData before', async () => {
-      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionAccept = await AcceptAction.format(
-        {
-          extensionsData: newExtensionsData,
-          requestId: TestData.requestIdMock,
-        },
-        TestData.payerRaw.identity,
-        TestData.fakeSignatureProvider,
-      );
+    it(
+      'can apply accept with extensionsData and no extensionsData before',
+      async () => {
+        const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
+        const actionAccept = await AcceptAction.format(
+          {
+            extensionsData: newExtensionsData,
+            requestId: TestData.requestIdMock,
+          },
+          TestData.payerRaw.identity,
+          TestData.fakeSignatureProvider,
+        );
 
-      const request = AcceptAction.applyActionToRequest(
-        actionAccept,
-        2,
-        Utils.deepCopy(TestData.requestCreatedNoExtension),
-      );
+        const request = AcceptAction.applyActionToRequest(
+          actionAccept,
+          2,
+          Utils.deepCopy(TestData.requestCreatedNoExtension),
+        );
 
-      expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.deep.equal({
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-      });
-      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
-      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
-        newExtensionsData,
-      );
+        expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
+        expect(request.currency, 'currency is wrong').to.deep.equal({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        });
+        expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
+        expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
+          TestData.arbitraryExpectedAmount,
+        );
+        expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
+          newExtensionsData,
+        );
 
-      expect(request, 'request should have property creator').to.have.property('creator');
-      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      );
-      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-        TestData.payeeRaw.address,
-      );
-
-      expect(request, 'request should have property payee').to.have.property('payee');
-      if (request.payee) {
-        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
+        expect(request, 'request should have property creator').to.have.property('creator');
+        expect(request.creator.type, 'request.creator.type is wrong').to.equal(
           IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
-        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+        expect(request.creator.value, 'request.creator.value is wrong').to.equal(
           TestData.payeeRaw.address,
         );
+
+        expect(request, 'request should have property payee').to.have.property('payee');
+        if (request.payee) {
+          expect(request.payee.type, 'request.payee.type is wrong').to.equal(
+            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+          );
+          expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+            TestData.payeeRaw.address,
+          );
+        }
+        expect(request, 'request should have property payer').to.have.property('payer');
+        if (request.payer) {
+          expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+          );
+          expect(request.payer.value, 'request.payer.value is wrong').to.equal(
+            TestData.payerRaw.address,
+          );
+        }
+
+        expect(request.events[1], 'request.events is wrong').to.deep.equal({
+          actionSigner: TestData.payerRaw.identity,
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: { extensionsDataLength: 1 },
+          timestamp: 2,
+        });
       }
-      expect(request, 'request should have property payer').to.have.property('payer');
-      if (request.payer) {
-        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+    );
+
+    it(
+      'can apply accept with extensionsData and extensionsData before',
+      async () => {
+        const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
+        const actionAccept = await AcceptAction.format(
+          {
+            extensionsData: newExtensionsData,
+            requestId: TestData.requestIdMock,
+          },
+          TestData.payerRaw.identity,
+          TestData.fakeSignatureProvider,
+        );
+        const request = AcceptAction.applyActionToRequest(
+          actionAccept,
+          2,
+          Utils.deepCopy(TestData.requestCreatedWithExtensions),
+        );
+
+        expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
+        expect(request.currency, 'currency is wrong').to.deep.equal({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        });
+        expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
+        expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
+          TestData.arbitraryExpectedAmount,
+        );
+        expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
+          TestData.oneExtension.concat(newExtensionsData),
+        );
+
+        expect(request, 'request should have property creator').to.have.property('creator');
+        expect(request.creator.type, 'request.creator.type is wrong').to.equal(
           IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
-        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-          TestData.payerRaw.address,
-        );
-      }
-
-      expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        actionSigner: TestData.payerRaw.identity,
-        name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-        parameters: { extensionsDataLength: 1 },
-        timestamp: 2,
-      });
-    });
-
-    it('can apply accept with extensionsData and extensionsData before', async () => {
-      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-      const actionAccept = await AcceptAction.format(
-        {
-          extensionsData: newExtensionsData,
-          requestId: TestData.requestIdMock,
-        },
-        TestData.payerRaw.identity,
-        TestData.fakeSignatureProvider,
-      );
-      const request = AcceptAction.applyActionToRequest(
-        actionAccept,
-        2,
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
-      );
-
-      expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.deep.equal({
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-      });
-      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
-      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
-        TestData.oneExtension.concat(newExtensionsData),
-      );
-
-      expect(request, 'request should have property creator').to.have.property('creator');
-      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      );
-      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-        TestData.payeeRaw.address,
-      );
-
-      expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        actionSigner: TestData.payerRaw.identity,
-        name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-        parameters: { extensionsDataLength: 1 },
-        timestamp: 2,
-      });
-      expect(request, 'request should have property payee').to.have.property('payee');
-      if (request.payee) {
-        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+        expect(request.creator.value, 'request.creator.value is wrong').to.equal(
           TestData.payeeRaw.address,
         );
+
+        expect(request.events[1], 'request.events is wrong').to.deep.equal({
+          actionSigner: TestData.payerRaw.identity,
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: { extensionsDataLength: 1 },
+          timestamp: 2,
+        });
+        expect(request, 'request should have property payee').to.have.property('payee');
+        if (request.payee) {
+          expect(request.payee.type, 'request.payee.type is wrong').to.equal(
+            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+          );
+          expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+            TestData.payeeRaw.address,
+          );
+        }
+        expect(request, 'request should have property payer').to.have.property('payer');
+        if (request.payer) {
+          expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+          );
+          expect(request.payer.value, 'request.payer.value is wrong').to.equal(
+            TestData.payerRaw.address,
+          );
+        }
+        expect(request.events[1], 'request.events is wrong').to.deep.equal({
+          actionSigner: TestData.payerRaw.identity,
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: { extensionsDataLength: 1 },
+          timestamp: 2,
+        });
       }
-      expect(request, 'request should have property payer').to.have.property('payer');
-      if (request.payer) {
-        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+    );
+    it(
+      'can apply accept without extensionsData and extensionsData before',
+      async () => {
+        const actionAccept = await AcceptAction.format(
+          {
+            requestId: TestData.requestIdMock,
+          },
+          TestData.payerRaw.identity,
+          TestData.fakeSignatureProvider,
+        );
+
+        const request = AcceptAction.applyActionToRequest(
+          actionAccept,
+          2,
+          Utils.deepCopy(TestData.requestCreatedWithExtensions),
+        );
+
+        expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
+        expect(request.currency, 'currency is wrong').to.deep.equal({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        });
+        expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
+        expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
+          TestData.arbitraryExpectedAmount,
+        );
+        expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
+          TestData.oneExtension,
+        );
+
+        expect(request, 'request should have property creator').to.have.property('creator');
+        expect(request.creator.type, 'request.creator.type is wrong').to.equal(
           IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         );
-        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-          TestData.payerRaw.address,
-        );
-      }
-      expect(request.events[1], 'request.events is wrong').to.deep.equal({
-        actionSigner: TestData.payerRaw.identity,
-        name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-        parameters: { extensionsDataLength: 1 },
-        timestamp: 2,
-      });
-    });
-    it('can apply accept without extensionsData and extensionsData before', async () => {
-      const actionAccept = await AcceptAction.format(
-        {
-          requestId: TestData.requestIdMock,
-        },
-        TestData.payerRaw.identity,
-        TestData.fakeSignatureProvider,
-      );
-
-      const request = AcceptAction.applyActionToRequest(
-        actionAccept,
-        2,
-        Utils.deepCopy(TestData.requestCreatedWithExtensions),
-      );
-
-      expect(request.requestId, 'requestId is wrong').to.equal(TestData.requestIdMock);
-      expect(request.currency, 'currency is wrong').to.deep.equal({
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-      });
-      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
-      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
-        TestData.oneExtension,
-      );
-
-      expect(request, 'request should have property creator').to.have.property('creator');
-      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      );
-      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-        TestData.payeeRaw.address,
-      );
-
-      expect(request, 'request should have property payee').to.have.property('payee');
-      if (request.payee) {
-        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+        expect(request.creator.value, 'request.creator.value is wrong').to.equal(
           TestData.payeeRaw.address,
         );
+
+        expect(request, 'request should have property payee').to.have.property('payee');
+        if (request.payee) {
+          expect(request.payee.type, 'request.payee.type is wrong').to.equal(
+            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+          );
+          expect(request.payee.value, 'request.payee.value is wrong').to.equal(
+            TestData.payeeRaw.address,
+          );
+        }
+        expect(request, 'request should have property payer').to.have.property('payer');
+        if (request.payer) {
+          expect(request.payer.type, 'request.payer.type is wrong').to.equal(
+            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+          );
+          expect(request.payer.value, 'request.payer.value is wrong').to.equal(
+            TestData.payerRaw.address,
+          );
+        }
       }
-      expect(request, 'request should have property payer').to.have.property('payer');
-      if (request.payer) {
-        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-          TestData.payerRaw.address,
-        );
-      }
-    });
+    );
   });
 });

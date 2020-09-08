@@ -2,7 +2,6 @@ import PaymentReferenceCalculator from '../src/payment-reference-calculator';
 
 import 'chai';
 import { expect } from 'chai';
-import 'mocha';
 
 /* tslint:disable:no-unused-expression */
 describe('api/eth/payment-reference-calculator', () => {

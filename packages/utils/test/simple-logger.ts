@@ -1,5 +1,4 @@
 import { LogTypes } from '@requestnetwork/types';
-import 'mocha';
 import * as sinon from 'sinon';
 import SimpleLogger from '../src/simple-logger';
 
@@ -72,22 +71,25 @@ describe('Simple logger', () => {
     expect(fakeConsole.debug).to.not.have.been.called;
   });
 
-  it('does not log a message with higher log lever than the one set at construction', () => {
-    const logger = new SimpleLogger(LogLevel.ERROR);
-    const spy = chai.spy();
-    logger.output = Object.assign({}, console, {
-      debug: spy,
-      error: spy,
-      info: spy,
-      warn: spy,
-    });
-    logger.error('test message');
-    logger.warn('test message');
-    logger.info('test message');
-    logger.debug('test message');
+  it(
+    'does not log a message with higher log lever than the one set at construction',
+    () => {
+      const logger = new SimpleLogger(LogLevel.ERROR);
+      const spy = chai.spy();
+      logger.output = Object.assign({}, console, {
+        debug: spy,
+        error: spy,
+        info: spy,
+        warn: spy,
+      });
+      logger.error('test message');
+      logger.warn('test message');
+      logger.info('test message');
+      logger.debug('test message');
 
-    expect(spy).to.have.been.called.once;
-  });
+      expect(spy).to.have.been.called.once;
+    }
+  );
 
   it('shows a log with tags', () => {
     const now = new Date();

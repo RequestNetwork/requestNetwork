@@ -7,7 +7,6 @@ import {
 import ERC20AddressedBased from '../../src/erc20/address-based';
 
 import 'chai';
-import 'mocha';
 
 const chai = require('chai');
 const spies = require('chai-spies');

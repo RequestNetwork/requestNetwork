@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 import { IdentityTypes, MultiFormatTypes } from '@requestnetwork/types';
 
 import EthereumAddressFormat from '../../src/identity/ethereum-address-format';
@@ -117,10 +116,13 @@ describe('hash/identity/ethereum-address-format', () => {
       });
     });
 
-    it('should return false if an incorrect format hash is given to isDeserializableString', () => {
-      expect(() => {
-        ethereumAddressFormat.deserialize('01Af083f77F1fFd54218d91491AFD06c9296EaC3ce');
-      }, 'should throw with an incorrect prefix').to.throw('string is not a serialized string');
-    });
+    it(
+      'should return false if an incorrect format hash is given to isDeserializableString',
+      () => {
+        expect(() => {
+          ethereumAddressFormat.deserialize('01Af083f77F1fFd54218d91491AFD06c9296EaC3ce');
+        }, 'should throw with an incorrect prefix').to.throw('string is not a serialized string');
+      }
+    );
   });
 });
