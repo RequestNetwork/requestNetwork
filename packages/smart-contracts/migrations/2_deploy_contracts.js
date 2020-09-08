@@ -102,7 +102,6 @@ module.exports = async function(deployer) {
       RequestHashStorage:       ${RequestHashStorage.address}
       RequestOpenHashSubmitter: ${RequestOpenHashSubmitter.address}
       TestERC20:                ${erc20.address}
-      ERC20Alpha:               ${erc20Alpha.address}
       ERC20Proxy:               ${ERC20Proxy.address}
       EthereumProxy:            ${EthereumProxy.address}
       ERC20FeeProxy:            ${ERC20FeeProxy.address}
