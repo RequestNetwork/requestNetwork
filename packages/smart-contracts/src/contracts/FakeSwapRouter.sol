@@ -13,9 +13,9 @@ contract FakeSwapRouter {
   }
 
   modifier ensure(uint deadline) {
-        require(deadline >= block.timestamp, 'UniswapV2Router: EXPIRED');
-        _;
-    }
+    require(deadline >= block.timestamp, 'UniswapV2Router: EXPIRED');
+    _;
+  }
 
   // Will fail if amountInMax < 2 * amountOut
   function swapTokensForExactTokens(
@@ -33,7 +33,7 @@ contract FakeSwapRouter {
       ERC20 swapped = ERC20(path[1]);
       require(swapped.balanceOf(address(this)) > amounts[0], 'Test cannot proceed, lack of tokens in fake swap contract');
       safeTransferFrom(
-          path[0], msg.sender, amounts[1]
+          path[0], address(this), amounts[1]
       );
       swapped.transfer(to, amounts[0]);
   }
