@@ -7,7 +7,7 @@ const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 const ERC20Alpha = artifacts.require('ERC20Alpha');
 const FakeSwapRouter = artifacts.require('./FakeSwapRouter.sol');
-const SwapToPay = artifacts.require('./SwapToPay.sol');
+const SwapToPay = artifacts.require('./ERC20SwapToPay.sol');
 
 contract('SwapToPay', function(accounts) {
   const admin = accounts[0];

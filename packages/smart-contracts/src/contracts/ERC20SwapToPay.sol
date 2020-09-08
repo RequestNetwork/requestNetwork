@@ -113,8 +113,6 @@ contract SwapToPay {
   * @param _feeAmount Amount of the fee in request currency
   * @param _feeAddress Where to pay the fee
   * @param _deadline Deadline for the swap to be valid
-  *
-  * TODO test the behaviour when the deadline is passed
   */
   function swapTransferWithReference(
     address _to,
@@ -166,7 +164,7 @@ contract SwapToPay {
     );
     
     // Give the change back to the payer, in both currencies (only spent token should remain)
-    
+
     if (spentToken.balanceOf(address(this)) > 0) {
       spentToken.transfer(msg.sender, spentToken.balanceOf(address(this)));
     }    
