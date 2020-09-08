@@ -111,14 +111,9 @@ module.exports = async function(deployer) {
       ERC20False:               ${ERC20False.address}
       ERC20NoReturn:            ${ERC20NoReturn.address}
       ERC20Revert:              ${ERC20Revert.address}
-<<<<<<< HEAD
       ERC20Alpha:               ${erc20AlphaInstance.address}
       FakeSwapRouter:           ${FakeSwapRouter.address}
       SwapToPay:                ${ERC20SwapToPay.address}
-=======
-      FakeSwapRouter:           ${FakeSwapRouter.address}
-      SwapToPay:                ${SwapToPay.address}
->>>>>>> WIP: tests still failing but payment event emmitted
       `);
     } catch (e) {
     console.error(e);

@@ -14,18 +14,22 @@ contract('SwapToPay', function(accounts) {
   const from = accounts[1];
   const to = accounts[2];
   const builder = accounts[3];
+
+  const exchangeRateOrigin = Math.floor(Date.now() / 1000);
+  const referenceExample = '0xaaaa';
+
+  let paymentErc20;
+  let requestErc20;
   let erc20FeeProxy;
   let fakeRouter;
-  let paymentErc20;
-  let requestedErc20;
   let testSwapToPay;
-  const referenceExample = '0xaaaa';
+  let initialFromBalance;
 
   beforeEach(async () => {
     paymentErc20 = await ERC20Alpha.new(10000, {
       from: admin,
     });
-    requestedErc20 = await TestERC20.new(1000, {
+    requestErc20 = await TestERC20.new(1000, {
       from: admin,
     });
     
@@ -36,7 +40,7 @@ contract('SwapToPay', function(accounts) {
     await paymentErc20.transfer(fakeRouter.address, 200, {
       from: admin,
     });
-    await requestedErc20.transfer(fakeRouter.address, 100, {
+    await requestErc20.transfer(fakeRouter.address, 100, {
       from: admin,
     });
 
@@ -53,10 +57,25 @@ contract('SwapToPay', function(accounts) {
       erc20FeeProxy.address, 
       {from: admin}
     );
+
+    initialFromBalance = await paymentErc20.balanceOf(from);
   });
 
+  afterEach(async() => {
+    // The contract should never keep any fund
+    const contractPaymentCcyBalance = await paymentErc20.balanceOf(testSwapToPay.address);
+    const contractRequestCcyBalance = await requestErc20.balanceOf(testSwapToPay.address);
+    expect(contractPaymentCcyBalance.toNumber()).to.equals(0);
+    expect(contractRequestCcyBalance.toNumber()).to.equals(0);
+  })
+
+  expectFromBalanceUnchanged = async() => {
+    const finalFromBalance = await paymentErc20.balanceOf(from);
+    expect(finalFromBalance.toNumber()).to.equals(initialFromBalance.toNumber());
+  }
+
   it('swaps and pays the request', async function() {
-    await testSwapToPay.approvePaymentProxyToSpend(requestedErc20.address, {
+    await testSwapToPay.approvePaymentProxyToSpend(requestErc20.address, {
       from: admin,
     });
     await testSwapToPay.approveRouterToSpend(paymentErc20.address, {
@@ -69,21 +88,26 @@ contract('SwapToPay', function(accounts) {
       to,
       10,
       22,
-      [paymentErc20.address, requestedErc20.address],
+      [paymentErc20.address, requestErc20.address],
       referenceExample,
       1,
       builder,
-      Date.now() + 15,
+      exchangeRateOrigin + 15,
       { from },
     );
     await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
-      tokenAddress: requestedErc20.address,
+      tokenAddress: requestErc20.address,
       to,
       amount: '10',
       paymentReference: ethers.utils.keccak256(referenceExample),
       feeAmount: '1',
       feeAddress: builder,
     });
+
+    const finalBuilderBalance = await requestErc20.balanceOf(builder);
+    const finalIssuerBalance = await requestErc20.balanceOf(to);
+    expect(finalBuilderBalance.toNumber()).to.equals(1);
+    expect(finalIssuerBalance.toNumber()).to.equals(10);
   });
 
   it('cannot swap if too few payment tokens', async function() {
@@ -94,13 +118,72 @@ contract('SwapToPay', function(accounts) {
         to,
         10,
         21, // Should be at least (10 + 1) * 2
-        [paymentErc20.address, requestedErc20.address],
+        [paymentErc20.address, requestErc20.address],
         referenceExample,
         1,
         builder,
-        Date.now() - 15,
+        exchangeRateOrigin + 15,
         { from },
       )
     );
+    await expectFromBalanceUnchanged();
+  });
+
+  it('cannot swap with a past deadline', async function() {
+    await paymentErc20.approve(testSwapToPay.address, '22', { from });
+
+    await shouldFail.reverting(
+      testSwapToPay.swapTransferWithReference(
+        to,
+        10,
+        22,
+        [paymentErc20.address, requestErc20.address],
+        referenceExample,
+        1,
+        builder,
+        exchangeRateOrigin - 15, // Past deadline
+        { from },
+      )
+    );
+    await expectFromBalanceUnchanged();
+  });
+
+  it('cannot swap more tokens than liquidity', async function() {
+    await paymentErc20.approve(testSwapToPay.address, '22000000', { from });
+
+    await shouldFail.reverting(
+      testSwapToPay.swapTransferWithReference(
+        to,
+        10000000,
+        22000000, // Should be at least (10 + 1) * 2
+        [paymentErc20.address, requestErc20.address],
+        referenceExample,
+        1000000,
+        builder,
+        exchangeRateOrigin + 15,
+        { from },
+      )
+    );
+    await expectFromBalanceUnchanged();
+  });
+
+  
+  it('cannot swap more tokens than balance', async function() {
+    await paymentErc20.approve(testSwapToPay.address, '300', { from });
+
+    await shouldFail.reverting(
+      testSwapToPay.swapTransferWithReference(
+        to,
+        100,
+        220, // From's balance is 200
+        [paymentErc20.address, requestErc20.address],
+        referenceExample,
+        10,
+        builder,
+        exchangeRateOrigin + 15,
+        { from },
+      )
+    );
+    await expectFromBalanceUnchanged();
   });
 });
