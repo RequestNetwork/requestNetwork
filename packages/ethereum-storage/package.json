@@ -70,7 +70,7 @@
     "chai-as-promised": "7.1.1",
     "chai-bignumber": "3.0.0",
     "chai-spies": "1.0.0",
-    "eslint": "5.13.0",
+    "eslint": "7.8.1",
     "eslint-plugin-spellcheck": "0.0.14",
     "eslint-plugin-typescript": "0.14.0",
     "fetch-mock": "7.3.3",
