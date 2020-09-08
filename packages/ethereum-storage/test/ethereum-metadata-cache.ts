@@ -1,15 +1,10 @@
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-
+/* eslint-disable spellcheck/spell-checker */
 import { StorageTypes } from '@requestnetwork/types';
 import EthereumMetadataCache from '../src/ethereum-metadata-cache';
 import SmartContractManager from '../src/smart-contract-manager';
+import { createSandbox } from 'jest-sandbox';
 
-const spies = require('chai-spies');
-chai.use(spies);
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-const sandbox = chai.spy.sandbox();
+const sandbox = createSandbox();
 
 let ethereumMetadataCache: EthereumMetadataCache;
 
@@ -63,27 +58,27 @@ describe('EthereumMetadataCache', () => {
   });
 
   it('allows to save metadata', async () => {
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample1)).to.eventually.be.undefined;
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample2)).to.eventually.be.undefined;
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample3)).to.eventually.be.undefined;
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample1)).resolves.toBeUndefined();
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample2)).resolves.toBeUndefined();
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample3)).resolves.toBeUndefined();
 
     await ethereumMetadataCache.saveDataIdMeta(hashExample1, ethereumMetadataExample1);
     await ethereumMetadataCache.saveDataIdMeta(hashExample2, ethereumMetadataExample2);
     await ethereumMetadataCache.saveDataIdMeta(hashExample3, ethereumMetadataExample3);
 
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample1)).to.eventually.deep.equal(
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample1)).resolves.toEqual(
       ethereumMetadataExample1,
     );
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample2)).to.eventually.deep.equal(
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample2)).resolves.toEqual(
       ethereumMetadataExample2,
     );
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample3)).to.eventually.deep.equal(
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample3)).resolves.toEqual(
       ethereumMetadataExample3,
     );
   });
 
   it('allows to retrieve saved metadata', async () => {
-    const spy = sandbox.on(smartContractManager, 'getMetaFromEthereum');
+    const spy = sandbox.spyOn(smartContractManager, 'getMetaFromEthereum');
 
     await ethereumMetadataCache.saveDataIdMeta(hashExample1, ethereumMetadataExample1);
     await ethereumMetadataCache.saveDataIdMeta(hashExample2, ethereumMetadataExample2);
@@ -93,43 +88,43 @@ describe('EthereumMetadataCache', () => {
     const readReturn2 = await ethereumMetadataCache.getDataIdMeta(hashExample2);
     const readReturn3 = await ethereumMetadataCache.getDataIdMeta(hashExample3);
 
-    await expect(readReturn1).to.deep.equal(ethereumMetadataExample1);
-    await expect(readReturn2).to.deep.equal(ethereumMetadataExample2);
-    await expect(readReturn3).to.deep.equal(ethereumMetadataExample3);
+    expect(readReturn1).toEqual(ethereumMetadataExample1);
+    expect(readReturn2).toEqual(ethereumMetadataExample2);
+    expect(readReturn3).toEqual(ethereumMetadataExample3);
 
-    await expect(spy).to.have.not.been.called;
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('allows to save when trying to read new metadata', async () => {
     smartContractManager.getMetaFromEthereum = getMetaFromEthereumMock;
 
-    const spy = sandbox.on(smartContractManager, 'getMetaFromEthereum');
+    const spy = sandbox.spyOn(smartContractManager, 'getMetaFromEthereum');
 
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample1)).to.eventually.be.undefined;
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample2)).to.eventually.be.undefined;
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample3)).to.eventually.be.undefined;
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample1)).resolves.toBeUndefined();
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample2)).resolves.toBeUndefined();
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample3)).resolves.toBeUndefined();
 
     const readReturn1 = await ethereumMetadataCache.getDataIdMeta(hashExample1);
-    await expect(readReturn1).to.deep.equal(ethereumMetadataExample1);
-    await expect(spy).to.have.been.called.once;
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample2)).to.eventually.be.undefined;
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample3)).to.eventually.be.undefined;
+    await expect(readReturn1).resolves.toEqual(ethereumMetadataExample1);
+    expect(spy).toHaveBeenCalledTimes(1);
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample2)).resolves.toBeUndefined();
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample3)).resolves.toBeUndefined();
 
     const readReturn2 = await ethereumMetadataCache.getDataIdMeta(hashExample2);
-    await expect(readReturn2).to.deep.equal(ethereumMetadataExample2);
-    await expect(spy).to.have.been.called.twice;
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample3)).to.eventually.be.undefined;
+    expect(readReturn2).toEqual(ethereumMetadataExample2);
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(ethereumMetadataCache.metadataCache.get(hashExample3)).toBeUndefined();
 
     const readReturn3 = await ethereumMetadataCache.getDataIdMeta(hashExample3);
-    await expect(readReturn3).to.deep.equal(ethereumMetadataExample3);
-    await expect(spy).to.have.been.called.exactly(3);
+    expect(readReturn3).toEqual(ethereumMetadataExample3);
+    expect(spy).toHaveBeenCalledTimes(3);
   });
 
   it('cannot erase metadata of dataId with new metadata', async () => {
     await ethereumMetadataCache.saveDataIdMeta(hashExample1, ethereumMetadataExample1);
     await ethereumMetadataCache.saveDataIdMeta(hashExample1, ethereumMetadataExample2);
 
-    await expect(ethereumMetadataCache.metadataCache.get(hashExample1)).to.eventually.deep.equal(
+    await expect(ethereumMetadataCache.metadataCache.get(hashExample1)).resolves.toEqual(
       ethereumMetadataExample1,
     );
   });

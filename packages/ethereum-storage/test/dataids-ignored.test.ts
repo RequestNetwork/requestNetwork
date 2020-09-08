@@ -1,7 +1,6 @@
 import { StorageTypes } from '@requestnetwork/types';
 import IgnoredDataIds from '../src/ignored-dataIds';
 
-import { expect } from 'chai';
 import * as sinon from 'sinon';
 
 const entry: StorageTypes.IEthereumEntry = {
@@ -32,12 +31,12 @@ describe('Ignored DataIds', () => {
   describe('save', () => {
     it('can save()', async () => {
       await ignoredDataIds.save(entry);
-      expect(await ignoredDataIds.getReason(entry.hash)).to.be.equal(entry.error!.message);
+      expect(await ignoredDataIds.getReason(entry.hash)).toBe(entry.error!.message);
     });
     it('can save() something already saved that can be retried', async () => {
       const clock = sinon.useFakeTimers();
       await ignoredDataIds.save(entry);
-      expect(await ignoredDataIds.getDataIdsWithReasons()).to.be.deep.equal({
+      expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({
         [entry.hash]: {
           entry,
           iteration: 1,
@@ -48,7 +47,7 @@ describe('Ignored DataIds', () => {
 
       clock.tick(10);
       await ignoredDataIds.save(entry);
-      expect(await ignoredDataIds.getDataIdsWithReasons()).to.be.deep.equal({
+      expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({
         [entry.hash]: {
           entry,
           iteration: 2,
@@ -60,7 +59,7 @@ describe('Ignored DataIds', () => {
     it('can save() something already saved that cannot be retried', async () => {
       const clock = sinon.useFakeTimers();
       await ignoredDataIds.save(entry2);
-      expect(await ignoredDataIds.getDataIdsWithReasons()).to.be.deep.equal({
+      expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({
         [entry2.hash]: {
           entry: entry2,
           iteration: 1,
@@ -72,7 +71,7 @@ describe('Ignored DataIds', () => {
       clock.tick(10);
 
       await ignoredDataIds.save(entry2);
-      expect(await ignoredDataIds.getDataIdsWithReasons()).to.be.deep.equal({
+      expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({
         [entry2.hash]: {
           entry: entry2,
           iteration: 1,
@@ -91,7 +90,7 @@ describe('Ignored DataIds', () => {
       await ignoredDataIds.save(entry);
       await ignoredDataIds.save(entry2);
 
-      expect(await ignoredDataIds.getDataIdsWithReasons()).to.be.deep.equal({
+      expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({
         [entry.hash]: {
           entry,
           iteration: 1,
@@ -108,7 +107,7 @@ describe('Ignored DataIds', () => {
       sinon.restore();
     });
     it('can getDataIdsWithReasons() if empty', async () => {
-      expect(await ignoredDataIds.getDataIdsWithReasons()).to.be.deep.equal({});
+      expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({});
     });
   });
 
@@ -116,10 +115,10 @@ describe('Ignored DataIds', () => {
     it('can getDataIdsToRetry()', async () => {
       const clock = sinon.useFakeTimers();
       await ignoredDataIds.save(entry);
-      expect(await ignoredDataIds.getDataIdsToRetry()).to.be.deep.equal([]);
+      expect(await ignoredDataIds.getDataIdsToRetry()).toEqual([]);
 
       clock.tick(120001);
-      expect(await ignoredDataIds.getDataIdsToRetry()).to.be.deep.equal([entry]);
+      expect(await ignoredDataIds.getDataIdsToRetry()).toEqual([entry]);
 
       sinon.restore();
     });
@@ -128,12 +127,12 @@ describe('Ignored DataIds', () => {
   describe('delete', () => {
     it('can delete()', async () => {
       await ignoredDataIds.save(entry);
-      expect(await ignoredDataIds.getReason(entry.hash)).to.be.equal(entry.error!.message);
-      expect(await ignoredDataIds.getDataIds()).to.be.deep.equal([entry.hash]);
+      expect(await ignoredDataIds.getReason(entry.hash)).toBe(entry.error!.message);
+      expect(await ignoredDataIds.getDataIds()).toEqual([entry.hash]);
 
       await ignoredDataIds.delete(entry.hash);
-      expect(await ignoredDataIds.getReason(entry.hash)).to.be.undefined;
-      expect(await ignoredDataIds.getDataIds()).to.be.deep.equal([]);
+      expect(await ignoredDataIds.getReason(entry.hash)).toBeUndefined();
+      expect(await ignoredDataIds.getDataIds()).toEqual([]);
     });
   });
 
@@ -142,10 +141,10 @@ describe('Ignored DataIds', () => {
       await ignoredDataIds.save(entry);
       await ignoredDataIds.save(entry2);
 
-      expect(await ignoredDataIds.getDataIds()).to.be.deep.equal([entry.hash, entry2.hash]);
+      expect(await ignoredDataIds.getDataIds()).toEqual([entry.hash, entry2.hash]);
     });
     it('can getDataIds() if empty', async () => {
-      expect(await ignoredDataIds.getDataIds()).to.be.deep.equal([]);
+      expect(await ignoredDataIds.getDataIds()).toEqual([]);
     });
   });
 });
