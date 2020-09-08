@@ -39,7 +39,6 @@ module.exports = async function(deployer) {
 
     // Deploy the ERC20 contract
     const instanceTestERC20 = await deployer.deploy(erc20, 1000); // 1000 initial supply
-    await deployer.deploy(erc20Alpha, 10000); // 10000 initial supply
 
     // Deploy ERC20 proxy contract
     const instanceRequestERC20Proxy = await deployer.deploy(ERC20Proxy);
@@ -85,9 +84,8 @@ module.exports = async function(deployer) {
     await deployer.deploy(ERC20Revert);
     console.log('ERC20Revert Contract deployed: ' + ERC20Revert.address);
     
+    await deployer.deploy(erc20Alpha, 10000); // 10000 initial supply
     await deployer.deploy(FakeSwapRouter);
-    console.log('FakeSwapRouter Contract deployed: ' + FakeSwapRouter.address);
-    
     await deployer.deploy(SwapToPay, FakeSwapRouter.address, ERC20FeeProxy.address);
     console.log('SwapToPay Contract deployed: ' + SwapToPay.address);
     
@@ -97,7 +95,6 @@ module.exports = async function(deployer) {
       RequestHashStorage:       ${RequestHashStorage.address}
       RequestOpenHashSubmitter: ${RequestOpenHashSubmitter.address}
       TestERC20:                ${erc20.address}
-      ERC20Alpha:               ${erc20Alpha.address}
       ERC20Proxy:               ${ERC20Proxy.address}
       EthereumProxy:            ${EthereumProxy.address}
       ERC20FeeProxy:            ${ERC20FeeProxy.address}
@@ -106,6 +103,7 @@ module.exports = async function(deployer) {
       ERC20False:               ${ERC20False.address}
       ERC20NoReturn:            ${ERC20NoReturn.address}
       ERC20Revert:              ${ERC20Revert.address}
+      ERC20Alpha:               ${erc20Alpha.address}
       FakeSwapRouter:           ${FakeSwapRouter.address}
       SwapToPay:                ${SwapToPay.address}
       `);
