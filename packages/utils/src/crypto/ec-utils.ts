@@ -24,7 +24,10 @@ function getAddressFromPrivateKey(privateKey: string): string {
     const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey);
     return EthCrypto.publicKey.toAddress(publicKey);
   } catch (e) {
-    if (e.message === 'private key length is invalid') {
+    if (
+      e.message === 'private key length is invalid' ||
+      e.message === 'Expected private key to be an Uint8Array with length 32'
+    ) {
       throw new Error('The private key must be a string representing 32 bytes');
     }
     throw e;
@@ -42,7 +45,10 @@ function getAddressFromPublicKey(publicKey: string): string {
   try {
     return EthCrypto.publicKey.toAddress(publicKey);
   } catch (e) {
-    if (e.message === 'public key length is invalid') {
+    if (
+      e.message === 'public key length is invalid' ||
+      e.message === 'Expected public key to be an Uint8Array with length [33, 65]'
+    ) {
       throw new Error('The public key must be a string representing 64 bytes');
     }
     throw e;
@@ -60,7 +66,10 @@ function sign(privateKey: string, data: string): string {
   try {
     return EthCrypto.sign(privateKey, data);
   } catch (e) {
-    if (e.message === 'private key length is invalid') {
+    if (
+      e.message === 'private key length is invalid' ||
+      e.message === 'Expected private key to be an Uint8Array with length 32'
+    ) {
       throw new Error('The private key must be a string representing 32 bytes');
     }
     throw e;
@@ -79,7 +88,10 @@ function recover(signature: string, data: string): string {
   try {
     return EthCrypto.recover(signature, data);
   } catch (e) {
-    if (e.message === 'signature length is invalid') {
+    if (
+      e.message === 'signature length is invalid' ||
+      e.message === 'Expected signature to be an Uint8Array with length 64'
+    ) {
       throw new Error('The signature must be a string representing 66 bytes');
     }
     throw e;
@@ -102,7 +114,10 @@ async function encrypt(publicKey: string, data: string): Promise<string> {
     // Transforms the object with the encrypted data into a smaller string-representation.
     return EthCrypto.cipher.stringify(encrypted);
   } catch (e) {
-    if (e.message === 'public key length is invalid') {
+    if (
+      e.message === 'public key length is invalid' ||
+      e.message === 'Expected public key to be an Uint8Array with length [33, 65]'
+    ) {
       throw new Error('The public key must be a string representing 64 bytes');
     }
     throw e;
@@ -121,13 +136,18 @@ async function decrypt(privateKey: string, encrypted: string): Promise<string> {
   try {
     return await EthCrypto.decryptWithPrivateKey(privateKey, EthCrypto.cipher.parse(encrypted));
   } catch (e) {
-    if (e.message === 'Bad private key') {
+    if (
+      e.message === 'Bad private key' ||
+      e.message === 'Expected private key to be an Uint8Array with length 32'
+    ) {
       throw new Error('The private key must be a string representing 32 bytes');
     }
     if (
       e.message === 'public key length is invalid' ||
+      e.message === 'Expected public key to be an Uint8Array with length [33, 65]' ||
       e.message === 'Bad MAC' ||
-      e.message === 'the public key could not be parsed or is invalid'
+      e.message === 'the public key could not be parsed or is invalid' ||
+      e.message === 'Public Key could not be parsed'
     ) {
       throw new Error('The encrypted data is not well formatted');
     }

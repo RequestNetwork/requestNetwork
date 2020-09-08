@@ -1,10 +1,11 @@
 const ethers = require('ethers');
 
-const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 
-contract('ERC20Proxy', function(accounts) {
+contract('ERC20Proxy', function (accounts) {
   const from = accounts[0];
   const to = accounts[1];
   const otherGuy = accounts[2];
@@ -21,7 +22,7 @@ contract('ERC20Proxy', function(accounts) {
     });
   });
 
-  it('allows to store a reference', async function() {
+  it('allows to store a reference', async function () {
     await testERC20.approve(erc20Proxy.address, '100', { from });
 
     let { logs } = await erc20Proxy.transferFromWithReference(
@@ -41,7 +42,7 @@ contract('ERC20Proxy', function(accounts) {
     });
   });
 
-  it('allows to transfer tokens', async function() {
+  it('allows to transfer tokens', async function () {
     await testERC20.approve(erc20Proxy.address, '100', { from });
 
     const fromOldBalance = await testERC20.balanceOf(from);
@@ -59,8 +60,8 @@ contract('ERC20Proxy', function(accounts) {
     expect(toNewBalance.toNumber()).to.equals(toOldBalance.toNumber() + 100);
   });
 
-  it('should revert if no fund', async function() {
-    await shouldFail.reverting(
+  it('should revert if no fund', async function () {
+    await expectRevert.unspecified(
       erc20Proxy.transferFromWithReference(testERC20.address, to, '100', referenceExample, {
         from: otherGuy,
       }),

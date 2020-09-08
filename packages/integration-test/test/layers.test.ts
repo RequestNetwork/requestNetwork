@@ -35,6 +35,26 @@ let signatureProvider: any;
 
 let dataAccess: DataAccessTypes.IDataAccess;
 
+const { time } = require('@openzeppelin/test-helpers');
+
+let nbBlocks = 0;
+let testsFinished = false;
+const interval = setInterval(async () => {
+  await time.advanceBlock();
+  if (testsFinished) {
+    nbBlocks++;
+  }
+  // tslint:disable-next-line: no-magic-numbers
+  if (nbBlocks > 25) {
+    clearInterval(interval);
+  }
+  // tslint:disable-next-line: no-magic-numbers
+}, 1000);
+
+after(() => {
+  testsFinished = true;
+});
+
 describe('Request system', () => {
   beforeEach(async () => {
     // Storage setup

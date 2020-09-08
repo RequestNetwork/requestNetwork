@@ -1,5 +1,5 @@
 # Install necessary modules for the nodes
-FROM node:10.14.2 as installer
+FROM node:14 as installer
 
 WORKDIR /app
 ADD package.json .
@@ -12,7 +12,7 @@ ADD docker/docker-tsconfig.json tsconfig.json
 RUN tsc -b
 
 # Launch the server
-FROM node:10.14.2-alpine
+FROM node:14-alpine
 
 WORKDIR /request-node
 COPY --from=installer /app/node_modules node_modules

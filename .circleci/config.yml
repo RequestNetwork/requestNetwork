@@ -5,7 +5,7 @@ references:
   attach_workspace: &attach_workspace
   image_name: &image_name 'circleci/python:3.7'
   node_image: &node_image
-    image: circleci/node:10
+    image: circleci/node:14
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs
   ganache_image: &ganache_image

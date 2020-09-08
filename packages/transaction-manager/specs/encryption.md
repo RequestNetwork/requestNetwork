@@ -68,10 +68,6 @@ The encrypted data, the encrypted keys and the encrypted method of the data are 
 | Property             | Type   | Description                                                                                                                      |
 | -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
 | **encryptedData**    | String | First encrypted data of the channel in base64                                                                                    |
-<<<<<<< HEAD
-=======
-| **hash**             | String | Normalized Keccak256 hash of the message before encryption                                                                       |
->>>>>>> master
 | **keys**             | Object | AES-256 key encrypted with ECIES from the parties public keys, encoded in base64 and indexed by their multi-formatted identities |
 | **encryptionMethod** | String | Encryption method use for the channel _('ECIES-AES256-GCM' here)_                                                                |
 
@@ -95,16 +91,9 @@ Example:
 
 ### Add encrypted data
 
-<<<<<<< HEAD
 | Property          | Type   | Description              |
 | ----------------- | ------ | ------------------------ |
 | **encryptedData** | String | Encrypted data in base64 |
-=======
-| Property          | Type   | Description                                                |
-| ----------------- | ------ | ---------------------------------------------------------- |
-| **encryptedData** | String | Encrypted data in base64                                   |
-| **hash**          | String | Normalized Keccak256 hash of the message before encryption |
->>>>>>> master
 
 Example:
 
