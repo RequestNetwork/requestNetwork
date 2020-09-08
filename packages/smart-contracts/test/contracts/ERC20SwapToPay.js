@@ -2,8 +2,8 @@ const ethers = require('ethers');
 // TODO remove when understood
 //import "truffle/DeployedAddresses.sol";
 
-const { expectEvent, shouldFail } = require('openzeppelin-test-helpers');
-const { expect } = require('openzeppelin-test-helpers/src/setup');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expect } = require('chai');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 const ERC20Alpha = artifacts.require('ERC20Alpha');
@@ -145,7 +145,7 @@ contract('SwapToPay', function(accounts) {
 
   it('cannot swap if too few payment tokens', async function() {
 
-    await shouldFail.reverting(
+    await expectRevert.unspecified(
       testSwapToPay.swapTransferWithReference(
         to,
         10,
@@ -163,7 +163,7 @@ contract('SwapToPay', function(accounts) {
 
   it('cannot swap with a past deadline', async function() {
 
-    await shouldFail.reverting(
+    await expectRevert.unspecified(
       testSwapToPay.swapTransferWithReference(
         to,
         10,
@@ -182,7 +182,7 @@ contract('SwapToPay', function(accounts) {
   it('cannot swap more tokens than liquidity', async function() {
     await paymentErc20.approve(testSwapToPay.address, '22000000', { from });
 
-    await shouldFail.reverting(
+    await expectRevert.unspecified(
       testSwapToPay.swapTransferWithReference(
         to,
         10000000,
@@ -202,7 +202,7 @@ contract('SwapToPay', function(accounts) {
   it('cannot swap more tokens than balance', async function() {
     await paymentErc20.approve(testSwapToPay.address, '300', { from });
 
-    await shouldFail.reverting(
+    await expectRevert.unspecified(
       testSwapToPay.swapTransferWithReference(
         to,
         100,
