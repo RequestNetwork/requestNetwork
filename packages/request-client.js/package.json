@@ -68,7 +68,7 @@
     "@types/mocha": "8.0.3",
     "@types/node-fetch": "2.5.7",
     "@types/sinon": "9.0.5",
-    "@typescript-eslint/parser": "4.0.1",
+    "@typescript-eslint/parser": "4.1.0",
     "amd-loader": "0.0.8",
     "awesome-typescript-loader": "5.2.1",
     "axios-mock-adapter": "1.18.2",

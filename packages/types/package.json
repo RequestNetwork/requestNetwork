@@ -44,7 +44,7 @@
   "devDependencies": {
     "@types/bn.js": "4.11.6",
     "@types/events": "3.0.0",
-    "@typescript-eslint/parser": "4.0.1",
+    "@typescript-eslint/parser": "4.1.0",
     "eslint": "7.8.1",
     "eslint-plugin-spellcheck": "0.0.17",
     "eslint-plugin-typescript": "0.14.0",
