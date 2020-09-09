@@ -1695,7 +1695,7 @@ describe('index', () => {
         expect(data.balance?.events[0].name).toBe('payment');
         expect(data.balance?.events[0].timestamp).toBeDefined();
         expect(data.balance?.events[0].parameters.block).toBeDefined();
-        expect(data.balance?.events[0].parameters.from.length).toBe(1);
+        expect(data.balance?.events[0].parameters.from.length).toBe(42);
         expect(data.balance?.events[0].parameters.to.toLowerCase()).toBe(paymentAddress);
         expect(data.balance?.events[0].parameters.txHash.length).toBe(66);
         expect(data.balance?.events[1].amount).toBe('1');
