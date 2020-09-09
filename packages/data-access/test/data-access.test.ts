@@ -1,5 +1,4 @@
-import * as sinon from 'sinon';
-
+/* eslint-disable spellcheck/spell-checker */
 import { EventEmitter } from 'events';
 
 import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
@@ -12,7 +11,7 @@ import DataAccess from '../src/data-access';
 const flushCallStack = (): Promise<any> => {
   return new Promise((resolve): any => {
     setTimeout(resolve, 0);
-    clock.tick(1);
+    jest.advanceTimersByTime(1);
   });
 };
 
@@ -148,8 +147,6 @@ const defaultFakeStorage: StorageTypes.IStorage = {
   },
 };
 
-let clock: sinon.SinonFakeTimers;
-
 // tslint:disable:no-magic-numbers
 /* tslint:disable:no-unused-expression */
 describe('data-access', () => {
@@ -160,7 +157,7 @@ describe('data-access', () => {
   });
 
   beforeEach(async () => {
-    clock = sinon.useFakeTimers();
+    jest.useFakeTimers('modern');
   });
 
   // afterEach(async () => {
@@ -449,7 +446,7 @@ describe('data-access', () => {
         });
       });
 
-      clock.tick(11);
+      jest.advanceTimersByTime(11);
 
       expect(errFunction).not.toHaveBeenCalled();
       /* tslint:disable:object-literal-sort-keys  */
@@ -547,7 +544,7 @@ describe('data-access', () => {
         // result Confirmed wrong
         expect(error).toEqual('error for test purpose');
       });
-      clock.tick(11);
+      jest.advanceTimersByTime(11);
 
       // result wrong
       expect(result.meta).toMatchObject({
@@ -805,20 +802,20 @@ describe('data-access', () => {
     expect(dataAccess.synchronizeNewDataIds).not.toHaveBeenCalled();
 
     dataAccess.startAutoSynchronization();
-    clock.tick(1100);
+    jest.advanceTimersByTime(1100);
     await flushCallStack();
 
     // Should have been called once after 1100ms
     expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(1);
 
-    clock.tick(1000);
+    jest.advanceTimersByTime(1000);
     await flushCallStack();
 
     // Should have been called once after 2100ms
     expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(2);
 
     dataAccess.stopAutoSynchronization();
-    clock.tick(1000);
+    jest.advanceTimersByTime(1000);
     await flushCallStack();
 
     // Not called anymore after stopAutoSynchronization()
@@ -826,12 +823,11 @@ describe('data-access', () => {
   });
 
   it(`should not get twice the same data during synchronization`, async () => {
-    let args;
     let lastTimestampReturnedByGetData: number = 0;
 
     const fakeStorageSpied: StorageTypes.IStorage = {
       ...defaultFakeStorage,
-      getData: sinon.spy(
+      getData: jest.fn(
         (): Promise<StorageTypes.IEntriesWithLastTimestamp> =>
           Promise.resolve({
             entries: [],
@@ -847,19 +843,17 @@ describe('data-access', () => {
     await dataAccess.initialize();
 
     // At initialization, getData is called with no time boundaries
-    args = (fakeStorageSpied.getData as any).getCall(0).args[0];
-    expect(args).toBeUndefined();
+    expect(fakeStorageSpied.getData).toHaveBeenNthCalledWith(1, undefined);
 
     dataAccess.startAutoSynchronization();
 
     // Mock Date.now to parse the value "to" of the time boundaries
     Date.now = (): number => 1000000;
     lastTimestampReturnedByGetData = 800;
-    clock.tick(1100);
+    jest.advanceTimersByTime(1100);
     await flushCallStack();
 
-    args = (fakeStorageSpied.getData as any).getCall(1).args[0];
-    expect(args).toMatchObject({ from: 501, to: 1000 });
+    expect(fakeStorageSpied.getData).toHaveBeenNthCalledWith(2, { from: 501, to: 1000 });
 
     dataAccess.stopAutoSynchronization();
   });
