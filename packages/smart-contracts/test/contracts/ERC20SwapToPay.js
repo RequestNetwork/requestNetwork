@@ -105,6 +105,10 @@ contract('SwapToPay', function(accounts) {
     maxGasUsed = gasUsed;
   });
 
+  it('does something if I send zero?', async function() {
+    expect(false);
+  });
+
   it('swaps and pays the request with less gas', async function() {
     await testSwapToPay.approvePaymentProxyToSpend(requestErc20.address, {
       from: admin,
@@ -186,7 +190,7 @@ contract('SwapToPay', function(accounts) {
       testSwapToPay.swapTransferWithReference(
         to,
         10000000,
-        22000000, // Should be at least (10 + 1) * 2
+        22000000,
         [paymentErc20.address, requestErc20.address],
         referenceExample,
         1000000,
@@ -197,7 +201,6 @@ contract('SwapToPay', function(accounts) {
     );
     await expectFromBalanceUnchanged();
   });
-
   
   it('cannot swap more tokens than balance', async function() {
     await paymentErc20.approve(testSwapToPay.address, '300', { from });
