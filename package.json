@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "coveralls": "3.1.0",
-    "husky": "4.2.5",
+    "husky": "4.3.0",
     "lerna": "3.22.1",
     "npm-package-json-lint": "5.1.0",
     "nyc": "15.1.0",
