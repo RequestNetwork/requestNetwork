@@ -31,7 +31,7 @@
   "scripts": {
     "build": "tsc -b",
     "build:watch": "tsc -b --watch",
-    "test": "jest --runInBand",
+    "test": "jest --runInBand --forceExit",
     "test:watch": "yarn test --watch",
     "start": "ts-node src/server.ts",
     "start:watch": "ts-node-dev src/server.ts",
