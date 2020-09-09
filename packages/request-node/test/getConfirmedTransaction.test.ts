@@ -39,19 +39,27 @@ describe('getConfirmedTransaction', () => {
       .set('Accept', 'application/json')
       .expect(httpStatus.NOT_FOUND);
 
-    // wait a bit for the confirmation
-    await new Promise((resolve): any => setTimeout(resolve, 5000));
+    let serverResponse: request.Response | undefined;
+    // retry mechanism to account for ganache delay
+    for (let i = 0; i < 10; i++) {
+      // wait a bit for the confirmation
+      await new Promise((resolve): any => setTimeout(resolve, 1000));
 
-    const serverResponse = await request(server)
-      .get('/getConfirmedTransaction')
-      .query({ transactionHash })
-      .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      serverResponse = await request(server)
+        .get('/getConfirmedTransaction')
+        .query({ transactionHash })
+        .set('Accept', 'application/json');
+      if (serverResponse.status === httpStatus.OK) {
+        break;
+      }
+    }
+    expect(serverResponse).toBeDefined();
+    expect(serverResponse!.status).toBe(httpStatus.OK);
 
-    expect(serverResponse.body.result).toMatchObject({});
+    expect(serverResponse!.body.result).toMatchObject({});
     // 'getConfirmedTransaction request meta'
-    expect(serverResponse.body.meta.storageMeta.state).toBe('confirmed');
-  }, 10000);
+    expect(serverResponse!.body.meta.storageMeta.state).toBe('confirmed');
+  }, 11000);
 
   it('responds with status 422 to requests with no value', async () => {
     await request(server)
