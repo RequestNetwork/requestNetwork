@@ -1,6 +1,4 @@
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as spies from 'chai-spies';
+/* eslint-disable spellcheck/spell-checker */
 import { Wallet } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
 
@@ -19,11 +17,6 @@ import { BigNumber } from 'ethers/utils';
 
 // tslint:disable: no-unused-expression
 // tslint:disable: await-promise
-
-const expect = chai.expect;
-chai.use(chaiAsPromised);
-chai.use(spies);
-const sandbox = chai.spy.sandbox();
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -75,8 +68,8 @@ const validRequest: ClientTypes.IRequestData = {
 describe('getRequestPaymentValues', () => {
   it('handles ETH', () => {
     const values = getRequestPaymentValues(validRequest);
-    expect(values.paymentAddress).to.eq(paymentAddress);
-    expect(values.paymentReference).to.eq('86dfbccad783599a');
+    expect(values.paymentAddress).toBe(paymentAddress);
+    expect(values.paymentReference).toBe('86dfbccad783599a');
   });
 });
 
@@ -84,7 +77,7 @@ describe('payEthInputDataRequest', () => {
   it('should throw an error if the request is not eth', async () => {
     const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
-    await expect(payEthInputDataRequest(request, wallet)).to.eventually.be.rejectedWith(
+    await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
@@ -92,7 +85,7 @@ describe('payEthInputDataRequest', () => {
   it('should throw an error if currencyInfo has no network', async () => {
     const request = Utils.deepCopy(validRequest);
     request.currencyInfo.network = '';
-    await expect(payEthInputDataRequest(request, wallet)).to.eventually.be.rejectedWith(
+    await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
@@ -101,23 +94,28 @@ describe('payEthInputDataRequest', () => {
     const request = Utils.deepCopy(validRequest);
     request.extensions = [] as any;
 
-    await expect(payEthInputDataRequest(request, wallet)).to.eventually.be.rejectedWith(
+    await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
   it('should consider override parameters', async () => {
-    const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
+    const spy = jest.fn();
+    const originalSendTransaction = wallet.sendTransaction.bind(wallet);
+    wallet.sendTransaction = spy;
     await payEthInputDataRequest(validRequest, wallet, undefined, {
       gasPrice: '20000000001',
     });
-    expect(spy).to.have.been.called.with({
+    expect(spy).toHaveBeenCalledWith({
       data: '0x86dfbccad783599a',
       gasPrice: '20000000001',
       to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
       value: new BigNumber(1),
     });
-    sandbox.restore();
+    wallet.sendTransaction = originalSendTransaction;
   });
 
   it('processes a payment for a pn-eth-input-data request', async () => {
@@ -126,7 +124,7 @@ describe('payEthInputDataRequest', () => {
     const tx = await payEthInputDataRequest(validRequest, wallet);
     const confirmedTx = await tx.wait(1);
     const balanceAfter = await wallet.getBalance();
-    expect(confirmedTx.status).to.eq(1);
+    expect(confirmedTx.status).toBe(1);
     // new_balance = old_balance + amount + fees
     expect(
       balanceAfter.eq(balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed || 0)),
@@ -136,7 +134,7 @@ describe('payEthInputDataRequest', () => {
 
 describe('getEthPaymentUrl', () => {
   it('can get an ETH url', () => {
-    expect(_getEthPaymentUrl(validRequest)).to.eq(
+    expect(_getEthPaymentUrl(validRequest)).toBe(
       'ethereum:0xf17f52151EbEF6C7334FAD080c5704D77216b732?value=1&data=86dfbccad783599a',
     );
   });

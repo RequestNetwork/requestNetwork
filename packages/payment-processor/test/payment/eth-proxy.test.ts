@@ -1,6 +1,3 @@
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as spies from 'chai-spies';
 import { Wallet } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
 
@@ -19,11 +16,6 @@ import { getRequestPaymentValues } from '../../src/payment/utils';
 
 // tslint:disable: no-unused-expression
 // tslint:disable: await-promise
-
-const expect = chai.expect;
-chai.use(chaiAsPromised);
-chai.use(spies);
-const sandbox = chai.spy.sandbox();
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -75,8 +67,8 @@ const validRequest: ClientTypes.IRequestData = {
 describe('getRequestPaymentValues', () => {
   it('handles ETH', () => {
     const values = getRequestPaymentValues(validRequest);
-    expect(values.paymentAddress).to.eq(paymentAddress);
-    expect(values.paymentReference).to.eq('86dfbccad783599a');
+    expect(values.paymentAddress).toBe(paymentAddress);
+    expect(values.paymentReference).toBe('86dfbccad783599a');
   });
 });
 
@@ -85,7 +77,7 @@ describe('payEthProxyRequest', () => {
     const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
 
-    await expect(payEthProxyRequest(request, wallet)).to.eventually.be.rejectedWith(
+    await expect(payEthProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
@@ -93,7 +85,7 @@ describe('payEthProxyRequest', () => {
   it('should throw an error if currencyInfo has no network', async () => {
     const request = Utils.deepCopy(validRequest);
     request.currencyInfo.network = '';
-    await expect(payEthProxyRequest(request, wallet)).to.eventually.be.rejectedWith(
+    await expect(payEthProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
@@ -102,24 +94,26 @@ describe('payEthProxyRequest', () => {
     const request = Utils.deepCopy(validRequest);
     request.extensions = [] as any;
 
-    await expect(payEthProxyRequest(request, wallet)).to.eventually.be.rejectedWith(
+    await expect(payEthProxyRequest(request, wallet)).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-input-data request',
     );
   });
 
   it('should consider override parameters', async () => {
-    const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
+    const spy = jest.fn();
+    const originalSendTransaction = wallet.sendTransaction.bind(wallet);
+    wallet.sendTransaction = spy;
     await payEthProxyRequest(validRequest, wallet, undefined, {
       gasPrice: '20000000000',
     });
-    expect(spy).to.have.been.called.with({
+    expect(spy).toHaveBeenCalledWith({
       data:
         '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
       gasPrice: '20000000000',
       to: '0xf204a4Ef082f5c04bB89F7D5E6568B796096735a',
       value: bigNumberify('0x64'),
     });
-    sandbox.restore();
+    wallet.sendTransaction = originalSendTransaction;
   });
 
   it('should pay an ETH request', async () => {
@@ -131,12 +125,12 @@ describe('payEthProxyRequest', () => {
 
     const balanceEthAfter = await wallet.getBalance();
 
-    expect(confirmedTx.status).to.eq(1);
-    expect(tx.hash).not.to.be.undefined;
+    expect(confirmedTx.status).toBe(1);
+    expect(tx.hash).not.toBeUndefined();
 
-    chai.assert.isTrue(balanceEthAfter.lte(balanceEthBefore), 'ETH balance should be lower');
+    expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
 
-    expect(balanceEthBefore.toString()).equal(
+    expect(balanceEthBefore.toString()).toBe(
       balanceEthAfter
         .add(validRequest.expectedAmount)
         .add(confirmedTx.gasUsed!.mul(tx.gasPrice))
@@ -147,7 +141,7 @@ describe('payEthProxyRequest', () => {
 
 describe('encodePayEthProxyRequest', () => {
   it('should encode pay for an ETH request', async () => {
-    expect(await encodePayEthProxyRequest(validRequest, wallet)).equal(
+    expect(await encodePayEthProxyRequest(validRequest, wallet)).toBe(
       '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
     );
   });
