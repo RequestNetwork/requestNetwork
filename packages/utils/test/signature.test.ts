@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 import Crypto from '../src/crypto';
 import Signature from '../src/signature';
@@ -37,9 +35,8 @@ describe('Signature', () => {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
-      expect(identity, 'getIdentityFromSignatureParams() error').to.be.deep.equal(
-        otherIdRaw.identity,
-      );
+      // 'getIdentityFromSignatureParams() error'
+      expect(identity).toEqual(otherIdRaw.identity);
     });
 
     it(
@@ -49,9 +46,7 @@ describe('Signature', () => {
           method: 'notECDSA',
           privateKey: otherIdRaw.privateKey,
         };
-        expect(() => Signature.getIdentityFromSignatureParams(params)).to.throw(
-          'signatureParams.method not supported',
-        );
+        expect(() => Signature.getIdentityFromSignatureParams(params)).toThrowError('signatureParams.method not supported');
       }
     );
   });
@@ -62,7 +57,8 @@ describe('Signature', () => {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
-      expect(signature, 'sign() error').to.be.deep.equal({
+      // 'sign() error'
+      expect(signature).toEqual({
         data,
         signature: {
           method: SignatureTypes.METHOD.ECDSA,
@@ -77,7 +73,8 @@ describe('Signature', () => {
         method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
         privateKey: otherIdRaw.privateKey,
       });
-      expect(signature, 'sign() error').to.be.deep.equal({
+      // 'sign() error'
+      expect(signature).toEqual({
         data,
         signature: {
           method: SignatureTypes.METHOD.ECDSA_ETHEREUM,
@@ -92,7 +89,8 @@ describe('Signature', () => {
         method: SignatureTypes.METHOD.ECDSA,
         privateKey: otherIdRaw.privateKey,
       });
-      expect(signature, 'sign() error').to.be.deep.equal({
+      // 'sign() error'
+      expect(signature).toEqual({
         data: dataDiffCase,
         signature: {
           method: SignatureTypes.METHOD.ECDSA,
@@ -107,9 +105,7 @@ describe('Signature', () => {
         method: 'notECDSA',
         privateKey: otherIdRaw.privateKey,
       };
-      expect(() => Signature.sign(Crypto.normalizeKeccak256Hash(data), params)).to.throw(
-        'signatureParams.method not supported',
-      );
+      expect(() => Signature.sign(Crypto.normalizeKeccak256Hash(data), params)).toThrowError('signatureParams.method not supported');
     });
   });
 
@@ -123,7 +119,8 @@ describe('Signature', () => {
             '0x801f4240516509c28660f096830d52e8523e2136d557d65728e39f3ea37b72bb3f20accff461cabe3515431d0e6c468d4631540b7c6f9c29acfa7c9231781a3c1c',
         },
       });
-      expect(id, 'recover() error').to.be.deep.equal(otherIdRaw.identity);
+      // 'recover() error'
+      expect(id).toEqual(otherIdRaw.identity);
     });
 
     it('can recover() ECDSA_ETHEREUM signature', () => {
@@ -135,8 +132,10 @@ describe('Signature', () => {
             '0x3fbc7ed9dfa003067f646749d4223def2a69df70371d4f15ec001bc1491cdee40558de1f31fdc7cc5d805a5c4080b54cda3430b29ab14f04e17a5b23fcd39b391b',
         },
       });
-      expect(id.value, 'recover() error').to.be.deep.equal(otherIdRaw.identity.value.toLowerCase());
-      expect(id.type, 'recover() error').to.be.deep.equal(otherIdRaw.identity.type);
+      // 'recover() error'
+      expect(id.value).toEqual(otherIdRaw.identity.value.toLowerCase());
+      // 'recover() error'
+      expect(id.type).toEqual(otherIdRaw.identity.type);
     });
 
     it('can recover() with different case', () => {
@@ -148,7 +147,8 @@ describe('Signature', () => {
             '0x801f4240516509c28660f096830d52e8523e2136d557d65728e39f3ea37b72bb3f20accff461cabe3515431d0e6c468d4631540b7c6f9c29acfa7c9231781a3c1c',
         },
       });
-      expect(id, 'recover() error').to.be.deep.equal(otherIdRaw.identity);
+      // 'recover() error'
+      expect(id).toEqual(otherIdRaw.identity);
     });
 
     it('cannot recover with signature method not supported', () => {
@@ -156,9 +156,7 @@ describe('Signature', () => {
         method: 'notECDSA',
         value: '0x00000000000000000000',
       };
-      expect(() => Signature.recover({ data, signature: params })).to.throw(
-        'signatureParams.method not supported',
-      );
+      expect(() => Signature.recover({ data, signature: params })).toThrowError('signatureParams.method not supported');
     });
   });
 });

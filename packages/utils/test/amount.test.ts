@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 const bigNumber: any = require('bn.js');
 
 import Amount from '../src/amount';
@@ -19,85 +18,79 @@ const arbitraryExpectedAmountPlusDelta = '223400000000000000';
 describe('Amount', () => {
   describe('isValid', () => {
     it('can valid amount as small integer', () => {
-      expect(Amount.isValid(magicIntegerSmall), 'integer should be valid').to.be.true;
+      // 'integer should be valid'
+      expect(Amount.isValid(magicIntegerSmall)).toBe(true);
     });
     it('cannot valid amount as big integer', () => {
-      expect(Amount.isValid(magicIntegerBig), 'Big integer should not be valid').to.be.false;
+      // 'Big integer should not be valid'
+      expect(Amount.isValid(magicIntegerBig)).toBe(false);
     });
     it('cannot valid amount as bn', () => {
-      expect(Amount.isValid(new bigNumber('1000000000000000000000000')), 'BN should not be valid')
-        .to.be.false;
+      // 'BN should not be valid'
+      expect(Amount.isValid(new bigNumber('1000000000000000000000000'))).toBe(false);
     });
     it('can valid amount as string representing integer', () => {
-      expect(Amount.isValid('10000'), 'integer as string should be valid').to.be.true;
+      // 'integer as string should be valid'
+      expect(Amount.isValid('10000')).toBe(true);
     });
     it('cannot valid amount as a small decimal', () => {
-      expect(Amount.isValid(magicFloatSmall), 'decimal should not be valid').to.be.false;
+      // 'decimal should not be valid'
+      expect(Amount.isValid(magicFloatSmall)).toBe(false);
     });
     it('cannot valid amount as a big decimal', () => {
-      expect(Amount.isValid(magicFloatBig), 'decimal should not be valid').to.be.false;
+      // 'decimal should not be valid'
+      expect(Amount.isValid(magicFloatBig)).toBe(false);
     });
     it('cannot valid amount as string representing small decimal', () => {
-      expect(Amount.isValid('10000.01'), 'decimal as string should not be valid').to.be.false;
+      // 'decimal as string should not be valid'
+      expect(Amount.isValid('10000.01')).toBe(false);
     });
     it('cannot valid amount as string representing big decimal', () => {
-      expect(
-        Amount.isValid('1000000000000000000000000000000000.01'),
-        'decimal as string should not be valid',
-      ).to.be.false;
+      // 'decimal as string should not be valid'
+      expect(Amount.isValid('1000000000000000000000000000000000.01')).toBe(false);
     });
     it('cannot valid amount as not number', () => {
-      expect(Amount.isValid('Not a number'), 'Not number should not be valid').to.be.false;
+      // 'Not number should not be valid'
+      expect(Amount.isValid('Not a number')).toBe(false);
     });
     it('cannot valid amount as small integer', () => {
-      expect(Amount.isValid(-magicIntegerSmall), 'integer should not be valid').to.be.false;
+      // 'integer should not be valid'
+      expect(Amount.isValid(-magicIntegerSmall)).toBe(false);
     });
     it('cannot valid amount as big integer negative', () => {
-      expect(Amount.isValid(-magicIntegerBig), 'Big integer should not be valid').to.be.false;
+      // 'Big integer should not be valid'
+      expect(Amount.isValid(-magicIntegerBig)).toBe(false);
     });
     it('cannot valid an empty string', () => {
-      expect(Amount.isValid(''), 'Empty string should not be valid').to.be.false;
+      // 'Empty string should not be valid'
+      expect(Amount.isValid('')).toBe(false);
     });
   });
 
   describe('add', () => {
     it('cannot add amounts not number', () => {
-      expect(() => Amount.add('Not a number', '1000000000000000000')).to.throw(
-        'amount must represent a positive integer',
-      );
+      expect(() => Amount.add('Not a number', '1000000000000000000')).toThrowError('amount must represent a positive integer');
 
-      expect(() => Amount.add('1000000000000000000', 'Not a number')).to.throw(
-        'delta must represent a positive integer',
-      );
+      expect(() => Amount.add('1000000000000000000', 'Not a number')).toThrowError('delta must represent a positive integer');
     });
     it('can add two amounts', () => {
-      expect(
-        Amount.add(arbitraryExpectedAmount, arbitraryDeltaAmount),
-        'add() result is wrong',
-      ).to.equal(arbitraryExpectedAmountPlusDelta);
+      // 'add() result is wrong'
+      expect(Amount.add(arbitraryExpectedAmount, arbitraryDeltaAmount)).toBe(arbitraryExpectedAmountPlusDelta);
     });
   });
 
   describe('reduce', () => {
     it('cannot reduce amounts not number', () => {
-      expect(() => Amount.reduce('Not a number', '1000000000000000000')).to.throw(
-        'amount must represent a positive integer',
-      );
+      expect(() => Amount.reduce('Not a number', '1000000000000000000')).toThrowError('amount must represent a positive integer');
 
-      expect(() => Amount.reduce('1000000000000000000', 'Not a number')).to.throw(
-        'delta must represent a positive integer',
-      );
+      expect(() => Amount.reduce('1000000000000000000', 'Not a number')).toThrowError('delta must represent a positive integer');
     });
     it('can reduce two amounts', () => {
-      expect(
-        Amount.reduce(arbitraryExpectedAmount, arbitraryDeltaAmount),
-        'reduce() result is wrong',
-      ).to.equal(arbitraryExpectedAmountMinusDelta);
+      // 'reduce() result is wrong'
+      expect(Amount.reduce(arbitraryExpectedAmount, arbitraryDeltaAmount)).toBe(arbitraryExpectedAmountMinusDelta);
     });
     it('cannot reduce lower zero', () => {
-      expect(() => Amount.reduce(arbitraryDeltaAmount, arbitraryExpectedAmount)).to.throw(
-        'result of reduce is not valid',
-      );
+      expect(() => Amount.reduce(arbitraryDeltaAmount, arbitraryExpectedAmount)).toThrowError('result of reduce is not valid');
     });
   });
 });

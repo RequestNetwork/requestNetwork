@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import CryptoWrapper from '../../src/crypto/crypto-wrapper';
 import utils from '../../src/utils';
 
@@ -10,9 +9,11 @@ describe('Utils.cryptoWrapper', () => {
   describe('random32Bytes', () => {
     it('can create a 32 bytes buffer', async () => {
       const randomBytes = await CryptoWrapper.random32Bytes();
-      expect(Buffer.isBuffer(randomBytes), 'random32Bytes() error').to.be.true;
+      // 'random32Bytes() error'
+      expect(Buffer.isBuffer(randomBytes)).toBe(true);
       // tslint:disable-next-line:no-magic-numbers
-      expect(randomBytes.length, 'random32Bytes() error').to.be.equal(32);
+      // 'random32Bytes() error'
+      expect(randomBytes.length).toBe(32);
     });
 
     it(
@@ -21,10 +22,8 @@ describe('Utils.cryptoWrapper', () => {
         // tslint:disable-next-line:no-magic-numbers
         const promises = new Array(1000).fill('').map(async () => CryptoWrapper.random32Bytes());
         const randomBytes1000 = await Promise.all(promises);
-        expect(
-          utils.unique(randomBytes1000).duplicates.length,
-          'randomBytes gives duplicate',
-        ).to.be.equal(0);
+        // 'randomBytes gives duplicate'
+        expect(utils.unique(randomBytes1000).duplicates.length).toBe(0);
       }
     );
   });
@@ -35,13 +34,15 @@ describe('Utils.cryptoWrapper', () => {
         Buffer.from(anyData, 'utf8'),
         Buffer.from(arbitraryKey, 'utf8'),
       );
-      expect(Buffer.isBuffer(encrypted), 'encryptWithAes256cbc() error').to.be.true;
-      expect(encrypted.length, 'encryptWithAes256cbc() error').to.be.equal(48);
+      // 'encryptWithAes256cbc() error'
+      expect(Buffer.isBuffer(encrypted)).toBe(true);
+      // 'encryptWithAes256cbc() error'
+      expect(encrypted.length).toBe(48);
 
+      // 'decrypt() error'
       expect(
-        await CryptoWrapper.decryptWithAes256cbc(encrypted, Buffer.from(arbitraryKey, 'utf8')),
-        'decrypt() error',
-      ).to.be.deep.equal(Buffer.from(anyData, 'utf8'));
+        await CryptoWrapper.decryptWithAes256cbc(encrypted, Buffer.from(arbitraryKey, 'utf8'))
+      ).toEqual(Buffer.from(anyData, 'utf8'));
     });
   });
 
@@ -53,10 +54,10 @@ describe('Utils.cryptoWrapper', () => {
           Buffer.from('GAM/RiH/7R0MZC03cviYHQmCdH8VrBEAPAhSt2j+IH9ZNCZiut/JtZbVYmcslyWa', 'base64'),
           Buffer.from(arbitraryKey, 'utf8'),
         );
-        expect(Buffer.isBuffer(decrypted), 'decryptWithAes256cbc() error').to.be.true;
-        expect(decrypted, 'decryptWithAes256cbc() error').to.be.deep.equal(
-          Buffer.from(anyData, 'utf8'),
-        );
+        // 'decryptWithAes256cbc() error'
+        expect(Buffer.isBuffer(decrypted)).toBe(true);
+        // 'decryptWithAes256cbc() error'
+        expect(decrypted).toEqual(Buffer.from(anyData, 'utf8'));
       }
     );
   });
@@ -67,12 +68,14 @@ describe('Utils.cryptoWrapper', () => {
         Buffer.from(anyData, 'utf8'),
         Buffer.from(arbitraryKey, 'utf8'),
       );
-      expect(Buffer.isBuffer(encrypted), 'encryptWithAes256gcm() error').to.be.true;
-      expect(encrypted.length, 'encryptWithAes256gcm() error').to.be.equal(49);
+      // 'encryptWithAes256gcm() error'
+      expect(Buffer.isBuffer(encrypted)).toBe(true);
+      // 'encryptWithAes256gcm() error'
+      expect(encrypted.length).toBe(49);
+      // 'decrypt() error'
       expect(
-        await CryptoWrapper.decryptWithAes256gcm(encrypted, Buffer.from(arbitraryKey, 'utf8')),
-        'decrypt() error',
-      ).to.be.deep.equal(Buffer.from(anyData, 'utf8'));
+        await CryptoWrapper.decryptWithAes256gcm(encrypted, Buffer.from(arbitraryKey, 'utf8'))
+      ).toEqual(Buffer.from(anyData, 'utf8'));
     });
   });
   describe('decryptWithAes256gcm', () => {
@@ -86,10 +89,10 @@ describe('Utils.cryptoWrapper', () => {
           ),
           Buffer.from(arbitraryKey, 'utf8'),
         );
-        expect(Buffer.isBuffer(decrypted), 'decryptWithAes256gcm() error').to.be.true;
-        expect(decrypted, 'decryptWithAes256gcm() error').to.be.deep.equal(
-          Buffer.from(anyData, 'utf8'),
-        );
+        // 'decryptWithAes256gcm() error'
+        expect(Buffer.isBuffer(decrypted)).toBe(true);
+        // 'decryptWithAes256gcm() error'
+        expect(decrypted).toEqual(Buffer.from(anyData, 'utf8'));
       }
     );
   });
