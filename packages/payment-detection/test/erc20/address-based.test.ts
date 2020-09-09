@@ -6,14 +6,6 @@ import {
 } from '@requestnetwork/types';
 import ERC20AddressedBased from '../../src/erc20/address-based';
 
-import 'chai';
-
-const chai = require('chai');
-const spies = require('chai-spies');
-const expect = chai.expect;
-chai.use(spies);
-const sandbox = chai.spy.sandbox();
-
 let erc20AddressedBased: ERC20AddressedBased;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
@@ -39,22 +31,21 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* tslint:disable:no-unused-expression */
 describe('api/erc20/address-based', () => {
   beforeEach(() => {
-    sandbox.restore();
     erc20AddressedBased = new ERC20AddressedBased({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = sandbox.on(mockAdvancedLogic.extensions.addressBasedErc20, 'createCreationAction');
+    const spy = jest.spyOn(mockAdvancedLogic.extensions.addressBasedErc20, 'createCreationAction');
 
     await erc20AddressedBased.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.addressBasedErc20,
       'createAddPaymentAddressAction',
     );
@@ -63,11 +54,11 @@ describe('api/erc20/address-based', () => {
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.addressBasedErc20,
       'createAddRefundAddressAction',
     );
@@ -76,7 +67,7 @@ describe('api/erc20/address-based', () => {
       refundAddress: 'ethereum address',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can getBalance on a localhost request', async () => {
@@ -109,19 +100,15 @@ describe('api/erc20/address-based', () => {
 
     const balance = await erc20AddressedBased.getBalance(mockRequest as RequestLogicTypes.IRequest);
 
-    expect(balance.balance).to.be.equal('10');
-    expect(balance.events).to.have.lengthOf(1);
-    expect(balance.events[0].name).to.be.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
-    expect(balance.events[0].amount).to.be.equal('10');
-    expect(balance.events[0].timestamp).to.be.a('number');
-    expect(balance.events[0].parameters!.to).to.be.equal(
-      '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-    );
-    expect(balance.events[0].parameters!.from).to.be.equal(
-      '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
-    );
-    expect(balance.events[0].parameters!.block).to.be.a('number');
-    expect(balance.events[0].parameters!.txHash).to.be.a('string');
+    expect(balance.balance).toBe('10');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
+    expect(balance.events[0].amount).toBe('10');
+    expect(typeof balance.events[0].timestamp).toBe('number');
+    expect(balance.events[0].parameters!.to).toBe('0xf17f52151EbEF6C7334FAD080c5704D77216b732');
+    expect(balance.events[0].parameters!.from).toBe('0x627306090abaB3A6e1400e9345bC60c78a8BEf57');
+    expect(typeof balance.events[0].parameters!.block).toBe('number');
+    expect(typeof balance.events[0].parameters!.txHash).toBe('string');
   });
 
   it('should not throw when getBalance fail', async () => {
@@ -129,7 +116,7 @@ describe('api/erc20/address-based', () => {
       await erc20AddressedBased.getBalance({
         currency: { network: 'wrong' },
       } as RequestLogicTypes.IRequest),
-    ).to.deep.equal({
+    ).toMatchObject({
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,

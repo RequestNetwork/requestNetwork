@@ -8,8 +8,6 @@ import {
 import BTCAddressedBased from '../src/btc/mainnet-address-based';
 import Declarative from '../src/declarative';
 
-import { expect } from 'chai';
-
 import PaymentNetworkFactory from '../src/payment-network-factory';
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
@@ -30,18 +28,16 @@ describe('api/payment-network/payment-network-factory', () => {
           paymentAddress: 'bitcoin address here',
         },
       };
-      expect(
-        PaymentNetworkFactory.createPaymentNetwork({
-          advancedLogic: mockAdvancedLogic,
-          currency: {
-            network: 'mainnet',
-            type: RequestLogicTypes.CURRENCY.BTC,
-            value: 'BTC',
-          },
-          paymentNetworkCreationParameters,
-        }),
-        'createPayment createPaymentNetwork',
-      ).to.instanceOf(BTCAddressedBased);
+      // 'createPayment createPaymentNetwork'
+      expect(PaymentNetworkFactory.createPaymentNetwork({
+        advancedLogic: mockAdvancedLogic,
+        currency: {
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.BTC,
+          value: 'BTC',
+        },
+        paymentNetworkCreationParameters,
+      })).toBeInstanceOf(BTCAddressedBased);
     });
 
     it('can createPaymentNetwork with any currency', async () => {
@@ -51,18 +47,16 @@ describe('api/payment-network/payment-network-factory', () => {
           paymentAddress: 'bitcoin address here',
         },
       };
-      expect(
-        PaymentNetworkFactory.createPaymentNetwork({
-          advancedLogic: mockAdvancedLogic,
-          currency: {
-            network: 'mainnet',
-            type: RequestLogicTypes.CURRENCY.BTC,
-            value: 'BTC',
-          },
-          paymentNetworkCreationParameters,
-        }),
-        'createPayment createPaymentNetwork',
-      ).to.instanceOf(Declarative);
+      // 'createPayment createPaymentNetwork'
+      expect(PaymentNetworkFactory.createPaymentNetwork({
+        advancedLogic: mockAdvancedLogic,
+        currency: {
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.BTC,
+          value: 'BTC',
+        },
+        paymentNetworkCreationParameters,
+      })).toBeInstanceOf(Declarative);
     });
 
     it('cannot createPaymentNetwork with extension id not handled', async () => {
@@ -72,6 +66,7 @@ describe('api/payment-network/payment-network-factory', () => {
           paymentAddress: 'bitcoin address here',
         },
       };
+      // 'should throw wrong'
       expect(() => {
         PaymentNetworkFactory.createPaymentNetwork({
           advancedLogic: mockAdvancedLogic,
@@ -82,8 +77,8 @@ describe('api/payment-network/payment-network-factory', () => {
           },
           paymentNetworkCreationParameters,
         });
-      }, 'should throw wrong').to.throw(
-        'the payment network id: ETHEREUM_MAGIC is not supported for the currency: BTC',
+      }).toThrowError(
+        'the payment network id: ETHEREUM_MAGIC is not supported for the currency: BTC'
       );
     });
   });
@@ -104,13 +99,11 @@ describe('api/payment-network/payment-network-factory', () => {
         },
       };
 
-      expect(
-        PaymentNetworkFactory.getPaymentNetworkFromRequest({
-          advancedLogic: mockAdvancedLogic,
-          request,
-        }),
-        'createPayment createPaymentNetwork',
-      ).to.instanceOf(BTCAddressedBased);
+      // 'createPayment createPaymentNetwork'
+      expect(PaymentNetworkFactory.getPaymentNetworkFromRequest({
+        advancedLogic: mockAdvancedLogic,
+        request,
+      })).toBeInstanceOf(BTCAddressedBased);
     });
     it(
       'can getPaymentNetworkFromRequest with a request without payment network',
@@ -129,13 +122,11 @@ describe('api/payment-network/payment-network-factory', () => {
           },
         };
 
-        expect(
-          PaymentNetworkFactory.getPaymentNetworkFromRequest({
-            advancedLogic: mockAdvancedLogic,
-            request,
-          }),
-          'createPayment createPaymentNetwork',
-        ).to.be.null;
+        // 'createPayment createPaymentNetwork'
+        expect(PaymentNetworkFactory.getPaymentNetworkFromRequest({
+          advancedLogic: mockAdvancedLogic,
+          request,
+        })).toBeNull();
       }
     );
 
@@ -155,13 +146,14 @@ describe('api/payment-network/payment-network-factory', () => {
             },
           },
         };
+        // 'should throw wrong'
         expect(() => {
           PaymentNetworkFactory.getPaymentNetworkFromRequest({
             advancedLogic: mockAdvancedLogic,
             request,
           });
-        }, 'should throw wrong').to.throw(
-          'the payment network id: content-data is not supported for the currency: BTC',
+        }).toThrowError(
+          'the payment network id: content-data is not supported for the currency: BTC'
         );
       }
     );
@@ -177,13 +169,11 @@ describe('api/payment-network/payment-network-factory', () => {
         },
       };
 
-      expect(
-        PaymentNetworkFactory.getPaymentNetworkFromRequest({
-          advancedLogic: mockAdvancedLogic,
-          request,
-        }),
-        'createPayment getPaymentNetworkFromRequest',
-      ).to.instanceOf(Declarative);
+      // 'createPayment getPaymentNetworkFromRequest'
+      expect(PaymentNetworkFactory.getPaymentNetworkFromRequest({
+        advancedLogic: mockAdvancedLogic,
+        request,
+      })).toBeInstanceOf(Declarative);
     });
   });
 });

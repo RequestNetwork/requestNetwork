@@ -1,3 +1,4 @@
+/* eslint-disable spellcheck/spell-checker */
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -5,14 +6,6 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import EthInputData from '../../src/eth/input-data';
-
-import 'chai';
-
-const chai = require('chai');
-const spies = require('chai-spies');
-const expect = chai.expect;
-chai.use(spies);
-const sandbox = chai.spy.sandbox();
 
 let ethInputData: EthInputData;
 
@@ -39,20 +32,19 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* tslint:disable:no-unused-expression */
 describe('api/eth/input-data', () => {
   beforeEach(() => {
-    sandbox.restore();
     ethInputData = new EthInputData({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = sandbox.on(mockAdvancedLogic.extensions.ethereumInputData, 'createCreationAction');
+    const spy = jest.spyOn(mockAdvancedLogic.extensions.ethereumInputData, 'createCreationAction');
 
     await ethInputData.createExtensionsDataForCreation({ paymentAddress: 'ethereum address' });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.ethereumInputData,
       'createAddPaymentAddressAction',
     );
@@ -61,11 +53,11 @@ describe('api/eth/input-data', () => {
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.ethereumInputData,
       'createAddRefundAddressAction',
     );
@@ -74,7 +66,7 @@ describe('api/eth/input-data', () => {
       refundAddress: 'ethereum address',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   // TODO: unskip
@@ -108,18 +100,18 @@ describe('api/eth/input-data', () => {
 
     const balance = await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest);
 
-    expect(balance.balance).to.be.equal('10');
-    expect(balance.events).to.have.lengthOf(1);
-    expect(balance.events[0].name).to.be.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
+    expect(balance.balance).toBe('10');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
     // TODO: add to & from to parameters?
-    // expect(balance.events[0].parameters!.to).to.be.equal(
+    // expect(balance.events[0].parameters!.to).toBe(
     //   '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
     // );
-    // expect(balance.events[0].parameters!.from).to.be.equal(
+    // expect(balance.events[0].parameters!.from).toBe(
     //   '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
     // );
-    expect(balance.events[0].amount).to.be.equal('10');
-    expect(balance.events[0].timestamp).to.be.a('number');
+    expect(balance.events[0].amount).toBe('10');
+    expect(typeof balance.events[0].timestamp).toBe('number');
   });
 
   it('should not throw when getBalance fail', async () => {
@@ -127,7 +119,7 @@ describe('api/eth/input-data', () => {
       await ethInputData.getBalance({
         currency: { network: 'wrong' },
       } as RequestLogicTypes.IRequest),
-    ).to.deep.equal({
+    ).toMatchObject({
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
