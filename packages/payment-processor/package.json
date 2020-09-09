@@ -35,7 +35,7 @@
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "prepare": "yarn run build",
-    "test": "jest",
+    "test": "jest --runInBand",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {

@@ -40,7 +40,7 @@ describe('getConfirmedTransaction', () => {
       .expect(httpStatus.NOT_FOUND);
 
     // wait a bit for the confirmation
-    await new Promise((resolve): any => setTimeout(resolve, 2000));
+    await new Promise((resolve): any => setTimeout(resolve, 5000));
 
     const serverResponse = await request(server)
       .get('/getConfirmedTransaction')

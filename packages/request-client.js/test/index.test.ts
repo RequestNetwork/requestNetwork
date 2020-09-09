@@ -720,6 +720,9 @@ describe('index', () => {
   });
 
   describe('tests with declarative payments', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
     beforeEach(() => {
       const mock = new AxiosMockAdapter(axios);
 
@@ -945,6 +948,9 @@ describe('index', () => {
   });
 
   describe('tests with encryption', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
     it('creates and reads an encrypted request', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
@@ -1640,7 +1646,7 @@ describe('index', () => {
         let data = await request.refresh();
 
         expect(data).toBeDefined();
-        expect(data.balance?.balance).toBe(0);
+        expect(data.balance?.balance).toBe('0');
         expect(data.balance?.events.length).toBe(0);
         expect(data.meta).toBeDefined();
         expect(data.currency).toBe('unknown');
