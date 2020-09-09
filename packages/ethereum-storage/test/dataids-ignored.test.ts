@@ -1,7 +1,6 @@
+/* eslint-disable spellcheck/spell-checker */
 import { StorageTypes } from '@requestnetwork/types';
 import IgnoredDataIds from '../src/ignored-dataIds';
-
-import * as sinon from 'sinon';
 
 const entry: StorageTypes.IEthereumEntry = {
   error: {
@@ -34,7 +33,8 @@ describe('Ignored DataIds', () => {
       expect(await ignoredDataIds.getReason(entry.hash)).toBe(entry.error!.message);
     });
     it('can save() something already saved that can be retried', async () => {
-      const clock = sinon.useFakeTimers();
+      jest.useFakeTimers('modern');
+      jest.setSystemTime(0);
       await ignoredDataIds.save(entry);
       expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({
         [entry.hash]: {
@@ -45,7 +45,7 @@ describe('Ignored DataIds', () => {
         },
       });
 
-      clock.tick(10);
+      jest.advanceTimersByTime(10);
       await ignoredDataIds.save(entry);
       expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({
         [entry.hash]: {
@@ -57,7 +57,8 @@ describe('Ignored DataIds', () => {
       });
     });
     it('can save() something already saved that cannot be retried', async () => {
-      const clock = sinon.useFakeTimers();
+      jest.useFakeTimers('modern');
+      jest.setSystemTime(0);
       await ignoredDataIds.save(entry2);
       expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({
         [entry2.hash]: {
@@ -68,7 +69,7 @@ describe('Ignored DataIds', () => {
         },
       });
 
-      clock.tick(10);
+      jest.advanceTimersByTime(10);
 
       await ignoredDataIds.save(entry2);
       expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({
@@ -79,13 +80,14 @@ describe('Ignored DataIds', () => {
           toRetry: false,
         },
       });
-      sinon.restore();
+      jest.useRealTimers();
     });
   });
 
   describe('getDataIdsWithReasons', () => {
     it('can getDataIdsWithReasons()', async () => {
-      sinon.useFakeTimers();
+      jest.useFakeTimers('modern');
+      jest.setSystemTime(0);
 
       await ignoredDataIds.save(entry);
       await ignoredDataIds.save(entry2);
@@ -104,7 +106,7 @@ describe('Ignored DataIds', () => {
           toRetry: false,
         },
       });
-      sinon.restore();
+      jest.useRealTimers();
     });
     it('can getDataIdsWithReasons() if empty', async () => {
       expect(await ignoredDataIds.getDataIdsWithReasons()).toEqual({});
@@ -113,14 +115,16 @@ describe('Ignored DataIds', () => {
 
   describe('getDataIdsToRetry', () => {
     it('can getDataIdsToRetry()', async () => {
-      const clock = sinon.useFakeTimers();
+      jest.useFakeTimers('modern');
+      jest.setSystemTime(0);
+
       await ignoredDataIds.save(entry);
       expect(await ignoredDataIds.getDataIdsToRetry()).toEqual([]);
 
-      clock.tick(120001);
+      jest.advanceTimersByTime(120001);
       expect(await ignoredDataIds.getDataIdsToRetry()).toEqual([entry]);
 
-      sinon.restore();
+      jest.useRealTimers();
     });
   });
 

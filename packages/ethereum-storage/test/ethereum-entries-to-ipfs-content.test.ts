@@ -1,5 +1,3 @@
-import * as sinon from 'sinon';
-
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
@@ -20,7 +18,8 @@ describe('ethereum-entries-to-ipfs-content', () => {
   });
 
   it('can retry the right hashes', async () => {
-    sinon.useFakeTimers();
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(0);
 
     const connectionErrorSpy = jest.fn(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
@@ -130,11 +129,12 @@ describe('ethereum-entries-to-ipfs-content', () => {
     expect(biggerErrorSpy).toHaveBeenCalledTimes(1);
     expect(okSpy).toHaveBeenCalledTimes(1);
 
-    sinon.restore();
+    jest.useRealTimers();
   });
 
   it('can retry right hashes but find it after the retry', async () => {
-    sinon.useFakeTimers();
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(0);
 
     const connectionErrorSpy = jest.fn(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
@@ -232,11 +232,12 @@ describe('ethereum-entries-to-ipfs-content', () => {
     expect(biggerErrorSpy).toHaveBeenCalledTimes(1);
     expect(okSpy).toHaveBeenCalledTimes(2);
 
-    sinon.restore();
+    jest.useRealTimers();
   });
 
   it('can store hash as ignored then remove it', async () => {
-    sinon.useFakeTimers();
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(0);
 
     ipfsManager.read = jest.fn(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
@@ -301,11 +302,12 @@ describe('ethereum-entries-to-ipfs-content', () => {
 
     expect(ignoredData).toEqual({});
 
-    sinon.restore();
+    jest.useRealTimers();
   });
 
   it('can store hash as ignored it twice', async () => {
-    const clock = sinon.useFakeTimers();
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(0);
 
     ipfsManager.read = jest.fn(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
@@ -346,7 +348,7 @@ describe('ethereum-entries-to-ipfs-content', () => {
 
     expect(ipfsManager.read).toHaveBeenCalledTimes(2);
 
-    clock.tick(100);
+    jest.advanceTimersByTime(100);
     result = await ethereumEntriesToIpfsContent(
       ethereumEntriesToProcess,
       ipfsManager,
@@ -377,6 +379,6 @@ describe('ethereum-entries-to-ipfs-content', () => {
       },
     });
 
-    sinon.restore();
+    jest.useRealTimers();
   });
 });

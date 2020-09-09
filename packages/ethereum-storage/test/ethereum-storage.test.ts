@@ -1,5 +1,4 @@
 /* eslint-disable spellcheck/spell-checker */
-import * as sinon from 'sinon';
 
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
@@ -244,7 +243,8 @@ describe('EthereumStorage', () => {
     });
 
     it('allows to append a file', async () => {
-      sinon.useFakeTimers();
+      jest.useFakeTimers('modern');
+      jest.setSystemTime(0);
       const timestamp = Utils.getCurrentTimestampInSecond();
       const result = await ethereumStorage.append(content1);
 
@@ -262,7 +262,7 @@ describe('EthereumStorage', () => {
         },
       });
       expect(result).toMatchObject(resultExpected);
-      sinon.restore();
+      jest.useRealTimers();
     });
 
     it('cannot append if ipfs add fail', async () => {

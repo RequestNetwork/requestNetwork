@@ -132,7 +132,8 @@ describe('EthereumBlocks', () => {
       };
       const ethereumBlocks = new EthereumBlocks(randEth, 10, 0, 0, 10000);
 
-      jest.useFakeTimers();
+      jest.useFakeTimers('modern');
+      jest.setSystemTime(0);
 
       const block1 = await ethereumBlocks.getLastBlockNumber();
       const block2 = await ethereumBlocks.getLastBlockNumber();
@@ -152,7 +153,8 @@ describe('EthereumBlocks', () => {
       };
       const ethereumBlocks = new EthereumBlocks(randEth, 10, 0, 0, 0);
 
-      jest.useFakeTimers();
+      jest.useFakeTimers('modern');
+      jest.setSystemTime(0);
 
       const block1 = await ethereumBlocks.getLastBlockNumber();
       const block2 = await ethereumBlocks.getLastBlockNumber();
