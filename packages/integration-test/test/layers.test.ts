@@ -181,7 +181,7 @@ describe('Request system', () => {
       topics,
     );
 
-    assert.exists(resultCreation);
+    expect(resultCreation).toBeDefined();
 
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
     const requestIdLength = 66;
@@ -189,7 +189,7 @@ describe('Request system', () => {
 
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
-    assert.exists(request);
+    expect(request).toBeDefined();
   });
 
   it('can create a request with smart contract as payer', async () => {
@@ -222,7 +222,7 @@ describe('Request system', () => {
       topics,
     );
 
-    assert.exists(resultCreation);
+    expect(resultCreation).toBeDefined();
 
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
     const requestIdLength = 66;
@@ -230,7 +230,7 @@ describe('Request system', () => {
 
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
-    assert.exists(request);
+    expect(request).toBeDefined();
   });
 
   it('can create a request with cache', async () => {
@@ -287,7 +287,7 @@ describe('Request system', () => {
       topics,
     );
 
-    assert.exists(resultCreation);
+    expect(resultCreation).toBeDefined();
     expect(
       resultCreation.meta.transactionManagerMeta.dataAccessMeta.storageMeta.storageType,
     ).toEqual(StorageTypes.StorageSystemType.LOCAL);
@@ -301,7 +301,7 @@ describe('Request system', () => {
     await new Promise((r: any): any => setTimeout(r, 2000));
 
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
-    assert.exists(request);
+    expect(request).toBeDefined();
     expect(request.meta.transactionManagerMeta.dataAccessMeta.storageMeta[0].storageType).toEqual(
       StorageTypes.StorageSystemType.ETHEREUM_IPFS,
     );
@@ -344,7 +344,7 @@ describe('Request system', () => {
       topics,
     );
 
-    assert.exists(resultCreation);
+    expect(resultCreation).toBeDefined();
 
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
     const requestIdLength = 66;
@@ -352,7 +352,7 @@ describe('Request system', () => {
 
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
-    assert.exists(request);
+    expect(request).toBeDefined();
   });
 
   it('can create requests and get them fromIdentity and with time boundaries', async () => {
@@ -469,7 +469,7 @@ describe('Request system', () => {
       topics,
     );
 
-    assert.exists(resultCreation);
+    expect(resultCreation).toBeDefined();
 
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
     const requestIdLength = 66;
@@ -477,10 +477,10 @@ describe('Request system', () => {
 
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
-    assert.exists(request.result);
+    expect(request.result).toBeDefined();
     expect(request.meta.transactionManagerMeta.encryptionMethod).toEqual('ecies-aes256-gcm');
     expect(request.result.request).toBeNull();
-    assert.exists(request.result.pending);
+    expect(request.result.pending).toBeDefined();
     expect(request.result.pending!.expectedAmount).toEqual('12345678987654321');
     expect(request.result.pending!.state).toEqual(RequestLogicTypes.STATE.CREATED);
 
@@ -495,15 +495,15 @@ describe('Request system', () => {
 
     const requestAfterReduce = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
-    assert.exists(requestAfterReduce.result);
+    expect(requestAfterReduce.result).toBeDefined();
     expect(requestAfterReduce.meta.transactionManagerMeta.encryptionMethod).toEqual(
       'ecies-aes256-gcm',
     );
-    assert.exists(requestAfterReduce.result.request);
+    expect(requestAfterReduce.result.request).toBeDefined();
     expect(requestAfterReduce.result.request!.expectedAmount).toEqual('12345678987654321');
     expect(requestAfterReduce.result.request!.state).toEqual('created');
 
-    assert.exists(requestAfterReduce.result.pending);
+    expect(requestAfterReduce.result.pending).toBeDefined();
     expect(requestAfterReduce.result.pending!.expectedAmount).toEqual('12345678000000000');
 
     // accept the request by payer
@@ -517,14 +517,14 @@ describe('Request system', () => {
 
     const requestAfterAccept = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
-    assert.exists(requestAfterAccept.result);
+    expect(requestAfterAccept.result).toBeDefined();
     expect(requestAfterAccept.meta.transactionManagerMeta.encryptionMethod).toEqual(
       'ecies-aes256-gcm',
     );
-    assert.exists(requestAfterAccept.result.request);
+    expect(requestAfterAccept.result.request).toBeDefined();
     expect(requestAfterAccept.result.request!.state).toEqual(RequestLogicTypes.STATE.CREATED);
 
-    assert.exists(requestAfterAccept.result.pending);
+    expect(requestAfterAccept.result.pending).toBeDefined();
     expect(requestAfterAccept.result.pending!.state).toEqual(RequestLogicTypes.STATE.ACCEPTED);
 
     // increase amount of the request by payer
@@ -540,14 +540,14 @@ describe('Request system', () => {
       resultCreation.result.requestId,
     );
 
-    assert.exists(requestAfterIncrease.result);
+    expect(requestAfterIncrease.result).toBeDefined();
     expect(requestAfterIncrease.meta.transactionManagerMeta.encryptionMethod).toEqual(
       'ecies-aes256-gcm',
     );
-    assert.exists(requestAfterIncrease.result.request);
+    expect(requestAfterIncrease.result.request).toBeDefined();
     expect(requestAfterIncrease.result.request!.expectedAmount).toEqual('12345678000000000');
 
-    assert.exists(requestAfterIncrease.result.pending);
+    expect(requestAfterIncrease.result.pending).toBeDefined();
     expect(requestAfterIncrease.result.pending!.expectedAmount).toEqual('12345678000000111');
 
     // cancel the request by payee
@@ -561,14 +561,14 @@ describe('Request system', () => {
 
     const requestAfterCancel = await requestLogic.getRequestFromId(resultCreation.result.requestId);
 
-    assert.exists(requestAfterCancel.result);
+    expect(requestAfterCancel.result).toBeDefined();
     expect(requestAfterCancel.meta.transactionManagerMeta.encryptionMethod).toEqual(
       'ecies-aes256-gcm',
     );
-    assert.exists(requestAfterCancel.result.request);
+    expect(requestAfterCancel.result.request).toBeDefined();
     expect(requestAfterCancel.result.request!.state).toEqual(RequestLogicTypes.STATE.ACCEPTED);
 
-    assert.exists(requestAfterCancel.result.pending);
+    expect(requestAfterCancel.result.pending).toBeDefined();
     expect(requestAfterCancel.result.pending!.state).toEqual(RequestLogicTypes.STATE.CANCELED);
 
     // check that the data are encrypted:
@@ -578,31 +578,31 @@ describe('Request system', () => {
 
     expect(dataAccessData.result.transactions.length).toEqual(5);
 
-    assert.exists(dataAccessData.result.transactions[0].transaction.encryptedData);
-    assert.exists(dataAccessData.result.transactions[0].transaction.encryptionMethod);
-    assert.exists(dataAccessData.result.transactions[0].transaction.keys);
-    assert.exists(
+    expect(dataAccessData.result.transactions[0].transaction.encryptedData).toBeDefined();
+    expect(dataAccessData.result.transactions[0].transaction.encryptionMethod).toBeDefined();
+    expect(dataAccessData.result.transactions[0].transaction.keys).toBeDefined();
+    expect(
       dataAccessData.result.transactions[0].transaction.keys![
         MultiFormat.serialize(encryptionDataPayee.identity)
       ],
-    );
-    assert.exists(
+    ).toBeDefined();
+    expect(
       dataAccessData.result.transactions[0].transaction.keys![
         MultiFormat.serialize(encryptionDataPayer.identity)
       ],
-    );
+    ).toBeDefined();
     expect(dataAccessData.result.transactions[0].transaction.data).not.toBeDefined();
 
-    assert.exists(dataAccessData.result.transactions[1].transaction.encryptedData);
+    expect(dataAccessData.result.transactions[1].transaction.encryptedData).toBeDefined();
     expect(dataAccessData.result.transactions[1].transaction.data).not.toBeDefined();
 
-    assert.exists(dataAccessData.result.transactions[2].transaction.encryptedData);
+    expect(dataAccessData.result.transactions[2].transaction.encryptedData).toBeDefined();
     expect(dataAccessData.result.transactions[2].transaction.data).not.toBeDefined();
 
-    assert.exists(dataAccessData.result.transactions[3].transaction.encryptedData);
+    expect(dataAccessData.result.transactions[3].transaction.encryptedData).toBeDefined();
     expect(dataAccessData.result.transactions[3].transaction.data).not.toBeDefined();
 
-    assert.exists(dataAccessData.result.transactions[4].transaction.encryptedData);
+    expect(dataAccessData.result.transactions[4].transaction.encryptedData).toBeDefined();
     expect(dataAccessData.result.transactions[4].transaction.data).not.toBeDefined();
   });
 });
