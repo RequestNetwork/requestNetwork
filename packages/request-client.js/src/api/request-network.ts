@@ -1,7 +1,7 @@
-import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import {
   AdvancedLogicTypes,
   DataAccessTypes,
@@ -211,7 +211,7 @@ export default class RequestNetwork {
     options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
     const identityNotSupported = identities.find(
-      identity => !this.supportedIdentities.includes(identity.type),
+      (identity) => !this.supportedIdentities.includes(identity.type),
     );
 
     if (identityNotSupported) {

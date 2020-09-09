@@ -4,11 +4,6 @@ import { Block } from '@requestnetwork/data-access';
 
 import HttpMetamaskDataAccess from '../src/http-metamask-data-access';
 
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-const expect = chai.expect;
-chai.use(chaiAsPromised);
-
 // create a block and add the transaction in it
 let block1: DataAccessTypes.IBlock = Block.pushTransaction(
   Block.createEmptyBlock(),
@@ -43,7 +38,7 @@ describe('HttpMetamaskDataAccess', () => {
         'location1',
       ]);
 
-      expect(cacheCleaned).to.deep.equal({
+      expect(cacheCleaned).toMatchObject({
         meta: {
           storageMeta: [{ blockTimestamp: 20 }],
           transactionsStorageLocation: ['location2'],
@@ -59,7 +54,7 @@ describe('HttpMetamaskDataAccess', () => {
         },
       });
 
-      expect(httpMMDataAccess.cache.channel1).to.deep.equal({
+      expect(httpMMDataAccess.cache.channel1).toMatchObject({
         location1: null,
         location2: {
           block: block2,

@@ -1,19 +1,9 @@
+/* eslint-disable spellcheck/spell-checker */
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { EventEmitter } from 'events';
 
 import Request from '../../src/api/request';
-
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as spies from 'chai-spies';
-
-chai.use(spies);
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-const assert = chai.assert;
-
-const sandbox = chai.spy.sandbox();
 
 const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async createRequest(): Promise<any> {
@@ -113,18 +103,20 @@ const bitcoinAddress = 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v';
 /* tslint:disable:no-unused-expression */
 describe('api/request', () => {
   afterEach(() => {
-    sandbox.restore();
+    jest.clearAllMocks();
   });
 
   it('exists', async () => {
-    assert.exists(Request);
+    expect(Request).toBeDefined();
 
     const request = new Request('1', mockRequestLogic);
-    assert.isFunction(request.accept);
-    assert.isFunction(request.cancel);
-    assert.isFunction(request.increaseExpectedAmountRequest);
-    assert.isFunction(request.reduceExpectedAmountRequest);
-    assert.isFunction(request.getData);
+    // tslint:disable: no-unbound-method
+    expect(typeof request.accept).toBe('function');
+    expect(typeof request.cancel).toBe('function');
+    expect(typeof request.increaseExpectedAmountRequest).toBe('function');
+    expect(typeof request.reduceExpectedAmountRequest).toBe('function');
+    expect(typeof request.getData).toBe('function');
+    // tslint:enable: no-unbound-method
   });
 
   it('emits error at the creation', async () => {
@@ -134,29 +126,29 @@ describe('api/request', () => {
     });
 
     // tslint:disable-next-line:typedef
-    const handleError = chai.spy((error: any) => {
-      assert(error, 'error for test purpose');
+    const handleError = jest.fn((error: any) => {
+      expect(error).toBe('error for test purpose');
     });
     request.on('error', handleError);
 
     testingEmitter.emit('error', 'error for test purpose');
-
-    expect(handleError, 'error must be emitted').to.have.called();
+    // 'error must be emitted'
+    expect(handleError).toHaveBeenCalled();
   });
 
   describe('accept', () => {
     it('calls request-logic', async () => {
-      const spy = sandbox.on(mockRequestLogic, 'acceptRequest');
+      const spy = jest.spyOn(mockRequestLogic, 'acceptRequest');
 
       const request = new Request('1', mockRequestLogic);
       await request.accept(signatureIdentity);
 
-      expect(spy).to.have.been.called.once;
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'acceptRequest');
-      const spyPayNet = sandbox.on(
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'acceptRequest');
+      const spyPayNet = jest.spyOn(
         mockPaymentNetwork,
         'createExtensionsDataForAddRefundInformation',
       );
@@ -164,34 +156,31 @@ describe('api/request', () => {
       const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
       await request.accept(signatureIdentity, { refundAddress: bitcoinAddress });
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
-    it(
-      'cannot call accept and add refund address without payment network',
-      async () => {
-        const request = new Request('1', mockRequestLogic);
-        await expect(
-          request.accept(signatureIdentity, { refundAddress: bitcoinAddress }),
-        ).to.eventually.be.rejectedWith('Cannot add refund information without payment network');
-      }
-    );
+    it('cannot call accept and add refund address without payment network', async () => {
+      const request = new Request('1', mockRequestLogic);
+      await expect(
+        request.accept(signatureIdentity, { refundAddress: bitcoinAddress }),
+      ).rejects.toThrowError('Cannot add refund information without payment network');
+    });
   });
 
   describe('cancel', () => {
     it('calls request-logic', async () => {
-      const spy = sandbox.on(mockRequestLogic, 'cancelRequest');
+      const spy = jest.spyOn(mockRequestLogic, 'cancelRequest');
 
       const request = new Request('1', mockRequestLogic);
       await request.cancel(signatureIdentity);
 
-      expect(spy).to.have.been.called.once;
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'cancelRequest');
-      const spyPayNet = sandbox.on(
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'cancelRequest');
+      const spyPayNet = jest.spyOn(
         mockPaymentNetwork,
         'createExtensionsDataForAddRefundInformation',
       );
@@ -199,34 +188,31 @@ describe('api/request', () => {
       const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
       await request.cancel(signatureIdentity, { refundAddress: bitcoinAddress });
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
-    it(
-      'cannot call cancel and add refund address without payment network',
-      async () => {
-        const request = new Request('1', mockRequestLogic);
+    it('cannot call cancel and add refund address without payment network', async () => {
+      const request = new Request('1', mockRequestLogic);
 
-        await expect(
-          request.cancel(signatureIdentity, { refundAddress: bitcoinAddress }),
-        ).to.eventually.be.rejectedWith('Cannot add refund information without payment network');
-      }
-    );
+      await expect(
+        request.cancel(signatureIdentity, { refundAddress: bitcoinAddress }),
+      ).rejects.toThrowError('Cannot add refund information without payment network');
+    });
   });
 
   describe('increaseExpectedAmountRequest', () => {
     it('calls request-logic', async () => {
-      const spy = sandbox.on(mockRequestLogic, 'increaseExpectedAmountRequest');
+      const spy = jest.spyOn(mockRequestLogic, 'increaseExpectedAmountRequest');
 
       const request = new Request('1', mockRequestLogic);
       await request.increaseExpectedAmountRequest(3, signatureIdentity);
 
-      expect(spy).to.have.been.called.once;
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'increaseExpectedAmountRequest');
-      const spyPayNet = sandbox.on(
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'increaseExpectedAmountRequest');
+      const spyPayNet = jest.spyOn(
         mockPaymentNetwork,
         'createExtensionsDataForAddRefundInformation',
       );
@@ -236,36 +222,33 @@ describe('api/request', () => {
         refundAddress: bitcoinAddress,
       });
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
-    it(
-      'cannot call increase and add refund address without payment network',
-      async () => {
-        const request = new Request('1', mockRequestLogic);
-        await expect(
-          request.increaseExpectedAmountRequest(3, signatureIdentity, {
-            refundAddress: bitcoinAddress,
-          }),
-        ).to.eventually.be.rejectedWith('Cannot add refund information without payment network');
-      }
-    );
+    it('cannot call increase and add refund address without payment network', async () => {
+      const request = new Request('1', mockRequestLogic);
+      await expect(
+        request.increaseExpectedAmountRequest(3, signatureIdentity, {
+          refundAddress: bitcoinAddress,
+        }),
+      ).rejects.toThrowError('Cannot add refund information without payment network');
+    });
   });
 
   describe('reduceExpectedAmountRequest', () => {
     it('calls request-logic', async () => {
-      const spy = sandbox.on(mockRequestLogic, 'reduceExpectedAmountRequest');
+      const spy = jest.spyOn(mockRequestLogic, 'reduceExpectedAmountRequest');
 
       const request = new Request('1', mockRequestLogic);
       await request.reduceExpectedAmountRequest(3, signatureIdentity);
 
-      expect(spy).to.have.been.called.once;
+      expect(spy).toHaveBeenCalledTimes(1);
     });
 
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'reduceExpectedAmountRequest');
-      const spyPayNet = sandbox.on(
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'reduceExpectedAmountRequest');
+      const spyPayNet = jest.spyOn(
         mockPaymentNetwork,
         'createExtensionsDataForAddPaymentInformation',
       );
@@ -275,27 +258,24 @@ describe('api/request', () => {
         refundAddress: bitcoinAddress,
       });
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
-    it(
-      'cannot call reduce and add payment address without payment network',
-      async () => {
-        const request = new Request('1', mockRequestLogic);
-        await expect(
-          request.reduceExpectedAmountRequest('1', signatureIdentity, {
-            paymentInformation: bitcoinAddress,
-          }),
-        ).to.eventually.be.rejectedWith('Cannot add payment information without payment network');
-      }
-    );
+    it('cannot call reduce and add payment address without payment network', async () => {
+      const request = new Request('1', mockRequestLogic);
+      await expect(
+        request.reduceExpectedAmountRequest('1', signatureIdentity, {
+          paymentInformation: bitcoinAddress,
+        }),
+      ).rejects.toThrowError('Cannot add payment information without payment network');
+    });
   });
 
   describe('addPaymentInformation', () => {
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
-      const spyPayNet = sandbox.on(
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = jest.spyOn(
         mockPaymentNetwork,
         'createExtensionsDataForAddPaymentInformation',
       );
@@ -303,22 +283,22 @@ describe('api/request', () => {
       const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
       await request.addPaymentInformation({ paymentAddress: bitcoinAddress }, signatureIdentity);
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
     it('cannot add payment address without payment network', async () => {
       const request = new Request('1', mockRequestLogic);
       await expect(
         request.addPaymentInformation({ paymentAddress: bitcoinAddress }, signatureIdentity),
-      ).to.eventually.be.rejectedWith('Cannot add payment information without payment network');
+      ).rejects.toThrowError('Cannot add payment information without payment network');
     });
   });
 
   describe('addRefundInformation', () => {
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
-      const spyPayNet = sandbox.on(
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = jest.spyOn(
         mockPaymentNetwork,
         'createExtensionsDataForAddRefundInformation',
       );
@@ -326,23 +306,23 @@ describe('api/request', () => {
       const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
       await request.addRefundInformation({ refundAddress: bitcoinAddress }, signatureIdentity);
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
     it('cannot add payment address without payment network', async () => {
       const request = new Request('1', mockRequestLogic);
       await expect(
         request.addRefundInformation({ refundAddress: bitcoinAddress }, signatureIdentity),
-      ).to.eventually.be.rejectedWith('Cannot add refund information without payment network');
+      ).rejects.toThrowError('Cannot add refund information without payment network');
     });
   });
 
   describe('declareSentPayment', () => {
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
-      const spyPayNet = sandbox.on(
-        mockDeclarativePaymentNetwork,
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = jest.spyOn(
+        mockDeclarativePaymentNetwork as any,
         'createExtensionsDataForDeclareSentPayment',
       );
 
@@ -351,35 +331,30 @@ describe('api/request', () => {
       });
       await request.declareSentPayment('1000', 'sent', signatureIdentity);
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
     it('cannot declare sent payment if no payment network', async () => {
       const request = new Request('1', mockRequestLogic);
       await expect(
         request.declareSentPayment('1000', 'sent', signatureIdentity),
-      ).to.eventually.be.rejectedWith('Cannot declare sent payment without payment network');
+      ).rejects.toThrowError('Cannot declare sent payment without payment network');
     });
 
-    it(
-      'cannot declare sent payment if payment network is not declarative',
-      async () => {
-        const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
-        await expect(
-          request.declareSentPayment('1000', 'sent', signatureIdentity),
-        ).to.eventually.be.rejectedWith(
-          'Cannot declare sent payment without declarative payment network',
-        );
-      }
-    );
+    it('cannot declare sent payment if payment network is not declarative', async () => {
+      const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
+      await expect(
+        request.declareSentPayment('1000', 'sent', signatureIdentity),
+      ).rejects.toThrowError('Cannot declare sent payment without declarative payment network');
+    });
   });
 
   describe('declareSentRefund', () => {
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
-      const spyPayNet = sandbox.on(
-        mockDeclarativePaymentNetwork,
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = jest.spyOn(
+        mockDeclarativePaymentNetwork as any,
         'createExtensionsDataForDeclareSentRefund',
       );
 
@@ -388,35 +363,30 @@ describe('api/request', () => {
       });
       await request.declareSentRefund('1000', 'sent', signatureIdentity);
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
     it('cannot declare sent refund if no payment network', async () => {
       const request = new Request('1', mockRequestLogic);
       await expect(
         request.declareSentRefund('1000', 'sent', signatureIdentity),
-      ).to.eventually.be.rejectedWith('Cannot declare sent refund without payment network');
+      ).rejects.toThrowError('Cannot declare sent refund without payment network');
     });
 
-    it(
-      'cannot declare sent refund if payment network is not declarative',
-      async () => {
-        const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
-        await expect(
-          request.declareSentRefund('1000', 'sent', signatureIdentity),
-        ).to.eventually.be.rejectedWith(
-          'Cannot declare sent refund without declarative payment network',
-        );
-      }
-    );
+    it('cannot declare sent refund if payment network is not declarative', async () => {
+      const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
+      await expect(
+        request.declareSentRefund('1000', 'sent', signatureIdentity),
+      ).rejects.toThrowError('Cannot declare sent refund without declarative payment network');
+    });
   });
 
   describe('declareReceivedPayment', () => {
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
-      const spyPayNet = sandbox.on(
-        mockDeclarativePaymentNetwork,
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = jest.spyOn(
+        mockDeclarativePaymentNetwork as any,
         'createExtensionsDataForDeclareReceivedPayment',
       );
 
@@ -425,35 +395,30 @@ describe('api/request', () => {
       });
       await request.declareReceivedPayment('1000', 'received', signatureIdentity);
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
     it('cannot declare received payment if no payment network', async () => {
       const request = new Request('1', mockRequestLogic);
       await expect(
         request.declareReceivedPayment('1000', 'received', signatureIdentity),
-      ).to.eventually.be.rejectedWith('Cannot declare received payment without payment network');
+      ).rejects.toThrowError('Cannot declare received payment without payment network');
     });
 
-    it(
-      'cannot declare received payment if payment network is not declarative',
-      async () => {
-        const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
-        await expect(
-          request.declareReceivedPayment('1000', 'received', signatureIdentity),
-        ).to.eventually.be.rejectedWith(
-          'Cannot declare received payment without declarative payment network',
-        );
-      }
-    );
+    it('cannot declare received payment if payment network is not declarative', async () => {
+      const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
+      await expect(
+        request.declareReceivedPayment('1000', 'received', signatureIdentity),
+      ).rejects.toThrowError('Cannot declare received payment without declarative payment network');
+    });
   });
 
   describe('declareReceivedRefund', () => {
     it('calls request-logic and payment network', async () => {
-      const spyReqLog = sandbox.on(mockRequestLogic, 'addExtensionsDataRequest');
-      const spyPayNet = sandbox.on(
-        mockDeclarativePaymentNetwork,
+      const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
+      const spyPayNet = jest.spyOn(
+        mockDeclarativePaymentNetwork as any,
         'createExtensionsDataForDeclareReceivedRefund',
       );
 
@@ -462,28 +427,23 @@ describe('api/request', () => {
       });
       await request.declareReceivedRefund('1000', 'received', signatureIdentity);
 
-      expect(spyPayNet).to.have.been.called.once;
-      expect(spyReqLog).to.have.been.called.once;
+      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
     it('cannot declare received refund if no payment network', async () => {
       const request = new Request('1', mockRequestLogic);
       await expect(
         request.declareReceivedRefund('1000', 'received', signatureIdentity),
-      ).to.eventually.be.rejectedWith('Cannot declare received refund without payment network');
+      ).rejects.toThrowError('Cannot declare received refund without payment network');
     });
 
-    it(
-      'cannot declare received refund if payment network is not declarative',
-      async () => {
-        const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
-        await expect(
-          request.declareReceivedRefund('1000', 'received', signatureIdentity),
-        ).to.eventually.be.rejectedWith(
-          'Cannot declare received refund without declarative payment network',
-        );
-      }
-    );
+    it('cannot declare received refund if payment network is not declarative', async () => {
+      const request = new Request('1', mockRequestLogic, { paymentNetwork: mockPaymentNetwork });
+      await expect(
+        request.declareReceivedRefund('1000', 'received', signatureIdentity),
+      ).rejects.toThrowError('Cannot declare received refund without declarative payment network');
+    });
   });
 
   describe('refresh', () => {
@@ -539,12 +499,12 @@ describe('api/request', () => {
           };
         },
       };
-      const spy = sandbox.on(mockRequestLogicWithRequest, 'getRequestFromId');
+      const spy = jest.spyOn(mockRequestLogicWithRequest, 'getRequestFromId');
 
       const request = new Request('1', mockRequestLogicWithRequest);
       await request.refresh();
 
-      expect(spy).to.have.been.called.once;
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });

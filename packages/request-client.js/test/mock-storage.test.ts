@@ -1,12 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
 
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-const assert = chai.assert;
-
 import MockStorage from '../src/mock-storage';
 
 describe('mock-storage', () => {
@@ -14,15 +7,13 @@ describe('mock-storage', () => {
     const storage = new MockStorage();
     const { id, meta } = await storage.append('stuff');
 
-    assert.isString(id);
-    assert.equal(meta.storageType, StorageTypes.StorageSystemType.IN_MEMORY_MOCK);
+    expect(typeof id).toBe('string');
+    expect(meta.storageType).toBe(StorageTypes.StorageSystemType.IN_MEMORY_MOCK);
   });
 
   it('cannot append no data ', async () => {
     const storage = new MockStorage();
-    await expect(storage.append(null as any)).to.eventually.be.rejectedWith(
-      'Error: no content provided',
-    );
+    await expect(storage.append(null as any)).rejects.toThrowError('Error: no content provided');
   });
 
   it('can read data', async () => {
@@ -31,13 +22,13 @@ describe('mock-storage', () => {
 
     const { content, meta } = await storage.read(id);
 
-    assert.isString(content, 'stuff');
-    assert.equal(meta.storageType, StorageTypes.StorageSystemType.IN_MEMORY_MOCK);
+    expect(typeof content).toBe('string');
+    expect(meta.storageType).toBe(StorageTypes.StorageSystemType.IN_MEMORY_MOCK);
   });
 
   it('cannot read no data ', async () => {
     const storage = new MockStorage();
-    await expect(storage.read(null as any)).to.eventually.be.rejectedWith('No id provided');
+    await expect(storage.read(null as any)).rejects.toThrowError('No id provided');
   });
 
   it('can get all data', async () => {
@@ -47,12 +38,9 @@ describe('mock-storage', () => {
 
     const { entries } = await storage.getData();
 
-    assert.notEqual(id1, id2);
-    assert.deepEqual(
-      entries.map(({ content }) => content),
-      ['stuff1', 'stuff2'],
-    );
-    assert.equal(entries.length, 2);
+    expect(id1).not.toBe(id2);
+    expect(entries.map(({ content }) => content)).toMatchObject(['stuff1', 'stuff2']);
+    expect(entries.length).toBe(2);
   });
 
   it('can append the same data twice', async () => {
@@ -60,9 +48,9 @@ describe('mock-storage', () => {
     const { id: id1 } = await storage.append('stuff');
     const { id: id2 } = await storage.append('stuff');
 
-    assert.equal(id1, id2);
+    expect(id1).toBe(id2);
 
     const { entries } = await storage.getData();
-    assert.equal(entries.length, 1);
+    expect(entries.length).toBe(1);
   });
 });
