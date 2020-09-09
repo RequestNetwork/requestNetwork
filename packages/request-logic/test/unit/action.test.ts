@@ -1,5 +1,4 @@
-import { expect } from 'chai';
-
+/* eslint-disable spellcheck/spell-checker */
 import MultiFormat from '@requestnetwork/multi-format';
 import {
   IdentityTypes,
@@ -15,11 +14,6 @@ import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
 import * as TestData from './utils/test-data-generator';
-
-const chai = require('chai');
-const spies = require('chai-spies');
-
-chai.use(spies);
 
 const randomUnsignedAction = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
@@ -44,18 +38,16 @@ const signedAction = {
 };
 
 const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
-  sign: chai.spy((data: any) => ({ data, signature: TestData.fakeSignature })),
-  supportedIdentityTypes: chai.spy.returns([IdentityTypes.TYPE.ETHEREUM_ADDRESS]),
-  supportedMethods: chai.spy.returns([SignatureTypes.METHOD.ECDSA]),
+  sign: jest.fn((data: any) => Promise.resolve({ data, signature: TestData.fakeSignature })),
+  supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
+  supportedMethods: [SignatureTypes.METHOD.ECDSA],
 };
 
 /* tslint:disable:no-unused-expression */
 describe('Action', () => {
   it('can getRequestId() of current version', () => {
     const reqId = Action.getRequestId(signedAction);
-    expect(reqId, 'getRequestId() error').to.be.equal(
-      MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(signedAction)),
-    );
+    expect(reqId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(signedAction)));
   });
   it('can getRequestId() of version before or equal 2.0.0', () => {
     const randomUnsignedAction200 = {
@@ -81,63 +73,52 @@ describe('Action', () => {
     };
 
     const reqId = Action.getRequestId(signedAction200);
-    expect(reqId, 'getRequestId() error').to.be.equal(
+    expect(reqId).toBe(
       MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(randomUnsignedAction200)),
     );
   });
 
   it('can getRoleInAction()', () => {
-    expect(
-      Action.getRoleInAction(TestData.payeeRaw.identity, signedAction),
-      'getRoleInAction() error',
-    ).to.be.deep.equal(RequestLogicTypes.ROLE.PAYEE);
-    expect(
-      Action.getRoleInAction(TestData.payerRaw.identity, signedAction),
-      'getRoleInAction() error',
-    ).to.be.deep.equal(RequestLogicTypes.ROLE.PAYER);
-    expect(
-      Action.getRoleInAction(TestData.otherIdRaw.identity, signedAction),
-      'getRoleInAction() error',
-    ).to.be.deep.equal(RequestLogicTypes.ROLE.THIRD_PARTY);
+    expect(Action.getRoleInAction(TestData.payeeRaw.identity, signedAction)).toBe(
+      RequestLogicTypes.ROLE.PAYEE,
+    );
+    expect(Action.getRoleInAction(TestData.payerRaw.identity, signedAction)).toBe(
+      RequestLogicTypes.ROLE.PAYER,
+    );
+    expect(Action.getRoleInAction(TestData.otherIdRaw.identity, signedAction)).toBe(
+      RequestLogicTypes.ROLE.THIRD_PARTY,
+    );
   });
 
-  it('can createAction()', () => {
+  it('can createAction()', async () => {
     const action = Action.createAction(
       randomUnsignedAction,
       TestData.payeeRaw.identity,
       fakeSignatureProvider,
     );
 
-    expect(fakeSignatureProvider.sign).to.have.been.called.with(
+    expect(fakeSignatureProvider.sign).toHaveBeenCalledWith(
       randomUnsignedAction,
       TestData.payeeRaw.identity,
     );
 
-    expect(action, 'createAction() action error').to.be.deep.equal({
+    await expect(action).resolves.toMatchObject({
       data: randomUnsignedAction,
       signature: TestData.fakeSignature,
     });
   });
 
   it('can isActionVersionSupported()', () => {
-    expect(
-      Action.isActionVersionSupported(signedAction),
-      'isActionVersionSupported() must returns true',
-    ).to.be.true;
+    expect(Action.isActionVersionSupported(signedAction)).toBeTruthy();
 
     const wrongVersionAction = Utils.deepCopy(signedAction);
     wrongVersionAction.data.version = '10.0.0';
 
-    expect(
-      Action.isActionVersionSupported(wrongVersionAction),
-      'isActionVersionSupported() must returns false',
-    ).to.be.false;
+    expect(Action.isActionVersionSupported(wrongVersionAction)).toBeFalsy();
   });
 
   it('can getVersionFromAction()', () => {
-    expect(Action.getVersionFromAction(signedAction), 'getVersionFromAction() error').to.be.equal(
-      CURRENT_VERSION,
-    );
+    expect(Action.getVersionFromAction(signedAction)).toBe(CURRENT_VERSION);
   });
 });
 
@@ -162,6 +143,6 @@ describe('actions retrocompatibility', () => {
 
     const request = CreateAction.createRequest(action, 2);
 
-    expect(Action.getRequestId(action)).equals(request.requestId);
+    expect(Action.getRequestId(action)).toBe(request.requestId);
   });
 });

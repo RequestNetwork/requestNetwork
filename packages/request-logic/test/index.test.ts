@@ -1,5 +1,3 @@
-import * as sinon from 'sinon';
-
 import { EventEmitter } from 'events';
 
 import MultiFormat from '@requestnetwork/multi-format';
@@ -12,14 +10,6 @@ import * as TestData from './unit/utils/test-data-generator';
 import Version from '../src/version';
 
 const CURRENT_VERSION = Version.currentVersion;
-
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as spies from 'chai-spies';
-
-chai.use(chaiAsPromised);
-chai.use(spies);
-const expect = chai.expect;
 
 const createParams: RequestLogicTypes.ICreateParameters = {
   currency: {
@@ -51,10 +41,10 @@ let fakeTransactionManager: TransactionTypes.ITransactionManager;
 describe('index', () => {
   beforeEach(() => {
     fakeTransactionManager = {
-      getChannelsByMultipleTopics: chai.spy() as any,
-      getChannelsByTopic: chai.spy() as any,
-      getTransactionsByChannelId: chai.spy() as any,
-      persistTransaction: chai.spy(() => {
+      getChannelsByMultipleTopics: jest.fn() as any,
+      getChannelsByTopic: jest.fn() as any,
+      getTransactionsByChannelId: jest.fn() as any,
+      persistTransaction: jest.fn(() => {
         const fakeMetaTransactionManagerWithEvent = Object.assign(
           new EventEmitter(),
           fakeMetaTransactionManager,
@@ -74,7 +64,7 @@ describe('index', () => {
         return fakeMetaTransactionManagerWithEvent;
       }) as any,
 
-      // chai.spy.returns(fakeMetaTransactionManager) as any,
+      // jest.fn().mockReturnValue(fakeMetaTransactionManager) as any,
     };
   });
 
@@ -84,49 +74,47 @@ describe('index', () => {
 
       await expect(
         requestLogic.createRequest(createParams, TestData.payeeRaw.identity),
-      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+      ).rejects.toThrowError('You must give a signature provider to create actions');
     });
 
-    it(
-      'cannot createRequest if apply fails in the advanced request logic',
-      async () => {
-        const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-          applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
-            throw new Error('Expected throw');
-          },
-          extensions: {},
-        };
+    it('cannot createRequest if apply fails in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
 
-        const requestLogic = new RequestLogic(
-          fakeTransactionManager,
-          TestData.fakeSignatureProvider,
-          fakeAdvancedLogic,
-        );
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
 
-        const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ETH,
-            value: 'ETH',
-          },
-          expectedAmount: TestData.arbitraryExpectedAmount,
-          extensionsData: ['whatever'],
-          payee: TestData.payeeRaw.identity,
-          payer: TestData.payerRaw.identity,
-          timestamp: 1544426030,
-        };
+      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: ['whatever'],
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+        timestamp: 1544426030,
+      };
 
-        await expect(
-          requestLogic.createRequest(createParamsWithExtensions, TestData.payeeRaw.identity),
-        ).to.eventually.be.rejectedWith('Expected throw');
-      }
-    );
+      await expect(
+        requestLogic.createRequest(createParamsWithExtensions, TestData.payeeRaw.identity),
+      ).rejects.toThrowError('Expected throw');
+    });
 
     it('can createRequest', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
 
-      ret.on('confirmed', resultConfirmed1 => {
-        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
           meta: {
             transactionManagerMeta: {
               storageDataId: 'fakeDataId',
@@ -138,14 +126,17 @@ describe('index', () => {
         });
       });
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({ requestId });
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
-      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(action),
         requestId,
+        [],
       );
     });
 
@@ -156,12 +147,14 @@ describe('index', () => {
         TestData.payerRaw.identity,
       ]);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({ requestId });
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
-      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(action),
         requestId,
         [
@@ -172,21 +165,19 @@ describe('index', () => {
     });
 
     it('can createRequest if persist emit error', async () => {
-      const clock = sinon.useFakeTimers();
+      jest.useFakeTimers();
       const fakeTransactionManagerEmittingError = Object.assign({}, fakeTransactionManager);
-      fakeTransactionManagerEmittingError.persistTransaction = chai.spy(
-        (): any => {
-          const fakeTransactionManagerWithEvent = Object.assign(
-            new EventEmitter(),
-            fakeMetaTransactionManager,
-          );
-          setTimeout(() => {
-            // tslint:disable-next-line:no-magic-numbers
-            fakeTransactionManagerWithEvent.emit('error', 'error for test purpose', 10);
-          });
-          return fakeTransactionManagerWithEvent;
-        },
-      );
+      fakeTransactionManagerEmittingError.persistTransaction = jest.fn((): any => {
+        const fakeTransactionManagerWithEvent = Object.assign(
+          new EventEmitter(),
+          fakeMetaTransactionManager,
+        );
+        setTimeout(() => {
+          // tslint:disable-next-line:no-magic-numbers
+          fakeTransactionManagerWithEvent.emit('error', 'error for test purpose', 10);
+        });
+        return fakeTransactionManagerWithEvent;
+      });
 
       const requestLogic = new RequestLogic(
         fakeTransactionManagerEmittingError,
@@ -195,80 +186,78 @@ describe('index', () => {
       const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
 
       // tslint:disable-next-line:typedef
-      const handleError = chai.spy((error: any) => {
-        expect(error, 'error wrong').to.deep.equal('error for test purpose');
+      const handleError = jest.fn((error: any) => {
+        // 'error wrong'
+        expect(error).toEqual('error for test purpose');
       });
       ret.on('error', handleError);
 
-      clock.tick(11);
+      jest.advanceTimersByTime(11);
 
-      expect(handleError, 'error must be emitted').to.have.called();
+      expect(handleError).toHaveBeenCalled();
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({ requestId });
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
-      expect(fakeTransactionManagerEmittingError.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManagerEmittingError.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(action),
         requestId,
+        [],
       );
-      sinon.restore();
+      jest.useRealTimers();
     });
   });
 
   describe('createEncryptedRequest', () => {
-    it(
-      'cannot create encrypted request without signature provider',
-      async () => {
-        const requestLogic = new RequestLogic(fakeTransactionManager);
+    it('cannot create encrypted request without signature provider', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager);
 
-        await expect(
-          requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, [
-            TestData.payeeRaw.encryptionParams,
-            TestData.payerRaw.encryptionParams,
-          ]),
-        ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
-      }
-    );
+      await expect(
+        requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, [
+          TestData.payeeRaw.encryptionParams,
+          TestData.payerRaw.encryptionParams,
+        ]),
+      ).rejects.toThrowError('You must give a signature provider to create actions');
+    });
 
-    it(
-      'cannot create an encrypted request if apply fails in the advanced request logic',
-      async () => {
-        const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-          applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
-            throw new Error('Expected throw');
-          },
-          extensions: {},
-        };
+    it('cannot create an encrypted request if apply fails in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
 
-        const requestLogic = new RequestLogic(
-          fakeTransactionManager,
-          TestData.fakeSignatureProvider,
-          fakeAdvancedLogic,
-        );
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
 
-        const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ETH,
-            value: 'ETH',
-          },
-          expectedAmount: TestData.arbitraryExpectedAmount,
-          extensionsData: ['whatever'],
-          payee: TestData.payeeRaw.identity,
-          payer: TestData.payerRaw.identity,
-          timestamp: 1544426030,
-        };
+      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: ['whatever'],
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+        timestamp: 1544426030,
+      };
 
-        await expect(
-          requestLogic.createEncryptedRequest(
-            createParamsWithExtensions,
-            TestData.payeeRaw.identity,
-            [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
-          ),
-        ).to.eventually.be.rejectedWith('Expected throw');
-      }
-    );
+      await expect(
+        requestLogic.createEncryptedRequest(
+          createParamsWithExtensions,
+          TestData.payeeRaw.identity,
+          [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
+        ),
+      ).rejects.toThrowError('Expected throw');
+    });
 
     it('can create en encrypted request', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
@@ -278,8 +267,9 @@ describe('index', () => {
         [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
       );
 
-      ret.on('confirmed', resultConfirmed1 => {
-        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
           meta: {
             transactionManagerMeta: {
               storageDataId: 'fakeDataId',
@@ -291,14 +281,17 @@ describe('index', () => {
         });
       });
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({ requestId });
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
-      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(action),
         requestId,
+        [],
         [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
       );
     });
@@ -311,51 +304,48 @@ describe('index', () => {
         [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
         [TestData.payeeRaw.identity, TestData.payerRaw.identity],
       );
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({ requestId });
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
-      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(action),
         requestId,
-        [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
         [
           MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(TestData.payeeRaw.identity)),
           MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(TestData.payerRaw.identity)),
         ],
+        [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
       );
     });
 
-    it(
-      'cannot create en encrypted request without encryption parameteres',
-      async () => {
-        const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
+    it('cannot create en encrypted request without encryption parameters', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
 
-        await expect(
-          requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, []),
-        ).to.eventually.be.rejectedWith(
-          'You must give at least one encryption parameter to create an encrypted request',
-        );
-      }
-    );
+      await expect(
+        requestLogic.createEncryptedRequest(createParams, TestData.payeeRaw.identity, []),
+      ).rejects.toThrowError(
+        'You must give at least one encryption parameter to create an encrypted request',
+      );
+    });
 
     it('can createEncryptedRequest if persist emit error', async () => {
-      const clock = sinon.useFakeTimers();
+      jest.useFakeTimers();
       const fakeTransactionManagerEmittingError = Object.assign({}, fakeTransactionManager);
-      fakeTransactionManagerEmittingError.persistTransaction = chai.spy(
-        (): any => {
-          const fakeTransactionManagerWithEvent = Object.assign(
-            new EventEmitter(),
-            fakeMetaTransactionManager,
-          );
-          setTimeout(() => {
-            // tslint:disable-next-line:no-magic-numbers
-            fakeTransactionManagerWithEvent.emit('error', 'error for test purpose', 10);
-          });
-          return fakeTransactionManagerWithEvent;
-        },
-      );
+      fakeTransactionManagerEmittingError.persistTransaction = jest.fn((): any => {
+        const fakeTransactionManagerWithEvent = Object.assign(
+          new EventEmitter(),
+          fakeMetaTransactionManager,
+        );
+        setTimeout(() => {
+          // tslint:disable-next-line:no-magic-numbers
+          fakeTransactionManagerWithEvent.emit('error', 'error for test purpose', 10);
+        });
+        return fakeTransactionManagerWithEvent;
+      });
 
       const requestLogic = new RequestLogic(
         fakeTransactionManagerEmittingError,
@@ -368,25 +358,30 @@ describe('index', () => {
       );
 
       // tslint:disable-next-line:typedef
-      const handleError = chai.spy((error: any) => {
-        expect(error, 'error wrong').to.deep.equal('error for test purpose');
+      const handleError = jest.fn((error: any) => {
+        // 'error wrong'
+        expect(error).toEqual('error for test purpose');
       });
       ret.on('error', handleError);
 
-      clock.tick(11);
+      jest.advanceTimersByTime(11);
 
-      expect(handleError, 'error must be emitted').to.have.called();
+      expect(handleError).toHaveBeenCalled();
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({ requestId });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({ requestId });
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
-      expect(fakeTransactionManagerEmittingError.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManagerEmittingError.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(action),
         requestId,
+        [],
+        [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
       );
-      sinon.restore();
+      jest.useRealTimers();
     });
   });
 
@@ -396,42 +391,39 @@ describe('index', () => {
 
       await expect(
         requestLogic.computeRequestId(createParams, TestData.payeeRaw.identity),
-      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+      ).rejects.toThrowError('You must give a signature provider to create actions');
     });
 
-    it(
-      'cannot compute request id if apply fails in the advanced request logic',
-      async () => {
-        const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-          applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
-            throw new Error('Expected throw');
-          },
-          extensions: {},
-        };
+    it('cannot compute request id if apply fails in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
 
-        const requestLogic = new RequestLogic(
-          fakeTransactionManager,
-          TestData.fakeSignatureProvider,
-          fakeAdvancedLogic,
-        );
+      const requestLogic = new RequestLogic(
+        fakeTransactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
 
-        const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ETH,
-            value: 'ETH',
-          },
-          expectedAmount: TestData.arbitraryExpectedAmount,
-          extensionsData: ['whatever'],
-          payee: TestData.payeeRaw.identity,
-          payer: TestData.payerRaw.identity,
-          timestamp: 1544426030,
-        };
+      const createParamsWithExtensions: RequestLogicTypes.ICreateParameters = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: TestData.arbitraryExpectedAmount,
+        extensionsData: ['whatever'],
+        payee: TestData.payeeRaw.identity,
+        payer: TestData.payerRaw.identity,
+        timestamp: 1544426030,
+      };
 
-        await expect(
-          requestLogic.computeRequestId(createParamsWithExtensions, TestData.payeeRaw.identity),
-        ).to.eventually.be.rejectedWith('Expected throw');
-      }
-    );
+      await expect(
+        requestLogic.computeRequestId(createParamsWithExtensions, TestData.payeeRaw.identity),
+      ).rejects.toThrowError('Expected throw');
+    });
 
     it('can computeRequestId', async () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
@@ -440,9 +432,9 @@ describe('index', () => {
         TestData.payeeRaw.identity,
       );
 
-      expect(generatedRequestId).to.equal(requestId);
+      expect(generatedRequestId).toBe(requestId);
 
-      expect(fakeTransactionManager.persistTransaction).to.not.have.been.called();
+      expect(fakeTransactionManager.persistTransaction).not.toHaveBeenCalled();
     });
   });
 
@@ -454,8 +446,9 @@ describe('index', () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.acceptRequest(acceptParams, TestData.payerRaw.identity);
 
-      ret.on('confirmed', resultConfirmed1 => {
-        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
           meta: {
             transactionManagerMeta: {
               storageDataId: 'fakeDataId',
@@ -464,8 +457,9 @@ describe('index', () => {
         });
       });
 
-      expect(ret.result, 'ret.result is wrong').to.be.undefined;
-      expect(ret.meta).to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toBeUndefined();
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
@@ -476,7 +470,7 @@ describe('index', () => {
       };
       const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payerRaw.identity);
 
-      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
       );
@@ -489,7 +483,7 @@ describe('index', () => {
 
       await expect(
         requestLogic.acceptRequest(acceptParams, TestData.payeeRaw.identity),
-      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+      ).rejects.toThrowError('You must give a signature provider to create actions');
     });
 
     it('cannot accept as payee', async () => {
@@ -511,9 +505,9 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
-        getTransactionsByChannelId: chai.spy.returns(
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
+        getTransactionsByChannelId: jest.fn().mockReturnValue(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
             result: {
@@ -527,7 +521,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy() as any,
+        persistTransaction: jest.fn() as any,
       };
       const acceptParams = {
         requestId,
@@ -536,7 +530,7 @@ describe('index', () => {
 
       await expect(
         requestLogic.acceptRequest(acceptParams, TestData.payeeRaw.identity, true),
-      ).to.eventually.be.rejectedWith('Signer must be the payer');
+      ).rejects.toThrowError('Signer must be the payer');
     });
   });
 
@@ -548,8 +542,9 @@ describe('index', () => {
       const requestLogic = new RequestLogic(fakeTransactionManager, TestData.fakeSignatureProvider);
       const ret = await requestLogic.cancelRequest(cancelRequest, TestData.payeeRaw.identity);
 
-      ret.on('confirmed', resultConfirmed1 => {
-        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
           meta: {
             transactionManagerMeta: {
               storageDataId: 'fakeDataId',
@@ -558,8 +553,9 @@ describe('index', () => {
         });
       });
 
-      expect(ret.result, 'ret.result is wrong').to.be.undefined;
-      expect(ret.meta).to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toBeUndefined();
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
@@ -570,7 +566,7 @@ describe('index', () => {
       };
       const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payeeRaw.identity);
 
-      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
       );
@@ -583,7 +579,7 @@ describe('index', () => {
 
       await expect(
         requestLogic.cancelRequest(cancelParams, TestData.payeeRaw.identity),
-      ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
+      ).rejects.toThrowError('You must give a signature provider to create actions');
     });
 
     it('cannot cancel if not payee or payer', async () => {
@@ -605,9 +601,9 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
-        getTransactionsByChannelId: chai.spy.returns(
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
+        getTransactionsByChannelId: jest.fn().mockReturnValue(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
             result: {
@@ -621,7 +617,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy() as any,
+        persistTransaction: jest.fn() as any,
       };
       const cancelParams = {
         requestId,
@@ -630,7 +626,7 @@ describe('index', () => {
 
       await expect(
         requestLogic.cancelRequest(cancelParams, TestData.otherIdRaw.identity, true),
-      ).to.eventually.be.rejectedWith('Signer must be the payer or the payee');
+      ).rejects.toThrowError('Signer must be the payer or the payee');
     });
   });
 
@@ -647,8 +643,9 @@ describe('index', () => {
         TestData.payerRaw.identity,
       );
 
-      ret.on('confirmed', resultConfirmed1 => {
-        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
           meta: {
             transactionManagerMeta: {
               storageDataId: 'fakeDataId',
@@ -657,8 +654,9 @@ describe('index', () => {
         });
       });
 
-      expect(ret.result, 'ret.result is wrong').to.be.undefined;
-      expect(ret.meta).to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toBeUndefined();
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
@@ -669,25 +667,22 @@ describe('index', () => {
       };
       const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payerRaw.identity);
 
-      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
       );
     });
-    it(
-      'cannot increaseExpectedAmountRequest without signature provider',
-      async () => {
-        const requestLogic = new RequestLogic(fakeTransactionManager);
-        const increaseRequest = {
-          deltaAmount: '1000',
-          requestId,
-        };
+    it('cannot increaseExpectedAmountRequest without signature provider', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager);
+      const increaseRequest = {
+        deltaAmount: '1000',
+        requestId,
+      };
 
-        await expect(
-          requestLogic.increaseExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity),
-        ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
-      }
-    );
+      await expect(
+        requestLogic.increaseExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity),
+      ).rejects.toThrowError('You must give a signature provider to create actions');
+    });
     it('cannot increaseExpectedAmountRequest as payee', async () => {
       const actionCreate = Utils.signature.sign(
         {
@@ -707,9 +702,9 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
-        getTransactionsByChannelId: chai.spy.returns(
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
+        getTransactionsByChannelId: jest.fn().mockReturnValue(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
             result: {
@@ -723,7 +718,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy() as any,
+        persistTransaction: jest.fn() as any,
       };
       const increaseRequest = {
         deltaAmount: '1000',
@@ -737,7 +732,7 @@ describe('index', () => {
           TestData.payeeRaw.identity,
           true,
         ),
-      ).to.eventually.be.rejectedWith('signer must be the payer');
+      ).rejects.toThrowError('signer must be the payer');
     });
   });
 
@@ -754,8 +749,9 @@ describe('index', () => {
         TestData.payeeRaw.identity,
       );
 
-      ret.on('confirmed', resultConfirmed1 => {
-        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
           meta: {
             transactionManagerMeta: {
               storageDataId: 'fakeDataId',
@@ -764,8 +760,9 @@ describe('index', () => {
         });
       });
 
-      expect(ret.result, 'ret.result is wrong').to.be.undefined;
-      expect(ret.meta).to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toBeUndefined();
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
@@ -776,25 +773,22 @@ describe('index', () => {
       };
       const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payeeRaw.identity);
 
-      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
       );
     });
-    it(
-      'cannot reduceExpectedAmountRequest without signature provider',
-      async () => {
-        const requestLogic = new RequestLogic(fakeTransactionManager);
-        const reduceRequest = {
-          deltaAmount: '1000',
-          requestId,
-        };
+    it('cannot reduceExpectedAmountRequest without signature provider', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager);
+      const reduceRequest = {
+        deltaAmount: '1000',
+        requestId,
+      };
 
-        await expect(
-          requestLogic.reduceExpectedAmountRequest(reduceRequest, TestData.payeeRaw.identity),
-        ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
-      }
-    );
+      await expect(
+        requestLogic.reduceExpectedAmountRequest(reduceRequest, TestData.payeeRaw.identity),
+      ).rejects.toThrowError('You must give a signature provider to create actions');
+    });
     it('cannot reduceExpectedAmountRequest as payer', async () => {
       const actionCreate = Utils.signature.sign(
         {
@@ -814,9 +808,9 @@ describe('index', () => {
         TestData.payeeRaw.signatureParams,
       );
       const transactionManager: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
-        getTransactionsByChannelId: chai.spy.returns(
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
+        getTransactionsByChannelId: jest.fn().mockReturnValue(
           Promise.resolve({
             meta: { ignoredTransactions: [] },
             result: {
@@ -830,7 +824,7 @@ describe('index', () => {
             },
           }),
         ),
-        persistTransaction: chai.spy() as any,
+        persistTransaction: jest.fn() as any,
       };
       const increaseRequest = {
         deltaAmount: '1000',
@@ -840,7 +834,7 @@ describe('index', () => {
 
       await expect(
         requestLogic.reduceExpectedAmountRequest(increaseRequest, TestData.payerRaw.identity, true),
-      ).to.eventually.be.rejectedWith('signer must be the payee');
+      ).rejects.toThrowError('signer must be the payee');
     });
   });
 
@@ -857,8 +851,9 @@ describe('index', () => {
         TestData.payeeRaw.identity,
       );
 
-      ret.on('confirmed', resultConfirmed1 => {
-        expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
+      ret.on('confirmed', (resultConfirmed1) => {
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
           meta: {
             transactionManagerMeta: {
               storageDataId: 'fakeDataId',
@@ -867,8 +862,9 @@ describe('index', () => {
         });
       });
 
-      expect(ret.result, 'ret.result is wrong').to.be.undefined;
-      expect(ret.meta).to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toBeUndefined();
+      expect(ret.meta).toEqual({
         transactionManagerMeta: fakeMetaTransactionManager.meta,
       });
 
@@ -879,86 +875,80 @@ describe('index', () => {
       };
       const actionExpected = TestData.fakeSignatureProvider.sign(data, TestData.payeeRaw.identity);
 
-      expect(fakeTransactionManager.persistTransaction).to.have.been.called.with(
+      expect(fakeTransactionManager.persistTransaction).toHaveBeenCalledWith(
         JSON.stringify(actionExpected),
         requestId,
       );
     });
-    it(
-      'cannot addExtensionsDataRequest without signature provider',
-      async () => {
-        const requestLogic = new RequestLogic(fakeTransactionManager);
-        const addExtRequest = {
-          extensionsData: TestData.oneExtension,
-          requestId,
-        };
+    it('cannot addExtensionsDataRequest without signature provider', async () => {
+      const requestLogic = new RequestLogic(fakeTransactionManager);
+      const addExtRequest = {
+        extensionsData: TestData.oneExtension,
+        requestId,
+      };
 
-        await expect(
-          requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity),
-        ).to.eventually.be.rejectedWith('You must give a signature provider to create actions');
-      }
-    );
-    it(
-      'cannot addExtension if apply fail in the advanced request logic',
-      async () => {
-        const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-          applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
-            throw new Error('Expected throw');
-          },
-          extensions: {},
-        };
+      await expect(
+        requestLogic.addExtensionsDataRequest(addExtRequest, TestData.payeeRaw.identity),
+      ).rejects.toThrowError('You must give a signature provider to create actions');
+    });
+    it('cannot addExtension if apply fail in the advanced request logic', async () => {
+      const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
+          throw new Error('Expected throw');
+        },
+        extensions: {},
+      };
 
-        const actionCreate = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.CREATE,
-            parameters: {
-              currency: {
-                type: RequestLogicTypes.CURRENCY.ETH,
-                value: 'ETH',
-              },
-              expectedAmount: '123400000000000000',
-              payee: TestData.payeeRaw.identity,
-              payer: TestData.payerRaw.identity,
-              timestamp: 1544426030,
+      const actionCreate = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
             },
-            version: CURRENT_VERSION,
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
           },
-          TestData.payeeRaw.signatureParams,
-        );
-        const transactionManager: TransactionTypes.ITransactionManager = {
-          getChannelsByMultipleTopics: chai.spy() as any,
-          getChannelsByTopic: chai.spy() as any,
-          getTransactionsByChannelId: chai.spy.returns(
-            Promise.resolve({
-              meta: { ignoredTransactions: [] },
-              result: {
-                transactions: [
-                  {
-                    state: TransactionTypes.TransactionState.CONFIRMED,
-                    timestamp: 1,
-                    transaction: { data: JSON.stringify(actionCreate) },
-                  },
-                ],
-              },
-            }),
-          ),
-          persistTransaction: chai.spy() as any,
-        };
-        const addExtensionParams = {
-          extensionsData: ['whatever'],
-          requestId,
-        };
-        const requestLogic = new RequestLogic(
-          transactionManager,
-          TestData.fakeSignatureProvider,
-          fakeAdvancedLogic,
-        );
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+      const transactionManager: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
+        getTransactionsByChannelId: jest.fn().mockReturnValue(
+          Promise.resolve({
+            meta: { ignoredTransactions: [] },
+            result: {
+              transactions: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+              ],
+            },
+          }),
+        ),
+        persistTransaction: jest.fn() as any,
+      };
+      const addExtensionParams = {
+        extensionsData: ['whatever'],
+        requestId,
+      };
+      const requestLogic = new RequestLogic(
+        transactionManager,
+        TestData.fakeSignatureProvider,
+        fakeAdvancedLogic,
+      );
 
-        await expect(
-          requestLogic.addExtensionsDataRequest(addExtensionParams, TestData.payeeRaw.identity, true),
-        ).to.eventually.be.rejectedWith('Expected throw');
-      }
-    );
+      await expect(
+        requestLogic.addExtensionsDataRequest(addExtensionParams, TestData.payeeRaw.identity, true),
+      ).rejects.toThrowError('Expected throw');
+    });
   });
 
   describe('getRequestFromId', () => {
@@ -1029,11 +1019,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy() as any,
+        persistTransaction: jest.fn() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1042,7 +1032,8 @@ describe('index', () => {
 
       const request = await requestLogic.getRequestFromId(requestId);
 
-      expect(request, 'request result is wrong').to.deep.equal({
+      // 'request result is wrong'
+      expect(request).toEqual({
         meta: {
           ignoredTransactions: [],
           transactionManagerMeta: meta,
@@ -1164,11 +1155,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy() as any,
+        persistTransaction: jest.fn() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1177,7 +1168,8 @@ describe('index', () => {
 
       const request = await requestLogic.getRequestFromId(requestId);
 
-      expect(request, 'request result is wrong').to.deep.equal({
+      // 'request result is wrong'
+      expect(request).toEqual({
         meta: {
           ignoredTransactions: [
             {
@@ -1303,11 +1295,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy() as any,
+        persistTransaction: jest.fn() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1315,7 +1307,8 @@ describe('index', () => {
       );
       const request = await requestLogic.getRequestFromId(requestId);
 
-      expect(request, 'request result is wrong').to.deep.equal({
+      // 'request result is wrong'
+      expect(request).toEqual({
         meta: {
           ignoredTransactions: [],
           transactionManagerMeta: meta,
@@ -1374,334 +1367,330 @@ describe('index', () => {
       });
     });
 
-    it(
-      'can getRequestFromId ignore the same transactions even with different case',
-      async () => {
-        const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.CREATE,
-            parameters: {
-              currency: {
-                type: RequestLogicTypes.CURRENCY.ETH,
-                value: 'ETH',
-              },
-              expectedAmount: '123400000000000000',
-              payee: TestData.payeeRaw.identity,
-              payer: TestData.payerRaw.identity,
-              timestamp: 1544426030,
+    it('can getRequestFromId ignore the same transactions even with different case', async () => {
+      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
             },
-            version: CURRENT_VERSION,
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
           },
-          TestData.payeeRaw.signatureParams,
-        );
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
 
-        const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-            parameters: {
-              requestId,
+      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const actionReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionReduce2: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId: requestId.toUpperCase(),
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const meta = { ignoredTransactions: [] };
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 1,
+              transaction: { data: JSON.stringify(actionCreate) },
             },
-            version: CURRENT_VERSION,
-          },
-          TestData.payerRaw.signatureParams,
-        );
-
-        const actionReduce: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: '1000',
-              requestId,
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionAccept) },
             },
-            version: CURRENT_VERSION,
-          },
-          TestData.payeeRaw.signatureParams,
-        );
-
-        const actionReduce2: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: '1000',
-              requestId: requestId.toUpperCase(),
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 3,
+              transaction: { data: JSON.stringify(actionReduce) },
             },
-            version: CURRENT_VERSION,
-          },
-          TestData.payeeRaw.signatureParams,
-        );
-
-        const meta = { ignoredTransactions: [] };
-        const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-          meta,
-          result: {
-            transactions: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 1,
-                transaction: { data: JSON.stringify(actionCreate) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(actionAccept) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 3,
-                transaction: { data: JSON.stringify(actionReduce) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 4,
-                transaction: { data: JSON.stringify(actionReduce2) },
-              },
-            ],
-          },
-        });
-
-        const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-          getChannelsByMultipleTopics: chai.spy() as any,
-          getChannelsByTopic: chai.spy() as any,
-          getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
-            listActions,
-          persistTransaction: chai.spy() as any,
-        };
-        const requestLogic = new RequestLogic(
-          fakeTransactionManagerGet,
-          TestData.fakeSignatureProvider,
-        );
-
-        const request = await requestLogic.getRequestFromId(requestId);
-
-        expect(request, 'request result is wrong').to.deep.equal({
-          meta: {
-            ignoredTransactions: [
-              {
-                reason: 'Duplicated transaction',
-                transaction: {
-                  action: actionReduce2,
-                  state: TransactionTypes.TransactionState.CONFIRMED,
-                  timestamp: 4,
-                },
-              },
-            ],
-            transactionManagerMeta: meta,
-          },
-          result: {
-            pending: null,
-            request: {
-              creator: TestData.payeeRaw.identity,
-              currency: {
-                type: RequestLogicTypes.CURRENCY.ETH,
-                value: 'ETH',
-              },
-              events: [
-                {
-                  actionSigner: TestData.payeeRaw.identity,
-                  name: RequestLogicTypes.ACTION_NAME.CREATE,
-                  parameters: {
-                    expectedAmount: '123400000000000000',
-                    extensionsDataLength: 0,
-                    isSignedRequest: false,
-                  },
-                  timestamp: 1,
-                },
-                {
-                  actionSigner: TestData.payerRaw.identity,
-                  name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-                  parameters: {
-                    extensionsDataLength: 0,
-                  },
-                  timestamp: 2,
-                },
-                {
-                  actionSigner: TestData.payeeRaw.identity,
-                  name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-                  parameters: {
-                    deltaAmount: '1000',
-                    extensionsDataLength: 0,
-                  },
-                  timestamp: 3,
-                },
-              ],
-              expectedAmount: '123399999999999000',
-              extensions: {},
-              payee: TestData.payeeRaw.identity,
-              payer: TestData.payerRaw.identity,
-              requestId,
-              state: RequestLogicTypes.STATE.ACCEPTED,
-              timestamp: 1544426030,
-              version: CURRENT_VERSION,
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 4,
+              transaction: { data: JSON.stringify(actionReduce2) },
             },
-          },
-        });
-      }
-    );
+          ],
+        },
+      });
 
-    it(
-      'can getRequestFromId do not ignore the same transactions if different nonces',
-      async () => {
-        const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.CREATE,
-            parameters: {
-              currency: {
-                type: RequestLogicTypes.CURRENCY.ETH,
-                value: 'ETH',
-              },
-              expectedAmount: '123400000000000000',
-              payee: TestData.payeeRaw.identity,
-              payer: TestData.payerRaw.identity,
-              timestamp: 1544426030,
-            },
-            version: CURRENT_VERSION,
-          },
-          TestData.payeeRaw.signatureParams,
-        );
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
+          listActions,
+        persistTransaction: jest.fn() as any,
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
 
-        const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-            parameters: {
-              requestId,
-            },
-            version: CURRENT_VERSION,
-          },
-          TestData.payerRaw.signatureParams,
-        );
+      const request = await requestLogic.getRequestFromId(requestId);
 
-        const actionReduce: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: '1000',
-              requestId,
-            },
-            version: CURRENT_VERSION,
-          },
-          TestData.payeeRaw.signatureParams,
-        );
-
-        const actionReduce2: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-            parameters: {
-              deltaAmount: '1000',
-              nonce: 1,
-              requestId: requestId.toUpperCase(),
-            },
-            version: CURRENT_VERSION,
-          },
-          TestData.payeeRaw.signatureParams,
-        );
-
-        const meta = { ignoredTransactions: [] };
-        const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
-          meta,
-          result: {
-            transactions: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 1,
-                transaction: { data: JSON.stringify(actionCreate) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(actionAccept) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 3,
-                transaction: { data: JSON.stringify(actionReduce) },
-              },
-              {
+      // 'request result is wrong'
+      expect(request).toEqual({
+        meta: {
+          ignoredTransactions: [
+            {
+              reason: 'Duplicated transaction',
+              transaction: {
+                action: actionReduce2,
                 state: TransactionTypes.TransactionState.CONFIRMED,
                 timestamp: 4,
-                transaction: { data: JSON.stringify(actionReduce2) },
+              },
+            },
+          ],
+          transactionManagerMeta: meta,
+        },
+        result: {
+          pending: null,
+          request: {
+            creator: TestData.payeeRaw.identity,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            events: [
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.CREATE,
+                parameters: {
+                  expectedAmount: '123400000000000000',
+                  extensionsDataLength: 0,
+                  isSignedRequest: false,
+                },
+                timestamp: 1,
+              },
+              {
+                actionSigner: TestData.payerRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+                parameters: {
+                  extensionsDataLength: 0,
+                },
+                timestamp: 2,
+              },
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+                timestamp: 3,
               },
             ],
+            expectedAmount: '123399999999999000',
+            extensions: {},
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            requestId,
+            state: RequestLogicTypes.STATE.ACCEPTED,
+            timestamp: 1544426030,
+            version: CURRENT_VERSION,
           },
-        });
+        },
+      });
+    });
 
-        const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-          getChannelsByMultipleTopics: chai.spy() as any,
-          getChannelsByTopic: chai.spy() as any,
-          getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
-            listActions,
-          persistTransaction: chai.spy() as any,
-        };
-        const requestLogic = new RequestLogic(
-          fakeTransactionManagerGet,
-          TestData.fakeSignatureProvider,
-        );
-
-        const request = await requestLogic.getRequestFromId(requestId);
-
-        expect(request, 'request result is wrong').to.deep.equal({
-          meta: {
-            ignoredTransactions: [],
-            transactionManagerMeta: meta,
-          },
-          result: {
-            pending: null,
-            request: {
-              creator: TestData.payeeRaw.identity,
-              currency: {
-                type: RequestLogicTypes.CURRENCY.ETH,
-                value: 'ETH',
-              },
-              events: [
-                {
-                  actionSigner: TestData.payeeRaw.identity,
-                  name: RequestLogicTypes.ACTION_NAME.CREATE,
-                  parameters: {
-                    expectedAmount: '123400000000000000',
-                    extensionsDataLength: 0,
-                    isSignedRequest: false,
-                  },
-                  timestamp: 1,
-                },
-                {
-                  actionSigner: TestData.payerRaw.identity,
-                  name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-                  parameters: {
-                    extensionsDataLength: 0,
-                  },
-                  timestamp: 2,
-                },
-                {
-                  actionSigner: TestData.payeeRaw.identity,
-                  name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-                  parameters: {
-                    deltaAmount: '1000',
-                    extensionsDataLength: 0,
-                  },
-                  timestamp: 3,
-                },
-                {
-                  actionSigner: TestData.payeeRaw.identity,
-                  name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-                  parameters: {
-                    deltaAmount: '1000',
-                    extensionsDataLength: 0,
-                  },
-                  timestamp: 4,
-                },
-              ],
-              expectedAmount: '123399999999998000',
-              extensions: {},
-              payee: TestData.payeeRaw.identity,
-              payer: TestData.payerRaw.identity,
-              requestId,
-              state: RequestLogicTypes.STATE.ACCEPTED,
-              timestamp: 1544426030,
-              version: CURRENT_VERSION,
+    it('can getRequestFromId do not ignore the same transactions if different nonces', async () => {
+      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
             },
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
           },
-        });
-      }
-    );
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionAccept: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payerRaw.signatureParams,
+      );
+
+      const actionReduce: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            requestId,
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const actionReduce2: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+          parameters: {
+            deltaAmount: '1000',
+            nonce: 1,
+            requestId: requestId.toUpperCase(),
+          },
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
+
+      const meta = { ignoredTransactions: [] };
+      const listActions: Promise<TransactionTypes.IReturnGetTransactions> = Promise.resolve({
+        meta,
+        result: {
+          transactions: [
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 1,
+              transaction: { data: JSON.stringify(actionCreate) },
+            },
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 2,
+              transaction: { data: JSON.stringify(actionAccept) },
+            },
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 3,
+              transaction: { data: JSON.stringify(actionReduce) },
+            },
+            {
+              state: TransactionTypes.TransactionState.CONFIRMED,
+              timestamp: 4,
+              transaction: { data: JSON.stringify(actionReduce2) },
+            },
+          ],
+        },
+      });
+
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
+        getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
+          listActions,
+        persistTransaction: jest.fn() as any,
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
+
+      const request = await requestLogic.getRequestFromId(requestId);
+
+      // 'request result is wrong'
+      expect(request).toEqual({
+        meta: {
+          ignoredTransactions: [],
+          transactionManagerMeta: meta,
+        },
+        result: {
+          pending: null,
+          request: {
+            creator: TestData.payeeRaw.identity,
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            events: [
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.CREATE,
+                parameters: {
+                  expectedAmount: '123400000000000000',
+                  extensionsDataLength: 0,
+                  isSignedRequest: false,
+                },
+                timestamp: 1,
+              },
+              {
+                actionSigner: TestData.payerRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+                parameters: {
+                  extensionsDataLength: 0,
+                },
+                timestamp: 2,
+              },
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+                timestamp: 3,
+              },
+              {
+                actionSigner: TestData.payeeRaw.identity,
+                name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+                parameters: {
+                  deltaAmount: '1000',
+                  extensionsDataLength: 0,
+                },
+                timestamp: 4,
+              },
+            ],
+            expectedAmount: '123399999999998000',
+            extensions: {},
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            requestId,
+            state: RequestLogicTypes.STATE.ACCEPTED,
+            timestamp: 1544426030,
+            version: CURRENT_VERSION,
+          },
+        },
+      });
+    });
 
     it('should ignored the corrupted data (not parsable JSON)', async () => {
       const transactionNotParsable = {
@@ -1717,11 +1706,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy() as any,
+        persistTransaction: jest.fn() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1729,16 +1718,13 @@ describe('index', () => {
       );
 
       const request = await requestLogic.getRequestFromId(requestId);
-      expect(
-        request.meta.ignoredTransactions && request.meta.ignoredTransactions.length,
-      ).to.be.equal(1);
-      expect(
-        request.meta.ignoredTransactions && request.meta.ignoredTransactions[0],
-      ).to.be.deep.equal({
+      expect(request.meta.ignoredTransactions && request.meta.ignoredTransactions.length).toBe(1);
+      expect(request.meta.ignoredTransactions && request.meta.ignoredTransactions[0]).toEqual({
         reason: 'JSON parsing error',
         transaction: transactionNotParsable,
       });
-      expect(request.result.request, 'request should be null').to.be.null;
+      // 'request should be null'
+      expect(request.result.request).toBeNull();
     });
 
     it('should ignored the corrupted data (e.g: wrong properties)', async () => {
@@ -1774,11 +1760,11 @@ describe('index', () => {
       });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
-        getChannelsByTopic: chai.spy() as any,
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: jest.fn() as any,
         getTransactionsByChannelId: (): Promise<TransactionTypes.IReturnGetTransactions> =>
           listActions,
-        persistTransaction: chai.spy() as any,
+        persistTransaction: jest.fn() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1787,12 +1773,8 @@ describe('index', () => {
 
       const request = await requestLogic.getRequestFromId(requestId);
 
-      expect(
-        request.meta.ignoredTransactions && request.meta.ignoredTransactions.length,
-      ).to.be.equal(1);
-      expect(
-        request.meta.ignoredTransactions && request.meta.ignoredTransactions[0],
-      ).to.be.deep.equal({
+      expect(request.meta.ignoredTransactions && request.meta.ignoredTransactions.length).toBe(1);
+      expect(request.meta.ignoredTransactions && request.meta.ignoredTransactions[0]).toEqual({
         reason: 'action.parameters.expectedAmount must be a string representing a positive integer',
         transaction: {
           action: actionCorrupted,
@@ -1800,7 +1782,8 @@ describe('index', () => {
           timestamp: 2,
         },
       });
-      expect(request.result.request, 'request should be null').to.be.null;
+      // 'request should be null'
+      expect(request.result.request).toBeNull();
     });
   });
 
@@ -1910,59 +1893,59 @@ describe('index', () => {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
         ignoredTransactions: {},
       };
-      const listAllActions: Promise<
-        TransactionTypes.IReturnGetTransactionsByChannels
-      > = Promise.resolve({
-        meta,
-        result: {
-          transactions: {
-            [requestId]: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 0,
-                transaction: { data: JSON.stringify(actionCreate) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(actionAccept) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 3,
-                transaction: { data: JSON.stringify(rxReduce) },
-              },
-            ],
-            [newRequestId2]: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 1,
-                transaction: { data: JSON.stringify(actionCreate2) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(actionCancel2) },
-              },
-            ],
-            [newRequestId3]: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 4,
-                transaction: { data: JSON.stringify(actionCreate3) },
-              },
-            ],
+      const listAllActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> = Promise.resolve(
+        {
+          meta,
+          result: {
+            transactions: {
+              [requestId]: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 0,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 2,
+                  transaction: { data: JSON.stringify(actionAccept) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 3,
+                  transaction: { data: JSON.stringify(rxReduce) },
+                },
+              ],
+              [newRequestId2]: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate2) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 2,
+                  transaction: { data: JSON.stringify(actionCancel2) },
+                },
+              ],
+              [newRequestId3]: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 4,
+                  transaction: { data: JSON.stringify(actionCreate3) },
+                },
+              ],
+            },
           },
         },
-      });
+      );
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByMultipleTopics: jest.fn() as any,
         getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
           return listAllActions;
         },
-        getTransactionsByChannelId: chai.spy() as any,
-        persistTransaction: chai.spy() as any,
+        getTransactionsByChannelId: jest.fn() as any,
+        persistTransaction: jest.fn() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -1971,7 +1954,8 @@ describe('index', () => {
 
       const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
 
-      expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
+      // 'requests result is wrong'
+      expect(requests.result.requests.length).toBe(3);
     });
 
     it('can getRequestsByTopic with pending transactions', async () => {
@@ -2079,59 +2063,59 @@ describe('index', () => {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
         ignoredTransactions: {},
       };
-      const listAllActions: Promise<
-        TransactionTypes.IReturnGetTransactionsByChannels
-      > = Promise.resolve({
-        meta,
-        result: {
-          transactions: {
-            [requestId]: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 0,
-                transaction: { data: JSON.stringify(actionCreate) },
-              },
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(actionAccept) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 3,
-                transaction: { data: JSON.stringify(rxReduce) },
-              },
-            ],
-            [newRequestId2]: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 1,
-                transaction: { data: JSON.stringify(actionCreate2) },
-              },
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(actionCancel2) },
-              },
-            ],
-            [newRequestId3]: [
-              {
-                state: TransactionTypes.TransactionState.PENDING,
-                timestamp: 4,
-                transaction: { data: JSON.stringify(actionCreate3) },
-              },
-            ],
+      const listAllActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> = Promise.resolve(
+        {
+          meta,
+          result: {
+            transactions: {
+              [requestId]: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 0,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 2,
+                  transaction: { data: JSON.stringify(actionAccept) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 3,
+                  transaction: { data: JSON.stringify(rxReduce) },
+                },
+              ],
+              [newRequestId2]: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate2) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 2,
+                  transaction: { data: JSON.stringify(actionCancel2) },
+                },
+              ],
+              [newRequestId3]: [
+                {
+                  state: TransactionTypes.TransactionState.PENDING,
+                  timestamp: 4,
+                  transaction: { data: JSON.stringify(actionCreate3) },
+                },
+              ],
+            },
           },
         },
-      });
+      );
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: chai.spy() as any,
+        getChannelsByMultipleTopics: jest.fn() as any,
         getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
           return listAllActions;
         },
-        getTransactionsByChannelId: chai.spy() as any,
-        persistTransaction: chai.spy() as any,
+        getTransactionsByChannelId: jest.fn() as any,
+        persistTransaction: jest.fn() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -2140,72 +2124,66 @@ describe('index', () => {
 
       const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
 
-      expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
+      // 'requests result is wrong'
+      expect(requests.result.requests.length).toBe(3);
 
       const firstRequest = requests.result.requests[0];
-      expect(firstRequest.pending, 'first pending wrong').to.be.null;
-      expect(
-        firstRequest.request!.expectedAmount,
-        'first request expectedAmount wrong',
-      ).to.deep.equal('123399999999999000');
-      expect(firstRequest.request!.state, 'first request state wrong').to.deep.equal(
-        RequestLogicTypes.STATE.CREATED,
-      );
+      // 'first pending wrong'
+      expect(firstRequest.pending).toBeNull();
+      // 'first request expectedAmount wrong'
+      expect(firstRequest.request!.expectedAmount).toEqual('123399999999999000');
+      // 'first request state wrong'
+      expect(firstRequest.request!.state).toEqual(RequestLogicTypes.STATE.CREATED);
 
       const secondRequest = requests.result.requests[1];
-      expect(secondRequest.request!.state, 'second pending wrong').to.deep.equal(
-        RequestLogicTypes.STATE.CREATED,
-      );
-      expect(secondRequest.pending!.state, 'second pending wrong').to.deep.equal(
-        RequestLogicTypes.STATE.CANCELED,
-      );
+      // 'second pending wrong'
+      expect(secondRequest.request!.state).toEqual(RequestLogicTypes.STATE.CREATED);
+      // 'second pending wrong'
+      expect(secondRequest.pending!.state).toEqual(RequestLogicTypes.STATE.CANCELED);
 
       const thirdRequest = requests.result.requests[2];
-      expect(thirdRequest.request, 'third pending wrong').to.be.null;
-      expect(thirdRequest.pending!.state, 'third pending wrong').to.deep.equal(
-        RequestLogicTypes.STATE.CREATED,
-      );
+      // 'third pending wrong'
+      expect(thirdRequest.request).toBeNull();
+      // 'third pending wrong'
+      expect(thirdRequest.pending!.state).toEqual(RequestLogicTypes.STATE.CREATED);
     });
 
-    it(
-      'should ignore the transaction none parsable and the rejected action',
-      async () => {
-        const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.CREATE,
-            parameters: {
-              currency: {
-                type: RequestLogicTypes.CURRENCY.ETH,
-                value: 'ETH',
-              },
-              expectedAmount: '123400000000000000',
-              payee: TestData.payeeRaw.identity,
-              payer: TestData.payerRaw.identity,
-              timestamp: 1544426030,
+    it('should ignore the transaction none parsable and the rejected action', async () => {
+      const actionCreate: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
             },
-            version: CURRENT_VERSION,
+            expectedAmount: '123400000000000000',
+            payee: TestData.payeeRaw.identity,
+            payer: TestData.payerRaw.identity,
+            timestamp: 1544426030,
           },
-          TestData.payeeRaw.signatureParams,
-        );
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
 
-        const acceptNotValid: RequestLogicTypes.IAction = Utils.signature.sign(
-          {
-            name: RequestLogicTypes.ACTION_NAME.ACCEPT,
-            parameters: {
-              requestId,
-            },
-            version: CURRENT_VERSION,
+      const acceptNotValid: RequestLogicTypes.IAction = Utils.signature.sign(
+        {
+          name: RequestLogicTypes.ACTION_NAME.ACCEPT,
+          parameters: {
+            requestId,
           },
-          TestData.payeeRaw.signatureParams,
-        );
+          version: CURRENT_VERSION,
+        },
+        TestData.payeeRaw.signatureParams,
+      );
 
-        const meta = {
-          dataAccessMeta: { [requestId]: [] },
-          ignoredTransactions: {},
-        };
-        const listActions: Promise<
-          TransactionTypes.IReturnGetTransactionsByChannels
-        > = Promise.resolve({
+      const meta = {
+        dataAccessMeta: { [requestId]: [] },
+        ignoredTransactions: {},
+      };
+      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> = Promise.resolve(
+        {
           meta,
           result: {
             transactions: {
@@ -2228,26 +2206,27 @@ describe('index', () => {
               ],
             },
           },
-        });
+        },
+      );
 
-        const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-          getChannelsByMultipleTopics: chai.spy() as any,
-          getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
-            return listActions;
-          },
-          getTransactionsByChannelId: chai.spy() as any,
-          persistTransaction: chai.spy() as any,
-        };
-        const requestLogic = new RequestLogic(
-          fakeTransactionManagerGet,
-          TestData.fakeSignatureProvider,
-        );
+      const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
+        getChannelsByMultipleTopics: jest.fn() as any,
+        getChannelsByTopic: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
+          return listActions;
+        },
+        getTransactionsByChannelId: jest.fn() as any,
+        persistTransaction: jest.fn() as any,
+      };
+      const requestLogic = new RequestLogic(
+        fakeTransactionManagerGet,
+        TestData.fakeSignatureProvider,
+      );
 
-        const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
+      const requests = await requestLogic.getRequestsByTopic('fakeTopicForAll');
 
-        expect(requests.result.requests.length, 'requests result is wrong').to.equal(1);
-      }
-    );
+      // 'requests result is wrong'
+      expect(requests.result.requests.length).toBe(1);
+    });
   });
 
   describe('getRequestsByMultipleTopic', () => {
@@ -2356,51 +2335,51 @@ describe('index', () => {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
         ignoredTransactions: {},
       };
-      const listAllActions: Promise<
-        TransactionTypes.IReturnGetTransactionsByChannels
-      > = Promise.resolve({
-        meta,
-        result: {
-          transactions: {
-            [requestId]: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 0,
-                transaction: { data: JSON.stringify(actionCreate) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(actionAccept) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 3,
-                transaction: { data: JSON.stringify(rxReduce) },
-              },
-            ],
-            [newRequestId2]: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 1,
-                transaction: { data: JSON.stringify(actionCreate2) },
-              },
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 2,
-                transaction: { data: JSON.stringify(actionCancel2) },
-              },
-            ],
-            [newRequestId3]: [
-              {
-                state: TransactionTypes.TransactionState.CONFIRMED,
-                timestamp: 4,
-                transaction: { data: JSON.stringify(actionCreate3) },
-              },
-            ],
+      const listAllActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> = Promise.resolve(
+        {
+          meta,
+          result: {
+            transactions: {
+              [requestId]: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 0,
+                  transaction: { data: JSON.stringify(actionCreate) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 2,
+                  transaction: { data: JSON.stringify(actionAccept) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 3,
+                  transaction: { data: JSON.stringify(rxReduce) },
+                },
+              ],
+              [newRequestId2]: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 1,
+                  transaction: { data: JSON.stringify(actionCreate2) },
+                },
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 2,
+                  transaction: { data: JSON.stringify(actionCancel2) },
+                },
+              ],
+              [newRequestId3]: [
+                {
+                  state: TransactionTypes.TransactionState.CONFIRMED,
+                  timestamp: 4,
+                  transaction: { data: JSON.stringify(actionCreate3) },
+                },
+              ],
+            },
           },
         },
-      });
+      );
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
         getChannelsByMultipleTopics: (): Promise<
@@ -2408,9 +2387,9 @@ describe('index', () => {
         > => {
           return listAllActions;
         },
-        getChannelsByTopic: chai.spy() as any,
-        getTransactionsByChannelId: chai.spy() as any,
-        persistTransaction: chai.spy() as any,
+        getChannelsByTopic: jest.fn() as any,
+        getTransactionsByChannelId: jest.fn() as any,
+        persistTransaction: jest.fn() as any,
       };
       const requestLogic = new RequestLogic(
         fakeTransactionManagerGet,
@@ -2419,7 +2398,8 @@ describe('index', () => {
 
       const requests = await requestLogic.getRequestsByMultipleTopics(['fakeTopicForAll']);
 
-      expect(requests.result.requests.length, 'requests result is wrong').to.equal(3);
+      // 'requests result is wrong'
+      expect(requests.result.requests.length).toBe(3);
     });
   });
 });

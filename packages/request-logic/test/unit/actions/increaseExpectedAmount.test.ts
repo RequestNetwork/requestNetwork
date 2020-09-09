@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import IncreaseExpectedAmountAction from '../../../src/actions/increaseExpectedAmount';
@@ -29,18 +27,15 @@ describe('actions/increaseExpectedAmount', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionIncreaseAmount.data.name, 'action is wrong').to.equal(
-        RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
-      );
+      // 'action is wrong'
+      expect(actionIncreaseAmount.data.name).toBe(RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT);
 
-      expect(actionIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
-        requestIdMock,
-      );
-      expect(actionIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
-        arbitraryDeltaAmount,
-      );
-      expect(actionIncreaseAmount.data.parameters.extensionsData, 'extensionsData is wrong').to.be
-        .undefined;
+      // 'requestId is wrong'
+      expect(actionIncreaseAmount.data.parameters.requestId).toBe(requestIdMock);
+      // 'deltaAmount is wrong'
+      expect(actionIncreaseAmount.data.parameters.deltaAmount).toBe(arbitraryDeltaAmount);
+      // 'extensionsData is wrong'
+      expect(actionIncreaseAmount.data.parameters.extensionsData).toBeUndefined();
     });
 
     it('can increase expected amount with extensionsData', async () => {
@@ -54,20 +49,15 @@ describe('actions/increaseExpectedAmount', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionIncreaseAmount.data.name, 'action is wrong').to.equal(
-        RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
-      );
+      // 'action is wrong'
+      expect(actionIncreaseAmount.data.name).toBe(RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT);
 
-      expect(actionIncreaseAmount.data.parameters.requestId, 'requestId is wrong').to.equal(
-        requestIdMock,
-      );
-      expect(actionIncreaseAmount.data.parameters.deltaAmount, 'deltaAmount is wrong').to.equal(
-        arbitraryDeltaAmount,
-      );
-      expect(
-        actionIncreaseAmount.data.parameters.extensionsData,
-        'extensionsData is wrong',
-      ).to.deep.equal(TestData.oneExtension);
+      // 'requestId is wrong'
+      expect(actionIncreaseAmount.data.parameters.requestId).toBe(requestIdMock);
+      // 'deltaAmount is wrong'
+      expect(actionIncreaseAmount.data.parameters.deltaAmount).toBe(arbitraryDeltaAmount);
+      // 'extensionsData is wrong'
+      expect(actionIncreaseAmount.data.parameters.extensionsData).toEqual(TestData.oneExtension);
     });
 
     it('cannot increase expected amount with not a number', () => {
@@ -80,7 +70,7 @@ describe('actions/increaseExpectedAmount', () => {
           TestData.payerRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('deltaAmount must be a string representing a positive integer');
+      ).toThrowError('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot increase expected amount with decimal', () => {
@@ -93,7 +83,7 @@ describe('actions/increaseExpectedAmount', () => {
           TestData.payerRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('deltaAmount must be a string representing a positive integer');
+      ).toThrowError('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot increase expected amount with a negative number', async () => {
@@ -106,7 +96,7 @@ describe('actions/increaseExpectedAmount', () => {
           TestData.payerRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('deltaAmount must be a string representing a positive integer');
+      ).toThrowError('deltaAmount must be a string representing a positive integer');
     });
   });
 
@@ -127,44 +117,45 @@ describe('actions/increaseExpectedAmount', () => {
         Utils.deepCopy(TestData.requestCreatedNoExtension),
       );
 
-      expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-      expect(request.currency, 'currency is wrong').to.deep.equal({
+      // 'requestId is wrong'
+      expect(request.requestId).toBe(requestIdMock);
+      // 'currency is wrong'
+      expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
-      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-        arbitraryExpectedAmountAfterDelta,
-      );
-      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
+      // 'state is wrong'
+      expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+      // 'expectedAmount is wrong'
+      expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
+      // 'extensions is wrong'
+      expect(request.extensions).toEqual({});
 
-      expect(request, 'request.creator is wrong').to.have.property('creator');
-      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      );
-      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-        TestData.payeeRaw.address,
-      );
+      // 'request.creator is wrong'
+      expect(request).toHaveProperty('creator');
+      // 'request.creator.type is wrong'
+      expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'request.creator.value is wrong'
+      expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-      expect(request, 'request.payee is wrong').to.have.property('payee');
+      // 'request.payee is wrong'
+      expect(request).toHaveProperty('payee');
       if (request.payee) {
-        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
-          TestData.payeeRaw.address,
-        );
+        // 'request.payee.type is wrong'
+        expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payee.value is wrong'
+        expect(request.payee.value).toBe(TestData.payeeRaw.address);
       }
-      expect(request, 'request.payer is wrong').to.have.property('payer');
+      // 'request.payer is wrong'
+      expect(request).toHaveProperty('payer');
       if (request.payer) {
-        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-          TestData.payerRaw.address,
-        );
+        // 'request.payer.type is wrong'
+        expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payer.value is wrong'
+        expect(request.payer.value).toBe(TestData.payerRaw.address);
       }
-      expect(request.events[1], 'request.events is wrong').to.deep.equal({
+      // 'request.events is wrong'
+      expect(request.events[1]).toEqual({
         actionSigner: TestData.payerRaw.identity,
         name: RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
         parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
@@ -188,7 +179,7 @@ describe('actions/increaseExpectedAmount', () => {
           2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
-      ).to.throw('signer must be the payer');
+      ).toThrowError('signer must be the payer');
     });
 
     it('cannot increase expected amount by third party', async () => {
@@ -206,7 +197,7 @@ describe('actions/increaseExpectedAmount', () => {
           2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
-      ).to.throw('signer must be the payer');
+      ).toThrowError('signer must be the payer');
     });
 
     it('cannot increase expected amount if no requestId', () => {
@@ -231,7 +222,7 @@ describe('actions/increaseExpectedAmount', () => {
           2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
-      ).to.throw('requestId must be given');
+      ).toThrowError('requestId must be given');
     });
 
     it('cannot increase expected amount if no deltaAmount', () => {
@@ -256,7 +247,7 @@ describe('actions/increaseExpectedAmount', () => {
           2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
-      ).to.throw('deltaAmount must be given');
+      ).toThrowError('deltaAmount must be given');
     });
 
     it('cannot increase expected amount if no payer in state', () => {
@@ -313,7 +304,7 @@ describe('actions/increaseExpectedAmount', () => {
       };
       expect(() =>
         IncreaseExpectedAmountAction.applyActionToRequest(action, 2, requestContextNoPayer),
-      ).to.throw('the request must have a payer');
+      ).toThrowError('the request must have a payer');
     });
 
     it(
@@ -334,7 +325,7 @@ describe('actions/increaseExpectedAmount', () => {
             2,
             Utils.deepCopy(TestData.requestCanceledNoExtension),
           ),
-        ).to.throw('the request must not be canceled');
+        ).toThrowError('the request must not be canceled');
       }
     );
 
@@ -356,44 +347,45 @@ describe('actions/increaseExpectedAmount', () => {
           Utils.deepCopy(TestData.requestAcceptedNoExtension),
         );
 
-        expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-        expect(request.currency, 'currency is wrong').to.deep.equal({
+        // 'requestId is wrong'
+        expect(request.requestId).toBe(requestIdMock);
+        // 'currency is wrong'
+        expect(request.currency).toEqual({
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
         });
-        expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
-        expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-          arbitraryExpectedAmountAfterDelta,
-        );
-        expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
+        // 'state is wrong'
+        expect(request.state).toBe(RequestLogicTypes.STATE.ACCEPTED);
+        // 'expectedAmount is wrong'
+        expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
+        // 'extensions is wrong'
+        expect(request.extensions).toEqual({});
 
-        expect(request, 'request.creator is wrong').to.have.property('creator');
-        expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-          TestData.payeeRaw.address,
-        );
+        // 'request.creator is wrong'
+        expect(request).toHaveProperty('creator');
+        // 'request.creator.type is wrong'
+        expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.creator.value is wrong'
+        expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-        expect(request, 'request.payee is wrong').to.have.property('payee');
+        // 'request.payee is wrong'
+        expect(request).toHaveProperty('payee');
         if (request.payee) {
-          expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-          );
-          expect(request.payee.value, 'request.payee.value is wrong').to.equal(
-            TestData.payeeRaw.address,
-          );
+          // 'request.payee.type is wrong'
+          expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+          // 'request.payee.value is wrong'
+          expect(request.payee.value).toBe(TestData.payeeRaw.address);
         }
-        expect(request, 'request.payer is wrong').to.have.property('payer');
+        // 'request.payer is wrong'
+        expect(request).toHaveProperty('payer');
         if (request.payer) {
-          expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-          );
-          expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-            TestData.payerRaw.address,
-          );
+          // 'request.payer.type is wrong'
+          expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+          // 'request.payer.value is wrong'
+          expect(request.payer.value).toBe(TestData.payerRaw.address);
         }
-        expect(request.events[2], 'request.events is wrong').to.deep.equal({
+        // 'request.events is wrong'
+        expect(request.events[2]).toEqual({
           actionSigner: TestData.payerRaw.identity,
           name: RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
@@ -422,46 +414,45 @@ describe('actions/increaseExpectedAmount', () => {
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         );
 
-        expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-        expect(request.currency, 'currency is wrong').to.deep.equal({
+        // 'requestId is wrong'
+        expect(request.requestId).toBe(requestIdMock);
+        // 'currency is wrong'
+        expect(request.currency).toEqual({
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
         });
-        expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
-        expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-          arbitraryExpectedAmountAfterDelta,
-        );
-        expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
-          newExtensionsData,
-        );
+        // 'state is wrong'
+        expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+        // 'expectedAmount is wrong'
+        expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
+        // 'request.extensionsData is wrong'
+        expect(request.extensionsData).toEqual(newExtensionsData);
 
-        expect(request, 'request.creator is wrong').to.have.property('creator');
-        expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-          TestData.payeeRaw.address,
-        );
+        // 'request.creator is wrong'
+        expect(request).toHaveProperty('creator');
+        // 'request.creator.type is wrong'
+        expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.creator.value is wrong'
+        expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-        expect(request, 'request.payee is wrong').to.have.property('payee');
+        // 'request.payee is wrong'
+        expect(request).toHaveProperty('payee');
         if (request.payee) {
-          expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-          );
-          expect(request.payee.value, 'request.payee.value is wrong').to.equal(
-            TestData.payeeRaw.address,
-          );
+          // 'request.payee.type is wrong'
+          expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+          // 'request.payee.value is wrong'
+          expect(request.payee.value).toBe(TestData.payeeRaw.address);
         }
-        expect(request, 'request.payer is wrong').to.have.property('payer');
+        // 'request.payer is wrong'
+        expect(request).toHaveProperty('payer');
         if (request.payer) {
-          expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-          );
-          expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-            TestData.payerRaw.address,
-          );
+          // 'request.payer.type is wrong'
+          expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+          // 'request.payer.value is wrong'
+          expect(request.payer.value).toBe(TestData.payerRaw.address);
         }
-        expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        // 'request.events is wrong'
+        expect(request.events[1]).toEqual({
           actionSigner: TestData.payerRaw.identity,
           name: RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
@@ -490,46 +481,45 @@ describe('actions/increaseExpectedAmount', () => {
           Utils.deepCopy(TestData.requestCreatedWithExtensions),
         );
 
-        expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-        expect(request.currency, 'currency is wrong').to.deep.equal({
+        // 'requestId is wrong'
+        expect(request.requestId).toBe(requestIdMock);
+        // 'currency is wrong'
+        expect(request.currency).toEqual({
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
         });
-        expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
-        expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-          arbitraryExpectedAmountAfterDelta,
-        );
-        expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
-          TestData.oneExtension.concat(newExtensionsData),
-        );
+        // 'state is wrong'
+        expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+        // 'expectedAmount is wrong'
+        expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
+        // 'request.extensionsData is wrong'
+        expect(request.extensionsData).toEqual(TestData.oneExtension.concat(newExtensionsData));
 
-        expect(request, 'request.creator is wrong').to.have.property('creator');
-        expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-          TestData.payeeRaw.address,
-        );
+        // 'request.creator is wrong'
+        expect(request).toHaveProperty('creator');
+        // 'request.creator.type is wrong'
+        expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.creator.value is wrong'
+        expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-        expect(request, 'request.payee is wrong').to.have.property('payee');
+        // 'request.payee is wrong'
+        expect(request).toHaveProperty('payee');
         if (request.payee) {
-          expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-          );
-          expect(request.payee.value, 'request.payee.value is wrong').to.equal(
-            TestData.payeeRaw.address,
-          );
+          // 'request.payee.type is wrong'
+          expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+          // 'request.payee.value is wrong'
+          expect(request.payee.value).toBe(TestData.payeeRaw.address);
         }
-        expect(request, 'request.payer is wrong').to.have.property('payer');
+        // 'request.payer is wrong'
+        expect(request).toHaveProperty('payer');
         if (request.payer) {
-          expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-          );
-          expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-            TestData.payerRaw.address,
-          );
+          // 'request.payer.type is wrong'
+          expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+          // 'request.payer.value is wrong'
+          expect(request.payer.value).toBe(TestData.payerRaw.address);
         }
-        expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        // 'request.events is wrong'
+        expect(request.events[1]).toEqual({
           actionSigner: TestData.payerRaw.identity,
           name: RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
@@ -555,46 +545,45 @@ describe('actions/increaseExpectedAmount', () => {
           Utils.deepCopy(TestData.requestCreatedWithExtensions),
         );
 
-        expect(request.requestId, 'requestId is wrong').to.equal(requestIdMock);
-        expect(request.currency, 'currency is wrong').to.deep.equal({
+        // 'requestId is wrong'
+        expect(request.requestId).toBe(requestIdMock);
+        // 'currency is wrong'
+        expect(request.currency).toEqual({
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
         });
-        expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
-        expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-          arbitraryExpectedAmountAfterDelta,
-        );
-        expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
-          TestData.oneExtension,
-        );
+        // 'state is wrong'
+        expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+        // 'expectedAmount is wrong'
+        expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
+        // 'request.extensionsData is wrong'
+        expect(request.extensionsData).toEqual(TestData.oneExtension);
 
-        expect(request, 'request.creator is wrong').to.have.property('creator');
-        expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-          TestData.payeeRaw.address,
-        );
+        // 'request.creator is wrong'
+        expect(request).toHaveProperty('creator');
+        // 'request.creator.type is wrong'
+        expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.creator.value is wrong'
+        expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-        expect(request, 'request.payee is wrong').to.have.property('payee');
+        // 'request.payee is wrong'
+        expect(request).toHaveProperty('payee');
         if (request.payee) {
-          expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-          );
-          expect(request.payee.value, 'request.payee.value is wrong').to.equal(
-            TestData.payeeRaw.address,
-          );
+          // 'request.payee.type is wrong'
+          expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+          // 'request.payee.value is wrong'
+          expect(request.payee.value).toBe(TestData.payeeRaw.address);
         }
-        expect(request, 'request.payer is wrong').to.have.property('payer');
+        // 'request.payer is wrong'
+        expect(request).toHaveProperty('payer');
         if (request.payer) {
-          expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-            IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-          );
-          expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-            TestData.payerRaw.address,
-          );
+          // 'request.payer.type is wrong'
+          expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+          // 'request.payer.value is wrong'
+          expect(request.payer.value).toBe(TestData.payerRaw.address);
         }
-        expect(request.events[1], 'request.events is wrong').to.deep.equal({
+        // 'request.events is wrong'
+        expect(request.events[1]).toEqual({
           actionSigner: TestData.payerRaw.identity,
           name: RequestLogicTypes.ACTION_NAME.INCREASE_EXPECTED_AMOUNT,
           parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
@@ -626,7 +615,7 @@ describe('actions/increaseExpectedAmount', () => {
           2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
-      ).to.throw('deltaAmount must be a string representing a positive integer');
+      ).toThrowError('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot increase expected amount with not a number', () => {
@@ -653,7 +642,7 @@ describe('actions/increaseExpectedAmount', () => {
           2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
-      ).to.throw('deltaAmount must be a string representing a positive integer');
+      ).toThrowError('deltaAmount must be a string representing a positive integer');
     });
 
     it('cannot increase expected amount with decimal', () => {
@@ -679,7 +668,7 @@ describe('actions/increaseExpectedAmount', () => {
           2,
           Utils.deepCopy(TestData.requestCreatedNoExtension),
         ),
-      ).to.throw('deltaAmount must be a string representing a positive integer');
+      ).toThrowError('deltaAmount must be a string representing a positive integer');
     });
   });
 });
