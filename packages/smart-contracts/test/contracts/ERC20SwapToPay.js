@@ -103,6 +103,10 @@ contract('SwapToPay', function(accounts) {
     maxGasUsed = gasUsed;
   });
 
+  it('does something if I send zero?', async function() {
+    expect(false);
+  });
+
   it('swaps and pays the request with less gas', async function() {
     await testSwapToPay.approvePaymentProxyToSpend(requestErc20.address, {
       from: admin,
