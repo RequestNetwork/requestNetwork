@@ -44,7 +44,6 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.13",
-    "@types/sinon": "9.0.5",
     "@typescript-eslint/parser": "4.1.0",
     "eslint": "7.8.1",
     "eslint-plugin-spellcheck": "0.0.17",
@@ -54,7 +53,6 @@
     "nyc": "15.1.0",
     "prettier": "2.1.1",
     "shx": "0.3.2",
-    "sinon": "9.0.3",
     "source-map-support": "0.5.19",
     "ts-jest": "^26.3.0",
     "ts-node": "9.0.0",
