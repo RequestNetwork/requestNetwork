@@ -12,8 +12,7 @@ describe('ipfsAdd', () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
-    // Any port number can be used since we use supertest
-    server = requestNodeInstance.listen(3000, () => 0);
+    server = (requestNodeInstance as any).express;
   });
 
   afterAll(() => {
@@ -57,16 +56,13 @@ describe('ipfsAdd', () => {
       .expect(httpStatus.BAD_REQUEST);
   });
 
-  it(
-    'responds with status 400 to requests with badly formatted value',
-    async () => {
-      await request(server)
-        .post('/ipfsAdd')
-        .send({
-          data: 'not parsable',
-        })
-        .set('Accept', 'application/json')
-        .expect(httpStatus.BAD_REQUEST);
-    }
-  );
+  it('responds with status 400 to requests with badly formatted value', async () => {
+    await request(server)
+      .post('/ipfsAdd')
+      .send({
+        data: 'not parsable',
+      })
+      .set('Accept', 'application/json')
+      .expect(httpStatus.BAD_REQUEST);
+  });
 });

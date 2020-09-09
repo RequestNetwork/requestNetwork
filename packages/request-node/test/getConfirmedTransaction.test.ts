@@ -1,5 +1,5 @@
+/* eslint-disable spellcheck/spell-checker */
 import Utils from '@requestnetwork/utils';
-import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
@@ -19,8 +19,7 @@ describe('getConfirmedTransaction', () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
-    // Any port number can be used since we use supertest
-    server = requestNodeInstance.listen(3000, () => 0);
+    server = (requestNodeInstance as any).express;
   });
 
   afterAll(() => {
@@ -41,7 +40,7 @@ describe('getConfirmedTransaction', () => {
       .expect(httpStatus.NOT_FOUND);
 
     // wait a bit for the confirmation
-    await new Promise((resolve): any => setTimeout(resolve, 5000));
+    await new Promise((resolve): any => setTimeout(resolve, 2000));
 
     const serverResponse = await request(server)
       .get('/getConfirmedTransaction')
@@ -49,15 +48,10 @@ describe('getConfirmedTransaction', () => {
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 
-    expect(
-      serverResponse.body.result,
-      'getConfirmedTransaction request result should always be empty',
-    ).to.be.empty;
-    expect(
-      serverResponse.body.meta.storageMeta.state,
-      'getConfirmedTransaction request meta',
-    ).to.be.equal('confirmed');
-  });
+    expect(serverResponse.body.result).toMatchObject({});
+    // 'getConfirmedTransaction request meta'
+    expect(serverResponse.body.meta.storageMeta.state).toBe('confirmed');
+  }, 10000);
 
   it('responds with status 422 to requests with no value', async () => {
     await request(server)
