@@ -28,10 +28,8 @@
     "test": "lerna run test"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.13",
     "coveralls": "3.1.0",
     "husky": "4.3.0",
-    "jest-codemods": "^0.23.0",
     "lerna": "3.22.1",
     "npm-package-json-lint": "5.1.0",
     "nyc": "15.1.0",
