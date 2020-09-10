@@ -18,6 +18,7 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
+import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
 
 /**
  * Processes a transaction to pay an ERC20 Request.
@@ -31,9 +32,11 @@ export async function payErc20Request(
   request: ClientTypes.IRequestData,
   signerOrProvider?: Web3Provider | Signer,
   amount?: BigNumberish,
+  paymentCurrency?: ICurrency,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  console.log(paymentCurrency); // TODO replace with settings and use it
   const id = getPaymentNetworkExtension(request)?.id;
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
     return payErc20ProxyRequest(request, signerOrProvider, amount, overrides);
@@ -163,7 +166,21 @@ export async function getErc20Balance(
   address: string,
   provider: Provider = getNetworkProvider(request),
 ): Promise<BigNumber> {
-  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, provider);
+  return getAnyErc20Balance(request.currencyInfo.value, address, provider);
+}
+
+/**
+ * Gets any ERC20 balance of an address
+ * @param anyErc20Address the currency address
+ * @param address the address to check
+ * @param provider the web3 provider. Defaults to Etherscan
+ */
+export async function getAnyErc20Balance(
+  anyErc20Address: string,
+  address: string,
+  provider: Provider,
+): Promise<BigNumber> {
+  const erc20Contract = ERC20Contract.connect(anyErc20Address, provider);
   return erc20Contract.balanceOf(address);
 }
 
