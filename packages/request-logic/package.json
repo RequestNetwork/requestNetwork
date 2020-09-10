@@ -57,7 +57,7 @@
     "@types/chai-spies": "1.0.2",
     "@types/mocha": "8.0.3",
     "@types/semver": "5.5.0",
-    "@typescript-eslint/parser": "4.0.1",
+    "@typescript-eslint/parser": "4.1.0",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
     "chai-spies": "1.0.0",
