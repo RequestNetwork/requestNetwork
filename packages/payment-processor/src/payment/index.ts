@@ -1,15 +1,22 @@
 import { ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
-import { bigNumberify, BigNumberish } from 'ethers/utils';
+import { BigNumberish, BigNumber } from 'ethers/utils';
 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
-import { _getErc20PaymentUrl, getErc20Balance } from './erc20';
+import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
 import { payErc20Request } from './erc20';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
+import { ICurrency, CURRENCY } from '@requestnetwork/types/dist/request-logic-types';
+
+export const supportedNetworks = [
+  ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+  ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+  ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
+];
 
 const getPaymentNetwork = (request: ClientTypes.IRequestData): ExtensionTypes.ID | undefined => {
   // tslint:disable-next-line: typedef
@@ -39,6 +46,7 @@ export async function payRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
+  paymentCurrency?: ICurrency, // TODO here put the swap settings instead
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
@@ -46,8 +54,11 @@ export async function payRequest(
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return payErc20Request(request, signer, amount, undefined, overrides);
+      return payErc20Request(request, signer, amount, paymentCurrency, undefined, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
+      if (paymentCurrency && paymentCurrency.type !== CURRENCY.ETH) {
+        throw new Error("Cannot swap to pay an ETH_INPUT_DATA yet.");
+      }
       return payEthInputDataRequest(request, signer, amount, overrides);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
@@ -61,49 +72,83 @@ export async function payRequest(
  * @throws UnsupportedNetworkError if network isn't supported
  * @param request the request to verify.
  * @param address the address holding the funds
+ * @param paymentCurrency if different from the requested currency
  * @param provider the Web3 provider. Defaults to Etherscan.
  */
 export async function hasSufficientFunds(
   request: ClientTypes.IRequestData,
   address: string,
+  paymentCurrency?: ICurrency,
   provider?: Provider,
 ): Promise<boolean> {
-  const paymentNetwork = getPaymentNetwork(request);
 
-  let ethBalance;
-  switch (paymentNetwork) {
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT: {
-      if (!provider) {
-        provider = getNetworkProvider(request);
-      }
-      ethBalance = await provider.getBalance(address);
-      const balance = await getErc20Balance(request, address, provider);
-      // check ETH for gas, and token for funds transfer
-      return ethBalance.gt(0) && balance.gt(bigNumberify(request.expectedAmount || 0));
+  const paymentNetwork = getPaymentNetwork(request);
+  if (!paymentNetwork || supportedNetworks.indexOf(paymentNetwork) === -1) {
+    throw new UnsupportedNetworkError(paymentNetwork);
+  }
+
+  let totalInPaymentCcy: BigNumberish;
+  let feeAmount = new BigNumber(0);
+
+  if (paymentNetwork == ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+    feeAmount = request.extensions[paymentNetwork].values.feeAmount || 0;
+  }
+
+  if (!paymentCurrency || paymentCurrency === request.currencyInfo) {
+    paymentCurrency = request.currencyInfo;
+    totalInPaymentCcy = new BigNumber(request.expectedAmount).add(feeAmount);
+  } else {
+    if (paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+      throw new Error("Cannot swap to pay this request. Only works with ERC20_FEE_PROXY_CONTRACT");
     }
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT: {
-      if (!provider) {
-        provider = getNetworkProvider(request);
-      }
-      ethBalance = await provider.getBalance(address);
-      const balance = await getErc20Balance(request, address, provider);
-      const feeAmount =
-        request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values
-          .feeAmount || 0;
-      // check ETH for gas, and token for funds transfer
-      return (
-        ethBalance.gt(0) && balance.gt(bigNumberify(request.expectedAmount || 0).add(feeAmount))
-      );
+    totalInPaymentCcy = await getQuote(
+      new BigNumber(request.expectedAmount).add(feeAmount), 
+      paymentCurrency, 
+      request.currencyInfo
+    );
+  }
+
+  if (!provider) {
+    provider = getNetworkProvider(request);
+  }
+
+  const balance = await getBalanceInAnyCurrency(address, paymentCurrency, provider);
+  const ethBalance = await getBalanceInAnyCurrency(
+    address, 
+    {type: CURRENCY.ETH, value: 'ETH', network: paymentCurrency.network}, 
+    provider
+  );
+
+  return ethBalance.gt(0) && balance.gt(totalInPaymentCcy);
+}
+
+export async function getBalanceInAnyCurrency(
+  address: string,
+  paymentCurrency: ICurrency,
+  provider: Provider,
+): Promise<BigNumber> {
+  switch (paymentCurrency.type) {
+    case "ETH": {
+      return await provider.getBalance(address);
     }
-    case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA: {
-      if (!provider) {
-        provider = getNetworkProvider(request);
-      }
-      ethBalance = await provider.getBalance(address);
-      return ethBalance.gt(bigNumberify(request.expectedAmount || 0));
+    case "ERC20": {
+      return await await getAnyErc20Balance(paymentCurrency.value, address, provider);
     }
     default:
-      throw new UnsupportedNetworkError(paymentNetwork);
+      throw new Error("Unsupported payment currency type");
+  }
+}
+
+// TODO
+export async function getQuote(
+  amountOut: BigNumberish, 
+  currencyIn: ICurrency, 
+  currencyOut: ICurrency
+): Promise<BigNumberish> {
+  if (currencyIn !== currencyOut) {
+    return amountOut;
+  } else {
+    return new BigNumber(amountOut).mul(2);
   }
 }
 
