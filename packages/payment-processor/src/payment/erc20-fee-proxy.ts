@@ -55,28 +55,34 @@ interface ISwapSettings {
  * Processes a transaction to pay an ERC20 Request with fees.
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param maxInputAmount maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
+ * @param path array of token addresses to be swapped: ['0xPaymentCcy', '0xOptIntermediate1', ..., '0xRequestCcy']
+ * The first element should be the payment currency.             
+ * The last element should be the request currency.
+ * Each intermediate currency will be used for intermediate swaps between these two tokens.
+ * @param deadline is the time in milliseconds since UNIX epoch, after which the swap should not be executed.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function swapErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
   maxInputAmount: BigNumberish,
   path: string[],
   deadline: number,
+  signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const proxyAddress = erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!);
+  const signer = getSigner(signerOrProvider);
+
   const encodedTx = encodePayErc20FeeRequest(request, signerOrProvider, amount, feeAmount, {
     deadline,
     maxInputAmount,
     path,
   });
-
-  const proxyAddress = erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!);
-  const signer = getSigner(signerOrProvider);
 
   const tx = await signer.sendTransaction({
     data: encodedTx,
@@ -93,6 +99,14 @@ export async function swapErc20FeeProxyRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
+ * @param swapSettings settings for the swap:
+ *  maxInputAmount: maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
+ *  path: array of token addresses to be used for the "swap path". 
+ *    ['0xPaymentCcy', '0xIntermediate1', ..., '0xRequestCcy']
+ *    The first element should be the payment currency.             
+ *    The last element should be the request currency.
+ *    Each intermediate currency will be used for intermediate swaps.
+ *  deadline: time in milliseconds since UNIX epoch, after which the swap should not be executed.
  */
 export function encodePayErc20FeeRequest(
   request: ClientTypes.IRequestData,
@@ -141,6 +155,9 @@ export function encodePayErc20FeeRequest(
   if (swapSettings.path[swapSettings.path.length - 1] !== tokenAddress) {
     throw new Error('Last item of the path should be the request currency');
   }
+  if (Date.now() > swapSettings.deadline) {
+    throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
+  }
   const swapToPayContract = Erc20SwapToPayContract.connect(swapToPayAddress, signer);
 
   return swapToPayContract.interface.functions.swapTransferWithReference.encode([
@@ -151,7 +168,7 @@ export function encodePayErc20FeeRequest(
     `0x${paymentReference}`,
     feeToPay,
     feeAddress || constants.AddressZero,
-    swapSettings.deadline,
+    Math.round(swapSettings.deadline / 1000),
   ]);
 }
 

@@ -8,7 +8,7 @@ const ARTIFACTS_VERSION: string = artifactsERC20SwapToPay.lastVersion;
 export function getContractAbi(): any {
   const artifactFilename: string = artifactsERC20SwapToPay[ARTIFACTS_VERSION].artifact;
 
-  const artifact = require(`../../artifacts/artifactsERC20SwapToPay/${artifactFilename.replace(
+  const artifact = require(`../../artifacts/ERC20SwapToPay/${artifactFilename.replace(
     /\.[^/.]+$/,
     '',
   )}.json`);
