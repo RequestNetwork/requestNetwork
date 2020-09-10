@@ -32,10 +32,10 @@
     "lint-staged": "lint-staged",
     "test": "run-s test:node test:layers",
     "test:scheduled": "run-s test:erc20 test:btc",
-    "test:layers": "jest \"test/layers.test.ts\"",
-    "test:node": "jest \"test/node-client.test.ts\"",
-    "test:erc20": "jest \"test/scheduled/erc20.test.ts\"",
-    "test:btc": "jest \"test/scheduled/btc.test.ts\""
+    "test:layers": "jest \"test/layers.test.ts\"  --forceExit",
+    "test:node": "jest \"test/node-client.test.ts\" --forceExit",
+    "test:erc20": "jest \"test/scheduled/erc20.test.ts\" --forceExit",
+    "test:btc": "jest \"test/scheduled/btc.test.ts\" --forceExit"
   },
   "devDependencies": {
     "@openzeppelin/test-helpers": "0.5.6",

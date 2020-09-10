@@ -6,6 +6,8 @@ import {
 } from '@requestnetwork/types';
 import ERC20AddressedBased from '../../src/erc20/address-based';
 
+jest.setTimeout(10000);
+
 let erc20AddressedBased: ERC20AddressedBased;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {

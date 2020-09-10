@@ -5,6 +5,9 @@ import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.j
 import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
+// tslint:disable-next-line: no-magic-numbers
+jest.setTimeout(10000);
+
 const payeeIdentity: IdentityTypes.IIdentity = {
   type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
@@ -436,8 +439,7 @@ describe('Request client using a request node', () => {
     const encryptedRequestData = encryptedRequest.getData();
     const plainRequestData = plainRequest.getData();
 
-    // todo negate
-    expect(encryptedRequestData).toEqual(plainRequestData);
+    expect(encryptedRequestData).not.toEqual(plainRequestData);
 
     expect(plainRequestData.meta!.transactionManagerMeta!.encryptionMethod).toBe(
       'ecies-aes256-gcm',
