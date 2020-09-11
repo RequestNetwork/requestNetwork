@@ -52,7 +52,7 @@
     "shelljs": "0.8.4",
     "web3-eth": "1.2.11",
     "web3-utils": "1.2.11",
-    "yargs": "15.4.1"
+    "yargs": "16.0.3"
   },
   "devDependencies": {
     "@openzeppelin/test-helpers": "0.5.6",
