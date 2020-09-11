@@ -1,12 +1,3 @@
-const chai = require('chai');
-const spies = require('chai-spies');
-
-const expect = chai.expect;
-chai.use(spies);
-
-
-import 'mocha';
-
 import LocationByTopic from '../src/transaction-index/location-by-topic';
 
 const arbitraryId1 = 'id1';
@@ -38,34 +29,35 @@ const arbitraryBlockHeader2 = {
 
 /* tslint:disable:no-unused-expression */
 describe('LocationByTopic', () => {
-
   describe('pushStorageLocationIndexedWithBlockTopics', () => {
     it('can index new block', async () => {
       const localIndex = new LocationByTopic();
 
+      const spy = jest.fn((_returns: any): Promise<true> => Promise.resolve(true as true));
       // Mock the set function to parse the calls
-      localIndex.storageLocationByChannelId.set = chai.spy((_returns: any): Promise<true> => Promise.resolve(true as true));
+      localIndex.storageLocationByChannelId.set = spy;
 
       await localIndex.pushStorageLocationIndexedWithBlockTopics(
         arbitraryDataId1,
         arbitraryBlockHeader1,
       );
 
-      expect(localIndex.storageLocationByChannelId.set).to.have.been.called;
+      expect(spy).toHaveBeenCalled();
     });
 
     it('can index channel ids', async () => {
       const localIndex = new LocationByTopic();
 
+      const spy = jest.fn((_returns: any): Promise<true> => Promise.resolve(true as true));
       // Mock the set function to parse the calls
-      localIndex.channelIdByTopics.set = chai.spy((_returns: any): Promise<true> => Promise.resolve(true as true));
+      localIndex.channelIdByTopics.set = spy;
 
       await localIndex.pushStorageLocationIndexedWithBlockTopics(
         arbitraryDataId1,
         arbitraryBlockHeader1,
       );
 
-      expect(localIndex.channelIdByTopics.set).to.have.been.called;
+      expect(spy).toHaveBeenCalled();
     });
   });
 
@@ -77,18 +69,16 @@ describe('LocationByTopic', () => {
         arbitraryBlockHeader1,
       );
 
-      expect(
+      // getStorageLocationsFromChannelId is wrong
+      await expect(
         localIndex.getStorageLocationsFromChannelId(arbitraryId1),
-        'getStorageLocationsFromChannelId is wrong',
-      ).to.eventually.deep.equal([arbitraryDataId1]);
-      expect(
+      ).resolves.toMatchObject([arbitraryDataId1]);
+      await expect(
         localIndex.getStorageLocationsFromChannelId(arbitraryId2),
-        'getStorageLocationsFromChannelId is wrong',
-      ).to.eventually.deep.equal([arbitraryDataId1]);
-      expect(
+      ).resolves.toMatchObject([arbitraryDataId1]);
+      await expect(
         localIndex.getStorageLocationsFromChannelId(arbitraryId3),
-        'getStorageLocationsFromChannelId is wrong',
-      ).to.eventually.deep.equal([]);
+      ).resolves.toMatchObject([]);
     });
     it('can getStorageLocationsFromChannelId with two blocks', async () => {
       const localIndex = new LocationByTopic();
@@ -101,18 +91,16 @@ describe('LocationByTopic', () => {
         arbitraryBlockHeader2,
       );
 
-      expect(
+      // getStorageLocationsFromChannelId is wrong
+      await expect(
         localIndex.getStorageLocationsFromChannelId(arbitraryId1),
-        'getStorageLocationsFromChannelId is wrong',
-      ).to.eventually.deep.equal([arbitraryDataId1, arbitraryDataId2]);
-      expect(
+      ).resolves.toMatchObject([arbitraryDataId1, arbitraryDataId2]);
+      await expect(
         localIndex.getStorageLocationsFromChannelId(arbitraryId2),
-        'getStorageLocationsFromChannelId is wrong',
-      ).to.eventually.deep.equal([arbitraryDataId1]);
-      expect(
+      ).resolves.toMatchObject([arbitraryDataId1]);
+      await expect(
         localIndex.getStorageLocationsFromChannelId(arbitraryId3),
-        'getStorageLocationsFromChannelId is wrong',
-      ).to.eventually.deep.equal([arbitraryDataId2]);
+      ).resolves.toMatchObject([arbitraryDataId2]);
     });
   });
 
@@ -129,22 +117,17 @@ describe('LocationByTopic', () => {
         arbitraryBlockHeader2,
       );
 
-      expect(
-        await localIndex.getChannelIdsFromTopic(arbitraryTxTopic1),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId1, arbitraryId2]);
-      expect(
-        await localIndex.getChannelIdsFromTopic(arbitraryTxTopic2),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId2]);
-      expect(
-        await localIndex.getChannelIdsFromTopic(arbitraryTxTopic3),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId3]);
-      expect(
-        await localIndex.getChannelIdsFromTopic('topic not used'),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([]);
+      expect(await localIndex.getChannelIdsFromTopic(arbitraryTxTopic1)).toMatchObject([
+        arbitraryId1,
+        arbitraryId2,
+      ]);
+      expect(await localIndex.getChannelIdsFromTopic(arbitraryTxTopic2)).toMatchObject([
+        arbitraryId2,
+      ]);
+      expect(await localIndex.getChannelIdsFromTopic(arbitraryTxTopic3)).toMatchObject([
+        arbitraryId3,
+      ]);
+      expect(await localIndex.getChannelIdsFromTopic('topic not used')).toMatchObject([]);
     });
   });
 
@@ -163,24 +146,18 @@ describe('LocationByTopic', () => {
 
       expect(
         await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic1, arbitraryTxTopic2]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId1, arbitraryId2]);
+      ).toMatchObject([arbitraryId1, arbitraryId2]);
       expect(
         await localIndex.getChannelIdsFromMultipleTopics([
           arbitraryTxTopic1,
           arbitraryTxTopic2,
           arbitraryTxTopic3,
         ]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId1, arbitraryId2, arbitraryId3]);
+      ).toMatchObject([arbitraryId1, arbitraryId2, arbitraryId3]);
       expect(
         await localIndex.getChannelIdsFromMultipleTopics(['topic not used', arbitraryTxTopic3]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId3]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([]);
+      ).toMatchObject([arbitraryId3]);
+      expect(await localIndex.getChannelIdsFromMultipleTopics([])).toMatchObject([]);
     });
 
     it('can get ChannelIds From Multiple Topic giving only one topic', async () => {
@@ -195,22 +172,19 @@ describe('LocationByTopic', () => {
         arbitraryBlockHeader2,
       );
 
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic1]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId1, arbitraryId2]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic2]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId2]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic3]),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([arbitraryId3]);
-      expect(
-        await localIndex.getChannelIdsFromMultipleTopics(['topic not used']),
-        'getChannelIdsFromTopic is wrong',
-      ).to.deep.equal([]);
+      expect(await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic1])).toMatchObject([
+        arbitraryId1,
+        arbitraryId2,
+      ]);
+      expect(await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic2])).toMatchObject([
+        arbitraryId2,
+      ]);
+      expect(await localIndex.getChannelIdsFromMultipleTopics([arbitraryTxTopic3])).toMatchObject([
+        arbitraryId3,
+      ]);
+      expect(await localIndex.getChannelIdsFromMultipleTopics(['topic not used'])).toMatchObject(
+        [],
+      );
     });
   });
 });

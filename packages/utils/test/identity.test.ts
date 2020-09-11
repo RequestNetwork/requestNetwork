@@ -1,16 +1,13 @@
-import { expect } from 'chai';
-import 'mocha';
-
 import { IdentityTypes } from '@requestnetwork/types';
 import Identity from '../src/identity';
 
 /* tslint:disable:no-unused-expression */
 describe('Identity', () => {
   it('can normalizeIdentityValue()', () => {
+    // 'normalizeIdentityValue("") error'
     expect(
-      Identity.normalizeIdentityValue('0xe241d3757DAd0Ef86D0FCc5fE90e20f955743eD5'),
-      'normalizeIdentityValue("") error',
-    ).to.be.equal('0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5');
+      Identity.normalizeIdentityValue('0xe241d3757DAd0Ef86D0FCc5fE90e20f955743eD5')
+    ).toBe('0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5');
   });
 
   it('can areEqual() two identities', () => {
@@ -22,7 +19,8 @@ describe('Identity', () => {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value: '0xe241d3757DAd0Ef86D0FCc5fE90e20f955743eD5',
     };
-    expect(Identity.areEqual(id1, id2), 'areEqual() error').to.be.true;
+    // 'areEqual() error'
+    expect(Identity.areEqual(id1, id2)).toBe(true);
   });
 
   it('can areEqual() two identities with different cases', () => {
@@ -34,7 +32,8 @@ describe('Identity', () => {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value: '0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5',
     };
-    expect(Identity.areEqual(id1, id2), 'areEqual() error').to.be.true;
+    // 'areEqual() error'
+    expect(Identity.areEqual(id1, id2)).toBe(true);
   });
 
   it('cannot areEqual() two identities with differents values', () => {
@@ -46,6 +45,7 @@ describe('Identity', () => {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value: '0xFFFFFFFFFFFFFFf86D0FCc5fE90e20f955743eD5',
     };
-    expect(Identity.areEqual(id1, id2), 'areEqual() error').to.be.false;
+    // 'areEqual() error'
+    expect(Identity.areEqual(id1, id2)).toBe(false);
   });
 });

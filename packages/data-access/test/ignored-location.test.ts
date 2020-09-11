@@ -1,14 +1,5 @@
-import 'mocha';
-
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as spies from 'chai-spies';
 // tslint:disable: await-promise
 // tslint:disable: no-magic-numbers
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-chai.use(spies);
 
 import IgnoredLocation from '../src/ignored-location';
 
@@ -24,9 +15,7 @@ describe('IgnoredLocation', () => {
       const ignoredLocation = new IgnoredLocation();
       await ignoredLocation.pushReasonByLocation(arbitraryDataId1, arbitraryReason);
 
-      expect(await ignoredLocation.getReasonFromLocation(arbitraryDataId1)).to.equal(
-        arbitraryReason,
-      );
+      expect(await ignoredLocation.getReasonFromLocation(arbitraryDataId1)).toBe(arbitraryReason);
     });
   });
   describe('removeReasonByLocation', () => {
@@ -35,7 +24,7 @@ describe('IgnoredLocation', () => {
       await ignoredLocation.pushReasonByLocation(arbitraryDataId1, arbitraryReason);
       await ignoredLocation.removeReasonByLocation(arbitraryDataId1);
 
-      expect(await ignoredLocation.getReasonFromLocation(arbitraryDataId1)).to.be.null;
+      expect(await ignoredLocation.getReasonFromLocation(arbitraryDataId1)).toBeNull();
     });
   });
 
@@ -45,7 +34,7 @@ describe('IgnoredLocation', () => {
       await ignoredLocation.pushReasonByLocation(arbitraryDataId1, arbitraryReason);
       await ignoredLocation.pushReasonByLocation(arbitraryDataId2, arbitraryReason2);
 
-      expect(await ignoredLocation.getIgnoredLocations()).to.be.deep.equal({
+      expect(await ignoredLocation.getIgnoredLocations()).toEqual({
         [arbitraryDataId1]: arbitraryReason,
         [arbitraryDataId2]: arbitraryReason2,
       });
@@ -53,7 +42,7 @@ describe('IgnoredLocation', () => {
     it('can getIgnoredLocations() if empty', async () => {
       const ignoredLocation = new IgnoredLocation();
 
-      expect(await ignoredLocation.getIgnoredLocations()).to.be.deep.equal({});
+      expect(await ignoredLocation.getIgnoredLocations()).toEqual({});
     });
   });
 });

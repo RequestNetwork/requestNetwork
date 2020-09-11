@@ -2,10 +2,7 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestNetwork } from '@requestnetwork/request-client.js';
 import { PaymentTypes, SignatureTypes } from '@requestnetwork/types';
-import * as chai from 'chai';
 import { payee, requestData, testnetRequestData } from './btc-test-data';
-
-const expect = chai.expect;
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
   method: SignatureTypes.METHOD.ECDSA,
@@ -35,7 +32,7 @@ describe('BTC detection test-suite', () => {
 
     // tslint:disable-next-line:no-magic-numbers
     await new Promise((resolve: any): any => setTimeout(resolve, 1500));
-    expect((await request.refresh()).balance?.balance).to.be.equal('50500000');
+    expect((await request.refresh()).balance?.balance).toBe('50500000');
   });
 
   it('Can create a BTC mainnet payment provider request and detect the payment', async () => {
@@ -56,6 +53,6 @@ describe('BTC detection test-suite', () => {
 
     // tslint:disable-next-line:no-magic-numbers
     await new Promise((resolve: any): any => setTimeout(resolve, 1500));
-    expect((await request.refresh()).balance?.balance).to.be.equal('666743');
+    expect((await request.refresh()).balance?.balance).toBe('666743');
   });
 });

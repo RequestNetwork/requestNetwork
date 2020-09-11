@@ -1,6 +1,3 @@
-import { expect } from 'chai';
-import 'mocha';
-
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 import Request from '../../src/request';
@@ -13,18 +10,18 @@ const CURRENT_VERSION = Version.currentVersion;
 describe('Request', () => {
   describe('getRoleInRequest', () => {
     it('can getRoleInRequest()', () => {
+      // 'getRoleInRequest() error'
       expect(
-        Request.getRoleInRequest(TestData.payeeRaw.identity, TestData.requestCreatedNoExtension),
-        'getRoleInRequest() error',
-      ).to.be.deep.equal(RequestLogicTypes.ROLE.PAYEE);
+        Request.getRoleInRequest(TestData.payeeRaw.identity, TestData.requestCreatedNoExtension)
+      ).toEqual(RequestLogicTypes.ROLE.PAYEE);
+      // 'getRoleInRequest() error'
       expect(
-        Request.getRoleInRequest(TestData.payerRaw.identity, TestData.requestCreatedNoExtension),
-        'getRoleInRequest() error',
-      ).to.be.deep.equal(RequestLogicTypes.ROLE.PAYER);
+        Request.getRoleInRequest(TestData.payerRaw.identity, TestData.requestCreatedNoExtension)
+      ).toEqual(RequestLogicTypes.ROLE.PAYER);
+      // 'getRoleInRequest() error'
       expect(
-        Request.getRoleInRequest(TestData.otherIdRaw.identity, TestData.requestCreatedNoExtension),
-        'getRoleInRequest() error',
-      ).to.be.deep.equal(RequestLogicTypes.ROLE.THIRD_PARTY);
+        Request.getRoleInRequest(TestData.otherIdRaw.identity, TestData.requestCreatedNoExtension)
+      ).toEqual(RequestLogicTypes.ROLE.THIRD_PARTY);
     });
   });
 
@@ -46,7 +43,8 @@ describe('Request', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      expect(Request.checkRequest(requestError), 'checkRequest() must be true').to.be.true;
+      // 'checkRequest() must be true'
+      expect(Request.checkRequest(requestError)).toBe(true);
     });
     it('cannot valid request with no payer and no payee', () => {
       const requestNoPayeeNoPayer = {
@@ -64,9 +62,7 @@ describe('Request', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestNoPayeeNoPayer)).to.throw(
-        'request.payee and request.payer are missing',
-      );
+      expect(() => Request.checkRequest(requestNoPayeeNoPayer)).toThrowError('request.payee and request.payer are missing');
     });
     it('cannot valid request with no creator', () => {
       const requestError: any = {
@@ -81,7 +77,7 @@ describe('Request', () => {
         state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw('request.creator is missing');
+      expect(() => Request.checkRequest(requestError)).toThrowError('request.creator is missing');
     });
 
     it('cannot valid request with expected amount missing', () => {
@@ -97,9 +93,7 @@ describe('Request', () => {
         state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw(
-        'expectedAmount must be a positive integer',
-      );
+      expect(() => Request.checkRequest(requestError)).toThrowError('expectedAmount must be a positive integer');
     });
     it('cannot valid request with expected amount not valid', () => {
       const requestError = {
@@ -118,9 +112,7 @@ describe('Request', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw(
-        'expectedAmount must be a positive integer',
-      );
+      expect(() => Request.checkRequest(requestError)).toThrowError('expectedAmount must be a positive integer');
     });
     it('cannot valid request with creator identity type not supported', () => {
       const requestError: any = {
@@ -140,9 +132,7 @@ describe('Request', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw(
-        'request.creator.type not supported',
-      );
+      expect(() => Request.checkRequest(requestError)).toThrowError('request.creator.type not supported');
     });
     it('cannot valid request with payer identity type not supported', () => {
       const requestError: any = {
@@ -162,7 +152,7 @@ describe('Request', () => {
         state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw('request.payer.type not supported');
+      expect(() => Request.checkRequest(requestError)).toThrowError('request.payer.type not supported');
     });
     it('cannot valid request with payee identity type not supported', () => {
       const requestError: any = {
@@ -181,7 +171,7 @@ describe('Request', () => {
         state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw('request.payee.type not supported');
+      expect(() => Request.checkRequest(requestError)).toThrowError('request.payee.type not supported');
     });
 
     it('cannot valid request with state missing', () => {
@@ -197,7 +187,7 @@ describe('Request', () => {
         requestId: TestData.requestIdMock,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw('request.state is missing');
+      expect(() => Request.checkRequest(requestError)).toThrowError('request.state is missing');
     });
     it('cannot valid request with version missing', () => {
       const requestError: any = {
@@ -212,7 +202,7 @@ describe('Request', () => {
         requestId: TestData.requestIdMock,
         state: RequestLogicTypes.STATE.CREATED,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw('request.version is missing');
+      expect(() => Request.checkRequest(requestError)).toThrowError('request.version is missing');
     });
     it('cannot valid request with currency missing', () => {
       const requestError: any = {
@@ -224,7 +214,7 @@ describe('Request', () => {
         state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw('request.currency is missing');
+      expect(() => Request.checkRequest(requestError)).toThrowError('request.currency is missing');
     });
     it('cannot valid request with requestId missing', () => {
       const requestError: any = {
@@ -239,7 +229,7 @@ describe('Request', () => {
         state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).to.throw('request.requestId is missing');
+      expect(() => Request.checkRequest(requestError)).toThrowError('request.requestId is missing');
     });
   });
 });

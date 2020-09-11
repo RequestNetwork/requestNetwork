@@ -1,10 +1,3 @@
-import * as chai from 'chai';
-import 'mocha';
-
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-
 import MultiFormat from '@requestnetwork/multi-format';
 import Utils from '@requestnetwork/utils';
 import ClearTransaction from '../../src/clear-transaction';
@@ -17,7 +10,8 @@ describe('clear-transaction', () => {
     it('can getData()', async () => {
       const tx = new ClearTransaction(data);
 
-      expect(await tx.getData(), 'transaction not right').to.deep.equal(data);
+      // 'transaction not right'
+      expect(await tx.getData()).toEqual(data);
     });
   });
 
@@ -25,7 +19,8 @@ describe('clear-transaction', () => {
     it('can get hash of the data', async () => {
       const tx = new ClearTransaction(data);
 
-      expect(await tx.getHash(), 'hash not right').to.deep.equal(
+      // 'hash not right'
+      expect(await tx.getHash()).toEqual(
         MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(JSON.parse(data))),
       );
     });
@@ -35,14 +30,14 @@ describe('clear-transaction', () => {
     it('can get error of a transaction', async () => {
       const tx = new ClearTransaction('Not parsable');
 
-      expect(await tx.getError(), 'error not right').to.deep.equal(
-        'Impossible to JSON parse the transaction',
-      );
+      // 'error not right'
+      expect(await tx.getError()).toEqual('Impossible to JSON parse the transaction');
     });
     it('can get error of a transaction if no error', async () => {
       const tx = new ClearTransaction(data);
 
-      expect(await tx.getError(), 'error not right').to.deep.equal('');
+      // 'error not right'
+      expect(await tx.getError()).toEqual('');
     });
   });
 });

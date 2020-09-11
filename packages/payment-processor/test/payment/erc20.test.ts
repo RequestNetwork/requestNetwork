@@ -1,9 +1,4 @@
 /* eslint-disable spellcheck/spell-checker */
-import 'mocha';
-
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as spies from 'chai-spies';
 
 import {
   ClientTypes,
@@ -22,11 +17,6 @@ import {
 } from '../../src/payment/erc20';
 
 // tslint:disable: no-unused-expression
-
-const expect = chai.expect;
-chai.use(chaiAsPromised);
-chai.use(spies);
-const sandbox = chai.spy.sandbox();
 
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -124,18 +114,20 @@ const erc20ProxyRequest: ClientTypes.IRequestData = {
 describe('hasErc20approval & approveErc20', () => {
   describe('ERC20 fee proxy payment network', () => {
     it('should consider override parameters', async () => {
-      const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
+      const spy = jest.fn();
+      const originalSendTransaction = wallet.sendTransaction.bind(wallet);
+      wallet.sendTransaction = spy;
       await approveErc20(erc20FeeProxyRequest, wallet, {
         gasPrice: '20000000000',
       });
-      expect(spy).to.have.been.called.with({
+      expect(spy).toHaveBeenCalledWith({
         data:
           '0x095ea7b300000000000000000000000075c35c980c0d37ef46df04d31a140b65503c0eedffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
         gasPrice: '20000000000',
         to: '0x9FBDa871d559710256a2502A2517b794B482Db40',
         value: 0,
       });
-      sandbox.restore();
+      wallet.sendTransaction = originalSendTransaction;
     });
     it('can check and approve', async () => {
       // use another address so it doesn't mess with other tests.
@@ -144,27 +136,31 @@ describe('hasErc20approval & approveErc20', () => {
       ).connect(provider);
       let hasApproval = await hasErc20Approval(erc20FeeProxyRequest, otherWallet.address, provider);
       // Warning: this test can run only once!
-      expect(hasApproval, 'already has approval').to.be.false;
+      // 'already has approval'
+      expect(hasApproval).toBe(false);
       await approveErc20(erc20FeeProxyRequest, otherWallet);
       hasApproval = await hasErc20Approval(erc20FeeProxyRequest, otherWallet.address, provider);
-      expect(hasApproval, 'approval did not succeed').to.be.true;
+      // 'approval did not succeed'
+      expect(hasApproval).toBe(true);
     });
   });
 
   describe('ERC20 fee proxy payment network', () => {
     it('should consider override parameters', async () => {
-      const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
+      const spy = jest.fn();
+      const originalSendTransaction = wallet.sendTransaction.bind(wallet);
+      wallet.sendTransaction = spy;
       await approveErc20(erc20ProxyRequest, wallet, {
         gasPrice: '20000000000',
       });
-      expect(spy).to.have.been.called.with({
+      expect(spy).toHaveBeenCalledWith({
         data:
           '0x095ea7b30000000000000000000000002c2b9c9a4a25e24b174f26114e8926a9f2128fe4ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
         gasPrice: '20000000000',
         to: '0x9FBDa871d559710256a2502A2517b794B482Db40',
         value: 0,
       });
-      sandbox.restore();
+      wallet.sendTransaction = originalSendTransaction;
     });
     it('can check and approve', async () => {
       // use another address so it doesn't mess with other tests.
@@ -173,10 +169,12 @@ describe('hasErc20approval & approveErc20', () => {
       ).connect(provider);
       let hasApproval = await hasErc20Approval(erc20ProxyRequest, otherWallet.address, provider);
       // Warning: this test can run only once!
-      expect(hasApproval, 'already has approval').to.be.false;
+      // 'already has approval'
+      expect(hasApproval).toBe(false);
       await approveErc20(erc20ProxyRequest, otherWallet);
       hasApproval = await hasErc20Approval(erc20ProxyRequest, otherWallet.address, provider);
-      expect(hasApproval, 'approval did not succeed').to.be.true;
+      // 'approval did not succeed'
+      expect(hasApproval).toBe(true);
     });
   });
 });
@@ -184,24 +182,24 @@ describe('hasErc20approval & approveErc20', () => {
 describe('getErc20Balance', () => {
   it('should read the balance for ERC20 Fee Proxy payment network', async () => {
     const balance = await getErc20Balance(erc20FeeProxyRequest, wallet.address, provider);
-    chai.assert.isTrue(balance.gte('100'));
+    expect(balance.gte('100')).toBeTruthy();
   });
 
   it('should read the balance for ERC20 Proxy payment network', async () => {
     const balance = await getErc20Balance(erc20ProxyRequest, wallet.address, provider);
-    chai.assert.isTrue(balance.gte('100'));
+    expect(balance.gte('100')).toBeTruthy();
   });
 });
 
 describe('getErc20PaymentUrl', () => {
   it('can get an ERC20 url for ERC20 Fee Proxy payment network', () => {
-    expect(_getErc20PaymentUrl(erc20FeeProxyRequest)).to.eq(
+    expect(_getErc20PaymentUrl(erc20FeeProxyRequest)).toBe(
       'ethereum:0x75c35C980C0d37ef46DF04d31A140b65503c0eEd/transferFromWithReferenceAndFee?address=0x9FBDa871d559710256a2502A2517b794B482Db40&address=0xf17f52151EbEF6C7334FAD080c5704D77216b732&uint256=100&bytes=86dfbccad783599a&uint256=2&address=0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
     );
   });
 
   it('can get an ERC20 url for ERC20 Proxy payment network', () => {
-    expect(_getErc20PaymentUrl(erc20ProxyRequest)).to.eq(
+    expect(_getErc20PaymentUrl(erc20ProxyRequest)).toBe(
       'ethereum:0x2c2b9c9a4a25e24b174f26114e8926a9f2128fe4/transferFromWithReference?address=0x9FBDa871d559710256a2502A2517b794B482Db40&address=0xf17f52151EbEF6C7334FAD080c5704D77216b732&uint256=100&bytes=86dfbccad783599a',
     );
   });

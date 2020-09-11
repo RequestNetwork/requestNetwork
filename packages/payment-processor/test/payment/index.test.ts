@@ -1,9 +1,6 @@
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
 import { Wallet } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
 import { bigNumberify } from 'ethers/utils';
-import { stub } from 'sinon';
 
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
@@ -14,9 +11,6 @@ import * as ethModule from '../../src/payment/eth-input-data';
 
 // tslint:disable: no-unused-expression
 // tslint:disable: await-promise
-
-const expect = chai.expect;
-chai.use(chaiAsPromised);
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new JsonRpcProvider('http://localhost:8545');
@@ -35,7 +29,7 @@ describe('payRequest', () => {
         },
       },
     };
-    await expect(payRequest(request, wallet)).to.be.rejectedWith(
+    await expect(payRequest(request, wallet)).rejects.toThrowError(
       'Payment network pn-any-declarative is not supported',
     );
   });
@@ -52,13 +46,14 @@ describe('payRequest', () => {
         },
       },
     };
-    await expect(payRequest(request, wallet)).to.be.rejectedWith(
+    await expect(payRequest(request, wallet)).rejects.toThrowError(
       'Payment network pn-bitcoin-address-based is not supported',
     );
   });
 
   it('should call the ETH payment method', async () => {
-    const spy = stub(ethModule, 'payEthInputDataRequest');
+    const mock = jest.fn();
+    (ethModule as any).payEthInputDataRequest = mock;
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
@@ -71,11 +66,12 @@ describe('payRequest', () => {
       },
     };
     await payRequest(request, wallet);
-    expect(spy.calledOnce).to.be.true;
+    expect(mock).toHaveBeenCalledTimes(1);
   });
 
   it('should call the ERC20 payment method', async () => {
-    const spy = stub(erc20Module, 'payErc20Request');
+    const spy = jest.fn();
+    (erc20Module as any).payErc20Request = spy;
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
@@ -88,12 +84,12 @@ describe('payRequest', () => {
       },
     };
     await payRequest(request, wallet);
-    expect(spy.calledOnce).to.be.true;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('hasSufficientFunds', () => {
-  it('should throw an error on unsupported network', () => {
+  it('should throw an error on unsupported network', async () => {
     const request: any = {
       currencyInfo: {
         network: 'testnet',
@@ -108,14 +104,14 @@ describe('hasSufficientFunds', () => {
         },
       },
     };
-    expect(hasSufficientFunds(request, '')).to.be.rejectedWith(
-      'Payment network pn-any-declarative is not supported',
+    await expect(hasSufficientFunds(request, '')).rejects.toThrowError(
+      'Payment network pn-bitcoin-address-based is not supported',
     );
   });
 
   it('should call the ETH payment method', async () => {
     const fakeProvider: any = {
-      getBalance: stub().returns(Promise.resolve(bigNumberify('200'))),
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(bigNumberify('200'))),
     };
     const request: any = {
       balance: {
@@ -137,11 +133,13 @@ describe('hasSufficientFunds', () => {
       },
     };
     await hasSufficientFunds(request, 'abcd', fakeProvider);
-    expect(fakeProvider.getBalance.calledOnce).to.be.true;
+    expect(fakeProvider.getBalance).toHaveBeenCalledTimes(1);
   });
 
   it('should call the ERC20 payment method', async () => {
-    const spy = stub(erc20Module, 'getErc20Balance').returns(Promise.resolve(bigNumberify('200')));
+    const spy = jest
+      .spyOn(erc20Module, 'getErc20Balance')
+      .mockReturnValue(Promise.resolve(bigNumberify('200')));
     const fakeProvider: any = {
       getBalance: () => Promise.resolve(bigNumberify('200')),
     };
@@ -166,7 +164,7 @@ describe('hasSufficientFunds', () => {
       },
     };
     await hasSufficientFunds(request, 'abcd', fakeProvider);
-    expect(spy.calledOnce).to.be.true;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -183,13 +181,14 @@ describe('_getPaymentUrl', () => {
         },
       },
     };
-    expect(() => _getPaymentUrl(request)).to.throw(
+    expect(() => _getPaymentUrl(request)).toThrowError(
       'Payment network pn-any-declarative is not supported',
     );
   });
 
   it('should call the BTC payment url method', async () => {
-    const spy = stub(btcModule, 'getBtcPaymentUrl');
+    const mock = jest.fn();
+    (btcModule as any).getBtcPaymentUrl = mock;
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: {
@@ -202,11 +201,12 @@ describe('_getPaymentUrl', () => {
       },
     };
     _getPaymentUrl(request);
-    expect(spy.calledOnce).to.be.true;
+    expect(mock).toHaveBeenCalledTimes(1);
   });
 
   it('should call the ETH payment url method', async () => {
-    const spy = stub(ethModule, '_getEthPaymentUrl');
+    const spy = jest.fn();
+    (ethModule as any)._getEthPaymentUrl = spy;
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
@@ -219,11 +219,12 @@ describe('_getPaymentUrl', () => {
       },
     };
     _getPaymentUrl(request);
-    expect(spy.calledOnce).to.be.true;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('should call the ERC20 payment url method', async () => {
-    const spy = stub(erc20Module, '_getErc20PaymentUrl');
+    const spy = jest.fn();
+    (erc20Module as any)._getErc20PaymentUrl = spy;
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
@@ -236,6 +237,6 @@ describe('_getPaymentUrl', () => {
       },
     };
     _getPaymentUrl(request);
-    expect(spy.calledOnce).to.be.true;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

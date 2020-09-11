@@ -1,18 +1,7 @@
-import 'mocha';
-
 import MultiFormat from '@requestnetwork/multi-format';
 import Utils from '@requestnetwork/utils';
 
 import { EventEmitter } from 'events';
-
-const chai = require('chai');
-const spies = require('chai-spies');
-const chaiAsPromised = require('chai-as-promised');
-
-chai.use(spies);
-chai.use(chaiAsPromised);
-
-const expect = chai.expect;
 
 import { DataAccessTypes, EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 
@@ -66,30 +55,29 @@ let fakeDataAccess: DataAccessTypes.IDataAccess;
 describe('index', () => {
   beforeEach(() => {
     fakeDataAccess = {
-      _getStatus: chai.spy(),
-      getChannelsByMultipleTopics: chai.spy.returns(fakeMetaDataAccessGetChannelsReturn),
-      getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetChannelsReturn),
-      getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturn),
-      initialize: chai.spy(),
-      // persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
-      persistTransaction: chai.spy(
-        (): any => {
-          setTimeout(() => {
-            fakeMetaDataAccessPersistReturn.emit(
-              'confirmed',
-              {
-                meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
-                result: { topics: [fakeTxHash] },
-              },
-              // tslint:disable-next-line:no-magic-numbers
-              100,
-            );
-          });
-          return fakeMetaDataAccessPersistReturn;
-        },
-      ),
+      _getStatus: jest.fn(),
+      getChannelsByMultipleTopics: jest.fn().mockReturnValue(fakeMetaDataAccessGetChannelsReturn),
+      getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetChannelsReturn),
+      getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturn),
+      initialize: jest.fn(),
+      // persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
+      persistTransaction: jest.fn((): any => {
+        setTimeout(() => {
+          fakeMetaDataAccessPersistReturn.emit(
+            'confirmed',
+            {
+              meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
+              result: { topics: [fakeTxHash] },
+            },
+            // tslint:disable-next-line:no-magic-numbers
+            100,
+          );
+        });
+        return fakeMetaDataAccessPersistReturn;
+      }),
     };
   });
+
   describe('persistTransaction', () => {
     describe('in a new channel', () => {
       it('can persist a clear transaction in a new channel', async () => {
@@ -97,23 +85,26 @@ describe('index', () => {
 
         const ret = await transactionManager.persistTransaction(data, channelId, extraTopics);
 
-        ret.on('confirmed', resultConfirmed1 => {
-          expect(resultConfirmed1, 'result Confirmed wrong').to.deep.equal({
-            meta: {
-              dataAccessMeta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
-              encryptionMethod: undefined,
-            },
-            result: {},
-          });
+        const resultConfirmed1 = await new Promise((resolve) => ret.on('confirmed', resolve));
+        // 'result Confirmed wrong'
+        expect(resultConfirmed1).toEqual({
+          meta: {
+            dataAccessMeta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
+            encryptionMethod: undefined,
+          },
+          result: {},
         });
 
-        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
-        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        // 'ret.result is wrong'
+        expect(ret.result).toEqual({});
+        // 'ret.meta is wrong'
+        expect(ret.meta).toEqual({
           dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
           encryptionMethod: undefined,
         });
-        expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
           await TransactionsFactory.createClearTransaction(data),
+          channelId,
           extraTopics.concat([channelId]),
         );
       });
@@ -127,62 +118,71 @@ describe('index', () => {
           TestData.idRaw3.encryptionParams,
         ]);
 
-        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
-        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        // 'ret.result is wrong'
+        expect(ret.result).toEqual({});
+        // 'ret.meta is wrong'
+        expect(ret.meta).toEqual({
           dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
           encryptionMethod: 'ecies-aes256-gcm',
         });
-        expect(fakeDataAccess.persistTransaction).to.have.been.called.once();
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledTimes(1);
       });
 
       it('cannot persist a transaction if data access emit error', async () => {
         const fakeDataAccessEmittingError = Object.assign({}, fakeDataAccess);
-        fakeDataAccessEmittingError.persistTransaction = chai.spy(
-          (): any => {
-            const persistWithEvent = Object.assign(
-              new EventEmitter(),
-              fakeMetaDataAccessPersistReturn,
-            );
-            setTimeout(() => {
-              // tslint:disable-next-line:no-magic-numbers
-              persistWithEvent.emit('error', 'error for test purpose', 100);
-            });
-            return persistWithEvent;
-          },
-        );
+        fakeDataAccessEmittingError.persistTransaction = jest.fn((): any => {
+          const persistWithEvent = Object.assign(
+            new EventEmitter(),
+            fakeMetaDataAccessPersistReturn,
+          );
+          setTimeout(() => {
+            // tslint:disable-next-line:no-magic-numbers
+            persistWithEvent.emit('error', 'error for test purpose', 100);
+          });
+          return persistWithEvent;
+        });
 
         const transactionManager = new TransactionManager(fakeDataAccess);
 
         const ret = await transactionManager.persistTransaction(data, channelId, extraTopics);
 
-        ret.on('error', error => {
-          expect(error, 'result Confirmed wrong').to.equal('error for test purpose');
+        ret.on('error', (error) => {
+          // 'result Confirmed wrong'
+          expect(error).toBe('error for test purpose');
         });
 
-        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
-        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        // 'ret.result is wrong'
+        expect(ret.result).toEqual({});
+        // 'ret.meta is wrong'
+        expect(ret.meta).toEqual({
           dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
           encryptionMethod: undefined,
         });
-        expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
           await TransactionsFactory.createClearTransaction(data),
+          channelId,
           extraTopics.concat([channelId]),
         );
       });
     });
 
     describe('in an existing new channel', () => {
+      afterEach(() => {
+        jest.clearAllMocks();
+      });
       it('can persist a clear transaction in an existing channel', async () => {
         const transactionManager = new TransactionManager(fakeDataAccess);
 
         const ret = await transactionManager.persistTransaction(data2, channelId, extraTopics);
 
-        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
-        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        // 'ret.result is wrong'
+        expect(ret.result).toEqual({});
+        // 'ret.meta is wrong'
+        expect(ret.meta).toEqual({
           dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
           encryptionMethod: undefined,
         });
-        expect(fakeDataAccess.persistTransaction).to.have.been.called.with(
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
           await TransactionsFactory.createClearTransaction(data2),
           channelId,
           extraTopics.concat([channelId2]),
@@ -210,14 +210,14 @@ describe('index', () => {
         };
 
         fakeDataAccess = {
-          _getStatus: chai.spy(),
-          getChannelsByMultipleTopics: chai.spy(),
-          getChannelsByTopic: chai.spy(),
-          getTransactionsByChannelId: chai.spy.returns(
-            fakeMetaDataAccessGetReturnWithEncryptedTransaction,
-          ),
-          initialize: chai.spy(),
-          persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
+          _getStatus: jest.fn(),
+          getChannelsByMultipleTopics: jest.fn(),
+          getChannelsByTopic: jest.fn(),
+          getTransactionsByChannelId: jest
+            .fn()
+            .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+          initialize: jest.fn(),
+          persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
         const transactionManager = new TransactionManager(
@@ -226,13 +226,19 @@ describe('index', () => {
         );
         const ret = await transactionManager.persistTransaction(data2, channelId, extraTopics);
 
-        expect(ret.result, 'ret.result is wrong').to.be.deep.equal({});
-        expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+        // 'ret.result is wrong'
+        expect(ret.result).toEqual({});
+        // 'ret.meta is wrong'
+        expect(ret.meta).toEqual({
           dataAccessMeta: fakeMetaDataAccessPersistReturn.meta,
           encryptionMethod: 'ecies-aes256-gcm',
         });
 
-        expect(fakeDataAccess.persistTransaction).to.have.been.called.to.have.been.called.with(
+        // TODO challenge this
+        expect(fakeDataAccess.persistTransaction).toHaveBeenCalledWith(
+          {
+            encryptedData: expect.stringMatching(/^04.{76}/),
+          },
           channelId,
           extraTopics.concat([channelId2]),
         );
@@ -249,12 +255,12 @@ describe('index', () => {
         };
 
         fakeDataAccess = {
-          _getStatus: chai.spy(),
-          getChannelsByMultipleTopics: chai.spy(),
-          getChannelsByTopic: chai.spy(),
-          getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturnEmpty),
-          initialize: chai.spy(),
-          persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
+          _getStatus: jest.fn(),
+          getChannelsByMultipleTopics: jest.fn(),
+          getChannelsByTopic: jest.fn(),
+          getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturnEmpty),
+          initialize: jest.fn(),
+          persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
         const transactionManager = new TransactionManager(
@@ -263,8 +269,7 @@ describe('index', () => {
         );
         await expect(
           transactionManager.persistTransaction(data2, channelId, extraTopics),
-          'must throw',
-        ).to.eventually.be.rejectedWith(`Impossible to retrieve the channel: ${channelId}`);
+        ).rejects.toThrowError(`Impossible to retrieve the channel: ${channelId}`);
       });
 
       it('cannot persist a encrypted transaction in an existing channel with encryption parameters given', async () => {
@@ -288,14 +293,14 @@ describe('index', () => {
         };
 
         fakeDataAccess = {
-          _getStatus: chai.spy(),
-          getChannelsByMultipleTopics: chai.spy(),
-          getChannelsByTopic: chai.spy(),
-          getTransactionsByChannelId: chai.spy.returns(
-            fakeMetaDataAccessGetReturnWithEncryptedTransaction,
-          ),
-          initialize: chai.spy(),
-          persistTransaction: chai.spy.returns(fakeMetaDataAccessPersistReturn),
+          _getStatus: jest.fn(),
+          getChannelsByMultipleTopics: jest.fn(),
+          getChannelsByTopic: jest.fn(),
+          getTransactionsByChannelId: jest
+            .fn()
+            .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+          initialize: jest.fn(),
+          persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
         const transactionManager = new TransactionManager(
@@ -306,8 +311,7 @@ describe('index', () => {
           transactionManager.persistTransaction(data2, channelId, extraTopics, [
             TestData.idRaw1.encryptionParams,
           ]),
-          'must throw',
-        ).to.eventually.be.rejectedWith('Impossible to add new stakeholder to an existing channel');
+        ).rejects.toThrowError('Impossible to add new stakeholder to an existing channel');
       });
     });
   });
@@ -318,14 +322,14 @@ describe('index', () => {
 
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal(
-        fakeMetaDataAccessGetReturn.result,
-      );
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual(fakeMetaDataAccessGetReturn.result);
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetReturn.meta,
         ignoredTransactions: [null, null],
       });
-      expect(fakeDataAccess.getTransactionsByChannelId).to.have.been.called.with(channelId);
+      expect(fakeDataAccess.getTransactionsByChannelId).toHaveBeenCalledWith(channelId, undefined);
     });
 
     it('can getTransactionsByChannelId() with channelId not matching the first transaction hash', async () => {
@@ -341,19 +345,22 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturnFirstHashWrong),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
 
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetReturnFirstHashWrong.meta,
         ignoredTransactions: [
           {
@@ -365,10 +372,11 @@ describe('index', () => {
         ],
       });
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({
         transactions: [null, tx, tx2],
       });
-      expect(fakeDataAccess.getTransactionsByChannelId).to.have.been.called.with(channelId);
+      expect(fakeDataAccess.getTransactionsByChannelId).toHaveBeenCalledWith(channelId, undefined);
     });
 
     it('can getTransactionsByChannelId() the first transaction data not parsable', async () => {
@@ -384,19 +392,22 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy.returns(fakeMetaDataAccessGetReturnFirstHashWrong),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
 
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetReturnFirstHashWrong.meta,
         ignoredTransactions: [
           {
@@ -408,10 +419,11 @@ describe('index', () => {
         ],
       });
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({
         transactions: [null, tx, tx2],
       });
-      expect(fakeDataAccess.getTransactionsByChannelId).to.have.been.called.with(channelId);
+      expect(fakeDataAccess.getTransactionsByChannelId).toHaveBeenCalledWith(channelId, undefined);
     });
 
     it('can get a transaction from an encrypted channel', async () => {
@@ -434,14 +446,14 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy.returns(
-          fakeMetaDataAccessGetReturnWithEncryptedTransaction,
-        ),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(
@@ -450,7 +462,8 @@ describe('index', () => {
       );
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret, 'return is wrong').to.be.deep.equal({
+      // 'return is wrong'
+      expect(ret).toEqual({
         meta: {
           dataAccessMeta: { transactionsStorageLocation: ['fakeDataId1'] },
           encryptionMethod: 'ecies-aes256-gcm',
@@ -488,20 +501,21 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy.returns(
-          fakeMetaDataAccessGetReturnWithEncryptedTransaction,
-        ),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret, 'return is wrong').to.be.deep.equal({
+      // 'return is wrong'
+      expect(ret).toEqual({
         meta: {
           dataAccessMeta: { transactionsStorageLocation: ['fakeDataId1'] },
           ignoredTransactions: [
@@ -548,14 +562,14 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy.returns(
-          fakeMetaDataAccessGetReturnWithEncryptedTransaction,
-        ),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(
@@ -564,7 +578,8 @@ describe('index', () => {
       );
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret, 'return is wrong').to.be.deep.equal({
+      // 'return is wrong'
+      expect(ret).toEqual({
         meta: {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
@@ -627,14 +642,14 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy.returns(
-          fakeMetaDataAccessGetReturnWithEncryptedTransaction,
-        ),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(
@@ -643,7 +658,8 @@ describe('index', () => {
       );
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret, 'return is wrong').to.be.deep.equal({
+      // 'return is wrong'
+      expect(ret).toEqual({
         meta: {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
@@ -701,14 +717,14 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy.returns(
-          fakeMetaDataAccessGetReturnWithEncryptedTransaction,
-        ),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(
@@ -717,7 +733,8 @@ describe('index', () => {
       );
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret, 'return is wrong').to.be.deep.equal({
+      // 'return is wrong'
+      expect(ret).toEqual({
         meta: {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
@@ -776,14 +793,14 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy.returns(
-          fakeMetaDataAccessGetReturnWithEncryptedTransaction,
-        ),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(
@@ -793,7 +810,8 @@ describe('index', () => {
 
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret, 'return is wrong').to.be.deep.equal({
+      // 'return is wrong'
+      expect(ret).toEqual({
         meta: {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
@@ -850,14 +868,14 @@ describe('index', () => {
       };
 
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy(),
-        getTransactionsByChannelId: chai.spy.returns(
-          fakeMetaDataAccessGetReturnWithEncryptedTransaction,
-        ),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn(),
+        getTransactionsByChannelId: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(
@@ -866,7 +884,8 @@ describe('index', () => {
       );
       const ret = await transactionManager.getTransactionsByChannelId(channelId);
 
-      expect(ret, 'return is wrong').to.be.deep.equal({
+      // 'return is wrong'
+      expect(ret).toEqual({
         meta: {
           dataAccessMeta: {
             transactionsStorageLocation: ['fakeDataId1', 'fakeDataId2'],
@@ -903,16 +922,16 @@ describe('index', () => {
 
       const ret = await transactionManager.getChannelsByTopic(extraTopics[0]);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal(
-        fakeMetaDataAccessGetChannelsReturn.result,
-      );
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual(fakeMetaDataAccessGetChannelsReturn.result);
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetChannelsReturn.meta,
         ignoredTransactions: {
           '01a98f126de3fab2b5130af5161998bf6e59b2c380deafeff938ff3f798281bf23': [null, null],
         },
       });
-      expect(fakeDataAccess.getChannelsByTopic).to.have.been.called.with(extraTopics[0]);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
     it('can get an encrypted channel indexed by topic', async () => {
@@ -941,12 +960,14 @@ describe('index', () => {
         },
       };
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
-        getTransactionsByChannelId: chai.spy(),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        getTransactionsByChannelId: jest.fn(),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(
@@ -956,18 +977,20 @@ describe('index', () => {
 
       const ret = await transactionManager.getChannelsByTopic(extraTopics[0]);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({
         transactions: {
           [channelId]: [tx],
         },
       });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
         ignoredTransactions: {
           [channelId]: [null],
         },
       });
-      expect(fakeDataAccess.getChannelsByTopic).to.have.been.called.with(extraTopics[0]);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
     it('cannot get an encrypted channel indexed by topic without decryptionProvider', async () => {
@@ -996,24 +1019,28 @@ describe('index', () => {
         },
       };
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
-        getTransactionsByChannelId: chai.spy(),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        getTransactionsByChannelId: jest.fn(),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
 
       const ret = await transactionManager.getChannelsByTopic(extraTopics[0]);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({
         transactions: {
           [channelId]: [null],
         },
       });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
         ignoredTransactions: {
           [channelId]: [
@@ -1028,7 +1055,7 @@ describe('index', () => {
           ],
         },
       });
-      expect(fakeDataAccess.getChannelsByTopic).to.have.been.called.with(extraTopics[0]);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
     it('can get an clear channel indexed by topic without decryptionProvider even if an encrypted transaction happen first', async () => {
@@ -1062,19 +1089,22 @@ describe('index', () => {
         },
       };
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
-        getTransactionsByChannelId: chai.spy(),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        getTransactionsByChannelId: jest.fn(),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
 
       const ret = await transactionManager.getChannelsByTopic(extraTopics[0]);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({
         transactions: {
           [channelId]: [
             null,
@@ -1086,7 +1116,8 @@ describe('index', () => {
           ],
         },
       });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
         ignoredTransactions: {
           [channelId]: [
@@ -1102,7 +1133,7 @@ describe('index', () => {
           ],
         },
       });
-      expect(fakeDataAccess.getChannelsByTopic).to.have.been.called.with(extraTopics[0]);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
     it('can get channels indexed by topics with channelId not matching the first transaction hash', async () => {
@@ -1121,22 +1152,24 @@ describe('index', () => {
         result: { transactions: { [channelId]: [txWrongHash, tx, tx2] } },
       };
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnFirstHashWrong),
-        getTransactionsByChannelId: chai.spy(),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
+        getTransactionsByChannelId: jest.fn(),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(fakeDataAccess);
 
       const ret = await transactionManager.getChannelsByTopic(extraTopics[0]);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({
         transactions: { [channelId]: [null, tx, tx2] },
       });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetReturnFirstHashWrong.meta,
         ignoredTransactions: {
           [channelId]: [
@@ -1150,7 +1183,7 @@ describe('index', () => {
           ],
         },
       });
-      expect(fakeDataAccess.getChannelsByTopic).to.have.been.called.with(extraTopics[0]);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
 
     it('can get channels encrypted and clear', async () => {
@@ -1187,12 +1220,14 @@ describe('index', () => {
         },
       };
       fakeDataAccess = {
-        _getStatus: chai.spy(),
-        getChannelsByMultipleTopics: chai.spy(),
-        getChannelsByTopic: chai.spy.returns(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
-        getTransactionsByChannelId: chai.spy(),
-        initialize: chai.spy(),
-        persistTransaction: chai.spy(),
+        _getStatus: jest.fn(),
+        getChannelsByMultipleTopics: jest.fn(),
+        getChannelsByTopic: jest
+          .fn()
+          .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
+        getTransactionsByChannelId: jest.fn(),
+        initialize: jest.fn(),
+        persistTransaction: jest.fn(),
       };
 
       const transactionManager = new TransactionManager(
@@ -1202,20 +1237,22 @@ describe('index', () => {
 
       const ret = await transactionManager.getChannelsByTopic(extraTopics[0]);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual({
         transactions: {
           [channelId]: [tx],
           [channelId2]: [tx2],
         },
       });
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetReturnWithEncryptedTransaction.meta,
         ignoredTransactions: {
           [channelId]: [null],
           [channelId2]: [null],
         },
       });
-      expect(fakeDataAccess.getChannelsByTopic).to.have.been.called.with(extraTopics[0]);
+      expect(fakeDataAccess.getChannelsByTopic).toHaveBeenCalledWith(extraTopics[0], undefined);
     });
   });
 
@@ -1225,16 +1262,20 @@ describe('index', () => {
 
       const ret = await transactionManager.getChannelsByMultipleTopics([extraTopics[0]]);
 
-      expect(ret.result, 'ret.result is wrong').to.be.deep.equal(
-        fakeMetaDataAccessGetChannelsReturn.result,
-      );
-      expect(ret.meta, 'ret.meta is wrong').to.be.deep.equal({
+      // 'ret.result is wrong'
+      expect(ret.result).toEqual(fakeMetaDataAccessGetChannelsReturn.result);
+      // 'ret.meta is wrong'
+      expect(ret.meta).toEqual({
         dataAccessMeta: fakeMetaDataAccessGetChannelsReturn.meta,
         ignoredTransactions: {
           '01a98f126de3fab2b5130af5161998bf6e59b2c380deafeff938ff3f798281bf23': [null, null],
         },
       });
-      expect(fakeDataAccess.getChannelsByMultipleTopics).to.have.been.called.with([extraTopics[0]]);
+      // tslint:disable-next-line: no-unbound-method
+      expect(fakeDataAccess.getChannelsByMultipleTopics).toHaveBeenCalledWith(
+        [extraTopics[0]],
+        undefined,
+      );
     });
   });
 });

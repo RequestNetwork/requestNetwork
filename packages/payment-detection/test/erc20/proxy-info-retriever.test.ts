@@ -4,12 +4,6 @@ import { PaymentTypes } from '@requestnetwork/types';
 import ProxyERC20InfoRetriever from '../../src/erc20/proxy-info-retriever';
 import { ethers } from 'ethers';
 
-import 'chai';
-import 'mocha';
-
-const chai = require('chai');
-const expect = chai.expect;
-
 const erc20LocalhostContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const proxyContractAddress = '0x2C2B9C9a4a25e24B174f26114e8926a9f2128FE4';
 const feeProxyContractAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
@@ -69,13 +63,13 @@ describe('api/erc20/proxy-info-retriever', () => {
       const events = await infoRetriever.getTransferEvents();
 
       // if this assert fails it means this address received another transaction
-      expect(events).to.have.lengthOf(1);
-      expect(events[0].name).to.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
-      expect(events[0].amount).to.equal('1');
-      expect(events[0].timestamp).to.be.a('number');
-      expect(events[0].parameters!.to).to.equal(paymentAddress);
-      expect(events[0].parameters!.block).to.be.a('number');
-      expect(events[0].parameters!.txHash).to.be.a('string');
+      expect(events).toHaveLength(1);
+      expect(events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
+      expect(events[0].amount).toBe('1');
+      expect(typeof events[0].timestamp).toBe('number');
+      expect(events[0].parameters!.to).toBe(paymentAddress);
+      expect(typeof events[0].parameters!.block).toBe('number');
+      expect(typeof events[0].parameters!.txHash).toBe('string');
     });
 
     it('can get the localhost fees of an address', async () => {
@@ -99,17 +93,20 @@ describe('api/erc20/proxy-info-retriever', () => {
           return [];
         }
         return [
-          { blockNumber: 28,
+          {
+            blockNumber: 28,
             blockHash: '0x40496f2205f0c8d819c2cab683a5a7e0b20b49d3d891c8943780138670f184c7',
             transactionIndex: 0,
             address: feeProxyContractAddress,
-            data: '0x0000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef',
-            topics: [ 
+            data:
+              '0x0000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000627306090abab3a6e1400e9345bc60c78a8bef57000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef',
+            topics: [
               '0x9f16cbcc523c67a60c450e5ffe4f3b7b6dbe772e7abcadb2686ce029a9a0a2b6',
-              '0xa1801d1208f939d16ff239f43c66983c01b1f107994ff695f6a195be4137c796' 
+              '0xa1801d1208f939d16ff239f43c66983c01b1f107994ff695f6a195be4137c796',
             ],
             transactionHash: '0xa4ccc5094096fb6b2e744cb602ade7f37d0c78d8847e58471d6de786fc9c5283',
-            logIndex: 4 },
+            logIndex: 4,
+          },
         ];
       };
 
@@ -123,21 +120,20 @@ describe('api/erc20/proxy-info-retriever', () => {
       const events = await infoRetriever.getTransferEvents();
 
       // if this assert fails it means this address received another transaction
-      expect(events).to.have.lengthOf(1);
+      expect(events).toHaveLength(1);
 
       const event = events[0];
-      expect(event.name).to.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
-      expect(event.amount).to.equal('10');
-      expect(event.timestamp).to.be.a('number');
+      expect(event.name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
+      expect(event.amount).toBe('10');
+      expect(typeof event.timestamp).toBe('number');
 
       const parameters: PaymentTypes.IERC20FeePaymentEventParameters = event.parameters!;
 
-      expect(parameters.to).to.equal('0x627306090abab3a6e1400e9345bc60c78a8bef57');
-      expect(parameters.block).to.be.a('number');
-      expect(parameters.txHash).to.be.a('string');
-      expect(parameters.feeAddress).to.equal('0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef');
-      expect(parameters.feeAmount).to.equal('1');
-
+      expect(parameters.to).toBe('0x627306090abab3a6e1400e9345bc60c78a8bef57');
+      expect(typeof parameters.block).toBe('number');
+      expect(typeof parameters.txHash).toBe('string');
+      expect(parameters.feeAddress).toBe('0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef');
+      expect(parameters.feeAmount).toBe('1');
     });
 
     it('gets an empty list of events for an address without ERC20 on localhost', async () => {
@@ -157,7 +153,7 @@ describe('api/erc20/proxy-info-retriever', () => {
       };
 
       const events = await infoRetriever.getTransferEvents();
-      expect(events).to.be.empty;
+      expect(Object.keys(events)).toHaveLength(0);
     });
   });
 });

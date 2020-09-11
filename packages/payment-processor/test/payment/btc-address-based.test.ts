@@ -1,8 +1,4 @@
-import 'mocha';
-
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as spies from 'chai-spies';
+/* eslint-disable spellcheck/spell-checker */
 import { Wallet } from 'ethers';
 
 import {
@@ -16,10 +12,6 @@ import {
 import { getBtcPaymentUrl } from '../../src/payment/btc-address-based';
 // tslint:disable: no-unused-expression
 // tslint:disable: await-promise
-
-const expect = chai.expect;
-chai.use(chaiAsPromised);
-chai.use(spies);
 
 const wallet = Wallet.createRandom();
 const paymentAddress = '1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX';
@@ -67,7 +59,7 @@ const validRequest: ClientTypes.IRequestData = {
 
 describe('getBtcPaymentUrl', () => {
   it('can get a BTC url', () => {
-    expect(getBtcPaymentUrl(validRequest)).to.eq(
+    expect(getBtcPaymentUrl(validRequest)).toBe(
       'bitcoin:1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX?amount=0.1',
     );
   });

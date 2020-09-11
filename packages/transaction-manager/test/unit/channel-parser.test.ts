@@ -1,10 +1,3 @@
-import * as chai from 'chai';
-import 'mocha';
-
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-
 import MultiFormat from '@requestnetwork/multi-format';
 import { TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -39,24 +32,28 @@ describe('channel-parser', () => {
     channelParser = new ChannelParser();
   });
 
-  describe('decryptAndCleanChannel', async () => {
+  describe('decryptAndCleanChannel', () => {
     it('can clean a clear channel', async () => {
       const ret = await channelParser.decryptAndCleanChannel(channelId, [tx, tx2]);
 
-      expect(ret.ignoredTransactions, 'ignoredTransactions wrong').to.be.deep.equal([null, null]);
-      expect(ret.transactions, 'transactions wrong').to.be.deep.equal([tx, tx2]);
+      // 'ignoredTransactions wrong'
+      expect(ret.ignoredTransactions).toEqual([null, null]);
+      // 'transactions wrong'
+      expect(ret.transactions).toEqual([tx, tx2]);
     });
     it('can clean a clear channel with first transaction hash not matching', async () => {
       const ret = await channelParser.decryptAndCleanChannel(channelId2, [tx, tx2]);
 
-      expect(ret.ignoredTransactions, 'ignoredTransactions wrong').to.be.deep.equal([
+      // 'ignoredTransactions wrong'
+      expect(ret.ignoredTransactions).toEqual([
         {
           reason: 'as first transaction, the hash of the transaction do not match the channelId',
           transaction: tx,
         },
         null,
       ]);
-      expect(ret.transactions, 'transactions wrong').to.be.deep.equal([null, tx2]);
+      // 'transactions wrong'
+      expect(ret.transactions).toEqual([null, tx2]);
     });
     it('can clean a clear channel with a transaction data not parsable', async () => {
       const txNotParsable: TransactionTypes.ITimestampedTransaction = {
@@ -67,14 +64,16 @@ describe('channel-parser', () => {
 
       const ret = await channelParser.decryptAndCleanChannel(channelId, [tx, txNotParsable]);
 
-      expect(ret.ignoredTransactions, 'ignoredTransactions wrong').to.be.deep.equal([
+      // 'ignoredTransactions wrong'
+      expect(ret.ignoredTransactions).toEqual([
         null,
         {
           reason: 'Impossible to JSON parse the transaction',
           transaction: txNotParsable,
         },
       ]);
-      expect(ret.transactions, 'transactions wrong').to.be.deep.equal([tx, null]);
+      // 'transactions wrong'
+      expect(ret.transactions).toEqual([tx, null]);
     });
     it('can clean a clear channel with a transaction not well formated', async () => {
       const txNotFormatted: TransactionTypes.ITimestampedTransaction = {
@@ -85,14 +84,16 @@ describe('channel-parser', () => {
 
       const ret = await channelParser.decryptAndCleanChannel(channelId, [tx, txNotFormatted]);
 
-      expect(ret.ignoredTransactions, 'ignoredTransactions wrong').to.be.deep.equal([
+      // 'ignoredTransactions wrong'
+      expect(ret.ignoredTransactions).toEqual([
         null,
         {
           reason: 'Transaction must have a property "data" or "encryptedData"',
           transaction: txNotFormatted,
         },
       ]);
-      expect(ret.transactions, 'transactions wrong').to.be.deep.equal([tx, null]);
+      // 'transactions wrong'
+      expect(ret.transactions).toEqual([tx, null]);
     });
     it('can decrypt an encrypted channel', async () => {
       channelParser = new ChannelParser(TestData.fakeDecryptionProvider);
@@ -107,8 +108,10 @@ describe('channel-parser', () => {
       };
       const ret = await channelParser.decryptAndCleanChannel(channelId, [confirmedTx]);
 
-      expect(ret.ignoredTransactions, 'ignoredTransactions wrong').to.be.deep.equal([null]);
-      expect(ret.transactions, 'transactions wrong').to.be.deep.equal([
+      // 'ignoredTransactions wrong'
+      expect(ret.ignoredTransactions).toEqual([null]);
+      // 'transactions wrong'
+      expect(ret.transactions).toEqual([
         {
           state: TransactionTypes.TransactionState.PENDING,
           timestamp: 1,
@@ -118,19 +121,23 @@ describe('channel-parser', () => {
     });
   });
 
-  describe('getChannelTypeAndChannelKey', async () => {
+  describe('getChannelTypeAndChannelKey', () => {
     it('can get channel type on a clear channel', async () => {
       const ret = await channelParser.getChannelTypeAndChannelKey(channelId, [tx, tx2]);
 
-      expect(ret.channelKey, 'channelKey wrong').to.be.undefined;
-      expect(ret.channelType, 'channelType wrong').to.be.equal(TransactionTypes.ChannelType.CLEAR);
+      // 'channelKey wrong'
+      expect(ret.channelKey).toBeUndefined();
+      // 'channelType wrong'
+      expect(ret.channelType).toBe(TransactionTypes.ChannelType.CLEAR);
     });
 
     it('can get channel type on a clear channel with first transaction hash not matching', async () => {
       const ret = await channelParser.getChannelTypeAndChannelKey(channelId2, [tx, tx2]);
 
-      expect(ret.channelKey, 'channelKey wrong').to.be.undefined;
-      expect(ret.channelType, 'channelType wrong').to.be.equal(TransactionTypes.ChannelType.CLEAR);
+      // 'channelKey wrong'
+      expect(ret.channelKey).toBeUndefined();
+      // 'channelType wrong'
+      expect(ret.channelType).toBe(TransactionTypes.ChannelType.CLEAR);
     });
 
     it('can get channel type on a clear channel with a transaction data not parsable', async () => {
@@ -142,8 +149,10 @@ describe('channel-parser', () => {
 
       const ret = await channelParser.getChannelTypeAndChannelKey(channelId, [txNotParsable, tx]);
 
-      expect(ret.channelKey, 'channelKey wrong').to.be.undefined;
-      expect(ret.channelType, 'channelType wrong').to.be.equal(TransactionTypes.ChannelType.CLEAR);
+      // 'channelKey wrong'
+      expect(ret.channelKey).toBeUndefined();
+      // 'channelType wrong'
+      expect(ret.channelType).toBe(TransactionTypes.ChannelType.CLEAR);
     });
 
     it('can get channel type on a clear channel with a transaction not well formated', async () => {
@@ -155,8 +164,10 @@ describe('channel-parser', () => {
 
       const ret = await channelParser.getChannelTypeAndChannelKey(channelId, [txNotFormatted, tx]);
 
-      expect(ret.channelKey, 'channelKey wrong').to.be.undefined;
-      expect(ret.channelType, 'channelType wrong').to.be.equal(TransactionTypes.ChannelType.CLEAR);
+      // 'channelKey wrong'
+      expect(ret.channelKey).toBeUndefined();
+      // 'channelType wrong'
+      expect(ret.channelType).toBe(TransactionTypes.ChannelType.CLEAR);
     });
 
     it('can get channel type on an encrypted channel', async () => {
@@ -172,10 +183,10 @@ describe('channel-parser', () => {
       };
       const ret = await channelParser.getChannelTypeAndChannelKey(channelId, [confirmedTx]);
 
-      expect(ret.channelKey, 'channelKey wrong').to.be.not.undefined;
-      expect(ret.channelType, 'channelType wrong').to.be.equal(
-        TransactionTypes.ChannelType.ENCRYPTED,
-      );
+      // 'channelKey wrong'
+      expect(ret.channelKey).toBeDefined();
+      // 'channelType wrong'
+      expect(ret.channelType).toBe(TransactionTypes.ChannelType.ENCRYPTED);
     });
   });
 });

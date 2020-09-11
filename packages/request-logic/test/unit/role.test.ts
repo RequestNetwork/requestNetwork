@@ -1,6 +1,3 @@
-import { expect } from 'chai';
-import 'mocha';
-
 import { RequestLogicTypes } from '@requestnetwork/types';
 import Role from '../../src/role';
 
@@ -13,14 +10,11 @@ describe('Role', () => {
       payee: TestData.payeeRaw.identity,
       payer: TestData.payerRaw.identity,
     };
-    expect(Role.getRole(TestData.payeeRaw.identity, obj), 'getRole("") error').to.be.equal(
-      RequestLogicTypes.ROLE.PAYEE,
-    );
-    expect(Role.getRole(TestData.payerRaw.identity, obj), 'getRole("") error').to.be.equal(
-      RequestLogicTypes.ROLE.PAYER,
-    );
-    expect(Role.getRole(TestData.otherIdRaw.identity, obj), 'getRole("") error').to.be.equal(
-      RequestLogicTypes.ROLE.THIRD_PARTY,
-    );
+    // 'getRole("") error'
+    expect(Role.getRole(TestData.payeeRaw.identity, obj)).toBe(RequestLogicTypes.ROLE.PAYEE);
+    // 'getRole("") error'
+    expect(Role.getRole(TestData.payerRaw.identity, obj)).toBe(RequestLogicTypes.ROLE.PAYER);
+    // 'getRole("") error'
+    expect(Role.getRole(TestData.otherIdRaw.identity, obj)).toBe(RequestLogicTypes.ROLE.THIRD_PARTY);
   });
 });

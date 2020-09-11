@@ -1,13 +1,13 @@
-import 'mocha';
-
-import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
 
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const anotherChannelId = '010bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
-const topics = ['010ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', '010ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd'];
+const topics = [
+  '010ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+  '010ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd',
+];
 const transactionData = { data: 'this is sample data for a transaction' };
 const anotherTransactionData = { data: 'you can put any data' };
 const badlyFormattedTransactionData = { not: 'a transaction' };
@@ -18,15 +18,14 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('persistTransaction', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
-    // Any port number can be used since we use supertest
-    server = requestNodeInstance.listen(3000, () => 0);
+    server = (requestNodeInstance as any).express;
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 
@@ -37,8 +36,7 @@ describe('persistTransaction', () => {
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 
-    expect(serverResponse.body.result, 'persistTransaction request result should always be empty')
-      .to.be.empty;
+    expect(serverResponse.body.result).toMatchObject({});
 
     // topics parameter should be optional
     serverResponse = await request(server)
@@ -47,8 +45,7 @@ describe('persistTransaction', () => {
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 
-    expect(serverResponse.body.result, 'persistTransaction request result should always be empty')
-      .to.be.empty;
+    expect(serverResponse.body.result).toMatchObject({});
   });
 
   it('responds with status 422 to requests with no value', async () => {

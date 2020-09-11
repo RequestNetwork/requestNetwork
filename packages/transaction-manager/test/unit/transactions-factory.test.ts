@@ -1,10 +1,4 @@
-import * as chai from 'chai';
-import 'mocha';
-
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-
+/* eslint-disable spellcheck/spell-checker */
 import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 import TransactionsFactory from '../../src/transactions-factory';
@@ -18,17 +12,17 @@ describe('transaction-factory', () => {
     it('can create clear transaction', async () => {
       const tx = await TransactionsFactory.createClearTransaction(data);
 
-      expect(tx, 'transaction not right').to.deep.equal({ data });
+      // 'transaction not right'
+      expect(tx).toEqual({ data });
     });
     it('cannot create clear transaction with not parsable data', async () => {
-      await expect(
-        TransactionsFactory.createClearTransaction('Not parsable'),
-        'transaction not right',
-      ).to.eventually.be.rejectedWith('Data not parsable');
+      await expect(TransactionsFactory.createClearTransaction('Not parsable')).rejects.toThrowError(
+        'Data not parsable',
+      );
     });
   });
 
-  describe('createEncryptedTransactionInNewChannel', async () => {
+  describe('createEncryptedTransactionInNewChannel', () => {
     it('can create encrypted transaction', async () => {
       const encryptedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(data, [
         TestData.idRaw1.encryptionParams,
@@ -39,36 +33,41 @@ describe('transaction-factory', () => {
 
       if (encryptedTx.encryptedData) {
         // tslint:disable-next-line:no-magic-numbers
-        expect(encryptedTx.encryptedData.length, 'encryptedData not right').to.equal(126);
-        expect(encryptedTx.encryptedData.slice(0, 2), 'encryptedData not right').to.deep.equal(
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.length).toBe(126);
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.slice(0, 2)).toEqual(
           MultiFormatTypes.prefix.AES256_GCM_ENCRYPTED,
         );
       } else {
-        expect.fail('encryptedData should not be undefined');
+        fail('encryptedData should not be undefined');
       }
 
-      expect(encryptedTx.encryptionMethod, 'encryptionMethod not right').to.deep.equal(
+      // 'encryptionMethod not right'
+      expect(encryptedTx.encryptionMethod).toEqual(
         `${EncryptionTypes.METHOD.ECIES}-${EncryptionTypes.METHOD.AES256_GCM}`,
       );
 
-      expect(Object.keys(encryptedTx.keys || {}).length, 'keys not right').to.deep.equal(3);
-      expect(Object.keys(encryptedTx.keys || {}), 'keys not right').to.deep.equal([
+      // 'keys not right'
+      expect(Object.keys(encryptedTx.keys || {}).length).toEqual(3);
+      // 'keys not right'
+      expect(Object.keys(encryptedTx.keys || {})).toEqual([
         MultiFormat.serialize(TestData.idRaw1.identity),
         MultiFormat.serialize(TestData.idRaw2.identity),
         MultiFormat.serialize(TestData.idRaw3.identity),
       ]);
 
+      // 'encrypted keys looks wrong'
       expect(
         // tslint:disable-next-line:no-magic-numbers
-        Object.values(encryptedTx.keys || {}).every(ek => ek.length === 260),
-        'encrypted keys looks wrong',
-      ).to.be.true;
+        Object.values(encryptedTx.keys || {}).every((ek) => ek.length === 260),
+      ).toBe(true);
+      // 'encrypted keys looks wrong'
       expect(
         Object.values(encryptedTx.keys || {}).every(
-          ek => ek.slice(0, 2) === MultiFormatTypes.prefix.ECIES_ENCRYPTED,
+          (ek) => ek.slice(0, 2) === MultiFormatTypes.prefix.ECIES_ENCRYPTED,
         ),
-        'encrypted keys looks wrong',
-      ).to.be.true;
+      ).toBe(true);
     });
 
     it('cannot create encrypted transaction with encryption parameters not ECIES', async () => {
@@ -78,7 +77,7 @@ describe('transaction-factory', () => {
           TestData.idRaw2.encryptionParams,
           { method: EncryptionTypes.METHOD.AES256_CBC, key: '0123456789' },
         ]),
-      ).to.eventually.rejectedWith(
+      ).rejects.toThrowError(
         `encryptionParams method must be all: ${EncryptionTypes.METHOD.ECIES}`,
       );
     });
@@ -89,12 +88,11 @@ describe('transaction-factory', () => {
           TestData.idRaw1.encryptionParams,
           TestData.idRaw2.encryptionParams,
         ]),
-        'transaction not right',
-      ).to.eventually.be.rejectedWith('Data not parsable');
+      ).rejects.toThrowError('Data not parsable');
     });
   });
 
-  describe('createEncryptedTransaction', async () => {
+  describe('createEncryptedTransaction', () => {
     it('can create encrypted transaction', async () => {
       const channelKey = {
         key: 'Vt6L0ppo7tOs9KdnTT6HSHZ/wW1Pfu/rgSs5NVTigN8=',
@@ -105,17 +103,21 @@ describe('transaction-factory', () => {
 
       if (encryptedTx.encryptedData) {
         // tslint:disable-next-line:no-magic-numbers
-        expect(encryptedTx.encryptedData.length, 'encryptedData not right').to.equal(126);
-        expect(encryptedTx.encryptedData.slice(0, 2), 'encryptedData not right').to.deep.equal(
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.length).toBe(126);
+        // 'encryptedData not right'
+        expect(encryptedTx.encryptedData.slice(0, 2)).toEqual(
           MultiFormatTypes.prefix.AES256_GCM_ENCRYPTED,
         );
       } else {
-        expect.fail('encryptedData should not be undefined');
+        fail('encryptedData should not be undefined');
       }
 
-      expect(encryptedTx.encryptionMethod, 'encryptionMethod not right').to.be.undefined;
+      // 'encryptionMethod not right'
+      expect(encryptedTx.encryptionMethod).toBeUndefined();
 
-      expect(encryptedTx.keys, 'keys not right').to.be.undefined;
+      // 'keys not right'
+      expect(encryptedTx.keys).toBeUndefined();
     });
 
     it('cannot create encrypted transaction with encryption parameters not AES256-CBC', async () => {
@@ -125,7 +127,7 @@ describe('transaction-factory', () => {
       };
       await expect(
         TransactionsFactory.createEncryptedTransaction(data, channelKeyWrong),
-      ).to.eventually.rejectedWith(
+      ).rejects.toThrowError(
         `encryption method not supported for the channel key: ${channelKeyWrong.method}`,
       );
     });
@@ -137,8 +139,7 @@ describe('transaction-factory', () => {
       };
       await expect(
         TransactionsFactory.createEncryptedTransaction('Not parsable', channelKey),
-        'transaction not right',
-      ).to.eventually.be.rejectedWith('Data not parsable');
+      ).rejects.toThrowError('Data not parsable');
     });
   });
 });

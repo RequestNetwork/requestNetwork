@@ -1,6 +1,3 @@
-import 'mocha';
-
-import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
@@ -21,15 +18,13 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('getTransactionsByChannelId', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
-
-    // Any port number can be used since we use supertest
-    server = requestNodeInstance.listen(3000, () => 0);
+    server = (requestNodeInstance as any).express;
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 
@@ -49,8 +44,8 @@ describe('getTransactionsByChannelId', () => {
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 
-    expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(transactionData);
+    expect(serverResponse.body.result.transactions).toHaveLength(1);
+    expect(serverResponse.body.result.transactions[0].transaction).toEqual(transactionData);
 
     await request(server)
       .post('/persistTransaction')
@@ -67,10 +62,8 @@ describe('getTransactionsByChannelId', () => {
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 
-    expect(serverResponse.body.result.transactions).to.have.lengthOf(1);
-    expect(serverResponse.body.result.transactions[0].transaction).to.deep.equal(
-      otherTransactionData,
-    );
+    expect(serverResponse.body.result.transactions).toHaveLength(1);
+    expect(serverResponse.body.result.transactions[0].transaction).toEqual(otherTransactionData);
   });
 
   it('responds with no transaction to requests with a non-existent channel id', async () => {
@@ -80,7 +73,7 @@ describe('getTransactionsByChannelId', () => {
       .set('Accept', 'application/json')
       .expect(httpStatus.OK);
 
-    expect(serverResponse.body.result.transactions).to.be.empty;
+    expect(serverResponse.body.result.transactions).toMatchObject({});
   });
 
   it('responds with status 422 to requests with no value', async () => {

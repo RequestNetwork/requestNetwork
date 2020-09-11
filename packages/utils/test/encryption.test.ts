@@ -1,13 +1,4 @@
-import 'mocha';
-
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-import * as spies from 'chai-as-promised';
-
-chai.use(chaiAsPromised);
-chai.use(spies);
-const expect = chai.expect;
-
+/* eslint-disable spellcheck/spell-checker */
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 import Encryption from '../src/encryption';
 
@@ -51,9 +42,8 @@ describe('Encryption', () => {
   describe('getIdentityFromEncryptionParams', () => {
     it('can getIdentityFromEncryptionParams()', () => {
       const identity = Encryption.getIdentityFromEncryptionParams(otherIdRaw.encryptionParams);
-      expect(identity, 'getIdentityFromEncryptionParams() error').to.be.deep.equal(
-        otherIdRaw.identity,
-      );
+      // 'getIdentityFromEncryptionParams() error'
+      expect(identity).toEqual(otherIdRaw.identity);
     });
 
     it('cannot getIdentityFromEncryptionParams with encryption method not supported', async () => {
@@ -61,7 +51,7 @@ describe('Encryption', () => {
         method: 'notECIES',
         publicKey: otherIdRaw.publicKey,
       };
-      expect(() => Encryption.getIdentityFromEncryptionParams(params)).to.be.throw(
+      expect(() => Encryption.getIdentityFromEncryptionParams(params)).toThrowError(
         'encryptionParams.method not supported',
       );
     });
@@ -73,12 +63,14 @@ describe('Encryption', () => {
         JSON.stringify(data),
         otherIdRaw.encryptionParams,
       );
-      expect(encryptedData.value.length, 'encrypt() error').to.be.equal(258);
-      expect(encryptedData.type, 'encrypt() error').to.be.equal(EncryptionTypes.METHOD.ECIES);
-      expect(
-        await Encryption.decrypt(encryptedData, otherIdRaw.decryptionParams),
-        'decrypt() error',
-      ).to.be.deep.equal(JSON.stringify(data));
+      // 'encrypt() error'
+      expect(encryptedData.value.length).toBe(258);
+      // 'encrypt() error'
+      expect(encryptedData.type).toBe(EncryptionTypes.METHOD.ECIES);
+      // 'decrypt() error'
+      expect(await Encryption.decrypt(encryptedData, otherIdRaw.decryptionParams)).toEqual(
+        JSON.stringify(data),
+      );
     });
 
     it('can encrypt with AES256-cbc', async () => {
@@ -86,12 +78,14 @@ describe('Encryption', () => {
         JSON.stringify(data),
         arbitraryAES256cbcEncryptionParams,
       );
-      expect(encryptedData.value.length, 'encrypt() error').to.be.equal(88);
-      expect(encryptedData.type, 'encrypt() error').to.be.equal(EncryptionTypes.METHOD.AES256_CBC);
-      expect(
-        await Encryption.decrypt(encryptedData, arbitraryAES256cbcEncryptionParams),
-        'decrypt() error',
-      ).to.be.deep.equal(JSON.stringify(data));
+      // 'encrypt() error'
+      expect(encryptedData.value.length).toBe(88);
+      // 'encrypt() error'
+      expect(encryptedData.type).toBe(EncryptionTypes.METHOD.AES256_CBC);
+      // 'decrypt() error'
+      expect(await Encryption.decrypt(encryptedData, arbitraryAES256cbcEncryptionParams)).toEqual(
+        JSON.stringify(data),
+      );
     });
 
     it('can encrypt with AES256-gcm', async () => {
@@ -99,12 +93,14 @@ describe('Encryption', () => {
         JSON.stringify(data),
         arbitraryAES256gcmEncryptionParams,
       );
-      expect(encryptedData.value.length, 'encrypt() error').to.be.equal(100);
-      expect(encryptedData.type, 'encrypt() error').to.be.equal(EncryptionTypes.METHOD.AES256_GCM);
-      expect(
-        await Encryption.decrypt(encryptedData, arbitraryAES256gcmEncryptionParams),
-        'decrypt() error',
-      ).to.be.deep.equal(JSON.stringify(data));
+      // 'encrypt() error'
+      expect(encryptedData.value.length).toBe(100);
+      // 'encrypt() error'
+      expect(encryptedData.type).toBe(EncryptionTypes.METHOD.AES256_GCM);
+      // 'decrypt() error'
+      expect(await Encryption.decrypt(encryptedData, arbitraryAES256gcmEncryptionParams)).toEqual(
+        JSON.stringify(data),
+      );
     });
 
     it('cannot encrypt with an encryption method not supported', async () => {
@@ -113,7 +109,7 @@ describe('Encryption', () => {
         publicKey: otherIdRaw.publicKey,
       };
 
-      await expect(Encryption.encrypt(JSON.stringify(data), params)).to.eventually.rejectedWith(
+      await expect(Encryption.encrypt(JSON.stringify(data), params)).rejects.toThrowError(
         'encryptionParams.method not supported',
       );
     });
@@ -129,7 +125,8 @@ describe('Encryption', () => {
         },
         otherIdRaw.decryptionParams,
       );
-      expect(dataDecrypted, 'decrypt() error').to.be.deep.equal(JSON.stringify(data));
+      // 'decrypt() error'
+      expect(dataDecrypted).toEqual(JSON.stringify(data));
     });
 
     it('cannot decrypt with an encryption method not supported', async () => {
@@ -142,7 +139,7 @@ describe('Encryption', () => {
           },
           otherIdRaw.decryptionParams,
         ),
-      ).to.eventually.rejectedWith('encryptedData method not supported');
+      ).rejects.toThrowError('encryptedData method not supported');
     });
 
     it('cannot decrypt with the wrong decryption method', async () => {
@@ -154,7 +151,7 @@ describe('Encryption', () => {
           },
           arbitraryAES256cbcEncryptionParams,
         ),
-      ).to.eventually.rejectedWith('decryptionParams.method should be ecies');
+      ).rejects.toThrowError('decryptionParams.method should be ecies');
 
       await expect(
         Encryption.decrypt(
@@ -164,7 +161,7 @@ describe('Encryption', () => {
           },
           otherIdRaw.decryptionParams,
         ),
-      ).to.eventually.rejectedWith('decryptionParams.method should be aes256-cbc');
+      ).rejects.toThrowError('decryptionParams.method should be aes256-cbc');
 
       await expect(
         Encryption.decrypt(
@@ -174,7 +171,7 @@ describe('Encryption', () => {
           },
           arbitraryAES256cbcEncryptionParams,
         ),
-      ).to.eventually.rejectedWith('decryptionParams.method should be aes256-gcm');
+      ).rejects.toThrowError('decryptionParams.method should be aes256-gcm');
     });
   });
 });

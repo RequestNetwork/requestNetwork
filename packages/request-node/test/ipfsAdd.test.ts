@@ -1,5 +1,3 @@
-import 'mocha';
-
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
@@ -10,15 +8,14 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('ipfsAdd', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
-    // Any port number can be used since we use supertest
-    server = requestNodeInstance.listen(3000, () => 0);
+    server = (requestNodeInstance as any).express;
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 

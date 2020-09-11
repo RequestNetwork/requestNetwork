@@ -1,13 +1,5 @@
-import * as chai from 'chai';
-import 'mocha';
-import * as sinon from 'sinon';
-
+/* eslint-disable spellcheck/spell-checker */
 import Utils from '../src/utils';
-
-const chaiAsPromised = require('chai-as-promised');
-
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 /* tslint:disable:no-unused-expression */
 describe('Utils', () => {
@@ -22,13 +14,19 @@ describe('Utils', () => {
         },
         attributb: 'valeurB',
       },
-      attribut3: [{ x: 10, y: 2, z: 3 }, { a: 3, b: 2, c: 1 }],
+      attribut3: [
+        { x: 10, y: 2, z: 3 },
+        { a: 3, b: 2, c: 1 },
+      ],
     };
 
     /* tslint:disable:object-literal-sort-keys */
     const arbitraryObjectNotSorted = {
       attribut1: 'valeurC',
-      attribut3: [{ z: 3, y: 2, x: 10 }, { c: 1, a: 3, b: 2 }],
+      attribut3: [
+        { z: 3, y: 2, x: 10 },
+        { c: 1, a: 3, b: 2 },
+      ],
       attribut2: {
         attributb: 'valeurB',
         attributa: {
@@ -39,10 +37,10 @@ describe('Utils', () => {
       },
     };
     /* tslint:enable:object-literal-sort-keys */
-    expect(
-      JSON.stringify(Utils.deepSort(arbitraryObjectNotSorted)),
-      'deepSort(arbitraryObject) error',
-    ).to.be.equal(JSON.stringify(arbitraryObjectSorted));
+    // 'deepSort(arbitraryObject) error'
+    expect(JSON.stringify(Utils.deepSort(arbitraryObjectNotSorted))).toBe(
+      JSON.stringify(arbitraryObjectSorted),
+    );
   });
 
   it('can deepCopy() nested objects', () => {
@@ -59,43 +57,43 @@ describe('Utils', () => {
       attribut3: 'valeurA',
     };
     const arbitraryObjectDeepCopy = Utils.deepCopy(arbitraryObject);
-    expect(arbitraryObjectDeepCopy, 'deepCopy(arbitraryObject) error').to.be.deep.equal(
-      arbitraryObject,
-    );
+    // 'deepCopy(arbitraryObject) error'
+    expect(arbitraryObjectDeepCopy).toEqual(arbitraryObject);
     arbitraryObjectDeepCopy.attribut1 = 'new value';
-    expect(arbitraryObjectDeepCopy, 'deepCopy(arbitraryObject) error').to.not.be.deep.equal(
-      arbitraryObject,
-    );
+    // 'deepCopy(arbitraryObject) error'
+    expect(arbitraryObjectDeepCopy).not.toEqual(arbitraryObject);
 
     // witness reference copy
     const arbitraryObjectRefCopy = arbitraryObject;
     arbitraryObjectRefCopy.attribut1 = 'new value 2';
-    expect(arbitraryObjectRefCopy, 'deepCopy(arbitraryObject) error').to.be.deep.equal(
-      arbitraryObject,
-    );
+    // 'deepCopy(arbitraryObject) error'
+    expect(arbitraryObjectRefCopy).toEqual(arbitraryObject);
   });
 
   it('can return true if variable is String or string', () => {
-    expect(Utils.isString('this is a string'), 'istring("") error').to.be.true;
-    expect(Utils.isString(String('this is a string')), 'istring("") error').to.be.true;
+    // 'istring("") error'
+    expect(Utils.isString('this is a string')).toBe(true);
+    // 'istring("") error'
+    expect(Utils.isString(String('this is a string'))).toBe(true);
   });
 
   it('cannot return true if variable is not a string', () => {
     /* tslint:disable:no-magic-numbers */
-    expect(Utils.isString(1234), 'istring("") error').to.be.false;
-    expect(Utils.isString({ var: 'plop' }), 'istring("") error').to.be.false;
+    // 'istring("") error'
+    expect(Utils.isString(1234)).toBe(false);
+    // 'istring("") error'
+    expect(Utils.isString({ var: 'plop' })).toBe(false);
   });
 
   it('getCurrentTimestampInSecond()', () => {
-    sinon.useFakeTimers(Date.now());
+    jest.useFakeTimers('modern');
 
     const time = Math.floor(Date.now() / 1000);
-    expect(Utils.getCurrentTimestampInSecond(), 'getCurrentTimestampInSecond() error').to.be.equal(
-      time,
-    );
+    // 'getCurrentTimestampInSecond() error'
+    expect(Utils.getCurrentTimestampInSecond()).toBe(time);
 
     // Cleanup
-    sinon.restore();
+    jest.useRealTimers();
   });
 
   describe('unique', () => {
@@ -108,9 +106,16 @@ describe('Utils', () => {
       ];
 
       /* tslint:disable:object-literal-sort-keys */
-      expect(Utils.unique(arbitraryArray), 'unique(arbitraryArray) error').to.deep.equal({
-        uniqueItems: [{ att1: 'value1', att2: 'value2' }, { att3: 'value3', att4: 'value4' }],
-        duplicates: [{ att1: 'value1', att2: 'Value2' }, { att1: 'value1', att2: 'value2' }],
+      // 'unique(arbitraryArray) error'
+      expect(Utils.unique(arbitraryArray)).toEqual({
+        uniqueItems: [
+          { att1: 'value1', att2: 'value2' },
+          { att3: 'value3', att4: 'value4' },
+        ],
+        duplicates: [
+          { att1: 'value1', att2: 'Value2' },
+          { att1: 'value1', att2: 'value2' },
+        ],
       });
     });
 
@@ -123,7 +128,8 @@ describe('Utils', () => {
       ];
 
       /* tslint:disable:object-literal-sort-keys */
-      expect(Utils.unique(arbitraryArray), 'unique(arbitraryArray) error').to.deep.equal({
+      // 'unique(arbitraryArray) error'
+      expect(Utils.unique(arbitraryArray)).toEqual({
         uniqueItems: [
           { att1: 'value1', att2: 'value2' },
           { att1: 'value1', Att2: 'Value2' },
@@ -142,7 +148,8 @@ describe('Utils', () => {
       ];
 
       /* tslint:disable:object-literal-sort-keys */
-      expect(Utils.unique(arbitraryArray), 'unique(arbitraryArray) error').to.deep.equal({
+      // 'unique(arbitraryArray) error'
+      expect(Utils.unique(arbitraryArray)).toEqual({
         uniqueItems: [
           { att1: 'value1', att2: 'value2' },
           { att1: 'value1', Att2: 'Value2' },
@@ -164,12 +171,16 @@ describe('Utils', () => {
       ];
 
       /* tslint:disable:object-literal-sort-keys */
-      expect(
-        Utils.uniqueByProperty(arbitraryArray, 'att1'),
-        'uniqueByProperty(arbitraryArray) error',
-      ).to.deep.equal({
-        uniqueItems: [{ att1: 'value1', att2: 'value2' }, { att1: 'value3', att4: 'value4' }],
-        duplicates: [{ att1: 'Value1', att2: 'value2' }, { att1: 'value1', att2: 'value2' }],
+      // 'uniqueByProperty(arbitraryArray) error'
+      expect(Utils.uniqueByProperty(arbitraryArray, 'att1')).toEqual({
+        uniqueItems: [
+          { att1: 'value1', att2: 'value2' },
+          { att1: 'value3', att4: 'value4' },
+        ],
+        duplicates: [
+          { att1: 'Value1', att2: 'value2' },
+          { att1: 'value1', att2: 'value2' },
+        ],
       });
     });
 
@@ -182,10 +193,8 @@ describe('Utils', () => {
       ];
 
       /* tslint:disable:object-literal-sort-keys */
-      expect(
-        Utils.uniqueByProperty(arbitraryArray, 'att1'),
-        'unique(arbitraryArray) error',
-      ).to.deep.equal({
+      // 'unique(arbitraryArray) error'
+      expect(Utils.uniqueByProperty(arbitraryArray, 'att1')).toEqual({
         uniqueItems: [
           { att1: 'value1', att2: 'value2' },
           { att1: 'value12', Att2: 'Value2' },
@@ -201,78 +210,64 @@ describe('Utils', () => {
     it('can flatten2DimensionsArray() 1 dimension array', () => {
       const arbitraryArray: any[] = [1, 2, 3, 4, 5];
       const flattenArray = Utils.flatten2DimensionsArray(arbitraryArray);
-      expect(flattenArray, 'flatten2DimensionsArray(twoDimensionsArray) error').to.be.deep.equal([
-        1,
-        2,
-        3,
-        4,
-        5,
-      ]);
+      // 'flatten2DimensionsArray(twoDimensionsArray) error'
+      expect(flattenArray).toEqual([1, 2, 3, 4, 5]);
     });
 
     it('can flatten2DimensionsArray() 3 dimensions array', () => {
       const arbitraryArray: any[] = [[1, 2], [3], [4, [5, 6]]];
       const flattenArray = Utils.flatten2DimensionsArray(arbitraryArray);
-      expect(flattenArray, 'flatten2DimensionsArray(twoDimensionsArray) error').to.be.deep.equal([
-        1,
-        2,
-        3,
-        4,
-        [5, 6],
-      ]);
+      // 'flatten2DimensionsArray(twoDimensionsArray) error'
+      expect(flattenArray).toEqual([1, 2, 3, 4, [5, 6]]);
     });
 
     it('can flatten2DimensionsArray() empty array', () => {
       const emptyArray: any[] = [];
       const flattenArray = Utils.flatten2DimensionsArray(emptyArray);
-      expect(flattenArray, 'flatten2DimensionsArray(twoDimensionsArray) error').to.be.deep.equal(
-        [],
-      );
+      // 'flatten2DimensionsArray(twoDimensionsArray) error'
+      expect(flattenArray).toEqual([]);
     });
 
     it('can flatten2DimensionsArray() two dimensionals array', () => {
       const twoDimensionsArray = [[1, 2], [3], [4, 5]];
       const flattenArray = Utils.flatten2DimensionsArray(twoDimensionsArray);
-      expect(flattenArray, 'flatten2DimensionsArray(twoDimensionsArray) error').to.be.deep.equal([
-        1,
-        2,
-        3,
-        4,
-        5,
-      ]);
+      // 'flatten2DimensionsArray(twoDimensionsArray) error'
+      expect(flattenArray).toEqual([1, 2, 3, 4, 5]);
     });
   });
 
   describe('timeoutPromise', () => {
-    let clock: sinon.SinonFakeTimers;
-
     beforeEach(async () => {
-      clock = sinon.useFakeTimers();
+      jest.useFakeTimers('modern');
     });
 
     afterEach(async () => {
-      sinon.restore();
+      jest.useRealTimers();
     });
 
     it('rejects with specified message if timeout is reached', (done) => {
       const errorMessage = 'An error occured !';
       let rejected = false;
 
-      Utils.timeoutPromise(1000, errorMessage).then(() => {
-        expect.fail('timeoutPromise should not be fulfilled');
-      }).catch((err) => {
-        rejected = true;
-        expect(err.toString()).to.contains(errorMessage);
-        done();
-      });
+      expect.assertions(3);
 
-      expect(rejected).to.be.false;
+      Utils.timeoutPromise(1000, errorMessage)
+        .then(() => {
+          fail('timeoutPromise should not be fulfilled');
+        })
+        .catch((err) => {
+          rejected = true;
+          expect(err.message).toEqual(errorMessage);
+          done();
+        });
 
-      clock.tick(999);
+      expect(rejected).toBe(false);
 
-      expect(rejected).to.be.false;
+      jest.advanceTimersByTime(999);
 
-      clock.tick(1);
+      expect(rejected).toBe(false);
+
+      jest.advanceTimersByTime(1);
     });
   });
 });

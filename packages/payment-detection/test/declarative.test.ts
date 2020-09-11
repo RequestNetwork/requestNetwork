@@ -8,17 +8,6 @@ import {
 
 import Declarative from '../src/declarative';
 
-import 'chai';
-import 'mocha';
-
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
-const spies = require('chai-spies');
-const expect = chai.expect;
-chai.use(chaiAsPromised);
-chai.use(spies);
-const sandbox = chai.spy.sandbox();
-
 let declarative: Declarative;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
@@ -75,23 +64,22 @@ const requestMock: RequestLogicTypes.IRequest = {
 /* tslint:disable:no-unused-expression */
 describe('api/declarative', () => {
   beforeEach(() => {
-    sandbox.restore();
     declarative = new Declarative({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = sandbox.on(mockAdvancedLogic.extensions.declarative, 'createCreationAction');
+    const spy = jest.spyOn(mockAdvancedLogic.extensions.declarative, 'createCreationAction');
 
     await declarative.createExtensionsDataForCreation({
       paymentInfo: 'payment instruction',
       refundInfo: 'refund instruction',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.declarative,
       'createAddPaymentInstructionAction',
     );
@@ -100,44 +88,44 @@ describe('api/declarative', () => {
       paymentInfo: 'payment instruction',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.declarative,
       'createAddRefundInstructionAction',
     );
 
     declarative.createExtensionsDataForAddRefundInformation({ refundInfo: 'refund instruction' });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForDeclareSentPayment', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.declarative,
       'createDeclareSentPaymentAction',
     );
 
     declarative.createExtensionsDataForDeclareSentPayment({ amount: '1000', note: 'payment sent' });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForDeclareSentRefund', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.declarative,
       'createDeclareSentRefundAction',
     );
 
     declarative.createExtensionsDataForDeclareSentRefund({ amount: '1000', note: 'refund sent' });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForDeclareReceivedPayment', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.declarative,
       'createDeclareReceivedPaymentAction',
     );
@@ -147,11 +135,11 @@ describe('api/declarative', () => {
       note: 'payment received',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForDeclareReceivedRefund', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.declarative,
       'createDeclareReceivedRefundAction',
     );
@@ -161,7 +149,7 @@ describe('api/declarative', () => {
       note: 'refund received',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('getBalance get the correct balance', async () => {
@@ -214,7 +202,7 @@ describe('api/declarative', () => {
 
     const getBalanceReturn = await declarative.getBalance(requestMock);
 
-    expect(getBalanceReturn).to.deep.equal({
+    expect(getBalanceReturn).toMatchObject({
       balance: '1200', // 1000 + 500 - 100 - 200
       events: [
         {

@@ -1,14 +1,7 @@
-import 'mocha';
-
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
+/* eslint-disable spellcheck/spell-checker */
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
-
-// Extends chai for promises
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 const packageJson = require('../package.json');
 const requestNodeVersion = packageJson.version;
@@ -23,55 +16,39 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('requestNode server', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
-    // Any port number can be used since we use supertest
-    server = requestNodeInstance.listen(3000, () => 0);
+    server = (requestNodeInstance as any).express;
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 
-  it('responds with status 404 to unimplemented requests', () => {
-    request(server)
-      .post('/')
-      .end((_err, res) => {
-        expect(res.status).to.equal(httpStatus.NOT_FOUND);
-      });
+  it('responds with status 404 to unimplemented requests', async () => {
+    await request(server).post('/').expect(httpStatus.NOT_FOUND);
   });
 
   it('responds with status 200 to health check requests', async () => {
-    await request(server)
-      .post('/healthz')
-      .end((_err, res) => {
-        expect(res.status).to.equal(httpStatus.OK);
-      });
+    await request(server).get('/healthz').expect(httpStatus.OK);
   });
 
   it('responds with status 200 to readyness check requests when ready', async () => {
-    await request(server)
-      .post('/readyz')
-      .end((_err, res) => {
-        expect(res.status).to.equal(httpStatus.OK);
-      });
+    await request(server).get('/readyz').expect(httpStatus.OK);
   });
 
   it('responds with status 503 to readyness check requests when not ready', async () => {
     requestNodeInstance = new requestNode();
-    await request(server)
-      .post('/readyz')
-      .end((_err, res) => {
-        expect(res.status).to.equal(httpStatus.SERVICE_UNAVAILABLE);
-      });
+    server = (requestNodeInstance as any).express;
+    await request(server).get('/readyz').expect(httpStatus.SERVICE_UNAVAILABLE);
   });
 
   it('responds with status 503 if server is uninitialized', async () => {
     // Import directly requestNode to create a server where we don't call requestNodeInstance.initialize()
     requestNodeInstance = new requestNode();
-    const notInitializedServer = requestNodeInstance.listen(3001, () => 0);
+    const notInitializedServer = (requestNodeInstance as any).express;
 
     await request(notInitializedServer)
       .post('/persistTransaction')
@@ -88,36 +65,33 @@ describe('requestNode server', () => {
     requestNodeInstance = new requestNode();
     requestNodeInstance.dataAccess.initialize = dataAccessInitializeFailureMock;
 
-    expect(requestNodeInstance.initialize()).to.be.rejectedWith(Error);
+    await expect(requestNodeInstance.initialize()).rejects.toThrowError(Error);
   });
 
   it('serves custom headers', async () => {
     // Import directly requestNode to create a server
     process.env.HEADERS = '{"x-custom-test-header": "test-passed"}';
     requestNodeInstance = new requestNode();
-    server = requestNodeInstance.listen(3002, () => 0);
+    server = (requestNodeInstance as any).express;
 
-    await request(server)
-      .post('/')
-      .expect('x-custom-test-header', 'test-passed');
+    await request(server).post('/').expect('x-custom-test-header', 'test-passed');
   });
 
   it('the response header contains the Request Node version', async () => {
     // Import directly requestNode to create a server
     requestNodeInstance = new requestNode();
-    server = requestNodeInstance.listen(3003, () => 0);
-    
-    await request(server)
-      .post('/')
-      .expect('X-Request-Network-Node-Version', requestNodeVersion);
+    server = (requestNodeInstance as any).express;
+
+    await request(server).post('/').expect('X-Request-Network-Node-Version', requestNodeVersion);
   });
 
   it('must throw if no mnemonic given with rinkeby', async () => {
     process.env.ETHEREUM_NETWORK_ID = '4';
 
+    // 'must throw'
     expect(() => {
       new requestNode();
-    }, 'must throw').to.throw(
+    }).toThrowError(
       'the environment variable MNEMONIC must be set up. The default mnemonic is only for private network.',
     );
   });

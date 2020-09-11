@@ -1,15 +1,8 @@
-import 'mocha';
-
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 
 import EthereumPrivateKeySignatureProvider from '../src/ethereum-private-key-signature-provider';
 
 import Utils from '@requestnetwork/utils';
-
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 const id1Raw = {
   address: '0xaf083f77f1ffd54218d91491afd06c9296eac3ce',
@@ -57,39 +50,33 @@ describe('ethereum-private-key-signature-provider', () => {
     it('can construct', async () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);
 
-      expect(
-        signProvider.supportedIdentityTypes,
-        'signProvider.supportedIdentityTypes is wrong',
-      ).to.be.deep.equal([IdentityTypes.TYPE.ETHEREUM_ADDRESS]);
-      expect(
-        signProvider.supportedMethods,
-        'signProvider.supportedMethods is wrong',
-      ).to.be.deep.equal([SignatureTypes.METHOD.ECDSA]);
+      // 'signProvider.supportedIdentityTypes is wrong'
+      expect(signProvider.supportedIdentityTypes).toEqual([IdentityTypes.TYPE.ETHEREUM_ADDRESS]);
+      // 'signProvider.supportedMethods is wrong'
+      expect(signProvider.supportedMethods).toEqual([SignatureTypes.METHOD.ECDSA]);
 
-      expect(
-        signProvider.getAllRegisteredIdentities(),
-        'getAllRegisteredIdentities is wrong',
-      ).to.be.deep.equal([id1Raw.identity]);
+      // 'getAllRegisteredIdentities is wrong'
+      expect(signProvider.getAllRegisteredIdentities()).toEqual([id1Raw.identity]);
     });
     it('cannot construct with a not supported signature parameter', async () => {
+      // 'should have thrown'
       expect(
         () =>
           new EthereumPrivateKeySignatureProvider({
             method: 'not_supported',
             privateKey: '0x0',
           } as any),
-        'should have thrown',
-      ).to.throw('Signing method not supported not_supported');
+      ).toThrowError('Signing method not supported not_supported');
     });
     it('cannot construct with signature parameter value not valid', async () => {
+      // 'should have thrown'
       expect(
         () =>
           new EthereumPrivateKeySignatureProvider({
             method: SignatureTypes.METHOD.ECDSA,
             privateKey: '0x0',
           }),
-        'should have thrown',
-      ).to.throw('The private key must be a string representing 32 bytes');
+      ).toThrowError('The private key must be a string representing 32 bytes');
     });
   });
 
@@ -100,12 +87,11 @@ describe('ethereum-private-key-signature-provider', () => {
       const identityAdded: IdentityTypes.IIdentity = signProvider.addSignatureParameters(
         id2Raw.signatureParams,
       );
-      expect(identityAdded, 'identityAdded is wrong').to.deep.equal(id2Raw.identity);
+      // 'identityAdded is wrong'
+      expect(identityAdded).toEqual(id2Raw.identity);
 
-      expect(
-        signProvider.getAllRegisteredIdentities(),
-        'getAllRegisteredIdentities is wrong',
-      ).to.be.deep.equal([id1Raw.identity, id2Raw.identity]);
+      // 'getAllRegisteredIdentities is wrong'
+      expect(signProvider.getAllRegisteredIdentities()).toEqual([id1Raw.identity, id2Raw.identity]);
     });
 
     it('cannot addSignatureParameters if method not supported', () => {
@@ -115,9 +101,10 @@ describe('ethereum-private-key-signature-provider', () => {
         method: 'unknown method',
         privateKey: '0x000',
       };
+      // 'should throw'
       expect(() => {
         signProvider.addSignatureParameters(arbitraryParams);
-      }, 'should throw').to.throw('Signing method not supported unknown method');
+      }).toThrowError('Signing method not supported unknown method');
     });
   });
 
@@ -128,10 +115,8 @@ describe('ethereum-private-key-signature-provider', () => {
 
       signProvider.removeRegisteredIdentity(id2Raw.identity);
 
-      expect(
-        signProvider.getAllRegisteredIdentities(),
-        'getAllRegisteredIdentities is wrong',
-      ).to.be.deep.equal([id1Raw.identity]);
+      // 'getAllRegisteredIdentities is wrong'
+      expect(signProvider.getAllRegisteredIdentities()).toEqual([id1Raw.identity]);
     });
 
     it('cannot removeSignatureParameters if method not supported', () => {
@@ -141,9 +126,10 @@ describe('ethereum-private-key-signature-provider', () => {
         type: 'unknown type',
         value: '0x000',
       };
+      // 'should throw'
       expect(() => {
         signProvider.removeRegisteredIdentity(arbitraryIdentity);
-      }, 'should throw').to.throw('Identity type not supported unknown type');
+      }).toThrowError('Identity type not supported unknown type');
     });
   });
 
@@ -154,10 +140,8 @@ describe('ethereum-private-key-signature-provider', () => {
 
       signProvider.clearAllRegisteredIdentities();
 
-      expect(
-        signProvider.getAllRegisteredIdentities(),
-        'getAllRegisteredIdentities is wrong',
-      ).to.be.deep.equal([]);
+      // 'getAllRegisteredIdentities is wrong'
+      expect(signProvider.getAllRegisteredIdentities()).toEqual([]);
     });
   });
 
@@ -167,16 +151,16 @@ describe('ethereum-private-key-signature-provider', () => {
 
       const signedData: SignatureTypes.ISignedData = await signProvider.sign(data, id1Raw.identity);
 
-      expect(signedData, 'signedData is wrong').to.be.deep.equal(signedDataExpected);
+      // 'signedData is wrong'
+      expect(signedData).toEqual(signedDataExpected);
     });
     it('cannot sign if identity not supported', async () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);
 
       const arbitraryIdentity: any = { type: 'unknown type', value: '0x000' };
-      await expect(
-        signProvider.sign(data, arbitraryIdentity),
-        'should throw',
-      ).to.eventually.be.rejectedWith('Identity type not supported unknown type');
+      await expect(signProvider.sign(data, arbitraryIdentity)).rejects.toThrowError(
+        'Identity type not supported unknown type',
+      );
     });
     it('cannot sign if private key of the identity not given', async () => {
       const signProvider = new EthereumPrivateKeySignatureProvider(id1Raw.signatureParams);
@@ -185,10 +169,9 @@ describe('ethereum-private-key-signature-provider', () => {
         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
         value: '0x000',
       };
-      await expect(
-        signProvider.sign(data, arbitraryIdentity),
-        'should throw',
-      ).to.eventually.be.rejectedWith('private key unknown for the address 0x000');
+      await expect(signProvider.sign(data, arbitraryIdentity)).rejects.toThrowError(
+        'private key unknown for the address 0x000',
+      );
     });
   });
 });

@@ -1,18 +1,8 @@
-import 'mocha';
-
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
 
 import Web3SignatureProvider from '../src/web3-signature-provider';
 
 import Utils from '@requestnetwork/utils';
-
-const chaiAsPromised = require('chai-as-promised');
-const chai = require('chai');
-const spies = require('chai-spies');
-chai.use(spies);
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-const sandbox = chai.spy.sandbox();
 
 const id1Raw = {
   identity: {
@@ -40,7 +30,7 @@ const mockEth: any = {
 describe('web3-signature-provider', () => {
   describe('sign', () => {
     it('can sign', async () => {
-      const spy = sandbox.on(mockEth.personal, 'sign');
+      const spy = jest.spyOn(mockEth.personal, 'sign');
       const signProvider = new Web3SignatureProvider('http://localhost:8545');
 
       // we mock eth as ganache don't support personal.sign anymore
@@ -48,8 +38,8 @@ describe('web3-signature-provider', () => {
 
       await signProvider.sign(data, id1Raw.identity);
 
-      expect(spy).to.have.been.called.once;
-      expect(spy).to.have.been.called.with(normalizedData, id1Raw.identity.value);
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(normalizedData, id1Raw.identity.value);
     });
 
     it('cannot sign with different identity than ethereum address', async () => {
@@ -57,8 +47,7 @@ describe('web3-signature-provider', () => {
 
       await expect(
         signProvider.sign(data, { type: 'otherType', value: '0x' } as any),
-        'should throw',
-      ).to.eventually.rejectedWith('Identity type not supported otherType');
+      ).rejects.toThrowError('Identity type not supported otherType');
     });
   });
 });

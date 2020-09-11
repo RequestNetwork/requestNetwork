@@ -1,15 +1,12 @@
+/* eslint-disable spellcheck/spell-checker */
+// tslint:disable: no-magic-numbers
+
 import { StorageTypes } from '@requestnetwork/types';
 import EthGasStationProvider from '../../src/gas-price-providers/ethgasstation-provider';
 
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
 import * as fetchMock from 'fetch-mock';
 
 const bigNumber: any = require('bn.js');
-
-// Extends chai for promises
-chai.use(chaiAsPromised);
-const expect = chai.expect;
 
 let ethGasStationProvider: EthGasStationProvider;
 
@@ -53,15 +50,15 @@ describe('EtherchainProvider', () => {
       // Test with each gas price type
       await expect(
         ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.SAFELOW),
-      ).to.eventually.eql(new bigNumber(1000000000));
+      ).resolves.toEqual(new bigNumber(1000000000));
 
       await expect(
         ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.eventually.eql(new bigNumber(3050000000));
+      ).resolves.toEqual(new bigNumber(3050000000));
 
       await expect(
         ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.FAST),
-      ).to.eventually.eql(new bigNumber(7000000000));
+      ).resolves.toEqual(new bigNumber(7000000000));
     });
 
     it('throws when API is not available', async () => {
@@ -70,7 +67,7 @@ describe('EtherchainProvider', () => {
 
       await expect(
         ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(
+      ).rejects.toThrowError(
         `EthGasStation error 400. Bad response from server ${ethGasStationProvider.providerUrl}`,
       );
     });
@@ -82,7 +79,7 @@ describe('EtherchainProvider', () => {
       // When format is incorrect
       await expect(
         ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`EthGasStation API response doesn't contain the correct format`);
+      ).rejects.toThrowError(`EthGasStation API response doesn't contain the correct format`);
 
       mock = fetchMock.sandbox().mock(ethGasStationProvider.providerUrl, apiUncompleteResponse);
       ethGasStationProvider.fetch = mock as any;
@@ -90,7 +87,7 @@ describe('EtherchainProvider', () => {
       // When a field is missing
       await expect(
         ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`EthGasStation API response doesn't contain the correct format`);
+      ).rejects.toThrowError(`EthGasStation API response doesn't contain the correct format`);
 
       mock = fetchMock.sandbox().mock(ethGasStationProvider.providerUrl, apiNotANumber);
       ethGasStationProvider.fetch = mock as any;
@@ -98,7 +95,7 @@ describe('EtherchainProvider', () => {
       // When a field is not a number
       await expect(
         ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`EthGasStation API response doesn't contain the correct format`);
+      ).rejects.toThrowError(`EthGasStation API response doesn't contain the correct format`);
     });
 
     it('throws when API returns a response with a gas price not safe to use', async () => {
@@ -110,12 +107,12 @@ describe('EtherchainProvider', () => {
       // When over the limit
       await expect(
         ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).to.be.rejectedWith(`EthGasStation provided gas price not safe to use`);
+      ).rejects.toThrowError(`EthGasStation provided gas price not safe to use`);
 
       // When 0
       await expect(
         ethGasStationProvider.getGasPrice(StorageTypes.GasPriceType.FAST),
-      ).to.be.rejectedWith(`EthGasStation provided gas price not safe to use`);
+      ).rejects.toThrowError(`EthGasStation provided gas price not safe to use`);
     });
   });
 });

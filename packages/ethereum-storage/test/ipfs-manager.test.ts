@@ -1,19 +1,8 @@
-import 'mocha';
-
+/* eslint-disable spellcheck/spell-checker */
 import { StorageTypes } from '@requestnetwork/types';
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
 import { EventEmitter } from 'events';
 import * as http from 'http';
 import IpfsManager from '../src/ipfs-manager';
-
-const spies = require('chai-spies');
-
-// Extends chai for promises
-chai.use(chaiAsPromised);
-chai.use(spies);
-const assert = chai.assert;
-const expect = chai.expect;
 
 const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'localhost',
@@ -71,54 +60,52 @@ describe('Ipfs manager', () => {
     await ipfsManager.getIpfsNodeId();
 
     ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
-    await assert.isRejected(ipfsManager.getIpfsNodeId(), Error, 'getaddrinfo ENOTFOUND');
+    await expect(ipfsManager.getIpfsNodeId()).rejects.toThrowError('getaddrinfo ENOTFOUND');
   });
 
   it('allows to get the bootstrap list', async () => {
     const bootstrapList = await ipfsManager.getBootstrapList();
-    assert.isArray(bootstrapList);
+    expect(bootstrapList).toHaveProperty('length');
   });
 
   it('must throw if the ipfs node is not reachable when using getBootstrapList()', async () => {
     ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
-    await assert.isRejected(ipfsManager.getBootstrapList(), Error, 'getaddrinfo ENOTFOUND');
+    await expect(ipfsManager.getBootstrapList()).rejects.toThrowError('getaddrinfo ENOTFOUND');
   });
 
   it('allows to add files to ipfs', async () => {
     let hashReturned = await ipfsManager.add(content);
-    assert.equal(hash, hashReturned);
+    expect(hash).toBe(hashReturned);
 
     hashReturned = await ipfsManager.add(content2);
-    assert.equal(hash2, hashReturned);
+    expect(hash2).toBe(hashReturned);
   });
 
   it('allows to pin one file ipfs', async () => {
     const pinnedHash = await ipfsManager.pin([hash]);
-    assert.equal(hash, pinnedHash[0]);
+    expect(hash).toBe(pinnedHash[0]);
   });
 
   it('allows to pin multiple files to ipfs', async () => {
     const pinnedHashes = await ipfsManager.pin([hash, hash2]);
-    assert.deepEqual([hash, hash2], pinnedHashes);
+    expect([hash, hash2]).toMatchObject(pinnedHashes);
   });
 
   it('allows to read files from ipfs', async () => {
     await ipfsManager.add(content);
     let contentReturned = await ipfsManager.read(hash, 82);
-    assert.equal(content, contentReturned.content);
+    expect(content).toBe(contentReturned.content);
 
     await ipfsManager.add(content2);
     contentReturned = await ipfsManager.read(hash2);
-    assert.equal(content2, contentReturned.content);
+    expect(content2).toBe(contentReturned.content);
   });
 
   it('must throw if max size reached', async () => {
     await ipfsManager.add(content);
 
     const maxSize = 10;
-    await assert.isRejected(
-      ipfsManager.read(hash, maxSize),
-      Error,
+    await expect(ipfsManager.read(hash, maxSize)).rejects.toThrowError(
       `File size (82) exceeds maximum file size of ${maxSize}`,
     );
   });
@@ -126,43 +113,39 @@ describe('Ipfs manager', () => {
   it('allows to get file size from ipfs', async () => {
     let hashReturned = await ipfsManager.add(content);
     let sizeReturned = await ipfsManager.getContentLength(hashReturned);
-    assert.equal(contentLengthOnIpfs, sizeReturned);
+    expect(contentLengthOnIpfs).toEqual(sizeReturned);
 
     hashReturned = await ipfsManager.add(content2);
     sizeReturned = await ipfsManager.getContentLength(hashReturned);
-    assert.equal(contentLengthOnIpfs2, sizeReturned);
+    expect(contentLengthOnIpfs2).toEqual(sizeReturned);
   });
 
   it('operations with a invalid host network should throw ENOTFOUND errors', async () => {
     ipfsManager = new IpfsManager(invalidHostIpfsGatewayConnection, testErrorHandling);
 
-    await assert.isRejected(ipfsManager.add(content), Error, 'getaddrinfo ENOTFOUND');
-    await assert.isRejected(ipfsManager.read(hash), Error, 'getaddrinfo ENOTFOUND');
-    await assert.isRejected(ipfsManager.getContentLength(hash), Error, 'getaddrinfo ENOTFOUND');
-  });
+    await expect(ipfsManager.add(content)).rejects.toThrowError('getaddrinfo ENOTFOUND');
+    await expect(ipfsManager.read(hash)).rejects.toThrowError('getaddrinfo ENOTFOUND');
+    await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError('getaddrinfo ENOTFOUND');
+  }, 10000);
 
   it('read a non-existent hash on an existent network should throw a timeout error', async () => {
-    await assert.isRejected(ipfsManager.read(notAddedHash), Error, 'Ipfs read request timeout');
+    await expect(ipfsManager.read(notAddedHash)).rejects.toThrowError('Ipfs read request timeout');
   });
 
   it('getContentLength on a non-existent hash on an existent network should throw a timeout error', async () => {
-    await assert.isRejected(
-      ipfsManager.getContentLength(notAddedHash),
-      Error,
+    await expect(ipfsManager.getContentLength(notAddedHash)).rejects.toThrowError(
       'Ipfs stat request timeout',
     );
   });
 
   it('initializing ipfs-manager with default values should not throw an error', async () => {
-    assert.doesNotThrow(() => new IpfsManager(), Error);
+    expect(() => new IpfsManager()).not.toThrow();
   });
 
   it('initializing ipfs-manager with an invalid protocol should throw an error', async () => {
-    assert.throws(
+    expect(
       () => new IpfsManager(invalidProtocolIpfsGatewayConnection, testErrorHandling),
-      Error,
-      'Protocol not implemented for IPFS',
-    );
+    ).toThrowError('Protocol not implemented for IPFS');
   });
 
   it('aborting read request should throw an error', async () => {
@@ -171,14 +154,14 @@ describe('Ipfs manager', () => {
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
       // We filter the response of the request to prevent the promise to resolve
-      hookedRequest = http.get(request, _res => {});
+      hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };
     const hookedIpfsConnectionModule = { get: requestHook };
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequest.emit('abort'), 1000);
-    await assert.isRejected(ipfsManager.read(hash), Error, 'Ipfs read request has been aborted');
+    await expect(ipfsManager.read(hash)).rejects.toThrowError('Ipfs read request has been aborted');
   });
 
   it('aborting read request response should throw an error', async () => {
@@ -187,7 +170,7 @@ describe('Ipfs manager', () => {
     // Hook the response of the request response to send customized event ot it
     const requestHook = (request: string, resCallback: any): EventEmitter => {
       hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
+      return http.get(request, (_res) => {
         resCallback(hookedRequestResponse);
       });
     };
@@ -195,9 +178,7 @@ describe('Ipfs manager', () => {
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequestResponse.emit('aborted'), 1000);
-    await assert.isRejected(
-      ipfsManager.read(hash),
-      Error,
+    await expect(ipfsManager.read(hash)).rejects.toThrowError(
       'Ipfs read request response has been aborted',
     );
   });
@@ -208,7 +189,7 @@ describe('Ipfs manager', () => {
     // Hook the response of the request response to send customized event ot it
     const requestHook = (request: string, resCallback: any): EventEmitter => {
       hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
+      return http.get(request, (_res) => {
         resCallback(hookedRequestResponse);
       });
     };
@@ -216,7 +197,7 @@ describe('Ipfs manager', () => {
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequestResponse.emit('error'), 1000);
-    await assert.isRejected(ipfsManager.read(hash), Error, 'Ipfs read request response error');
+    await expect(ipfsManager.read(hash)).rejects.toThrowError('Ipfs read request response error');
   });
 
   it('aborting getContentLength request should throw an error', async () => {
@@ -224,16 +205,14 @@ describe('Ipfs manager', () => {
 
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
-      hookedRequest = http.get(request, _res => {});
+      hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };
     const hookedIpfsConnectionModule = { get: requestHook };
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequest.emit('abort'), 1000);
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
+    await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError(
       'Ipfs stat request has been aborted',
     );
   });
@@ -244,7 +223,7 @@ describe('Ipfs manager', () => {
     // Hook the response of the request response to send customized event ot it
     const requestHook = (request: string, resCallback: any): EventEmitter => {
       hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
+      return http.get(request, (_res) => {
         resCallback(hookedRequestResponse);
       });
     };
@@ -252,9 +231,7 @@ describe('Ipfs manager', () => {
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequestResponse.emit('aborted'), 1000);
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
+    await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError(
       'Ipfs stat request response has been aborted',
     );
   });
@@ -265,7 +242,7 @@ describe('Ipfs manager', () => {
     // Hook the response of the request response to send customized event ot it
     const requestHook = (request: string, resCallback: any): EventEmitter => {
       hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
+      return http.get(request, (_res) => {
         resCallback(hookedRequestResponse);
       });
     };
@@ -273,9 +250,7 @@ describe('Ipfs manager', () => {
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequestResponse.emit('error'), 1000);
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
+    await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError(
       'Ipfs stat request response error',
     );
   });
@@ -286,7 +261,7 @@ describe('Ipfs manager', () => {
     // Hook the response of the request response to send customized event ot it
     const requestHook = (request: string, resCallback: any): EventEmitter => {
       hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
+      return http.get(request, (_res) => {
         resCallback(hookedRequestResponse);
       });
     };
@@ -295,9 +270,7 @@ describe('Ipfs manager', () => {
 
     // We emit end event directly, we will call end callball with no response data
     setTimeout(() => hookedRequestResponse.emit('end'), 1000);
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
+    await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError(
       'Ipfs stat request response cannot be parsed into JSON format',
     );
   });
@@ -308,7 +281,7 @@ describe('Ipfs manager', () => {
     // Hook the response of the request response to send customized event ot it
     const requestHook = (request: string, resCallback: any): EventEmitter => {
       hookedRequestResponse = new EventEmitter();
-      return http.get(request, _res => {
+      return http.get(request, (_res) => {
         resCallback(hookedRequestResponse);
       });
     };
@@ -318,9 +291,7 @@ describe('Ipfs manager', () => {
     // We emit custom json data with no DataSize field
     setTimeout(() => hookedRequestResponse.emit('data', `{"name":"John"}`), 500);
     setTimeout(() => hookedRequestResponse.emit('end'), 1000);
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
+    await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError(
       'Ipfs stat request response has no DataSize field',
     );
   });
@@ -328,9 +299,7 @@ describe('Ipfs manager', () => {
   it('timeout should not retry', async () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
 
-    await assert.isRejected(
-      ipfsManager.getContentLength(notAddedHash),
-      Error,
+    await expect(ipfsManager.getContentLength(notAddedHash)).rejects.toThrowError(
       'Ipfs stat request timeout',
     );
   });
@@ -339,11 +308,11 @@ describe('Ipfs manager', () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
     let hookedGetResponse: any;
 
-    const spy = chai.spy();
+    const spy = jest.fn();
     // Hook the response of the request response to send customized event ot it
     const getHook = (request: string, resCallback: any): EventEmitter => {
       hookedGetResponse = new EventEmitter();
-      return http.get(request, _res => {
+      return http.get(request, (_res) => {
         spy();
         resCallback(hookedGetResponse);
       });
@@ -356,19 +325,19 @@ describe('Ipfs manager', () => {
     for (let i = 0; i < retryTestErrorHandling.maxRetries + 2; i++) {
       setTimeout(() => hookedGetResponse.emit('error'), 100 + 100 * i);
     }
-    await assert.isRejected(ipfsManager.read(hash), Error, 'Ipfs read request response error');
-    expect(spy).to.have.been.called.exactly(5);
+    await expect(ipfsManager.read(hash)).rejects.toThrowError('Ipfs read request response error');
+    expect(spy).toHaveBeenCalledTimes(5);
   });
 
   it.skip('error on pin request should retry', async () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
     let hookedGetResponse: any;
 
-    const spy = chai.spy();
+    const spy = jest.fn();
     // Hook the response of the request response to send customized event ot it
     const getHook = (request: string, resCallback: any): EventEmitter => {
       hookedGetResponse = new EventEmitter();
-      return http.get(request, _res => {
+      return http.get(request, (_res) => {
         spy();
         resCallback(hookedGetResponse);
       });
@@ -380,19 +349,19 @@ describe('Ipfs manager', () => {
     for (let i = 0; i < retryTestErrorHandling.maxRetries + 2; i++) {
       setTimeout(() => hookedGetResponse.emit('error'), 100 + 100 * i);
     }
-    await assert.isRejected(ipfsManager.pin([hash]), Error, 'Ipfs pin request response error');
-    expect(spy).to.have.been.called.exactly(5);
+    await expect(ipfsManager.pin([hash])).rejects.toThrowError('Ipfs pin request response error');
+    expect(spy).toHaveBeenCalledTimes(5);
   });
 
   it.skip('error on getContentLength request should retry', async () => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, retryTestErrorHandling);
     let hookedGetResponse: any;
 
-    const spy = chai.spy();
+    const spy = jest.fn();
     // Hook the response of the request response to send customized event ot it
     const getHook = (request: string, resCallback: any): EventEmitter => {
       hookedGetResponse = new EventEmitter();
-      return http.get(request, _res => {
+      return http.get(request, (_res) => {
         spy();
         resCallback(hookedGetResponse);
       });
@@ -404,11 +373,9 @@ describe('Ipfs manager', () => {
     for (let i = 0; i < retryTestErrorHandling.maxRetries + 2; i++) {
       setTimeout(() => hookedGetResponse.emit('error'), 100 + 100 * i);
     }
-    await assert.isRejected(
-      ipfsManager.getContentLength(hash),
-      Error,
+    await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError(
       'Ipfs stat request response error',
     );
-    expect(spy).to.have.been.called.exactly(5);
+    expect(spy).toHaveBeenCalledTimes(5);
   });
 });

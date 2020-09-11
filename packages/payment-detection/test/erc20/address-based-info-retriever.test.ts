@@ -3,12 +3,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import ERC20InfoRetriever from '../../src/erc20/address-based-info-retriever';
 
-import 'chai';
-import 'mocha';
-
-const chai = require('chai');
-const expect = chai.expect;
-
 const erc20LocalhostContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
 /* tslint:disable:no-unused-expression */
@@ -28,15 +22,15 @@ describe('api/erc20/address-based-info-retriever', () => {
       const events = await infoRetriever.getTransferEvents();
 
       // if this assert fails it means this address received another transaction
-      expect(events).to.have.lengthOf(1);
-      expect(events[0].name).to.equal(PaymentTypes.EVENTS_NAMES.PAYMENT);
-      expect(events[0].amount).to.equal('10');
-      expect(events[0].timestamp).to.be.a('number');
-      expect(events[0].parameters!.from).to.equal(payerAddress);
-      expect(events[0].parameters!.to).to.equal(paymentAddress);
-      expect(events[0].parameters!.block).to.be.a('number');
-      expect(events[0].parameters!.txHash).to.be.a('string');
-    });
+      expect(events).toHaveLength(1);
+      expect(events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
+      expect(events[0].amount).toBe('10');
+      expect(typeof events[0].timestamp).toBe('number');
+      expect(events[0].parameters!.from).toBe(payerAddress);
+      expect(events[0].parameters!.to).toBe(paymentAddress);
+      expect(typeof events[0].parameters!.block).toBe('number');
+      expect(typeof events[0].parameters!.txHash).toBe('string');
+    }, 10000);
 
     it('gets an empty list of events for an address without ERC20 on localhost', async () => {
       const infoRetriever = new ERC20InfoRetriever(
@@ -47,7 +41,7 @@ describe('api/erc20/address-based-info-retriever', () => {
       );
 
       const events = await infoRetriever.getTransferEvents();
-      expect(events).to.be.empty;
+      expect(Object.keys(events)).toHaveLength(0);
     });
   });
 });

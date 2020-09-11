@@ -1,6 +1,3 @@
-import { expect } from 'chai';
-import 'mocha';
-
 import MultiFormat from '@requestnetwork/multi-format';
 import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
@@ -33,40 +30,33 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        RequestLogicTypes.ACTION_NAME.CREATE,
-      );
-      expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
-        CURRENT_VERSION,
-      );
+      // 'action is wrong'
+      expect(actionCreation.data.name).toBe(RequestLogicTypes.ACTION_NAME.CREATE);
+      // 'actionCreation.data.version is wrong'
+      expect(actionCreation.data.version).toBe(CURRENT_VERSION);
 
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+      // 'currency is wrong'
+      expect(actionCreation.data.parameters.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(actionCreation.data.parameters.timestamp, 'timestamp is wrong').to.equal(
-        TestData.arbitraryTimestamp,
-      );
-      expect(actionCreation.data.parameters.nonce, 'nonce is wrong').to.be.undefined;
-      expect(actionCreation.data.parameters.extensionsData, 'extensionsData is wrong').to.be
-        .undefined;
-      expect(actionCreation.data.parameters.payer, 'payer is wrong').to.be.undefined;
+      // 'expectedAmount is wrong'
+      expect(actionCreation.data.parameters.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'timestamp is wrong'
+      expect(actionCreation.data.parameters.timestamp).toBe(TestData.arbitraryTimestamp);
+      // 'nonce is wrong'
+      expect(actionCreation.data.parameters.nonce).toBeUndefined();
+      // 'extensionsData is wrong'
+      expect(actionCreation.data.parameters.extensionsData).toBeUndefined();
+      // 'payer is wrong'
+      expect(actionCreation.data.parameters.payer).toBeUndefined();
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payee is wrong',
-      ).to.have.property('payee');
-      expect(
-        actionCreation.data.parameters.payee.type,
-        'actionCreation.data.parameters.payee.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-      expect(
-        actionCreation.data.parameters.payee.value,
-        'actionCreation.data.parameters.payee.value is wrong',
-      ).to.equal(TestData.payeeRaw.address);
+      // 'actionCreation.data.parameters.payee is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payee');
+      // 'actionCreation.data.parameters.payee.type is wrong'
+      expect(actionCreation.data.parameters.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'actionCreation.data.parameters.payee.value is wrong'
+      expect(actionCreation.data.parameters.payee.value).toBe(TestData.payeeRaw.address);
     });
 
     it('can create with nonce', async () => {
@@ -87,40 +77,33 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        RequestLogicTypes.ACTION_NAME.CREATE,
-      );
-      expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
-        CURRENT_VERSION,
-      );
+      // 'action is wrong'
+      expect(actionCreation.data.name).toBe(RequestLogicTypes.ACTION_NAME.CREATE);
+      // 'actionCreation.data.version is wrong'
+      expect(actionCreation.data.version).toBe(CURRENT_VERSION);
 
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+      // 'currency is wrong'
+      expect(actionCreation.data.parameters.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(actionCreation.data.parameters.timestamp, 'timestamp is wrong').to.equal(
-        TestData.arbitraryTimestamp,
-      );
-      expect(actionCreation.data.parameters.nonce, 'nonce is wrong').to.equal(2);
-      expect(actionCreation.data.parameters.extensionsData, 'extensionsData is wrong').to.be
-        .undefined;
-      expect(actionCreation.data.parameters.payer, 'payer is wrong').to.be.undefined;
+      // 'expectedAmount is wrong'
+      expect(actionCreation.data.parameters.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'timestamp is wrong'
+      expect(actionCreation.data.parameters.timestamp).toBe(TestData.arbitraryTimestamp);
+      // 'nonce is wrong'
+      expect(actionCreation.data.parameters.nonce).toBe(2);
+      // 'extensionsData is wrong'
+      expect(actionCreation.data.parameters.extensionsData).toBeUndefined();
+      // 'payer is wrong'
+      expect(actionCreation.data.parameters.payer).toBeUndefined();
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payee is wrong',
-      ).to.have.property('payee');
-      expect(
-        actionCreation.data.parameters.payee.type,
-        'actionCreation.data.parameters.payee.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-      expect(
-        actionCreation.data.parameters.payee.value,
-        'actionCreation.data.parameters.payee.value is wrong',
-      ).to.equal(TestData.payeeRaw.address);
+      // 'actionCreation.data.parameters.payee is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payee');
+      // 'actionCreation.data.parameters.payee.type is wrong'
+      expect(actionCreation.data.parameters.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'actionCreation.data.parameters.payee.value is wrong'
+      expect(actionCreation.data.parameters.payee.value).toBe(TestData.payeeRaw.address);
     });
 
     it('can generate timestamp if not given', async () => {
@@ -139,38 +122,32 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        RequestLogicTypes.ACTION_NAME.CREATE,
-      );
-      expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
-        CURRENT_VERSION,
-      );
+      // 'action is wrong'
+      expect(actionCreation.data.name).toBe(RequestLogicTypes.ACTION_NAME.CREATE);
+      // 'actionCreation.data.version is wrong'
+      expect(actionCreation.data.version).toBe(CURRENT_VERSION);
 
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+      // 'currency is wrong'
+      expect(actionCreation.data.parameters.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(actionCreation.data.parameters.extensionsData, 'extensionsData is wrong').to.be
-        .undefined;
-      expect(actionCreation.data.parameters.payer, 'payer is wrong').to.be.undefined;
+      // 'expectedAmount is wrong'
+      expect(actionCreation.data.parameters.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'extensionsData is wrong'
+      expect(actionCreation.data.parameters.extensionsData).toBeUndefined();
+      // 'payer is wrong'
+      expect(actionCreation.data.parameters.payer).toBeUndefined();
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payee is wrong',
-      ).to.have.property('payee');
-      expect(
-        actionCreation.data.parameters.payee.type,
-        'actionCreation.data.parameters.payee.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-      expect(
-        actionCreation.data.parameters.payee.value,
-        'actionCreation.data.parameters.payee.value is wrong',
-      ).to.equal(TestData.payeeRaw.address);
+      // 'actionCreation.data.parameters.payee is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payee');
+      // 'actionCreation.data.parameters.payee.type is wrong'
+      expect(actionCreation.data.parameters.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'actionCreation.data.parameters.payee.value is wrong'
+      expect(actionCreation.data.parameters.payee.value).toBe(TestData.payeeRaw.address);
 
-      expect(actionCreation.data.parameters.timestamp, 'timestamp is wrong').to.not.be.undefined;
+      // 'timestamp is wrong'
+      expect(actionCreation.data.parameters.timestamp).toBeDefined();
     });
 
     it('can create with only the payer', async () => {
@@ -191,35 +168,28 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        RequestLogicTypes.ACTION_NAME.CREATE,
-      );
-      expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
-        CURRENT_VERSION,
-      );
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+      // 'action is wrong'
+      expect(actionCreation.data.name).toBe(RequestLogicTypes.ACTION_NAME.CREATE);
+      // 'actionCreation.data.version is wrong'
+      expect(actionCreation.data.version).toBe(CURRENT_VERSION);
+      // 'currency is wrong'
+      expect(actionCreation.data.parameters.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(actionCreation.data.parameters.extensionsData, 'extensionsData is wrong').to.be
-        .undefined;
-      expect(actionCreation.data.parameters.payee, 'payee is wrong').to.be.undefined;
+      // 'expectedAmount is wrong'
+      expect(actionCreation.data.parameters.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'extensionsData is wrong'
+      expect(actionCreation.data.parameters.extensionsData).toBeUndefined();
+      // 'payee is wrong'
+      expect(actionCreation.data.parameters.payee).toBeUndefined();
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payer is wrong',
-      ).to.have.property('payer');
-      expect(
-        actionCreation.data.parameters.payer.type,
-        'actionCreation.data.parameters.payer.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-      expect(
-        actionCreation.data.parameters.payer.value,
-        'actionCreation.data.parameters.payer.value is wrong',
-      ).to.equal(TestData.payerRaw.address);
+      // 'actionCreation.data.parameters.payer is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payer');
+      // 'actionCreation.data.parameters.payer.type is wrong'
+      expect(actionCreation.data.parameters.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'actionCreation.data.parameters.payer.value is wrong'
+      expect(actionCreation.data.parameters.payer.value).toBe(TestData.payerRaw.address);
     });
 
     it('can create with the payee and the payer', async () => {
@@ -244,123 +214,96 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        RequestLogicTypes.ACTION_NAME.CREATE,
-      );
-      expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
-        CURRENT_VERSION,
-      );
+      // 'action is wrong'
+      expect(actionCreation.data.name).toBe(RequestLogicTypes.ACTION_NAME.CREATE);
+      // 'actionCreation.data.version is wrong'
+      expect(actionCreation.data.version).toBe(CURRENT_VERSION);
 
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+      // 'currency is wrong'
+      expect(actionCreation.data.parameters.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(actionCreation.data.parameters.extensionsData, 'extensionsData is wrong').to.be
-        .undefined;
+      // 'expectedAmount is wrong'
+      expect(actionCreation.data.parameters.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'extensionsData is wrong'
+      expect(actionCreation.data.parameters.extensionsData).toBeUndefined();
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payee is wrong',
-      ).to.have.property('payee');
-      expect(
-        actionCreation.data.parameters.payee.type,
-        'actionCreation.data.parameters.payee.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-      expect(
-        actionCreation.data.parameters.payee.value,
-        'actionCreation.data.parameters.payee.value is wrong',
-      ).to.equal(TestData.payeeRaw.address);
+      // 'actionCreation.data.parameters.payee is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payee');
+      // 'actionCreation.data.parameters.payee.type is wrong'
+      expect(actionCreation.data.parameters.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'actionCreation.data.parameters.payee.value is wrong'
+      expect(actionCreation.data.parameters.payee.value).toBe(TestData.payeeRaw.address);
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payer is wrong',
-      ).to.have.property('payer');
-      expect(
-        actionCreation.data.parameters.payer.type,
-        'actionCreation.data.parameters.payer.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-      expect(
-        actionCreation.data.parameters.payer.value,
-        'actionCreation.data.parameters.payer.value is wrong',
-      ).to.equal(TestData.payerRaw.address);
+      // 'actionCreation.data.parameters.payer is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payer');
+      // 'actionCreation.data.parameters.payer.type is wrong'
+      expect(actionCreation.data.parameters.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'actionCreation.data.parameters.payer.value is wrong'
+      expect(actionCreation.data.parameters.payer.value).toBe(TestData.payerRaw.address);
     });
 
-    it('can create with the payee but the payer is a smartcontract', async () => {
-      const actionCreation = await CreateAction.format(
-        {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ETH,
-            value: 'ETH',
+    it(
+      'can create with the payee but the payer is a smartcontract',
+      async () => {
+        const actionCreation = await CreateAction.format(
+          {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            payee: {
+              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+              value: TestData.payeeRaw.address,
+            },
+            payer: {
+              network: 'private',
+              type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+              value: TestData.payerRaw.address,
+            } as IdentityTypes.ISmartContractIdentity,
+            timestamp: TestData.arbitraryTimestamp,
           },
-          expectedAmount: TestData.arbitraryExpectedAmount,
-          payee: {
-            type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-            value: TestData.payeeRaw.address,
-          },
-          payer: {
-            network: 'private',
-            type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
-            value: TestData.payerRaw.address,
-          } as IdentityTypes.ISmartContractIdentity,
-          timestamp: TestData.arbitraryTimestamp,
-        },
-        TestData.payeeRaw.identity,
-        TestData.fakeSignatureProvider,
-      );
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        RequestLogicTypes.ACTION_NAME.CREATE,
-      );
-      expect(actionCreation.data.version, 'actionCreation.data.version is wrong').to.equal(
-        CURRENT_VERSION,
-      );
+          TestData.payeeRaw.identity,
+          TestData.fakeSignatureProvider,
+        );
+        // 'action is wrong'
+        expect(actionCreation.data.name).toBe(RequestLogicTypes.ACTION_NAME.CREATE);
+        // 'actionCreation.data.version is wrong'
+        expect(actionCreation.data.version).toBe(CURRENT_VERSION);
 
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-      });
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(actionCreation.data.parameters.timestamp, 'timestamp is wrong').to.equal(
-        TestData.arbitraryTimestamp,
-      );
-      expect(actionCreation.data.parameters.nonce, 'nonce is wrong').to.be.undefined;
-      expect(actionCreation.data.parameters.extensionsData, 'extensionsData is wrong').to.be
-        .undefined;
+        // 'currency is wrong'
+        expect(actionCreation.data.parameters.currency).toEqual({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        });
+        // 'expectedAmount is wrong'
+        expect(actionCreation.data.parameters.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+        // 'timestamp is wrong'
+        expect(actionCreation.data.parameters.timestamp).toBe(TestData.arbitraryTimestamp);
+        // 'nonce is wrong'
+        expect(actionCreation.data.parameters.nonce).toBeUndefined();
+        // 'extensionsData is wrong'
+        expect(actionCreation.data.parameters.extensionsData).toBeUndefined();
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payer is wrong',
-      ).to.have.property('payer');
-      expect(
-        actionCreation.data.parameters.payer.type,
-        'actionCreation.data.parameters.payer.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT);
-      expect(
-        actionCreation.data.parameters.payer.value,
-        'actionCreation.data.parameters.payer.value is wrong',
-      ).to.equal(TestData.payerRaw.address);
-      expect(
-        actionCreation.data.parameters.payer.network,
-        'actionCreation.data.parameters.payer.network is wrong',
-      ).to.equal('private');
+        // 'actionCreation.data.parameters.payer is wrong'
+        expect(actionCreation.data.parameters).toHaveProperty('payer');
+        // 'actionCreation.data.parameters.payer.type is wrong'
+        expect(actionCreation.data.parameters.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT);
+        // 'actionCreation.data.parameters.payer.value is wrong'
+        expect(actionCreation.data.parameters.payer.value).toBe(TestData.payerRaw.address);
+        // 'actionCreation.data.parameters.payer.network is wrong'
+        expect(actionCreation.data.parameters.payer.network).toBe('private');
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payee is wrong',
-      ).to.have.property('payee');
-      expect(
-        actionCreation.data.parameters.payee.type,
-        'actionCreation.data.parameters.payee.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-      expect(
-        actionCreation.data.parameters.payee.value,
-        'actionCreation.data.parameters.payee.value is wrong',
-      ).to.equal(TestData.payeeRaw.address);
-    });
+        // 'actionCreation.data.parameters.payee is wrong'
+        expect(actionCreation.data.parameters).toHaveProperty('payee');
+        // 'actionCreation.data.parameters.payee.type is wrong'
+        expect(actionCreation.data.parameters.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'actionCreation.data.parameters.payee.value is wrong'
+        expect(actionCreation.data.parameters.payee.value).toBe(TestData.payeeRaw.address);
+      }
+    );
 
     it('cannot create with a smartcontract', () => {
       expect(() =>
@@ -381,7 +324,7 @@ describe('CreateAction', () => {
           TestData.payeeRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('Signer must be the payee or the payer');
+      ).toThrowError('Signer must be the payee or the payer');
     });
 
     it('cannot create without payee and payer', () => {
@@ -398,7 +341,7 @@ describe('CreateAction', () => {
           TestData.payeeRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('payee or PayerId must be given');
+      ).toThrowError('payee or PayerId must be given');
     });
 
     it('cannot create with amount as decimal', () => {
@@ -418,7 +361,7 @@ describe('CreateAction', () => {
           TestData.payeeRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('expectedAmount must be a positive integer');
+      ).toThrowError('expectedAmount must be a positive integer');
     });
 
     it('cannot create with amount not a number', () => {
@@ -438,7 +381,7 @@ describe('CreateAction', () => {
           TestData.payeeRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('expectedAmount must be a positive integer');
+      ).toThrowError('expectedAmount must be a positive integer');
     });
 
     it('can format create with extensionsData', async () => {
@@ -465,46 +408,31 @@ describe('CreateAction', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(actionCreation.data.name, 'action is wrong').to.equal(
-        RequestLogicTypes.ACTION_NAME.CREATE,
-      );
-      expect(actionCreation.data.parameters.currency, 'currency is wrong').to.deep.equal({
+      // 'action is wrong'
+      expect(actionCreation.data.name).toBe(RequestLogicTypes.ACTION_NAME.CREATE);
+      // 'currency is wrong'
+      expect(actionCreation.data.parameters.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(
-        actionCreation.data.parameters.extensionsData,
-        'actionCreation.data.parameters.extensionsData is wrong',
-      ).to.deep.equal(extensionsData);
+      // 'expectedAmount is wrong'
+      expect(actionCreation.data.parameters.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'actionCreation.data.parameters.extensionsData is wrong'
+      expect(actionCreation.data.parameters.extensionsData).toEqual(extensionsData);
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payee is wrong',
-      ).to.have.property('payee');
-      expect(
-        actionCreation.data.parameters.payee.type,
-        'actionCreation.data.parameters.payee.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-      expect(
-        actionCreation.data.parameters.payee.value,
-        'actionCreation.data.parameters.payee.value is wrong',
-      ).to.equal(TestData.payeeRaw.address);
+      // 'actionCreation.data.parameters.payee is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payee');
+      // 'actionCreation.data.parameters.payee.type is wrong'
+      expect(actionCreation.data.parameters.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'actionCreation.data.parameters.payee.value is wrong'
+      expect(actionCreation.data.parameters.payee.value).toBe(TestData.payeeRaw.address);
 
-      expect(
-        actionCreation.data.parameters,
-        'actionCreation.data.parameters.payer is wrong',
-      ).to.have.property('payer');
-      expect(
-        actionCreation.data.parameters.payer.type,
-        'actionCreation.data.parameters.payer.type is wrong',
-      ).to.equal(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-      expect(
-        actionCreation.data.parameters.payer.value,
-        'actionCreation.data.parameters.payer.value is wrong',
-      ).to.equal(TestData.payerRaw.address);
+      // 'actionCreation.data.parameters.payer is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payer');
+      // 'actionCreation.data.parameters.payer.type is wrong'
+      expect(actionCreation.data.parameters.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'actionCreation.data.parameters.payer.value is wrong'
+      expect(actionCreation.data.parameters.payer.value).toBe(TestData.payerRaw.address);
     });
 
     it('cannot sign with ECDSA by another', () => {
@@ -528,7 +456,7 @@ describe('CreateAction', () => {
           TestData.otherIdRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('Signer must be the payee or the payer');
+      ).toThrowError('Signer must be the payee or the payer');
     });
 
     it('cannot sign with ECDSA by payer if only payee given', () => {
@@ -548,7 +476,7 @@ describe('CreateAction', () => {
           TestData.payerRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('Signer must be the payee or the payer');
+      ).toThrowError('Signer must be the payee or the payer');
     });
     it('cannot sign with ECDSA by payee if only payer given', () => {
       expect(() =>
@@ -567,7 +495,7 @@ describe('CreateAction', () => {
           TestData.payeeRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('Signer must be the payee or the payer');
+      ).toThrowError('Signer must be the payee or the payer');
     });
 
     it('can create with amount as integer or zero', async () => {
@@ -586,9 +514,8 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        '10000',
-      );
+      // 'expectedAmount is wrong'
+      expect(actionCreation.data.parameters.expectedAmount).toBe('10000');
 
       actionCreation = await CreateAction.format(
         {
@@ -605,9 +532,8 @@ describe('CreateAction', () => {
         TestData.payeeRaw.identity,
         TestData.fakeSignatureProvider,
       );
-      expect(actionCreation.data.parameters.expectedAmount, 'expectedAmount is wrong').to.equal(
-        '0',
-      );
+      // 'expectedAmount is wrong'
+      expect(actionCreation.data.parameters.expectedAmount).toBe('0');
     });
 
     it('cannot create with amount as negative', () => {
@@ -627,42 +553,48 @@ describe('CreateAction', () => {
           TestData.payeeRaw.identity,
           TestData.fakeSignatureProvider,
         ),
-      ).to.throw('expectedAmount must be a positive integer');
+      ).toThrowError('expectedAmount must be a positive integer');
     });
-    it('does not support other identity type than "ethereumAddress" for Payee', () => {
-      const params: any = {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
-        expectedAmount: '1000',
-        payee: {
-          type: 'not_ethereumAddress',
-          value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-        },
-        payer: TestData.payerRaw.identity,
-      };
-      expect(() =>
-        CreateAction.format(params, TestData.payerRaw.identity, TestData.fakeSignatureProvider),
-      ).to.throw('payee: identity type not supported');
-    });
-    it('does not support other identity type than "ethereumAddress" for Payer', () => {
-      const params: any = {
-        currency: {
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
-        expectedAmount: '1000',
-        payee: TestData.payeeRaw.identity,
-        payer: {
-          type: 'not_ethereumAddress',
-          value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-        },
-      };
-      expect(() =>
-        CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
-      ).to.throw('payer: identity type not supported');
-    });
+    it(
+      'does not support other identity type than "ethereumAddress" for Payee',
+      () => {
+        const params: any = {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+          expectedAmount: '1000',
+          payee: {
+            type: 'not_ethereumAddress',
+            value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+          },
+          payer: TestData.payerRaw.identity,
+        };
+        expect(() =>
+          CreateAction.format(params, TestData.payerRaw.identity, TestData.fakeSignatureProvider),
+        ).toThrowError('payee: identity type not supported');
+      }
+    );
+    it(
+      'does not support other identity type than "ethereumAddress" for Payer',
+      () => {
+        const params: any = {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          },
+          expectedAmount: '1000',
+          payee: TestData.payeeRaw.identity,
+          payer: {
+            type: 'not_ethereumAddress',
+            value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+          },
+        };
+        expect(() =>
+          CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
+        ).toThrowError('payer: identity type not supported');
+      }
+    );
 
     it('does not support other identity value not ethereum for Payee', () => {
       const params: any = {
@@ -678,7 +610,7 @@ describe('CreateAction', () => {
       };
       expect(() =>
         CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
-      ).to.throw('payee: identity value must be an ethereum address');
+      ).toThrowError('payee: identity value must be an ethereum address');
     });
 
     it('does not support other identity value not ethereum for Payer', () => {
@@ -695,7 +627,7 @@ describe('CreateAction', () => {
       };
       expect(() =>
         CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
-      ).to.throw('payer: identity value must be an ethereum address');
+      ).toThrowError('payer: identity value must be an ethereum address');
     });
   });
 
@@ -721,39 +653,40 @@ describe('CreateAction', () => {
 
       const request = CreateAction.createRequest(actionCreation, 2);
 
-      expect(request.requestId, 'requestId is wrong').to.equal(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
-      expect(request.currency, 'currency is wrong').to.deep.equal({
+      // 'requestId is wrong'
+      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      // 'currency is wrong'
+      expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
-      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
+      // 'state is wrong'
+      expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+      // 'expectedAmount is wrong'
+      expect(request.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'extensions is wrong'
+      expect(request.extensions).toEqual({});
 
-      expect(request, 'request should have property creator').to.have.property('creator');
-      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      );
-      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-        TestData.payeeRaw.address,
-      );
+      // 'request should have property creator'
+      expect(request).toHaveProperty('creator');
+      // 'request.creator.type is wrong'
+      expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'request.creator.value is wrong'
+      expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-      expect(request, 'request should have property payee').to.have.property('payee');
+      // 'request should have property payee'
+      expect(request).toHaveProperty('payee');
       if (request.payee) {
-        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
-          TestData.payeeRaw.address,
-        );
+        // 'request.payee.type is wrong'
+        expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payee.value is wrong'
+        expect(request.payee.value).toBe(TestData.payeeRaw.address);
       }
-      expect(request.payer, 'payer is wrong').to.be.undefined;
+      // 'payer is wrong'
+      expect(request.payer).toBeUndefined();
 
-      expect(request.events[0], 'request.events is wrong').to.deep.equal({
+      // 'request.events is wrong'
+      expect(request.events[0]).toEqual({
         actionSigner: TestData.payeeRaw.identity,
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
@@ -764,7 +697,8 @@ describe('CreateAction', () => {
         timestamp: 2,
       });
 
-      expect(request.timestamp, 'timestamp is wrong').to.equal(TestData.arbitraryTimestamp);
+      // 'timestamp is wrong'
+      expect(request.timestamp).toBe(TestData.arbitraryTimestamp);
     });
 
     it('can create with nonce', async () => {
@@ -789,39 +723,40 @@ describe('CreateAction', () => {
 
       const request = CreateAction.createRequest(actionCreation, 2);
 
-      expect(request.requestId, 'requestId is wrong').to.equal(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
-      expect(request.currency, 'currency is wrong').to.deep.equal({
+      // 'requestId is wrong'
+      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      // 'currency is wrong'
+      expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
-      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
+      // 'state is wrong'
+      expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+      // 'expectedAmount is wrong'
+      expect(request.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'extensions is wrong'
+      expect(request.extensions).toEqual({});
 
-      expect(request, 'request should have property creator').to.have.property('creator');
-      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      );
-      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-        TestData.payeeRaw.address,
-      );
+      // 'request should have property creator'
+      expect(request).toHaveProperty('creator');
+      // 'request.creator.type is wrong'
+      expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'request.creator.value is wrong'
+      expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-      expect(request, 'request should have property payee').to.have.property('payee');
+      // 'request should have property payee'
+      expect(request).toHaveProperty('payee');
       if (request.payee) {
-        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
-          TestData.payeeRaw.address,
-        );
+        // 'request.payee.type is wrong'
+        expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payee.value is wrong'
+        expect(request.payee.value).toBe(TestData.payeeRaw.address);
       }
-      expect(request.payer, 'payer is wrong').to.be.undefined;
+      // 'payer is wrong'
+      expect(request.payer).toBeUndefined();
 
-      expect(request.events[0], 'request.events is wrong').to.deep.equal({
+      // 'request.events is wrong'
+      expect(request.events[0]).toEqual({
         actionSigner: TestData.payeeRaw.identity,
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
@@ -832,8 +767,10 @@ describe('CreateAction', () => {
         timestamp: 2,
       });
 
-      expect(request.timestamp, 'timestamp is wrong').to.equal(TestData.arbitraryTimestamp);
-      expect(request.nonce, 'nonce is wrong').to.equal(3);
+      // 'timestamp is wrong'
+      expect(request.timestamp).toBe(TestData.arbitraryTimestamp);
+      // 'nonce is wrong'
+      expect(request.nonce).toBe(3);
     });
 
     it('can create with only the payer', async () => {
@@ -856,38 +793,39 @@ describe('CreateAction', () => {
 
       const request = CreateAction.createRequest(actionCreation, 2);
 
-      expect(request.requestId, 'requestId is wrong').to.equal(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
-      expect(request.currency, 'currency is wrong').to.deep.equal({
+      // 'requestId is wrong'
+      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      // 'currency is wrong'
+      expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.ACCEPTED);
-      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
+      // 'state is wrong'
+      expect(request.state).toBe(RequestLogicTypes.STATE.ACCEPTED);
+      // 'expectedAmount is wrong'
+      expect(request.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'extensions is wrong'
+      expect(request.extensions).toEqual({});
 
-      expect(request, 'request should have property creator').to.have.property('creator');
-      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      );
-      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-        TestData.payerRaw.address,
-      );
+      // 'request should have property creator'
+      expect(request).toHaveProperty('creator');
+      // 'request.creator.type is wrong'
+      expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'request.creator.value is wrong'
+      expect(request.creator.value).toBe(TestData.payerRaw.address);
 
-      expect(request, 'request should have property payer').to.have.property('payer');
+      // 'request should have property payer'
+      expect(request).toHaveProperty('payer');
       if (request.payer) {
-        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-          TestData.payerRaw.address,
-        );
+        // 'request.payer.type is wrong'
+        expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payer.value is wrong'
+        expect(request.payer.value).toBe(TestData.payerRaw.address);
       }
-      expect(request.payee, 'payee is wrong').to.be.undefined;
-      expect(request.events[0], 'request.events is wrong').to.deep.equal({
+      // 'payee is wrong'
+      expect(request.payee).toBeUndefined();
+      // 'request.events is wrong'
+      expect(request.events[0]).toEqual({
         actionSigner: TestData.payerRaw.identity,
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
@@ -924,47 +862,46 @@ describe('CreateAction', () => {
 
       const request = CreateAction.createRequest(actionCreation, 2);
 
-      expect(request.requestId, 'requestId is wrong').to.equal(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
-      expect(request.currency, 'currency is wrong').to.deep.equal({
+      // 'requestId is wrong'
+      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      // 'currency is wrong'
+      expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
-      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(request.extensions, 'extensions is wrong').to.be.deep.equal({});
+      // 'state is wrong'
+      expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+      // 'expectedAmount is wrong'
+      expect(request.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'extensions is wrong'
+      expect(request.extensions).toEqual({});
 
-      expect(request, 'request should have property creator').to.have.property('creator');
-      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      );
-      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-        TestData.payeeRaw.address,
-      );
+      // 'request should have property creator'
+      expect(request).toHaveProperty('creator');
+      // 'request.creator.type is wrong'
+      expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'request.creator.value is wrong'
+      expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-      expect(request, 'request should have property payee').to.have.property('payee');
+      // 'request should have property payee'
+      expect(request).toHaveProperty('payee');
       if (request.payee) {
-        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
-          TestData.payeeRaw.address,
-        );
+        // 'request.payee.type is wrong'
+        expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payee.value is wrong'
+        expect(request.payee.value).toBe(TestData.payeeRaw.address);
       }
 
-      expect(request, 'request should have property payer').to.have.property('payer');
+      // 'request should have property payer'
+      expect(request).toHaveProperty('payer');
       if (request.payer) {
-        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-          TestData.payerRaw.address,
-        );
+        // 'request.payer.type is wrong'
+        expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payer.value is wrong'
+        expect(request.payer.value).toBe(TestData.payerRaw.address);
       }
-      expect(request.events[0], 'request.events is wrong').to.deep.equal({
+      // 'request.events is wrong'
+      expect(request.events[0]).toEqual({
         actionSigner: TestData.payeeRaw.identity,
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
@@ -990,9 +927,7 @@ describe('CreateAction', () => {
         signature: TestData.fakeSignature,
       };
 
-      expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'action.parameters.payee or action.parameters.payer must be given',
-      );
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError('action.parameters.payee or action.parameters.payer must be given');
     });
 
     it('cannot create with amount not a number', () => {
@@ -1013,8 +948,8 @@ describe('CreateAction', () => {
         signature: TestData.fakeSignature,
       };
 
-      expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'action.parameters.expectedAmount must be a string representing a positive integer',
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError(
+        'action.parameters.expectedAmount must be a string representing a positive integer'
       );
     });
 
@@ -1035,8 +970,8 @@ describe('CreateAction', () => {
         },
         signature: TestData.fakeSignature,
       };
-      expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'action.parameters.expectedAmount must be a string representing a positive integer',
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError(
+        'action.parameters.expectedAmount must be a string representing a positive integer'
       );
     });
 
@@ -1057,8 +992,8 @@ describe('CreateAction', () => {
         },
         signature: TestData.fakeSignature,
       };
-      expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'action.parameters.expectedAmount must be a string representing a positive integer',
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError(
+        'action.parameters.expectedAmount must be a string representing a positive integer'
       );
     });
 
@@ -1088,48 +1023,45 @@ describe('CreateAction', () => {
 
       const request = CreateAction.createRequest(actionCreation, 2);
 
-      expect(request.requestId, 'requestId is wrong').to.equal(
-        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
-      );
-      expect(request.currency, 'currency is wrong').to.deep.equal({
+      // 'requestId is wrong'
+      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      // 'currency is wrong'
+      expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
-      expect(request.state, 'state is wrong').to.equal(RequestLogicTypes.STATE.CREATED);
-      expect(request.expectedAmount, 'expectedAmount is wrong').to.equal(
-        TestData.arbitraryExpectedAmount,
-      );
-      expect(request.extensionsData, 'request.extensionsData is wrong').to.deep.equal(
-        extensionsData,
-      );
+      // 'state is wrong'
+      expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+      // 'expectedAmount is wrong'
+      expect(request.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'request.extensionsData is wrong'
+      expect(request.extensionsData).toEqual(extensionsData);
 
-      expect(request, 'request should have property creator').to.have.property('creator');
-      expect(request.creator.type, 'request.creator.type is wrong').to.equal(
-        IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-      );
-      expect(request.creator.value, 'request.creator.value is wrong').to.equal(
-        TestData.payeeRaw.address,
-      );
+      // 'request should have property creator'
+      expect(request).toHaveProperty('creator');
+      // 'request.creator.type is wrong'
+      expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'request.creator.value is wrong'
+      expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-      expect(request, 'request should have property payee').to.have.property('payee');
+      // 'request should have property payee'
+      expect(request).toHaveProperty('payee');
       if (request.payee) {
-        expect(request.payee.type, 'request.payee.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payee.value, 'request.payee.value is wrong').to.equal(
-          TestData.payeeRaw.address,
-        );
+        // 'request.payee.type is wrong'
+        expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payee.value is wrong'
+        expect(request.payee.value).toBe(TestData.payeeRaw.address);
       }
-      expect(request, 'request should have property payer').to.have.property('payer');
+      // 'request should have property payer'
+      expect(request).toHaveProperty('payer');
       if (request.payer) {
-        expect(request.payer.type, 'request.payer.type is wrong').to.equal(
-          IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        );
-        expect(request.payer.value, 'request.payer.value is wrong').to.equal(
-          TestData.payerRaw.address,
-        );
+        // 'request.payer.type is wrong'
+        expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payer.value is wrong'
+        expect(request.payer.value).toBe(TestData.payerRaw.address);
       }
-      expect(request.events[0], 'request.events is wrong').to.deep.equal({
+      // 'request.events is wrong'
+      expect(request.events[0]).toEqual({
         actionSigner: TestData.payeeRaw.identity,
         name: RequestLogicTypes.ACTION_NAME.CREATE,
         parameters: {
@@ -1158,97 +1090,99 @@ describe('CreateAction', () => {
         },
         signature: TestData.fakeSignature,
       };
-      expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'Signer must be the payee or the payer',
-      );
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError('Signer must be the payee or the payer');
     });
 
-    it('does not support other identity type than "ethereumAddress" for Payee', () => {
-      const action = {
-        data: {
-          name: RequestLogicTypes.ACTION_NAME.CREATE,
-          parameters: {
-            currency: 'ETH',
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            extensionsData: [{ id: 'extension1', value: 'whatever' }],
-            payee: {
-              type: 'not_ethereumAddress',
-              value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+    it(
+      'does not support other identity type than "ethereumAddress" for Payee',
+      () => {
+        const action = {
+          data: {
+            name: RequestLogicTypes.ACTION_NAME.CREATE,
+            parameters: {
+              currency: 'ETH',
+              expectedAmount: TestData.arbitraryExpectedAmount,
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
+              payee: {
+                type: 'not_ethereumAddress',
+                value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+              },
             },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        signature: TestData.fakeSignature,
-      };
-      expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'payee: identity type not supported',
-      );
-    });
+          signature: TestData.fakeSignature,
+        };
+        expect(() => CreateAction.createRequest(action, 2)).toThrowError('payee: identity type not supported');
+      }
+    );
 
-    it('does not support other identity type than "ethereumAddress" for Payer', () => {
-      const action = {
-        data: {
-          name: RequestLogicTypes.ACTION_NAME.CREATE,
-          parameters: {
-            currency: 'ETH',
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            extensionsData: [{ id: 'extension1', value: 'whatever' }],
-            payer: {
-              type: 'not_ethereumAddress',
-              value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+    it(
+      'does not support other identity type than "ethereumAddress" for Payer',
+      () => {
+        const action = {
+          data: {
+            name: RequestLogicTypes.ACTION_NAME.CREATE,
+            parameters: {
+              currency: 'ETH',
+              expectedAmount: TestData.arbitraryExpectedAmount,
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
+              payer: {
+                type: 'not_ethereumAddress',
+                value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+              },
             },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        signature: TestData.fakeSignature,
-      };
-      expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'payer: identity type not supported',
-      );
-    });
+          signature: TestData.fakeSignature,
+        };
+        expect(() => CreateAction.createRequest(action, 2)).toThrowError('payer: identity type not supported');
+      }
+    );
 
-    it('does not support identity value not being an "ethereumAddress" for Payee', () => {
-      const action = {
-        data: {
-          name: RequestLogicTypes.ACTION_NAME.CREATE,
-          parameters: {
-            currency: 'ETH',
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            extensionsData: [{ id: 'extension1', value: 'whatever' }],
-            payee: {
-              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-              value: 'not an address',
+    it(
+      'does not support identity value not being an "ethereumAddress" for Payee',
+      () => {
+        const action = {
+          data: {
+            name: RequestLogicTypes.ACTION_NAME.CREATE,
+            parameters: {
+              currency: 'ETH',
+              expectedAmount: TestData.arbitraryExpectedAmount,
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
+              payee: {
+                type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+                value: 'not an address',
+              },
             },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        signature: TestData.fakeSignature,
-      };
-      expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'payee: identity value must be an ethereum address',
-      );
-    });
+          signature: TestData.fakeSignature,
+        };
+        expect(() => CreateAction.createRequest(action, 2)).toThrowError('payee: identity value must be an ethereum address');
+      }
+    );
 
-    it('does not support identity value not being an "ethereumAddress" for Payer', () => {
-      const action = {
-        data: {
-          name: RequestLogicTypes.ACTION_NAME.CREATE,
-          parameters: {
-            currency: 'ETH',
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            extensionsData: [{ id: 'extension1', value: 'whatever' }],
-            payer: {
-              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-              value: 'not an address',
+    it(
+      'does not support identity value not being an "ethereumAddress" for Payer',
+      () => {
+        const action = {
+          data: {
+            name: RequestLogicTypes.ACTION_NAME.CREATE,
+            parameters: {
+              currency: 'ETH',
+              expectedAmount: TestData.arbitraryExpectedAmount,
+              extensionsData: [{ id: 'extension1', value: 'whatever' }],
+              payer: {
+                type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+                value: 'not an address',
+              },
             },
+            version: CURRENT_VERSION,
           },
-          version: CURRENT_VERSION,
-        },
-        signature: TestData.fakeSignature,
-      };
-      expect(() => CreateAction.createRequest(action, 2)).to.throw(
-        'payer: identity value must be an ethereum address',
-      );
-    });
+          signature: TestData.fakeSignature,
+        };
+        expect(() => CreateAction.createRequest(action, 2)).toThrowError('payer: identity value must be an ethereum address');
+      }
+    );
   });
 });

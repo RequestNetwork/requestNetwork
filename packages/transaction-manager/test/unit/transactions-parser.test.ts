@@ -1,10 +1,3 @@
-import * as chai from 'chai';
-import 'mocha';
-
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-
 import { EncryptionTypes, TransactionTypes } from '@requestnetwork/types';
 import TransactionsFactory from '../../src/transactions-factory';
 import TransactionsParser from '../../src/transactions-parser';
@@ -20,18 +13,17 @@ describe('transaction-parser', () => {
     transactionParser = new TransactionsParser();
   });
 
-  describe('parsePersistedTransaction', async () => {
+  describe('parsePersistedTransaction', () => {
     it('cannot parse transaction not well formatted', async () => {
       await expect(
         transactionParser.parsePersistedTransaction(
           { encryptionMethod: 'encryptionMethod' },
           TransactionTypes.ChannelType.UNKNOWN,
         ),
-        'must reject',
-      ).to.eventually.be.rejectedWith('Transaction must have a property "data" or "encryptedData"');
+      ).rejects.toThrowError('Transaction must have a property "data" or "encryptedData"');
     });
 
-    describe('parse clear persisted transaction', async () => {
+    describe('parse clear persisted transaction', () => {
       it('can parse clear transaction on an unknown channel', async () => {
         const tx = await TransactionsFactory.createClearTransaction(data);
 
@@ -40,8 +32,10 @@ describe('transaction-parser', () => {
           TransactionTypes.ChannelType.UNKNOWN,
         );
 
-        expect(await ret.transaction.getData(), 'transaction wrong').to.be.equal(data);
-        expect(ret.channelKey, 'channelKey wrong').to.be.undefined;
+        // 'transaction wrong'
+        expect(await ret.transaction.getData()).toBe(data);
+        // 'channelKey wrong'
+        expect(ret.channelKey).toBeUndefined();
       });
       it('cannot parse clear transaction not well formatted', async () => {
         await expect(
@@ -49,41 +43,31 @@ describe('transaction-parser', () => {
             { data: 'data', encryptedData: 'encryptedData' },
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
-          'only the property "data" is allowed for clear transaction',
-        );
+        ).rejects.toThrowError('only the property "data" is allowed for clear transaction');
 
         await expect(
           transactionParser.parsePersistedTransaction(
             { data: 'data', encryptionMethod: 'encMethod' },
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
-          'only the property "data" is allowed for clear transaction',
-        );
+        ).rejects.toThrowError('only the property "data" is allowed for clear transaction');
 
         await expect(
           transactionParser.parsePersistedTransaction(
             { data: 'data', keys: {} },
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
-          'only the property "data" is allowed for clear transaction',
-        );
+        ).rejects.toThrowError('only the property "data" is allowed for clear transaction');
       });
       it('cannot parse clear transaction on an encrypted channel', async () => {
         const tx = await TransactionsFactory.createClearTransaction(data);
         await expect(
           transactionParser.parsePersistedTransaction(tx, TransactionTypes.ChannelType.ENCRYPTED),
-          'must reject',
-        ).to.eventually.be.rejectedWith('Clear transactions are not allowed in encrypted channel');
+        ).rejects.toThrowError('Clear transactions are not allowed in encrypted channel');
       });
     });
 
-    describe('parse encrypted persisted transaction', async () => {
+    describe('parse encrypted persisted transaction', () => {
       beforeEach(() => {
         transactionParser = new TransactionsParser(TestData.fakeDecryptionProvider);
       });
@@ -102,8 +86,10 @@ describe('transaction-parser', () => {
           TransactionTypes.ChannelType.UNKNOWN,
         );
 
-        expect(await ret.transaction.getData(), 'transaction wrong').to.be.equal(data);
-        expect(ret.channelKey, 'channelKey wrong').to.be.not.undefined;
+        // 'transaction wrong'
+        expect(await ret.transaction.getData()).toBe(data);
+        // 'channelKey wrong'
+        expect(ret.channelKey).toBeDefined();
       });
       it('cannot parse encrypted transaction without decryptionProvider', async () => {
         transactionParser = new TransactionsParser();
@@ -117,8 +103,7 @@ describe('transaction-parser', () => {
             encryptedParsedTx,
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(`No decryption provider given`);
+        ).rejects.toThrowError(`No decryption provider given`);
       });
       it('cannot parse encrypted transaction with keys corrupted', async () => {
         const encryptedParsedTx = await TransactionsFactory.createEncryptedTransactionInNewChannel(
@@ -134,8 +119,7 @@ describe('transaction-parser', () => {
             encryptedParsedTx,
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
+        ).rejects.toThrowError(
           `Impossible to decrypt the channel key from this transaction (The encrypted data is not well formatted)`,
         );
       });
@@ -149,8 +133,7 @@ describe('transaction-parser', () => {
             },
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(`Encryption method not supported: encryptionMethod`);
+        ).rejects.toThrowError(`Encryption method not supported: encryptionMethod`);
       });
       it('cannot parse encrypted transaction on an clear channel', async () => {
         transactionParser = new TransactionsParser(TestData.fakeDecryptionProvider);
@@ -164,8 +147,7 @@ describe('transaction-parser', () => {
             encryptedParsedTx,
             TransactionTypes.ChannelType.CLEAR,
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith('Encrypted transactions are not allowed in clear channel');
+        ).rejects.toThrowError('Encrypted transactions are not allowed in clear channel');
       });
       it('cannot parse encrypted transaction without channelKey with no encryptionMethod or keys', async () => {
         await expect(
@@ -173,8 +155,7 @@ describe('transaction-parser', () => {
             { encryptedData: 'encryptedData', encryptionMethod: 'encryptionMethod' },
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
+        ).rejects.toThrowError(
           'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
         );
 
@@ -186,8 +167,7 @@ describe('transaction-parser', () => {
             },
             TransactionTypes.ChannelType.UNKNOWN,
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
+        ).rejects.toThrowError(
           'the properties "encryptionMethod" and "keys" are needed to compute the channel key',
         );
       });
@@ -198,8 +178,7 @@ describe('transaction-parser', () => {
             TransactionTypes.ChannelType.UNKNOWN,
             { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_GCM },
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
+        ).rejects.toThrowError(
           'the properties "encryptionMethod" and "keys" have been already given for this channel',
         );
 
@@ -212,8 +191,7 @@ describe('transaction-parser', () => {
             TransactionTypes.ChannelType.UNKNOWN,
             { key: 'channelKey', method: EncryptionTypes.METHOD.AES256_GCM },
           ),
-          'must reject',
-        ).to.eventually.be.rejectedWith(
+        ).rejects.toThrowError(
           'the properties "encryptionMethod" and "keys" have been already given for this channel',
         );
       });

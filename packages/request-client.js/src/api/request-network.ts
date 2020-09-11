@@ -211,7 +211,7 @@ export default class RequestNetwork {
     options?: { disablePaymentDetection: boolean },
   ): Promise<Request[]> {
     const identityNotSupported = identities.find(
-      identity => !this.supportedIdentities.includes(identity.type),
+      (identity) => !this.supportedIdentities.includes(identity.type),
     );
 
     if (identityNotSupported) {

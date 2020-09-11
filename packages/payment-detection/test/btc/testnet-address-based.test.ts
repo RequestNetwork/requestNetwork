@@ -2,15 +2,6 @@ import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnet
 
 import AddressBasedTestnetBtc from '../../src/btc/testnet-address-based';
 
-import 'chai';
-import 'mocha';
-
-const chai = require('chai');
-const spies = require('chai-spies');
-const expect = chai.expect;
-chai.use(spies);
-const sandbox = chai.spy.sandbox();
-
 let btcAddressedBased: AddressBasedTestnetBtc;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
@@ -36,23 +27,22 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* tslint:disable:no-unused-expression */
 describe('api/btc/testnet-address-based', () => {
   beforeEach(() => {
-    sandbox.restore();
     btcAddressedBased = new AddressBasedTestnetBtc({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.addressBasedTestnetBtc,
       'createCreationAction',
     );
 
     await btcAddressedBased.createExtensionsDataForCreation({ paymentAddress: 'address bitcoin' });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.addressBasedTestnetBtc,
       'createAddPaymentAddressAction',
     );
@@ -61,11 +51,11 @@ describe('api/btc/testnet-address-based', () => {
       paymentAddress: 'address bitcoin',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = sandbox.on(
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.addressBasedTestnetBtc,
       'createAddRefundAddressAction',
     );
@@ -74,13 +64,13 @@ describe('api/btc/testnet-address-based', () => {
       refundAddress: 'address bitcoin',
     });
 
-    expect(spy).to.have.been.called.once;
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('should not throw when getBalance fail', async () => {
     expect(
       await btcAddressedBased.getBalance({ extensions: {} } as RequestLogicTypes.IRequest),
-    ).to.deep.equal({
+    ).toMatchObject({
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,

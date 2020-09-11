@@ -1,5 +1,3 @@
-import 'mocha';
-
 import { AdvancedLogicTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import * as DataBTCCreate from './utils/payment-network/bitcoin/generator-data-create';
@@ -9,8 +7,6 @@ import * as DataTestnetBTCCreate from './utils/payment-network/bitcoin/testnet-g
 import Utils from '@requestnetwork/utils';
 
 import { AdvancedLogic } from '../src/index';
-
-import { expect } from 'chai';
 
 import * as TestData from './utils/test-data-generator';
 
@@ -34,14 +30,12 @@ describe('advanced-logic.ts', () => {
         TestData.arbitraryTimestamp,
       );
 
-      expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
-        TestData.expectedCreatedContentDataState,
-      );
-      expect(previousState, 'previous extension state must not change').to.deep.equal({});
-      expect(
-        requestCreatedNoExtensionBefore,
-        'previous request state must not change',
-      ).to.deep.equal(TestData.requestCreatedNoExtension);
+      // 'newExtensionState wrong'
+      expect(newExtensionState).toEqual(TestData.expectedCreatedContentDataState);
+      // 'previous extension state must not change'
+      expect(previousState).toEqual({});
+      // 'previous request state must not change'
+      expect(requestCreatedNoExtensionBefore).toEqual(TestData.requestCreatedNoExtension);
     });
 
     it('can applyActionToExtensions with pn bitcoin address based', () => {
@@ -57,36 +51,33 @@ describe('advanced-logic.ts', () => {
         TestData.arbitraryTimestamp,
       );
 
-      expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
-        DataBTCCreate.extensionStateWithPaymentAndRefund,
-      );
-      expect(
-        requestCreatedNoExtensionBefore,
-        'previous extension state must not change',
-      ).to.deep.equal(DataBTCCreate.requestStateNoExtensions);
+      // 'newExtensionState wrong'
+      expect(newExtensionState).toEqual(DataBTCCreate.extensionStateWithPaymentAndRefund);
+      // 'previous extension state must not change'
+      expect(requestCreatedNoExtensionBefore).toEqual(DataBTCCreate.requestStateNoExtensions);
     });
 
-    it('can applyActionToExtensions with pn testnet bitcoin address based', () => {
-      const requestCreatedNoExtensionBefore = Utils.deepCopy(
-        DataTestnetBTCCreate.requestStateNoExtensions,
-      );
+    it(
+      'can applyActionToExtensions with pn testnet bitcoin address based',
+      () => {
+        const requestCreatedNoExtensionBefore = Utils.deepCopy(
+          DataTestnetBTCCreate.requestStateNoExtensions,
+        );
 
-      const newExtensionState = advancedLogic.applyActionToExtensions(
-        requestCreatedNoExtensionBefore.extensions,
-        DataTestnetBTCCreate.actionCreationWithPaymentAndRefund,
-        requestCreatedNoExtensionBefore,
-        TestData.payeeRaw.identity,
-        TestData.arbitraryTimestamp,
-      );
+        const newExtensionState = advancedLogic.applyActionToExtensions(
+          requestCreatedNoExtensionBefore.extensions,
+          DataTestnetBTCCreate.actionCreationWithPaymentAndRefund,
+          requestCreatedNoExtensionBefore,
+          TestData.payeeRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
 
-      expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
-        DataTestnetBTCCreate.extensionStateWithPaymentAndRefund,
-      );
-      expect(
-        requestCreatedNoExtensionBefore,
-        'previous extension state must not change',
-      ).to.deep.equal(DataTestnetBTCCreate.requestStateNoExtensions);
-    });
+        // 'newExtensionState wrong'
+        expect(newExtensionState).toEqual(DataTestnetBTCCreate.extensionStateWithPaymentAndRefund);
+        // 'previous extension state must not change'
+        expect(requestCreatedNoExtensionBefore).toEqual(DataTestnetBTCCreate.requestStateNoExtensions);
+      }
+    );
 
     it('can applyActionToExtensions with declarative payment network', () => {
       const requestCreatedNoExtensionBefore = Utils.deepCopy(
@@ -101,13 +92,10 @@ describe('advanced-logic.ts', () => {
         TestData.arbitraryTimestamp,
       );
 
-      expect(newExtensionState, 'newExtensionState wrong').to.deep.equal(
-        DataDeclarativeCreate.extensionStateWithPaymentAndRefund,
-      );
-      expect(
-        requestCreatedNoExtensionBefore,
-        'previous extension state must not change',
-      ).to.deep.equal(DataDeclarativeCreate.requestStateNoExtensions);
+      // 'newExtensionState wrong'
+      expect(newExtensionState).toEqual(DataDeclarativeCreate.extensionStateWithPaymentAndRefund);
+      // 'previous extension state must not change'
+      expect(requestCreatedNoExtensionBefore).toEqual(DataDeclarativeCreate.requestStateNoExtensions);
     });
 
     it('cannot apply unknown extension to extensions state', () => {
@@ -124,7 +112,7 @@ describe('advanced-logic.ts', () => {
           TestData.payeeRaw.identity,
           TestData.arbitraryTimestamp,
         ),
-      ).to.throw('extension not recognized, id: unknownExtension');
+      ).toThrowError('extension not recognized, id: unknownExtension');
     });
   });
 });

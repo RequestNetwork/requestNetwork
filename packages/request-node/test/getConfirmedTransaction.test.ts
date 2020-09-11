@@ -1,7 +1,5 @@
-import 'mocha';
-
+/* eslint-disable spellcheck/spell-checker */
 import Utils from '@requestnetwork/utils';
-import { expect } from 'chai';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
@@ -17,15 +15,14 @@ let server: any;
 // tslint:disable:no-magic-numbers
 // tslint:disable:no-unused-expression
 describe('getConfirmedTransaction', () => {
-  before(async () => {
+  beforeAll(async () => {
     requestNodeInstance = new requestNode();
     await requestNodeInstance.initialize();
 
-    // Any port number can be used since we use supertest
-    server = requestNodeInstance.listen(3000, () => 0);
+    server = (requestNodeInstance as any).express;
   });
 
-  after(() => {
+  afterAll(() => {
     server.close();
   });
 
@@ -42,24 +39,27 @@ describe('getConfirmedTransaction', () => {
       .set('Accept', 'application/json')
       .expect(httpStatus.NOT_FOUND);
 
-    // wait a bit for the confirmation
-    await new Promise((resolve): any => setTimeout(resolve, 5000));
+    let serverResponse: request.Response | undefined;
+    // retry mechanism to account for ganache delay
+    for (let i = 0; i < 10; i++) {
+      // wait a bit for the confirmation
+      await new Promise((resolve): any => setTimeout(resolve, 1000));
 
-    const serverResponse = await request(server)
-      .get('/getConfirmedTransaction')
-      .query({ transactionHash })
-      .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      serverResponse = await request(server)
+        .get('/getConfirmedTransaction')
+        .query({ transactionHash })
+        .set('Accept', 'application/json');
+      if (serverResponse.status === httpStatus.OK) {
+        break;
+      }
+    }
+    expect(serverResponse).toBeDefined();
+    expect(serverResponse!.status).toBe(httpStatus.OK);
 
-    expect(
-      serverResponse.body.result,
-      'getConfirmedTransaction request result should always be empty',
-    ).to.be.empty;
-    expect(
-      serverResponse.body.meta.storageMeta.state,
-      'getConfirmedTransaction request meta',
-    ).to.be.equal('confirmed');
-  });
+    expect(serverResponse!.body.result).toMatchObject({});
+    // 'getConfirmedTransaction request meta'
+    expect(serverResponse!.body.meta.storageMeta.state).toBe('confirmed');
+  }, 11000);
 
   it('responds with status 422 to requests with no value', async () => {
     await request(server)

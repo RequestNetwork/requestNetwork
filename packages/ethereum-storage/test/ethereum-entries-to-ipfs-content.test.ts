@@ -1,24 +1,11 @@
-import 'mocha';
-
-import * as sinon from 'sinon';
-
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as chai from 'chai';
-import * as chaiAsPromised from 'chai-as-promised';
 
 import ethereumEntriesToIpfsContent from '../src/ethereum-entries-to-ipfs-content';
 import IgnoredDataIndex from '../src/ignored-dataIds';
 import IpfsConnectionError from '../src/ipfs-connection-error';
 
 // tslint:disable:no-magic-numbers
-
-// Extends chai for promises
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-
-import spies = require('chai-spies');
-chai.use(spies);
 
 let ignoredDataIndex: IgnoredDataIndex;
 let ipfsManager: any;
@@ -31,26 +18,27 @@ describe('ethereum-entries-to-ipfs-content', () => {
   });
 
   it('can retry the right hashes', async () => {
-    sinon.useFakeTimers();
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(0);
 
-    const connectionErrorSpy = chai.spy(() => {
+    const connectionErrorSpy = jest.fn(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
     });
-    const incorrectErrorSpy = chai.spy(() => {
+    const incorrectErrorSpy = jest.fn(() => {
       throw new Error('Incorrect file test');
     });
-    const biggerErrorSpy = chai.spy(() => ({
+    const biggerErrorSpy = jest.fn(() => ({
       content: 'bigger',
       ipfsLinks: [],
       ipfsSize: 5,
     }));
-    const okSpy = chai.spy(() => ({
+    const okSpy = jest.fn(() => ({
       content: 'ok',
       ipfsLinks: [],
       ipfsSize: 2,
     }));
 
-    ipfsManager.read = chai.spy(
+    ipfsManager.read = jest.fn(
       async (hash: string): Promise<StorageTypes.IIpfsObject> => {
         if (hash === 'hConnectionError') {
           return connectionErrorSpy();
@@ -78,13 +66,13 @@ describe('ethereum-entries-to-ipfs-content', () => {
       5,
     );
 
-    expect(result.length).to.equal(1);
-    expect(result[0]!.content).to.equal('ok');
-    expect(result[0]!.id).to.equal('hOk');
+    expect(result.length).toBe(1);
+    expect(result[0]!.content).toBe('ok');
+    expect(result[0]!.id).toBe('hOk');
 
     const ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
-    expect(ignoredData).to.deep.equal({
+    expect(ignoredData).toEqual({
       hBiggerFile: {
         entry: {
           error: {
@@ -135,37 +123,38 @@ describe('ethereum-entries-to-ipfs-content', () => {
       },
     });
 
-    expect(ipfsManager.read).to.have.been.called.exactly(5);
-    expect(connectionErrorSpy).to.have.been.called.twice;
-    expect(incorrectErrorSpy).to.have.been.called.once;
-    expect(biggerErrorSpy).to.have.been.called.once;
-    expect(okSpy).to.have.been.called.once;
+    expect(ipfsManager.read).toHaveBeenCalledTimes(5);
+    expect(connectionErrorSpy).toHaveBeenCalledTimes(2);
+    expect(incorrectErrorSpy).toHaveBeenCalledTimes(1);
+    expect(biggerErrorSpy).toHaveBeenCalledTimes(1);
+    expect(okSpy).toHaveBeenCalledTimes(1);
 
-    sinon.restore();
+    jest.useRealTimers();
   });
 
   it('can retry right hashes but find it after the retry', async () => {
-    sinon.useFakeTimers();
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(0);
 
-    const connectionErrorSpy = chai.spy(() => {
+    const connectionErrorSpy = jest.fn(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
     });
-    const incorrectErrorSpy = chai.spy(() => {
+    const incorrectErrorSpy = jest.fn(() => {
       throw new Error('Incorrect file test');
     });
-    const biggerErrorSpy = chai.spy(() => ({
+    const biggerErrorSpy = jest.fn(() => ({
       content: 'bigger',
       ipfsLinks: [],
       ipfsSize: 5,
     }));
-    const okSpy = chai.spy(() => ({
+    const okSpy = jest.fn(() => ({
       content: 'ok',
       ipfsLinks: [],
       ipfsSize: 2,
     }));
 
     let tryCount = 0;
-    ipfsManager.read = chai.spy(
+    ipfsManager.read = jest.fn(
       async (hash: string): Promise<StorageTypes.IIpfsObject> => {
         if (hash === 'hConnectionError' && tryCount === 0) {
           tryCount++;
@@ -194,15 +183,15 @@ describe('ethereum-entries-to-ipfs-content', () => {
       5,
     );
 
-    expect(result.length).to.equal(2);
-    expect(result[0]!.content).to.equal('ok');
-    expect(result[0]!.id).to.equal('hOk');
-    expect(result[1]!.content).to.equal('ok');
-    expect(result[1]!.id).to.equal('hConnectionError');
+    expect(result.length).toBe(2);
+    expect(result[0]!.content).toBe('ok');
+    expect(result[0]!.id).toBe('hOk');
+    expect(result[1]!.content).toBe('ok');
+    expect(result[1]!.id).toBe('hConnectionError');
 
     const ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
-    expect(ignoredData).to.deep.equal({
+    expect(ignoredData).toEqual({
       hBiggerFile: {
         entry: {
           error: {
@@ -237,19 +226,20 @@ describe('ethereum-entries-to-ipfs-content', () => {
       },
     });
 
-    expect(ipfsManager.read).to.have.been.called.exactly(5);
-    expect(connectionErrorSpy).to.have.been.called.once;
-    expect(incorrectErrorSpy).to.have.been.called.once;
-    expect(biggerErrorSpy).to.have.been.called.once;
-    expect(okSpy).to.have.been.called.twice;
+    expect(ipfsManager.read).toHaveBeenCalledTimes(5);
+    expect(connectionErrorSpy).toHaveBeenCalledTimes(1);
+    expect(incorrectErrorSpy).toHaveBeenCalledTimes(1);
+    expect(biggerErrorSpy).toHaveBeenCalledTimes(1);
+    expect(okSpy).toHaveBeenCalledTimes(2);
 
-    sinon.restore();
+    jest.useRealTimers();
   });
 
   it('can store hash as ignored then remove it', async () => {
-    sinon.useFakeTimers();
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(0);
 
-    ipfsManager.read = chai.spy(() => {
+    ipfsManager.read = jest.fn(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
     });
 
@@ -264,11 +254,11 @@ describe('ethereum-entries-to-ipfs-content', () => {
       5,
     );
 
-    expect(result.length).to.equal(0);
+    expect(result.length).toBe(0);
 
     let ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
-    expect(ignoredData).to.deep.equal({
+    expect(ignoredData).toEqual({
       hConnectionError: {
         entry: {
           error: {
@@ -287,10 +277,10 @@ describe('ethereum-entries-to-ipfs-content', () => {
       },
     });
 
-    expect(ipfsManager.read).to.have.been.called.twice;
+    expect(ipfsManager.read).toHaveBeenCalledTimes(2);
 
     // Then we find it:
-    ipfsManager.read = chai.spy(
+    ipfsManager.read = jest.fn(
       async (_hash: string): Promise<StorageTypes.IIpfsObject> => ({
         content: 'ok',
         ipfsLinks: [],
@@ -304,21 +294,22 @@ describe('ethereum-entries-to-ipfs-content', () => {
       new Utils.SimpleLogger(),
       5,
     );
-    expect(result.length).to.equal(1);
-    expect(result[0]!.content).to.equal('ok');
-    expect(result[0]!.id).to.equal('hConnectionError');
+    expect(result.length).toBe(1);
+    expect(result[0]!.content).toBe('ok');
+    expect(result[0]!.id).toBe('hConnectionError');
 
     ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
-    expect(ignoredData).to.deep.equal({});
+    expect(ignoredData).toEqual({});
 
-    sinon.restore();
+    jest.useRealTimers();
   });
 
   it('can store hash as ignored it twice', async () => {
-    const clock = sinon.useFakeTimers();
+    jest.useFakeTimers('modern');
+    jest.setSystemTime(0);
 
-    ipfsManager.read = chai.spy(() => {
+    ipfsManager.read = jest.fn(() => {
       throw new IpfsConnectionError(`Ipfs read request response error: test purpose`);
     });
 
@@ -332,11 +323,11 @@ describe('ethereum-entries-to-ipfs-content', () => {
       new Utils.SimpleLogger(),
       5,
     );
-    expect(result.length).to.equal(0);
+    expect(result.length).toBe(0);
 
     let ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
-    expect(ignoredData).to.deep.equal({
+    expect(ignoredData).toEqual({
       hConnectionError: {
         entry: {
           error: {
@@ -355,9 +346,9 @@ describe('ethereum-entries-to-ipfs-content', () => {
       },
     });
 
-    expect(ipfsManager.read).to.have.been.called.twice;
+    expect(ipfsManager.read).toHaveBeenCalledTimes(2);
 
-    clock.tick(100);
+    jest.advanceTimersByTime(100);
     result = await ethereumEntriesToIpfsContent(
       ethereumEntriesToProcess,
       ipfsManager,
@@ -365,11 +356,11 @@ describe('ethereum-entries-to-ipfs-content', () => {
       new Utils.SimpleLogger(),
       5,
     );
-    expect(result.length).to.equal(0);
+    expect(result.length).toBe(0);
 
     ignoredData = await ignoredDataIndex.getDataIdsWithReasons();
 
-    expect(ignoredData).to.deep.equal({
+    expect(ignoredData).toEqual({
       hConnectionError: {
         entry: {
           error: {
@@ -388,6 +379,6 @@ describe('ethereum-entries-to-ipfs-content', () => {
       },
     });
 
-    sinon.restore();
+    jest.useRealTimers();
   });
 });
