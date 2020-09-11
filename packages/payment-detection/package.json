@@ -45,7 +45,7 @@
     "axios": "0.20.0",
     "bn.js": "5.1.3",
     "ethers": "4.0.48",
-    "node-fetch": "2.6.0",
+    "node-fetch": "2.6.1",
     "satoshi-bitcoin": "1.0.4"
   },
   "devDependencies": {
