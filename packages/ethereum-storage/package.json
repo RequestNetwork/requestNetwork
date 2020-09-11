@@ -81,7 +81,7 @@
     "prettier": "2.1.1",
     "shx": "0.3.2",
     "sinon": "9.0.3",
-    "solium": "1.2.2",
+    "solium": "1.2.5",
     "source-map-support": "0.5.19",
     "ts-node": "9.0.0",
     "tslint": "6.1.3",
