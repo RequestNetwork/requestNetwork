@@ -15,6 +15,7 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
+import { ISwapSettings } from '@requestnetwork/types/dist/payment-types';
 
 /**
  * Processes a transaction to pay an ERC20 Request with fees.
@@ -45,32 +46,19 @@ export async function payErc20FeeProxyRequest(
   return tx;
 }
 
-interface ISwapSettings {
-  deadline: number;
-  maxInputAmount: BigNumberish;
-  path: string[];
-}
-
 /**
  * Processes a transaction to pay an ERC20 Request with fees.
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param maxInputAmount maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
- * @param path array of token addresses to be swapped: ['0xPaymentCcy', '0xOptIntermediate1', ..., '0xRequestCcy']
- * The first element should be the payment currency.             
- * The last element should be the request currency.
- * Each intermediate currency will be used for intermediate swaps between these two tokens.
- * @param deadline is the time in milliseconds since UNIX epoch, after which the swap should not be executed.
+ * @param swapSettings settings for the swap: swap path, max amount to swap, deadline
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function swapErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
-  maxInputAmount: BigNumberish,
-  path: string[],
-  deadline: number,
   signerOrProvider: Web3Provider | Signer = getProvider(),
+  swapSettings: ISwapSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -78,11 +66,7 @@ export async function swapErc20FeeProxyRequest(
   const proxyAddress = erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
 
-  const encodedTx = encodePayErc20FeeRequest(request, signerOrProvider, amount, feeAmount, {
-    deadline,
-    maxInputAmount,
-    path,
-  });
+  const encodedTx = encodePayErc20FeeRequest(request, signerOrProvider, amount, feeAmount, swapSettings);
 
   const tx = await signer.sendTransaction({
     data: encodedTx,
@@ -113,7 +97,7 @@ export function encodePayErc20FeeRequest(
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-  swapSettings?: ISwapSettings,
+  swapSettings?: PaymentTypes.ISwapSettings,
 ): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);

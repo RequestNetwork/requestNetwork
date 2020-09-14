@@ -180,10 +180,12 @@ describe('erc20-fee-proxy', () => {
       const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
       await swapErc20FeeProxyRequest(
         validRequest, 
-        '204',
-        [alphaErc20Address, erc20ContractAddress],
-        2599732187000, // This test will fail in 2052
         wallet, 
+        {
+          deadline: 2599732187000, // This test will fail in 2052
+          maxInputAmount: '204',
+          path: [alphaErc20Address, erc20ContractAddress],
+        },
         undefined, 
         undefined, 
         { gasPrice: '20000000000' }
@@ -214,10 +216,12 @@ describe('erc20-fee-proxy', () => {
 
       const tx = await swapErc20FeeProxyRequest(
         validRequest, 
-        '204',
-        [alphaErc20Address, erc20ContractAddress],
-        Date.now() + 1000,
         wallet,
+        {
+          deadline: Date.now() + 1000,
+          maxInputAmount: '204',
+          path: [alphaErc20Address, erc20ContractAddress],
+        }        
       );
       const confirmedTx = await tx.wait(1);
 

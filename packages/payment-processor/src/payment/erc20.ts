@@ -4,10 +4,10 @@ import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { erc20ProxyArtifact, erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ERC20Contract } from '../contracts/Erc20Contract';
-import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
+import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest, swapErc20FeeProxyRequest } from './erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
 
 import { ITransactionOverrides } from './transaction-overrides';
@@ -18,7 +18,7 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
-import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
+import { ISwapSettings } from '@requestnetwork/types/dist/payment-types';
 
 /**
  * Processes a transaction to pay an ERC20 Request.
@@ -26,41 +26,85 @@ import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Only applicable to ERC20 Fee Payment network. Defaults to the fee amount.
+ * @param swapSettings optionally, the settings to swap a maximum amount of currency, through a swap path, before a deadline, to pay
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payErc20Request(
   request: ClientTypes.IRequestData,
   signerOrProvider?: Web3Provider | Signer,
   amount?: BigNumberish,
-  paymentCurrency?: ICurrency,
   feeAmount?: BigNumberish,
+  swapSettings?: ISwapSettings,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  console.log(paymentCurrency); // TODO replace with settings and use it
   const id = getPaymentNetworkExtension(request)?.id;
+  if (swapSettings && id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+    throw new Error(`ExtensionType: ${id} is not supported by swapToPay contract`);
+  }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
     return payErc20ProxyRequest(request, signerOrProvider, amount, overrides);
   }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
-    return payErc20FeeProxyRequest(request, signerOrProvider, amount, feeAmount, overrides);
+    if (swapSettings) {
+      return swapErc20FeeProxyRequest(request, signerOrProvider, swapSettings, amount, feeAmount, overrides);
+    } else {
+      return payErc20FeeProxyRequest(request, signerOrProvider, amount, feeAmount, overrides);
+    }
   }
   throw new Error('Not a supported ERC20 proxy payment network request');
 }
 
 /**
- * Checks if a given account has the necessary allowance to pay an ERC20 request.
+ * Checks if a given account has the necessary allowance to pay a request with ERC20
  * @param request request to pay
  * @param account account that will be used to pay the request
  * @param provider the web3 provider. Defaults to Etherscan.
+ * @param paymentCurrency optionally, erc20 requiring approval, defaults to the request currency
+ * @param amountInPaymentCurrency custom amount, mandatory if paymentCurrency is given. Can be used for partial payments.
  */
 export async function hasErc20Approval(
   request: ClientTypes.IRequestData,
   account: string,
   provider: Provider = getNetworkProvider(request),
+  paymentCurrency?: RequestLogicTypes.ICurrency,
+  amountInPaymentCurrency?: BigNumber,
 ): Promise<boolean> {
-  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, provider);
+  if (paymentCurrency && !amountInPaymentCurrency) {
+    throw new Error("amountInPaymentCurrency should be provided if paymentCurrency is provided");
+  }
+  const erc20Address = paymentCurrency ? paymentCurrency.value : request.currencyInfo.value;
+  const erc20Contract = ERC20Contract.connect(erc20Address, provider);
   const allowance = await erc20Contract.allowance(account, getProxyAddress(request));
-  return allowance.gt(request.expectedAmount);
+  const expectedToSpend = amountInPaymentCurrency || request.expectedAmount;
+  return allowance.gt(expectedToSpend);
+}
+
+/**
+ * Processes the approval transaction of the targeted ERC20.
+ * @param request request to pay
+ * @param provider the web3 provider. Defaults to Etherscan.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export async function approveErc20IfNeeded(
+  request: ClientTypes.IRequestData,
+  account: string,
+  provider: Provider = getNetworkProvider(request),
+  paymentCurrency?: RequestLogicTypes.ICurrency,
+  amountInPaymentCurrency?: BigNumber,
+  overrides?: ITransactionOverrides,
+): Promise<ContractTransaction | void> {
+  if (!hasErc20Approval(request, account, provider, paymentCurrency, amountInPaymentCurrency)) {
+    const signer = getSigner(provider);
+    const encodedTx = encodeApproveErc20(request, signer);
+    const tokenAddress = request.currencyInfo.value;
+    const tx = await signer.sendTransaction({
+      data: encodedTx,
+      to: tokenAddress,
+      value: 0,
+      ...overrides,
+    });
+    return tx;
+  }
 }
 
 /**
