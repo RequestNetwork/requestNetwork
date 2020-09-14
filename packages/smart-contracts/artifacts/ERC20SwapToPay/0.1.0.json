@@ -4,7 +4,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_uniswapRouterAddress",
+          "name": "_swapRouterAddress",
           "type": "address"
         },
         {
@@ -38,7 +38,7 @@
       "name": "paymentProxy",
       "outputs": [
         {
-          "internalType": "contract IFeePaymentNetwork",
+          "internalType": "contract IERC20FeeProxy",
           "name": "",
           "type": "address"
         }
@@ -50,7 +50,7 @@
     {
       "constant": true,
       "inputs": [],
-      "name": "uniswapRouter",
+      "name": "swapRouter",
       "outputs": [
         {
           "internalType": "contract IUniswapV2Router02",
@@ -67,7 +67,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "erc20Address",
+          "name": "_erc20Address",
           "type": "address"
         }
       ],
@@ -82,7 +82,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "erc20Address",
+          "name": "_erc20Address",
           "type": "address"
         }
       ],
@@ -162,7 +162,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_newUniswapRouterAddress",
+          "name": "_newSwapRouterAddress",
           "type": "address"
         }
       ],
