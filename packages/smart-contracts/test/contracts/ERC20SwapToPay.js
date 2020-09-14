@@ -86,7 +86,7 @@ contract('SwapToPay', function(accounts) {
       referenceExample,
       1,
       builder,
-      exchangeRateOrigin + 15,
+      exchangeRateOrigin + 100,
       { from },
     );
     await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
@@ -105,10 +105,6 @@ contract('SwapToPay', function(accounts) {
     maxGasUsed = gasUsed;
   });
 
-  it('does something if I send zero?', async function() {
-    expect(false);
-  });
-
   it('swaps and pays the request with less gas', async function() {
     await testSwapToPay.approvePaymentProxyToSpend(requestErc20.address, {
       from: admin,
@@ -125,7 +121,7 @@ contract('SwapToPay', function(accounts) {
       referenceExample,
       1,
       builder,
-      exchangeRateOrigin + 15,
+      exchangeRateOrigin + 100,
       { from },
     );
     await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
@@ -145,6 +141,33 @@ contract('SwapToPay', function(accounts) {
     // 50k gas units are saved by approving the router and proxy in advance for first users, per token
     // console.log(`${maxGasUsed - gasUsed} gas units saved by approving in advance`);
     expect(gasUsed).to.below(maxGasUsed);
+  });
+
+  it('does not pay anyone if I swap 0', async function() {
+    let { tx, receipt: { gasUsed } } = await testSwapToPay.swapTransferWithReference(
+      to,
+      0,
+      0,
+      [paymentErc20.address, requestErc20.address],
+      referenceExample,
+      0,
+      builder,
+      exchangeRateOrigin + 100,
+      { from },
+    );
+    await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
+      tokenAddress: requestErc20.address,
+      to,
+      amount: '0',
+      paymentReference: ethers.utils.keccak256(referenceExample),
+      feeAmount: '0',
+      feeAddress: builder,
+    });
+
+    const finalBuilderBalance = await requestErc20.balanceOf(builder);
+    const finalIssuerBalance = await requestErc20.balanceOf(to);
+    expect(finalBuilderBalance.toNumber()).to.equals(0);
+    expect(finalIssuerBalance.toNumber()).to.equals(0);
   });
 
   it('cannot swap if too few payment tokens', async function() {
