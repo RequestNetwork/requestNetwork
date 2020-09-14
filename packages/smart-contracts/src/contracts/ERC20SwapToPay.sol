@@ -1,6 +1,7 @@
 pragma solidity ^0.5.12;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "./lib/SafeERC20.sol";
 import "./interfaces/ERC20FeeProxy.sol";
 
@@ -19,17 +20,15 @@ interface IUniswapV2Router02 {
  * @title ERC20SwapToPay
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
   */
-contract ERC20SwapToPay {
+contract ERC20SwapToPay is Ownable {
   using SafeERC20 for ERC20;
 
   IUniswapV2Router02 public swapRouter;
   IERC20FeeProxy public paymentProxy;
-  address public admin;
 
   constructor(address _swapRouterAddress, address _paymentProxyAddress) public {
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
-    admin = msg.sender;
   }
 
  /**
@@ -129,23 +128,12 @@ contract ERC20SwapToPay {
   /*
   * Admin functions to edit the admin, router address or proxy address
   */
-  modifier onlyAdmin() {
-      require(
-          msg.sender == admin,
-          "Only admin can do this action"
-        );
-        _;
-  }
   
-  function setPaymentProxy(address _paymentProxyAddress) public onlyAdmin {
+  function setPaymentProxy(address _paymentProxyAddress) public onlyOwner {
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
   }
   
-  function setRouter(address _newSwapRouterAddress) public onlyAdmin {
+  function setRouter(address _newSwapRouterAddress) public onlyOwner {
     swapRouter = IUniswapV2Router02(_newSwapRouterAddress);
-  }
-  
-  function setAdmin(address _newAdmin) public onlyAdmin {
-      admin = _newAdmin;
   }
 }
