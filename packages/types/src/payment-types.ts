@@ -1,7 +1,5 @@
 import * as Extension from './extension-types';
 import * as RequestLogic from './request-logic-types';
-import { BigNumberish } from 'ethers/utils';
-
 
 /** Object interface to list the payment network id and its module by currency */
 export interface ISupportedPaymentNetworkByCurrency {
@@ -159,9 +157,3 @@ export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<
 >;
 /** Declarative BalanceWithEvents */
 export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;
-
-export interface ISwapSettings {
-  deadline: number;
-  maxInputAmount: BigNumberish;
-  path: string[];
-}
