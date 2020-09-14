@@ -141,7 +141,7 @@ describe('hasSufficientFunds', () => {
       .spyOn(erc20Module, 'getErc20Balance')
       .mockReturnValue(Promise.resolve(bigNumberify('200')));
     const fakeProvider: any = {
-      getBalance: () => Promise.resolve(bigNumberify('200')),
+      getBalance: stub().returns(Promise.resolve(bigNumberify('200'))),
     };
     const request: any = {
       balance: {

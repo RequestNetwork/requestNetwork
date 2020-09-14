@@ -11,6 +11,7 @@ import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
 import { ICurrency, CURRENCY } from '@requestnetwork/types/dist/request-logic-types';
+import { ISwapSettings } from '@requestnetwork/types/dist/payment-types';
 
 export const supportedNetworks = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
@@ -46,19 +47,19 @@ export async function payRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
-  paymentCurrency?: ICurrency, // TODO here put the swap settings instead
+  swapSettings?: ISwapSettings,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
+  if (swapSettings && paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+    throw new Error(`Payment network: ${paymentNetwork} is not supported by swapToPay contract`);
+  }
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return payErc20Request(request, signer, amount, paymentCurrency, undefined, overrides);
+      return payErc20Request(request, signer, amount, undefined, swapSettings, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
-      if (paymentCurrency && paymentCurrency.type !== CURRENCY.ETH) {
-        throw new Error("Cannot swap to pay an ETH_INPUT_DATA yet.");
-      }
       return payEthInputDataRequest(request, signer, amount, overrides);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
@@ -78,8 +79,8 @@ export async function payRequest(
 export async function hasSufficientFunds(
   request: ClientTypes.IRequestData,
   address: string,
-  paymentCurrency?: ICurrency,
   provider?: Provider,
+  paymentCurrency?: ICurrency,
 ): Promise<boolean> {
 
   const paymentNetwork = getPaymentNetwork(request);
@@ -113,11 +114,14 @@ export async function hasSufficientFunds(
   }
 
   const balance = await getBalanceInAnyCurrency(address, paymentCurrency, provider);
-  const ethBalance = await getBalanceInAnyCurrency(
+  const ethBalance = (paymentCurrency.type === CURRENCY.ETH) ? 
+    balance
+    : await getBalanceInAnyCurrency(
     address, 
     {type: CURRENCY.ETH, value: 'ETH', network: paymentCurrency.network}, 
     provider
   );
+  console.log(`YMA: ${ethBalance}`);
 
   return ethBalance.gt(0) && balance.gt(totalInPaymentCcy);
 }
