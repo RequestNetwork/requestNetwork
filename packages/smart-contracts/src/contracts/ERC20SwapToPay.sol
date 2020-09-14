@@ -1,11 +1,5 @@
-/**
- * v Deployed here: https://rinkeby.etherscan.io/address/0x35177580d2f12c94cb274ec762121f4f7dfd451e
- * (i) This version was deployed with an additional change refund in requested currency, being always 0 it is removed.
-*/
-
 pragma solidity ^0.5.12;
 
-//import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 interface IUniswapV2Router02 {
@@ -40,63 +34,39 @@ interface IFeePaymentNetwork {
 }
 
 /**
- * -- ADMIN --
- * 
- * 1/ Deploy:
- *    _uniswapRouterAddress: 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D
- *    _paymentProxyAddress: 0xda46309973bffddd5a10ce12c44d2ee266f45a44
- * 
- * 1/ This contract should allow the CTBK to be spent by the payment proxy
- * approvePaymentProxyToSpend(0x995d6a8c21f24be1dd04e105dd0d83758343e258)
- * 
- * 2/ This contract should allow the FAU to be spent by the Uniswap router
- * approveRouterToSpend(0xfab46e002bbf0b4509813474841e0716e6730136)
- * 
- * -- PAYER --
- * 
- * 1/ User should approve FAU to be spent by this contract
- * Go here https://rinkeby.etherscan.io/token/0xfab46e002bbf0b4509813474841e0716e6730136#writeContract / approve 100 FAU
- *    fau.approve(0x35177580d2f12c94cb274ec762121f4f7dfd451e, 100000000000000000000)
- * 
- * - Now start the actual payment -
- * 
- * EXEC swapTransferWithReference
- * _to: 0xAa0c45D2877373ad1AB2aa5Eab15563301e9b7b3
- * _amount: 10000000000000000000 (10 FAU)
- * _amountInMax: 10300300000000000000 (10.3003 CTBK = 3% slippage of the total amount)
- * _path: [0x995d6a8c21f24be1dd04e105dd0d83758343e258, 0xfab46e002bbf0b4509813474841e0716e6730136]
- * _paymentReference: 0x202009030000
- * _feeAmount: 10000000000000000 (0.01 FAU = 0.1%)
- * _feeAddress: 0x61076Da38517be36d433E3fF8D6875B87880Ba56
- * _deadline: 1600136572 (15th of Sep)
-
-/**
  * @title ERC20SwapToPay
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
   */
 contract ERC20SwapToPay {
 
-  IUniswapV2Router02 public uniswapRouter;
+  IUniswapV2Router02 public swapRouter;
   IFeePaymentNetwork public paymentProxy;
   address public admin;
-  
 
-  constructor(address _uniswapRouterAddress, address _paymentProxyAddress) public {
-    uniswapRouter = IUniswapV2Router02(_uniswapRouterAddress);
+  constructor(address _swapRouterAddress, address _paymentProxyAddress) public {
+    swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = IFeePaymentNetwork(_paymentProxyAddress);
     admin = msg.sender;
   }
 
-  function approvePaymentProxyToSpend(address erc20Address) public {
-    ERC20 erc20 = ERC20(erc20Address);
+ /**
+  * @notice Authorizes the proxy to spend a new request currency (ERC20).
+  * @param _erc20Address Address of an ERC20 used as a request currency
+  */
+  function approvePaymentProxyToSpend(address _erc20Address) public {
+    ERC20 erc20 = ERC20(_erc20Address);
     uint256 max = 2**256 - 1;
     erc20.approve(address(paymentProxy), max);
   }
   
-  function approveRouterToSpend(address erc20Address) public {
-    ERC20 erc20 = ERC20(erc20Address);
+ /**
+  * @notice Authorizes the swap router to spend a new payment currency (ERC20).
+  * @param _erc20Address Address of an ERC20 used for payment
+  */
+  function approveRouterToSpend(address _erc20Address) public {
+    ERC20 erc20 = ERC20(_erc20Address);
     uint256 max = 2**256 - 1;
-    erc20.approve(address(uniswapRouter), max);
+    erc20.approve(address(swapRouter), max);
   }
   
   /**
@@ -134,12 +104,11 @@ contract ERC20SwapToPay {
     spentToken.transferFrom(msg.sender, address(this), _amountInMax);
 
     // Allow the router to spend all this contract's spentToken
-    if (spentToken.allowance(address(this),address(uniswapRouter)) < _amountInMax) {
+    if (spentToken.allowance(address(this),address(swapRouter)) < _amountInMax) {
         approveRouterToSpend(address(spentToken));
     }
     
-    // TODO? Add require
-    uniswapRouter.swapTokensForExactTokens(
+    swapRouter.swapTokensForExactTokens(
         requestedTotalAmount,
         _amountInMax,
         _path,
@@ -148,7 +117,6 @@ contract ERC20SwapToPay {
     );
     
     // Allow the payment network to spend all this contract's requestedToken
-    //const pnAddress = 0xFb6819d605E1Fa377a932016274cC84c9A07322f;
     if (requestedToken.allowance(address(this),address(paymentProxy)) < requestedTotalAmount) {
         approvePaymentProxyToSpend(address(requestedToken));
     }
@@ -189,8 +157,8 @@ contract ERC20SwapToPay {
     paymentProxy = IFeePaymentNetwork(_paymentProxyAddress);
   }
   
-  function setRouter(address _newUniswapRouterAddress) public onlyAdmin {
-    uniswapRouter = IUniswapV2Router02(_newUniswapRouterAddress);
+  function setRouter(address _newSwapRouterAddress) public onlyAdmin {
+    swapRouter = IUniswapV2Router02(_newSwapRouterAddress);
   }
   
   function setAdmin(address _newAdmin) public onlyAdmin {
