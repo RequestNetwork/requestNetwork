@@ -54,6 +54,6 @@
     "lint-staged": "10.3.0",
     "openzeppelin-solidity": "2.1.2",
     "shx": "0.3.2",
-    "truffle": "5.1.43"
+    "truffle": "5.1.44"
   }
 }
