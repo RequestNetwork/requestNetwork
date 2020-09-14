@@ -1,6 +1,8 @@
 pragma solidity ^0.5.12;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./lib/SafeERC20.sol";
+import "./interfaces/ERC20FeeProxy.sol";
 
 interface IUniswapV2Router02 {
     function swapTokensForExactTokens(
@@ -12,40 +14,21 @@ interface IUniswapV2Router02 {
     ) external returns (uint[] memory amounts);
 }
 
-interface IFeePaymentNetwork {
-  // Event to declare a transfer with a reference
-  event TransferWithReferenceAndFee(
-    address tokenAddress,
-    address to,
-    uint256 amount,
-    bytes indexed paymentReference,
-    uint256 feeAmount,
-    address feeAddress
-  );
-
-  function transferFromWithReferenceAndFee(
-    address _tokenAddress,
-    address _to,
-    uint256 _amount,
-    bytes calldata _paymentReference,
-    uint256 _feeAmount,
-    address _feeAddress
-    ) external;
-}
 
 /**
  * @title ERC20SwapToPay
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
   */
 contract ERC20SwapToPay {
+  using SafeERC20 for ERC20;
 
   IUniswapV2Router02 public swapRouter;
-  IFeePaymentNetwork public paymentProxy;
+  IERC20FeeProxy public paymentProxy;
   address public admin;
 
   constructor(address _swapRouterAddress, address _paymentProxyAddress) public {
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
-    paymentProxy = IFeePaymentNetwork(_paymentProxyAddress);
+    paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     admin = msg.sender;
   }
 
@@ -101,7 +84,8 @@ contract ERC20SwapToPay {
     
     uint256 requestedTotalAmount = _amount + _feeAmount;
 
-    spentToken.transferFrom(msg.sender, address(this), _amountInMax);
+    require(spentToken.allowance(msg.sender, address(this)) > _amountInMax, "Not sufficient allowance for swap to pay.");
+    require(spentToken.safeTransferFrom(msg.sender, address(this), _amountInMax), "Could not transfer payment token from swapper-payer");
 
     // Allow the router to spend all this contract's spentToken
     if (spentToken.allowance(address(this),address(swapRouter)) < _amountInMax) {
@@ -154,7 +138,7 @@ contract ERC20SwapToPay {
   }
   
   function setPaymentProxy(address _paymentProxyAddress) public onlyAdmin {
-    paymentProxy = IFeePaymentNetwork(_paymentProxyAddress);
+    paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
   }
   
   function setRouter(address _newSwapRouterAddress) public onlyAdmin {
