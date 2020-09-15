@@ -3,17 +3,16 @@ const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.s
 const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 const EthereumProxy = artifacts.require('./EthereumProxy.sol');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
+const FakeSwapRouter = artifacts.require('FakeSwapRouter');
+const ERC20SwapToPay = artifacts.require('ERC20SwapToPay');
 
 const erc20 = artifacts.require('./TestERC20.sol');
-//const erc20Alpha = artifacts.require('./ERC20Alpha.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
 const ERC20True = artifacts.require('ERC20True');
 const ERC20False = artifacts.require('ERC20False');
 const ERC20NoReturn = artifacts.require('ERC20NoReturn');
 const ERC20Revert = artifacts.require('ERC20Revert');
 
-const FakeSwapRouter = artifacts.require('FakeSwapRouter');
-const ERC20SwapToPay = artifacts.require('ERC20SwapToPay');
 
 const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 

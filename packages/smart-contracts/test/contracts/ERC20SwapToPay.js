@@ -1,12 +1,9 @@
 const ethers = require('ethers');
-// TODO remove when understood
-//import "truffle/DeployedAddresses.sol";
 
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
-//const ERC20Alpha = artifacts.require('ERC20Alpha');
 const FakeSwapRouter = artifacts.require('./FakeSwapRouter.sol');
 const SwapToPay = artifacts.require('./ERC20SwapToPay.sol');
 
@@ -35,7 +32,8 @@ contract('SwapToPay', function(accounts) {
       from: admin,
     });
     
-    
+    // Deploy a fake router and feed it with 200 payment ERC20 + 100 requested ERC20
+    // The fake router fakes 2 payment ERC20 = 1 requested ERC20
     fakeRouter = await FakeSwapRouter.new({
       from: admin,
     });
