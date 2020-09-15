@@ -5,7 +5,7 @@ const EthereumProxy = artifacts.require('./EthereumProxy.sol');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 
 const erc20 = artifacts.require('./TestERC20.sol');
-const erc20Alpha = artifacts.require('./ERC20Alpha.sol');
+//const erc20Alpha = artifacts.require('./ERC20Alpha.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
 const ERC20True = artifacts.require('ERC20True');
 const ERC20False = artifacts.require('ERC20False');
@@ -86,7 +86,7 @@ module.exports = async function(deployer) {
     
     // Swap-to-pay related contracts
     // Payment erc20: ALPHA
-    const erc20AlphaInstance = await deployer.deploy(erc20Alpha, 100000); // 100000 initial supply
+    const erc20AlphaInstance = await deployer.deploy(erc20, 100000); // 100000 initial supply
     // Mock a swap router
     await deployer.deploy(FakeSwapRouter);
     // 1 ERC20 = 2 ALPHA
@@ -110,7 +110,7 @@ module.exports = async function(deployer) {
       ERC20False:               ${ERC20False.address}
       ERC20NoReturn:            ${ERC20NoReturn.address}
       ERC20Revert:              ${ERC20Revert.address}
-      ERC20Alpha:               ${erc20Alpha.address}
+      ERC20Alpha:               ${erc20AlphaInstance.address}
       FakeSwapRouter:           ${FakeSwapRouter.address}
       SwapToPay:                ${ERC20SwapToPay.address}
       `);
