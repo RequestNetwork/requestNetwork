@@ -7,7 +7,7 @@ const FakeSwapRouter = artifacts.require('FakeSwapRouter');
 const ERC20SwapToPay = artifacts.require('ERC20SwapToPay');
 
 const erc20 = artifacts.require('./TestERC20.sol');
-const erc20Alpha = artifacts.require('./ERC20Alpha.sol');
+//const erc20Alpha = artifacts.require('./ERC20Alpha.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
 const ERC20True = artifacts.require('ERC20True');
 const ERC20False = artifacts.require('ERC20False');
