@@ -136,7 +136,7 @@ export function encodePayErc20FeeRequest(
   // Swap to pay
   const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
 
-  if (swapSettings.path[swapSettings.path.length - 1] !== tokenAddress) {
+  if (swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()) {
     throw new Error('Last item of the path should be the request currency');
   }
   if (Date.now() > swapSettings.deadline) {

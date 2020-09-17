@@ -9,7 +9,7 @@ import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
 import { payErc20Request } from './erc20';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { ITransactionOverrides } from './transaction-overrides';
-import { getNetworkProvider, getProvider, getSigner } from './utils';
+import { getNetworkProvider, getPaymentNetworkExtension, getProvider, getSigner } from './utils';
 import { ICurrency, CURRENCY } from '@requestnetwork/types/dist/request-logic-types';
 import { ISwapSettings } from '@requestnetwork/types/dist/payment-types';
 
@@ -41,6 +41,7 @@ export class UnsupportedNetworkError extends Error {
  * @param request the request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param swapSettings optionally, the information of how to swap from another payment token.
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payRequest(
@@ -154,6 +155,16 @@ export async function getQuote(
   } else {
     return new BigNumber(amountOut).mul(2);
   }
+}
+
+/**
+ * Given a request and its payment network, the function gives whether swap is supported.
+ * @param request the request that accepts or not swap to payment
+ */
+export function canSwapToPay(request: ClientTypes.IRequestData): boolean {
+  const pnExtension = getPaymentNetworkExtension(request);
+  return (pnExtension !== undefined 
+    && (pnExtension.id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT));
 }
 
 /**
