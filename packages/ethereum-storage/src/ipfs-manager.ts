@@ -587,7 +587,7 @@ export default class IpfsManager {
    */
   private getContentFromMarshaledData(marshaledData: string): string {
     // eslint-disable-next-line spellcheck/spell-checker
-    const unmarshalData = unixfs.unmarshal(Buffer.from(marshaledData,"base64")).data.toString();
+    const unmarshalData = unixfs.unmarshal(Buffer.from(marshaledData,'base64')).data.toString();
 
     // eslint-disable-next-line spellcheck/spell-checker
     return unmarshalData.replace(/[\x00-\x09\x0B-\x1F\x7F-\uFFFF]/g, '');
