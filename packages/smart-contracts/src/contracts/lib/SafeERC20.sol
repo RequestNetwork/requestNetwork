@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title SafeERC20
@@ -13,7 +13,7 @@ library SafeERC20 {
    * @dev This is necessary because of non-standard ERC20 tokens that don't have a return value.
    * @return The return value of the ERC20 call, returning true for non-standard tokens
    */
-  function safeTransferFrom(ERC20  _token, address _from, address _to, uint256 _amount) internal returns (bool result) {
+  function safeTransferFrom(IERC20  _token, address _from, address _to, uint256 _amount) internal returns (bool result) {
     address tokenAddress = address(_token);
     /* solium-disable security/no-inline-assembly */
     // check if the address is a contract

@@ -1,6 +1,6 @@
 pragma solidity ^0.5.12;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "./lib/SafeERC20.sol";
 import "./interfaces/ERC20FeeProxy.sol";
@@ -21,7 +21,7 @@ interface IUniswapV2Router02 {
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
   */
 contract ERC20SwapToPay is Ownable {
-  using SafeERC20 for ERC20;
+  using SafeERC20 for IERC20;
 
   IUniswapV2Router02 public swapRouter;
   IERC20FeeProxy public paymentProxy;
@@ -36,7 +36,7 @@ contract ERC20SwapToPay is Ownable {
   * @param _erc20Address Address of an ERC20 used as a request currency
   */
   function approvePaymentProxyToSpend(address _erc20Address) public {
-    ERC20 erc20 = ERC20(_erc20Address);
+    IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
     erc20.approve(address(paymentProxy), max);
   }
@@ -46,7 +46,7 @@ contract ERC20SwapToPay is Ownable {
   * @param _erc20Address Address of an ERC20 used for payment
   */
   function approveRouterToSpend(address _erc20Address) public {
-    ERC20 erc20 = ERC20(_erc20Address);
+    IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
     erc20.approve(address(swapRouter), max);
   }
@@ -78,8 +78,8 @@ contract ERC20SwapToPay is Ownable {
   )
     external
   {
-    ERC20 spentToken = ERC20(_path[0]);
-    ERC20 requestedToken = ERC20(_path[_path.length-1]);
+    IERC20 spentToken = IERC20(_path[0]);
+    IERC20 requestedToken = IERC20(_path[_path.length-1]);
     
     uint256 requestedTotalAmount = _amount + _feeAmount;
 
