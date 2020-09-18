@@ -106,7 +106,7 @@ describe('Ipfs manager', () => {
 
     const maxSize = 10;
     await expect(ipfsManager.read(hash, maxSize)).rejects.toThrowError(
-      `File size (82) exceeds maximum file size of ${maxSize}`,
+      `File size (63) exceeds maximum file size of ${maxSize}`,
     );
   });
 
