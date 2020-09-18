@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-import RedocStandalone from '../../components/redoc';
+import { RedocStandalone } from 'redoc';
 import styles from './styles.module.css';
 
 class docApi extends React.Component {

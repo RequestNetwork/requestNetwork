@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = {
   title: 'Request Docs',
   tagline: 'Technical documentation',
@@ -6,7 +8,7 @@ module.exports = {
   favicon: 'img/cropped-favicon-32x32.png',
   organizationName: 'requestNetwork',
   projectName: 'requestNetwork/packages/docs',
-  plugins: ['axios'],
+  plugins: [path.resolve(__dirname, 'webpack-config')],
   onBrokenLinks: 'log',
   themeConfig: {
     colorMode: {
