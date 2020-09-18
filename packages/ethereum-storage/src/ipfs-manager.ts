@@ -210,7 +210,7 @@ export default class IpfsManager {
         // Construction get request
         const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
           this.ipfsConnection.port
-        }${this.IPFS_API_CAT}?arg=${hash}`;
+        }${this.IPFS_API_CAT}?arg=${hash}&data-encoding=base64`;
 
         // Flag if a timeout error was thrown
         let didTimeout = false;
@@ -244,8 +244,9 @@ export default class IpfsManager {
               if (jsonData.Type === 'error') {
                 return reject(new Error(`Ipfs object get failed: ${jsonData.Message}`));
               }
-              const content = this.getContentFromMarshaledData(jsonData.Data);
-              const ipfsSize = jsonData.Data.length;
+              const ipfsDataBuffer =Buffer.from(jsonData.Data,'base64')
+              const content = this.getContentFromMarshaledData(ipfsDataBuffer);
+              const ipfsSize = ipfsDataBuffer.length;
               const ipfsLinks = jsonData.Links;
               resolve({ content, ipfsSize, ipfsLinks });
             });
@@ -585,9 +586,9 @@ export default class IpfsManager {
    * @param marshaledData marshaled data
    * @returns the content without the padding
    */
-  private getContentFromMarshaledData(marshaledData: string): string {
+  private getContentFromMarshaledData(marshaledData: Buffer): string {
     // eslint-disable-next-line spellcheck/spell-checker
-    const unmarshalData = unixfs.unmarshal(Buffer.from(marshaledData)).data.toString();
+    const unmarshalData = unixfs.unmarshal(marshaledData).data.toString();
 
     // eslint-disable-next-line spellcheck/spell-checker
     return unmarshalData.replace(/[\x00-\x09\x0B-\x1F\x7F-\uFFFF]/g, '');
