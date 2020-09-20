@@ -65,7 +65,7 @@
     "@types/bn.js": "4.11.6",
     "@types/jest": "26.0.13",
     "@types/node-fetch": "2.5.7",
-    "@typescript-eslint/parser": "4.1.0",
+    "@typescript-eslint/parser": "4.1.1",
     "amd-loader": "0.0.8",
     "awesome-typescript-loader": "5.2.1",
     "axios-mock-adapter": "1.18.2",
