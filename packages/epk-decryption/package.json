@@ -61,7 +61,7 @@
     "prettier": "2.1.1",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",
-    "terser-webpack-plugin": "4.1.0",
+    "terser-webpack-plugin": "4.2.2",
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
     "tslint": "6.1.3",
