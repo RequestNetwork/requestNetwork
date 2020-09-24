@@ -154,6 +154,7 @@ describe('Ipfs manager', () => {
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
       // We filter the response of the request to prevent the promise to resolve
+      // tslint:disable-next-line:no-empty
       hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };
@@ -205,6 +206,7 @@ describe('Ipfs manager', () => {
 
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
+      // tslint:disable-next-line:no-empty
       hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };
