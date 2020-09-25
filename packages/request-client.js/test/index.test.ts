@@ -1362,7 +1362,7 @@ describe('index', () => {
     });
 
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
-    it('can get the balance of an ETH request', async () => {
+    it.skip('can get the balance of an ETH request', async () => {
       jest.useFakeTimers('modern');
 
       const requestNetwork = new RequestNetwork({
@@ -1425,7 +1425,7 @@ describe('index', () => {
       jest.useRealTimers();
     }, 20000);
 
-    it('can skip the get the balance of a request', async () => {
+    it.skip('can skip the get the balance of a request', async () => {
       jest.useFakeTimers('modern');
 
       const requestNetwork = new RequestNetwork({
