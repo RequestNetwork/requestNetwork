@@ -93,7 +93,7 @@ describe('Ipfs manager', () => {
 
   it('allows to read files from ipfs', async () => {
     await ipfsManager.add(content);
-    let contentReturned = await ipfsManager.read(hash, 82);
+    let contentReturned = await ipfsManager.read(hash, 36);
     expect(content).toBe(contentReturned.content);
 
     await ipfsManager.add(content2);
@@ -106,7 +106,7 @@ describe('Ipfs manager', () => {
 
     const maxSize = 10;
     await expect(ipfsManager.read(hash, maxSize)).rejects.toThrowError(
-      `File size (63) exceeds maximum file size of ${maxSize}`,
+      `File size (63) exceeds the declared file size (${maxSize})`,
     );
   });
 
@@ -154,6 +154,7 @@ describe('Ipfs manager', () => {
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
       // We filter the response of the request to prevent the promise to resolve
+      // tslint:disable-next-line:no-empty
       hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };
@@ -205,6 +206,7 @@ describe('Ipfs manager', () => {
 
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
+      // tslint:disable-next-line:no-empty
       hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };

@@ -222,11 +222,12 @@ export default class IpfsManager {
             // Chunk of response data
             res.on('data', (chunk: string) => {
               data += chunk;
-              if (data.length > maxSize) {
+              // decode the base64 to compute the actual size of the data
+              if (Buffer.from(data, 'base64').length > maxSize) {
                 getRequest.abort();
                 res.destroy();
                 return reject(
-                  new Error(`File size (${data.length}) exceeds maximum file size of ${maxSize}`),
+                  new Error(`File size (${data.length}) exceeds the declared file size (${maxSize})`),
                 );
               }
             });
@@ -244,7 +245,7 @@ export default class IpfsManager {
               if (jsonData.Type === 'error') {
                 return reject(new Error(`Ipfs object get failed: ${jsonData.Message}`));
               }
-              const ipfsDataBuffer =Buffer.from(jsonData.Data,'base64')
+              const ipfsDataBuffer = Buffer.from(jsonData.Data, 'base64');
               const content = this.getContentFromMarshaledData(ipfsDataBuffer);
               const ipfsSize = ipfsDataBuffer.length;
               const ipfsLinks = jsonData.Links;
