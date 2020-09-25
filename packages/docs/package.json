@@ -34,7 +34,7 @@
     "clean": "shx rm -rf docs/client"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.63",
+    "@docusaurus/core": "2.0.0-alpha.64",
     "@docusaurus/preset-classic": "2.0.0-alpha.63",
     "@docusaurus/theme-live-codeblock": "2.0.0-alpha.63",
     "@docusaurus/utils": "2.0.0-alpha.63",
