@@ -52,7 +52,7 @@
     "ethers": "4.0.48",
     "ganache-cli": "6.10.2",
     "lint-staged": "10.3.0",
-    "openzeppelin-solidity": "2.1.2",
+    "openzeppelin-solidity": "3.2.0",
     "shx": "0.3.2",
     "truffle": "5.1.44"
   }

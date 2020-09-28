@@ -14581,10 +14581,10 @@ opener@^1.5.1:
   resolved "https://registry.yarnpkg.com/opener/-/opener-1.5.1.tgz#6d2f0e77f1a0af0032aca716c2c1fbb8e7e8abed"
   integrity sha512-goYSy5c2UXE4Ra1xixabeVh1guIX/ZV/YokJksb6q2lubWu6UbvPQ20p542/sFIll1nl8JnCyK9oBaOcCWXwvA==
 
-openzeppelin-solidity@2.1.2:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-2.1.2.tgz#94e2bb92b60e91abb22c6fe27d983d92850fb324"
-  integrity sha512-1ggh+AZFpMAgGfgnVMQ8dwYawjD2QN4xuWkQS4FUbeUz1fnCKJpguUl2cyadyfDYjBq1XJ6MA6VkzYpTZtJMqw==
+openzeppelin-solidity@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-3.2.0.tgz#8cb9de0cf2e3ce214be75cd11161930bc6013200"
+  integrity sha512-ku9dZbpo63P1OOGvU1FflRlAxcxWauKhex+a7W0vbfjLzItaCQkZEiDedsH2TWJrg4xdo0B/BFS9taeVwKvAxw==
 
 opn@^5.5.0:
   version "5.5.0"
