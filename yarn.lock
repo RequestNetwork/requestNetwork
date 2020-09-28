@@ -7534,7 +7534,7 @@ doctrine@^3.0.0:
   dependencies:
     esutils "^2.0.2"
 
-docusaurus-plugin-typedoc@^0.2.0:
+docusaurus-plugin-typedoc@0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-0.2.0.tgz#ddb703eedbd53495a03528b5ba6468d16e5736d7"
   integrity sha512-i50Lsn08eXxdfGFH0Ldbxm0ZpHJzum03nk49JhOcdi2O0qe8vP2MxptG+dLYYWu8jG71a1S/sEifPLa7POjFyQ==
