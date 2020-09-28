@@ -8,7 +8,22 @@ module.exports = {
   favicon: 'img/cropped-favicon-32x32.png',
   organizationName: 'requestNetwork',
   projectName: 'requestNetwork/packages/docs',
-  plugins: [path.resolve(__dirname, 'webpack-config')],
+  plugins: [
+    path.resolve(__dirname, 'webpack-config'),
+    [
+      'docusaurus-plugin-typedoc',
+      {
+        inputFiles: ['../request-client.js/src'],
+        out: 'client',
+        sidebar: null,
+        mode: 'modules',
+        exclude: '**/*test*',
+        resolveJsonModule: true,
+        ignoreCompilerErrors: true,
+        readme: '../request-client.js/README.md',
+      },
+    ],
+  ],
   onBrokenLinks: 'log',
   themeConfig: {
     colorMode: {
@@ -24,7 +39,7 @@ module.exports = {
       items: [
         { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
         { to: 'integration-options', label: 'Integration', position: 'left' },
-        { to: 'docs/client/index', label: 'Request-client.js', position: 'left' },
+        { to: 'docs/client', label: 'Request-client.js', position: 'left' },
         { to: 'portal', label: 'Portal REST API', position: 'left' },
         {
           href:
