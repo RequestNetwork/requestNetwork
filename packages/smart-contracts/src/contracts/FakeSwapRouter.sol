@@ -13,27 +13,28 @@ contract FakeSwapRouter {
   using SafeERC20 for ERC20;
 
   modifier ensure(uint deadline) {
-    require(deadline >= block.timestamp, 'UniswapV2Router: EXPIRED');
+    require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
     _;
   }
 
   // Will fail if amountInMax < 2 * amountOut
   function swapTokensForExactTokens(
-        uint amountOut,
-        uint amountInMax,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external ensure(deadline) returns (uint[] memory amounts) {
-      amounts = new uint[](2);
-      amounts[0] = amountOut;
-      amounts[1] = amountOut * 2;
-      //amounts = [amountOut, amountOut * 2];
-      require(amounts[1] <= amountInMax, 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
-      ERC20 paid = ERC20(path[0]);
-      ERC20 swapped = ERC20(path[1]);
-      require(swapped.balanceOf(address(this)) > amounts[0], 'Test cannot proceed, lack of tokens in fake swap contract');
-      paid.safeTransferFrom(msg.sender, address(this), amounts[1]);
-      swapped.transfer(to, amounts[0]);
+    uint amountOut,
+    uint amountInMax,
+    address[] calldata path,
+    address to,
+    uint deadline
+  ) external ensure(deadline) returns (uint[] memory amounts) 
+  {
+    amounts = new uint[](2);
+    amounts[0] = amountOut;
+    amounts[1] = amountOut * 2;
+    //amounts = [amountOut, amountOut * 2];
+    require(amounts[1] <= amountInMax, "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT");
+    ERC20 paid = ERC20(path[0]);
+    ERC20 swapped = ERC20(path[1]);
+    require(swapped.balanceOf(address(this)) > amounts[0], "Test cannot proceed, lack of tokens in fake swap contract");
+    paid.safeTransferFrom(msg.sender, address(this), amounts[1]);
+    swapped.transfer(to, amounts[0]);
   }
 }

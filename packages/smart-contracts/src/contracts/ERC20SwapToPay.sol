@@ -6,13 +6,13 @@ import "./lib/SafeERC20.sol";
 import "./interfaces/ERC20FeeProxy.sol";
 
 interface IUniswapV2Router02 {
-    function swapTokensForExactTokens(
-        uint amountOut,
-        uint amountInMax,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
+  function swapTokensForExactTokens(
+    uint amountOut,
+    uint amountInMax,
+    address[] calldata path,
+    address to,
+    uint deadline
+  ) external returns (uint[] memory amounts);
 }
 
 
@@ -40,7 +40,7 @@ contract ERC20SwapToPay is Ownable {
     uint256 max = 2**256 - 1;
     erc20.approve(address(paymentProxy), max);
   }
-  
+
  /**
   * @notice Authorizes the swap router to spend a new payment currency (ERC20).
   * @param _erc20Address Address of an ERC20 used for payment
@@ -50,7 +50,7 @@ contract ERC20SwapToPay is Ownable {
     uint256 max = 2**256 - 1;
     erc20.approve(address(swapRouter), max);
   }
-  
+
   /**
   * @notice Performs a token swap between a payment currency and a request currency, and then
   *         calls a payment proxy to pay the request, including fees.
@@ -88,32 +88,32 @@ contract ERC20SwapToPay is Ownable {
 
     // Allow the router to spend all this contract's spentToken
     if (spentToken.allowance(address(this),address(swapRouter)) < _amountInMax) {
-        approveRouterToSpend(address(spentToken));
+      approveRouterToSpend(address(spentToken));
     }
-    
+
     swapRouter.swapTokensForExactTokens(
-        requestedTotalAmount,
-        _amountInMax,
-        _path,
-        address(this),
-        _deadline
+      requestedTotalAmount,
+      _amountInMax,
+      _path,
+      address(this),
+      _deadline
     );
-    
+
     // Allow the payment network to spend all this contract's requestedToken
     if (requestedToken.allowance(address(this),address(paymentProxy)) < requestedTotalAmount) {
-        approvePaymentProxyToSpend(address(requestedToken));
+      approvePaymentProxyToSpend(address(requestedToken));
     }
-    
+
     // Pay the request and fees
     paymentProxy.transferFromWithReferenceAndFee(
-        address(requestedToken),
-        _to,
-        _amount,
-        _paymentReference,
-        _feeAmount,
-        _feeAddress
+      address(requestedToken),
+      _to,
+      _amount,
+      _paymentReference,
+      _feeAmount,
+      _feeAddress
     );
-    
+
     // Give the change back to the payer, in both currencies (only spent token should remain)
 
     if (spentToken.balanceOf(address(this)) > 0) {
@@ -123,7 +123,7 @@ contract ERC20SwapToPay is Ownable {
       requestedToken.transfer(msg.sender, requestedToken.balanceOf(address(this)));
     }
   }
-  
+
 
   /*
   * Admin functions to edit the admin, router address or proxy address
