@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/epk-signature",
-  "version": "0.5.17",
+  "version": "0.5.18",
   "publishConfig": {
     "access": "public"
   },
@@ -41,8 +41,8 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.21.0",
-    "@requestnetwork/utils": "0.20.0"
+    "@requestnetwork/types": "0.22.0",
+    "@requestnetwork/utils": "0.21.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
