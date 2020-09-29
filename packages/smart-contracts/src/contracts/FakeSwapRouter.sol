@@ -29,7 +29,6 @@ contract FakeSwapRouter {
     amounts = new uint[](2);
     amounts[0] = amountOut;
     amounts[1] = amountOut * 2;
-    //amounts = [amountOut, amountOut * 2];
     require(amounts[1] <= amountInMax, "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT");
     ERC20 paid = ERC20(path[0]);
     ERC20 swapped = ERC20(path[1]);
