@@ -1,10 +1,6 @@
 pragma solidity ^0.5.12;
 
-<<<<<<< HEAD
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-=======
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
->>>>>>> use openzeppeling isOwner
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "./lib/SafeERC20.sol";
 import "./interfaces/ERC20FeeProxy.sol";
@@ -24,11 +20,7 @@ interface IUniswapV2Router02 {
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
   */
 contract ERC20SwapToPay is Ownable {
-<<<<<<< HEAD
   using SafeERC20 for IERC20;
-=======
-  using SafeERC20 for ERC20;
->>>>>>> use openzeppeling isOwner
 
   IUniswapV2Router02 public swapRouter;
   IERC20FeeProxy public paymentProxy;
