@@ -68,6 +68,8 @@ export async function payRequest(
 }
 
 /**
+ * TODO: refactor to re-use the payment currency?
+ * 
  * Verifies the address has enough funds to pay the request. For ERC20
  * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA
  *
@@ -82,6 +84,7 @@ export async function hasSufficientFunds(
   address: string,
   provider?: Provider,
   paymentCurrency?: ICurrency,
+  swapSettings?: ISwapSettings,
 ): Promise<boolean> {
 
   const paymentNetwork = getPaymentNetwork(request);
@@ -103,11 +106,10 @@ export async function hasSufficientFunds(
     if (paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
       throw new Error("Cannot swap to pay this request. Only works with ERC20_FEE_PROXY_CONTRACT");
     }
-    totalInPaymentCcy = await getQuote(
-      new BigNumber(request.expectedAmount).add(feeAmount), 
-      paymentCurrency, 
-      request.currencyInfo
-    );
+    if (! swapSettings?.maxInputAmount) {
+      throw new Error("Missing input amount for swap");
+    }
+    totalInPaymentCcy = swapSettings?.maxInputAmount;
   }
 
   if (!provider) {
@@ -115,19 +117,27 @@ export async function hasSufficientFunds(
   }
 
   const balance = await getBalanceInAnyCurrency(address, paymentCurrency, provider);
-  const ethBalance = (paymentCurrency.type === CURRENCY.ETH) ? 
+  const ethBalance = (paymentCurrency.type === CURRENCY.ETH) ?
     balance
     : await getBalanceInAnyCurrency(
-    address, 
-    {type: CURRENCY.ETH, value: 'ETH', network: paymentCurrency.network}, 
+    address,
+    {type: CURRENCY.ETH, value: 'ETH', network: paymentCurrency.network},
     provider
   );
-  console.log(`YMA: ${ethBalance}`);
 
   return ethBalance.gt(0) && balance.gt(totalInPaymentCcy);
 }
 
-export async function getBalanceInAnyCurrency(
+
+/**
+ * TODO
+ *
+ * @throws TODO
+ * @param address the address holding the funds
+ * @param paymentCurrency if different from the requested currency
+ * @param provider the Web3 provider. Defaults to Etherscan.
+ */
+async function getBalanceInAnyCurrency(
   address: string,
   paymentCurrency: ICurrency,
   provider: Provider,
@@ -144,21 +154,8 @@ export async function getBalanceInAnyCurrency(
   }
 }
 
-// TODO
-export async function getQuote(
-  amountOut: BigNumberish, 
-  currencyIn: ICurrency, 
-  currencyOut: ICurrency
-): Promise<BigNumberish> {
-  if (currencyIn !== currencyOut) {
-    return amountOut;
-  } else {
-    return new BigNumber(amountOut).mul(2);
-  }
-}
-
 /**
- * Given a request and its payment network, the function gives whether swap is supported.
+ * Given a request, the function gives whether swap is supported for its payment network.
  * @param request the request that accepts or not swap to payment
  */
 export function canSwapToPay(request: ClientTypes.IRequestData): boolean {

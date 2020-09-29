@@ -4,7 +4,6 @@ const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
-
 const FakeSwapRouter = artifacts.require('./FakeSwapRouter.sol');
 const SwapToPay = artifacts.require('./ERC20SwapToPay.sol');
 
