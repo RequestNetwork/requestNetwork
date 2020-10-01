@@ -43,7 +43,7 @@
     "@requestnetwork/smart-contracts": "0.14.0",
     "@requestnetwork/types": "0.22.0",
     "@requestnetwork/utils": "0.21.0",
-    "ethers": "4.0.48"
+    "ethers": "5.0.14"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
