@@ -47,7 +47,7 @@ export async function payErc20FeeProxyRequest(
 }
 
 /**
- * Processes a transaction to pay an ERC20 Request with fees.
+ * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param swapSettings settings for the swap: swap path, max amount to swap, deadline
@@ -84,13 +84,6 @@ export async function swapErc20FeeProxyRequest(
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  * @param swapSettings settings for the swap:
- *  maxInputAmount: maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
- *  path: array of token addresses to be used for the "swap path". 
- *    ['0xPaymentCcy', '0xIntermediate1', ..., '0xRequestCcy']
- *    The first element should be the payment currency.             
- *    The last element should be the request currency.
- *    Each intermediate currency will be used for intermediate swaps.
- *  deadline: time in milliseconds since UNIX epoch, after which the swap should not be executed.
  */
 export function encodePayErc20FeeRequest(
   request: ClientTypes.IRequestData,
@@ -100,26 +93,24 @@ export function encodePayErc20FeeRequest(
   swapSettings?: PaymentTypes.ISwapSettings,
 ): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+
   const signer = getSigner(signerOrProvider);
-
   const tokenAddress = request.currencyInfo.value;
-
   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
     request,
   );
+  const amountToPay = getAmountToPay(request, amount);
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
 
   if (!!feeAmount !== !!feeAddress) {
     throw new Error('Both fee address and fee amount have to be declared, or both left empty');
   }
-
-  const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
-
   if (amountToPay.isZero() && feeToPay.isZero()) {
     throw new Error('Request payment amount and fee are 0');
   }
 
-  if (swapSettings === undefined) {
+  if (!swapSettings) {
+    // Payment with the request currency
     const proxyAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
     const proxyContract = Erc20FeeProxyContract.connect(proxyAddress, signer);
 
@@ -134,15 +125,16 @@ export function encodePayErc20FeeRequest(
   }
 
   // Swap to pay
-  const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
-
   if (swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()) {
     throw new Error('Last item of the path should be the request currency');
   }
   if (Date.now() > swapSettings.deadline) {
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
+
+  const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
   const swapToPayContract = Erc20SwapToPayContract.connect(swapToPayAddress, signer);
+  const millisecToSec = 1000;
 
   return swapToPayContract.interface.functions.swapTransferWithReference.encode([
     paymentAddress,
@@ -152,7 +144,7 @@ export function encodePayErc20FeeRequest(
     `0x${paymentReference}`,
     feeToPay,
     feeAddress || constants.AddressZero,
-    Math.round(swapSettings.deadline / 1000),
+    Math.round(swapSettings.deadline / millisecToSec),
   ]);
 }
 

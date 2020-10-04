@@ -208,14 +208,12 @@ describe('erc20-fee-proxy', () => {
       await approvalTx.wait(1);
 
       // get the balances to compare after payment
-
       const balanceEthBefore = await wallet.getBalance();
       const balanceAlphaBefore = await ERC20Contract.connect(alphaErc20Address, provider).balanceOf(wallet.address);
       const issuerBalanceErc20Before = await getErc20Balance(validRequest, paymentAddress, provider);
       const feeBalanceErc20Before = await getErc20Balance(validRequest, feeAddress, provider);
 
       // Swap and pay
-
       const tx = await swapErc20FeeProxyRequest(
         validRequest,
         wallet,
@@ -231,7 +229,6 @@ describe('erc20-fee-proxy', () => {
       expect(tx.hash).toBeDefined();
 
       // Get the new balances
-
       const balanceEthAfter = await wallet.getBalance();
       const balanceAlphaAfter = await ERC20Contract.connect(alphaErc20Address, provider).balanceOf(wallet.address);
       const issuerBalanceErc20After = await getErc20Balance(validRequest, paymentAddress, provider);
@@ -239,7 +236,6 @@ describe('erc20-fee-proxy', () => {
 
       // Check each balance
       expect(balanceEthBefore.sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
-
       expect(balanceAlphaAfter.toNumber()).toEqual(balanceAlphaBefore.sub(204).toNumber());
       expect(issuerBalanceErc20After.toNumber()).toEqual(issuerBalanceErc20Before.add(100).toNumber());
       expect(feeBalanceErc20After.toNumber()).toEqual(feeBalanceErc20Before.add(2).toNumber());

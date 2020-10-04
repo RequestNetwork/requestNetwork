@@ -56,12 +56,10 @@ export async function payErc20Request(
 }
 
 /**
- * Checks if a given account has the necessary allowance to pay a request with ERC20
+ * Checks if the proxy has the necessary allowance from a given account to pay a given request with ERC20
  * @param request request to pay
  * @param account account that will be used to pay the request
  * @param provider the web3 provider. Defaults to Etherscan.
- * @param paymentCurrency optionally, erc20 requiring approval, defaults to the request currency
- * @param amountInPaymentCurrency custom amount, mandatory if paymentCurrency is given. Can be used for partial payments.
  */
 export async function hasErc20Approval(
   request: ClientTypes.IRequestData,
@@ -78,12 +76,12 @@ export async function hasErc20Approval(
 }
 
 /**
- * TODO
- * @param request request to pay
- * @param account account that will be used to pay the request
+ * Checks if a spender has enough allowance from an ERC20 token owner to pay an amount.
+ * @param ownerAddress address of the owner
+ * @param spenderAddress address of the spender
  * @param provider the web3 provider. Defaults to Etherscan.
- * @param paymentCurrency optionally, erc20 requiring approval, defaults to the request currency
- * @param amount custom amount, mandatory if paymentCurrency is given. Can be used for partial payments.
+ * @param paymentCurrency ERC20 currency
+ * @param amount
  */
 export async function checkErc20Allowance(
   ownerAddress: string,
@@ -97,11 +95,11 @@ export async function checkErc20Allowance(
   }
   const erc20Contract = ERC20Contract.connect(paymentCurrency.value, provider);
   const allowance = await erc20Contract.allowance(ownerAddress, spenderAddress);
-  return allowance.gt(amount);
+  return allowance.gte(amount);
 }
 
 /**
- * Processes the approval transaction of the targeted ERC20.
+ * Processes the approval transaction of the targeted ERC20 
  * @param request request to pay
  * @param provider the web3 provider. Defaults to Etherscan.
  * @param overrides optionally, override default transaction values, like gas.
@@ -127,7 +125,8 @@ export async function approveErc20IfNeeded(
 }
 
 /**
- * Processes the approval transaction of the targeted ERC20.
+ * Processes the transaction to approve the proxy to spend signer's tokens to pay
+ * the request in its payment currency. Can be used with a Multisig contract.
  * @param request request to pay
  * @param provider the web3 provider. Defaults to Etherscan.
  * @param overrides optionally, override default transaction values, like gas.
@@ -150,10 +149,13 @@ export async function approveErc20(
 }
 
 /**
- * Processes the approval transaction of the payment ERC20 to be spent by the swap router.
+ * Processes the approval transaction of a given payment ERC20 to be spent by the swap router,
+ * if the current approval is missing or not sufficient.
  * @param request request to pay, used to know the network
- * @param paymentTokenAddress picked currency for the swap to pay
+ * @param ownerAddress address of the payer
+ * @param paymentCurrency ERC20 currency used for the swap
  * @param signerOrProvider the web3 provider. Defaults to Etherscan.
+ * @param minAmount ensures the approved amount is sufficient to pay this amount
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function approveErc20ForSwapToPayIfNeeded(
@@ -161,7 +163,7 @@ export async function approveErc20ForSwapToPayIfNeeded(
   ownerAddress: string,
   paymentCurrency: ICurrency,
   signerOrProvider: Web3Provider = getProvider(),
-  amount: BigNumber,
+  minAmount: BigNumber,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
   if (!checkErc20Allowance(
@@ -169,7 +171,7 @@ export async function approveErc20ForSwapToPayIfNeeded(
     erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
     signerOrProvider,
     paymentCurrency,
-    amount
+    minAmount
     )) {
       return approveErc20ForSwapToPay(request, paymentCurrency.value, signerOrProvider, overrides)
     }
@@ -204,10 +206,10 @@ export async function approveErc20ForSwapToPay(
 }
 
 /**
- * Encodes the approval call, can be used with a Multisig contract.
+ * Encodes the transaction to approve the proxy to spend signer's tokens to pay
+ * the request in its payment currency. Can be used with a Multisig contract.
  * @param request the request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param proxyContractAddress the address of the proxy contract to set the approval.
  */
 export function encodeApproveErc20(
   request: ClientTypes.IRequestData,
@@ -232,16 +234,19 @@ export function encodeApproveErc20(
  * @param spenderAddress the address granted the approval
  * @param signerOrProvider the signer who owns ERC20 tokens
  */
-function encodeApproveAnyErc20(tokenAddress: string, spenderAddress: string, signerOrProvider: Web3Provider | Signer = getProvider()) {
+export function encodeApproveAnyErc20(
+  tokenAddress: string,
+  spenderAddress: string,
+  signerOrProvider: Web3Provider | Signer = getProvider()
+): string {
   const erc20interface = ERC20Contract.connect(tokenAddress, signerOrProvider).interface;
-  const encodedApproveCall = erc20interface.functions.approve.encode([
+  return erc20interface.functions.approve.encode([
     spenderAddress,
     bigNumberify(2)
       // tslint:disable-next-line: no-magic-numbers
       .pow(256)
       .sub(1),
   ]);
-  return encodedApproveCall;
 }
 
 /**

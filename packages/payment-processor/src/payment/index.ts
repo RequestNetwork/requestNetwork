@@ -37,7 +37,7 @@ export class UnsupportedNetworkError extends Error {
  * Processes a transaction to pay a Request.
  * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA, ERC20_FEE_PROXY_CONTRACT
  *
- * @throws UnsupportedNetworkError if network isn't supported
+ * @throws UnsupportedNetworkError if network isn't supported for swap or payment.
  * @param request the request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
@@ -53,8 +53,8 @@ export async function payRequest(
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
-  if (swapSettings && paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
-    throw new Error(`Payment network: ${paymentNetwork} is not supported by swapToPay contract`);
+  if (swapSettings && !canSwapToPay(request)) {
+    throw new UnsupportedNetworkError(paymentNetwork);
   }
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
@@ -68,15 +68,12 @@ export async function payRequest(
 }
 
 /**
- * TODO: refactor to re-use the payment currency?
- * 
- * Verifies the address has enough funds to pay the request. For ERC20
+ * Verifies the address has enough funds to pay the request in its currency.
  * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA
  *
  * @throws UnsupportedNetworkError if network isn't supported
  * @param request the request to verify.
  * @param address the address holding the funds
- * @param paymentCurrency if different from the requested currency
  * @param provider the Web3 provider. Defaults to Etherscan.
  */
 export async function hasSufficientFunds(
@@ -106,16 +103,13 @@ export async function hasSufficientFunds(
 }
 
 /**
- * TODO: refactor to re-use the payment currency?
- * 
- * Verifies the address has enough funds to pay the request. For ERC20
- * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA
+ * Verifies the address has enough funds to pay an amount in a given currency.
  *
- * @throws UnsupportedNetworkError if network isn't supported
- * @param fromAddress the address holding the funds
+ * @param fromAddress the address willing to pay
  * @param amount
  * @param currency
  * @param provider the Web3 provider. Defaults to Etherscan.
+ * @throws UnsupportedNetworkError if network isn't supported
  */
 export async function isSolvent(
   fromAddress: string,
@@ -135,12 +129,11 @@ export async function isSolvent(
 
 
 /**
- * TODO
- *
- * @throws TODO
+ * Returns the balance of a given address in a given currency.
  * @param address the address holding the funds
  * @param paymentCurrency if different from the requested currency
  * @param provider the Web3 provider. Defaults to Etherscan.
+ * @throws UnsupportedNetworkError if the currency is not implemented.
  */
 async function getBalanceInAnyCurrency(
   address: string,
