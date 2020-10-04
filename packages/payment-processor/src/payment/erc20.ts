@@ -99,7 +99,7 @@ export async function checkErc20Allowance(
 }
 
 /**
- * Processes the approval transaction of the targeted ERC20 
+ * Processes the approval transaction of the targeted ERC20.
  * @param request request to pay
  * @param provider the web3 provider. Defaults to Etherscan.
  * @param overrides optionally, override default transaction values, like gas.
@@ -222,8 +222,8 @@ export function encodeApproveErc20(
   }
   validateRequest(request, paymentNetworkId);
   return encodeApproveAnyErc20(
-    request.currencyInfo.value, 
-    getProxyAddress(request), 
+    request.currencyInfo.value,
+    getProxyAddress(request),
     getSigner(signerOrProvider)
   );
 }

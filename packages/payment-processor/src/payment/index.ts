@@ -158,7 +158,7 @@ async function getBalanceInAnyCurrency(
  */
 export function canSwapToPay(request: ClientTypes.IRequestData): boolean {
   const pnExtension = getPaymentNetworkExtension(request);
-  return (pnExtension !== undefined 
+  return (pnExtension !== undefined
     && (pnExtension.id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT));
 }
 

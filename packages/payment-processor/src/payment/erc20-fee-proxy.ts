@@ -134,7 +134,6 @@ export function encodePayErc20FeeRequest(
 
   const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
   const swapToPayContract = Erc20SwapToPayContract.connect(swapToPayAddress, signer);
-  const millisecToSec = 1000;
 
   return swapToPayContract.interface.functions.swapTransferWithReference.encode([
     paymentAddress,
@@ -144,7 +143,8 @@ export function encodePayErc20FeeRequest(
     `0x${paymentReference}`,
     feeToPay,
     feeAddress || constants.AddressZero,
-    Math.round(swapSettings.deadline / millisecToSec),
+    // tslint:disable-next-line:no-magic-numbers
+    Math.round(swapSettings.deadline / 1000),
   ]);
 }
 
