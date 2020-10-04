@@ -111,16 +111,7 @@ export async function approveErc20IfNeeded(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
   if (!hasErc20Approval(request, account, provider)) {
-    const signer = getSigner(provider);
-    const encodedTx = encodeApproveErc20(request, signer);
-    const tokenAddress = request.currencyInfo.value;
-    const tx = await signer.sendTransaction({
-      data: encodedTx,
-      to: tokenAddress,
-      value: 0,
-      ...overrides,
-    });
-    return tx;
+    return approveErc20(request, getSigner(provider), overrides);
   }
 }
 
