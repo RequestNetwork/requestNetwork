@@ -16,10 +16,10 @@ import {
   _getErc20FeeProxyPaymentUrl,
   payErc20FeeProxyRequest,
   swapErc20FeeProxyRequest,
-  encodePayErc20FeeRequest,
 } from '../../src/payment/erc20-fee-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 import { ERC20Contract } from '../../src/contracts/Erc20Contract';
+import { BigNumber } from 'ethers/utils';
 
 // tslint:disable: no-magic-numbers
 // tslint:disable: no-unused-expression
@@ -177,27 +177,29 @@ describe('erc20-fee-proxy', () => {
 
   describe('swapErc20FeeProxyRequest', () => {
     it('should consider override parameters', async () => {
-      const spy = sandbox.on(wallet, 'sendTransaction', () => 0);
+      const spy = jest.fn();
+      const originalSendTransaction = wallet.sendTransaction.bind(wallet);
+      wallet.sendTransaction = spy;
       await swapErc20FeeProxyRequest(
-        validRequest, 
-        wallet, 
+        validRequest,
+        wallet,
         {
           deadline: 2599732187000, // This test will fail in 2052
-          maxInputAmount: '204',
+          maxInputAmount: new BigNumber(204),
           path: [alphaErc20Address, erc20ContractAddress],
         },
-        undefined, 
-        undefined, 
+        undefined,
+        undefined,
         { gasPrice: '20000000000' }
       );
-      expect(spy).to.have.been.called.with({
+      expect(spy).toHaveBeenCalledWith({
         data: 
           '0x8d09fe2b000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000cc000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001600000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000009af4c3db000000000000000000000000000000000000000000000000000000000000000200000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa350000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
         gasPrice: '20000000000',
         to: '0xA4392264a2d8c998901D10C154C91725b1BF0158',
         value: 0,
       });
-      sandbox.restore();
+      wallet.sendTransaction = originalSendTransaction;
     });
 
     it('should swap and pay with an ERC20 request with fees', async () => {
@@ -215,18 +217,18 @@ describe('erc20-fee-proxy', () => {
       // Swap and pay
 
       const tx = await swapErc20FeeProxyRequest(
-        validRequest, 
+        validRequest,
         wallet,
         {
           deadline: Date.now() + 1000,
-          maxInputAmount: '204',
+          maxInputAmount: new BigNumber('204'),
           path: [alphaErc20Address, erc20ContractAddress],
-        }        
+        }
       );
       const confirmedTx = await tx.wait(1);
 
-      expect(confirmedTx.status).to.eq(1);
-      expect(tx.hash).not.to.be.undefined;
+      expect(confirmedTx.status).toEqual(1);
+      expect(tx.hash).toBeDefined();
 
       // Get the new balances
 
@@ -236,21 +238,11 @@ describe('erc20-fee-proxy', () => {
       const feeBalanceErc20After = await getErc20Balance(validRequest, feeAddress, provider);
 
       // Check each balance
+      expect(balanceEthBefore.sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
 
-      chai.assert.isTrue(balanceEthAfter.lte(balanceEthBefore), 'ETH balance should be lower');
-
-      chai.assert.isTrue(
-        balanceAlphaAfter.eq(balanceAlphaBefore.sub(204)),
-        'ALPHA balance should be lower',
-      );
-      chai.assert.isTrue(
-        issuerBalanceErc20After.eq(issuerBalanceErc20Before.add(100)),
-        'request issuer ERC20 balance should be higher',
-      );
-      chai.assert.isTrue(
-        feeBalanceErc20After.eq(feeBalanceErc20Before.add(2)),
-        'fee ERC20 balance should be higher',
-      );
+      expect(balanceAlphaAfter.toNumber()).toEqual(balanceAlphaBefore.sub(204).toNumber());
+      expect(issuerBalanceErc20After.toNumber()).toEqual(issuerBalanceErc20Before.add(100).toNumber());
+      expect(feeBalanceErc20After.toNumber()).toEqual(feeBalanceErc20Before.add(2).toNumber());
     });
   });
 

@@ -19,6 +19,7 @@ import {
   validateRequest,
 } from './utils';
 import { ISwapSettings } from '@requestnetwork/types/dist/payment-types';
+import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
 
 /**
  * Processes a transaction to pay an ERC20 Request.
@@ -66,17 +67,37 @@ export async function hasErc20Approval(
   request: ClientTypes.IRequestData,
   account: string,
   provider: Provider = getNetworkProvider(request),
-  paymentCurrency?: RequestLogicTypes.ICurrency,
-  amountInPaymentCurrency?: BigNumber,
 ): Promise<boolean> {
-  if (paymentCurrency && !amountInPaymentCurrency) {
-    throw new Error("amountInPaymentCurrency should be provided if paymentCurrency is provided");
+  return checkErc20Allowance(
+    account,
+    getProxyAddress(request),
+    provider,
+    request.currencyInfo,
+    new BigNumber(request.expectedAmount)
+  )
+}
+
+/**
+ * TODO
+ * @param request request to pay
+ * @param account account that will be used to pay the request
+ * @param provider the web3 provider. Defaults to Etherscan.
+ * @param paymentCurrency optionally, erc20 requiring approval, defaults to the request currency
+ * @param amount custom amount, mandatory if paymentCurrency is given. Can be used for partial payments.
+ */
+export async function checkErc20Allowance(
+  ownerAddress: string,
+  spenderAddress: string,
+  provider: Provider,
+  paymentCurrency: RequestLogicTypes.ICurrency,
+  amount: BigNumber,
+): Promise<boolean> {
+  if (paymentCurrency.type !== RequestLogicTypes.CURRENCY.ERC20) {
+    throw new Error('Trying to check the allowance of a non-ERC20 currency');
   }
-  const erc20Address = paymentCurrency ? paymentCurrency.value : request.currencyInfo.value;
-  const erc20Contract = ERC20Contract.connect(erc20Address, provider);
-  const allowance = await erc20Contract.allowance(account, getProxyAddress(request));
-  const expectedToSpend = amountInPaymentCurrency || request.expectedAmount;
-  return allowance.gt(expectedToSpend);
+  const erc20Contract = ERC20Contract.connect(paymentCurrency.value, provider);
+  const allowance = await erc20Contract.allowance(ownerAddress, spenderAddress);
+  return allowance.gt(amount);
 }
 
 /**
@@ -89,11 +110,9 @@ export async function approveErc20IfNeeded(
   request: ClientTypes.IRequestData,
   account: string,
   provider: Provider = getNetworkProvider(request),
-  paymentCurrency?: RequestLogicTypes.ICurrency,
-  amountInPaymentCurrency?: BigNumber,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  if (!hasErc20Approval(request, account, provider, paymentCurrency, amountInPaymentCurrency)) {
+  if (!hasErc20Approval(request, account, provider)) {
     const signer = getSigner(provider);
     const encodedTx = encodeApproveErc20(request, signer);
     const tokenAddress = request.currencyInfo.value;
@@ -137,6 +156,32 @@ export async function approveErc20(
  * @param signerOrProvider the web3 provider. Defaults to Etherscan.
  * @param overrides optionally, override default transaction values, like gas.
  */
+export async function approveErc20ForSwapToPayIfNeeded(
+  request: ClientTypes.IRequestData,
+  ownerAddress: string,
+  paymentCurrency: ICurrency,
+  signerOrProvider: Web3Provider = getProvider(),
+  amount: BigNumber,
+  overrides?: ITransactionOverrides,
+): Promise<ContractTransaction | void> {
+  if (!checkErc20Allowance(
+    ownerAddress,
+    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
+    signerOrProvider,
+    paymentCurrency,
+    amount
+    )) {
+      return approveErc20ForSwapToPay(request, paymentCurrency.value, signerOrProvider, overrides)
+    }
+}
+
+/**
+ * Processes the approval transaction of the payment ERC20 to be spent by the swap router.
+ * @param request request to pay, used to know the network
+ * @param paymentTokenAddress picked currency for the swap to pay
+ * @param signerOrProvider the web3 provider. Defaults to Etherscan.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
 export async function approveErc20ForSwapToPay(
   request: ClientTypes.IRequestData,
   paymentTokenAddress: string,
@@ -144,8 +189,8 @@ export async function approveErc20ForSwapToPay(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodeApproveAnyErc20(
-    paymentTokenAddress, 
-    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!), 
+    paymentTokenAddress,
+    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
     signerOrProvider
   );
   const signer = getSigner(signerOrProvider);

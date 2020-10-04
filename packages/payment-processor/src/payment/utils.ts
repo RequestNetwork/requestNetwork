@@ -9,6 +9,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { UnsupportedNetworkError } from '.';
 
 /**
  * Utility to get the default window.ethereum provider, or throws an error.
@@ -33,7 +34,7 @@ export function getNetworkProvider(request: ClientTypes.IRequestData): Provider 
   if (request.currencyInfo.network === 'rinkeby') {
     return getDefaultProvider('rinkeby');
   }
-  throw new Error('unsupported network');
+  throw new UnsupportedNetworkError(request.currencyInfo.network);
 }
 
 /**

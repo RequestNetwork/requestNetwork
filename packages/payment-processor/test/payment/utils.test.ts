@@ -114,7 +114,7 @@ describe('getNetworkProvider', () => {
         network: 'ropsten',
       },
     };
-    expect(() => getNetworkProvider(request)).toThrowError('unsupported network');
+    expect(() => getNetworkProvider(request)).toThrowError('Payment network ropsten is not supported');
   });
 });
 

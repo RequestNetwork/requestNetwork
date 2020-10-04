@@ -10,7 +10,7 @@ import { payErc20Request } from './erc20';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getPaymentNetworkExtension, getProvider, getSigner } from './utils';
-import { ICurrency, CURRENCY } from '@requestnetwork/types/dist/request-logic-types';
+import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
 import { ISwapSettings } from '@requestnetwork/types/dist/payment-types';
 
 export const supportedNetworks = [
@@ -83,49 +83,54 @@ export async function hasSufficientFunds(
   request: ClientTypes.IRequestData,
   address: string,
   provider?: Provider,
-  paymentCurrency?: ICurrency,
-  swapSettings?: ISwapSettings,
 ): Promise<boolean> {
-
   const paymentNetwork = getPaymentNetwork(request);
-  if (!paymentNetwork || supportedNetworks.indexOf(paymentNetwork) === -1) {
+  if (!paymentNetwork || !supportedNetworks.includes(paymentNetwork)) {
     throw new UnsupportedNetworkError(paymentNetwork);
-  }
-
-  let totalInPaymentCcy: BigNumberish;
-  let feeAmount = new BigNumber(0);
-
-  if (paymentNetwork == ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
-    feeAmount = request.extensions[paymentNetwork].values.feeAmount || 0;
-  }
-
-  if (!paymentCurrency || paymentCurrency === request.currencyInfo) {
-    paymentCurrency = request.currencyInfo;
-    totalInPaymentCcy = new BigNumber(request.expectedAmount).add(feeAmount);
-  } else {
-    if (paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
-      throw new Error("Cannot swap to pay this request. Only works with ERC20_FEE_PROXY_CONTRACT");
-    }
-    if (! swapSettings?.maxInputAmount) {
-      throw new Error("Missing input amount for swap");
-    }
-    totalInPaymentCcy = swapSettings?.maxInputAmount;
   }
 
   if (!provider) {
     provider = getNetworkProvider(request);
   }
 
-  const balance = await getBalanceInAnyCurrency(address, paymentCurrency, provider);
-  const ethBalance = (paymentCurrency.type === CURRENCY.ETH) ?
-    balance
-    : await getBalanceInAnyCurrency(
+  let feeAmount = new BigNumber(0);
+  if (paymentNetwork === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+    feeAmount = request.extensions[paymentNetwork].values.feeAmount || 0;
+  }
+  return isSolvent(
     address,
-    {type: CURRENCY.ETH, value: 'ETH', network: paymentCurrency.network},
+    request.currencyInfo,
+    new BigNumber(request.expectedAmount).add(feeAmount),
     provider
   );
+}
 
-  return ethBalance.gt(0) && balance.gt(totalInPaymentCcy);
+/**
+ * TODO: refactor to re-use the payment currency?
+ * 
+ * Verifies the address has enough funds to pay the request. For ERC20
+ * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA
+ *
+ * @throws UnsupportedNetworkError if network isn't supported
+ * @param fromAddress the address holding the funds
+ * @param amount
+ * @param currency
+ * @param provider the Web3 provider. Defaults to Etherscan.
+ */
+export async function isSolvent(
+  fromAddress: string,
+  currency: ICurrency,
+  amount: BigNumber,
+  provider: Provider,
+): Promise<boolean> {
+  const ethBalance = await provider.getBalance(fromAddress);
+
+  if (currency.type === 'ETH') {
+    return ethBalance.gt(amount);
+  } else {
+    const balance = await getBalanceInAnyCurrency(fromAddress, currency, provider);
+    return ethBalance.gt(0) && balance.gte(amount);
+  }
 }
 
 
@@ -143,14 +148,14 @@ async function getBalanceInAnyCurrency(
   provider: Provider,
 ): Promise<BigNumber> {
   switch (paymentCurrency.type) {
-    case "ETH": {
-      return await provider.getBalance(address);
+    case 'ETH': {
+      return provider.getBalance(address);
     }
-    case "ERC20": {
-      return await await getAnyErc20Balance(paymentCurrency.value, address, provider);
+    case 'ERC20': {
+      return getAnyErc20Balance(paymentCurrency.value, address, provider);
     }
     default:
-      throw new Error("Unsupported payment currency type");
+      throw new UnsupportedNetworkError(paymentCurrency.network);
   }
 }
 

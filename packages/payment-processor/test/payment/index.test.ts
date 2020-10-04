@@ -138,10 +138,10 @@ describe('hasSufficientFunds', () => {
 
   it('should call the ERC20 payment method', async () => {
     const spy = jest
-      .spyOn(erc20Module, 'getErc20Balance')
+      .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(bigNumberify('200')));
     const fakeProvider: any = {
-      getBalance: stub().returns(Promise.resolve(bigNumberify('200'))),
+      getBalance: () => Promise.resolve(bigNumberify('200')),
     };
     const request: any = {
       balance: {
