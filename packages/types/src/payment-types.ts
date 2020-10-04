@@ -1,7 +1,5 @@
 import * as Extension from './extension-types';
 import * as RequestLogic from './request-logic-types';
-import { BigNumber } from 'ethers/utils';
-
 
 /** Object interface to list the payment network id and its module by currency */
 export interface ISupportedPaymentNetworkByCurrency {
@@ -159,17 +157,3 @@ export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<
 >;
 /** Declarative BalanceWithEvents */
 export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;
-
-/**
- * Details required for a token swap:
- *
- *  - maxInputAmount: maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
- *  - path: array of token addresses to be used for the "swap path".
- *    ['0xPaymentCcy', '0xIntermediate1', ..., '0xRequestCcy']
- *  - deadline: time in milliseconds since UNIX epoch, after which the swap should not be executed.
- */
-export interface ISwapSettings {
-  deadline: number;
-  maxInputAmount: BigNumber;
-  path: string[];
-}

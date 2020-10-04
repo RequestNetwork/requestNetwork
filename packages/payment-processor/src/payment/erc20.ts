@@ -18,8 +18,8 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
-import { ISwapSettings } from '@requestnetwork/types/dist/payment-types';
 import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
+import { ISwapSettings } from '..';
 
 /**
  * Processes a transaction to pay an ERC20 Request.

@@ -15,7 +15,7 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
-import { ISwapSettings } from '@requestnetwork/types/dist/payment-types';
+import { ISwapSettings } from '..';
 
 /**
  * Processes a transaction to pay an ERC20 Request with fees.
@@ -90,7 +90,7 @@ export function encodePayErc20FeeRequest(
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-  swapSettings?: PaymentTypes.ISwapSettings,
+  swapSettings?: ISwapSettings,
 ): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
 
