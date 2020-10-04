@@ -61,23 +61,45 @@ export async function payRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
-  swapSettings?: ISwapSettings,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
-  if (swapSettings && !canSwapToPay(request)) {
-    throw new UnsupportedNetworkError(paymentNetwork);
-  }
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return payErc20Request(request, signer, amount, undefined, swapSettings, overrides);
+      return payErc20Request(request, signer, amount, undefined, undefined, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
       return payEthInputDataRequest(request, signer, amount, overrides);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
+}
+
+/**
+ * Processes a transaction to pay a Request with a swap
+ * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA, ERC20_FEE_PROXY_CONTRACT
+ *
+ * @throws UnsupportedNetworkError if network isn't supported for swap or payment.
+ * @param request the request to pay.
+ * @param swapSettings the information of how to swap from another payment token.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param amount optionally, the amount to pay in request currency. Defaults to remaining amount of the request.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export async function swapToPayRequest(
+  request: ClientTypes.IRequestData,
+  swapSettings: ISwapSettings,
+  signerOrProvider: Web3Provider | Signer = getProvider(),
+  amount?: BigNumberish,
+  overrides?: ITransactionOverrides,
+): Promise<ContractTransaction> {
+  const signer = getSigner(signerOrProvider);
+  const paymentNetwork = getPaymentNetwork(request);
+  if (!canSwapToPay(request)) {
+    throw new UnsupportedNetworkError(paymentNetwork);
+  }
+  return payErc20Request(request, signer, amount, undefined, swapSettings, overrides);
 }
 
 /**
