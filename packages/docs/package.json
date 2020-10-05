@@ -67,6 +67,6 @@
     "aurelius": "0.1.3",
     "docusaurus-plugin-typedoc": "0.2.0",
     "typedoc": "0.19.1",
-    "typedoc-plugin-markdown": "3.0.3"
+    "typedoc-plugin-markdown": "3.0.5"
   }
 }
