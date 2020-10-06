@@ -30,6 +30,30 @@ export interface ISwapSettings {
 }
 
 /**
+ * Details required for a token swap:
+ *
+ * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export interface ISwapTransactionOptions extends ISwapOptions {
+  overrides?: ITransactionOverrides;
+}
+
+/**
+ * Details required for a token swap:
+ *
+ *  - maxInputAmount: maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
+ *  - path: array of token addresses to be used for the "swap path".
+ *    ['0xPaymentCurrency', '0xIntermediate1', ..., '0xRequestCurrency']
+ *  - deadline: time in milliseconds since UNIX epoch, after which the swap should not be executed.
+ */
+export interface ISwapOptions {
+  amount?: BigNumberish;
+  feeAmount?: BigNumberish;
+}
+
+/**
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
@@ -42,11 +66,14 @@ export async function swapErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   swapSettings: ISwapSettings,
-  amount?: BigNumberish,
-  feeAmount?: BigNumberish,
-  overrides?: ITransactionOverrides,
+  options?: ISwapTransactionOptions,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodeSwapToPayErc20FeeRequest(request, signerOrProvider, swapSettings, amount, feeAmount);
+  const encodedTx = encodeSwapToPayErc20FeeRequest(
+    request,
+    signerOrProvider,
+    swapSettings,
+    options,
+  );
   const proxyAddress = erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
 
@@ -54,7 +81,7 @@ export async function swapErc20FeeProxyRequest(
     data: encodedTx,
     to: proxyAddress,
     value: 0,
-    ...overrides,
+    ...options?.overrides,
   });
   return tx;
 }
@@ -71,18 +98,17 @@ export function encodeSwapToPayErc20FeeRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   swapSettings: ISwapSettings,
-  amount?: BigNumberish,
-  feeAmountOverride?: BigNumberish,
+  options?: ISwapTransactionOptions,
 ): string {
-  validateErc20FeeProxyRequest(request, amount, feeAmountOverride);
+  validateErc20FeeProxyRequest(request, options?.amount, options?.feeAmount);
 
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
   request,
   );
-  const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+  const amountToPay = getAmountToPay(request, options?.amount);
+  const feeToPay = bigNumberify(options?.feeAmount || feeAmount || 0);
 
   if (swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()) {
   throw new Error('Last item of the path should be the request currency');

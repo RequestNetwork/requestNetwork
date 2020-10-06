@@ -26,16 +26,16 @@ import {
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Only applicable to ERC20 Fee Payment network. Defaults to the fee amount.
- * @param swapSettings optionally, the settings to swap a maximum amount of currency, through a swap path, before a deadline, to pay
  * @param overrides optionally, override default transaction values, like gas.
+ * @param swapSettings optionally, the settings to swap a maximum amount of currency, through a swap path, before a deadline, to pay
  */
 export async function payErc20Request(
   request: ClientTypes.IRequestData,
   signerOrProvider?: Web3Provider | Signer,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
-  swapSettings?: ISwapSettings,
   overrides?: ITransactionOverrides,
+  swapSettings?: ISwapSettings,
 ): Promise<ContractTransaction> {
   const id = getPaymentNetworkExtension(request)?.id;
   if (swapSettings && id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
@@ -46,7 +46,15 @@ export async function payErc20Request(
   }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
     if (swapSettings) {
-      return swapErc20FeeProxyRequest(request, signerOrProvider, swapSettings, amount, feeAmount, overrides);
+      return swapErc20FeeProxyRequest(
+        request,
+        signerOrProvider,
+        swapSettings,
+        {
+          amount,
+          feeAmount,
+          overrides
+        });
     } else {
       return payErc20FeeProxyRequest(request, signerOrProvider, amount, feeAmount, overrides);
     }

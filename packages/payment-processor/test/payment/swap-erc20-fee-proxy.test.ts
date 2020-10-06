@@ -131,9 +131,9 @@ describe('swap-erc20-fee-proxy', () => {
           maxInputAmount: 204,
           path: [alphaErc20Address, erc20ContractAddress],
         },
-        undefined,
-        undefined,
-        { gasPrice: '20000000000' }
+        {
+          overrides: {gasPrice: '20000000000' }
+        }
       );
       expect(spy).toHaveBeenCalledWith({
         data: 

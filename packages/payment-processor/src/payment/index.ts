@@ -54,7 +54,7 @@ export async function payRequest(
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return payErc20Request(request, signer, amount, undefined, undefined, overrides);
+      return payErc20Request(request, signer, amount, undefined, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
       return payEthInputDataRequest(request, signer, amount, overrides);
     default:
@@ -85,7 +85,7 @@ export async function swapToPayRequest(
   if (!canSwapToPay(request)) {
     throw new UnsupportedNetworkError(paymentNetwork);
   }
-  return payErc20Request(request, signer, amount, undefined, swapSettings, overrides);
+  return payErc20Request(request, signer, amount, undefined, overrides, swapSettings);
 }
 
 /**
