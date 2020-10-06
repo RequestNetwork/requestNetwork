@@ -489,8 +489,7 @@ describe('index', () => {
     await expect(request.refresh()).rejects.toThrowError('request confirmation failed');
   });
 
-  // TODO since the migration to jest, this test fails.
-  it.skip('works with mocked storage emitting error when append waitForConfirmation will throw', async () => {
+  it('works with mocked storage emitting error when append waitForConfirmation will throw', async () => {
     const requestNetworkInside = new RequestNetwork({
       signatureProvider: fakeSignatureProvider,
       useMockStorage: true,
@@ -512,7 +511,7 @@ describe('index', () => {
     expect(data.state).toBe(RequestLogicTypes.STATE.PENDING);
     expect(data.pending?.state).toBe(RequestLogicTypes.STATE.CREATED);
 
-    await expect(request.waitForConfirmation()).rejects.toThrowError(
+    await expect(request.waitForConfirmation()).rejects.toBe(
       'forced error asked by _makeNextAppendFailInsteadOfConfirmed()',
     );
 
