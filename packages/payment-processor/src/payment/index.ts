@@ -9,7 +9,7 @@ import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
 import { payErc20Request } from './erc20';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { ITransactionOverrides } from './transaction-overrides';
-import { getNetworkProvider, getPaymentNetworkExtension, getProvider, getSigner } from './utils';
+import { getNetworkProvider, getProvider, getSigner } from './utils';
 import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
 
 export const supportedNetworks = [
@@ -191,9 +191,9 @@ async function getCurrencyBalance(
  * @param request the request that accepts or not swap to payment
  */
 export function canSwapToPay(request: ClientTypes.IRequestData): boolean {
-  const pnExtension = getPaymentNetworkExtension(request);
-  return (pnExtension !== undefined
-    && (pnExtension.id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT));
+  const paymentNetwork = getPaymentNetwork(request);
+  return (paymentNetwork !== undefined
+    && (paymentNetwork === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT));
 }
 
 /**
