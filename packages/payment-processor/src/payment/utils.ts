@@ -136,9 +136,9 @@ export function validateRequest(
 
 /**
  * Validates the parameters for an ERC20 Fee Proxy payment.
- * @param request 
- * @param amount 
- * @param feeAmountOverride 
+ * @param request to validate
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
  */
 export function validateErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
