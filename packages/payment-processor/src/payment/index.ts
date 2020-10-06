@@ -54,7 +54,6 @@ export interface ISwapSettings {
  * @param request the request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param swapSettings optionally, the information of how to swap from another payment token.
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payRequest(
