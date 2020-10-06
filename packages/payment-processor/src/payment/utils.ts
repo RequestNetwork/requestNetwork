@@ -135,6 +135,33 @@ export function validateRequest(
 }
 
 /**
+ * Validates the parameters for an ERC20 Fee Proxy payment.
+ * @param request 
+ * @param amount 
+ * @param feeAmountOverride 
+ */
+export function validateErc20FeeProxyRequest(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): void {
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+
+  const { feeAddress, feeAmount } = getRequestPaymentValues(
+    request,
+  );
+  const amountToPay = getAmountToPay(request, amount);
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+
+  if (!!feeAmount !== !!feeAddress) {
+    throw new Error('Both fee address and fee amount have to be declared, or both left empty');
+  }
+  if (amountToPay.isZero() && feeToPay.isZero()) {
+    throw new Error('Request payment amount and fee are 0');
+  }
+}
+
+/**
  * Computes the amount to pay.
  * If `amount` is specified, it will return it.
  * Otherwise, it will return the amount left to pay in the request.

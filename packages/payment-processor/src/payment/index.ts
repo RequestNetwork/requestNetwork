@@ -11,6 +11,7 @@ import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
 import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
+import { ISwapSettings } from './swap-erc20-fee-proxy';
 
 export const supportedNetworks = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
@@ -30,20 +31,6 @@ export class UnsupportedNetworkError extends Error {
   constructor(public networkName?: string) {
     super(`Payment network ${networkName} is not supported`);
   }
-}
-
-/**
- * Details required for a token swap:
- *
- *  - maxInputAmount: maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
- *  - path: array of token addresses to be used for the "swap path".
- *    ['0xPaymentCurrency', '0xIntermediate1', ..., '0xRequestCurrency']
- *  - deadline: time in milliseconds since UNIX epoch, after which the swap should not be executed.
- */
-export interface ISwapSettings {
-  deadline: number;
-  maxInputAmount: BigNumber;
-  path: string[];
 }
 
 /**
