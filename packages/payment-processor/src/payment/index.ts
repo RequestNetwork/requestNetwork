@@ -77,7 +77,7 @@ export async function payRequest(
 
 /**
  * Processes a transaction to pay a Request with a swap
- * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA, ERC20_FEE_PROXY_CONTRACT
+ * Supported payment networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA, ERC20_FEE_PROXY_CONTRACT
  *
  * @throws UnsupportedNetworkError if network isn't supported for swap or payment.
  * @param request the request to pay.
