@@ -156,7 +156,7 @@ export async function isSolvent(
   if (currency.type === 'ETH') {
     return ethBalance.gt(amount);
   } else {
-    const balance = await getBalanceInAnyCurrency(fromAddress, currency, provider);
+    const balance = await getCurrencyBalance(fromAddress, currency, provider);
     return ethBalance.gt(0) && balance.gte(amount);
   }
 }
@@ -169,7 +169,7 @@ export async function isSolvent(
  * @param provider the Web3 provider. Defaults to Etherscan.
  * @throws UnsupportedNetworkError if the currency is not implemented.
  */
-async function getBalanceInAnyCurrency(
+async function getCurrencyBalance(
   address: string,
   paymentCurrency: ICurrency,
   provider: Provider,
