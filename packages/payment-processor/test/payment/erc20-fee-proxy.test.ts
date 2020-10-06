@@ -17,6 +17,7 @@ import {
   payErc20FeeProxyRequest,
 } from '../../src/payment/erc20-fee-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
+import { bigNumberify } from 'ethers/utils';
 
 // tslint:disable: no-magic-numbers
 // tslint:disable: no-unused-expression
@@ -165,9 +166,9 @@ describe('erc20-fee-proxy', () => {
       expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
 
       // ERC20 balance should be lower
-      expect(balanceErc20After.eq(balanceErc20Before.sub(102))).toBeTruthy();
+      expect(bigNumberify(balanceErc20After).eq(bigNumberify(balanceErc20Before).sub(102))).toBeTruthy();
       // fee ERC20 balance should be higher
-      expect(feeBalanceErc20After.eq(feeBalanceErc20Before.add(2))).toBeTruthy();
+      expect(bigNumberify(feeBalanceErc20After).eq(bigNumberify(feeBalanceErc20Before).add(2))).toBeTruthy();
     });
   });
 

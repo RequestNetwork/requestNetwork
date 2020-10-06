@@ -11,7 +11,8 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import { getErc20Balance, approveErc20ForSwapToPay } from '../../src/payment/erc20';
+import { getErc20Balance } from '../../src/payment/erc20';
+import { approveErc20ForSwapToPay } from '../../src/payment/swap-erc20';
 import { _getErc20FeeProxyPaymentUrl } from '../../src/payment/erc20-fee-proxy';
 import { ERC20Contract } from '../../src/contracts/Erc20Contract';
 import { ISwapSettings, swapErc20FeeProxyRequest } from '../../src/payment/swap-erc20-fee-proxy';

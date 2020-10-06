@@ -2,12 +2,13 @@ import { ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
 import { bigNumberify, BigNumberish } from 'ethers/utils';
 
-import { erc20ProxyArtifact, erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
+import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ERC20Contract } from '../contracts/Erc20Contract';
-import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest, swapErc20FeeProxyRequest } from './erc20-fee-proxy';
+import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
+import { ISwapSettings, swapErc20FeeProxyRequest } from './swap-erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
 
 import { ITransactionOverrides } from './transaction-overrides';
@@ -18,8 +19,6 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
-import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
-import { ISwapSettings } from '..';
 
 /**
  * Processes a transaction to pay an ERC20 Request.
@@ -133,63 +132,6 @@ export async function approveErc20(
   const tx = await signer.sendTransaction({
     data: encodedTx,
     to: tokenAddress,
-    value: 0,
-    ...overrides,
-  });
-  return tx;
-}
-
-/**
- * Processes the approval transaction of a given payment ERC20 to be spent by the swap router,
- * if the current approval is missing or not sufficient.
- * @param request request to pay, used to know the network
- * @param ownerAddress address of the payer
- * @param paymentCurrency ERC20 currency used for the swap
- * @param signerOrProvider the web3 provider. Defaults to Etherscan.
- * @param minAmount ensures the approved amount is sufficient to pay this amount
- * @param overrides optionally, override default transaction values, like gas.
- */
-export async function approveErc20ForSwapToPayIfNeeded(
-  request: ClientTypes.IRequestData,
-  ownerAddress: string,
-  paymentCurrency: ICurrency,
-  signerOrProvider: Web3Provider = getProvider(),
-  minAmount: BigNumberish,
-  overrides?: ITransactionOverrides,
-): Promise<ContractTransaction | void> {
-  if (!checkErc20Allowance(
-    ownerAddress,
-    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
-    signerOrProvider,
-    paymentCurrency,
-    minAmount
-    )) {
-      return approveErc20ForSwapToPay(request, paymentCurrency.value, signerOrProvider, overrides)
-    }
-}
-
-/**
- * Processes the approval transaction of the payment ERC20 to be spent by the swap router.
- * @param request request to pay, used to know the network
- * @param paymentTokenAddress picked currency for the swap to pay
- * @param signerOrProvider the web3 provider. Defaults to Etherscan.
- * @param overrides optionally, override default transaction values, like gas.
- */
-export async function approveErc20ForSwapToPay(
-  request: ClientTypes.IRequestData,
-  paymentTokenAddress: string,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
-  overrides?: ITransactionOverrides,
-): Promise<ContractTransaction> {
-  const encodedTx = encodeApproveAnyErc20(
-    paymentTokenAddress,
-    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
-    signerOrProvider
-  );
-  const signer = getSigner(signerOrProvider);
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: paymentTokenAddress,
     value: 0,
     ...overrides,
   });
