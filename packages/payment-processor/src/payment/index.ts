@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
-import { BigNumberish, BigNumber } from 'ethers/utils';
+import { BigNumberish, bigNumberify } from 'ethers/utils';
 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
@@ -111,14 +111,14 @@ export async function hasSufficientFunds(
     provider = getNetworkProvider(request);
   }
 
-  let feeAmount = new BigNumber(0);
+  let feeAmount = 0;
   if (paymentNetwork === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
     feeAmount = request.extensions[paymentNetwork].values.feeAmount || 0;
   }
   return isSolvent(
     address,
     request.currencyInfo,
-    new BigNumber(request.expectedAmount).add(feeAmount),
+    bigNumberify(request.expectedAmount).add(feeAmount),
     provider
   );
 }
@@ -135,7 +135,7 @@ export async function hasSufficientFunds(
 export async function isSolvent(
   fromAddress: string,
   currency: ICurrency,
-  amount: BigNumber,
+  amount: BigNumberish,
   provider: Provider,
 ): Promise<boolean> {
   const ethBalance = await provider.getBalance(fromAddress);
@@ -144,7 +144,7 @@ export async function isSolvent(
     return ethBalance.gt(amount);
   } else {
     const balance = await getCurrencyBalance(fromAddress, currency, provider);
-    return ethBalance.gt(0) && balance.gte(amount);
+    return ethBalance.gt(0) && bigNumberify(balance).gte(amount);
   }
 }
 
@@ -160,7 +160,7 @@ async function getCurrencyBalance(
   address: string,
   paymentCurrency: ICurrency,
   provider: Provider,
-): Promise<BigNumber> {
+): Promise<BigNumberish> {
   switch (paymentCurrency.type) {
     case 'ETH': {
       return provider.getBalance(address);

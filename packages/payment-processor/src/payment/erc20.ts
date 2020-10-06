@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
-import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
+import { bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { erc20ProxyArtifact, erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
@@ -71,7 +71,7 @@ export async function hasErc20Approval(
     getProxyAddress(request),
     provider,
     request.currencyInfo,
-    new BigNumber(request.expectedAmount)
+    request.expectedAmount
   )
 }
 
@@ -88,7 +88,7 @@ export async function checkErc20Allowance(
   spenderAddress: string,
   provider: Provider,
   paymentCurrency: RequestLogicTypes.ICurrency,
-  amount: BigNumber,
+  amount: BigNumberish,
 ): Promise<boolean> {
   if (paymentCurrency.type !== RequestLogicTypes.CURRENCY.ERC20) {
     throw new Error('Trying to check the allowance of a non-ERC20 currency');
@@ -154,7 +154,7 @@ export async function approveErc20ForSwapToPayIfNeeded(
   ownerAddress: string,
   paymentCurrency: ICurrency,
   signerOrProvider: Web3Provider = getProvider(),
-  minAmount: BigNumber,
+  minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
   if (!checkErc20Allowance(
@@ -250,7 +250,7 @@ export async function getErc20Balance(
   request: ClientTypes.IRequestData,
   address: string,
   provider: Provider = getNetworkProvider(request),
-): Promise<BigNumber> {
+): Promise<BigNumberish> {
   return getAnyErc20Balance(request.currencyInfo.value, address, provider);
 }
 
@@ -264,7 +264,7 @@ export async function getAnyErc20Balance(
   anyErc20Address: string,
   address: string,
   provider: Provider,
-): Promise<BigNumber> {
+): Promise<BigNumberish> {
   const erc20Contract = ERC20Contract.connect(anyErc20Address, provider);
   return erc20Contract.balanceOf(address);
 }
