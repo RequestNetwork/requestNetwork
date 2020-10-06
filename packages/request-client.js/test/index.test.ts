@@ -12,6 +12,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { ethers } from 'ethers';
+
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { Request, RequestNetwork, Types } from '../src/index';
 import * as TestData from './data-test';
@@ -19,6 +20,7 @@ import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { BigNumber } from 'ethers/utils';
+import EtherscanProviderMockup from './ethers-mockup';
 
 const packageJson = require('../package.json');
 const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
@@ -1242,6 +1244,11 @@ describe('index', () => {
   });
 
   describe('ETH requests', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      jest.restoreAllMocks();
+    });
+
     it('can create ETH requests with given salt', async () => {
       jest.useFakeTimers('modern');
 
@@ -1361,8 +1368,11 @@ describe('index', () => {
     });
 
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
-    it.skip('can get the balance of an ETH request', async () => {
+    it('can get the balance of an ETH request', async () => {
       jest.useFakeTimers('modern');
+      jest
+        .spyOn(ethers.providers, 'EtherscanProvider')
+        .mockImplementation(() => new EtherscanProviderMockup() as any);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
@@ -1424,8 +1434,12 @@ describe('index', () => {
       jest.useRealTimers();
     }, 20000);
 
-    it.skip('can skip the get the balance of a request', async () => {
+    it('can skip the get the balance of a request', async () => {
       jest.useFakeTimers('modern');
+
+      jest
+        .spyOn(ethers.providers, 'EtherscanProvider')
+        .mockImplementation(() => new EtherscanProviderMockup() as any);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
