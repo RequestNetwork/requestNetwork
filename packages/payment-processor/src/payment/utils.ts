@@ -9,7 +9,15 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { UnsupportedNetworkError } from '.';
+
+/**
+ * Thrown when the library does not support a payment blockchain network.
+ */
+export class UnsupportedCurrencyNetwork extends Error {
+  constructor(public networkName?: string) {
+    super(`Currency network ${networkName} is not supported`);
+  }
+}
 
 /**
  * Utility to get the default window.ethereum provider, or throws an error.
@@ -34,7 +42,7 @@ export function getNetworkProvider(request: ClientTypes.IRequestData): Provider 
   if (request.currencyInfo.network === 'rinkeby') {
     return getDefaultProvider('rinkeby');
   }
-  throw new UnsupportedNetworkError(request.currencyInfo.network);
+  throw new UnsupportedCurrencyNetwork(request.currencyInfo.network);
 }
 
 /**
