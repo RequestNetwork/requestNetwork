@@ -914,6 +914,7 @@ describe('index', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: payeeIdentity,
@@ -1277,6 +1278,7 @@ describe('index', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: payeeIdentity,
@@ -1319,6 +1321,7 @@ describe('index', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: payeeIdentity,
@@ -1355,6 +1358,7 @@ describe('index', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: payeeIdentity,
@@ -1434,7 +1438,7 @@ describe('index', () => {
       jest.useRealTimers();
     }, 20000);
 
-    it('can skip the get the balance of a request', async () => {
+    it('can disable and enable the get the balance of a request', async () => {
       jest.useFakeTimers('modern');
 
       jest
@@ -1528,6 +1532,10 @@ describe('index', () => {
 
     it('can get the balance on a skipped payment detection request', async () => {
       jest.useFakeTimers('modern');
+
+      jest
+        .spyOn(ethers.providers, 'EtherscanProvider')
+        .mockImplementation(() => new EtherscanProviderMockup() as any);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
