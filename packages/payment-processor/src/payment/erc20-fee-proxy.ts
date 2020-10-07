@@ -50,7 +50,6 @@ export async function payErc20FeeProxyRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
- * @param swapSettings settings for the swap:
  */
 export function encodePayErc20FeeRequest(
   request: ClientTypes.IRequestData,
