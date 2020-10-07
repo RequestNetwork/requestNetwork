@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20proxyContractAbiFragment = [
   'event TransferWithReference(address tokenAddress,address to,uint256 amount,bytes indexed paymentReference)',
-  'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress);',
+  'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
 ];
 
 /**
