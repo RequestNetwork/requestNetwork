@@ -12,6 +12,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { ethers } from 'ethers';
+
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { Request, RequestNetwork, Types } from '../src/index';
 import * as TestData from './data-test';
@@ -19,6 +20,7 @@ import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { BigNumber } from 'ethers/utils';
+import EtherscanProviderMockup from './ethers-mockup';
 
 const packageJson = require('../package.json');
 const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
@@ -489,8 +491,7 @@ describe('index', () => {
     await expect(request.refresh()).rejects.toThrowError('request confirmation failed');
   });
 
-  // TODO since the migration to jest, this test fails.
-  it.skip('works with mocked storage emitting error when append waitForConfirmation will throw', async () => {
+  it('works with mocked storage emitting error when append waitForConfirmation will throw', async () => {
     const requestNetworkInside = new RequestNetwork({
       signatureProvider: fakeSignatureProvider,
       useMockStorage: true,
@@ -512,7 +513,7 @@ describe('index', () => {
     expect(data.state).toBe(RequestLogicTypes.STATE.PENDING);
     expect(data.pending?.state).toBe(RequestLogicTypes.STATE.CREATED);
 
-    await expect(request.waitForConfirmation()).rejects.toThrowError(
+    await expect(request.waitForConfirmation()).rejects.toBe(
       'forced error asked by _makeNextAppendFailInsteadOfConfirmed()',
     );
 
@@ -913,6 +914,7 @@ describe('index', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: payeeIdentity,
@@ -1243,6 +1245,11 @@ describe('index', () => {
   });
 
   describe('ETH requests', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      jest.restoreAllMocks();
+    });
+
     it('can create ETH requests with given salt', async () => {
       jest.useFakeTimers('modern');
 
@@ -1271,6 +1278,7 @@ describe('index', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: payeeIdentity,
@@ -1313,6 +1321,7 @@ describe('index', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: payeeIdentity,
@@ -1349,6 +1358,7 @@ describe('index', () => {
       });
 
       const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
         paymentNetwork,
         requestInfo,
         signer: payeeIdentity,
@@ -1362,8 +1372,11 @@ describe('index', () => {
     });
 
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
-    it.skip('can get the balance of an ETH request', async () => {
+    it('can get the balance of an ETH request', async () => {
       jest.useFakeTimers('modern');
+      jest
+        .spyOn(ethers.providers, 'EtherscanProvider')
+        .mockImplementation(() => new EtherscanProviderMockup() as any);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
@@ -1425,8 +1438,12 @@ describe('index', () => {
       jest.useRealTimers();
     }, 20000);
 
-    it.skip('can skip the get the balance of a request', async () => {
+    it('can disable and enable the get the balance of a request', async () => {
       jest.useFakeTimers('modern');
+
+      jest
+        .spyOn(ethers.providers, 'EtherscanProvider')
+        .mockImplementation(() => new EtherscanProviderMockup() as any);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
@@ -1515,6 +1532,10 @@ describe('index', () => {
 
     it('can get the balance on a skipped payment detection request', async () => {
       jest.useFakeTimers('modern');
+
+      jest
+        .spyOn(ethers.providers, 'EtherscanProvider')
+        .mockImplementation(() => new EtherscanProviderMockup() as any);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
