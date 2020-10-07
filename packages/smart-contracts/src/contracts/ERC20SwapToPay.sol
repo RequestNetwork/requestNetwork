@@ -15,7 +15,6 @@ interface IUniswapV2Router02 {
   ) external returns (uint[] memory amounts);
 }
 
-
 /**
  * @title ERC20SwapToPay
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
@@ -123,7 +122,6 @@ contract ERC20SwapToPay is Ownable {
       requestedToken.transfer(msg.sender, requestedToken.balanceOf(address(this)));
     }
   }
-
 
   /*
   * Admin functions to edit the admin, router address or proxy address
