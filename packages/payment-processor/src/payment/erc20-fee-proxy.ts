@@ -12,6 +12,7 @@ import {
   getProvider,
   getRequestPaymentValues,
   getSigner,
+  validateErc20FeeProxyRequest,
   validateRequest,
 } from './utils';
 
@@ -31,7 +32,6 @@ export async function payErc20FeeProxyRequest(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodePayErc20FeeRequest(request, signerOrProvider, amount, feeAmount);
-
   const proxyAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
 
@@ -57,27 +57,16 @@ export function encodePayErc20FeeRequest(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+  validateErc20FeeProxyRequest(request, amount, feeAmountOverride);
+
   const signer = getSigner(signerOrProvider);
-
   const tokenAddress = request.currencyInfo.value;
-  const proxyAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
-
   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
     request,
   );
-
-  if (!!feeAmount !== !!feeAddress) {
-    throw new Error('Both fee address and fee amount have to be declared, or both left empty');
-  }
-
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
-
-  if (amountToPay.isZero() && feeToPay.isZero()) {
-    throw new Error('Request payment amount and fee are 0');
-  }
-
+  const proxyAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
   const proxyContract = Erc20FeeProxyContract.connect(proxyAddress, signer);
 
   return proxyContract.interface.functions.transferFromWithReferenceAndFee.encode([

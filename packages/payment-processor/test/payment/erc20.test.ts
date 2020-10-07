@@ -9,6 +9,7 @@ import {
 } from '@requestnetwork/types';
 import { Wallet } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
+import { bigNumberify } from 'ethers/utils';
 import {
   _getErc20PaymentUrl,
   approveErc20,
@@ -182,12 +183,12 @@ describe('hasErc20approval & approveErc20', () => {
 describe('getErc20Balance', () => {
   it('should read the balance for ERC20 Fee Proxy payment network', async () => {
     const balance = await getErc20Balance(erc20FeeProxyRequest, wallet.address, provider);
-    expect(balance.gte('100')).toBeTruthy();
+    expect(bigNumberify(balance).gte('100')).toBeTruthy();
   });
 
   it('should read the balance for ERC20 Proxy payment network', async () => {
     const balance = await getErc20Balance(erc20ProxyRequest, wallet.address, provider);
-    expect(balance.gte('100')).toBeTruthy();
+    expect(bigNumberify(balance).gte('100')).toBeTruthy();
   });
 });
 

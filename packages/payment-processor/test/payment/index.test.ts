@@ -1,10 +1,10 @@
 import { Wallet } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
-import { bigNumberify } from 'ethers/utils';
+import { BigNumber, bigNumberify } from 'ethers/utils';
 
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { _getPaymentUrl, hasSufficientFunds, payRequest } from '../../src/payment';
+import { _getPaymentUrl, hasSufficientFunds, payRequest, swapToPayRequest } from '../../src/payment';
 import * as btcModule from '../../src/payment/btc-address-based';
 import * as erc20Module from '../../src/payment/erc20';
 import * as ethModule from '../../src/payment/eth-input-data';
@@ -87,6 +87,83 @@ describe('payRequest', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 });
+describe('swapToPayRequest', () => {
+  const swapSettings = {
+    // tslint:disable-next-line: no-magic-numbers
+    deadline: Date.now() + 1000,
+    maxInputAmount: new BigNumber('204'),
+    path: [`0xany`, `0xanyother`],
+  };
+
+  it('swapping to pay a declarative request should fail', async () => {
+    const request: any = {
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {},
+          version: '1.0',
+        },
+      },
+    };
+    await expect(swapToPayRequest(request, swapSettings, wallet)).rejects.toThrowError(
+      'Payment network pn-any-declarative is not supported',
+    );
+  });
+
+  it('swapping to pay a BTC request should fail', async () => {
+    const request: any = {
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {},
+          version: '1.0',
+        },
+      },
+    };
+    await expect(swapToPayRequest(request, swapSettings, wallet)).rejects.toThrowError(
+      'Payment network pn-bitcoin-address-based is not supported',
+    );
+  });
+
+  it('swapping to pay a ETH request should fail', async () => {
+    const request: any = {
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {},
+          version: '1.0',
+        },
+      },
+    };
+    await expect(swapToPayRequest(request, swapSettings, wallet)).rejects.toThrowError(
+      'Payment network pn-eth-input-data is not supported',
+    );
+  });
+
+  it('should call the ERC20 payment method', async () => {
+    const spy = jest.fn();
+    (erc20Module as any).payErc20Request = spy;
+    const request: any = {
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {},
+          version: '1.0',
+        },
+      },
+    };
+    await swapToPayRequest(request, swapSettings, wallet);
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+});
 
 describe('hasSufficientFunds', () => {
   it('should throw an error on unsupported network', async () => {
@@ -138,7 +215,7 @@ describe('hasSufficientFunds', () => {
 
   it('should call the ERC20 payment method', async () => {
     const spy = jest
-      .spyOn(erc20Module, 'getErc20Balance')
+      .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(bigNumberify('200')));
     const fakeProvider: any = {
       getBalance: () => Promise.resolve(bigNumberify('200')),

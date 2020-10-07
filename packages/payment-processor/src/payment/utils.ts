@@ -11,6 +11,15 @@ import {
 } from '@requestnetwork/types';
 
 /**
+ * Thrown when the library does not support a payment blockchain network.
+ */
+export class UnsupportedCurrencyNetwork extends Error {
+  constructor(public networkName?: string) {
+    super(`Currency network ${networkName} is not supported`);
+  }
+}
+
+/**
  * Utility to get the default window.ethereum provider, or throws an error.
  */
 export function getProvider(): Web3Provider {
@@ -33,7 +42,7 @@ export function getNetworkProvider(request: ClientTypes.IRequestData): Provider 
   if (request.currencyInfo.network === 'rinkeby') {
     return getDefaultProvider('rinkeby');
   }
-  throw new Error('unsupported network');
+  throw new UnsupportedCurrencyNetwork(request.currencyInfo.network);
 }
 
 /**
@@ -122,6 +131,33 @@ export function validateRequest(
       !!extension.values.feeAddress !== !!extension.values.feeAmount)
   ) {
     throw new Error(`request cannot be processed, or is not an ${paymentNetworkId} request`);
+  }
+}
+
+/**
+ * Validates the parameters for an ERC20 Fee Proxy payment.
+ * @param request to validate
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
+ */
+export function validateErc20FeeProxyRequest(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): void {
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+
+  const { feeAddress, feeAmount } = getRequestPaymentValues(
+    request,
+  );
+  const amountToPay = getAmountToPay(request, amount);
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+
+  if (!!feeAmount !== !!feeAddress) {
+    throw new Error('Both fee address and fee amount have to be declared, or both left empty');
+  }
+  if (amountToPay.isZero() && feeToPay.isZero()) {
+    throw new Error('Request payment amount and fee are 0');
   }
 }
 
