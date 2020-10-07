@@ -43,7 +43,7 @@
     "@requestnetwork/types": "0.22.0",
     "@requestnetwork/utils": "0.21.0",
     "bluebird": "3.7.2",
-    "keyv": "4.0.1"
+    "keyv": "4.0.3"
   },
   "devDependencies": {
     "@types/bluebird": "3.5.32",
