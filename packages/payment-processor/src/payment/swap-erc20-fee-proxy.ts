@@ -30,25 +30,19 @@ export interface ISwapSettings {
 }
 
 /**
- * Details required for a token swap:
- *
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
- * @param overrides optionally, override default transaction values, like gas.
+ * Details required for a request payment transaction
+ * @member overrides custom swap transaction parameters
  */
-export interface ISwapTransactionOptions extends ISwapOptions {
+export interface ISwapTransactionOptions extends IRequestPaymentOptions {
   overrides?: ITransactionOverrides;
 }
 
 /**
- * Details required for a token swap:
- *
- *  - maxInputAmount: maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
- *  - path: array of token addresses to be used for the "swap path".
- *    ['0xPaymentCurrency', '0xIntermediate1', ..., '0xRequestCurrency']
- *  - deadline: time in milliseconds since UNIX epoch, after which the swap should not be executed.
+ * Details required for a proxy payment:
+ * @member {BigNumberish} amount custom request amount to pay
+ * @member {BigNumberish} feeAmount custom fee amount to pay for the proxy
  */
-export interface ISwapOptions {
+export interface IRequestPaymentOptions {
   amount?: BigNumberish;
   feeAmount?: BigNumberish;
 }
@@ -58,9 +52,7 @@ export interface ISwapOptions {
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param swapSettings settings for the swap: swap path, max amount to swap, deadline
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
- * @param overrides optionally, override default transaction values, like gas.
+ * @param options to override amount, feeAmount and transaction parameters
  */
 export async function swapErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
@@ -89,16 +81,15 @@ export async function swapErc20FeeProxyRequest(
 /**
  * Encodes the call to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
  * @param request request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
- * @param swapSettings settings for the swap:
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum
+ * @param swapSettings settings for the swap
+ * @param options to override amount, feeAmount and transaction parameters
  */
 export function encodeSwapToPayErc20FeeRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   swapSettings: ISwapSettings,
-  options?: ISwapTransactionOptions,
+  options?: IRequestPaymentOptions,
 ): string {
   validateErc20FeeProxyRequest(request, options?.amount, options?.feeAmount);
 
