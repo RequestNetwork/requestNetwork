@@ -13,6 +13,7 @@ import Utils from '@requestnetwork/utils';
 import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from '../../src/payment/erc20-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
+import { bigNumberify } from 'ethers/utils';
 
 // tslint:disable: no-unused-expression
 // tslint:disable: await-promise
@@ -146,10 +147,10 @@ describe('payErc20ProxyRequest', () => {
     expect(tx.hash).not.toBeUndefined();
 
     expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
-    expect(balanceErc20After.lte(balanceErc20Before)).toBeTruthy(); // 'ERC20 balance should be lower'
+    expect(bigNumberify(balanceErc20After).lte(balanceErc20Before)).toBeTruthy(); // 'ERC20 balance should be lower'
 
     expect(balanceErc20Before.toString()).toBe(
-      balanceErc20After.add(validRequest.expectedAmount).toString(),
+      bigNumberify(balanceErc20After).add(validRequest.expectedAmount).toString(),
     );
   });
 });
