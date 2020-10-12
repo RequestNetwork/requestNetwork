@@ -92,7 +92,8 @@ describe('swapToPayRequest', () => {
     // tslint:disable-next-line: no-magic-numbers
     deadline: Date.now() + 1000,
     maxInputAmount: new BigNumber('204'),
-    path: [`0xany`, `0xanyother`],
+    // eslint-disable-next-line spellcheck/spell-checker
+    path: ['0xany', '0xanyother'],
   };
 
   it('swapping to pay a declarative request should fail', async () => {
@@ -227,7 +228,8 @@ describe('hasSufficientFunds', () => {
       currencyInfo: {
         network: 'rinkeby',
         type: RequestLogicTypes.CURRENCY.ERC20,
-        value: 'efgh',
+        // eslint-disable-next-line spellcheck/spell-checker
+        value: '0xany',
       },
       expectedAmount: '100',
       extensions: {
