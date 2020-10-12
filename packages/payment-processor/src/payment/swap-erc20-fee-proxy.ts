@@ -102,14 +102,17 @@ export function encodeSwapToPayErc20FeeRequest(
   const feeToPay = bigNumberify(options?.feeAmount || feeAmount || 0);
 
   if (swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()) {
-  throw new Error('Last item of the path should be the request currency');
+    throw new Error('Last item of the path should be the request currency');
   }
   // tslint:disable-next-line:no-magic-numbers
   if (Date.now() > (swapSettings.deadline * 1000)) {
-  throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
+    throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
+  }
+  if (!request.currencyInfo.network) {
+    throw new Error('Request currency network is missing');
   }
 
-  const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
+  const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network);
   const swapToPayContract = Erc20SwapToPayContract.connect(swapToPayAddress, signer);
 
   return swapToPayContract.interface.functions.swapTransferWithReference.encode([

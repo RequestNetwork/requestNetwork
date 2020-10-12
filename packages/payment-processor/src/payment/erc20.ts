@@ -4,7 +4,7 @@ import { bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ERC20Contract } from '../contracts/Erc20Contract';
 import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
@@ -77,7 +77,7 @@ export async function hasErc20Approval(
     account,
     getProxyAddress(request),
     provider,
-    request.currencyInfo,
+    request.currencyInfo.value,
     request.expectedAmount
   )
 }
@@ -93,14 +93,11 @@ export async function hasErc20Approval(
 export async function checkErc20Allowance(
   ownerAddress: string,
   spenderAddress: string,
-  provider: Provider,
-  paymentCurrency: RequestLogicTypes.ICurrency,
+  provider: Provider | Signer,
+  tokenAddress: string,
   amount: BigNumberish,
 ): Promise<boolean> {
-  if (paymentCurrency.type !== RequestLogicTypes.CURRENCY.ERC20) {
-    throw new Error('Trying to check the allowance of a non-ERC20 currency');
-  }
-  const erc20Contract = ERC20Contract.connect(paymentCurrency.value, provider);
+  const erc20Contract = ERC20Contract.connect(tokenAddress, provider);
   const allowance = await erc20Contract.allowance(ownerAddress, spenderAddress);
   return allowance.gte(amount);
 }
@@ -178,7 +175,7 @@ export function encodeApproveErc20(
 export function encodeApproveAnyErc20(
   tokenAddress: string,
   spenderAddress: string,
-  signerOrProvider: Web3Provider | Signer = getProvider()
+  signerOrProvider: Provider | Signer = getProvider()
 ): string {
   const erc20interface = ERC20Contract.connect(tokenAddress, signerOrProvider).interface;
   return erc20interface.functions.approve.encode([
