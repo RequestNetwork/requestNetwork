@@ -48,8 +48,6 @@ library SafeERC20 {
     /* solium-enable security/no-inline-assembly */
     return result;
   }
-
-  
   
   /**
     * @dev Deprecated. This function has issues similar to the ones found in

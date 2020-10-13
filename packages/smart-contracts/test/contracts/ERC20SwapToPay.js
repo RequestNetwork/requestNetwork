@@ -76,7 +76,6 @@ contract('SwapToPay', function(accounts) {
     const finalFromBalance = await paymentErc20.balanceOf(from);
     expect(finalFromBalance.toNumber()).to.equals(initialFromBalance.toNumber());
   }
-
   
   it('can approve bad ERC20 to be swapped by the router', async function() {
     badERC20 = await BadERC20.new(1000, 'BadERC20', 'BAD', 8, {
