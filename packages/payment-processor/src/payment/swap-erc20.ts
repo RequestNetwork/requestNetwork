@@ -1,5 +1,5 @@
 import { ContractTransaction, Signer } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
+import { Provider } from 'ethers/providers';
 import { BigNumberish } from 'ethers/utils';
 
 import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
@@ -13,7 +13,6 @@ import {
   getProvider,
   getSigner,
 } from './utils';
-import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 
 /**
@@ -29,19 +28,22 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 export async function approveErc20ForSwapToPayIfNeeded(
   request: ClientTypes.IRequestData,
   ownerAddress: string,
-  paymentCurrency: ICurrency,
-  signerOrProvider: Web3Provider = getProvider(),
+  paymentTokenAddress: string,
+  signerOrProvider: Provider | Signer = getProvider(),
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  if (!checkErc20Allowance(
+  if (!request.currencyInfo.network) {
+    throw new Error('Request currency network is missing');
+  }
+  if (!await checkErc20Allowance(
     ownerAddress,
-    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
+    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network),
     signerOrProvider,
-    paymentCurrency,
+    paymentTokenAddress,
     minAmount
     )) {
-      return approveErc20ForSwapToPay(request, paymentCurrency.value, signerOrProvider, overrides)
+      return approveErc20ForSwapToPay(request, paymentTokenAddress, signerOrProvider, overrides);
     }
 }
 
@@ -55,7 +57,7 @@ export async function approveErc20ForSwapToPayIfNeeded(
 export async function approveErc20ForSwapToPay(
   request: ClientTypes.IRequestData,
   paymentTokenAddress: string,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodeApproveAnyErc20(

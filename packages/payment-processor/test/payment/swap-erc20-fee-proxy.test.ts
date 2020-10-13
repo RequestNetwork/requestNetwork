@@ -12,7 +12,7 @@ import {
 import Utils from '@requestnetwork/utils';
 
 import { getErc20Balance } from '../../src/payment/erc20';
-import { approveErc20ForSwapToPay } from '../../src/payment/swap-erc20';
+import { approveErc20ForSwapToPayIfNeeded } from '../../src/payment/swap-erc20';
 import { _getErc20FeeProxyPaymentUrl } from '../../src/payment/erc20-fee-proxy';
 import { ERC20Contract } from '../../src/contracts/Erc20Contract';
 import { ISwapSettings, swapErc20FeeProxyRequest } from '../../src/payment/swap-erc20-fee-proxy';
@@ -147,8 +147,17 @@ describe('swap-erc20-fee-proxy', () => {
 
     it('should swap and pay with an ERC20 request with fees', async () => {
       // first approve the SwapToPay contract to spend ALPHA tokens
-      const approvalTx = await approveErc20ForSwapToPay(validRequest, alphaErc20Address, wallet);
-      await approvalTx.wait(1);
+      const approvalTx = await approveErc20ForSwapToPayIfNeeded(
+        validRequest,
+        wallet.address,
+        alphaErc20Address,
+        wallet.provider,
+        bigNumberify(204).mul(bigNumberify(10).pow(18)),
+      );
+      expect(approvalTx).toBeDefined();
+      if (approvalTx) {
+        await approvalTx.wait(1);
+      }
 
       // get the balances to compare after payment
       const balanceEthBefore = await wallet.getBalance();
