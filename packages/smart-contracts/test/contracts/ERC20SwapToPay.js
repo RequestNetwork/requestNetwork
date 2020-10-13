@@ -2,7 +2,9 @@ const ethers = require('ethers');
 
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const { bigNumberify } = require('ethers/utils');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
+const BadERC20 = artifacts.require('./BadERC20.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 const FakeSwapRouter = artifacts.require('./FakeSwapRouter.sol');
 const SwapToPay = artifacts.require('./ERC20SwapToPay.sol');
@@ -74,6 +76,39 @@ contract('SwapToPay', function(accounts) {
     const finalFromBalance = await paymentErc20.balanceOf(from);
     expect(finalFromBalance.toNumber()).to.equals(initialFromBalance.toNumber());
   }
+
+  
+  it('can approve bad ERC20 to be swapped by the router', async function() {
+    badERC20 = await BadERC20.new(1000, 'BadERC20', 'BAD', 8, {
+      from,
+    });
+    let { tx } = await testSwapToPay.approveRouterToSpend(badERC20.address);
+    //Approval(address indexed owner, address indexed spender, uint value)
+    await expectEvent.inTransaction(tx, BadERC20, 'Approval', {
+      owner: testSwapToPay.address,
+      spender: fakeRouter.address,
+      value: bigNumberify(2).pow(256).sub(1).toString(),
+    });
+
+    const approval = await badERC20.allowance(testSwapToPay.address, fakeRouter.address);
+    expect(approval.toString()).to.equals(bigNumberify(2).pow(256).sub(1).toString());
+  });
+
+  it('can approve bad ERC20 to be spent by the proxy', async function() {
+    badERC20 = await BadERC20.new(1000, 'BadERC20', 'BAD', 8, {
+      from,
+    });
+    let { tx } = await testSwapToPay.approvePaymentProxyToSpend(badERC20.address);
+    //Approval(address indexed owner, address indexed spender, uint value)
+    await expectEvent.inTransaction(tx, BadERC20, 'Approval', {
+      owner: testSwapToPay.address,
+      spender: erc20FeeProxy.address,
+      value: bigNumberify(2).pow(256).sub(1).toString(),
+    });
+
+    const approval = await badERC20.allowance(testSwapToPay.address, erc20FeeProxy.address);
+    expect(approval.toString()).to.equals(bigNumberify(2).pow(256).sub(1).toString());
+  });
 
   it('swaps and pays the request', async function() {
     let { tx, receipt: { gasUsed } } = await testSwapToPay.swapTransferWithReference(

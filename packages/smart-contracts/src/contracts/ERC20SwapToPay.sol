@@ -37,7 +37,7 @@ contract ERC20SwapToPay is Ownable {
   function approvePaymentProxyToSpend(address _erc20Address) public {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
-    erc20.approve(address(paymentProxy), max);
+    erc20.safeApprove(address(paymentProxy), max);
   }
 
  /**
@@ -47,7 +47,7 @@ contract ERC20SwapToPay is Ownable {
   function approveRouterToSpend(address _erc20Address) public {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
-    erc20.approve(address(swapRouter), max);
+    erc20.safeApprove(address(swapRouter), max);
   }
 
   /**
