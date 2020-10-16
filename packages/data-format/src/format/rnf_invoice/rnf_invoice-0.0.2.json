@@ -110,7 +110,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "quantity", "unitPrice", "taxPercent", "taxAmount", "currency"],
+        "required": ["name", "quantity", "unitPrice", "taxPercent", "currency"],
         "properties": {
           "name": {
             "type": "string"
