@@ -16,8 +16,24 @@ describe('Request Network Data Validator', () => {
     expect(result.valid).toBe(true);
   });
 
+  it('should validate a correct invoice 0.0.3 format', () => {
+    const dataJson = require('./data/example-valid-0.0.3.json');
+    const result = DataFormat.validate(dataJson);
+    // 'result.valid should be true'
+    expect(result.valid).toBe(true);
+  });
+
   it('should not validate an invalid invoice 0.0.2 format', () => {
     const dataJson = require('./data/example-invalid-0.0.2.json');
+    const result = DataFormat.validate(dataJson);
+    // 'result.valid should be false'
+    expect(result.valid).toBe(false);
+    // 'result.errors is wrong'
+    expect(result.errors[0].message).toBe('should be string');
+  });
+
+  it('should not validate an invalid invoice 0.0.3 format', () => {
+    const dataJson = require('./data/example-invalid-0.0.3.json');
     const result = DataFormat.validate(dataJson);
     // 'result.valid should be false'
     expect(result.valid).toBe(false);
