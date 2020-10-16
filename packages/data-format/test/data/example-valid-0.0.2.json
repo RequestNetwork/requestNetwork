@@ -52,7 +52,6 @@
       "unitPrice": "100",
       "discount": "01",
       "taxPercent": 16.9,
-      "taxAmount": 16.9,
       "currency": "XT",
       "deliveryDate": "2019-01-01T18:25:43.511Z"
     },
@@ -62,7 +61,6 @@
       "quantity": 1,
       "unitPrice": "1234",
       "taxPercent": 5.5,
-      "taxAmount": 5.5,
       "currency": "XTSS",
       "deliveryDate": "2019-01-01T18:25:43.511Z"
     }

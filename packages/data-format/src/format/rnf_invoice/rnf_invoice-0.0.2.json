@@ -133,9 +133,6 @@
           "taxPercent": {
             "type": "number"
           },
-          "taxAmount": {
-            "type": "number"
-          },
           "currency": {
             "type": "string",
             "minLength": 2,
