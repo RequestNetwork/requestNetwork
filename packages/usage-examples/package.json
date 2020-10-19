@@ -38,7 +38,7 @@
     "@requestnetwork/transaction-manager": "0.22.0",
     "@requestnetwork/types": "0.25.0",
     "@requestnetwork/utils": "0.24.0",
-    "ethers": "4.0.48"
+    "ethers": "5.0.17"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "4.1.1",
