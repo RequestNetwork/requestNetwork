@@ -140,7 +140,8 @@
                 "type": "number"
               },
               "type": {
-                "type": "string"
+                "type": "string",
+                "enum": ["percentage", "fixed"]
               }
             }
           },
