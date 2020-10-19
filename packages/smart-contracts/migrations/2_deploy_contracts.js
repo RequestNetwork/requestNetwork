@@ -13,11 +13,17 @@ const ERC20False = artifacts.require('ERC20False');
 const ERC20NoReturn = artifacts.require('ERC20NoReturn');
 const ERC20Revert = artifacts.require('ERC20Revert');
 
+const MockChainlinkUSDTETH = artifacts.require('./test/MockChainlinkUSDTETH.sol');
+const MockChainlinkDAIUSD = artifacts.require('./test/MockChainlinkDAIUSD.sol');
+const MockChainlinkETHUSD = artifacts.require('./test/MockChainlinkETHUSD.sol');
+const MockChainlinkEURUSD = artifacts.require('./test/MockChainlinkEURUSD.sol');
+
+const ProxyChangeCryptoFiat = artifacts.require('ProxyChangeCryptoFiat.sol');
 
 const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 
 // Deploys, set up the contracts
-module.exports = async function(deployer) {
+module.exports = async function (deployer) {
   try {
     // Deploy the contract RequestHashStorage
     await deployer.deploy(RequestHashStorage);
@@ -82,7 +88,7 @@ module.exports = async function(deployer) {
 
     await deployer.deploy(ERC20Revert);
     console.log('ERC20Revert Contract deployed: ' + ERC20Revert.address);
-    
+
     // Swap-to-pay related contracts
     // Payment erc20: ALPHA
     const erc20AlphaInstance = await deployer.deploy(erc20, 100000); // 100000 initial supply
@@ -94,7 +100,21 @@ module.exports = async function(deployer) {
     // SwapToPay
     await deployer.deploy(ERC20SwapToPay, FakeSwapRouter.address, ERC20FeeProxy.address);
     console.log('SwapToPay Contract deployed: ' + ERC20SwapToPay.address);
-    
+
+    // Mock Chainlink aggregator
+    await deployer.deploy(MockChainlinkDAIUSD);
+    console.log('Mock Chainlink DAIUSD Contract deployed: ' + MockChainlinkDAIUSD.address);
+    await deployer.deploy(MockChainlinkETHUSD);
+    console.log('Mock Chainlink ETHUSD Contract deployed: ' + MockChainlinkETHUSD.address);
+    await deployer.deploy(MockChainlinkEURUSD);
+    console.log('Mock Chainlink EURUSD Contract deployed: ' + MockChainlinkEURUSD.address);
+    await deployer.deploy(MockChainlinkUSDTETH);
+    console.log('Mock Chainlink USDTETH Contract deployed: ' + MockChainlinkUSDTETH.address);
+
+    // Proxy change Crypto to Fiat
+    await deployer.deploy(ProxyChangeCryptoFiat);
+    console.log('ProxyChangeCryptoFiat Contract deployed: ' + ProxyChangeCryptoFiat.address);
+
     // ----------------------------------
     console.log('Contracts initialized');
     console.log(`
@@ -112,8 +132,13 @@ module.exports = async function(deployer) {
       ERC20Alpha:               ${erc20AlphaInstance.address}
       FakeSwapRouter:           ${FakeSwapRouter.address}
       SwapToPay:                ${ERC20SwapToPay.address}
+      MockChainlinkUSDTETH:     ${MockChainlinkUSDTETH.address}
+      MockChainlinkDAIUSD:      ${MockChainlinkDAIUSD.address}
+      MockChainlinkETHUSD:      ${MockChainlinkETHUSD.address}
+      MockChainlinkEURUSD:      ${MockChainlinkEURUSD.address}
+      ProxyChangeCryptoFiat:    ${ProxyChangeCryptoFiat.address}
       `);
-    } catch (e) {
+  } catch (e) {
     console.error(e);
   }
 };
