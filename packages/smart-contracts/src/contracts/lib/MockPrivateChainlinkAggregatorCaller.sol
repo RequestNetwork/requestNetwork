@@ -16,23 +16,11 @@ interface AggregatorInterface {
 }
 
 contract ChainlinkAggregatorCaller {
-    // Event to declare a transfer with a reference
-    event TransferWithReference(
-        address tokenAddress,
-        address to,
-        uint256 amount,
-        bytes indexed paymentReference,
-        uint256 amountinCrypto
-    );
-
     enum FiatEnum {USD, AUD, CHF, EUR, GBP, JPY}
     enum CryptoEnum {ETH, DAI, USDT, USDC, SUSD}
 
-    // #################################################################################
-    // #################################################################################
-    // Mock up of Chainlink aggregators for private network
     function getChainlinkAggregatorCryptoToETH(CryptoEnum cryptoEnum)
-        public
+        internal
         pure
         returns (AggregatorInterface)
     {
@@ -44,7 +32,7 @@ contract ChainlinkAggregatorCaller {
     }
 
     function getChainlinkAggregatorCryptoToUsd(CryptoEnum cryptoEnum)
-        public
+        internal
         pure
         returns (AggregatorInterface)
     {
@@ -60,7 +48,7 @@ contract ChainlinkAggregatorCaller {
     }
 
     function getChainlinkAggregatorFiatToUsd(FiatEnum fiatEnum)
-        public
+        internal
         pure
         returns (AggregatorInterface)
     {
@@ -71,7 +59,7 @@ contract ChainlinkAggregatorCaller {
         revert('fiat not supported');
     }
 
-    function getTokenAddress(CryptoEnum cryptoEnum) public pure returns (address) {
+    function getTokenAddress(CryptoEnum cryptoEnum) internal pure returns (address) {
         if (cryptoEnum == CryptoEnum.USDT) {
             // Test erc20
             return 0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35;
