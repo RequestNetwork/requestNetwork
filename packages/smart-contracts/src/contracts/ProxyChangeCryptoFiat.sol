@@ -2,20 +2,8 @@ pragma solidity ^0.5.0;
 
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
-interface AggregatorInterface {
-    function latestAnswer() external view returns (int256);
-
-    function latestTimestamp() external view returns (uint256);
-
-    function latestRound() external view returns (uint256);
-
-    function getAnswer(uint256 roundId) external view returns (int256);
-
-    function getTimestamp(uint256 roundId) external view returns (uint256);
-
-    event AnswerUpdated(int256 indexed current, uint256 indexed roundId, uint256 updatedAt);
-    event NewRound(uint256 indexed roundId, address indexed startedBy, uint256 startedAt);
-}
+// Mock up for chainling on private network
+import './interfaces/MockPrivateChainlinkAggregatorCaller.sol';
 
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
@@ -98,7 +86,7 @@ interface IERC20 {
 /**
  * @title ProxyChangeCryptoFiat
  */
-contract ProxyChangeCryptoFiat {
+contract ProxyChangeCryptoFiat is ChainlinkAggregatorCaller {
     using SafeMath for uint256;
 
     // Event to declare a transfer with a reference
@@ -109,70 +97,6 @@ contract ProxyChangeCryptoFiat {
         bytes indexed paymentReference,
         uint256 amountinCrypto
     );
-
-    enum FiatEnum {USD, AUD, CHF, EUR, GBP, JPY}
-    enum CryptoEnum {ETH, DAI, USDT, USDC, SUSD}
-
-    // #################################################################################
-    // #################################################################################
-    // Mock up of Chainlink aggregators for private network
-    function getChainlinkAggregatorCryptoToETH(CryptoEnum cryptoEnum)
-        public
-        pure
-        returns (AggregatorInterface)
-    {
-        if (cryptoEnum == CryptoEnum.USDT) {
-            // USDT/ETH
-            return AggregatorInterface(0x4e71920b7330515faf5EA0c690f1aD06a85fB60c);
-        }
-        revert('crypto not supported for eth conversion');
-    }
-
-    function getChainlinkAggregatorCryptoToUsd(CryptoEnum cryptoEnum)
-        public
-        pure
-        returns (AggregatorInterface)
-    {
-        if (cryptoEnum == CryptoEnum.DAI) {
-            // DAI/USD
-            return AggregatorInterface(0x2EcA6FCFef74E2c8D03fBAf0ff6712314c9BD58B);
-        }
-        if (cryptoEnum == CryptoEnum.ETH) {
-            // ETH/USD
-            return AggregatorInterface(0x8ACEe021a27779d8E98B9650722676B850b25E11);
-        }
-        revert('crypto not supported for usd conversion');
-    }
-
-    function getChainlinkAggregatorFiatToUsd(FiatEnum fiatEnum)
-        public
-        pure
-        returns (AggregatorInterface)
-    {
-        if (fiatEnum == FiatEnum.EUR) {
-            // EUR/USD
-            return AggregatorInterface(0xF328c11c4dF88d18FcBd30ad38d8B4714F4b33bF);
-        }
-        revert('fiat not supported');
-    }
-
-    function getTokenAddress(CryptoEnum cryptoEnum) public pure returns (address) {
-        if (cryptoEnum == CryptoEnum.USDT) {
-            // Test erc20
-            return 0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35;
-        }
-        if (cryptoEnum == CryptoEnum.DAI) {
-            // Test erc20
-            return 0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35;
-        }
-        revert('token not supported');
-    }
-
-    // #################################################################################
-    // #################################################################################
-
-    // Mainnet chainlink aggregators
-    // TODO !
 
     function computeConversion(
         uint256 _amountFiat,
