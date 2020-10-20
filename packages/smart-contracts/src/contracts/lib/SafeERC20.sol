@@ -49,13 +49,6 @@ library SafeERC20 {
     return result;
   }
   
-  /**
-    * @dev Deprecated. This function has issues similar to the ones found in
-    * {IERC20-approve}, and its usage is discouraged.
-    *
-    * Whenever possible, use {safeIncreaseAllowance} and
-    * {safeDecreaseAllowance} instead.
-    */
   function safeApprove(IERC20 _token, address _spender, uint256 _amount) internal returns (bool result) {
     address tokenAddress = address(_token);
     /* solium-disable security/no-inline-assembly */
@@ -89,5 +82,24 @@ library SafeERC20 {
 
     /* solium-enable security/no-inline-assembly */
     return result;
+  }
+
+  
+  bytes4 private constant SELECTOR = bytes4(keccak256(bytes('transfer(address,uint256)')));
+
+  function safeTransfer(IERC20 _token, address _to, uint256 _amount) internal {
+      address tokenAddress = address(_token);
+
+      // check if the address is a contract
+      assembly {
+        if iszero(extcodesize(tokenAddress)) { revert(0, 0) }
+      }
+      
+      (bool success, bytes memory data) = tokenAddress.call(abi.encodeWithSelector(
+          SELECTOR, 
+          _to, 
+          _amount
+      ));
+      require(success && (data.length == 0 || abi.decode(data, (bool))), 'Transfer failed');
   }
 }
