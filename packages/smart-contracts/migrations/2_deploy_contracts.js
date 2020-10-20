@@ -43,7 +43,7 @@ module.exports = async function (deployer) {
     console.log('requestSubmitter Whitelisted in requestHashDeclaration');
 
     // Deploy the ERC20 contract
-    const instanceTestERC20 = await deployer.deploy(erc20, 10000); // 10000 initial supply
+    const instanceTestERC20 = await deployer.deploy(erc20, '10000000000000000000000'); // 10000 initial supply
 
     // Deploy ERC20 proxy contract
     const instanceRequestERC20Proxy = await deployer.deploy(ERC20Proxy);
