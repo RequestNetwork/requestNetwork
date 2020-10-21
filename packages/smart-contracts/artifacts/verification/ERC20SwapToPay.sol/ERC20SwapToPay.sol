@@ -66,6 +66,8 @@ contract ERC20SwapToPay is Ownable {
   function approvePaymentProxyToSpend(address _erc20Address) public {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
+    /// Tokens like USDT only allow approval = 0 to be changed
+    erc20.safeApprove(address(swapRouter), 0);
     erc20.safeApprove(address(paymentProxy), max);
   }
   
@@ -76,6 +78,8 @@ contract ERC20SwapToPay is Ownable {
   function approveRouterToSpend(address _erc20Address) public {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
+    /// Tokens like USDT only allow approval = 0 to be changed
+    erc20.safeApprove(address(swapRouter), 0);
     erc20.safeApprove(address(swapRouter), max);
   }
   
@@ -145,10 +149,10 @@ contract ERC20SwapToPay is Ownable {
     // Give the change back to the payer, in both currencies (only spent token should remain)
 
     if (spentToken.balanceOf(address(this)) > 0) {
-      spentToken.transfer(msg.sender, spentToken.balanceOf(address(this)));
+      spentToken.safeTransfer(msg.sender, spentToken.balanceOf(address(this)));
     }    
     if (requestedToken.balanceOf(address(this)) > 0) {
-      requestedToken.transfer(msg.sender, requestedToken.balanceOf(address(this)));
+      requestedToken.safeTransfer(msg.sender, requestedToken.balanceOf(address(this)));
     }
   }
   
