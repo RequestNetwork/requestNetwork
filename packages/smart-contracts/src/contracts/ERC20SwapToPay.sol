@@ -116,10 +116,10 @@ contract ERC20SwapToPay is Ownable {
     // Give the change back to the payer, in both currencies (only spent token should remain)
 
     if (spentToken.balanceOf(address(this)) > 0) {
-      spentToken.transfer(msg.sender, spentToken.balanceOf(address(this)));
+      spentToken.safeTransfer(msg.sender, spentToken.balanceOf(address(this)));
     }    
     if (requestedToken.balanceOf(address(this)) > 0) {
-      requestedToken.transfer(msg.sender, requestedToken.balanceOf(address(this)));
+      requestedToken.safeTransfer(msg.sender, requestedToken.balanceOf(address(this)));
     }
   }
 
