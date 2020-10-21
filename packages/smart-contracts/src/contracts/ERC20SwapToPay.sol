@@ -15,6 +15,7 @@ interface IUniswapV2Router02 {
   ) external returns (uint[] memory amounts);
 }
 
+
 /**
  * @title ERC20SwapToPay
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
@@ -57,7 +58,7 @@ contract ERC20SwapToPay is Ownable {
   * @param _amount Amount to transfer in request currency
   * @param _amountInMax Maximum amount allowed to spend for currency swap, in payment currency.
             This amount should take into account the fees.
-    @param _path, path of ERC20 tokens to swap from requestedToken to spentToken. The first 
+    @param _path, path of ERC20 tokens to swap from requestedToken to spentToken. The first
             address of the path should be the payment currency. The last element should be the
             request currency.
   * @param _paymentReference Reference of the payment related
@@ -79,7 +80,7 @@ contract ERC20SwapToPay is Ownable {
   {
     IERC20 spentToken = IERC20(_path[0]);
     IERC20 requestedToken = IERC20(_path[_path.length-1]);
-    
+
     uint256 requestedTotalAmount = _amount + _feeAmount;
 
     require(spentToken.allowance(msg.sender, address(this)) > _amountInMax, "Not sufficient allowance for swap to pay.");
@@ -117,7 +118,7 @@ contract ERC20SwapToPay is Ownable {
 
     if (spentToken.balanceOf(address(this)) > 0) {
       spentToken.safeTransfer(msg.sender, spentToken.balanceOf(address(this)));
-    }    
+    }
     if (requestedToken.balanceOf(address(this)) > 0) {
       requestedToken.safeTransfer(msg.sender, requestedToken.balanceOf(address(this)));
     }
@@ -126,11 +127,11 @@ contract ERC20SwapToPay is Ownable {
   /*
   * Admin functions to edit the admin, router address or proxy address
   */
-  
+
   function setPaymentProxy(address _paymentProxyAddress) public onlyOwner {
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
   }
-  
+
   function setRouter(address _newSwapRouterAddress) public onlyOwner {
     swapRouter = IUniswapV2Router02(_newSwapRouterAddress);
   }
