@@ -1,0 +1,112 @@
+{
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes",
+          "name": "paymentReference",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountinCrypto",
+          "type": "uint256"
+        }
+      ],
+      "name": "TransferWithReference",
+      "type": "event"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amountFiat",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum ChainlinkAggregatorCaller.FiatEnum",
+          "name": "_currencyFiat",
+          "type": "uint8"
+        },
+        {
+          "internalType": "enum ChainlinkAggregatorCaller.CryptoEnum",
+          "name": "_currencyCrypto",
+          "type": "uint8"
+        }
+      ],
+      "name": "computeConversion",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amountFiat",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum ChainlinkAggregatorCaller.FiatEnum",
+          "name": "_currencyFiat",
+          "type": "uint8"
+        },
+        {
+          "internalType": "enum ChainlinkAggregatorCaller.CryptoEnum",
+          "name": "_currencyCrypto",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_paymentReference",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_maxCryptoToSpend",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferWithReference",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}
