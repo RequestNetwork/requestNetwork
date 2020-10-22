@@ -2,8 +2,9 @@
 
 pragma solidity ^0.5.0;
 
+
 contract MockChainlinkETHUSD {
-    function latestAnswer() external view returns (int256) {
-        return 38089012251;
-    }
+  function latestAnswer() external view returns (int256) {
+    return 38089012251;
+  }
 }
