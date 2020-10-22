@@ -27,7 +27,7 @@ contract ChainlinkAggregatorCaller {
    * @notice Get chainlink aggregator for a cyrpto to ETH rate
    * @param _currencyCrypto crypto currency wanted
    */
-  function getChainlinkAggregatorCryptoToETH(CryptoEnum cryptoEnum)
+  function getChainlinkAggregatorCryptoToETH(CryptoEnum _currencyCrypto)
     internal
     pure
     returns (AggregatorInterface)
@@ -42,16 +42,16 @@ contract ChainlinkAggregatorCaller {
    * @notice Get chainlink aggregator for a cyrpto to USD rate
    * @param _currencyCrypto crypto currency wanted
    */
-  function getChainlinkAggregatorCryptoToUsd(CryptoEnum cryptoEnum)
+  function getChainlinkAggregatorCryptoToUsd(CryptoEnum _currencyCrypto)
     internal
     pure
     returns (AggregatorInterface)
   {
-    if (cryptoEnum == CryptoEnum.ETH) {
+    if (_currencyCrypto == CryptoEnum.ETH) {
       // ETH/USD
       return AggregatorInterface(0x8A753747A1Fa494EC906cE90E9f37563A8AF630e);
     }
-    if (cryptoEnum == CryptoEnum.DAI) {
+    if (_currencyCrypto == CryptoEnum.DAI) {
       // DAI/USD
       return AggregatorInterface(0x2bA49Aaa16E6afD2a993473cfB70Fa8559B523cF);
     }
@@ -62,28 +62,28 @@ contract ChainlinkAggregatorCaller {
    * @notice Get chainlink aggregator for a fiat to USD rate
    * @param _currencyFiat fiat currency wanted
    */
-  function getChainlinkAggregatorFiatToUsd(FiatEnum fiatEnum)
+  function getChainlinkAggregatorFiatToUsd(FiatEnum _currencyFiat)
     internal
     pure
     returns (AggregatorInterface)
   {
-    if (fiatEnum == FiatEnum.AUD) {
+    if (_currencyFiat == FiatEnum.AUD) {
       // AUD/USD
       return AggregatorInterface(0x21c095d2aDa464A294956eA058077F14F66535af);
     }
-    if (fiatEnum == FiatEnum.CHF) {
+    if (_currencyFiat == FiatEnum.CHF) {
       // CHF/USD
       return AggregatorInterface(0x5e601CF5EF284Bcd12decBDa189479413284E1d2);
     }
-    if (fiatEnum == FiatEnum.EUR) {
+    if (_currencyFiat == FiatEnum.EUR) {
       // EUR/USD
       return AggregatorInterface(0x78F9e60608bF48a1155b4B2A5e31F32318a1d85F);
     }
-    if (fiatEnum == FiatEnum.GBP) {
+    if (_currencyFiat == FiatEnum.GBP) {
       // GBP/USD
       return AggregatorInterface(0x7B17A813eEC55515Fb8F49F2ef51502bC54DD40F);
     }
-    if (fiatEnum == FiatEnum.JPY) {
+    if (_currencyFiat == FiatEnum.JPY) {
       // JPY/USD
       return AggregatorInterface(0x3Ae2F46a2D84e3D5590ee6Ee5116B80caF77DeCA);
     }
@@ -91,11 +91,11 @@ contract ChainlinkAggregatorCaller {
   }
 
   /**
-   * @notice Get token address from cryptoEnum
+   * @notice Get token address from _currencyCrypto
    * @param _currencyCrypto crypto currency wanted
    */
-  function getTokenAddress(CryptoEnum cryptoEnum) internal pure returns (address) {
-    if (cryptoEnum == CryptoEnum.DAI) {
+  function getTokenAddress(CryptoEnum _currencyCrypto) internal pure returns (address) {
+    if (_currencyCrypto == CryptoEnum.DAI) {
       return 0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa;
     }
     revert("Crypton not supported");
