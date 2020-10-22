@@ -62,11 +62,11 @@ contract ChainlinkAggregatorCaller {
     function getTokenAddress(CryptoEnum cryptoEnum) internal pure returns (address) {
         if (cryptoEnum == CryptoEnum.USDT) {
             // Test erc20
-            return 0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35;
+            return 0x9FBDa871d559710256a2502A2517b794B482Db40;
         }
         if (cryptoEnum == CryptoEnum.DAI) {
             // Test erc20
-            return 0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35;
+            return 0x9FBDa871d559710256a2502A2517b794B482Db40;
         }
         revert('token not supported');
     }

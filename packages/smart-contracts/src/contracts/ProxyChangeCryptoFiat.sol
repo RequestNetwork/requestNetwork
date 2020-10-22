@@ -6,6 +6,9 @@ import 'openzeppelin-solidity/contracts/token/ERC20/IERC20.sol';
 // Mock up for chainlink on private network
 import './lib/MockPrivateChainlinkAggregatorCaller.sol';
 
+// Chainlink aggregator for rinkeby
+// import './lib/RinkebyChainlinkAggregatorCaller.sol';
+
 // Chainlink aggregator for mainnet
 // import './lib/MainnetChainlinkAggregatorCaller.sol';
 
@@ -55,6 +58,11 @@ contract ProxyChangeCryptoFiat is ChainlinkAggregatorCaller {
             finalAmount = amountInETH.mul(1e18).div(
                 uint256(getChainlinkAggregatorCryptoToETH(_currencyCrypto).latestAnswer())
             );
+
+            if (_currencyCrypto == CryptoEnum.USDC || _currencyCrypto == CryptoEnum.USDT) {
+                // convert to 6 decimals
+                finalAmount = finalAmount.div(1e12);
+            }
         }
 
         return finalAmount;

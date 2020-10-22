@@ -6,7 +6,7 @@ const { expect } = require('chai');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 const ProxyChangeCryptoFiat = artifacts.require('./ProxyChangeCryptoFiat.sol');
 
-contract.only('ProxyChangeCryptoFiat', function (accounts) {
+contract('ProxyChangeCryptoFiat', function (accounts) {
   const from = accounts[0];
   const to = accounts[1];
   const otherGuy = accounts[2];
@@ -26,7 +26,7 @@ contract.only('ProxyChangeCryptoFiat', function (accounts) {
     testProxyChangeCryptoFiat = await ProxyChangeCryptoFiat.new({
       from,
     });
-    testERC20 = await TestERC20.at('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
+    testERC20 = await TestERC20.at('0x9FBDa871d559710256a2502A2517b794B482Db40');
   });
 
   describe('computeConversion', () => {
@@ -45,7 +45,7 @@ contract.only('ProxyChangeCryptoFiat', function (accounts) {
         FiatEnum.USD,
         CryptoEnum.USDT,
       );
-      expect(conversion, 'conversion wrong').to.be.a.bignumber.that.equals('56488011586837114437');
+      expect(conversion, 'conversion wrong').to.be.a.bignumber.that.equals('56488011');
     });
 
     it('can compute conversion from EUR to DAI', async function () {
@@ -63,45 +63,126 @@ contract.only('ProxyChangeCryptoFiat', function (accounts) {
         FiatEnum.EUR,
         CryptoEnum.USDT,
       );
-      expect(conversion, 'conversion wrong').to.be.a.bignumber.that.equals('66506951273924892762');
+      expect(conversion, 'conversion wrong').to.be.a.bignumber.that.equals('66506951');
     });
   });
 
   describe('transferWithReference', () => {
-    it('allows to transfer DAI tokens for USD payment', async function () {
-      await testERC20.approve(testProxyChangeCryptoFiat.address, hundredWith18Decimal, { from });
+    describe('transferWithReference with USD', () => {
+      it('allows to transfer DAI tokens for USD payment', async function () {
+        await testERC20.approve(testProxyChangeCryptoFiat.address, hundredWith18Decimal, { from });
 
-      console.log('testERC20.getBalance');
-      console.log((await testERC20.balanceOf(from)).toString(10));
+        const conversion = await testProxyChangeCryptoFiat.computeConversion(
+          smallAmountInUSD,
+          FiatEnum.USD,
+          CryptoEnum.DAI,
+        );
 
-      const conversion = await testProxyChangeCryptoFiat.computeConversion(
-        smallAmountInUSD,
-        FiatEnum.USD,
-        CryptoEnum.DAI,
-      );
-      console.log(conversion.toString(10));
+        let { logs } = await testProxyChangeCryptoFiat.transferWithReference(
+          to,
+          smallAmountInUSD,
+          FiatEnum.USD,
+          CryptoEnum.DAI,
+          referenceExample,
+          hundredWith18Decimal,
+          { from },
+        );
 
-      let { logs } = await testProxyChangeCryptoFiat.transferWithReference(
-        to,
-        smallAmountInUSD,
-        FiatEnum.USD,
-        CryptoEnum.DAI,
-        referenceExample,
-        hundredWith18Decimal,
-        { from },
-      );
+        expectEvent.inLogs(logs, 'TransferWithReference', {
+          tokenAddress: testERC20.address,
+          to,
+          amount: smallAmountInUSD,
+          paymentReference: ethers.utils.keccak256(referenceExample),
+          amountinCrypto: conversion
+        });
+      });
 
-      console.log('-------- logs ---------------------');
-      console.log(logs);
-      console.log(JSON.stringify(logs));
+      it('allows to transfer USDT tokens for USD payment', async function () {
+        await testERC20.approve(testProxyChangeCryptoFiat.address, hundredWith18Decimal, { from });
 
-      // transferReference indexes the event log, therefore the keccak256 is stored
-      // expectEvent.inLogs(logs, 'TransferWithReference', {
-      //   tokenAddress: testERC20.address,
-      //   to,
-      //   amount: '100',
-      //   paymentReference: ethers.utils.keccak256(referenceExample),
-      // });
+        const conversion = await testProxyChangeCryptoFiat.computeConversion(
+          smallAmountInUSD,
+          FiatEnum.USD,
+          CryptoEnum.USDT,
+        );
+
+        let { logs } = await testProxyChangeCryptoFiat.transferWithReference(
+          to,
+          smallAmountInUSD,
+          FiatEnum.USD,
+          CryptoEnum.USDT,
+          referenceExample,
+          hundredWith18Decimal,
+          { from },
+        );
+
+        expectEvent.inLogs(logs, 'TransferWithReference', {
+          tokenAddress: testERC20.address,
+          to,
+          amount: smallAmountInUSD,
+          paymentReference: ethers.utils.keccak256(referenceExample),
+          amountinCrypto: conversion
+        });
+    });
+    });
+    describe('transferWithReference with EUR', () => {
+      it('allows to transfer DAI tokens for EUR payment', async function () {
+        await testERC20.approve(testProxyChangeCryptoFiat.address, hundredWith18Decimal, { from });
+
+        const conversion = await testProxyChangeCryptoFiat.computeConversion(
+          smallAmountInUSD,
+          FiatEnum.EUR,
+          CryptoEnum.DAI,
+        );
+
+        let { logs } = await testProxyChangeCryptoFiat.transferWithReference(
+          to,
+          smallAmountInUSD,
+          FiatEnum.EUR,
+          CryptoEnum.DAI,
+          referenceExample,
+          hundredWith18Decimal,
+          { from },
+        );
+
+        expectEvent.inLogs(logs, 'TransferWithReference', {
+          tokenAddress: testERC20.address,
+          to,
+          amount: smallAmountInUSD,
+          paymentReference: ethers.utils.keccak256(referenceExample),
+          amountinCrypto: conversion
+        });
+      });
+
+      it('allows to transfer USDT tokens for EUR payment', async function () {
+        await testERC20.approve(testProxyChangeCryptoFiat.address, hundredWith18Decimal, { from });
+
+        const conversion = await testProxyChangeCryptoFiat.computeConversion(
+          smallAmountInUSD,
+          FiatEnum.EUR,
+          CryptoEnum.USDT,
+        );
+
+        let { logs } = await testProxyChangeCryptoFiat.transferWithReference(
+          to,
+          smallAmountInUSD,
+          FiatEnum.EUR,
+          CryptoEnum.USDT,
+          referenceExample,
+          hundredWith18Decimal,
+          { from },
+        );
+
+        expectEvent.inLogs(logs, 'TransferWithReference', {
+          tokenAddress: testERC20.address,
+          to,
+          amount: smallAmountInUSD,
+          paymentReference: ethers.utils.keccak256(referenceExample),
+          amountinCrypto: conversion
+        });
+      });
     });
   });
+
+
 });
