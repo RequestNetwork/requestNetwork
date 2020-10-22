@@ -15,10 +15,17 @@ interface AggregatorInterface {
     event NewRound(uint256 indexed roundId, address indexed startedBy, uint256 startedAt);
 }
 
+/**
+ * @title ChainlinkAggregatorCaller for mainnet
+ */
 contract ChainlinkAggregatorCaller {
     enum FiatEnum {USD, AUD, CHF, EUR, GBP, JPY}
     enum CryptoEnum {ETH, DAI, USDT, USDC, SUSD}
 
+    /**
+     * @notice Get chainlink aggregator for a cyrpto to ETH rate
+     * @param _currencyCrypto crypto currency wanted
+     */
     function getChainlinkAggregatorCryptoToETH(CryptoEnum cryptoEnum)
         internal
         pure
@@ -39,6 +46,10 @@ contract ChainlinkAggregatorCaller {
         revert('crypto not supported');
     }
 
+    /**
+     * @notice Get chainlink aggregator for a cyrpto to USD rate
+     * @param _currencyCrypto crypto currency wanted
+     */
     function getChainlinkAggregatorCryptoToUsd(CryptoEnum cryptoEnum)
         internal
         pure
@@ -55,6 +66,10 @@ contract ChainlinkAggregatorCaller {
         revert('crypto not supported');
     }
 
+    /**
+     * @notice Get chainlink aggregator for a fiat to USD rate
+     * @param _currencyFiat fiat currency wanted
+     */
     function getChainlinkAggregatorFiatToUsd(FiatEnum fiatEnum)
         internal
         pure
@@ -83,6 +98,10 @@ contract ChainlinkAggregatorCaller {
         revert('fiat not supported');
     }
 
+    /**
+     * @notice Get token address from cryptoEnum
+     * @param _currencyCrypto crypto currency wanted
+     */
     function getTokenAddress(CryptoEnum cryptoEnum) internal pure returns (address) {
         if (cryptoEnum == CryptoEnum.DAI) {
             return 0x6B175474E89094C44Da98b954EedeAC495271d0F;

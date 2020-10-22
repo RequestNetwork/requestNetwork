@@ -15,10 +15,17 @@ interface AggregatorInterface {
     event NewRound(uint256 indexed roundId, address indexed startedBy, uint256 startedAt);
 }
 
+/**
+ * @title ChainlinkAggregatorCaller for private network
+ */
 contract ChainlinkAggregatorCaller {
     enum FiatEnum {USD, AUD, CHF, EUR, GBP, JPY}
     enum CryptoEnum {ETH, DAI, USDT, USDC, SUSD}
 
+    /**
+     * @notice Get chainlink aggregator for a cyrpto to ETH rate
+     * @param _currencyCrypto crypto currency wanted
+     */
     function getChainlinkAggregatorCryptoToETH(CryptoEnum cryptoEnum)
         internal
         pure
@@ -31,6 +38,10 @@ contract ChainlinkAggregatorCaller {
         revert('crypto not supported for eth conversion');
     }
 
+    /**
+     * @notice Get chainlink aggregator for a cyrpto to USD rate
+     * @param _currencyCrypto crypto currency wanted
+     */
     function getChainlinkAggregatorCryptoToUsd(CryptoEnum cryptoEnum)
         internal
         pure
@@ -47,6 +58,10 @@ contract ChainlinkAggregatorCaller {
         revert('crypto not supported for usd conversion');
     }
 
+    /**
+     * @notice Get chainlink aggregator for a fiat to USD rate
+     * @param _currencyFiat fiat currency wanted
+     */
     function getChainlinkAggregatorFiatToUsd(FiatEnum fiatEnum)
         internal
         pure
@@ -59,6 +74,10 @@ contract ChainlinkAggregatorCaller {
         revert('fiat not supported');
     }
 
+    /**
+     * @notice Get token address from cryptoEnum
+     * @param _currencyCrypto crypto currency wanted
+     */
     function getTokenAddress(CryptoEnum cryptoEnum) internal pure returns (address) {
         if (cryptoEnum == CryptoEnum.USDT) {
             // Test erc20
