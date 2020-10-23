@@ -29,7 +29,7 @@ contract ProxyChangeCryptoFiat is ChainlinkAggregatorCaller {
   );
 
   /**
-   * @notice Performs a ERC20 token transfer with a reference computing the amount regarding a fiat amount
+   * @notice Performs an ERC20 token transfer with a reference computing the amount based on a fiat amount
    * @param _to Transfer recipient
    * @param _amountFiat Amount reference to transfer in fiat (8 decimals)
    * @param _currencyFiat currency of the amount reference
