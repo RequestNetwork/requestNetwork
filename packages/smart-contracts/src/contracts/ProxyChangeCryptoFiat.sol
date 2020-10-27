@@ -57,8 +57,7 @@ contract ProxyChangeCryptoFiat is ChainlinkAggregatorCaller {
         address _feeAddress,
         uint256 _maxCryptoToSpend
     ) external {
-        // TODO !
-        require(_currencyCrypto != CryptoEnum.ETH, 'ETH not supported yet');
+        require(_currencyCrypto != CryptoEnum.ETH, 'ETH not supported');
 
         uint256 conversionRate = computeConversionRate(_currencyFiat, _currencyCrypto);
 

@@ -150,5 +150,65 @@ contract('ProxyChangeCryptoFiat', function (accounts) {
         await testTransferWithReference(FiatEnum.EUR, CryptoEnum.USDT);
       });
     });
+
+    describe('transferFromWithReferenceAndFee must fail', () => {
+      it('cannot spend more than the user limit', async function () {
+        await testERC20.approve(testProxyChangeCryptoFiat.address, hundredWith18Decimal, { from });
+  
+        const conversionToPay = await testProxyChangeCryptoFiat.computeConversion(
+          smallAmountInFIAT,
+          FiatEnum.EUR,
+          CryptoEnum.DAI,
+        );
+      
+        const conversionFees = await testProxyChangeCryptoFiat.computeConversion(
+          smallerAmountInFIAT,
+          FiatEnum.EUR,
+          CryptoEnum.DAI,
+        );
+      
+        await expectRevert(testProxyChangeCryptoFiat.transferFromWithReferenceAndFee(
+          to,
+          smallAmountInFIAT,
+          FiatEnum.EUR,
+          CryptoEnum.DAI,
+          referenceExample,
+          smallerAmountInFIAT,
+          feeAddress,
+          bigNumberify(conversionToPay.toString()).add(conversionFees.toString()).sub(1),
+          { from },
+        ), "Amount to pay is over the user limit");
+      });
+
+      it('cannot support ETH', async function () {
+        await expectRevert(testProxyChangeCryptoFiat.transferFromWithReferenceAndFee(
+          to,
+          smallAmountInFIAT,
+          FiatEnum.EUR,
+          CryptoEnum.ETH,
+          referenceExample,
+          smallerAmountInFIAT,
+          feeAddress,
+          hundredWith18Decimal,
+          { from },
+        ), "ETH not supported");
+      });
+
+      it('reverts if the transferFrom reverts', async function () {
+        // not approve transfer
+        await expectRevert(testProxyChangeCryptoFiat.transferFromWithReferenceAndFee(
+          to,
+          smallAmountInFIAT,
+          FiatEnum.EUR,
+          CryptoEnum.DAI,
+          referenceExample,
+          smallerAmountInFIAT,
+          feeAddress,
+          hundredWith18Decimal,
+          { from },
+        ), "transferFromWithReferenceAndFee failed");
+      });
+
+    });
   });
 });
