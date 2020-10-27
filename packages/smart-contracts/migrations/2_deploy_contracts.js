@@ -43,7 +43,7 @@ module.exports = async function (deployer) {
     console.log('requestSubmitter Whitelisted in requestHashDeclaration');
 
     // Deploy the ERC20 contract
-    const instanceTestERC20 = await deployer.deploy(erc20, '10000000000000000000000'); // 10000 initial supply
+    const instanceTestERC20 = await deployer.deploy(erc20, '10000000000000000000000');
 
     // Deploy ERC20 proxy contract
     const instanceRequestERC20Proxy = await deployer.deploy(ERC20Proxy);
@@ -91,7 +91,7 @@ module.exports = async function (deployer) {
 
     // Swap-to-pay related contracts
     // Payment erc20: ALPHA
-    const erc20AlphaInstance = await deployer.deploy(erc20, 100000); // 100000 initial supply
+    const erc20AlphaInstance = await deployer.deploy(erc20, '10000000000000000000000'); // 100000 initial supply
     // Mock a swap router
     await deployer.deploy(FakeSwapRouter);
     // 1 ERC20 = 2 ALPHA
@@ -112,7 +112,7 @@ module.exports = async function (deployer) {
     console.log('Mock Chainlink USDTETH Contract deployed: ' + MockChainlinkUSDTETH.address);
 
     // Proxy change Crypto to Fiat
-    await deployer.deploy(ProxyChangeCryptoFiat);
+    await deployer.deploy(ProxyChangeCryptoFiat, ERC20FeeProxy.address);
     console.log('ProxyChangeCryptoFiat Contract deployed: ' + ProxyChangeCryptoFiat.address);
 
     // ----------------------------------
