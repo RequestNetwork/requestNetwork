@@ -114,7 +114,7 @@ export async function approveErc20IfNeeded(
   provider: Provider = getNetworkProvider(request),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  if (!hasErc20Approval(request, account, provider)) {
+  if (!await hasErc20Approval(request, account, provider)) {
     return approveErc20(request, getSigner(provider), overrides);
   }
 }
