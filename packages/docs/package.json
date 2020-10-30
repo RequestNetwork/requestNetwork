@@ -45,7 +45,7 @@
     "core-js": "3.6.5",
     "eth-contract-metadata": "1.15.0",
     "ethers": "4.0.48",
-    "mobx": "5.15.6",
+    "mobx": "6.0.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "redoc": "2.0.0-rc.40",
