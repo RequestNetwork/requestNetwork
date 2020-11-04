@@ -137,11 +137,32 @@
             "required": ["amount", "type"],
             "properties": {
               "amount": {
-                "type": "number"
+                "type": "string"
               },
               "type": {
                 "type": "string",
                 "enum": ["percentage", "fixed"]
+              }
+            },
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "percentage"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "amount": {
+                  "pattern": "^\\d*\\.?\\d+$"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "amount": {
+                  "pattern": "^\\d+$"
+                }
               }
             }
           },

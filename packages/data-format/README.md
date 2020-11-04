@@ -25,7 +25,7 @@ if (!result.valid) {
 
 | Name                                                    | Last version | Last version | Description                 |
 | ------------------------------------------------------- | ------------ | ------------ | --------------------------- |
-| [Invoice](/packages/data-format/src/format/rnf_invoice) | rnf_invoice  | 0.0.2        | Format to create an invoice |
+| [Invoice](/packages/data-format/src/format/rnf_invoice) | rnf_invoice  | 0.0.3        | Format to create an invoice |
 
 ## Contributing
 
