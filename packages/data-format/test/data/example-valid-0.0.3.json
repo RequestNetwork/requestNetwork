@@ -52,7 +52,7 @@
         "unitPrice": "100",
         "discount": "01",
         "tax": {
-            "amount": 19.9,
+            "amount": "19.9",
             "type": "percentage"
         },
         "currency": "XT",
@@ -64,7 +64,7 @@
         "quantity": 1,
         "unitPrice": "1234",
         "tax": {
-            "amount": 5.5,
+            "amount": "5.5",
             "type": "percentage"
         },
         "currency": "XTSS",
