@@ -3,6 +3,58 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.26.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.7.0...@requestnetwork/utils@0.26.0) (2020-11-05)
+
+
+
+# 0.26.0 (2020-10-14)
+
+
+### Features
+
+* add the identity ethereumSmartContract to the request logic ([#218](https://github.com/RequestNetwork/requestNetwork/issues/218)) ([66d97e0](https://github.com/RequestNetwork/requestNetwork/commit/66d97e00dee7305088cb94a0edf542fe4d0bbd56))
+* amount are only number or string ([#223](https://github.com/RequestNetwork/requestNetwork/issues/223)) ([7a35bde](https://github.com/RequestNetwork/requestNetwork/commit/7a35bde63f78b9305819a80e97022fca7e9494d2))
+* replace symmetric encryption algorithm by aes-256-gcm ([#233](https://github.com/RequestNetwork/requestNetwork/issues/233)) ([969bebe](https://github.com/RequestNetwork/requestNetwork/commit/969bebeb99b4bc2fdd31405a162934cfdff6db05))
+
+
+
+# 0.16.0 (2020-04-21)
+
+
+
+# 0.15.0 (2020-04-06)
+
+
+### Bug Fixes
+
+* check payee and payer identity format at the creation ([#187](https://github.com/RequestNetwork/requestNetwork/issues/187)) ([4a19b24](https://github.com/RequestNetwork/requestNetwork/commit/4a19b241fb057d153ac7693e85a7e1d3bb6cb9e0))
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+### Features
+
+* add ETH paymentNetwork to request-client  ([#617](https://github.com/RequestNetwork/requestNetwork/issues/617)) ([84ed64e](https://github.com/RequestNetwork/requestNetwork/commit/84ed64ebf96a296155dc2d4d5e6c538344fb881b))
+
+
+
+
+
 # [0.25.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.7.0...@requestnetwork/utils@0.25.0) (2020-10-21)
 
 

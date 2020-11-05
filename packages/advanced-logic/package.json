@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/advanced-logic",
-  "version": "0.24.0",
+  "version": "0.25.0",
   "publishConfig": {
     "access": "public"
   },
@@ -39,8 +39,8 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.26.0",
-    "@requestnetwork/utils": "0.25.0",
+    "@requestnetwork/types": "0.27.0",
+    "@requestnetwork/utils": "0.26.0",
     "@types/node": "14.6.4",
     "lodash": "4.17.20",
     "wallet-address-validator": "0.2.4"

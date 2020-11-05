@@ -3,6 +3,56 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.4.5...@requestnetwork/data-format@0.6.0) (2020-11-05)
+
+
+### Bug Fixes
+
+* use string for rnf_invoice tax amount ([#354](https://github.com/RequestNetwork/requestNetwork/issues/354)) ([e801167](https://github.com/RequestNetwork/requestNetwork/commit/e801167e6490236914e6453ca0affcb4f0f8a92e))
+
+
+### Features
+
+* rnf invoice data format 3, grouped tax ([#345](https://github.com/RequestNetwork/requestNetwork/issues/345)) ([a32c4e4](https://github.com/RequestNetwork/requestNetwork/commit/a32c4e4c6868b9f483f2646f92fabe252da9250c))
+
+
+
+# 0.26.0 (2020-10-14)
+
+
+### Bug Fixes
+
+* company registration on rnf_invoice ([#228](https://github.com/RequestNetwork/requestNetwork/issues/228)) ([9bb3301](https://github.com/RequestNetwork/requestNetwork/commit/9bb3301a985a0b627a6c5eded3e3872af8628961))
+
+
+
+# 0.16.0 (2020-04-21)
+
+
+
+# 0.15.0 (2020-04-06)
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 # [0.5.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.4.5...@requestnetwork/data-format@0.5.0) (2020-10-21)
 
 

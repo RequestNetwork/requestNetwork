@@ -3,6 +3,63 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.24.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.8.1...@requestnetwork/transaction-manager@0.24.0) (2020-11-05)
+
+
+
+# 0.26.0 (2020-10-14)
+
+
+### Features
+
+* remove hash in encrypted transaction ([#232](https://github.com/RequestNetwork/requestNetwork/issues/232)) ([d58f101](https://github.com/RequestNetwork/requestNetwork/commit/d58f101f9f76e408671dd1edb0d67863d1c8abd5))
+* replace symmetric encryption algorithm by aes-256-gcm ([#233](https://github.com/RequestNetwork/requestNetwork/issues/233)) ([969bebe](https://github.com/RequestNetwork/requestNetwork/commit/969bebeb99b4bc2fdd31405a162934cfdff6db05))
+
+
+
+# 0.16.0 (2020-04-21)
+
+
+### Features
+
+* add entry point to request node to get monitoring status ([#191](https://github.com/RequestNetwork/requestNetwork/issues/191)) ([1d9c239](https://github.com/RequestNetwork/requestNetwork/commit/1d9c239f5de5143cd54c3470b42786eff17748f6))
+
+
+
+# 0.15.0 (2020-04-06)
+
+
+### Features
+
+* add the confirmed events in the highest layers ([#141](https://github.com/RequestNetwork/requestNetwork/issues/141)) ([7f9b756](https://github.com/RequestNetwork/requestNetwork/commit/7f9b756d51b20fbd45971f4db3e9865b75f2d265))
+* emits "error" event when the confirmation fails ([#179](https://github.com/RequestNetwork/requestNetwork/issues/179)) ([73bfcfb](https://github.com/RequestNetwork/requestNetwork/commit/73bfcfb5f6a54d2036a47e09ce180a00c12a81ae))
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* confirmed & pending state in the highest layers ([#119](https://github.com/RequestNetwork/requestNetwork/issues/119)) ([9424dc0](https://github.com/RequestNetwork/requestNetwork/commit/9424dc0c9482208fdbe714f8d29f5deed68711de))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 # [0.23.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/transaction-manager@0.8.1...@requestnetwork/transaction-manager@0.23.0) (2020-10-21)
 
 

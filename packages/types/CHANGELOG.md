@@ -3,6 +3,84 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.9.0...@requestnetwork/types@0.27.0) (2020-11-05)
+
+
+
+# 0.26.0 (2020-10-14)
+
+
+### Bug Fixes
+
+* enhance node synchronization and storing of ignored data ([#205](https://github.com/RequestNetwork/requestNetwork/issues/205)) ([fb6add2](https://github.com/RequestNetwork/requestNetwork/commit/fb6add27b0507e5db3a19682dbcda90274ab19f1))
+* topic can be any not only string ([#219](https://github.com/RequestNetwork/requestNetwork/issues/219)) ([8d8b601](https://github.com/RequestNetwork/requestNetwork/commit/8d8b6014759ca50b1152b98b1faf4888b732b327))
+
+
+### Features
+
+* add ERC20 fee proxy contract PN payment detection ([#254](https://github.com/RequestNetwork/requestNetwork/issues/254)) ([bec5fac](https://github.com/RequestNetwork/requestNetwork/commit/bec5fac0ee7dbbd4f3af5cf9a627627fcc689e14))
+* add getIgnoredData() to the ethereum storage ([#206](https://github.com/RequestNetwork/requestNetwork/issues/206)) ([255d2dc](https://github.com/RequestNetwork/requestNetwork/commit/255d2dc22ce0158ba3e6ce6766efece6e4c054cb))
+* add the identity ethereumSmartContract to the request logic ([#218](https://github.com/RequestNetwork/requestNetwork/issues/218)) ([66d97e0](https://github.com/RequestNetwork/requestNetwork/commit/66d97e00dee7305088cb94a0edf542fe4d0bbd56))
+* amount are only number or string ([#223](https://github.com/RequestNetwork/requestNetwork/issues/223)) ([7a35bde](https://github.com/RequestNetwork/requestNetwork/commit/7a35bde63f78b9305819a80e97022fca7e9494d2))
+* ERC20 fees payment network extension ([#251](https://github.com/RequestNetwork/requestNetwork/issues/251)) ([95af529](https://github.com/RequestNetwork/requestNetwork/commit/95af529c168734ea5018d9220c127fe115f2ac37))
+* remove hash in encrypted transaction ([#232](https://github.com/RequestNetwork/requestNetwork/issues/232)) ([d58f101](https://github.com/RequestNetwork/requestNetwork/commit/d58f101f9f76e408671dd1edb0d67863d1c8abd5))
+* replace symmetric encryption algorithm by aes-256-gcm ([#233](https://github.com/RequestNetwork/requestNetwork/issues/233)) ([969bebe](https://github.com/RequestNetwork/requestNetwork/commit/969bebeb99b4bc2fdd31405a162934cfdff6db05))
+
+
+
+# 0.16.0 (2020-04-21)
+
+
+### Features
+
+* add an option to disable payment detection in the request client ([#201](https://github.com/RequestNetwork/requestNetwork/issues/201)) ([035302f](https://github.com/RequestNetwork/requestNetwork/commit/035302f70f86fe914d2970417c4b55a6e0a32eda))
+* add entry point to request node to get monitoring status ([#191](https://github.com/RequestNetwork/requestNetwork/issues/191)) ([1d9c239](https://github.com/RequestNetwork/requestNetwork/commit/1d9c239f5de5143cd54c3470b42786eff17748f6))
+
+
+
+# 0.15.0 (2020-04-06)
+
+
+### Features
+
+* add the confirmed events in the highest layers ([#141](https://github.com/RequestNetwork/requestNetwork/issues/141)) ([7f9b756](https://github.com/RequestNetwork/requestNetwork/commit/7f9b756d51b20fbd45971f4db3e9865b75f2d265))
+* emits "error" event when the confirmation fails ([#179](https://github.com/RequestNetwork/requestNetwork/issues/179)) ([73bfcfb](https://github.com/RequestNetwork/requestNetwork/commit/73bfcfb5f6a54d2036a47e09ce180a00c12a81ae))
+* payment detection error does not throw ([#163](https://github.com/RequestNetwork/requestNetwork/issues/163)) ([f49640b](https://github.com/RequestNetwork/requestNetwork/commit/f49640b264c1350f1a7b0001fd71736f8bf3dc23))
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* add proxy contract to eth input data in payment detection ([#140](https://github.com/RequestNetwork/requestNetwork/issues/140)) ([0c36de1](https://github.com/RequestNetwork/requestNetwork/commit/0c36de12d08b1b591a7fd282d2cac1e5f38adb24))
+* buffered ethereum storage  ([#113](https://github.com/RequestNetwork/requestNetwork/issues/113)) ([fe4ece6](https://github.com/RequestNetwork/requestNetwork/commit/fe4ece6a1768155182be2d3ebb2908501f571912))
+* confirmed & pending state in the highest layers ([#119](https://github.com/RequestNetwork/requestNetwork/issues/119)) ([9424dc0](https://github.com/RequestNetwork/requestNetwork/commit/9424dc0c9482208fdbe714f8d29f5deed68711de))
+* persist transaction with custom ethereum provider ([#106](https://github.com/RequestNetwork/requestNetwork/issues/106)) ([61b215f](https://github.com/RequestNetwork/requestNetwork/commit/61b215fb8335d01dfa069d7f7899dd5b33749692))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+### Features
+
+* **advanced-logic:** add ERC20 proxy contract payment network ([#74](https://github.com/RequestNetwork/requestNetwork/issues/74)) ([031a374](https://github.com/RequestNetwork/requestNetwork/commit/031a3742d2dddc0324e75b7853287d252bf43c6c))
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 # [0.26.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.9.0...@requestnetwork/types@0.26.0) (2020-10-21)
 
 
