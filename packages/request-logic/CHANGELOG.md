@@ -3,6 +3,79 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.24.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.8.0...@requestnetwork/request-logic@0.24.0) (2020-11-05)
+
+
+
+# 0.26.0 (2020-10-14)
+
+
+### Features
+
+* add the identity ethereumSmartContract to the request logic ([#218](https://github.com/RequestNetwork/requestNetwork/issues/218)) ([66d97e0](https://github.com/RequestNetwork/requestNetwork/commit/66d97e00dee7305088cb94a0edf542fe4d0bbd56))
+* amount are only number or string ([#223](https://github.com/RequestNetwork/requestNetwork/issues/223)) ([7a35bde](https://github.com/RequestNetwork/requestNetwork/commit/7a35bde63f78b9305819a80e97022fca7e9494d2))
+
+
+
+# 0.16.0 (2020-04-21)
+
+
+
+# 0.15.0 (2020-04-06)
+
+
+### Bug Fixes
+
+* check payee and payer identity format at the creation ([#187](https://github.com/RequestNetwork/requestNetwork/issues/187)) ([4a19b24](https://github.com/RequestNetwork/requestNetwork/commit/4a19b241fb057d153ac7693e85a7e1d3bb6cb9e0))
+
+
+### Features
+
+* add the confirmed events in the highest layers ([#141](https://github.com/RequestNetwork/requestNetwork/issues/141)) ([7f9b756](https://github.com/RequestNetwork/requestNetwork/commit/7f9b756d51b20fbd45971f4db3e9865b75f2d265))
+* emits "error" event when the confirmation fails ([#179](https://github.com/RequestNetwork/requestNetwork/issues/179)) ([73bfcfb](https://github.com/RequestNetwork/requestNetwork/commit/73bfcfb5f6a54d2036a47e09ce180a00c12a81ae))
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* confirmed & pending state in the highest layers ([#119](https://github.com/RequestNetwork/requestNetwork/issues/119)) ([9424dc0](https://github.com/RequestNetwork/requestNetwork/commit/9424dc0c9482208fdbe714f8d29f5deed68711de))
+
+
+### Reverts
+
+* bump semver from 5.6.0 to 7.1.1 ([dec266f](https://github.com/RequestNetwork/requestNetwork/commit/dec266f3e174e039d181be3d1a6e2961df072cc6))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+### Bug Fixes
+
+* backward compatibility issue + removing test failing for external reason ([#93](https://github.com/RequestNetwork/requestNetwork/issues/93)) ([9a405dc](https://github.com/RequestNetwork/requestNetwork/commit/9a405dcc66b36a9a4a4b885dea2cd50abaad2725))
+* fix old version id mismatch issue ([#98](https://github.com/RequestNetwork/requestNetwork/issues/98)) ([c4d3f29](https://github.com/RequestNetwork/requestNetwork/commit/c4d3f291b7667f426a4a95cac7d65db90d13921b))
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+### Bug Fixes
+
+* rollback legacy request currency renaming from DAI to SAI ([#622](https://github.com/RequestNetwork/requestNetwork/issues/622)) ([2882811](https://github.com/RequestNetwork/requestNetwork/commit/28828117f6490ada05180f2607098d3ebada681a))
+
+
+
+
+
 # [0.23.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.8.0...@requestnetwork/request-logic@0.23.0) (2020-10-21)
 
 

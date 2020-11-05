@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/payment-detection",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "publishConfig": {
     "access": "public"
   },
@@ -39,9 +39,9 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/smart-contracts": "0.18.0",
-    "@requestnetwork/types": "0.26.0",
-    "@requestnetwork/utils": "0.25.0",
+    "@requestnetwork/smart-contracts": "0.19.0",
+    "@requestnetwork/types": "0.27.0",
+    "@requestnetwork/utils": "0.26.0",
     "axios": "0.20.0",
     "bn.js": "5.1.3",
     "ethers": "4.0.48",

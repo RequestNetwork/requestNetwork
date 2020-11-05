@@ -3,6 +3,92 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.21.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-node@0.5.4...@requestnetwork/request-node@0.21.0) (2020-11-05)
+
+
+
+# 0.26.0 (2020-10-14)
+
+
+### Bug Fixes
+
+* high gas related fixes ([#270](https://github.com/RequestNetwork/requestNetwork/issues/270)) ([1471b54](https://github.com/RequestNetwork/requestNetwork/commit/1471b54ae703bc8c14b5bf3a91ad0b9fae661214))
+
+
+
+# 0.18.0 (2020-06-29)
+
+
+### Bug Fixes
+
+* intercept error and log the missed transaction ([#230](https://github.com/RequestNetwork/requestNetwork/issues/230)) ([90f5fdc](https://github.com/RequestNetwork/requestNetwork/commit/90f5fdc814b1e53698be294e1b138e2ea7276794))
+
+
+### Features
+
+* resubmit stuck transaction with more gas ([#239](https://github.com/RequestNetwork/requestNetwork/issues/239)) ([cf7f92e](https://github.com/RequestNetwork/requestNetwork/commit/cf7f92eb6ee9f0c5da427f37fa5f12f56812a221))
+* store confirmed transactions ([#235](https://github.com/RequestNetwork/requestNetwork/issues/235)) ([f2d10fc](https://github.com/RequestNetwork/requestNetwork/commit/f2d10fc6af098fec4b8585ffea5e101c256f6a35))
+
+
+
+# 0.16.0 (2020-04-21)
+
+
+### Bug Fixes
+
+* hide infura token in the status ([#197](https://github.com/RequestNetwork/requestNetwork/issues/197)) ([4d154d7](https://github.com/RequestNetwork/requestNetwork/commit/4d154d717a37bd9212dfec5ee44ff1541453018a))
+
+
+### Features
+
+* **request-node:** Add Request Node version and Request Client version to requests header ([#192](https://github.com/RequestNetwork/requestNetwork/issues/192)) ([20ad94b](https://github.com/RequestNetwork/requestNetwork/commit/20ad94b7679b5c08a3951329b1fa8a58c8a3e2df))
+* add entry point to request node to get monitoring status ([#191](https://github.com/RequestNetwork/requestNetwork/issues/191)) ([1d9c239](https://github.com/RequestNetwork/requestNetwork/commit/1d9c239f5de5143cd54c3470b42786eff17748f6))
+
+
+
+# 0.15.0 (2020-04-06)
+
+
+
+# 0.14.0 (2020-03-19)
+
+
+### Bug Fixes
+
+* block parsing with encrypted transaction ([#176](https://github.com/RequestNetwork/requestNetwork/issues/176)) ([de86f43](https://github.com/RequestNetwork/requestNetwork/commit/de86f43d7f2886673364bded70ab6a4f8acf4711))
+
+
+### Features
+
+* add the confirmed events in the highest layers ([#141](https://github.com/RequestNetwork/requestNetwork/issues/141)) ([7f9b756](https://github.com/RequestNetwork/requestNetwork/commit/7f9b756d51b20fbd45971f4db3e9865b75f2d265))
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* buffered ethereum storage  ([#113](https://github.com/RequestNetwork/requestNetwork/issues/113)) ([fe4ece6](https://github.com/RequestNetwork/requestNetwork/commit/fe4ece6a1768155182be2d3ebb2908501f571912))
+* persist transaction with custom ethereum provider ([#106](https://github.com/RequestNetwork/requestNetwork/issues/106)) ([61b215f](https://github.com/RequestNetwork/requestNetwork/commit/61b215fb8335d01dfa069d7f7899dd5b33749692))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 # [0.20.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-node@0.5.4...@requestnetwork/request-node@0.20.0) (2020-10-21)
 
 

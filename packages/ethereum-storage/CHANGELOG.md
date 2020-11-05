@@ -3,6 +3,69 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.20.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.4.5...@requestnetwork/ethereum-storage@0.20.0) (2020-11-05)
+
+
+
+# 0.26.0 (2020-10-14)
+
+
+### Bug Fixes
+
+* ipfs manager read() decode from base64 before checking the size  ([#314](https://github.com/RequestNetwork/requestNetwork/issues/314)) ([4b41eb7](https://github.com/RequestNetwork/requestNetwork/commit/4b41eb7271d0b7a2b7711915d5a3125063118f16))
+* **ipfs-manager:** use base64 format to support long files ([#304](https://github.com/RequestNetwork/requestNetwork/issues/304)) ([03b0b48](https://github.com/RequestNetwork/requestNetwork/commit/03b0b48bc4f054cbe86d41ba0d306acf009a9fa7))
+* enhance node synchronization and storing of ignored data ([#205](https://github.com/RequestNetwork/requestNetwork/issues/205)) ([fb6add2](https://github.com/RequestNetwork/requestNetwork/commit/fb6add27b0507e5db3a19682dbcda90274ab19f1))
+* high gas related fixes ([#270](https://github.com/RequestNetwork/requestNetwork/issues/270)) ([1471b54](https://github.com/RequestNetwork/requestNetwork/commit/1471b54ae703bc8c14b5bf3a91ad0b9fae661214))
+
+
+### Features
+
+* add etherscan gas oracle provider ([#271](https://github.com/RequestNetwork/requestNetwork/issues/271)) ([d5939a1](https://github.com/RequestNetwork/requestNetwork/commit/d5939a1b5c29c690fe80fe4e79c8bd2111fd2969))
+* add getIgnoredData() to the ethereum storage ([#206](https://github.com/RequestNetwork/requestNetwork/issues/206)) ([255d2dc](https://github.com/RequestNetwork/requestNetwork/commit/255d2dc22ce0158ba3e6ce6766efece6e4c054cb))
+* resubmit stuck transaction with more gas ([#239](https://github.com/RequestNetwork/requestNetwork/issues/239)) ([cf7f92e](https://github.com/RequestNetwork/requestNetwork/commit/cf7f92eb6ee9f0c5da427f37fa5f12f56812a221))
+
+
+
+# 0.16.0 (2020-04-21)
+
+
+### Features
+
+* add entry point to request node to get monitoring status ([#191](https://github.com/RequestNetwork/requestNetwork/issues/191)) ([1d9c239](https://github.com/RequestNetwork/requestNetwork/commit/1d9c239f5de5143cd54c3470b42786eff17748f6))
+
+
+
+# 0.15.0 (2020-04-06)
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* buffered ethereum storage  ([#113](https://github.com/RequestNetwork/requestNetwork/issues/113)) ([fe4ece6](https://github.com/RequestNetwork/requestNetwork/commit/fe4ece6a1768155182be2d3ebb2908501f571912))
+* confirmed & pending state in the highest layers ([#119](https://github.com/RequestNetwork/requestNetwork/issues/119)) ([9424dc0](https://github.com/RequestNetwork/requestNetwork/commit/9424dc0c9482208fdbe714f8d29f5deed68711de))
+* custom docker ganache image ([#129](https://github.com/RequestNetwork/requestNetwork/issues/129)) ([9ab725d](https://github.com/RequestNetwork/requestNetwork/commit/9ab725dca826ba82152c9f7e0cedc8038c6a17b1))
+* persist transaction with custom ethereum provider ([#106](https://github.com/RequestNetwork/requestNetwork/issues/106)) ([61b215f](https://github.com/RequestNetwork/requestNetwork/commit/61b215fb8335d01dfa069d7f7899dd5b33749692))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+
+
+
 # [0.19.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.4.5...@requestnetwork/ethereum-storage@0.19.0) (2020-10-21)
 
 

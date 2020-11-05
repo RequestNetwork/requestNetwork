@@ -3,6 +3,82 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.25.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.6.0...@requestnetwork/integration-test@0.25.0) (2020-11-05)
+
+
+
+# 0.26.0 (2020-10-14)
+
+
+### Features
+
+* add the identity ethereumSmartContract to the request logic ([#218](https://github.com/RequestNetwork/requestNetwork/issues/218)) ([66d97e0](https://github.com/RequestNetwork/requestNetwork/commit/66d97e00dee7305088cb94a0edf542fe4d0bbd56))
+* remove hash in encrypted transaction ([#232](https://github.com/RequestNetwork/requestNetwork/issues/232)) ([d58f101](https://github.com/RequestNetwork/requestNetwork/commit/d58f101f9f76e408671dd1edb0d67863d1c8abd5))
+* replace symmetric encryption algorithm by aes-256-gcm ([#233](https://github.com/RequestNetwork/requestNetwork/issues/233)) ([969bebe](https://github.com/RequestNetwork/requestNetwork/commit/969bebeb99b4bc2fdd31405a162934cfdff6db05))
+
+
+
+# 0.16.0 (2020-04-21)
+
+
+
+# 0.15.0 (2020-04-06)
+
+
+### Bug Fixes
+
+* reduce number of call to btc providers in the tests ([#153](https://github.com/RequestNetwork/requestNetwork/issues/153)) ([469161b](https://github.com/RequestNetwork/requestNetwork/commit/469161b0a26b43c8bdf8ff7ceb7524dfd3d2029f))
+
+
+### Features
+
+* add the confirmed events in the highest layers ([#141](https://github.com/RequestNetwork/requestNetwork/issues/141)) ([7f9b756](https://github.com/RequestNetwork/requestNetwork/commit/7f9b756d51b20fbd45971f4db3e9865b75f2d265))
+
+
+
+# 0.13.0 (2020-02-20)
+
+
+### Bug Fixes
+
+* fix nightly test ([#145](https://github.com/RequestNetwork/requestNetwork/issues/145)) ([8377143](https://github.com/RequestNetwork/requestNetwork/commit/83771435234a2f7f00d3ac072911a6ec918007f4))
+* ts-node configuration ([#138](https://github.com/RequestNetwork/requestNetwork/issues/138)) ([e2180d5](https://github.com/RequestNetwork/requestNetwork/commit/e2180d507bd87116fdeb3466690b6df0c5187976))
+
+
+### Features
+
+* buffered ethereum storage  ([#113](https://github.com/RequestNetwork/requestNetwork/issues/113)) ([fe4ece6](https://github.com/RequestNetwork/requestNetwork/commit/fe4ece6a1768155182be2d3ebb2908501f571912))
+* confirmed & pending state in the highest layers ([#119](https://github.com/RequestNetwork/requestNetwork/issues/119)) ([9424dc0](https://github.com/RequestNetwork/requestNetwork/commit/9424dc0c9482208fdbe714f8d29f5deed68711de))
+* persist transaction with custom ethereum provider ([#106](https://github.com/RequestNetwork/requestNetwork/issues/106)) ([61b215f](https://github.com/RequestNetwork/requestNetwork/commit/61b215fb8335d01dfa069d7f7899dd5b33749692))
+
+
+
+# 0.12.0 (2020-01-16)
+
+
+### Bug Fixes
+
+* mock BTC provider on tests ([#103](https://github.com/RequestNetwork/requestNetwork/issues/103)) ([d17f5bd](https://github.com/RequestNetwork/requestNetwork/commit/d17f5bd841690dcbb2615af126e66116685ee3be))
+
+
+### Features
+
+* **request-client.js:** get balance from request ERC20 with proxy contract ([#94](https://github.com/RequestNetwork/requestNetwork/issues/94)) ([08758ae](https://github.com/RequestNetwork/requestNetwork/commit/08758ae83e3834db06c0f1441e51bc6c2b897669))
+* balance event timestamps ([#78](https://github.com/RequestNetwork/requestNetwork/issues/78)) ([ee2a78f](https://github.com/RequestNetwork/requestNetwork/commit/ee2a78ff5ba83d84739b743db283bb8abfca6b63))
+
+
+
+# 0.10.0 (2019-12-04)
+
+
+### Features
+
+* **request-client.js:** add an explanation when request not found ([#609](https://github.com/RequestNetwork/requestNetwork/issues/609)) ([3909958](https://github.com/RequestNetwork/requestNetwork/commit/39099580b65b86282d19a71ffad77f1b89767cca))
+
+
+
+
+
 # [0.24.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.6.0...@requestnetwork/integration-test@0.24.0) (2020-10-21)
 
 
