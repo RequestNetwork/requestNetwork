@@ -4,6 +4,8 @@ import Web3SignatureProvider from '../src/web3-signature-provider';
 
 import Utils from '@requestnetwork/utils';
 
+import { providers } from 'ethers';
+
 const id1Raw = {
   identity: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -16,13 +18,13 @@ const id1Raw = {
 };
 
 const data = { What: 'ever', the: 'data', are: true };
-const normalizedData = Utils.crypto.normalize(data);
+// const normalizedData = Utils.crypto.normalize(data);
+const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
+const signatureValueExpected = Utils.crypto.EcUtils.sign(id1Raw.signatureParams.privateKey, hashData);
 
-const mockEth: any = {
-  personal: {
-    async sign(): Promise<any> {
-      return;
-    },
+const mockWeb3: any = {
+  async getSigner(): Promise<any> {
+    return { signMessage: () => {return signatureValueExpected;} };
   },
 };
 
@@ -30,20 +32,21 @@ const mockEth: any = {
 describe('web3-signature-provider', () => {
   describe('sign', () => {
     it('can sign', async () => {
-      const spy = jest.spyOn(mockEth.personal, 'sign');
-      const signProvider = new Web3SignatureProvider('http://localhost:8545');
+      const spy = jest.spyOn(mockWeb3, 'getSigner');
+
+      const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
 
       // we mock eth as ganache don't support personal.sign anymore
-      signProvider.eth = mockEth;
+      signProvider.web3Provider = mockWeb3;
 
       await signProvider.sign(data, id1Raw.identity);
 
       expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(normalizedData, id1Raw.identity.value);
+      expect(spy).toHaveBeenCalledWith(id1Raw.identity.value);
     });
 
     it('cannot sign with different identity than ethereum address', async () => {
-      const signProvider = new Web3SignatureProvider('http://localhost:8545');
+      const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
 
       await expect(
         signProvider.sign(data, { type: 'otherType', value: '0x' } as any),

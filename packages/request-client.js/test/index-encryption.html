@@ -126,7 +126,7 @@
         } = getMockData();
 
         // Initialize the signature provider
-        const signatureProvider = new Web3SignatureProvider.Web3SignatureProvider(web3);
+        const signatureProvider = new Web3SignatureProvider.Web3SignatureProvider(web3.currentProvider);
 
         // Initialize the decryption provider
         const decryptionProvider = new EthereumPrivateKeyDecryptionProvider.EthereumPrivateKeyDecryptionProvider(
