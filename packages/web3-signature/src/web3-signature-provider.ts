@@ -47,7 +47,7 @@ export default class Web3SignatureProvider
     }
 
     const normalizedData = Utils.crypto.normalize(data);
-    const signerEthers = await this.web3Provider.getSigner(signer.value);
+    const signerEthers = this.web3Provider.getSigner(signer.value);
 
     let signatureValue;
     try {
