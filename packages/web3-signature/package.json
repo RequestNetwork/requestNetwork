@@ -43,7 +43,7 @@
   "dependencies": {
     "@requestnetwork/types": "0.27.0",
     "@requestnetwork/utils": "0.26.0",
-    "ethers": "5.0.19"
+    "ethers": "4.0.48"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
