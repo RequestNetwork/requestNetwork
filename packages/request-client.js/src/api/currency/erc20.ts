@@ -1,5 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
+import { supportedNetworks, supportedNetworksDetails, ERC20SymbolDetails } from './erc20/networks';
 
 // These interfaces are declared here because they should be used only in this context
 // A Token description from the eth-contract-metadata list
@@ -19,47 +20,6 @@ interface ITokenMap {
 
 const supportedERC20Tokens = require('eth-contract-metadata') as ITokenMap;
 
-// List of the supported rinkeby ERC20 tokens
-export const supportedRinkebyERC20 = new Map([
-  // Request Central Bank token, used for testing on rinkeby.
-  [
-    'CTBK',
-    {
-      network: 'rinkeby',
-      type: RequestLogicTypes.CURRENCY.ERC20,
-      value: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
-    },
-  ],
-
-  // Faucet Token on rinkeby network. Easy to use on tests.
-  [
-    'FAU',
-    {
-      network: 'rinkeby',
-      type: RequestLogicTypes.CURRENCY.ERC20,
-      value: '0xFab46E002BbF0b4509813474841E0716E6730136',
-    },
-  ],
-]);
-
-// Additional details about the supported rinkeby ERC20 tokens.
-const supportedRinkebyERC20Details = {
-  // Request Central Bank token, used for testing on rinkeby.
-  CTBK: {
-    // Faucet URL: https://central.request.network
-    address: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
-    decimals: 18,
-    name: 'Central Bank Token',
-  },
-  // Faucet Token on rinkeby network.
-  FAU: {
-    // Faucet URL: https://erc20faucet.com/
-    address: '0xFab46E002BbF0b4509813474841E0716E6730136',
-    decimals: 18,
-    name: 'Faucet Token',
-  },
-};
-
 /**
  * Returns a Currency object for an ERC20, if found
  * @param symbol The ERC20 token symbol
@@ -71,7 +31,7 @@ export function getErc20Currency(
 ): RequestLogicTypes.ICurrency | undefined {
   // If network is mainnet, check if it's one of the supported ERC20
   if (!network || network === 'mainnet') {
-    const erc20Token = getErc20FromSymbol(symbol);
+    const erc20Token = getMainnetErc20FromSymbol(symbol);
     if (erc20Token) {
       return {
         network: 'mainnet',
@@ -81,12 +41,13 @@ export function getErc20Currency(
     }
   }
 
-  // Check if it's one of our supported rinkeby ERC20 currencies
-  if (supportedRinkebyERC20.has(symbol)) {
-    if (network && network === 'rinkeby') {
-      return supportedRinkebyERC20.get(symbol)!;
-    }
-    throw new Error(`The currency ${symbol} is only available on rinkeby`);
+  // Check if it's on one of the other supported networks
+  if (
+    network &&
+    supportedNetworks.hasOwnProperty(network) &&
+    supportedNetworks[network].has(symbol)
+  ) {
+    return supportedNetworks[network].get(symbol);
   }
 
   return;
@@ -105,9 +66,9 @@ export function getErc20Decimals(currency: RequestLogicTypes.ICurrency): number 
     erc20Token = getMainnetErc20FromAddress(currency.value);
   }
 
-  // Get the decimals from the supported rinkeby ERC20
-  if (currency.network === 'rinkeby') {
-    erc20Token = Object.values(supportedRinkebyERC20Details).find(
+  // Get the decimals from one of the supported ERC20 networks
+  if (currency.network && supportedNetworksDetails.hasOwnProperty(currency.network)) {
+    erc20Token = Object.values(supportedNetworksDetails[currency.network]).find(
       ({ address }) => address === currency.value,
     );
   }
@@ -136,12 +97,12 @@ export function getMainnetErc20FromAddress(address: string): ITokenDescription |
 }
 
 /**
- * Get an ERC20 currency from the currency value string
+ * Get an ERC20 currency from the currency value string, for mainnet only
  *
  * @param symbol the ERC20 currency symbol string
  * @returns the ERC20 ITokenDescription
  */
-export function getErc20FromSymbol(symbol: string): ITokenDescription | undefined {
+export function getMainnetErc20FromSymbol(symbol: string): ITokenDescription | undefined {
   const token = Object.entries(supportedERC20Tokens).find(
     ([_, tokenObject]) => tokenObject.symbol === symbol && tokenObject.erc20,
   );
@@ -177,8 +138,9 @@ export function getErc20Symbol(currency: RequestLogicTypes.ICurrency): string | 
     return token ? token.symbol : null;
   }
 
-  if (currency.network === 'rinkeby') {
-    const entry = [...supportedRinkebyERC20.entries()].find(
+  // Find ERC20 symbol in one of the other supported ERC20 networks
+  if (supportedNetworks.hasOwnProperty(currency.network)) {
+    const entry = [...supportedNetworks[currency.network].entries()].find(
       ([, obj]) => currency.value === obj.value,
     );
     return entry ? entry[0] : null;
@@ -187,24 +149,30 @@ export function getErc20Symbol(currency: RequestLogicTypes.ICurrency): string | 
   return null;
 }
 
+interface ERC20TokenDetails extends ERC20SymbolDetails {
+  symbol: string;
+}
 /**
  * Returns a list of supported ERC20 currencies
  *
  * @returns List of supported ERC20 currencies
  */
-export function getSupportedERC20Tokens(): Array<{
-  name: string;
-  symbol: string;
-  decimals: number;
-  address: string;
-}> {
+export function getSupportedERC20Tokens(): ERC20TokenDetails[] {
   return Object.entries(supportedERC20Tokens)
     .filter(([, { erc20 }]) => !!erc20)
     .map(([address, { name, symbol, decimals }]) => ({ name, symbol, decimals, address }))
     .concat(
-      Object.entries(supportedRinkebyERC20Details).map(([symbol, token]) => ({
-        ...token,
-        symbol: symbol + '-rinkeby',
-      })),
+      Object.entries(supportedNetworksDetails).reduce(
+        (acc: ERC20TokenDetails[], [networkName, network]) => {
+          return [
+            ...acc,
+            ...Object.entries(network).map(([symbol, token]) => ({
+              ...token,
+              symbol: `${symbol}-${networkName}`,
+            })),
+          ];
+        },
+        [],
+      ),
     );
 }
