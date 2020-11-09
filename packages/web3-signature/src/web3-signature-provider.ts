@@ -49,9 +49,18 @@ export default class Web3SignatureProvider
     const normalizedData = Utils.crypto.normalize(data);
     const signerEthers = await this.web3Provider.getSigner(signer.value);
 
-    const signatureValue = await signerEthers.signMessage(
-      Buffer.from(normalizedData),
-    );
+    let signatureValue;
+    try {
+      signatureValue = await signerEthers.signMessage(
+        Buffer.from(normalizedData),
+      );
+    } catch (error) {
+      // tslint:disable-next-line:no-magic-numbers
+      if(error.code === -32602) {
+        throw new Error(`Impossible to sign for the identity: ${signer.value}`)
+      }
+      throw error;
+    }
 
     // some wallets (like Metamask) do a personal_sign (ECDSA_ETHEREUM),
     //  some (like Trust) do a simple sign (ECDSA)
