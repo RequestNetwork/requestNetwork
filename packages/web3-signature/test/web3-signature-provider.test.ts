@@ -26,12 +26,13 @@ const mockWeb3: any = {
   getSigner: jest.fn().mockImplementation(() => ({signMessage: () => {return signatureValueExpected;} }))
 }
 
+// use of infura only to initialize Web3SignatureProvider - but web3 is mockup afterward
+const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
+
 /* tslint:disable:no-unused-expression */
 describe('web3-signature-provider', () => {
   describe('sign', () => {
     it('can sign', async () => {
-      const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
-
       // we mock eth as ganache don't support personal.sign anymore
       signProvider.web3Provider = mockWeb3;
 
@@ -46,8 +47,6 @@ describe('web3-signature-provider', () => {
         getSigner: () => ({signMessage: () => {throw {code: -32602};} })
       }
 
-      const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
-
       // we mock eth as ganache don't support personal.sign anymore
       signProvider.web3Provider = mockWeb3Throw;
 
@@ -57,8 +56,6 @@ describe('web3-signature-provider', () => {
     });
 
     it('cannot sign with different identity than ethereum address', async () => {
-      const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
-
       await expect(
         signProvider.sign(data, { type: 'otherType', value: '0x' } as any),
       ).rejects.toThrowError('Identity type not supported otherType');
