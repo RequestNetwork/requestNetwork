@@ -69,7 +69,7 @@ describe('api/currency/erc20', () => {
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
         }),
-      );
+      ).toEqual('CUSD');
     });
   });
 });
