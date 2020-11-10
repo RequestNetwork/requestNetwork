@@ -18,7 +18,6 @@ const id1Raw = {
 };
 
 const data = { What: 'ever', the: 'data', are: true };
-// const normalizedData = Utils.crypto.normalize(data);
 const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
 const signatureValueExpected = Utils.crypto.EcUtils.sign(id1Raw.signatureParams.privateKey, hashData);
 
