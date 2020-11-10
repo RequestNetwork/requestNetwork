@@ -4,6 +4,8 @@ import Web3SignatureProvider from '../src/web3-signature-provider';
 
 import Utils from '@requestnetwork/utils';
 
+import { providers } from 'ethers';
+
 const id1Raw = {
   identity: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -16,35 +18,43 @@ const id1Raw = {
 };
 
 const data = { What: 'ever', the: 'data', are: true };
-const normalizedData = Utils.crypto.normalize(data);
+const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
+const signatureValueExpected = Utils.crypto.EcUtils.sign(id1Raw.signatureParams.privateKey, hashData);
 
-const mockEth: any = {
-  personal: {
-    async sign(): Promise<any> {
-      return;
-    },
-  },
-};
+const mockWeb3: any = {
+  getSigner: jest.fn().mockImplementation(() => ({signMessage: () => {return signatureValueExpected;} }))
+}
+
+// use of infura only to initialize Web3SignatureProvider - but web3 is mockup afterward
+const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
 
 /* tslint:disable:no-unused-expression */
 describe('web3-signature-provider', () => {
   describe('sign', () => {
     it('can sign', async () => {
-      const spy = jest.spyOn(mockEth.personal, 'sign');
-      const signProvider = new Web3SignatureProvider('http://localhost:8545');
-
       // we mock eth as ganache don't support personal.sign anymore
-      signProvider.eth = mockEth;
+      signProvider.web3Provider = mockWeb3;
 
       await signProvider.sign(data, id1Raw.identity);
 
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(normalizedData, id1Raw.identity.value);
+      expect(mockWeb3.getSigner).toHaveBeenCalledTimes(1);
+      expect(mockWeb3.getSigner).toHaveBeenCalledWith(id1Raw.identity.value);
+    });
+
+    it('cannot sign if web3 throw', async () => {
+      const mockWeb3Throw: any = {
+        getSigner: () => ({signMessage: () => {throw {code: -32602};} })
+      }
+
+      // we mock eth as ganache don't support personal.sign anymore
+      signProvider.web3Provider = mockWeb3Throw;
+
+      await expect(
+        signProvider.sign(data, id1Raw.identity),
+      ).rejects.toThrowError(`Impossible to sign for the identity: ${id1Raw.identity.value}`);
     });
 
     it('cannot sign with different identity than ethereum address', async () => {
-      const signProvider = new Web3SignatureProvider('http://localhost:8545');
-
       await expect(
         signProvider.sign(data, { type: 'otherType', value: '0x' } as any),
       ).rejects.toThrowError('Identity type not supported otherType');
