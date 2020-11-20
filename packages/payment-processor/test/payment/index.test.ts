@@ -4,7 +4,13 @@ import { BigNumber, bigNumberify } from 'ethers/utils';
 
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { _getPaymentUrl, hasSufficientFunds, payRequest, swapToPayRequest } from '../../src/payment';
+import {
+  _getPaymentUrl,
+  hasSufficientFunds,
+  payRequest,
+  swapToPayRequest,
+  isSolvent
+} from '../../src/payment';
 import * as btcModule from '../../src/payment/btc-address-based';
 import * as erc20Module from '../../src/payment/erc20';
 import * as ethModule from '../../src/payment/eth-input-data';
@@ -15,6 +21,11 @@ import * as ethModule from '../../src/payment/eth-input-data';
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
+const fakeErc20: RequestLogicTypes.ICurrency = {
+  type: RequestLogicTypes.CURRENCY.ERC20,
+  value: 'any',
+  network: 'live',
+};
 
 describe('payRequest', () => {
   it('paying a declarative request should fail', async () => {
@@ -167,6 +178,10 @@ describe('swapToPayRequest', () => {
 });
 
 describe('hasSufficientFunds', () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
   it('should throw an error on unsupported network', async () => {
     const request: any = {
       currencyInfo: {
@@ -244,6 +259,52 @@ describe('hasSufficientFunds', () => {
     };
     await hasSufficientFunds(request, 'abcd', fakeProvider);
     expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should skip ETH balance checks for smart contract wallets', async () => {
+    const walletConnectProvider = {
+      ...provider,
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(bigNumberify('0'))),
+
+      provider: {
+        wc: {
+          _peerMeta: {
+            name: 'Safe Multisig WalletConnect',
+          }
+        }
+      }
+    };
+
+    const mock = jest
+      .spyOn(erc20Module, 'getAnyErc20Balance')
+      .mockReturnValue(Promise.resolve(bigNumberify('200')));
+    // tslint:disable-next-line: no-magic-numbers
+    const solvency = await isSolvent('any', fakeErc20, 100, walletConnectProvider as any);
+    expect(solvency).toBeTruthy();
+    expect(mock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should check ETH balance checks for non-smart contract wallets', async () => {
+    const walletConnectProvider = {
+      ...provider,
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(bigNumberify('0'))),
+
+      provider: {
+        wc: {
+          _peerMeta: {
+            name: 'Definitely not a smart contract wallet',
+          }
+        }
+      }
+    };
+
+    const mock = jest
+      .spyOn(erc20Module, 'getAnyErc20Balance')
+      .mockReturnValue(Promise.resolve(bigNumberify('200')));
+    // tslint:disable-next-line: no-magic-numbers
+    const solvency = await isSolvent('any', fakeErc20, 100, walletConnectProvider as any);
+    expect(solvency).toBeFalsy();
+    expect(mock).toHaveBeenCalledTimes(1);
   });
 });
 
