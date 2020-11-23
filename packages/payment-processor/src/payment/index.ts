@@ -139,12 +139,13 @@ export async function isSolvent(
   provider: Provider,
 ): Promise<boolean> {
   const ethBalance = await provider.getBalance(fromAddress);
+  const needsGas  =  (provider as any)?.provider?.wc?._peerMeta?.name !== 'Safe Multisig WalletConnect';
 
   if (currency.type === 'ETH') {
     return ethBalance.gt(amount);
   } else {
     const balance = await getCurrencyBalance(fromAddress, currency, provider);
-    return ethBalance.gt(0) && bigNumberify(balance).gte(amount);
+    return (ethBalance.gt(0) || !needsGas) && bigNumberify(balance).gte(amount);
   }
 }
 
