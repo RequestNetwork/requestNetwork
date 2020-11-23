@@ -139,30 +139,7 @@ export async function isSolvent(
   provider: Provider,
 ): Promise<boolean> {
   const ethBalance = await provider.getBalance(fromAddress);
-  let needsGas:boolean;
-  try {
-    /**
-     * proxyProvider represents some additional data given by Wallet Connect
-     */
-    type proxyProvider = {
-      provider: {
-        wc: {
-          _peerMeta: {
-            name: string;
-          }
-        }
-      }
-    }
-    const thisProvider:proxyProvider = provider as any;
-    // Smart Contract wallets do not pay for the gas
-    const smartContractWallets = [
-      'Safe Multisig WalletConnect',
-    ]
-    needsGas = !smartContractWallets.includes(thisProvider.provider.wc._peerMeta.name);
-  } catch {
-    // Other providers need gas for the transaction
-    needsGas = true;
-  }
+  const needsGas  =  (provider as any)?.provider?.wc?._peerMeta?.name !== 'Safe Multisig WalletConnect';
 
   if (currency.type === 'ETH') {
     return ethBalance.gt(amount);
