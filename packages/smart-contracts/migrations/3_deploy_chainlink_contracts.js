@@ -1,9 +1,9 @@
 const Utils = require('@requestnetwork/utils').default;
-const AggDAI_USD = artifacts.require("./test/Agg_DAI_USD.sol");
-const AggETH_USD = artifacts.require("Agg_ETH_USD");
-const AggEUR_USD = artifacts.require("Agg_EUR_USD");
-const AggUSDT_ETH = artifacts.require("Agg_USDT_ETH");
-const USDT_fake = artifacts.require("USDT_fake");
+const AggDAI_USD = artifacts.require("AggDaiUsd.sol");
+const AggETH_USD = artifacts.require("AggEthUsd");
+const AggEUR_USD = artifacts.require("AggEurUsd");
+const AggUSDT_ETH = artifacts.require("AggUsdtEth");
+const USDT_fake = artifacts.require("UsdtFake");
 
 const ChainlinkConversionPath = artifacts.require("ChainlinkConversionPath");
 

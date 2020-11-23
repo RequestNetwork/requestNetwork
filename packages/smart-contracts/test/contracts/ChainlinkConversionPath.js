@@ -2,7 +2,7 @@ const Utils = require('@requestnetwork/utils').default;
 
 const ChainlinkConversionPath = artifacts.require("ChainlinkConversionPath");
 
-const USDT_fake = artifacts.require("USDT_fake");
+const USDT_fake = artifacts.require("UsdtFake");
 
 const address1 = "0x1111111111111111111111111111111111111111";
 const address2 = "0x2222222222222222222222222222222222222222";

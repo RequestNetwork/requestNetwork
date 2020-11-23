@@ -14,6 +14,7 @@ interface AggregatorFraction {
   function latestTimestamp() external view returns (uint256);
 }
 
+
 /**
  * @title ChainlinkConversionPath
  *
@@ -21,7 +22,7 @@ interface AggregatorFraction {
  */
 contract ChainlinkConversionPath is WhitelistAdminRole {
   using SafeMath for uint256;
-    
+
   uint constant DECIMALS = 1e18;
 
   // Mapping of Chainlink aggrefators (input currency => output currency => contract address)
@@ -40,9 +41,9 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     * @param _output address representing the output currency
     * @param _aggregator address of the aggregator contract
   */
-  function updateAggregator(address _input, address _output, address _aggregator) 
+  function updateAggregator(address _input, address _output, address _aggregator)
     external
-    onlyWhitelistAdmin  
+    onlyWhitelistAdmin
   {
     allAggregators[_input][_output] = _aggregator;
     emit UpdateAggregator(_input, _output, _aggregator);
@@ -54,9 +55,9 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     * @param _outputs list of addresses representing the output currencies
     * @param _aggregators list of addresses of the aggregator contracts
   */
-  function updateListAggregators(address[] calldata _inputs, address[] calldata _outputs, address[] calldata _aggregators) 
+  function updateListAggregators(address[] calldata _inputs, address[] calldata _outputs, address[] calldata _aggregators)
     external
-    onlyWhitelistAdmin  
+    onlyWhitelistAdmin
   {
     require(_inputs.length == _outputs.length, "arrays must have the same length");
     require(_inputs.length == _aggregators.length, "arrays must have the same length");
@@ -65,63 +66,6 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     for (uint i; i < _inputs.length; i++) {
       allAggregators[_inputs[i]][_outputs[i]] = _aggregators[i];
       emit UpdateAggregator(_inputs[i], _outputs[i], _aggregators[i]);
-    }
-  }
-
-
-  /**
-  * @notice Computes the rate from a list of conversion
-  * @param _path List of addresses representing the currencies for the conversions
-  * @return result the result after all the conversions, the oldest rate of the path and the decimals (always 1e18)
-  */
-  function getRate(
-    address[] memory _path
-  ) 
-    public
-    view
-    returns (uint256 result, uint256 oldestTimestampRate, uint256 decimals)
-  {
-    // initialize the result with 1e18 decimals (for more precision)
-    result = DECIMALS;
-    decimals = DECIMALS;
-
-    // For every conversions of the path
-    for (uint i; i < _path.length - 1; i++) {
-        (AggregatorFraction aggregator, bool reverseAggregator, uint256 decimalsInput, uint256 decimalsOutput) = getAggregatorAndDecimals(_path[i], _path[i + 1]); 
-        
-        // store the lastest timestamp of the path
-        uint256 currentTimestamp = aggregator.latestTimestamp();
-        if(currentTimestamp < oldestTimestampRate) {
-          oldestTimestampRate = currentTimestamp;
-        }
-
-        // get the rate
-        uint256 rate = uint256(aggregator.latestAnswer());
-        // get the number of decimal of the rate
-        uint256 decimalsAggregator = uint256(aggregator.decimals());
-        
-        // mul with the difference of decimals before the rate computation (for more precision)
-        if(decimalsAggregator > decimalsInput) {
-          result = result.mul(10**(decimalsAggregator-decimalsInput));
-        }
-        if(decimalsAggregator < decimalsOutput) {
-          result = result.mul(10**(decimalsOutput-decimalsAggregator));
-        }
-
-        // Apply the rate (if path use an aggregator in the reverse way, div instead of mul)
-        if(reverseAggregator) {
-          result = result.mul(10**decimalsAggregator).div(rate);
-        } else {
-          result = result.mul(rate).div(10**decimalsAggregator);
-        }
-
-        // div with the difference of decimals AFTER the rate computation (for more precision)
-        if(decimalsAggregator < decimalsInput) {
-            result = result.div(10**(decimalsInput-decimalsAggregator));
-        }
-        if(decimalsAggregator > decimalsOutput) {
-          result = result.div(10**(decimalsAggregator-decimalsOutput));
-        }
     }
   }
 
@@ -134,7 +78,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   function getConversion(
     uint256 _amountIn,
     address[] calldata _path
-  ) 
+  )
     external
     view
     returns (uint256 result, uint256 oldestTimestampRate)
@@ -148,7 +92,63 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   }
 
   /**
-  * @notice Checks if an address is a contract
+  * @notice Computes the rate from a list of conversion
+  * @param _path List of addresses representing the currencies for the conversions
+  * @return result the result after all the conversions, the oldest rate of the path and the decimals (always 1e18)
+  */
+  function getRate(
+    address[] memory _path
+  )
+    public
+    view
+    returns (uint256 result, uint256 oldestTimestampRate, uint256 decimals)
+  {
+    // initialize the result with 1e18 decimals (for more precision)
+    result = DECIMALS;
+    decimals = DECIMALS;
+
+    // For every conversions of the path
+    for (uint i; i < _path.length - 1; i++) {
+      (AggregatorFraction aggregator, bool reverseAggregator, uint256 decimalsInput, uint256 decimalsOutput) = getAggregatorAndDecimals(_path[i], _path[i + 1]);
+
+      // store the lastest timestamp of the path
+      uint256 currentTimestamp = aggregator.latestTimestamp();
+      if (currentTimestamp < oldestTimestampRate) {
+        oldestTimestampRate = currentTimestamp;
+      }
+
+      // get the rate
+      uint256 rate = uint256(aggregator.latestAnswer());
+      // get the number of decimal of the rate
+      uint256 decimalsAggregator = uint256(aggregator.decimals());
+
+      // mul with the difference of decimals before the rate computation (for more precision)
+      if (decimalsAggregator > decimalsInput) {
+        result = result.mul(10**(decimalsAggregator-decimalsInput));
+      }
+      if (decimalsAggregator < decimalsOutput) {
+        result = result.mul(10**(decimalsOutput-decimalsAggregator));
+      }
+
+      // Apply the rate (if path use an aggregator in the reverse way, div instead of mul)
+      if (reverseAggregator) {
+        result = result.mul(10**decimalsAggregator).div(rate);
+      } else {
+        result = result.mul(rate).div(10**decimalsAggregator);
+      }
+
+      // div with the difference of decimals AFTER the rate computation (for more precision)
+      if (decimalsAggregator < decimalsInput) {
+        result = result.div(10**(decimalsInput-decimalsAggregator));
+      }
+      if (decimalsAggregator > decimalsOutput) {
+        result = result.div(10**(decimalsAggregator-decimalsOutput));
+      }
+    }
+  }
+
+  /**
+  * @notice Gets aggregators and decimals of two currencies
   * @param _input input Address
   * @param _output output Address
   * @return aggregator and decimals
@@ -158,37 +158,37 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     view
     returns (AggregatorFraction aggregator, bool reverseAggregator, uint256 decimalsInput, uint256 decimalsOutput)
   {
-      // Try to get the right aggregator for the conversion
-      aggregator = AggregatorFraction(allAggregators[_input][_output]);
-      reverseAggregator = false;
+    // Try to get the right aggregator for the conversion
+    aggregator = AggregatorFraction(allAggregators[_input][_output]);
+    reverseAggregator = false;
 
-      // if no aggregator found we try to find an aggregator in the reverse way
-      if(address(aggregator) == address(0x00)) {
-        aggregator = AggregatorFraction(allAggregators[_output][_input]);
-        reverseAggregator = true;
-      }
+    // if no aggregator found we try to find an aggregator in the reverse way
+    if (address(aggregator) == address(0x00)) {
+      aggregator = AggregatorFraction(allAggregators[_output][_input]);
+      reverseAggregator = true;
+    }
 
-      require(address(aggregator) != address(0x00), "No aggregator found");
+    require(address(aggregator) != address(0x00), "No aggregator found");
 
-      // by default we assume it is FIAT so 8 decimals
-      decimalsInput = 8;
-      // if address is 0, then it's ETH
-      if(_input == address(0x0)) {
-        decimalsInput = 18;
-      } else if(isContract(_input)) {
-        // otherwise, we get the decimals from the erc20 directly
-        decimalsInput = ERC20fraction(_input).decimals();
-      }
-      
-      // by default we assume it is FIAT so 8 decimals
-      decimalsOutput = 8;
-      // if address is 0, then it's ETH
-      if(_output == address(0x0)) {
-        decimalsOutput = 18;
-      } else if(isContract(_output)) {
-        // otherwise, we get the decimals from the erc20 directly
-        decimalsOutput = ERC20fraction(_output).decimals();
-      }
+    // by default we assume it is FIAT so 8 decimals
+    decimalsInput = 8;
+    // if address is 0, then it's ETH
+    if (_input == address(0x0)) {
+      decimalsInput = 18;
+    } else if (isContract(_input)) {
+      // otherwise, we get the decimals from the erc20 directly
+      decimalsInput = ERC20fraction(_input).decimals();
+    }
+
+    // by default we assume it is FIAT so 8 decimals
+    decimalsOutput = 8;
+    // if address is 0, then it's ETH
+    if (_output == address(0x0)) {
+      decimalsOutput = 18;
+    } else if (isContract(_output)) {
+      // otherwise, we get the decimals from the erc20 directly
+      decimalsOutput = ERC20fraction(_output).decimals();
+    }
   }
 
   /**
@@ -196,8 +196,13 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   * @param _addr Address to check
   * @return true if the address host a contract, false otherwise
   */
-  function isContract(address _addr) private view returns (bool){
+  function isContract(address _addr)
+    private
+    view
+    returns (bool)
+  {
     uint32 size;
+    // solium-disable security/no-inline-assembly
     assembly {
       size := extcodesize(_addr)
     }
