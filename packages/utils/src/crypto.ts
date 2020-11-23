@@ -13,6 +13,7 @@ export default {
   generate32BufferKey,
   generate8randomBytes,
   keccak256Hash,
+  last20bytesOfNormalizeKeccak256Hash,
   normalize,
   normalizeKeccak256Hash,
 };
@@ -58,6 +59,20 @@ function normalize(data: any): string {
  */
 function keccak256Hash(data: string): string {
   return EthCrypto.hash.keccak256(data);
+}
+
+/**
+ * Hashes with the keccak256 algorithm with a normalization before and formats it
+ *
+ * @notice It will sort the object by keys before hashing
+ *
+ * @param data The data to hash
+ * @returns The hashed data multi-formatted
+ */
+function last20bytesOfNormalizeKeccak256Hash(data: any): string {
+  const hash = keccak256Hash(normalize(data));
+  // tslint:disable-next-line:no-magic-numbers
+  return `0x${hash.slice(-40)}`;
 }
 
 /**
