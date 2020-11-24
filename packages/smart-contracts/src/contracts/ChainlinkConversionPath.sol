@@ -18,14 +18,14 @@ interface AggregatorFraction {
 /**
  * @title ChainlinkConversionPath
  *
- * @notice ChainlinkConversionPath is a contract allowing to compute conversion from a path of Chainlink
+ * @notice ChainlinkConversionPath is a contract allowing to compute conversion from a Chainlink path
  */
 contract ChainlinkConversionPath is WhitelistAdminRole {
   using SafeMath for uint256;
 
   uint constant DECIMALS = 1e18;
 
-  // Mapping of Chainlink aggrefators (input currency => output currency => contract address)
+  // Mapping of Chainlink aggregators (input currency => output currency => contract address)
   // input & output currencies are the addresses of the ERC20 contracts OR the sha3("currency code")
   mapping(address => mapping(address => address)) public allAggregators;
 
@@ -111,7 +111,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     for (uint i; i < _path.length - 1; i++) {
       (AggregatorFraction aggregator, bool reverseAggregator, uint256 decimalsInput, uint256 decimalsOutput) = getAggregatorAndDecimals(_path[i], _path[i + 1]);
 
-      // store the lastest timestamp of the path
+      // store the latest timestamp of the path
       uint256 currentTimestamp = aggregator.latestTimestamp();
       if (currentTimestamp < oldestTimestampRate) {
         oldestTimestampRate = currentTimestamp;
@@ -130,7 +130,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
         result = result.mul(10**(decimalsOutput-decimalsAggregator));
       }
 
-      // Apply the rate (if path use an aggregator in the reverse way, div instead of mul)
+      // Apply the rate (if path uses an aggregator in the reverse way, div instead of mul)
       if (reverseAggregator) {
         result = result.mul(10**decimalsAggregator).div(rate);
       } else {
