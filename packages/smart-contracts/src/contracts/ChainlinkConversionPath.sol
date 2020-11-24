@@ -29,9 +29,6 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   // input & output currencies are the addresses of the ERC20 contracts OR the sha3("currency code")
   mapping(address => mapping(address => address)) public allAggregators;
 
-  // rate must have been updated before the last... 10min
-  uint256 public maxTimestampDeltaAcceptable = 600;
-
   // declare a new aggregator
   event UpdateAggregator(address _input, address _output, address _aggregator);
 
@@ -106,6 +103,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     // initialize the result with 1e18 decimals (for more precision)
     result = DECIMALS;
     decimals = DECIMALS;
+    oldestTimestampRate = now;
 
     // For every conversions of the path
     for (uint i; i < _path.length - 1; i++) {

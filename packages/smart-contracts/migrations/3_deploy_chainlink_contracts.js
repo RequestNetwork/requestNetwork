@@ -19,7 +19,7 @@ module.exports = async function(deployer) {
   const ETH_address = "0x0000000000000000000000000000000000000000";
   const USD_address = Utils.crypto.last20bytesOfNormalizeKeccak256Hash({type: 'ISO4217', value: 'USD' });
   const EUR_address = Utils.crypto.last20bytesOfNormalizeKeccak256Hash({type: 'ISO4217', value: 'EUR' });
-  const DAI_address = '0x6b175474e89094c44da98b954eedeac495271d0f';
+  const DAI_address = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
   const USDT_address = USDT_fake.address;
 
   const conversionPathInstance = await deployer.deploy(ChainlinkConversionPath);
