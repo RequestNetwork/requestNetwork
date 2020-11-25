@@ -29,9 +29,6 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   // input & output currencies are the addresses of the ERC20 contracts OR the sha3("currency code")
   mapping(address => mapping(address => address)) public allAggregators;
 
-  // rate must have been updated before the last... 10min
-  uint256 public maxTimestampDeltaAcceptable = 600;
-
   // declare a new aggregator
   event AggregatorUpdated(address _input, address _output, address _aggregator);
 
@@ -95,7 +92,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   /**
   * @notice Computes the rate from a list of conversion
   * @param _path List of addresses representing the currencies for the conversions
-  * @return result the rate
+  * @return rate the rate
   * @return oldestRateTimestamp he oldest timestamp of the path
   * @return decimals of the conversion rate
   */
@@ -104,10 +101,10 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   )
     public
     view
-    returns (uint256 result, uint256 oldestRateTimestamp, uint256 decimals)
+    returns (uint256 rate, uint256 oldestRateTimestamp, uint256 decimals)
   {
     // initialize the result with 1e18 decimals (for more precision)
-    result = DECIMALS;
+    rate = DECIMALS;
     decimals = DECIMALS;
     oldestRateTimestamp = block.timestamp;
 
@@ -121,32 +118,32 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
         oldestRateTimestamp = currentTimestamp;
       }
 
-      // get the rate
-      uint256 rate = uint256(aggregator.latestAnswer());
-      // get the number of decimal of the rate
+      // get the rate of the current step
+      uint256 currentRate = uint256(aggregator.latestAnswer());
+      // get the number of decimal of the current rate
       uint256 decimalsAggregator = uint256(aggregator.decimals());
 
-      // mul with the difference of decimals before the rate computation (for more precision)
+      // mul with the difference of decimals before the current rate computation (for more precision)
       if (decimalsAggregator > decimalsInput) {
-        result = result.mul(10**(decimalsAggregator-decimalsInput));
+        rate = rate.mul(10**(decimalsAggregator-decimalsInput));
       }
       if (decimalsAggregator < decimalsOutput) {
-        result = result.mul(10**(decimalsOutput-decimalsAggregator));
+        rate = rate.mul(10**(decimalsOutput-decimalsAggregator));
       }
 
-      // Apply the rate (if path uses an aggregator in the reverse way, div instead of mul)
+      // Apply the current rate (if path uses an aggregator in the reverse way, div instead of mul)
       if (reverseAggregator) {
-        result = result.mul(10**decimalsAggregator).div(rate);
+        rate = rate.mul(10**decimalsAggregator).div(currentRate);
       } else {
-        result = result.mul(rate).div(10**decimalsAggregator);
+        rate = rate.mul(currentRate).div(10**decimalsAggregator);
       }
 
-      // div with the difference of decimals AFTER the rate computation (for more precision)
+      // div with the difference of decimals AFTER the current rate computation (for more precision)
       if (decimalsAggregator < decimalsInput) {
-        result = result.div(10**(decimalsInput-decimalsAggregator));
+        rate = rate.div(10**(decimalsInput-decimalsAggregator));
       }
       if (decimalsAggregator > decimalsOutput) {
-        result = result.div(10**(decimalsAggregator-decimalsOutput));
+        rate = rate.div(10**(decimalsAggregator-decimalsOutput));
       }
     }
   }

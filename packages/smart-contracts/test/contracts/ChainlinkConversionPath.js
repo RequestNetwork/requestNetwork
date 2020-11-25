@@ -70,51 +70,51 @@ contract('ChainlinkConversionPath', (accounts) => {
     describe('only fiat conversion', async () => {
       it('can get rate from EUR to USD', async () => {
         const conversion = await conversionPathInstance.getRate.call([EUR_address, USD_address]);
-        assert.equal(conversion.result.toString(10), '1188220000000000000', "wrong conversion");
+        assert.equal(conversion.rate.toString(10), '1188220000000000000', "wrong conversion");
       });
 
       it('can get rate from USD to EUR', async () => {
         const conversion = await conversionPathInstance.getRate.call([USD_address, EUR_address]);
-        assert.equal(conversion.result.toString(10), '841594990826614599', "wrong conversion");
+        assert.equal(conversion.rate.toString(10), '841594990826614599', "wrong conversion");
       });
 
       it('can get rate from USD to EUR to USD', async () => {
         const conversion = await conversionPathInstance.getRate.call([USD_address, EUR_address, USD_address]);
-        assert.equal(conversion.result.toString(10), '999999999999999998', "wrong conversion");   
+        assert.equal(conversion.rate.toString(10), '999999999999999998', "wrong conversion");   
       });   
     });
 
     describe('Ethereum conversion', async () => {
       it('can get rate from USD to ETH', async () => {
         conversion = await conversionPathInstance.getRate.call([USD_address, ETH_address]);
-        assert.equal(conversion.result.toString(10), '20928013649139332360168337', "wrong conversion"); 
+        assert.equal(conversion.rate.toString(10), '20928013649139332360168337', "wrong conversion"); 
       });   
 
       it('can get rate from ETH to USD', async () => {
         conversion = await conversionPathInstance.getRate.call([ETH_address, USD_address]);
-        assert.equal(conversion.result.toString(10), '47782843454', "wrong conversion");  
+        assert.equal(conversion.rate.toString(10), '47782843454', "wrong conversion");  
       });   
 
       it('can get rate from EUR to USD to ETH', async () => {
         conversion = await conversionPathInstance.getRate.call([EUR_address, USD_address, ETH_address]);
-        assert.equal(conversion.result.toString(10), '24867084378180337496999221', "wrong conversion"); 
+        assert.equal(conversion.rate.toString(10), '24867084378180337496999221', "wrong conversion"); 
       });   
 
       it('can get rate from ETH to USD to EUR', async () => {
         conversion = await conversionPathInstance.getRate.call([ETH_address, USD_address, EUR_address]);
-        assert.equal(conversion.result.toString(10), '40213801698', "wrong conversion");
+        assert.equal(conversion.rate.toString(10), '40213801698', "wrong conversion");
       });
     });
 
     describe('USDT conversion', async () => {
       it('can get rate from USD to ETH to USDT', async () => {
         const conversion = await conversionPathInstance.getRate.call([USD_address, ETH_address, USDT_address]);
-        assert.equal(conversion.result.toString(10), '10014647195454201', "wrong conversion");
+        assert.equal(conversion.rate.toString(10), '10014647195454201', "wrong conversion");
       }); 
 
       it('can get rate from USDT to ETH to USD', async () => {
         const conversion = await conversionPathInstance.getRate.call([USDT_address, ETH_address, USD_address]);
-        assert.equal(conversion.result.toString(10), '99853742272010840583', "wrong conversion");
+        assert.equal(conversion.rate.toString(10), '99853742272010840583', "wrong conversion");
       }); 
     }); 
   });
