@@ -11,10 +11,10 @@ const address4 = "0x4444444444444444444444444444444444444444";
 const address5 = "0x5555555555555555555555555555555555555555";
 const address6 = "0x6666666666666666666666666666666666666666";
 
-const ETH_address = "0x0000000000000000000000000000000000000000";
-const USD_address = Utils.crypto.last20bytesOfNormalizeKeccak256Hash({type: 'ISO4217', value: 'USD' });
-const EUR_address = Utils.crypto.last20bytesOfNormalizeKeccak256Hash({type: 'ISO4217', value: 'EUR' });
-const DAI_address = '0x6b175474e89094c44da98b954eedeac495271d0f';
+const ETH_address = Utils.currency.getCurrencyHash({type: 'ETH', value:'ETH'});
+const USD_address = Utils.currency.getCurrencyHash({type: 'ISO4217', value: 'USD' });
+const EUR_address = Utils.currency.getCurrencyHash({type: 'ISO4217', value: 'EUR' });
+const DAI_address = Utils.currency.getCurrencyHash({type: 'ERC20', value:'0x6b175474e89094c44da98b954eedeac495271d0f'});
 let USDT_address;
 
 let conversionPathInstance;
@@ -37,19 +37,19 @@ contract('ChainlinkConversionPath', (accounts) => {
     }); 
   });
   
-  describe('updateListAggregators', async () => {
+  describe('updateAggregatorsList', async () => {
     beforeEach(async () => {
       conversionPathInstance = await ChainlinkConversionPath.new();
     });
     
-    it('can updateListAggregators', async () => {
+    it('can updateAggregatorsList', async () => {
       let addressAggregator = await conversionPathInstance.allAggregators(address1, address2)
       assert.equal(addressAggregator, '0x0000000000000000000000000000000000000000', "addressAggregator must be 0x");
 
       addressAggregator = await conversionPathInstance.allAggregators(address4, address5)
       assert.equal(addressAggregator, '0x0000000000000000000000000000000000000000', "addressAggregator must be 0x");
 
-      await conversionPathInstance.updateListAggregators( [address1, address4], 
+      await conversionPathInstance.updateAggregatorsList( [address1, address4], 
                                                           [address2, address5], 
                                                           [address3, address6]);
 

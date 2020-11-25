@@ -13,7 +13,7 @@ export default {
   generate32BufferKey,
   generate8randomBytes,
   keccak256Hash,
-  last20bytesOfNormalizeKeccak256Hash,
+  last20bytesOfNormalizedKeccak256Hash,
   normalize,
   normalizeKeccak256Hash,
 };
@@ -69,7 +69,7 @@ function keccak256Hash(data: string): string {
  * @param data The data to hash
  * @returns The hashed data multi-formatted
  */
-function last20bytesOfNormalizeKeccak256Hash(data: any): string {
+function last20bytesOfNormalizedKeccak256Hash(data: any): string {
   const hash = keccak256Hash(normalize(data));
   // tslint:disable-next-line:no-magic-numbers
   return `0x${hash.slice(-40)}`;

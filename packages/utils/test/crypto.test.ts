@@ -102,13 +102,13 @@ describe('Utils.crypto', () => {
     expect(Buffer.from(randomKey, 'base64').length).toBe(32);
   });
 
-  it('can last20bytesOfKeccak256Hash', () => {
+  it('can last20bytesOfNormalizedKeccak256Hash', () => {
     const arbitraryObject = {
       param1: 'valC',
       param2: 'valB',
       param3: 'valA',
     };
-    expect(crypto.last20bytesOfNormalizeKeccak256Hash(arbitraryObject)).toEqual('0xd6088568e24275a6cfbe9e80f4c2f42a4308f907');
+    expect(crypto.last20bytesOfNormalizedKeccak256Hash(arbitraryObject)).toEqual('0xd6088568e24275a6cfbe9e80f4c2f42a4308f907');
   });
 
   /* tslint:disable:no-unused-expression */

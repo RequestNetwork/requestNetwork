@@ -18,7 +18,7 @@ interface AggregatorFraction {
 /**
  * @title ChainlinkConversionPath
  *
- * @notice ChainlinkConversionPath is a contract allowing to compute conversion from a Chainlink path
+ * @notice ChainlinkConversionPath is a contract allowing to compute conversion rate from a Chainlink aggretators
  */
 contract ChainlinkConversionPath is WhitelistAdminRole {
   using SafeMath for uint256;
@@ -33,7 +33,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   uint256 public maxTimestampDeltaAcceptable = 600;
 
   // declare a new aggregator
-  event UpdateAggregator(address _input, address _output, address _aggregator);
+  event AggregatorUpdated(address _input, address _output, address _aggregator);
 
   /**
     * @notice Update an aggregator
@@ -46,7 +46,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     onlyWhitelistAdmin
   {
     allAggregators[_input][_output] = _aggregator;
-    emit UpdateAggregator(_input, _output, _aggregator);
+    emit AggregatorUpdated(_input, _output, _aggregator);
   }
 
   /**
@@ -55,7 +55,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     * @param _outputs list of addresses representing the output currencies
     * @param _aggregators list of addresses of the aggregator contracts
   */
-  function updateListAggregators(address[] calldata _inputs, address[] calldata _outputs, address[] calldata _aggregators)
+  function updateAggregatorsList(address[] calldata _inputs, address[] calldata _outputs, address[] calldata _aggregators)
     external
     onlyWhitelistAdmin
   {
@@ -65,7 +65,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     // For every conversions of the path
     for (uint i; i < _inputs.length; i++) {
       allAggregators[_inputs[i]][_outputs[i]] = _aggregators[i];
-      emit UpdateAggregator(_inputs[i], _outputs[i], _aggregators[i]);
+      emit AggregatorUpdated(_inputs[i], _outputs[i], _aggregators[i]);
     }
   }
 
@@ -73,7 +73,8 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   * @notice Computes the conversion from an amount through a list of conversion
   * @param _amountIn Amount to convert
   * @param _path List of addresses representing the currencies for the conversions
-  * @return result the result after all the conversions
+  * @return result the result after all the conversion
+  * @return oldestRateTimestamp he oldest timestamp of the path
   */
   function getConversion(
     uint256 _amountIn,
@@ -81,31 +82,34 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   )
     external
     view
-    returns (uint256 result, uint256 oldestTimestampRate)
+    returns (uint256 result, uint256 oldestRateTimestamp)
   {
-    (uint256 rate, uint256 oldestTimestampRateTemp, uint256 decimals) = getRate(_path);
+    (uint256 rate, uint256 timestamp, uint256 decimals) = getRate(_path);
 
     // initialize the result
     result = _amountIn.mul(rate).div(decimals);
 
-    oldestTimestampRate = oldestTimestampRateTemp;
+    oldestRateTimestamp = timestamp;
   }
 
   /**
   * @notice Computes the rate from a list of conversion
   * @param _path List of addresses representing the currencies for the conversions
-  * @return result the result after all the conversions, the oldest rate of the path and the decimals (always 1e18)
+  * @return result the rate
+  * @return oldestRateTimestamp he oldest timestamp of the path
+  * @return decimals of the conversion rate
   */
   function getRate(
     address[] memory _path
   )
     public
     view
-    returns (uint256 result, uint256 oldestTimestampRate, uint256 decimals)
+    returns (uint256 result, uint256 oldestRateTimestamp, uint256 decimals)
   {
     // initialize the result with 1e18 decimals (for more precision)
     result = DECIMALS;
     decimals = DECIMALS;
+    oldestRateTimestamp = block.timestamp;
 
     // For every conversions of the path
     for (uint i; i < _path.length - 1; i++) {
@@ -113,8 +117,8 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
 
       // store the latest timestamp of the path
       uint256 currentTimestamp = aggregator.latestTimestamp();
-      if (currentTimestamp < oldestTimestampRate) {
-        oldestTimestampRate = currentTimestamp;
+      if (currentTimestamp < oldestRateTimestamp) {
+        oldestRateTimestamp = currentTimestamp;
       }
 
       // get the rate
@@ -151,7 +155,10 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   * @notice Gets aggregators and decimals of two currencies
   * @param _input input Address
   * @param _output output Address
-  * @return aggregator and decimals
+  * @return aggregator to get the rate between the two currencies
+  * @return reverseAggregator true if the aggregator returned give the rate from _output to _input
+  * @return decimalsInput decimals of _input
+  * @return decimalsOutput decimals of _output
   */
   function getAggregatorAndDecimals(address _input, address _output)
     private
@@ -170,24 +177,29 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
 
     require(address(aggregator) != address(0x00), "No aggregator found");
 
-    // by default we assume it is FIAT so 8 decimals
-    decimalsInput = 8;
-    // if address is 0, then it's ETH
-    if (_input == address(0x0)) {
-      decimalsInput = 18;
-    } else if (isContract(_input)) {
-      // otherwise, we get the decimals from the erc20 directly
-      decimalsInput = ERC20fraction(_input).decimals();
-    }
+    // get the decimals for the two currencies
+    decimalsInput = getDecimals(_input);
+    decimalsOutput = getDecimals(_output);
+  }
 
+  /**
+  * @notice Gets decimals from an address currency
+  * @param _addr address to check
+  * @return number of decimals
+  */
+  function getDecimals(address _addr)
+    private
+    view
+    returns (uint256 decimals)
+  {
     // by default we assume it is FIAT so 8 decimals
-    decimalsOutput = 8;
+    decimals = 8;
     // if address is 0, then it's ETH
-    if (_output == address(0x0)) {
-      decimalsOutput = 18;
-    } else if (isContract(_output)) {
+    if (_addr == address(0x0)) {
+      decimals = 18;
+    } else if (isContract(_addr)) {
       // otherwise, we get the decimals from the erc20 directly
-      decimalsOutput = ERC20fraction(_output).decimals();
+      decimals = ERC20fraction(_addr).decimals();
     }
   }
 
