@@ -10,7 +10,7 @@ import "./interfaces/ERC20FeeProxy.sol";
 contract ProxyChainlinkConversionPath {
   using SafeMath for uint256;
 
-  // rate must have been updated before the last... 10min (TODO !)
+  // TODO REMOVE? rate must have been updated before the last... 10min
   uint256 public maxTimestampDeltaAcceptable = 600;
 
   address public paymentProxy;
@@ -80,7 +80,8 @@ contract ProxyChainlinkConversionPath {
       _path[_path.length - 1],
       _to,
       _requestAmount,
-      _path[0], // request currency
+      // request currency
+      _path[0],
       _paymentReference,
       _feesRequestAmount,
       _feesTo
