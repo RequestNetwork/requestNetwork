@@ -48,7 +48,7 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
       smallerAmountInFIAT,
       path
     );
-  
+
     const { logs } = await testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
       to,
       smallAmountInFIAT,
