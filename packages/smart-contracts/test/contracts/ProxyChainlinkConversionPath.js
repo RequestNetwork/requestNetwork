@@ -48,7 +48,16 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
       smallerAmountInFIAT,
       path
     );
-
+      console.log(await testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+        to,
+        smallAmountInFIAT,
+        path,
+        referenceExample,
+        smallerAmountInFIAT,
+        feeAddress,
+        hundredWith18Decimal,
+        { from },
+      ));
     const { logs } = await testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
       to,
       smallAmountInFIAT,
@@ -100,8 +109,8 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
 
   });
 
-  describe.only('transferFromWithReferenceAndFee', () => {
-    describe('transferFromWithReferenceAndFee with USD', () => {
+  describe('transferFromWithReferenceAndFee', () => {
+    describe.only('transferFromWithReferenceAndFee with USD', () => {
       it('allows to transfer DAI tokens for USD payment', async function () {
         await testTransferWithReference([USD_address, DAI_address]);
       });

@@ -11,6 +11,7 @@ import ERC20AddressBased from './erc20/address-based';
 import ERC20FeeProxyContract from './erc20/fee-proxy-contract';
 import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
+import ConversionFeeProxy from './any/conversion-fee-proxy-contract';
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
@@ -53,6 +54,7 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
 };
 
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT as string]: ConversionFeeProxy,
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
 };
 

@@ -1,0 +1,20 @@
+{
+  "lastVersion": "0.1.0",
+  "0.1.0": {
+    "artifact": "0.1.0.json",
+    "deployment": {
+      "private": {
+        "address": "0x9F544a3Fc3D1045e6ec49D4ecEF6dCD700457165",
+        "creationBlockNumber": 0
+      },
+      "mainnet": {
+        "address": "TODO",
+        "creationBlockNumber": 0
+      },
+      "rinkeby": {
+        "address": "TODO",
+        "creationBlockNumber": 0
+      }
+    }
+  }
+}

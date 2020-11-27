@@ -5,7 +5,10 @@ const AggEUR_USD = artifacts.require("AggEurUsd");
 const AggUSDT_ETH = artifacts.require("AggUsdtEth");
 const USDT_fake = artifacts.require("UsdtFake");
 
+const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const ChainlinkConversionPath = artifacts.require("ChainlinkConversionPath");
+const ProxyChainlinkConversionPath = artifacts.require("ProxyChainlinkConversionPath");
+
 
 // Deploys, set up the contracts
 module.exports = async function(deployer) {
@@ -28,4 +31,6 @@ module.exports = async function(deployer) {
   await conversionPathInstance.updateAggregatorsList( [DAI_address,         EUR_address,        ETH_address,        USDT_address], 
                                                       [USD_address,         USD_address,        USD_address,        ETH_address], 
                                                       [AggDAI_USD.address,  AggEUR_USD.address, AggETH_USD.address, AggUSDT_ETH.address]);
+
+  await deployer.deploy(ProxyChainlinkConversionPath, ChainlinkConversionPath.address, ERC20FeeProxy.address);
 };

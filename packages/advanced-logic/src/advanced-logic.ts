@@ -13,6 +13,7 @@ import addressBasedErc20 from './extensions/payment-network/erc20/address-based'
 import feeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import proxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
 import ethereumInputData from './extensions/payment-network/ethereum/input-data';
+import conversionFeeProxyContract from './extensions/payment-network/conversion-fee-proxy-contract';
 
 /**
  * Module to manage Advanced logic extensions
@@ -25,6 +26,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     addressBasedErc20,
     addressBasedTestnetBtc,
     contentData,
+    conversionFeeProxyContract,
     declarative,
     ethereumInputData,
     feeProxyContractErc20,
@@ -116,6 +118,15 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     }
     if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA) {
       return ethereumInputData.applyActionToExtension(
+        extensionsState,
+        extensionAction,
+        requestState,
+        actionSigner,
+        timestamp,
+      );
+    }
+    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT) {
+      return conversionFeeProxyContract.applyActionToExtension(
         extensionsState,
         extensionAction,
         requestState,
