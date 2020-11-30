@@ -1,0 +1,16 @@
+{
+  "branches": [
+    "release",
+    {
+      "name": "master",
+      "channel": "next",
+      "prerelease": "next"
+    }
+  ],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/npm",
+    "@semantic-release/github"
+  ]
+}
