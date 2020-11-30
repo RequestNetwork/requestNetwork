@@ -32,5 +32,5 @@ module.exports = async function(deployer) {
                                                       [USD_address,         USD_address,        USD_address,        ETH_address], 
                                                       [AggDAI_USD.address,  AggEUR_USD.address, AggETH_USD.address, AggUSDT_ETH.address]);
 
-  await deployer.deploy(ProxyChainlinkConversionPath, ChainlinkConversionPath.address, ERC20FeeProxy.address);
+  await deployer.deploy(ProxyChainlinkConversionPath, ERC20FeeProxy.address, ChainlinkConversionPath.address);
 };

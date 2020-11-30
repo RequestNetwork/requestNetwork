@@ -2,8 +2,7 @@ import { ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
 import { bigNumberify, BigNumberish } from 'ethers/utils';
 
-import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
-import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { erc20ProxyArtifact, erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ERC20Contract } from '../contracts/Erc20Contract';

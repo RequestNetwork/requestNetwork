@@ -4,7 +4,7 @@
     "artifact": "0.1.0.json",
     "deployment": {
       "private": {
-        "address": "0x9F544a3Fc3D1045e6ec49D4ecEF6dCD700457165",
+        "address": "0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a",
         "creationBlockNumber": 0
       },
       "mainnet": {

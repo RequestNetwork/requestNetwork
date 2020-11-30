@@ -34,7 +34,7 @@ export async function payConversionErc20FeeProxyRequest(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = await encodePayErc20FeeRequest(request, tokenAddress, signerOrProvider, amount, feeAmount);
+  const encodedTx = await encodePayConversionErc20FeeRequest(request, tokenAddress, signerOrProvider, amount, feeAmount);
   // TODO network
   const proxyAddress = proxyChainlinkConversionPath.getAddress('private');
   const signer = getSigner(signerOrProvider);
@@ -45,6 +45,7 @@ export async function payConversionErc20FeeProxyRequest(
     value: 0,
     ...overrides,
   });
+
   return tx;
 }
 
@@ -56,7 +57,7 @@ export async function payConversionErc20FeeProxyRequest(
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
-export async function encodePayErc20FeeRequest(
+export async function encodePayConversionErc20FeeRequest(
   request: ClientTypes.IRequestData,
   tokenAddress: string,
   signerOrProvider: Web3Provider | Signer = getProvider(),

@@ -49,6 +49,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,
+      network: paymentNetworkCreationParameters.network,
       salt,
     });
   }
@@ -129,7 +130,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
           salt,
           paymentAddress,
           PaymentTypes.EVENTS_NAMES.PAYMENT,
-          paymentNetwork.version,
+          paymentNetwork,
         );
       }
 
@@ -140,7 +141,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
           salt,
           refundAddress,
           PaymentTypes.EVENTS_NAMES.REFUND,
-          paymentNetwork.version,
+          paymentNetwork,
         );
       }
 
@@ -190,29 +191,39 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
     salt: string,
     toAddress: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    paymentNetworkVersion: string,
+    paymentNetwork: ExtensionTypes.IState,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const network = request.currency.network;
+    const network = paymentNetwork.values.network || 'mainnet';
 
-    if (!network) {
-      throw new NetworkNotSupported(`Payment network not supported by ERC20 payment detection`);
-    }
-
-    const deploymentInformation = proxyChainlinkConversionPath.getDeploymentInformation(
+    const conversionDeploymentInformation = proxyChainlinkConversionPath.getDeploymentInformation(
       network,
-      paymentNetworkVersion,
+      paymentNetwork.version,
     );
 
-    if (!deploymentInformation) {
+    if (!conversionDeploymentInformation) {
       throw new VersionNotSupported(
-        `Payment network version not supported: ${paymentNetworkVersion}`,
+        `Payment network version not supported: ${paymentNetwork.version}`,
       );
     }
 
-    const proxyContractAddress: string | undefined = deploymentInformation.address;
-    const proxyCreationBlockNumber: number = deploymentInformation.creationBlockNumber;
+    const conversionProxyContractAddress: string | undefined = conversionDeploymentInformation.address;
+    const conversionProxyCreationBlockNumber: number = conversionDeploymentInformation.creationBlockNumber;
 
-    if (!proxyContractAddress) {
+    const erc20FeeDeploymentInformation = proxyChainlinkConversionPath.getDeploymentInformation(
+      network,
+      paymentNetwork.version,
+    );
+
+    if (!erc20FeeDeploymentInformation) {
+      throw new VersionNotSupported(
+        `Payment network version not supported: ${paymentNetwork.version}`,
+      );
+    }
+
+    const erc20FeeProxyContractAddress: string | undefined = erc20FeeDeploymentInformation.address;
+    const erc20FeeProxyCreationBlockNumber: number = erc20FeeDeploymentInformation.creationBlockNumber;
+
+    if (!erc20FeeProxyContractAddress || !conversionProxyContractAddress) {
       throw new NetworkNotSupported(
         `Network not supported for this payment network: ${request.currency.network}`,
       );
@@ -226,9 +237,12 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
 
     const infoRetriever = new ProxyInfoRetriever(
       paymentReference,
-      proxyContractAddress,
-      proxyCreationBlockNumber,
-      request.currency.value,
+      conversionProxyContractAddress,
+      conversionProxyCreationBlockNumber,
+
+      erc20FeeProxyContractAddress,
+      erc20FeeProxyCreationBlockNumber,
+
       toAddress,
       eventName,
       network,

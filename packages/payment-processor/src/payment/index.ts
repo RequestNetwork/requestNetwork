@@ -87,7 +87,7 @@ export async function conversionToPayRequest(
   // if (!canConvertToPay(request)) {
   //   throw new UnsupportedNetworkError(paymentNetwork);
   // }
-  return payConversionErc20FeeProxyRequest(request, tokenAddress, signer, amount, undefined, overrides, swapSettings);
+  return payConversionErc20FeeProxyRequest(request, tokenAddress, signer, amount, undefined, overrides);
 }
 
 /**

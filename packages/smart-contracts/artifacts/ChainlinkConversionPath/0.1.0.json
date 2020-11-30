@@ -71,12 +71,12 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "",
+          "name": "inputAddress",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "",
+          "name": "outputAddress",
           "type": "address"
         }
       ],

@@ -33,6 +33,7 @@ export interface IReferenceBasedCreationParameters {
 export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCreationParameters {
   feeAddress?: string;
   feeAmount?: string;
+  network?: string;
 }
 
 /** Interface of the class to manage a payment network  */

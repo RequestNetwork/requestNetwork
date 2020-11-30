@@ -281,6 +281,7 @@ function applyCreation(
           paymentAddress: extensionAction.parameters.paymentAddress,
           refundAddress: extensionAction.parameters.refundAddress,
           salt: extensionAction.parameters.salt,
+          network: extensionAction.parameters.network,
         },
         timestamp,
       },
@@ -293,6 +294,7 @@ function applyCreation(
       paymentAddress: extensionAction.parameters.paymentAddress,
       refundAddress: extensionAction.parameters.refundAddress,
       salt: extensionAction.parameters.salt,
+      network: extensionAction.parameters.network,
     },
     version: extensionAction.version,
   };

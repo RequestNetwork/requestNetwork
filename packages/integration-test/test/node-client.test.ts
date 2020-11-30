@@ -4,6 +4,15 @@ import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { conversionToPayRequest, approveErc20ForProxyConversionIfNeeded } from '@requestnetwork/payment-processor';
+
+import { Wallet } from 'ethers';
+import { JsonRpcProvider } from 'ethers/providers';
+
+const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+// const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
+const provider = new JsonRpcProvider('http://localhost:8545');
+const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 // tslint:disable-next-line: no-magic-numbers
 jest.setTimeout(10000);
@@ -528,5 +537,55 @@ describe('ERC20 localhost request creation and detection test', () => {
     requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
+  });
+});
+
+describe('ERC20 localhost request creation and detection test', () => {
+  it.only('can create ERC20 requests with conversion proxy fees', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider,
+      useMockStorage: true,
+    });
+
+    const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
+
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.CONVERSION_FEE_PROXY_CONTRACT,
+      parameters: {
+        paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
+        feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+        feeAmount: '200',
+        network: 'private',
+      },
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: requestCreationHashUSD,
+      signer: payeeIdentity,
+    });
+
+    await new Promise((resolve): any => setTimeout(resolve, 150));
+    let data = await request.refresh();
+    console.log('data')
+    console.log(data.balance)
+
+    const approval = await approveErc20ForProxyConversionIfNeeded(data, payerIdentity.value, tokenContractAddress, wallet, '10000000000');
+    if(approval) {
+      await approval.wait();
+    }
+
+    await new Promise((resolve): any => setTimeout(resolve, 150));
+    const paymentTx = await conversionToPayRequest(data, tokenContractAddress, wallet);
+    await paymentTx.wait();
+
+    await new Promise((resolve): any => setTimeout(resolve, 150));
+    data = await request.refresh();
+    console.log('data.balance 2')
+    console.log(data.balance)
+    console.log(data.balance!.events)
+
+    await new Promise((resolve): any => setTimeout(resolve, 150));
   });
 });

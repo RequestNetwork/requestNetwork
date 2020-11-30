@@ -46,6 +46,7 @@
     "@requestnetwork/ethereum-storage": "0.21.0",
     "@requestnetwork/multi-format": "0.14.0",
     "@requestnetwork/payment-detection": "0.29.0",
+    "@requestnetwork/payment-processor": "0.29.0",
     "@requestnetwork/request-client.js": "0.29.0",
     "@requestnetwork/request-logic": "0.25.0",
     "@requestnetwork/transaction-manager": "0.25.0",
