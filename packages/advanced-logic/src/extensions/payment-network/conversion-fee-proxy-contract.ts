@@ -23,10 +23,16 @@ const erc20FeeProxyContract: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBas
   isValidAddress,
 };
 
-// TODO
-// const supportedNetworks = [/*'mainnet', 'rinkeby',*/ 'private'];
-const iso4217CurrenciesSupported = ['USD', 'EUR'];
-const erc20CurrenciesSupported = ['0x9FBDa871d559710256a2502A2517b794B482Db40'];
+// TODO check network
+const currenciesSupported: any = {
+  private: {
+    [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
+    [RequestLogicTypes.CURRENCY.ERC20]: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
+    [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
+  },
+  // TODO: rinkeby,
+  // TODO: mainnet,
+}
 
 /**
  * Creates the extensionsData to create the extension ERC20 fee proxy contract payment detection
@@ -163,13 +169,7 @@ function applyActionToExtension(
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
-  if (
-    !isSupportedCurrency(requestState.currency)
-  ) {
-    throw Error(
-      `The currency of the request is not supported for this payment network.`,
-    );
-  }
+  checkSupportedCurrency(requestState.currency, extensionAction.parameters.network || 'mainnet');
 
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
@@ -372,33 +372,24 @@ function isValidAddress(address: string): boolean {
   return walletAddressValidator.validate(address, 'ethereum');
 }
 
-
 /**
- * Check if a currency is supported
+ * Throw if a currency is not supported
  *
  * @param currency currency to check
- * @returns {boolean} true if address is valid
+ * @param network network of the payment
  */
-function isSupportedCurrency(currency: RequestLogicTypes.ICurrency): boolean {
-  if (currency.type === RequestLogicTypes.CURRENCY.ETH) {
-    // TODO check: currency.network
-    return true;
+function checkSupportedCurrency(currency: RequestLogicTypes.ICurrency, network: string): void {
+  if(!currenciesSupported[network]) {
+    throw new Error(`The network (${network}) is not supported for this payment network.`);
   }
 
-  if (currency.type === RequestLogicTypes.CURRENCY.ERC20) {
-    // TODO check: currency.network
-    return erc20CurrenciesSupported.includes(currency.value);
+  if(!currenciesSupported[network][currency.type]) {
+    throw new Error(`The currency type (${currency.type}) of the request is not supported for this payment network.`);
   }
 
-  if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
-    return iso4217CurrenciesSupported.includes(currency.value);
+  if (!currenciesSupported[network][currency.type].includes(currency.value)) {
+    throw new Error(`The currency (${currency.value}) of the request is not supported for this payment network.`);
   }
-
-  return false;
 }
-
-
-
-
 
 export default erc20FeeProxyContract;

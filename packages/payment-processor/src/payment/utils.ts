@@ -99,7 +99,7 @@ export function getRequestPaymentValues(
 const {
   ERC20_PROXY_CONTRACT,
   ETH_INPUT_DATA,
-  ERC20_FEE_PROXY_CONTRACT,
+  ERC20_FEE_PROXY_CONTRACT
 } = PaymentTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
@@ -118,6 +118,7 @@ export function validateRequest(
 ): void {
   const extension = request.extensions[paymentNetworkId];
   const expectedCurrencyType = currenciesMap[paymentNetworkId];
+
   if (
     !expectedCurrencyType ||
     request.currencyInfo.type !== expectedCurrencyType ||
@@ -131,6 +132,31 @@ export function validateRequest(
       !!extension.values.feeAddress !== !!extension.values.feeAmount)
   ) {
     throw new Error(`request cannot be processed, or is not an ${paymentNetworkId} request`);
+  }
+}
+
+/**
+ * Validates the parameters for an ERC20 Fee Proxy payment.
+ * @param request to validate
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
+ */
+export function validateConversionFeeProxyRequest(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): void {
+  const { feeAddress, feeAmount } = getRequestPaymentValues(
+    request,
+  );
+  const amountToPay = getAmountToPay(request, amount);
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+
+  if (!!feeAmount !== !!feeAddress) {
+    throw new Error('Both fee address and fee amount have to be declared, or both left empty');
+  }
+  if (amountToPay.isZero() && feeToPay.isZero()) {
+    throw new Error('Request payment amount and fee are 0');
   }
 }
 

@@ -568,8 +568,8 @@ describe('ERC20 localhost request creation and detection test', () => {
 
     await new Promise((resolve): any => setTimeout(resolve, 150));
     let data = await request.refresh();
-    console.log('data')
-    console.log(data.balance)
+    // console.log('data')
+    // console.log(data.balance)
 
     const approval = await approveErc20ForProxyConversionIfNeeded(data, payerIdentity.value, tokenContractAddress, wallet, '10000000000');
     if(approval) {
@@ -582,9 +582,9 @@ describe('ERC20 localhost request creation and detection test', () => {
 
     await new Promise((resolve): any => setTimeout(resolve, 150));
     data = await request.refresh();
-    console.log('data.balance 2')
-    console.log(data.balance)
-    console.log(data.balance!.events)
+    // console.log('data.balance 2')
+    // console.log(data.balance)
+    // console.log(data.balance!.events)
 
     await new Promise((resolve): any => setTimeout(resolve, 150));
   });

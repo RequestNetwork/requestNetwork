@@ -82,12 +82,13 @@ export async function conversionToPayRequest(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
-  // TODO
-  // const paymentNetwork = getPaymentNetwork(request);
-  // if (!canConvertToPay(request)) {
-  //   throw new UnsupportedNetworkError(paymentNetwork);
-  // }
-  return payConversionErc20FeeProxyRequest(request, tokenAddress, signer, amount, undefined, overrides);
+  const paymentNetwork = getPaymentNetwork(request);
+
+  if (!paymentNetwork || (paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT)) {
+    throw new UnsupportedNetworkError(paymentNetwork);
+  }
+
+  return payConversionErc20FeeProxyRequest(request, tokenAddress, signer, amount, undefined, request.extensions[paymentNetwork].values.network, overrides);
 }
 
 /**

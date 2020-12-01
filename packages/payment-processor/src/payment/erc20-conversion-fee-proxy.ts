@@ -14,7 +14,7 @@ import {
   getProvider,
   getRequestPaymentValues,
   getSigner,
-  // validateErc20FeeProxyRequest,
+  validateConversionFeeProxyRequest,
 } from './utils';
 
 /**
@@ -24,6 +24,7 @@ import {
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
+ * @param network optionally, network of the payment. Defaults to 'mainnet'
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payConversionErc20FeeProxyRequest(
@@ -32,11 +33,11 @@ export async function payConversionErc20FeeProxyRequest(
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
+  network: string = 'mainnet',
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = await encodePayConversionErc20FeeRequest(request, tokenAddress, signerOrProvider, amount, feeAmount);
-  // TODO network
-  const proxyAddress = proxyChainlinkConversionPath.getAddress('private');
+  const encodedTx = await encodePayConversionErc20FeeRequest(request, tokenAddress, signerOrProvider, amount, feeAmount, network);
+  const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
   const signer = getSigner(signerOrProvider);
 
   const tx = await signer.sendTransaction({
@@ -56,6 +57,7 @@ export async function payConversionErc20FeeProxyRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
+ * @param network optionally, network of the payment. Defaults to 'mainnet'
  */
 export async function encodePayConversionErc20FeeRequest(
   request: ClientTypes.IRequestData,
@@ -63,9 +65,9 @@ export async function encodePayConversionErc20FeeRequest(
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
+  network: string = 'mainnet',
 ): Promise<string> {
-  // TODO !
-  // validateErc20FeeProxyRequest(request, amount, feeAmountOverride);
+  validateConversionFeeProxyRequest(request, amount, feeAmountOverride);
 
   const signer = getSigner(signerOrProvider);
   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
@@ -75,13 +77,11 @@ export async function encodePayConversionErc20FeeRequest(
   const path = getConversionPath(request.currencyInfo, tokenAddress);
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
-  // TODO network
-  const proxyAddress = proxyChainlinkConversionPath.getAddress('private');
+  const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
   const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);
 
   // Compute conversion
-  // TODO network
-  const conversionPathContractAddress = chainlinkConversionPath.getAddress('private');
+  const conversionPathContractAddress = chainlinkConversionPath.getAddress(network);
   const conversionPathContract = ChainlinkConversionPath.connect(conversionPathContractAddress, signer);
   const conversion = await conversionPathContract.functions.getConversion(amountToPay.add(feeToPay), path);
   // TODO define percentage !
@@ -113,35 +113,7 @@ export function getConversionPath(
   requestCurrency: RequestLogicTypes.ICurrency,
   tokenAddress: string,
 ): string[] {
-  // TODO !
+  // TODO define path!
   return [Utils.currency.getCurrencyHash(requestCurrency), tokenAddress];
 }
 
-
-
-
-
-
-// /**
-//  * Return the EIP-681 format URL with the transaction to pay an ERC20
-//  * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
-//  *
-//  * @param request
-//  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
-//  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
-//  */
-// export function _getErc20FeeProxyPaymentUrl(
-//   request: ClientTypes.IRequestData,
-//   amount?: BigNumberish,
-//   feeAmountOverride?: BigNumberish,
-// ): string {
-//   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-//   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-//     request,
-//   );
-//   const contractAddress = proxyChainlinkConversionPath.getAddress(request.currencyInfo.network!);
-//   const amountToPay = getAmountToPay(request, amount);
-//   const feeToPay = feeAmountOverride || bigNumberify(feeAmount || 0);
-//   const parameters = `transferFromWithReferenceAndFee?address=${request.currencyInfo.value}&address=${paymentAddress}&uint256=${amountToPay}&bytes=${paymentReference}&uint256=${feeToPay}&address=${feeAddress}`;
-//   return `ethereum:${contractAddress}/${parameters}`;
-// }
