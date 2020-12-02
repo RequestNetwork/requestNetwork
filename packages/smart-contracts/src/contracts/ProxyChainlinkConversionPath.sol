@@ -52,9 +52,6 @@ contract ProxyChainlinkConversionPath {
     uint256 _maxToSpend
   ) external
   {
-    // TODO !
-    require(_path[_path.length - 1] != address(0x0), "ETH not supported yet");
-
     (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(_path, _requestAmount, _feesRequestAmount);
 
     require(amountToPay.add(amountToPayInFees) <= _maxToSpend, "Amount to pay is over the user limit");

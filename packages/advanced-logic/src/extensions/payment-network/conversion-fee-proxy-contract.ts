@@ -23,15 +23,12 @@ const erc20FeeProxyContract: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBas
   isValidAddress,
 };
 
-// TODO check network
 const currenciesSupported: any = {
   private: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
     [RequestLogicTypes.CURRENCY.ERC20]: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
     [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
   },
-  // TODO: rinkeby,
-  // TODO: mainnet,
 }
 
 /**

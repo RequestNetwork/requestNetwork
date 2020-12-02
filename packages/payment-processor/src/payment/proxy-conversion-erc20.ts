@@ -3,7 +3,7 @@ import { Provider } from 'ethers/providers';
 import { BigNumberish } from 'ethers/utils';
 
 import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
-import { ClientTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { _getErc20FeeProxyPaymentUrl } from './erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl } from './erc20-proxy';
@@ -33,14 +33,11 @@ export async function approveErc20ForProxyConversionIfNeeded(
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  // TODO ?
-  // if (!request.currencyInfo.network) {
-  //   throw new Error('Request currency network is missing');
-  // }
+  const network = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT].values.network || 'mainnet';
+
   if (!await checkErc20Allowance(
     ownerAddress,
-    // TODO ?
-    proxyChainlinkConversionPath.getAddress('private'),
+    proxyChainlinkConversionPath.getAddress(network),
     signerOrProvider,
     paymentTokenAddress,
     minAmount
@@ -57,15 +54,16 @@ export async function approveErc20ForProxyConversionIfNeeded(
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function approveErc20ForProxyConversion(
-  _request: ClientTypes.IRequestData,
+  request: ClientTypes.IRequestData,
   paymentTokenAddress: string,
   signerOrProvider: Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const network = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT].values.network || 'mainnet';
+
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
-    // TODO ?
-    proxyChainlinkConversionPath.getAddress('private'),
+    proxyChainlinkConversionPath.getAddress(network),
     signerOrProvider
   );
   const signer = getSigner(signerOrProvider);
