@@ -68,7 +68,7 @@
     "@typescript-eslint/parser": "4.1.1",
     "amd-loader": "0.0.8",
     "awesome-typescript-loader": "5.2.1",
-    "axios-mock-adapter": "1.18.2",
+    "axios-mock-adapter": "1.19.0",
     "duplicate-package-checker-webpack-plugin": "3.0.0",
     "eslint": "7.9.0",
     "eslint-plugin-spellcheck": "0.0.17",
