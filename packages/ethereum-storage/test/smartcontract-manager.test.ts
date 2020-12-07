@@ -3,26 +3,20 @@ import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import EthereumBlocks from '../src/ethereum-blocks';
 import SmartContractManager from '../src/smart-contract-manager';
+import { Contract, providers, utils } from 'ethers';
 
 // tslint:disable:no-magic-numbers
 
-const web3HttpProvider = require('web3-providers-http');
-
-const provider = new web3HttpProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const web3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
   web3Provider: provider,
 };
 
-// Contract instance necessary to get event logs
-const web3Utils = require('web3-utils');
-const web3Eth = require('web3-eth');
-const eth = new web3Eth(provider);
-
 const { time } = require('@openzeppelin/test-helpers');
 
-const invalidHostProvider = new web3HttpProvider('http://nonexistent:8545');
+const invalidHostProvider = new providers.JsonRpcProvider('http://nonexistent:8545');
 const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
@@ -47,22 +41,24 @@ let smartContractManager: SmartContractManager;
 
 const hashStr = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const realSize = 29;
-const realSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize), 64);
+const realSizeBytes32Hex = utils.hexZeroPad(String(realSize), 64);
 const fakeSize = 50;
-const fakeSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize), 64);
+const fakeSizeBytes32Hex = utils.hexZeroPad(String(fakeSize), 64);
 const otherContent =
   'This is not a hash but but we should be able to add any content into Ethereum, the gas cost for the transaction will be higher';
 const otherSize = 100000;
-const otherSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(otherSize), 64);
+const otherSizeBytes32Hex = utils.hexZeroPad(String(otherSize), 64);
 
-const contractHashStorage = new eth.Contract(
-  SmartContracts.requestHashStorageArtifact.getContractAbi(),
+const contractHashStorage = new Contract(
   SmartContracts.requestHashStorageArtifact.getAddress('private'),
+  SmartContracts.requestHashStorageArtifact.getContractAbi(),
+  provider
 );
 
-const contractHashSubmitter = new eth.Contract(
-  SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+const contractHashSubmitter = new Contract(
   SmartContracts.requestHashSubmitterArtifact.getAddress('private'),
+  SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+  provider
 );
 const addressRequestHashSubmitter = contractHashSubmitter._address;
 
@@ -205,7 +201,7 @@ describe('SmartContractManager', () => {
   });
 
   it('getMainAccount should return the main account', async () => {
-    const accounts = await eth.getAccounts();
+    const accounts = await provider.listAccounts();
     const mainAccount = await smartContractManager.getMainAccount();
 
     expect(mainAccount).toEqual(accounts[0]);
@@ -252,7 +248,7 @@ describe('SmartContractManager', () => {
     }, 50);
 
     // This mock is used to ensure any block is never fetchable
-    smartContractManager.eth.getBlock = (_block: any): any => {
+    smartContractManager.provider.getBlock = (_block: any): any => {
       return null;
     };
 
@@ -261,12 +257,12 @@ describe('SmartContractManager', () => {
     ).rejects.toThrowError('Maximum number of confirmation reached');
 
     clearInterval(blockInterval);
-  }, 30000);
+  }).timeout(30000);
 
   it('allows to get all hashes', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
     // For getPastEventsMock the number of the latest block is 9
-    smartContractManager.eth.getBlock = (_block: any): any => {
+    smartContractManager.provider.getBlock = (_block: any): any => {
       return {
         number: 9,
       };
@@ -292,10 +288,9 @@ describe('SmartContractManager', () => {
       getBlock: (i: number): any => {
         return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
       },
-      // tslint:disable-next-line:typedef
-      getBlockNumber: () => 9,
+      getBlockNumber: () => Promise.resolve(9),
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth as providers.JsonRpcProvider, 1, 0, 0);
     smartContractManager.ethereumBlocks.getBlock = (_block: any): any => {
       return {
         number: 9,
@@ -317,10 +312,9 @@ describe('SmartContractManager', () => {
       getBlock: (i: number): any => {
         return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
       },
-      // tslint:disable-next-line:typedef
-      getBlockNumber: () => 9,
+      getBlockNumber: () => Promise.resolve(9),
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth as providers.JsonRpcProvider, 1, 0, 0);
 
     const { ethereumEntries } = await smartContractManager.getEntriesFromEthereum({
       to: 299,
@@ -340,10 +334,9 @@ describe('SmartContractManager', () => {
       getBlock: (i: number): any => {
         return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
       },
-      // tslint:disable-next-line:typedef
-      getBlockNumber: () => 9,
+      getBlockNumber: () => Promise.resolve(9),
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth as providers.JsonRpcProvider, 1, 0, 0);
 
     const { ethereumEntries } = await smartContractManager.getEntriesFromEthereum({
       from: 10,
@@ -381,10 +374,9 @@ describe('SmartContractManager', () => {
       getBlock: (i: number): any => {
         return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
       },
-      // tslint:disable-next-line:typedef
-      getBlockNumber: () => 9,
+      getBlockNumber: () => Promise.resolve(9),
     };
-    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
+    smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth as providers.JsonRpcProvider, 1, 0, 0);
 
     await expect(
       smartContractManager.getEntriesFromEthereum({
@@ -429,7 +421,7 @@ describe('SmartContractManager', () => {
   it('allows to getMetaFromEthereum() a hash', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
     // For getPastEventsMock the number of the latest block is 3
-    smartContractManager.eth.getBlock = (_block: any): any => {
+    smartContractManager.provider.getBlock = (_block: any): any => {
       return {
         number: 3,
       };
@@ -460,7 +452,7 @@ describe('SmartContractManager', () => {
   });
 
   it('allows to get hashes and sizes from events on block interval with over 1000 results', async () => {
-    smartContractManager.eth.getBlock = (_block: any): any => {
+    smartContractManager.provider.getBlock = (_block: any): any => {
       return {
         number: 9,
       };
@@ -564,7 +556,7 @@ describe('SmartContractManager', () => {
   });
 
   it('cannot get hashes and sizes from events with toBlock option containing no number', async () => {
-    smartContractManager.eth.getBlock = (block: any): any => {
+    smartContractManager.provider.getBlock = (block: any): any => {
       if (block === 'pending') {
         return {
           transactions: ['0x10', '0x20', '0x30'],
@@ -584,16 +576,16 @@ describe('SmartContractManager', () => {
   });
 
   it('should throw an error if the web3 provider is not listening', async () => {
-    smartContractManager.eth.net.isListening = async () => false;
+    smartContractManager.provider.getNetwork = async () => null;
     await expect(smartContractManager.checkWeb3ProviderConnection(10000)).rejects.toThrowError(
       'The Web3 provider is not listening',
     );
   });
 
   it('should throw an error if the web3 provider is not reachable or takes too long to respond', async () => {
-    smartContractManager.eth.net.isListening = () =>
+    smartContractManager.provider.getNetwork = () =>
       new Promise((resolve, _reject): void => {
-        setTimeout(() => resolve(true), 300);
+        setTimeout(() => resolve(provider.network), 300);
       });
 
     // Timeout is lower to not reach the mocha test timeout
@@ -603,7 +595,7 @@ describe('SmartContractManager', () => {
   });
 
   it('should throw an error if an error occurs when checking if the web3 provider is listening', async () => {
-    smartContractManager.eth.net.isListening = async () => {
+    smartContractManager.provider.getNetwork = async () => {
       throw Error('A connection error');
     };
 

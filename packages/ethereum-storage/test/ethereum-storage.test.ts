@@ -4,14 +4,12 @@ import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { EventEmitter } from 'events';
+import { Contract, providers, utils } from 'ethers';
 
 import EthereumStorage from '../src/ethereum-storage';
 import IpfsConnectionError from '../src/ipfs-connection-error';
 
 // tslint:disable:no-magic-numbers
-
-const web3HttpProvider = require('web3-providers-http');
-const web3Utils = require('web3-utils');
 
 const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'localhost',
@@ -27,26 +25,24 @@ const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   timeout: 1000,
 };
 
-const provider = new web3HttpProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const web3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
   web3Provider: provider,
 };
 
-const invalidHostNetworkProvider = new web3HttpProvider('http://nonexistentnetwork:8545');
+const invalidHostNetworkProvider = new providers.JsonRpcProvider('http://nonexistentnetwork:8545');
 const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
   web3Provider: invalidHostNetworkProvider,
 };
 
-const web3Eth = require('web3-eth');
-const eth = new web3Eth(provider);
-
-const contractHashSubmitter = new eth.Contract(
-  SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+const contractHashSubmitter = new Contract(
   SmartContracts.requestHashSubmitterArtifact.getAddress('private'),
+  SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+  provider,
 );
 const addressRequestHashSubmitter = contractHashSubmitter._address;
 
@@ -55,16 +51,16 @@ let ethereumStorage: EthereumStorage;
 const content1 = 'this is a little test !';
 const hash1 = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const realSize1 = 29;
-const realSize1Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize1), 64);
+const realSize1Bytes32Hex = utils.hexZeroPad(String(realSize1), 64);
 const fakeSize1 = 50;
-const fakeSize1Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize1), 64);
+const fakeSize1Bytes32Hex = utils.hexZeroPad(String(fakeSize1), 64);
 
 const content2 = 'content\nwith\nspecial\ncharacters\n';
 const hash2 = 'QmQj8fQ9T16Ddrxfij5eyRnxXKTVxRXyQuazYnezt9iZpy';
 const realSize2 = 38;
-const realSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize2), 64);
+const realSize2Bytes32Hex = utils.hexZeroPad(String(realSize2), 64);
 const fakeSize2 = 0;
-const fakeSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize2), 64);
+const fakeSize2Bytes32Hex = utils.hexZeroPad(String(fakeSize2), 64);
 
 // Define a mock for getPastEvents to be independent of the state of ganache instance
 const pastEventsMock = [
@@ -183,7 +179,7 @@ describe('EthereumStorage', () => {
         web3Connection,
       );
 
-      ethereumStorageNotInitialized.smartContractManager.eth.net.isListening = async () => false;
+      ethereumStorageNotInitialized.smartContractManager.provider.getNetwork = async () => null;
 
       await expect(ethereumStorageNotInitialized.initialize()).rejects.toThrowError(
         'Ethereum node is not accessible: Error: The Web3 provider is not listening',
@@ -200,13 +196,15 @@ describe('EthereumStorage', () => {
       const invalidHashSubmitterAddress = '0x0000000000000000000000000000000000000000';
 
       // Initialize smart contract instance
-      ethereumStorageNotInitialized.smartContractManager.requestHashStorage = new eth.Contract(
-        SmartContracts.requestHashStorageArtifact.getContractAbi(),
+      ethereumStorageNotInitialized.smartContractManager.requestHashStorage = new Contract(
         invalidHashStorageAddress,
+        SmartContracts.requestHashStorageArtifact.getContractAbi(),
+        provider
       );
-      ethereumStorageNotInitialized.smartContractManager.requestHashSubmitter = new eth.Contract(
-        SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+      ethereumStorageNotInitialized.smartContractManager.requestHashSubmitter = new Contract(
         invalidHashSubmitterAddress,
+        SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+        provider
       );
 
       await expect(ethereumStorageNotInitialized.initialize()).rejects.toThrowError(
@@ -878,6 +876,6 @@ describe('EthereumStorage', () => {
       // tslint:disable-next-line:no-unused-expression
       // 'config wrong'
       expect(status.ipfs).toBeDefined();
-    }, 10000);
+    }).timeout(10000);
   });
 });

@@ -17,10 +17,9 @@ npm install @requestnetwork/ethereum-storage
 ```js
 import EthereumStorage from '@requestnetwork/ethereum-storage';
 import { StorageTypes } from '@requestnetwork/types';
+import { providers } from 'ethers';
 
-const web3HttpProvider = require('web3-providers-http');
-
-const provider = new web3HttpProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 
 const web3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,

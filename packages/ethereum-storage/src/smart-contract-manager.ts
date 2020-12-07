@@ -6,9 +6,7 @@ import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
 import EthereumUtils from './ethereum-utils';
 import GasPriceDefiner from './gas-price-definer';
-
-const web3Eth = require('web3-eth');
-const web3Utils = require('web3-utils');
+import { BigNumber, providers, Contract, utils } from 'ethers';
 
 const bigNumber: any = require('bn.js');
 
@@ -32,7 +30,7 @@ const LENGTH_BYTES32_STRING = 64;
  * to store the hashes of the data on Ethereum
  */
 export default class SmartContractManager {
-  public eth: any;
+  public provider: providers.JsonRpcProvider | providers.Web3Provider;
   public requestHashStorage: any;
   public requestHashSubmitter: any;
 
@@ -106,16 +104,12 @@ export default class SmartContractManager {
     web3Connection = web3Connection || {};
 
     try {
-      this.eth = new web3Eth(
-        web3Connection.web3Provider ||
-          new web3Eth.providers.HttpProvider(config.getDefaultEthereumProvider()),
-      );
+      this.provider = web3Connection.web3Provider
+        ? new providers.Web3Provider(web3Connection.web3Provider)
+        : new providers.JsonRpcProvider(config.getDefaultEthereumProvider());
     } catch (error) {
-      throw Error(`Can't initialize web3-eth ${error}`);
+      throw Error(`Can't initialize ethers ${error}`);
     }
-
-    // Set the default transaction polling timeout to the value in our config
-    this.eth.transactionPollingTimeout = config.getTransactionPollingTimeout();
 
     // Checks if networkId is defined
     // If not defined we use default value from config
@@ -138,13 +132,15 @@ export default class SmartContractManager {
     );
 
     // Initialize smart contract instance
-    this.requestHashStorage = new this.eth.Contract(
-      SmartContracts.requestHashStorageArtifact.getContractAbi(),
+    this.requestHashStorage = new Contract(
       this.hashStorageAddress,
+      SmartContracts.requestHashStorageArtifact.getContractAbi(),
+      this.provider,
     );
-    this.requestHashSubmitter = new this.eth.Contract(
-      SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+    this.requestHashSubmitter = new Contract(
       this.hashSubmitterAddress,
+      SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+      this.provider,
     );
 
     this.timeout = web3Connection.timeout || config.getDefaultEthereumProviderTimeout();
@@ -153,7 +149,7 @@ export default class SmartContractManager {
       SmartContracts.requestHashStorageArtifact.getCreationBlockNumber(this.networkName) || 0;
 
     this.ethereumBlocks = new EthereumBlocks(
-      this.eth,
+      this.provider,
       this.creationBlockNumberHashStorage,
       this.retryDelay || config.getEthereumRetryDelay(),
       this.maxRetries || config.getEthereumMaxRetries(),
@@ -177,14 +173,12 @@ export default class SmartContractManager {
             ),
           );
         }, timeout);
-
-        this.eth.net
-          .isListening()
-          .then((isListening: boolean) => {
+        this.provider.getNetwork()
+          .then((network: providers.Network) => {
             // The timeout must be disabled
             clearTimeout(connectionTimer);
 
-            if (isListening) {
+            if (network) {
               resolve();
             } else {
               reject(Error('The Web3 provider is not listening'));
@@ -230,7 +224,7 @@ export default class SmartContractManager {
     // Throws an error if timeout is reached
     const accounts = await Promise.race([
       Utils.timeoutPromise(this.timeout, 'Web3 getAccounts connection timeout'),
-      this.eth.getAccounts(),
+      this.provider.listAccounts(),
     ]);
 
     if (!accounts || !accounts[0]) {
@@ -275,10 +269,7 @@ export default class SmartContractManager {
       (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName));
 
     // parse the fees parameters to hex bytes
-    const feesParametersAsBytes = web3Utils.padLeft(
-      web3Utils.toHex(feesParameters.contentSize),
-      LENGTH_BYTES32_STRING,
-    );
+    const feesParametersAsBytes = utils.hexZeroPad(String(feesParameters.contentSize), LENGTH_BYTES32_STRING);
 
     // Send transaction to contract
     // TODO(PROT-181): Implement a log manager for the library
@@ -319,7 +310,7 @@ export default class SmartContractManager {
             ) {
               // If we didn't set the nonce, find the current transaction nonce
               if (!nonce) {
-                const tx = await this.eth.getTransaction(transactionHash);
+                const tx = await this.provider.getTransaction(transactionHash);
                 nonce = tx.nonce;
               }
 
@@ -509,7 +500,7 @@ export default class SmartContractManager {
   public getConfig(): any {
     return {
       creationBlockNumberHashStorage: this.creationBlockNumberHashStorage,
-      currentProvider: this.eth.currentProvider.host,
+      currentProvider: this.provider.connection.url,
       hashStorageAddress: this.hashStorageAddress,
       hashSubmitterAddress: this.hashSubmitterAddress,
       maxConcurrency: this.maxConcurrency,
@@ -597,7 +588,7 @@ export default class SmartContractManager {
       throw Error(`event is incorrect: doesn't have a hash or feesParameters`);
     }
 
-    const contentSize = web3Utils.hexToNumber(event.returnValues.feesParameters);
+    const contentSize = BigNumber.from(event.returnValues.feesParameters).toNumber();
     const meta = await this.createEthereumMetaData(event.blockNumber, event.transactionHash);
 
     return {
