@@ -34,6 +34,8 @@ export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCre
   feeAddress?: string;
   feeAmount?: string;
   network?: string;
+  tokensAccepted?: string[],
+  maxRateTimespan?: number,
 }
 
 /** Interface of the class to manage a payment network  */

@@ -76,7 +76,8 @@ export async function payRequest(
  */
 export async function conversionToPayRequest(
   request: ClientTypes.IRequestData,
-  tokenAddress: string,
+  path: string[],
+  maxToSpend: BigNumberish,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -88,7 +89,7 @@ export async function conversionToPayRequest(
     throw new UnsupportedNetworkError(paymentNetwork);
   }
 
-  return payConversionErc20FeeProxyRequest(request, tokenAddress, signer, amount, undefined, request.extensions[paymentNetwork].values.network, overrides);
+  return payConversionErc20FeeProxyRequest(request, path, maxToSpend, signer, amount, undefined, request.extensions[paymentNetwork].values.network, overrides);
 }
 
 /**

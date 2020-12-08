@@ -18,6 +18,8 @@ export interface ICreationParameters extends Extension.PnReferenceBased.ICreatio
   feeAddress?: string;
   feeAmount?: string;
   network?: string;
+  tokensAccepted?: string[];
+  maxRateTimespan?: number;
 }
 
 /** Parameters for the addFee action */

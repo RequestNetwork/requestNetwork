@@ -9,6 +9,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 /**
  * Thrown when the library does not support a payment blockchain network.
@@ -82,18 +83,19 @@ export function getPaymentNetworkExtension(
  */
 export function getRequestPaymentValues(
   request: ClientTypes.IRequestData,
-): { paymentAddress: string; paymentReference: string; feeAmount?: string; feeAddress?: string } {
+): { paymentAddress: string; paymentReference: string; feeAmount?: string; feeAddress?: string; tokensAccepted?: string[], maxRateTimespan?: string } {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
     throw new Error('no payment network found');
   }
-  const { paymentAddress, salt, feeAmount, feeAddress } = extension.values;
+
+  const { paymentAddress, salt, feeAmount, feeAddress, tokensAccepted, maxRateTimespan } = extension.values;
   const paymentReference = PaymentReferenceCalculator.calculate(
     request.requestId,
     salt,
     paymentAddress,
   );
-  return { paymentAddress, paymentReference, feeAmount, feeAddress };
+  return { paymentAddress, paymentReference, feeAmount, feeAddress, tokensAccepted, maxRateTimespan };
 }
 
 const {
@@ -138,15 +140,17 @@ export function validateRequest(
 /**
  * Validates the parameters for an ERC20 Fee Proxy payment.
  * @param request to validate
+ * @param tokenAddress token address to pay with
  * @param amount optionally, the custom amount to pay
  * @param feeAmountOverride optionally, the custom fee amount
  */
 export function validateConversionFeeProxyRequest(
   request: ClientTypes.IRequestData,
+  path: string[],
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): void {
-  const { feeAddress, feeAmount } = getRequestPaymentValues(
+  const { feeAddress, feeAmount, tokensAccepted } = getRequestPaymentValues(
     request,
   );
   const amountToPay = getAmountToPay(request, amount);
@@ -157,6 +161,16 @@ export function validateConversionFeeProxyRequest(
   }
   if (amountToPay.isZero() && feeToPay.isZero()) {
     throw new Error('Request payment amount and fee are 0');
+  }
+
+  const requestCurrencyHash = path[0];
+  if(requestCurrencyHash !== Utils.currency.getCurrencyHash(request.currencyInfo)) {
+    throw new Error(`The first entry of the path does not match the request currency`);
+  }
+
+  const tokenAddress = path[path.length-1];
+  if(tokensAccepted && !tokensAccepted?.map(t => t.toLowerCase()).includes(tokenAddress.toLowerCase()) ) {
+    throw new Error(`The token ${tokenAddress} is not accepted to pay this request`);
   }
 }
 

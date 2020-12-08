@@ -50,6 +50,8 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,
       network: paymentNetworkCreationParameters.network,
+      tokensAccepted: paymentNetworkCreationParameters.tokensAccepted,
+      maxRateTimespan: paymentNetworkCreationParameters.maxRateTimespan,
       salt,
     });
   }
@@ -131,6 +133,8 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
           paymentAddress,
           PaymentTypes.EVENTS_NAMES.PAYMENT,
           paymentNetwork,
+          paymentNetwork.values.tokensAccepted,
+          paymentNetwork.values.maxRateTimespan,
         );
       }
 
@@ -142,6 +146,8 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
           refundAddress,
           PaymentTypes.EVENTS_NAMES.REFUND,
           paymentNetwork,
+          paymentNetwork.values.tokensAccepted,
+          paymentNetwork.values.maxRateTimespan,
         );
       }
 
@@ -192,6 +198,8 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
     toAddress: string,
     eventName: PaymentTypes.EVENTS_NAMES,
     paymentNetwork: ExtensionTypes.IState,
+    tokensAccepted?: string[],
+    maxRateTimespan: number = 0,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
     const network = paymentNetwork.values.network || 'mainnet';
 
@@ -246,6 +254,8 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
       toAddress,
       eventName,
       network,
+      tokensAccepted,
+      maxRateTimespan,
     );
 
     const events = await infoRetriever.getTransferEvents();

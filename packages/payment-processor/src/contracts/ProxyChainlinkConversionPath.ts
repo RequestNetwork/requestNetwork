@@ -8,13 +8,14 @@ import { ITypedFunctionDescription } from './TypedFunctionDescription';
 interface IProxyChainlinkConversionPathContractInterface extends Interface {
   functions: {
     transferFromWithReferenceAndFee: ITypedFunctionDescription<{
-      encode([_to, _amount, _path, _paymentReference, _feesRequestAmount, _feesTo, _maxToSpend]: [
+      encode([_to, _amount, _path, _paymentReference, _feesRequestAmount, _feesTo, _maxToSpend, _maxRateTimespan]: [
         string,
         BigNumberish,
         string[],
         Arrayish,
         BigNumberish,
         string,
+        BigNumberish,
         BigNumberish,
       ]): string;
     }>;

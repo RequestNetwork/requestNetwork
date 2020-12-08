@@ -29,6 +29,10 @@ const currenciesSupported: any = {
     [RequestLogicTypes.CURRENCY.ERC20]: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
     [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
   },
+  rinkeby: {
+    [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
+    [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
+  }
 }
 
 /**
@@ -279,6 +283,8 @@ function applyCreation(
           refundAddress: extensionAction.parameters.refundAddress,
           salt: extensionAction.parameters.salt,
           network: extensionAction.parameters.network,
+          tokensAccepted: extensionAction.parameters.tokensAccepted,
+          maxRateTimespan: extensionAction.parameters.maxRateTimespan,
         },
         timestamp,
       },
@@ -292,6 +298,8 @@ function applyCreation(
       refundAddress: extensionAction.parameters.refundAddress,
       salt: extensionAction.parameters.salt,
       network: extensionAction.parameters.network,
+      tokensAccepted: extensionAction.parameters.tokensAccepted,
+      maxRateTimespan: extensionAction.parameters.maxRateTimespan,
     },
     version: extensionAction.version,
   };

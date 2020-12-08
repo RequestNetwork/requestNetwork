@@ -2,12 +2,11 @@ import { constants, ContractTransaction, Signer } from 'ethers';
 import { Web3Provider } from 'ethers/providers';
 import { bigNumberify, BigNumberish } from 'ethers/utils';
 
-import { proxyChainlinkConversionPath, chainlinkConversionPath } from '@requestnetwork/smart-contracts';
-import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
+import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
+import { ClientTypes } from '@requestnetwork/types';
 
 import { ProxyChainlinkConversionPathContract } from '../contracts/ProxyChainlinkConversionPath';
-import { ChainlinkConversionPath } from '../contracts/ChainlinkConversionPath';
+// import { ChainlinkConversionPath } from '../contracts/ChainlinkConversionPath';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -29,14 +28,15 @@ import {
  */
 export async function payConversionErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
-  tokenAddress: string,
+  path: string[],
+  maxToSpend: BigNumberish,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   network: string = 'mainnet',
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = await encodePayConversionErc20FeeRequest(request, tokenAddress, signerOrProvider, amount, feeAmount, network);
+  const encodedTx = await encodePayConversionErc20FeeRequest(request, path, maxToSpend, signerOrProvider, amount, feeAmount, network);
   const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
   const signer = getSigner(signerOrProvider);
 
@@ -61,34 +61,32 @@ export async function payConversionErc20FeeProxyRequest(
  */
 export async function encodePayConversionErc20FeeRequest(
   request: ClientTypes.IRequestData,
-  tokenAddress: string,
+  path: string[],
+  maxToSpend: BigNumberish,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
   network: string = 'mainnet',
 ): Promise<string> {
-  validateConversionFeeProxyRequest(request, amount, feeAmountOverride);
+  validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
   const signer = getSigner(signerOrProvider);
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } = getRequestPaymentValues(
     request,
   );
   // get the conversion path
-  const path = getConversionPath(request.currencyInfo, tokenAddress);
+  // TODO: Compute the path automatically
+  // const path = getConversionPath(request.currencyInfo, tokenAddress);
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
   const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
   const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);
 
-  // Compute conversion
-  const conversionPathContractAddress = chainlinkConversionPath.getAddress(network);
-  const conversionPathContract = ChainlinkConversionPath.connect(conversionPathContractAddress, signer);
-  const conversion = await conversionPathContract.functions.getConversion(amountToPay.add(feeToPay), path);
-  // TODO define percentage !
-  // tslint:disable-next-line:no-magic-numbers
-  const maxToSpend = bigNumberify(conversion.result).mul(110).div(100);
-  // TODO define timestamp limit !
-  // conversion.oldestRateTimestamp
+  // TODO: compute a maxToSpend automatically
+  // const conversionPathContractAddress = chainlinkConversionPath.getAddress(network);
+  // const conversionPathContract = ChainlinkConversionPath.connect(conversionPathContractAddress, signer);
+  // const conversion = await conversionPathContract.functions.getConversion(amountToPay.add(feeToPay), path);
+  // const maxToSpend = bigNumberify(conversion.result).mul(110).div(100);
 
   return proxyContract.interface.functions.transferFromWithReferenceAndFee.encode([
     paymentAddress,
@@ -98,22 +96,22 @@ export async function encodePayConversionErc20FeeRequest(
     feeToPay,
     feeAddress || constants.AddressZero,
     maxToSpend,
+    maxRateTimespan || 0,
   ]);
 }
 
-
-/**
- * Get the conversion path between the request currency and the payment token address
- *
- * @param requestCurrency currency of the request
- * @param tokenAddress address of the token to pay with
- * @return path of the conversion
- */
-export function getConversionPath(
-  requestCurrency: RequestLogicTypes.ICurrency,
-  tokenAddress: string,
-): string[] {
-  // TODO define path!
-  return [Utils.currency.getCurrencyHash(requestCurrency), tokenAddress];
-}
+// TODO: compute the conversion path
+// /**
+//  * Get the conversion path between the request currency and the payment token address
+//  *
+//  * @param requestCurrency currency of the request
+//  * @param tokenAddress address of the token to pay with
+//  * @return path of the conversion
+//  */
+// export function getConversionPath(
+//   requestCurrency: RequestLogicTypes.ICurrency,
+//   tokenAddress: string,
+// ): string[] {
+//   return [Utils.currency.getCurrencyHash(requestCurrency), tokenAddress];
+// }
 

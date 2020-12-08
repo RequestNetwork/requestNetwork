@@ -61,6 +61,12 @@
           "internalType": "address",
           "name": "feesTo",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "maxRateTimespan",
+          "type": "uint256"
         }
       ],
       "name": "TransferWithReferenceAndFee",
@@ -75,21 +81,6 @@
           "internalType": "contract ChainlinkConversionPath",
           "name": "",
           "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "maxTimestampDeltaAcceptable",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
         }
       ],
       "payable": false,
@@ -147,6 +138,11 @@
         {
           "internalType": "uint256",
           "name": "_maxToSpend",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_maxRateTimespan",
           "type": "uint256"
         }
       ],

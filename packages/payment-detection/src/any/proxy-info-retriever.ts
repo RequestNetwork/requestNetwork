@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20ConversionProxyContractAbiFragment = [
-  'event TransferWithReferenceAndFee(address paymentCurrency, address to, uint256 requestAmount, address requestCurrency, bytes indexed paymentReference, uint256 feesRequestAmount, address feesTo)'
+  'event TransferWithReferenceAndFee(address paymentCurrency, address to, uint256 requestAmount, address requestCurrency, bytes indexed paymentReference, uint256 feesRequestAmount, address feesTo, uint256 maxRateTimespan)'
 ];
 
 const erc20FeeProxyContractAbiFragment = [
@@ -37,6 +37,8 @@ export default class ProxyERC20InfoRetriever
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
+    private tokensAccepted?: string[],
+    private maxRateTimespan: number = 0,
   ) {
     // Creates a local or default provider
     this.provider =
@@ -56,6 +58,8 @@ export default class ProxyERC20InfoRetriever
       erc20FeeProxyContractAbiFragment,
       this.provider,
     );
+
+    this.tokensAccepted = tokensAccepted?.map(token => token.toLowerCase());
   }
 
   /**
@@ -69,6 +73,7 @@ export default class ProxyERC20InfoRetriever
       null,
       null,
       '0x' + this.paymentReference,
+      null,
       null,
       null,
     ) as ethers.providers.Filter;
@@ -109,9 +114,11 @@ export default class ProxyERC20InfoRetriever
       // Keeps only the log with the right token and the right destination address
       .filter(
         log =>
-          // TODO filter the token allowed
-          // log.parsedLog.values.paymentCurrency.toLowerCase() ===
-          //   this.tokenContractAddress.toLowerCase() &&
+          // filter the token allowed
+          (!this.tokensAccepted || this.tokensAccepted.includes(log.parsedLog.values.paymentCurrency.toLowerCase())) &&
+          // check the rate timespan
+          (this.maxRateTimespan.toString() === log.parsedLog.values.maxRateTimespan.toString()) &&
+          // check to address
           log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
@@ -127,6 +134,7 @@ export default class ProxyERC20InfoRetriever
           tokenAddress: t.parsedLog.values.paymentCurrency,
           to: this.toAddress,
           txHash: t.log.transactionHash,
+          maxRateTimespan: t.parsedLog.values.maxRateTimespan.toString(),
         },
         timestamp: (await this.provider.getBlock(t.log.blockNumber || 0)).timestamp,
       }));

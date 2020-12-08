@@ -10,9 +10,6 @@ import "./interfaces/ERC20FeeProxy.sol";
 contract ProxyChainlinkConversionPath {
   using SafeMath for uint256;
 
-  // TODO REMOVE? rate must have been updated before the last... 10min
-  uint256 public maxTimestampDeltaAcceptable = 600;
-
   address public paymentProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
@@ -29,7 +26,8 @@ contract ProxyChainlinkConversionPath {
     address requestCurrency,
     bytes indexed paymentReference,
     uint256 feesRequestAmount,
-    address feesTo
+    address feesTo,
+    uint256 maxRateTimespan
   );
 
   /**
@@ -41,6 +39,7 @@ contract ProxyChainlinkConversionPath {
    * @param _feesRequestAmount The amount of the payment fee
    * @param _feesTo The fee recipient
    * @param _maxToSpend amount max that we can spend on the behalf of the user
+   * @param _maxRateTimespan max time span with the oldestrate, ignored if zero
    */
   function transferFromWithReferenceAndFee(
     address _to,
@@ -49,10 +48,11 @@ contract ProxyChainlinkConversionPath {
     bytes calldata _paymentReference,
     uint256 _feesRequestAmount,
     address _feesTo,
-    uint256 _maxToSpend
+    uint256 _maxToSpend,
+    uint256 _maxRateTimespan
   ) external
   {
-    (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(_path, _requestAmount, _feesRequestAmount);
+    (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(_path, _requestAmount, _feesRequestAmount, _maxRateTimespan);
 
     require(amountToPay.add(amountToPayInFees) <= _maxToSpend, "Amount to pay is over the user limit");
 
@@ -81,21 +81,23 @@ contract ProxyChainlinkConversionPath {
       _path[0],
       _paymentReference,
       _feesRequestAmount,
-      _feesTo
+      _feesTo,
+      _maxRateTimespan
     );
   }
 
   function getConversions(
     address[] memory _path,
     uint256 _requestAmount,
-    uint256 _feesRequestAmount
+    uint256 _feesRequestAmount,
+    uint256 _maxRateTimespan
   ) internal
     returns (uint256 amountToPay, uint256 amountToPayInFees)
   {
     (uint256 rate, uint256 oldestTimestampRate, uint256 decimals) = chainlinkConversionPath.getRate(_path);
 
-    // Check rate timestamp
-    require(block.timestamp.sub(oldestTimestampRate) <= maxTimestampDeltaAcceptable, "aggregator rate is outdated");
+    // Check rate timespan
+    require(_maxRateTimespan == 0 || block.timestamp.sub(oldestTimestampRate) <= _maxRateTimespan, "aggregator rate is outdated");
     
     // Get the amount to pay in the crypto currency chosen
     amountToPay = _requestAmount.mul(rate).div(decimals);

@@ -6,7 +6,7 @@ import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { conversionToPayRequest, approveErc20ForProxyConversionIfNeeded } from '@requestnetwork/payment-processor';
 
-import { Wallet } from 'ethers';
+import { Wallet, utils } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
@@ -557,6 +557,8 @@ describe('ERC20 localhost request creation and detection test', () => {
         feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
         feeAmount: '200',
         network: 'private',
+        tokensAccepted: [tokenContractAddress],
+        maxRateTimespan: 1000000,
       },
     };
 
@@ -577,14 +579,17 @@ describe('ERC20 localhost request creation and detection test', () => {
     }
 
     await new Promise((resolve): any => setTimeout(resolve, 150));
-    const paymentTx = await conversionToPayRequest(data, tokenContractAddress, wallet);
+    // USD => token
+    const path = [Utils.currency.getCurrencyHash(data.currencyInfo), tokenContractAddress];
+    const maxToSpend = new utils.BigNumber(2).pow(255);
+    const paymentTx = await conversionToPayRequest(data, path, maxToSpend, wallet);
     await paymentTx.wait();
 
     await new Promise((resolve): any => setTimeout(resolve, 150));
     data = await request.refresh();
     // console.log('data.balance 2')
-    // console.log(data.balance)
-    // console.log(data.balance!.events)
+    console.log(data.balance)
+    console.log(data.balance!.events)
 
     await new Promise((resolve): any => setTimeout(resolve, 150));
   });
