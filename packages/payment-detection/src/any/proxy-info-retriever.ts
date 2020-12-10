@@ -122,22 +122,28 @@ export default class ProxyERC20InfoRetriever
           log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
-      .map(async t => ({
-        amount: t.parsedLog.values.requestAmount.toString(),
-        name: this.eventName,
-        parameters: {
-          block: t.log.blockNumber,
-          feeAddress: t.parsedLog.values.feesTo || undefined,
-          feeAmount: t.parsedLog.values.feesRequestAmount?.toString() || undefined,
-          feeAmountInCrypto: t.parsedFeeLog?.values.amount.toString() || undefined,
-          amountInCrypto: t.parsedFeeLog?.values.feeAmount.toString(),
-          tokenAddress: t.parsedLog.values.paymentCurrency,
-          to: this.toAddress,
-          txHash: t.log.transactionHash,
-          maxRateTimespan: t.parsedLog.values.maxRateTimespan.toString(),
-        },
-        timestamp: (await this.provider.getBlock(t.log.blockNumber || 0)).timestamp,
-      }));
+      .map(async t => {
+        // TODO decimal automatically computed
+        const amountWithRightDecimal = ethers.utils.bigNumberify(t.parsedLog.values.requestAmount.toString()).div(10**6).toString();
+        // TODO decimal automatically computed
+        const feeAmountWithRightDecimal=  ethers.utils.bigNumberify(t.parsedLog.values.feesRequestAmount.toString() || 0).div(10**6).toString();
+        return {
+          amount: amountWithRightDecimal,
+          name: this.eventName,
+          parameters: {
+            block: t.log.blockNumber,
+            feeAddress: t.parsedLog.values.feesTo || undefined,
+            feeAmount: feeAmountWithRightDecimal,
+            feeAmountInCrypto: t.parsedFeeLog?.values.amount.toString() || undefined,
+            amountInCrypto: t.parsedFeeLog?.values.feeAmount.toString(),
+            tokenAddress: t.parsedLog.values.paymentCurrency,
+            to: this.toAddress,
+            txHash: t.log.transactionHash,
+            maxRateTimespan: t.parsedLog.values.maxRateTimespan.toString(),
+          },
+          timestamp: (await this.provider.getBlock(t.log.blockNumber || 0)).timestamp,
+        }
+      });
 
     return Promise.all(eventPromises);
   }

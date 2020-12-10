@@ -77,8 +77,11 @@ export async function encodePayConversionErc20FeeRequest(
   // get the conversion path
   // TODO: Compute the path automatically
   // const path = getConversionPath(request.currencyInfo, tokenAddress);
-  const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+
+  // TODO decimal automatically computed
+  const amountToPay = getAmountToPay(request, amount).mul(10**6);
+  // TODO decimal automatically computed
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0).mul(10**6);;
   const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
   const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);
 
