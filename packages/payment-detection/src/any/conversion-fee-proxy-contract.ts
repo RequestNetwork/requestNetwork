@@ -110,7 +110,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT;
+    const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT;
     const paymentNetwork = request.extensions[paymentNetworkId];
 
     if (!paymentNetwork) {

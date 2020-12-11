@@ -40,7 +40,7 @@ const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
   };
 
   const paymentNetwork: Types.Payment.IPaymentNetworkCreateParameters = {
-    id: Types.Payment.PAYMENT_NETWORK_ID.CONVERSION_FEE_PROXY_CONTRACT,
+    id: Types.Payment.PAYMENT_NETWORK_ID.ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
     parameters: {
       paymentAddress: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
       refundAddress: '0xf17f52151ebef6c7334fad080c5704d77216b732',

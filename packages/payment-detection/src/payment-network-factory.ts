@@ -54,7 +54,7 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
 };
 
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT as string]: ConversionFeeProxy,
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT as string]: ConversionFeeProxy,
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
 };
 

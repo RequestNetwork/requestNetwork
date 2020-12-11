@@ -85,7 +85,7 @@ export async function conversionToPayRequest(
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
 
-  if (!paymentNetwork || (paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT)) {
+  if (!paymentNetwork || (paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT)) {
     throw new UnsupportedNetworkError(paymentNetwork);
   }
 

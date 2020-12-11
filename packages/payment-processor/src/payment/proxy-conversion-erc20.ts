@@ -33,7 +33,7 @@ export async function approveErc20ForProxyConversionIfNeeded(
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  const network = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT].values.network || 'mainnet';
+  const network = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT].values.network || 'mainnet';
 
   if (!await checkErc20Allowance(
     ownerAddress,
@@ -59,7 +59,7 @@ export async function approveErc20ForProxyConversion(
   signerOrProvider: Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const network = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT].values.network || 'mainnet';
+  const network = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT].values.network || 'mainnet';
 
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,

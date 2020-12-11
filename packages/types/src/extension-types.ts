@@ -53,7 +53,7 @@ export enum ID {
   PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT = 'pn-erc20-fee-proxy-contract',
   PAYMENT_NETWORK_ETH_INPUT_DATA = 'pn-eth-input-data',
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
-  PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT = 'pn-any-conversion-fee-proxy-contract',
+  PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT = 'pn-any-erc20-conversion-fee-proxy-contract',
 }
 
 /** Type of extensions */

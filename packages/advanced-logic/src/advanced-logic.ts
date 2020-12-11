@@ -125,7 +125,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         timestamp,
       );
     }
-    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT) {
+    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT) {
       return conversionFeeProxyContract.applyActionToExtension(
         extensionsState,
         extensionAction,

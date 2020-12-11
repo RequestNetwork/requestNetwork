@@ -69,7 +69,7 @@ function createCreationAction(
   }
 
   return ReferenceBased.createCreationAction(
-    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT,
+    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
     creationParameters,
     CURRENT_VERSION,
   );
