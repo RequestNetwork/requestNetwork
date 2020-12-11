@@ -269,7 +269,7 @@ describe('hasSufficientFunds', () => {
       provider: {
         wc: {
           _peerMeta: {
-            name: 'Safe Multisig WalletConnect',
+            name: 'Gnosis Safe Multisig',
           }
         }
       }

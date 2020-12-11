@@ -169,7 +169,8 @@ export async function isSolvent(
   provider: Provider,
 ): Promise<boolean> {
   const ethBalance = await provider.getBalance(fromAddress);
-  const needsGas  =  (provider as any)?.provider?.wc?._peerMeta?.name !== 'Safe Multisig WalletConnect';
+  const needsGas  =  !['Safe Multisig WalletConnect', 'Gnosis Safe Multisig']
+    .includes((provider as any)?.provider?.wc?._peerMeta?.name);
 
   if (currency.type === 'ETH') {
     return ethBalance.gt(amount);
