@@ -8,6 +8,7 @@
   "references": [
     { "path": "../epk-signature" },
     { "path": "../request-client.js" },
-    { "path": "../types" }
+    { "path": "../types" },
+    { "path": "../payment-processor" }
   ]
 }
