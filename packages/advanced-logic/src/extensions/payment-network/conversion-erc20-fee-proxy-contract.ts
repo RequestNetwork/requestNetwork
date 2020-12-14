@@ -67,6 +67,12 @@ function createCreationAction(
   if (creationParameters.feeAmount && !creationParameters.feeAddress) {
     throw Error('feeAddress requires feeAmount');
   }
+  if (!creationParameters.tokensAccepted || creationParameters.tokensAccepted.length === 0) {
+    throw Error('tokensAccepted is required');
+  }
+  if (creationParameters.tokensAccepted.some(address => !isValidAddress(address))) {
+    throw Error('tokensAccepted must contains only valid ethereum addresses');
+  }
 
   return ReferenceBased.createCreationAction(
     ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
@@ -93,7 +99,7 @@ function createAddPaymentAddressAction(
   }
 
   return ReferenceBased.createAddPaymentAddressAction(
-    ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
     addPaymentAddressParameters,
   );
 }
@@ -116,7 +122,7 @@ function createAddRefundAddressAction(
   }
 
   return ReferenceBased.createAddRefundAddressAction(
-    ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
     addRefundAddressParameters,
   );
 }
@@ -148,7 +154,7 @@ function createAddFeeAction(
 
   return {
     action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
     parameters: addFeeParameters,
   };
 }
@@ -170,7 +176,7 @@ function applyActionToExtension(
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
-  checkSupportedCurrency(requestState.currency, extensionAction.parameters.network || 'mainnet');
+  checkSupportedCurrency(requestState.currency, extensionAction.parameters.network || 'rinkeby');
 
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
@@ -272,6 +278,13 @@ function applyCreation(
   ) {
     throw Error('feeAmount is not a valid amount');
   }
+  if (!extensionAction.parameters.tokensAccepted || extensionAction.parameters.tokensAccepted.length === 0) {
+    throw Error('tokensAccepted is required');
+  }
+  if (extensionAction.parameters.tokensAccepted.some((address:string) => !isValidAddress(address))) {
+    throw Error('tokensAccepted must contains only valid ethereum addresses');
+  }
+
   return {
     events: [
       {
