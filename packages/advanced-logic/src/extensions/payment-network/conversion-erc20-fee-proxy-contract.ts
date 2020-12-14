@@ -176,7 +176,7 @@ function applyActionToExtension(
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
-  checkSupportedCurrency(requestState.currency, extensionAction.parameters.network || 'rinkeby');
+  checkSupportedCurrency(requestState.currency, extensionAction.parameters.network || 'mainnet');
 
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
