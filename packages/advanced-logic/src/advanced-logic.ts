@@ -13,7 +13,7 @@ import addressBasedErc20 from './extensions/payment-network/erc20/address-based'
 import feeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import proxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
 import ethereumInputData from './extensions/payment-network/ethereum/input-data';
-import conversionFeeProxyContract from './extensions/payment-network/conversion-fee-proxy-contract';
+import conversionFeeProxyContract from './extensions/payment-network/conversion-erc20-fee-proxy-contract';
 
 /**
  * Module to manage Advanced logic extensions

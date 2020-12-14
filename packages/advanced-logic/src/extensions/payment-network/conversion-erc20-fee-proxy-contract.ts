@@ -14,7 +14,7 @@ const walletAddressValidator = require('wallet-address-validator');
  * The salt should have at least 8 bytes of randomness. A way to generate it is:
  *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
-const erc20FeeProxyContract: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = {
+const conversionErc20FeeProxyContract: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = {
   applyActionToExtension,
   createAddFeeAction,
   createAddPaymentAddressAction,
@@ -397,4 +397,4 @@ function checkSupportedCurrency(currency: RequestLogicTypes.ICurrency, network: 
   }
 }
 
-export default erc20FeeProxyContract;
+export default conversionErc20FeeProxyContract;
