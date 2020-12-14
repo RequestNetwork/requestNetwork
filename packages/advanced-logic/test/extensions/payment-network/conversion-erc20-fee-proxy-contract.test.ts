@@ -184,7 +184,6 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       const action: ExtensionTypes.IAction = Utils.deepCopy(
         DataConversionERC20FeeCreate.actionCreationFull,
       );
-      // action.parameters.network = 'invalid network';
 
       // 'must throw'
       expect(() => {
