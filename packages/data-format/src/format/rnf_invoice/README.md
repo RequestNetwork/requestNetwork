@@ -21,7 +21,7 @@ _Information about the format of the json_
 | Name    | Type     | Need      | Comment              |
 | ------- | -------- | --------- | -------------------- |
 | format  | constant | Mandatory | value: "rnf_invoice" |
-| version | constant | Mandatory | value: "0.0.2"       |
+| version | constant | Mandatory | value: "0.0.3"       |
 
 ## sellerInfo
 
@@ -66,7 +66,7 @@ _List of the items of the invoices_
 | quantity       | number    | Mandatory | quantity (minimum 0)                                  |
 | unitPrice      | string    | Mandatory | unit price (integer in currency base unit)            |
 | discount       | string    | Optional  | price of the discount (integer in currency base unit) |
-| taxPercent     | number    | Mandatory | taxation percentage of the item                       |
+| tax            | object    | Mandatory | information about the item taxes                      |
 | currency       | string    | Mandatory | currency code                                         |
 | deliveryDate   | date-time | Optional  | expected delivery date                                |
 | deliveryPeriod | string    | Optional  | period of delivery if the item is a service           |
@@ -81,3 +81,9 @@ _Payment terms_
 | lateFeesPercent | number    | Optional | percentage of fees applied if late payment                         |
 | lateFeesFix     | string    | Optional | fixed fees applied if late payment (integer in currency base unit) |
 | miscellaneous   | object    | Optional | Miscellaneous information                                          |
+
+## tax
+| Name   | Type   | Need      | Comment                                                                      |
+| ------ | -------| --------- | ---------------------------------------------------------------------------- |
+| type   | string | Mandatory | tax type, can be "percentage" or "fixed"                                     |
+| amount | string | Mandatory | tax amount, either a percentage or an amount (integer in currency base unit) |

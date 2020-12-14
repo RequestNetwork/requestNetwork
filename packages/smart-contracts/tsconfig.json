@@ -16,6 +16,8 @@
     "./artifacts/EthereumProxy/artifacts.json",
     "./artifacts/EthereumProxy/0.1.0.json",
     "./artifacts/ERC20FeeProxy/artifacts.json",
-    "./artifacts/ERC20FeeProxy/0.1.0.json"
+    "./artifacts/ERC20FeeProxy/0.1.0.json",
+    "./artifacts/ERC20SwapToPay/artifacts.json",
+    "./artifacts/ERC20SwapToPay/0.1.0.json"
   ]
 }

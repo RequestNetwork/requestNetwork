@@ -103,8 +103,7 @@ describe('Request client using a request node', () => {
     expect(requestData.pending).toBeNull();
   });
 
-  // TODO since the migration to jest, this test fails.
-  it.skip('can create a request with declarative payment network and content data', async () => {
+  it('can create a request with declarative payment network and content data', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
@@ -149,7 +148,7 @@ describe('Request client using a request node', () => {
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
 
-    await request.declareSentPayment('100', 'bank transfer initiated', payerIdentity);
+    requestData = await request.declareSentPayment('100', 'bank transfer initiated', payerIdentity);
     expect(requestData.balance).toBeDefined();
     expect(requestData.balance!.balance).toBe('0');
 
@@ -476,7 +475,6 @@ describe('Request client using a request node', () => {
       [encryptionData.encryptionParams],
     );
 
-    // console.log(JSON.stringify(await badRequestNetwork.fromRequestId(request.requestId)));
     await expect(badRequestNetwork.fromRequestId(request.requestId)).rejects.toThrowError(
       'Invalid transaction(s) found: [',
     );

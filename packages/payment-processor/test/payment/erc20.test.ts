@@ -9,11 +9,13 @@ import {
 } from '@requestnetwork/types';
 import { Wallet } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
+import { bigNumberify } from 'ethers/utils';
 import {
   _getErc20PaymentUrl,
   approveErc20,
   getErc20Balance,
   hasErc20Approval,
+  checkErc20Allowance,
 } from '../../src/payment/erc20';
 
 // tslint:disable: no-unused-expression
@@ -134,14 +136,17 @@ describe('hasErc20approval & approveErc20', () => {
       const otherWallet = new Wallet(
         '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
       ).connect(provider);
+      const feeProxyAddres = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
       let hasApproval = await hasErc20Approval(erc20FeeProxyRequest, otherWallet.address, provider);
       // Warning: this test can run only once!
       // 'already has approval'
       expect(hasApproval).toBe(false);
+      expect(await checkErc20Allowance(otherWallet.address, feeProxyAddres, provider, erc20ContractAddress, 1)).toBe(false);
       await approveErc20(erc20FeeProxyRequest, otherWallet);
       hasApproval = await hasErc20Approval(erc20FeeProxyRequest, otherWallet.address, provider);
       // 'approval did not succeed'
       expect(hasApproval).toBe(true);
+      expect(await checkErc20Allowance(otherWallet.address, feeProxyAddres, provider, erc20ContractAddress, 1)).toBe(true);
     });
   });
 
@@ -182,12 +187,12 @@ describe('hasErc20approval & approveErc20', () => {
 describe('getErc20Balance', () => {
   it('should read the balance for ERC20 Fee Proxy payment network', async () => {
     const balance = await getErc20Balance(erc20FeeProxyRequest, wallet.address, provider);
-    expect(balance.gte('100')).toBeTruthy();
+    expect(bigNumberify(balance).gte('100')).toBeTruthy();
   });
 
   it('should read the balance for ERC20 Proxy payment network', async () => {
     const balance = await getErc20Balance(erc20ProxyRequest, wallet.address, provider);
-    expect(balance.gte('100')).toBeTruthy();
+    expect(bigNumberify(balance).gte('100')).toBeTruthy();
   });
 });
 

@@ -3,6 +3,8 @@ const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.s
 const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 const EthereumProxy = artifacts.require('./EthereumProxy.sol');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
+const FakeSwapRouter = artifacts.require('FakeSwapRouter');
+const ERC20SwapToPay = artifacts.require('ERC20SwapToPay');
 
 const erc20 = artifacts.require('./TestERC20.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
@@ -10,6 +12,7 @@ const ERC20True = artifacts.require('ERC20True');
 const ERC20False = artifacts.require('ERC20False');
 const ERC20NoReturn = artifacts.require('ERC20NoReturn');
 const ERC20Revert = artifacts.require('ERC20Revert');
+
 
 const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 
@@ -34,7 +37,7 @@ module.exports = async function(deployer) {
     console.log('requestSubmitter Whitelisted in requestHashDeclaration');
 
     // Deploy the ERC20 contract
-    const instanceTestERC20 = await deployer.deploy(erc20, 1000); // 1000 initial supply
+    const instanceTestERC20 = await deployer.deploy(erc20, 10000); // 10000 initial supply
 
     // Deploy ERC20 proxy contract
     const instanceRequestERC20Proxy = await deployer.deploy(ERC20Proxy);
@@ -79,7 +82,19 @@ module.exports = async function(deployer) {
 
     await deployer.deploy(ERC20Revert);
     console.log('ERC20Revert Contract deployed: ' + ERC20Revert.address);
-
+    
+    // Swap-to-pay related contracts
+    // Payment erc20: ALPHA
+    const erc20AlphaInstance = await deployer.deploy(erc20, 100000); // 100000 initial supply
+    // Mock a swap router
+    await deployer.deploy(FakeSwapRouter);
+    // 1 ERC20 = 2 ALPHA
+    await erc20AlphaInstance.transfer(FakeSwapRouter.address, 2000);
+    await instanceTestERC20.transfer(FakeSwapRouter.address, 1000);
+    // SwapToPay
+    await deployer.deploy(ERC20SwapToPay, FakeSwapRouter.address, ERC20FeeProxy.address);
+    console.log('SwapToPay Contract deployed: ' + ERC20SwapToPay.address);
+    
     // ----------------------------------
     console.log('Contracts initialized');
     console.log(`
@@ -94,8 +109,11 @@ module.exports = async function(deployer) {
       ERC20False:               ${ERC20False.address}
       ERC20NoReturn:            ${ERC20NoReturn.address}
       ERC20Revert:              ${ERC20Revert.address}
-    `);
-  } catch (e) {
+      ERC20Alpha:               ${erc20AlphaInstance.address}
+      FakeSwapRouter:           ${FakeSwapRouter.address}
+      SwapToPay:                ${ERC20SwapToPay.address}
+      `);
+    } catch (e) {
     console.error(e);
   }
 };

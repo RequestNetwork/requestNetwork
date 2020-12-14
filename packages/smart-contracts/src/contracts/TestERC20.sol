@@ -41,3 +41,9 @@ contract ERC20Revert {
     revert("bad thing happened");
   }
 }
+
+contract ERC20Alpha is ERC20, ERC20Detailed {
+  constructor(uint256 initialSupply) ERC20Detailed("Alpha ERC 20", "ALPHA", 18) public {
+    _mint(msg.sender, initialSupply);
+  }
+}

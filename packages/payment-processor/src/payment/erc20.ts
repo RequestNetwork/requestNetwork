@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
-import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
+import { bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
@@ -8,6 +8,7 @@ import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types
 
 import { ERC20Contract } from '../contracts/Erc20Contract';
 import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
+import { ISwapSettings, swapErc20FeeProxyRequest } from './swap-erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
 
 import { ITransactionOverrides } from './transaction-overrides';
@@ -26,6 +27,7 @@ import {
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Only applicable to ERC20 Fee Payment network. Defaults to the fee amount.
  * @param overrides optionally, override default transaction values, like gas.
+ * @param swapSettings optionally, the settings to swap a maximum amount of currency, through a swap path, before a deadline, to pay
  */
 export async function payErc20Request(
   request: ClientTypes.IRequestData,
@@ -33,19 +35,35 @@ export async function payErc20Request(
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
+  swapSettings?: ISwapSettings,
 ): Promise<ContractTransaction> {
   const id = getPaymentNetworkExtension(request)?.id;
+  if (swapSettings && id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+    throw new Error(`ExtensionType: ${id} is not supported by swapToPay contract`);
+  }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
     return payErc20ProxyRequest(request, signerOrProvider, amount, overrides);
   }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
-    return payErc20FeeProxyRequest(request, signerOrProvider, amount, feeAmount, overrides);
+    if (swapSettings) {
+      return swapErc20FeeProxyRequest(
+        request,
+        signerOrProvider,
+        swapSettings,
+        {
+          amount,
+          feeAmount,
+          overrides
+        });
+    } else {
+      return payErc20FeeProxyRequest(request, signerOrProvider, amount, feeAmount, overrides);
+    }
   }
   throw new Error('Not a supported ERC20 proxy payment network request');
 }
 
 /**
- * Checks if a given account has the necessary allowance to pay an ERC20 request.
+ * Checks if the proxy has the necessary allowance from a given account to pay a given request with ERC20
  * @param request request to pay
  * @param account account that will be used to pay the request
  * @param provider the web3 provider. Defaults to Etherscan.
@@ -55,9 +73,33 @@ export async function hasErc20Approval(
   account: string,
   provider: Provider = getNetworkProvider(request),
 ): Promise<boolean> {
-  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, provider);
-  const allowance = await erc20Contract.allowance(account, getProxyAddress(request));
-  return allowance.gt(request.expectedAmount);
+  return checkErc20Allowance(
+    account,
+    getProxyAddress(request),
+    provider,
+    request.currencyInfo.value,
+    request.expectedAmount
+  )
+}
+
+/**
+ * Checks if a spender has enough allowance from an ERC20 token owner to pay an amount.
+ * @param ownerAddress address of the owner
+ * @param spenderAddress address of the spender
+ * @param provider the web3 provider. Defaults to Etherscan.
+ * @param paymentCurrency ERC20 currency
+ * @param amount
+ */
+export async function checkErc20Allowance(
+  ownerAddress: string,
+  spenderAddress: string,
+  provider: Provider | Signer,
+  tokenAddress: string,
+  amount: BigNumberish,
+): Promise<boolean> {
+  const erc20Contract = ERC20Contract.connect(tokenAddress, provider);
+  const allowance = await erc20Contract.allowance(ownerAddress, spenderAddress);
+  return allowance.gte(amount);
 }
 
 /**
@@ -65,8 +107,24 @@ export async function hasErc20Approval(
  * @param request request to pay
  * @param provider the web3 provider. Defaults to Etherscan.
  * @param overrides optionally, override default transaction values, like gas.
- * @param paymentNetworkId the payment network id
- * @param proxyContractAddress the address of the proxy contract to set the approval.
+ */
+export async function approveErc20IfNeeded(
+  request: ClientTypes.IRequestData,
+  account: string,
+  provider: Provider = getNetworkProvider(request),
+  overrides?: ITransactionOverrides,
+): Promise<ContractTransaction | void> {
+  if (!await hasErc20Approval(request, account, provider)) {
+    return approveErc20(request, getSigner(provider), overrides);
+  }
+}
+
+/**
+ * Processes the transaction to approve the proxy to spend signer's tokens to pay
+ * the request in its payment currency. Can be used with a Multisig contract.
+ * @param request request to pay
+ * @param provider the web3 provider. Defaults to Etherscan.
+ * @param overrides optionally, override default transaction values, like gas.
  */
 export async function approveErc20(
   request: ClientTypes.IRequestData,
@@ -86,10 +144,10 @@ export async function approveErc20(
 }
 
 /**
- * Encodes the approval call, can be used with a Multisig contract.
+ * Encodes the transaction to approve the proxy to spend signer's tokens to pay
+ * the request in its payment currency. Can be used with a Multisig contract.
  * @param request the request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param proxyContractAddress the address of the proxy contract to set the approval.
  */
 export function encodeApproveErc20(
   request: ClientTypes.IRequestData,
@@ -101,19 +159,32 @@ export function encodeApproveErc20(
     throw new Error('No payment network Id');
   }
   validateRequest(request, paymentNetworkId);
-  const signer = getSigner(signerOrProvider);
+  return encodeApproveAnyErc20(
+    request.currencyInfo.value,
+    getProxyAddress(request),
+    getSigner(signerOrProvider)
+  );
+}
 
-  const proxyAddress = getProxyAddress(request);
-  const tokenAddress = request.currencyInfo.value;
-  const erc20interface = ERC20Contract.connect(tokenAddress, signer).interface;
-  const encodedApproveCall = erc20interface.functions.approve.encode([
-    proxyAddress,
+/**
+ * Encodes the approval call to approve any erc20 token to be spent, with no limit.
+ * @param tokenAddress the ERC20 token address to approve
+ * @param spenderAddress the address granted the approval
+ * @param signerOrProvider the signer who owns ERC20 tokens
+ */
+export function encodeApproveAnyErc20(
+  tokenAddress: string,
+  spenderAddress: string,
+  signerOrProvider: Provider | Signer = getProvider()
+): string {
+  const erc20interface = ERC20Contract.connect(tokenAddress, signerOrProvider).interface;
+  return erc20interface.functions.approve.encode([
+    spenderAddress,
     bigNumberify(2)
       // tslint:disable-next-line: no-magic-numbers
       .pow(256)
       .sub(1),
   ]);
-  return encodedApproveCall;
 }
 
 /**
@@ -126,8 +197,22 @@ export async function getErc20Balance(
   request: ClientTypes.IRequestData,
   address: string,
   provider: Provider = getNetworkProvider(request),
-): Promise<BigNumber> {
-  const erc20Contract = ERC20Contract.connect(request.currencyInfo.value, provider);
+): Promise<BigNumberish> {
+  return getAnyErc20Balance(request.currencyInfo.value, address, provider);
+}
+
+/**
+ * Gets any ERC20 balance of an address
+ * @param anyErc20Address the currency address
+ * @param address the address to check
+ * @param provider the web3 provider. Defaults to Etherscan
+ */
+export async function getAnyErc20Balance(
+  anyErc20Address: string,
+  address: string,
+  provider: Provider,
+): Promise<BigNumberish> {
+  const erc20Contract = ERC20Contract.connect(anyErc20Address, provider);
   return erc20Contract.balanceOf(address);
 }
 

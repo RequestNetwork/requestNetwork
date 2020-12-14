@@ -238,7 +238,7 @@ export interface IEvent {
 
 /** Currency interface */
 export interface ICurrency {
-  /** The main currency name (e.g.: 'ERC20', 'FIAT', 'ETH') */
+  /** The main currency name (e.g.: 'ERC20', 'ISO4217', 'ETH') */
   type: CURRENCY;
   /** The currency value (e.g.: '0x123...789', 'EUR', 'ETH') */
   value: string;

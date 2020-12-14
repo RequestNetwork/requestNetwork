@@ -34,6 +34,15 @@ describe('api/currency', () => {
       });
     });
 
+    it('returns Celo CUSD', () => {
+      expect(getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'CUSD-celo')).toEqual({
+        address: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+        decimals: 18,
+        name: 'Celo Dollar',
+        symbol: 'CUSD-celo',
+      });
+    });
+
     it('returns CTBK', () => {
       expect(
         getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'CTBK-rinkeby')
@@ -86,6 +95,14 @@ describe('api/currency', () => {
           value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 contract
         })).toThrow();
     });
+
+    it('returns the correct number of decimals for a a celo ERC20', () => {
+      expect(getDecimalsForCurrency({
+        network: 'celo',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a', // Celo Dollar
+      })).toEqual(18);
+    });
   });
 
   describe('stringToCurrency', () => {
@@ -116,6 +133,14 @@ describe('api/currency', () => {
         network: 'mainnet',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x8f8221aFbB33998d8584A2B05749bA73c37a938a',
+      });
+    });
+
+    it('return the correct currency for CUSD-celo string', () => {
+      expect(stringToCurrency('CUSD-celo')).toEqual({
+        network: 'celo',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
       });
     });
 
@@ -211,6 +236,14 @@ describe('api/currency', () => {
       })).toEqual('REQ');
     });
 
+    it('return the "CUSD-celo" string for Celo CUSD currency', () => {
+      expect(currencyToString({
+        network: 'celo',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+      })).toEqual('CUSD-celo');
+    });
+
     it('return the "CTBK-rinkeby" string for CTBK currency', () => {
       expect(currencyToString({
         network: 'rinkeby',
@@ -244,6 +277,14 @@ describe('api/currency', () => {
         network: 'mainnet',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x1111111111111111111111111111111111111111',
+      })).toEqual('unknown');
+    });
+
+    it('return unknown for Celo CUSD on mainnet', () => {
+      expect(currencyToString({
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
       })).toEqual('unknown');
     });
   });

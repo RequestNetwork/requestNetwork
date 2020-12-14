@@ -535,8 +535,30 @@ jobs:
           name: 'Authenticate with registry'
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
+          name: 'Get updated packages'
+          command: >
+            export FORCE_PUBLISH=$(
+              node -p "
+                const a = process.argv[1] ? JSON.parse(process.argv[1]):[]; 
+                const list = a
+                  .map(({name}) => name).join(','); 
+                  list ? '--force-publish=' + list : ''" 
+              "$($(yarn bin)/lerna changed --json)"
+            )
+      - run:
           name: 'publish'
-          command: '$(yarn bin)/lerna publish --conventional-commits --conventional-prerelease --exact --canary --no-git-tag-version --no-push --preid next --dist-tag next --yes'
+          command: >
+            $(yarn bin)/lerna publish 
+              --conventional-commits 
+              --conventional-prerelease 
+              --exact 
+              --canary 
+              --no-git-tag-version 
+              --no-push 
+              --preid next 
+              --dist-tag next 
+              --yes
+              ${FORCE_PUBLISH}
 
 workflows:
   version: 2

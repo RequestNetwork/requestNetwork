@@ -69,7 +69,7 @@ describe('api/eth/input-data', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  // TODO: unskip
+  // Skip because input-data cannot be used without etherscan
   it.skip('can getBalance on a localhost request', async () => {
     const mockRequest = {
       creator: { type: '', value: '0x2' },
@@ -81,12 +81,13 @@ describe('api/eth/input-data', () => {
       events: [],
       expectedAmount: '0',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: {
           events: [],
           id: '0',
           type: 'none',
           values: {
             paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+            salt: 'ea3bc7caf64110ca',
           },
           version: '0',
         },
@@ -103,13 +104,6 @@ describe('api/eth/input-data', () => {
     expect(balance.balance).toBe('10');
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
-    // TODO: add to & from to parameters?
-    // expect(balance.events[0].parameters!.to).toBe(
-    //   '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-    // );
-    // expect(balance.events[0].parameters!.from).toBe(
-    //   '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
-    // );
     expect(balance.events[0].amount).toBe('10');
     expect(typeof balance.events[0].timestamp).toBe('number');
   });

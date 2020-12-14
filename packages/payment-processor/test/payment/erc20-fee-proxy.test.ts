@@ -17,6 +17,7 @@ import {
   payErc20FeeProxyRequest,
 } from '../../src/payment/erc20-fee-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
+import { bigNumberify } from 'ethers/utils';
 
 // tslint:disable: no-magic-numbers
 // tslint:disable: no-unused-expression
@@ -87,7 +88,7 @@ describe('erc20-fee-proxy', () => {
     });
   });
 
-  describe('payErc20FeeProxyRequest', () => {
+  describe('encodePayErc20FeeRequest (used to pay and swap to pay)', () => {
     it('should throw an error if the request is not erc20', async () => {
       const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
@@ -121,7 +122,9 @@ describe('erc20-fee-proxy', () => {
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
+  });
 
+  describe('payErc20FeeProxyRequest', () => {
     it('should consider override parameters', async () => {
       const spy = jest.fn();
       const originalSendTransaction = wallet.sendTransaction.bind(wallet);
@@ -163,9 +166,9 @@ describe('erc20-fee-proxy', () => {
       expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
 
       // ERC20 balance should be lower
-      expect(balanceErc20After.eq(balanceErc20Before.sub(102))).toBeTruthy();
+      expect(bigNumberify(balanceErc20After).eq(bigNumberify(balanceErc20Before).sub(102))).toBeTruthy();
       // fee ERC20 balance should be higher
-      expect(feeBalanceErc20After.eq(feeBalanceErc20Before.add(2))).toBeTruthy();
+      expect(bigNumberify(feeBalanceErc20After).eq(bigNumberify(feeBalanceErc20Before).add(2))).toBeTruthy();
     });
   });
 
