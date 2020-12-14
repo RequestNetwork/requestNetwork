@@ -143,6 +143,63 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         });
       }).toThrowError('tokensAccepted must contains only valid ethereum addresses');
     });
+
+    it('cannot applyActionToExtensions of creation on a non supported currency', () => {
+      const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
+        TestData.requestCreatedNoExtension,
+      );
+      requestCreatedNoExtension.currency = {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH'
+      };
+
+      const action: ExtensionTypes.IAction = Utils.deepCopy(
+        DataConversionERC20FeeCreate.actionCreationFull,
+      );
+      action.parameters.network = 'invalid network';
+
+      // 'must throw'
+      expect(() => {
+        conversionErc20FeeProxyContract.applyActionToExtension(
+          TestData.requestCreatedNoExtension.extensions,
+          action,
+          requestCreatedNoExtension,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+      }).toThrowError(
+        `The network (invalid network) is not supported for this payment network.`,
+      );
+    });
+
+    it('cannot applyActionToExtensions of creation on a non supported currency', () => {
+      const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
+        TestData.requestCreatedNoExtension,
+      );
+      requestCreatedNoExtension.currency = {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'invalid value'
+      };
+
+      const action: ExtensionTypes.IAction = Utils.deepCopy(
+        DataConversionERC20FeeCreate.actionCreationFull,
+      );
+      // action.parameters.network = 'invalid network';
+
+      // 'must throw'
+      expect(() => {
+        conversionErc20FeeProxyContract.applyActionToExtension(
+          TestData.requestCreatedNoExtension.extensions,
+          action,
+          requestCreatedNoExtension,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+      }).toThrowError(
+        `The currency (invalid value) of the request is not supported for this payment network.`,
+      );
+    });
+
   });
 
   describe('createAddPaymentAddressAction', () => {
