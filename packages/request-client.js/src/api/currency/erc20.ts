@@ -18,7 +18,7 @@ interface ITokenMap {
   [address: string]: ITokenDescription;
 }
 
-const supportedERC20Tokens = require('eth-contract-metadata') as ITokenMap;
+const supportedERC20Tokens = require('@metamask/contract-metadata') as ITokenMap;
 
 /**
  * Returns a Currency object for an ERC20, if found
