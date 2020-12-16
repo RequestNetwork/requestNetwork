@@ -8,7 +8,7 @@ import {
 import Utils from '@requestnetwork/utils';
 import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
-import ProxyInfoRetriever from './proxy-info-retriever';
+import ProxyInfoRetriever from './conversion-proxy-info-retriever';
 
 const bigNumber: any = require('bn.js');
 

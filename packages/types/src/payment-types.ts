@@ -122,6 +122,9 @@ export interface IERC20PaymentEventParameters {
 export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParameters {
   feeAddress?: string;
   feeAmount?: string;
+  feeAmountInCrypto?: string,
+  amountInCrypto?: string,
+  tokenAddress?: string,
 }
 
 /** ERC20 Payment Network Event */
