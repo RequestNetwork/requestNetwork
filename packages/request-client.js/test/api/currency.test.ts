@@ -43,6 +43,15 @@ describe('api/currency', () => {
       });
     });
 
+    it('returns INDA', () => {
+      expect(getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'INDA')).toEqual({
+        address: '0x433d86336db759855a66ccabe4338313a8a7fc77',
+        decimals: 2,
+        name: 'Indacoin',
+        symbol: 'INDA',
+      });
+    });
+
     it('returns CTBK', () => {
       expect(
         getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'CTBK-rinkeby')
