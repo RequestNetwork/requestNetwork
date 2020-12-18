@@ -45,7 +45,7 @@ describe('api/currency', () => {
 
     it('returns INDA', () => {
       expect(getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'INDA')).toEqual({
-        address: '0x433d86336db759855a66ccabe4338313a8a7fc77',
+        address: '0x433d86336dB759855A66cCAbe4338313a8A7fc77',
         decimals: 2,
         name: 'Indacoin',
         symbol: 'INDA',
