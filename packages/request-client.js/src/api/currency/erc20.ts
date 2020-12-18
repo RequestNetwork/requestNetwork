@@ -18,6 +18,7 @@ interface ITokenMap {
   [address: string]: ITokenDescription;
 }
 
+/* eslint-disable spellcheck/spell-checker */
 const extraERC20Tokens = {
   // INDA
   '0x433d86336dB759855A66cCAbe4338313a8A7fc77': {
@@ -29,7 +30,7 @@ const extraERC20Tokens = {
     address: '0x433d86336dB759855A66cCAbe4338313a8A7fc77'
   }
 } as ITokenMap;
-
+/* eslint-enable spellcheck/spell-checker */
 const supportedERC20Tokens = {
   ...require('@metamask/contract-metadata') as ITokenMap,
   ...extraERC20Tokens
