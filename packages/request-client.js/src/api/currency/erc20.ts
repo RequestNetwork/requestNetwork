@@ -18,7 +18,23 @@ interface ITokenMap {
   [address: string]: ITokenDescription;
 }
 
-const supportedERC20Tokens = require('@metamask/contract-metadata') as ITokenMap;
+/* eslint-disable spellcheck/spell-checker */
+const extraERC20Tokens = {
+  // INDA
+  '0x433d86336dB759855A66cCAbe4338313a8A7fc77': {
+    name: 'Indacoin',
+    erc20: true,
+    logo: 'inda.svg',
+    symbol: 'INDA',
+    decimals: 2,
+    address: '0x433d86336dB759855A66cCAbe4338313a8A7fc77'
+  }
+} as ITokenMap;
+/* eslint-enable spellcheck/spell-checker */
+const supportedERC20Tokens = {
+  ...require('@metamask/contract-metadata') as ITokenMap,
+  ...extraERC20Tokens
+};
 
 /**
  * Returns a Currency object for an ERC20, if found
