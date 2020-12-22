@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.28.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.28.2) (2020-12-22)
+
+**Note:** Version bump only for package @requestnetwork/utils
+
+
+
+
+
 ## [0.28.1](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.28.1) (2020-12-21)
 
 **Note:** Version bump only for package @requestnetwork/utils

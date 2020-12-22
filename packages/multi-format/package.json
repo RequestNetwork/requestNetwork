@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/multi-format",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "publishConfig": {
     "access": "public"
   },
@@ -40,7 +40,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.29.1"
+    "@requestnetwork/types": "0.29.2"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
