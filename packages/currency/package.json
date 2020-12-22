@@ -41,8 +41,8 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.29.2",
     "@metamask/contract-metadata": "1.20.0",
+    "@requestnetwork/types": "0.29.2",
     "ethers": "4.0.48"
   },
   "devDependencies": {
