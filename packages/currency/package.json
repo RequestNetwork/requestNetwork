@@ -1,0 +1,66 @@
+{
+  "name": "@requestnetwork/currency",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Currency tools for Request Network packages.",
+  "keywords": [
+    "requestnetwork",
+    "currency",
+    "utils"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/currency#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "lint": "tslint --project . && eslint \"src/**/*.ts\"",
+    "lint-staged": "lint-staged",
+    "prepare": "yarn run build",
+    "test": "jest",
+    "test:watch": "yarn test --watch"
+  },
+  "dependencies": {
+    "@requestnetwork/types": "0.29.2",
+    "@metamask/contract-metadata": "1.20.0",
+    "ethers": "4.0.48"
+  },
+  "devDependencies": {
+    "@types/jest": "26.0.13",
+    "@typescript-eslint/parser": "4.1.1",
+    "eslint": "7.9.0",
+    "eslint-plugin-spellcheck": "0.0.17",
+    "eslint-plugin-typescript": "0.14.0",
+    "jest": "26.4.2",
+    "lint-staged": "10.3.0",
+    "mocha": "8.1.3",
+    "nyc": "15.1.0",
+    "prettier": "2.1.1",
+    "shx": "0.3.2",
+    "source-map-support": "0.5.19",
+    "ts-jest": "26.3.0",
+    "ts-node": "9.0.0",
+    "tslint": "6.1.3",
+    "typescript": "4.0.2"
+  }
+}

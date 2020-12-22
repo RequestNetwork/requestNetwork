@@ -1,11 +1,15 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import * as isoCurrencyCodes from 'currency-codes';
+import iso4217 from './iso4217/data-iso4217';
+import othersCurrencies from './others/others';
+
 import {
   getErc20Currency,
   getErc20Decimals,
   getErc20Symbol,
   getSupportedERC20Tokens,
-} from './currency/erc20';
+} from './erc20/erc20';
+
+export { validERC20Address } from './erc20/erc20';
 
 // Simple function to get the currency from the value alone
 const getCurrency = (currencyValue: string, network: string): RequestLogicTypes.ICurrency => {
@@ -30,7 +34,7 @@ const getCurrency = (currencyValue: string, network: string): RequestLogicTypes.
   }
 
   // Check if it's one of ISO4217 currencies
-  if (isoCurrencyCodes.codes().includes(currencyValue)) {
+  if (iso4217.find((i) => i.code === currencyValue)) {
     return {
       type: RequestLogicTypes.CURRENCY.ISO4217,
       value: currencyValue,
@@ -113,27 +117,27 @@ export function currencyToString(currency: RequestLogicTypes.ICurrency): string 
  * @returns The number of decimals
  */
 export function getDecimalsForCurrency(currency: RequestLogicTypes.ICurrency): number {
+  // Return decimals if currency is an ERC20
   if (currency.type === RequestLogicTypes.CURRENCY.ERC20) {
     return getErc20Decimals(currency);
   }
+
   // Return the number of decimals for ISO-4217 currencies
   if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
-    const iso = isoCurrencyCodes.code(currency.value);
+    const iso = iso4217.find((i) => i.code === currency.value);
     if (!iso) {
       throw new Error(`Unsupported ISO currency ${currency.value}`);
     }
     return iso.digits;
   }
 
-  const decimals = {
-    [RequestLogicTypes.CURRENCY.ETH]: 18,
-    [RequestLogicTypes.CURRENCY.BTC]: 8,
-  }[currency.type];
-
-  if (!decimals) {
+  // other currencies
+  const otherCurrency = othersCurrencies[currency.type];
+  if (!otherCurrency) {
     throw new Error(`Currency ${currency.type} not implemented`);
   }
-  return decimals;
+
+  return otherCurrency.decimals;
 }
 
 /**
@@ -145,8 +149,7 @@ export function getAllSupportedCurrencies(): {
   [type: string]: Array<{ name: string; symbol: string; decimals: number; address?: string }>;
 } {
   // Creates the list of ISO currencies
-  const isoCurrencyData = require('currency-codes/data') as isoCurrencyCodes.CurrencyCodeRecord[];
-  const isoCurrencies = isoCurrencyData.map(cc => ({
+  const isoCurrencies = iso4217.map((cc) => ({
     decimals: cc.digits,
     name: cc.currency,
     symbol: cc.code,
@@ -158,16 +161,16 @@ export function getAllSupportedCurrencies(): {
   return {
     [RequestLogicTypes.CURRENCY.ETH]: [
       {
-        decimals: 18,
-        name: 'Ether',
-        symbol: 'ETH',
+        decimals: othersCurrencies.ETH.decimals,
+        name: othersCurrencies.ETH.name,
+        symbol: othersCurrencies.ETH.code,
       },
     ],
     [RequestLogicTypes.CURRENCY.BTC]: [
       {
-        decimals: 8,
-        name: 'Bitcoin',
-        symbol: 'BTC',
+        decimals: othersCurrencies.BTC.decimals,
+        name: othersCurrencies.BTC.name,
+        symbol: othersCurrencies.BTC.code,
       },
     ],
     [RequestLogicTypes.CURRENCY.ISO4217]: isoCurrencies,

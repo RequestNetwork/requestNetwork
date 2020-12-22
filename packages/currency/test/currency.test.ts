@@ -5,7 +5,7 @@ import {
   getAllSupportedCurrencies,
   getDecimalsForCurrency,
   stringToCurrency,
-} from '../../src/api/currency';
+} from '../src/index';
 
 describe('api/currency', () => {
   describe('getAllSupportedCurrencies', () => {
@@ -112,6 +112,25 @@ describe('api/currency', () => {
         value: '0x765DE816845861e75A25fCA122bb6898B8B1282a', // Celo Dollar
       })).toEqual(18);
     });
+
+    it('return the correct currency for USD and EUR strings', () => {
+      expect(getDecimalsForCurrency({
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'USD',
+      })).toEqual(2);
+
+      expect(getDecimalsForCurrency({
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'EUR',
+      })).toEqual(2);
+    });
+
+    it('throws for unknown ISO4217 currency', () => {
+      expect(() => getDecimalsForCurrency({
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'YOYO',
+      })).toThrow(`Unsupported ISO currency YOYO`);
+    });
   });
 
   describe('stringToCurrency', () => {
@@ -195,6 +214,10 @@ describe('api/currency', () => {
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
+    });
+
+    it('throws for empty string', () => {
+      expect(() => stringToCurrency('')).toThrow(`Currency string can't be empty.`);
     });
   });
 
@@ -293,6 +316,13 @@ describe('api/currency', () => {
       expect(currencyToString({
         network: 'mainnet',
         type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+      })).toEqual('unknown');
+    });
+
+    it('return default if type unkown', () => {
+      expect(currencyToString({
+        type: 'unknown' as RequestLogicTypes.CURRENCY,
         value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
       })).toEqual('unknown');
     });

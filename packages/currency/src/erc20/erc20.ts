@@ -1,6 +1,13 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
-import { supportedNetworks, supportedNetworksDetails, ERC20SymbolDetails } from './erc20/networks';
+import {
+  supportedNetworks,
+  supportedNetworksDetails,
+  ERC20SymbolDetails,
+} from './networks/networks';
+import extraERC20Tokens from './extra-data';
+
+const metamaskContractMap = require('@metamask/contract-metadata');
 
 // These interfaces are declared here because they should be used only in this context
 // A Token description from the eth-contract-metadata list
@@ -18,22 +25,10 @@ interface ITokenMap {
   [address: string]: ITokenDescription;
 }
 
-/* eslint-disable spellcheck/spell-checker */
-const extraERC20Tokens = {
-  // INDA
-  '0x433d86336dB759855A66cCAbe4338313a8A7fc77': {
-    name: 'Indacoin',
-    erc20: true,
-    logo: 'inda.svg',
-    symbol: 'INDA',
-    decimals: 2,
-    address: '0x433d86336dB759855A66cCAbe4338313a8A7fc77'
-  }
-} as ITokenMap;
-/* eslint-enable spellcheck/spell-checker */
-const supportedERC20Tokens = {
-  ...require('@metamask/contract-metadata') as ITokenMap,
-  ...extraERC20Tokens
+// Merge metamask contracts list with our own
+const supportedERC20Tokens: ITokenMap = {
+  ...metamaskContractMap,
+  ...extraERC20Tokens,
 };
 
 /**
