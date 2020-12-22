@@ -12,9 +12,14 @@ npm install @requestnetwork/currency
 ## Usage
 
 ```javascript
-import Utils from '@requestnetwork/currency';
+import Currency from '@requestnetwork/currency';
 
-// TODO
+const decimals = Currency.getDecimalsForCurrency({
+  type: RequestLogicTypes.CURRENCY.ETH,
+  value: 'ETH',
+};
+
+console.log(decimals); // 18
 ```
 
 ## Contributing
