@@ -1,3 +1,4 @@
+/* eslint-disable spellcheck/spell-checker */
 export default {
   // INDA
   '0x433d86336dB759855A66cCAbe4338313a8A7fc77': {

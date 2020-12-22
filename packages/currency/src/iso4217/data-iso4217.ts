@@ -3,7 +3,7 @@
 	See https://www.currency-iso.org/dam/downloads/lists/list_one.xml
 	Data last updated 2018-08-29
 */
-
+/* eslint-disable spellcheck/spell-checker */
 export default [
   {
     code: 'AED',
