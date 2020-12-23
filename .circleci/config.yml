@@ -272,6 +272,26 @@ jobs:
           root: *working_directory
           paths:
             - packages/utils/coverage/
+  test-currency:
+    docker:
+      - *node_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build currency'
+          command: 'yarn workspace @requestnetwork/currency run build'
+      - run:
+          name: 'Lint currency'
+          command: 'yarn workspace @requestnetwork/currency run lint'
+      - run:
+          name: 'Test currency'
+          command: 'yarn workspace @requestnetwork/currency run test'
+      - persist_to_workspace:
+          root: *working_directory
+          paths:
+            - packages/currency/coverage/
   test-epk-signature:
     docker:
       - *node_image
@@ -608,6 +628,9 @@ workflows:
       - test-utils:
           requires:
             - build
+      - test-currency:
+          requires:
+            - build
       - test-epk-signature:
           requires:
             - build
@@ -651,6 +674,7 @@ workflows:
             - test-epk-decryption
             - test-request-node
             - test-utils
+            - test-currency
             - test-multi-format
             - test-payment-detection
             - test-payment-processor
@@ -673,6 +697,7 @@ workflows:
             - test-transaction-manager
             - test-types
             - test-utils
+            - test-currency
             - test-web3-signature
             - test-payment-detection
             - test-payment-processor
