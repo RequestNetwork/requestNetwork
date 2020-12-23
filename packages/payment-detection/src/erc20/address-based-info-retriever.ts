@@ -94,12 +94,12 @@ export default class ERC20InfoRetriever
       const block = await provider.getBlock(log.blockNumber);
       const parsedLog = contract.interface.parseLog(log);
       return {
-        amount: parsedLog.values.value.toString(),
+        amount: parsedLog.args.value.toString(),
         name: this.eventName,
         parameters: {
           block: block.number,
-          from: parsedLog.values.from,
-          to: parsedLog.values.to,
+          from: parsedLog.args.from,
+          to: parsedLog.args.to,
           txHash: log.transactionHash,
         },
         timestamp: block.timestamp,
