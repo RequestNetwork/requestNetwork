@@ -1,6 +1,6 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Provider, Web3Provider } from 'ethers/providers';
-import { bigNumberify, BigNumberish } from 'ethers/utils';
+import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
+import Provider = providers.Provider;
+import Web3Provider = providers.Web3Provider;
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
@@ -46,15 +46,11 @@ export async function payErc20Request(
   }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
     if (swapSettings) {
-      return swapErc20FeeProxyRequest(
-        request,
-        signerOrProvider,
-        swapSettings,
-        {
-          amount,
-          feeAmount,
-          overrides
-        });
+      return swapErc20FeeProxyRequest(request, signerOrProvider, swapSettings, {
+        amount,
+        feeAmount,
+        overrides,
+      });
     } else {
       return payErc20FeeProxyRequest(request, signerOrProvider, amount, feeAmount, overrides);
     }
@@ -78,8 +74,8 @@ export async function hasErc20Approval(
     getProxyAddress(request),
     provider,
     request.currencyInfo.value,
-    request.expectedAmount
-  )
+    request.expectedAmount,
+  );
 }
 
 /**
@@ -114,7 +110,7 @@ export async function approveErc20IfNeeded(
   provider: Provider = getNetworkProvider(request),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  if (!await hasErc20Approval(request, account, provider)) {
+  if (!(await hasErc20Approval(request, account, provider))) {
     return approveErc20(request, getSigner(provider), overrides);
   }
 }
@@ -162,7 +158,7 @@ export function encodeApproveErc20(
   return encodeApproveAnyErc20(
     request.currencyInfo.value,
     getProxyAddress(request),
-    getSigner(signerOrProvider)
+    getSigner(signerOrProvider),
   );
 }
 
@@ -175,12 +171,12 @@ export function encodeApproveErc20(
 export function encodeApproveAnyErc20(
   tokenAddress: string,
   spenderAddress: string,
-  signerOrProvider: Provider | Signer = getProvider()
+  signerOrProvider: Provider | Signer = getProvider(),
 ): string {
   const erc20interface = ERC20Contract.connect(tokenAddress, signerOrProvider).interface;
   return erc20interface.functions.approve.encode([
     spenderAddress,
-    bigNumberify(2)
+    BigNumber.from(2)
       // tslint:disable-next-line: no-magic-numbers
       .pow(256)
       .sub(1),

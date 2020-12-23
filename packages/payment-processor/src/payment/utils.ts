@@ -1,6 +1,6 @@
-import { ethers, getDefaultProvider, Signer } from 'ethers';
-import { Provider, Web3Provider } from 'ethers/providers';
-import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
+import { ethers, getDefaultProvider, Signer, providers, BigNumber, BigNumberish } from 'ethers';
+import Provider = providers.Provider;
+import Web3Provider = providers.Web3Provider;
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import {
@@ -72,7 +72,7 @@ export function getPaymentNetworkExtension(
 ): ExtensionTypes.IState | undefined {
   // tslint:disable-next-line: typedef
   return Object.values(request.extensions).find(
-    x => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    (x) => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
   );
 }
 
@@ -147,11 +147,9 @@ export function validateErc20FeeProxyRequest(
 ): void {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
 
-  const { feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { feeAddress, feeAmount } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+  const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
 
   if (!!feeAmount !== !!feeAddress) {
     throw new Error('Both fee address and fee amount have to be declared, or both left empty');
@@ -175,8 +173,8 @@ export function getAmountToPay(
 ): BigNumber {
   const amountToPay =
     amount === undefined
-      ? bigNumberify(request.expectedAmount).sub(request.balance?.balance || 0)
-      : bigNumberify(amount);
+      ? BigNumber.from(request.expectedAmount).sub(request.balance?.balance || 0)
+      : BigNumber.from(amount);
 
   if (amountToPay.lt(0)) {
     throw new Error('cannot pay a negative amount');

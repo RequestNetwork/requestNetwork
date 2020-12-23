@@ -1,6 +1,5 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
-import { BigNumberish } from 'ethers/utils';
+import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
+import Web3Provider = providers.Web3Provider;
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';

@@ -11,7 +11,7 @@ import {
   SignatureTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
 import { Request, RequestNetwork, Types } from '../src/index';
@@ -19,7 +19,6 @@ import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
-import { BigNumber } from 'ethers/utils';
 import EtherscanProviderMockup from './ethers-mockup';
 
 const packageJson = require('../package.json');

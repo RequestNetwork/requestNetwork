@@ -2,7 +2,6 @@ const ethers = require('ethers');
 
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { bigNumberify } = require('ethers/utils');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
 const TestERC20 = artifacts.require('./TestERC20.sol');
@@ -261,11 +260,11 @@ contract('SwapToPay', function(accounts) {
       await expectEvent.inTransaction(tx, BadERC20, 'Approval', {
         owner: testSwapToPay.address,
         spender: erc20FeeProxy.address,
-        value: bigNumberify(2).pow(256).sub(1).toString(),
+        value: BigNumber.from(2).pow(256).sub(1).toString(),
       });
   
       const approval = await badERC20.allowance(testSwapToPay.address, erc20FeeProxy.address);
-      expect(approval.toString()).to.equals(bigNumberify(2).pow(256).sub(1).toString());
+      expect(approval.toString()).to.equals(BigNumber.from(2).pow(256).sub(1).toString());
     });
   
     it('can approve bad ERC20 to be swapped by the router', async function() {
@@ -277,11 +276,11 @@ contract('SwapToPay', function(accounts) {
       await expectEvent.inTransaction(tx, BadERC20, 'Approval', {
         owner: testSwapToPay.address,
         spender: fakeRouter.address,
-        value: bigNumberify(2).pow(256).sub(1).toString(),
+        value: BigNumber.from(2).pow(256).sub(1).toString(),
       });
   
       const approval = await badERC20.allowance(testSwapToPay.address, fakeRouter.address);
-      expect(approval.toString()).to.equals(bigNumberify(2).pow(256).sub(1).toString());
+      expect(approval.toString()).to.equals(BigNumber.from(2).pow(256).sub(1).toString());
     });
   
     it('swaps badERC20 to another ERC20 for payment', async function() {

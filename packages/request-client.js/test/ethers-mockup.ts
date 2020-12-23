@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers/utils';
+import { BigNumber } from 'ethers';
 
 /**
  * Mockup etherscan calls
@@ -14,10 +14,10 @@ export default class EtherscanProviderMockup {
           transactionIndex: 120,
           confirmations: 2106906,
           from: '0x47672c15A8328C83Fc6935A33BE8479C2c42433d',
-          gasPrice: new BigNumber('0x77359400'),
-          gasLimit: new BigNumber('0x5208'),
+          gasPrice: BigNumber.from('0x77359400'),
+          gasLimit: BigNumber.from('0x5208'),
           to: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          value: new BigNumber('0x5c5edcbc290000'),
+          value: BigNumber.from('0x5c5edcbc290000'),
           nonce: 10,
           data: '0x',
           creates: null,
@@ -32,10 +32,10 @@ export default class EtherscanProviderMockup {
           transactionIndex: 120,
           confirmations: 988128,
           from: '0x74Ef019C1E9F11366c5c8DC4Ab556C16fe13B51F',
-          gasPrice: new BigNumber('0x059682f000'),
-          gasLimit: new BigNumber('0x5428'),
+          gasPrice: BigNumber.from('0x059682f000'),
+          gasLimit: BigNumber.from('0x5428'),
           to: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          value: new BigNumber('0x02dd231b00'),
+          value: BigNumber.from('0x02dd231b00'),
           nonce: 205,
           data: '0xc19da4923539c37f',
           creates: null,
@@ -52,10 +52,10 @@ export default class EtherscanProviderMockup {
           transactionIndex: 112,
           confirmations: 6617977,
           from: '0x716A22779846078Df6B8c591F3ebEEE3Ad32e153',
-          gasPrice: new BigNumber('0x3b9aca00'),
-          gasLimit: new BigNumber('0x01d978'),
+          gasPrice: BigNumber.from('0x3b9aca00'),
+          gasLimit: BigNumber.from('0x01d978'),
           to: '0x0000000000000000000000000000000000000002',
-          value: new BigNumber('0x00'),
+          value: BigNumber.from('0x00'),
           nonce: 0,
           data: '0xe5e1',
           creates: null,

@@ -1,6 +1,5 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Provider } from 'ethers/providers';
-import { BigNumberish } from 'ethers/utils';
+import { ContractTransaction, Signer, providers, BigNumberish } from 'ethers';
+import Provider = providers.Provider;
 
 import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes } from '@requestnetwork/types';
@@ -9,10 +8,7 @@ import { _getErc20FeeProxyPaymentUrl } from './erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl } from './erc20-proxy';
 
 import { ITransactionOverrides } from './transaction-overrides';
-import {
-  getProvider,
-  getSigner,
-} from './utils';
+import { getProvider, getSigner } from './utils';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 
 /**
@@ -36,15 +32,17 @@ export async function approveErc20ForSwapToPayIfNeeded(
   if (!request.currencyInfo.network) {
     throw new Error('Request currency network is missing');
   }
-  if (!await checkErc20Allowance(
-    ownerAddress,
-    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network),
-    signerOrProvider,
-    paymentTokenAddress,
-    minAmount
-    )) {
-      return approveErc20ForSwapToPay(request, paymentTokenAddress, signerOrProvider, overrides);
-    }
+  if (
+    !(await checkErc20Allowance(
+      ownerAddress,
+      erc20SwapToPayArtifact.getAddress(request.currencyInfo.network),
+      signerOrProvider,
+      paymentTokenAddress,
+      minAmount,
+    ))
+  ) {
+    return approveErc20ForSwapToPay(request, paymentTokenAddress, signerOrProvider, overrides);
+  }
 }
 
 /**
@@ -63,7 +61,7 @@ export async function approveErc20ForSwapToPay(
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
     erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
-    signerOrProvider
+    signerOrProvider,
   );
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({

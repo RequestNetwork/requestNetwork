@@ -1,6 +1,5 @@
-import { Wallet } from 'ethers';
-import { BaseProvider } from 'ethers/providers';
-import { bigNumberify } from 'ethers/utils';
+import { Wallet, providers, BigNumber } from 'ethers';
+import BaseProvider = providers.BaseProvider;
 
 import {
   getAmountToPay,
@@ -18,7 +17,7 @@ describe('getAmountToPay', () => {
         },
         expectedAmount: '1000000',
       } as any),
-    ).toEqual(bigNumberify('1000000'));
+    ).toEqual(BigNumber.from('1000000'));
   });
 
   it('returns the remaining amount if balance is not 0', () => {
@@ -29,7 +28,7 @@ describe('getAmountToPay', () => {
         },
         expectedAmount: '1000000',
       } as any),
-    ).toEqual(bigNumberify('600000'));
+    ).toEqual(BigNumber.from('600000'));
   });
 
   it('returns the given amount if defined', () => {
@@ -43,7 +42,7 @@ describe('getAmountToPay', () => {
         } as any,
         '3000',
       ),
-    ).toEqual(bigNumberify('3000'));
+    ).toEqual(BigNumber.from('3000'));
   });
 
   it('fails on a negative amount', () => {
@@ -85,7 +84,9 @@ describe('getAmountToPay', () => {
 
 describe('getProvider', () => {
   it('fails if ethereum not defined', () => {
-    expect(() => getProvider()).toThrowError('ethereum not found, you must pass your own web3 provider');
+    expect(() => getProvider()).toThrowError(
+      'ethereum not found, you must pass your own web3 provider',
+    );
   });
 });
 
@@ -114,7 +115,9 @@ describe('getNetworkProvider', () => {
         network: 'ropsten',
       },
     };
-    expect(() => getNetworkProvider(request)).toThrowError('Currency network ropsten is not supported');
+    expect(() => getNetworkProvider(request)).toThrowError(
+      'Currency network ropsten is not supported',
+    );
   });
 });
 
