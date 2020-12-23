@@ -456,7 +456,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     // Iterate over the hashes list, slicing it at pinRequestMaxSize sizes and pinning it
     for (let i = 0; i < slices; i++) {
-      await new Promise((res): NodeJS.Timeout => setTimeout(() => res(), delayBetweenCalls));
+      await new Promise<void>((res): NodeJS.Timeout => setTimeout(() => res(), delayBetweenCalls));
       const slice = hashes.slice(i * maxSize, (i + 1) * maxSize);
       try {
         await this.ipfsManager.pin(slice, timeout);
