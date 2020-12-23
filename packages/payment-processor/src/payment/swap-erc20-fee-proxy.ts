@@ -1,11 +1,17 @@
-import { constants, ContractTransaction, Signer } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
-import { bigNumberify, BigNumberish } from 'ethers/utils';
+import {
+  constants,
+  ContractTransaction,
+  Signer,
+  providers,
+  BigNumber,
+  BigNumberish,
+  Contract,
+} from 'ethers';
+import Web3Provider = providers.Web3Provider;
 
 import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes } from '@requestnetwork/types';
 
-import { Erc20SwapToPayContract } from '../contracts/Erc20SwapToPayContract';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -96,26 +102,31 @@ export function encodeSwapToPayErc20FeeRequest(
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-  request,
+    request,
   );
   const amountToPay = getAmountToPay(request, options?.amount);
-  const feeToPay = bigNumberify(options?.feeAmount || feeAmount || 0);
+  const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0);
 
-  if (swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()) {
+  if (
+    swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()
+  ) {
     throw new Error('Last item of the path should be the request currency');
   }
   // tslint:disable-next-line:no-magic-numbers
-  if (Date.now() > (swapSettings.deadline * 1000)) {
+  if (Date.now() > swapSettings.deadline * 1000) {
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
   if (!request.currencyInfo.network) {
     throw new Error('Request currency network is missing');
   }
 
-  const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network);
-  const swapToPayContract = Erc20SwapToPayContract.connect(swapToPayAddress, signer);
+  const swapToPayContract = new Contract(
+    erc20FeeProxyArtifact.getAddress(request.currencyInfo.network),
+    erc20FeeProxyArtifact.getContractAbi(),
+    signer,
+  );
 
-  return swapToPayContract.interface.functions.swapTransferWithReference.encode([
+  return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
     paymentAddress,
     amountToPay,
     swapSettings.maxInputAmount,
