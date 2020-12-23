@@ -1,15 +1,15 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import iso4217 from './iso4217/data-iso4217';
-import othersCurrencies from './others/others';
+import iso4217 from './iso4217';
+import othersCurrencies from './others';
 
 import {
   getErc20Currency,
   getErc20Decimals,
   getErc20Symbol,
   getSupportedERC20Tokens,
-} from './erc20/erc20';
+} from './erc20';
 
-export { validERC20Address } from './erc20/erc20';
+export { validERC20Address } from './erc20';
 
 // Simple function to get the currency from the value alone
 const getCurrency = (currencyValue: string, network: string): RequestLogicTypes.ICurrency => {

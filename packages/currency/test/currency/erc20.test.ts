@@ -4,7 +4,7 @@ import {
   getErc20Symbol,
   getMainnetErc20FromAddress,
   validERC20Address,
-} from '../../src/erc20/erc20';
+} from '../../src/erc20';
 
 describe('erc20', () => {
   describe('validERC20Address', () => {

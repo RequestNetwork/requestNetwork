@@ -1,10 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
-import {
-  supportedNetworks,
-  supportedNetworksDetails,
-  ERC20SymbolDetails,
-} from './networks/networks';
+import { supportedNetworks, supportedNetworksDetails, ERC20SymbolDetails } from './networks';
 import extraERC20Tokens from './extra-data';
 
 const metamaskContractMap = require('@metamask/contract-metadata');
