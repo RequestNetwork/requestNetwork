@@ -13,7 +13,7 @@ import Utils from '@requestnetwork/utils';
 import { getErc20Balance } from '../../src/payment/erc20';
 import { approveErc20ForSwapToPayIfNeeded } from '../../src/payment/swap-erc20';
 import { _getErc20FeeProxyPaymentUrl } from '../../src/payment/erc20-fee-proxy';
-import { ERC20Contract } from '../../src/contracts/Erc20Contract';
+import { ERC20Factory } from '../../src/contracts/Erc20Factory';
 import { ISwapSettings, swapErc20FeeProxyRequest } from '../../src/payment/swap-erc20-fee-proxy';
 
 // tslint:disable: no-magic-numbers
@@ -166,7 +166,7 @@ describe('swap-erc20-fee-proxy', () => {
 
       // get the balances to compare after payment
       const balanceEthBefore = await wallet.getBalance();
-      const balanceAlphaBefore = await ERC20Contract.connect(alphaErc20Address, provider).balanceOf(
+      const balanceAlphaBefore = await ERC20Factory.connect(alphaErc20Address, provider).balanceOf(
         wallet.address,
       );
       const issuerBalanceErc20Before = await getErc20Balance(
@@ -189,7 +189,7 @@ describe('swap-erc20-fee-proxy', () => {
 
       // Get the new balances
       const balanceEthAfter = await wallet.getBalance();
-      const balanceAlphaAfter = await ERC20Contract.connect(alphaErc20Address, provider).balanceOf(
+      const balanceAlphaAfter = await ERC20Factory.connect(alphaErc20Address, provider).balanceOf(
         wallet.address,
       );
       const issuerBalanceErc20After = await getErc20Balance(validRequest, paymentAddress, provider);

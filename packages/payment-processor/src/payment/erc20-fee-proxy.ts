@@ -4,7 +4,7 @@ import Web3Provider = providers.Web3Provider;
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { Erc20FeeProxyContract } from '../contracts/Erc20FeeProxyContract';
+import { ERC20FeeProxyFactory } from '../contracts/Erc20FeeProxyFactory';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -66,9 +66,9 @@ export function encodePayErc20FeeRequest(
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
   const proxyAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
-  const proxyContract = Erc20FeeProxyContract.connect(proxyAddress, signer);
+  const proxyContract = ERC20FeeProxyFactory.connect(proxyAddress, signer);
 
-  return proxyContract.interface.functions.transferFromWithReferenceAndFee.encode([
+  return proxyContract.interface.encodeFunctionData('transferFromWithReferenceAndFee', [
     tokenAddress,
     paymentAddress,
     amountToPay,

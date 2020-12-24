@@ -1,12 +1,4 @@
-import {
-  constants,
-  ContractTransaction,
-  Signer,
-  providers,
-  BigNumber,
-  BigNumberish,
-  Contract,
-} from 'ethers';
+import { constants, ContractTransaction, Signer, providers, BigNumber, BigNumberish } from 'ethers';
 import Web3Provider = providers.Web3Provider;
 
 import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
@@ -20,6 +12,7 @@ import {
   getSigner,
   validateErc20FeeProxyRequest,
 } from './utils';
+import { Erc20SwapToPayFactory } from '../contracts/Erc20SwapToPayFactory';
 
 /**
  * Details required for a token swap:
@@ -120,9 +113,8 @@ export function encodeSwapToPayErc20FeeRequest(
     throw new Error('Request currency network is missing');
   }
 
-  const swapToPayContract = new Contract(
+  const swapToPayContract = Erc20SwapToPayFactory.connect(
     erc20FeeProxyArtifact.getAddress(request.currencyInfo.network),
-    erc20FeeProxyArtifact.getContractAbi(),
     signer,
   );
 
