@@ -92,18 +92,18 @@ export default class ProxyERC20InfoRetriever
       // Keeps only the log with the right token and the right destination address
       .filter(
         (log) =>
-          log.parsedLog.values.tokenAddress.toLowerCase() ===
+          log.parsedLog.args.tokenAddress.toLowerCase() ===
             this.tokenContractAddress.toLowerCase() &&
-          log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase(),
+          log.parsedLog.args.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
       .map(async (t) => ({
-        amount: t.parsedLog.values.amount.toString(),
+        amount: t.parsedLog.args.amount.toString(),
         name: this.eventName,
         parameters: {
           block: t.log.blockNumber,
-          feeAddress: t.parsedLog.values.feeAddress || undefined,
-          feeAmount: t.parsedLog.values.feeAmount?.toString() || undefined,
+          feeAddress: t.parsedLog.args.feeAddress || undefined,
+          feeAmount: t.parsedLog.args.feeAmount?.toString() || undefined,
           to: this.toAddress,
           txHash: t.log.transactionHash,
         },

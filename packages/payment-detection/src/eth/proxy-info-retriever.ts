@@ -68,10 +68,10 @@ export default class ProxyEthereumInfoRetriever
         return { parsedLog, log };
       })
       // Keeps only the log with the right token and the right destination address
-      .filter((log) => log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase())
+      .filter((log) => log.parsedLog.args.to.toLowerCase() === this.toAddress.toLowerCase())
       // Creates the balance events
       .map(async (t) => ({
-        amount: t.parsedLog.values.amount.toString(),
+        amount: t.parsedLog.args.amount.toString(),
         name: this.eventName,
         parameters: {
           block: t.log.blockNumber,
