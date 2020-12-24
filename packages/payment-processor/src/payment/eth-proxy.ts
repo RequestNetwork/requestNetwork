@@ -5,7 +5,7 @@ import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ethereumProxyArtifact } from '@requestnetwork/smart-contracts';
 
-import { EthProxyContract } from '../contracts/EthProxyContract';
+import { EthProxyFactory } from '../contracts/EthProxyFactory';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -59,8 +59,8 @@ export function encodePayEthProxyRequest(
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
 
-  const proxyContract = EthProxyContract.connect(proxyAddress, signer);
-  return proxyContract.interface.functions.transferWithReference.encode([
+  const proxyContract = EthProxyFactory.connect(proxyAddress, signer);
+  return proxyContract.interface.encodeFunctionData('transferWithReference', [
     paymentAddress,
     `0x${paymentReference}`,
   ]);

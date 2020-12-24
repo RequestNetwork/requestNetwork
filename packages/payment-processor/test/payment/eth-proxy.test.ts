@@ -71,7 +71,7 @@ describe('getRequestPaymentValues', () => {
 });
 
 describe('payEthProxyRequest', () => {
-  it('should throw an error if the request is not erc20', async () => {
+  it('should throw an error if the request is not eth', async () => {
     const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
 
@@ -124,7 +124,7 @@ describe('payEthProxyRequest', () => {
     const balanceEthAfter = await wallet.getBalance();
 
     expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
+    expect(tx.hash).toBeDefined();
 
     expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
 

@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
+import { ContractTransaction, Signer, BigNumberish, providers, BigNumber } from 'ethers';
 import Provider = providers.Provider;
 import Web3Provider = providers.Web3Provider;
 
@@ -6,7 +6,7 @@ import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { ERC20Contract } from '../contracts/Erc20Contract';
+import { ERC20Factory } from '../contracts/Erc20Factory';
 import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
 import { ISwapSettings, swapErc20FeeProxyRequest } from './swap-erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
@@ -93,7 +93,7 @@ export async function checkErc20Allowance(
   tokenAddress: string,
   amount: BigNumberish,
 ): Promise<boolean> {
-  const erc20Contract = ERC20Contract.connect(tokenAddress, provider);
+  const erc20Contract = ERC20Factory.connect(tokenAddress, provider);
   const allowance = await erc20Contract.allowance(ownerAddress, spenderAddress);
   return allowance.gte(amount);
 }
@@ -173,8 +173,8 @@ export function encodeApproveAnyErc20(
   spenderAddress: string,
   signerOrProvider: Provider | Signer = getProvider(),
 ): string {
-  const erc20interface = ERC20Contract.connect(tokenAddress, signerOrProvider).interface;
-  return erc20interface.functions.approve.encode([
+  const erc20Contract = ERC20Factory.connect(tokenAddress, signerOrProvider);
+  return erc20Contract.interface.encodeFunctionData('approve', [
     spenderAddress,
     BigNumber.from(2)
       // tslint:disable-next-line: no-magic-numbers
@@ -208,7 +208,7 @@ export async function getAnyErc20Balance(
   address: string,
   provider: Provider,
 ): Promise<BigNumberish> {
-  const erc20Contract = ERC20Contract.connect(anyErc20Address, provider);
+  const erc20Contract = ERC20Factory.connect(anyErc20Address, provider);
   return erc20Contract.balanceOf(address);
 }
 
