@@ -73,11 +73,11 @@ contract('RequestOpenHashSubmitter', function (accounts) {
     });
 
     it('Allows submitHash with fees', async function () {
-      let oldBurnerBalance = new BigNumber(await web3.eth.getBalance(burner));
+      let oldBurnerBalance = BigNumber.from(await web3.eth.getBalance(burner));
 
-      const minimumFee = new BigNumber(100);
-      const rateFeesNumerator = new BigNumber(3);
-      const rateFeesDenominator = new BigNumber(5);
+      const minimumFee = BigNumber.from(100);
+      const rateFeesNumerator = BigNumber.from(3);
+      const rateFeesDenominator = BigNumber.from(5);
 
       await requestOpenHashSubmitter.setFeeParameters(
         minimumFee,
@@ -86,7 +86,7 @@ contract('RequestOpenHashSubmitter', function (accounts) {
         { from: admin },
       );
 
-      const fees = new BigNumber(600);
+      const fees = BigNumber.from(600);
       let { receipt, logs } = await requestOpenHashSubmitter.submitHash(
         hashExample,
         feesParameters,
@@ -101,16 +101,16 @@ contract('RequestOpenHashSubmitter', function (accounts) {
       );
       expect(event.data[2], 'event feesParameters is wrong').to.be.equal(feesParameters);
 
-      const newBalanceBurner = new BigNumber(await web3.eth.getBalance(burner));
+      const newBalanceBurner = BigNumber.from(await web3.eth.getBalance(burner));
       expect(newBalanceBurner, 'Fee not collected by burner').to.be.bignumber.equal(
-        new BigNumber(oldBurnerBalance).add(fees),
+        BigNumber.from(oldBurnerBalance).add(fees),
       );
     });
 
     it('should not be able to submitHash with the wrong fees', async function () {
-      const minimumFee = new BigNumber(100);
-      const rateFeesNumerator = new BigNumber(3);
-      const rateFeesDenominator = new BigNumber(5);
+      const minimumFee = BigNumber.from(100);
+      const rateFeesNumerator = BigNumber.from(3);
+      const rateFeesDenominator = BigNumber.from(5);
 
       await requestOpenHashSubmitter.setFeeParameters(
         minimumFee,
@@ -127,7 +127,7 @@ contract('RequestOpenHashSubmitter', function (accounts) {
       // Fees too big
       await expectRevert.unspecified(
         requestOpenHashSubmitter.submitHash(hashExample, feesParameters, {
-          value: new BigNumber(1000),
+          value: BigNumber.from(1000),
         }),
       );
     });

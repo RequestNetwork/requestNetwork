@@ -56,9 +56,9 @@ contract('StorageFeeCollector', function (accounts) {
 
   describe('setFeeParameters', async () => {
     it('Allows parameters to be changed', async function () {
-      const minimumFee = new BigNumber(1);
-      const rateFeesNumerator = new BigNumber(2);
-      const rateFeesDenominator = new BigNumber(3);
+      const minimumFee = BigNumber.from(1);
+      const rateFeesNumerator = BigNumber.from(2);
+      const rateFeesDenominator = BigNumber.from(3);
 
       let { logs } = await storageFeeCollector.setFeeParameters(
         minimumFee,
@@ -87,9 +87,9 @@ contract('StorageFeeCollector', function (accounts) {
     });
 
     it('Non admin should not be able to change parameters', async function () {
-      const minimumFee = new BigNumber(1);
-      const rateFeesNumerator = new BigNumber(2);
-      const rateFeesDenominator = new BigNumber(3);
+      const minimumFee = BigNumber.from(1);
+      const rateFeesNumerator = BigNumber.from(2);
+      const rateFeesDenominator = BigNumber.from(3);
 
       await expectRevert.unspecified(
         storageFeeCollector.setFeeParameters(minimumFee, rateFeesNumerator, rateFeesDenominator, {
@@ -101,9 +101,9 @@ contract('StorageFeeCollector', function (accounts) {
 
   describe('getFeesAmount', async () => {
     it('getFeesAmount gives correct values', async function () {
-      const minimumFee = new BigNumber(100);
-      const rateFeesNumerator = new BigNumber(3);
-      const rateFeesDenominator = new BigNumber(5);
+      const minimumFee = BigNumber.from(100);
+      const rateFeesNumerator = BigNumber.from(3);
+      const rateFeesDenominator = BigNumber.from(5);
 
       let { logs } = await storageFeeCollector.setFeeParameters(
         minimumFee,
@@ -112,16 +112,16 @@ contract('StorageFeeCollector', function (accounts) {
         { from: admin },
       );
 
-      const contentSize = new BigNumber(1000);
+      const contentSize = BigNumber.from(1000);
 
       let estimation = await storageFeeCollector.getFeesAmount(contentSize);
-      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(new BigNumber(600));
+      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(BigNumber.from(600));
     });
 
     it('getFeesAmount gives correct values under the minimum', async function () {
-      const minimumFee = new BigNumber(1000000);
-      const rateFeesNumerator = new BigNumber(3);
-      const rateFeesDenominator = new BigNumber(5);
+      const minimumFee = BigNumber.from(1000000);
+      const rateFeesNumerator = BigNumber.from(3);
+      const rateFeesDenominator = BigNumber.from(5);
 
       let { logs } = await storageFeeCollector.setFeeParameters(
         minimumFee,
@@ -130,26 +130,26 @@ contract('StorageFeeCollector', function (accounts) {
         { from: admin },
       );
 
-      const contentSize = new BigNumber(1000);
+      const contentSize = BigNumber.from(1000);
 
       let estimation = await storageFeeCollector.getFeesAmount(contentSize);
 
       expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(
-        new BigNumber(minimumFee),
+        BigNumber.from(minimumFee),
       );
     });
 
     it('getFeesAmount gives correct values with default value', async function () {
-      const contentSize = new BigNumber(1000);
+      const contentSize = BigNumber.from(1000);
 
       let estimation = await storageFeeCollector.getFeesAmount(contentSize);
-      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(new BigNumber(0));
+      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(BigNumber.from(0));
     });
 
     it('getFeesAmount gives correct values with denominator equal 0', async function () {
-      const minimumFee = new BigNumber(100);
-      const rateFeesNumerator = new BigNumber(3);
-      const rateFeesDenominator = new BigNumber(0);
+      const minimumFee = BigNumber.from(100);
+      const rateFeesNumerator = BigNumber.from(3);
+      const rateFeesDenominator = BigNumber.from(0);
 
       let { logs } = await storageFeeCollector.setFeeParameters(
         minimumFee,
@@ -158,17 +158,17 @@ contract('StorageFeeCollector', function (accounts) {
         { from: admin },
       );
 
-      const contentSize = new BigNumber(1000);
+      const contentSize = BigNumber.from(1000);
 
       let estimation = await storageFeeCollector.getFeesAmount(contentSize);
-      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(new BigNumber(3000));
+      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(BigNumber.from(3000));
     });
 
     it('getFeesAmount must revert if overflow', async function () {
-      const minimumFee = new BigNumber(100);
-      const rateFeesNumerator = new BigNumber(10).pow(new BigNumber(255));
+      const minimumFee = BigNumber.from(100);
+      const rateFeesNumerator = BigNumber.from(10).pow(BigNumber.from(255));
 
-      const rateFeesDenominator = new BigNumber(2);
+      const rateFeesDenominator = BigNumber.from(2);
 
       let { logs } = await storageFeeCollector.setFeeParameters(
         minimumFee,
@@ -176,7 +176,7 @@ contract('StorageFeeCollector', function (accounts) {
         rateFeesDenominator,
         { from: admin },
       );
-      const contentSize = new BigNumber(1000);
+      const contentSize = BigNumber.from(1000);
 
       await expectRevert.unspecified(storageFeeCollector.getFeesAmount(contentSize));
     });

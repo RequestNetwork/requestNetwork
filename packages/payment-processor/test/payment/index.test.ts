@@ -100,7 +100,7 @@ describe('swapToPayRequest', () => {
   const swapSettings = {
     // tslint:disable-next-line: no-magic-numbers
     deadline: Date.now() + 1000,
-    maxInputAmount: new BigNumber('204'),
+    maxInputAmount: BigNumber.from('204'),
     // eslint-disable-next-line spellcheck/spell-checker
     path: ['0xany', '0xanyother'],
   };
