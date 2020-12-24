@@ -49,7 +49,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "redoc": "2.0.0-rc.40",
-    "styled-components": "5.2.0"
+    "styled-components": "5.2.1"
   },
   "browserslist": {
     "production": [
