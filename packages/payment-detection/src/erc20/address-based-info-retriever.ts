@@ -87,19 +87,19 @@ export default class ERC20InfoRetriever
     const logs = await provider.getLogs(filter);
 
     // Clean up the Transfer logs data
-    const eventPromises = logs.map(async log => {
+    const eventPromises = logs.map(async (log) => {
       if (!log.blockNumber) {
         throw new Error('Block number not found');
       }
       const block = await provider.getBlock(log.blockNumber);
       const parsedLog = contract.interface.parseLog(log);
       return {
-        amount: parsedLog.args.value.toString(),
+        amount: parsedLog.values.value.toString(),
         name: this.eventName,
         parameters: {
           block: block.number,
-          from: parsedLog.args.from,
-          to: parsedLog.args.to,
+          from: parsedLog.values.from,
+          to: parsedLog.values.to,
           txHash: log.transactionHash,
         },
         timestamp: block.timestamp,

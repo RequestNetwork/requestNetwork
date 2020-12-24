@@ -3,7 +3,7 @@ import { Signer, providers, Contract } from 'ethers';
 import { Erc20ProxyContract } from './Erc20ProxyContract';
 
 /**
- * Instanciate an ERC20 Fee Proxy contract with ERC20FeeProxyFactory.connect(address, signerOrProvider)
+ * Instantiate an ERC20 Fee Proxy contract with ERC20FeeProxyFactory.connect(address, signerOrProvider)
  */
 export class Erc20ProxyFactory {
   static connect(

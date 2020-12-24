@@ -8,7 +8,7 @@ const abi = [
 ];
 
 /**
- * Instanciate an ERC20 contract with ERC20Factory.connect(address, signerOrProvider)
+ * Instantiate an ERC20 contract with ERC20Factory.connect(address, signerOrProvider)
  */
 export class ERC20Factory {
   static connect(address: string, signerOrProvider: Signer | providers.Provider): ERC20Contract {

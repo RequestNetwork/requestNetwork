@@ -8,7 +8,7 @@ interface IErc20SwapToPayContractInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: 'swapTransferWithReference',
     values: [string, BigNumberish, BigNumberish, string[], Arrayish, BigNumberish, string, number],
-  );
+  ): string;
 }
 
 /**
@@ -16,7 +16,7 @@ interface IErc20SwapToPayContractInterface extends utils.Interface {
  */
 export class Erc20SwapToPayContract extends Contract {
   interface: IErc20SwapToPayContractInterface;
-  transferFswapTransferWithReferenceromWithReferenceAndFee(
+  swapTransferWithReferenceAndFee(
     _to: string,
     _amount: BigNumberish,
     _amountInMax: BigNumberish,

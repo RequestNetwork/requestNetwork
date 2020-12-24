@@ -3,7 +3,7 @@ import { Signer, providers, Contract } from 'ethers';
 import { EthProxyContract } from './EthProxyContract';
 
 /**
- * Instanciate an ETH Proxy contract with EthProxyFactory.connect(address, signerOrProvider)
+ * Instantiate an ETH Proxy contract with EthProxyFactory.connect(address, signerOrProvider)
  */
 export class EthProxyFactory {
   static connect(address: string, signerOrProvider: Signer | providers.Provider): EthProxyContract {
