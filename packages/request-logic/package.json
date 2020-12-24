@@ -56,7 +56,7 @@
     "jest": "26.4.2",
     "lint-staged": "10.3.0",
     "nyc": "15.1.0",
-    "prettier": "2.1.1",
+    "prettier": "2.2.1",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",
     "ts-jest": "26.3.0",

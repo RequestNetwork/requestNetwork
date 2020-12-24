@@ -52,7 +52,7 @@
     "eslint-plugin-typescript": "0.14.0",
     "husky": "4.3.0",
     "lint-staged": "10.3.0",
-    "prettier": "2.1.1",
+    "prettier": "2.2.1",
     "shx": "0.3.2",
     "ts-node": "9.0.0",
     "tslint": "6.1.3",
