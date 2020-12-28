@@ -47,7 +47,7 @@
   "devDependencies": {
     "@openzeppelin/contracts": "2.5.1",
     "@openzeppelin/test-helpers": "0.5.6",
-    "@types/node": "14.14.14",
+    "@types/node": "14.14.16",
     "chai-bn": "0.2.1",
     "ethers": "4.0.48",
     "ganache-cli": "6.11.0",
