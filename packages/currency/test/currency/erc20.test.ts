@@ -1,8 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import {
-  getMainnetErc20FromSymbol,
   getErc20Symbol,
-  getMainnetErc20FromAddress,
   validERC20Address,
 } from '../../src/erc20';
 
@@ -18,35 +16,6 @@ describe('erc20', () => {
 
     it('returns false for a wrong', async () => {
       expect(validERC20Address('0x0000006b4ccb1b6faa2625fe562bdd9a23260359')).toBe(false);
-    });
-  });
-
-  describe('getMainnetErc20FromSymbol', () => {
-    it('get TokenDescription object from SAI string', async () => {
-      expect(getMainnetErc20FromSymbol('SAI')).toEqual({
-        address: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
-        decimals: 18,
-        erc20: true,
-        logo: 'sai.svg',
-        name: 'Sai Stablecoin v1.0',
-        symbol: 'SAI',
-      });
-    });
-  });
-
-  describe('getErc20FromAddress', () => {
-    it('get TokenDescription object from SAI address', async () => {
-      expect(getMainnetErc20FromAddress('0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359')).toEqual({
-        address: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
-        decimals: 18,
-        erc20: true,
-        logo: 'sai.svg',
-        name: 'Sai Stablecoin v1.0',
-        symbol: 'SAI',
-      });
-    });
-    it('cannot get TokenDescription object from unknown token', async () => {
-      expect(getMainnetErc20FromAddress('0x1111111111111111111111111111111111111111')).toEqual(undefined);
     });
   });
 
