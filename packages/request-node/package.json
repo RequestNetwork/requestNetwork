@@ -57,15 +57,15 @@
     "yargs": "16.0.3"
   },
   "devDependencies": {
-    "@types/cors": "2.8.7",
+    "@types/cors": "2.8.9",
     "@types/express": "4.17.8",
     "@types/jest": "26.0.13",
-    "@types/node": "14.14.14",
+    "@types/node": "14.14.16",
     "@types/supertest": "2.0.10",
     "@types/yargs": "15.0.5",
     "jest": "26.4.2",
     "lint-staged": "10.3.0",
-    "prettier": "2.1.1",
+    "prettier": "2.2.1",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",
     "supertest": "5.0.0",
