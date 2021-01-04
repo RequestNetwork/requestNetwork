@@ -16,8 +16,7 @@ import {
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
-import { stringToCurrency } from './currency';
-import { validERC20Address } from './currency/erc20';
+import { stringToCurrency, validERC20Address } from '@requestnetwork/currency';
 import Request from './request';
 import localUtils from './utils';
 

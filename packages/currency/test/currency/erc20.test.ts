@@ -1,12 +1,10 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import {
-  getMainnetErc20FromSymbol,
   getErc20Symbol,
-  getMainnetErc20FromAddress,
   validERC20Address,
-} from '../../../src/api/currency/erc20';
+} from '../../src/erc20';
 
-describe('api/currency/erc20', () => {
+describe('erc20', () => {
   describe('validERC20Address', () => {
     it('returns true for a correct checksum address', async () => {
       expect(validERC20Address('0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359')).toBe(true);
@@ -18,32 +16,6 @@ describe('api/currency/erc20', () => {
 
     it('returns false for a wrong', async () => {
       expect(validERC20Address('0x0000006b4ccb1b6faa2625fe562bdd9a23260359')).toBe(false);
-    });
-  });
-
-  describe('getMainnetErc20FromSymbol', () => {
-    it('get TokenDescription object from SAI string', async () => {
-      expect(getMainnetErc20FromSymbol('SAI')).toEqual({
-        address: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
-        decimals: 18,
-        erc20: true,
-        logo: 'sai.svg',
-        name: 'Sai Stablecoin v1.0',
-        symbol: 'SAI',
-      });
-    });
-  });
-
-  describe('getErc20FromAddress', () => {
-    it('get TokenDescription object from SAI address', async () => {
-      expect(getMainnetErc20FromAddress('0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359')).toEqual({
-        address: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
-        decimals: 18,
-        erc20: true,
-        logo: 'sai.svg',
-        name: 'Sai Stablecoin v1.0',
-        symbol: 'SAI',
-      });
     });
   });
 
@@ -70,6 +42,31 @@ describe('api/currency/erc20', () => {
           value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
         }),
       ).toEqual('CUSD');
+    });
+    it('cannot get the symbol for not ERC20 type', () => {
+      expect(
+        () => getErc20Symbol({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+        }),
+      ).toThrow('Can only get symbol for ERC20 currencies');
+    });
+    it('cannot get the symbol for unknown ERC20', () => {
+      expect(
+        getErc20Symbol({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x1111111111111111111111111111111111111111',
+        }),
+      ).toEqual(null);
+    });
+    it('cannot get the symbol for unknown network', () => {
+      expect(
+        getErc20Symbol({
+          network: 'unknown',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x1111111111111111111111111111111111111111',
+        }),
+      ).toEqual(null);
     });
   });
 });

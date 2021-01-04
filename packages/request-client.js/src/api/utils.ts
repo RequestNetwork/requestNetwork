@@ -1,6 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { getDecimalsForCurrency } from './currency';
+import { getDecimalsForCurrency } from '@requestnetwork/currency';
 /**
  * Collection of utils functions related to the library, meant to simplify its use.
  */

@@ -1796,27 +1796,40 @@ describe('index', () => {
       expect(data.extensionsData[0].parameters.salt.length).toBe(16);
     });
 
-    it.only('can create ERC20 requests with conversion proxy fees', async () => {
+    // TODO TODO TODO ! test integration for conversion fees proxy
+    it.skip('can create ERC20 requests with conversion proxy fees', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.CONVERSION_FEE_PROXY_CONTRACT,
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+
+          feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+          feeAmount: '100',
+
+          tokensAccepted: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
+          network: 'private',
+
+          // No timespan
+          maxRateTimespan: 0,
         },
       };
 
-      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+      const requestInfo = {
         currency: {
-          network: 'private',
-          type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x9FBDa871d559710256a2502A2517b794B482Db40',
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'EUR',
         },
-      });
+        expectedAmount: '10000',
+        payee: TestData.payee.identity,
+        payer: TestData.payer.identity,
+        timestamp: TestData.arbitraryTimestamp,
+      };
 
       const request = await requestNetwork.createRequest({
         paymentNetwork,
@@ -1826,8 +1839,7 @@ describe('index', () => {
 
       await new Promise((resolve): any => setTimeout(resolve, 150));
       const data = await request.refresh();
-      console.log('data')
-      console.log(data.extensions['pn-any-conversion-fee-proxy-contract'])
+
       expect(data.extensionsData[0].parameters.salt.length).toBe(16);
     });
   });

@@ -3,9 +3,10 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import {
   currencyToString,
   getAllSupportedCurrencies,
+  getCurrencyHash,
   getDecimalsForCurrency,
   stringToCurrency,
-} from '../../src/api/currency';
+} from '../src';
 
 describe('api/currency', () => {
   describe('getAllSupportedCurrencies', () => {
@@ -40,6 +41,16 @@ describe('api/currency', () => {
         decimals: 18,
         name: 'Celo Dollar',
         symbol: 'CUSD-celo',
+      });
+    });
+
+    it('returns INDA', () => {
+      // console.log(getAllSupportedCurrencies().ERC20);
+      expect(getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'INDA')).toEqual({
+        address: '0x433d86336dB759855A66cCAbe4338313a8A7fc77',
+        decimals: 2,
+        name: 'Indacoin',
+        symbol: 'INDA',
       });
     });
 
@@ -102,6 +113,25 @@ describe('api/currency', () => {
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x765DE816845861e75A25fCA122bb6898B8B1282a', // Celo Dollar
       })).toEqual(18);
+    });
+
+    it('return the correct currency for USD and EUR strings', () => {
+      expect(getDecimalsForCurrency({
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'USD',
+      })).toEqual(2);
+
+      expect(getDecimalsForCurrency({
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'EUR',
+      })).toEqual(2);
+    });
+
+    it('throws for unknown ISO4217 currency', () => {
+      expect(() => getDecimalsForCurrency({
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'YOYO',
+      })).toThrow(`Unsupported ISO currency YOYO`);
     });
   });
 
@@ -186,6 +216,10 @@ describe('api/currency', () => {
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
       });
+    });
+
+    it('throws for empty string', () => {
+      expect(() => stringToCurrency('')).toThrow(`Currency string can't be empty.`);
     });
   });
 
@@ -286,6 +320,63 @@ describe('api/currency', () => {
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
       })).toEqual('unknown');
+    });
+
+    it('return default if type unkown', () => {
+      expect(currencyToString({
+        type: 'unknown' as RequestLogicTypes.CURRENCY,
+        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+      })).toEqual('unknown');
+    });
+  });
+
+  describe('getCurrencyHash', () => {
+    const ethDefault: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ETH, value:'eth'};
+    const ethMainnet: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ETH, value:'eth', network:'mainnet'};
+    const ethRinkeby: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ETH, value:'eth', network:'rinkeby'};
+
+    const btcDefault: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.BTC, value:'btc'};
+    const btcMainnet: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.BTC, value:'btc', network:'mainnet'};
+    const btcRinkeby: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.BTC, value:'btc', network:'testnet'};
+
+    const USD: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' };
+    const EUR: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ISO4217, value: 'EUR' };
+
+    const DAI: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ERC20, value:'0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35'};
+
+    describe('ETH currency hash', () => {
+      it('can get currency hash of eth', () => {
+        const ethAddressHash = '0xf5af88e117747e87fc5929f2ff87221b1447652e';
+
+        expect(getCurrencyHash(ethDefault)).toBe(ethAddressHash);
+        expect(getCurrencyHash(ethMainnet)).toBe(ethAddressHash);
+        expect(getCurrencyHash(ethRinkeby)).toBe(ethAddressHash);
+      });
+    });
+
+    describe('BTC currency hash', () => {
+      it('can get currency hash of BTC', () => {
+        const btcAddressHash = '0x03049758a18d1589388d7a74fb71c3fcce11d286';
+
+        expect(getCurrencyHash(btcDefault)).toBe(btcAddressHash);
+        expect(getCurrencyHash(btcMainnet)).toBe(btcAddressHash);
+        expect(getCurrencyHash(btcRinkeby)).toBe(btcAddressHash);
+      });
+    });
+
+    describe('FIAT currency hash', () => {
+      it('can get currency hash of USD', () => {
+        expect(getCurrencyHash(USD)).toBe('0x775eb53d00dd0acd3ec1696472105d579b9b386b');
+      });
+      it('can get currency hash of EUR', () => {
+        expect(getCurrencyHash(EUR)).toBe('0x17b4158805772ced11225e77339f90beb5aae968');
+      });
+    });
+
+    describe('ERC20 currency hash', () => {
+      it('can get currency hash of ERC20', () => {
+        expect(getCurrencyHash(DAI)).toBe('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
+      });
     });
   });
 });
