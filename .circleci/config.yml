@@ -521,7 +521,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/integration-test run test:scheduled'
 
   # Release a next version package everytime we merge to master
-  release:
+  next-release:
     docker:
       - *node_image
     working_directory: *working_directory
@@ -529,11 +529,39 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
+          name: 'Allow github ssh host'
+          command: mkdir ~/.ssh; echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==' >> ~/.ssh/known_hosts
+      - run:
           name: 'Build all'
           command: 'yarn clean && yarn build'
       - run:
+          name: 'Authenticate with registry'
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: 'Get updated packages'
+          command: >
+            export FORCE_PUBLISH=$(
+              node -p "
+                const a = process.argv[1] ? JSON.parse(process.argv[1]):[]; 
+                const list = a
+                  .map(({name}) => name).join(','); 
+                  list ? '--force-publish=' + list : ''" 
+              "$($(yarn bin)/lerna changed --json)"
+            )
+      - run:
           name: 'publish'
-          command: 'yarn release'
+          command: >
+            $(yarn bin)/lerna publish 
+              --conventional-commits 
+              --conventional-prerelease 
+              --exact 
+              --canary 
+              --no-git-tag-version 
+              --no-push 
+              --preid next 
+              --dist-tag next 
+              --yes
+              ${FORCE_PUBLISH}
 
 workflows:
   version: 2
@@ -627,8 +655,8 @@ workflows:
             - test-payment-detection
             - test-payment-processor
 
-      # Publish when changes are made to master (prerelease) or release (main release) branches
-      - release:
+      # Release a next version package everytime we merge to master
+      - next-release:
           requires:
             - test-advanced-logic
             - test-data-access
@@ -653,7 +681,6 @@ workflows:
             branches:
               only:
                 - master
-                - release
 
   nightly:
     triggers:

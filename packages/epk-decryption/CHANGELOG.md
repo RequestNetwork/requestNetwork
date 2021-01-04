@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.26](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/epk-decryption@0.3.24...@requestnetwork/epk-decryption@0.3.26) (2020-12-22)
+
+**Note:** Version bump only for package @requestnetwork/epk-decryption
+
+
+
+
+
+## [0.3.25](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/epk-decryption@0.3.24...@requestnetwork/epk-decryption@0.3.25) (2020-12-21)
+
+**Note:** Version bump only for package @requestnetwork/epk-decryption
+
+
+
+
+
 ## [0.3.24](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/epk-decryption@0.3.3...@requestnetwork/epk-decryption@0.3.24) (2020-12-02)
 
 

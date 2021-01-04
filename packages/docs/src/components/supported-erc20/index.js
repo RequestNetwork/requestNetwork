@@ -1,5 +1,5 @@
 import React from 'react';
-import contractMap from 'eth-contract-metadata';
+import contractMap from '@metamask/contract-metadata';
 import styles from './styles.module.css';
 
 const tokens = Object.entries(contractMap)

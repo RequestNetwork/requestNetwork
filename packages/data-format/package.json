@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/data-format",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "publishConfig": {
     "access": "public"
   },
@@ -44,18 +44,18 @@
     "tslib": "2.0.1"
   },
   "devDependencies": {
-    "@types/node": "14.6.4",
+    "@types/node": "14.14.16",
     "eslint": "7.9.0",
     "eslint-plugin-spellcheck": "0.0.17",
     "eslint-plugin-typescript": "0.14.0",
     "lint-staged": "10.3.0",
     "nyc": "15.1.0",
-    "prettier": "2.1.1",
+    "prettier": "2.2.1",
     "rimraf": "3.0.2",
     "shx": "0.3.2",
     "ts-node": "9.0.0",
     "tslint": "6.1.3",
-    "typescript": "4.0.2"
+    "typescript": "4.1.3"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

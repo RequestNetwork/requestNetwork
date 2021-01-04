@@ -11,7 +11,7 @@ import {
 } from '@requestnetwork/types';
 // import Utils from '@requestnetwork/utils';
 // import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
-import { encodePayErc20FeeRequest, payConversionErc20FeeProxyRequest } from '../../src/payment/erc20-conversion-fee-proxy';
+import { encodePayConversionErc20FeeRequest, payConversionErc20FeeProxyRequest } from '../../src/payment/erc20-conversion-fee-proxy';
 // import { getRequestPaymentValues } from '../../src/payment/utils';
 // import { bigNumberify } from 'ethers/utils';
 
@@ -44,9 +44,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '10000',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.CONVERSION_FEE_PROXY_CONTRACT]: {
+    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_CONVERSION_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -67,23 +67,25 @@ const validRequest: ClientTypes.IRequestData = {
 };
 
 describe('encodePayErc20FeeRequest', () => {
-  it.only('handles USD to DAI', async () => {
-    const values = await encodePayErc20FeeRequest(validRequest, erc20ContractAddress, wallet);
-    console.log('encodePayErc20FeeRequest values');
-    console.log(values);
-    // expect(values.paymentAddress).toBe(paymentAddress);
-    // expect(values.paymentReference).toBe('86dfbccad783599a');
-  });
+  // TODO TODO TODO
+  // it.skip('handles USD to DAI', async () => {
+  //   const values = await encodePayConversionErc20FeeRequest(validRequest, erc20ContractAddress, wallet);
+  //   console.log('encodePayConversionErc20FeeRequest values');
+  //   console.log(values);
+  //   // expect(values.paymentAddress).toBe(paymentAddress);
+  //   // expect(values.paymentReference).toBe('86dfbccad783599a');
+  // });
 });
 
 describe('payConversionErc20FeeProxyRequest', () => {
-  it.only('handles USD to DAI', async () => {
-    const values = await payConversionErc20FeeProxyRequest(validRequest, erc20ContractAddress, wallet);
-    console.log('payConversionErc20FeeProxyRequest values');
-    console.log(values);
-    // expect(values.paymentAddress).toBe(paymentAddress);
-    // expect(values.paymentReference).toBe('86dfbccad783599a');
-  });
+  // TODO TODO TODO
+  // it.skip('handles USD to DAI', async () => {
+  //   const values = await payConversionErc20FeeProxyRequest(validRequest, erc20ContractAddress, wallet);
+  //   console.log('payConversionErc20FeeProxyRequest values');
+  //   console.log(values);
+  //   // expect(values.paymentAddress).toBe(paymentAddress);
+  //   // expect(values.paymentReference).toBe('86dfbccad783599a');
+  // });
 });
 
 // describe('payErc20ProxyRequest', () => {

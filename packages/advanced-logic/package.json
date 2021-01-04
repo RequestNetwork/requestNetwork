@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/advanced-logic",
-  "version": "0.27.0",
+  "version": "0.27.2",
   "publishConfig": {
     "access": "public"
   },
@@ -39,8 +39,9 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.29.0",
-    "@requestnetwork/utils": "0.28.0",
+    "@requestnetwork/types": "0.29.2",
+    "@requestnetwork/utils": "0.28.2",
+    "@types/node": "14.14.16",
     "lodash": "4.17.20",
     "wallet-address-validator": "0.2.4"
   },
@@ -54,12 +55,12 @@
     "jest": "26.4.2",
     "lint-staged": "10.3.0",
     "nyc": "15.1.0",
-    "prettier": "2.1.1",
+    "prettier": "2.2.1",
     "shx": "0.3.2",
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
     "tslint": "6.1.3",
-    "typescript": "4.0.2"
+    "typescript": "4.1.3"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

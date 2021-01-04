@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-logic",
-  "version": "0.26.0",
+  "version": "0.26.2",
   "publishConfig": {
     "access": "public"
   },
@@ -40,15 +40,15 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.27.0",
-    "@requestnetwork/multi-format": "0.15.0",
-    "@requestnetwork/types": "0.29.0",
-    "@requestnetwork/utils": "0.28.0",
+    "@requestnetwork/advanced-logic": "0.27.2",
+    "@requestnetwork/multi-format": "0.15.2",
+    "@requestnetwork/types": "0.29.2",
+    "@requestnetwork/utils": "0.28.2",
     "semver": "5.6.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
-    "@types/semver": "5.5.0",
+    "@types/semver": "7.3.4",
     "@typescript-eslint/parser": "4.1.1",
     "eslint": "7.9.0",
     "eslint-plugin-spellcheck": "0.0.17",
@@ -56,13 +56,13 @@
     "jest": "26.4.2",
     "lint-staged": "10.3.0",
     "nyc": "15.1.0",
-    "prettier": "2.1.1",
+    "prettier": "2.2.1",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
     "tslint": "6.1.3",
-    "typescript": "4.0.2"
+    "typescript": "4.1.3"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

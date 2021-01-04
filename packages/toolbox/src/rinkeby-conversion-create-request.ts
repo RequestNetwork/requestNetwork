@@ -1,20 +1,21 @@
-import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
-import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 // @ts-ignore
 import Utils from '@requestnetwork/utils';
 // @ts-ignore
-import { conversionToPayRequest, approveErc20ForProxyConversionIfNeeded } from '@requestnetwork/payment-processor';
+import {
+  conversionToPayRequest,
+  approveErc20ForProxyConversionIfNeeded,
+} from '@requestnetwork/payment-processor';
 // @ts-ignore
 import { ethers, Wallet, utils } from 'ethers';
-import { RequestLogicTypes } from '@requestnetwork/types';
 
-const mnemonic = 'machine shrug quit tomorrow case extra utility home harvest weather infant enemy gorilla dash vital skull electric ancient clutch punch lumber rare market minor';
+const mnemonic =
+  'machine shrug quit tomorrow case extra utility home harvest weather infant enemy gorilla dash vital skull electric ancient clutch punch lumber rare market minor';
 // @ts-ignore
 const payerAddress = '0xe79923744C3Abd911F9e7C424451AEBDddD76ACf';
 const provider = new ethers.providers.InfuraProvider('rinkeby');
 // @ts-ignore
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
-
+/*
 (async () => {
 
   const signatureProvider = new EthereumPrivateKeySignatureProvider({
@@ -102,8 +103,8 @@ const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
   }
 
   // // USD => token
-  const path = [Utils.currency.getCurrencyHash(data.currencyInfo),
-                Utils.currency.getCurrencyHash({type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD'}),
+  const path = [Currency.getCurrencyHash(data.currencyInfo),
+                Currency.getCurrencyHash({type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD'}),
                 fauTokenAddress];
 
   const maxToSpend = new utils.BigNumber(2).pow(255);
@@ -125,6 +126,4 @@ const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
   console.log(data.balance!.events)
 
 })();
-
-
-
+*/
