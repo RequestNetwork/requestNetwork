@@ -6,7 +6,7 @@
     "resolveJsonModule": true
   },
   "include": ["./src/**/*", "./artifacts/**/*"],
-  "references": [{ "path": "../utils" }],
+  "references": [{ "path": "../currency" }, { "path": "../utils" }],
   "files": [
     "./artifacts/ERC20Proxy/artifacts.json",
     "./artifacts/ERC20Proxy/0.1.0.json",
