@@ -1,4 +1,4 @@
-const Utils = require('@requestnetwork/utils').default;
+const Currency = require('@requestnetwork/currency').default;
 const AggDAI_USD = artifacts.require("AggDaiUsd.sol");
 const AggETH_USD = artifacts.require("AggEthUsd");
 const AggEUR_USD = artifacts.require("AggEurUsd");
@@ -19,10 +19,10 @@ module.exports = async function(deployer) {
   await deployer.deploy(USDT_fake);
 
   // all these addresses are for test purposes
-  const ETH_address = Utils.currency.getCurrencyHash({type: 'ETH', value:'ETH'});
-  const USD_address = Utils.currency.getCurrencyHash({type: 'ISO4217', value: 'USD' });
-  const EUR_address = Utils.currency.getCurrencyHash({type: 'ISO4217', value: 'EUR' });
-  const DAI_address = Utils.currency.getCurrencyHash({type: 'ERC20', value:'0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35'});
+  const ETH_address = Currency.getCurrencyHash({type: 'ETH', value:'ETH'});
+  const USD_address = Currency.getCurrencyHash({type: 'ISO4217', value: 'USD' });
+  const EUR_address = Currency.getCurrencyHash({type: 'ISO4217', value: 'EUR' });
+  const DAI_address = Currency.getCurrencyHash({type: 'ERC20', value:'0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35'});
   const USDT_address = USDT_fake.address;
 
   const conversionPathInstance = await deployer.deploy(ChainlinkConversionPath);
