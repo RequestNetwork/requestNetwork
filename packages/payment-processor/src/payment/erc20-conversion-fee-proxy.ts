@@ -36,7 +36,15 @@ export async function payConversionErc20FeeProxyRequest(
   network: string = 'mainnet',
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = await encodePayConversionErc20FeeRequest(request, path, maxToSpend, signerOrProvider, amount, feeAmount, network);
+  const encodedTx = await encodePayConversionErc20FeeRequest(
+    request,
+    path,
+    maxToSpend,
+    signerOrProvider,
+    amount,
+    feeAmount,
+    network,
+  );
   const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
   const signer = getSigner(signerOrProvider);
 
@@ -71,17 +79,24 @@ export async function encodePayConversionErc20FeeRequest(
   validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
   const signer = getSigner(signerOrProvider);
-  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } = getRequestPaymentValues(
-    request,
-  );
+  const {
+    paymentReference,
+    paymentAddress,
+    feeAddress,
+    feeAmount,
+    maxRateTimespan,
+  } = getRequestPaymentValues(request);
   // get the conversion path
   // TODO: Compute the path automatically
   // const path = getConversionPath(request.currencyInfo, tokenAddress);
 
   // TODO decimal automatically computed
-  const amountToPay = getAmountToPay(request, amount).mul(10**6);
+  // tslint:disable-next-line:no-magic-numbers
+  const amountToPay = getAmountToPay(request, amount).mul(10 ** 6);
+
   // TODO decimal automatically computed
-  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0).mul(10**6);;
+  // tslint:disable-next-line:no-magic-numbers
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0).mul(10 ** 6);
   const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
   const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);
 
@@ -117,4 +132,3 @@ export async function encodePayConversionErc20FeeRequest(
 // ): string[] {
 //   return [Utils.currency.getCurrencyHash(requestCurrency), tokenAddress];
 // }
-
