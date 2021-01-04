@@ -14650,11 +14650,6 @@ opener@^1.5.1, opener@^1.5.2:
   resolved "https://registry.yarnpkg.com/opener/-/opener-1.5.2.tgz#5d37e1f35077b9dcac4301372271afdeb2a13598"
   integrity sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==
 
-openzeppelin-solidity@3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/openzeppelin-solidity/-/openzeppelin-solidity-3.3.0.tgz#20844436e84fa2d76ffe8c8ff7613acbfe6132c8"
-  integrity sha512-hTgOBwCGxJEn6KnNaSzCKYT72aw84VpBl9AuZSLqpxFoQIr0ST/06M2jTVlv+YEQu2q4kq+1GU8CaTBmOotrgA==
-
 opn@^5.5.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/opn/-/opn-5.5.0.tgz#fc7164fab56d235904c51c3b27da6758ca3b9bfc"
