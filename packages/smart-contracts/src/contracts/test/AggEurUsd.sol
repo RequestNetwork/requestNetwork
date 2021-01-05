@@ -12,7 +12,8 @@ contract AggEurUsd {
   }
 
   function latestTimestamp() external view returns (uint256) {
-    return block.timestamp;
+    // one minute old
+    return block.timestamp - 60;
   }
 
 }

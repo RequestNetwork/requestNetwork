@@ -2,7 +2,10 @@ const ethers = require('ethers');
 
 const Utils = require('@requestnetwork/utils').default;
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
+const chai = require('chai');
+chai.use(require('chai-as-promised'));
+const expect = chai.expect;
+
 const { bigNumberify } = require('ethers/utils');
 
 const TestERC20 = artifacts.require('./TestERC20.sol');
@@ -22,7 +25,7 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
   const hundredWith18Decimal = '100000000000000000000';
   const referenceExample = '0xaaaa';
 
-  const ETH_address = "0x0000000000000000000000000000000000000000";
+  const ETH_address = "0xF5AF88e117747e87fC5929F2ff87221B1447652E";
   const USD_address = "0x775EB53d00DD0Acd3EC1696472105d579B9b386b"; // Utils.crypto.last20bytesOfNormalizeKeccak256Hash({type: 'ISO4217', value: 'USD' });
   const EUR_address = "0x17B4158805772Ced11225E77339F90BeB5aAE968"; // Utils.crypto.last20bytesOfNormalizeKeccak256Hash({type: 'ISO4217', value: 'EUR' });
   const DAI_address = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -31,68 +34,6 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
   let testERC20;
   let erc20FeeProxy;
   let chainlinkConversionPath;
-
-  async function testTransferWithReference(path) {
-    await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, { from });
-  
-    const fromOldBalance = await testERC20.balanceOf(from);
-    const toOldBalance = await testERC20.balanceOf(to);
-    const feeOldBalance = await testERC20.balanceOf(feeAddress);
-  
-    const conversionToPay = await chainlinkConversionPath.getConversion(
-      smallAmountInFIAT,
-      path
-    );
-  
-    const conversionFees = await chainlinkConversionPath.getConversion(
-      smallerAmountInFIAT,
-      path
-    );
-      console.log(await testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
-        to,
-        smallAmountInFIAT,
-        path,
-        referenceExample,
-        smallerAmountInFIAT,
-        feeAddress,
-        hundredWith18Decimal,
-        { from },
-      ));
-    const { logs } = await testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
-      to,
-      smallAmountInFIAT,
-      path,
-      referenceExample,
-      smallerAmountInFIAT,
-      feeAddress,
-      hundredWith18Decimal,
-      { from },
-    );
-   
-    expectEvent.inLogs(logs, 'TransferWithReferenceAndFee', {
-      paymentCurrency: path[path.length-1],
-      to,
-      requestAmount: smallAmountInFIAT,
-      requestCurrency: path[0],
-      paymentReference: ethers.utils.keccak256(referenceExample),
-      feesRequestAmount: smallerAmountInFIAT,
-      feesTo: feeAddress
-    });
-  
-  
-    const fromNewBalance = await testERC20.balanceOf(from);
-    const toNewBalance = await testERC20.balanceOf(to);
-    const feeNewBalance = await testERC20.balanceOf(feeAddress);
-  
-    const fromDiffBalance = bigNumberify(fromNewBalance.toString()).sub(fromOldBalance.toString()).toString();
-    const toDiffBalance = bigNumberify(toNewBalance.toString()).sub(toOldBalance.toString()).toString();
-    const feeDiffBalance = bigNumberify(feeNewBalance.toString()).sub(feeOldBalance.toString()).toString();
-  
-    // Check balance changes
-    expect(fromDiffBalance.toString()).to.equals('-' + bigNumberify(conversionToPay.result.toString()).add(conversionFees.result.toString()));
-    expect(toDiffBalance).to.equals(conversionToPay.result.toString());
-    expect(feeDiffBalance).to.equals(conversionFees.result.toString());
-  }
 
   beforeEach(async () => {
     testERC20 = await TestERC20.at('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
@@ -109,4 +50,180 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
 
   });
 
+  describe('transferFromWithReferenceAndFee', () => {
+    describe('transferFromWithReferenceAndFee with DAI', () => {
+      it('allows to transfer DAI tokens for USD payment', async function () {
+        const path = [USD_address, DAI_address];
+        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, { from });
+
+        const fromOldBalance = await testERC20.balanceOf(from);
+        const toOldBalance = await testERC20.balanceOf(to);
+        const feeOldBalance = await testERC20.balanceOf(feeAddress);
+        const conversionToPay = await chainlinkConversionPath.getConversion(
+          smallAmountInFIAT,
+          path
+        );
+        const conversionFees = await chainlinkConversionPath.getConversion(
+          smallerAmountInFIAT,
+          path
+        );
+    
+        const { logs } = await testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+          to,
+          smallAmountInFIAT,
+          path,
+          referenceExample,
+          smallerAmountInFIAT,
+          feeAddress,
+          hundredWith18Decimal,
+          0,
+          { from },
+        );
+       
+        expectEvent.inLogs(logs, 'TransferWithReferenceAndFee', {
+          paymentCurrency: path[path.length-1],
+          to,
+          requestAmount: smallAmountInFIAT,
+          requestCurrency: path[0],
+          paymentReference: ethers.utils.keccak256(referenceExample),
+          feesRequestAmount: smallerAmountInFIAT,
+          feesTo: feeAddress,
+          maxRateTimespan: "0",
+        });
+      
+      
+        const fromNewBalance = await testERC20.balanceOf(from);
+        const toNewBalance = await testERC20.balanceOf(to);
+        const feeNewBalance = await testERC20.balanceOf(feeAddress);
+      
+        const fromDiffBalance = bigNumberify(fromNewBalance.toString()).sub(fromOldBalance.toString()).toString();
+        const toDiffBalance = bigNumberify(toNewBalance.toString()).sub(toOldBalance.toString()).toString();
+        const feeDiffBalance = bigNumberify(feeNewBalance.toString()).sub(feeOldBalance.toString()).toString();
+      
+        // Check balance changes
+        expect(fromDiffBalance.toString()).to.equals('-' + bigNumberify(conversionToPay.result.toString()).add(conversionFees.result.toString()));
+        expect(toDiffBalance).to.equals(conversionToPay.result.toString());
+        expect(feeDiffBalance).to.equals(conversionFees.result.toString());
+      });
+      it('allows to transfer DAI tokens for EUR payment', async function () {
+        const path = [EUR_address, USD_address, DAI_address];
+        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, { from });
+
+        const fromOldBalance = await testERC20.balanceOf(from);
+        const toOldBalance = await testERC20.balanceOf(to);
+        const feeOldBalance = await testERC20.balanceOf(feeAddress);
+        const conversionToPay = await chainlinkConversionPath.getConversion(
+          smallAmountInFIAT,
+          path
+        );
+        const conversionFees = await chainlinkConversionPath.getConversion(
+          smallerAmountInFIAT,
+          path
+        );
+    
+        const { logs } = await testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+          to,
+          smallAmountInFIAT,
+          path,
+          referenceExample,
+          smallerAmountInFIAT,
+          feeAddress,
+          hundredWith18Decimal,
+          0,
+          { from },
+        );
+       
+        expectEvent.inLogs(logs, 'TransferWithReferenceAndFee', {
+          paymentCurrency: path[path.length-1],
+          to,
+          requestAmount: smallAmountInFIAT,
+          requestCurrency: path[0],
+          paymentReference: ethers.utils.keccak256(referenceExample),
+          feesRequestAmount: smallerAmountInFIAT,
+          feesTo: feeAddress,
+          maxRateTimespan: "0",
+        });
+      
+      
+        const fromNewBalance = await testERC20.balanceOf(from);
+        const toNewBalance = await testERC20.balanceOf(to);
+        const feeNewBalance = await testERC20.balanceOf(feeAddress);
+      
+        const fromDiffBalance = bigNumberify(fromNewBalance.toString()).sub(fromOldBalance.toString()).toString();
+        const toDiffBalance = bigNumberify(toNewBalance.toString()).sub(toOldBalance.toString()).toString();
+        const feeDiffBalance = bigNumberify(feeNewBalance.toString()).sub(feeOldBalance.toString()).toString();
+      
+        // Check balance changes
+        expect(fromDiffBalance.toString()).to.equals('-' + bigNumberify(conversionToPay.result.toString()).add(conversionFees.result.toString()));
+        expect(toDiffBalance).to.equals(conversionToPay.result.toString());
+        expect(feeDiffBalance).to.equals(conversionFees.result.toString());
+      });
+    });
+
+    describe('transferFromWithReferenceAndFee with errors', () => {
+      it('cannot transfer with no approval', async function () {
+        const path = [USD_address, DAI_address];  
+
+        await expect(testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+          to,
+          smallAmountInFIAT,
+          path,
+          referenceExample,
+          smallerAmountInFIAT,
+          feeAddress,
+          hundredWith18Decimal,
+          0,
+          { from },
+        )).to.eventually.rejectedWith();
+      });
+      it('cannot transfer with invalid path', async function () {
+        const path = [EUR_address, ETH_address, DAI_address];  
+        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, { from });
+
+        await expect(testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+          to,
+          smallAmountInFIAT,
+          path,
+          referenceExample,
+          smallerAmountInFIAT,
+          feeAddress,
+          hundredWith18Decimal,
+          0,
+          { from },
+        )).to.eventually.rejectedWith();
+      });
+      it('cannot transfer if max to spend too low', async function () {
+        const path = [USD_address, DAI_address];  
+        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, { from });
+
+        await expect(testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+          to,
+          smallAmountInFIAT,
+          path,
+          referenceExample,
+          smallerAmountInFIAT,
+          feeAddress,
+          100,
+          0,
+          { from },
+        )).to.eventually.rejectedWith();
+      });
+      it('cannot transfer if rate is too old', async function () {
+        const path = [USD_address, DAI_address];  
+        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, { from });
+
+        await expect(testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+          to,
+          smallAmountInFIAT,
+          path,
+          referenceExample,
+          smallerAmountInFIAT,
+          feeAddress,
+          hundredWith18Decimal,
+          10, // ten secondes
+          { from },
+        )).to.eventually.rejectedWith();
+      });
+    });
+  });
 });
