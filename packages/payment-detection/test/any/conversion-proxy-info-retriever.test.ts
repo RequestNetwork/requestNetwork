@@ -1,6 +1,6 @@
 // tslint:disable: no-invalid-this
 // tslint:disable: no-magic-numbers
-import { PaymentTypes } from '@requestnetwork/types';
+import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ConversionProxyERC20InfoRetriever from '../../src/any/conversion-proxy-info-retriever';
 import { ethers } from 'ethers';
 
@@ -18,6 +18,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
 
     it('can get the localhost balance of an address', async () => {
       const infoRetriever = new ConversionProxyERC20InfoRetriever(
+        {type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD'},
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,
@@ -98,6 +99,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
 
     it('gets an empty list of events for an address without ERC20 on localhost', async () => {
       const infoRetriever = new ConversionProxyERC20InfoRetriever(
+        {type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD'},
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,

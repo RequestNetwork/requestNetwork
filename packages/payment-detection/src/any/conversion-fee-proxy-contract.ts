@@ -110,7 +110,8 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT;
+    const paymentNetworkId =
+      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT;
     const paymentNetwork = request.extensions[paymentNetworkId];
 
     if (!paymentNetwork) {
@@ -214,8 +215,10 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
       );
     }
 
-    const conversionProxyContractAddress: string | undefined = conversionDeploymentInformation.address;
-    const conversionProxyCreationBlockNumber: number = conversionDeploymentInformation.creationBlockNumber;
+    const conversionProxyContractAddress: string | undefined =
+      conversionDeploymentInformation.address;
+    const conversionProxyCreationBlockNumber: number =
+      conversionDeploymentInformation.creationBlockNumber;
 
     const erc20FeeDeploymentInformation = proxyChainlinkConversionPath.getDeploymentInformation(
       network,
@@ -229,9 +232,10 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
     }
 
     const erc20FeeProxyContractAddress: string | undefined = erc20FeeDeploymentInformation.address;
-    const erc20FeeProxyCreationBlockNumber: number = erc20FeeDeploymentInformation.creationBlockNumber;
+    const erc20FeeProxyCreationBlockNumber: number =
+      erc20FeeDeploymentInformation.creationBlockNumber;
 
-    if (!erc20FeeProxyContractAddress || !conversionProxyContractAddress) {
+    if (!erc20FeeProxyContractAddress || !conversionProxyContractAddress) {
       throw new NetworkNotSupported(
         `Network not supported for this payment network: ${request.currency.network}`,
       );
@@ -244,6 +248,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
     );
 
     const infoRetriever = new ProxyInfoRetriever(
+      request.currency,
       paymentReference,
       conversionProxyContractAddress,
       conversionProxyCreationBlockNumber,
@@ -276,7 +281,10 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
    * @param feeAddress The fee address the extracted fees will be paid to
    * @param paymentEvents The payment events to extract fees from
    */
-  public extractFeeAndEvents(feeAddress: string, paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[]): PaymentTypes.IBalanceWithEvents {
+  public extractFeeAndEvents(
+    feeAddress: string,
+    paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[],
+  ): PaymentTypes.IBalanceWithEvents {
     if (!feeAddress) {
       return {
         balance: '0',
@@ -289,7 +297,6 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
         feeBalance: PaymentTypes.IBalanceWithEvents,
         event: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>,
       ): PaymentTypes.IBalanceWithEvents => {
-
         // Skip if feeAddress or feeAmount are not set, or if feeAddress doesn't match the PN one
         if (
           !event.parameters?.feeAddress ||
@@ -300,13 +307,15 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
         }
 
         feeBalance = {
-          balance: new bigNumber(feeBalance.balance).add(new bigNumber(event.parameters.feeAmount)).toString(),
-          events: [... feeBalance.events, event],
+          balance: new bigNumber(feeBalance.balance)
+            .add(new bigNumber(event.parameters.feeAmount))
+            .toString(),
+          events: [...feeBalance.events, event],
         };
 
         return feeBalance;
       },
-      { balance: '0', events: []},
+      { balance: '0', events: [] },
     );
   }
 }
