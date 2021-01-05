@@ -126,9 +126,8 @@ export default class ProxyERC20InfoRetriever
       )
       // Creates the balance events
       .map(async (t) => {
-        const chainlinkDecimalNumber = 8;
-        const decimalPadding =
-          chainlinkDecimalNumber - getDecimalsForCurrency(this.requestCurrency);
+        const chainlinkDecimal = 8;
+        const decimalPadding = chainlinkDecimal - getDecimalsForCurrency(this.requestCurrency);
 
         const amountWithRightDecimal = ethers.utils
           .bigNumberify(t.parsedLog.values.requestAmount.toString())
