@@ -109,18 +109,4 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
 
   });
 
-  describe('transferFromWithReferenceAndFee', () => {
-    describe.only('transferFromWithReferenceAndFee with USD', () => {
-      it('allows to transfer DAI tokens for USD payment', async function () {
-        await testTransferWithReference([USD_address, DAI_address]);
-      });
-    });
-
-    describe('transferFromWithReferenceAndFee with EUR', () => {
-      it('allows to transfer DAI tokens for EUR payment', async function () {
-        await testTransferWithReference([EUR_address, USD_address, DAI_address]);
-      });
-    });
-
-  });
 });

@@ -8,7 +8,7 @@ contract AggUsdtEth {
   }
 
   function latestAnswer() external pure returns (int256) {
-    return 2089740481186284;
+    return 2000000000000000;
   }
 
   function latestTimestamp() external view returns (uint256) {

@@ -191,8 +191,8 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   {
     // by default we assume it is FIAT so 8 decimals
     decimals = 8;
-    // if address is 0, then it's ETH
-    if (_addr == address(0x0)) {
+    // if address is the hash of the ETH currency
+    if (_addr == address(0xF5AF88e117747e87fC5929F2ff87221B1447652E)) {
       decimals = 18;
     } else if (isContract(_addr)) {
       // otherwise, we get the decimals from the erc20 directly
