@@ -2,6 +2,7 @@ import { constants, ContractTransaction, Signer } from 'ethers';
 import { Web3Provider } from 'ethers/providers';
 import { bigNumberify, BigNumberish } from 'ethers/utils';
 
+import { getDecimalsForCurrency } from '@requestnetwork/currency';
 import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
 import { ClientTypes } from '@requestnetwork/types';
 
@@ -90,13 +91,14 @@ export async function encodePayConversionErc20FeeRequest(
   // TODO: Compute the path automatically
   // const path = getConversionPath(request.currencyInfo, tokenAddress);
 
-  // TODO decimal automatically computed
-  // tslint:disable-next-line:no-magic-numbers
-  const amountToPay = getAmountToPay(request, amount).mul(10 ** 6);
+  const chainlinkDecimal = 8;
+  const decimalPadding = chainlinkDecimal - getDecimalsForCurrency(request.currencyInfo);
 
-  // TODO decimal automatically computed
   // tslint:disable-next-line:no-magic-numbers
-  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0).mul(10 ** 6);
+  const amountToPay = getAmountToPay(request, amount).mul(10 ** decimalPadding);
+
+  // tslint:disable-next-line:no-magic-numbers
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0).mul(10 ** decimalPadding);
   const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
   const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);
 
