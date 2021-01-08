@@ -188,9 +188,9 @@ describe('swap-erc20-fee-proxy', () => {
 
       // Check each balance
       expect(bigNumberify(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
-      expect(bigNumberify(balanceAlphaAfter).toNumber()).toEqual(bigNumberify(balanceAlphaBefore).sub(204).toNumber());
-      expect(bigNumberify(issuerBalanceErc20After).toNumber()).toEqual(bigNumberify(issuerBalanceErc20Before).add(100).toNumber());
-      expect(bigNumberify(feeBalanceErc20After).toNumber()).toEqual(bigNumberify(feeBalanceErc20Before).add(2).toNumber());
+      expect(bigNumberify(balanceAlphaAfter).toString()).toEqual(bigNumberify(balanceAlphaBefore).sub(204).toString());
+      expect(bigNumberify(issuerBalanceErc20After).toString()).toEqual(bigNumberify(issuerBalanceErc20Before).add(100).toString());
+      expect(bigNumberify(feeBalanceErc20After).toString()).toEqual(bigNumberify(feeBalanceErc20Before).add(2).toString());
     });
   });
 });

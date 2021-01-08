@@ -90,12 +90,12 @@ export function getRequestPaymentValues(
   feeAddress?: string;
   tokensAccepted?: string[];
   maxRateTimespan?: string;
+  network?: string;
 } {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
     throw new Error('no payment network found');
   }
-
   const {
     paymentAddress,
     salt,
@@ -103,6 +103,7 @@ export function getRequestPaymentValues(
     feeAddress,
     tokensAccepted,
     maxRateTimespan,
+    network,
   } = extension.values;
   const paymentReference = PaymentReferenceCalculator.calculate(
     request.requestId,
@@ -116,6 +117,7 @@ export function getRequestPaymentValues(
     feeAddress,
     tokensAccepted,
     maxRateTimespan,
+    network,
   };
 }
 
