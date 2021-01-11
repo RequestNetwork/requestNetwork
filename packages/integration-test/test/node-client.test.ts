@@ -14,7 +14,6 @@ import { Wallet, utils } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-// const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const provider = new JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
