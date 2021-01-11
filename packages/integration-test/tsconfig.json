@@ -15,6 +15,8 @@
     { "path": "../request-logic" },
     { "path": "../transaction-manager" },
     { "path": "../payment-processor" },
-    { "path": "../types" }
+    { "path": "../types" },
+    { "path": "../currency" },
+
   ]
 }

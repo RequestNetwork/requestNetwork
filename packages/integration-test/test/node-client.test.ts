@@ -4,7 +4,11 @@ import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { conversionToPayRequest, approveErc20ForProxyConversionIfNeeded } from '@requestnetwork/payment-processor';
+import Currency from '@requestnetwork/currency';
+import {
+  conversionToPayRequest,
+  approveErc20ForProxyConversionIfNeeded,
+} from '@requestnetwork/payment-processor';
 
 import { Wallet, utils } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
@@ -541,7 +545,7 @@ describe('ERC20 localhost request creation and detection test', () => {
 });
 
 describe('ERC20 localhost request creation and detection test', () => {
-  it.only('can create ERC20 requests with conversion proxy fees', async () => {
+  it('can create ERC20 requests with conversion proxy fees', async () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
@@ -550,7 +554,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.CONVERSION_FEE_PROXY_CONTRACT,
+      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
@@ -569,25 +573,39 @@ describe('ERC20 localhost request creation and detection test', () => {
     });
 
     let data = await request.refresh();
-    console.log('data')
-    console.log(data.balance)
+    expect(data.balance).toBeNull();
 
-    const approval = await approveErc20ForProxyConversionIfNeeded(data, payerIdentity.value, tokenContractAddress, wallet, '10000000000');
-    if(approval) {
+    const approval = await approveErc20ForProxyConversionIfNeeded(
+      data,
+      payerIdentity.value,
+      tokenContractAddress,
+      wallet,
+      '10000000000',
+    );
+    if (approval) {
       await approval.wait();
     }
 
     // USD => token
-    const path = [Utils.currency.getCurrencyHash(data.currencyInfo), tokenContractAddress];
+    const path = [Currency.getCurrencyHash(data.currencyInfo), tokenContractAddress];
     const maxToSpend = new utils.BigNumber(2).pow(255);
     const paymentTx = await conversionToPayRequest(data, path, maxToSpend, wallet);
     await paymentTx.wait();
 
     data = await request.refresh();
-    // console.log('data.balance 2')
-    console.log(data.balance)
-    console.log(data.balance!.events)
 
-    await new Promise((resolve): any => setTimeout(resolve, 1000));
+    expect(data.balance?.balance).toBe('1000');
+    expect(data.balance?.events.length).toBe(1);
+    const event = data.balance?.events[0];
+    expect(event?.amount).toBe('1000');
+    expect(event?.name).toBe('payment');
+
+    expect(event?.parameters?.feeAmount).toBe('200');
+    expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
+    expect(event?.parameters?.feeAmountInCrypto).toBe('9900990099009900990');
+    expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
+    expect(event?.parameters?.tokenAddress).toBe('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
+    expect(event?.parameters?.amountInCrypto).toBe('1980198019801980198');
+    expect(event?.parameters?.maxRateTimespan).toBe('1000000');
   });
 });
