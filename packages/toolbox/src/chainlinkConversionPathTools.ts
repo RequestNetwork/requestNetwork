@@ -4,7 +4,7 @@ import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
 
 // ABI fragment containing AggregatorUpdated event
 const chainlinkConversionPathAbiFragment = [
-  'event AggregatorUpdated(address _input, address _output, address _aggregator)'
+  'event AggregatorUpdated(address _input, address _output, address _aggregator)',
 ];
 
 /**
@@ -31,7 +31,9 @@ class ChainlinkConversionPathTools {
       chainlinkConversionPathAbiFragment,
       this.provider,
     );
-    this.chainlinkConversionPathCreationBlockNumber = chainlinkConversionPath.getCreationBlockNumber(this.network)
+    this.chainlinkConversionPathCreationBlockNumber = chainlinkConversionPath.getCreationBlockNumber(
+      this.network,
+    );
   }
 
   /**
@@ -47,57 +49,62 @@ class ChainlinkConversionPathTools {
     const logs = await this.provider.getLogs(conversionFilter);
 
     // Parses, filters and creates the events from the logs with the payment reference
-    const aggregatorsMaps = logs.reduce((aggregators: Map<string, Map<string, string>>, log: any) => {
+    const aggregatorsMaps = logs.reduce(
+      (aggregators: Map<string, Map<string, string>>, log: any) => {
         const parsedLog = this.contractChainlinkConversionPath.interface.parseLog(log);
 
-        if(parsedLog.values._aggregator === '0x0000000000000000000000000000000000000000') {
+        if (parsedLog.values._aggregator === '0x0000000000000000000000000000000000000000') {
           aggregators.get(parsedLog.values._input)?.delete(parsedLog.values._output);
-          if(aggregators.get(parsedLog.values._input)?.size === 0) {
+          if (aggregators.get(parsedLog.values._input)?.size === 0) {
             aggregators.delete(parsedLog.values._input);
           }
         } else {
-          if(!aggregators.has(parsedLog.values._input)) {
-            aggregators.set(parsedLog.values._input, new Map([[parsedLog.values._output, parsedLog.values._aggregator]]));
+          if (!aggregators.has(parsedLog.values._input)) {
+            aggregators.set(
+              parsedLog.values._input,
+              new Map([[parsedLog.values._output, parsedLog.values._aggregator]]),
+            );
           } else {
-            aggregators.get(parsedLog.values._input)!.set(parsedLog.values._output,parsedLog.values._aggregator);
+            aggregators
+              .get(parsedLog.values._input)!
+              .set(parsedLog.values._output, parsedLog.values._aggregator);
           }
         }
 
         return aggregators;
-      }, new Map());
+      },
+      new Map(),
+    );
 
+    const aggregatorsAsObject: { [key: string]: { [key: string]: string } } = {};
+    aggregatorsMaps.forEach((elemL1: Map<string, string>, keyL1: string) => {
+      aggregatorsAsObject[keyL1.toLocaleLowerCase()] = {};
+      elemL1.forEach((aggregator: string, keyL2: string) => {
+        aggregatorsAsObject[keyL1.toLocaleLowerCase()][keyL2.toLocaleLowerCase()] = aggregator;
+      });
+    });
 
-      const aggregatorsAsObject : {[key: string]: { [key: string]: string}} = {}
-      aggregatorsMaps.forEach((elemL1: Map<string,string>, keyL1: string) => {
-        aggregatorsAsObject[keyL1.toLocaleLowerCase()] = {};
-        elemL1.forEach((aggregator: string, keyL2: string) => {
-          aggregatorsAsObject[keyL1.toLocaleLowerCase()][keyL2.toLocaleLowerCase()] = aggregator;
-        });
-      })
-
-      return aggregatorsAsObject;
+    return aggregatorsAsObject;
   }
-
 }
 
-
+// tslint:disable:no-floating-promises
 (async () => {
-
   const networks = [
     'private',
     'rinkeby',
     // 'mainnet'
-  ]
+  ];
 
   const allAggregator: any = {};
 
-  for(const network of networks) {
+  for (const network of networks) {
     allAggregator[network] = {};
 
     const chainlinkConversionPathTools = new ChainlinkConversionPathTools(network);
     allAggregator[network] = await chainlinkConversionPathTools.getAggregators();
-  };
+  }
 
-
+  // tslint:disable:no-console
   console.log(allAggregator);
 })();

@@ -10,6 +10,7 @@
     { "path": "../epk-signature" },
     { "path": "../request-client.js" },
     { "path": "../types" },
-    { "path": "../payment-processor" }
+    { "path": "../payment-processor" },
+    { "path": "../smart-contracts" }
   ]
 }

@@ -19,6 +19,8 @@
           "aes",
           "aes256cbc",
           "aes256gcm",
+          "aggregator",
+          "aggregators",
           "api",
           "arrayish",
           "arg",
