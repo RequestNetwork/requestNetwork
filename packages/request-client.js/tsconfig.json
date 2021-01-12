@@ -7,6 +7,7 @@
   "include": ["./src/**/*"],
   "references": [
     { "path": "../advanced-logic" },
+    { "path": "../currency" },
     { "path": "../data-access" },
     { "path": "../data-format" },
     { "path": "../epk-signature" },

@@ -1,6 +1,6 @@
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
-import Currency from './api/currency';
+import Currency from '@requestnetwork/currency';
 import Request from './api/request';
 import Utils from './api/utils';
 import { default as RequestNetwork } from './http-request-network';

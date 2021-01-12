@@ -16,8 +16,7 @@ import {
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
-import { stringToCurrency } from './currency';
-import { validERC20Address } from './currency/erc20';
+import { validERC20Address, stringToCurrency } from '@requestnetwork/currency';
 import Request from './request';
 import localUtils from './utils';
 
@@ -374,7 +373,7 @@ export default class RequestNetwork {
       paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-        currency: requestParameters.currency,
+        currency: requestParameters.currency as RequestLogicTypes.ICurrency,
         paymentNetworkCreationParameters,
       });
 

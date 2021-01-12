@@ -5,7 +5,7 @@ import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
-import { currencyToString } from './currency';
+import { currencyToString } from '@requestnetwork/currency';
 import localUtils from './utils';
 
 /**
@@ -93,7 +93,7 @@ export default class Request {
         .on('confirmed', async () => {
           this.emitter.emit('confirmed', await this.refresh());
         })
-        .on('error', error => {
+        .on('error', (error) => {
           this.confirmationErrorOccurredAtCreation = true;
           this.emitter.emit('error', error);
         });
@@ -161,7 +161,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 
@@ -203,7 +203,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 
@@ -251,7 +251,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 
@@ -300,7 +300,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 
@@ -346,7 +346,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 
@@ -392,7 +392,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 
@@ -448,7 +448,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 
@@ -507,7 +507,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 
@@ -566,7 +566,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 
@@ -625,7 +625,7 @@ export default class Request {
       .on('confirmed', async () => {
         requestData.emit('confirmed', await this.refresh());
       })
-      .on('error', error => {
+      .on('error', (error) => {
         this.emitter.emit('error', error);
       });
 

@@ -1,19 +1,20 @@
 {
-  "name": "@requestnetwork/utils",
-  "version": "0.28.2",
+  "name": "@requestnetwork/currency",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
-  "description": "General tools for Request Network packages.",
+  "description": "Currency tools for Request Network packages.",
   "keywords": [
     "requestnetwork",
+    "currency",
     "utils"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/utils#readme",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/currency#readme",
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
@@ -40,12 +41,11 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
+    "@metamask/contract-metadata": "1.20.0",
     "@requestnetwork/types": "0.29.2",
-    "bn.js": "5.1.3",
-    "eth-crypto": "1.8.0"
+    "ethers": "4.0.48"
   },
   "devDependencies": {
-    "@types/bn.js": "4.11.6",
     "@types/jest": "26.0.13",
     "@typescript-eslint/parser": "4.1.1",
     "eslint": "7.9.0",
@@ -53,13 +53,12 @@
     "eslint-plugin-typescript": "0.14.0",
     "jest": "26.4.2",
     "lint-staged": "10.3.0",
-    "prettier": "2.2.1",
+    "prettier": "2.1.1",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
     "tslint": "6.1.3",
-    "typescript": "4.1.3"
-  },
-  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
+    "typescript": "4.0.2"
+  }
 }
