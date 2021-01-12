@@ -553,7 +553,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',

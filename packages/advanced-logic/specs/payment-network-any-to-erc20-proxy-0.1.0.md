@@ -68,7 +68,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 
 | Property                  | Type   | Description                                                           | Requirement   |
 | ------------------------- | ------ | --------------------------------------------------------------------- | ------------- |
-| **id**                    | String | constant value: "pn-any-erc20-conversion-fee-proxy-contract"          | **Mandatory** |
+| **id**                    | String | constant value: "pn-any-to-erc20-proxy"          | **Mandatory** |
 | **type**                  | String | constant value: "paymentNetwork"                                      | **Mandatory** |
 | **version**               | String | constant value: "0.1.0"                                               | **Mandatory** |
 | **events**                | Array  | List of the actions performed by the extension                        | **Mandatory** |
@@ -92,7 +92,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 
 |                               | Type   | Description                                                           | Requirement   |
 | ----------------------------- | ------ | --------------------------------------------------------------------- | ------------- |
-| **id**                        | String | Constant value: "pn-any-erc20-conversion-fee-proxy-contract"          | **Mandatory** |
+| **id**                        | String | Constant value: "pn-any-to-erc20-proxy"          | **Mandatory** |
 | **type**                      | String | Constant value: "paymentNetwork"                                      | **Mandatory** |
 | **version**                   | String | Constant value: "0.1.0"                                               | **Mandatory** |
 | **parameters**                | Object |                                                                       |               |
@@ -131,7 +131,7 @@ An extension state is created with the following properties:
 
 |  Property                 |  Value                                                         |
 | ------------------------- | -------------------------------------------------------------- |
-| **id**                    | "pn-any-erc20-conversion-fee-proxy-contract"                   |
+| **id**                    | "pn-any-to-erc20-proxy"                   |
 | **type**                  | "paymentNetwork"                                               |
 | **version**               | "0.1.0"                                                        |
 | **values**                |                                                                |
@@ -170,7 +170,7 @@ the 'create' event:
 
 |                               | Type   | Description                                                  | Requirement   |
 | ----------------------------- | ------ | ------------------------------------------------------------ | ------------- |
-| **id**                        | String | Constant value: "pn-any-erc20-conversion-fee-proxy-contract" | **Mandatory** |
+| **id**                        | String | Constant value: "pn-any-to-erc20-proxy" | **Mandatory** |
 | **action**                    | String | Constant value: "addPaymentAddress"                          | **Mandatory** |
 | **parameters**                | Object |                                                              |               |
 | **parameters.paymentAddress** | String | Ethereum address for the payment                             | **Mandatory** |
@@ -179,7 +179,7 @@ the 'create' event:
 
 This action is valid, if:
 
-- The extension state with the id "pn-any-erc20-conversion-fee-proxy-contract" exists
+- The extension state with the id "pn-any-to-erc20-proxy" exists
 - The signer is the `payee`
 - The extension property `paymentAddress` is undefined
 
@@ -210,7 +210,7 @@ the 'addPaymentAddress' event:
 
 |                              | Type   | Description                                                  | Requirement   |
 | ---------------------------- | ------ | ------------------------------------------------------------ | ------------- |
-| **id**                       | String | Constant value: "pn-any-erc20-conversion-fee-proxy-contract" | **Mandatory** |
+| **id**                       | String | Constant value: "pn-any-to-erc20-proxy" | **Mandatory** |
 | **action**                   | String | Constant value: "addRefundAddress"                           | **Mandatory** |
 | **parameters**               | Object |                                                              |               |
 | **parameters.refundAddress** | String | Ethereum address for the refund                              | **Mandatory** |
@@ -219,7 +219,7 @@ the 'addPaymentAddress' event:
 
 This action is valid if:
 
-- The extension state with the id "pn-any-erc20-conversion-fee-proxy-contract" exists
+- The extension state with the id "pn-any-to-erc20-proxy" exists
 - The signer is the `payer`
 - The extension property `refundAddress` is undefined
 
@@ -250,7 +250,7 @@ The 'addRefundAddress' event:
 
 |                          | Type   | Description                                                  | Requirement   |
 | ------------------------ | ------ | ------------------------------------------------------------ | ------------- |
-| **id**                   | String | Constant value: "pn-any-erc20-conversion-fee-proxy-contract" | **Mandatory** |
+| **id**                   | String | Constant value: "pn-any-to-erc20-proxy" | **Mandatory** |
 | **action**               | String | Constant value: "addfeesTo"                                  | **Mandatory** |
 | **parameters**           | Object |                                                              |               |
 | **parameters.feesTo**    | String | Ethereum address for the fee payment                         | **Mandatory** |
@@ -260,7 +260,7 @@ The 'addRefundAddress' event:
 
 This action is valid, if:
 
-- The extension state with the id "pn-any-erc20-conversion-fee-proxy-contract" exists
+- The extension state with the id "pn-any-to-erc20-proxy" exists
 - The signer is the `payee`
 - The extension property `feesTo` is undefined
 - The extension property `feeAmount` is undefined or represents an integer greater or equal than zero

@@ -34,8 +34,8 @@ export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCre
   feeAddress?: string;
   feeAmount?: string;
   network?: string;
-  tokensAccepted?: string[],
-  maxRateTimespan?: number,
+  tokensAccepted?: string[];
+  maxRateTimespan?: number;
 }
 
 /** Interface of the class to manage a payment network  */
@@ -100,7 +100,7 @@ export enum PAYMENT_NETWORK_ID {
   ETH_INPUT_DATA = Extension.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
 
-  ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+  ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
 }
 
 /** Generic info retriever interface */
@@ -122,9 +122,9 @@ export interface IERC20PaymentEventParameters {
 export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParameters {
   feeAddress?: string;
   feeAmount?: string;
-  feeAmountInCrypto?: string,
-  amountInCrypto?: string,
-  tokenAddress?: string,
+  feeAmountInCrypto?: string;
+  amountInCrypto?: string;
+  tokenAddress?: string;
 }
 
 /** ERC20 Payment Network Event */
@@ -160,8 +160,6 @@ export interface IDeclarativePaymentEventParameters {
   note?: string;
 }
 /** Declarative Payment Network Event */
-export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<
-  IDeclarativePaymentEventParameters
->;
+export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;
 /** Declarative BalanceWithEvents */
 export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;

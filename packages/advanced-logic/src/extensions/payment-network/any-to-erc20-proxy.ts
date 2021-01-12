@@ -32,8 +32,8 @@ const currenciesSupported: any = {
   rinkeby: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
     [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
-  }
-}
+  },
+};
 
 /**
  * Creates the extensionsData to create the extension ERC20 fee proxy contract payment detection
@@ -70,12 +70,12 @@ function createCreationAction(
   if (!creationParameters.tokensAccepted || creationParameters.tokensAccepted.length === 0) {
     throw Error('tokensAccepted is required');
   }
-  if (creationParameters.tokensAccepted.some(address => !isValidAddress(address))) {
+  if (creationParameters.tokensAccepted.some((address) => !isValidAddress(address))) {
     throw Error('tokensAccepted must contains only valid ethereum addresses');
   }
 
   return ReferenceBased.createCreationAction(
-    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     creationParameters,
     CURRENT_VERSION,
   );
@@ -99,7 +99,7 @@ function createAddPaymentAddressAction(
   }
 
   return ReferenceBased.createAddPaymentAddressAction(
-    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     addPaymentAddressParameters,
   );
 }
@@ -122,7 +122,7 @@ function createAddRefundAddressAction(
   }
 
   return ReferenceBased.createAddRefundAddressAction(
-    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+    ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     addRefundAddressParameters,
   );
 }
@@ -154,7 +154,7 @@ function createAddFeeAction(
 
   return {
     action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     parameters: addFeeParameters,
   };
 }
@@ -278,10 +278,15 @@ function applyCreation(
   ) {
     throw Error('feeAmount is not a valid amount');
   }
-  if (!extensionAction.parameters.tokensAccepted || extensionAction.parameters.tokensAccepted.length === 0) {
+  if (
+    !extensionAction.parameters.tokensAccepted ||
+    extensionAction.parameters.tokensAccepted.length === 0
+  ) {
     throw Error('tokensAccepted is required');
   }
-  if (extensionAction.parameters.tokensAccepted.some((address:string) => !isValidAddress(address))) {
+  if (
+    extensionAction.parameters.tokensAccepted.some((address: string) => !isValidAddress(address))
+  ) {
     throw Error('tokensAccepted must contains only valid ethereum addresses');
   }
 
@@ -397,16 +402,20 @@ function isValidAddress(address: string): boolean {
  * @param network network of the payment
  */
 function checkSupportedCurrency(currency: RequestLogicTypes.ICurrency, network: string): void {
-  if(!currenciesSupported[network]) {
+  if (!currenciesSupported[network]) {
     throw new Error(`The network (${network}) is not supported for this payment network.`);
   }
 
-  if(!currenciesSupported[network][currency.type]) {
-    throw new Error(`The currency type (${currency.type}) of the request is not supported for this payment network.`);
+  if (!currenciesSupported[network][currency.type]) {
+    throw new Error(
+      `The currency type (${currency.type}) of the request is not supported for this payment network.`,
+    );
   }
 
   if (!currenciesSupported[network][currency.type].includes(currency.value)) {
-    throw new Error(`The currency (${currency.value}) of the request is not supported for this payment network.`);
+    throw new Error(
+      `The currency (${currency.value}) of the request is not supported for this payment network.`,
+    );
   }
 }
 

@@ -7,7 +7,7 @@ import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
 import { payErc20Request } from './erc20';
-import { payConversionErc20FeeProxyRequest } from './erc20-conversion-fee-proxy';
+import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
@@ -17,12 +17,12 @@ import { ISwapSettings } from './swap-erc20-fee-proxy';
 export const supportedNetworks = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-  ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
+  ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
 ];
 
 const getPaymentNetwork = (request: ClientTypes.IRequestData): ExtensionTypes.ID | undefined => {
   // tslint:disable-next-line: typedef
-  return Object.values(request.extensions).find(x => x.type === 'payment-network')?.id;
+  return Object.values(request.extensions).find((x) => x.type === 'payment-network')?.id;
 };
 
 /**
@@ -85,11 +85,20 @@ export async function conversionToPayRequest(
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
 
-  if (!paymentNetwork || (paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT)) {
+  if (!paymentNetwork || paymentNetwork !== ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY) {
     throw new UnsupportedNetworkError(paymentNetwork);
   }
 
-  return payConversionErc20FeeProxyRequest(request, path, maxToSpend, signer, amount, undefined, request.extensions[paymentNetwork].values.network, overrides);
+  return payAnyToErc20ProxyRequest(
+    request,
+    path,
+    maxToSpend,
+    signer,
+    amount,
+    undefined,
+    request.extensions[paymentNetwork].values.network,
+    overrides,
+  );
 }
 
 /**
@@ -149,7 +158,7 @@ export async function hasSufficientFunds(
     address,
     request.currencyInfo,
     bigNumberify(request.expectedAmount).add(feeAmount),
-    provider
+    provider,
   );
 }
 
@@ -169,8 +178,9 @@ export async function isSolvent(
   provider: Provider,
 ): Promise<boolean> {
   const ethBalance = await provider.getBalance(fromAddress);
-  const needsGas  =  !['Safe Multisig WalletConnect', 'Gnosis Safe Multisig']
-    .includes((provider as any)?.provider?.wc?._peerMeta?.name);
+  const needsGas = !['Safe Multisig WalletConnect', 'Gnosis Safe Multisig'].includes(
+    (provider as any)?.provider?.wc?._peerMeta?.name,
+  );
 
   if (currency.type === 'ETH') {
     return ethBalance.gt(amount);
@@ -179,7 +189,6 @@ export async function isSolvent(
     return (ethBalance.gt(0) || !needsGas) && bigNumberify(balance).gte(amount);
   }
 }
-
 
 /**
  * Returns the balance of a given address in a given currency.
@@ -211,8 +220,10 @@ async function getCurrencyBalance(
  */
 export function canSwapToPay(request: ClientTypes.IRequestData): boolean {
   const paymentNetwork = getPaymentNetwork(request);
-  return (paymentNetwork !== undefined
-    && (paymentNetwork === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT));
+  return (
+    paymentNetwork !== undefined &&
+    paymentNetwork === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT
+  );
 }
 
 /**

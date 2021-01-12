@@ -9,10 +9,7 @@ import { _getErc20FeeProxyPaymentUrl } from './erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl } from './erc20-proxy';
 
 import { ITransactionOverrides } from './transaction-overrides';
-import {
-  getProvider,
-  getSigner,
-} from './utils';
+import { getProvider, getSigner } from './utils';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 
 /**
@@ -33,17 +30,26 @@ export async function approveErc20ForProxyConversionIfNeeded(
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  const network = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT].values.network || 'mainnet';
+  const network =
+    request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.network ||
+    'mainnet';
 
-  if (!await checkErc20Allowance(
-    ownerAddress,
-    proxyChainlinkConversionPath.getAddress(network),
-    signerOrProvider,
-    paymentTokenAddress,
-    minAmount
-    )) {
-      return approveErc20ForProxyConversion(request, paymentTokenAddress, signerOrProvider, overrides);
-    }
+  if (
+    !(await checkErc20Allowance(
+      ownerAddress,
+      proxyChainlinkConversionPath.getAddress(network),
+      signerOrProvider,
+      paymentTokenAddress,
+      minAmount,
+    ))
+  ) {
+    return approveErc20ForProxyConversion(
+      request,
+      paymentTokenAddress,
+      signerOrProvider,
+      overrides,
+    );
+  }
 }
 
 /**
@@ -59,12 +65,14 @@ export async function approveErc20ForProxyConversion(
   signerOrProvider: Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const network = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT].values.network || 'mainnet';
+  const network =
+    request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.network ||
+    'mainnet';
 
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
     proxyChainlinkConversionPath.getAddress(network),
-    signerOrProvider
+    signerOrProvider,
   );
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({

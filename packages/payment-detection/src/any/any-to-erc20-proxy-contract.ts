@@ -8,7 +8,7 @@ import {
 import Utils from '@requestnetwork/utils';
 import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
-import ProxyInfoRetriever from './conversion-proxy-info-retriever';
+import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
 
 const bigNumber: any = require('bn.js');
 
@@ -27,7 +27,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.conversionFeeProxyContract;
+    this.extension = advancedLogic.extensions.anyToErc20Proxy;
   }
 
   /**
@@ -110,8 +110,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetworkId =
-      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT;
+    const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY;
     const paymentNetwork = request.extensions[paymentNetworkId];
 
     if (!paymentNetwork) {

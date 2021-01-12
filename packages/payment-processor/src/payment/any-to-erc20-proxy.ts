@@ -27,7 +27,7 @@ import {
  * @param network optionally, network of the payment. Defaults to 'mainnet'
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function payConversionErc20FeeProxyRequest(
+export async function payAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
   path: string[],
   maxToSpend: BigNumberish,
@@ -37,7 +37,7 @@ export async function payConversionErc20FeeProxyRequest(
   network: string = 'mainnet',
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = await encodePayConversionErc20FeeRequest(
+  const encodedTx = await encodePayAnyToErc20ProxyRequest(
     request,
     path,
     maxToSpend,
@@ -68,7 +68,7 @@ export async function payConversionErc20FeeProxyRequest(
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  * @param network optionally, network of the payment. Defaults to 'mainnet'
  */
-export async function encodePayConversionErc20FeeRequest(
+export async function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
   path: string[],
   maxToSpend: BigNumberish,

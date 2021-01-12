@@ -1804,7 +1804,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',

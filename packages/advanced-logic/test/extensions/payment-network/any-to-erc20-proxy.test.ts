@@ -1,9 +1,9 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import conversionErc20FeeProxyContract from '../../../src/extensions/payment-network/conversion-erc20-fee-proxy-contract'
-import * as DataConversionERC20FeeAddData from '../../utils/payment-network/erc20/conversion-fee-proxy-contract-add-data-generator';
-import * as DataConversionERC20FeeCreate from '../../utils/payment-network/erc20/conversion-fee-proxy-contract-create-data-generator';
+import anyToErc20Proxy from '../../../src/extensions/payment-network/any-to-erc20-proxy'
+import * as DataConversionERC20FeeAddData from '../../utils/payment-network/erc20/any-to-erc20-proxy-add-data-generator';
+import * as DataConversionERC20FeeCreate from '../../utils/payment-network/erc20/any-to-erc20-proxy-create-data-generator';
 import * as TestData from '../../utils/test-data-generator';
 
 /* tslint:disable:no-unused-expression */
@@ -12,7 +12,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('can create a create action with all parameters', () => {
       // 'extension data is wrong'
       expect(
-        conversionErc20FeeProxyContract.createCreationAction({
+        anyToErc20Proxy.createCreationAction({
           feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
           paymentAddress: '0x0000000000000000000000000000000000000002',
@@ -24,7 +24,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
@@ -42,7 +42,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('can create a create action without fee parameters', () => {
       // 'extension data is wrong'
       expect(
-        conversionErc20FeeProxyContract.createCreationAction({
+        anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
@@ -50,7 +50,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -64,13 +64,13 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('can create a create action with only salt', () => {
       // 'extension data is wrong'
       expect(
-        conversionErc20FeeProxyContract.createCreationAction({
+        anyToErc20Proxy.createCreationAction({
           salt: 'ea3bc7caf64110ca',
           tokensAccepted: ['0x0000000000000000000000000000000000000004', '0x0000000000000000000000000000000000000005'],
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
           salt: 'ea3bc7caf64110ca',
           tokensAccepted: ['0x0000000000000000000000000000000000000004', '0x0000000000000000000000000000000000000005'],
@@ -82,7 +82,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createCreationAction with payment address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createCreationAction({
+        anyToErc20Proxy.createCreationAction({
           paymentAddress: 'not an ethereum address',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
@@ -93,7 +93,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createCreationAction with refund address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createCreationAction({
+        anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
@@ -104,7 +104,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createCreationAction with fee address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createCreationAction({
+        anyToErc20Proxy.createCreationAction({
           feeAddress: 'not an ethereum address',
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
@@ -115,7 +115,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createCreationAction with invalid fee amount', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createCreationAction({
+        anyToErc20Proxy.createCreationAction({
           feeAmount: '-20000',
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
@@ -126,7 +126,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createCreationAction without tokensAccepted', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createCreationAction({
+        anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
         });
@@ -136,7 +136,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createCreationAction with invalid tokens accepted', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createCreationAction({
+        anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
           tokensAccepted: ['0x0000000000000000000000000000000000000003', 'invalid address']
@@ -160,7 +160,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
 
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.applyActionToExtension(
+        anyToErc20Proxy.applyActionToExtension(
           TestData.requestCreatedNoExtension.extensions,
           action,
           requestCreatedNoExtension,
@@ -187,7 +187,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
 
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.applyActionToExtension(
+        anyToErc20Proxy.applyActionToExtension(
           TestData.requestCreatedNoExtension.extensions,
           action,
           requestCreatedNoExtension,
@@ -205,12 +205,12 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('can createAddPaymentAddressAction', () => {
       // 'extension data is wrong'
       expect(
-        conversionErc20FeeProxyContract.createAddPaymentAddressAction({
+        anyToErc20Proxy.createAddPaymentAddressAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
         },
@@ -220,7 +220,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createAddPaymentAddressAction with payment address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createAddPaymentAddressAction({
+        anyToErc20Proxy.createAddPaymentAddressAction({
           paymentAddress: 'not an ethereum address',
         });
       }).toThrowError('paymentAddress is not a valid ethereum address');
@@ -231,12 +231,12 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('can createAddRefundAddressAction', () => {
       // 'extension data is wrong'
       expect(
-        conversionErc20FeeProxyContract.createAddRefundAddressAction({
+        anyToErc20Proxy.createAddRefundAddressAction({
           refundAddress: '0x0000000000000000000000000000000000000002',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
           refundAddress: '0x0000000000000000000000000000000000000002',
         },
@@ -246,7 +246,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createAddRefundAddressAction with payment address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createAddRefundAddressAction({
+        anyToErc20Proxy.createAddRefundAddressAction({
           refundAddress: 'not an ethereum address',
         });
       }).toThrowError('refundAddress is not a valid ethereum address');
@@ -257,13 +257,13 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('can createAddFeeAction', () => {
       // 'extension data is wrong'
       expect(
-        conversionErc20FeeProxyContract.createAddFeeAction({
+        anyToErc20Proxy.createAddFeeAction({
           feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '2000',
         }),
       ).toEqual({
         action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '2000',
@@ -274,7 +274,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createAddFeeAddressAction with payment address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createAddFeeAction({
+        anyToErc20Proxy.createAddFeeAction({
           feeAddress: 'not an ethereum address',
           feeAmount: '2000',
         });
@@ -284,7 +284,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot createAddFeeAction with amount non positive integer', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.createAddFeeAction({
+        anyToErc20Proxy.createAddFeeAction({
           feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '-30000',
         });
@@ -299,7 +299,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         unknownAction.action = 'unknown action';
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
             unknownAction,
             DataConversionERC20FeeCreate.requestStateCreatedEmpty,
@@ -314,7 +314,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         unknownAction.id = 'unknown id';
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
             unknownAction,
             DataConversionERC20FeeCreate.requestStateCreatedEmpty,
@@ -329,7 +329,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       it('can applyActionToExtensions of creation', () => {
         // 'new extension state wrong'
         expect(
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateNoExtensions.extensions,
             DataConversionERC20FeeCreate.actionCreationFull,
             DataConversionERC20FeeCreate.requestStateNoExtensions,
@@ -342,7 +342,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       it('cannot applyActionToExtensions of creation with a previous state', () => {
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestFullStateCreated.extensions,
             DataConversionERC20FeeCreate.actionCreationFull,
             DataConversionERC20FeeCreate.requestFullStateCreated,
@@ -362,7 +362,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         };
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             TestData.requestCreatedNoExtension.extensions,
             DataConversionERC20FeeCreate.actionCreationFull,
             requestCreatedNoExtension,
@@ -379,7 +379,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         testnetPaymentAddress.parameters.paymentAddress = DataConversionERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateNoExtensions.extensions,
             testnetPaymentAddress,
             DataConversionERC20FeeCreate.requestStateNoExtensions,
@@ -394,7 +394,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         testnetPaymentAddress.parameters.tokensAccepted = [];
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateNoExtensions.extensions,
             testnetPaymentAddress,
             DataConversionERC20FeeCreate.requestStateNoExtensions,
@@ -409,7 +409,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         testnetPaymentAddress.parameters.tokensAccepted = ['invalid address'];
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateNoExtensions.extensions,
             testnetPaymentAddress,
             DataConversionERC20FeeCreate.requestStateNoExtensions,
@@ -424,7 +424,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         testnetRefundAddress.parameters.refundAddress = DataConversionERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateNoExtensions.extensions,
             testnetRefundAddress,
             DataConversionERC20FeeCreate.requestStateNoExtensions,
@@ -439,7 +439,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       it('can applyActionToExtensions of addPaymentAddress', () => {
         // 'new extension state wrong'
         expect(
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
             DataConversionERC20FeeAddData.actionAddPaymentAddress,
             DataConversionERC20FeeCreate.requestStateCreatedEmpty,
@@ -452,7 +452,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       it('cannot applyActionToExtensions of addPaymentAddress without a previous state', () => {
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateNoExtensions.extensions,
             DataConversionERC20FeeAddData.actionAddPaymentAddress,
             DataConversionERC20FeeCreate.requestStateNoExtensions,
@@ -467,7 +467,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         previousState.payee = undefined;
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             previousState.extensions,
             DataConversionERC20FeeAddData.actionAddPaymentAddress,
             previousState,
@@ -481,7 +481,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         const previousState = Utils.deepCopy(DataConversionERC20FeeCreate.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             previousState.extensions,
             DataConversionERC20FeeAddData.actionAddPaymentAddress,
             previousState,
@@ -494,7 +494,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       it('cannot applyActionToExtensions of addPaymentAddress with payment address already given', () => {
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestFullStateCreated.extensions,
             DataConversionERC20FeeAddData.actionAddPaymentAddress,
             DataConversionERC20FeeCreate.requestFullStateCreated,
@@ -509,7 +509,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         testnetPaymentAddress.parameters.paymentAddress = DataConversionERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
             testnetPaymentAddress,
             DataConversionERC20FeeCreate.requestStateCreatedEmpty,
@@ -524,7 +524,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       it('can applyActionToExtensions of addRefundAddress', () => {
         // 'new extension state wrong'
         expect(
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
             DataConversionERC20FeeAddData.actionAddRefundAddress,
             DataConversionERC20FeeCreate.requestStateCreatedEmpty,
@@ -537,7 +537,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       it('cannot applyActionToExtensions of addRefundAddress without a previous state', () => {
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateNoExtensions.extensions,
             DataConversionERC20FeeAddData.actionAddRefundAddress,
             DataConversionERC20FeeCreate.requestStateNoExtensions,
@@ -552,7 +552,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         previousState.payer = undefined;
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             previousState.extensions,
             DataConversionERC20FeeAddData.actionAddRefundAddress,
             previousState,
@@ -566,7 +566,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         const previousState = Utils.deepCopy(DataConversionERC20FeeCreate.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             previousState.extensions,
             DataConversionERC20FeeAddData.actionAddRefundAddress,
             previousState,
@@ -579,7 +579,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       it('cannot applyActionToExtensions of addRefundAddress with payment address already given', () => {
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestFullStateCreated.extensions,
             DataConversionERC20FeeAddData.actionAddRefundAddress,
             DataConversionERC20FeeCreate.requestFullStateCreated,
@@ -594,7 +594,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
         testnetPaymentAddress.parameters.refundAddress = DataConversionERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
-          conversionErc20FeeProxyContract.applyActionToExtension(
+          anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
             testnetPaymentAddress,
             DataConversionERC20FeeCreate.requestStateCreatedEmpty,
@@ -610,7 +610,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('can applyActionToExtensions of addFee', () => {
       // 'new extension state wrong'
       expect(
-        conversionErc20FeeProxyContract.applyActionToExtension(
+        anyToErc20Proxy.applyActionToExtension(
           DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
           DataConversionERC20FeeAddData.actionAddFee,
           DataConversionERC20FeeCreate.requestStateCreatedEmpty,
@@ -623,7 +623,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot applyActionToExtensions of addFee without a previous state', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.applyActionToExtension(
+        anyToErc20Proxy.applyActionToExtension(
           DataConversionERC20FeeCreate.requestStateNoExtensions.extensions,
           DataConversionERC20FeeAddData.actionAddFee,
           DataConversionERC20FeeCreate.requestStateNoExtensions,
@@ -638,7 +638,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       previousState.payee = undefined;
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.applyActionToExtension(
+        anyToErc20Proxy.applyActionToExtension(
           previousState.extensions,
           DataConversionERC20FeeAddData.actionAddFee,
           previousState,
@@ -652,7 +652,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       const previousState = Utils.deepCopy(DataConversionERC20FeeCreate.requestStateCreatedEmpty);
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.applyActionToExtension(
+        anyToErc20Proxy.applyActionToExtension(
           previousState.extensions,
           DataConversionERC20FeeAddData.actionAddFee,
           previousState,
@@ -665,7 +665,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
     it('cannot applyActionToExtensions of addFee with fee data already given', () => {
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.applyActionToExtension(
+        anyToErc20Proxy.applyActionToExtension(
           DataConversionERC20FeeCreate.requestFullStateCreated.extensions,
           DataConversionERC20FeeAddData.actionAddFee,
           DataConversionERC20FeeCreate.requestFullStateCreated,
@@ -680,7 +680,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       testnetPaymentAddress.parameters.feeAddress = DataConversionERC20FeeAddData.invalidAddress;
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.applyActionToExtension(
+        anyToErc20Proxy.applyActionToExtension(
           DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
           testnetPaymentAddress,
           DataConversionERC20FeeCreate.requestStateCreatedEmpty,
@@ -695,7 +695,7 @@ describe('extensions/payment-network/erc20/conversion-erc20-fee-proxy-contract',
       testnetPaymentAddress.parameters.feeAmount = DataConversionERC20FeeAddData.invalidAddress;
       // 'must throw'
       expect(() => {
-        conversionErc20FeeProxyContract.applyActionToExtension(
+        anyToErc20Proxy.applyActionToExtension(
           DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
           testnetPaymentAddress,
           DataConversionERC20FeeCreate.requestStateCreatedEmpty,

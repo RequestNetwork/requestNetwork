@@ -17,7 +17,7 @@ import Utils from '@requestnetwork/utils';
 // import { _getErc20FeeProxyPaymentUrl } from '../../src/payment/erc20-fee-proxy';
 import { ERC20Contract } from '../../src/contracts/Erc20Contract';
 import { approveErc20ForProxyConversion /*, approveErc20ForProxyConversionIfNeeded */ } from '../../src/payment/proxy-conversion-erc20';
-import { payConversionErc20FeeProxyRequest } from '../../src/payment/erc20-conversion-fee-proxy';
+import { payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
 import { bigNumberify } from 'ethers/utils';
 
 // tslint:disable: no-magic-numbers
@@ -50,9 +50,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT]: {
+    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_ERC20_CONVERSION_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -79,7 +79,7 @@ const validRequest: ClientTypes.IRequestData = {
 describe('conversion-erc20-fee-proxy', () => {
   describe('encodeSwapErc20FeeRequest', () => {
     it('should throw an error if the path is not valid', async () => {
-      await expect(payConversionErc20FeeProxyRequest(
+      await expect(payAnyToErc20ProxyRequest(
         validRequest,
         [getCurrencyHash(validRequest.currencyInfo), erc20ContractAddress],
         // tslint:disable-next-line: no-magic-numbers
@@ -97,7 +97,7 @@ describe('conversion-erc20-fee-proxy', () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = 'USD';
 
-      await expect(payConversionErc20FeeProxyRequest(
+      await expect(payAnyToErc20ProxyRequest(
         request,
         [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'}), erc20ContractAddress],
         // tslint:disable-next-line: no-magic-numbers
@@ -112,7 +112,7 @@ describe('conversion-erc20-fee-proxy', () => {
     });
 
     it('should throw an error if the token is not accepted', async () => {
-      await expect(payConversionErc20FeeProxyRequest(
+      await expect(payAnyToErc20ProxyRequest(
         validRequest,
         [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'})],
         // tslint:disable-next-line: no-magic-numbers
@@ -130,7 +130,7 @@ describe('conversion-erc20-fee-proxy', () => {
       const request = Utils.deepCopy(validRequest);
       request.extensions = [] as any;
 
-      await expect(payConversionErc20FeeProxyRequest(
+      await expect(payAnyToErc20ProxyRequest(
         request,
         [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'}), erc20ContractAddress],
         // tslint:disable-next-line: no-magic-numbers
@@ -144,12 +144,12 @@ describe('conversion-erc20-fee-proxy', () => {
     });
   });
 
-  describe('payConversionErc20FeeProxyRequest', () => {
+  describe('payAnyToErc20ProxyRequest', () => {
     it('should consider override parameters', async () => {
       const spy = jest.fn();
       const originalSendTransaction = wallet.sendTransaction.bind(wallet);
       wallet.sendTransaction = spy;
-      await payConversionErc20FeeProxyRequest(
+      await payAnyToErc20ProxyRequest(
         validRequest,
         [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'}), erc20ContractAddress],
         // tslint:disable-next-line: no-magic-numbers
@@ -188,7 +188,7 @@ describe('conversion-erc20-fee-proxy', () => {
       const balanceTokenBefore = await ERC20Contract.connect(erc20ContractAddress, provider).balanceOf(wallet.address);
 
       // convert and pay
-      const tx = await payConversionErc20FeeProxyRequest(
+      const tx = await payAnyToErc20ProxyRequest(
         validRequest,
         [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'}), erc20ContractAddress],
         // tslint:disable-next-line: no-magic-numbers
