@@ -373,7 +373,7 @@ export default class RequestNetwork {
       paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-        currency: requestParameters.currency,
+        currency: requestParameters.currency as RequestLogicTypes.ICurrency,
         paymentNetworkCreationParameters,
       });
 

@@ -6,7 +6,11 @@ import {
   getCurrencyHash,
   getDecimalsForCurrency,
   stringToCurrency,
+<<<<<<< HEAD:packages/currency/test/currency.test.ts
 } from '../src';
+=======
+} from '../src/index';
+>>>>>>> master:packages/currency/test/currency.test.ts
 
 describe('api/currency', () => {
   describe('getAllSupportedCurrencies', () => {
