@@ -96,15 +96,39 @@ class ChainlinkConversionPathTools {
     // 'mainnet'
   ];
 
-  const allAggregator: any = {};
-
+  const allAggregators: any = {};
+  const aggregatorsNodesForDijkstra: any = {};
   for (const network of networks) {
-    allAggregator[network] = {};
-
+    allAggregators[network] = {};
     const chainlinkConversionPathTools = new ChainlinkConversionPathTools(network);
-    allAggregator[network] = await chainlinkConversionPathTools.getAggregators();
+    allAggregators[network] = await chainlinkConversionPathTools.getAggregators();
+
+    // Include the reverse path of each aggregators
+    aggregatorsNodesForDijkstra[network] = {};
+    // tslint:disable-next-line:forin
+    for (let ccyIn in allAggregators[network]) {
+      ccyIn = ccyIn.toLowerCase();
+      if (!aggregatorsNodesForDijkstra[network][ccyIn]) {
+        aggregatorsNodesForDijkstra[network][ccyIn] = {};
+      }
+      // tslint:disable-next-line:forin
+      for (let ccyOut in allAggregators[network][ccyIn]) {
+        ccyOut = ccyOut.toLowerCase();
+        if (!aggregatorsNodesForDijkstra[network][ccyOut]) {
+          aggregatorsNodesForDijkstra[network][ccyOut] = {};
+        }
+        aggregatorsNodesForDijkstra[network][ccyIn][ccyOut] = 1;
+        aggregatorsNodesForDijkstra[network][ccyOut][ccyIn] = 1;
+      }
+    }
   }
 
   // tslint:disable:no-console
-  console.log(allAggregator);
+  console.log('#####################################################################');
+  console.log('All aggregators:');
+  console.log(allAggregators);
+  console.log('#####################################################################');
+  console.log('All aggregators nodes for dijkstra:');
+  console.log(aggregatorsNodesForDijkstra);
+  console.log('#####################################################################');
 })();
