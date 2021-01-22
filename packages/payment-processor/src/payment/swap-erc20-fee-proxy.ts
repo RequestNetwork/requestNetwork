@@ -20,7 +20,7 @@ import {
  *
  *  - maxInputAmount: maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
  *  - path: array of token addresses to be used for the "swap path".
- *    ['0xtokenAddress', '0xIntermediate1', ..., '0xRequestCurrency']
+ *    ['0xTokenAddress', '0xIntermediate1', ..., '0xRequestCurrency']
  *  - deadline: time in milliseconds since UNIX epoch, after which the swap should not be executed.
  */
 export interface ISwapSettings {

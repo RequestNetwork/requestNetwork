@@ -123,7 +123,7 @@ export default class ProxyERC20InfoRetriever
           this.maxRateTimespan >= log.parsedLog.values.maxRateTimespan.toNumber() &&
           // check the requestCurrency
           getCurrencyHash(this.requestCurrency).toLowerCase() ===
-            log.parsedLog.values.this.requestCurrency.toLowerCase() &&
+            log.parsedLog.values.requestCurrency.toLowerCase() &&
           // check to address
           log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
