@@ -16,13 +16,13 @@ The payment is made through a proxy contract. This proxy contract call the [ERC2
 
 This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
-The contract also ensures that the `feeAmount` amount of the ERC20 transfer will be forwarded to the `feesTo`.
+The contract also ensures that the `feeAmount` amount of the ERC20 transfer will be forwarded to the `feeAddress`.
 
 - `requestId` is the id of the request
 - `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
 - `address` is the payment address for payments, the refund address for refunds
 - `feeAmount` is the amount of the transfer that should be paid in fees
-- `feesTo` is the address where the fee will be sent to
+- `feeAddress` is the address where the fee will be sent to
 - `conversion path` is a list of currency hashes to perform the conversion
 - `tokensAccepted` is the list of tokens addresses accepted for payments and refunds
 - `network` is the network of the tokens accepted for payments and refunds
@@ -42,18 +42,18 @@ The contract contains one function called `transferFromWithReferenceAndFee` whic
 - `requestAmount` is the amount to be paid in the request currency
 - `path` is the conversion path from the request currency to the payment token (see `conversion path`)
 - `paymentReference` is the reference data used to track the transfer (see `paymentReference`)
-- `feesRequestAmount` is the amount of fees to be paid in the request currency
-- `feesTo` is the destination address for the fee
+- `feeAmount` is the amount of fees to be paid in the request currency
+- `feeAddress` is the destination address for the fee
 - `maxRateTimespan` is the time span maximum accepted between the payment and the rate timestamp
 
 The `TransferWithReferenceAndFee` event is emitted when the tokens are transfered. This event contains:
 
-- `paymentCurrency` is the token address used for the payment
+- `tokenAddress` is the token address used for the payment
 - `to` is the destination address for the tokens
 - `requestCurrency` is the request currency hash
 - `paymentReference` is the reference data used to track the transfer (see `paymentReference`)
-- `feesRequestAmount` is the amount of fees to be paid in the request currency
-- `feesTo` is the destination address for the fee
+- `feeAmount` is the amount of fees to be paid in the request currency
+- `feeAddress` is the destination address for the fee
 - `maxRateTimespan` is the time span maximum given for the payment
 
 [See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC20FeeProxy.sol)
@@ -76,7 +76,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 | **values.salt**           | String | Salt for the request                                                  | **Mandatory** |
 | **values.paymentAddress** | String | Ethereum address for the payment                                      | Optional      |
 | **values.refundAddress**  | String | Ethereum address for the refund                                       | Optional      |
-| **values.feesTo**         | String | Ethereum address for the fee payment                                  | Optional      |
+| **values.feeAddress**         | String | Ethereum address for the fee payment                                  | Optional      |
 | **values.feeAmount**      | String | The fee amount in the request `currency`                              | Optional      |
 | **values.network**        | String | Ethereum network for the payments                                     | Optional      |
 | **values.maxTimespan**    | Number | Time span maximum accepted between the payment and the rate timestamp | Optional      |
@@ -99,7 +99,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 | **parameters.salt**           | String | Salt for the request                                                  | **Mandatory** |
 | **parameters.paymentAddress** | String | Ethereum address for the payment                                      | Optional      |
 | **parameters.refundAddress**  | String | Ethereum address for the refund                                       | Optional      |
-| **parameters.feesTo**         | String | Ethereum address for the fee payment                                  | Optional      |
+| **parameters.feeAddress**         | String | Ethereum address for the fee payment                                  | Optional      |
 | **parameters.feeAmount**      | String | The fee amount in the request `currency`                              | Optional      |
 | **parameters.network**        | String | Ethereum network for the payments                                     | Optional      |
 | **parameters.maxTimespan**    | Number | Time span maximum accepted between the payment and the rate timestamp | Optional      |
@@ -119,8 +119,8 @@ This action must trigger the warnings:
 | Warning                                 | Condition                                                   |
 | --------------------------------------- | ----------------------------------------------------------- |
 | "paymentAddress is given by the payer"  | If `signer` is the payer **and** `paymentAddress` is given  |
-| "feesTo is given by the payer"          | If `signer` is the payer **and** `feesTo` is given          |
-| "feeAmount is given by the payer"       | If `signer` is the payer **and** `feesTo` is given          |
+| "feeAddress is given by the payer"          | If `signer` is the payer **and** `feeAddress` is given          |
+| "feeAmount is given by the payer"       | If `signer` is the payer **and** `feeAddress` is given          |
 | "refundAddress is given by the payee"   | If `signer` is the payee **and** `refundAddress` is given   |
 
 Note: These warnings are necessary to highlight to avoid attempts of fake payments and refunds. For example, a payer could create a request using as the payment address one of his own addresses. A system could interpret a transaction to this address as a payment while the payee did not receive the funds.
@@ -137,7 +137,7 @@ An extension state is created with the following properties:
 | **values**                |                                                                |
 | **values.paymentAddress** | `paymentAddress` from parameters if given, undefined otherwise |
 | **values.refundAddress**  | `refundAddress` from parameters if given, undefined otherwise  |
-| **values.feesTo**         | `feesTo` from parameters if given, undefined otherwise         |
+| **values.feeAddress**         | `feeAddress` from parameters if given, undefined otherwise         |
 | **values.feeAmount**      | `feeAmount` from parameters if given, undefined otherwise      |
 | **values.salt**           | Salt for the request                                           |
 | **values.network**        | `network` from parameters if given, undefined otherwise        |
@@ -153,7 +153,7 @@ the 'create' event:
 | **parameters**                |                                                                |
 | **parameters.paymentAddress** | `paymentAddress` from parameters if given, undefined otherwise |
 | **parameters.refundAddress**  | `refundAddress` from parameters if given, undefined otherwise  |
-| **parameters.feesTo**         | `feesTo` from parameters if given, undefined otherwise         |
+| **parameters.feeAddress**         | `feeAddress` from parameters if given, undefined otherwise         |
 | **parameters.feeAmount**      | `feeAmount` from parameters if given, undefined otherwise      |
 | **values.network**            | `network` from parameters if given, undefined otherwise        |
 | **values.maxTimespan**        | `maxTimespan` from parameters if given, undefined otherwise    |
@@ -251,9 +251,9 @@ The 'addRefundAddress' event:
 |                          | Type   | Description                                                  | Requirement   |
 | ------------------------ | ------ | ------------------------------------------------------------ | ------------- |
 | **id**                   | String | Constant value: "pn-any-to-erc20-proxy" | **Mandatory** |
-| **action**               | String | Constant value: "addfeesTo"                                  | **Mandatory** |
+| **action**               | String | Constant value: "addfeeAddress"                                  | **Mandatory** |
 | **parameters**           | Object |                                                              |               |
-| **parameters.feesTo**    | String | Ethereum address for the fee payment                         | **Mandatory** |
+| **parameters.feeAddress**    | String | Ethereum address for the fee payment                         | **Mandatory** |
 | **parameters.feeAmount** | String | The fee amount                                               | **Mandatory** |
 
 ##### Conditions
@@ -262,7 +262,7 @@ This action is valid, if:
 
 - The extension state with the id "pn-any-to-erc20-proxy" exists
 - The signer is the `payee`
-- The extension property `feesTo` is undefined
+- The extension property `feeAddress` is undefined
 - The extension property `feeAmount` is undefined or represents an integer greater or equal than zero
 
 ##### Warnings
@@ -275,7 +275,7 @@ An extension state is updated with the following properties:
 
 |  Property            |  Value                                   |
 | -------------------- | ---------------------------------------- |
-| **values.feesTo**    | `feesTo` from parameters                 |
+| **values.feeAddress**    | `feeAddress` from parameters                 |
 | **values.feeAmount** | `feeAmount` from parameters              |
 | **events**           | Add a 'fee' event (see below) at its end |
 
@@ -283,9 +283,9 @@ the 'addFee' event:
 
 |  Property                |  Value                      |
 | ------------------------ | --------------------------- |
-| **name**                 | Constant value: "addfeesTo" |
+| **name**                 | Constant value: "addfeeAddress" |
 | **parameters**           |                             |
-| **parameters.feesTo**    | `feesTo` from parameters    |
+| **parameters.feeAddress**    | `feeAddress` from parameters    |
 | **parameters.feeAmount** | `feeAmount` from parameters |
 
 ---
@@ -296,14 +296,14 @@ The fee proxy contract address is determined by the `paymentNetwork.values.netwo
 
 Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a payment:
 
-- `paymentCurrency` is contained in `paymentNetwork.values.tokenAccepted`
+- `tokenAddress` is contained in `paymentNetwork.values.tokenAccepted`
 - `to` `===` `paymentAddress`
 - `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
 - `maxRateTimespan` `===` `paymentNetwork.values.maxRateTimespan`
 
 Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a refund:
 
-- `paymentCurrency` is contained in `paymentNetwork.values.tokenAccepted`
+- `tokenAddress` is contained in `paymentNetwork.values.tokenAccepted`
 - `to` `===` `refundAddress`
 - `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`
 - `maxRateTimespan` `===` `paymentNetwork.values.maxRateTimespan`

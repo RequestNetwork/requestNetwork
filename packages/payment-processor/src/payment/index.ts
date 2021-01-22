@@ -193,24 +193,24 @@ export async function isSolvent(
 /**
  * Returns the balance of a given address in a given currency.
  * @param address the address holding the funds
- * @param paymentCurrency if different from the requested currency
+ * @param tokenAddress if different from the requested currency
  * @param provider the Web3 provider. Defaults to Etherscan.
  * @throws UnsupportedNetworkError if the currency is not implemented.
  */
 async function getCurrencyBalance(
   address: string,
-  paymentCurrency: ICurrency,
+  tokenAddress: ICurrency,
   provider: Provider,
 ): Promise<BigNumberish> {
-  switch (paymentCurrency.type) {
+  switch (tokenAddress.type) {
     case 'ETH': {
       return provider.getBalance(address);
     }
     case 'ERC20': {
-      return getAnyErc20Balance(paymentCurrency.value, address, provider);
+      return getAnyErc20Balance(tokenAddress.value, address, provider);
     }
     default:
-      throw new UnsupportedNetworkError(paymentCurrency.network);
+      throw new UnsupportedNetworkError(tokenAddress.network);
   }
 }
 

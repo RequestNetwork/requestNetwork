@@ -23,7 +23,7 @@
         {
           "indexed": false,
           "internalType": "address",
-          "name": "paymentCurrency",
+          "name": "tokenAddress",
           "type": "address"
         },
         {
@@ -53,13 +53,13 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "feesRequestAmount",
+          "name": "feeAmount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "feesTo",
+          "name": "feeAddress",
           "type": "address"
         },
         {
@@ -127,12 +127,12 @@
         },
         {
           "internalType": "uint256",
-          "name": "_feesRequestAmount",
+          "name": "_feeAmount",
           "type": "uint256"
         },
         {
           "internalType": "address",
-          "name": "_feesTo",
+          "name": "_feeAddress",
           "type": "address"
         },
         {

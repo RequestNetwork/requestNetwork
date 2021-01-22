@@ -1,10 +1,10 @@
-import { getDecimalsForCurrency } from '@requestnetwork/currency';
+import { getDecimalsForCurrency, getCurrencyHash } from '@requestnetwork/currency';
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20ConversionProxyContractAbiFragment = [
-  'event TransferWithReferenceAndFee(address paymentCurrency, address to, uint256 requestAmount, address requestCurrency, bytes indexed paymentReference, uint256 feesRequestAmount, address feesTo, uint256 maxRateTimespan)',
+  'event TransferWithReferenceAndFee(address tokenAddress, address to, uint256 requestAmount, address requestCurrency, bytes indexed paymentReference, uint256 feeAmount, address feeAddress, uint256 maxRateTimespan)',
 ];
 
 const erc20FeeProxyContractAbiFragment = [
@@ -118,9 +118,12 @@ export default class ProxyERC20InfoRetriever
         (log) =>
           // filter the token allowed
           (!this.tokensAccepted ||
-            this.tokensAccepted.includes(log.parsedLog.values.paymentCurrency.toLowerCase())) &&
+            this.tokensAccepted.includes(log.parsedLog.values.tokenAddress.toLowerCase())) &&
           // check the rate timespan
-          this.maxRateTimespan.toString() === log.parsedLog.values.maxRateTimespan.toString() &&
+          this.maxRateTimespan >= log.parsedLog.values.maxRateTimespan.toNumber() &&
+          // check the requestCurrency
+          getCurrencyHash(this.requestCurrency).toLowerCase() ===
+            log.parsedLog.values.this.requestCurrency.toLowerCase() &&
           // check to address
           log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
@@ -134,7 +137,7 @@ export default class ProxyERC20InfoRetriever
           .div(10 ** decimalPadding)
           .toString();
         const feeAmountWithRightDecimal = ethers.utils
-          .bigNumberify(t.parsedLog.values.feesRequestAmount.toString() || 0)
+          .bigNumberify(t.parsedLog.values.feeAmount.toString() || 0)
           .div(10 ** decimalPadding)
           .toString();
 
@@ -143,11 +146,11 @@ export default class ProxyERC20InfoRetriever
           name: this.eventName,
           parameters: {
             block: t.log.blockNumber,
-            feeAddress: t.parsedLog.values.feesTo || undefined,
+            feeAddress: t.parsedLog.values.feeAddress || undefined,
             feeAmount: feeAmountWithRightDecimal,
             feeAmountInCrypto: t.parsedFeeLog?.values.amount.toString() || undefined,
             amountInCrypto: t.parsedFeeLog?.values.feeAmount.toString(),
-            tokenAddress: t.parsedLog.values.paymentCurrency,
+            tokenAddress: t.parsedLog.values.tokenAddress,
             to: this.toAddress,
             txHash: t.log.transactionHash,
             maxRateTimespan: t.parsedLog.values.maxRateTimespan.toString(),

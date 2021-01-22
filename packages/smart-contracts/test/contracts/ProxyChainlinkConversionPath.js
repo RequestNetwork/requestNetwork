@@ -81,13 +81,13 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
         );
        
         expectEvent.inLogs(logs, 'TransferWithReferenceAndFee', {
-          paymentCurrency: path[path.length-1],
+          tokenAddress: path[path.length-1],
           to,
           requestAmount: smallAmountInFIAT,
           requestCurrency: path[0],
           paymentReference: ethers.utils.keccak256(referenceExample),
-          feesRequestAmount: smallerAmountInFIAT,
-          feesTo: feeAddress,
+          feeAmount: smallerAmountInFIAT,
+          feeAddress: feeAddress,
           maxRateTimespan: "0",
         });
       
@@ -134,13 +134,13 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
         );
        
         expectEvent.inLogs(logs, 'TransferWithReferenceAndFee', {
-          paymentCurrency: path[path.length-1],
+          tokenAddress: path[path.length-1],
           to,
           requestAmount: smallAmountInFIAT,
           requestCurrency: path[0],
           paymentReference: ethers.utils.keccak256(referenceExample),
-          feesRequestAmount: smallerAmountInFIAT,
-          feesTo: feeAddress,
+          feeAmount: smallerAmountInFIAT,
+          feeAddress: feeAddress,
           maxRateTimespan: "0",
         });
       

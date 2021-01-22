@@ -20,13 +20,13 @@ contract ProxyChainlinkConversionPath {
 
   // Event to declare a transfer with a reference
   event TransferWithReferenceAndFee(
-    address paymentCurrency,
+    address tokenAddress,
     address to,
     uint256 requestAmount,
     address requestCurrency,
     bytes indexed paymentReference,
-    uint256 feesRequestAmount,
-    address feesTo,
+    uint256 feeAmount,
+    address feeAddress,
     uint256 maxRateTimespan
   );
 
@@ -36,8 +36,8 @@ contract ProxyChainlinkConversionPath {
    * @param _requestAmount request amount
    * @param _path conversion path
    * @param _paymentReference Reference of the payment related
-   * @param _feesRequestAmount The amount of the payment fee
-   * @param _feesTo The fee recipient
+   * @param _feeAmount The amount of the payment fee
+   * @param _feeAddress The fee recipient
    * @param _maxToSpend amount max that we can spend on the behalf of the user
    * @param _maxRateTimespan max time span with the oldestrate, ignored if zero
    */
@@ -46,13 +46,13 @@ contract ProxyChainlinkConversionPath {
     uint256 _requestAmount,
     address[] calldata _path,
     bytes calldata _paymentReference,
-    uint256 _feesRequestAmount,
-    address _feesTo,
+    uint256 _feeAmount,
+    address _feeAddress,
     uint256 _maxToSpend,
     uint256 _maxRateTimespan
   ) external
   {
-    (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(_path, _requestAmount, _feesRequestAmount, _maxRateTimespan);
+    (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(_path, _requestAmount, _feeAmount, _maxRateTimespan);
 
     require(amountToPay.add(amountToPayInFees) <= _maxToSpend, "Amount to pay is over the user limit");
 
@@ -66,7 +66,7 @@ contract ProxyChainlinkConversionPath {
         amountToPay,
         _paymentReference,
         amountToPayInFees,
-        _feesTo
+        _feeAddress
       )
     );
     require(status, "transferFromWithReferenceAndFee failed");
@@ -80,8 +80,8 @@ contract ProxyChainlinkConversionPath {
       // request currency
       _path[0],
       _paymentReference,
-      _feesRequestAmount,
-      _feesTo,
+      _feeAmount,
+      _feeAddress,
       _maxRateTimespan
     );
   }
@@ -89,7 +89,7 @@ contract ProxyChainlinkConversionPath {
   function getConversions(
     address[] memory _path,
     uint256 _requestAmount,
-    uint256 _feesRequestAmount,
+    uint256 _feeAmount,
     uint256 _maxRateTimespan
   ) internal
     returns (uint256 amountToPay, uint256 amountToPayInFees)
@@ -101,6 +101,6 @@ contract ProxyChainlinkConversionPath {
     
     // Get the amount to pay in the crypto currency chosen
     amountToPay = _requestAmount.mul(rate).div(decimals);
-    amountToPayInFees = _feesRequestAmount.mul(rate).div(decimals);
+    amountToPayInFees = _feeAmount.mul(rate).div(decimals);
   }
 }
