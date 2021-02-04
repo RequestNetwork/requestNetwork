@@ -294,14 +294,14 @@ the 'addFee' event:
 
 The fee proxy contract address is determined by the `paymentNetwork.values.network` (see (table)[#Contract] with proxy contract addresses).
 
-Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a payment:
+Any `TransferWithConversionAndReference` events emitted from the proxy contract with the following arguments are considered as a payment:
 
 - `tokenAddress` is contained in `paymentNetwork.values.tokenAccepted`
 - `to` `===` `paymentAddress`
 - `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
 - `maxRateTimespan` `===` `paymentNetwork.values.maxRateTimespan`
 
-Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a refund:
+Any `TransferWithConversionAndReference` events emitted from the proxy contract with the following arguments are considered as a refund:
 
 - `tokenAddress` is contained in `paymentNetwork.values.tokenAccepted`
 - `to` `===` `refundAddress`
@@ -310,4 +310,4 @@ Any `TransferWithReferenceAndFee` events emitted from the proxy contract with th
 
 The sum of payment amounts minus the sum of refund amounts is considered the balance.
 
-The fees amount can be be infered from the `TransferWithReferenceAndFee` events emitted from the proxy contract.
+The fees amount can be be infered from the `TransferWithConversionAndReference` events emitted from the proxy contract.
