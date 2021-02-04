@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20ConversionProxyContractAbiFragment = [
-  'event TransferWithReferenceAndFee(address tokenAddress, address to, uint256 requestAmount, address requestCurrency, bytes indexed paymentReference, uint256 feeAmount, address feeAddress, uint256 maxRateTimespan)',
+  'event TransferWithConversionAndReference(uint256 amount, address currency, bytes indexed paymentReference, uint256 feeAmount, uint256 maxRateTimespan)',
 ];
 
 const erc20FeeProxyContractAbiFragment = [
@@ -69,15 +69,10 @@ export default class ProxyERC20InfoRetriever
    */
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     // Create a filter to find all the Fee Transfer logs with the payment reference
-    const conversionFilter = this.contractConversionProxy.filters.TransferWithReferenceAndFee(
-      null,
-      null,
+    const conversionFilter = this.contractConversionProxy.filters.TransferWithConversionAndReference(
       null,
       null,
       '0x' + this.paymentReference,
-      null,
-      null,
-      null,
     ) as ethers.providers.Filter;
     conversionFilter.fromBlock = this.conversionProxyCreationBlockNumber;
     conversionFilter.toBlock = 'latest';
@@ -118,14 +113,14 @@ export default class ProxyERC20InfoRetriever
         (log) =>
           // filter the token allowed
           (!this.tokensAccepted ||
-            this.tokensAccepted.includes(log.parsedLog.values.tokenAddress.toLowerCase())) &&
+            this.tokensAccepted.includes(log.parsedFeeLog!.values.tokenAddress.toLowerCase())) &&
           // check the rate timespan
           this.maxRateTimespan >= log.parsedLog.values.maxRateTimespan.toNumber() &&
           // check the requestCurrency
           getCurrencyHash(this.requestCurrency).toLowerCase() ===
-            log.parsedLog.values.requestCurrency.toLowerCase() &&
+            log.parsedLog.values.currency.toLowerCase() &&
           // check to address
-          log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase(),
+          log.parsedFeeLog!.values.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
       .map(async (t) => {
@@ -133,7 +128,7 @@ export default class ProxyERC20InfoRetriever
         const decimalPadding = chainlinkDecimal - getDecimalsForCurrency(this.requestCurrency);
 
         const amountWithRightDecimal = ethers.utils
-          .bigNumberify(t.parsedLog.values.requestAmount.toString())
+          .bigNumberify(t.parsedLog.values.amount.toString())
           .div(10 ** decimalPadding)
           .toString();
         const feeAmountWithRightDecimal = ethers.utils
@@ -146,11 +141,11 @@ export default class ProxyERC20InfoRetriever
           name: this.eventName,
           parameters: {
             block: t.log.blockNumber,
-            feeAddress: t.parsedLog.values.feeAddress || undefined,
+            feeAddress: t.parsedFeeLog!.values.feeAddress || undefined,
             feeAmount: feeAmountWithRightDecimal,
             feeAmountInCrypto: t.parsedFeeLog?.values.amount.toString() || undefined,
             amountInCrypto: t.parsedFeeLog?.values.feeAmount.toString(),
-            tokenAddress: t.parsedLog.values.tokenAddress,
+            tokenAddress: t.parsedFeeLog!.values.tokenAddress,
             to: this.toAddress,
             txHash: t.log.transactionHash,
             maxRateTimespan: t.parsedLog.values.maxRateTimespan.toString(),
