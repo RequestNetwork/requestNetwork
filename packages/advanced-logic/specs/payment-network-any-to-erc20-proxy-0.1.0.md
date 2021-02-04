@@ -61,7 +61,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 | Network | Contract Address                           |
 | ------- | ------------------------------------------ |
 | Mainnet | TODO                                       |
-| Rinkeby | 0x8BD36f90358b43da1d796d50b97e6605F5881611 |
+| Rinkeby | 0x78334ed20da456e89cd7e5a90de429d705f5bc88 |
 | Private | 0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a |
 
 ## Properties
