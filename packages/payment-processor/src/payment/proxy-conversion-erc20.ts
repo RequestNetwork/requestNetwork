@@ -17,7 +17,7 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
  * if the current approval is missing or not sufficient.
  * @param request request to pay, used to know the network
  * @param ownerAddress address of the payer
- * @param paymentCurrency ERC20 currency used for the swap
+ * @param tokenAddress ERC20 currency used for the swap
  * @param signerOrProvider the web3 provider. Defaults to Etherscan.
  * @param minAmount ensures the approved amount is sufficient to pay this amount
  * @param overrides optionally, override default transaction values, like gas.

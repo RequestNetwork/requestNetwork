@@ -20,7 +20,7 @@ import {
  *
  *  - maxInputAmount: maximum number of ERC20 allowed for the swap before payment, considering both amount and fees
  *  - path: array of token addresses to be used for the "swap path".
- *    ['0xPaymentCurrency', '0xIntermediate1', ..., '0xRequestCurrency']
+ *    ['0xTokenAddress', '0xIntermediate1', ..., '0xRequestCurrency']
  *  - deadline: time in milliseconds since UNIX epoch, after which the swap should not be executed.
  */
 export interface ISwapSettings {
@@ -96,16 +96,18 @@ export function encodeSwapToPayErc20FeeRequest(
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-  request,
+    request,
   );
   const amountToPay = getAmountToPay(request, options?.amount);
   const feeToPay = bigNumberify(options?.feeAmount || feeAmount || 0);
 
-  if (swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()) {
+  if (
+    swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()
+  ) {
     throw new Error('Last item of the path should be the request currency');
   }
   // tslint:disable-next-line:no-magic-numbers
-  if (Date.now() > (swapSettings.deadline * 1000)) {
+  if (Date.now() > swapSettings.deadline * 1000) {
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
   if (!request.currencyInfo.network) {

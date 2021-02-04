@@ -22,26 +22,14 @@
       "inputs": [
         {
           "indexed": false,
-          "internalType": "address",
-          "name": "paymentCurrency",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
           "internalType": "uint256",
-          "name": "requestAmount",
+          "name": "amount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "requestCurrency",
+          "name": "currency",
           "type": "address"
         },
         {
@@ -53,14 +41,8 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "feesRequestAmount",
+          "name": "feeAmount",
           "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "feesTo",
-          "type": "address"
         },
         {
           "indexed": false,
@@ -69,7 +51,7 @@
           "type": "uint256"
         }
       ],
-      "name": "TransferWithReferenceAndFee",
+      "name": "TransferWithConversionAndReference",
       "type": "event"
     },
     {
@@ -127,12 +109,12 @@
         },
         {
           "internalType": "uint256",
-          "name": "_feesRequestAmount",
+          "name": "_feeAmount",
           "type": "uint256"
         },
         {
           "internalType": "address",
-          "name": "_feesTo",
+          "name": "_feeAddress",
           "type": "address"
         },
         {
