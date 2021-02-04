@@ -19,14 +19,11 @@ contract ProxyChainlinkConversionPath {
   }
 
   // Event to declare a transfer with a reference
-  event TransferWithReferenceAndFee(
-    address tokenAddress,
-    address to,
-    uint256 requestAmount,
-    address requestCurrency,
+  event TransferWithConversionAndReference(
+    uint256 amount,
+    address currency,
     bytes indexed paymentReference,
     uint256 feeAmount,
-    address feeAddress,
     uint256 maxRateTimespan
   );
 
@@ -72,16 +69,12 @@ contract ProxyChainlinkConversionPath {
     require(status, "transferFromWithReferenceAndFee failed");
 
     // Event to declare a transfer with a reference
-    emit TransferWithReferenceAndFee(
-      // payment currency
-      _path[_path.length - 1],
-      _to,
+    emit TransferWithConversionAndReference(
       _requestAmount,
       // request currency
       _path[0],
       _paymentReference,
       _feeAmount,
-      _feeAddress,
       _maxRateTimespan
     );
   }

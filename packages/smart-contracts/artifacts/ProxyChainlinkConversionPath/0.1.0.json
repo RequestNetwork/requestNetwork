@@ -22,26 +22,14 @@
       "inputs": [
         {
           "indexed": false,
-          "internalType": "address",
-          "name": "tokenAddress",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
           "internalType": "uint256",
-          "name": "requestAmount",
+          "name": "amount",
           "type": "uint256"
         },
         {
           "indexed": false,
           "internalType": "address",
-          "name": "requestCurrency",
+          "name": "currency",
           "type": "address"
         },
         {
@@ -58,18 +46,12 @@
         },
         {
           "indexed": false,
-          "internalType": "address",
-          "name": "feeAddress",
-          "type": "address"
-        },
-        {
-          "indexed": false,
           "internalType": "uint256",
           "name": "maxRateTimespan",
           "type": "uint256"
         }
       ],
-      "name": "TransferWithReferenceAndFee",
+      "name": "TransferWithConversionAndReference",
       "type": "event"
     },
     {
