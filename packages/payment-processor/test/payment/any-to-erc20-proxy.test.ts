@@ -10,7 +10,6 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import {getCurrencyHash} from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
 
 // import { getErc20Balance } from '../../src/payment/erc20';
@@ -77,44 +76,11 @@ const validRequest: ClientTypes.IRequestData = {
 };
 
 describe('conversion-erc20-fee-proxy', () => {
-  describe('encodeSwapErc20FeeRequest', () => {
-    it('should throw an error if the path is not valid', async () => {
-      await expect(payAnyToErc20ProxyRequest(
-        validRequest,
-        [getCurrencyHash(validRequest.currencyInfo), erc20ContractAddress],
-        // tslint:disable-next-line: no-magic-numbers
-        bigNumberify(2).pow(256).sub(1),
-        wallet,
-        undefined,
-        undefined,
-        'private',
-        )).rejects.toThrowError(
-        'VM Exception while processing transaction: revert No aggregator found',
-      );
-    });
-
-    it('should throw an error if the currencyInfo does not match the first of the path', async () => {
-      const request = Utils.deepCopy(validRequest);
-      request.currencyInfo.value = 'USD';
-
-      await expect(payAnyToErc20ProxyRequest(
-        request,
-        [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'}), erc20ContractAddress],
-        // tslint:disable-next-line: no-magic-numbers
-        bigNumberify(2).pow(256).sub(1),
-        wallet,
-        undefined,
-        undefined,
-        'private',
-      )).rejects.toThrowError(
-        'The first entry of the path does not match the request currency',
-      );
-    });
-
+  describe('payAnyToErc20ProxyRequest', () => {
     it('should throw an error if the token is not accepted', async () => {
       await expect(payAnyToErc20ProxyRequest(
         validRequest,
-        [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'})],
+        '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
         // tslint:disable-next-line: no-magic-numbers
         bigNumberify(2).pow(256).sub(1),
         wallet,
@@ -132,7 +98,7 @@ describe('conversion-erc20-fee-proxy', () => {
 
       await expect(payAnyToErc20ProxyRequest(
         request,
-        [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'}), erc20ContractAddress],
+        erc20ContractAddress,
         // tslint:disable-next-line: no-magic-numbers
         bigNumberify(2).pow(256).sub(1),
         wallet,
@@ -151,7 +117,7 @@ describe('conversion-erc20-fee-proxy', () => {
       wallet.sendTransaction = spy;
       await payAnyToErc20ProxyRequest(
         validRequest,
-        [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'}), erc20ContractAddress],
+         erc20ContractAddress,
         // tslint:disable-next-line: no-magic-numbers
         bigNumberify(2).pow(256).sub(1),
         wallet,
@@ -190,7 +156,7 @@ describe('conversion-erc20-fee-proxy', () => {
       // convert and pay
       const tx = await payAnyToErc20ProxyRequest(
         validRequest,
-        [getCurrencyHash(validRequest.currencyInfo), getCurrencyHash({type:RequestLogicTypes.CURRENCY.ISO4217, value:'USD'}), erc20ContractAddress],
+        erc20ContractAddress,
         // tslint:disable-next-line: no-magic-numbers
         bigNumberify(2).pow(256).sub(1),
         wallet,
