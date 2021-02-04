@@ -4,7 +4,6 @@ import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import Currency from '@requestnetwork/currency';
 import {
   conversionToPayRequest,
   approveErc20ForProxyConversionIfNeeded,
@@ -586,9 +585,8 @@ describe('ERC20 localhost request creation and detection test', () => {
     }
 
     // USD => token
-    const path = [Currency.getCurrencyHash(data.currencyInfo), tokenContractAddress];
     const maxToSpend = new utils.BigNumber(2).pow(255);
-    const paymentTx = await conversionToPayRequest(data, path, maxToSpend, wallet);
+    const paymentTx = await conversionToPayRequest(data, tokenContractAddress, maxToSpend, wallet);
     await paymentTx.wait();
 
     data = await request.refresh();

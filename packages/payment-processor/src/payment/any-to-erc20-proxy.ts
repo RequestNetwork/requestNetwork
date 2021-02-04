@@ -2,9 +2,9 @@ import { constants, ContractTransaction, Signer } from 'ethers';
 import { Web3Provider } from 'ethers/providers';
 import { bigNumberify, BigNumberish } from 'ethers/utils';
 
-import { getDecimalsForCurrency } from '@requestnetwork/currency';
+import { getDecimalsForCurrency, getConversionPath } from '@requestnetwork/currency';
 import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
-import { ClientTypes } from '@requestnetwork/types';
+import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ProxyChainlinkConversionPathContract } from '../contracts/ProxyChainlinkConversionPath';
 // import { ChainlinkConversionPath } from '../contracts/ChainlinkConversionPath';
@@ -20,7 +20,8 @@ import {
 /**
  * Processes a transaction to pay an ERC20 Request with fees.
  * @param request
- * @param tokenAddress token address to pay with
+ * @param paymentTokenAddress the token address to pay the request
+ * @param maxToSpend maximum of token the user is willing to spend
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
@@ -29,7 +30,7 @@ import {
  */
 export async function payAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  path: string[],
+  paymentTokenAddress: string,
   maxToSpend: BigNumberish,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
@@ -39,7 +40,7 @@ export async function payAnyToErc20ProxyRequest(
 ): Promise<ContractTransaction> {
   const encodedTx = await encodePayAnyToErc20ProxyRequest(
     request,
-    path,
+    paymentTokenAddress,
     maxToSpend,
     signerOrProvider,
     amount,
@@ -62,7 +63,7 @@ export async function payAnyToErc20ProxyRequest(
 /**
  * Encodes the call to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
  * @param request request to pay
- * @param tokenAddress token address to pay with
+ * @param paymentTokenAddress token address to pay with
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
@@ -70,13 +71,24 @@ export async function payAnyToErc20ProxyRequest(
  */
 export async function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  path: string[],
+  paymentTokenAddress: string,
   maxToSpend: BigNumberish,
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
   network: string = 'mainnet',
 ): Promise<string> {
+  // get the conversion path
+  // Compute the path automatically
+  const paymentCurrency = { type: RequestLogicTypes.CURRENCY.ERC20, value: paymentTokenAddress };
+  const path = getConversionPath(request.currencyInfo, paymentCurrency, network);
+  if (!path) {
+    throw new Error(
+      `Impossible to find a conversion path between from ${request.currencyInfo} to ${paymentCurrency}`,
+    );
+  }
+
+  // Check request
   validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
   const signer = getSigner(signerOrProvider);
@@ -87,9 +99,6 @@ export async function encodePayAnyToErc20ProxyRequest(
     feeAmount,
     maxRateTimespan,
   } = getRequestPaymentValues(request);
-  // get the conversion path
-  // TODO: Compute the path automatically
-  // const path = getConversionPath(request.currencyInfo, tokenAddress);
 
   const chainlinkDecimal = 8;
   const decimalPadding = chainlinkDecimal - getDecimalsForCurrency(request.currencyInfo);
@@ -119,18 +128,3 @@ export async function encodePayAnyToErc20ProxyRequest(
     maxRateTimespan || 0,
   ]);
 }
-
-// TODO: compute the conversion path
-// /**
-//  * Get the conversion path between the request currency and the payment token address
-//  *
-//  * @param requestCurrency currency of the request
-//  * @param tokenAddress address of the token to pay with
-//  * @return path of the conversion
-//  */
-// export function getConversionPath(
-//   requestCurrency: RequestLogicTypes.ICurrency,
-//   tokenAddress: string,
-// ): string[] {
-//   return [Utils.currency.getCurrencyHash(requestCurrency), tokenAddress];
-// }
