@@ -59,11 +59,11 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 
 [See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ProxyChainlinkConversionPath.sol)
 
-| Network | Contract Address                           |
-| ------- | ------------------------------------------ |
-| Mainnet | TODO                                       |
-| Rinkeby | TODO                                       |
-| Private | TODO                                       |
+| Network | Contract Address                          |
+| ------- | ----------------------------------------- |
+| Mainnet | TODO                                      |
+| Rinkeby | TODO                                      |
+| Private | TODO                                      |
 
 ## Properties
 
