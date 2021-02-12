@@ -111,12 +111,6 @@ export async function encodePayAnyToErc20ProxyRequest(
   const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
   const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);
 
-  // TODO: compute a maxToSpend automatically
-  // const conversionPathContractAddress = chainlinkConversionPath.getAddress(network);
-  // const conversionPathContract = ChainlinkConversionPath.connect(conversionPathContractAddress, signer);
-  // const conversion = await conversionPathContract.functions.getConversion(amountToPay.add(feeToPay), path);
-  // const maxToSpend = bigNumberify(conversion.result).mul(110).div(100);
-
   return proxyContract.interface.functions.transferFromWithReferenceAndFee.encode([
     paymentAddress,
     amountToPay,
