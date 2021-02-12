@@ -85,7 +85,7 @@ module.exports = async function(deployer) {
     
     // Swap-to-pay related contracts
     // Payment erc20: ALPHA
-    const erc20AlphaInstance = await deployer.deploy(erc20, 100000); // 100000 initial supply
+    const erc20AlphaInstance = await deployer.deploy(erc20, "10000000000000000000000000000"); // 100000 initial supply
     // Mock a swap router
     await deployer.deploy(FakeSwapRouter);
     // 1 ERC20 = 2 ALPHA
