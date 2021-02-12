@@ -43,7 +43,9 @@
   "dependencies": {
     "@metamask/contract-metadata": "1.20.0",
     "@requestnetwork/types": "0.29.2",
-    "ethers": "4.0.48"
+    "@requestnetwork/utils": "0.28.2",
+    "ethers": "4.0.48",
+    "node-dijkstra": "2.5.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
