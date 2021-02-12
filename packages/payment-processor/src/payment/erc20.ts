@@ -46,15 +46,11 @@ export async function payErc20Request(
   }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
     if (swapSettings) {
-      return swapErc20FeeProxyRequest(
-        request,
-        signerOrProvider,
-        swapSettings,
-        {
-          amount,
-          feeAmount,
-          overrides
-        });
+      return swapErc20FeeProxyRequest(request, signerOrProvider, swapSettings, {
+        amount,
+        feeAmount,
+        overrides,
+      });
     } else {
       return payErc20FeeProxyRequest(request, signerOrProvider, amount, feeAmount, overrides);
     }
@@ -71,15 +67,15 @@ export async function payErc20Request(
 export async function hasErc20Approval(
   request: ClientTypes.IRequestData,
   account: string,
-  provider: Provider = getNetworkProvider(request),
+  signerOrProvider: Provider | Signer = getNetworkProvider(request),
 ): Promise<boolean> {
   return checkErc20Allowance(
     account,
     getProxyAddress(request),
-    provider,
+    signerOrProvider,
     request.currencyInfo.value,
-    request.expectedAmount
-  )
+    request.expectedAmount,
+  );
 }
 
 /**
@@ -93,11 +89,11 @@ export async function hasErc20Approval(
 export async function checkErc20Allowance(
   ownerAddress: string,
   spenderAddress: string,
-  provider: Provider | Signer,
+  signerOrProvider: Provider | Signer,
   tokenAddress: string,
   amount: BigNumberish,
 ): Promise<boolean> {
-  const erc20Contract = ERC20Contract.connect(tokenAddress, provider);
+  const erc20Contract = ERC20Contract.connect(tokenAddress, signerOrProvider);
   const allowance = await erc20Contract.allowance(ownerAddress, spenderAddress);
   return allowance.gte(amount);
 }
@@ -111,11 +107,11 @@ export async function checkErc20Allowance(
 export async function approveErc20IfNeeded(
   request: ClientTypes.IRequestData,
   account: string,
-  provider: Provider = getNetworkProvider(request),
+  signerOrProvider: Provider | Signer = getNetworkProvider(request),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  if (!await hasErc20Approval(request, account, provider)) {
-    return approveErc20(request, getSigner(provider), overrides);
+  if (!(await hasErc20Approval(request, account, signerOrProvider))) {
+    return approveErc20(request, getSigner(signerOrProvider), overrides);
   }
 }
 
@@ -162,7 +158,7 @@ export function encodeApproveErc20(
   return encodeApproveAnyErc20(
     request.currencyInfo.value,
     getProxyAddress(request),
-    getSigner(signerOrProvider)
+    getSigner(signerOrProvider),
   );
 }
 
@@ -175,7 +171,7 @@ export function encodeApproveErc20(
 export function encodeApproveAnyErc20(
   tokenAddress: string,
   spenderAddress: string,
-  signerOrProvider: Provider | Signer = getProvider()
+  signerOrProvider: Provider | Signer = getProvider(),
 ): string {
   const erc20interface = ERC20Contract.connect(tokenAddress, signerOrProvider).interface;
   return erc20interface.functions.approve.encode([
