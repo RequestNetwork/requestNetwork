@@ -10,6 +10,7 @@ Prerequisite: Having read the advanced logic specification (see [here](./advance
 ## Description
 
 This extension allows the payments and the refunds to be made in ERC20 tokens on the Ethereum blockchain for a request made in others currencies.
+The rate is computing at the payment thanks to onchain oracles.
 This Payment Network is quite similar to the [ERC20 Fee Proxy Contract](./payment-network-erc20-fee-proxy-contract-0.1.0.md) extension, with a rate conversion before the payment.
 
 The payment is made through a proxy contract. This proxy contract call the [ERC20 Fee Proxy Contract](./payment-network-erc20-fee-proxy-contract-0.1.0.md) to do the ERC20 token transfer on behalf of the user. The contract ensures a link between an ERC20 transfer and a request through a `paymentReference`.
@@ -56,7 +57,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 - `feeAddress` is the destination address for the fee
 - `maxRateTimespan` is the time span maximum given for the payment
 
-[See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC20FeeProxy.sol)
+[See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ProxyChainlinkConversionPath.sol)
 
 | Network | Contract Address                           |
 | ------- | ------------------------------------------ |
