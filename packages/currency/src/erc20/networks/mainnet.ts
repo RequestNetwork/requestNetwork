@@ -65,7 +65,7 @@ export const supportedMainnetERC20Details = Object.entries(supportedERC20Tokens)
         name: value.name,
         decimals: value.decimals,
         symbol: value.symbol,
-        address: address,
+        address,
       };
     }
     return acc;

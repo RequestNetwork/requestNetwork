@@ -17,7 +17,7 @@ import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import { stringToCurrency } from '@requestnetwork/currency';
-import ethers from 'ethers';
+import { utils as ethersUtils } from 'ethers';
 import Request from './request';
 import localUtils from './utils';
 
@@ -413,6 +413,6 @@ export default class RequestNetwork {
    * @returns If the address is valid or not
    */
   private validERC20Address(address: string): boolean {
-    return ethers.utils.getAddress(address) === address;
+    return ethersUtils.getAddress(address) === address;
   }
 }
