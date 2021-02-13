@@ -10,7 +10,6 @@ import {
   getSupportedERC20Tokens,
 } from './erc20';
 
-export { validERC20Address } from './erc20';
 export { getPath as getConversionPath } from './chainlink-path-aggregators';
 
 // Simple function to get the currency from the value alone

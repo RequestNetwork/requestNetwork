@@ -1,5 +1,4 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { utils } from 'ethers';
 import { supportedNetworks, supportedNetworksDetails, ERC20SymbolDetails } from './networks';
 
 /**
@@ -42,16 +41,6 @@ export function getErc20Decimals(currency: RequestLogicTypes.ICurrency): number 
 
   // If no supported ERC20 is found, throw error
   throw new Error(`Unsupported ERC20 address: ${currency.value}`);
-}
-
-/**
- * Returns true if the address is a valid checksum address
- *
- * @param address The address to validate
- * @returns If the address is valid or not
- */
-export function validERC20Address(address: string): boolean {
-  return utils.getAddress(address) === address;
 }
 
 /**
