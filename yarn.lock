@@ -7594,12 +7594,10 @@ doctrine@^3.0.0:
   dependencies:
     esutils "^2.0.2"
 
-docusaurus-plugin-typedoc@0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-0.2.0.tgz#ddb703eedbd53495a03528b5ba6468d16e5736d7"
-  integrity sha512-i50Lsn08eXxdfGFH0Ldbxm0ZpHJzum03nk49JhOcdi2O0qe8vP2MxptG+dLYYWu8jG71a1S/sEifPLa7POjFyQ==
-  dependencies:
-    fs-extra "^9.0.1"
+docusaurus-plugin-typedoc@0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-0.9.0.tgz#c44a3b1fde5e68584e168a9b34ef8bde8ed2711a"
+  integrity sha512-6quTdU9fsJEASGMDoxmaascFZyF2/s+GXx6odYMa7rDoDPTOfgqEQqZwXFWGNH5OuBKrdu1xz4E+irr+qlDBRQ==
 
 dom-converter@^0.2:
   version "0.2.0"
@@ -15966,6 +15964,11 @@ preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
   integrity sha1-gV7R9uvGWSb4ZbMQwHE7yzMVzks=
+
+prettier@2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.1.1.tgz#d9485dd5e499daa6cb547023b87a6cf51bee37d6"
+  integrity sha512-9bY+5ZWCfqj3ghYBLxApy2zf6m+NJo5GzmLTpr9FsApsfjriNnS2dahWReHMi7qNPhhHl9SYHJs2cHZLgexNIw==
 
 prettier@2.2.1:
   version "2.2.1"
