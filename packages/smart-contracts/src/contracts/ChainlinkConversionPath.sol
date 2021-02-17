@@ -108,7 +108,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     decimals = DECIMALS;
     oldestRateTimestamp = block.timestamp;
 
-    // For every conversions of the path
+    // For every conversion of the path
     for (uint i; i < _path.length - 1; i++) {
       (AggregatorFraction aggregator, bool reverseAggregator, uint256 decimalsInput, uint256 decimalsOutput) = getAggregatorAndDecimals(_path[i], _path[i + 1]);
 
