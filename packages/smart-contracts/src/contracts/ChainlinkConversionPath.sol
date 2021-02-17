@@ -203,7 +203,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   /**
   * @notice Checks if an address is a contract
   * @param _addr Address to check
-  * @return true if the address host a contract, false otherwise
+  * @return true if the address hosts a contract, false otherwise
   */
   function isContract(address _addr)
     private
