@@ -120,7 +120,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
 
       // get the rate of the current step
       uint256 currentRate = uint256(aggregator.latestAnswer());
-      // get the number of decimal of the current rate
+      // get the number of decimals of the current rate
       uint256 decimalsAggregator = uint256(aggregator.decimals());
 
       // mul with the difference of decimals before the current rate computation (for more precision)
