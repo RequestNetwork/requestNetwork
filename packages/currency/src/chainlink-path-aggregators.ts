@@ -44,7 +44,8 @@ const aggregatorsNodes: any = {
 };
 
 /**
- * Gets the conversion path between two currencies
+ * Gets the on-chain conversion path between two currencies.
+ * The path is used to value currencyFrom against currencyTo.
  *
  * @param currencyFrom currency from
  * @param currencyTo currency to
