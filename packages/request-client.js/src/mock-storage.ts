@@ -78,7 +78,7 @@ export default class MockStorage implements StorageTypes.IStorage {
         result.emit('confirmed', resultData);
       }
       // tslint:disable-next-line:no-magic-numbers
-    }, 100);
+    }, 200);
 
     return result;
   }
