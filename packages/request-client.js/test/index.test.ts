@@ -1719,7 +1719,7 @@ describe('index', () => {
     });
   });
 
-  describe.only('ERC20 proxy contract requests', () => {
+  describe('ERC20 proxy contract requests', () => {
     it('can create ERC20 requests with given salt', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
