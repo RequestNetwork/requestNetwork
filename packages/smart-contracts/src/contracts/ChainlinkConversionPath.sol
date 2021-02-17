@@ -90,10 +90,10 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   }
 
   /**
-  * @notice Computes the rate from a list of conversion
+  * @notice Computes the conversion rate from a list of currencies
   * @param _path List of addresses representing the currencies for the conversions
-  * @return rate the rate
-  * @return oldestRateTimestamp he oldest timestamp of the path
+  * @return rate The rate
+  * @return oldestRateTimestamp The oldest timestamp of the path
   * @return decimals of the conversion rate
   */
   function getRate(
