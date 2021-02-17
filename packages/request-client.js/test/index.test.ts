@@ -382,7 +382,7 @@ describe('index', () => {
     const requestIdLength = 66;
     expect(requestId.length).toBe(requestIdLength);
 
-    await new Promise((resolve): any => setTimeout(resolve, 150));
+    await new Promise((resolve): any => setTimeout(resolve, 250));
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
@@ -1102,7 +1102,7 @@ describe('index', () => {
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-      await new Promise((resolve): any => setTimeout(resolve, 150));
+      await new Promise((resolve): any => setTimeout(resolve, 250));
       const acceptResult = await fetchedRequest.accept(payerIdentity);
       expect(acceptResult.state).toBe(RequestLogicTypes.STATE.CREATED);
       expect(acceptResult.pending?.state).toBe(RequestLogicTypes.STATE.ACCEPTED);
@@ -1138,9 +1138,9 @@ describe('index', () => {
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       await fetchedRequest.cancel(payeeIdentity);
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       expect((await fetchedRequest.refresh()).state).toBe(RequestLogicTypes.STATE.CANCELED);
       jest.useRealTimers();
     });
@@ -1168,13 +1168,13 @@ describe('index', () => {
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       await fetchedRequest.increaseExpectedAmountRequest(
         TestData.parametersWithoutExtensionsData.expectedAmount,
         payerIdentity,
       );
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       expect((await fetchedRequest.refresh()).expectedAmount).toBe(
         String(new BigNumber(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2)),
       );
@@ -1184,7 +1184,7 @@ describe('index', () => {
         payeeIdentity,
       );
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       expect((await fetchedRequest.refresh()).expectedAmount).toBe('0');
       jest.useRealTimers();
     });
@@ -1284,7 +1284,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       const data = await request.refresh();
 
       expect(data).toBeDefined();
@@ -1327,7 +1327,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).toBe(16);
@@ -1364,7 +1364,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).toBe(16);
@@ -1406,7 +1406,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       const data = await request.refresh();
 
       // Payment reference should be fixed
@@ -1418,7 +1418,7 @@ describe('index', () => {
         ),
       ).toBe('c19da4923539c37f');
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       const dataAfterRefresh = await request.refresh();
 
       expect(dataAfterRefresh.balance?.balance).toBe('12345600000');
@@ -1474,7 +1474,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       const data = await request.refresh();
 
       // Payment reference should be fixed
@@ -1486,12 +1486,12 @@ describe('index', () => {
         ),
       ).toBe('c19da4923539c37f');
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       let dataAfterRefresh = await request.refresh();
       expect(dataAfterRefresh.balance).toBeNull();
 
       request.enablePaymentDetection();
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       dataAfterRefresh = await request.refresh();
 
       expect(dataAfterRefresh.balance?.balance).toBe('12345600000');
@@ -1510,7 +1510,7 @@ describe('index', () => {
       );
 
       request.disablePaymentDetection();
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       dataAfterRefresh = await request.refresh();
 
       expect(dataAfterRefresh.balance?.balance).toBe('12345600000');
@@ -1566,7 +1566,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       const data = await request.refresh();
 
       // Payment reference should be fixed
@@ -1578,7 +1578,7 @@ describe('index', () => {
         ),
       ).toBe('c19da4923539c37f');
 
-      jest.advanceTimersByTime(150);
+      jest.advanceTimersByTime(250);
       let dataAfterRefresh = await request.refresh();
       expect(dataAfterRefresh.balance).toBeNull();
 
@@ -1654,7 +1654,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      await new Promise((resolve): any => setTimeout(resolve, 150));
+      await new Promise((resolve): any => setTimeout(resolve, 250));
       let data = await request.refresh();
 
       expect(data).toBeDefined();
@@ -1719,7 +1719,7 @@ describe('index', () => {
     });
   });
 
-  describe('ERC20 proxy contract requests', () => {
+  describe.only('ERC20 proxy contract requests', () => {
     it('can create ERC20 requests with given salt', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
@@ -1750,7 +1750,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      await new Promise((resolve): any => setTimeout(resolve, 150));
+      await new Promise((resolve): any => setTimeout(resolve, 250));
       const data = await request.refresh();
 
       expect(data).toBeDefined();
@@ -1790,7 +1790,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      await new Promise((resolve): any => setTimeout(resolve, 150));
+      await new Promise((resolve): any => setTimeout(resolve, 250));
       const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).toBe(16);
