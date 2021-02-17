@@ -67,11 +67,11 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   }
 
   /**
-  * @notice Computes the conversion from an amount through a list of conversion
+  * @notice Computes the conversion of an amount through a list of intermediate conversions
   * @param _amountIn Amount to convert
-  * @param _path List of addresses representing the currencies for the conversions
-  * @return result the result after all the conversion
-  * @return oldestRateTimestamp he oldest timestamp of the path
+  * @param _path List of addresses representing the currencies for the intermediate conversions
+  * @return result The result after all the conversions
+  * @return oldestRateTimestamp The oldest timestamp of the path
   */
   function getConversion(
     uint256 _amountIn,
