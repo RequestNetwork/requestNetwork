@@ -1,10 +1,8 @@
-// JSON Schema of an address
-import * as schemaAddress from './format/address.json';
-
 /* eslint-disable spellcheck/spell-checker */
-// another json validation tool from https://github.com/epoberezkin/ajv
 import * as AJV from 'ajv';
-/* eslint-disable spellcheck/spell-checker */
+import * as jsonSchema from 'ajv/lib/refs/json-schema-draft-06.json';
+import * as schemaAddress from './format/address.json';
+import formats from './format';
 
 export default {
   /**
@@ -13,9 +11,7 @@ export default {
    * @return  object.valid == true if the json is valid, object.valid == false and object.errors otherwise.
    */
   validate(data: any): any {
-    const validationTool = new AJV()
-      .addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'))
-      .addSchema(schemaAddress);
+    const validationTool = new AJV().addMetaSchema(jsonSchema).addSchema(schemaAddress);
 
     // Check the meta information
     if (!data.meta) {
@@ -29,12 +25,8 @@ export default {
     }
 
     // Try to retrieve the schema json
-    let schema;
-    try {
-      schema = require(`./format/${data.meta.format}/${data.meta.format}-${
-        data.meta.version
-      }.json`);
-    } catch (e) {
+    const schema = formats[data.meta.format]?.[data.meta.version];
+    if (!schema) {
       return { valid: false, errors: [{ message: 'format not found' }] };
     }
 
