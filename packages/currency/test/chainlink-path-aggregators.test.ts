@@ -27,7 +27,7 @@ describe('chainlink-path-aggregators', () => {
       });
 
       it('cannot get path from invalid network', () => {
-        expect(() => getPath(USD, DAI, 'kovan')).toThrowError('network not supported');
+        expect(() => getPath(USD, DAI, 'unsupported-network')).toThrowError('network not supported');
       });
     });
   });

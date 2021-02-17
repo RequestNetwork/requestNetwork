@@ -18,7 +18,7 @@ interface AggregatorFraction {
 /**
  * @title ChainlinkConversionPath
  *
- * @notice ChainlinkConversionPath is a contract allowing to compute conversion rate from a Chainlink aggretators
+ * @notice ChainlinkConversionPath is a contract computing currency conversion rates based on Chainlink aggretators
  */
 contract ChainlinkConversionPath is WhitelistAdminRole {
   using SafeMath for uint256;
@@ -67,11 +67,11 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   }
 
   /**
-  * @notice Computes the conversion from an amount through a list of conversion
+  * @notice Computes the conversion of an amount through a list of intermediate conversions
   * @param _amountIn Amount to convert
-  * @param _path List of addresses representing the currencies for the conversions
-  * @return result the result after all the conversion
-  * @return oldestRateTimestamp he oldest timestamp of the path
+  * @param _path List of addresses representing the currencies for the intermediate conversions
+  * @return result The result after all the conversions
+  * @return oldestRateTimestamp The oldest timestamp of the path
   */
   function getConversion(
     uint256 _amountIn,
@@ -90,10 +90,10 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   }
 
   /**
-  * @notice Computes the rate from a list of conversion
+  * @notice Computes the conversion rate from a list of currencies
   * @param _path List of addresses representing the currencies for the conversions
-  * @return rate the rate
-  * @return oldestRateTimestamp he oldest timestamp of the path
+  * @return rate The rate
+  * @return oldestRateTimestamp The oldest timestamp of the path
   * @return decimals of the conversion rate
   */
   function getRate(
@@ -103,12 +103,12 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     view
     returns (uint256 rate, uint256 oldestRateTimestamp, uint256 decimals)
   {
-    // initialize the result with 1e18 decimals (for more precision)
+    // initialize the result with 18 decimals (for more precision)
     rate = DECIMALS;
     decimals = DECIMALS;
     oldestRateTimestamp = block.timestamp;
 
-    // For every conversions of the path
+    // For every conversion of the path
     for (uint i; i < _path.length - 1; i++) {
       (AggregatorFraction aggregator, bool reverseAggregator, uint256 decimalsInput, uint256 decimalsOutput) = getAggregatorAndDecimals(_path[i], _path[i + 1]);
 
@@ -120,7 +120,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
 
       // get the rate of the current step
       uint256 currentRate = uint256(aggregator.latestAnswer());
-      // get the number of decimal of the current rate
+      // get the number of decimals of the current rate
       uint256 decimalsAggregator = uint256(aggregator.decimals());
 
       // mul with the difference of decimals before the current rate computation (for more precision)
@@ -203,7 +203,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   /**
   * @notice Checks if an address is a contract
   * @param _addr Address to check
-  * @return true if the address host a contract, false otherwise
+  * @return true if the address hosts a contract, false otherwise
   */
   function isContract(address _addr)
     private
