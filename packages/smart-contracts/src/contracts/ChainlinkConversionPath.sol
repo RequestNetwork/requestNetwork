@@ -18,7 +18,7 @@ interface AggregatorFraction {
 /**
  * @title ChainlinkConversionPath
  *
- * @notice ChainlinkConversionPath is a contract allowing to compute conversion rate from a Chainlink aggretators
+ * @notice ChainlinkConversionPath is a contract computing currency conversion rates based on Chainlink aggretators
  */
 contract ChainlinkConversionPath is WhitelistAdminRole {
   using SafeMath for uint256;
