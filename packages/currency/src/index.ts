@@ -180,7 +180,7 @@ export function getAllSupportedCurrencies(): {
 }
 
 /**
- * Function to check if the amount is valid (representation of a positive integer)
+ * Gets the hash of a currency
  *
  * @param currency
  *

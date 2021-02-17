@@ -4,6 +4,7 @@ import { getCurrencyHash } from './index';
 const GRAPH = require('node-dijkstra');
 
 // List of aggregators nodes by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
+// It represents a graph of currency per network: Network => currencyFrom => currencyTo => cost (all currency pair have the same cost)
 const aggregatorsNodes: any = {
   private: {
     '0x38cf23c52bb4b13f051aec09580a2de845a7fa35': {
