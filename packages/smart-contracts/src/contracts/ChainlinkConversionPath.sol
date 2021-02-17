@@ -103,7 +103,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     view
     returns (uint256 rate, uint256 oldestRateTimestamp, uint256 decimals)
   {
-    // initialize the result with 1e18 decimals (for more precision)
+    // initialize the result with 18 decimals (for more precision)
     rate = DECIMALS;
     decimals = DECIMALS;
     oldestRateTimestamp = block.timestamp;
