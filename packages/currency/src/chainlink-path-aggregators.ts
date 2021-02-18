@@ -3,9 +3,10 @@ import { getCurrencyHash } from './index';
 
 const GRAPH = require('node-dijkstra');
 
-// List of aggregators nodes by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
-// It represents a graph of currency per network: Network => currencyFrom => currencyTo => cost (all currency pair have the same cost)
-const aggregatorsNodes: any = {
+// List of currencies supported by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
+// Network => currencyFrom => currencyTo => cost
+// Must be updated every time an aggregator is added
+const currencyPairs: any = {
   private: {
     '0x38cf23c52bb4b13f051aec09580a2de845a7fa35': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -59,12 +60,12 @@ export function getPath(
   currencyTo: RequestLogicTypes.ICurrency,
   network: string = 'mainnet',
 ): string[] | null {
-  if (!aggregatorsNodes[network]) {
+  if (!currencyPairs[network]) {
     throw Error('network not supported');
   }
 
   // load the Graph
-  const route = new GRAPH(aggregatorsNodes[network]);
+  const route = new GRAPH(currencyPairs[network]);
 
   // Get the path
   return route.path(
