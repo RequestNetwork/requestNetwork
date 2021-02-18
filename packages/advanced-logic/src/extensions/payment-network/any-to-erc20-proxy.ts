@@ -80,7 +80,7 @@ function createCreationAction(
     throw Error('tokensAccepted must contains only valid ethereum addresses');
   }
 
-  const network = creationParameters.network || "mainnet";
+  const network = creationParameters.network || 'mainnet';
   if (!currenciesSupported[network]) {
     throw Error('network not supported');
   }
