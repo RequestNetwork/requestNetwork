@@ -155,21 +155,6 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
     });
 
     describe('transferFromWithReferenceAndFee with errors', () => {
-      it('cannot transfer with no approval', async function () {
-        const path = [USD_address, DAI_address];  
-
-        await expect(testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
-          to,
-          smallAmountInFIAT,
-          path,
-          referenceExample,
-          smallerAmountInFIAT,
-          feeAddress,
-          hundredWith18Decimal,
-          0,
-          { from },
-        )).to.eventually.rejectedWith();
-      });
       it('cannot transfer with invalid path', async function () {
         const path = [EUR_address, ETH_address, DAI_address];  
         await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, { from });
