@@ -84,8 +84,8 @@ function createCreationAction(
   if (!currenciesSupported[network]) {
     throw Error('network not supported');
   }
-  const supportedErc20: string[] = currenciesSupported[network][RequestLogicTypes.CURRENCY.ERC20];
-  if (creationParameters.acceptedTokens.some((address) => !supportedErc20.includes(address))) {
+  const erc20Supported: string[] = currenciesSupported[network][RequestLogicTypes.CURRENCY.ERC20];
+  if (creationParameters.acceptedTokens.some((address) => !erc20Supported.includes(address))) {
     throw Error('acceptedTokens must contains only supported token addresses');
   }
 
