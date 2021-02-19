@@ -86,7 +86,7 @@ function createCreationAction(
   }
   const erc20Supported: string[] = currenciesSupported[network][RequestLogicTypes.CURRENCY.ERC20];
   if (creationParameters.tokensAccepted.some((address) => !erc20Supported.includes(address))) {
-    throw Error('tokensAccepted must contains only supported token addresses');
+    throw Error('tokensAccepted must contain only supported token addresses');
   }
 
   return ReferenceBased.createCreationAction(
