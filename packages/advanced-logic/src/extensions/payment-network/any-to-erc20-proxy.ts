@@ -23,21 +23,24 @@ const conversionErc20FeeProxyContract: ExtensionTypes.PnAnyToErc20.IAnyToERC20 =
   isValidAddress,
 };
 
-const currenciesSupported: any = {
+const currenciesSupported: Record<string,  Record<RequestLogicTypes.CURRENCY, string[]>> = {
   private: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
     [RequestLogicTypes.CURRENCY.ERC20]: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
     [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
+    [RequestLogicTypes.CURRENCY.BTC]: [],
   },
   rinkeby: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
     [RequestLogicTypes.CURRENCY.ERC20]: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
     [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
+    [RequestLogicTypes.CURRENCY.BTC]: [],
   },
   mainnet: {
     [RequestLogicTypes.CURRENCY.ISO4217]: [],
     [RequestLogicTypes.CURRENCY.ERC20]: [],
     [RequestLogicTypes.CURRENCY.ETH]: [],
+    [RequestLogicTypes.CURRENCY.BTC]: [],
   },
 };
 
