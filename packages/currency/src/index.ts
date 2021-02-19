@@ -1,4 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import iso4217 from './iso4217';
 import othersCurrencies from './others';
 
@@ -9,7 +10,7 @@ import {
   getSupportedERC20Tokens,
 } from './erc20';
 
-export { validERC20Address } from './erc20';
+export { getPath as getConversionPath } from './chainlink-path-aggregators';
 
 // Simple function to get the currency from the value alone
 const getCurrency = (currencyValue: string, network: string): RequestLogicTypes.ICurrency => {
@@ -178,9 +179,34 @@ export function getAllSupportedCurrencies(): {
   };
 }
 
+/**
+ * Gets the hash of a currency
+ *
+ * @param currency
+ *
+ * @returns the hash of the currency
+ */
+export function getCurrencyHash(currency: RequestLogicTypes.ICurrency): string {
+  if (currency.type === RequestLogicTypes.CURRENCY.ERC20) {
+    return currency.value;
+  }
+  if (
+    currency.type === RequestLogicTypes.CURRENCY.ETH ||
+    currency.type === RequestLogicTypes.CURRENCY.BTC
+  ) {
+    // ignore the network
+    return Utils.crypto.last20bytesOfNormalizedKeccak256Hash({
+      type: currency.type,
+      value: currency.value,
+    });
+  }
+  return Utils.crypto.last20bytesOfNormalizedKeccak256Hash(currency);
+}
+
 export default {
   currencyToString,
   getAllSupportedCurrencies,
+  getCurrencyHash,
   getDecimalsForCurrency,
   stringToCurrency,
 };

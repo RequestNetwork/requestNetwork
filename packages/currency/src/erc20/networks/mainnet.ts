@@ -1,5 +1,4 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { utils } from 'ethers';
 
 const metamaskContractMap = require('@metamask/contract-metadata');
 
@@ -49,7 +48,7 @@ export const supportedMainnetERC20 = new Map(
         {
           network: 'mainnet',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: utils.getAddress(address),
+          value: address,
         },
       ];
     }),
@@ -66,7 +65,7 @@ export const supportedMainnetERC20Details = Object.entries(supportedERC20Tokens)
         name: value.name,
         decimals: value.decimals,
         symbol: value.symbol,
-        address: utils.getAddress(address),
+        address,
       };
     }
     return acc;

@@ -132,11 +132,11 @@ describe('swap-erc20-fee-proxy', () => {
           path: [alphaErc20Address, erc20ContractAddress],
         },
         {
-          overrides: {gasPrice: '20000000000' }
+          overrides: { gasPrice: '20000000000' }
         }
       );
       expect(spy).toHaveBeenCalledWith({
-        data: 
+        data:
           '0x8d09fe2b000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000cc000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001600000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000009af4c3db000000000000000000000000000000000000000000000000000000000000000200000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa350000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
         gasPrice: '20000000000',
         to: '0xA4392264a2d8c998901D10C154C91725b1BF0158',
@@ -188,9 +188,9 @@ describe('swap-erc20-fee-proxy', () => {
 
       // Check each balance
       expect(bigNumberify(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
-      expect(bigNumberify(balanceAlphaAfter).toNumber()).toEqual(bigNumberify(balanceAlphaBefore).sub(204).toNumber());
-      expect(bigNumberify(issuerBalanceErc20After).toNumber()).toEqual(bigNumberify(issuerBalanceErc20Before).add(100).toNumber());
-      expect(bigNumberify(feeBalanceErc20After).toNumber()).toEqual(bigNumberify(feeBalanceErc20Before).add(2).toNumber());
+      expect(bigNumberify(balanceAlphaAfter).toString()).toEqual(bigNumberify(balanceAlphaBefore).sub(204).toString());
+      expect(bigNumberify(issuerBalanceErc20After).toString()).toEqual(bigNumberify(issuerBalanceErc20Before).add(100).toString());
+      expect(bigNumberify(feeBalanceErc20After).toString()).toEqual(bigNumberify(feeBalanceErc20Before).add(2).toString());
     });
   });
 });
