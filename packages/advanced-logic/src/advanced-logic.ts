@@ -52,38 +52,20 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     timestamp: number,
   ): RequestLogicTypes.IExtensionStates {
     const id: ExtensionTypes.ID = extensionAction.id;
-    let extension;
+    let extension: ExtensionTypes.IExtension | undefined = {
+      [ExtensionTypes.ID.CONTENT_DATA]: contentData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: addressBasedBtc,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: contentData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: declarative,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: addressBasedErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: proxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: feeProxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: ethereumInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: anyToErc20Proxy,
+    } [id];
 
-    switch (id) {
-      case ExtensionTypes.ID.CONTENT_DATA:
-        extension = contentData;
-        break;
-      case ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED:
-        extension = addressBasedBtc;
-        break;
-      case ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED:
-        extension = addressBasedTestnetBtc;
-        break;
-      case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE:
-        extension = declarative;
-        break;
-      case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED:
-        extension = addressBasedErc20;
-        break;
-      case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-        extension = proxyContractErc20;
-        break;
-      case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-        extension = feeProxyContractErc20;
-        break;
-      case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
-        extension = ethereumInputData;
-        break;
-      case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY:
-        extension = anyToErc20Proxy;
-        break;
-      default:
-        throw Error(`extension not recognized, id: ${id}`);
+    if(!extension) {
+      throw Error(`extension not recognized, id: ${id}`);
     }
 
     return extension.applyActionToExtension(
