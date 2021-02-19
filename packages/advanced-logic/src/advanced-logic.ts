@@ -52,7 +52,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     timestamp: number,
   ): RequestLogicTypes.IExtensionStates {
     const id: ExtensionTypes.ID = extensionAction.id;
-    let extension: ExtensionTypes.IExtension | undefined = {
+    const extension: ExtensionTypes.IExtension | undefined = {
       [ExtensionTypes.ID.CONTENT_DATA]: contentData,
       [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: addressBasedBtc,
       [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: contentData,
