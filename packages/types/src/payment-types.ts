@@ -29,6 +29,15 @@ export interface IReferenceBasedCreationParameters {
   salt?: string;
 }
 
+/** Parameters to create a request with fees in reference based payment network */
+export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCreationParameters {
+  feeAddress?: string;
+  feeAmount?: string;
+  network?: string;
+  tokensAccepted?: string[];
+  maxRateTimespan?: number;
+}
+
 /** Interface of the class to manage a payment network  */
 export interface IPaymentNetwork<TEventParameters = any> {
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
