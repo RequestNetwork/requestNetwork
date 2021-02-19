@@ -14,7 +14,7 @@ const walletAddressValidator = require('wallet-address-validator');
  * The salt should have at least 8 bytes of randomness. A way to generate it is:
  *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
-const conversionErc20FeeProxyContract: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = {
+const conversionErc20FeeProxyContract: ExtensionTypes.PnAnyToErc20.IAnyToERC20 = {
   applyActionToExtension,
   createAddFeeAction,
   createAddPaymentAddressAction,
@@ -49,7 +49,7 @@ const currenciesSupported: any = {
  * @returns IExtensionCreationAction the extensionsData to be stored in the request
  */
 function createCreationAction(
-  creationParameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
+  creationParameters: ExtensionTypes.PnAnyToErc20.ICreationParameters,
 ): ExtensionTypes.IAction {
   if (creationParameters.paymentAddress && !isValidAddress(creationParameters.paymentAddress)) {
     throw Error('paymentAddress is not a valid ethereum address');
@@ -73,20 +73,20 @@ function createCreationAction(
   if (creationParameters.feeAmount && !creationParameters.feeAddress) {
     throw Error('feeAddress requires feeAmount');
   }
-  if (!creationParameters.tokensAccepted || creationParameters.tokensAccepted.length === 0) {
-    throw Error('tokensAccepted is required');
+  if (!creationParameters.acceptedTokens || creationParameters.acceptedTokens.length === 0) {
+    throw Error('acceptedTokens is required');
   }
-  if (creationParameters.tokensAccepted.some((address) => !isValidAddress(address))) {
-    throw Error('tokensAccepted must contains only valid ethereum addresses');
+  if (creationParameters.acceptedTokens.some((address) => !isValidAddress(address))) {
+    throw Error('acceptedTokens must contains only valid ethereum addresses');
   }
 
   const network = creationParameters.network || 'mainnet';
   if (!currenciesSupported[network]) {
     throw Error('network not supported');
   }
-  const erc20Supported: string[] = currenciesSupported[network][RequestLogicTypes.CURRENCY.ERC20];
-  if (creationParameters.tokensAccepted.some((address) => !erc20Supported.includes(address))) {
-    throw Error('tokensAccepted must contains only supported token addresses');
+  const supportedErc20: string[] = currenciesSupported[network][RequestLogicTypes.CURRENCY.ERC20];
+  if (creationParameters.acceptedTokens.some((address) => !supportedErc20.includes(address))) {
+    throw Error('acceptedTokens must contains only supported token addresses');
   }
 
   return ReferenceBased.createCreationAction(
@@ -294,15 +294,15 @@ function applyCreation(
     throw Error('feeAmount is not a valid amount');
   }
   if (
-    !extensionAction.parameters.tokensAccepted ||
-    extensionAction.parameters.tokensAccepted.length === 0
+    !extensionAction.parameters.acceptedTokens ||
+    extensionAction.parameters.acceptedTokens.length === 0
   ) {
-    throw Error('tokensAccepted is required');
+    throw Error('acceptedTokens is required');
   }
   if (
-    extensionAction.parameters.tokensAccepted.some((address: string) => !isValidAddress(address))
+    extensionAction.parameters.acceptedTokens.some((address: string) => !isValidAddress(address))
   ) {
-    throw Error('tokensAccepted must contains only valid ethereum addresses');
+    throw Error('acceptedTokens must contains only valid ethereum addresses');
   }
 
   return {
@@ -316,7 +316,7 @@ function applyCreation(
           refundAddress: extensionAction.parameters.refundAddress,
           salt: extensionAction.parameters.salt,
           network: extensionAction.parameters.network,
-          tokensAccepted: extensionAction.parameters.tokensAccepted,
+          acceptedTokens: extensionAction.parameters.acceptedTokens,
           maxRateTimespan: extensionAction.parameters.maxRateTimespan,
         },
         timestamp,
@@ -331,7 +331,7 @@ function applyCreation(
       refundAddress: extensionAction.parameters.refundAddress,
       salt: extensionAction.parameters.salt,
       network: extensionAction.parameters.network,
-      tokensAccepted: extensionAction.parameters.tokensAccepted,
+      acceptedTokens: extensionAction.parameters.acceptedTokens,
       maxRateTimespan: extensionAction.parameters.maxRateTimespan,
     },
     version: extensionAction.version,

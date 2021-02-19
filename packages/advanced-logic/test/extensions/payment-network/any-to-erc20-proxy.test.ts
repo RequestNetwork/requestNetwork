@@ -19,7 +19,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           refundAddress: '0x0000000000000000000000000000000000000003',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
-          tokensAccepted: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
           maxRateTimespan: 1000000,
         }),
       ).toEqual({
@@ -32,7 +32,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           refundAddress: '0x0000000000000000000000000000000000000003',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
-          tokensAccepted: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
           maxRateTimespan: 1000000,
         },
         version: '0.1.0',
@@ -47,7 +47,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
-          tokensAccepted: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
         }),
       ).toEqual({
         action: 'create',
@@ -57,7 +57,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
-          tokensAccepted: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
         },
         version: '0.1.0',
       });
@@ -107,14 +107,14 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError('feeAmount is not a valid amount');
     });
 
-    it('cannot createCreationAction without tokensAccepted', () => {
+    it('cannot createCreationAction without acceptedTokens', () => {
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('tokensAccepted is required');
+      }).toThrowError('acceptedTokens is required');
     });
 
     it('cannot createCreationAction with invalid tokens accepted', () => {
@@ -123,9 +123,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
-          tokensAccepted: ['0x0000000000000000000000000000000000000003', 'invalid address']
+          acceptedTokens: ['0x0000000000000000000000000000000000000003', 'invalid address']
         });
-      }).toThrowError('tokensAccepted must contains only valid ethereum addresses');
+      }).toThrowError('acceptedTokens must contains only valid ethereum addresses');
     });
 
     it('cannot createCreationAction with network not supported', () => {
@@ -135,7 +135,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
           network: 'kovan',
-          tokensAccepted: ['0x0000000000000000000000000000000000000003']
+          acceptedTokens: ['0x0000000000000000000000000000000000000003']
         });
       }).toThrowError('network not supported');
     });
@@ -146,9 +146,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
-          tokensAccepted: ['0x0000000000000000000000000000000000000003']
+          acceptedTokens: ['0x0000000000000000000000000000000000000003']
         });
-      }).toThrowError('tokensAccepted must contains only supported token addresses');
+      }).toThrowError('acceptedTokens must contains only supported token addresses');
     });
 
     it('cannot applyActionToExtensions of creation on a non supported currency', () => {
@@ -398,7 +398,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
 
       it('cannot applyActionToExtensions of creation with no tokens accepted', () => {
         const testnetPaymentAddress = Utils.deepCopy(DataConversionERC20FeeCreate.actionCreationFull);
-        testnetPaymentAddress.parameters.tokensAccepted = [];
+        testnetPaymentAddress.parameters.acceptedTokens = [];
         // 'must throw'
         expect(() => {
           anyToErc20Proxy.applyActionToExtension(
@@ -408,12 +408,12 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('tokensAccepted is required');
+        }).toThrowError('acceptedTokens is required');
       });
 
       it('cannot applyActionToExtensions of creation with token address not valid', () => {
         const testnetPaymentAddress = Utils.deepCopy(DataConversionERC20FeeCreate.actionCreationFull);
-        testnetPaymentAddress.parameters.tokensAccepted = ['invalid address'];
+        testnetPaymentAddress.parameters.acceptedTokens = ['invalid address'];
         // 'must throw'
         expect(() => {
           anyToErc20Proxy.applyActionToExtension(
@@ -423,7 +423,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('tokensAccepted must contains only valid ethereum addresses');
+        }).toThrowError('acceptedTokens must contains only valid ethereum addresses');
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {

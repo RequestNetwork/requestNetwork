@@ -24,7 +24,7 @@ export const actionCreationFull = {
     paymentAddress,
     refundAddress,
     salt,
-    tokensAccepted: [tokenAddress],
+    acceptedTokens: [tokenAddress],
   },
   version: '0.1.0',
 };
@@ -33,7 +33,7 @@ export const actionCreationOnlyPayment = {
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
   parameters: {
     paymentAddress,
-    tokensAccepted: [tokenAddress],
+    acceptedTokens: [tokenAddress],
   },
   version: '0.1.0',
 };
@@ -42,7 +42,7 @@ export const actionCreationOnlyRefund = {
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
   parameters: {
     refundAddress,
-    tokensAccepted: [tokenAddress],
+    acceptedTokens: [tokenAddress],
   },
   version: '0.1.0',
 };
@@ -52,7 +52,7 @@ export const actionCreationOnlyFee = {
   parameters: {
     feeAddress,
     feeAmount,
-    tokensAccepted: [tokenAddress],
+    acceptedTokens: [tokenAddress],
   },
   version: '0.1.0',
 };
@@ -76,7 +76,7 @@ export const extensionFullState = {
           paymentAddress,
           refundAddress,
           salt,
-          tokensAccepted: [tokenAddress],
+          acceptedTokens: [tokenAddress],
         },
         timestamp: arbitraryTimestamp,
       },
@@ -89,7 +89,7 @@ export const extensionFullState = {
       paymentAddress,
       refundAddress,
       salt,
-      tokensAccepted: [tokenAddress],
+      acceptedTokens: [tokenAddress],
     },
     version: '0.1.0',
   },

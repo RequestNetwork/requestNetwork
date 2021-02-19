@@ -17,9 +17,6 @@ export interface IFeeReferenceBased extends Extension.IExtension {
 export interface ICreationParameters extends Extension.PnReferenceBased.ICreationParameters {
   feeAddress?: string;
   feeAmount?: string;
-  network?: string;
-  tokensAccepted?: string[];
-  maxRateTimespan?: number;
 }
 
 /** Parameters for the addFee action */

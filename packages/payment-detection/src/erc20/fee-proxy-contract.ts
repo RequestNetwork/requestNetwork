@@ -38,7 +38,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
    * @returns The extensionData object
    */
   public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: PaymentTypes.IFeeReferenceBasedCreationParameters,
+    paymentNetworkCreationParameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     const salt =

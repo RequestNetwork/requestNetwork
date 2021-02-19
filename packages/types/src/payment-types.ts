@@ -29,15 +29,6 @@ export interface IReferenceBasedCreationParameters {
   salt?: string;
 }
 
-/** Parameters to create a request with fees in reference based payment network */
-export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCreationParameters {
-  feeAddress?: string;
-  feeAmount?: string;
-  network?: string;
-  tokensAccepted?: string[];
-  maxRateTimespan?: number;
-}
-
 /** Interface of the class to manage a payment network  */
 export interface IPaymentNetwork<TEventParameters = any> {
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
@@ -99,7 +90,6 @@ export enum PAYMENT_NETWORK_ID {
   ERC20_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   ETH_INPUT_DATA = Extension.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
-
   ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
 }
 

@@ -21,7 +21,7 @@ import anyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
  */
 export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic {
   /** Give access to the functions specific of the extensions supported */
-  public extensions: any = {
+  public extensions = {
     addressBasedBtc,
     addressBasedErc20,
     addressBasedTestnetBtc,
