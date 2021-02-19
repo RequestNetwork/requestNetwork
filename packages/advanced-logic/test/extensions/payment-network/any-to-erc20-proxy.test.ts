@@ -377,7 +377,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(
-          'The currency type (BTC) of the request is not supported for this payment network.',
+          'The currency (BTC) of the request is not supported for this payment network.',
         );
       });
 
