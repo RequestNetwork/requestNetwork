@@ -23,7 +23,7 @@ const conversionErc20FeeProxyContract: ExtensionTypes.PnAnyToErc20.IAnyToERC20 =
   isValidAddress,
 };
 
-const currenciesSupported: Record<string,  Record<RequestLogicTypes.CURRENCY, string[]>> = {
+const supportedCurrencies: Record<string,  Record<RequestLogicTypes.CURRENCY, string[]>> = {
   private: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
     [RequestLogicTypes.CURRENCY.ERC20]: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
@@ -84,11 +84,11 @@ function createCreationAction(
   }
 
   const network = creationParameters.network || 'mainnet';
-  if (!currenciesSupported[network]) {
+  if (!supportedCurrencies[network]) {
     throw Error('network not supported');
   }
-  const erc20Supported: string[] = currenciesSupported[network][RequestLogicTypes.CURRENCY.ERC20];
-  if (creationParameters.acceptedTokens.some((address) => !erc20Supported.includes(address))) {
+  const supportedErc20: string[] = supportedCurrencies[network][RequestLogicTypes.CURRENCY.ERC20];
+  if (creationParameters.acceptedTokens.some((address) => !supportedErc20.includes(address))) {
     throw Error('acceptedTokens must contains only supported token addresses');
   }
 
@@ -420,17 +420,17 @@ function isValidAddress(address: string): boolean {
  * @param network network of the payment
  */
 function checkSupportedCurrency(currency: RequestLogicTypes.ICurrency, network: string): void {
-  if (!currenciesSupported[network]) {
+  if (!supportedCurrencies[network]) {
     throw new Error(`The network (${network}) is not supported for this payment network.`);
   }
 
-  if (!currenciesSupported[network][currency.type]) {
+  if (!supportedCurrencies[network][currency.type]) {
     throw new Error(
       `The currency type (${currency.type}) of the request is not supported for this payment network.`,
     );
   }
 
-  if (!currenciesSupported[network][currency.type].includes(currency.value)) {
+  if (!supportedCurrencies[network][currency.type].includes(currency.value)) {
     throw new Error(
       `The currency (${currency.value}) of the request is not supported for this payment network.`,
     );
