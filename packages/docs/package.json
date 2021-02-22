@@ -36,7 +36,7 @@
     "@docusaurus/preset-classic": "2.0.0-alpha.64",
     "@docusaurus/theme-live-codeblock": "2.0.0-alpha.64",
     "@docusaurus/utils": "2.0.0-alpha.64",
-    "@metamask/contract-metadata": "1.19.0",
+    "@metamask/contract-metadata": "1.23.0",
     "@requestnetwork/payment-processor": "0.30.2",
     "@requestnetwork/request-client.js": "0.32.0",
     "@requestnetwork/smart-contracts": "0.21.2",
