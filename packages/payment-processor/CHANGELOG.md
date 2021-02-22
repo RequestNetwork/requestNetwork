@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.31.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/payment-processor@0.30.0...@requestnetwork/payment-processor@0.31.0) (2021-02-22)
+
+
+### Bug Fixes
+
+* Add Signer as provider for the erc20 approval ([#406](https://github.com/RequestNetwork/requestNetwork/issues/406)) ([28708ac](https://github.com/RequestNetwork/requestNetwork/commit/28708ac3adb0e1db2032a53649db936d8b24799c))
+
+
+### Features
+
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+
+
+
+
+
 ## [0.30.2](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/payment-processor@0.30.0...@requestnetwork/payment-processor@0.30.2) (2020-12-22)
 
 **Note:** Version bump only for package @requestnetwork/payment-processor
