@@ -11,6 +11,7 @@ import ERC20AddressBased from './erc20/address-based';
 import ERC20FeeProxyContract from './erc20/fee-proxy-contract';
 import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
+import AnyToErc20Proxy from './any/any-to-erc20-proxy-contract';
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
@@ -53,6 +54,7 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
 };
 
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: AnyToErc20Proxy,
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
 };
 
@@ -85,8 +87,9 @@ export default class PaymentNetworkFactory {
       throw new Error(
         `the payment network id: ${
           paymentNetworkCreationParameters.id
-        } is not supported for the currency: ${currency.type} on network ${currency.network ||
-          'mainnet'}`,
+        } is not supported for the currency: ${currency.type} on network ${
+          currency.network || 'mainnet'
+        }`,
       );
     }
 
@@ -116,7 +119,7 @@ export default class PaymentNetworkFactory {
   }): PaymentTypes.IPaymentNetwork | null {
     const currency = request.currency;
     const extensionPaymentNetwork = Object.values(request.extensions || {}).find(
-      extension => extension.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
+      (extension) => extension.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
     );
 
     if (!extensionPaymentNetwork) {
