@@ -19,6 +19,7 @@ export default {
       [StorageTypes.EthereumNetwork.MAINNET as StorageTypes.EthereumNetwork]: 'mainnet',
       [StorageTypes.EthereumNetwork.KOVAN as StorageTypes.EthereumNetwork]: 'kovan',
       [StorageTypes.EthereumNetwork.RINKEBY as StorageTypes.EthereumNetwork]: 'rinkeby',
+      [StorageTypes.EthereumNetwork.SOKOL as StorageTypes.EthereumNetwork]: 'sokol',
     }[networkId];
   },
 
