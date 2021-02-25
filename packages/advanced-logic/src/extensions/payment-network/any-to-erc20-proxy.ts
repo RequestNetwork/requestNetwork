@@ -23,6 +23,10 @@ const conversionErc20FeeProxyContract: ExtensionTypes.PnAnyToErc20.IAnyToERC20 =
   isValidAddress,
 };
 
+/**
+ * These currencies are supported by Chainlink for conversion.
+ * Only ERC20 is supported as accepted token by the payment proxy.
+ */
 const supportedCurrencies: Record<string,  Record<RequestLogicTypes.CURRENCY, string[]>> = {
   private: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
