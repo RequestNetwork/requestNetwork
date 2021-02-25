@@ -125,6 +125,8 @@ export enum EthereumNetwork {
   MAINNET = 1,
   RINKEBY = 4,
   KOVAN = 42,
+  SOKOL = 77,
+  XDAI = 100
 }
 
 /** Information to connect to a web3 provider */

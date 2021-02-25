@@ -57,5 +57,8 @@
     "lint-staged": "10.3.0",
     "shx": "0.3.2",
     "truffle": "5.1.44"
+  },
+  "dependencies": {
+    "@uniswap/sdk": "^3.0.3"
   }
 }

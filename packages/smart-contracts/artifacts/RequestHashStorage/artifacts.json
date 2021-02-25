@@ -14,7 +14,18 @@
       "rinkeby": {
         "address": "0x309a3a9898f9cafc26499243a980992156671e5e",
         "creationBlockNumber": 4742809
-      }
+      },
+      "sokol":
+       {
+        "address": "0x5Be74a16351eFeB353aD43Da9d131a3Bc7CD1bDb",
+        "creationBlockNumber": 19527109
+      },
+      "xdai":
+      {
+        "address": "0xa61d95E27D266b2675Db85631F6A3E8FF9C2aC72",
+        "creationBlockNumber": 14725891
+      },
+    
     }
   }
 }

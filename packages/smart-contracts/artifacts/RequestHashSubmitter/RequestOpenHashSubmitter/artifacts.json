@@ -15,6 +15,11 @@
         "address": "0xf4eacf30944a1a029b567a9ed29db8d120452c2c",
         "creationBlockNumber": 4742922
       }
+      ,"sokol": {
+        "address": "0xb1bb4FD9e0476312Fba3F843f773B865624d3642",
+        "creationBlockNumber": 19527109
+      }
+    
     }
   }
 }
