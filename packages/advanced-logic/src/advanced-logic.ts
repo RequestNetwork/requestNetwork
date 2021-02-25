@@ -13,6 +13,7 @@ import addressBasedErc20 from './extensions/payment-network/erc20/address-based'
 import feeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import proxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
 import ethereumInputData from './extensions/payment-network/ethereum/input-data';
+import anyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 
 /**
  * Module to manage Advanced logic extensions
@@ -20,11 +21,12 @@ import ethereumInputData from './extensions/payment-network/ethereum/input-data'
  */
 export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic {
   /** Give access to the functions specific of the extensions supported */
-  public extensions: any = {
+  public extensions = {
     addressBasedBtc,
     addressBasedErc20,
     addressBasedTestnetBtc,
     contentData,
+    anyToErc20Proxy,
     declarative,
     ethereumInputData,
     feeProxyContractErc20,
@@ -50,80 +52,28 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     timestamp: number,
   ): RequestLogicTypes.IExtensionStates {
     const id: ExtensionTypes.ID = extensionAction.id;
+    const extension: ExtensionTypes.IExtension | undefined = {
+      [ExtensionTypes.ID.CONTENT_DATA]: contentData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: addressBasedBtc,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: addressBasedTestnetBtc,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: declarative,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: addressBasedErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: proxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: feeProxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: ethereumInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: anyToErc20Proxy,
+    } [id];
 
-    if (id === ExtensionTypes.ID.CONTENT_DATA) {
-      return contentData.applyActionToExtension(
-        extensionsState,
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-    }
-    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED) {
-      return addressBasedBtc.applyActionToExtension(
-        extensionsState,
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-    }
-    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED) {
-      return addressBasedTestnetBtc.applyActionToExtension(
-        extensionsState,
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-    }
-    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE) {
-      return declarative.applyActionToExtension(
-        extensionsState,
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-    }
-    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
-      return addressBasedErc20.applyActionToExtension(
-        extensionsState,
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-    }
-    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
-      return proxyContractErc20.applyActionToExtension(
-        extensionsState,
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-    }
-    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
-      return feeProxyContractErc20.applyActionToExtension(
-        extensionsState,
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-    }
-    if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA) {
-      return ethereumInputData.applyActionToExtension(
-        extensionsState,
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
+    if(!extension) {
+      throw Error(`extension not recognized, id: ${id}`);
     }
 
-    throw Error(`extension not recognized, id: ${id}`);
+    return extension.applyActionToExtension(
+      extensionsState,
+      extensionAction,
+      requestState,
+      actionSigner,
+      timestamp,
+    );
   }
 }
