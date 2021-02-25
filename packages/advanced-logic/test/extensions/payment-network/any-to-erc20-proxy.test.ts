@@ -148,7 +148,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           salt: 'ea3bc7caf64110ca',
           acceptedTokens: ['0x0000000000000000000000000000000000000003']
         });
-      }).toThrowError('acceptedTokens must contains only supported token addresses');
+      }).toThrowError('acceptedTokens must contain only supported token addresses (ERC20 only)');
     });
 
     it('cannot applyActionToExtensions of creation on a non supported currency', () => {
