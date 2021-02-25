@@ -74,7 +74,7 @@ function createCreationAction(
     throw Error('feeAmount is not a valid amount');
   }
 
-  if (!creationParameters.feeAmount && creationParameters.feeAddress) {
+  if (creationParameters.feeAmount && !creationParameters.feeAddress) {
     throw Error('feeAmount requires feeAddress');
   }
   if (creationParameters.feeAmount && !creationParameters.feeAddress) {
