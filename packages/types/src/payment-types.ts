@@ -29,13 +29,13 @@ export interface IReferenceBasedCreationParameters {
   salt?: string;
 }
 
-/** Parameters to create a request with "any to erc20" payment network */
+/** Parameters to create a request with "fees in reference based" payment network */
 export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCreationParameters {
   feeAddress?: string;
   feeAmount?: string;
 }
 
-/** Parameters to create a request with fees in reference based payment network */
+/** Parameters to create a request with "any to erc20" payment network */
 export interface IAnyToErc20CreationParameters extends IFeeReferenceBasedCreationParameters {
   network?: string;
   acceptedTokens?: string[];

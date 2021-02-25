@@ -23,6 +23,10 @@ const conversionErc20FeeProxyContract: ExtensionTypes.PnAnyToErc20.IAnyToERC20 =
   isValidAddress,
 };
 
+/**
+ * These currencies are supported by Chainlink for conversion.
+ * Only ERC20 is supported as accepted token by the payment proxy.
+ */
 const supportedCurrencies: Record<string,  Record<RequestLogicTypes.CURRENCY, string[]>> = {
   private: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
@@ -70,10 +74,10 @@ function createCreationAction(
     throw Error('feeAmount is not a valid amount');
   }
 
-  if (!creationParameters.feeAmount && creationParameters.feeAddress) {
+  if (creationParameters.feeAmount && !creationParameters.feeAddress) {
     throw Error('feeAmount requires feeAddress');
   }
-  if (creationParameters.feeAmount && !creationParameters.feeAddress) {
+  if (creationParameters.feeAddress && !creationParameters.feeAmount) {
     throw Error('feeAddress requires feeAmount');
   }
   if (!creationParameters.acceptedTokens || creationParameters.acceptedTokens.length === 0) {
@@ -89,7 +93,7 @@ function createCreationAction(
   }
   const supportedErc20: string[] = supportedCurrencies[network][RequestLogicTypes.CURRENCY.ERC20];
   if (creationParameters.acceptedTokens.some((address) => !supportedErc20.includes(address))) {
-    throw Error('acceptedTokens must contains only supported token addresses');
+    throw Error('acceptedTokens must contain only supported token addresses (ERC20 only)');
   }
 
   return ReferenceBased.createCreationAction(
@@ -177,7 +181,7 @@ function createAddFeeAction(
   };
 }
 /**
- * Applies the extension action to the request
+ * Applies the extension action to the request state
  * Is called to interpret the extensions data when applying the transaction
  *
  * @param extensionsState previous state of the extensions
