@@ -77,7 +77,7 @@ function createCreationAction(
   if (creationParameters.feeAmount && !creationParameters.feeAddress) {
     throw Error('feeAmount requires feeAddress');
   }
-  if (creationParameters.feeAmount && !creationParameters.feeAddress) {
+  if (creationParameters.feeAddress && !creationParameters.feeAmount) {
     throw Error('feeAddress requires feeAmount');
   }
   if (!creationParameters.acceptedTokens || creationParameters.acceptedTokens.length === 0) {
