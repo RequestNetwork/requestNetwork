@@ -181,7 +181,7 @@ function createAddFeeAction(
   };
 }
 /**
- * Applies the extension action to the request
+ * Applies the extension action to the request state
  * Is called to interpret the extensions data when applying the transaction
  *
  * @param extensionsState previous state of the extensions
