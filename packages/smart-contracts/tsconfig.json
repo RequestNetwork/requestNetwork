@@ -23,6 +23,8 @@
     "./artifacts/ChainlinkConversionPath/artifacts.json",
     "./artifacts/ChainlinkConversionPath/0.1.0.json",
     "./artifacts/ProxyChainlinkConversionPath/artifacts.json",
-    "./artifacts/ProxyChainlinkConversionPath/0.1.0.json"
+    "./artifacts/ProxyChainlinkConversionPath/0.1.0.json",
+    "./artifacts/Burner/artifacts.json",
+    "./artifacts/Burner/0.1.0.json"
   ]
 }

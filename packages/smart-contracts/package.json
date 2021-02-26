@@ -59,6 +59,7 @@
     "truffle": "5.1.44"
   },
   "dependencies": {
-    "@uniswap/sdk": "^3.0.3"
+    "@uniswap/sdk": "^3.0.3",
+    "@honeyswap/sdk": "^2.0.8"
   }
 }

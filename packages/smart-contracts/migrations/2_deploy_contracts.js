@@ -12,11 +12,11 @@ const ERC20True = artifacts.require('ERC20True');
 const ERC20False = artifacts.require('ERC20False');
 const ERC20NoReturn = artifacts.require('ERC20NoReturn');
 const ERC20Revert = artifacts.require('ERC20Revert');
+const Burner = artifacts.require('Burner')
 
-
-const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
-
-// Deploys, set up the contracts
+//const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
+// now we need to define the xDAI Burner contract for STAKE.
+// Deploys, set up the contracts.
 module.exports = async function (deployer) {
   try {
     // Deploy the contract RequestHashStorage
@@ -28,6 +28,8 @@ module.exports = async function (deployer) {
       RequestOpenHashSubmitter,
       RequestHashStorage.address,
       addressContractBurner,
+      UniswapRouting
+      Burner      
     );
     console.log('RequestOpenHashSubmitter Contract deployed: ' + RequestOpenHashSubmitter.address);
 
