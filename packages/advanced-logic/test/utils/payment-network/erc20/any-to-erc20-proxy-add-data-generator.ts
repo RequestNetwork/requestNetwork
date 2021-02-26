@@ -13,7 +13,7 @@ export const refundAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 export const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 export const feeAmount = '2000000000000000000';
 export const invalidAddress = '0x not and address';
-export const tokenAddress = '0x6b175474e89094c44da98b954eedeac495271d0f';
+export const tokenAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 // ---------------------------------------------------------------------
 export const salt = 'ea3bc7caf64110ca';
 // actions
@@ -47,7 +47,10 @@ export const extensionStateWithPaymentAfterCreation = {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
-        parameters: {},
+        parameters: {
+          network: 'private',
+          acceptedTokens: [tokenAddress],
+        },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -61,6 +64,8 @@ export const extensionStateWithPaymentAfterCreation = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
+      network: 'private',
+      acceptedTokens: [tokenAddress],
       paymentAddress,
     },
     version: '0.1.0',
@@ -72,7 +77,10 @@ export const extensionStateWithRefundAfterCreation = {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
-        parameters: {},
+        parameters: {
+          network: 'private',
+          acceptedTokens: [tokenAddress],
+        },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -86,6 +94,8 @@ export const extensionStateWithRefundAfterCreation = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
+      network: 'private',
+      acceptedTokens: [tokenAddress],
       refundAddress,
     },
     version: '0.1.0',
@@ -97,7 +107,10 @@ export const extensionStateWithFeeAfterCreation = {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
-        parameters: {},
+        parameters: {
+          network: 'private',
+          acceptedTokens: [tokenAddress],
+        },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -112,6 +125,8 @@ export const extensionStateWithFeeAfterCreation = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
+      network: 'private',
+      acceptedTokens: [tokenAddress],
       feeAddress,
       feeAmount,
     },
