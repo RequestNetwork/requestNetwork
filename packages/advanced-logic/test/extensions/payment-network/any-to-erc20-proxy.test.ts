@@ -132,6 +132,16 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError('acceptedTokens must contains only valid ethereum addresses');
     });
 
+    it('cannot createCreationAction without network', () => {
+      expect(() => {
+        new anyToErc20ProxyPaymentNetwork().createCreationAction({
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          salt: 'ea3bc7caf64110ca',
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+        });
+      }).toThrowError('network is required');
+    });
+
     it('cannot createCreationAction with network not supported', () => {
       expect(() => {
         new anyToErc20ProxyPaymentNetwork().createCreationAction({

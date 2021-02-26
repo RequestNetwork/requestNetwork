@@ -52,10 +52,14 @@ export class anyToErc20ProxyPaymentNetwork extends erc20FeeProxyPaymentNetwork {
       throw Error('acceptedTokens must contains only valid ethereum addresses');
     }
 
-    const network = creationParameters.network || 'mainnet';
+    const network = creationParameters.network;
+    if (!network) {
+      throw Error('network is required');
+    }
     if (!supportedCurrencies[network]) {
       throw Error('network not supported');
     }
+
     const supportedErc20: string[] = supportedCurrencies[network][RequestLogicTypes.CURRENCY.ERC20];
     if (
       creationParameters.acceptedTokens.some((address: string) => !supportedErc20.includes(address))
