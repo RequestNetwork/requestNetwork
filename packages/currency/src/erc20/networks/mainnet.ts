@@ -38,6 +38,15 @@ const extraERC20Tokens = {
     decimals: 18,
     address: '0x8888801af4d980682e47f1a9036e589479e835c5',
   },
+  // Aave USDC
+  '0x9bA00D6856a4eDF4665BcA2C2309936572473B7E': {
+    name: 'aUSDC',
+    erc20: true,
+    logo: 'ausdc.svg',
+    symbol: 'aUSDC',
+    decimals: 6,
+    address: '0x9bA00D6856a4eDF4665BcA2C2309936572473B7E',
+  },
 };
 /* eslint-enable spellcheck/spell-checker */
 
