@@ -19,7 +19,10 @@
         "address": "0xb1bb4FD9e0476312Fba3F843f773B865624d3642",
         "creationBlockNumber": 19527109
       }
-    
+      , "xDAI": {
+        ""
+
+      }
     }
   }
 }

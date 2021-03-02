@@ -1,5 +1,5 @@
 pragma solidity ^0.5.0;
-
+import "@openzepplin/contracts/access/Roles.sol"
 import "./StorageFeeCollector.sol";
 import "./RequestHashStorage.sol";
 import "./Bytes.sol";
@@ -7,7 +7,7 @@ import "./Bytes.sol";
 
 /**
  * @title RequestOpenHashSubmitter
- * @notice Contract declares data hashes and collects the fees.
+ * @notice Contract declares data hashes and collects the fees from the clients.
  * @notice The hash is declared to the whole request network system through the RequestHashStorage contract.
  * @notice Anyone can submit hashes.
  */

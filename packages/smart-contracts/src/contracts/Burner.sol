@@ -2,22 +2,13 @@ pragma solidity >0.4.18;
 
 import "./Destructible.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzepplin/contracts/access/Roles.sol"
 import "./UniswapRouting.sol";
 import "RequestOpenHashSubmitter.sol"
-import "@openzeppelin-contracts/contracts/access/Ownable.sol"  
+import "@openzeppelin/contracts/access/Ownable.sol"  
 // for the execution of the burner contracts . 
 const HoneySwapRoutingContracts = ' 0x1C232F01118CB8B424793ae03F870aa7D0ac7f77';
 
-interface ERC20 {
-    function totalSupply() external view returns (uint supply);
-    function balanceOf(address _owner) external view returns (uint balance);
-    function transfer(address _to, uint _value) external returns (bool success);
-    function transferFrom(address _from, address _to, uint _value) external returns (bool success);
-    function approve(address _spender, uint _value) external returns (bool success);
-    function allowance(address _owner, address _spender) external view returns (uint remaining);
-    function decimals() external view returns(uint digits);
-    event Approval(address indexed _owner, address indexed _spender, uint _value);
-}
 
 
 /// @title Contract for a burnable ERC

@@ -3,19 +3,18 @@ const RequestOpenHashSubmitter = artifacts.require('./RequestOpenHashSubmitter.s
 const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 const EthereumProxy = artifacts.require('./EthereumProxy.sol');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
-const FakeSwapRouter = artifacts.require('FakeSwapRouter');
-const ERC20SwapToPay = artifacts.require('ERC20SwapToPay');
-
+const FakeSwapRouter = artifacts.require('./FakeSwapRouter.sol');
+const ERC20SwapToPay = artifacts.require('./ERC20SwapToPay.sol');
+const UniswapRouter = artifacts.require('./UniswapRouting.sol');
 const erc20 = artifacts.require('./TestERC20.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
 const ERC20True = artifacts.require('ERC20True');
 const ERC20False = artifacts.require('ERC20False');
 const ERC20NoReturn = artifacts.require('ERC20NoReturn');
 const ERC20Revert = artifacts.require('ERC20Revert');
-const Burner = artifacts.require('Burner')
+
 
 //const addressContractBurner = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
-// now we need to define the xDAI Burner contract for STAKE.
 // Deploys, set up the contracts.
 module.exports = async function (deployer) {
   try {
@@ -28,8 +27,8 @@ module.exports = async function (deployer) {
       RequestOpenHashSubmitter,
       RequestHashStorage.address,
       addressContractBurner,
-      UniswapRouting
-      Burner      
+      UniswapRouting,
+      Burner,      
     );
     console.log('RequestOpenHashSubmitter Contract deployed: ' + RequestOpenHashSubmitter.address);
 
@@ -60,6 +59,7 @@ module.exports = async function (deployer) {
       '0xdeea051f2e9120e0',
     );
 
+
     // Deploy Ethereym proxy contract
     await deployer.deploy(EthereumProxy);
     console.log('EthereumProxy Contract deployed: ' + EthereumProxy.address);
@@ -85,6 +85,11 @@ module.exports = async function (deployer) {
     await deployer.deploy(ERC20Revert);
     console.log('ERC20Revert Contract deployed: ' + ERC20Revert.address);
 
+    await deployer.deploy(UniswapRouter);
+    console.log('HNYRouter deployed ' + HNYRouter.address);
+
+
+
     // Swap-to-pay related contracts
     // Payment erc20: ALPHA
     const erc20AlphaInstance = await deployer.deploy(erc20, "10000000000000000000000000000");
@@ -97,6 +102,9 @@ module.exports = async function (deployer) {
     await deployer.deploy(ERC20SwapToPay, FakeSwapRouter.address, ERC20FeeProxy.address);
     console.log('SwapToPay Contract deployed: ' + ERC20SwapToPay.address);
 
+  
+  
+  
     // ----------------------------------
     console.log('Contracts initialized');
     console.log(`
@@ -114,6 +122,7 @@ module.exports = async function (deployer) {
       ERC20Alpha:               ${erc20AlphaInstance.address}
       FakeSwapRouter:           ${FakeSwapRouter.address}
       SwapToPay:                ${ERC20SwapToPay.address}
+      UniswapRouter:            ${UniswapRouter.address} 
       `);
   } catch (e) {
     console.error(e);

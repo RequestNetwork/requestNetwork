@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >0.5.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./Uniswapv2Router02.sol";
 
@@ -7,7 +7,7 @@ import "./Uniswapv2Router02.sol";
  * @notice This contract performs an ERC20 token transfer and stores a reference
   */
 contract ERC20Proxy {
-  // Event to declare a transfer with a reference
+  // Event to declare a transfer ( or even the burn execution) with a reference
   event TransferWithReference(
     address tokenAddress,
     address to,

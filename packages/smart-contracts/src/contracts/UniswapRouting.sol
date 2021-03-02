@@ -1,6 +1,10 @@
-pragma solidity ^0.8.0;
+pragma solidity >=0.5.0;
+import "@openzeppelin/contracts/ERC20.sol"
+import "@uniswap-periphery/contracts/RouterEventEmitter.sol"
 
-/// @dev now converting transaction interface based on the  . 
+
+
+/// @dev  this resembles the interface of the hnyswap . 
 /// @ref https://uniswap.org/docs/v1/smart-contracts/interfaces/
 interface UniswapExchangeInterface {
     // Address of ERC20 token sold on this exchange
@@ -49,7 +53,10 @@ interface UniswapExchangeInterface {
     function setup(address token_addr) external;
 }
 
-contract UniswapRouting {
+contract UniswapRouting is UniswapExchangeInterface {
+    
+
+    
     function _swap(uint[] memory amounts, address[] memory path, address _to );
 
             for (uint i; i < path.length - 1; i++) {
@@ -65,16 +72,7 @@ contract UniswapRouting {
 
     // creating an pair in  for the token pair on the honeyswap ,  in orer to get the necessary 
 
-
-    function  getPair(
-        address tokenA, 
-        address tokenB) 
-        external view returns (address pair);
-    {
-
-
-    }
-     
+  
     function swapTokensForExactTokens(
     uint amountOut,
     uint amountInMax,
@@ -93,6 +91,24 @@ contract UniswapRouting {
     paid.safeTransferFrom(msg.sender, address(this), amounts[1]);
     swapped.transfer(to, amounts[0]);
   }
+
+    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
+  external
+  payable
+  returns (uint[] memory amounts);
+
+  {
+(bool success, bytes memory returnData) = router.delegatecall(abi.encodeWithSelector(
+            IUniswapV2Router01(router).swapExactETHForTokens.selector, amountOutMin, path, to, deadline
+        ));
+        assert(success);
+        emit Amounts(abi.decode(returnData, (uint[])));
+
+
+  }
+
+
+
 
 
 

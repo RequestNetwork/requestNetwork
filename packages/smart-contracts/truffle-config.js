@@ -13,10 +13,25 @@ module.exports = {
       network_id: 1,
       gasPrice: '5000000000', // 5 Gwei
     },
+  
+    // ref from https://www.xdaichain.com/for-developers/smart-contract-deployment
+
+    xdai: {
+          provider: function() {
+                return new HDWalletProvider(
+               process.env.MNEMONIC,
+               "https://dai.poa.network")
+          },
+          network_id: 100,
+          gas: 500000,
+          gasPrice: 1000000000
+    }  
+  
+  
   },
   compilers: {
     solc: {
-      version: "0.6.5"
+      version: "0.8.0"
     }
 
   }

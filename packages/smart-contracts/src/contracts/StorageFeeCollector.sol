@@ -25,6 +25,9 @@ contract StorageFeeCollector is WhitelistAdminRole {
    * If rateFeesNumerator is 2 and rateFeesDenominator is 1 then 2 wei will be charged for every bytes above threshold,
    * if the size to store is 150 bytes then the fee will be 300 + (150-100)*2 = 400 wei
    */
+
+  /** fee  for xDAI can be easily set on 50 Gwei as the gas costs is not an function for the storage 
+   */
   uint256 public minimumFee;
   uint256 public rateFeesNumerator;
   uint256 public rateFeesDenominator;
@@ -110,3 +113,6 @@ contract StorageFeeCollector is WhitelistAdminRole {
     requestBurnerContract.transfer(_amount);
   }
 }
+
+
+  
