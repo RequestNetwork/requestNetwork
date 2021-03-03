@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.23.4](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.23.0...@requestnetwork/data-access@0.23.4) (2021-03-03)
+
+**Note:** Version bump only for package @requestnetwork/data-access
+
+
+
+
+
 ## [0.23.3](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-access@0.23.0...@requestnetwork/data-access@0.23.3) (2021-02-22)
 
 **Note:** Version bump only for package @requestnetwork/data-access

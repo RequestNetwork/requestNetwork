@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.29.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.27.0...@requestnetwork/advanced-logic@0.29.0) (2021-03-03)
+
+
+### Features
+
+* payment network any to erc20 in advanced logic ([#414](https://github.com/RequestNetwork/requestNetwork/issues/414)) ([45f09f9](https://github.com/RequestNetwork/requestNetwork/commit/45f09f9ee5693378722559d414b07e887fb3c63c))
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+
+
+
+
+
 # [0.28.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.27.0...@requestnetwork/advanced-logic@0.28.0) (2021-02-22)
 
 
