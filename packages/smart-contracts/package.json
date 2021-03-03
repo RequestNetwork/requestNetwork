@@ -13,7 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
   },
-  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/smart-contract#readme",
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/smart-contracts#readme",
   "bugs": {
     "url": "https://github.com/RequestNetwork/requestNetwork/issues"
   },
