@@ -1,4 +1,5 @@
-//SPDX-License-Identifier :UNLICENSED
+//SPDX-License-Identifier : MIT
+
 pragma solidity ^0.8.0;
 import "https://github.com/Uniswap/uniswap-v2-periphery/blob/master/contracts/interfaces/IUniswapV2Router02.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
@@ -40,14 +41,14 @@ library SafeERC20 {
 
 
 // ownable contract. 
-contract Ownable {
+abstract contract Ownable {
   address public owner;
   event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
    /**
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  constructor() public {
+  constructor()  {
     owner = msg.sender;
   }
 
@@ -105,7 +106,7 @@ contract destructible is owned {
 }
 
 /// @title Contract for a burnable ERC
-abstract contract ERC20Burnable is Context, ERC20 {
+ abstract contract ERC20Burnable is Context, ERC20 {
     /**
      * @dev Destroys `amount` tokens from the caller.
      *
@@ -136,11 +137,13 @@ abstract contract ERC20Burnable is Context, ERC20 {
 
 
 /// @title uniswap routing to burn DAI
-contract UniswapRouting {
+ contract UniswapRouting {
 using SafeERC20 for ERC20;  
 address public constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D ;
     IUniswapV2Router02 public immutable router;
-    constructor() public {
+    
+    constructor() public  {
+           
            router = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS);
     
         
@@ -181,7 +184,7 @@ address public constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb
 
 /// @title Modified burner contract for transferring given REQ equivalent of DAI on the 0x00 address
 /// @author Request Network
- contract Burner is destructible  , UniswapRouting {
+  contract Burner is destructible  , UniswapRouting {
     /// Uniswap contract that will be used for the conversion
     UniswapRouting public UniRouting;
     
@@ -200,7 +203,7 @@ address public constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb
         //require(UniRouting != address(0), "not correct Uniswap contract");
 
         destErc20 = ERC20Burnable(_destErc20);
-        UniRouting = UniswapRouting(UniRouting);
+        UniRouting = UniswapRouting(_UniContract);
         
     }
     
@@ -212,7 +215,7 @@ address public constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb
     /// @param _maxDestAmount A limit on the amount of converted ERC20 tokens. Default value is MAX_UINT
     /// @param _minConversionRate The minimal conversion rate. Default value is 1 (market rate)
     /// @return amount of dest ERC20 tokens burned
-    function burn(uint _maxSrcAmount, uint _maxDestAmount, uint _minConversionRate)
+    function  burn(uint _maxSrcAmount, uint _maxDestAmount, uint _minConversionRate)
         external
         returns(uint)
     {
@@ -221,9 +224,7 @@ address public constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb
         
         // If _maxSrcAmount is defined, ethToConvert = min(balance on contract, _maxSrcAmount)
         
-        uint MAX_UINT = 2**256 - 1;
         uint DAIToConvert = address(this).balance;
-  //      address ZeroAdd = 0x00000000000000000;
         
         if (_maxSrcAmount != 0 && _maxSrcAmount < DAIToConvert) {
            DAIToConvert = _maxSrcAmount;
@@ -240,44 +241,32 @@ address public constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb
         // Convert the REQ to DAI
         // erc20ToBurn is the amount of the ERC20 tokens converted by UniswapRouting that will be burned
         //address for the uniswapV2 factory. 
-        address factory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+        //address factory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
         
         uint256[] memory DAIToBurn;
         
-         address token0 = REQ_ROUTER_ADDRESS ;
-         address token1 = DAI_ROUTER_ADDRESS ;
-        //address[3] calldata _pathTransfer = [REQ_ROUTER_ADDRESS , WETH    , DAI_ROUTER_ADDRESS ];
-        //thanks to the documentation 
-       
-       
-       address[] calldata _pathTransfer = address(uint(keccak256(abi.encodePacked(
-               hex'ff',
-               factory,
-               keccak256(abi.encodePacked(token0, token1)),
-     hex'96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f' // init code hash            
-))));
+         //address[3] calldata _pathTransfer = [REQ_ROUTER_ADDRESS , WETH    , DAI_ROUTER_ADDRESS ];
+        // reference from the documentation . 
+      
+        address[] memory _pathTransfer = new address[](2);
+        _pathTransfer[0] = DAI_ROUTER_ADDRESS ;
+        _pathTransfer[1] =  REQ_ROUTER_ADDRESS  ;  
         
         
         
-        
-        
-         DAIToBurn = UniRouting.swapTokensForExactTokens(
-            _maxDestAmount ,
+         UniRouting.swapTokensForExactTokens(
+            DAIToConvert ,
             _maxSrcAmount,
             _pathTransfer,
             address(0),
             block.timestamp + 3600 
-            
-        
-        
-        
-        
-        );
+            );
 
-        // Burn the converted DAI tokens
-        DAIToBurn.burn(DAIToBurn);
-
-        return DAIToBurn;
+        // refund the amount remaining not converted  for the burning 
+        (bool success , ) = msg.sender.call{ value: address(this).balance }("");
+        
+        
+        return address(this).balance;
     }
 
 
