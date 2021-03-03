@@ -43,7 +43,7 @@
     "@requestnetwork/request-client.js": "0.33.0",
     "@requestnetwork/types": "0.29.3",
     "axios": "0.21.1",
-    "yargs": "16.0.3"
+    "yargs": "16.2.0"
   },
   "devDependencies": {
     "cross-env": "7.0.2",
