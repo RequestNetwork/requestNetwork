@@ -54,7 +54,7 @@
     "keyv": "4.0.3",
     "keyv-file": "0.2.0",
     "shelljs": "0.8.4",
-    "yargs": "16.0.3"
+    "yargs": "16.2.0"
   },
   "devDependencies": {
     "@types/cors": "2.8.9",
