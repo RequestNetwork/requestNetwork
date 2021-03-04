@@ -17,15 +17,40 @@ export interface IPaymentNetworkModuleByType {
 }
 
 /** Interface to create a payment network  */
-export interface IPaymentNetworkCreateParameters {
-  id: PAYMENT_NETWORK_ID;
-  parameters: any;
-}
+export type IPaymentNetworkCreateParameters =
+  | {
+      id: 'pn-eth-input-data' | 'pn-erc20-proxy-contract';
+      parameters: IReferenceBasedCreationParameters;
+    }
+  | {
+      id: 'pn-erc20-fee-proxy-contract';
+      parameters: IFeeReferenceBasedCreationParameters;
+    }
+  | {
+      id: 'pn-any-to-erc20-proxy';
+      parameters: IAnyToErc20CreationParameters;
+    }
+  | {
+      id:
+        | 'pn-bitcoin-address-based'
+        | 'pn-testnet-bitcoin-address-based'
+        | 'pn-erc20-address-based';
+      parameters: IAddressBasedCreationParameters;
+    }
+  | {
+      id: 'pn-any-declarative';
+      parameters: {
+        paymentInfo?: any;
+        refundInfo?: any;
+      };
+    };
 
-/** Parameters to create a request with reference based payment network */
-export interface IReferenceBasedCreationParameters {
+export interface IAddressBasedCreationParameters {
   paymentAddress?: string;
   refundAddress?: string;
+}
+/** Parameters to create a request with reference based payment network */
+export interface IReferenceBasedCreationParameters extends IAddressBasedCreationParameters {
   salt?: string;
 }
 
