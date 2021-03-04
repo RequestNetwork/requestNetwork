@@ -18,6 +18,9 @@ class NetworkNotSupported extends Error {}
 /** Exception when version not supported */
 class VersionNotSupported extends Error {}
 
+/**
+ * Gets the payment proxy deployment information
+ */
 export type deploymentInformationGetter = (
   networkName: string,
   artifactsVersion?: string,
