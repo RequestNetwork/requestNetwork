@@ -21,7 +21,7 @@ class VersionNotSupported extends Error {}
 /**
  * Gets the payment proxy deployment information
  */
-export type deploymentInformationGetter = (
+export type DeploymentInformationGetter = (
   networkName: string,
   artifactsVersion?: string,
 ) => {
@@ -35,29 +35,15 @@ export type deploymentInformationGetter = (
 export default class PaymentNetworkERC20FeeProxyContract<
   ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
 > implements PaymentTypes.IPaymentNetwork {
-  protected extension: ExtensionType;
-  protected getDeploymentInformation: deploymentInformationGetter;
-  protected paymentNetworkId: ExtensionTypes.ID;
+  protected _paymentNetworkId: ExtensionTypes.ID;
+  protected _extension: ExtensionType;
 
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({
-    advancedLogic,
-    extension,
-    getDeploymentInformation,
-    paymentNetworkId,
-  }: {
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    extension?: ExtensionType;
-    getDeploymentInformation?: deploymentInformationGetter;
-    paymentNetworkId?: ExtensionTypes.ID;
-  }) {
-    this.extension = extension || advancedLogic.extensions.feeProxyContractErc20;
-    this.getDeploymentInformation =
-      getDeploymentInformation || erc20FeeProxyArtifact.getDeploymentInformation;
-    this.paymentNetworkId =
-      paymentNetworkId || ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
+  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+    this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
+    this._extension = advancedLogic.extensions.feeProxyContractErc20;
   }
 
   /**
@@ -74,7 +60,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
     const salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this.extension.createCreationAction({
+    return this._extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -92,7 +78,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public createExtensionsDataForAddPaymentInformation(
     parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
-    return this.extension.createAddPaymentAddressAction({
+    return this._extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
     });
   }
@@ -106,7 +92,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public createExtensionsDataForAddRefundInformation(
     parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
-    return this.extension.createAddRefundAddressAction({
+    return this._extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
     });
   }
@@ -120,7 +106,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public createExtensionsDataForAddFeeInformation(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
   ): ExtensionTypes.IAction {
-    return this.extension.createAddFeeAction({
+    return this._extension.createAddFeeAction({
       feeAddress: parameters.feeAddress,
       feeAmount: parameters.feeAmount,
     });
@@ -135,11 +121,11 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetwork = request.extensions[this.paymentNetworkId];
+    const paymentNetwork = request.extensions[this._paymentNetworkId];
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request does not have the extension : ${this.paymentNetworkId}`,
+        `The request does not have the extension : ${this._paymentNetworkId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
@@ -314,4 +300,14 @@ export default class PaymentNetworkERC20FeeProxyContract<
       { balance: '0', events: [] },
     );
   }
+
+  /**
+   * Get the detected payment network ID
+   */
+  get paymentNetworkId(): ExtensionTypes.ID {
+    return this._paymentNetworkId;
+  }
+
+  protected getDeploymentInformation: DeploymentInformationGetter =
+    erc20FeeProxyArtifact.getDeploymentInformation;
 }

@@ -38,10 +38,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.anyToErc20Proxy,
-      'createCreationAction',
-    );
+    const spy = jest.spyOn(mockAdvancedLogic.extensions.anyToErc20Proxy, 'createCreationAction');
 
     await anyToErc20Proxy.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
@@ -64,10 +61,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation with fee amount and address', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.anyToErc20Proxy,
-      'createCreationAction',
-    );
+    const spy = jest.spyOn(mockAdvancedLogic.extensions.anyToErc20Proxy, 'createCreationAction');
 
     await anyToErc20Proxy.createExtensionsDataForCreation({
       feeAddress: 'fee address',
@@ -88,10 +82,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation without salt', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.anyToErc20Proxy,
-      'createCreationAction',
-    );
+    const spy = jest.spyOn(mockAdvancedLogic.extensions.anyToErc20Proxy, 'createCreationAction');
 
     await anyToErc20Proxy.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
@@ -132,10 +123,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForAddFeeInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.anyToErc20Proxy,
-      'createAddFeeAction',
-    );
+    const spy = jest.spyOn(mockAdvancedLogic.extensions.anyToErc20Proxy, 'createAddFeeAction');
 
     anyToErc20Proxy.createExtensionsDataForAddFeeInformation({
       feeAddress: 'ethereum address',
@@ -196,8 +184,9 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       _request: RequestLogicTypes.IRequest,
       _salt: string,
       _toAddress: string,
-      eventName: PaymentTypes.EVENTS_NAMES) => {
-      if(eventName === PaymentTypes.EVENTS_NAMES.PAYMENT) {
+      eventName: PaymentTypes.EVENTS_NAMES,
+    ) => {
+      if (eventName === PaymentTypes.EVENTS_NAMES.PAYMENT) {
         return Promise.resolve({
           balance: '1000',
           events: [
@@ -239,11 +228,11 @@ describe('api/any/conversion-fee-proxy-contract', () => {
                 txHash: '0xABCDE',
               },
               timestamp: 12,
-            }
+            },
           ],
         });
       }
-      if(eventName === PaymentTypes.EVENTS_NAMES.REFUND) {
+      if (eventName === PaymentTypes.EVENTS_NAMES.REFUND) {
         return Promise.resolve({
           balance: '200',
           events: [
@@ -285,7 +274,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
                 txHash: '0xABCDE',
               },
               timestamp: 12,
-            }
+            },
           ],
         });
       }
@@ -296,8 +285,8 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     const balance = await anyToErc20Proxy.getBalance(mockRequest);
     expect(balance.balance).toBe('800');
     expect(
-      mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values
-        .feeBalance.balance,
+      mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.feeBalance
+        .balance,
     ).toBe('10');
   });
 });

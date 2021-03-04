@@ -7,7 +7,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import PaymentNetworkERC20FeeProxyContract, {
-  deploymentInformationGetter,
+  DeploymentInformationGetter,
 } from '../erc20/fee-proxy-contract';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
@@ -27,24 +27,13 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({
-    advancedLogic,
-    extension,
-    getDeploymentInformation,
-    paymentNetworkId,
-  }: {
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    extension?: ExtensionTypes.PnAnyToErc20.ICreationParameters;
-    getDeploymentInformation?: deploymentInformationGetter;
-    paymentNetworkId?: ExtensionTypes.ID;
-  }) {
+
+  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     super({
       advancedLogic,
-      extension: extension || advancedLogic.extensions.anyToErc20Proxy,
-      getDeploymentInformation:
-        getDeploymentInformation || proxyChainlinkConversionPath.getDeploymentInformation,
-      paymentNetworkId: paymentNetworkId || ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     });
+    this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY;
+    this._extension = advancedLogic.extensions.anyToErc20Proxy;
   }
 
   /**
@@ -61,7 +50,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
     const salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this.extension.createCreationAction({
+    return this._extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -165,4 +154,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
       events,
     };
   }
+
+  protected getDeploymentInformation: DeploymentInformationGetter =
+    proxyChainlinkConversionPath.getDeploymentInformation;
 }
