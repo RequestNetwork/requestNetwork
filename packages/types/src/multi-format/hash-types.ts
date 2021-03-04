@@ -1,3 +1,5 @@
+import { EnumToType } from '../shared';
+
 /** Hash */
 export interface IHash {
   // type of the hash
@@ -6,7 +8,9 @@ export interface IHash {
   value: string;
 }
 
+export const TYPE = {
+  KECCAK256: 'keccak256',
+} as const;
+
 /** Supported hash types */
-export enum TYPE {
-  KECCAK256 = 'keccak256',
-}
+export type TYPE = EnumToType<typeof TYPE>;

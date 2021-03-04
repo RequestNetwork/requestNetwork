@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import * as Encryption from './encryption-types';
+import { EnumToType } from './shared';
 
 /** Transaction Manager interface */
 export interface ITransactionManager {
@@ -82,11 +83,13 @@ export interface IPersistedTransaction {
   encryptionMethod?: string;
 }
 
+export const TransactionState = {
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+} as const;
+
 /** Enum of state possible for an action */
-export enum TransactionState {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-}
+export type TransactionState = EnumToType<typeof TransactionState>;
 
 /** Transaction confirmed */
 export interface ITimestampedTransaction {

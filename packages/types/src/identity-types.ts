@@ -1,3 +1,5 @@
+import { EnumToType } from './shared';
+
 /** Identity */
 export interface IIdentity {
   // type of the identification
@@ -12,8 +14,10 @@ export interface ISmartContractIdentity extends IIdentity {
   network?: string;
 }
 
+export const TYPE = {
+  ETHEREUM_ADDRESS: 'ethereumAddress',
+  ETHEREUM_SMART_CONTRACT: 'ethereumSmartContract',
+} as const;
+
 /** Supported identity types */
-export enum TYPE {
-  ETHEREUM_ADDRESS = 'ethereumAddress',
-  ETHEREUM_SMART_CONTRACT = 'ethereumSmartContract',
-}
+export type TYPE = EnumToType<typeof TYPE>;

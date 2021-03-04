@@ -1,4 +1,4 @@
-import * as Extension from './extension-types';
+import { EnumToType } from './shared';
 import * as RequestLogic from './request-logic-types';
 
 /** Object interface to list the payment network id and its module by currency */
@@ -88,23 +88,26 @@ export interface IPaymentNetworkEvent<TEventParameters> {
   timestamp?: number;
 }
 
+export const EVENTS_NAMES = {
+  PAYMENT: 'payment',
+  REFUND: 'refund',
+} as const;
 /** payment network event names */
-export enum EVENTS_NAMES {
-  PAYMENT = 'payment',
-  REFUND = 'refund',
-}
+export type EVENTS_NAMES = 'payment' | 'refund';
+
+export const PAYMENT_NETWORK_ID = {
+  BITCOIN_ADDRESS_BASED: 'pn-bitcoin-address-based',
+  TESTNET_BITCOIN_ADDRESS_BASED: 'pn-testnet-bitcoin-address-based',
+  ERC20_ADDRESS_BASED: 'pn-erc20-address-based',
+  ERC20_PROXY_CONTRACT: 'pn-erc20-proxy-contract',
+  ERC20_FEE_PROXY_CONTRACT: 'pn-erc20-fee-proxy-contract',
+  ETH_INPUT_DATA: 'pn-eth-input-data',
+  DECLARATIVE: 'pn-any-declarative',
+  ANY_TO_ERC20_PROXY: 'pn-any-to-erc20-proxy',
+} as const;
 
 /** List of payment networks available (abstract the extensions type) */
-export enum PAYMENT_NETWORK_ID {
-  BITCOIN_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-  TESTNET_BITCOIN_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
-  ERC20_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
-  ERC20_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
-  ERC20_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-  ETH_INPUT_DATA = Extension.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
-  DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
-  ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
-}
+export type PAYMENT_NETWORK_ID = EnumToType<typeof PAYMENT_NETWORK_ID>;
 
 /** Generic info retriever interface */
 export interface IPaymentNetworkInfoRetriever<

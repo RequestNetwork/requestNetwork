@@ -1,3 +1,5 @@
+import { EnumToType } from '../shared';
+
 /** Plain data */
 export interface IPlainData {
   // type of the plain
@@ -6,7 +8,9 @@ export interface IPlainData {
   value: string;
 }
 
+export const TYPE = {
+  PLAIN_TEXT: 'plain-text',
+} as const;
+
 /** Supported types */
-export enum TYPE {
-  PLAIN_TEXT = 'plain-text',
-}
+export type TYPE = EnumToType<typeof TYPE>;

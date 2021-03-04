@@ -1,4 +1,5 @@
 import * as Extension from '../extension-types';
+import { EnumToType } from '../shared';
 
 /** Manager of the extension */
 export interface IContentData extends Extension.IExtension {
@@ -15,7 +16,9 @@ export interface ICreationParameters {
   content: any;
 }
 
+export const ACTION = {
+  CREATE: 'create',
+} as const;
+
 /** Actions possible */
-export enum ACTION {
-  CREATE = 'create',
-}
+export type ACTION = EnumToType<typeof ACTION>;

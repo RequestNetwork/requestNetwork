@@ -1,3 +1,5 @@
+import { EnumToType } from './shared';
+
 /** Parameters needed to sign */
 export interface ISignatureParameters {
   // method of the signature
@@ -14,11 +16,13 @@ export interface ISignature {
   value: string;
 }
 
+export const METHOD = {
+  ECDSA: 'ecdsa',
+  ECDSA_ETHEREUM: 'ecdsa-ethereum',
+} as const;
+
 /** Supported signature methods */
-export enum METHOD {
-  ECDSA = 'ecdsa',
-  ECDSA_ETHEREUM = 'ecdsa-ethereum',
-}
+export type METHOD = EnumToType<typeof METHOD>;
 
 /** Signed data interface */
 export interface ISignedData {

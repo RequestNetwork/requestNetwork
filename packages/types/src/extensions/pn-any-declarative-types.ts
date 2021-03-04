@@ -1,5 +1,6 @@
 import * as Extension from '../extension-types';
 import * as RequestLogicTypes from '../request-logic-types';
+import { EnumToType } from '../shared';
 
 /** Manager of the extension */
 export interface IAnyDeclarative extends Extension.IExtension {
@@ -50,16 +51,18 @@ export interface IAddRefundInstructionParameters {
   refundInfo: any;
 }
 
+export const ACTION = {
+  CREATE: 'create',
+
+  DECLARE_SENT_PAYMENT: 'declareSentPayment',
+  DECLARE_RECEIVED_PAYMENT: 'declareReceivedPayment',
+
+  DECLARE_SENT_REFUND: 'declareSentRefund',
+  DECLARE_RECEIVED_REFUND: 'declareReceivedRefund',
+
+  ADD_PAYMENT_INSTRUCTION: 'addPaymentInstruction',
+  ADD_REFUND_INSTRUCTION: 'addRefundInstruction',
+} as const;
+
 /** Actions possible */
-export enum ACTION {
-  CREATE = 'create',
-
-  DECLARE_SENT_PAYMENT = 'declareSentPayment',
-  DECLARE_RECEIVED_PAYMENT = 'declareReceivedPayment',
-
-  DECLARE_SENT_REFUND = 'declareSentRefund',
-  DECLARE_RECEIVED_REFUND = 'declareReceivedRefund',
-
-  ADD_PAYMENT_INSTRUCTION = 'addPaymentInstruction',
-  ADD_REFUND_INSTRUCTION = 'addRefundInstruction',
-}
+export type ACTION = EnumToType<typeof ACTION>;

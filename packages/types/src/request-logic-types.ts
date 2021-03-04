@@ -5,6 +5,8 @@ import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
 
+import { EnumToType } from './shared';
+
 /** Request Logic layer */
 export interface IRequestLogic {
   createRequest: (
@@ -246,37 +248,45 @@ export interface ICurrency {
   network?: string;
 }
 
+export const ACTION_NAME = {
+  CREATE: 'create',
+  BROADCAST: 'broadcastSignedRequest',
+  ACCEPT: 'accept',
+  CANCEL: 'cancel',
+  REDUCE_EXPECTED_AMOUNT: 'reduceExpectedAmount',
+  INCREASE_EXPECTED_AMOUNT: 'increaseExpectedAmount',
+  ADD_EXTENSIONS_DATA: 'addExtensionsData',
+} as const;
+
 /** Enum of name possible in a action */
-export enum ACTION_NAME {
-  CREATE = 'create',
-  BROADCAST = 'broadcastSignedRequest',
-  ACCEPT = 'accept',
-  CANCEL = 'cancel',
-  REDUCE_EXPECTED_AMOUNT = 'reduceExpectedAmount',
-  INCREASE_EXPECTED_AMOUNT = 'increaseExpectedAmount',
-  ADD_EXTENSIONS_DATA = 'addExtensionsData',
-}
+export type ACTION_NAME = EnumToType<typeof ACTION_NAME>;
+
+export const CURRENCY = {
+  ETH: 'ETH',
+  BTC: 'BTC',
+  ISO4217: 'ISO4217',
+  ERC20: 'ERC20',
+} as const;
 
 /** Supported currencies */
-export enum CURRENCY {
-  ETH = 'ETH',
-  BTC = 'BTC',
-  ISO4217 = 'ISO4217',
-  ERC20 = 'ERC20',
-}
+export type CURRENCY = EnumToType<typeof CURRENCY>;
+
+export const STATE = {
+  // use for upper layer (trick to avoid headache with retyping request in upper layer)
+  PENDING: 'pending',
+  CREATED: 'created',
+  ACCEPTED: 'accepted',
+  CANCELED: 'canceled',
+};
 
 /** States of a request */
-export enum STATE {
-  // use for upper layer (trick to avoid headache with retyping request in upper layer)
-  PENDING = 'pending',
-  CREATED = 'created',
-  ACCEPTED = 'accepted',
-  CANCELED = 'canceled',
-}
+export type STATE = EnumToType<typeof STATE>;
+
+export const ROLE = {
+  PAYEE: 'payee',
+  PAYER: 'payer',
+  THIRD_PARTY: 'third-party',
+};
 
 /** Identity roles */
-export enum ROLE {
-  PAYEE = 'payee',
-  PAYER = 'payer',
-  THIRD_PARTY = 'third-party',
-}
+export type ROLE = EnumToType<typeof ROLE>;

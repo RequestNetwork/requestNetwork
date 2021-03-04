@@ -1,3 +1,5 @@
+import { EnumToType } from './shared';
+
 /** Parameters needed to encrypt */
 export interface IEncryptionParameters {
   // method of the encryption
@@ -22,9 +24,11 @@ export interface IEncryptedData {
   value: string;
 }
 
+export const METHOD = {
+  ECIES: 'ecies',
+  AES256_CBC: 'aes256-cbc',
+  AES256_GCM: 'aes256-gcm',
+} as const;
+
 /** Supported encryption methods */
-export enum METHOD {
-  ECIES = 'ecies',
-  AES256_CBC = 'aes256-cbc',
-  AES256_GCM = 'aes256-gcm',
-}
+export type METHOD = EnumToType<typeof METHOD>;

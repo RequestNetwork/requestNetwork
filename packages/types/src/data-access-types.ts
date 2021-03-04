@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { EnumToType } from './shared';
 
 /** Data Access Layer */
 export interface IDataAccess {
@@ -23,11 +24,13 @@ export interface IDataAccess {
   _getStatus(detailed?: boolean): any;
 }
 
+export const TransactionState = {
+  PENDING: 'pending',
+  CONFIRMED: 'confirmed',
+} as const;
+
 /** Enum of state possible for an action */
-export enum TransactionState {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-}
+export type TransactionState = EnumToType<typeof TransactionState>;
 
 /** Restrict the get data research to two timestamp */
 export interface ITimestampBoundaries {

@@ -1,4 +1,5 @@
 import * as Extension from '../extension-types';
+import { EnumToType } from '../shared';
 
 /** Manager of the extension */
 export interface IAddressBased extends Extension.IExtension {
@@ -34,9 +35,11 @@ export interface IAddRefundAddressParameters {
   refundAddress: string;
 }
 
+export const ACTION = {
+  CREATE: 'create',
+  ADD_PAYMENT_ADDRESS: 'addPaymentAddress',
+  ADD_REFUND_ADDRESS: 'addRefundAddress',
+} as const;
+
 /** Actions possible */
-export enum ACTION {
-  CREATE = 'create',
-  ADD_PAYMENT_ADDRESS = 'addPaymentAddress',
-  ADD_REFUND_ADDRESS = 'addRefundAddress',
-}
+export type ACTION = EnumToType<typeof ACTION>;

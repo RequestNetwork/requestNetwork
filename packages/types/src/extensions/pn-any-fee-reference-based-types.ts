@@ -1,4 +1,5 @@
 import * as Extension from '../extension-types';
+import { EnumToType } from '../shared';
 
 /** Fee reference-based payment network extension interface */
 export interface IFeeReferenceBased extends Extension.IExtension {
@@ -25,10 +26,12 @@ export interface IAddFeeParameters {
   feeAmount: string;
 }
 
+export const ACTION = {
+  CREATE: 'create',
+  ADD_PAYMENT_ADDRESS: 'addPaymentAddress',
+  ADD_REFUND_ADDRESS: 'addRefundAddress',
+  ADD_FEE: 'addFee',
+} as const;
+
 /** Actions specific to the fee payment networks */
-export enum ACTION {
-  CREATE = 'create',
-  ADD_PAYMENT_ADDRESS = 'addPaymentAddress',
-  ADD_REFUND_ADDRESS = 'addRefundAddress',
-  ADD_FEE = 'addFee',
-}
+export type ACTION = EnumToType<typeof ACTION>;

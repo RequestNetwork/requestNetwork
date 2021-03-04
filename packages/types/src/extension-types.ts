@@ -6,8 +6,16 @@ import * as PnReferenceBased from './extensions/pn-any-reference-based-types';
 import * as PnAnyToErc20 from './extensions/pn-any-to-er20-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
+import { EnumToType } from './shared';
 
-export { ContentData, PnAnyDeclarative, PnAddressBased, PnFeeReferenceBased, PnReferenceBased, PnAnyToErc20 };
+export {
+  ContentData,
+  PnAnyDeclarative,
+  PnAddressBased,
+  PnFeeReferenceBased,
+  PnReferenceBased,
+  PnAnyToErc20,
+};
 
 /** Extension interface is extended by the extensions implementation */
 export interface IExtension {
@@ -44,21 +52,25 @@ export interface IEvent {
   timestamp: number;
 }
 
+export const ID = {
+  CONTENT_DATA: 'content-data',
+  PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED: 'pn-bitcoin-address-based',
+  PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED: 'pn-testnet-bitcoin-address-based',
+  PAYMENT_NETWORK_ERC20_ADDRESS_BASED: 'pn-erc20-address-based',
+  PAYMENT_NETWORK_ERC20_PROXY_CONTRACT: 'pn-erc20-proxy-contract',
+  PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT: 'pn-erc20-fee-proxy-contract',
+  PAYMENT_NETWORK_ETH_INPUT_DATA: 'pn-eth-input-data',
+  PAYMENT_NETWORK_ANY_DECLARATIVE: 'pn-any-declarative',
+  PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: 'pn-any-to-erc20-proxy',
+} as const;
+
 /** Identification of extensions handled by this implementation */
-export enum ID {
-  CONTENT_DATA = 'content-data',
-  PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
-  PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
-  PAYMENT_NETWORK_ERC20_ADDRESS_BASED = 'pn-erc20-address-based',
-  PAYMENT_NETWORK_ERC20_PROXY_CONTRACT = 'pn-erc20-proxy-contract',
-  PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT = 'pn-erc20-fee-proxy-contract',
-  PAYMENT_NETWORK_ETH_INPUT_DATA = 'pn-eth-input-data',
-  PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
-  PAYMENT_NETWORK_ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
-}
+export type ID = EnumToType<typeof ID>;
+
+export const TYPE = {
+  CONTENT_DATA: 'content-data',
+  PAYMENT_NETWORK: 'payment-network',
+} as const;
 
 /** Type of extensions */
-export enum TYPE {
-  CONTENT_DATA = 'content-data',
-  PAYMENT_NETWORK = 'payment-network',
-}
+export type TYPE = EnumToType<typeof TYPE>;
