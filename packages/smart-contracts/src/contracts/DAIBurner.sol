@@ -1,9 +1,7 @@
 //SPDX-License-Identifier : MIT
-
 pragma solidity ^0.8.0;
 import "https://github.com/Uniswap/uniswap-v2-periphery/blob/master/contracts/interfaces/IUniswapV2Router02.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
-
 
 
 library SafeERC20 {
@@ -188,10 +186,11 @@ address public constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb
     /// Uniswap contract that will be used for the conversion
     UniswapRouting public UniRouting;
     
+        ERC20Burnable burnObj;
     
   address  public   DAI_ROUTER_ADDRESS = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-   address  public    REQ_ROUTER_ADDRESS = 0x8f8221aFbB33998d8584A2B05749bA73c37a938a;
-   address public WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+  address  public    REQ_ROUTER_ADDRESS = 0x8f8221aFbB33998d8584A2B05749bA73c37a938a;
+  address public WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     // Contract for the ERC20
     ERC20Burnable public destErc20;
 
@@ -254,17 +253,16 @@ address public constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb
         
         
         
-         UniRouting.swapTokensForExactTokens(
+         =    UniRouting.swapTokensForExactTokens(
             DAIToConvert ,
             _maxSrcAmount,
             _pathTransfer,
-            address(0),
+            address(this),
             block.timestamp + 3600 
             );
 
         // refund the amount remaining not converted  for the burning 
-        (bool success , ) = msg.sender.call{ value: address(this).balance }("");
-        
+        burnObj.burn(address(this));
         
         return address(this).balance;
     }
