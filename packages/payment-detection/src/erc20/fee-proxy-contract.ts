@@ -18,16 +18,43 @@ class NetworkNotSupported extends Error {}
 /** Exception when version not supported */
 class VersionNotSupported extends Error {}
 
+export type deploymentInformationGetter = (
+  networkName: string,
+  artifactsVersion?: string,
+) => {
+  address: string;
+  creationBlockNumber: number;
+};
+
 /**
  * Handle payment networks with ERC20 fee proxy contract extension
  */
-export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes.IPaymentNetwork {
-  private extension: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased;
+export default class PaymentNetworkERC20FeeProxyContract<
+  ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
+> implements PaymentTypes.IPaymentNetwork {
+  protected extension: ExtensionType;
+  protected getDeploymentInformation: deploymentInformationGetter;
+  protected paymentNetworkId: ExtensionTypes.ID;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.feeProxyContractErc20;
+  public constructor({
+    advancedLogic,
+    extension,
+    getDeploymentInformation,
+    paymentNetworkId,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    extension?: ExtensionType;
+    getDeploymentInformation?: deploymentInformationGetter;
+    paymentNetworkId?: ExtensionTypes.ID;
+  }) {
+    this.extension = extension || advancedLogic.extensions.feeProxyContractErc20;
+    this.getDeploymentInformation =
+      getDeploymentInformation || erc20FeeProxyArtifact.getDeploymentInformation;
+    this.paymentNetworkId =
+      paymentNetworkId || ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
   }
 
   /**
@@ -100,19 +127,16 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
    * Gets the balance and the payment/refund events
    *
    * @param request the request to check
-   * @param paymentNetworkId payment network id
-   * @param tokenContractAddress the address of the token contract
-   * @returns the balance and the payment/refund events
+   * @returns A promise resulting to the balance and the payment/refund events
    */
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
-    const paymentNetwork = request.extensions[paymentNetworkId];
+    const paymentNetwork = request.extensions[this.paymentNetworkId];
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request does not have the extension : ${paymentNetworkId}`,
+        `The request does not have the extension : ${this.paymentNetworkId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
@@ -129,7 +153,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
           salt,
           paymentAddress,
           PaymentTypes.EVENTS_NAMES.PAYMENT,
-          paymentNetwork.version,
+          paymentNetwork,
         );
       }
 
@@ -140,7 +164,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
           salt,
           refundAddress,
           PaymentTypes.EVENTS_NAMES.REFUND,
-          paymentNetwork.version,
+          paymentNetwork,
         );
       }
 
@@ -176,13 +200,14 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
   }
 
   /**
-   * Extracts the balance and events of an address
+   * Extracts the balance and events of a request
    *
    * @private
-   * @param address Address to check
+   * @param request Address to check
+   * @param salt Payment reference salt
+   * @param toAddress Payee address
    * @param eventName Indicate if it is an address for payment or refund
-   * @param network The id of network we want to check
-   * @param tokenContractAddress the address of the token contract
+   * @param paymentNetwork Payment network state
    * @returns The balance and events
    */
   public async extractBalanceAndEvents(
@@ -190,7 +215,7 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
     salt: string,
     toAddress: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    paymentNetworkVersion: string,
+    paymentNetwork: ExtensionTypes.IState,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
     const network = request.currency.network;
 
@@ -198,14 +223,11 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
       throw new NetworkNotSupported(`Payment network not supported by ERC20 payment detection`);
     }
 
-    const deploymentInformation = erc20FeeProxyArtifact.getDeploymentInformation(
-      network,
-      paymentNetworkVersion,
-    );
+    const deploymentInformation = this.getDeploymentInformation(network, paymentNetwork.version);
 
     if (!deploymentInformation) {
       throw new VersionNotSupported(
-        `Payment network version not supported: ${paymentNetworkVersion}`,
+        `Payment network version not supported: ${paymentNetwork.version}`,
       );
     }
 
@@ -252,7 +274,10 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
    * @param feeAddress The fee address the extracted fees will be paid to
    * @param paymentEvents The payment events to extract fees from
    */
-  public extractFeeAndEvents(feeAddress: string, paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[]): PaymentTypes.IBalanceWithEvents {
+  public extractFeeAndEvents(
+    feeAddress: string,
+    paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[],
+  ): PaymentTypes.IBalanceWithEvents {
     if (!feeAddress) {
       return {
         balance: '0',
@@ -265,7 +290,6 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
         feeBalance: PaymentTypes.IBalanceWithEvents,
         event: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>,
       ): PaymentTypes.IBalanceWithEvents => {
-
         // Skip if feeAddress or feeAmount are not set, or if feeAddress doesn't match the PN one
         if (
           !event.parameters?.feeAddress ||
@@ -276,13 +300,15 @@ export default class PaymentNetworkERC20FeeProxyContract implements PaymentTypes
         }
 
         feeBalance = {
-          balance: new bigNumber(feeBalance.balance).add(new bigNumber(event.parameters.feeAmount)).toString(),
-          events: [... feeBalance.events, event],
+          balance: new bigNumber(feeBalance.balance)
+            .add(new bigNumber(event.parameters.feeAmount))
+            .toString(),
+          events: [...feeBalance.events, event],
         };
 
         return feeBalance;
       },
-      { balance: '0', events: []},
+      { balance: '0', events: [] },
     );
   }
 }

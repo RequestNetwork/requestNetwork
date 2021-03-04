@@ -7,7 +7,7 @@ export interface IAnyToERC20 extends PnAnyFees.IFeeReferenceBased {
 }
 
 /** Parameters for the creation action */
-export interface ICreationParameters extends PnAnyFees.ICreationParameters {
+export interface ICreationParameters extends Extension.PnFeeReferenceBased.ICreationParameters {
   network?: string;
   acceptedTokens?: string[];
   maxRateTimespan?: number;
