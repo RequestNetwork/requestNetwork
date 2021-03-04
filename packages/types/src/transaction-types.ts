@@ -83,6 +83,7 @@ export interface IPersistedTransaction {
   encryptionMethod?: string;
 }
 
+// tslint:disable variable-name
 export const TransactionState = {
   PENDING: 'pending',
   CONFIRMED: 'confirmed',

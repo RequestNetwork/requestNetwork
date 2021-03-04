@@ -24,6 +24,7 @@ export interface IDataAccess {
   _getStatus(detailed?: boolean): any;
 }
 
+// tslint:disable variable-name
 export const TransactionState = {
   PENDING: 'pending',
   CONFIRMED: 'confirmed',
