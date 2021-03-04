@@ -2,7 +2,7 @@ import { ContractTransaction, Signer } from 'ethers';
 import { Provider, Web3Provider } from 'ethers/providers';
 import { BigNumberish, bigNumberify } from 'ethers/utils';
 
-import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
@@ -13,13 +13,15 @@ import { getNetworkProvider, getProvider, getSigner } from './utils';
 import { ICurrency } from '@requestnetwork/types/dist/request-logic-types';
 import { ISwapSettings } from './swap-erc20-fee-proxy';
 
-export const supportedNetworks = [
+export const supportedNetworks: PaymentTypes.PAYMENT_NETWORK_ID[] = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
 ];
 
-const getPaymentNetwork = (request: ClientTypes.IRequestData): ExtensionTypes.ID | undefined => {
+const getPaymentNetwork = (
+  request: ClientTypes.IRequestData,
+): PaymentTypes.PAYMENT_NETWORK_ID | undefined => {
   // tslint:disable-next-line: typedef
   const pn = Object.values(request.extensions).find((x) => x.type === 'payment-network');
   if (pn?.id === ExtensionTypes.ID.CONTENT_DATA) {
