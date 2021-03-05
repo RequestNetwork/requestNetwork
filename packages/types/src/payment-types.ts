@@ -45,10 +45,12 @@ export type IPaymentNetworkCreateParameters =
       };
     };
 
+/** Parameters to create a request with address based payment network */
 export interface IAddressBasedCreationParameters {
   paymentAddress?: string;
   refundAddress?: string;
 }
+
 /** Parameters to create a request with reference based payment network */
 export interface IReferenceBasedCreationParameters extends IAddressBasedCreationParameters {
   salt?: string;

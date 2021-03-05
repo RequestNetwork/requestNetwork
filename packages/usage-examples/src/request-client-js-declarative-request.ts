@@ -36,7 +36,7 @@ const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParamete
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
     // eslint-disable-next-line spellcheck/spell-checker
-    paymentInformation: { IBAN: 'FR89370400440532013000', BIC: 'SABAIE2D' },
+    paymentInfo: { IBAN: 'FR89370400440532013000', BIC: 'SABAIE2D' },
   },
 };
 

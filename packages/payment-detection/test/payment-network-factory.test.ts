@@ -14,7 +14,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
   },
-  extensions: {},
+  extensions: {} as any,
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
@@ -44,6 +44,7 @@ describe('api/payment-network/payment-network-factory', () => {
       const paymentNetworkCreationParameters: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
         parameters: {
+          // @ts-ignore
           paymentAddress: 'bitcoin address here',
         },
       };

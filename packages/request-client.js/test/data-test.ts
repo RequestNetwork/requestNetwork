@@ -188,7 +188,7 @@ export const actionRequestIdSecondRequest = MultiFormat.serialize(
 export const declarativePaymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
   id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
-    paymentInformation: {
+    paymentInfo: {
       BIC: 'SABAIE2D',
       IBAN: 'FR89370400440532013000',
     },
