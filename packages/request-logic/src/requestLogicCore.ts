@@ -1,4 +1,4 @@
-import { AdvancedLogicTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import Action from './action';
 import Request from './request';
@@ -101,7 +101,10 @@ function applyActionToRequest(
   if (action.data.parameters.extensionsData && advancedLogic) {
     // Apply the extension on the state
     requestAfterApply.extensions = action.data.parameters.extensionsData.reduce(
-      (extensionState: RequestLogicTypes.IExtensionStates, extensionAction: any) => {
+      (
+        extensionState: RequestLogicTypes.IExtensionStates,
+        extensionAction: ExtensionTypes.IAction,
+      ) => {
         return advancedLogic.applyActionToExtensions(
           extensionState,
           extensionAction,

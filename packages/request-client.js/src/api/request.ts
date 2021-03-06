@@ -1,7 +1,12 @@
 import { EventEmitter } from 'events';
 
 import { DeclarativePaymentNetwork as PaymentNetworkDeclarative } from '@requestnetwork/payment-detection';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  ExtensionTypes,
+  IdentityTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
@@ -138,7 +143,7 @@ export default class Request {
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
     if (refundInformation) {
       if (!this.paymentNetwork) {
         throw new Error('Cannot add refund information without payment network');
@@ -179,7 +184,7 @@ export default class Request {
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
     if (refundInformation) {
       if (!this.paymentNetwork) {
         throw new Error('Cannot add refund information without payment network');
@@ -223,7 +228,7 @@ export default class Request {
     signerIdentity: IdentityTypes.IIdentity,
     refundInformation?: any,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
     if (refundInformation) {
       if (!this.paymentNetwork) {
         throw new Error('Cannot add refund information without payment network');
@@ -271,7 +276,7 @@ export default class Request {
     signerIdentity: IdentityTypes.IIdentity,
     paymentInformation?: any,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
     if (paymentInformation) {
       if (!this.paymentNetwork) {
         throw new Error('Cannot add payment information without payment network');
@@ -318,7 +323,7 @@ export default class Request {
     paymentInformation: any,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
 
     if (!this.paymentNetwork) {
       throw new Error('Cannot add payment information without payment network');
@@ -364,7 +369,7 @@ export default class Request {
     refundInformation: any,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
 
     if (!this.paymentNetwork) {
       throw new Error('Cannot add refund information without payment network');
@@ -412,7 +417,7 @@ export default class Request {
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
 
     if (!this.paymentNetwork) {
       throw new Error('Cannot declare sent payment without payment network');
@@ -468,7 +473,7 @@ export default class Request {
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
 
     if (!this.paymentNetwork) {
       throw new Error('Cannot declare sent refund without payment network');
@@ -527,7 +532,7 @@ export default class Request {
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
 
     if (!this.paymentNetwork) {
       throw new Error('Cannot declare received payment without payment network');
@@ -586,7 +591,7 @@ export default class Request {
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: ExtensionTypes.IAction[] = [];
 
     if (!this.paymentNetwork) {
       throw new Error('Cannot declare received refund without payment network');

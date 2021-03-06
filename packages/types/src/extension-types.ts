@@ -29,26 +29,26 @@ export interface IExtension {
 }
 
 /** Extensions state in advanced logic */
-export interface IState {
+export interface IState<T = any> {
   type: TYPE;
   id: ID;
   version: string;
   events: IEvent[];
-  values: any;
+  values: T;
 }
 
 /** Creation action object */
-export interface IAction {
+export interface IAction<T = any> {
   action: string;
   id: ID;
-  parameters?: any;
+  parameters?: T;
   version?: string;
 }
 
 /** extension event object */
-export interface IEvent {
+export interface IEvent<T = any> {
   name: string;
-  parameters: any;
+  parameters: T;
   timestamp: number;
 }
 

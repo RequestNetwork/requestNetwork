@@ -1,8 +1,4 @@
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-  SignatureProviderTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import Action from '../action';
@@ -30,7 +26,7 @@ function format(
   acceptParameters: RequestLogicTypes.IAcceptParameters,
   signerIdentity: IdentityTypes.IIdentity,
   signatureProvider: SignatureProviderTypes.ISignatureProvider,
-): Promise<RequestLogicTypes.IAction> {
+): Promise<RequestLogicTypes.IAction<RequestLogicTypes.IAcceptParameters>> {
   const unsignedAction: RequestLogicTypes.IUnsignedAction = {
     name: RequestLogicTypes.ACTION_NAME.ACCEPT,
     parameters: acceptParameters,

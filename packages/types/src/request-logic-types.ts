@@ -104,22 +104,22 @@ export interface IReturnGetRequestsByTopic extends IRequestLogicReturn {
 }
 
 /** Interface of a request logic action */
-export interface IAction {
-  data: IUnsignedAction;
+export interface IAction<T = any> {
+  data: IUnsignedAction<T>;
   signature: Signature.ISignature;
 }
 
 /** Interface of a request logic action confirmed */
-export interface IConfirmedAction {
-  action: IAction;
+export interface IConfirmedAction<T = any> {
+  action: IAction<T>;
   timestamp: number;
 }
 
 /** Interface of a request logic unsigned action */
-export interface IUnsignedAction {
+export interface IUnsignedAction<T = any> {
   name: ACTION_NAME;
   version: string;
-  parameters: any;
+  parameters: T;
 }
 
 /** Request in request logic */
@@ -137,7 +137,7 @@ export interface IRequest {
   /** Extensions states */
   extensions: IExtensionStates;
   /** Extensions raw data */
-  extensionsData: any[];
+  extensionsData: Extension.IAction[];
   events: IEvent[];
   /** timestamp of the request creation in seconds
    * Note: this precision is enough in a blockchain context
@@ -180,7 +180,7 @@ export interface ICreateParameters {
   expectedAmount: Amount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;
-  extensionsData?: any[];
+  extensionsData?: Extension.IAction[];
   /** timestamp of the request creation in seconds
    * Note: this precision is enough in a blockchain context
    * Note: as it is a user given parameter, the only consensus on this date it between the payer and payee
@@ -193,20 +193,20 @@ export interface ICreateParameters {
 /** Parameters to accept a request */
 export interface IAcceptParameters {
   requestId: RequestId;
-  extensionsData?: any[];
+  extensionsData?: Extension.IAction[];
 }
 
 /** Parameters to cancel a request */
 export interface ICancelParameters {
   requestId: RequestId;
-  extensionsData?: any[];
+  extensionsData?: Extension.IAction[];
 }
 
 /** Parameters to increase amount of a request */
 export interface IIncreaseExpectedAmountParameters {
   deltaAmount: Amount;
   requestId: RequestId;
-  extensionsData?: any[];
+  extensionsData?: Extension.IAction[];
   /** arbitrary number to differentiate several identical transaction */
   nonce?: number;
 }
@@ -215,7 +215,7 @@ export interface IIncreaseExpectedAmountParameters {
 export interface IReduceExpectedAmountParameters {
   deltaAmount: Amount;
   requestId: RequestId;
-  extensionsData?: any[];
+  extensionsData?: Extension.IAction[];
   /** arbitrary number to differentiate several identical transaction */
   nonce?: number;
 }
@@ -223,7 +223,7 @@ export interface IReduceExpectedAmountParameters {
 /** Parameters to add extensions data to a request */
 export interface IAddExtensionsDataParameters {
   requestId: RequestId;
-  extensionsData: any[];
+  extensionsData: Extension.IAction[];
   /** arbitrary number to differentiate several identical transaction */
   nonce?: number;
 }
