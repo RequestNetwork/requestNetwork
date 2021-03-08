@@ -132,6 +132,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',
         acceptedTokens,
+// Here we only accept payments with a 1sec old conversion rate
         1,
       );
 
