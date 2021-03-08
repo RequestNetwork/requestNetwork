@@ -1,23 +1,25 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import {
-  getErc20Symbol,
-} from '../../src/erc20';
+import { getErc20Decimals, getErc20Symbol } from '../../src/erc20';
 
 describe('erc20', () => {
   describe('getErc20Symbol', () => {
     it('get the symbol for SAI currency', () => {
-      expect(getErc20Symbol({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
-      })).toEqual('SAI');
+      expect(
+        getErc20Symbol({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
+        }),
+      ).toEqual('SAI');
     });
     it('get the symbol for CTBK currency', () => {
-      expect(getErc20Symbol({
-        network: 'rinkeby',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
-      })).toEqual('CTBK');
+      expect(
+        getErc20Symbol({
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
+        }),
+      ).toEqual('CTBK');
     });
     it('get the symbol for CUSD currency (Celo network)', () => {
       expect(
@@ -28,9 +30,39 @@ describe('erc20', () => {
         }),
       ).toEqual('CUSD');
     });
-    it('cannot get the symbol for not ERC20 type', () => {
+
+    it('can get the symbol for different address case', () => {
+      // upper case
       expect(
-        () => getErc20Symbol({
+        getErc20Symbol({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0X8888801AF4D980682E47F1A9036E589479E835C5', // MPH
+        }),
+      ).toEqual('MPH');
+
+      // lower case
+      expect(
+        getErc20Symbol({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8888801af4d980682e47f1a9036e589479e835c5', // MPH
+        }),
+      ).toEqual('MPH');
+
+      // checksum
+      expect(
+        getErc20Symbol({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8888801aF4d980682e47f1A9036e589479e835C5', // MPH
+        }),
+      ).toEqual('MPH');
+    });
+
+    it('cannot get the symbol for not ERC20 type', () => {
+      expect(() =>
+        getErc20Symbol({
           type: RequestLogicTypes.CURRENCY.ETH,
           value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
         }),
@@ -44,6 +76,7 @@ describe('erc20', () => {
         }),
       ).toEqual(null);
     });
+
     it('cannot get the symbol for unknown network', () => {
       expect(
         getErc20Symbol({
@@ -52,6 +85,46 @@ describe('erc20', () => {
           value: '0x1111111111111111111111111111111111111111',
         }),
       ).toEqual(null);
+    });
+  });
+  describe('getErc20Decimals', () => {
+    it('can get the decimals for SAI', () => {
+      expect(
+        getErc20Decimals({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
+        }),
+      ).toEqual(18);
+    });
+
+    it('can get the symbol for different address case', () => {
+      // upper case
+      expect(
+        getErc20Decimals({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0X8888801AF4D980682E47F1A9036E589479E835C5', // MPH
+        }),
+      ).toEqual(18);
+
+      // lower case
+      expect(
+        getErc20Decimals({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8888801af4d980682e47f1a9036e589479e835c5', // MPH
+        }),
+      ).toEqual(18);
+
+      // checksum
+      expect(
+        getErc20Decimals({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8888801aF4d980682e47f1A9036e589479e835C5', // MPH
+        }),
+      ).toEqual(18);
     });
   });
 });
