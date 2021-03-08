@@ -304,6 +304,6 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     expect(
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.feeBalance
         .balance,
-    ).toBe('10');
+    ).toBe('15');
   });
 });
