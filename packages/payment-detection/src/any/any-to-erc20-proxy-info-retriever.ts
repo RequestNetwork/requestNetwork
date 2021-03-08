@@ -115,7 +115,7 @@ export default class ProxyERC20InfoRetriever
         return { parsedConversionLog, log, parsedProxyLog };
       })
       // Keeps only the log with the right token and the right destination address
-      // TODO (PROT-1234): This check will be made in the filter event when we will migrate to ethers v5
+      // With ethers v5, the criteria below can be added to the conversionFilter (PROT-1234)
       .filter(
         (log) =>
           // filter the token allowed
