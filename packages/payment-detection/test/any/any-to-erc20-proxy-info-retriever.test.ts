@@ -9,6 +9,7 @@ const conversionProxyContractAddress = '0x2C2B9C9a4a25e24B174f26114e8926a9f2128F
 const erc20FeeProxyContractAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
 const paymentReferenceMock = '0111111111111111111111111111111111111111111111111';
 const acceptedTokens = [erc20LocalhostContractAddress];
+const USDCurrency = { type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' };
 
 /* tslint:disable:no-unused-expression */
 describe('api/any/conversion-proxy-info-retriever', () => {
@@ -72,7 +73,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
 
     it('can get the balance of an address out of mocked logs', async () => {
       const infoRetriever = new AnyToErc20ProxyInfoRetriever(
-        { type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' },
+        USDCurrency,
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,
@@ -109,7 +110,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
 
     it('skips the payment with a payment token that is not accepted', async () => {
       const infoRetriever = new AnyToErc20ProxyInfoRetriever(
-        { type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' },
+        USDCurrency,
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,
@@ -135,7 +136,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
 
     it('skips the payment with a wrong conversion currency', async () => {
       const infoRetriever = new AnyToErc20ProxyInfoRetriever(
-        { type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' },
+        USDCurrency,
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,
@@ -161,7 +162,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
 
     it('gets an empty list of events for an address without ERC20 on localhost', async () => {
       const infoRetriever = new AnyToErc20ProxyInfoRetriever(
-        { type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' },
+        USDCurrency,
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,
