@@ -31,7 +31,7 @@ export function getErc20Decimals(currency: RequestLogicTypes.ICurrency): number 
   // Get the decimals from one of the supported ERC20 networks
   if (supportedNetworksDetails.hasOwnProperty(network)) {
     erc20Token = Object.values(supportedNetworksDetails[network]).find(
-      ({ address }) => address === currency.value,
+      ({ address }) => address.toLowerCase() === currency.value.toLowerCase(),
     );
   }
 
@@ -59,7 +59,7 @@ export function getErc20Symbol(currency: RequestLogicTypes.ICurrency): string | 
   // Find ERC20 symbol in one of the other supported ERC20 networks
   if (supportedNetworks.hasOwnProperty(network)) {
     const entry = [...supportedNetworks[network].entries()].find(
-      ([, obj]) => currency.value === obj.value,
+      ([, obj]) => currency.value.toLowerCase() === obj.value.toLowerCase(),
     );
     return entry ? entry[0] : null;
   }

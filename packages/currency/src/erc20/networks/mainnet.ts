@@ -29,6 +29,24 @@ const extraERC20Tokens = {
     decimals: 2,
     address: '0x433d86336dB759855A66cCAbe4338313a8A7fc77',
   },
+  // MPH
+  '0x8888801af4d980682e47f1a9036e589479e835c5': {
+    name: 'MPH',
+    erc20: true,
+    logo: 'mph.svg',
+    symbol: 'MPH',
+    decimals: 18,
+    address: '0x8888801af4d980682e47f1a9036e589479e835c5',
+  },
+  // Aave USDC
+  '0x9bA00D6856a4eDF4665BcA2C2309936572473B7E': {
+    name: 'aUSDC',
+    erc20: true,
+    logo: 'ausdc.svg',
+    symbol: 'aUSDC',
+    decimals: 6,
+    address: '0x9bA00D6856a4eDF4665BcA2C2309936572473B7E',
+  },
 };
 /* eslint-enable spellcheck/spell-checker */
 

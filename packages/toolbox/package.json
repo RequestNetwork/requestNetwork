@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/toolbox",
-  "version": "0.1.27",
+  "version": "0.1.28",
   "private": true,
   "description": "Toolbox for Request Network.",
   "keywords": [
@@ -39,11 +39,11 @@
     "cli": "cross-env NODE_ENV=development ts-node src/cli.ts"
   },
   "dependencies": {
-    "@requestnetwork/epk-signature": "0.5.28",
-    "@requestnetwork/request-client.js": "0.33.0",
-    "@requestnetwork/types": "0.29.3",
+    "@requestnetwork/epk-signature": "0.5.29",
+    "@requestnetwork/request-client.js": "0.34.0",
+    "@requestnetwork/types": "0.30.0",
     "axios": "0.21.1",
-    "yargs": "16.0.3"
+    "yargs": "16.2.0"
   },
   "devDependencies": {
     "cross-env": "7.0.2",

@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/currency",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publishConfig": {
     "access": "public"
   },
@@ -42,8 +42,8 @@
   },
   "dependencies": {
     "@metamask/contract-metadata": "1.23.0",
-    "@requestnetwork/types": "0.29.3",
-    "@requestnetwork/utils": "0.29.0",
+    "@requestnetwork/types": "0.30.0",
+    "@requestnetwork/utils": "0.30.0",
     "node-dijkstra": "2.5.0"
   },
   "devDependencies": {
