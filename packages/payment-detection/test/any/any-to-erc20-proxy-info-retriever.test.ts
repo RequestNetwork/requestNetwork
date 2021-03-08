@@ -37,6 +37,22 @@ describe('api/any/conversion-proxy-info-retriever', () => {
       },
     };
 
+    const paymentAddress = '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB';
+
+    const infoRetriever = new AnyToErc20ProxyInfoRetriever(
+      USDCurrency,
+      paymentReferenceMock,
+      conversionProxyContractAddress,
+      0,
+      erc20FeeProxyContractAddress,
+      0,
+      paymentAddress,
+      PaymentTypes.EVENTS_NAMES.PAYMENT,
+      'private',
+      acceptedTokens,
+      1000000,
+    );
+
     beforeEach(() => {
       proxyPaymentLog = {
         blockNumber: 38,
@@ -69,23 +85,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
       };
     });
 
-    const paymentAddress = '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB';
-
     it('can get the balance of an address out of mocked logs', async () => {
-      const infoRetriever = new AnyToErc20ProxyInfoRetriever(
-        USDCurrency,
-        paymentReferenceMock,
-        conversionProxyContractAddress,
-        0,
-        erc20FeeProxyContractAddress,
-        0,
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'private',
-        acceptedTokens,
-        1000000,
-      );
-
       infoRetriever.provider = mockedProvider as any;
 
       const events = await infoRetriever.getTransferEvents();
@@ -109,20 +109,6 @@ describe('api/any/conversion-proxy-info-retriever', () => {
     });
 
     it('skips the payment with a payment token that is not accepted', async () => {
-      const infoRetriever = new AnyToErc20ProxyInfoRetriever(
-        USDCurrency,
-        paymentReferenceMock,
-        conversionProxyContractAddress,
-        0,
-        erc20FeeProxyContractAddress,
-        0,
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'private',
-        acceptedTokens,
-        1000000,
-      );
-
       // eslint-disable-next-line spellcheck/spell-checker
       // token 0xff...fff instead of the accepted one
       proxyPaymentLog.data =
@@ -161,20 +147,6 @@ describe('api/any/conversion-proxy-info-retriever', () => {
     });
 
     it('skips the payment with a wrong conversion currency', async () => {
-      const infoRetriever = new AnyToErc20ProxyInfoRetriever(
-        USDCurrency,
-        paymentReferenceMock,
-        conversionProxyContractAddress,
-        0,
-        erc20FeeProxyContractAddress,
-        0,
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'private',
-        acceptedTokens,
-        1000000,
-      );
-
       // eslint-disable-next-line spellcheck/spell-checker
       // currency 0xff...fff instead of the request one
       proxyConversionLog.data =
@@ -187,20 +159,6 @@ describe('api/any/conversion-proxy-info-retriever', () => {
     });
 
     it('gets an empty list of events for an address without ERC20 on localhost', async () => {
-      const infoRetriever = new AnyToErc20ProxyInfoRetriever(
-        USDCurrency,
-        paymentReferenceMock,
-        conversionProxyContractAddress,
-        0,
-        erc20FeeProxyContractAddress,
-        0,
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'private',
-        acceptedTokens,
-        1000000,
-      );
-
       // inject mock provider.getLogs()
       infoRetriever.provider.getLogs = (): any => {
         return [];
