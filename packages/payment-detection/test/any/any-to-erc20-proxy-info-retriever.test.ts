@@ -149,8 +149,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         1,
       );
 
-      // eslint-disable-next-line spellcheck/spell-checker
-      // timespan declared is 10 instead of 0
+      // Here we fake an event emmitted by a payment made with a maximum timeframe of 10s
       proxyConversionLog.data =
         '0x000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b000000000000000000000000000000000000000000000000000000000bebc200000000000000000000000000000000000000000000000000000000000000000a';
 
