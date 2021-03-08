@@ -134,6 +134,32 @@ describe('api/any/conversion-proxy-info-retriever', () => {
       expect(events).toHaveLength(0);
     });
 
+    it('skips the payment with a rate too old', async () => {
+      const infoRetriever = new AnyToErc20ProxyInfoRetriever(
+        USDCurrency,
+        paymentReferenceMock,
+        conversionProxyContractAddress,
+        0,
+        erc20FeeProxyContractAddress,
+        0,
+        paymentAddress,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
+        'private',
+        acceptedTokens,
+        1,
+      );
+
+      // eslint-disable-next-line spellcheck/spell-checker
+      // timespan declared is 10 instead of 0
+      proxyConversionLog.data =
+        '0x000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b000000000000000000000000000000000000000000000000000000000bebc200000000000000000000000000000000000000000000000000000000000000000a';
+
+      infoRetriever.provider = mockedProvider as any;
+
+      const events = await infoRetriever.getTransferEvents();
+      expect(events).toHaveLength(0);
+    });
+
     it('skips the payment with a wrong conversion currency', async () => {
       const infoRetriever = new AnyToErc20ProxyInfoRetriever(
         USDCurrency,
