@@ -120,26 +120,28 @@ export default class ProxyERC20InfoRetriever
         (log) =>
           // filter the token allowed
           (!this.acceptedTokens ||
-            this.acceptedTokens.includes(log.parsedProxyLog!.values.tokenAddress.toLowerCase())) &&
+            this.acceptedTokens.includes(log.parsedProxyLog!.args[0].toLowerCase())) &&
           // check the rate timespan
-          this.maxRateTimespan >= log.parsedConversionLog.values.maxRateTimespan.toNumber() &&
+          this.maxRateTimespan >= log.parsedConversionLog.args[4].toNumber() &&
           // check the requestCurrency
           getCurrencyHash(this.requestCurrency).toLowerCase() ===
-            log.parsedConversionLog.values.currency.toLowerCase() &&
+            log.parsedConversionLog.args[1].toLowerCase() &&
           // check to address
-          log.parsedProxyLog!.values.to.toLowerCase() === this.toAddress.toLowerCase(),
+          log.parsedProxyLog!.args[1].toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
       .map(async (t) => {
         const chainlinkDecimal = 8;
         const decimalPadding = chainlinkDecimal - getDecimalsForCurrency(this.requestCurrency);
 
-        const amountWithRightDecimal = ethers.utils
-          .bigNumberify(t.parsedConversionLog.values.amount.toString())
+        const amountWithRightDecimal = ethers.BigNumber.from(
+          t.parsedConversionLog.args[0].toString(),
+        )
           .div(10 ** decimalPadding)
           .toString();
-        const feeAmountWithRightDecimal = ethers.utils
-          .bigNumberify(t.parsedConversionLog.values.feeAmount.toString() || 0)
+        const feeAmountWithRightDecimal = ethers.BigNumber.from(
+          t.parsedConversionLog.args[3].toString() || 0,
+        )
           .div(10 ** decimalPadding)
           .toString();
 
@@ -148,14 +150,14 @@ export default class ProxyERC20InfoRetriever
           name: this.eventName,
           parameters: {
             block: t.log.blockNumber,
-            feeAddress: t.parsedProxyLog!.values.feeAddress || undefined,
+            feeAddress: t.parsedProxyLog!.args[5] || undefined,
             feeAmount: feeAmountWithRightDecimal,
-            feeAmountInCrypto: t.parsedProxyLog?.values.amount.toString() || undefined,
-            amountInCrypto: t.parsedProxyLog?.values.feeAmount.toString(),
-            tokenAddress: t.parsedProxyLog!.values.tokenAddress,
+            feeAmountInCrypto: t.parsedProxyLog?.args[2].toString() || undefined,
+            amountInCrypto: t.parsedProxyLog?.args[4].toString(),
+            tokenAddress: t.parsedProxyLog!.args[0],
             to: this.toAddress,
             txHash: t.log.transactionHash,
-            maxRateTimespan: t.parsedConversionLog.values.maxRateTimespan.toString(),
+            maxRateTimespan: t.parsedConversionLog.args[4].toString(),
           },
           timestamp: (await this.provider.getBlock(t.log.blockNumber || 0)).timestamp,
         };

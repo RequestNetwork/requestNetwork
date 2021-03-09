@@ -33,15 +33,15 @@ export default class ETHInfoRetriever
     const events = history
       // keep only when address is the destination
       .filter(
-        transaction =>
+        (transaction) =>
           transaction.to && transaction.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       // keep only if data contains the payment reference
       .filter(
-        transaction =>
+        (transaction) =>
           transaction.data.toLowerCase() === '0x' + this.paymentReference.toLowerCase(),
       )
-      .map(transaction => ({
+      .map((transaction) => ({
         amount: transaction.value.toString(),
         name: this.eventName,
         parameters: {

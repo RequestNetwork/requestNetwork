@@ -85,25 +85,24 @@ export default class ProxyERC20InfoRetriever
     // Parses, filters and creates the events from the logs with the payment reference
     const eventPromises = logs
       // Parses the logs
-      .map(log => {
+      .map((log) => {
         const parsedLog = this.contractProxy.interface.parseLog(log);
         return { parsedLog, log };
       })
       // Keeps only the log with the right token and the right destination address
       .filter(
-        log =>
-          log.parsedLog.values.tokenAddress.toLowerCase() ===
-            this.tokenContractAddress.toLowerCase() &&
-          log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase(),
+        (log) =>
+          log.parsedLog.args[0].toLowerCase() === this.tokenContractAddress.toLowerCase() &&
+          log.parsedLog.args[1].toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
-      .map(async t => ({
-        amount: t.parsedLog.values.amount.toString(),
+      .map(async (t) => ({
+        amount: t.parsedLog.args[2].toString(),
         name: this.eventName,
         parameters: {
           block: t.log.blockNumber,
-          feeAddress: t.parsedLog.values.feeAddress || undefined,
-          feeAmount: t.parsedLog.values.feeAmount?.toString() || undefined,
+          feeAddress: t.parsedLog.args[5] || undefined,
+          feeAmount: t.parsedLog.args[4]?.toString() || undefined,
           to: this.toAddress,
           txHash: t.log.transactionHash,
         },
