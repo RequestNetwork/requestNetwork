@@ -16,7 +16,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
   describe('on mocked logs', () => {
     let proxyPaymentLog: ethers.providers.Log;
     let proxyConversionLog: ethers.providers.Log;
-    let infoRetriever;
+    let infoRetriever: AnyToErc20ProxyInfoRetriever;
 
     const mockedGetLogs = (filter: ethers.EventFilter) => {
       if (
