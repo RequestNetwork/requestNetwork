@@ -16,6 +16,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
   describe('on mocked logs', () => {
     let proxyPaymentLog: ethers.providers.Log;
     let proxyConversionLog: ethers.providers.Log;
+    let infoRetriever;
 
     const mockedGetLogs = (filter: ethers.EventFilter) => {
       if (
@@ -38,20 +39,6 @@ describe('api/any/conversion-proxy-info-retriever', () => {
     };
 
     const paymentAddress = '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB';
-
-    const infoRetriever = new AnyToErc20ProxyInfoRetriever(
-      USDCurrency,
-      paymentReferenceMock,
-      conversionProxyContractAddress,
-      0,
-      erc20FeeProxyContractAddress,
-      0,
-      paymentAddress,
-      PaymentTypes.EVENTS_NAMES.PAYMENT,
-      'private',
-      acceptedTokens,
-      1000000,
-    );
 
     beforeEach(() => {
       proxyPaymentLog = {
@@ -83,6 +70,19 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         transactionHash: '0x08fa12d6647053fc1ff21179ec1b16d3825144cb3840957f98830b8e416516f1',
         logIndex: 5,
       };
+      infoRetriever = new AnyToErc20ProxyInfoRetriever(
+        USDCurrency,
+        paymentReferenceMock,
+        conversionProxyContractAddress,
+        0,
+        erc20FeeProxyContractAddress,
+        0,
+        paymentAddress,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
+        'private',
+        acceptedTokens,
+        1000000,
+      );
     });
 
     it('can get the balance of an address out of mocked logs', async () => {
@@ -132,7 +132,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',
         acceptedTokens,
-// Here we only accept payments with a 1sec old conversion rate
+        // Here we only accept payments with a 1sec old conversion rate
         1,
       );
 
