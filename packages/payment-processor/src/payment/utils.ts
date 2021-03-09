@@ -9,6 +9,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import Currency from '@requestnetwork/currency';
 
 /**
  * Thrown when the library does not support a payment blockchain network.
@@ -72,7 +73,7 @@ export function getPaymentNetworkExtension(
 ): ExtensionTypes.IState | undefined {
   // tslint:disable-next-line: typedef
   return Object.values(request.extensions).find(
-    x => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    (x) => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
   );
 }
 
@@ -82,18 +83,42 @@ export function getPaymentNetworkExtension(
  */
 export function getRequestPaymentValues(
   request: ClientTypes.IRequestData,
-): { paymentAddress: string; paymentReference: string; feeAmount?: string; feeAddress?: string } {
+): {
+  paymentAddress: string;
+  paymentReference: string;
+  feeAmount?: string;
+  feeAddress?: string;
+  tokensAccepted?: string[];
+  maxRateTimespan?: string;
+  network?: string;
+} {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
     throw new Error('no payment network found');
   }
-  const { paymentAddress, salt, feeAmount, feeAddress } = extension.values;
+  const {
+    paymentAddress,
+    salt,
+    feeAmount,
+    feeAddress,
+    tokensAccepted,
+    maxRateTimespan,
+    network,
+  } = extension.values;
   const paymentReference = PaymentReferenceCalculator.calculate(
     request.requestId,
     salt,
     paymentAddress,
   );
-  return { paymentAddress, paymentReference, feeAmount, feeAddress };
+  return {
+    paymentAddress,
+    paymentReference,
+    feeAmount,
+    feeAddress,
+    tokensAccepted,
+    maxRateTimespan,
+    network,
+  };
 }
 
 const {
@@ -147,9 +172,7 @@ export function validateErc20FeeProxyRequest(
 ): void {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
 
-  const { feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { feeAddress, feeAmount } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
 
@@ -158,6 +181,44 @@ export function validateErc20FeeProxyRequest(
   }
   if (amountToPay.isZero() && feeToPay.isZero()) {
     throw new Error('Request payment amount and fee are 0');
+  }
+}
+
+/**
+ * Validates the parameters for an ERC20 Fee Proxy payment.
+ * @param request to validate
+ * @param tokenAddress token address to pay with
+ * @param amount optionally, the custom amount to pay
+ * @param feeAmountOverride optionally, the custom fee amount
+ */
+export function validateConversionFeeProxyRequest(
+  request: ClientTypes.IRequestData,
+  path: string[],
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): void {
+  const { feeAddress, feeAmount, tokensAccepted } = getRequestPaymentValues(request);
+  const amountToPay = getAmountToPay(request, amount);
+  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+
+  if (!!feeAmount !== !!feeAddress) {
+    throw new Error('Both fee address and fee amount have to be declared, or both left empty');
+  }
+  if (amountToPay.isZero() && feeToPay.isZero()) {
+    throw new Error('Request payment amount and fee are 0');
+  }
+
+  const requestCurrencyHash = path[0];
+  if (requestCurrencyHash !== Currency.getCurrencyHash(request.currencyInfo)) {
+    throw new Error(`The first entry of the path does not match the request currency`);
+  }
+
+  const tokenAddress = path[path.length - 1];
+  if (
+    tokensAccepted &&
+    !tokensAccepted?.map((t) => t.toLowerCase()).includes(tokenAddress.toLowerCase())
+  ) {
+    throw new Error(`The token ${tokenAddress} is not accepted to pay this request`);
   }
 }
 
