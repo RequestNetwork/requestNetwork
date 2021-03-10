@@ -1,217 +1,75 @@
-pragma solidity ^0.5.0;
-//import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/IERC20.sol";
-import "./Ownable.sol";
-import "./SafeERC20.sol" ;
-import "./IUniswapV2Router02.sol";
-import "./IERC20FeeProxy.sol";
+pragma solidity ^0.5.17;
+import "./lib/Ownable.sol";
+import "./interface/IERC20.sol";
+import "./interface/IUniswapV2Router02.sol";
+/// @title Contract for  allowing exhaustion of  mintable erc20 tokens converted from DAI using uniswap v2 router contract 
+/// @author Yoann , Request Network
+/// @notice Currently used the contract only for experimental purposes and tokens only .
+/// @dev some function calls have to be optimised (swapexactTokensforTokens for instance and further audit checks ).
+///  pre-requisites are to mint tokens from faucet : http://central.request.network/
 
 
-
-
-
-
-/// @title uniswap routing to convert DAI > ETH > REQ route . 
-contract UniswapRouting is Ownable{
-using SafeERC20 for IERC20;  
-
-address public constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D ;
-
-//  for the execution of the swap , the given router object needs to be paid via payment proxy.
-
-
-
-  IUniswapV2Router02 public swapRouter;
-  IERC20FeeProxy public paymentProxy;
- 
-    constructor(address  _swapRouterAddress , address _paymentProxyAddress)  public  {
-           
-           swapRouter = IUniswapV2Router02(_swapRouterAddress);
-           paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
+/*interface*/ contract IBurnableErc20 is IERC20 {
+    function burn(uint value) external;
+}
+/// @title DAITestBurner
+/// @notice A contract to burn test  ERC20 tokens from DAI.
+/// @dev Sends the DAI to the uniswap router factory smart contract which then tries to mint the destination token using the specified token LP.
+///  The converted ERC20 is then burned.
+/// @param _swapRouterAddress address of the uniswap token router (which follow the same method signature ).
+contract DaiBasedREQBurner is Ownable {
+    // example tokens taken from rinkleby  which are burnable   
+    address constant CTBK_ADDRESS = 0x995d6A8C21F24be1Dd04E105DD0d83758343E258;
+    address constant FAU_ADDRESS = 0xFab46E002BbF0b4509813474841E0716E6730136;
+   // defining the swap router project in order to approve the specific LP trading based on the given address.
+    IUniswapV2Router02 public swapRouter;
+    constructor(address _swapRouterAddress) public {
+        require(_swapRouterAddress != address(0), "The swap router address should not be 0");
+        // TODO:  generally this addresses needs to be whitelisted (for mainnet deployment ) 
+        /// @dev can there be possiblity to attach an malicious LP providing contract
         
+        swapRouter = IUniswapV2Router02(_swapRouterAddress);
     }
-
-
-  modifier ensure(uint deadline) {
-    require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
-    _;
-  }
-  
-  function safeTransferFrom(
-    IERC20  _token,
-    address _from,
-    address _to,
-    uint256 _amount
-  ) internal returns (bool result)
-  {
-    // solium-disable-next-line security/no-low-level-calls
-    (bool success, bytes memory data) = address(_token).call(abi.encodeWithSignature(
-      "transferFrom(address,address,uint256)",
-      _from,
-      _to,
-      _amount
-    ));
-
-    return success && (data.length == 0 || abi.decode(data, (bool)));
-  }
-
-  
-  
-  
-  
-  
-  
-     function approveRouterToSpend(address _erc20Address , address _sender ) public {
-    SafeERC20 erc20 = IERC20(_erc20Address);
-    
+  /// @dev gives the permission to uniswap to accept the DAI token from the EOA to the given contract for swapping 
+  /// and setting up the max limit to avoid the attacks .
+  function approveRouterToSpend() public {
     uint256 max = 2**256 - 1;
-    
-    erc20.safeApprove(address(swapRouter),address(_sender), max);
+    IERC20 dai = IERC20(CTBK_ADDRESS);
+    dai.approve(address(swapRouter), max);
   }
 
-
-  // Will fail if amountInMax < 2 * amountOut
-  function swapTokensForExactTokens(
-    uint amountOut,
-    uint amountInMax,
-    address[] calldata path,
-    address to,
-    uint deadline
-  ) external ensure(deadline) returns (uint[] memory amounts) 
-  {
-    amounts = new uint[](2);
-    amounts[0] = amountOut;
-    amounts[1] = amountOut * 2;
-    require(amounts[1] <= amountInMax, "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT");
-    IERC20 paid = IERC20(path[0]);
-    IERC20 swapped = IERC20(path[1]);
-    require(swapped.balanceOf(address(this)) > amounts[0], "Test cannot proceed, lack of tokens in swap contract");
-    paid.safeTransferFrom(msg.sender, address(this), amounts[1]);
-    swapped.transfer(to, amounts[0]);
-  }
-   
-   // @dev for transferring the event for swapped address.
-    event TransferWithFee(
-    address tokenAddress,
-    address to,
-    uint256 amount,
-    uint256 feeAmount,
-    address feeAddress
-  );
-
+  ///@dev 
+  ///@param _minReqBurnt 
+  ///@param _deadline 
+    function burn(uint _minReqBurnt, uint256 _deadline)
+        external
+        returns(uint)
+    {   // here we have defined the hardcoded version of the erc20 contracts.
+        IERC20 dai = IERC20(CTBK_ADDRESS);
+        IBurnableErc20 req = IBurnableErc20(FAU_ADDRESS);
+        uint daiToConvert = dai.balanceOf(address(this));
+        /// @dev  for uniswapV2Router.swapExactTokensForTokens , the parameter _deadline  insures that particular order to be completed in given time 
+        if (_deadline == 0) {
+            _deadline = block.timestamp + 1000;
+        }
+        address[] memory path = new address[](2);
+        path[0] = CTBK_ADDRESS;
+        path[1] = FAU_ADDRESS;
+        /// @dev here we need to be specific that fixed amount of the tokens are to be locked for the burning to have transparency in the req conversion . 
+        uint reqToBurn = swapRouter.swapExactTokensForTokens(
+          daiToConvert,
+          _minReqBurnt,
+          path,
+          address(this),
+          _deadline
+        )[1];
+        // Burn the converted REQ tokens
+        req.burn(reqToBurn);
+        return reqToBurn;
+    }
  
-    function transferForFee(
-    address _tokenAddress,
-    address _to,
-    address _from,
-    uint256 _amount,
-    uint256 _feeAmount,
-    address _feeAddress
-    ) external
-    {
-    require(safeTransferFrom(_tokenAddress,_from,  _to, _amount), "payment transferFrom() failed");
-    if (_feeAmount > 0 && _feeAddress != address(0)) {
-      require(safeTransferFrom(_tokenAddress,_from ,  _feeAddress, _feeAmount), "fee transferFrom() failed");
-    }
-    emit TransferWithFee(
-      _tokenAddress,
-      _to,
-      _amount,
-      _feeAmount,
-      _feeAddress
-    );
-  }
-   
-   
-   function approvePaymentProxyToSpend(address _erc20Address) public {
-    IERC20 erc20 = IERC20(_erc20Address);
-    uint256 max = 2**256 - 1;
-    erc20.safeApprove(address(paymentProxy), max);
-  }
-   
-   //@title for  executing the  swap between the token before  burning the tokens 
-   function swapTokens(
-       address _to,
-    uint256 _amount,      // requestedToken
-    uint256 _amountInMax, // spentToken
-    address[] calldata _path, // from requestedToken to spentToken
-    uint256 _feeAmount,   // requestedToken
-    address _feeAddress,
-    uint256 _deadline
-    ) external
-    returns ( address _tokensescrow)
-   
-   { IERC20 spentToken = IERC20(_path[0]);
-    IERC20 requestedToken = IERC20(_path[_path.length-1]);
-
-    uint256 requestedTotalAmount = _amount + _feeAmount;
-
-    require(spentToken.allowance(msg.sender, address(this)) > _amountInMax, "Insufficient allowance for payment .");
-    require(spentToken.safeTransferFrom(msg.sender, address(this), _amountInMax), "Could not transfer payment token from swapper-payer");
-
-    
-    // Allow the router to spend all this contract's spentToken
-    if (spentToken.allowance(address(this),address(swapRouter)) < _amountInMax) {
-      approveRouterToSpend(requestedToken,address(spentToken));
-    }
-    
-swapRouter.swapTokensForExactTokens(
-      requestedTotalAmount,
-      _amountInMax,
-      _path,
-      address(this),
-      _deadline
-    );
-
-    // Allow the payment network to spend all this contract's requestedToken
-    if (requestedToken.allowance(address(this),address(paymentProxy)) < requestedTotalAmount) {
-      approvePaymentProxyToSpend(address(requestedToken));
-    }
-
-
-   
-    // now  for sending back the status of the payment and  fee via an event .
-    
-    
-    paymentProxy.transferForFee(
-        address(requestedToken),
-        _to,
-        _amount,
-        _feeAmount,
-        _feeAddress
-        );
-
- // if there is some amount left , pay back to the contract admin :
-    if (spentToken.balanceOf(address(this)) > 0) {
-      spentToken.safeTransfer(msg.sender, spentToken.balanceOf(address(this)));
-    }
-    if (requestedToken.balanceOf(address(this)) > 0) {
-      requestedToken.safeTransfer(msg.sender, requestedToken.balanceOf(address(this)));
-    }
-
-
-
-
-       return (requestedToken);
-
-       
-   }
-    
-
-
-
-
-       
-   
-    // in case of diffrent version of  router , adapting to the new one . 
-     function setPaymentProxy(address _paymentProxyAddress) public onlyOwner {
-    paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
-  }
-
+ ///@dev sets the router to specific version interface ( needs to be first step for utilising the interface contract)
   function setRouter(address _newSwapRouterAddress) public onlyOwner {
     swapRouter = IUniswapV2Router02(_newSwapRouterAddress);
   }
-   
-   
-   
-    
 }
