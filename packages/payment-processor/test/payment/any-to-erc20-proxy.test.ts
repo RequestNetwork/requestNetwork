@@ -74,7 +74,7 @@ const validRequest: ClientTypes.IRequestData = {
 };
 
 describe('conversion-erc20-fee-proxy', () => {
-  describe('payAnyToErc20ProxyRequest', () => {
+  describe('error checking', () => {
     it('should throw an error if the token is not accepted', async () => {
       await expect(
         payAnyToErc20ProxyRequest(
@@ -111,7 +111,7 @@ describe('conversion-erc20-fee-proxy', () => {
     });
   });
 
-  describe('payAnyToErc20ProxyRequest', () => {
+  describe('payment', () => {
     it('should consider override parameters', async () => {
       const spy = jest.fn();
       const originalSendTransaction = wallet.sendTransaction.bind(wallet);
