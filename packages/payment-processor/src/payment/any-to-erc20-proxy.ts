@@ -17,7 +17,7 @@ import {
 } from './utils';
 
 /**
- * Processes a transaction to pay an ERC20 Request with fees.
+ * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat). The payment is made by the ERC20 fee proxy contract.
  * @param request the request to pay
  * @param paymentTokenAddress the token address to pay the request
  * @param maxToSpend maximum of token the user is willing to spend
