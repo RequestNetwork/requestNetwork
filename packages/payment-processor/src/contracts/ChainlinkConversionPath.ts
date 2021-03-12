@@ -8,10 +8,10 @@ import { ITypedFunctionDescription } from './TypedFunctionDescription';
 interface IChainlinkConversionPathInterface extends Interface {
   functions: {
     getRate: ITypedFunctionDescription<{
-      encode([_path]: [string[]]): any;
+      encode([_path]: [string[]]): string;
     }>;
     getConversion: ITypedFunctionDescription<{
-      encode([_amountIn, _path]: [BigNumberish, string[]]): any;
+      encode([_amountIn, _path]: [BigNumberish, string[]]): string;
     }>;
   };
 }
