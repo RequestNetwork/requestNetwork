@@ -13,7 +13,7 @@ import { getProvider, getSigner } from './utils';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 
 /**
- * Processes the approval transaction of a given payment ERC20 to be spent by the swap router,
+ * Processes the approval transaction of a given payment ERC20 to be spent by the conversion proxy,
  * if the current approval is missing or not sufficient.
  * @param request request to pay, used to know the network
  * @param ownerAddress address of the payer
@@ -53,7 +53,8 @@ export async function approveErc20ForProxyConversionIfNeeded(
 }
 
 /**
- * Processes the approval transaction of the payment ERC20 to be spent by the swap router.
+ * Processes the approval transaction of the payment ERC20 to be spent by the conversion proxy,
+ * during the fee proxy delegate call.
  * @param request request to pay, used to know the network
  * @param paymentTokenAddress picked currency to pay
  * @param signerOrProvider the web3 provider. Defaults to Etherscan.
@@ -66,8 +67,7 @@ export async function approveErc20ForProxyConversion(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const network =
-    request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.network ||
-    'mainnet';
+    request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.network;
 
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
