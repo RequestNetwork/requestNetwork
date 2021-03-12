@@ -252,7 +252,7 @@ describe('conversion-erc20-fee-proxy', () => {
           //                   =   1.01
           //  AggEthUsd.sol    x 500.00
           //  AggDaiUsd.sol    /   1.01
-          //                    = 495.54455 +/ precision
+          //                    = 495.54455 +/- precision
           .toString(),
       ).toEqual('495544554455445544553');
     });
