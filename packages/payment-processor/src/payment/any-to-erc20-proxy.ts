@@ -60,7 +60,7 @@ export async function payAnyToErc20ProxyRequest(
 }
 
 /**
- * Encodes the call to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
+ * Encodes the call to pay a request with an ERC20 currency that is different from the request currency (eg. fiat). The payment is made by the ERC20 fee proxy contract.
  * @param request request to pay
  * @param paymentTokenAddress token address to pay with
  * @param maxToSpend maximum of token the user is willing to spend
