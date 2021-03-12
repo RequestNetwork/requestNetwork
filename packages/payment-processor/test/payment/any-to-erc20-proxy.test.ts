@@ -17,9 +17,9 @@ import { approveErc20ForProxyConversionIfNeeded } from '../../src/payment/conver
 import { payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
 import { bigNumberify } from 'ethers/utils';
 
-// tslint:disable: no-magic-numbers
-// tslint:disable: no-unused-expression
+const MAX_INTEGER = bigNumberify(2).pow(256).sub(1);
 
+// Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
@@ -28,7 +28,7 @@ const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 const provider = new JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
-const validRequest: ClientTypes.IRequestData = {
+const validEuroRequest: ClientTypes.IRequestData = {
   balance: {
     balance: '0',
     events: [],
@@ -78,10 +78,9 @@ describe('conversion-erc20-fee-proxy', () => {
     it('should throw an error if the token is not accepted', async () => {
       await expect(
         payAnyToErc20ProxyRequest(
-          validRequest,
+          validEuroRequest,
           '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
-          // tslint:disable-next-line: no-magic-numbers
-          bigNumberify(2).pow(256).sub(1),
+          MAX_INTEGER,
           wallet,
           undefined,
           undefined,
@@ -93,15 +92,14 @@ describe('conversion-erc20-fee-proxy', () => {
     });
 
     it('should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validRequest);
+      const request = Utils.deepCopy(validEuroRequest);
       request.extensions = [] as any;
 
       await expect(
         payAnyToErc20ProxyRequest(
           request,
           erc20ContractAddress,
-          // tslint:disable-next-line: no-magic-numbers
-          bigNumberify(2).pow(256).sub(1),
+          MAX_INTEGER,
           wallet,
           undefined,
           undefined,
@@ -117,10 +115,9 @@ describe('conversion-erc20-fee-proxy', () => {
       const originalSendTransaction = wallet.sendTransaction.bind(wallet);
       wallet.sendTransaction = spy;
       await payAnyToErc20ProxyRequest(
-        validRequest,
+        validEuroRequest,
         erc20ContractAddress,
-        // tslint:disable-next-line: no-magic-numbers
-        bigNumberify(2).pow(256).sub(1),
+        MAX_INTEGER,
         wallet,
         undefined,
         undefined,
@@ -139,10 +136,10 @@ describe('conversion-erc20-fee-proxy', () => {
       wallet.sendTransaction = originalSendTransaction;
     });
 
-    it('should convert and pay with ERC20', async () => {
+    it('should convert and pay a request in EUR with ERC20', async () => {
       // first approve the contract
       const approvalTx = await approveErc20ForProxyConversionIfNeeded(
-        validRequest,
+        validEuroRequest,
         wallet.address,
         erc20ContractAddress,
         wallet.provider,
@@ -162,10 +159,9 @@ describe('conversion-erc20-fee-proxy', () => {
 
       // convert and pay
       const tx = await payAnyToErc20ProxyRequest(
-        validRequest,
+        validEuroRequest,
         erc20ContractAddress,
-        // tslint:disable-next-line: no-magic-numbers
-        bigNumberify(2).pow(256).sub(1),
+        MAX_INTEGER,
         wallet,
         undefined,
         undefined,
@@ -189,6 +185,12 @@ describe('conversion-erc20-fee-proxy', () => {
       expect(
         bigNumberify(balanceTokenBefore)
           .sub(bigNumberify(balanceTokenAfter))
+          //   expectedAmount:      1.00
+          //   feeAmount:        +   .02
+          //                     =  1.02
+          //   AggEurUsd.sol     x  1.20
+          //   AggDaiUsd.sol     x  1.01
+          //                      = 1.211881188118811880
           .eq(bigNumberify('1211881188118811880')),
       ).toEqual(true);
     });
