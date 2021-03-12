@@ -4,7 +4,7 @@ import { bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { getDecimalsForCurrency, getConversionPath } from '@requestnetwork/currency';
 import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
-import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes } from '@requestnetwork/types';
 
 import { ProxyChainlinkConversionPathContract } from '../contracts/ProxyChainlinkConversionPath';
 import { ITransactionOverrides } from './transaction-overrides';
