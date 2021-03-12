@@ -15,9 +15,21 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
+import { ICurrency } from 'types/src/request-logic-types';
 
 /**
- * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat). The payment is made by the ERC20 fee proxy contract.
+ * Details required to pay a request with on-chain conversion:
+ * - currency: should be a valid currency type and accepted token value
+ * - maxToSpend: maximum number of tokens to be spent when the conversion is made
+ */
+export interface IPaymentSettings {
+  currency: ICurrency;
+  maxToSpend: BigNumberish;
+}
+
+/**
+ * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
+ * The payment is made by the ERC20 fee proxy contract.
  * @param request the request to pay
  * @param paymentTokenAddress the token address to pay the request
  * @param maxToSpend maximum of token the user is willing to spend
@@ -29,24 +41,23 @@ import {
  */
 export async function payAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  paymentTokenAddress: string,
-  maxToSpend: BigNumberish,
   signerOrProvider: Web3Provider | Signer = getProvider(),
+  paymentSettings: IPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
-  network: string = 'mainnet',
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  if (!paymentSettings.currency.network) {
+    throw new Error('Cannot pay with a currency missing a network');
+  }
   const encodedTx = await encodePayAnyToErc20ProxyRequest(
     request,
-    paymentTokenAddress,
-    maxToSpend,
     signerOrProvider,
+    paymentSettings,
     amount,
     feeAmount,
-    network,
   );
-  const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
+  const proxyAddress = proxyChainlinkConversionPath.getAddress(paymentSettings.currency.network);
   const signer = getSigner(signerOrProvider);
 
   const tx = await signer.sendTransaction({
@@ -71,20 +82,24 @@ export async function payAnyToErc20ProxyRequest(
  */
 export async function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  paymentTokenAddress: string,
-  maxToSpend: BigNumberish,
   signerOrProvider: Web3Provider | Signer = getProvider(),
+  paymentSettings: IPaymentSettings,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-  network: string = 'mainnet',
 ): Promise<string> {
-  // get the conversion path
+  if (!paymentSettings.currency.network) {
+    throw new Error('Cannot pay with a currency missing a network');
+  }
+
   // Compute the path automatically
-  const paymentCurrency = { type: RequestLogicTypes.CURRENCY.ERC20, value: paymentTokenAddress };
-  const path = getConversionPath(request.currencyInfo, paymentCurrency, network);
+  const path = getConversionPath(
+    request.currencyInfo,
+    paymentSettings.currency,
+    paymentSettings.currency.network,
+  );
   if (!path) {
     throw new Error(
-      `Impossible to find a conversion path between from ${request.currencyInfo} to ${paymentCurrency}`,
+      `Impossible to find a conversion path between from ${request.currencyInfo} to ${paymentSettings.currency}`,
     );
   }
 
@@ -108,7 +123,7 @@ export async function encodePayAnyToErc20ProxyRequest(
 
   // tslint:disable-next-line:no-magic-numbers
   const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0).mul(10 ** decimalPadding);
-  const proxyAddress = proxyChainlinkConversionPath.getAddress(network);
+  const proxyAddress = proxyChainlinkConversionPath.getAddress(paymentSettings.currency.network);
   const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);
 
   return proxyContract.interface.functions.transferFromWithReferenceAndFee.encode([
@@ -118,7 +133,7 @@ export async function encodePayAnyToErc20ProxyRequest(
     `0x${paymentReference}`,
     feeToPay,
     feeAddress || constants.AddressZero,
-    maxToSpend,
+    paymentSettings.maxToSpend,
     maxRateTimespan || 0,
   ]);
 }

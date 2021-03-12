@@ -14,13 +14,19 @@ import Utils from '@requestnetwork/utils';
 
 import { ERC20Contract } from '../../src/contracts/Erc20Contract';
 import { approveErc20ForProxyConversionIfNeeded } from '../../src/payment/conversion-erc20';
-import { payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
+import { IPaymentSettings, payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
 import { bigNumberify } from 'ethers/utils';
-
-const MAX_INTEGER = bigNumberify(2).pow(256).sub(1);
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
+const alphaPaymentSettings: IPaymentSettings = {
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ERC20,
+    value: erc20ContractAddress,
+    network: 'private',
+  },
+  maxToSpend: bigNumberify(2).pow(256).sub(1),
+};
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -79,12 +85,16 @@ describe('conversion-erc20-fee-proxy', () => {
       await expect(
         payAnyToErc20ProxyRequest(
           validEuroRequest,
-          '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
-          MAX_INTEGER,
           wallet,
+          {
+            ...alphaPaymentSettings,
+            currency: {
+              ...alphaPaymentSettings.currency,
+              value: '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
+            },
+          },
           undefined,
           undefined,
-          'private',
         ),
       ).rejects.toThrowError(
         'The token 0x775eb53d00dd0acd3ec1696472105d579b9b386b is not accepted to pay this request',
@@ -96,15 +106,7 @@ describe('conversion-erc20-fee-proxy', () => {
       request.extensions = [] as any;
 
       await expect(
-        payAnyToErc20ProxyRequest(
-          request,
-          erc20ContractAddress,
-          MAX_INTEGER,
-          wallet,
-          undefined,
-          undefined,
-          'private',
-        ),
+        payAnyToErc20ProxyRequest(request, wallet, alphaPaymentSettings, undefined, undefined),
       ).rejects.toThrowError('no payment network found');
     });
   });
@@ -116,12 +118,10 @@ describe('conversion-erc20-fee-proxy', () => {
       wallet.sendTransaction = spy;
       await payAnyToErc20ProxyRequest(
         validEuroRequest,
-        erc20ContractAddress,
-        MAX_INTEGER,
         wallet,
+        alphaPaymentSettings,
         undefined,
         undefined,
-        'private',
         {
           gasPrice: '20000000000',
         },
@@ -160,12 +160,10 @@ describe('conversion-erc20-fee-proxy', () => {
       // convert and pay
       const tx = await payAnyToErc20ProxyRequest(
         validEuroRequest,
-        erc20ContractAddress,
-        MAX_INTEGER,
         wallet,
+        alphaPaymentSettings,
         undefined,
         undefined,
-        'private',
       );
 
       const confirmedTx = await tx.wait(1);
