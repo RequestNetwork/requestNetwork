@@ -4,7 +4,7 @@ import { bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { getDecimalsForCurrency, getConversionPath } from '@requestnetwork/currency';
 import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
-import { ClientTypes } from '@requestnetwork/types';
+import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ProxyChainlinkConversionPathContract } from '../contracts/ProxyChainlinkConversionPath';
 import { ITransactionOverrides } from './transaction-overrides';
@@ -15,7 +15,6 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { ICurrency } from 'types/src/request-logic-types';
 
 /**
  * Details required to pay a request with on-chain conversion:
@@ -23,7 +22,7 @@ import { ICurrency } from 'types/src/request-logic-types';
  * - maxToSpend: maximum number of tokens to be spent when the conversion is made
  */
 export interface IPaymentSettings {
-  currency: ICurrency;
+  currency: RequestLogicTypes.ICurrency;
   maxToSpend: BigNumberish;
 }
 
