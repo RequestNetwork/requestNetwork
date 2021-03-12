@@ -116,7 +116,10 @@ export async function encodePayAnyToErc20ProxyRequest(
   } = getRequestPaymentValues(request);
 
   const chainlinkDecimal = 8;
-  const decimalPadding = chainlinkDecimal - getDecimalsForCurrency(request.currencyInfo);
+  const decimalPadding = Math.max(
+    chainlinkDecimal - getDecimalsForCurrency(request.currencyInfo),
+    0,
+  );
 
   // tslint:disable-next-line:no-magic-numbers
   const amountToPay = getAmountToPay(request, amount).mul(10 ** decimalPadding);

@@ -181,16 +181,80 @@ describe('conversion-erc20-fee-proxy', () => {
       // Check each balance
       expect(bigNumberify(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
       expect(
+        bigNumberify(balanceTokenBefore).sub(bigNumberify(balanceTokenAfter)).toString(),
+        //   expectedAmount:      1.00
+        //   feeAmount:        +   .02
+        //                     =  1.02
+        //   AggEurUsd.sol     x  1.20
+        //   AggDaiUsd.sol     /  1.01
+        //                     =  1.211881188118811880 (over 18 decimals for this ERC20)
+      ).toEqual('1211881188118811880');
+    });
+
+    it('should convert and pay a request in ETH with ERC20', async () => {
+      const validEthRequest = validEuroRequest;
+      validEthRequest.currency = 'ETH';
+      validEthRequest.currencyInfo = {
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      };
+      validEthRequest.expectedAmount = '1000000000000000000'; // 1 ETH
+      validEthRequest.extensions[
+        PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
+      ].values.feeAmount = '1000000000000000'; // 0.001 ETH
+      // first approve the contract
+      const approvalTx = await approveErc20ForProxyConversionIfNeeded(
+        validEthRequest,
+        wallet.address,
+        erc20ContractAddress,
+        wallet.provider,
+        bigNumberify(10).pow(20),
+      );
+
+      if (approvalTx) {
+        await approvalTx.wait(1);
+      }
+      // get the balances to compare after payment
+      const balanceEthBefore = await wallet.getBalance();
+      const balanceTokenBefore = await ERC20Contract.connect(
+        erc20ContractAddress,
+        provider,
+      ).balanceOf(wallet.address);
+
+      // convert and pay
+      const tx = await payAnyToErc20ProxyRequest(
+        validEuroRequest,
+        wallet,
+        alphaPaymentSettings,
+        undefined,
+        undefined,
+      );
+
+      const confirmedTx = await tx.wait(1);
+
+      expect(confirmedTx.status).toEqual(1);
+      expect(tx.hash).toBeDefined();
+
+      // Get the new balances
+      const balanceEthAfter = await wallet.getBalance();
+      const balanceTokenAfter = await ERC20Contract.connect(
+        erc20ContractAddress,
+        provider,
+      ).balanceOf(wallet.address);
+
+      // Check each balance
+      expect(bigNumberify(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
+      expect(
         bigNumberify(balanceTokenBefore)
           .sub(bigNumberify(balanceTokenAfter))
-          //   expectedAmount:      1.00
-          //   feeAmount:        +   .02
-          //                     =  1.02
-          //   AggEurUsd.sol     x  1.20
-          //   AggDaiUsd.sol     x  1.01
-          //                      = 1.211881188118811880
-          .eq(bigNumberify('1211881188118811880')),
-      ).toEqual(true);
+          //  expectedAmount:      1.00 (ETH)
+          //  feeAmount:       +    .01 (ETH)
+          //                   =   1.01
+          //  AggEthUsd.sol    x 500.00
+          //  AggDaiUsd.sol    /   1.01
+          //                    = 495.54455 +/ precision
+          .toString(),
+      ).toEqual('495544554455445544553');
     });
   });
 });
