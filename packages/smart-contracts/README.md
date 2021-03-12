@@ -36,6 +36,8 @@ The package stores the following smart contracts:
 - `RequestHashStorage` allows to declare a hash `NewHash(hash, submitter, feesParameters)`. Only a whitelisted contract can declare hashes.
 - `RequestOpenHashSubmitter` entry point to add hashes in `RequestHashStorage`. It gives the rules to get the right to submit hashes and collect the fees. This contract must be whitelisted in `RequestHashStorage`. The only condition for adding hash is to pay the fees.
 - `StorageFeeCollector` parent contract (not deployed) of `RequestOpenHashSubmitter`, computes the fees and send them to the burner.
+- `DAIBasedREQBurner` smart contract created as upgradation of traditional  burner  by  integrating uniswap and allowing  the DAI tokens to be burned into REQ (note : currently the address are hardcoded for testing on the rinkleby testnet).
+
 
 **Smart contracts for advanced-logic package**
 
@@ -55,6 +57,9 @@ yarn install
 yarn run build
 yarn run ganache
 ```
+
+##### Note:
+currently REQburner is not fully tested and needs some steps to make it executable to run on arbitrary erc20 tokens , and then make them work on real currency. 
 
 And in another terminal:
 
