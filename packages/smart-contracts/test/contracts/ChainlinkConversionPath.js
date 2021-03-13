@@ -104,9 +104,19 @@ contract('ChainlinkConversionPath', (accounts) => {
         conversion = await conversionPathInstance.getRate.call([ETH_address, USD_address, EUR_address]);
         assert.equal(conversion.rate.toString(10), '41666666666');
       });
+
+      it('can get rate from ETH to USD to ERC20', async () => {
+        conversion = await conversionPathInstance.getRate.call([ETH_address, USD_address, DAI_address]);
+        assert.equal(conversion.rate.toString(10), '495049504950495049504');
+      });
     });
 
-    describe('USDT rates', async () => {
+    describe('USD rates', async () => {
+      it('can get rate from USD to ERC20', async () => {
+        const conversion = await conversionPathInstance.getRate.call([USD_address, DAI_address]);
+        assert.equal(conversion.rate.toString(10), '9900990099009900990099009900');
+      });
+
       it('can get rate from USD to ETH to USDT', async () => {
         const conversion = await conversionPathInstance.getRate.call([USD_address, ETH_address, USDT_address]);
         assert.equal(conversion.rate.toString(10), '10000000000000000');
