@@ -106,7 +106,7 @@ describe('payErc20ProxyRequest', () => {
     request.extensions = [] as any;
 
     await expect(payErc20ProxyRequest(request, wallet)).rejects.toThrowError(
-      'request cannot be processed, or is not an pn-erc20-proxy-contract request',
+      'no payment network found',
     );
   });
 

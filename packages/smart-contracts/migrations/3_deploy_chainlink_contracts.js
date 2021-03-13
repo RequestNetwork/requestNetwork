@@ -22,6 +22,7 @@ module.exports = async function (deployer) {
   const ETH_address = Currency.getCurrencyHash({ type: 'ETH', value: 'ETH' });
   const USD_address = Currency.getCurrencyHash({ type: 'ISO4217', value: 'USD' });
   const EUR_address = Currency.getCurrencyHash({ type: 'ISO4217', value: 'EUR' });
+  // Cf. ERC20Alpha in TestERC20.sol
   const DAI_address = Currency.getCurrencyHash({ type: 'ERC20', value: '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35' });
   const USDT_address = USDT_fake.address;
 
