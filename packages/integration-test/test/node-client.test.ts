@@ -502,7 +502,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     },
   };
 
-  const contractAddress = '0x38cf23c52bb4b13f051aec09580a2de845a7fa35';
+  const contractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
   const erc20requestCreationHash: Types.IRequestInfo = {
     currency: {
