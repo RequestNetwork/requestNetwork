@@ -44,7 +44,11 @@ contract RequestOpenHashSubmitter is StorageFeeCollector , WhitelistAdminRole  {
     payable
   {
         // parsing the contentsize from the fees param from the requestnetqork library
-        uint256 contentSize = uint256(Bytes.extractBytes32(_feesParameters, 0));
+      uint256 contentSize = uint256(Bytes.extractBytes32(_feesParameters, 0));
+
+      
+    // Check fees are paid
+    require(getFeesAmount(contentSize) == msg.value, "msg.value does not match the fees");
 
     
     // Send  fees to burner from , throws on failure
