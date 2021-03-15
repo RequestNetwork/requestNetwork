@@ -116,7 +116,7 @@ contract('ChainlinkConversionPath', (accounts) => {
       });
     });
 
-    describe('USD rates', async () => {
+    describe('USDT rates', async () => {
       it('can get rate from USD to ETH to USDT', async () => {
         const conversion = await conversionPathInstance.getRate.call([USD_address, ETH_address, USDT_address]);
         assert.equal(conversion.rate.toString(10), '10000000000000000');
