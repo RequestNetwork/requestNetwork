@@ -4,7 +4,6 @@ import "./interface/IUniswapV2Router02.sol";
 
 /**
  * @title Contract for  allowing  removal of global supply of locked mintable erc20 tokens by converted from DAI using uniswap v2 router contract
- * @dev some function calls have to be optimised (swapexactTokensforTokens for instance and further audit checks ).
  * @author Request Network
  */ 
 
