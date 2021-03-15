@@ -12,6 +12,7 @@ import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
 import { ISwapSettings } from './swap-erc20-fee-proxy';
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { IPaymentSettings, payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
 
 export const supportedNetworks = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
@@ -48,6 +49,7 @@ export async function payRequest(
   signerOrProvider: Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
+  paymentSettings?: IPaymentSettings,
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
@@ -55,6 +57,19 @@ export async function payRequest(
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
       return payErc20Request(request, signer, amount, undefined, overrides);
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
+      if (!paymentSettings) {
+        throw new Error('Missing payment settings for a payment with conversion');
+      }
+      return payAnyToErc20ProxyRequest(
+        request,
+        signer,
+        paymentSettings,
+        amount,
+        undefined,
+        overrides,
+      );
+    }
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
       return payEthInputDataRequest(request, signer, amount, overrides);
     default:

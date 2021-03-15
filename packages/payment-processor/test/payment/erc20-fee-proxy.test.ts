@@ -119,7 +119,7 @@ describe('erc20-fee-proxy', () => {
       request.extensions = [] as any;
 
       await expect(payErc20FeeProxyRequest(request, wallet)).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
+        'no payment network found',
       );
     });
   });
@@ -166,9 +166,13 @@ describe('erc20-fee-proxy', () => {
       expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
 
       // ERC20 balance should be lower
-      expect(bigNumberify(balanceErc20After).eq(bigNumberify(balanceErc20Before).sub(102))).toBeTruthy();
+      expect(
+        bigNumberify(balanceErc20After).eq(bigNumberify(balanceErc20Before).sub(102)),
+      ).toBeTruthy();
       // fee ERC20 balance should be higher
-      expect(bigNumberify(feeBalanceErc20After).eq(bigNumberify(feeBalanceErc20Before).add(2))).toBeTruthy();
+      expect(
+        bigNumberify(feeBalanceErc20After).eq(bigNumberify(feeBalanceErc20Before).add(2)),
+      ).toBeTruthy();
     });
   });
 
