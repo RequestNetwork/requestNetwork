@@ -4,6 +4,17 @@ import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import {
+  payRequest,
+  approveErc20ForProxyConversionIfNeeded,
+} from '@requestnetwork/payment-processor';
+
+import { Wallet, utils } from 'ethers';
+import { JsonRpcProvider } from 'ethers/providers';
+
+const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
+const provider = new JsonRpcProvider('http://localhost:8545');
+const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 // tslint:disable-next-line: no-magic-numbers
 jest.setTimeout(10000);
@@ -491,7 +502,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     },
   };
 
-  const contractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
+  const contractAddress = '0x38cf23c52bb4b13f051aec09580a2de845a7fa35';
 
   const erc20requestCreationHash: Types.IRequestInfo = {
     currency: {
@@ -528,5 +539,74 @@ describe('ERC20 localhost request creation and detection test', () => {
     requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
+  });
+
+  it('can create ERC20 requests with any to erc20 proxy', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider,
+      useMockStorage: true,
+    });
+
+    const tokenContractAddress = '0x38cf23c52bb4b13f051aec09580a2de845a7fa35';
+
+    const paymentNetworkAnyToERC20: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+      parameters: {
+        paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
+        feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+        feeAmount: '200',
+        network: 'private',
+        acceptedTokens: [tokenContractAddress],
+        maxRateTimespan: 1000000,
+      },
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork: paymentNetworkAnyToERC20,
+      requestInfo: requestCreationHashUSD,
+      signer: payeeIdentity,
+    });
+
+    let data = await request.refresh();
+    expect(data.balance).toBeNull();
+    const approval = await approveErc20ForProxyConversionIfNeeded(
+      data,
+      payeeIdentity.value,
+      tokenContractAddress,
+      wallet,
+      '100000000000000000000000000000000000',
+    );
+    if (approval) {
+      await approval.wait();
+    }
+
+    // USD => token
+    const maxToSpend = new utils.BigNumber(2).pow(255);
+    const paymentTx = await payRequest(data, wallet, undefined, undefined, {
+      currency: {
+        type: Types.RequestLogic.CURRENCY.ERC20,
+        value: tokenContractAddress,
+        network: 'private',
+      },
+      maxToSpend,
+    });
+    await paymentTx.wait();
+
+    data = await request.refresh();
+
+    expect(data.balance?.balance).toBe('1000');
+    expect(data.balance?.events.length).toBe(1);
+    const event = data.balance?.events[0];
+    expect(event?.amount).toBe('1000');
+    expect(event?.name).toBe('payment');
+
+    expect(event?.parameters?.feeAmount).toBe('200');
+    expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
+    expect(event?.parameters?.feeAmountInCrypto).toBe('9900990099009900990');
+    expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
+    expect(event?.parameters?.tokenAddress).toBe('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
+    expect(event?.parameters?.amountInCrypto).toBe('1980198019801980198');
+    expect(event?.parameters?.maxRateTimespan).toBe('1000000');
   });
 });
