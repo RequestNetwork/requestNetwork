@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.31.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.29.0...@requestnetwork/types@0.31.0) (2021-03-15)
+
+
+### Features
+
+* Payment detection for the any to erc20 payment network ([#419](https://github.com/RequestNetwork/requestNetwork/issues/419)) ([6f7338f](https://github.com/RequestNetwork/requestNetwork/commit/6f7338f42ddf793a733a31b434d6116beebefdf6))
+* payment network any to erc20 in advanced logic ([#414](https://github.com/RequestNetwork/requestNetwork/issues/414)) ([45f09f9](https://github.com/RequestNetwork/requestNetwork/commit/45f09f9ee5693378722559d414b07e887fb3c63c))
+
+
+
+
+
 # [0.30.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.29.0...@requestnetwork/types@0.30.0) (2021-03-03)
 
 

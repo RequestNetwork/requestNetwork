@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.29](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/toolbox@0.1.24...@requestnetwork/toolbox@0.1.29) (2021-03-15)
+
+**Note:** Version bump only for package @requestnetwork/toolbox
+
+
+
+
+
 ## [0.1.28](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/toolbox@0.1.24...@requestnetwork/toolbox@0.1.28) (2021-03-03)
 
 **Note:** Version bump only for package @requestnetwork/toolbox
