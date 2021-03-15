@@ -82,6 +82,11 @@ contract('ChainlinkConversionPath', (accounts) => {
         const conversion = await conversionPathInstance.getRate.call([USD_address, EUR_address, USD_address]);
         assert.equal(conversion.rate.toString(10), '999999999999999999');
       });
+
+      it('can get rate from ETH to USD to EUR', async () => {
+        conversion = await conversionPathInstance.getRate.call([ETH_address, USD_address, EUR_address]);
+        assert.equal(conversion.rate.toString(10), '41666666666');
+      });
     });
 
     describe('Ethereum rates', async () => {
@@ -100,9 +105,14 @@ contract('ChainlinkConversionPath', (accounts) => {
         assert.equal(conversion.rate.toString(10), '24000000000000000000000000');
       });
 
-      it('can get rate from ETH to USD to EUR', async () => {
-        conversion = await conversionPathInstance.getRate.call([ETH_address, USD_address, EUR_address]);
-        assert.equal(conversion.rate.toString(10), '41666666666');
+      it('can get rate from USD to ERC20', async () => {
+        const conversion = await conversionPathInstance.getRate.call([USD_address, DAI_address]);
+        assert.equal(conversion.rate.toString(10), '9900990099009900990099009900');
+      });
+
+      it('can get rate from ETH to USD to ERC20', async () => {
+        conversion = await conversionPathInstance.getRate.call([ETH_address, USD_address, DAI_address]);
+        assert.equal(conversion.rate.toString(10), '495049504950495049504');
       });
     });
 

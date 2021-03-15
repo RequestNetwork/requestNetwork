@@ -36,7 +36,7 @@ const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, str
   },
   rinkeby: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
-    [RequestLogicTypes.CURRENCY.ERC20]: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+    [RequestLogicTypes.CURRENCY.ERC20]: ['0xfab46e002bbf0b4509813474841e0716e6730136'],
     [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },
@@ -92,7 +92,11 @@ function createCreationAction(
     throw Error('network not supported');
   }
   const supportedErc20: string[] = supportedCurrencies[network][RequestLogicTypes.CURRENCY.ERC20];
-  if (creationParameters.acceptedTokens.some((address) => !supportedErc20.includes(address))) {
+  if (
+    creationParameters.acceptedTokens.some(
+      (address) => !supportedErc20.includes(address.toLowerCase()),
+    )
+  ) {
     throw Error('acceptedTokens must contain only supported token addresses (ERC20 only)');
   }
 
@@ -434,7 +438,12 @@ function checkSupportedCurrency(currency: RequestLogicTypes.ICurrency, network: 
     );
   }
 
-  if (!supportedCurrencies[network][currency.type].includes(currency.value)) {
+  let normalizedCurrencyValue = currency.value;
+  if (currency.type !== RequestLogicTypes.CURRENCY.ISO4217) {
+    normalizedCurrencyValue = currency.value.toLowerCase();
+  }
+
+  if (!supportedCurrencies[network][currency.type].includes(normalizedCurrencyValue)) {
     throw new Error(
       `The currency (${currency.value}) of the request is not supported for this payment network.`,
     );
