@@ -23,7 +23,6 @@ contract IBurnableErc20 is IERC20 {
 /** @title DaiBasedREQBurner
  * @notice A contract to burn REQ tokens from DAI.
  * @dev All DAIs sent to this contract can only be exchanged for REQs that are then burnt, using Uniswap.
- * @param _swapRouterAddress address of the uniswap token router (which follow the same method signature ).
  */
 contract DaiBasedREQBurner is Ownable {
     // example tokens taken from rinkleby
@@ -38,6 +37,10 @@ contract DaiBasedREQBurner is Ownable {
     // swap router used to convert LOCKED into BURNABLE tokens
     IUniswapV2Router02 public swapRouter;
 
+    /**
+     * @notice Constructor of the DAI based REQ burner
+     * @param _swapRouterAddress address of the uniswap token router (which follow the same method signature ).
+     */
     constructor(address _swapRouterAddress) public {
         require(_swapRouterAddress != address(0), 'The swap router address should not be 0');
         swapRouter = IUniswapV2Router02(_swapRouterAddress);
