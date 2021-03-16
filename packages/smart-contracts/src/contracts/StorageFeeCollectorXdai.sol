@@ -7,7 +7,8 @@ import "./WhitelistAdminRole.sol";
 /**
  * @title StorageFeeCollector
  * @dev :  contract for  providing the schematics of gas costs per hash and also to fetch the fees from the  wallet
- * 
+ * @dev steps for getting the storqge fee collector being deployed 
+
  */
 contract StorageFeeCollector is WhitelistAdminRole  {
   using SafeMath for uint256;
@@ -19,23 +20,23 @@ contract StorageFeeCollector is WhitelistAdminRole  {
 
   
   // address of the contract that will spend Xdai token for the transaction.
-  address payable public requestBurnerContract;
+  address payable  WalletAddress;
     
     
   ///@dev  for specifying the change in the parameters for gas fees based on the governance   
   event UpdatedFeeParameters(uint256 minimumFee, uint256 rateFeesNumerator, uint256 rateFeesDenominator);
   event UpdatedMinimumFeeThreshold(uint256 threshold);
-  event UpdatedBurnerContract(address burnerAddress);
+  event UpdatedWalletAddress(address burnerAddress);
 
 
-  /** @notice  initializing the fee collection object in open hash submitter. 
-   * @param _requestLockContract Address of the  DAI lock based burner that will basically send the xDAI to be burned by swapping with REQ.
+  /** @notice  initializing the  object  for paying for hash submissions in  open hash submitter. 
+   * @param _requestOpenHashContract  Address of the Open hash submittter where to send the transaction.
    * 
    */
-  constructor(address payable _requestLockContract)
+  constructor(address payable _requestOpenHashContract)
     public
   {
-    requestBurnerContract = _requestLockContract;
+    requestBurnerContract = _requestOpenHashContract;
   }
 
   
@@ -48,13 +49,15 @@ contract StorageFeeCollector is WhitelistAdminRole  {
     external
     onlyWhitelistAdmin
   {
-    requestBurnerContract = _newWalletContract;
-    emit UpdatedBurnerContract(requestBurnerContract);
+    WalletAddress = _newWalletContract;
+    emit UpdatedWalletAddress(WalletAddress);
   }
 
   /**
     * @notice sets the parameters that , along with size of the content , will determine final fees
-
+    * @param _minimumFee thats the minimum fee that  will be  applicable in case of  no content 
+    * @param _rateFeesNumerator param that increases the relevant contribution of contentsize in the computing the total fees
+    * @param _rateFeesDenominator param that decreases  the relevant contribution of contentsize in the computing the total fees
     * @return the expected amount of fees (currently fixed) in gwei
     */
   function setFeeParameters(uint256 _minimumFee, uint256 _rateFeesNumerator, uint256 _rateFeesDenominator)
@@ -72,7 +75,7 @@ contract StorageFeeCollector is WhitelistAdminRole  {
 /**
  * @dev computes the transaction based on the formula
  * 
- *  computedAllFee = (num(_contentSize))*(rateFeesNumerator/rateFeesDenominator)
+ *  computedAllFee = (num(_contentSize))*(rateFeesNumerator/rateFeesDenominator) + _minimumFee
  *   
  * @param _contentSize its the size of the request hash.
  * @return the total fees in wei.
@@ -107,6 +110,6 @@ contract StorageFeeCollector is WhitelistAdminRole  {
     internal
   {
     // .transfer throws on failure
-    requestBurnerContract.transfer(_amount);
+    WalletAddress.transfer(_amount);
   }
 }
