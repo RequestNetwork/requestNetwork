@@ -7,8 +7,9 @@ import "./WhitelistAdminRole.sol";
 /**
  * @title StorageFeeCollector
  * @dev :  contract for  providing the schematics of gas costs per hash and also to fetch the fees from the  wallet
- * @dev steps for getting the storqge fee collector being deployed 
-
+ * @dev steps for getting the storage fee collector being deployed 
+ * @dev 1. deploy the open hash submitter contract 
+ * @dev 2. add the address of the wallet  which will have necessary reserve of xDAI for paying the fees.
  */
 contract StorageFeeCollector is WhitelistAdminRole  {
   using SafeMath for uint256;
@@ -21,7 +22,8 @@ contract StorageFeeCollector is WhitelistAdminRole  {
   
   // address of the contract that will spend Xdai token for the transaction.
   address payable  WalletAddress;
-    
+  // address of the open hash submitter contracts 
+  address payable requestOpenHashContract;
     
   ///@dev  for specifying the change in the parameters for gas fees based on the governance   
   event UpdatedFeeParameters(uint256 minimumFee, uint256 rateFeesNumerator, uint256 rateFeesDenominator);
@@ -36,13 +38,13 @@ contract StorageFeeCollector is WhitelistAdminRole  {
   constructor(address payable _requestOpenHashContract)
     public
   {
-    requestBurnerContract = _requestOpenHashContract;
+    requestOpenHashContract = _requestOpenHashContract;
   }
 
   
 
   /**
-    * @notice Set the address of  new deploy wallet (  in case to be changed in future) .
+    * @notice Set the address of  new deploy wallet  .
     * 
     */
   function setWalletContract(address payable _newWalletContract)
