@@ -1,8 +1,8 @@
 
 pragma solidity ^0.5.0;
 
-import "./SafeMath.sol";
-import "./WhitelistAdminRole.sol";
+import "./lib/SafeMath.sol";
+import "./lib/WhitelistAdminRole.sol";
 
 /**
  * @title StorageFeeCollector
@@ -44,7 +44,7 @@ contract StorageFeeCollector is WhitelistAdminRole  {
   
 
   /**
-    * @notice Set the address of  new deploy wallet  .
+    * @notice Set the address of  wallet to pay fees  .
     * 
     */
   function setWalletContract(address payable _newWalletContract)
