@@ -65,6 +65,29 @@ export default class GasPriceDefiner {
         ]);
       }
     }
+    else if (
+      networkName ===
+      EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)
+
+    ) {
+      if (gasPriceArray.length > 0) {
+        // here , by fefault , we will have the fixed price . 
+        // TODO : there needs to be decision on choosing the price .
+        return gasPriceArray
+          .reduce(
+            (currentMax, gasPrice: typeof bigNumber) => bigNumber.max(currentMax, gasPrice),
+            new bigNumber(0),
+          ) .toString();
+        }  else {
+          this.logger.warn('Not able to parse the gas fees correctly', [
+            'xdai',
+          ]);
+
+
+
+
+      
+    }
 
     return config.getDefaultEthereumGasPrice();
   }
@@ -86,7 +109,12 @@ export default class GasPriceDefiner {
         gasPriceArray.push(providerGasPrice);
       } catch (err) {
         // If the function throws, it means the gas price provider is not available or the value sent is not valid
+        // for xdai , checking that xdaiProvider doesnt work 
+        this.logger.warn(err , ['xdai','invalid-input']);
+        
         this.logger.warn(err, ['ethereum', 'gas']);
+        
+      
       }
     }
 
