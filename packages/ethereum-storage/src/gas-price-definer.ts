@@ -73,7 +73,7 @@ export default class GasPriceDefiner {
       const gasPriceArray: Array<typeof bigNumber> = await this.pollProviders(type, networkName);
       if (gasPriceArray.length > 0) {
         // here , by fefault , we will have the fixed price . 
-        // TODO : there needs to be decision on choosing the price .
+        
         return gasPriceArray
           .reduce(
             (currentMax: typeof bigNumber, gasPrice: typeof bigNumber) => bigNumber.max(currentMax, gasPrice),
@@ -128,11 +128,17 @@ export default class GasPriceDefiner {
       }
     }
 
-    // thus for  xdaiprovider , it will be single entry.
-    if (networkName == EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)) {
+    // thus for  xdaiprovider , there will be ent.
+    if (networkName == EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)) {
+      
       let xdaiprovider: StorageTypes.IGasPriceProvider = new XdaiProvider();
-      gasPriceArray.push(xdaiprovider.getGasPrice(type));
+      let type : any;
+      for (  type in StorageTypes.GasPriceType) {
+        gasPriceArray.push(xdaiprovider.getGasPrice(type));
 
+        
+      }
+      
 
 
     }

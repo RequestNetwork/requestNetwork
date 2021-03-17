@@ -65,7 +65,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   /**
    * Constructor
    * @param ipfsGatewayConnection Information structure to connect to the ipfs gateway
-   * @param web3Connection Information structure to connect to the Ethereum network
+   * @param web3Connection Information structure to connect to the Ethereum / XDAI network
    * @param [options.getLastBlockNumberDelay] the minimum delay to wait between fetches of lastBlockNumber
    * @param metadataStore a Keyv store to persist the metadata in ethereumMetadataCache
    */
@@ -157,7 +157,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   /**
    * Update Ethereum network connection information and reconnect
    * Missing value are filled with default config value
-   * @param web3Connection Information structure to connect to the Ethereum network
+   * @param web3Connection Information structure to connect to the Ethereum based network (can be eth or xdai)
    */
   public async updateEthereumNetwork(web3Connection: StorageTypes.IWeb3Connection): Promise<void> {
     this.smartContractManager = new SmartContractManager(web3Connection);
