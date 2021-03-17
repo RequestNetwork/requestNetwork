@@ -205,7 +205,7 @@ export enum GasPriceType {
 
 /** Interface of the class to retrieve gas price through a provider API */
 export interface IGasPriceProvider {
-  providerUrl: string;
+  providerUrl?: string;
   getGasPrice: (type: GasPriceType) => Promise<typeof bigNumber>;
 }
 
