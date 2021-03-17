@@ -7,7 +7,7 @@ import {
 import getBalanceErrorObject from '../balance-error';
 import Erc20InfoRetriever from './address-based-info-retriever';
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 
 /**
@@ -116,8 +116,8 @@ export default class PaymentNetworkERC20AddressBased
         );
       }
 
-      const balance: string = new bigNumber(payments.balance || 0)
-        .sub(new bigNumber(refunds.balance || 0))
+      const balance: string = new BigNumber(payments.balance || 0)
+        .sub(new BigNumber(refunds.balance || 0))
         .toString();
 
       const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
@@ -154,7 +154,7 @@ export default class PaymentNetworkERC20AddressBased
     const events = await infoRetriever.getTransferEvents();
 
     const balance = events
-      .reduce((acc, event) => acc.add(new bigNumber(event.amount)), new bigNumber(0))
+      .reduce((acc, event) => acc.add(new BigNumber(event.amount)), new BigNumber(0))
       .toString();
 
     return {

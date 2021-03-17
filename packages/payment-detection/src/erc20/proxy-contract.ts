@@ -9,7 +9,7 @@ import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 // tslint:disable:max-classes-per-file
 /** Exception when network not supported */
@@ -148,8 +148,8 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
         );
       }
 
-      const balance: string = new bigNumber(payments.balance || 0)
-        .sub(new bigNumber(refunds.balance || 0))
+      const balance: string = new BigNumber(payments.balance || 0)
+        .sub(new BigNumber(refunds.balance || 0))
         .toString();
 
       const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
@@ -233,7 +233,7 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
     const events = await infoRetriever.getTransferEvents();
 
     const balance = events
-      .reduce((acc, event) => acc.add(new bigNumber(event.amount)), new bigNumber(0))
+      .reduce((acc, event) => acc.add(new BigNumber(event.amount)), new BigNumber(0))
       .toString();
 
     return {

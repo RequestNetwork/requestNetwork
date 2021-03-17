@@ -2,7 +2,7 @@ import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
 const converterBTC = require('satoshi-bitcoin');
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 /* eslint-disable spellcheck/spell-checker */
 
@@ -87,8 +87,8 @@ export default class ChainSo implements PaymentTypes.IBitcoinDetectionProvider {
     // Compute the balance making the sum of all the transactions amount
     const balance: string = events
       .reduce((balanceAccumulator: any, event: PaymentTypes.BTCPaymentNetworkEvent) => {
-        return balanceAccumulator.add(new bigNumber(event.amount));
-      }, new bigNumber('0'))
+        return balanceAccumulator.add(new BigNumber(event.amount));
+      }, new BigNumber('0'))
       .toString();
 
     return { balance, events };

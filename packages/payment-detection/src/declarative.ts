@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 /**
  * Handle payment networks with declarative requests extension
@@ -134,17 +134,17 @@ export default class PaymentNetworkDeclarative
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.DeclarativeBalanceWithEvents> {
-    let balance = new bigNumber(0);
+    let balance = new BigNumber(0);
     const events: PaymentTypes.DeclarativePaymentNetworkEvent[] = [];
 
     // For each extension data related to the declarative payment network,
     // we check if the data is a declared received payment or refund and we modify the balance
     // Received payment increase the balance and received refund decrease the balance
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE].events.forEach(data => {
+    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE].events.forEach((data) => {
       const parameters = data.parameters;
       if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
         // Declared received payments from payee is added to the balance
-        balance = balance.add(new bigNumber(parameters.amount));
+        balance = balance.add(new BigNumber(parameters.amount));
         events.push({
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
@@ -157,7 +157,7 @@ export default class PaymentNetworkDeclarative
         parameters.timestamp = data.timestamp;
 
         // The balance is subtracted from declared received refunds from payer
-        balance = balance.sub(new bigNumber(parameters.amount));
+        balance = balance.sub(new BigNumber(parameters.amount));
         events.push({
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.REFUND,

@@ -6,7 +6,7 @@ import EtherchainProvider from '../../src/gas-price-providers/etherchain-provide
 
 import * as fetchMock from 'fetch-mock';
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 let etherchainProvider: EtherchainProvider;
 
@@ -50,14 +50,14 @@ describe('EtherchainProvider', () => {
       // Test with each gas price type
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.SAFELOW),
-      ).resolves.toEqual(new bigNumber(1000000000));
+      ).resolves.toEqual(new BigNumber(1000000000));
 
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
-      ).resolves.toEqual(new bigNumber(3500000000));
+      ).resolves.toEqual(new BigNumber(3500000000));
 
       await expect(etherchainProvider.getGasPrice(StorageTypes.GasPriceType.FAST)).resolves.toEqual(
-        new bigNumber(7000000000),
+        new BigNumber(7000000000),
       );
     });
 

@@ -6,7 +6,7 @@ import EthereumUtils from '../src/ethereum-utils';
 import * as config from '../src/config';
 import GasPriceDefiner from '../src/gas-price-definer';
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 let gasPriceDefiner: GasPriceDefiner;
 
@@ -28,7 +28,7 @@ describe('GasPriceDefiner', () => {
     it('returns default gas price from config if no provider is available', async () => {
       gasPriceDefiner.pollProviders = async (
         _type: StorageTypes.GasPriceType,
-      ): Promise<typeof bigNumber> => [];
+      ): Promise<BigNumber> => [];
       const gasPrice = await gasPriceDefiner.getGasPrice(
         StorageTypes.GasPriceType.STANDARD,
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
@@ -40,28 +40,28 @@ describe('GasPriceDefiner', () => {
     it('returns the max of values returned by providers', async () => {
       gasPriceDefiner.gasPriceProviderList = [
         {
-          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(100),
+          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
+            new BigNumber(100),
           providerUrl: '',
         },
         {
-          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(200),
+          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
+            new BigNumber(200),
           providerUrl: '',
         },
         {
-          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(300),
+          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
+            new BigNumber(300),
           providerUrl: '',
         },
         {
-          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(40),
+          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
+            new BigNumber(40),
           providerUrl: '',
         },
         {
-          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(300),
+          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
+            new BigNumber(300),
           providerUrl: '',
         },
       ];
@@ -79,23 +79,23 @@ describe('GasPriceDefiner', () => {
     it('returns an array containing value from each provider', async () => {
       gasPriceDefiner.gasPriceProviderList = [
         {
-          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(100),
+          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
+            new BigNumber(100),
           providerUrl: '',
         },
         {
-          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(500),
+          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
+            new BigNumber(500),
           providerUrl: '',
         },
         {
-          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(200),
+          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
+            new BigNumber(200),
           providerUrl: '',
         },
         {
-          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(300000),
+          getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
+            new BigNumber(300000),
           providerUrl: '',
         },
       ];
@@ -103,10 +103,10 @@ describe('GasPriceDefiner', () => {
       await expect(
         gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD),
       ).resolves.toEqual([
-        new bigNumber(100),
-        new bigNumber(500),
-        new bigNumber(200),
-        new bigNumber(300000),
+        new BigNumber(100),
+        new BigNumber(500),
+        new BigNumber(200),
+        new BigNumber(300000),
       ]);
     });
 

@@ -19,7 +19,7 @@ import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
-import { BigNumber } from 'ethers/utils';
+import { BigNumber } from 'ethers';
 import EtherscanProviderMockup from './ethers-mockup';
 
 const packageJson = require('../package.json');
@@ -1176,11 +1176,11 @@ describe('index', () => {
 
       jest.advanceTimersByTime(150);
       expect((await fetchedRequest.refresh()).expectedAmount).toBe(
-        String(new BigNumber(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2)),
+        String(BigNumber.from(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2)),
       );
 
       await fetchedRequest.reduceExpectedAmountRequest(
-        new BigNumber(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2).toString(),
+        BigNumber.from(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2).toString(),
         payeeIdentity,
       );
 

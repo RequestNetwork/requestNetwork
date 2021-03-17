@@ -12,7 +12,7 @@ import PaymentReferenceCalculator from '../payment-reference-calculator';
 import EthInputDataInfoRetriever from './info-retriever';
 import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 
 // interface of the object indexing the proxy contract version
@@ -114,9 +114,7 @@ export default class PaymentNetworkETHInputData
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request does not have the extension: ${
-          ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
-        }`,
+        `The request does not have the extension: ${ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
@@ -157,8 +155,8 @@ export default class PaymentNetworkETHInputData
         );
       }
 
-      const balance: string = new bigNumber(payments.balance || 0)
-        .sub(new bigNumber(refunds.balance || 0))
+      const balance: string = new BigNumber(payments.balance || 0)
+        .sub(new BigNumber(refunds.balance || 0))
         .toString();
 
       const events: PaymentTypes.ETHPaymentNetworkEvent[] = [
@@ -233,7 +231,7 @@ export default class PaymentNetworkETHInputData
           (a.timestamp || 0) - (b.timestamp || 0),
       );
     const balance = events
-      .reduce((acc, event) => acc.add(new bigNumber(event.amount)), new bigNumber(0))
+      .reduce((acc, event) => acc.add(new BigNumber(event.amount)), new BigNumber(0))
       .toString();
 
     return {
