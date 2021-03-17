@@ -8,7 +8,7 @@
   "references": [
     { "path": "../epk-signature" },
     { "path": "../request-client.js" },
-    { "path": "../smart-contracts.js" },
+    { "path": "../smart-contracts" },
     { "path": "../types" }
   ]
 }
