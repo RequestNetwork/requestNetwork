@@ -25,13 +25,36 @@ describe('GasPriceDefiner', () => {
       expect(gasPrice).toBe(config.getDefaultEthereumGasPrice());
     });
 
-    it('returns pricing from xdai as defined as  fixed values' , async() => {
+    it('returns  max pricing from xdai  payment' , async() => {
+      gasPriceDefiner.gasPriceProviderList = [
+       
+        { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
+          new bigNumber(5) ,
+          providerUrl : '',
+        
+        },
+          { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
+            new bigNumber(10),
+            providerUrl : '',
+          },
+            { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
+              new bigNumber(20),
+              providerUrl : '',
+            }
+              
+        
+        ] 
+   
+
+         
+   
+   
       const gasPrice = await gasPriceDefiner.getGasPrice(
-        StorageTypes.GasPriceType.FAST,
+        StorageTypes.GasPriceType.STANDARD,
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI),
       );
 
-      expect(gasPrice).toBe(2000000000);
+      expect(gasPrice).toBe(20);
     });
 
 
@@ -39,6 +62,8 @@ describe('GasPriceDefiner', () => {
       gasPriceDefiner.pollProviders = async (
         _type: StorageTypes.GasPriceType,
       ): Promise<typeof bigNumber> => [];
+      
+      
       const gasPrice = await gasPriceDefiner.getGasPrice(
         StorageTypes.GasPriceType.STANDARD,
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
@@ -48,21 +73,10 @@ describe('GasPriceDefiner', () => {
     });
 
 
-    it('returns the values set by the xdai , without provider being required ', async () => {
-      gasPriceDefiner.pollProviders = async (
-        _type: StorageTypes.GasPriceType,
-      ): Promise<typeof bigNumber> => [];
-      const gasPrice = await gasPriceDefiner.getGasPrice(
-        StorageTypes.GasPriceType.STANDARD,
-        EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI),
-      );
-    
-        expect(gasPrice).toBe(20);
-    
-      });
+   
 
 
-    it('returns the max of values returned by providers', async () => {
+    it('returns the max of values returned by ethereum providers', async () => {
       gasPriceDefiner.gasPriceProviderList = [
         {
           getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
@@ -86,7 +100,7 @@ describe('GasPriceDefiner', () => {
         },
         {
           getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(300),
+            new bigNumber(500),
           providerUrl: '',
         },
       ];
@@ -96,39 +110,40 @@ describe('GasPriceDefiner', () => {
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
       );
 
-      expect(gasPrice).toBe('300');
+      expect(gasPrice).toBe('500');
     });
   });
   
   describe('pollProviders', () => {
     
     it('returns the array containing value  of each gasPriceType of xdai', async () =>{
+      let networkName : String;
       gasPriceDefiner.gasPriceProviderList = [
+       
         { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-        new bigNumber(10) },
+          new bigNumber(5) },
         { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-          new bigNumber(20) },
-          { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(50) }
-
+          new bigNumber(50) }  
+          
 
         
         ] 
-    
+        networkName =  EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI);
+         
         await expect(
-          gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD , EthereumUtils.getEthereumNetworkNameFromId[StorageTypes.EthereumNetwork.XDAI]),
+            gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD ,networkName),
         ).resolves.toEqual([
-          new bigNumber(10),
           new bigNumber(20),
-          new bigNumber(50)
+          new bigNumber(50),
+          new bigNumber(100),
         ]);
-  
-    
-    
-    
+
       });
     
     it('returns an array containing value from each provider of ethereum', async () => {
+      let networkName : String;
+      networkName = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET);
+     
       gasPriceDefiner.gasPriceProviderList = [
         {
           getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
@@ -153,7 +168,7 @@ describe('GasPriceDefiner', () => {
       ];
 
       await expect(
-        gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD , EthereumUtils.getEthereumNetworkNameFromId[StorageTypes.EthereumNetwork.XDAI]),
+        gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD , networkName ),
       ).resolves.toEqual([
         new bigNumber(100),
         new bigNumber(500),
@@ -162,13 +177,13 @@ describe('GasPriceDefiner', () => {
       ]);
     });
 
-    it('returns non empty array if there is no provider for the ethereum ', async () => {
+    it('returns  empty array if there is no provider for the ethereum ', async () => {
       gasPriceDefiner.gasPriceProviderList = [];
-      let txn_networkId  = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI);
+      let txn_networkId  = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET);
       if (txn_networkId) {
         await expect(
-          gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST ,EthereumUtils.getEthereumNetworkNameFromId[StorageTypes.EthereumNetwork.XDAI]),
-        ).resolves.toHaveLength(1);
+          gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST ,EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)),
+        ).resolves.toHaveLength(0);
         
 
       }
