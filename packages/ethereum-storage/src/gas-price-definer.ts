@@ -3,10 +3,9 @@ import EthereumUtils from './ethereum-utils';
 import EtherchainProvider from './gas-price-providers/etherchain-provider';
 import EtherscanProvider from './gas-price-providers/etherscan-provider';
 import EthGasStationProvider from './gas-price-providers/ethgasstation-provider';
-
+import XdaiProvider from './gas-price-providers/Xdai-provider';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-
 const bigNumber: any = require('bn.js');
 
 /**
@@ -22,6 +21,7 @@ export default class GasPriceDefiner {
     new EtherchainProvider(),
     new EthGasStationProvider(),
     new EtherscanProvider(),
+    new XdaiProvider(),
   ];
 
   /**
@@ -44,12 +44,12 @@ export default class GasPriceDefiner {
    * @param networkName Name of the Ethereum network used that can influence the way to get the gas price
    * @returns Big number representing the gas price to use
    */
-  public async getGasPrice(type: StorageTypes.GasPriceType, networkName: string): Promise<string> {
+  public async getGasPrice(type: StorageTypes.GasPriceType, networkName: string): Promise<string | undefined> {
     if (
       networkName ===
       EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)
     ) {
-      const gasPriceArray: Array<typeof bigNumber> = await this.pollProviders(type);
+      const gasPriceArray: Array<typeof bigNumber> = await this.pollProviders(type, networkName);
 
       if (gasPriceArray.length > 0) {
         // Get the highest gas price from the providers
@@ -67,57 +67,82 @@ export default class GasPriceDefiner {
     }
     else if (
       networkName ===
-      EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)
+      EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)
 
     ) {
+      const gasPriceArray: Array<typeof bigNumber> = await this.pollProviders(type, networkName);
       if (gasPriceArray.length > 0) {
         // here , by fefault , we will have the fixed price . 
         // TODO : there needs to be decision on choosing the price .
         return gasPriceArray
           .reduce(
-            (currentMax, gasPrice: typeof bigNumber) => bigNumber.max(currentMax, gasPrice),
+            (currentMax: typeof bigNumber, gasPrice: typeof bigNumber) => bigNumber.max(currentMax, gasPrice),
             new bigNumber(0),
-          ) .toString();
-        }  else {
-          this.logger.warn('Not able to parse the gas fees correctly', [
-            'xdai',
-          ]);
+          ).toString();
+      } else {
+        this.logger.warn('Not able to parse the gas fees correctly', [
+          'xdai',
+        ]);
+      }
 
 
 
 
-      
+
     }
-
     return config.getDefaultEthereumGasPrice();
+
+
+
   }
 
   /**
    * Get all gas prices from the APIs
    * If request to the API fails, no value is added to the array
    *
-   * @param type Gas price type (fast, standard or safe low)
+   * @param type Gas price type (fast, standard or safe low).
+   * @param networkName for verifying  whether on ethereum mainnet or xdai , so as to provide reference gasPrice array
    * @returns Array containing each gas price
    */
-  public async pollProviders(type: StorageTypes.GasPriceType): Promise<Array<typeof bigNumber>> {
+  public async pollProviders(type: StorageTypes.GasPriceType, networkName: String): Promise<Array<typeof bigNumber>> {
     const gasPriceArray: Array<typeof bigNumber> = [];
+
 
     for (const gasPriceProvider of this.gasPriceProviderList) {
       try {
-        // Get the gas price from the provider
-        const providerGasPrice = await gasPriceProvider.getGasPrice(type);
-        gasPriceArray.push(providerGasPrice);
+        // Get the gas price from the provider ( only for ethereum).
+        if (networkName == EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)) {
+          const providerGasPrice = await gasPriceProvider.getGasPrice(type);
+          gasPriceArray.push(providerGasPrice);
+        }
+        else {
+          continue;
+        }
+
       } catch (err) {
         // If the function throws, it means the gas price provider is not available or the value sent is not valid
-        // for xdai , checking that xdaiProvider doesnt work 
-        this.logger.warn(err , ['xdai','invalid-input']);
-        
+
         this.logger.warn(err, ['ethereum', 'gas']);
-        
-      
+
+
       }
+    }
+
+    // thus for  xdaiprovider , it will be single entry.
+    if (networkName == EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)) {
+      let xdaiprovider: StorageTypes.IGasPriceProvider = new XdaiProvider();
+      gasPriceArray.push(xdaiprovider.getGasPrice(type));
+
+
+
+    }
+
+    else {
+      console.log('xdai' + 'invalid-input');
     }
 
     return gasPriceArray;
   }
+
+
 }
