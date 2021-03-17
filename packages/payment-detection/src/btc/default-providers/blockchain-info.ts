@@ -2,8 +2,7 @@ import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
 
-import * as BigNumber from 'bn.js';
-
+import { BigNumber } from 'ethers';
 /* eslint-disable spellcheck/spell-checker */
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
@@ -93,7 +92,7 @@ export default class BlockchainInfo implements PaymentTypes.IBitcoinDetectionPro
     eventName: PaymentTypes.EVENTS_NAMES,
   ): PaymentTypes.BTCBalanceWithEvents {
     const address = addressInfo.address;
-    const balance = new BigNumber(addressInfo.total_received).toString();
+    const balance = BigNumber.from(addressInfo.total_received).toString();
 
     const events: PaymentTypes.BTCPaymentNetworkEvent[] = addressInfo.txs
       // exclude the transactions coming from the same address

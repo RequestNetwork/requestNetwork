@@ -20,7 +20,7 @@ import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { BigNumber } from 'ethers';
-import EtherscanProviderMockup from './ethers-mockup';
+import EtherscanProviderMock from './ethers-mock';
 
 const packageJson = require('../package.json');
 const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
@@ -1376,7 +1376,7 @@ describe('index', () => {
       jest.useFakeTimers('modern');
       jest
         .spyOn(ethers.providers, 'EtherscanProvider')
-        .mockImplementation(() => new EtherscanProviderMockup() as any);
+        .mockImplementation(() => new EtherscanProviderMock() as any);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
@@ -1443,7 +1443,7 @@ describe('index', () => {
 
       jest
         .spyOn(ethers.providers, 'EtherscanProvider')
-        .mockImplementation(() => new EtherscanProviderMockup() as any);
+        .mockImplementation(() => new EtherscanProviderMock() as any);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
@@ -1535,7 +1535,7 @@ describe('index', () => {
 
       jest
         .spyOn(ethers.providers, 'EtherscanProvider')
-        .mockImplementation(() => new EtherscanProviderMockup() as any);
+        .mockImplementation(() => new EtherscanProviderMock() as any);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,

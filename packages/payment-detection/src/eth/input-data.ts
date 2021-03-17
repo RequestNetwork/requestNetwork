@@ -12,7 +12,7 @@ import PaymentReferenceCalculator from '../payment-reference-calculator';
 import EthInputDataInfoRetriever from './info-retriever';
 import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 
 // interface of the object indexing the proxy contract version
@@ -155,8 +155,8 @@ export default class PaymentNetworkETHInputData
         );
       }
 
-      const balance: string = new BigNumber(payments.balance || 0)
-        .sub(new BigNumber(refunds.balance || 0))
+      const balance: string = BigNumber.from(payments.balance || 0)
+        .sub(BigNumber.from(refunds.balance || 0))
         .toString();
 
       const events: PaymentTypes.ETHPaymentNetworkEvent[] = [
@@ -231,7 +231,7 @@ export default class PaymentNetworkETHInputData
           (a.timestamp || 0) - (b.timestamp || 0),
       );
     const balance = events
-      .reduce((acc, event) => acc.add(new BigNumber(event.amount)), new BigNumber(0))
+      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
       .toString();
 
     return {

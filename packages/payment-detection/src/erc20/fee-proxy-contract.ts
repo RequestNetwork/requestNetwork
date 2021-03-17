@@ -10,7 +10,7 @@ import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 // tslint:disable:max-classes-per-file
 /** Exception when network not supported */
@@ -163,8 +163,8 @@ export default class PaymentNetworkERC20FeeProxyContract<
       // a better place to retrieve them from the request object them.
       paymentNetwork.values.feeBalance = fees;
 
-      const balance: string = new BigNumber(payments.balance || 0)
-        .sub(new BigNumber(refunds.balance || 0))
+      const balance: string = BigNumber.from(payments.balance || 0)
+        .sub(BigNumber.from(refunds.balance || 0))
         .toString();
 
       const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
@@ -248,7 +248,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
     const events = await infoRetriever.getTransferEvents();
 
     const balance = events
-      .reduce((acc, event) => acc.add(new BigNumber(event.amount)), new BigNumber(0))
+      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
       .toString();
 
     return {
@@ -289,8 +289,8 @@ export default class PaymentNetworkERC20FeeProxyContract<
         }
 
         feeBalance = {
-          balance: new BigNumber(feeBalance.balance)
-            .add(new BigNumber(event.parameters.feeAmount))
+          balance: BigNumber.from(feeBalance.balance)
+            .add(BigNumber.from(event.parameters.feeAmount))
             .toString(),
           events: [...feeBalance.events, event],
         };

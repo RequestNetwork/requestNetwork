@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 /**
  * Handle payment networks with declarative requests extension
@@ -134,7 +134,7 @@ export default class PaymentNetworkDeclarative
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.DeclarativeBalanceWithEvents> {
-    let balance = new BigNumber(0);
+    let balance = BigNumber.from(0);
     const events: PaymentTypes.DeclarativePaymentNetworkEvent[] = [];
 
     // For each extension data related to the declarative payment network,
@@ -144,7 +144,7 @@ export default class PaymentNetworkDeclarative
       const parameters = data.parameters;
       if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
         // Declared received payments from payee is added to the balance
-        balance = balance.add(new BigNumber(parameters.amount));
+        balance = balance.add(BigNumber.from(parameters.amount));
         events.push({
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
@@ -157,7 +157,7 @@ export default class PaymentNetworkDeclarative
         parameters.timestamp = data.timestamp;
 
         // The balance is subtracted from declared received refunds from payer
-        balance = balance.sub(new BigNumber(parameters.amount));
+        balance = balance.sub(BigNumber.from(parameters.amount));
         events.push({
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.REFUND,

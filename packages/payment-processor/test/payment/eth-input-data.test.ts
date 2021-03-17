@@ -1,6 +1,5 @@
 /* eslint-disable spellcheck/spell-checker */
-import { Wallet } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
+import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
@@ -13,14 +12,13 @@ import Utils from '@requestnetwork/utils';
 
 import { _getEthPaymentUrl, payEthInputDataRequest } from '../../src/payment/eth-input-data';
 import { getRequestPaymentValues } from '../../src/payment/utils';
-import { BigNumber } from 'ethers/utils';
 
 // tslint:disable: no-unused-expression
 // tslint:disable: await-promise
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
-const provider = new JsonRpcProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 const validRequest: ClientTypes.IRequestData = {
@@ -113,7 +111,7 @@ describe('payEthInputDataRequest', () => {
       data: '0x86dfbccad783599a',
       gasPrice: '20000000001',
       to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-      value: new BigNumber(1),
+      value: BigNumber.from(1),
     });
     wallet.sendTransaction = originalSendTransaction;
   });

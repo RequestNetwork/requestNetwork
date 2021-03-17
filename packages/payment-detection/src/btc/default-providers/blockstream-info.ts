@@ -1,7 +1,7 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 /* eslint-disable spellcheck/spell-checker */
 
@@ -125,8 +125,8 @@ export default class BlockstreamInfo implements PaymentTypes.IBitcoinDetectionPr
 
     const balance: string = events
       .reduce((balanceAccumulator: any, event: PaymentTypes.BTCPaymentNetworkEvent) => {
-        return balanceAccumulator.add(new BigNumber(event.amount));
-      }, new BigNumber('0'))
+        return balanceAccumulator.add(BigNumber.from(event.amount));
+      }, BigNumber.from('0'))
       .toString();
 
     return { balance, events };

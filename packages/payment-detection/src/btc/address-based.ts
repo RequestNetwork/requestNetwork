@@ -2,7 +2,7 @@ import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork
 
 import getBalanceErrorObject from '../balance-error';
 import DefaultBitcoinDetectionProvider from './default-bitcoin-detection-provider';
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 /**
  * Handle payment networks with BTC based address extension
@@ -107,8 +107,8 @@ export default class PaymentNetworkBTCAddressBased {
         );
       }
 
-      const balance: string = new BigNumber(new BigNumber(payments.balance || 0))
-        .sub(new BigNumber(refunds.balance || 0))
+      const balance: string = BigNumber.from(BigNumber.from(payments.balance || 0))
+        .sub(BigNumber.from(refunds.balance || 0))
         .toString();
 
       const events: PaymentTypes.BTCPaymentNetworkEvent[] = [

@@ -12,7 +12,7 @@ import PaymentNetworkERC20FeeProxyContract, {
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 // tslint:disable:max-classes-per-file
 /** Exception when network not supported */
@@ -146,7 +146,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
     const events = await infoRetriever.getTransferEvents();
 
     const balance = events
-      .reduce((acc, event) => acc.add(new BigNumber(event.amount)), new BigNumber(0))
+      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
       .toString();
 
     return {

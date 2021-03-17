@@ -1,6 +1,4 @@
-import { ethers, getDefaultProvider, Signer } from 'ethers';
-import { Provider, Web3Provider } from 'ethers/providers';
-import { BigNumber, bigNumberify, BigNumberish } from 'ethers/utils';
+import { ethers, getDefaultProvider, Signer, providers, BigNumber, BigNumberish } from 'ethers';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import {
@@ -22,7 +20,7 @@ export class UnsupportedCurrencyNetwork extends Error {
 /**
  * Utility to get the default window.ethereum provider, or throws an error.
  */
-export function getProvider(): Web3Provider {
+export function getProvider(): providers.Web3Provider {
   if (typeof window !== 'undefined' && 'ethereum' in window) {
     return new ethers.providers.Web3Provider((window as any).ethereum);
   }
@@ -35,7 +33,7 @@ export function getProvider(): Web3Provider {
  *
  * @param request
  */
-export function getNetworkProvider(request: ClientTypes.IRequestData): Provider {
+export function getNetworkProvider(request: ClientTypes.IRequestData): providers.Provider {
   if (request.currencyInfo.network === 'mainnet') {
     return getDefaultProvider();
   }
@@ -50,15 +48,21 @@ export function getNetworkProvider(request: ClientTypes.IRequestData): Provider 
  * @param signerOrProvider the provider, or signer. If Signer, it will simply be returned directly
  * @param address optionally, the address to retrieve the signer for.
  */
-export function getSigner(signerOrProvider?: Provider | Signer, address?: string): Signer {
+export function getSigner(
+  signerOrProvider?: providers.Provider | Signer,
+  address?: string,
+): Signer {
   if (!signerOrProvider) {
     signerOrProvider = getProvider();
   }
   if (Signer.isSigner(signerOrProvider)) {
     return signerOrProvider;
   }
-  if (Web3Provider.isProvider(signerOrProvider) && (signerOrProvider as Web3Provider).getSigner) {
-    return (signerOrProvider as Web3Provider).getSigner(address);
+  if (
+    providers.Web3Provider.isProvider(signerOrProvider) &&
+    (signerOrProvider as providers.Web3Provider).getSigner
+  ) {
+    return (signerOrProvider as providers.Web3Provider).getSigner(address);
   }
   throw new Error('cannot get signer');
 }
@@ -72,7 +76,7 @@ export function getPaymentNetworkExtension(
 ): ExtensionTypes.IState | undefined {
   // tslint:disable-next-line: typedef
   return Object.values(request.extensions).find(
-    x => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    (x) => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
   );
 }
 
@@ -147,11 +151,9 @@ export function validateErc20FeeProxyRequest(
 ): void {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
 
-  const { feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { feeAddress, feeAmount } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+  const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
 
   if (!!feeAmount !== !!feeAddress) {
     throw new Error('Both fee address and fee amount have to be declared, or both left empty');
@@ -175,8 +177,8 @@ export function getAmountToPay(
 ): BigNumber {
   const amountToPay =
     amount === undefined
-      ? bigNumberify(request.expectedAmount).sub(request.balance?.balance || 0)
-      : bigNumberify(amount);
+      ? BigNumber.from(request.expectedAmount).sub(request.balance?.balance || 0)
+      : BigNumber.from(amount);
 
   if (amountToPay.lt(0)) {
     throw new Error('cannot pay a negative amount');

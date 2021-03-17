@@ -1,6 +1,5 @@
 /* eslint-disable spellcheck/spell-checker */
-import { Wallet } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
+import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
@@ -16,7 +15,6 @@ import { approveErc20ForSwapToPayIfNeeded } from '../../src/payment/swap-erc20';
 import { _getErc20FeeProxyPaymentUrl } from '../../src/payment/erc20-fee-proxy';
 import { ERC20Contract } from '../../src/contracts/Erc20Contract';
 import { ISwapSettings, swapErc20FeeProxyRequest } from '../../src/payment/swap-erc20-fee-proxy';
-import { bigNumberify } from 'ethers/utils';
 
 // tslint:disable: no-magic-numbers
 // tslint:disable: no-unused-expression
@@ -27,7 +25,7 @@ const alphaErc20Address = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
-const provider = new JsonRpcProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 const validRequest: ClientTypes.IRequestData = {
@@ -80,14 +78,15 @@ const validSwapSettings: ISwapSettings = {
   path: [alphaErc20Address, erc20ContractAddress],
 };
 
-
 describe('swap-erc20-fee-proxy', () => {
   describe('encodeSwapErc20FeeRequest', () => {
     it('should throw an error if the request is not erc20', async () => {
       const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
 
-      await expect(swapErc20FeeProxyRequest(request, wallet, validSwapSettings)).rejects.toThrowError(
+      await expect(
+        swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
+      ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
@@ -95,7 +94,9 @@ describe('swap-erc20-fee-proxy', () => {
     it('should throw an error if the currencyInfo has no value', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = '';
-      await expect(swapErc20FeeProxyRequest(request, wallet, validSwapSettings)).rejects.toThrowError(
+      await expect(
+        swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
+      ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
@@ -103,7 +104,9 @@ describe('swap-erc20-fee-proxy', () => {
     it('should throw an error if currencyInfo has no network', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.network = '';
-      await expect(swapErc20FeeProxyRequest(request, wallet, validSwapSettings)).rejects.toThrowError(
+      await expect(
+        swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
+      ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
@@ -112,7 +115,9 @@ describe('swap-erc20-fee-proxy', () => {
       const request = Utils.deepCopy(validRequest);
       request.extensions = [] as any;
 
-      await expect(swapErc20FeeProxyRequest(request, wallet, validSwapSettings)).rejects.toThrowError(
+      await expect(
+        swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
+      ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
@@ -132,8 +137,8 @@ describe('swap-erc20-fee-proxy', () => {
           path: [alphaErc20Address, erc20ContractAddress],
         },
         {
-          overrides: { gasPrice: '20000000000' }
-        }
+          overrides: { gasPrice: '20000000000' },
+        },
       );
       expect(spy).toHaveBeenCalledWith({
         data:
@@ -145,14 +150,14 @@ describe('swap-erc20-fee-proxy', () => {
       wallet.sendTransaction = originalSendTransaction;
     });
 
-    it('should swap and pay with an ERC20 request with fees', async () => {
+    fit('should swap and pay with an ERC20 request with fees', async () => {
       // first approve the SwapToPay contract to spend ALPHA tokens
       const approvalTx = await approveErc20ForSwapToPayIfNeeded(
         validRequest,
         wallet.address,
         alphaErc20Address,
         wallet.provider,
-        bigNumberify(204).mul(bigNumberify(10).pow(18)),
+        BigNumber.from(204).mul(BigNumber.from(10).pow(18)),
       );
       expect(approvalTx).toBeDefined();
       if (approvalTx) {
@@ -161,20 +166,22 @@ describe('swap-erc20-fee-proxy', () => {
 
       // get the balances to compare after payment
       const balanceEthBefore = await wallet.getBalance();
-      const balanceAlphaBefore = await ERC20Contract.connect(alphaErc20Address, provider).balanceOf(wallet.address);
-      const issuerBalanceErc20Before = await getErc20Balance(validRequest, paymentAddress, provider);
+      const balanceAlphaBefore = await ERC20Contract.connect(alphaErc20Address, provider).balanceOf(
+        wallet.address,
+      );
+      const issuerBalanceErc20Before = await getErc20Balance(
+        validRequest,
+        paymentAddress,
+        provider,
+      );
       const feeBalanceErc20Before = await getErc20Balance(validRequest, feeAddress, provider);
 
       // Swap and pay
-      const tx = await swapErc20FeeProxyRequest(
-        validRequest,
-        wallet,
-        {
-          deadline: Date.now() + 1000,
-          maxInputAmount: 204,
-          path: [alphaErc20Address, erc20ContractAddress],
-        }
-      );
+      const tx = await swapErc20FeeProxyRequest(validRequest, wallet, {
+        deadline: Date.now() + 1000,
+        maxInputAmount: 204,
+        path: [alphaErc20Address, erc20ContractAddress],
+      });
       const confirmedTx = await tx.wait(1);
 
       expect(confirmedTx.status).toEqual(1);
@@ -182,15 +189,23 @@ describe('swap-erc20-fee-proxy', () => {
 
       // Get the new balances
       const balanceEthAfter = await wallet.getBalance();
-      const balanceAlphaAfter = await ERC20Contract.connect(alphaErc20Address, provider).balanceOf(wallet.address);
+      const balanceAlphaAfter = await ERC20Contract.connect(alphaErc20Address, provider).balanceOf(
+        wallet.address,
+      );
       const issuerBalanceErc20After = await getErc20Balance(validRequest, paymentAddress, provider);
       const feeBalanceErc20After = await getErc20Balance(validRequest, feeAddress, provider);
 
       // Check each balance
-      expect(bigNumberify(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
-      expect(bigNumberify(balanceAlphaAfter).toString()).toEqual(bigNumberify(balanceAlphaBefore).sub(204).toString());
-      expect(bigNumberify(issuerBalanceErc20After).toString()).toEqual(bigNumberify(issuerBalanceErc20Before).add(100).toString());
-      expect(bigNumberify(feeBalanceErc20After).toString()).toEqual(bigNumberify(feeBalanceErc20Before).add(2).toString());
+      expect(BigNumber.from(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
+      expect(BigNumber.from(balanceAlphaAfter).toString()).toEqual(
+        BigNumber.from(balanceAlphaBefore).sub(204).toString(),
+      );
+      expect(BigNumber.from(issuerBalanceErc20After).toString()).toEqual(
+        BigNumber.from(issuerBalanceErc20Before).add(100).toString(),
+      );
+      expect(BigNumber.from(feeBalanceErc20After).toString()).toEqual(
+        BigNumber.from(feeBalanceErc20Before).add(2).toString(),
+      );
     });
   });
 });

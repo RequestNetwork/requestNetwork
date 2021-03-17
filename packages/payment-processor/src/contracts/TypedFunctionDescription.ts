@@ -1,9 +1,7 @@
-import { FunctionDescription } from 'ethers/utils';
+import {} from 'ethers';
+import { FunctionFragment } from 'ethers/lib/utils';
 
 /**
  * Typescript-documented FunctionDescription
  */
-export interface ITypedFunctionDescription<T extends Pick<FunctionDescription, 'encode'>>
-  extends FunctionDescription {
-  encode: T['encode'];
-}
+export interface ITypedFunctionDescription extends FunctionFragment {}
