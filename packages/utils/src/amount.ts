@@ -21,7 +21,7 @@ const regexInteger = RegExp(/^[\d]+$/);
  *
  * @returns boolean true if amount is a valid amount
  */
-function isValid(amount: RequestLogicTypes.Amount): boolean {
+function isValid(amount: RequestLogicTypes.Amount | BigNumber): boolean {
   return (
     (Utils.isString(amount) && regexInteger.test(amount as string)) ||
     (typeof amount === 'number' && Number.isSafeInteger(Number(amount)) && Number(amount) >= 0)

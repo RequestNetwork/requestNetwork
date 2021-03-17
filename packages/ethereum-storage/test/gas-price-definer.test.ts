@@ -28,7 +28,7 @@ describe('GasPriceDefiner', () => {
     it('returns default gas price from config if no provider is available', async () => {
       gasPriceDefiner.pollProviders = async (
         _type: StorageTypes.GasPriceType,
-      ): Promise<BigNumber> => [];
+      ): Promise<BigNumber[]> => Promise.resolve([]);
       const gasPrice = await gasPriceDefiner.getGasPrice(
         StorageTypes.GasPriceType.STANDARD,
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
