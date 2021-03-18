@@ -11,13 +11,14 @@ export default class XdaiGasPriceProvider implements StorageTypes.IGasPriceProvi
     // @param  type : based on the type selected in the given level of txn payment , it will assign the gas to the GasDefinerFunction.
     public async getGasPrice(type: StorageTypes.GasPriceType): Promise<typeof bigNumber | null> {
         let fixedGasPrice: typeof bigNumber;
-        const baseInt: Number = 10;
+        const baseInt: number = 10;
     // switch case for choosing the txn type.
         switch (type) {
 
             case StorageTypes.GasPriceType.FAST:
-                {
-                    fixedGasPrice = new bigNumber(10, baseInt);
+                {   // for removing lint errors
+                    const maxXdaifees: number = 10;
+                    fixedGasPrice = new bigNumber(maxXdaifees, baseInt);
                     break;
                 }
             case StorageTypes.GasPriceType.STANDARD:
