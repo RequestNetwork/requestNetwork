@@ -56,7 +56,7 @@
     "@truffle/hdwallet-provider": "1.0.44",
     "@types/jest": "26.0.13",
     "@types/node": "14.14.16",
-    "ethers": "4.0.48",
+    "ethers": "5.0.32",
     "jest": "26.4.2",
     "lint-staged": "10.3.0",
     "npm-run-all": "4.1.5",

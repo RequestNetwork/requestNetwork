@@ -1,6 +1,5 @@
 /* eslint-disable spellcheck/spell-checker */
-import { Wallet } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
+import { Wallet, providers, BigNumber } from 'ethers';
 
 import {
   ClientTypes,
@@ -15,7 +14,6 @@ import Utils from '@requestnetwork/utils';
 import { ERC20Contract } from '../../src/contracts/Erc20Contract';
 import { approveErc20ForProxyConversionIfNeeded } from '../../src/payment/conversion-erc20';
 import { IPaymentSettings, payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
-import { bigNumberify } from 'ethers/utils';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -25,13 +23,13 @@ const alphaPaymentSettings: IPaymentSettings = {
     value: erc20ContractAddress,
     network: 'private',
   },
-  maxToSpend: bigNumberify(2).pow(256).sub(1),
+  maxToSpend: BigNumber.from(2).pow(256).sub(1),
 };
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
-const provider = new JsonRpcProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 const validEuroRequest: ClientTypes.IRequestData = {
@@ -143,7 +141,7 @@ describe('conversion-erc20-fee-proxy', () => {
         wallet.address,
         erc20ContractAddress,
         wallet.provider,
-        bigNumberify(10).pow(20),
+        BigNumber.from(10).pow(20),
       );
 
       expect(approvalTx).toBeDefined();
@@ -179,9 +177,9 @@ describe('conversion-erc20-fee-proxy', () => {
       ).balanceOf(wallet.address);
 
       // Check each balance
-      expect(bigNumberify(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
+      expect(BigNumber.from(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
       expect(
-        bigNumberify(balanceTokenBefore).sub(bigNumberify(balanceTokenAfter)).toString(),
+        BigNumber.from(balanceTokenBefore).sub(BigNumber.from(balanceTokenAfter)).toString(),
         //   expectedAmount:      1.00
         //   feeAmount:        +   .02
         //                     =  1.02
@@ -208,7 +206,7 @@ describe('conversion-erc20-fee-proxy', () => {
         wallet.address,
         erc20ContractAddress,
         wallet.provider,
-        bigNumberify(10).pow(20),
+        BigNumber.from(10).pow(20),
       );
 
       if (approvalTx) {
@@ -243,10 +241,10 @@ describe('conversion-erc20-fee-proxy', () => {
       ).balanceOf(wallet.address);
 
       // Check each balance
-      expect(bigNumberify(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
+      expect(BigNumber.from(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
       expect(
-        bigNumberify(balanceTokenBefore)
-          .sub(bigNumberify(balanceTokenAfter))
+        BigNumber.from(balanceTokenBefore)
+          .sub(BigNumber.from(balanceTokenAfter))
           //  expectedAmount:      1.00 (ETH)
           //  feeAmount:       +    .01 (ETH)
           //                   =   1.01

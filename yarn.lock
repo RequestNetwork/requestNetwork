@@ -3625,33 +3625,6 @@
   resolved "https://registry.yarnpkg.com/@redocly/react-dropdown-aria/-/react-dropdown-aria-2.0.11.tgz#532b864b329237e646abe45d0f8edc923e77370a"
   integrity sha512-rmuSC2JFFl4DkPDdGVrmffT9KcbG2AB5jvhxPIrOc1dO9mHRMUUftQY35KZlvWqqSSqVn+AM+J9dhiTo1ZqR8A==
 
-"@requestnetwork/currency@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@requestnetwork/currency/-/currency-0.2.0.tgz#4a0a96110b3b17be9533257d23b1d42ad389bfe1"
-  integrity sha512-8Fkjpb7i6gLFxEcyJFmqtXQfERQ80bk1K5bH42a8CSGPX9D2tOK0PK1vnUkW4bZ1orlH8z4WLxzbEpikD2HSYQ==
-  dependencies:
-    "@metamask/contract-metadata" "1.23.0"
-    "@requestnetwork/types" "0.29.3"
-    "@requestnetwork/utils" "0.29.0"
-    node-dijkstra "2.5.0"
-
-"@requestnetwork/types@0.29.3":
-  version "0.29.3"
-  resolved "https://registry.yarnpkg.com/@requestnetwork/types/-/types-0.29.3.tgz#0d48e4535ff91f3244b4adfcc6c2353b279bd07f"
-  integrity sha512-MUnvMQ66Q42pt2wo5FfTspaHR5Jo+5ABuF2gx4cdNKkckdCTXZeSFvAgKyJfRTZHo4JxLzJHoncvzKyyTgEDTA==
-  dependencies:
-    bn.js "5.1.3"
-    events "3.2.0"
-
-"@requestnetwork/utils@0.29.0":
-  version "0.29.0"
-  resolved "https://registry.yarnpkg.com/@requestnetwork/utils/-/utils-0.29.0.tgz#14a700904e7d1116a19161b491b6503d31137ae5"
-  integrity sha512-OUqmhDkYajP/6Al09j16QlVJbx8iGw8/qS4QTyB2Jjo+fy0qH36HLCYv48KN4RL7roccZOYOPdaC+TdjvsCGng==
-  dependencies:
-    "@requestnetwork/types" "0.29.3"
-    bn.js "5.1.3"
-    eth-crypto "1.8.0"
-
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"

@@ -9,11 +9,10 @@ import {
   approveErc20ForProxyConversionIfNeeded,
 } from '@requestnetwork/payment-processor';
 
-import { Wallet, utils } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
+import { Wallet, providers, BigNumber } from 'ethers';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const provider = new JsonRpcProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 // tslint:disable-next-line: no-magic-numbers
@@ -582,7 +581,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     }
 
     // USD => token
-    const maxToSpend = new utils.BigNumber(2).pow(255);
+    const maxToSpend = BigNumber.from(2).pow(255);
     const paymentTx = await payRequest(data, wallet, undefined, undefined, {
       currency: {
         type: Types.RequestLogic.CURRENCY.ERC20,
