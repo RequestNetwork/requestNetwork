@@ -12,7 +12,7 @@ export default class XdaiGasPriceProvider implements StorageTypes.IGasPriceProvi
     public async getGasPrice(type: StorageTypes.GasPriceType): Promise<typeof bigNumber | null> {
         let fixedGasPrice: typeof bigNumber;
         const baseInt: number = 10;
-    // switch case for choosing the txn type.
+        // switch case for choosing the txn type.
         switch (type) {
 
             case StorageTypes.GasPriceType.FAST:
@@ -35,8 +35,6 @@ export default class XdaiGasPriceProvider implements StorageTypes.IGasPriceProvi
             default:
                 {
                     fixedGasPrice = new bigNumber(5, baseInt);
-
-
                 }
 
         }
