@@ -1,8 +1,8 @@
 import { getDecimalsForCurrency, getCurrencyHash } from '@requestnetwork/currency';
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
-import { LogDescription } from 'ethers/lib/utils';
 import { getDefaultProvider } from '../provider';
+import { parseLogArgs } from '../utils';
 
 // The conversion proxy smart contract ABI fragment containing TransferWithConversionAndReference event
 const erc20ConversionProxyContractAbiFragment = [
@@ -14,7 +14,7 @@ const erc20FeeProxyContractAbiFragment = [
   'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
 ];
 
-type ConversionLogArgs = {
+type TransferWithConversionAndReferenceArgs = {
   amount: BigNumber;
   currency: string;
   paymentReference: string;
@@ -22,7 +22,7 @@ type ConversionLogArgs = {
   maxRateTimespan: BigNumber;
 };
 
-type ProxyLogArgs = {
+type TransferWithReferenceAndFeeArgs = {
   tokenAddress: string;
   to: string;
   amount: BigNumber;
@@ -116,12 +116,6 @@ export default class ProxyERC20InfoRetriever
     // Get the fee proxy contract event logs
     const feeLogs = await this.provider.getLogs(feeFilter);
 
-    const logToObject = <T>({ args, eventFragment }: LogDescription): T => {
-      return args.reduce((prev, current, i) => {
-        prev[eventFragment.inputs[i].name] = current;
-        return prev;
-      }, {});
-    };
     // Parses, filters and creates the events from the logs with the payment reference
     const eventPromises = conversionLogs
       // Parses the logs
@@ -135,8 +129,8 @@ export default class ProxyERC20InfoRetriever
         return {
           transactionHash: log.transactionHash,
           blockNumber: log.blockNumber,
-          conversionLog: logToObject<ConversionLogArgs>(parsedConversionLog),
-          proxyLog: logToObject<ProxyLogArgs>(parsedProxyLog),
+          conversionLog: parseLogArgs<TransferWithConversionAndReferenceArgs>(parsedConversionLog),
+          proxyLog: parseLogArgs<TransferWithReferenceAndFeeArgs>(parsedProxyLog),
         };
       })
       // Keeps only the log with the right token and the right destination address

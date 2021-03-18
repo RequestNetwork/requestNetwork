@@ -1,12 +1,25 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
+import { parseLogArgs } from '../utils';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20proxyContractAbiFragment = [
   'event TransferWithReference(address tokenAddress,address to,uint256 amount,bytes indexed paymentReference)',
   'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
 ];
+
+type TransferWithReferenceArgs = {
+  tokenAddress: string;
+  to: string;
+  amount: BigNumber;
+  paymentReference: string;
+};
+
+type TransferWithReferenceAndFeeArgs = TransferWithReferenceArgs & {
+  feeAmount: BigNumber;
+  feeAddress: string;
+};
 
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
@@ -85,26 +98,30 @@ export default class ProxyERC20InfoRetriever
       // Parses the logs
       .map((log) => {
         const parsedLog = this.contractProxy.interface.parseLog(log);
-        return { parsedLog, log };
+        return {
+          parsedLog: parseLogArgs<TransferWithReferenceAndFeeArgs>(parsedLog),
+          blockNumber: log.blockNumber,
+          transactionHash: log.transactionHash,
+        };
       })
       // Keeps only the log with the right token and the right destination address
       .filter(
-        (log) =>
-          log.parsedLog.args[0].toLowerCase() === this.tokenContractAddress.toLowerCase() &&
-          log.parsedLog.args[1].toLowerCase() === this.toAddress.toLowerCase(),
+        ({ parsedLog }) =>
+          parsedLog.tokenAddress.toLowerCase() === this.tokenContractAddress.toLowerCase() &&
+          parsedLog.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
-      .map(async (t) => ({
-        amount: t.parsedLog.args[2].toString(),
+      .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
+        amount: parsedLog.amount.toString(),
         name: this.eventName,
         parameters: {
-          block: t.log.blockNumber,
-          feeAddress: t.parsedLog.args[5] || undefined,
-          feeAmount: t.parsedLog.args[4]?.toString() || undefined,
+          block: blockNumber,
+          feeAddress: parsedLog.feeAddress || undefined,
+          feeAmount: parsedLog.feeAmount?.toString() || undefined,
           to: this.toAddress,
-          txHash: t.log.transactionHash,
+          txHash: transactionHash,
         },
-        timestamp: (await this.provider.getBlock(t.log.blockNumber || 0)).timestamp,
+        timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
       }));
 
     return Promise.all(eventPromises);
