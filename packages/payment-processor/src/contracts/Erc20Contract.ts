@@ -16,7 +16,4 @@ export abstract class ERC20Contract extends Contract {
   ): ERC20Contract {
     return new Contract(address, abi, signerOrProvider);
   }
-
-  // public abstract allowance(_owner: string, _spender: string): Promise<BigNumber>;
-  // public abstract balanceOf(_owner: string): Promise<BigNumber>;
 }
