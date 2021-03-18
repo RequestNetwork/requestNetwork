@@ -145,14 +145,14 @@ export default class ProxyERC20InfoRetriever
         ({ conversionLog, proxyLog }) =>
           // filter the token allowed
           (!this.acceptedTokens ||
-            this.acceptedTokens.includes(proxyLog!.tokenAddress.toLowerCase())) &&
+            this.acceptedTokens.includes(proxyLog.tokenAddress.toLowerCase())) &&
           // check the rate timespan
           this.maxRateTimespan >= conversionLog.maxRateTimespan.toNumber() &&
           // check the requestCurrency
           getCurrencyHash(this.requestCurrency).toLowerCase() ===
             conversionLog.currency.toLowerCase() &&
           // check to address
-          proxyLog!.to.toLowerCase() === this.toAddress.toLowerCase(),
+          proxyLog.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
       .map(async ({ conversionLog, proxyLog, blockNumber, transactionHash }) => {
