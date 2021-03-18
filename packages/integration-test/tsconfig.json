@@ -7,11 +7,13 @@
   "references": [
     { "path": "../advanced-logic" },
     { "path": "../request-client.js" },
+    { "path": "../currency" },
     { "path": "../data-access" },
     { "path": "../ethereum-storage" },
     { "path": "../epk-decryption" },
     { "path": "../epk-signature" },
     { "path": "../multi-format" },
+    { "path": "../payment-processor" },
     { "path": "../request-logic" },
     { "path": "../transaction-manager" },
     { "path": "../types" }

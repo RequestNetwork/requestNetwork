@@ -93,7 +93,7 @@ describe('payEthInputDataRequest', () => {
     request.extensions = [] as any;
 
     await expect(payEthInputDataRequest(request, wallet)).rejects.toThrowError(
-      'request cannot be processed, or is not an pn-eth-input-data request',
+      'no payment network found',
     );
   });
 

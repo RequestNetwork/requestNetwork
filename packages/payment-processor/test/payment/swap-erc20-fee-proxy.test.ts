@@ -117,9 +117,7 @@ describe('swap-erc20-fee-proxy', () => {
 
       await expect(
         swapErc20FeeProxyRequest(request, wallet, validSwapSettings),
-      ).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-      );
+      ).rejects.toThrowError('no payment network found');
     });
   });
 
