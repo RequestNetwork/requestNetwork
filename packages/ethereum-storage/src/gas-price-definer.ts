@@ -77,16 +77,8 @@ export default class GasPriceDefiner {
           'xdai',
         ]);
       }
-
-
-
-
-
     }
     return config.getDefaultEthereumGasPrice();
-
-
-
   }
 
   /**
@@ -98,9 +90,9 @@ export default class GasPriceDefiner {
    * @param gasPriceArray returns the gas fees (as an fixed value / or as an array ) based on the network 
    *  @returns Array containing each gas price
    */
-  public async pollProviders(type: StorageTypes.GasPriceType, networkName?: String): Promise<Array<typeof bigNumber> | typeof bigNumber> {
+  public async pollProviders(type: StorageTypes.GasPriceType, networkName?: string): Promise<Array<typeof bigNumber> | typeof bigNumber> {
     if (networkName == EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)) {
-      let gasPriceArray: Array<typeof bigNumber> = [];
+      const gasPriceArray: Array<typeof bigNumber> = [];
       for (const gasPriceProvider of this.gasPriceProviderList) {
         try {
           const providerGasPrice = await gasPriceProvider.getGasPrice(type);
@@ -124,14 +116,13 @@ export default class GasPriceDefiner {
       let xdaiprovider: StorageTypes.IGasPriceProvider = new XdaiGasPriceProvider();
 
       // simply assign the gas fees .
-
-      let gasPriceArray: typeof bigNumber = xdaiprovider.getGasPrice(type);
+      const gasPriceArray: typeof bigNumber = xdaiprovider.getGasPrice(type);
       return gasPriceArray;
 
     }
 
     else {
-      console.log('xdai' + 'invalid-input');
+      this.logger.warn('xdai' + 'invalid-input');
     }
 
   }

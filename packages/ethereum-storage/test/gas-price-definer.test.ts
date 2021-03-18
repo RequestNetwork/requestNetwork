@@ -51,9 +51,6 @@ describe('GasPriceDefiner', () => {
     });
 
 
-
-
-
     it('returns the max of values returned by ethereum providers', async () => {
       gasPriceDefiner.gasPriceProviderList = [
         {
@@ -97,27 +94,24 @@ describe('GasPriceDefiner', () => {
     let StandardGasPrice: Promise<typeof bigNumber>;
     let lowGasPrice: Promise<typeof bigNumber>;
     it('returns the gas prices of each type in  xdai', async () => {
-      let networkName: String;
-      networkName = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI);
+
+      let networkName: string = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI);
 
       FastGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST, networkName);
 
+      StandardGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD, networkName);
       expect(FastGasPrice).toEqual(
-        new bigNumber('100000000000', 10)
+        100000000000
       );
 
-      StandardGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD, networkName);
-
-
       expect(StandardGasPrice).toEqual(
-        new bigNumber('50000000000', 10)
+        50000000000
       );
 
       lowGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.SAFELOW, networkName);
 
-
       expect(lowGasPrice).toEqual(
-        new bigNumber('1000000000', 10)
+        10000000000
       );
 
 
