@@ -559,7 +559,7 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
           name: 'Get updated packages'
-          command: >
+          command: |
             export FORCE_PUBLISH=$(
               node -p "
                 const a = process.argv[1] ? JSON.parse(process.argv[1]):[]; 
@@ -570,7 +570,7 @@ jobs:
             echo $FORCE_PUBLISH
       - run:
           name: 'publish'
-          command: >
+          command: |
             echo $FORCE_PUBLISH
             $(yarn bin)/lerna publish 
               --conventional-commits 
@@ -682,26 +682,26 @@ workflows:
 
       # Release a next version package everytime we merge to master
       - next-release:
-          requires:
-            - test-advanced-logic
-            - test-data-access
-            - test-data-format
-            - test-epk-decryption
-            - test-epk-signature
-            - test-ethereum-storage
-            - test-integration-test
-            - test-smart-contracts
-            - test-multi-format
-            - test-request-client
-            - test-request-logic
-            - test-request-node
-            - test-transaction-manager
-            - test-types
-            - test-utils
-            - test-currency
-            - test-web3-signature
-            - test-payment-detection
-            - test-payment-processor
+          # requires:
+          #   - test-advanced-logic
+          #   - test-data-access
+          #   - test-data-format
+          #   - test-epk-decryption
+          #   - test-epk-signature
+          #   - test-ethereum-storage
+          #   - test-integration-test
+          #   - test-smart-contracts
+          #   - test-multi-format
+          #   - test-request-client
+          #   - test-request-logic
+          #   - test-request-node
+          #   - test-transaction-manager
+          #   - test-types
+          #   - test-utils
+          #   - test-currency
+          #   - test-web3-signature
+          #   - test-payment-detection
+          #   - test-payment-processor
           context: protocol-release
           filters:
             branches:
