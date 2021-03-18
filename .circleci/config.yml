@@ -577,16 +577,16 @@ jobs:
                   list ? '--force-publish=' + list : ''" "$($(yarn bin)/lerna changed --json)"
             )
             echo $FORCE_PUBLISH
-            $(yarn bin)/lerna publish 
-              --conventional-commits 
-              --conventional-prerelease 
-              --exact 
-              --canary 
-              --no-git-tag-version 
-              --no-push 
-              --preid next 
-              --dist-tag next 
-              --yes
+            $(yarn bin)/lerna publish \ 
+              --conventional-commits  \
+              --conventional-prerelease \ 
+              --exact \
+              --canary \
+              --no-git-tag-version \
+              --no-push \
+              --preid next \
+              --dist-tag next \
+              --yes \
               ${FORCE_PUBLISH}
 
 workflows:
