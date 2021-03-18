@@ -1,6 +1,7 @@
 import { getDecimalsForCurrency, getCurrencyHash } from '@requestnetwork/currency';
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
+import { getDefaultProvider } from '../provider';
 
 // The conversion proxy smart contract ABI fragment containing TransferWithConversionAndReference event
 const erc20ConversionProxyContractAbiFragment = [
@@ -44,10 +45,7 @@ export default class ProxyERC20InfoRetriever
     private maxRateTimespan: number = 0,
   ) {
     // Creates a local or default provider
-    this.provider =
-      this.network === 'private'
-        ? new ethers.providers.JsonRpcProvider()
-        : ethers.getDefaultProvider(this.network);
+    this.provider = getDefaultProvider(this.network);
 
     // Setup the conversion proxy contract interface
     this.contractConversionProxy = new ethers.Contract(

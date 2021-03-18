@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { ethers } from 'ethers';
+import { ethers, getDefaultProvider } from 'ethers';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20proxyContractAbiFragment = [
@@ -34,10 +34,7 @@ export default class ProxyERC20InfoRetriever
     private network: string,
   ) {
     // Creates a local or default provider
-    this.provider =
-      this.network === 'private'
-        ? new ethers.providers.JsonRpcProvider()
-        : ethers.getDefaultProvider(this.network);
+    this.provider = getDefaultProvider(this.network);
 
     // Setup the ERC20 proxy contract interface
     this.contractProxy = new ethers.Contract(

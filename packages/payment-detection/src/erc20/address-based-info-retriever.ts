@@ -1,5 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
+import { getDefaultProvider } from '../provider';
 
 // The ERC20 smart contract ABI fragment containing decimals property and Transfer event
 const erc20BalanceOfAbiFragment = [
@@ -66,10 +67,7 @@ export default class ERC20InfoRetriever
    */
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     // Creates a local or default provider
-    const provider =
-      this.network === 'private'
-        ? new ethers.providers.JsonRpcProvider()
-        : ethers.getDefaultProvider(this.network);
+    const provider = getDefaultProvider(this.network);
 
     // Setup the ERC20 contract interface
     const contract = new ethers.Contract(
