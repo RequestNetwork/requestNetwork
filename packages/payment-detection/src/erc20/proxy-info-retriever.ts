@@ -9,6 +9,7 @@ const erc20proxyContractAbiFragment = [
   'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
 ];
 
+/** TransferWithReference event */
 type TransferWithReferenceArgs = {
   tokenAddress: string;
   to: string;
@@ -16,6 +17,7 @@ type TransferWithReferenceArgs = {
   paymentReference: string;
 };
 
+/** TransferWithReferenceAndFee event */
 type TransferWithReferenceAndFeeArgs = TransferWithReferenceArgs & {
   feeAmount: BigNumber;
   feeAddress: string;

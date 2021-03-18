@@ -14,6 +14,7 @@ const erc20FeeProxyContractAbiFragment = [
   'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
 ];
 
+/** TransferWithConversionAndReference event */
 type TransferWithConversionAndReferenceArgs = {
   amount: BigNumber;
   currency: string;
@@ -22,6 +23,7 @@ type TransferWithConversionAndReferenceArgs = {
   maxRateTimespan: BigNumber;
 };
 
+/** TransferWithReferenceAndFee event */
 type TransferWithReferenceAndFeeArgs = {
   tokenAddress: string;
   to: string;

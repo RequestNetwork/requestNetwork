@@ -8,6 +8,7 @@ const ethProxyContractAbiFragment = [
   'event TransferWithReference(address to,uint256 amount,bytes indexed paymentReference)',
 ];
 
+/** TransferWithReference event */
 type TransferWithReferenceArgs = {
   to: string;
   amount: BigNumber;
