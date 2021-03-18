@@ -1,5 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { ethers, getDefaultProvider } from 'ethers';
+import { ethers } from 'ethers';
+import { getDefaultProvider } from '../provider';
 
 // The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
 const erc20proxyContractAbiFragment = [
