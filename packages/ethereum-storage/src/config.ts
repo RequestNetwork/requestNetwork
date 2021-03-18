@@ -4,7 +4,7 @@ import { StorageTypes } from '@requestnetwork/types';
 // if information are not provided by the user
 const config: any = {
   ethereum: {
-    default: 'xdai',
+    default: 'private',
     gasPriceDefault: '100000000000',
     maxRetries: 5,
     nodeUrlDefault: {
