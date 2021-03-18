@@ -1,10 +1,11 @@
 import { BigNumber } from 'ethers';
+import { TransactionResponse } from '@ethersproject/abstract-provider';
 
 /**
  * Mock etherscan calls
  */
 export default class EtherscanProviderMock {
-  public async getHistory(address: string): Promise<any> {
+  async getHistory(addressOrName: string | Promise<string>): Promise<Array<TransactionResponse>> {
     return ({
       '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB': [
         {
@@ -64,7 +65,7 @@ export default class EtherscanProviderMock {
           timestamp: 1508334278,
         },
       ],
-    } as any)[address];
+    } as any)[await addressOrName];
   }
   public getNetwork(): any {
     return {

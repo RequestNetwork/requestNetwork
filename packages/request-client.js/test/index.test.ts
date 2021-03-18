@@ -20,7 +20,7 @@ import * as TestDataRealBTC from './data-test-real-btc';
 
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { BigNumber } from 'ethers';
-import EtherscanProviderMock from './ethers-mock';
+import EtherscanProviderMock from './etherscan-mock';
 
 const packageJson = require('../package.json');
 const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
@@ -1374,9 +1374,13 @@ describe('index', () => {
     // This test checks that 2 payments with reference `c19da4923539c37f` have reached 0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB
     it('can get the balance of an ETH request', async () => {
       jest.useFakeTimers('modern');
-      jest
-        .spyOn(ethers.providers, 'EtherscanProvider')
-        .mockImplementation(() => new EtherscanProviderMock() as any);
+      const etherscanMock = new EtherscanProviderMock();
+      ethers.providers.EtherscanProvider.prototype.getHistory = jest
+        .fn()
+        .mockImplementation(etherscanMock.getHistory);
+      ethers.providers.EtherscanProvider.prototype.getNetwork = jest
+        .fn()
+        .mockImplementation(etherscanMock.getNetwork);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
@@ -1436,14 +1440,18 @@ describe('index', () => {
         '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
       jest.useRealTimers();
-    }, 20000);
+    });
 
     it('can disable and enable the get the balance of a request', async () => {
       jest.useFakeTimers('modern');
 
-      jest
-        .spyOn(ethers.providers, 'EtherscanProvider')
-        .mockImplementation(() => new EtherscanProviderMock() as any);
+      const etherscanMock = new EtherscanProviderMock();
+      ethers.providers.EtherscanProvider.prototype.getHistory = jest
+        .fn()
+        .mockImplementation(etherscanMock.getHistory);
+      ethers.providers.EtherscanProvider.prototype.getNetwork = jest
+        .fn()
+        .mockImplementation(etherscanMock.getNetwork);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
@@ -1528,14 +1536,18 @@ describe('index', () => {
         '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
       jest.useRealTimers();
-    }, 20000);
+    });
 
     it('can get the balance on a skipped payment detection request', async () => {
       jest.useFakeTimers('modern');
 
-      jest
-        .spyOn(ethers.providers, 'EtherscanProvider')
-        .mockImplementation(() => new EtherscanProviderMock() as any);
+      const etherscanMock = new EtherscanProviderMock();
+      ethers.providers.EtherscanProvider.prototype.getHistory = jest
+        .fn()
+        .mockImplementation(etherscanMock.getHistory);
+      ethers.providers.EtherscanProvider.prototype.getNetwork = jest
+        .fn()
+        .mockImplementation(etherscanMock.getNetwork);
 
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
@@ -1615,7 +1627,7 @@ describe('index', () => {
       );
 
       jest.useRealTimers();
-    }, 20000);
+    });
   });
 
   describe('ERC20 address based requests', () => {
