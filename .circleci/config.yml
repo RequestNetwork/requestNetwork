@@ -565,12 +565,13 @@ jobs:
                 const a = process.argv[1] ? JSON.parse(process.argv[1]):[]; 
                 const list = a
                   .map(({name}) => name).join(','); 
-                  list ? '--force-publish=' + list : ''" 
-              "$($(yarn bin)/lerna changed --json)"
+                  list ? '--force-publish=' + list : ''" "$($(yarn bin)/lerna changed --json)"
             )
+            echo $FORCE_PUBLISH
       - run:
           name: 'publish'
           command: >
+            echo $FORCE_PUBLISH
             $(yarn bin)/lerna publish 
               --conventional-commits 
               --conventional-prerelease 
@@ -706,6 +707,7 @@ workflows:
             branches:
               only:
                 - master
+                - fix-next-release
 
   nightly:
     triggers:
