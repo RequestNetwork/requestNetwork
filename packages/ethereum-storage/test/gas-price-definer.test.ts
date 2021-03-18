@@ -25,36 +25,14 @@ describe('GasPriceDefiner', () => {
       expect(gasPrice).toBe(config.getDefaultEthereumGasPrice());
     });
 
-    it('returns  max pricing from xdai  payment' , async() => {
-      gasPriceDefiner.gasPriceProviderList = [
-       
-        { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-          new bigNumber(5) ,
-          providerUrl : '',
-        
-        },
-          { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-            new bigNumber(10),
-            providerUrl : '',
-          },
-            { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-              new bigNumber(20),
-              providerUrl : '',
-            }
-              
-        
-        ] 
-   
+    it('returns  max pricing from xdai  payment', async () => {
 
-         
-   
-   
       const gasPrice = await gasPriceDefiner.getGasPrice(
-        StorageTypes.GasPriceType.STANDARD,
+        StorageTypes.GasPriceType.FAST,
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI),
       );
 
-      expect(gasPrice).toBe(20);
+      expect(gasPrice).toBe('100000000000');
     });
 
 
@@ -62,8 +40,8 @@ describe('GasPriceDefiner', () => {
       gasPriceDefiner.pollProviders = async (
         _type: StorageTypes.GasPriceType,
       ): Promise<typeof bigNumber> => [];
-      
-      
+
+
       const gasPrice = await gasPriceDefiner.getGasPrice(
         StorageTypes.GasPriceType.STANDARD,
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
@@ -73,7 +51,7 @@ describe('GasPriceDefiner', () => {
     });
 
 
-   
+
 
 
     it('returns the max of values returned by ethereum providers', async () => {
@@ -113,37 +91,42 @@ describe('GasPriceDefiner', () => {
       expect(gasPrice).toBe('500');
     });
   });
-  
+
   describe('pollProviders', () => {
-    
-    it('returns the array containing value  of each gasPriceType of xdai', async () =>{
-      let networkName : String;
-      gasPriceDefiner.gasPriceProviderList = [
-       
-        { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-          new bigNumber(5) },
-        { getGasPrice: async(_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
-          new bigNumber(50) }  
-          
+    let FastGasPrice: any;
+    let StandardGasPrice: Promise<typeof bigNumber>;
+    let lowGasPrice: Promise<typeof bigNumber>;
+    it('returns the gas prices of each type in  xdai', async () => {
+      let networkName: String;
+      networkName = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI);
 
-        
-        ] 
-        networkName =  EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI);
-         
-        await expect(
-            gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD ,networkName),
-        ).resolves.toEqual([
-          new bigNumber(20),
-          new bigNumber(50),
-          new bigNumber(100),
-        ]);
+      FastGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST, networkName);
 
-      });
-    
+      expect(FastGasPrice).toEqual(
+        new bigNumber('100000000000', 10)
+      );
+
+      StandardGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD, networkName);
+
+
+      expect(StandardGasPrice).toEqual(
+        new bigNumber('50000000000', 10)
+      );
+
+      lowGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.SAFELOW, networkName);
+
+
+      expect(lowGasPrice).toEqual(
+        new bigNumber('1000000000', 10)
+      );
+
+
+    });
+
     it('returns an array containing value from each provider of ethereum', async () => {
-      let networkName : String;
+      let networkName: String;
       networkName = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET);
-     
+
       gasPriceDefiner.gasPriceProviderList = [
         {
           getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<typeof bigNumber> =>
@@ -168,7 +151,7 @@ describe('GasPriceDefiner', () => {
       ];
 
       await expect(
-        gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD , networkName ),
+        gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD, networkName),
       ).resolves.toEqual([
         new bigNumber(100),
         new bigNumber(500),
@@ -179,15 +162,15 @@ describe('GasPriceDefiner', () => {
 
     it('returns  empty array if there is no provider for the ethereum ', async () => {
       gasPriceDefiner.gasPriceProviderList = [];
-      let txn_networkId  = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET);
+      let txn_networkId = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET);
       if (txn_networkId) {
         await expect(
-          gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST ,EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)),
+          gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST, EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)),
         ).resolves.toHaveLength(0);
-        
+
 
       }
-      
+
     });
   });
 });
