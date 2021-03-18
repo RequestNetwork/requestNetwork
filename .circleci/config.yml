@@ -569,17 +569,11 @@ jobs:
       - run:
           name: 'Publish'
           command: |
-            export FORCE_PUBLISH=$(
-              node -p "
-                const a = process.argv[1] ? JSON.parse(process.argv[1]):[]; 
-                const list = a
-                  .map(({name}) => name).join(','); 
-                  list ? '--force-publish=' + list : ''" "$($(yarn bin)/lerna changed --json)"
-            )
+            FORCE_PUBLISH=$($(yarn bin)/lerna changed --json | jq '. | map(.name) | join (",")' -r)
             echo $FORCE_PUBLISH
-            $(yarn bin)/lerna publish \ 
+            $(yarn bin)/lerna publish \
               --conventional-commits  \
-              --conventional-prerelease \ 
+              --conventional-prerelease \
               --exact \
               --canary \
               --no-git-tag-version \
