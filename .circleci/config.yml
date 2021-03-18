@@ -558,7 +558,7 @@ jobs:
           name: 'Authenticate with registry'
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
-          name: 'Get updated packages'
+          name: 'Publish'
           command: |
             export FORCE_PUBLISH=$(
               node -p "
@@ -567,10 +567,6 @@ jobs:
                   .map(({name}) => name).join(','); 
                   list ? '--force-publish=' + list : ''" "$($(yarn bin)/lerna changed --json)"
             )
-            echo $FORCE_PUBLISH
-      - run:
-          name: 'publish'
-          command: |
             echo $FORCE_PUBLISH
             $(yarn bin)/lerna publish 
               --conventional-commits 
