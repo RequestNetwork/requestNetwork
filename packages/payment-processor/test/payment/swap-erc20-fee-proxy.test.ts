@@ -150,7 +150,7 @@ describe('swap-erc20-fee-proxy', () => {
       wallet.sendTransaction = originalSendTransaction;
     });
 
-    fit('should swap and pay with an ERC20 request with fees', async () => {
+    it('should swap and pay with an ERC20 request with fees', async () => {
       // first approve the SwapToPay contract to spend ALPHA tokens
       const approvalTx = await approveErc20ForSwapToPayIfNeeded(
         validRequest,
