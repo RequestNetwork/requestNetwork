@@ -7,7 +7,6 @@ import XdaiGasPriceProvider from './gas-price-providers/Xdai-provider';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 const bigNumber: any = require('bn.js');
-
 /**
  * Determines the gas price to use depending on the used network
  * Polls gas price API providers if necessary
@@ -68,16 +67,11 @@ export default class GasPriceDefiner {
     else if (
       networkName ===
       EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)
-
-    ) { // here the getGasPrice will be fixed based on type , so no comparison
+      ) { // here the getGasPrice will be fixed based on type of network  , so no comparison
       const gasPrice: typeof bigNumber = await this.pollProviders(type, networkName);
-
-
       if (gasPrice.length > 0) {
         // here , by default we can fetch the standard fixed price . 
-
         return gasPrice
-
       } else {
         this.logger.warn('Not able to parse the gas fees correctly', [
           'xdai',
@@ -101,11 +95,10 @@ export default class GasPriceDefiner {
    *
    * @param type Gas price type (fast, standard or safe low).
    * @param networkName for verifying  whether on ethereum mainnet or xdai , so as to provide reference gasPrice array
-   * @returns Array containing each gas price
+   * @param gasPriceArray returns the gas fees (as an fixed value / or as an array ) based on the network 
+   *  @returns Array containing each gas price
    */
   public async pollProviders(type: StorageTypes.GasPriceType, networkName?: String): Promise<Array<typeof bigNumber> | typeof bigNumber> {
-    //let gasPriceArray: Promise<Array<typeof bigNumber> | typeof bigNumber> ;
-    //let gasPrice: typeof bigNumber;
     if (networkName == EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)) {
       let gasPriceArray: Array<typeof bigNumber> = [];
       for (const gasPriceProvider of this.gasPriceProviderList) {
