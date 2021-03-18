@@ -67,9 +67,9 @@ export default class GasPriceDefiner {
     else if (
       networkName ===
       EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)
-      ) { // here the getGasPrice will be fixed based on type of network  , so no comparison
+      ) { 
       const gasPrice: typeof bigNumber = await this.pollProviders(type, networkName);
-      if (gasPrice.length > 0) {// here , by default we can fetch the standard fixed price . 
+      if (gasPrice.length > 0) {
         return gasPrice
       } else {
         this.logger.warn('Not able to parse the gas fees correctly', [
@@ -96,7 +96,6 @@ export default class GasPriceDefiner {
           const providerGasPrice = await gasPriceProvider.getGasPrice(type);
           gasPriceArray.push(providerGasPrice);
             } catch (err) {
-          // If the function throws, it means the gas price provider is not available.
           this.logger.warn(err, ['ethereum', 'gas']); 
         }
       }
@@ -104,8 +103,7 @@ export default class GasPriceDefiner {
     }
         else if (networkName === EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)) {
 
-      let xdaiprovider: StorageTypes.IGasPriceProvider = new XdaiGasPriceProvider();
-
+      const xdaiprovider: StorageTypes.IGasPriceProvider = new XdaiGasPriceProvider();
       // simply assign the gas fees .
       const gasPriceArray: typeof bigNumber = xdaiprovider.getGasPrice(type);
       return gasPriceArray;
