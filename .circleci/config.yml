@@ -581,7 +581,7 @@ jobs:
               --preid next \
               --dist-tag next \
               --yes \
-              ${FORCE_PUBLISH}
+              --force-publish=${FORCE_PUBLISH}
 
 workflows:
   version: 2
