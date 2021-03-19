@@ -36,7 +36,8 @@
     "lint": "tslint --project . && eslint \"src/**/*.ts\"",
     "lint-staged": "lint-staged",
     "prepare": "yarn run build",
-    "cli": "cross-env NODE_ENV=development ts-node src/cli.ts"
+    "cli": "cross-env NODE_ENV=development ts-node src/cli.ts",
+    "chainlinkPath": "ts-node src/chainlinkConversionPathTools.ts"
   },
   "dependencies": {
     "@requestnetwork/epk-signature": "0.5.29",
