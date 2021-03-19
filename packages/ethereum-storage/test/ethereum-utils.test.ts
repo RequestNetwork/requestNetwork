@@ -21,6 +21,12 @@ describe('Ethereum Utils', () => {
       expect(
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY),
       ).toBe('rinkeby');
+      expect(  
+        EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI),
+      ).toBe('xdai');
+      expect(  
+        EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.SOKOL),
+      ).toBe('sokol');
     });
 
     it(`should return undefined if the network doesn't exist`, async () => {
