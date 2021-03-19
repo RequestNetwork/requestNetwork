@@ -2,7 +2,7 @@ import { ContractTransaction, Signer } from 'ethers';
 import { Provider } from 'ethers/providers';
 import { BigNumberish } from 'ethers/utils';
 
-import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
+import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { _getErc20FeeProxyPaymentUrl } from './erc20-fee-proxy';
@@ -37,7 +37,7 @@ export async function approveErc20ForProxyConversionIfNeeded(
   if (
     !(await checkErc20Allowance(
       ownerAddress,
-      proxyChainlinkConversionPath.getAddress(network),
+      erc20ConversionProxy.getAddress(network),
       signerOrProvider,
       paymentTokenAddress,
       minAmount,
@@ -71,7 +71,7 @@ export async function approveErc20ForProxyConversion(
 
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
-    proxyChainlinkConversionPath.getAddress(network),
+    erc20ConversionProxy.getAddress(network),
     signerOrProvider,
   );
   const signer = getSigner(signerOrProvider);

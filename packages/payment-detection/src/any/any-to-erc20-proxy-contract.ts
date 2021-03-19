@@ -1,4 +1,4 @@
-import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
+import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -84,7 +84,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
     const acceptedTokens = paymentNetwork.values.acceptedTokens;
     const maxRateTimespan = paymentNetwork.values.maxRateTimespan || 0;
 
-    const conversionDeploymentInformation = proxyChainlinkConversionPath.getDeploymentInformation(
+    const conversionDeploymentInformation = erc20ConversionProxy.getDeploymentInformation(
       network,
       paymentNetwork.version,
     );
@@ -100,7 +100,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
     const conversionProxyCreationBlockNumber: number =
       conversionDeploymentInformation.creationBlockNumber;
 
-    const erc20FeeDeploymentInformation = proxyChainlinkConversionPath.getDeploymentInformation(
+    const erc20FeeDeploymentInformation = erc20ConversionProxy.getDeploymentInformation(
       network,
       paymentNetwork.version,
     );
@@ -156,5 +156,5 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
   }
 
   protected getDeploymentInformation: DeploymentInformationGetter =
-    proxyChainlinkConversionPath.getDeploymentInformation;
+    erc20ConversionProxy.getDeploymentInformation;
 }

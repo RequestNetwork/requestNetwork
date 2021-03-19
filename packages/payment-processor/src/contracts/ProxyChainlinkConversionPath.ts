@@ -2,10 +2,10 @@ import { Contract, Signer } from 'ethers';
 import { Provider } from 'ethers/providers';
 import { Arrayish, BigNumberish, Interface } from 'ethers/utils';
 
-import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
+import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import { ITypedFunctionDescription } from './TypedFunctionDescription';
 
-interface IProxyChainlinkConversionPathContractInterface extends Interface {
+interface IErc20ConversionProxyContractInterface extends Interface {
   functions: {
     transferFromWithReferenceAndFee: ITypedFunctionDescription<{
       encode([
@@ -34,14 +34,14 @@ interface IProxyChainlinkConversionPathContractInterface extends Interface {
 /**
  *  A typescript-documented Chainlink Conversion Path Proxy Contract.
  */
-export abstract class ProxyChainlinkConversionPathContract extends Contract {
+export abstract class Erc20ConversionProxyContract extends Contract {
   public static connect(
     address: string,
     signerOrProvider: Signer | Provider,
-  ): ProxyChainlinkConversionPathContract {
-    const abi = proxyChainlinkConversionPath.getContractAbi();
-    return new Contract(address, abi, signerOrProvider) as ProxyChainlinkConversionPathContract;
+  ): Erc20ConversionProxyContract {
+    const abi = erc20ConversionProxy.getContractAbi();
+    return new Contract(address, abi, signerOrProvider) as Erc20ConversionProxyContract;
   }
 
-  public abstract interface: IProxyChainlinkConversionPathContractInterface;
+  public abstract interface: IErc20ConversionProxyContractInterface;
 }

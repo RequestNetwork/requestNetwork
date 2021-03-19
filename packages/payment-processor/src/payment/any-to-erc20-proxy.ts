@@ -3,10 +3,10 @@ import { Web3Provider } from 'ethers/providers';
 import { bigNumberify, BigNumberish } from 'ethers/utils';
 
 import { getDecimalsForCurrency, getConversionPath } from '@requestnetwork/currency';
-import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
+import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import { ProxyChainlinkConversionPathContract } from '../contracts/ProxyChainlinkConversionPath';
+import { Erc20ConversionProxyContract } from '../contracts/Erc20ConversionProxy';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -56,7 +56,7 @@ export async function payAnyToErc20ProxyRequest(
     amount,
     feeAmount,
   );
-  const proxyAddress = proxyChainlinkConversionPath.getAddress(paymentSettings.currency.network);
+  const proxyAddress = erc20ConversionProxy.getAddress(paymentSettings.currency.network);
   const signer = getSigner(signerOrProvider);
 
   const tx = await signer.sendTransaction({
@@ -125,8 +125,8 @@ export async function encodePayAnyToErc20ProxyRequest(
 
   // tslint:disable-next-line:no-magic-numbers
   const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0).mul(10 ** decimalPadding);
-  const proxyAddress = proxyChainlinkConversionPath.getAddress(paymentSettings.currency.network);
-  const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);
+  const proxyAddress = erc20ConversionProxy.getAddress(paymentSettings.currency.network);
+  const proxyContract = Erc20ConversionProxyContract.connect(proxyAddress, signer);
 
   return proxyContract.interface.functions.transferFromWithReferenceAndFee.encode([
     paymentAddress,
