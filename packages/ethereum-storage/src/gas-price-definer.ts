@@ -23,20 +23,33 @@ export default class GasPriceDefiner {
    new EtherscanProvider(),
    new XdaiGasPriceProvider(),
  ];  */
-  public GasPriceListMap: Map<
-    string,
-    Array<StorageTypes.IGasPriceProvider>
-  > = new Map([
-    [
-      'ETHEREUM',
-      [
+  // public GasPriceListMap: Map<
+  //   string,
+  //   Array<StorageTypes.IGasPriceProvider>
+  // > = new Map([
+  //   [
+  //     'ETHEREUM',
+  //     [
+  //       new EtherchainProvider(),
+  //       new EthGasStationProvider(),
+  //       new EtherscanProvider()
+  //     ]
+  //   ],
+  //   ['XDAI', [new XdaiGasPriceProvider()]]
+  // ]);
+
+  private ethereumGasProvider: Array<StorageTypes.IGasPriceProvider> =  [
         new EtherchainProvider(),
         new EthGasStationProvider(),
         new EtherscanProvider()
-      ]
-    ],
-    ['XDAI', [new XdaiGasPriceProvider()]]
-  ]);
+      ];
+
+  public GasPriceListMap: any = {
+    mainnet: this.ethereumGasProvider,
+    rinkeby: this.ethereumGasProvider,
+    xdai: [new XdaiGasPriceProvider()],
+  }
+
   /**
    * Logger instance
    */
@@ -119,9 +132,14 @@ export default class GasPriceDefiner {
   ): Promise<Array<typeof bigNumber>> {
     const gasPriceArray: Array<typeof bigNumber> = [];
     // here we will have to push the gaspice based on the type of network only
-    for (let providerGasPrice: Promise<StorageTypes.IGasPriceProvider> of this.GasPriceListMap.get(
-      networkName
-    )) {
+
+    const providerList = this.GasPriceListMap[networkName];
+    if(!providerList) {
+      throw Error('network not supported')
+    }
+
+
+    for (let providerGasPrice of providerList) {
       try {
         gasPriceArray.push(await providerGasPrice.getGasPrice(type));
       } catch (err) {
