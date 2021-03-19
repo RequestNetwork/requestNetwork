@@ -321,12 +321,12 @@ export default class SmartContractManager {
             }
 
             // Get the new gas price for the transaction
-            const newGasPrice = new BigNumber(
-              await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName),
-            );
+            const newGasPrice = 
+              await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName);
+            
 
             // If the new gas price is higher than the previous, resubmit the transaction
-            if (newGasPrice.gt(new BigNumber(gasPriceToUse))) {
+            if (newGasPrice.gt(gasPriceToUse)) {
               // Retry transaction with the new gas price and propagate back the result
               try {
                 resolve(

@@ -73,7 +73,7 @@ export default class GasPriceDefiner {
   public async getGasPrice(
     type: StorageTypes.GasPriceType,
     networkName: string
-  ): Promise<BigNumber | undefined> {
+  ): Promise<BigNumber> {
     if (
       networkName ===
       EthereumUtils.getEthereumNetworkNameFromId(

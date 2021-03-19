@@ -39,7 +39,7 @@ export default class EtherchainProvider implements StorageTypes.IGasPriceProvide
    * @param type Type of the gas price (fast, standard or safe low)
    * @returns Requested gas price
    */
-  public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber | null> {
+  public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber> {
     const res = await Utils.retry(async () => this.fetch(this.providerUrl), {
       maxRetries: ETHERCHAIN_REQUEST_MAX_RETRY,
       retryDelay: ETHERCHAIN_REQUEST_RETRY_DELAY,
