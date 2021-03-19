@@ -16,35 +16,13 @@ export default class GasPriceDefiner {
    * List of gas price api provider to call to determine the used gas price
    *
    */
-
-  /**public gasPriceProviderList: StorageTypes.IGasPriceProvider[] = [
-   new EtherchainProvider(),
-   new EthGasStationProvider(),
-   new EtherscanProvider(),
-   new XdaiGasPriceProvider(),
- ];  */
-  // public GasPriceListMap: Map<
-  //   string,
-  //   Array<StorageTypes.IGasPriceProvider>
-  // > = new Map([
-  //   [
-  //     'ETHEREUM',
-  //     [
-  //       new EtherchainProvider(),
-  //       new EthGasStationProvider(),
-  //       new EtherscanProvider()
-  //     ]
-  //   ],
-  //   ['XDAI', [new XdaiGasPriceProvider()]]
-  // ]);
-
   private ethereumGasProvider: Array<StorageTypes.IGasPriceProvider> = [
     new EtherchainProvider(),
     new EthGasStationProvider(),
     new EtherscanProvider()
   ];
 
-  public GasPriceListMap: any = {
+  public gasPriceListMap: any = {
     mainnet: this.ethereumGasProvider,
     rinkeby: this.ethereumGasProvider,
     xdai: [new XdaiGasPriceProvider()]
@@ -131,14 +109,14 @@ export default class GasPriceDefiner {
     networkName: string
   ): Promise<Array<typeof bigNumber>> {
     const gasPriceArray: Array<typeof bigNumber> = [];
-    // here we will have to push the gaspice based on the type of network only
+    // here we will have to push the gaspice based on the  blockchain network .
 
-    const providerList = this.GasPriceListMap[networkName];
+    const providerList = this.gasPriceListMap[networkName];
     if (!providerList) {
       throw Error('network not supported');
     }
 
-    for (let providerGasPrice of providerList) {
+    for (const providerGasPrice of providerList) {
       try {
         gasPriceArray.push(await providerGasPrice.getGasPrice(type));
       } catch (err) {

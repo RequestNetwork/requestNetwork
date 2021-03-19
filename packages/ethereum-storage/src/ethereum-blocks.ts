@@ -53,7 +53,7 @@ export default class EthereumBlocks {
     retryDelay: number,
     maxRetries: number,
     getLastBlockNumberMinDelay: number = 0,
-    logger?: LogTypes.ILogger,
+    logger?: LogTypes.ILogger
   ) {
     this.eth = eth;
 
@@ -72,15 +72,18 @@ export default class EthereumBlocks {
       () =>
         Utils.retry(
           () => {
-            this.logger.debug(`Getting last block number`, ['ethereum', 'ethereum-blocks']);
+            this.logger.debug(`Getting last block number`, [
+              'ethereum',
+              'ethereum-blocks'
+            ]);
             return this.eth.getBlockNumber();
           },
           {
             maxRetries: this.maxRetries,
-            retryDelay: this.retryDelay,
-          },
+            retryDelay: this.retryDelay
+          }
         )(),
-      this.getLastBlockNumberMinDelay,
+      this.getLastBlockNumberMinDelay
     );
   }
 
@@ -99,7 +102,7 @@ export default class EthereumBlocks {
     // Use Utils.retry to rerun if getBlock fails
     const block = await Utils.retry((bn: number) => this.eth.getBlock(bn), {
       maxRetries: this.maxRetries,
-      retryDelay: this.retryDelay,
+      retryDelay: this.retryDelay
     })(blockNumber);
     if (!block) {
       throw Error(`block ${blockNumber} not found`);
@@ -118,7 +121,7 @@ export default class EthereumBlocks {
    * @return {blockBefore, blockAfter} or null if the timestamp is after the last ethereum block
    */
   public async getBlockNumbersFromTimestamp(
-    timestamp: number,
+    timestamp: number
   ): Promise<StorageTypes.IBlockNumbersInterval> {
     // check if we have the blockTimestamp of the first significant block number
     if (!this.blockTimestamp[this.firstSignificantBlockNumber]) {
@@ -141,7 +144,7 @@ export default class EthereumBlocks {
     if (timestamp <= this.blockTimestamp[this.firstSignificantBlockNumber]) {
       return {
         blockAfter: this.firstSignificantBlockNumber,
-        blockBefore: this.firstSignificantBlockNumber,
+        blockBefore: this.firstSignificantBlockNumber
       };
     }
 
@@ -149,21 +152,29 @@ export default class EthereumBlocks {
     if (timestamp > this.blockTimestamp[secondLastBlockNumber]) {
       return {
         blockAfter: secondLastBlockNumber,
-        blockBefore: secondLastBlockNumber,
+        blockBefore: secondLastBlockNumber
       };
     }
 
     // Before doing the dichotomic search, we restrict the search to the two closest block we already know
     // the boundaries start with the first significant block and the last block
-    const { result, lowBlockNumber, highBlockNumber } = this.getKnownBlockNumbersFromTimestamp(
+    const {
+      result,
+      lowBlockNumber,
+      highBlockNumber
+    } = this.getKnownBlockNumbersFromTimestamp(
       timestamp,
-      secondLastBlockNumber,
+      secondLastBlockNumber
     );
 
     // if the result is not found on the known blocks, we search by dichotomy between the two closest known blocks
     return (
       result ||
-      this.getBlockNumbersFromTimestampByDichotomy(timestamp, lowBlockNumber, highBlockNumber)
+      this.getBlockNumbersFromTimestampByDichotomy(
+        timestamp,
+        lowBlockNumber,
+        highBlockNumber
+      )
     );
   }
 
@@ -196,7 +207,7 @@ export default class EthereumBlocks {
   public async getBlock(blockNumber: number | string): Promise<any> {
     return Utils.retry(this.eth.getBlock, {
       maxRetries: this.maxRetries,
-      retryDelay: this.retryDelay,
+      retryDelay: this.retryDelay
     })(blockNumber);
   }
 
@@ -209,7 +220,7 @@ export default class EthereumBlocks {
    */
   private getKnownBlockNumbersFromTimestamp(
     timestamp: number,
-    lastBlockNumber: number,
+    lastBlockNumber: number
   ): {
     result: StorageTypes.IBlockNumbersInterval | null;
     lowBlockNumber: number;
@@ -230,7 +241,10 @@ export default class EthereumBlocks {
       if (currentBlockTimestamp) {
         // if we are lucky a block we know has the exact same timestamp
         if (currentBlockTimestamp === timestamp) {
-          result = { blockBefore: currentBlockNumber, blockAfter: currentBlockNumber };
+          result = {
+            blockBefore: currentBlockNumber,
+            blockAfter: currentBlockNumber
+          };
           foundKnownBoundaries = true;
         } else {
           // otherwise we restrict the boundaries
@@ -262,7 +276,7 @@ export default class EthereumBlocks {
   private async getBlockNumbersFromTimestampByDichotomy(
     timestamp: number,
     lowBlockNumber: number,
-    highBlockNumber: number,
+    highBlockNumber: number
   ): Promise<StorageTypes.IBlockNumbersInterval> {
     let result: StorageTypes.IBlockNumbersInterval | null = null;
 
@@ -272,7 +286,9 @@ export default class EthereumBlocks {
       const currentBlockNumber =
         lowBlockNumber + Math.floor((highBlockNumber - lowBlockNumber) / 2);
       // Gets the timestamp of the block and stores it
-      const currentBlockTimestamp = await this.getBlockTimestamp(currentBlockNumber);
+      const currentBlockTimestamp = await this.getBlockTimestamp(
+        currentBlockNumber
+      );
 
       // Restricts the boundaries
       if (currentBlockTimestamp < timestamp) {
@@ -281,7 +297,10 @@ export default class EthereumBlocks {
         highBlockNumber = currentBlockNumber;
       } else {
         // If we are lucky, the timestamp is equal to the block timestamp
-        result = { blockBefore: currentBlockNumber, blockAfter: currentBlockNumber };
+        result = {
+          blockBefore: currentBlockNumber,
+          blockAfter: currentBlockNumber
+        };
         break;
       }
 

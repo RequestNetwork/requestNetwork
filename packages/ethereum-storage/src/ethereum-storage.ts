@@ -2,7 +2,11 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
-import { getIpfsExpectedBootstrapNodes, getMaxConcurrency, getPinRequestConfig } from './config';
+import {
+  getIpfsExpectedBootstrapNodes,
+  getMaxConcurrency,
+  getPinRequestConfig
+} from './config';
 
 import ethereumEntriesToIpfsContent from './ethereum-entries-to-ipfs-content';
 import EthereumMetadataCache from './ethereum-metadata-cache';
@@ -78,7 +82,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       logger,
       maxConcurrency,
       maxRetries,
-      retryDelay,
+      retryDelay
     }: {
       getLastBlockNumberDelay?: number;
       logger?: LogTypes.ILogger;
@@ -86,7 +90,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       maxRetries?: number;
       retryDelay?: number;
     } = {},
-    metadataStore?: Keyv.Store<any>,
+    metadataStore?: Keyv.Store<any>
   ) {
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
     this.logger = logger || new Utils.SimpleLogger();
@@ -96,11 +100,11 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       logger: this.logger,
       maxConcurrency: this.maxConcurrency,
       maxRetries,
-      retryDelay,
+      retryDelay
     });
     this.ethereumMetadataCache = new EthereumMetadataCache(
       this.smartContractManager,
-      metadataStore,
+      metadataStore
     );
     this.ignoredDataIds = new IgnoredDataIds(metadataStore);
     this.buffer = {};
@@ -119,15 +123,23 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
 
     // check ethereum node connection - will throw if the ethereum node is not reachable
-    this.logger.info('Checking ethereum node connection', ['ethereum', 'sanity']);
+    this.logger.info('Checking ethereum node connection', [
+      'ethereum',
+      'sanity'
+    ]);
     try {
-      await this.smartContractManager.checkWeb3ProviderConnection(WEB3_PROVIDER_TIMEOUT);
+      await this.smartContractManager.checkWeb3ProviderConnection(
+        WEB3_PROVIDER_TIMEOUT
+      );
     } catch (error) {
       throw Error(`Ethereum node is not accessible: ${error}`);
     }
 
     // check if contracts are deployed on ethereum
-    this.logger.info('Checking ethereum node contract deployment', ['ethereum', 'sanity']);
+    this.logger.info('Checking ethereum node contract deployment', [
+      'ethereum',
+      'sanity'
+    ]);
     try {
       await this.smartContractManager.checkContracts();
     } catch (error) {
@@ -146,7 +158,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param ipfsConnection Information structure to connect to the ipfs gateway
    */
   public async updateIpfsGateway(
-    ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection,
+    ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection
   ): Promise<void> {
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
 
@@ -159,12 +171,16 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * Missing value are filled with default config value
    * @param web3Connection Information structure to connect to the Ethereum based network (can be eth or xdai)
    */
-  public async updateEthereumNetwork(web3Connection: StorageTypes.IWeb3Connection): Promise<void> {
+  public async updateEthereumNetwork(
+    web3Connection: StorageTypes.IWeb3Connection
+  ): Promise<void> {
     this.smartContractManager = new SmartContractManager(web3Connection);
     // check ethereum node connection - will throw if the ethereum node is not reachable
 
     try {
-      await this.smartContractManager.checkWeb3ProviderConnection(WEB3_PROVIDER_TIMEOUT);
+      await this.smartContractManager.checkWeb3ProviderConnection(
+        WEB3_PROVIDER_TIMEOUT
+      );
     } catch (error) {
       throw Error(`Ethereum node is not accessible: ${error}`);
     }
@@ -201,17 +217,20 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
 
     const timestamp = Utils.getCurrentTimestampInSecond();
-    const result: StorageTypes.IAppendResult = Object.assign(new EventEmitter(), {
-      content,
-      id: ipfsHash,
-      meta: {
-        ipfs: { size: contentSize },
-        local: { location: this.externalBufferUrl },
-        state: StorageTypes.ContentState.PENDING,
-        storageType: StorageTypes.StorageSystemType.LOCAL,
-        timestamp,
-      },
-    });
+    const result: StorageTypes.IAppendResult = Object.assign(
+      new EventEmitter(),
+      {
+        content,
+        id: ipfsHash,
+        meta: {
+          ipfs: { size: contentSize },
+          local: { location: this.externalBufferUrl },
+          state: StorageTypes.ContentState.PENDING,
+          storageType: StorageTypes.StorageSystemType.LOCAL,
+          timestamp
+        }
+      }
+    );
     // store in the buffer the timestamp
     this.buffer[ipfsHash] = timestamp;
 
@@ -228,15 +247,18 @@ export default class EthereumStorage implements StorageTypes.IStorage {
             ipfs: { size: contentSize },
             state: StorageTypes.ContentState.CONFIRMED,
             storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-            timestamp: ethereumMetadata.blockTimestamp,
-          },
+            timestamp: ethereumMetadata.blockTimestamp
+          }
         };
         // Save the metadata of the new ipfsHash into the Ethereum metadata cache
-        await this.ethereumMetadataCache.saveDataIdMeta(ipfsHash, ethereumMetadata);
+        await this.ethereumMetadataCache.saveDataIdMeta(
+          ipfsHash,
+          ethereumMetadata
+        );
 
         result.emit('confirmed', resultAfterBroadcast);
       })
-      .catch(error => {
+      .catch((error) => {
         result.emit('error', error);
       });
 
@@ -284,7 +306,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     return {
       ipfsHash,
-      ipfsSize,
+      ipfsSize
     };
   }
 
@@ -334,20 +356,20 @@ export default class EthereumStorage implements StorageTypes.IStorage {
           ipfs: { size: ipfsObject.ipfsSize },
           state: StorageTypes.ContentState.CONFIRMED,
           storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-          timestamp: ethereumMetadata.blockTimestamp,
+          timestamp: ethereumMetadata.blockTimestamp
         }
       : {
           ipfs: { size: ipfsObject.ipfsSize },
           local: { location: this.externalBufferUrl },
           state: StorageTypes.ContentState.PENDING,
           storageType: StorageTypes.StorageSystemType.LOCAL,
-          timestamp: bufferTimestamp || 0,
+          timestamp: bufferTimestamp || 0
         };
 
     return {
       content: ipfsObject.content,
       id,
-      meta,
+      meta
     };
   }
 
@@ -366,14 +388,16 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         const startTime = Date.now();
         const data = await this.read(dataId);
         this.logger.debug(
-          `[${currentIndex + 1}/${totalCount}] read ${dataId}. Took ${Date.now() - startTime} ms`,
-          ['read'],
+          `[${currentIndex + 1}/${totalCount}] read ${dataId}. Took ${
+            Date.now() - startTime
+          } ms`,
+          ['read']
         );
         return data;
       },
       {
-        concurrency: this.maxConcurrency,
-      },
+        concurrency: this.maxConcurrency
+      }
     );
   }
 
@@ -384,7 +408,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Promise resolving stored data
    */
   public async getData(
-    options?: StorageTypes.ITimestampBoundaries,
+    options?: StorageTypes.ITimestampBoundaries
   ): Promise<StorageTypes.IEntriesWithLastTimestamp> {
     const contentDataIdAndMeta = await this.getContentAndDataId(options);
 
@@ -411,17 +435,19 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       return [];
     }
 
-    this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
+    this.logger.debug('Fetching data from IPFS and checking correctness', [
+      'ipfs'
+    ]);
 
     const entries = await ethereumEntriesToIpfsContent(
       ethereumEntries,
       this.ipfsManager,
       this.ignoredDataIds,
       this.logger,
-      this.maxConcurrency,
+      this.maxConcurrency
     );
 
-    const ids = entries.map(entry => entry.id) || [];
+    const ids = entries.map((entry) => entry.id) || [];
     // Pin data asynchronously
     // tslint:disable-next-line:no-floating-promises
     this.pinDataToIPFS(ids);
@@ -431,7 +457,10 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       const ethereumMetadata = entry.meta.ethereum;
       if (ethereumMetadata) {
         // PROT-504: The saving of dataId's metadata should be encapsulated when retrieving dataId inside smart contract (getPastEvents)
-        await this.ethereumMetadataCache.saveDataIdMeta(entry.id, ethereumMetadata);
+        await this.ethereumMetadataCache.saveDataIdMeta(
+          entry.id,
+          ethereumMetadata
+        );
       }
     }
 
@@ -448,21 +477,25 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     {
       delayBetweenCalls,
       maxSize,
-      timeout,
-    }: StorageTypes.IPinRequestConfiguration = getPinRequestConfig(),
+      timeout
+    }: StorageTypes.IPinRequestConfiguration = getPinRequestConfig()
   ): Promise<void> {
     // How many slices we need from the total list of hashes to be under pinRequestMaxSize
     const slices = Math.ceil(hashes.length / maxSize);
 
     // Iterate over the hashes list, slicing it at pinRequestMaxSize sizes and pinning it
     for (let i = 0; i < slices; i++) {
-      await new Promise<void>((res): NodeJS.Timeout => setTimeout(() => res(), delayBetweenCalls));
+      await new Promise<void>(
+        (res): NodeJS.Timeout => setTimeout(() => res(), delayBetweenCalls)
+      );
       const slice = hashes.slice(i * maxSize, (i + 1) * maxSize);
       try {
         await this.ipfsManager.pin(slice, timeout);
         this.logger.debug(`Pinned ${slice.length} hashes to IPFS node.`);
       } catch (error) {
-        this.logger.warn(`Failed pinning some hashes the IPFS node: ${error}`, ['ipfs']);
+        this.logger.warn(`Failed pinning some hashes the IPFS node: ${error}`, [
+          'ipfs'
+        ]);
       }
     }
   }
@@ -483,14 +516,14 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     return {
       dataIds: {
         count: dataIds.length,
-        values: detailed ? dataIds : undefined,
+        values: detailed ? dataIds : undefined
       },
       ethereum,
       ignoredDataIds: {
         count: Object.keys(dataIdsWithReason).length,
-        values: detailed ? dataIdsWithReason : undefined,
+        values: detailed ? dataIdsWithReason : undefined
       },
-      ipfs,
+      ipfs
     };
   }
 
@@ -501,7 +534,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @returns Promise resolving object with content and dataId of stored data
    */
   private async getContentAndDataId(
-    options?: StorageTypes.ITimestampBoundaries,
+    options?: StorageTypes.ITimestampBoundaries
   ): Promise<StorageTypes.IEntriesWithLastTimestamp> {
     if (!this.isInitialized) {
       throw new Error('Ethereum storage must be initialized');
@@ -509,7 +542,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
     const {
       ethereumEntries,
-      lastTimestamp,
+      lastTimestamp
     } = await this.smartContractManager.getEntriesFromEthereum(options);
 
     // If no hash was found on ethereum, we return an empty list
@@ -517,21 +550,23 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       this.logger.info('No new data found.', ['ethereum']);
       return {
         entries: [],
-        lastTimestamp,
+        lastTimestamp
       };
     }
 
-    this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
+    this.logger.debug('Fetching data from IPFS and checking correctness', [
+      'ipfs'
+    ]);
 
     const entries = await ethereumEntriesToIpfsContent(
       ethereumEntries,
       this.ipfsManager,
       this.ignoredDataIds,
       this.logger,
-      this.maxConcurrency,
+      this.maxConcurrency
     );
 
-    const ids = entries.map(entry => entry.id) || [];
+    const ids = entries.map((entry) => entry.id) || [];
     // Pin data asynchronously
     // tslint:disable-next-line:no-floating-promises
     this.pinDataToIPFS(ids);
@@ -541,13 +576,16 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       const ethereumMetadata = entry.meta.ethereum;
       if (ethereumMetadata) {
         // PROT-504: The saving of dataId's metadata should be encapsulated when retrieving dataId inside smart contract (getPastEvents)
-        await this.ethereumMetadataCache.saveDataIdMeta(entry.id, ethereumMetadata);
+        await this.ethereumMetadataCache.saveDataIdMeta(
+          entry.id,
+          ethereumMetadata
+        );
       }
     }
 
     return {
       entries,
-      lastTimestamp,
+      lastTimestamp
     };
   }
 
@@ -571,13 +609,13 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     try {
       const bootstrapList = await this.ipfsManager.getBootstrapList();
 
-      const bootstrapNodeFoundCount: number = getIpfsExpectedBootstrapNodes().filter(nodeExpected =>
-        bootstrapList.includes(nodeExpected),
+      const bootstrapNodeFoundCount: number = getIpfsExpectedBootstrapNodes().filter(
+        (nodeExpected) => bootstrapList.includes(nodeExpected)
       ).length;
 
       if (bootstrapNodeFoundCount !== getIpfsExpectedBootstrapNodes().length) {
         throw Error(
-          `The list of bootstrap node in the ipfs config don't match the expected bootstrap nodes`,
+          `The list of bootstrap node in the ipfs config don't match the expected bootstrap nodes`
         );
       }
     } catch (error) {

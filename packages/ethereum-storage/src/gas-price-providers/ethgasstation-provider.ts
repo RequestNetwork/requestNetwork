@@ -20,7 +20,8 @@ const API_MULTIPLIER: number = 100000000;
 /**
  * Retrieve and process the gas price returned by ethgasstation.org API
  */
-export default class EthGasStationProvider implements StorageTypes.IGasPriceProvider {
+export default class EthGasStationProvider
+  implements StorageTypes.IGasPriceProvider {
   /**
    * Url to connect to the provider API
    */
@@ -38,16 +39,18 @@ export default class EthGasStationProvider implements StorageTypes.IGasPriceProv
    * @param type Type of the gas price (fast, standard or safe low)
    * @returns Requested gas price
    */
-  public async getGasPrice(type: StorageTypes.GasPriceType): Promise<typeof bigNumber | null> {
+  public async getGasPrice(
+    type: StorageTypes.GasPriceType
+  ): Promise<typeof bigNumber | null> {
     const res = await Utils.retry(async () => this.fetch(this.providerUrl), {
       maxRetries: ETHGASSTATION_REQUEST_MAX_RETRY,
-      retryDelay: ETHGASSTATION_RETRY_DELAY,
+      retryDelay: ETHGASSTATION_RETRY_DELAY
     })();
 
     // tslint:disable-next-line:no-magic-numbers
     if (res.status >= 400) {
       throw new Error(
-        `EthGasStation error ${res.status}. Bad response from server ${this.providerUrl}`,
+        `EthGasStation error ${res.status}. Bad response from server ${this.providerUrl}`
       );
     }
     const apiResponse = await res.json();
@@ -61,7 +64,9 @@ export default class EthGasStationProvider implements StorageTypes.IGasPriceProv
       isNaN(apiResponse.average) ||
       isNaN(apiResponse.safeLow)
     ) {
-      throw new Error(`EthGasStation API response doesn't contain the correct format`);
+      throw new Error(
+        `EthGasStation API response doesn't contain the correct format`
+      );
     }
 
     // Retrieve the gas price from the provided gas price type and the format of the API response
@@ -70,13 +75,15 @@ export default class EthGasStationProvider implements StorageTypes.IGasPriceProv
         {
           [StorageTypes.GasPriceType.FAST]: apiResponse.fast,
           [StorageTypes.GasPriceType.STANDARD]: apiResponse.average,
-          [StorageTypes.GasPriceType.SAFELOW]: apiResponse.safeLow,
-        }[type],
-      ) * API_MULTIPLIER,
+          [StorageTypes.GasPriceType.SAFELOW]: apiResponse.safeLow
+        }[type]
+      ) * API_MULTIPLIER
     );
 
     if (!EthereumUtils.isGasPriceSafe(apiGasPrice)) {
-      throw Error(`EthGasStation provided gas price not safe to use: ${apiGasPrice}`);
+      throw Error(
+        `EthGasStation provided gas price not safe to use: ${apiGasPrice}`
+      );
     }
 
     return apiGasPrice;

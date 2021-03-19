@@ -29,17 +29,20 @@ export default class EthereumMetadataCache {
    * @param smartContractManager Instance of SmartContractManager used to get metadata in case they're not registered yet
    * @param store a Keyv store to persist the metadata
    */
-  public constructor(smartContractManager: SmartContractManager, store?: Keyv.Store<any>) {
+  public constructor(
+    smartContractManager: SmartContractManager,
+    store?: Keyv.Store<any>
+  ) {
     this.smartContractManager = smartContractManager;
 
     this.metadataCache = new Keyv<StorageTypes.IEthereumMetadata>({
       namespace: 'ethereumMetadata',
-      store,
+      store
     });
 
     this.listDataIds = new Keyv<string[]>({
       namespace: 'listDataIds',
-      store,
+      store
     });
   }
 
@@ -48,7 +51,10 @@ export default class EthereumMetadataCache {
    * @param dataId dataId to index ethereum metadata
    * @param meta Ethereum metadata related to the dataId
    */
-  public async saveDataIdMeta(dataId: string, meta: StorageTypes.IEthereumMetadata): Promise<void> {
+  public async saveDataIdMeta(
+    dataId: string,
+    meta: StorageTypes.IEthereumMetadata
+  ): Promise<void> {
     // We save the metadata only if it doesn't exist yet
     // A user can add the same dataId into the smart contract indefinitely
     // Therefore, only the first occurrence of the dataId has valid metadata
@@ -67,10 +73,14 @@ export default class EthereumMetadataCache {
    * @param dataId dataId to get Ethereum metadata from
    * @returns Ethereum metadata of the dataId
    */
-  public async getDataIdMeta(dataId: string): Promise<StorageTypes.IEthereumMetadata> {
+  public async getDataIdMeta(
+    dataId: string
+  ): Promise<StorageTypes.IEthereumMetadata> {
     // If the metadata has not been saved in the cache yet
     // we get them with smartContractManager and save them
-    let metadata: StorageTypes.IEthereumMetadata | undefined = await this.metadataCache.get(dataId);
+    let metadata:
+      | StorageTypes.IEthereumMetadata
+      | undefined = await this.metadataCache.get(dataId);
 
     if (!metadata) {
       metadata = await this.smartContractManager.getMetaFromEthereum(dataId);
@@ -87,7 +97,9 @@ export default class EthereumMetadataCache {
    * @returns the list of data ids stored
    */
   public async getDataIds(): Promise<string[]> {
-    const listDataIds: string[] | undefined = await this.listDataIds.get('list');
+    const listDataIds: string[] | undefined = await this.listDataIds.get(
+      'list'
+    );
     if (!listDataIds) {
       return [];
     }

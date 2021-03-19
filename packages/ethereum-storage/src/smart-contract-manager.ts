@@ -19,7 +19,7 @@ const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
 
 // Regular expression to detect if the Web3 API returns "query returned more than XXX results" error
 const MORE_THAN_XXX_RESULTS_REGEX: RegExp = new RegExp(
-  'query returned more than [1-9][0-9]* results',
+  'query returned more than [1-9][0-9]* results'
 );
 
 // String to match if the Web3 API throws "Transaction was not mined within XXX seconds" error
@@ -86,7 +86,7 @@ export default class SmartContractManager {
       getLastBlockNumberDelay,
       logger,
       maxRetries,
-      retryDelay,
+      retryDelay
     }: {
       maxConcurrency: number;
       logger?: LogTypes.ILogger;
@@ -94,8 +94,8 @@ export default class SmartContractManager {
       maxRetries?: number;
       retryDelay?: number;
     } = {
-      maxConcurrency: Number.MAX_SAFE_INTEGER,
-    },
+      maxConcurrency: Number.MAX_SAFE_INTEGER
+    }
   ) {
     this.maxConcurrency = maxConcurrency;
     this.logger = logger || new Utils.SimpleLogger();
@@ -108,7 +108,9 @@ export default class SmartContractManager {
     try {
       this.eth = new web3Eth(
         web3Connection.web3Provider ||
-          new web3Eth.providers.HttpProvider(config.getDefaultEthereumProvider()),
+          new web3Eth.providers.HttpProvider(
+            config.getDefaultEthereumProvider()
+          )
       );
     } catch (error) {
       throw Error(`Can't initialize web3-eth ${error}`);
@@ -130,27 +132,30 @@ export default class SmartContractManager {
     }
 
     this.hashStorageAddress = SmartContracts.requestHashStorageArtifact.getAddress(
-      this.networkName,
+      this.networkName
     );
 
     this.hashSubmitterAddress = SmartContracts.requestHashSubmitterArtifact.getAddress(
-      this.networkName,
+      this.networkName
     );
 
     // Initialize smart contract instance
     this.requestHashStorage = new this.eth.Contract(
       SmartContracts.requestHashStorageArtifact.getContractAbi(),
-      this.hashStorageAddress,
+      this.hashStorageAddress
     );
     this.requestHashSubmitter = new this.eth.Contract(
       SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
-      this.hashSubmitterAddress,
+      this.hashSubmitterAddress
     );
 
-    this.timeout = web3Connection.timeout || config.getDefaultEthereumProviderTimeout();
+    this.timeout =
+      web3Connection.timeout || config.getDefaultEthereumProviderTimeout();
 
     this.creationBlockNumberHashStorage =
-      SmartContracts.requestHashStorageArtifact.getCreationBlockNumber(this.networkName) || 0;
+      SmartContracts.requestHashStorageArtifact.getCreationBlockNumber(
+        this.networkName
+      ) || 0;
 
     this.ethereumBlocks = new EthereumBlocks(
       this.eth,
@@ -158,7 +163,7 @@ export default class SmartContractManager {
       this.retryDelay || config.getEthereumRetryDelay(),
       this.maxRetries || config.getEthereumMaxRetries(),
       getLastBlockNumberDelay,
-      this.logger,
+      this.logger
     );
   }
 
@@ -168,36 +173,34 @@ export default class SmartContractManager {
    * @return Promise resolving if the web3 provider is accessible, throw otherwise
    */
   public async checkWeb3ProviderConnection(timeout: number): Promise<void> {
-    return new Promise(
-      (resolve, reject): void => {
-        const connectionTimer: any = setTimeout(() => {
-          reject(
-            Error(
-              'The Web3 provider is not reachable, did you use the correct protocol (http/https)?',
-            ),
-          );
-        }, timeout);
+    return new Promise((resolve, reject): void => {
+      const connectionTimer: any = setTimeout(() => {
+        reject(
+          Error(
+            'The Web3 provider is not reachable, did you use the correct protocol (http/https)?'
+          )
+        );
+      }, timeout);
 
-        this.eth.net
-          .isListening()
-          .then((isListening: boolean) => {
-            // The timeout must be disabled
-            clearTimeout(connectionTimer);
+      this.eth.net
+        .isListening()
+        .then((isListening: boolean) => {
+          // The timeout must be disabled
+          clearTimeout(connectionTimer);
 
-            if (isListening) {
-              resolve();
-            } else {
-              reject(Error('The Web3 provider is not listening'));
-            }
-          })
-          .catch((error: Error) => {
-            // The timeout must be disabled
-            clearTimeout(connectionTimer);
+          if (isListening) {
+            resolve();
+          } else {
+            reject(Error('The Web3 provider is not listening'));
+          }
+        })
+        .catch((error: Error) => {
+          // The timeout must be disabled
+          clearTimeout(connectionTimer);
 
-            reject(Error(`Error when trying to reach Web3 provider: ${error}`));
-          });
-      },
-    );
+          reject(Error(`Error when trying to reach Web3 provider: ${error}`));
+        });
+    });
   }
 
   /**
@@ -211,13 +214,17 @@ export default class SmartContractManager {
         .call();
 
       if (!isSubmitterWhitelisted) {
-        throw Error('The hash submitter not whitelisted in request Hash Storage contract');
+        throw Error(
+          'The hash submitter not whitelisted in request Hash Storage contract'
+        );
       }
 
       // throw if requestHashSubmitter is not deployed
       await this.requestHashSubmitter.methods.getFeesAmount(0).call();
     } catch (error) {
-      throw Error(`Contracts are not deployed or not well configured: ${error}`);
+      throw Error(
+        `Contracts are not deployed or not well configured: ${error}`
+      );
     }
   }
 
@@ -230,7 +237,7 @@ export default class SmartContractManager {
     // Throws an error if timeout is reached
     const accounts = await Promise.race([
       Utils.timeoutPromise(this.timeout, 'Web3 getAccounts connection timeout'),
-      this.eth.getAccounts(),
+      this.eth.getAccounts()
     ]);
 
     if (!accounts || !accounts[0]) {
@@ -250,7 +257,7 @@ export default class SmartContractManager {
     contentHash: string,
     feesParameters: StorageTypes.IFeesParameters,
     gasPrice?: number,
-    nonce?: number,
+    nonce?: number
   ): Promise<StorageTypes.IEthereumMetadata> {
     // Get the account for the transaction
     const account = await this.getMainAccount();
@@ -261,8 +268,13 @@ export default class SmartContractManager {
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
     const fee = await Promise.race([
-      Utils.timeoutPromise(this.timeout, 'Web3 getFeesAmount connection timeout'),
-      this.requestHashSubmitter.methods.getFeesAmount(feesParameters.contentSize).call(),
+      Utils.timeoutPromise(
+        this.timeout,
+        'Web3 getFeesAmount connection timeout'
+      ),
+      this.requestHashSubmitter.methods
+        .getFeesAmount(feesParameters.contentSize)
+        .call()
     ]);
 
     // Determines the gas price to use
@@ -272,101 +284,108 @@ export default class SmartContractManager {
     // Otherwise, we use default value from config
     const gasPriceToUse =
       gasPrice ||
-      (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName));
+      (await gasPriceDefiner.getGasPrice(
+        StorageTypes.GasPriceType.FAST,
+        this.networkName
+      ));
 
     // parse the fees parameters to hex bytes
     const feesParametersAsBytes = web3Utils.padLeft(
       web3Utils.toHex(feesParameters.contentSize),
-      LENGTH_BYTES32_STRING,
+      LENGTH_BYTES32_STRING
     );
 
     // Send transaction to contract
     // TODO(PROT-181): Implement a log manager for the library
     // use it for the different events (error, transactionHash, receipt and confirmation)
-    return new Promise(
-      (resolve, reject): any => {
-        // This boolean is set to true once the ethereum metadata has been created and the promise has been resolved
-        // When set to true, we use it to ignore next confirmation event function call
-        let ethereumMetadataCreated: boolean = false;
+    return new Promise((resolve, reject): any => {
+      // This boolean is set to true once the ethereum metadata has been created and the promise has been resolved
+      // When set to true, we use it to ignore next confirmation event function call
+      let ethereumMetadataCreated: boolean = false;
 
-        // Keep the transaction hash for future needs
-        let transactionHash: string = '';
-        const transactionParameters = {
-          from: account,
-          gas: '100000',
-          gasPrice: gasPriceToUse,
-          nonce,
-          value: fee,
-        };
-        this.requestHashSubmitter.methods
-          .submitHash(contentHash, feesParametersAsBytes)
-          .send(transactionParameters)
-          .on('transactionHash', (hash: any) => {
-            // Store the transaction hash in case we need it in the future
-            transactionHash = hash;
-            this.logger.debug(
-              `Ethereum SubmitHash transaction: ${JSON.stringify({
-                hash,
-                ...transactionParameters,
-              })}`,
+      // Keep the transaction hash for future needs
+      let transactionHash: string = '';
+      const transactionParameters = {
+        from: account,
+        gas: '100000',
+        gasPrice: gasPriceToUse,
+        nonce,
+        value: fee
+      };
+      this.requestHashSubmitter.methods
+        .submitHash(contentHash, feesParametersAsBytes)
+        .send(transactionParameters)
+        .on('transactionHash', (hash: any) => {
+          // Store the transaction hash in case we need it in the future
+          transactionHash = hash;
+          this.logger.debug(
+            `Ethereum SubmitHash transaction: ${JSON.stringify({
+              hash,
+              ...transactionParameters
+            })}`
+          );
+        })
+        .on('error', async (transactionError: string) => {
+          // If failed because of polling timeout, try to resubmit the transaction with more gas
+          if (
+            transactionError.toString().includes(TRANSACTION_POLLING_TIMEOUT) &&
+            transactionHash
+          ) {
+            // If we didn't set the nonce, find the current transaction nonce
+            if (!nonce) {
+              const tx = await this.eth.getTransaction(transactionHash);
+              nonce = tx.nonce;
+            }
+
+            // Get the new gas price for the transaction
+            const newGasPrice = new bigNumber(
+              await gasPriceDefiner.getGasPrice(
+                StorageTypes.GasPriceType.FAST,
+                this.networkName
+              )
             );
-          })
-          .on('error', async (transactionError: string) => {
-            // If failed because of polling timeout, try to resubmit the transaction with more gas
-            if (
-              transactionError.toString().includes(TRANSACTION_POLLING_TIMEOUT) &&
-              transactionHash
-            ) {
-              // If we didn't set the nonce, find the current transaction nonce
-              if (!nonce) {
-                const tx = await this.eth.getTransaction(transactionHash);
-                nonce = tx.nonce;
-              }
 
-              // Get the new gas price for the transaction
-              const newGasPrice = new bigNumber(
-                await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName),
-              );
-
-              // If the new gas price is higher than the previous, resubmit the transaction
-              if (newGasPrice.gt(new bigNumber(gasPriceToUse))) {
-                // Retry transaction with the new gas price and propagate back the result
-                try {
-                  resolve(
-                    await this.addHashAndSizeToEthereum(
-                      contentHash,
-                      feesParameters,
-                      newGasPrice,
-                      nonce,
-                    ),
-                  );
-                } catch (error) {
-                  reject(error);
-                }
-              } else {
-                // The transaction is stuck, but it doesn't seem to be a gas issue. Nothing better to do than to wait...
-                this.logger.warn(
-                  `Transaction ${transactionHash} hasn't been mined for more than ${config.getTransactionPollingTimeout()} seconds. It may be stuck.`,
+            // If the new gas price is higher than the previous, resubmit the transaction
+            if (newGasPrice.gt(new bigNumber(gasPriceToUse))) {
+              // Retry transaction with the new gas price and propagate back the result
+              try {
+                resolve(
+                  await this.addHashAndSizeToEthereum(
+                    contentHash,
+                    feesParameters,
+                    newGasPrice,
+                    nonce
+                  )
                 );
+              } catch (error) {
+                reject(error);
               }
             } else {
-              const logObject = JSON.stringify({
-                contentHash,
-                fee,
-                feesParametersAsBytes,
-                from: account,
-                gasPrice: gasPriceToUse,
-                nonce,
-              });
-              this.logger.error(`Failed transaction: ${logObject}`);
-              reject(Error(`Ethereum transaction error:  ${transactionError}`));
-            }
-          })
-          .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
-            if (!ethereumMetadataCreated) {
-              const gasFee = new bigNumber(receiptAfterConfirmation.gasUsed).mul(
-                new bigNumber(gasPriceToUse),
+              // The transaction is stuck, but it doesn't seem to be a gas issue. Nothing better to do than to wait...
+              this.logger.warn(
+                `Transaction ${transactionHash} hasn't been mined for more than ${config.getTransactionPollingTimeout()} seconds. It may be stuck.`
               );
+            }
+          } else {
+            const logObject = JSON.stringify({
+              contentHash,
+              fee,
+              feesParametersAsBytes,
+              from: account,
+              gasPrice: gasPriceToUse,
+              nonce
+            });
+            this.logger.error(`Failed transaction: ${logObject}`);
+            reject(Error(`Ethereum transaction error:  ${transactionError}`));
+          }
+        })
+        .on(
+          'confirmation',
+          (confirmationNumber: number, receiptAfterConfirmation: any) => {
+            if (!ethereumMetadataCreated) {
+              const gasFee = new bigNumber(
+                receiptAfterConfirmation.gasUsed
+              ).mul(new bigNumber(gasPriceToUse));
               const cost = gasFee.add(new bigNumber(fee));
 
               // Try to create ethereum metadata
@@ -377,21 +396,26 @@ export default class SmartContractManager {
                 receiptAfterConfirmation.transactionHash,
                 cost.toString(),
                 fee,
-                gasFee.toString(),
+                gasFee.toString()
               )
                 .then((ethereumMetadata: StorageTypes.IEthereumMetadata) => {
                   ethereumMetadataCreated = true;
                   resolve(ethereumMetadata);
                 })
-                .catch(e => {
-                  if (confirmationNumber >= CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS) {
-                    reject(Error(`Maximum number of confirmation reached: ${e}`));
+                .catch((e) => {
+                  if (
+                    confirmationNumber >=
+                    CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS
+                  ) {
+                    reject(
+                      Error(`Maximum number of confirmation reached: ${e}`)
+                    );
                   }
                 });
             }
-          });
-      },
-    );
+          }
+        );
+    });
   }
 
   /**
@@ -399,18 +423,31 @@ export default class SmartContractManager {
    * @param contentHash Hash of the content to store, this hash should be used to retrieve the content
    * @returns Promise resolved when transaction is confirmed on Ethereum
    */
-  public async getMetaFromEthereum(contentHash: string): Promise<StorageTypes.IEthereumMetadata> {
+  public async getMetaFromEthereum(
+    contentHash: string
+  ): Promise<StorageTypes.IEthereumMetadata> {
     // Read all event logs
-    const events = await this.recursiveGetPastEvents(this.creationBlockNumberHashStorage, 'latest');
+    const events = await this.recursiveGetPastEvents(
+      this.creationBlockNumberHashStorage,
+      'latest'
+    );
 
-    this.logger.debug(`${events.length} events fetched in getMetaFromEthereum`, ['ethereum']);
+    this.logger.debug(
+      `${events.length} events fetched in getMetaFromEthereum`,
+      ['ethereum']
+    );
 
-    const event = events.find((element: any) => element.returnValues.hash === contentHash);
+    const event = events.find(
+      (element: any) => element.returnValues.hash === contentHash
+    );
     if (!event) {
       throw Error(`contentHash not indexed on ethereum`);
     }
 
-    return this.createEthereumMetaData(event.blockNumber, event.transactionHash);
+    return this.createEthereumMetaData(
+      event.blockNumber,
+      event.transactionHash
+    );
   }
 
   /**
@@ -420,7 +457,7 @@ export default class SmartContractManager {
    * @return hashes with with metadata
    */
   public async getEntriesFromEthereum(
-    options?: StorageTypes.ITimestampBoundaries,
+    options?: StorageTypes.ITimestampBoundaries
   ): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> {
     let fromBlock = this.creationBlockNumberHashStorage;
     let toBlock: number | undefined;
@@ -428,7 +465,7 @@ export default class SmartContractManager {
     // get fromBlock from the timestamp given in options
     if (options && options.from) {
       const optionFromBlockNumbers = await this.ethereumBlocks.getBlockNumbersFromTimestamp(
-        options.from,
+        options.from
       );
       fromBlock = optionFromBlockNumbers.blockAfter;
     }
@@ -436,7 +473,7 @@ export default class SmartContractManager {
     // get toBlock from the timestamp given in options or use the latest block
     if (options && options.to) {
       const optionToBlockNumbers = await this.ethereumBlocks.getBlockNumbersFromTimestamp(
-        options.to,
+        options.to
       );
       toBlock = optionToBlockNumbers.blockBefore;
     } else {
@@ -445,7 +482,7 @@ export default class SmartContractManager {
 
     if (toBlock < fromBlock) {
       throw Error(
-        `toBlock must be larger than fromBlock: fromBlock:${fromBlock} toBlock:${toBlock}`,
+        `toBlock must be larger than fromBlock: fromBlock:${fromBlock} toBlock:${toBlock}`
       );
     }
 
@@ -458,8 +495,11 @@ export default class SmartContractManager {
     const lastTimestamp = await this.ethereumBlocks.getBlockTimestamp(toBlock);
 
     return {
-      ethereumEntries: await this.getEthereumEntriesFromEvents(fromBlock, toBlock),
-      lastTimestamp,
+      ethereumEntries: await this.getEthereumEntriesFromEvents(
+        fromBlock,
+        toBlock
+      ),
+      lastTimestamp
     };
   }
 
@@ -472,7 +512,7 @@ export default class SmartContractManager {
    */
   public async getEthereumEntriesFromEvents(
     fromBlock: number,
-    toBlock?: number | string,
+    toBlock?: number | string
   ): Promise<StorageTypes.IEthereumEntry[]> {
     fromBlock =
       fromBlock < this.creationBlockNumberHashStorage
@@ -483,9 +523,10 @@ export default class SmartContractManager {
     // Read all event logs
     let events = await this.recursiveGetPastEvents(fromBlock, toBlock);
 
-    this.logger.debug(`${events.length} events fetched in getEthereumEntriesFromEvents`, [
-      'ethereum',
-    ]);
+    this.logger.debug(
+      `${events.length} events fetched in getEthereumEntriesFromEvents`,
+      ['ethereum']
+    );
 
     // TODO PROT-235: getPastEvents returns all events, not just NewHash
     events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
@@ -494,8 +535,8 @@ export default class SmartContractManager {
       events,
       (eventItem: any) => this.checkAndAddMetaDataToEvent(eventItem),
       {
-        concurrency: this.maxConcurrency,
-      },
+        concurrency: this.maxConcurrency
+      }
     );
 
     return eventsWithMetaData;
@@ -515,7 +556,7 @@ export default class SmartContractManager {
       maxConcurrency: this.maxConcurrency,
       maxRetries: this.maxRetries,
       networkName: this.networkName,
-      retryDelay: this.retryDelay,
+      retryDelay: this.retryDelay
     };
   }
 
@@ -530,9 +571,11 @@ export default class SmartContractManager {
    */
   private async recursiveGetPastEvents(
     fromBlock: number,
-    toBlock: number | string,
+    toBlock: number | string
   ): Promise<any[]> {
-    const toBlockNumber: number = await this.getBlockNumberFromNumberOrString(toBlock);
+    const toBlockNumber: number = await this.getBlockNumberFromNumberOrString(
+      toBlock
+    );
 
     // Reading event logs
     // If getPastEvents doesn't throw, we can return the returned events from the function
@@ -541,20 +584,25 @@ export default class SmartContractManager {
       events = await Utils.retry(
         (args: any) =>
           Promise.race([
-            Utils.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
-            this.requestHashStorage.getPastEvents(args),
+            Utils.timeoutPromise(
+              this.timeout,
+              'Web3 getPastEvents connection timeout'
+            ),
+            this.requestHashStorage.getPastEvents(args)
           ]),
         {
           maxRetries: this.maxRetries || config.getEthereumMaxRetries(),
-          retryDelay: this.retryDelay || config.getEthereumRetryDelay(),
-        },
+          retryDelay: this.retryDelay || config.getEthereumRetryDelay()
+        }
       )({
         event: 'NewHash',
         fromBlock,
-        toBlock: toBlockNumber,
+        toBlock: toBlockNumber
       });
 
-      this.logger.debug(`Events from ${fromBlock} to ${toBlock} fetched`, ['ethereum']);
+      this.logger.debug(`Events from ${fromBlock} to ${toBlock} fetched`, [
+        'ethereum'
+      ]);
 
       return events;
     } catch (e) {
@@ -562,15 +610,18 @@ export default class SmartContractManager {
       // In this case we perform a dichotomy in order to fetch past events with a smaller range
       if (e.toString().match(MORE_THAN_XXX_RESULTS_REGEX)) {
         const intervalHalf = Math.floor((fromBlock + toBlockNumber) / 2);
-        const eventsFirstHalfPromise = this.recursiveGetPastEvents(fromBlock, intervalHalf);
+        const eventsFirstHalfPromise = this.recursiveGetPastEvents(
+          fromBlock,
+          intervalHalf
+        );
         const eventsSecondHalfPromise = this.recursiveGetPastEvents(
           intervalHalf + 1,
-          toBlockNumber,
+          toBlockNumber
         );
 
         return Promise.all([eventsFirstHalfPromise, eventsSecondHalfPromise])
-          .then(halves => Utils.flatten2DimensionsArray(halves))
-          .catch(err => {
+          .then((halves) => Utils.flatten2DimensionsArray(halves))
+          .catch((err) => {
             throw err;
           });
       } else {
@@ -585,7 +636,9 @@ export default class SmartContractManager {
    * @param event event of type NewHash
    * @returns processed event
    */
-  private async checkAndAddMetaDataToEvent(event: any): Promise<StorageTypes.IEthereumEntry> {
+  private async checkAndAddMetaDataToEvent(
+    event: any
+  ): Promise<StorageTypes.IEthereumEntry> {
     // Check if the event object is correct
     // We check "typeof field === 'undefined'"" instead of "!field"
     // because you can add empty string as hash or 0 as size in the storage smart contract
@@ -597,13 +650,18 @@ export default class SmartContractManager {
       throw Error(`event is incorrect: doesn't have a hash or feesParameters`);
     }
 
-    const contentSize = web3Utils.hexToNumber(event.returnValues.feesParameters);
-    const meta = await this.createEthereumMetaData(event.blockNumber, event.transactionHash);
+    const contentSize = web3Utils.hexToNumber(
+      event.returnValues.feesParameters
+    );
+    const meta = await this.createEthereumMetaData(
+      event.blockNumber,
+      event.transactionHash
+    );
 
     return {
       feesParameters: { contentSize },
       hash: event.returnValues.hash,
-      meta,
+      meta
     };
   }
 
@@ -621,12 +679,14 @@ export default class SmartContractManager {
     transactionHash: string,
     cost?: string,
     fee?: string,
-    gasFee?: string,
+    gasFee?: string
   ): Promise<StorageTypes.IEthereumMetadata> {
     // Get the number confirmations of the block hosting the transaction
     let blockConfirmation;
     try {
-      blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
+      blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(
+        blockNumber
+      );
     } catch (error) {
       throw Error(`Error getting block confirmation number: ${error}`);
     }
@@ -648,7 +708,7 @@ export default class SmartContractManager {
       gasFee,
       networkName: this.networkName,
       smartContractAddress: this.hashStorageAddress,
-      transactionHash,
+      transactionHash
     };
   }
 
@@ -659,7 +719,9 @@ export default class SmartContractManager {
    * @param block block number or string describing the block (latest, genesis, pending)
    * @return number of the block
    */
-  private async getBlockNumberFromNumberOrString(block: number | string): Promise<number> {
+  private async getBlockNumberFromNumberOrString(
+    block: number | string
+  ): Promise<number> {
     if (typeof block === 'number') {
       // If the block number is already of type number, we return it
       return block;

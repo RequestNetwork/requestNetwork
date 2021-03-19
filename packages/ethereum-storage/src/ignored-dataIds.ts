@@ -29,12 +29,12 @@ export default class IgnoredDataIds {
   public constructor(store?: Keyv.Store<any>) {
     this.ignoredDataIds = new Keyv<StorageTypes.IIgnoredDataId>({
       namespace: 'dataIdIgnored',
-      store,
+      store
     });
 
     this.listIgnoredDataIds = new Keyv<string[]>({
       namespace: 'listIgnoredDataIds',
-      store,
+      store
     });
   }
 
@@ -44,9 +44,7 @@ export default class IgnoredDataIds {
    * @param reason reason we ignored the dataId
    * @param toRetry will be retry later if true
    */
-  public async save(
-    entry: StorageTypes.IEthereumEntry,
-  ): Promise<void> {
+  public async save(entry: StorageTypes.IEthereumEntry): Promise<void> {
     const previous = await this.ignoredDataIds.get(entry.hash);
 
     if (!previous) {
@@ -55,7 +53,8 @@ export default class IgnoredDataIds {
         entry,
         iteration: 1,
         lastTryTimestamp: Date.now(),
-        toRetry: entry.error?.type === StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR,
+        toRetry:
+          entry.error?.type === StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR
       });
       // update the list
       await this.addToDataIdsList(entry.hash);
@@ -65,9 +64,11 @@ export default class IgnoredDataIds {
         // update it only if it was mean to be retry
         await this.ignoredDataIds.set(entry.hash, {
           entry,
-          iteration: previous.iteration as number + 1,
+          iteration: (previous.iteration as number) + 1,
           lastTryTimestamp: Date.now(),
-          toRetry: entry.error?.type === StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR,
+          toRetry:
+            entry.error?.type ===
+            StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR
         });
       }
     }
@@ -77,9 +78,7 @@ export default class IgnoredDataIds {
    * Removes the ignored dataId from the cache
    * @param dataId dataId
    */
-  public async delete(
-    dataId: string,
-  ): Promise<void> {
+  public async delete(dataId: string): Promise<void> {
     await this.ignoredDataIds.delete(dataId);
     // update the list
     await this.deleteFromDataIdsList(dataId);
@@ -100,7 +99,9 @@ export default class IgnoredDataIds {
    * @returns the list of data ids stored
    */
   public async getDataIds(): Promise<string[]> {
-    const listDataId: string[] | undefined = await this.listIgnoredDataIds.get('list');
+    const listDataId: string[] | undefined = await this.listIgnoredDataIds.get(
+      'list'
+    );
     return listDataId || [];
   }
 
@@ -110,13 +111,17 @@ export default class IgnoredDataIds {
    * @returns the list of data ids
    */
   public async getDataIdsToRetry(): Promise<StorageTypes.IEthereumEntry[]> {
-    const listDataId: string[] | undefined = await this.listIgnoredDataIds.get('list');
+    const listDataId: string[] | undefined = await this.listIgnoredDataIds.get(
+      'list'
+    );
 
     const result: StorageTypes.IEthereumEntry[] = [];
 
     if (listDataId) {
       for (const dataId of Array.from(listDataId)) {
-        const data: StorageTypes.IIgnoredDataId | undefined = await this.ignoredDataIds.get(dataId);
+        const data:
+          | StorageTypes.IIgnoredDataId
+          | undefined = await this.ignoredDataIds.get(dataId);
         if (data && this.shouldRetry(data)) {
           result.push(data.entry);
         }
@@ -132,7 +137,9 @@ export default class IgnoredDataIds {
    * @returns the list of data ids stored with reason
    */
   public async getDataIdsWithReasons(): Promise<any> {
-    const listDataId: string[] | undefined = await this.listIgnoredDataIds.get('list');
+    const listDataId: string[] | undefined = await this.listIgnoredDataIds.get(
+      'list'
+    );
 
     if (!listDataId) {
       return {};
@@ -151,12 +158,15 @@ export default class IgnoredDataIds {
    * @param entry to check
    * @returns true if it is time to retry
    */
-  private shouldRetry(
-    entry: StorageTypes.IIgnoredDataId,
-  ): boolean {
+  private shouldRetry(entry: StorageTypes.IIgnoredDataId): boolean {
     // The entry should be retry periodically in an exponential interval of time
     // Every time we retry to exponentially increase the time of the next try
-    return entry.toRetry && (entry.lastTryTimestamp as number + Math.floor(Math.exp(entry.iteration)) * INTERVAL_RETRY_MS) <= Date.now();
+    return (
+      entry.toRetry &&
+      (entry.lastTryTimestamp as number) +
+        Math.floor(Math.exp(entry.iteration)) * INTERVAL_RETRY_MS <=
+        Date.now()
+    );
   }
 
   /**
@@ -166,7 +176,9 @@ export default class IgnoredDataIds {
    * @returns
    */
   private async addToDataIdsList(dataId: string): Promise<void> {
-    let listDataIds: string[] | undefined = await this.listIgnoredDataIds.get('list');
+    let listDataIds: string[] | undefined = await this.listIgnoredDataIds.get(
+      'list'
+    );
     if (!listDataIds) {
       listDataIds = [];
     }
@@ -184,11 +196,13 @@ export default class IgnoredDataIds {
    * @returns
    */
   private async deleteFromDataIdsList(dataId: string): Promise<void> {
-    let listDataIds: string[] | undefined = await this.listIgnoredDataIds.get('list');
+    let listDataIds: string[] | undefined = await this.listIgnoredDataIds.get(
+      'list'
+    );
     if (!listDataIds) {
       return;
     }
-    listDataIds = listDataIds.filter(e => e !== dataId);
+    listDataIds = listDataIds.filter((e) => e !== dataId);
     await this.listIgnoredDataIds.set('list', listDataIds);
   }
 }

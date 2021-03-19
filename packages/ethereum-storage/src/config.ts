@@ -10,23 +10,38 @@ const config: any = {
     nodeUrlDefault: {
       private: {
         timeout: 30000,
-        url: 'http://localhost:8545',
-      },
+        url: 'http://localhost:8545'
+      }
     },
     retryDelay: 0,
     safeGasPriceLimit: '500000000000',
-    transactionPollingTimeout: 300,
+    transactionPollingTimeout: 300
+  },
+
+  xdai: {
+    default: 'private',
+    gasPriceDefault: '10',
+    maxRetries: 2,
+    nodeUrlDefault: {
+      private: {
+        timeout: 30000,
+        url: 'http://localhost:8545'
+      }
+    },
+    retryDelay: 0,
+    safeGasPriceLimit: '50',
+    transactionPollingTimeout: 3
   },
   ipfs: {
     defaultNode: {
       host: 'localhost',
       port: 5001,
       protocol: 'http',
-      timeout: 30000,
+      timeout: 30000
     },
     errorHandling: {
       delayBetweenRetries: 500,
-      maxRetries: 3,
+      maxRetries: 3
     },
     expectedBootstrapNodes: [
       // eslint-disable-next-line spellcheck/spell-checker
@@ -36,16 +51,16 @@ const config: any = {
       // eslint-disable-next-line spellcheck/spell-checker
       '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
       // eslint-disable-next-line spellcheck/spell-checker
-      '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
+      '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh'
     ],
     maxIpfsReadRetry: 1,
     pinRequest: {
       delayBetweenCalls: 1000,
       maxSize: 500,
-      timeout: 30000,
-    },
+      timeout: 30000
+    }
   },
-  maxConcurrency: 5,
+  maxConcurrency: 5
 };
 
 /**
@@ -111,7 +126,9 @@ export function getEthereumMaxRetries(): number {
  * @returns safe gas price limit
  */
 export function getSafeGasPriceLimit(): string {
-  return process?.env?.SAFE_GAS_PRICE_LIMIT || config.ethereum.safeGasPriceLimit;
+  return (
+    process?.env?.SAFE_GAS_PRICE_LIMIT || config.ethereum.safeGasPriceLimit
+  );
 }
 
 /**
@@ -130,7 +147,7 @@ export function getPinRequestConfig(): StorageTypes.IPinRequestConfiguration {
   return {
     delayBetweenCalls: config.ipfs.pinRequest.delayBetweenCalls,
     maxSize: config.ipfs.pinRequest.maxSize,
-    timeout: config.ipfs.pinRequest.timeout,
+    timeout: config.ipfs.pinRequest.timeout
   };
 }
 
@@ -141,7 +158,7 @@ export function getPinRequestConfig(): StorageTypes.IPinRequestConfiguration {
 export function getIpfsErrorHandlingConfig(): StorageTypes.IIpfsErrorHandlingConfiguration {
   return {
     delayBetweenRetries: config.ipfs.errorHandling.delayBetweenRetries,
-    maxRetries: config.ipfs.errorHandling.maxRetries,
+    maxRetries: config.ipfs.errorHandling.maxRetries
   };
 }
 
