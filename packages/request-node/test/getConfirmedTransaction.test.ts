@@ -1,7 +1,6 @@
-
 import Utils from '@requestnetwork/utils';
 import * as httpStatus from 'http-status-codes';
-import * as request from 'supertest';
+import request from 'supertest';
 import requestNode from '../src/requestNode';
 
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';

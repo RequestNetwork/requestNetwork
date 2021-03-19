@@ -36,7 +36,7 @@ const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction
   new EventEmitter(),
   {
     meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
-    result: { topics: [fakeTxHash] },
+    result: {},
   },
 );
 

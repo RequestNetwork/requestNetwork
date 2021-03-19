@@ -3,7 +3,7 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import cors from 'cors';
 import express from 'express';
-import httpStatus from 'http-status-codes';
+import * as httpStatus from 'http-status-codes';
 import KeyvFile from 'keyv-file';
 
 import Utils from '@requestnetwork/utils';

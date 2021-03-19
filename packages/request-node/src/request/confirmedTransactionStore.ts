@@ -1,5 +1,5 @@
 import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
-import httpStatus from 'http-status-codes';
+import * as httpStatus from 'http-status-codes';
 
 import Keyv from 'keyv';
 import KeyvFile from 'keyv-file';

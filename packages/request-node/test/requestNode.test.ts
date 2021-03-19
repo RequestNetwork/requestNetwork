@@ -1,6 +1,5 @@
-
 import * as httpStatus from 'http-status-codes';
-import * as request from 'supertest';
+import request from 'supertest';
 import requestNode from '../src/requestNode';
 
 const packageJson = require('../package.json');
