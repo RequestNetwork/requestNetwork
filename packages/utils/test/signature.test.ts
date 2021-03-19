@@ -27,7 +27,7 @@ const dataDiffCase = {
   attribut2: 'value',
 };
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Signature', () => {
   describe('getIdentityFromSignatureParams', () => {
     it('can getIdentityFromSignatureParams()', () => {

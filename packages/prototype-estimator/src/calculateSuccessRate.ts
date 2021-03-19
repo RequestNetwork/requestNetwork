@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as readline from 'readline';
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 
 /**
  * To use the script from package directory:

@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import DataFormat from '../src/index';
 
-// tslint:disable:no-unused-expression
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Request Network Data Validator', () => {
   it('should validate a correct invoice 0.0.1 format', async () => {
     const dataJson = require('./data/example-valid-0.0.1.json');

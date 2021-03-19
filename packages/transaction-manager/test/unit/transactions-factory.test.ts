@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 import TransactionsFactory from '../../src/transactions-factory';
@@ -6,7 +5,7 @@ import * as TestData from './utils/test-data';
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('transaction-factory', () => {
   describe('createClearTransaction', () => {
     it('can create clear transaction', async () => {
@@ -29,10 +28,10 @@ describe('transaction-factory', () => {
         TestData.idRaw2.encryptionParams,
         TestData.idRaw3.encryptionParams,
       ]);
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
 
       if (encryptedTx.encryptedData) {
-        // tslint:disable-next-line:no-magic-numbers
+        // eslint-disable-next-line no-magic-numbers
         // 'encryptedData not right'
         expect(encryptedTx.encryptedData.length).toBe(126);
         // 'encryptedData not right'
@@ -59,7 +58,7 @@ describe('transaction-factory', () => {
 
       // 'encrypted keys looks wrong'
       expect(
-        // tslint:disable-next-line:no-magic-numbers
+        // eslint-disable-next-line no-magic-numbers
         Object.values(encryptedTx.keys || {}).every((ek) => ek.length === 260),
       ).toBe(true);
       // 'encrypted keys looks wrong'
@@ -99,10 +98,10 @@ describe('transaction-factory', () => {
         method: EncryptionTypes.METHOD.AES256_GCM,
       };
       const encryptedTx = await TransactionsFactory.createEncryptedTransaction(data, channelKey);
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
 
       if (encryptedTx.encryptedData) {
-        // tslint:disable-next-line:no-magic-numbers
+        // eslint-disable-next-line no-magic-numbers
         // 'encryptedData not right'
         expect(encryptedTx.encryptedData.length).toBe(126);
         // 'encryptedData not right'

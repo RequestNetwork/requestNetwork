@@ -19,7 +19,7 @@ export const supportedNetworks = [
 ];
 
 const getPaymentNetwork = (request: ClientTypes.IRequestData): ExtensionTypes.ID | undefined => {
-  // tslint:disable-next-line: typedef
+  // eslint-disable-next-line
   return Object.values(request.extensions).find((x) => x.type === 'payment-network')?.id;
 };
 

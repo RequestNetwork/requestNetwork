@@ -15,8 +15,8 @@ const otherTransactionData = {
 let requestNodeInstance;
 let server: any;
 
-// tslint:disable:no-magic-numbers
-// tslint:disable:no-unused-expression
+/* eslint-disable no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('getTransactionsByChannelId', () => {
   beforeAll(async () => {
     requestNodeInstance = new requestNode();

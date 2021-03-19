@@ -7,7 +7,7 @@ import * as DataERC20AddPaymentAddress from '../../../utils/payment-network/erc2
 import * as DataERC20Create from '../../../utils/payment-network/erc20/proxy-contract-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action', () => {

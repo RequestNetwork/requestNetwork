@@ -177,7 +177,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async acceptRequest(
     requestParameters: RequestLogicTypes.IAcceptParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -227,7 +227,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async cancelRequest(
     requestParameters: RequestLogicTypes.ICancelParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -277,7 +277,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async increaseExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IIncreaseExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -327,7 +327,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async reduceExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IReduceExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -377,7 +377,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async addExtensionsDataRequest(
     requestParameters: RequestLogicTypes.IAddExtensionsDataParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -549,7 +549,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       .filter((action) => action !== null)
       .sort((a: any, b: any) => a.timestamp - b.timestamp);
 
-    // tslint:disable-next-line:prefer-const
+    // eslint-disable-next-line prefer-const
     let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(actions);
 
     // array of transaction without duplicates to avoid replay attack
@@ -678,7 +678,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const allRequestAndMetaPromises = Object.keys(channelsRawData.result.transactions).map(
       // Parses and removes corrupted or duplicated transactions
       async (channelId) => {
-        // tslint:disable-next-line:prefer-const
+        // eslint-disable-next-line prefer-const
         let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(
           transactionsByChannel[channelId],
         );
@@ -825,7 +825,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       pending = pendingRequestState;
     } else if (pendingRequestState) {
       for (const key in pendingRequestState) {
-        if (pendingRequestState.hasOwnProperty(key)) {
+        if (key in pendingRequestState) {
           // TODO: Should find a better way to do that
           if (
             Utils.crypto.normalizeKeccak256Hash(pendingRequestState[key]).value !==
@@ -834,7 +834,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             if (!pending) {
               pending = {};
             }
-            // tslint:disable-next-line:prefer-conditional-expression
+            // eslint-disable-next-line
             if (key === 'events') {
               // keep only the new events in pending
               pending[key] = pendingRequestState[key].slice(confirmedRequestState[key].length);

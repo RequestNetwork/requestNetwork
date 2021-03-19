@@ -1,7 +1,7 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
 
-const benchmark = require('benchmark');
+import * as benchmark from 'benchmark';
 
 const signatureInfo: Types.Signature.ISignatureParameters = {
   method: Types.Signature.METHOD.ECDSA,

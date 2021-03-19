@@ -1,6 +1,6 @@
 import PaymentReferenceCalculator from '../src/payment-reference-calculator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/payment-reference-calculator', () => {
   it('can calculate the payment reference', async () => {
     const expected = 'a0098add01acc736';

@@ -3,8 +3,6 @@ import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
 import { BigNumber } from 'ethers';
 
-/* eslint-disable spellcheck/spell-checker */
-
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const BLOCKSTREAMINFO_REQUEST_MAX_RETRY = 3;
 
@@ -39,7 +37,7 @@ export default class BlockstreamInfo implements PaymentTypes.IBitcoinDetectionPr
         retryDelay: BLOCKSTREAMINFO_REQUEST_RETRY_DELAY,
       })();
 
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
@@ -58,7 +56,7 @@ export default class BlockstreamInfo implements PaymentTypes.IBitcoinDetectionPr
           },
         )();
 
-        // tslint:disable-next-line:no-magic-numbers
+        // eslint-disable-next-line no-magic-numbers
         if (resExtraPage.status >= 400) {
           throw new Error(
             `Error ${resExtraPage.status}. Bad response from server ${baseUrl}/${address}`,
@@ -74,7 +72,7 @@ export default class BlockstreamInfo implements PaymentTypes.IBitcoinDetectionPr
 
       return this.parse({ address, txs }, eventName);
     } catch (err) {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.warn(err.message || err);
       return { balance: '-1', events: [] };
     }

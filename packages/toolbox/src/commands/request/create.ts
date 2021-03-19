@@ -7,7 +7,7 @@ export const builder = {
     default: '1000',
   },
 };
-// tslint:disable:no-console
+/* eslint-disable no-console */
 export const handler = (argv: any): void => {
   console.log(`Create request with amount ${argv.amount}`);
   CreateRequest.createTestRequest(argv.amount)

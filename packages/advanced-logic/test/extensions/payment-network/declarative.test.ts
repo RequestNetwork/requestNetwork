@@ -5,7 +5,7 @@ import Utils from '@requestnetwork/utils';
 import * as TestDataDeclarative from '../../utils/payment-network/any/generator-data-create';
 import * as TestData from '../../utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/any/declarative', () => {
   describe('createCreationAction', () => {
     it('can createCreationAction with payment and refund instruction', () => {

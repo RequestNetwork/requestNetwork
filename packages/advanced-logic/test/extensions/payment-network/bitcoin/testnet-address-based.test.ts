@@ -6,7 +6,7 @@ import * as DataBTCAddPaymentAddress from '../../../utils/payment-network/bitcoi
 import * as DataBTCCreate from '../../../utils/payment-network/bitcoin/testnet-generator-data-create';
 import * as TestData from '../../../utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
   describe('createCreationAction', () => {
     it('can createCreationAction with payment and refund', () => {

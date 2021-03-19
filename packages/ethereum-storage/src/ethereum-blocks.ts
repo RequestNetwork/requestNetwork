@@ -52,7 +52,7 @@ export default class EthereumBlocks {
     firstSignificantBlockNumber: number,
     retryDelay: number,
     maxRetries: number,
-    getLastBlockNumberMinDelay: number = 0,
+    getLastBlockNumberMinDelay = 0,
     logger?: LogTypes.ILogger,
   ) {
     this.eth = eth;
@@ -222,7 +222,7 @@ export default class EthereumBlocks {
     let currentBlockTimestamp;
     let result: StorageTypes.IBlockNumbersInterval | null = null;
 
-    let foundKnownBoundaries: boolean = false;
+    let foundKnownBoundaries = false;
     // We iterate on the known blocks from the first significant block until we found a blockTimestamp bigger than the timestamp
     while (!foundKnownBoundaries) {
       currentBlockTimestamp = this.blockTimestamp[currentBlockNumber];

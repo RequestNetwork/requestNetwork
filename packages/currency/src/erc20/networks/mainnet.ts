@@ -1,6 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 
-const metamaskContractMap = require('@metamask/contract-metadata');
+import * as metamaskContractMap from '@metamask/contract-metadata';
 
 // These interfaces are declared here because they should be used only in this context
 // A Token description from the eth-contract-metadata list
@@ -18,7 +18,6 @@ interface ITokenMap {
   [address: string]: ITokenDescription;
 }
 
-/* eslint-disable spellcheck/spell-checker */
 const extraERC20Tokens = {
   // INDA
   '0x433d86336dB759855A66cCAbe4338313a8A7fc77': {
@@ -48,9 +47,8 @@ const extraERC20Tokens = {
     address: '0x9bA00D6856a4eDF4665BcA2C2309936572473B7E',
   },
 };
-/* eslint-enable spellcheck/spell-checker */
 
-// // Merge metamask contracts list with our own
+// Merge metamask contracts list with our own
 const supportedERC20Tokens: ITokenMap = {
   ...metamaskContractMap,
   ...extraERC20Tokens,
@@ -59,7 +57,7 @@ const supportedERC20Tokens: ITokenMap = {
 // List of the supported mainnet ERC20 tokens
 export const supportedMainnetERC20 = new Map(
   Object.entries(supportedERC20Tokens)
-    .filter(([_, tokenObject]) => tokenObject.erc20)
+    .filter(([, tokenObject]) => tokenObject.erc20)
     .map(([address, tokenObject]) => {
       return [
         tokenObject.symbol,

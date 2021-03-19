@@ -1,7 +1,7 @@
 import Config from '../../src/config';
 import Version from '../../src/version';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('version', () => {
   it('can isSupported() on supported version', () => {
     const configVersionTest = { current: '1.2.3', exceptions: ['1.2.1'] };

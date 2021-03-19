@@ -15,7 +15,7 @@ const arbitraryDeltaAmount = '100000000000000000';
 const arbitraryDeltaAmountNegative = '-100000000000000000';
 const arbitraryExpectedAmountAfterDelta = '23400000000000000';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('actions/reduceExpectedAmount', () => {
   describe('format', () => {
     it('can reduce expected amount without extensionsData', async () => {

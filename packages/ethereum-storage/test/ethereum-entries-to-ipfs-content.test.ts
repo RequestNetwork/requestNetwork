@@ -5,12 +5,12 @@ import ethereumEntriesToIpfsContent from '../src/ethereum-entries-to-ipfs-conten
 import IgnoredDataIndex from '../src/ignored-dataIds';
 import IpfsConnectionError from '../src/ipfs-connection-error';
 
-// tslint:disable:no-magic-numbers
+/* eslint-disable no-magic-numbers */
 
 let ignoredDataIndex: IgnoredDataIndex;
 let ipfsManager: any;
 
-// tslint:disable:no-unused-expression
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('ethereum-entries-to-ipfs-content', () => {
   beforeEach(async () => {
     ignoredDataIndex = new IgnoredDataIndex();

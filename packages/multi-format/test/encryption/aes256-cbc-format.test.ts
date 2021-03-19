@@ -3,7 +3,7 @@ import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 import Aes256CbcFormat from '../../src/encryption/aes256-cbc-format';
 let aes256CbcFormat: Aes256CbcFormat;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('encryption/aes256-cbc-format', () => {
   beforeEach(() => {
     aes256CbcFormat = new Aes256CbcFormat();

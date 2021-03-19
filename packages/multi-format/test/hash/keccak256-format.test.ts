@@ -4,7 +4,7 @@ import Keccak256Format from '../../src/hash/keccak256-format';
 
 let keccak256Format: Keccak256Format;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('hash/keccak256-format', () => {
   beforeEach(() => {
     keccak256Format = new Keccak256Format();

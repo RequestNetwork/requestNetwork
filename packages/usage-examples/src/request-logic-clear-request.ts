@@ -37,7 +37,7 @@ const signatureProvider: SignatureProviderTypes.ISignatureProvider = new Ethereu
   },
 );
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 (async (): Promise<any> => {
   // Data access setup
   const dataAccess = new DataAccess(new MockStorage());

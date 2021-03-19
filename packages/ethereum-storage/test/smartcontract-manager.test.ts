@@ -1,10 +1,9 @@
-/* eslint-disable spellcheck/spell-checker */
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import EthereumBlocks from '../src/ethereum-blocks';
 import SmartContractManager from '../src/smart-contract-manager';
 
-// tslint:disable:no-magic-numbers
+/* eslint-disable no-magic-numbers */
 
 const web3HttpProvider = require('web3-providers-http');
 
@@ -136,7 +135,7 @@ const badEventsMock = [
     transactionHash: '0xb',
   },
 ];
-// tslint:disable-next-line:typedef
+// eslint-disable-next-line
 const getBadEventsMock = async () => badEventsMock;
 
 // This getPastEvents mock simulates cases where there could be more than 1000 results for a block interval
@@ -181,7 +180,7 @@ const txPerBlockConfiguration3 = [999, 999, 999, 999, 999, 1, 1, 1, 1, 1];
 const txPerBlockConfiguration4 = [1, 1, 1, 1, 1, 999, 999, 999, 999, 999];
 const txPerBlockConfiguration5 = [100, 200, 150, 400, 1, 670, 300, 140, 20, 600];
 
-// tslint:disable:no-magic-numbers
+/* eslint-disable no-magic-numbers */
 describe('SmartContractManager', () => {
   beforeEach(() => {
     smartContractManager = new SmartContractManager(web3Connection);
@@ -292,7 +291,7 @@ describe('SmartContractManager', () => {
       getBlock: (i: number): any => {
         return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
       },
-      // tslint:disable-next-line:typedef
+      // eslint-disable-next-line
       getBlockNumber: () => 9,
     };
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
@@ -317,7 +316,7 @@ describe('SmartContractManager', () => {
       getBlock: (i: number): any => {
         return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
       },
-      // tslint:disable-next-line:typedef
+      // eslint-disable-next-line
       getBlockNumber: () => 9,
     };
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
@@ -340,7 +339,7 @@ describe('SmartContractManager', () => {
       getBlock: (i: number): any => {
         return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
       },
-      // tslint:disable-next-line:typedef
+      // eslint-disable-next-line
       getBlockNumber: () => 9,
     };
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
@@ -381,7 +380,7 @@ describe('SmartContractManager', () => {
       getBlock: (i: number): any => {
         return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
       },
-      // tslint:disable-next-line:typedef
+      // eslint-disable-next-line
       getBlockNumber: () => 9,
     };
     smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);

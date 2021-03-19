@@ -104,7 +104,7 @@ export function encodeSwapToPayErc20FeeRequest(
   ) {
     throw new Error('Last item of the path should be the request currency');
   }
-  // tslint:disable-next-line:no-magic-numbers
+  // eslint-disable-next-line no-magic-numbers
   if (Date.now() > swapSettings.deadline * 1000) {
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
@@ -123,7 +123,7 @@ export function encodeSwapToPayErc20FeeRequest(
     `0x${paymentReference}`,
     feeToPay,
     feeAddress || constants.AddressZero,
-    // tslint:disable-next-line:no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     Math.round(swapSettings.deadline / 1000),
   ]);
 }

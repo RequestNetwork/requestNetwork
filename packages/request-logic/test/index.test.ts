@@ -37,7 +37,7 @@ const fakeMetaTransactionManager = {
 };
 let fakeTransactionManager: TransactionTypes.ITransactionManager;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('index', () => {
   beforeEach(() => {
     fakeTransactionManager = {
@@ -56,7 +56,7 @@ describe('index', () => {
               meta: { storageDataId: 'fakeDataId' },
               result: { topics: [fakeTxHash] },
             },
-            // tslint:disable-next-line:no-magic-numbers
+            // eslint-disable-next-line no-magic-numbers
             100,
           );
         });
@@ -173,7 +173,7 @@ describe('index', () => {
           fakeMetaTransactionManager,
         );
         setTimeout(() => {
-          // tslint:disable-next-line:no-magic-numbers
+          // eslint-disable-next-line no-magic-numbers
           fakeTransactionManagerWithEvent.emit('error', 'error for test purpose', 10);
         });
         return fakeTransactionManagerWithEvent;
@@ -185,7 +185,7 @@ describe('index', () => {
       );
       const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
 
-      // tslint:disable-next-line:typedef
+      // eslint-disable-next-line 
       const handleError = jest.fn((error: any) => {
         // 'error wrong'
         expect(error).toEqual('error for test purpose');
@@ -341,7 +341,7 @@ describe('index', () => {
           fakeMetaTransactionManager,
         );
         setTimeout(() => {
-          // tslint:disable-next-line:no-magic-numbers
+          // eslint-disable-next-line no-magic-numbers
           fakeTransactionManagerWithEvent.emit('error', 'error for test purpose', 10);
         });
         return fakeTransactionManagerWithEvent;
@@ -357,7 +357,7 @@ describe('index', () => {
         [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
       );
 
-      // tslint:disable-next-line:typedef
+      // eslint-disable-next-line 
       const handleError = jest.fn((error: any) => {
         // 'error wrong'
         expect(error).toEqual('error for test purpose');

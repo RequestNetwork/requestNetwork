@@ -71,7 +71,7 @@ function keccak256Hash(data: string): string {
  */
 function last20bytesOfNormalizedKeccak256Hash(data: any): string {
   const hash = keccak256Hash(normalize(data));
-  // tslint:disable-next-line:no-magic-numbers
+  // eslint-disable-next-line no-magic-numbers
   return `0x${hash.slice(-40)}`;
 }
 
@@ -84,7 +84,6 @@ async function generate32BufferKey(): Promise<string> {
   return (await CryptoWrapper.random32Bytes()).toString('base64');
 }
 
-// eslint-disable-next-line spellcheck/spell-checker
 /**
  * Generate 8 random bytes and return as a hexadecimal string.
  * Used for salt in ETH input data.

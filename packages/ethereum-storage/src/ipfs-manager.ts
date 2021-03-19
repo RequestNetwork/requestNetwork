@@ -5,8 +5,7 @@ import * as https from 'https';
 import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config';
 import IpfsConnectionError from './ipfs-connection-error';
 
-// eslint-disable-next-line spellcheck/spell-checker
-const unixfs = require('ipfs-unixfs');
+import * as unixfs from 'ipfs-unixfs';
 
 /**
  * Manages Ipfs communication used as storage
@@ -27,7 +26,7 @@ export default class IpfsManager {
   public readonly IPFS_API_CAT: string = '/api/v0/object/get';
   public readonly IPFS_API_STAT: string = '/api/v0/object/stat';
   public readonly IPFS_API_CONNECT_SWARM: string = '/api/v0/swarm/connect';
-  // eslint-disable-next-line spellcheck/spell-checker
+
   public readonly IPFS_API_ID: string = '/api/v0/id';
   public readonly IPFS_API_PIN: string = '/api/v0/pin/add';
   public readonly IPFS_API_BOOTSTRAP_LIST: string = '/api/v0/bootstrap/list';
@@ -93,7 +92,7 @@ export default class IpfsManager {
    * @param content Content to add to ipfs
    * @returns Promise resolving the hash of the new added content
    */
-  public add(content: string, retries: number = 0): Promise<string> {
+  public add(content: string, retries = 0): Promise<string> {
     // Promise to wait for response from server
     return new Promise<string>((resolve, reject): void => {
       // Preparing form data for add request
@@ -196,7 +195,7 @@ export default class IpfsManager {
   public read(
     hash: string,
     maxSize: number = Number.POSITIVE_INFINITY,
-    retries: number = 0,
+    retries = 0,
   ): Promise<StorageTypes.IIpfsObject> {
     // Promise to wait for response from server
     return new Promise<StorageTypes.IIpfsObject>((resolve, reject): void => {
@@ -299,7 +298,7 @@ export default class IpfsManager {
    * @param [timeout] An optional timeout for the IPFS pin request
    * @returns Promise resolving the hash pinned after pinning the content
    */
-  public pin(hashes: string[], timeout?: number, retries: number = 0): Promise<string[]> {
+  public pin(hashes: string[], timeout?: number, retries = 0): Promise<string[]> {
     // Promise to wait for response from server
     return new Promise<string[]>((resolve, reject): void => {
       // Construction get request
@@ -390,7 +389,7 @@ export default class IpfsManager {
    * @param hash Hash of the content
    * @returns Promise resolving size of the content
    */
-  public getContentLength(hash: string, retries: number = 0): Promise<number> {
+  public getContentLength(hash: string, retries = 0): Promise<number> {
     // Promise to wait for response from server
     return new Promise<number>((resolve, reject): void => {
       // Construction get request
@@ -566,10 +565,9 @@ export default class IpfsManager {
    * @returns the content without the padding
    */
   private getContentFromMarshaledData(marshaledData: Buffer): string {
-    // eslint-disable-next-line spellcheck/spell-checker
     const unmarshalData = unixfs.unmarshal(marshaledData).data.toString();
 
-    // eslint-disable-next-line spellcheck/spell-checker
+    // eslint-disable-next-line no-control-regex
     return unmarshalData.replace(/[\x00-\x09\x0B-\x1F\x7F-\uFFFF]/g, '');
   }
 }

@@ -1,4 +1,4 @@
-// tslint:disable:object-literal-sort-keys
+/* eslint-disable  */
 export const exampleAddressInfo = {
   hash160: '098644afadda014ec2b262ee87a05c592d315a52',
   address: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',

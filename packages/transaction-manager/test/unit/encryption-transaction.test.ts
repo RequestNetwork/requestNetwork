@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import MultiFormat from '@requestnetwork/multi-format';
 import { EncryptionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -14,7 +13,7 @@ const channelKey = {
 const encryptedData =
   '03QiFJRkpKMTTKl+e/xLzH51zkzYHGLVmrN584RhjA+pyFxEzJp1JVBOthL8mZAWv361mYOluCz2Y37G7EkGUb95dzQgLEzoEWAFCO6UipX5s=';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('encryption-transaction', () => {
   describe('getData', () => {
     it('can getData()', async () => {

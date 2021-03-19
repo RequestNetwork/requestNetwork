@@ -1,4 +1,4 @@
-/* eslint-disable spellcheck/spell-checker */
+
 import Utils from '@requestnetwork/utils';
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
@@ -12,8 +12,8 @@ const transactionHash = Utils.crypto.normalizeKeccak256Hash(transactionData).val
 let requestNodeInstance;
 let server: any;
 
-// tslint:disable:no-magic-numbers
-// tslint:disable:no-unused-expression
+/* eslint-disable no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('getConfirmedTransaction', () => {
   beforeAll(async () => {
     requestNodeInstance = new requestNode();

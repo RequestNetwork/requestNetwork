@@ -37,7 +37,7 @@
     "clean:lib": "shx rm -rf dist",
     "clean:sol": "shx rm -rf build",
     "clean": "yarn run clean:lib && yarn run clean:sol",
-    "lint:lib": "tslint --project . && eslint \"src/lib/**/*.ts\"",
+    "lint:lib": "eslint \"src/lib/**/*.ts\"",
     "lint:sol": "solium --dir src/contracts",
     "lint": "yarn run lint:lib && yarn run lint:sol",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
@@ -54,7 +54,6 @@
     "chai-bn": "0.2.1",
     "ethers": "5.0.32",
     "ganache-cli": "6.12.0",
-    "lint-staged": "10.3.0",
     "shx": "0.3.2",
     "truffle": "5.1.44"
   }

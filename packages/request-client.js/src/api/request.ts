@@ -29,7 +29,7 @@ export default class Request {
   /**
    * true if the creation emitted an event 'error'
    */
-  private confirmationErrorOccurredAtCreation: boolean = false;
+  private confirmationErrorOccurredAtCreation = false;
 
   /**
    * Data of the request (see request-logic)
@@ -59,7 +59,7 @@ export default class Request {
   /**
    * if true, skip the payment detection
    */
-  private skipPaymentDetection: boolean = false;
+  private skipPaymentDetection = false;
 
   /**
    * Creates an instance of Request

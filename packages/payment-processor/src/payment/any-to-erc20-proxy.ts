@@ -118,10 +118,10 @@ export async function encodePayAnyToErc20ProxyRequest(
     0,
   );
 
-  // tslint:disable-next-line:no-magic-numbers
+  // eslint-disable-next-line no-magic-numbers
   const amountToPay = getAmountToPay(request, amount).mul(10 ** decimalPadding);
 
-  // tslint:disable-next-line:no-magic-numbers
+  // eslint-disable-next-line no-magic-numbers
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0).mul(10 ** decimalPadding);
   const proxyAddress = proxyChainlinkConversionPath.getAddress(paymentSettings.currency.network);
   const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);

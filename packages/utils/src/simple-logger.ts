@@ -1,4 +1,4 @@
-// tslint:disable:no-console
+/* eslint-disable no-console */
 import { LogTypes } from '@requestnetwork/types';
 
 // The default log level to use if none is used at the constructor.

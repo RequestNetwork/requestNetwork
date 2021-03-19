@@ -13,7 +13,7 @@ import SmartContractManager from './smart-contract-manager';
 import * as Keyv from 'keyv';
 
 // time to wait before considering the web3 provider is not reachable
-const WEB3_PROVIDER_TIMEOUT: number = 10000;
+const WEB3_PROVIDER_TIMEOUT = 10000;
 
 /**
  * EthereumStorage
@@ -60,7 +60,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   private logger: LogTypes.ILogger;
 
-  private isInitialized: boolean = false;
+  private isInitialized = false;
 
   /**
    * Constructor
@@ -423,7 +423,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     const ids = entries.map((entry) => entry.id) || [];
     // Pin data asynchronously
-    // tslint:disable-next-line:no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.pinDataToIPFS(ids);
 
     // Save existing ethereum metadata to the ethereum metadata cache
@@ -473,7 +473,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param detailed if true get the list of the files hash
    * @returns Promise resolving object with dataIds retrieved and ignored
    */
-  public async _getStatus(detailed: boolean = false): Promise<any> {
+  public async _getStatus(detailed = false): Promise<any> {
     const dataIds = await this.ethereumMetadataCache.getDataIds();
     const dataIdsWithReason = await this.ignoredDataIds.getDataIdsWithReasons();
 
@@ -533,7 +533,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
     const ids = entries.map((entry) => entry.id) || [];
     // Pin data asynchronously
-    // tslint:disable-next-line:no-floating-promises
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.pinDataToIPFS(ids);
 
     // Save existing ethereum metadata to the ethereum metadata cache

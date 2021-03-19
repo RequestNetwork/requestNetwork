@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { EventEmitter } from 'events';
@@ -100,7 +99,7 @@ const signatureIdentity: IdentityTypes.IIdentity = {
 const bitcoinAddress = 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v';
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/request', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -110,13 +109,13 @@ describe('api/request', () => {
     expect(Request).toBeDefined();
 
     const request = new Request('1', mockRequestLogic);
-    // tslint:disable: no-unbound-method
+    /* eslint-disable @typescript-eslint/unbound-method */
     expect(typeof request.accept).toBe('function');
     expect(typeof request.cancel).toBe('function');
     expect(typeof request.increaseExpectedAmountRequest).toBe('function');
     expect(typeof request.reduceExpectedAmountRequest).toBe('function');
     expect(typeof request.getData).toBe('function');
-    // tslint:enable: no-unbound-method
+    /* eslint-enable @typescript-eslint/unbound-method */
   });
 
   it('emits error at the creation', async () => {
@@ -125,7 +124,7 @@ describe('api/request', () => {
       requestLogicCreateResult: testingEmitter as any,
     });
 
-    // tslint:disable-next-line:typedef
+    // eslint-disable-next-line
     const handleError = jest.fn((error: any) => {
       expect(error).toBe('error for test purpose');
     });

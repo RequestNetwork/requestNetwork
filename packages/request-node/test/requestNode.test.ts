@@ -1,4 +1,4 @@
-/* eslint-disable spellcheck/spell-checker */
+
 import * as httpStatus from 'http-status-codes';
 import * as request from 'supertest';
 import requestNode from '../src/requestNode';
@@ -13,8 +13,8 @@ const dataAccessInitializeFailureMock = async (): Promise<never> => {
 let requestNodeInstance;
 let server: any;
 
-// tslint:disable:no-magic-numbers
-// tslint:disable:no-unused-expression
+/* eslint-disable no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('requestNode server', () => {
   beforeAll(async () => {
     requestNodeInstance = new requestNode();

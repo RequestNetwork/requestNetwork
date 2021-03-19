@@ -10,7 +10,7 @@ const CURRENT_VERSION = Version.currentVersion;
 
 import * as TestData from '../utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('CreateAction', () => {
   describe('format', () => {
     it('can create with only the payee', async () => {

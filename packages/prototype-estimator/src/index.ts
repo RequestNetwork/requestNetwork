@@ -1,7 +1,8 @@
 import TestExecutor, { ITestCase } from './test-case-executor';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const longContent = require('./example-valid-0.0.2.json');
 
-// tslint:disable:object-literal-sort-keys
+/* eslint-disable  */
 // The test cases to run
 const testCases: ITestCase[] = [
   {
@@ -76,6 +77,6 @@ const testCases: ITestCase[] = [
   },
 ];
 
-// tslint:disable:no-floating-promises
-// tslint:disable:no-console
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable no-console */
 TestExecutor.executeTests(testCases).then((testCaseResult) => console.table(testCaseResult));

@@ -3,7 +3,8 @@ import { argv } from 'yargs';
 import { modeType } from './logger';
 
 // Load environment variables from .env file (without overriding variables already set)
-require('dotenv').config();
+import { config } from 'dotenv';
+config();
 
 /**
  * This contains default values used for the server and storage initialization
@@ -64,7 +65,7 @@ export function getServerPort(): number {
  * Get custom headers as a JSON stringified object from command line argument, environment variables or default values
  * @returns an object with the custom headers to be set
  */
-export function getCustomHeaders(): object {
+export function getCustomHeaders(): Record<string, string> {
   const headersString = argv.headers || process.env.HEADERS || defaultValues.server.headers;
 
   try {
@@ -275,7 +276,7 @@ export function getHelpMessage(): string {
         ipfsTimeout (${defaultValues.ethereumStorage.ipfs.timeout})\t\t\tTimeout threshold to connect to the IPFS gateway
 
       OTHER OPTIONS
-        storageMaxConcurrency (${defaultValues.ethereumStorage.concurrency})\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
+        storageMaxConcurrency (${defaultValues.ethereumStorage.maxConcurrency})\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
 
         logLevel (${defaultValues.log.level})\t\t\tThe node log level (ERROR, WARN, INFO or DEBUG)
         logMode (${defaultValues.log.mode})\t\t\tThe node log mode (human or machine)

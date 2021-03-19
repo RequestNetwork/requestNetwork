@@ -50,19 +50,18 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
   parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
     paymentAddress: '1LEMZPBit6tTtjXfaEfz4yYmTuctHWoMV',
   },
 };
 
-/* tslint:disable:no-floating-promises */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 const requestNetwork = new RequestNetwork.RequestNetwork({
   decryptionProvider,
   signatureProvider,
   useMockStorage: true,
 });
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 
 const createParams = {
   paymentNetwork,

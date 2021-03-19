@@ -35,12 +35,11 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.DECLARATIVE,
   parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
     paymentInformation: { IBAN: 'FR89370400440532013000', BIC: 'SABAIE2D' },
   },
 };
 
-/* tslint:disable:no-floating-promises */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 const requestNetwork = new RequestNetwork.RequestNetwork({
   signatureProvider,
   useMockStorage: true,
@@ -48,8 +47,8 @@ const requestNetwork = new RequestNetwork.RequestNetwork({
 
 // Create a request from the payee
 
-/* tslint:disable:no-console */
-// tslint:disable-next-line:typedef
+/* eslint-disable no-console */
+// eslint-disable-next-line
 (async () => {
   const request = await requestNetwork.createRequest({
     paymentNetwork,

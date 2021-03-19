@@ -1,4 +1,4 @@
-// tslint:disable:object-literal-sort-keys
+/* eslint-disable  */
 export const exampleAddressInfo = [
   {
     txid: '2ff7b73cb1b0dca6ccf079f9ad1d92832f9c56176e5181310c7c453dac7e477e',

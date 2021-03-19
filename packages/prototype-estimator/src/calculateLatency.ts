@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as readline from 'readline';
 import * as simpleStatistics from 'simple-statistics';
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 
 /**
  * To use the script from package directory:
@@ -25,13 +25,13 @@ let getTransactionsByChannelIdCount = 0;
 let persistTransactionCount = 0;
 
 // Array of getChannelsByTopic latency time
-let getChannelsByTopicTimes: number[] = [];
+const getChannelsByTopicTimes: number[] = [];
 
 // Array of getTransactionsByChannelId latency time
-let getTransactionsByChannelIdTimes: number[] = [];
+const getTransactionsByChannelIdTimes: number[] = [];
 
 // Array of persistTransaction latency time
-let persistTransactionTimes: number[] = [];
+const persistTransactionTimes: number[] = [];
 
 /**
  * Get a number between two substring in a string

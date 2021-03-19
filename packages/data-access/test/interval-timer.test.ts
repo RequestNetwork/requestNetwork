@@ -46,8 +46,8 @@ const intervalFunctionWithErrorMock = async (): Promise<void> => {
   }
 };
 
-// tslint:disable:no-magic-numbers
-// tslint:disable:no-empty
+/* eslint-disable no-magic-numbers */
+/* eslint-disable no-empty,@typescript-eslint/no-empty-function */
 describe('interval-timer', () => {
   beforeEach(async () => {
     intervalTimer = new IntervalTimer(async (): Promise<void> => {}, 1000, emptyLogger);

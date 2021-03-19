@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 // tslint-disable:completed-docs
 import retry from '../src/retry';
 
@@ -104,7 +103,7 @@ describe('Retry', () => {
     jest.useRealTimers();
   });
 
-  /* tslint:disable:no-magic-numbers */
+  /* eslint-disable no-magic-numbers */
   it('waits for the delay before retring (without fake timer)', async () => {
     let retrying = false;
     const spy = jest.fn(() => Date.now());

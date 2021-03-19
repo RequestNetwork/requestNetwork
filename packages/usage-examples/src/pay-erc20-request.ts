@@ -8,13 +8,13 @@ import {
 } from '@requestnetwork/payment-processor';
 import { RequestNetwork } from '@requestnetwork/request-client.js';
 
-/* tslint:disable:no-floating-promises */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 
 // for demo purpose
 const wallet = Wallet.createRandom();
 const requestNetwork = new RequestNetwork();
 
-// tslint:disable-next-line: typedef
+// eslint-disable-next-line
 (async () => {
   const account = wallet.address;
 

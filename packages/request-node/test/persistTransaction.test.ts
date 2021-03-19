@@ -15,8 +15,8 @@ const badlyFormattedTransactionData = { not: 'a transaction' };
 let requestNodeInstance;
 let server: any;
 
-// tslint:disable:no-magic-numbers
-// tslint:disable:no-unused-expression
+/* eslint-disable no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('persistTransaction', () => {
   beforeAll(async () => {
     requestNodeInstance = new requestNode();

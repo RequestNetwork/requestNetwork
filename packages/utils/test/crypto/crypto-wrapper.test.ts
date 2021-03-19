@@ -4,20 +4,20 @@ import utils from '../../src/utils';
 const anyData = 'this is any data!';
 const arbitraryKey = '12345678901234567890123456789012';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils.cryptoWrapper', () => {
   describe('random32Bytes', () => {
     it('can create a 32 bytes buffer', async () => {
       const randomBytes = await CryptoWrapper.random32Bytes();
       // 'random32Bytes() error'
       expect(Buffer.isBuffer(randomBytes)).toBe(true);
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
       // 'random32Bytes() error'
       expect(randomBytes.length).toBe(32);
     });
 
     it('can create 1000 buffers with no duplicates random32Bytes()', async () => {
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
       const promises = new Array(1000).fill('').map(async () => CryptoWrapper.random32Bytes());
       const randomBytes1000 = await Promise.all(promises);
       // 'randomBytes gives duplicate'

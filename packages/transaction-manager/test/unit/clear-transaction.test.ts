@@ -4,7 +4,7 @@ import ClearTransaction from '../../src/clear-transaction';
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('clear-transaction', () => {
   describe('getData', () => {
     it('can getData()', async () => {

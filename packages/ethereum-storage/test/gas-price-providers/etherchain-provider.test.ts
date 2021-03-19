@@ -1,5 +1,4 @@
-/* eslint-disable spellcheck/spell-checker */
-// tslint:disable: no-magic-numbers
+/* eslint-disable no-magic-numbers */
 
 import { StorageTypes } from '@requestnetwork/types';
 import EtherchainProvider from '../../src/gas-price-providers/etherchain-provider';

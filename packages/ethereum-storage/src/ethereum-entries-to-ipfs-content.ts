@@ -9,9 +9,9 @@ import IpfsManager from './ipfs-manager';
 
 // rate of the size of the Header of a ipfs file regarding its content size
 // used to estimate the size of a ipfs file from the content size
-const SAFE_RATE_HEADER_SIZE: number = 0.3;
+const SAFE_RATE_HEADER_SIZE = 0.3;
 // max ipfs header size
-const SAFE_MAX_HEADER_SIZE: number = 500;
+const SAFE_MAX_HEADER_SIZE = 500;
 
 /**
  * Verify the hashes are present on IPFS for the corresponding ethereum entry
@@ -27,11 +27,11 @@ export default async function EthereumEntriesToIpfsContent(
   maxConcurrency: number,
 ): Promise<StorageTypes.IEntry[]> {
   const totalCount: number = ethereumEntries.length;
-  let successCount: number = 0;
-  let successCountOnFirstTry: number = 0;
-  let ipfsConnectionErrorCount: number = 0;
-  let wrongFeesCount: number = 0;
-  let incorrectFileCount: number = 0;
+  let successCount = 0;
+  let successCountOnFirstTry = 0;
+  let ipfsConnectionErrorCount = 0;
+  let wrongFeesCount = 0;
+  let incorrectFileCount = 0;
 
   // Contains results from readHashOnIPFS function
   // We store hashAndSize in this array in order to know which hashes have not been found on IPFS

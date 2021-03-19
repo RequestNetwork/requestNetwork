@@ -2,7 +2,7 @@ import { DataAccess } from '@requestnetwork/data-access';
 import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
-const GET_TRANSACTIONS_TIMEOUT: number = 600000;
+const GET_TRANSACTIONS_TIMEOUT = 600000;
 
 /**
  * Handles getTransactionsByChannelId of data-access layer.

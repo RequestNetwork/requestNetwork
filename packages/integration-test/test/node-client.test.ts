@@ -15,7 +15,7 @@ const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
-// tslint:disable-next-line: no-magic-numbers
+// eslint-disable-next-line no-magic-numbers
 jest.setTimeout(10000);
 
 const payeeIdentity: IdentityTypes.IIdentity = {
@@ -214,8 +214,8 @@ describe('Request client using a request node', () => {
     });
 
     // wait 1,5 sec and store the timestamp
-    // tslint:disable:no-magic-numbers
-    // tslint:disable-next-line:typedef
+    /* eslint-disable no-magic-numbers */
+    // eslint-disable-next-line 
     await new Promise((r) => setTimeout(r, 1500));
     const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
 
@@ -291,8 +291,8 @@ describe('Request client using a request node', () => {
     });
 
     // wait 1,5 sec and store the timestamp
-    // tslint:disable:no-magic-numbers
-    // tslint:disable-next-line:typedef
+    /* eslint-disable no-magic-numbers */
+    // eslint-disable-next-line 
     await new Promise((r) => setTimeout(r, 1500));
 
     // get requests with boundaries

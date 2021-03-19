@@ -26,7 +26,7 @@ const AUTH_TAG_LENGTH = 16;
  * @returns Promise resolving the 32 bytes generated
  */
 async function random32Bytes(): Promise<Buffer> {
-  // tslint:disable-next-line:no-magic-numbers
+  // eslint-disable-next-line no-magic-numbers
   return randomBytes(32);
 }
 

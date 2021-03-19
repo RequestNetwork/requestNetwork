@@ -1,7 +1,7 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
 import crypto from '../src/crypto';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils.crypto', () => {
   it('can normalizeKeccak256Hash', () => {
     const arbitraryObject = {
@@ -23,13 +23,13 @@ describe('Utils.crypto', () => {
       param3: 'valA',
     };
 
-    /* tslint:disable:object-literal-sort-keys */
+    /* eslint-disable  */
     const arbitraryObjectSame = {
       param1: 'valC',
       param3: 'valA',
       param2: 'valB',
     };
-    /* tslint:enable:object-literal-sort-keys */
+    /* eslint-enable  */
     // 'normalizeKeccak256Hash(arbitraryObject) error'
     expect(crypto.normalizeKeccak256Hash(arbitraryObject)).toEqual({
       type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
@@ -56,7 +56,7 @@ describe('Utils.crypto', () => {
       param3: 'valA',
     };
 
-    /* tslint:disable:object-literal-sort-keys */
+    /* eslint-disable  */
     const arbitraryObjectSame = {
       param1: 'valC',
       param3: 'valA',
@@ -69,7 +69,7 @@ describe('Utils.crypto', () => {
         },
       },
     };
-    /* tslint:enable:object-literal-sort-keys */
+    /* eslint-enable  */
     // 'normalizeKeccak256Hash(arbitraryObject) error'
     expect(crypto.normalizeKeccak256Hash(arbitraryObject)).toEqual({
       type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
@@ -84,7 +84,7 @@ describe('Utils.crypto', () => {
 
   it('can normalize integer, null, string, undefined', () => {
     expect(crypto.normalize('TesT')).toBe('"test"');
-    // tslint:disable-next-line:no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     expect(crypto.normalize(12345)).toBe('12345');
     expect(crypto.normalize(null)).toBe('null');
     expect(crypto.normalize(undefined)).toBe('undefined');
@@ -107,8 +107,8 @@ describe('Utils.crypto', () => {
     );
   });
 
-  /* tslint:disable:no-unused-expression */
-  /* tslint:disable:no-magic-numbers */
+  /* eslint-disable @typescript-eslint/no-unused-expressions */
+  /* eslint-disable no-magic-numbers */
   describe('generate8randomBytes', () => {
     it('generates a 16 characters long string', async () => {
       // Do it 20 times because it's random. It's ok, it takes a few milliseconds

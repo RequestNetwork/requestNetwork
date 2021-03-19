@@ -1,6 +1,6 @@
 import EthereumBlocks from '../src/ethereum-blocks';
 
-// tslint:disable:no-magic-numbers
+/* eslint-disable no-magic-numbers */
 const mockBlocksEthereum = [
   7,
   100,
@@ -108,12 +108,12 @@ const mockEth = {
   getBlock: jest.fn((i: number): any => {
     return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
   }),
-  // tslint:disable-next-line:typedef
+  // eslint-disable-next-line 
   getBlockNumber: jest.fn(() => Promise.resolve(99)),
 };
 
-// tslint:disable:no-unused-expression
-// tslint:disable:object-literal-sort-keys
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable  */
 describe('EthereumBlocks', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -204,7 +204,7 @@ describe('EthereumBlocks', () => {
 
     it('must throw an error when eth crash', async () => {
       const mockEthThrower = {
-        // tslint:disable-next-line:typedef
+        // eslint-disable-next-line
         getBlockNumber: () => {
           throw Error('Exception to be caught');
         },

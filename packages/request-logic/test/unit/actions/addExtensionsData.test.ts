@@ -7,7 +7,7 @@ const CURRENT_VERSION = Version.currentVersion;
 
 import * as TestData from '../utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('actions/addExtensionsData', () => {
   describe('format', () => {
     it('can formatAddExtensionsData without extensionsData', () => {

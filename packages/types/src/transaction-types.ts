@@ -39,7 +39,7 @@ export interface IReturnPersistTransaction extends EventEmitter {
     encryptionMethod?: string;
   };
   /** result of the execution */
-  result: {};
+  result: Record<string, never>;
 }
 
 /** return interface for getTransactionsByChannelId  */

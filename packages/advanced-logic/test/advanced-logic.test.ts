@@ -12,7 +12,7 @@ import * as TestData from './utils/test-data-generator';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('advanced-logic.ts', () => {
   beforeEach(() => {
     advancedLogic = new AdvancedLogic();

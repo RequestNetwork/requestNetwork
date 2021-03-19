@@ -11,7 +11,7 @@ import IntervalTimer from './interval-timer';
 import TransactionIndex from './transaction-index';
 
 // Default interval time for auto synchronization
-const DEFAULT_INTERVAL_TIME: number = 10000;
+const DEFAULT_INTERVAL_TIME = 10000;
 
 /**
  * Options for the DataAccess initialization
@@ -48,7 +48,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   public transactionIndex: DataAccessTypes.ITransactionIndex;
 
   // boolean to store the initialization state
-  protected isInitialized: boolean = false;
+  protected isInitialized = false;
   // Storage layer
   private storage: StorageTypes.IStorage;
 
@@ -458,7 +458,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    *
    * @param detailed if true get the list of the files hashes
    */
-  public async _getStatus(detailed: boolean = false): Promise<any> {
+  public async _getStatus(detailed = false): Promise<any> {
     this.checkInitialized();
 
     // last transaction timestamp retrieved

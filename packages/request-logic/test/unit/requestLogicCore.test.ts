@@ -22,7 +22,7 @@ const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   extensions: {},
 };
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('requestLogicCore', () => {
   describe('applyActionToRequest', () => {
     it('cannot support unknown action', () => {

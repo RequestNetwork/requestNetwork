@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { EventEmitter } from 'events';
 
 import { DataAccessTypes, StorageTypes } from '@requestnetwork/types';
@@ -125,7 +124,7 @@ const defaultFakeStorage: StorageTypes.IStorage = {
       () => {
         appendResultWithEvent.emit('confirmed', appendResultConfirmed);
       },
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
       10,
     );
     return appendResultWithEvent;
@@ -147,8 +146,8 @@ const defaultFakeStorage: StorageTypes.IStorage = {
   },
 };
 
-// tslint:disable:no-magic-numbers
-/* tslint:disable:no-unused-expression */
+/* eslint-disable no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('data-access', () => {
   let testContext: any;
 
@@ -449,8 +448,8 @@ describe('data-access', () => {
       jest.advanceTimersByTime(11);
 
       expect(errFunction).not.toHaveBeenCalled();
-      /* tslint:disable:object-literal-sort-keys  */
-      /* tslint:disable:object-literal-key-quotes  */
+      /* eslint-disable  */
+      /* eslint-disable quote-props */
       expect(defaultFakeStorage.append).toHaveBeenCalledWith(
         JSON.stringify({
           header: {
@@ -512,7 +511,7 @@ describe('data-access', () => {
             () => {
               appendResultWithEvent.emit('error', 'error for test purpose');
             },
-            // tslint:disable-next-line:no-magic-numbers
+            // eslint-disable-next-line no-magic-numbers
             10,
           );
           return appendResultWithEvent;

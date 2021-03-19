@@ -1,7 +1,7 @@
 import { IdentityTypes } from '@requestnetwork/types';
 import Identity from '../src/identity';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Identity', () => {
   it('can normalizeIdentityValue()', () => {
     // 'normalizeIdentityValue("") error'

@@ -27,7 +27,7 @@ const arbitraryBlockHeader2 = {
   version: '0.1.0',
 };
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('LocationByTopic', () => {
   describe('pushStorageLocationIndexedWithBlockTopics', () => {
     it('can index new block', async () => {

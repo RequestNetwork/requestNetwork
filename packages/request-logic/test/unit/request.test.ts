@@ -6,7 +6,7 @@ import * as TestData from './utils/test-data-generator';
 import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Request', () => {
   describe('getRoleInRequest', () => {
     it('can getRoleInRequest()', () => {

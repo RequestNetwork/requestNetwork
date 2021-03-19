@@ -31,7 +31,7 @@ const btcProviderMockMinus1: PaymentTypes.IBitcoinDetectionProvider = {
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/btc/bitcoin-info-retriever', () => {
   describe('getAddressBalanceWithEvents', () => {
     it('should give the right value with two identical response', async () => {

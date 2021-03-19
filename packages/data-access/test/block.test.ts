@@ -39,7 +39,7 @@ const blockWith2tx = RequestDataAccessBlock.pushTransaction(
   [arbitraryTopic2],
 );
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('block', () => {
   describe('createEmptyBlock', () => {
     it('can create an empty block', () => {
@@ -507,8 +507,8 @@ describe('block', () => {
         arbitraryId2,
         [arbitraryTopic2],
       );
-      /* tslint:disable:object-literal-sort-keys  */
-      /* tslint:disable:object-literal-key-quotes  */
+      /* eslint-disable */
+      /* eslint-disable quote-props */
       const strExpected = JSON.stringify({
         header: {
           channelIds: {

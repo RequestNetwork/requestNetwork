@@ -35,7 +35,7 @@ const mockWeb3: any = {
 // use of infura only to initialize Web3SignatureProvider - but web3 is mocked afterward
 const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('web3-signature-provider', () => {
   describe('sign', () => {
     it('can sign', async () => {

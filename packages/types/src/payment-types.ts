@@ -108,7 +108,7 @@ export enum PAYMENT_NETWORK_ID {
 
 /** Generic info retriever interface */
 export interface IPaymentNetworkInfoRetriever<
-  TPaymentNetworkEvent extends IPaymentNetworkEvent<{}>
+  TPaymentNetworkEvent extends IPaymentNetworkEvent<unknown>
 > {
   getTransferEvents(): Promise<TPaymentNetworkEvent[]>;
 }
@@ -163,8 +163,6 @@ export interface IDeclarativePaymentEventParameters {
   note?: string;
 }
 /** Declarative Payment Network Event */
-export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<
-  IDeclarativePaymentEventParameters
->;
+export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;
 /** Declarative BalanceWithEvents */
 export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;

@@ -12,7 +12,7 @@ const isValidAddressMock = (valid = true): (() => boolean) => (): boolean => val
 
 const PAYMENT_NETWORK_TEST_GENERIC_ADDRESS_BASED = 'do-not-use!-pn-test-address-based' as ExtensionTypes.ID;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/address-based', () => {
   describe('createCreationAction', () => {
     it('can createCreationAction with payment and refund', () => {

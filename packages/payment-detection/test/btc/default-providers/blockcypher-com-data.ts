@@ -1,4 +1,4 @@
-// tslint:disable:object-literal-sort-keys
+/* eslint-disable  */
 export const exampleAddressInfo = {
   address: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
   total_received: 50500000,

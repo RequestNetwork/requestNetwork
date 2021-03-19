@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 const axios = require('axios');
 
 import {
@@ -102,7 +101,7 @@ const requestParameters: RequestLogicTypes.ICreateParameters = {
   timestamp: 1549956270,
 };
 
-/* tslint:disable:no-magic-numbers */
+/* eslint-disable no-magic-numbers */
 function mockAxios(): AxiosMockAdapter {
   const mock = new AxiosMockAdapter(axios);
   mock.onPost('/persistTransaction').reply(200, { result: {} });
@@ -134,7 +133,7 @@ const mockBTCProvider = {
 };
 
 // Integration tests
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('index', () => {
   afterEach(() => {
     jest.clearAllMocks();

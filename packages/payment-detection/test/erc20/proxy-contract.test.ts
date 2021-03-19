@@ -22,7 +22,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
 };
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
     erc20ProxyContract = new ERC20ProxyContract({ advancedLogic: mockAdvancedLogic });

@@ -48,7 +48,7 @@ export default class Web3SignatureProvider implements SignatureProviderTypes.ISi
     try {
       signatureValue = await signerEthers.signMessage(Buffer.from(normalizedData));
     } catch (error) {
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
       if (error.code === -32602) {
         throw new Error(`Impossible to sign for the identity: ${signer.value}`);
       }

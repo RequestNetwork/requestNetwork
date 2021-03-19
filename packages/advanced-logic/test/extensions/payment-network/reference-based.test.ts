@@ -12,7 +12,7 @@ const isValidAddressMock = (valid = true): (() => boolean) => (): boolean => val
 
 const PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED = 'do-not-use!-pn-test-reference-based' as ExtensionTypes.ID;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/reference-based', () => {
   describe('createCreationAction', () => {
     it('can createCreationAction with payment and refund', () => {

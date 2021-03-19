@@ -69,7 +69,7 @@ async function setup(): Promise<{ mockStorage: MockStorage; requestLogic: Reques
  * @returns
  */
 async function getSizeOfRequest(
-  // tslint:disable:object-literal-sort-keys
+  /* eslint-disable  */
   actions: any = {
     create: true,
     accept: false,

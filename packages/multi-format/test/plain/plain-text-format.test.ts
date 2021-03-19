@@ -4,7 +4,7 @@ import PlainTextFormat from '../../src/plain/plain-text-format';
 
 let plainTextFormat: PlainTextFormat;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('plain/plain-text-format', () => {
   beforeEach(() => {
     plainTextFormat = new PlainTextFormat();

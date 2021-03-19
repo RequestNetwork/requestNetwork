@@ -14,7 +14,7 @@ import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
 
 import { BigNumber } from 'ethers';
 
-// tslint:disable:max-classes-per-file
+/* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
 class NetworkNotSupported extends Error {}
 /** Exception when version not supported */
@@ -23,9 +23,7 @@ class VersionNotSupported extends Error {}
 /**
  * Handle payment networks with conversion proxy contract extension
  */
-export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProxyContract<
-  ExtensionTypes.PnAnyToErc20.IAnyToERC20
-> {
+export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProxyContract<ExtensionTypes.PnAnyToErc20.IAnyToERC20> {
   /**
    * @param extension The advanced logic payment network extensions
    */

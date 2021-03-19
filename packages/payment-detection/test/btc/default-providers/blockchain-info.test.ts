@@ -4,7 +4,7 @@ import BlockchainInfo from '../../../src/btc/default-providers/blockchain-info';
 import * as BlockchainInfoData from './blockchain-info-data';
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/btc/default-providers/blockchainInfo', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {

@@ -4,7 +4,7 @@ import EthereumUtils from '../src/ethereum-utils';
 
 import * as BigNumber from 'bn.js';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
 describe('Ethereum Utils', () => {
   describe('getEthereumNetworkNameFromId', () => {

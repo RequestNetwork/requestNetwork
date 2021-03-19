@@ -31,7 +31,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
 };
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/any/conversion-fee-proxy-contract', () => {
   beforeEach(() => {
     anyToErc20Proxy = new AnyToErc20Proxy({ advancedLogic: mockAdvancedLogic });
