@@ -7,7 +7,7 @@ import EthGasStationProvider from './gas-price-providers/ethgasstation-provider'
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 /**
  * Determines the gas price to use depending on the used network
@@ -49,14 +49,14 @@ export default class GasPriceDefiner {
       networkName ===
       EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)
     ) {
-      const gasPriceArray: Array<typeof bigNumber> = await this.pollProviders(type);
+      const gasPriceArray: Array<BigNumber> = await this.pollProviders(type);
 
       if (gasPriceArray.length > 0) {
         // Get the highest gas price from the providers
         return gasPriceArray
           .reduce(
-            (currentMax, gasPrice: typeof bigNumber) => bigNumber.max(currentMax, gasPrice),
-            new bigNumber(0),
+            (currentMax, gasPrice: BigNumber) => BigNumber.max(currentMax, gasPrice),
+            new BigNumber(0),
           )
           .toString();
       } else {
@@ -76,14 +76,16 @@ export default class GasPriceDefiner {
    * @param type Gas price type (fast, standard or safe low)
    * @returns Array containing each gas price
    */
-  public async pollProviders(type: StorageTypes.GasPriceType): Promise<Array<typeof bigNumber>> {
-    const gasPriceArray: Array<typeof bigNumber> = [];
+  public async pollProviders(type: StorageTypes.GasPriceType): Promise<Array<BigNumber>> {
+    const gasPriceArray: Array<BigNumber> = [];
 
     for (const gasPriceProvider of this.gasPriceProviderList) {
       try {
         // Get the gas price from the provider
         const providerGasPrice = await gasPriceProvider.getGasPrice(type);
-        gasPriceArray.push(providerGasPrice);
+        if (providerGasPrice) {
+          gasPriceArray.push(providerGasPrice);
+        }
       } catch (err) {
         // If the function throws, it means the gas price provider is not available or the value sent is not valid
         this.logger.warn(err, ['ethereum', 'gas']);

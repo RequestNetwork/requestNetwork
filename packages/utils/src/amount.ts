@@ -1,7 +1,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import Utils from './utils';
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 /**
  * Function to manage amounts
@@ -21,10 +21,10 @@ const regexInteger = RegExp(/^[\d]+$/);
  *
  * @returns boolean true if amount is a valid amount
  */
-function isValid(amount: RequestLogicTypes.Amount): boolean {
+function isValid(amount: RequestLogicTypes.Amount | BigNumber): boolean {
   return (
     (Utils.isString(amount) && regexInteger.test(amount as string)) ||
-    (typeof amount === 'number' && (Number.isSafeInteger(Number(amount)) && Number(amount) >= 0))
+    (typeof amount === 'number' && Number.isSafeInteger(Number(amount)) && Number(amount) >= 0)
   );
 }
 
@@ -44,8 +44,8 @@ function add(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount):
     throw Error('delta must represent a positive integer');
   }
 
-  const amountBN: typeof bigNumber = new bigNumber(amount);
-  const deltaBN: typeof bigNumber = new bigNumber(delta);
+  const amountBN: BigNumber = new BigNumber(amount);
+  const deltaBN: BigNumber = new BigNumber(delta);
   return amountBN.add(deltaBN).toString();
 }
 
@@ -67,8 +67,8 @@ function reduce(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amoun
     throw Error('delta must represent a positive integer');
   }
 
-  const amountBN: typeof bigNumber = new bigNumber(amount);
-  const deltaBN: typeof bigNumber = new bigNumber(delta);
+  const amountBN: BigNumber = new BigNumber(amount);
+  const deltaBN: BigNumber = new BigNumber(delta);
   const newAmount = amountBN.sub(deltaBN).toString();
 
   // Check if the new amount is valid (basically it is not negative)

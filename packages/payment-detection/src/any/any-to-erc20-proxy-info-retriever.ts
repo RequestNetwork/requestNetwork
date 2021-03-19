@@ -1,6 +1,8 @@
 import { getDecimalsForCurrency, getCurrencyHash } from '@requestnetwork/currency';
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
+import { getDefaultProvider } from '../provider';
+import { parseLogArgs } from '../utils';
 
 // The conversion proxy smart contract ABI fragment containing TransferWithConversionAndReference event
 const erc20ConversionProxyContractAbiFragment = [
@@ -12,6 +14,24 @@ const erc20FeeProxyContractAbiFragment = [
   'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
 ];
 
+/** TransferWithConversionAndReference event */
+type TransferWithConversionAndReferenceArgs = {
+  amount: BigNumber;
+  currency: string;
+  paymentReference: string;
+  feeAmount: BigNumber;
+  maxRateTimespan: BigNumber;
+};
+
+/** TransferWithReferenceAndFee event */
+type TransferWithReferenceAndFeeArgs = {
+  tokenAddress: string;
+  to: string;
+  amount: BigNumber;
+  paymentReference: string;
+  feeAmount: BigNumber;
+  feeAddress: string;
+};
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
@@ -44,10 +64,7 @@ export default class ProxyERC20InfoRetriever
     private maxRateTimespan: number = 0,
   ) {
     // Creates a local or default provider
-    this.provider =
-      this.network === 'private'
-        ? new ethers.providers.JsonRpcProvider()
-        : ethers.getDefaultProvider(this.network);
+    this.provider = getDefaultProvider(this.network);
 
     // Setup the conversion proxy contract interface
     this.contractConversionProxy = new ethers.Contract(
@@ -106,40 +123,40 @@ export default class ProxyERC20InfoRetriever
       // Parses the logs
       .map((log) => {
         const parsedConversionLog = this.contractConversionProxy.interface.parseLog(log);
-
         const proxyLog = feeLogs.find((l) => l.transactionHash === log.transactionHash);
-        let parsedProxyLog;
-        if (proxyLog) {
-          parsedProxyLog = this.contractERC20FeeProxy.interface.parseLog(proxyLog);
+        if (!proxyLog) {
+          throw new Error('proxy log not found');
         }
-        return { parsedConversionLog, log, parsedProxyLog };
+        const parsedProxyLog = this.contractERC20FeeProxy.interface.parseLog(proxyLog);
+        return {
+          transactionHash: log.transactionHash,
+          blockNumber: log.blockNumber,
+          conversionLog: parseLogArgs<TransferWithConversionAndReferenceArgs>(parsedConversionLog),
+          proxyLog: parseLogArgs<TransferWithReferenceAndFeeArgs>(parsedProxyLog),
+        };
       })
       // Keeps only the log with the right token and the right destination address
       // With ethers v5, the criteria below can be added to the conversionFilter (PROT-1234)
       .filter(
-        (log) =>
+        ({ conversionLog, proxyLog }) =>
           // filter the token allowed
           (!this.acceptedTokens ||
-            this.acceptedTokens.includes(log.parsedProxyLog!.values.tokenAddress.toLowerCase())) &&
+            this.acceptedTokens.includes(proxyLog.tokenAddress.toLowerCase())) &&
           // check the rate timespan
-          this.maxRateTimespan >= log.parsedConversionLog.values.maxRateTimespan.toNumber() &&
+          this.maxRateTimespan >= conversionLog.maxRateTimespan.toNumber() &&
           // check the requestCurrency
           getCurrencyHash(this.requestCurrency).toLowerCase() ===
-            log.parsedConversionLog.values.currency.toLowerCase() &&
+            conversionLog.currency.toLowerCase() &&
           // check to address
-          log.parsedProxyLog!.values.to.toLowerCase() === this.toAddress.toLowerCase(),
+          proxyLog.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
-      .map(async (t) => {
+      .map(async ({ conversionLog, proxyLog, blockNumber, transactionHash }) => {
         const chainlinkDecimal = 8;
         const decimalPadding = chainlinkDecimal - getDecimalsForCurrency(this.requestCurrency);
 
-        const amountWithRightDecimal = ethers.utils
-          .bigNumberify(t.parsedConversionLog.values.amount.toString())
-          .div(10 ** decimalPadding)
-          .toString();
-        const feeAmountWithRightDecimal = ethers.utils
-          .bigNumberify(t.parsedConversionLog.values.feeAmount.toString() || 0)
+        const amountWithRightDecimal = conversionLog.amount.div(10 ** decimalPadding).toString();
+        const feeAmountWithRightDecimal = conversionLog.feeAmount
           .div(10 ** decimalPadding)
           .toString();
 
@@ -147,17 +164,17 @@ export default class ProxyERC20InfoRetriever
           amount: amountWithRightDecimal,
           name: this.eventName,
           parameters: {
-            block: t.log.blockNumber,
-            feeAddress: t.parsedProxyLog!.values.feeAddress || undefined,
+            block: blockNumber,
+            feeAddress: proxyLog.feeAddress || undefined,
             feeAmount: feeAmountWithRightDecimal,
-            feeAmountInCrypto: t.parsedProxyLog?.values.amount.toString() || undefined,
-            amountInCrypto: t.parsedProxyLog?.values.feeAmount.toString(),
-            tokenAddress: t.parsedProxyLog!.values.tokenAddress,
+            feeAmountInCrypto: proxyLog.feeAmount.toString() || undefined,
+            amountInCrypto: proxyLog.amount.toString(),
+            tokenAddress: proxyLog.tokenAddress,
             to: this.toAddress,
-            txHash: t.log.transactionHash,
-            maxRateTimespan: t.parsedConversionLog.values.maxRateTimespan.toString(),
+            txHash: transactionHash,
+            maxRateTimespan: conversionLog.maxRateTimespan.toString(),
           },
-          timestamp: (await this.provider.getBlock(t.log.blockNumber || 0)).timestamp,
+          timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
         };
       });
 

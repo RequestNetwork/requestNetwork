@@ -1,6 +1,4 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
-import { BigNumberish } from 'ethers/utils';
+import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
 
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
@@ -22,7 +20,7 @@ import {
  */
 export async function payEthInputDataRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {

@@ -1,6 +1,4 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Provider } from 'ethers/providers';
-import { BigNumberish } from 'ethers/utils';
+import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
 
 import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
@@ -26,7 +24,7 @@ export async function approveErc20ForProxyConversionIfNeeded(
   request: ClientTypes.IRequestData,
   ownerAddress: string,
   paymentTokenAddress: string,
-  signerOrProvider: Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
@@ -63,7 +61,7 @@ export async function approveErc20ForProxyConversionIfNeeded(
 export async function approveErc20ForProxyConversion(
   request: ClientTypes.IRequestData,
   paymentTokenAddress: string,
-  signerOrProvider: Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const network =

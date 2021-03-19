@@ -9,11 +9,10 @@ import {
   approveErc20ForProxyConversionIfNeeded,
 } from '@requestnetwork/payment-processor';
 
-import { Wallet, utils } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
+import { Wallet, providers, BigNumber } from 'ethers';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const provider = new JsonRpcProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 // tslint:disable-next-line: no-magic-numbers
@@ -582,7 +581,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     }
 
     // USD => token
-    const maxToSpend = new utils.BigNumber(2).pow(255);
+    const maxToSpend = BigNumber.from(2).pow(255);
     const paymentTx = await payRequest(data, wallet, undefined, undefined, {
       currency: {
         type: Types.RequestLogic.CURRENCY.ERC20,
@@ -604,11 +603,11 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(event?.parameters?.feeAmount).toBe('200');
     expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
     // amount in crypto after apply the rates of the fake aggregators
-    expect(event?.parameters?.feeAmountInCrypto).toBe('9900990099009900990');
+    expect(event?.parameters?.feeAmountInCrypto).toBe('1980198019801980198');
     expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
     expect(event?.parameters?.tokenAddress).toBe('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
     // amount in crypto after apply the rates of the fake aggregators
-    expect(event?.parameters?.amountInCrypto).toBe('1980198019801980198');
+    expect(event?.parameters?.amountInCrypto).toBe('9900990099009900990');
     expect(event?.parameters?.maxRateTimespan).toBe('1000000');
   });
 });

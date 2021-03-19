@@ -1,5 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
+import { getDefaultProvider } from '../provider';
 
 // The ERC20 smart contract ABI fragment containing decimals property and Transfer event
 const erc20BalanceOfAbiFragment = [
@@ -66,10 +67,7 @@ export default class ERC20InfoRetriever
    */
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     // Creates a local or default provider
-    const provider =
-      this.network === 'private'
-        ? new ethers.providers.JsonRpcProvider()
-        : ethers.getDefaultProvider(this.network);
+    const provider = getDefaultProvider(this.network);
 
     // Setup the ERC20 contract interface
     const contract = new ethers.Contract(
@@ -87,19 +85,19 @@ export default class ERC20InfoRetriever
     const logs = await provider.getLogs(filter);
 
     // Clean up the Transfer logs data
-    const eventPromises = logs.map(async log => {
+    const eventPromises = logs.map(async (log) => {
       if (!log.blockNumber) {
         throw new Error('Block number not found');
       }
       const block = await provider.getBlock(log.blockNumber);
       const parsedLog = contract.interface.parseLog(log);
       return {
-        amount: parsedLog.values.value.toString(),
+        amount: parsedLog.args.value.toString(),
         name: this.eventName,
         parameters: {
           block: block.number,
-          from: parsedLog.values.from,
-          to: parsedLog.values.to,
+          from: parsedLog.args.from,
+          to: parsedLog.args.to,
           txHash: log.transactionHash,
         },
         timestamp: block.timestamp,

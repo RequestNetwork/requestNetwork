@@ -7,7 +7,7 @@ import fetch from 'node-fetch';
 
 /* eslint-disable spellcheck/spell-checker */
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const ETHERSCAN_REQUEST_MAX_RETRY: number = 3;
@@ -31,7 +31,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
    * Fetch library to send http requests
    * This value is left public for mocking purpose
    */
-  public fetch: typeof fetch = fetch;
+  public fetch = fetch;
 
   /**
    * Gets gas price from etherscan.io API
@@ -39,7 +39,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
    * @param type Type of the gas price (fast, standard or safe low)
    * @returns Requested gas price
    */
-  public async getGasPrice(type: StorageTypes.GasPriceType): Promise<typeof bigNumber | null> {
+  public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber | null> {
     const res = await Utils.retry(async () => this.fetch(this.providerUrl), {
       maxRetries: ETHERSCAN_REQUEST_MAX_RETRY,
       retryDelay: ETHERSCAN_REQUEST_RETRY_DELAY,
@@ -73,7 +73,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
     }
 
     // Retrieve the gas price from the provided gas price type and the format of the API response
-    const apiGasPrice = new bigNumber(
+    const apiGasPrice = new BigNumber(
       parseInt(
         {
           [StorageTypes.GasPriceType.FAST]: result.FastGasPrice,

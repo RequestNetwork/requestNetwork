@@ -9,8 +9,8 @@ contract('EthereumProxy', function (accounts) {
   const otherGuy = accounts[2];
   let ethProxy;
   const referenceExample = '0xaaaa';
-  const DEFAULT_GAS_PRICE = new ethers.utils.BigNumber('100000000000');
-  const amount = new ethers.utils.BigNumber('10000000000000000');
+  const DEFAULT_GAS_PRICE = ethers.BigNumber.from('100000000000');
+  const amount = ethers.BigNumber.from('10000000000000000');
   const provider = new ethers.providers.JsonRpcProvider();
 
   beforeEach(async () => {
@@ -43,7 +43,7 @@ contract('EthereumProxy', function (accounts) {
       gasPrice: DEFAULT_GAS_PRICE,
     });
 
-    const gasCost = DEFAULT_GAS_PRICE.mul(new ethers.utils.BigNumber(tx.receipt.gasUsed));
+    const gasCost = DEFAULT_GAS_PRICE.mul(ethers.BigNumber.from(tx.receipt.gasUsed));
 
     const fromNewBalance = await provider.getBalance(from);
     const toNewBalance = await provider.getBalance(to);
