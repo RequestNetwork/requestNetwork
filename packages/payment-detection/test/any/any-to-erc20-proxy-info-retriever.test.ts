@@ -54,7 +54,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         ],
         transactionHash: '0x08fa12d6647053fc1ff21179ec1b16d3825144cb3840957f98830b8e416516f1',
         logIndex: 4,
-        removed: false, // TODO ??
+        removed: false,
       };
 
       proxyConversionLog = {
@@ -70,7 +70,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         ],
         transactionHash: '0x08fa12d6647053fc1ff21179ec1b16d3825144cb3840957f98830b8e416516f1',
         logIndex: 5,
-        removed: false, // TODO ??
+        removed: false,
       };
       infoRetriever = new AnyToErc20ProxyInfoRetriever(
         USDCurrency,
@@ -103,10 +103,10 @@ describe('api/any/conversion-proxy-info-retriever', () => {
       expect(typeof parameters.txHash).toBe('string');
 
       expect(parameters.feeAmount).toBe('200');
-      expect(parameters.feeAmountInCrypto).toBe('9983084661349808883');
+      expect(parameters.feeAmountInCrypto).toBe('1996616932269961776');
       expect(parameters.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
 
-      expect(parameters.amountInCrypto).toBe('1996616932269961776');
+      expect(parameters.amountInCrypto).toBe('9983084661349808883');
       expect(parameters.tokenAddress).toBe(erc20LocalhostContractAddress);
     });
 
