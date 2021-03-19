@@ -13,14 +13,22 @@ export default {
    * @param networkId Id of the network
    * @return name of the network
    */
-  getEthereumNetworkNameFromId(networkId: StorageTypes.EthereumNetwork): string {
+  getEthereumNetworkNameFromId(
+    networkId: StorageTypes.EthereumNetwork
+  ): string {
     return {
-      [StorageTypes.EthereumNetwork.PRIVATE as StorageTypes.EthereumNetwork]: 'private',
-      [StorageTypes.EthereumNetwork.MAINNET as StorageTypes.EthereumNetwork]: 'mainnet',
-      [StorageTypes.EthereumNetwork.KOVAN as StorageTypes.EthereumNetwork]: 'kovan',
-      [StorageTypes.EthereumNetwork.RINKEBY as StorageTypes.EthereumNetwork]: 'rinkeby',
-      [StorageTypes.EthereumNetwork.XDAI as StorageTypes.EthereumNetwork]: 'xdai',
-
+      [StorageTypes.EthereumNetwork
+        .PRIVATE as StorageTypes.EthereumNetwork]: 'private',
+      [StorageTypes.EthereumNetwork
+        .MAINNET as StorageTypes.EthereumNetwork]: 'mainnet',
+      [StorageTypes.EthereumNetwork
+        .KOVAN as StorageTypes.EthereumNetwork]: 'kovan',
+      [StorageTypes.EthereumNetwork
+        .RINKEBY as StorageTypes.EthereumNetwork]: 'rinkeby',
+      [StorageTypes.EthereumNetwork
+        .XDAI as StorageTypes.EthereumNetwork]: 'xdai',
+      [StorageTypes.EthereumNetwork
+        .SOKOL as StorageTypes.EthereumNetwork]: 'sokol'
     }[networkId];
   },
 
@@ -35,7 +43,8 @@ export default {
    */
   isGasPriceSafe(gasPrice: typeof bigNumber): boolean {
     return (
-      gasPrice.gt(new bigNumber(0)) && gasPrice.lt(new bigNumber(config.getSafeGasPriceLimit()))
+      gasPrice.gt(new bigNumber(0)) &&
+      gasPrice.lt(new bigNumber(config.getSafeGasPriceLimit()))
     );
-  },
+  }
 };
