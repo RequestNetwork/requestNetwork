@@ -5,9 +5,9 @@ import Identity from '../src/identity';
 describe('Identity', () => {
   it('can normalizeIdentityValue()', () => {
     // 'normalizeIdentityValue("") error'
-    expect(
-      Identity.normalizeIdentityValue('0xe241d3757DAd0Ef86D0FCc5fE90e20f955743eD5')
-    ).toBe('0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5');
+    expect(Identity.normalizeIdentityValue('0xe241d3757DAd0Ef86D0FCc5fE90e20f955743eD5')).toBe(
+      '0xe241d3757dad0ef86d0fcc5fe90e20f955743ed5',
+    );
   });
 
   it('can areEqual() two identities', () => {

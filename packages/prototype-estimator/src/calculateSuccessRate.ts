@@ -23,7 +23,6 @@ let persistTransactionFailureCount = 0;
 // Parses each lines of the log file
 readlineInterface.on('line', (line: string) => {
   if (line.includes('#metric') && line.includes('#successRate')) {
-
     if (line.includes('persistTransaction successfully completed')) {
       persistTransactionSuccessCount += 1;
     } else if (line.includes('persistTransaction fail')) {
@@ -38,7 +37,7 @@ readlineInterface.on('close', () => {
   if (transactionCount === 0) {
     console.log(`No transaction done`);
   } else {
-    const successRate = (persistTransactionSuccessCount * 100) / (transactionCount);
+    const successRate = (persistTransactionSuccessCount * 100) / transactionCount;
     console.log(`${transactionCount} transactions done`);
     console.log(`\n${successRate}% transactions successfully done`);
   }

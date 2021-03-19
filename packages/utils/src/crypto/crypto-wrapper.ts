@@ -133,14 +133,12 @@ async function decryptWithAes256gcm(encryptedAndIv: Buffer, key: Buffer): Promis
  * @returns Promise resolving the N bytes generated
  */
 async function randomBytes(n: number): Promise<Buffer> {
-  return new Promise(
-    (resolve, reject): any => {
-      cryptoRandomBytes(n, (error, buffer) => {
-        if (error) {
-          return reject(`Error generating random bytes: ${error}`);
-        }
-        return resolve(buffer);
-      });
-    },
-  );
+  return new Promise((resolve, reject): any => {
+    cryptoRandomBytes(n, (error, buffer) => {
+      if (error) {
+        return reject(`Error generating random bytes: ${error}`);
+      }
+      return resolve(buffer);
+    });
+  });
 }

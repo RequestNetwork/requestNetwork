@@ -45,11 +45,9 @@ export default (
         if (retry < maxRetries) {
           retry++;
           // Wait for the delay before retrying
-          await new Promise(
-            (resolve: any): void => {
-              setTimeout(resolve, retryDelay);
-            },
-          );
+          await new Promise((resolve: any): void => {
+            setTimeout(resolve, retryDelay);
+          });
 
           return retryFunction(...innerArgs);
         } else {

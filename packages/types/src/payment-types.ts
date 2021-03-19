@@ -163,6 +163,8 @@ export interface IDeclarativePaymentEventParameters {
   note?: string;
 }
 /** Declarative Payment Network Event */
-export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;
+export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<
+  IDeclarativePaymentEventParameters
+>;
 /** Declarative BalanceWithEvents */
 export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;

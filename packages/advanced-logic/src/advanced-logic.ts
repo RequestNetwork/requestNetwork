@@ -62,9 +62,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: feeProxyContractErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: ethereumInputData,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: anyToErc20Proxy,
-    } [id];
+    }[id];
 
-    if(!extension) {
+    if (!extension) {
       throw Error(`extension not recognized, id: ${id}`);
     }
 

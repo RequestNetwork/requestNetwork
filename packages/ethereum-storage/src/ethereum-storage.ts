@@ -236,7 +236,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
 
         result.emit('confirmed', resultAfterBroadcast);
       })
-      .catch(error => {
+      .catch((error) => {
         result.emit('error', error);
       });
 
@@ -421,7 +421,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       this.maxConcurrency,
     );
 
-    const ids = entries.map(entry => entry.id) || [];
+    const ids = entries.map((entry) => entry.id) || [];
     // Pin data asynchronously
     // tslint:disable-next-line:no-floating-promises
     this.pinDataToIPFS(ids);
@@ -531,7 +531,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       this.maxConcurrency,
     );
 
-    const ids = entries.map(entry => entry.id) || [];
+    const ids = entries.map((entry) => entry.id) || [];
     // Pin data asynchronously
     // tslint:disable-next-line:no-floating-promises
     this.pinDataToIPFS(ids);
@@ -571,8 +571,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     try {
       const bootstrapList = await this.ipfsManager.getBootstrapList();
 
-      const bootstrapNodeFoundCount: number = getIpfsExpectedBootstrapNodes().filter(nodeExpected =>
-        bootstrapList.includes(nodeExpected),
+      const bootstrapNodeFoundCount: number = getIpfsExpectedBootstrapNodes().filter(
+        (nodeExpected) => bootstrapList.includes(nodeExpected),
       ).length;
 
       if (bootstrapNodeFoundCount !== getIpfsExpectedBootstrapNodes().length) {

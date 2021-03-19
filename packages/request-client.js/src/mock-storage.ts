@@ -103,7 +103,7 @@ export default class MockStorage implements StorageTypes.IStorage {
   }
 
   public async readMany(ids: string[]): Promise<StorageTypes.IEntry[]> {
-    return Promise.all(ids.map(id => this.read(id)));
+    return Promise.all(ids.map((id) => this.read(id)));
   }
 
   public async getData(): Promise<StorageTypes.IEntriesWithLastTimestamp> {

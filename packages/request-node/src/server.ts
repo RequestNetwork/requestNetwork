@@ -43,7 +43,7 @@ if (argv.h) {
   // tslint:disable:no-console
   console.log(config.getHelpMessage());
 } else {
-  startNode().catch(error => {
+  startNode().catch((error) => {
     logger.error(error);
     process.exit(1);
   });

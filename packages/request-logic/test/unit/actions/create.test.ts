@@ -244,66 +244,65 @@ describe('CreateAction', () => {
       expect(actionCreation.data.parameters.payer.value).toBe(TestData.payerRaw.address);
     });
 
-    it(
-      'can create with the payee but the payer is a smartcontract',
-      async () => {
-        const actionCreation = await CreateAction.format(
-          {
-            currency: {
-              type: RequestLogicTypes.CURRENCY.ETH,
-              value: 'ETH',
-            },
-            expectedAmount: TestData.arbitraryExpectedAmount,
-            payee: {
-              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-              value: TestData.payeeRaw.address,
-            },
-            payer: {
-              network: 'private',
-              type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
-              value: TestData.payerRaw.address,
-            } as IdentityTypes.ISmartContractIdentity,
-            timestamp: TestData.arbitraryTimestamp,
+    it('can create with the payee but the payer is a smartcontract', async () => {
+      const actionCreation = await CreateAction.format(
+        {
+          currency: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
           },
-          TestData.payeeRaw.identity,
-          TestData.fakeSignatureProvider,
-        );
-        // 'action is wrong'
-        expect(actionCreation.data.name).toBe(RequestLogicTypes.ACTION_NAME.CREATE);
-        // 'actionCreation.data.version is wrong'
-        expect(actionCreation.data.version).toBe(CURRENT_VERSION);
+          expectedAmount: TestData.arbitraryExpectedAmount,
+          payee: {
+            type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+            value: TestData.payeeRaw.address,
+          },
+          payer: {
+            network: 'private',
+            type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+            value: TestData.payerRaw.address,
+          } as IdentityTypes.ISmartContractIdentity,
+          timestamp: TestData.arbitraryTimestamp,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+      // 'action is wrong'
+      expect(actionCreation.data.name).toBe(RequestLogicTypes.ACTION_NAME.CREATE);
+      // 'actionCreation.data.version is wrong'
+      expect(actionCreation.data.version).toBe(CURRENT_VERSION);
 
-        // 'currency is wrong'
-        expect(actionCreation.data.parameters.currency).toEqual({
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        });
-        // 'expectedAmount is wrong'
-        expect(actionCreation.data.parameters.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
-        // 'timestamp is wrong'
-        expect(actionCreation.data.parameters.timestamp).toBe(TestData.arbitraryTimestamp);
-        // 'nonce is wrong'
-        expect(actionCreation.data.parameters.nonce).toBeUndefined();
-        // 'extensionsData is wrong'
-        expect(actionCreation.data.parameters.extensionsData).toBeUndefined();
+      // 'currency is wrong'
+      expect(actionCreation.data.parameters.currency).toEqual({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
+      // 'expectedAmount is wrong'
+      expect(actionCreation.data.parameters.expectedAmount).toBe(TestData.arbitraryExpectedAmount);
+      // 'timestamp is wrong'
+      expect(actionCreation.data.parameters.timestamp).toBe(TestData.arbitraryTimestamp);
+      // 'nonce is wrong'
+      expect(actionCreation.data.parameters.nonce).toBeUndefined();
+      // 'extensionsData is wrong'
+      expect(actionCreation.data.parameters.extensionsData).toBeUndefined();
 
-        // 'actionCreation.data.parameters.payer is wrong'
-        expect(actionCreation.data.parameters).toHaveProperty('payer');
-        // 'actionCreation.data.parameters.payer.type is wrong'
-        expect(actionCreation.data.parameters.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT);
-        // 'actionCreation.data.parameters.payer.value is wrong'
-        expect(actionCreation.data.parameters.payer.value).toBe(TestData.payerRaw.address);
-        // 'actionCreation.data.parameters.payer.network is wrong'
-        expect(actionCreation.data.parameters.payer.network).toBe('private');
+      // 'actionCreation.data.parameters.payer is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payer');
+      // 'actionCreation.data.parameters.payer.type is wrong'
+      expect(actionCreation.data.parameters.payer.type).toBe(
+        IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+      );
+      // 'actionCreation.data.parameters.payer.value is wrong'
+      expect(actionCreation.data.parameters.payer.value).toBe(TestData.payerRaw.address);
+      // 'actionCreation.data.parameters.payer.network is wrong'
+      expect(actionCreation.data.parameters.payer.network).toBe('private');
 
-        // 'actionCreation.data.parameters.payee is wrong'
-        expect(actionCreation.data.parameters).toHaveProperty('payee');
-        // 'actionCreation.data.parameters.payee.type is wrong'
-        expect(actionCreation.data.parameters.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-        // 'actionCreation.data.parameters.payee.value is wrong'
-        expect(actionCreation.data.parameters.payee.value).toBe(TestData.payeeRaw.address);
-      }
-    );
+      // 'actionCreation.data.parameters.payee is wrong'
+      expect(actionCreation.data.parameters).toHaveProperty('payee');
+      // 'actionCreation.data.parameters.payee.type is wrong'
+      expect(actionCreation.data.parameters.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'actionCreation.data.parameters.payee.value is wrong'
+      expect(actionCreation.data.parameters.payee.value).toBe(TestData.payeeRaw.address);
+    });
 
     it('cannot create with a smartcontract', () => {
       expect(() =>
@@ -555,46 +554,40 @@ describe('CreateAction', () => {
         ),
       ).toThrowError('expectedAmount must be a positive integer');
     });
-    it(
-      'does not support other identity type than "ethereumAddress" for Payee',
-      () => {
-        const params: any = {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ETH,
-            value: 'ETH',
-          },
-          expectedAmount: '1000',
-          payee: {
-            type: 'not_ethereumAddress',
-            value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-          },
-          payer: TestData.payerRaw.identity,
-        };
-        expect(() =>
-          CreateAction.format(params, TestData.payerRaw.identity, TestData.fakeSignatureProvider),
-        ).toThrowError('payee: identity type not supported');
-      }
-    );
-    it(
-      'does not support other identity type than "ethereumAddress" for Payer',
-      () => {
-        const params: any = {
-          currency: {
-            type: RequestLogicTypes.CURRENCY.ETH,
-            value: 'ETH',
-          },
-          expectedAmount: '1000',
-          payee: TestData.payeeRaw.identity,
-          payer: {
-            type: 'not_ethereumAddress',
-            value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-          },
-        };
-        expect(() =>
-          CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
-        ).toThrowError('payer: identity type not supported');
-      }
-    );
+    it('does not support other identity type than "ethereumAddress" for Payee', () => {
+      const params: any = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: '1000',
+        payee: {
+          type: 'not_ethereumAddress',
+          value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+        },
+        payer: TestData.payerRaw.identity,
+      };
+      expect(() =>
+        CreateAction.format(params, TestData.payerRaw.identity, TestData.fakeSignatureProvider),
+      ).toThrowError('payee: identity type not supported');
+    });
+    it('does not support other identity type than "ethereumAddress" for Payer', () => {
+      const params: any = {
+        currency: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+        expectedAmount: '1000',
+        payee: TestData.payeeRaw.identity,
+        payer: {
+          type: 'not_ethereumAddress',
+          value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
+        },
+      };
+      expect(() =>
+        CreateAction.format(params, TestData.payeeRaw.identity, TestData.fakeSignatureProvider),
+      ).toThrowError('payer: identity type not supported');
+    });
 
     it('does not support other identity value not ethereum for Payee', () => {
       const params: any = {
@@ -654,7 +647,9 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      expect(request.requestId).toBe(
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
+      );
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -724,7 +719,9 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      expect(request.requestId).toBe(
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
+      );
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -794,7 +791,9 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      expect(request.requestId).toBe(
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
+      );
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -863,7 +862,9 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      expect(request.requestId).toBe(
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
+      );
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -927,7 +928,9 @@ describe('CreateAction', () => {
         signature: TestData.fakeSignature,
       };
 
-      expect(() => CreateAction.createRequest(action, 2)).toThrowError('action.parameters.payee or action.parameters.payer must be given');
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError(
+        'action.parameters.payee or action.parameters.payer must be given',
+      );
     });
 
     it('cannot create with amount not a number', () => {
@@ -949,7 +952,7 @@ describe('CreateAction', () => {
       };
 
       expect(() => CreateAction.createRequest(action, 2)).toThrowError(
-        'action.parameters.expectedAmount must be a string representing a positive integer'
+        'action.parameters.expectedAmount must be a string representing a positive integer',
       );
     });
 
@@ -971,7 +974,7 @@ describe('CreateAction', () => {
         signature: TestData.fakeSignature,
       };
       expect(() => CreateAction.createRequest(action, 2)).toThrowError(
-        'action.parameters.expectedAmount must be a string representing a positive integer'
+        'action.parameters.expectedAmount must be a string representing a positive integer',
       );
     });
 
@@ -993,7 +996,7 @@ describe('CreateAction', () => {
         signature: TestData.fakeSignature,
       };
       expect(() => CreateAction.createRequest(action, 2)).toThrowError(
-        'action.parameters.expectedAmount must be a string representing a positive integer'
+        'action.parameters.expectedAmount must be a string representing a positive integer',
       );
     });
 
@@ -1024,7 +1027,9 @@ describe('CreateAction', () => {
       const request = CreateAction.createRequest(actionCreation, 2);
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      expect(request.requestId).toBe(
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
+      );
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -1090,99 +1095,97 @@ describe('CreateAction', () => {
         },
         signature: TestData.fakeSignature,
       };
-      expect(() => CreateAction.createRequest(action, 2)).toThrowError('Signer must be the payee or the payer');
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError(
+        'Signer must be the payee or the payer',
+      );
     });
 
-    it(
-      'does not support other identity type than "ethereumAddress" for Payee',
-      () => {
-        const action = {
-          data: {
-            name: RequestLogicTypes.ACTION_NAME.CREATE,
-            parameters: {
-              currency: 'ETH',
-              expectedAmount: TestData.arbitraryExpectedAmount,
-              extensionsData: [{ id: 'extension1', value: 'whatever' }],
-              payee: {
-                type: 'not_ethereumAddress',
-                value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-              },
+    it('does not support other identity type than "ethereumAddress" for Payee', () => {
+      const action = {
+        data: {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: 'ETH',
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            extensionsData: [{ id: 'extension1', value: 'whatever' }],
+            payee: {
+              type: 'not_ethereumAddress',
+              value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
-            version: CURRENT_VERSION,
           },
-          signature: TestData.fakeSignature,
-        };
-        expect(() => CreateAction.createRequest(action, 2)).toThrowError('payee: identity type not supported');
-      }
-    );
+          version: CURRENT_VERSION,
+        },
+        signature: TestData.fakeSignature,
+      };
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError(
+        'payee: identity type not supported',
+      );
+    });
 
-    it(
-      'does not support other identity type than "ethereumAddress" for Payer',
-      () => {
-        const action = {
-          data: {
-            name: RequestLogicTypes.ACTION_NAME.CREATE,
-            parameters: {
-              currency: 'ETH',
-              expectedAmount: TestData.arbitraryExpectedAmount,
-              extensionsData: [{ id: 'extension1', value: 'whatever' }],
-              payer: {
-                type: 'not_ethereumAddress',
-                value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
-              },
+    it('does not support other identity type than "ethereumAddress" for Payer', () => {
+      const action = {
+        data: {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: 'ETH',
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            extensionsData: [{ id: 'extension1', value: 'whatever' }],
+            payer: {
+              type: 'not_ethereumAddress',
+              value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
             },
-            version: CURRENT_VERSION,
           },
-          signature: TestData.fakeSignature,
-        };
-        expect(() => CreateAction.createRequest(action, 2)).toThrowError('payer: identity type not supported');
-      }
-    );
+          version: CURRENT_VERSION,
+        },
+        signature: TestData.fakeSignature,
+      };
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError(
+        'payer: identity type not supported',
+      );
+    });
 
-    it(
-      'does not support identity value not being an "ethereumAddress" for Payee',
-      () => {
-        const action = {
-          data: {
-            name: RequestLogicTypes.ACTION_NAME.CREATE,
-            parameters: {
-              currency: 'ETH',
-              expectedAmount: TestData.arbitraryExpectedAmount,
-              extensionsData: [{ id: 'extension1', value: 'whatever' }],
-              payee: {
-                type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-                value: 'not an address',
-              },
+    it('does not support identity value not being an "ethereumAddress" for Payee', () => {
+      const action = {
+        data: {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: 'ETH',
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            extensionsData: [{ id: 'extension1', value: 'whatever' }],
+            payee: {
+              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+              value: 'not an address',
             },
-            version: CURRENT_VERSION,
           },
-          signature: TestData.fakeSignature,
-        };
-        expect(() => CreateAction.createRequest(action, 2)).toThrowError('payee: identity value must be an ethereum address');
-      }
-    );
+          version: CURRENT_VERSION,
+        },
+        signature: TestData.fakeSignature,
+      };
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError(
+        'payee: identity value must be an ethereum address',
+      );
+    });
 
-    it(
-      'does not support identity value not being an "ethereumAddress" for Payer',
-      () => {
-        const action = {
-          data: {
-            name: RequestLogicTypes.ACTION_NAME.CREATE,
-            parameters: {
-              currency: 'ETH',
-              expectedAmount: TestData.arbitraryExpectedAmount,
-              extensionsData: [{ id: 'extension1', value: 'whatever' }],
-              payer: {
-                type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-                value: 'not an address',
-              },
+    it('does not support identity value not being an "ethereumAddress" for Payer', () => {
+      const action = {
+        data: {
+          name: RequestLogicTypes.ACTION_NAME.CREATE,
+          parameters: {
+            currency: 'ETH',
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            extensionsData: [{ id: 'extension1', value: 'whatever' }],
+            payer: {
+              type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+              value: 'not an address',
             },
-            version: CURRENT_VERSION,
           },
-          signature: TestData.fakeSignature,
-        };
-        expect(() => CreateAction.createRequest(action, 2)).toThrowError('payer: identity value must be an ethereum address');
-      }
-    );
+          version: CURRENT_VERSION,
+        },
+        signature: TestData.fakeSignature,
+      };
+      expect(() => CreateAction.createRequest(action, 2)).toThrowError(
+        'payer: identity value must be an ethereum address',
+      );
+    });
   });
 });

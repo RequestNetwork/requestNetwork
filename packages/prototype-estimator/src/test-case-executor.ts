@@ -64,12 +64,12 @@ function executeTests(testCasesArgument: ITestCase[]): Promise<ITestCaseResults[
       return previousPromise.then((previousResults: ITestCaseResults[]) => {
         // Promise to run the size benchmark on the test case
         const sizeTestPromise = testCase.benchmarks.size
-          ? getSizeOfRequest(testCase.case).then(size => ({ size }))
+          ? getSizeOfRequest(testCase.case).then((size) => ({ size }))
           : Promise.resolve(null);
 
         // Promise to run the speed benchmark on the test case
         const speedTestPromise = testCase.benchmarks.speed
-          ? getCreateRequestThroughput(testCase.case).then(result => ({
+          ? getCreateRequestThroughput(testCase.case).then((result) => ({
               countPerSec: result.countPerSec,
             }))
           : Promise.resolve(null);

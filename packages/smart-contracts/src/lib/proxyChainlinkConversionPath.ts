@@ -6,7 +6,8 @@ const ARTIFACTS_VERSION: string = artifactsProxyChainlinkConversionPath.lastVers
  * @returns the abi of the artifact as a json object
  */
 export function getContractAbi(): any {
-  const artifactFilename: string = artifactsProxyChainlinkConversionPath[ARTIFACTS_VERSION].artifact;
+  const artifactFilename: string =
+    artifactsProxyChainlinkConversionPath[ARTIFACTS_VERSION].artifact;
 
   const artifact = require(`../../artifacts/ProxyChainlinkConversionPath/${artifactFilename.replace(
     /\.[^/.]+$/,
@@ -51,7 +52,8 @@ export function getDeploymentInformation(
   networkName: string,
   artifactsVersion: string = ARTIFACTS_VERSION,
 ): { address: string; creationBlockNumber: number } {
-  const deploymentInformation = artifactsProxyChainlinkConversionPath[artifactsVersion].deployment[networkName];
+  const deploymentInformation =
+    artifactsProxyChainlinkConversionPath[artifactsVersion].deployment[networkName];
 
   // Check the artifact has been deployed into the specified network
   if (!deploymentInformation) {

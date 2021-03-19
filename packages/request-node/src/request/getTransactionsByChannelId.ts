@@ -46,7 +46,10 @@ export default async function getTransactionsByChannelId(
 
       // Log the request time
       const requestEndTime = Date.now();
-      logger.debug(`getTransactionsByChannelId latency: ${requestEndTime - requestStartTime}ms`, ['metric', 'latency']);
+      logger.debug(`getTransactionsByChannelId latency: ${requestEndTime - requestStartTime}ms`, [
+        'metric',
+        'latency',
+      ]);
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {

@@ -75,52 +75,52 @@ const createParams = {
 createParams.requestInfo.timestamp = RequestNetwork.Utils.getCurrentTimestampInSecond();
 requestNetwork
   .computeRequestId(createParams)
-  .then(requestId => {
+  .then((requestId) => {
     console.log(`The request will be created with ID ${requestId}`);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error.message || error);
     process.exit(1);
   });
 
 requestNetwork
   .createRequest(createParams)
-  .then(request => {
+  .then((request) => {
     console.log('clear request:');
     console.log(request.requestId);
     request
       .waitForConfirmation()
-      .then(confirmedRequest => {
+      .then((confirmedRequest) => {
         console.log('clear confirmed request:');
         console.log(confirmedRequest);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error.message || error);
         process.exit(1);
       });
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error.message || error);
     process.exit(1);
   });
 
 requestNetwork
   ._createEncryptedRequest(createParams, [payeeEncryptionParameters, payerEncryptionParameters])
-  .then(request => {
+  .then((request) => {
     console.log('encrypted request:');
     console.log(request.requestId);
     request
       .waitForConfirmation()
-      .then(confirmedRequest => {
+      .then((confirmedRequest) => {
         console.log('encrypted confirmed request:');
         console.log(confirmedRequest);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error.message || error);
         process.exit(1);
       });
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error.message || error);
     process.exit(1);
   });

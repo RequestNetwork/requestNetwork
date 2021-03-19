@@ -63,10 +63,10 @@ const signatureProvider: SignatureProviderTypes.ISignatureProvider = new Ethereu
 
   return result;
 })()
-  .then(request => {
+  .then((request) => {
     console.log(request.requestId);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error.message || error);
     process.exit(1);
   });

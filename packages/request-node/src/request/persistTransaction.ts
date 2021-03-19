@@ -73,7 +73,7 @@ export default class PersistTransaction {
         );
 
         // when the transaction is confirmed, store the information to be serve when requested
-        dataAccessResponse.on('confirmed', async dataAccessConfirmedResponse => {
+        dataAccessResponse.on('confirmed', async (dataAccessConfirmedResponse) => {
           await this.confirmedTransactionStore.addConfirmedTransaction(
             transactionHash.value,
             dataAccessConfirmedResponse,
@@ -82,7 +82,7 @@ export default class PersistTransaction {
         });
 
         // when the transaction fails, log an error
-        dataAccessResponse.on('error', async e => {
+        dataAccessResponse.on('error', async (e) => {
           const logData = [
             'transactionHash',
             transactionHash.value,

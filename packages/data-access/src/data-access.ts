@@ -157,7 +157,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // get all the topics not well formatted
     const notFormattedTopics: string[] = topics.filter(
-      topic => !MultiFormat.hashFormat.isDeserializableString(topic),
+      (topic) => !MultiFormat.hashFormat.isDeserializableString(topic),
     );
 
     if (notFormattedTopics.length !== 0) {
@@ -206,7 +206,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
         result.emit('confirmed', resultAfterConfirmation);
       })
-      .on('error', async error => {
+      .on('error', async (error) => {
         result.emit('error', error);
       });
 
@@ -252,7 +252,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       storageMeta: string[];
     }> =
       // for all the blocks found
-      blockWithMetaList.map(blockAndMeta => {
+      blockWithMetaList.map((blockAndMeta) => {
         // Gets the list of positions of the transaction needed from the block
         const transactionPositions: number[] = Block.getTransactionPositionFromChannelId(
           blockAndMeta.block,
@@ -310,8 +310,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const channelIds = await this.transactionIndex.getChannelIdsForTopic(topic, updatedBetween);
 
     // Gets the transactions per channel id
-    const transactionsAndMeta = Bluebird.map(channelIds, channelId =>
-      this.getTransactionsByChannelId(channelId).then(transactionsWithMeta => ({
+    const transactionsAndMeta = Bluebird.map(channelIds, (channelId) =>
+      this.getTransactionsByChannelId(channelId).then((transactionsWithMeta) => ({
         channelId,
         transactionsWithMeta,
       })),
@@ -360,7 +360,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
     this.checkInitialized();
 
-    if (topics.some(topic => !MultiFormat.hashFormat.isDeserializableString(topic))) {
+    if (topics.some((topic) => !MultiFormat.hashFormat.isDeserializableString(topic))) {
       throw new Error(`The topics are not well formatted`);
     }
 
@@ -370,8 +370,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // Gets the transactions per channel id
-    const transactionsAndMeta = Bluebird.map(channelIds, channelId =>
-      this.getTransactionsByChannelId(channelId).then(transactionsWithMeta => ({
+    const transactionsAndMeta = Bluebird.map(channelIds, (channelId) =>
+      this.getTransactionsByChannelId(channelId).then((transactionsWithMeta) => ({
         channelId,
         transactionsWithMeta,
       })),
@@ -497,7 +497,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     }
     let parsingErrorCount = 0;
     let proceedCount = 0;
-    await Bluebird.each(entries, async entry => {
+    await Bluebird.each(entries, async (entry) => {
       if (!entry.content || !entry.id) {
         throw Error(`data from storage do not follow the standard`);
       }
@@ -539,7 +539,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   > {
     // Gets blocks indexed by topic
     return Promise.all(
-      storageLocationList.map(async location => {
+      storageLocationList.map(async (location) => {
         const resultRead = await this.storage.read(location);
 
         return {

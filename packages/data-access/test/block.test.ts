@@ -109,9 +109,7 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       // 'transactions are wrong'
-      expect(previousBlock.transactions).toEqual([
-        transactionMock,
-      ]);
+      expect(previousBlock.transactions).toEqual([transactionMock]);
 
       // 'header is wrong'
       expect(newBlock.header).toEqual({
@@ -125,10 +123,7 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       // 'transactions are wrong'
-      expect(newBlock.transactions).toEqual([
-        transactionMock,
-        transactionMock2,
-      ]);
+      expect(newBlock.transactions).toEqual([transactionMock, transactionMock2]);
     });
     it('can pushTransaction without topics on an empty block', () => {
       const newBlock = RequestDataAccessBlock.pushTransaction(
@@ -178,9 +173,7 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       // 'transactions are wrong'
-      expect(previousBlock.transactions).toEqual([
-        transactionMock,
-      ]);
+      expect(previousBlock.transactions).toEqual([transactionMock]);
 
       // 'header is wrong'
       expect(newBlock.header).toEqual({
@@ -192,10 +185,7 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       // 'transactions are wrong'
-      expect(newBlock.transactions).toEqual([
-        transactionMock,
-        transactionMock2,
-      ]);
+      expect(newBlock.transactions).toEqual([transactionMock, transactionMock2]);
     });
     it('can pushTransaction with topics with topics already existing', () => {
       const newBlock = RequestDataAccessBlock.pushTransaction(
@@ -218,10 +208,7 @@ describe('block', () => {
         version: CURRENT_VERSION,
       });
       // 'transactions are wrong'
-      expect(newBlock.transactions).toEqual([
-        transactionMock,
-        transactionMock2,
-      ]);
+      expect(newBlock.transactions).toEqual([transactionMock, transactionMock2]);
     });
     it('cannot pushTransaction without property data', () => {
       // 'must throw'
@@ -252,10 +239,7 @@ describe('block', () => {
       newBlock = RequestDataAccessBlock.pushTransaction(newBlock, transactionMock2, arbitraryId2);
       const allTxs = RequestDataAccessBlock.getAllTransactions(newBlock);
       // 'transactions must be empty'
-      expect(allTxs).toEqual([
-        transactionMock,
-        transactionMock2,
-      ]);
+      expect(allTxs).toEqual([transactionMock, transactionMock2]);
     });
   });
 
@@ -340,29 +324,23 @@ describe('block', () => {
       // 'txs is wrong'
       expect(txs).toEqual([transactionMock, transactionMock2]);
     });
-    it(
-      'can getTransactionsByPositions on more than one transaction with array not sorted',
-      () => {
-        const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [1, 0]);
-        // 'txs is wrong'
-        expect(txs).toEqual([transactionMock, transactionMock2]);
-      }
-    );
-    it(
-      'can getTransactionsByPositions on more than one transaction with array duplication',
-      () => {
-        const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [
-          1,
-          1,
-          0,
-          1,
-          0,
-          0,
-        ]);
-        // 'txs is wrong'
-        expect(txs).toEqual([transactionMock, transactionMock2]);
-      }
-    );
+    it('can getTransactionsByPositions on more than one transaction with array not sorted', () => {
+      const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [1, 0]);
+      // 'txs is wrong'
+      expect(txs).toEqual([transactionMock, transactionMock2]);
+    });
+    it('can getTransactionsByPositions on more than one transaction with array duplication', () => {
+      const txs = RequestDataAccessBlock.getTransactionsByPositions(blockWith2tx, [
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+      ]);
+      // 'txs is wrong'
+      expect(txs).toEqual([transactionMock, transactionMock2]);
+    });
   });
 
   describe('getTransactionPositionsByChannelIds', () => {
@@ -382,44 +360,35 @@ describe('block', () => {
       // 'txs is wrong'
       expect(txs).toEqual([0]);
     });
-    it(
-      'can getTransactionPositionsByChannelIds on more than one transaction',
-      () => {
-        const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
-          arbitraryId1,
-          arbitraryId2,
-        ]);
-        // 'txs is wrong'
-        expect(txs).toEqual([0, 1]);
-      }
-    );
-    it(
-      'can getTransactionPositionsByChannelIds on more than one transaction with array not sorted',
-      () => {
-        const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
-          arbitraryId2,
-          arbitraryId1,
-        ]);
-        // 'txs is wrong'
-        expect(txs).toEqual([0, 1]);
-      }
-    );
-    it(
-      'can getTransactionPositionsByChannelIds on more than one transaction with array duplication',
-      () => {
-        const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
-          arbitraryId2,
-          arbitraryId1,
-          arbitraryId2,
-          arbitraryId2,
-          arbitraryId1,
-          arbitraryId1,
-          arbitraryId1,
-        ]);
-        // 'txs is wrong'
-        expect(txs).toEqual([0, 1]);
-      }
-    );
+    it('can getTransactionPositionsByChannelIds on more than one transaction', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
+        arbitraryId1,
+        arbitraryId2,
+      ]);
+      // 'txs is wrong'
+      expect(txs).toEqual([0, 1]);
+    });
+    it('can getTransactionPositionsByChannelIds on more than one transaction with array not sorted', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
+        arbitraryId2,
+        arbitraryId1,
+      ]);
+      // 'txs is wrong'
+      expect(txs).toEqual([0, 1]);
+    });
+    it('can getTransactionPositionsByChannelIds on more than one transaction with array duplication', () => {
+      const txs = RequestDataAccessBlock.getTransactionPositionsByChannelIds(blockWith2tx, [
+        arbitraryId2,
+        arbitraryId1,
+        arbitraryId2,
+        arbitraryId2,
+        arbitraryId1,
+        arbitraryId1,
+        arbitraryId1,
+      ]);
+      // 'txs is wrong'
+      expect(txs).toEqual([0, 1]);
+    });
   });
 
   describe('parseBlock', () => {
@@ -430,12 +399,16 @@ describe('block', () => {
 
     it('cannot parse a data not following the block standard', async () => {
       const blockNotJson = 'This is not JSON';
-      expect(() => RequestDataAccessBlock.parseBlock(blockNotJson)).toThrowError(`Impossible to JSON parse the data: `);
+      expect(() => RequestDataAccessBlock.parseBlock(blockNotJson)).toThrowError(
+        `Impossible to JSON parse the data: `,
+      );
 
       const blockWithoutHeader = {
         transactions: [{ data: 'any data' }],
       };
-      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutHeader))).toThrowError(`Data do not follow the block standard`);
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutHeader)),
+      ).toThrowError(`Data do not follow the block standard`);
 
       const blockWithoutChannelIds = {
         header: { topics: {}, version: '0.1.0' },
@@ -449,13 +422,17 @@ describe('block', () => {
         header: { channelIds: {}, version: '0.1.0' },
         transactions: [{ data: 'any data' }],
       };
-      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTopics))).toThrowError(`Header do not follow the block standard`);
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutTopics)),
+      ).toThrowError(`Header do not follow the block standard`);
 
       const blockWithoutVersion = {
         header: { channelIds: {}, topics: {} },
         transactions: [{ data: 'any data' }],
       };
-      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutVersion))).toThrowError(`Header do not follow the block standard`);
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWithoutVersion)),
+      ).toThrowError(`Header do not follow the block standard`);
 
       const blockWithoutTransactions = {
         header: { channelIds: {}, topics: {}, version: '0.1.0' },
@@ -476,7 +453,9 @@ describe('block', () => {
         header: { channelIds: {}, topics: {}, version: '0.0.0' },
         transactions: [{ data: 'any data' }],
       };
-      expect(() => RequestDataAccessBlock.parseBlock(JSON.stringify(blockWrongVersion))).toThrowError(`Version not supported`);
+      expect(() =>
+        RequestDataAccessBlock.parseBlock(JSON.stringify(blockWrongVersion)),
+      ).toThrowError(`Version not supported`);
 
       const blockWithChannelIdNotHash = {
         header: { channelIds: { ['0x111']: [0] }, topics: {}, version: '0.1.0' },

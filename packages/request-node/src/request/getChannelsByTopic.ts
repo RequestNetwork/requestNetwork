@@ -43,7 +43,10 @@ export default async function getChannelsByTopic(
 
       // Log the request time
       const requestEndTime = Date.now();
-      logger.debug(`getChannelsByTopic latency: ${requestEndTime - requestStartTime}ms`, ['metric', 'latency']);
+      logger.debug(`getChannelsByTopic latency: ${requestEndTime - requestStartTime}ms`, [
+        'metric',
+        'latency',
+      ]);
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {

@@ -29,7 +29,9 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       // 'action is wrong'
-      expect(actionReduceAmount.data.name).toBe(RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT);
+      expect(actionReduceAmount.data.name).toBe(
+        RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+      );
 
       // 'requestId is wrong'
       expect(actionReduceAmount.data.parameters.requestId).toBe(requestIdMock);
@@ -51,7 +53,9 @@ describe('actions/reduceExpectedAmount', () => {
       );
 
       // 'action is wrong'
-      expect(actionReduceAmount.data.name).toBe(RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT);
+      expect(actionReduceAmount.data.name).toBe(
+        RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+      );
 
       // 'requestId is wrong'
       expect(actionReduceAmount.data.parameters.requestId).toBe(requestIdMock);
@@ -306,27 +310,24 @@ describe('actions/reduceExpectedAmount', () => {
       }).toThrowError('the request must have a payee');
     });
 
-    it(
-      'cannot reduce expected amount if state === CANCELED in state',
-      async () => {
-        const actionReduceAmount = await ReduceExpectedAmountAction.format(
-          {
-            deltaAmount: arbitraryDeltaAmount,
-            requestId: requestIdMock,
-          },
-          TestData.payeeRaw.identity,
-          TestData.fakeSignatureProvider,
-        );
+    it('cannot reduce expected amount if state === CANCELED in state', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
-        expect(() => {
-          ReduceExpectedAmountAction.applyActionToRequest(
-            actionReduceAmount,
-            2,
-            Utils.deepCopy(TestData.requestCanceledNoExtension),
-          );
-        }).toThrowError('the request must not be canceled');
-      }
-    );
+      expect(() => {
+        ReduceExpectedAmountAction.applyActionToRequest(
+          actionReduceAmount,
+          2,
+          Utils.deepCopy(TestData.requestCanceledNoExtension),
+        );
+      }).toThrowError('the request must not be canceled');
+    });
 
     it('can reduce expected amount if state === ACCEPTED in state', async () => {
       const actionReduceAmount = await ReduceExpectedAmountAction.format(
@@ -390,203 +391,194 @@ describe('actions/reduceExpectedAmount', () => {
       });
     });
 
-    it(
-      'can reduce expected amount with extensionsData and no extensionsData before',
-      async () => {
-        const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-        const actionReduceAmount = await ReduceExpectedAmountAction.format(
-          {
-            deltaAmount: arbitraryDeltaAmount,
-            extensionsData: newExtensionsData,
-            requestId: requestIdMock,
-          },
-          TestData.payeeRaw.identity,
-          TestData.fakeSignatureProvider,
-        );
+    it('can reduce expected amount with extensionsData and no extensionsData before', async () => {
+      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          extensionsData: newExtensionsData,
+          requestId: requestIdMock,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
-        const request = ReduceExpectedAmountAction.applyActionToRequest(
-          actionReduceAmount,
-          2,
-          Utils.deepCopy(TestData.requestCreatedNoExtension),
-        );
+      const request = ReduceExpectedAmountAction.applyActionToRequest(
+        actionReduceAmount,
+        2,
+        Utils.deepCopy(TestData.requestCreatedNoExtension),
+      );
 
-        // 'requestId is wrong'
-        expect(request.requestId).toBe(requestIdMock);
-        // 'currency is wrong'
-        expect(request.currency).toEqual({
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        });
-        // 'state is wrong'
-        expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
-        // 'expectedAmount is wrong'
-        expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
-        // 'request.extensionsData is wrong'
-        expect(request.extensionsData).toEqual(newExtensionsData);
+      // 'requestId is wrong'
+      expect(request.requestId).toBe(requestIdMock);
+      // 'currency is wrong'
+      expect(request.currency).toEqual({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
+      // 'state is wrong'
+      expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+      // 'expectedAmount is wrong'
+      expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
+      // 'request.extensionsData is wrong'
+      expect(request.extensionsData).toEqual(newExtensionsData);
 
-        // 'request.creator is wrong'
-        expect(request).toHaveProperty('creator');
-        // 'request.creator.type is wrong'
-        expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-        // 'request.creator.value is wrong'
-        expect(request.creator.value).toBe(TestData.payeeRaw.address);
+      // 'request.creator is wrong'
+      expect(request).toHaveProperty('creator');
+      // 'request.creator.type is wrong'
+      expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'request.creator.value is wrong'
+      expect(request.creator.value).toBe(TestData.payeeRaw.address);
 
-        // 'request.payee is wrong'
-        expect(request).toHaveProperty('payee');
-        if (request.payee) {
-          // 'request.payee.type is wrong'
-          expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-          // 'request.payee.value is wrong'
-          expect(request.payee.value).toBe(TestData.payeeRaw.address);
-        }
-        // 'request.payer is wrong'
-        expect(request).toHaveProperty('payer');
-        if (request.payer) {
-          // 'request.payer.type is wrong'
-          expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-          // 'request.payer.value is wrong'
-          expect(request.payer.value).toBe(TestData.payerRaw.address);
-        }
-        // 'request.events is wrong'
-        expect(request.events[1]).toEqual({
-          actionSigner: TestData.payeeRaw.identity,
-          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-          parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
-          timestamp: 2,
-        });
+      // 'request.payee is wrong'
+      expect(request).toHaveProperty('payee');
+      if (request.payee) {
+        // 'request.payee.type is wrong'
+        expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payee.value is wrong'
+        expect(request.payee.value).toBe(TestData.payeeRaw.address);
       }
-    );
-
-    it(
-      'can reduce expected amount with extensionsData and extensionsData before',
-      async () => {
-        const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
-        const actionReduceAmount = await ReduceExpectedAmountAction.format(
-          {
-            deltaAmount: arbitraryDeltaAmount,
-            extensionsData: newExtensionsData,
-            requestId: requestIdMock,
-          },
-          TestData.payeeRaw.identity,
-          TestData.fakeSignatureProvider,
-        );
-
-        const request = ReduceExpectedAmountAction.applyActionToRequest(
-          actionReduceAmount,
-          2,
-          Utils.deepCopy(TestData.requestCreatedWithExtensions),
-        );
-
-        // 'requestId is wrong'
-        expect(request.requestId).toBe(requestIdMock);
-        // 'currency is wrong'
-        expect(request.currency).toEqual({
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        });
-        // 'state is wrong'
-        expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
-        // 'expectedAmount is wrong'
-        expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
-        // 'request.extensionsData is wrong'
-        expect(request.extensionsData).toEqual(TestData.oneExtension.concat(newExtensionsData));
-
-        // 'request.creator is wrong'
-        expect(request).toHaveProperty('creator');
-        // 'request.creator.type is wrong'
-        expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-        // 'request.creator.value is wrong'
-        expect(request.creator.value).toBe(TestData.payeeRaw.address);
-
-        // 'request.payee is wrong'
-        expect(request).toHaveProperty('payee');
-        if (request.payee) {
-          // 'request.payee.type is wrong'
-          expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-          // 'request.payee.value is wrong'
-          expect(request.payee.value).toBe(TestData.payeeRaw.address);
-        }
-        // 'request.payer is wrong'
-        expect(request).toHaveProperty('payer');
-        if (request.payer) {
-          // 'request.payer.type is wrong'
-          expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-          // 'request.payer.value is wrong'
-          expect(request.payer.value).toBe(TestData.payerRaw.address);
-        }
-        // 'request.events is wrong'
-        expect(request.events[1]).toEqual({
-          actionSigner: TestData.payeeRaw.identity,
-          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-          parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
-          timestamp: 2,
-        });
+      // 'request.payer is wrong'
+      expect(request).toHaveProperty('payer');
+      if (request.payer) {
+        // 'request.payer.type is wrong'
+        expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payer.value is wrong'
+        expect(request.payer.value).toBe(TestData.payerRaw.address);
       }
-    );
-    it(
-      'can reduce expected amount without extensionsData and extensionsData before',
-      async () => {
-        const actionReduceAmount = await ReduceExpectedAmountAction.format(
-          {
-            deltaAmount: arbitraryDeltaAmount,
-            requestId: requestIdMock,
-          },
-          TestData.payeeRaw.identity,
-          TestData.fakeSignatureProvider,
-        );
+      // 'request.events is wrong'
+      expect(request.events[1]).toEqual({
+        actionSigner: TestData.payeeRaw.identity,
+        name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
+      });
+    });
 
-        const request = ReduceExpectedAmountAction.applyActionToRequest(
-          actionReduceAmount,
-          2,
-          Utils.deepCopy(TestData.requestCreatedWithExtensions),
-        );
+    it('can reduce expected amount with extensionsData and extensionsData before', async () => {
+      const newExtensionsData = [{ id: 'extension1', value: 'whatever' }];
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          extensionsData: newExtensionsData,
+          requestId: requestIdMock,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
 
-        // 'requestId is wrong'
-        expect(request.requestId).toBe(requestIdMock);
-        // 'currency is wrong'
-        expect(request.currency).toEqual({
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        });
-        // 'state is wrong'
-        expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
-        // 'expectedAmount is wrong'
-        expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
-        // 'request.extensionsData is wrong'
-        expect(request.extensionsData).toEqual(TestData.oneExtension);
+      const request = ReduceExpectedAmountAction.applyActionToRequest(
+        actionReduceAmount,
+        2,
+        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+      );
 
-        // 'request.creator is wrong'
-        expect(request).toHaveProperty('creator');
-        // 'request.creator.type is wrong'
-        expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-        // 'request.creator.value is wrong'
-        expect(request.creator.value).toBe(TestData.payeeRaw.address);
+      // 'requestId is wrong'
+      expect(request.requestId).toBe(requestIdMock);
+      // 'currency is wrong'
+      expect(request.currency).toEqual({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
+      // 'state is wrong'
+      expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+      // 'expectedAmount is wrong'
+      expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
+      // 'request.extensionsData is wrong'
+      expect(request.extensionsData).toEqual(TestData.oneExtension.concat(newExtensionsData));
 
-        // 'request.payee is wrong'
-        expect(request).toHaveProperty('payee');
-        if (request.payee) {
-          // 'request.payee.type is wrong'
-          expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-          // 'request.payee.value is wrong'
-          expect(request.payee.value).toBe(TestData.payeeRaw.address);
-        }
-        // 'request.payer is wrong'
-        expect(request).toHaveProperty('payer');
-        if (request.payer) {
-          // 'request.payer.type is wrong'
-          expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
-          // 'request.payer.value is wrong'
-          expect(request.payer.value).toBe(TestData.payerRaw.address);
-        }
-        // 'request.events is wrong'
-        expect(request.events[1]).toEqual({
-          actionSigner: TestData.payeeRaw.identity,
-          name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
-          parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
-          timestamp: 2,
-        });
+      // 'request.creator is wrong'
+      expect(request).toHaveProperty('creator');
+      // 'request.creator.type is wrong'
+      expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'request.creator.value is wrong'
+      expect(request.creator.value).toBe(TestData.payeeRaw.address);
+
+      // 'request.payee is wrong'
+      expect(request).toHaveProperty('payee');
+      if (request.payee) {
+        // 'request.payee.type is wrong'
+        expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payee.value is wrong'
+        expect(request.payee.value).toBe(TestData.payeeRaw.address);
       }
-    );
+      // 'request.payer is wrong'
+      expect(request).toHaveProperty('payer');
+      if (request.payer) {
+        // 'request.payer.type is wrong'
+        expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payer.value is wrong'
+        expect(request.payer.value).toBe(TestData.payerRaw.address);
+      }
+      // 'request.events is wrong'
+      expect(request.events[1]).toEqual({
+        actionSigner: TestData.payeeRaw.identity,
+        name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        parameters: { extensionsDataLength: 1, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
+      });
+    });
+    it('can reduce expected amount without extensionsData and extensionsData before', async () => {
+      const actionReduceAmount = await ReduceExpectedAmountAction.format(
+        {
+          deltaAmount: arbitraryDeltaAmount,
+          requestId: requestIdMock,
+        },
+        TestData.payeeRaw.identity,
+        TestData.fakeSignatureProvider,
+      );
+
+      const request = ReduceExpectedAmountAction.applyActionToRequest(
+        actionReduceAmount,
+        2,
+        Utils.deepCopy(TestData.requestCreatedWithExtensions),
+      );
+
+      // 'requestId is wrong'
+      expect(request.requestId).toBe(requestIdMock);
+      // 'currency is wrong'
+      expect(request.currency).toEqual({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      });
+      // 'state is wrong'
+      expect(request.state).toBe(RequestLogicTypes.STATE.CREATED);
+      // 'expectedAmount is wrong'
+      expect(request.expectedAmount).toBe(arbitraryExpectedAmountAfterDelta);
+      // 'request.extensionsData is wrong'
+      expect(request.extensionsData).toEqual(TestData.oneExtension);
+
+      // 'request.creator is wrong'
+      expect(request).toHaveProperty('creator');
+      // 'request.creator.type is wrong'
+      expect(request.creator.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+      // 'request.creator.value is wrong'
+      expect(request.creator.value).toBe(TestData.payeeRaw.address);
+
+      // 'request.payee is wrong'
+      expect(request).toHaveProperty('payee');
+      if (request.payee) {
+        // 'request.payee.type is wrong'
+        expect(request.payee.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payee.value is wrong'
+        expect(request.payee.value).toBe(TestData.payeeRaw.address);
+      }
+      // 'request.payer is wrong'
+      expect(request).toHaveProperty('payer');
+      if (request.payer) {
+        // 'request.payer.type is wrong'
+        expect(request.payer.type).toBe(IdentityTypes.TYPE.ETHEREUM_ADDRESS);
+        // 'request.payer.value is wrong'
+        expect(request.payer.value).toBe(TestData.payerRaw.address);
+      }
+      // 'request.events is wrong'
+      expect(request.events[1]).toEqual({
+        actionSigner: TestData.payeeRaw.identity,
+        name: RequestLogicTypes.ACTION_NAME.REDUCE_EXPECTED_AMOUNT,
+        parameters: { extensionsDataLength: 0, deltaAmount: arbitraryDeltaAmount },
+        timestamp: 2,
+      });
+    });
 
     it('cannot reduce expected amount with a negative amount', () => {
       const action = {

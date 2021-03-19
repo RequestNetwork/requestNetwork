@@ -78,4 +78,4 @@ const testCases: ITestCase[] = [
 
 // tslint:disable:no-floating-promises
 // tslint:disable:no-console
-TestExecutor.executeTests(testCases).then(testCaseResult => console.table(testCaseResult));
+TestExecutor.executeTests(testCases).then((testCaseResult) => console.table(testCaseResult));

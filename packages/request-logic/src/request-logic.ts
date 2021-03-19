@@ -72,7 +72,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           result: { requestId },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -130,7 +130,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           result: { requestId },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -208,7 +208,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -258,7 +258,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -308,7 +308,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -358,7 +358,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -409,7 +409,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -478,7 +478,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
-    const hashedTopics = topics.map(topic =>
+    const hashedTopics = topics.map((topic) =>
       MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
     );
 
@@ -518,7 +518,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     // hash all the topics
-    const hashedTopics = topics.map(topic =>
+    const hashedTopics = topics.map((topic) =>
       MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
     );
 
@@ -546,7 +546,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
     const actions = resultGetTx.result.transactions
       // filter the actions ignored by the previous layers
-      .filter(action => action !== null)
+      .filter((action) => action !== null)
       .sort((a: any, b: any) => a.timestamp - b.timestamp);
 
     // tslint:disable-next-line:prefer-const
@@ -577,7 +577,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
     // Keeps the transaction ignored
     ignoredTransactions = ignoredTransactions.concat(
-      timestampedActionsWithoutDuplicates.duplicates.map(tx => {
+      timestampedActionsWithoutDuplicates.duplicates.map((tx) => {
         return {
           reason: 'Duplicated transaction',
           transaction: tx,
@@ -616,7 +616,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const ignoredTransactionsByApplication: any[] = [];
     // second parameter is null, because the first action must be a creation (no state expected)
     const confirmedRequestState = transactions
-      .filter(action => action.state === TransactionTypes.TransactionState.CONFIRMED)
+      .filter((action) => action.state === TransactionTypes.TransactionState.CONFIRMED)
       .reduce((requestState: any, actionConfirmed: any) => {
         try {
           return RequestLogicCore.applyActionToRequest(
@@ -636,7 +636,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       }, null);
 
     const pendingRequestState = transactions
-      .filter(action => action.state === TransactionTypes.TransactionState.PENDING)
+      .filter((action) => action.state === TransactionTypes.TransactionState.PENDING)
       .reduce((requestState: any, actionConfirmed: any) => {
         try {
           return RequestLogicCore.applyActionToRequest(
@@ -677,7 +677,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // Gets all the requests from the transactions
     const allRequestAndMetaPromises = Object.keys(channelsRawData.result.transactions).map(
       // Parses and removes corrupted or duplicated transactions
-      async channelId => {
+      async (channelId) => {
         // tslint:disable-next-line:prefer-const
         let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(
           transactionsByChannel[channelId],
@@ -686,7 +686,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
           keptTransactions
             // filter the actions ignored by the previous layers
-            .filter(action => action !== null)
+            .filter((action) => action !== null)
             .map((t: any) => {
               try {
                 return {
@@ -709,7 +709,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
         // Keeps the ignored transactions
         ignoredTransactions = ignoredTransactions.concat(
-          timestampedActionsWithoutDuplicates.duplicates.map(tx => ({
+          timestampedActionsWithoutDuplicates.duplicates.map((tx) => ({
             reason: 'Duplicated transaction',
             transaction: tx,
           })),
@@ -866,7 +866,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     let confirmedFound = false;
     const keptTransactions = transactions
       .reverse()
-      .filter(action => {
+      .filter((action) => {
         if (!action) {
           return false;
         }

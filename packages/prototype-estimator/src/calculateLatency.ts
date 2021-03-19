@@ -77,9 +77,9 @@ readlineInterface.on('line', (line: string) => {
 // Computes statistics on the latency
 readlineInterface.on('close', () => {
   console.log(
-    `${getChannelsByTopicCount +
-      getTransactionsByChannelIdCount +
-      persistTransactionCount} requests`,
+    `${
+      getChannelsByTopicCount + getTransactionsByChannelIdCount + persistTransactionCount
+    } requests`,
   );
   console.log(`${getChannelsByTopicCount} getChannelsByTopic requests`);
   console.log(`${getTransactionsByChannelIdCount} getTransactionsByChannelId requests`);

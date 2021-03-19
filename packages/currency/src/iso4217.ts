@@ -1268,7 +1268,7 @@ export default [
     countries: [
       'Benin',
       'Burkina Faso',
-      'Côte d\'Ivoire',
+      "Côte d'Ivoire",
       'Guinea-Bissau',
       'Mali',
       'Niger (The)',
@@ -1302,7 +1302,7 @@ export default [
     number: '994',
     digits: 0,
     currency: 'Sucre',
-    countries: ['Sistema Unitario De Compensacion Regional De Pagos \'Sucre\''],
+    countries: ["Sistema Unitario De Compensacion Regional De Pagos 'Sucre'"],
   },
   {
     code: 'XTS',

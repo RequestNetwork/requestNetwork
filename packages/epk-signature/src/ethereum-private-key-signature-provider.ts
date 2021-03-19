@@ -128,7 +128,7 @@ export default class EthereumPrivateKeySignatureProvider
    * @returns IIdentity all the identities registered
    */
   public getAllRegisteredIdentities(): IdentityTypes.IIdentity[] {
-    return Array.from(this.signatureParametersDictionary.keys(), address => ({
+    return Array.from(this.signatureParametersDictionary.keys(), (address) => ({
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value: address,
     }));

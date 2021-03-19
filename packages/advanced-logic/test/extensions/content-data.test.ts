@@ -90,7 +90,9 @@ describe('content-data', () => {
       expect(extensionDataCreated).toEqual(TestData.createContentDataExtensionData);
     });
     it('cannot create extension data if parameters do not have content', () => {
-      expect(() => ContentData.createCreationAction({} as any)).toThrowError('No content has been given for the extension content-data');
+      expect(() => ContentData.createCreationAction({} as any)).toThrowError(
+        'No content has been given for the extension content-data',
+      );
     });
   });
 });

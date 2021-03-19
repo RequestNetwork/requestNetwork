@@ -1,9 +1,7 @@
 import * as Bluebird from 'bluebird';
 
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
-import {
-  getMaxIpfsReadRetry,
-} from './config';
+import { getMaxIpfsReadRetry } from './config';
 
 import IgnoredDataIds from './ignored-dataIds';
 import IpfsConnectionError from './ipfs-connection-error';
@@ -22,12 +20,12 @@ const SAFE_MAX_HEADER_SIZE: number = 500;
  * @returns Filtered list of dataId with metadata
  */
 export default async function EthereumEntriesToIpfsContent(
-    ethereumEntries: StorageTypes.IEthereumEntry[],
-    ipfsManager: IpfsManager,
-    ignoredDataIdsIndex: IgnoredDataIds,
-    logger: LogTypes.ILogger,
-    maxConcurrency: number,
-  ): Promise<StorageTypes.IEntry[]> {
+  ethereumEntries: StorageTypes.IEthereumEntry[],
+  ipfsManager: IpfsManager,
+  ignoredDataIdsIndex: IgnoredDataIds,
+  logger: LogTypes.ILogger,
+  maxConcurrency: number,
+): Promise<StorageTypes.IEntry[]> {
   const totalCount: number = ethereumEntries.length;
   let successCount: number = 0;
   let successCountOnFirstTry: number = 0;
@@ -93,14 +91,18 @@ export default async function EthereumEntriesToIpfsContent(
           // push it for a retry
           ethereumEntriesToProcess.push(entryWithError);
         } else {
-          throw new Error(`Unexpected Error for the hash: ${entryWithError.hash}, ${entryWithError.error?.type}, ${entryWithError.error?.message}`);
+          throw new Error(
+            `Unexpected Error for the hash: ${entryWithError.hash}, ${entryWithError.error?.type}, ${entryWithError.error?.message}`,
+          );
         }
       }
     }
 
     successCount = finalIpfsContents.length;
 
-    logger.debug(`${successCount}/${totalCount} retrieved dataIds after try ${tryIndex + 1}`, ['ipfs']);
+    logger.debug(`${successCount}/${totalCount} retrieved dataIds after try ${tryIndex + 1}`, [
+      'ipfs',
+    ]);
 
     if (tryIndex === 0) {
       successCountOnFirstTry = successCount;
@@ -120,8 +122,9 @@ export default async function EthereumEntriesToIpfsContent(
   }
 
   logger.info(
-    `getData on ${totalCount} events, ${successCount} retrieved (${successCount -
-      successCountOnFirstTry} after retries), ${ipfsConnectionErrorCount} not found, ${incorrectFileCount} incorrect files, ${wrongFeesCount} with wrong fees`,
+    `getData on ${totalCount} events, ${successCount} retrieved (${
+      successCount - successCountOnFirstTry
+    } after retries), ${ipfsConnectionErrorCount} not found, ${incorrectFileCount} incorrect files, ${wrongFeesCount} with wrong fees`,
     ['metric', 'successfullyRetrieved'],
   );
 
@@ -178,9 +181,7 @@ async function getIpfsContent(
 
     // Check the type of the error
     if (error instanceof IpfsConnectionError) {
-      logger.info(`IPFS connection error when trying to fetch: ${ethereumEntry.hash}`, [
-        'ipfs',
-      ]);
+      logger.info(`IPFS connection error when trying to fetch: ${ethereumEntry.hash}`, ['ipfs']);
       logger.debug(`IPFS connection error : ${errorMessage}`, ['ipfs']);
       // An ipfs connection error occurred (for example a timeout), therefore we would eventually retry to find the has
       return {

@@ -15,6 +15,8 @@ describe('Role', () => {
     // 'getRole("") error'
     expect(Role.getRole(TestData.payerRaw.identity, obj)).toBe(RequestLogicTypes.ROLE.PAYER);
     // 'getRole("") error'
-    expect(Role.getRole(TestData.otherIdRaw.identity, obj)).toBe(RequestLogicTypes.ROLE.THIRD_PARTY);
+    expect(Role.getRole(TestData.otherIdRaw.identity, obj)).toBe(
+      RequestLogicTypes.ROLE.THIRD_PARTY,
+    );
   });
 });
