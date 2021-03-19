@@ -26,9 +26,7 @@ export default {
       [StorageTypes.EthereumNetwork
         .RINKEBY as StorageTypes.EthereumNetwork]: 'rinkeby',
       [StorageTypes.EthereumNetwork
-        .XDAI as StorageTypes.EthereumNetwork]: 'xdai',
-      [StorageTypes.EthereumNetwork
-        .SOKOL as StorageTypes.EthereumNetwork]: 'sokol'
+        .XDAI as StorageTypes.EthereumNetwork]: 'xdai'
     }[networkId];
   },
 
