@@ -30,7 +30,7 @@ const conversionErc20FeeProxyContract: ExtensionTypes.PnAnyToErc20.IAnyToERC20 =
 const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, string[]>> = {
   private: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
-    [RequestLogicTypes.CURRENCY.ERC20]: ['0x9fbda871d559710256a2502a2517b794b482db40'],
+    [RequestLogicTypes.CURRENCY.ERC20]: ['0x38cf23c52bb4b13f051aec09580a2de845a7fa35'],
     [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },

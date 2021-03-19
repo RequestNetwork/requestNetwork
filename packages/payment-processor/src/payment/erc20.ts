@@ -1,6 +1,4 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Provider, Web3Provider } from 'ethers/providers';
-import { bigNumberify, BigNumberish } from 'ethers/utils';
+import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
@@ -31,7 +29,7 @@ import {
  */
 export async function payErc20Request(
   request: ClientTypes.IRequestData,
-  signerOrProvider?: Web3Provider | Signer,
+  signerOrProvider?: providers.Web3Provider | Signer,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -67,7 +65,7 @@ export async function payErc20Request(
 export async function hasErc20Approval(
   request: ClientTypes.IRequestData,
   account: string,
-  signerOrProvider: Provider | Signer = getNetworkProvider(request),
+  signerOrProvider: providers.Provider | Signer = getNetworkProvider(request),
 ): Promise<boolean> {
   return checkErc20Allowance(
     account,
@@ -89,7 +87,7 @@ export async function hasErc20Approval(
 export async function checkErc20Allowance(
   ownerAddress: string,
   spenderAddress: string,
-  signerOrProvider: Provider | Signer,
+  signerOrProvider: providers.Provider | Signer,
   tokenAddress: string,
   amount: BigNumberish,
 ): Promise<boolean> {
@@ -107,7 +105,7 @@ export async function checkErc20Allowance(
 export async function approveErc20IfNeeded(
   request: ClientTypes.IRequestData,
   account: string,
-  signerOrProvider: Provider | Signer = getNetworkProvider(request),
+  signerOrProvider: providers.Provider | Signer = getNetworkProvider(request),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
   if (!(await hasErc20Approval(request, account, signerOrProvider))) {
@@ -124,7 +122,7 @@ export async function approveErc20IfNeeded(
  */
 export async function approveErc20(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodeApproveErc20(request, signerOrProvider);
@@ -147,7 +145,7 @@ export async function approveErc20(
  */
 export function encodeApproveErc20(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
   const paymentNetworkId = (getPaymentNetworkExtension(request)
     ?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
@@ -171,12 +169,12 @@ export function encodeApproveErc20(
 export function encodeApproveAnyErc20(
   tokenAddress: string,
   spenderAddress: string,
-  signerOrProvider: Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
 ): string {
   const erc20interface = ERC20Contract.connect(tokenAddress, signerOrProvider).interface;
-  return erc20interface.functions.approve.encode([
+  return erc20interface.encodeFunctionData('approve', [
     spenderAddress,
-    bigNumberify(2)
+    BigNumber.from(2)
       // tslint:disable-next-line: no-magic-numbers
       .pow(256)
       .sub(1),
@@ -192,7 +190,7 @@ export function encodeApproveAnyErc20(
 export async function getErc20Balance(
   request: ClientTypes.IRequestData,
   address: string,
-  provider: Provider = getNetworkProvider(request),
+  provider: providers.Provider = getNetworkProvider(request),
 ): Promise<BigNumberish> {
   return getAnyErc20Balance(request.currencyInfo.value, address, provider);
 }
@@ -206,7 +204,7 @@ export async function getErc20Balance(
 export async function getAnyErc20Balance(
   anyErc20Address: string,
   address: string,
-  provider: Provider,
+  provider: providers.Provider,
 ): Promise<BigNumberish> {
   const erc20Contract = ERC20Contract.connect(anyErc20Address, provider);
   return erc20Contract.balanceOf(address);

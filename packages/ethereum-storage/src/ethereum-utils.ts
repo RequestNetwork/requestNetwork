@@ -1,7 +1,7 @@
 import { StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 /**
  * Collection of utils functions related to Ethereum
@@ -39,10 +39,10 @@ export default {
    * @param gasPrice Value of the gas price
    * @returns True if the gas price can be used
    */
-  isGasPriceSafe(gasPrice: typeof bigNumber): boolean {
+  isGasPriceSafe(gasPrice: BigNumber): boolean {
     return (
-      gasPrice.gt(new bigNumber(0)) &&
-      gasPrice.lt(new bigNumber(config.getSafeGasPriceLimit()))
+      gasPrice.gt(new BigNumber(0)) &&
+      gasPrice.lt(new BigNumber(config.getSafeGasPriceLimit()))
     );
   }
 };

@@ -1,6 +1,4 @@
-import { constants, ContractTransaction, Signer } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
-import { bigNumberify, BigNumberish } from 'ethers/utils';
+import { constants, ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
 import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes } from '@requestnetwork/types';
@@ -56,7 +54,7 @@ export interface IRequestPaymentOptions {
  */
 export async function swapErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   swapSettings: ISwapSettings,
   options?: ISwapTransactionOptions,
 ): Promise<ContractTransaction> {
@@ -87,7 +85,7 @@ export async function swapErc20FeeProxyRequest(
  */
 export function encodeSwapToPayErc20FeeRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   swapSettings: ISwapSettings,
   options?: IRequestPaymentOptions,
 ): string {
@@ -96,16 +94,18 @@ export function encodeSwapToPayErc20FeeRequest(
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-  request,
+    request,
   );
   const amountToPay = getAmountToPay(request, options?.amount);
-  const feeToPay = bigNumberify(options?.feeAmount || feeAmount || 0);
+  const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0);
 
-  if (swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()) {
+  if (
+    swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()
+  ) {
     throw new Error('Last item of the path should be the request currency');
   }
   // tslint:disable-next-line:no-magic-numbers
-  if (Date.now() > (swapSettings.deadline * 1000)) {
+  if (Date.now() > swapSettings.deadline * 1000) {
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
   if (!request.currencyInfo.network) {
@@ -115,7 +115,7 @@ export function encodeSwapToPayErc20FeeRequest(
   const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network);
   const swapToPayContract = Erc20SwapToPayContract.connect(swapToPayAddress, signer);
 
-  return swapToPayContract.interface.functions.swapTransferWithReference.encode([
+  return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
     paymentAddress,
     amountToPay,
     swapSettings.maxInputAmount,

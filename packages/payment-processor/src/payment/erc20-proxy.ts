@@ -1,6 +1,4 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
-import { BigNumberish } from 'ethers/utils';
+import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
@@ -24,7 +22,7 @@ import {
  */
 export async function payErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
@@ -48,7 +46,7 @@ export async function payErc20ProxyRequest(
  */
 export function encodePayErc20Request(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
 ): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
@@ -61,7 +59,7 @@ export function encodePayErc20Request(
   const amountToPay = getAmountToPay(request, amount);
 
   const proxyContract = Erc20ProxyContract.connect(proxyAddress, signer);
-  return proxyContract.interface.functions.transferFromWithReference.encode([
+  return proxyContract.interface.encodeFunctionData('transferFromWithReference', [
     tokenAddress,
     paymentAddress,
     amountToPay,
