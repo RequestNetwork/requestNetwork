@@ -37,13 +37,7 @@ export default class EthGasStationProvider
    * @param type Type of the gas price (fast, standard or safe low)
    * @returns Requested gas price
    */
-<<<<<<< HEAD
-  public async getGasPrice(
-    type: StorageTypes.GasPriceType
-  ): Promise<typeof bigNumber | null> {
-=======
   public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber> {
->>>>>>> 9819a433163bbd584a8d3340e32737a30d32c5e1
     const res = await Utils.retry(async () => this.fetch(this.providerUrl), {
       maxRetries: ETHGASSTATION_REQUEST_MAX_RETRY,
       retryDelay: ETHGASSTATION_RETRY_DELAY

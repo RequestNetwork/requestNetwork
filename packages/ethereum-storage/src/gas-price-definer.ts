@@ -106,15 +106,9 @@ export default class GasPriceDefiner {
   public async pollProviders(
     type: StorageTypes.GasPriceType,
     networkName: string
-<<<<<<< HEAD
-  ): Promise<Array<typeof bigNumber>> {
-    const gasPriceArray: Array<typeof bigNumber> = [];
-    // here we will have to push the gaspice based on the  blockchain network .
-=======
   ): Promise<Array<BigNumber>> {
     const gasPriceArray: Array<BigNumber> = [];
     // here we will have to push the gaspice based on the type of network only
->>>>>>> 9819a433163bbd584a8d3340e32737a30d32c5e1
 
     const providerList = this.gasPriceListMap[networkName];
     if (!providerList) {
