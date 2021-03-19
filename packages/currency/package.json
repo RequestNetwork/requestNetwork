@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
-    "@types/node-dijkstra": "^2.5.1",
+    "@types/node-dijkstra": "2.5.1",
     "jest": "26.4.2",
     "prettier": "2.1.1",
     "shx": "0.3.2",
