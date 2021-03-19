@@ -38,17 +38,17 @@ export default class GasPriceDefiner {
   //   ['XDAI', [new XdaiGasPriceProvider()]]
   // ]);
 
-  private ethereumGasProvider: Array<StorageTypes.IGasPriceProvider> =  [
-        new EtherchainProvider(),
-        new EthGasStationProvider(),
-        new EtherscanProvider()
-      ];
+  private ethereumGasProvider: Array<StorageTypes.IGasPriceProvider> = [
+    new EtherchainProvider(),
+    new EthGasStationProvider(),
+    new EtherscanProvider()
+  ];
 
   public GasPriceListMap: any = {
     mainnet: this.ethereumGasProvider,
     rinkeby: this.ethereumGasProvider,
-    xdai: [new XdaiGasPriceProvider()],
-  }
+    xdai: [new XdaiGasPriceProvider()]
+  };
 
   /**
    * Logger instance
@@ -134,10 +134,9 @@ export default class GasPriceDefiner {
     // here we will have to push the gaspice based on the type of network only
 
     const providerList = this.GasPriceListMap[networkName];
-    if(!providerList) {
-      throw Error('network not supported')
+    if (!providerList) {
+      throw Error('network not supported');
     }
-
 
     for (let providerGasPrice of providerList) {
       try {
