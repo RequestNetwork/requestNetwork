@@ -1,6 +1,4 @@
-import { Wallet } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
-import { BigNumber, bigNumberify } from 'ethers/utils';
+import { Wallet, providers, BigNumber } from 'ethers';
 
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
@@ -9,7 +7,7 @@ import {
   hasSufficientFunds,
   payRequest,
   swapToPayRequest,
-  isSolvent
+  isSolvent,
 } from '../../src/payment';
 import * as btcModule from '../../src/payment/btc-address-based';
 import * as erc20Module from '../../src/payment/erc20';
@@ -19,7 +17,7 @@ import * as ethModule from '../../src/payment/eth-input-data';
 // tslint:disable: await-promise
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const provider = new JsonRpcProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 const fakeErc20: RequestLogicTypes.ICurrency = {
   type: RequestLogicTypes.CURRENCY.ERC20,
@@ -102,7 +100,7 @@ describe('swapToPayRequest', () => {
   const swapSettings = {
     // tslint:disable-next-line: no-magic-numbers
     deadline: Date.now() + 1000,
-    maxInputAmount: new BigNumber('204'),
+    maxInputAmount: BigNumber.from('204'),
     // eslint-disable-next-line spellcheck/spell-checker
     path: ['0xany', '0xanyother'],
   };
@@ -204,7 +202,7 @@ describe('hasSufficientFunds', () => {
 
   it('should call the ETH payment method', async () => {
     const fakeProvider: any = {
-      getBalance: jest.fn().mockReturnValue(Promise.resolve(bigNumberify('200'))),
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
     };
     const request: any = {
       balance: {
@@ -232,9 +230,9 @@ describe('hasSufficientFunds', () => {
   it('should call the ERC20 payment method', async () => {
     const spy = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
-      .mockReturnValue(Promise.resolve(bigNumberify('200')));
+      .mockReturnValue(Promise.resolve(BigNumber.from('200')));
     const fakeProvider: any = {
-      getBalance: () => Promise.resolve(bigNumberify('200')),
+      getBalance: () => Promise.resolve(BigNumber.from('200')),
     };
     const request: any = {
       balance: {
@@ -264,20 +262,20 @@ describe('hasSufficientFunds', () => {
   it('should skip ETH balance checks for smart contract wallets', async () => {
     const walletConnectProvider = {
       ...provider,
-      getBalance: jest.fn().mockReturnValue(Promise.resolve(bigNumberify('0'))),
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('0'))),
 
       provider: {
         wc: {
           _peerMeta: {
             name: 'Gnosis Safe Multisig',
-          }
-        }
-      }
+          },
+        },
+      },
     };
 
     const mock = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
-      .mockReturnValue(Promise.resolve(bigNumberify('200')));
+      .mockReturnValue(Promise.resolve(BigNumber.from('200')));
     // tslint:disable-next-line: no-magic-numbers
     const solvency = await isSolvent('any', fakeErc20, 100, walletConnectProvider as any);
     expect(solvency).toBeTruthy();
@@ -287,20 +285,20 @@ describe('hasSufficientFunds', () => {
   it('should check ETH balance checks for non-smart contract wallets', async () => {
     const walletConnectProvider = {
       ...provider,
-      getBalance: jest.fn().mockReturnValue(Promise.resolve(bigNumberify('0'))),
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('0'))),
 
       provider: {
         wc: {
           _peerMeta: {
             name: 'Definitely not a smart contract wallet',
-          }
-        }
-      }
+          },
+        },
+      },
     };
 
     const mock = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
-      .mockReturnValue(Promise.resolve(bigNumberify('200')));
+      .mockReturnValue(Promise.resolve(BigNumber.from('200')));
     // tslint:disable-next-line: no-magic-numbers
     const solvency = await isSolvent('any', fakeErc20, 100, walletConnectProvider as any);
     expect(solvency).toBeFalsy();

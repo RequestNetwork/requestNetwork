@@ -7,9 +7,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { Wallet } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
-import { bigNumberify } from 'ethers/utils';
+import { Wallet, providers, BigNumber } from 'ethers';
 import {
   _getErc20PaymentUrl,
   approveErc20,
@@ -24,7 +22,7 @@ const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const provider = new JsonRpcProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 const erc20FeeProxyRequest: ClientTypes.IRequestData = {
@@ -141,12 +139,28 @@ describe('hasErc20approval & approveErc20', () => {
       // Warning: this test can run only once!
       // 'already has approval'
       expect(hasApproval).toBe(false);
-      expect(await checkErc20Allowance(otherWallet.address, feeProxyAddres, provider, erc20ContractAddress, 1)).toBe(false);
+      expect(
+        await checkErc20Allowance(
+          otherWallet.address,
+          feeProxyAddres,
+          provider,
+          erc20ContractAddress,
+          1,
+        ),
+      ).toBe(false);
       await approveErc20(erc20FeeProxyRequest, otherWallet);
       hasApproval = await hasErc20Approval(erc20FeeProxyRequest, otherWallet.address, provider);
       // 'approval did not succeed'
       expect(hasApproval).toBe(true);
-      expect(await checkErc20Allowance(otherWallet.address, feeProxyAddres, provider, erc20ContractAddress, 1)).toBe(true);
+      expect(
+        await checkErc20Allowance(
+          otherWallet.address,
+          feeProxyAddres,
+          provider,
+          erc20ContractAddress,
+          1,
+        ),
+      ).toBe(true);
     });
   });
 
@@ -187,12 +201,12 @@ describe('hasErc20approval & approveErc20', () => {
 describe('getErc20Balance', () => {
   it('should read the balance for ERC20 Fee Proxy payment network', async () => {
     const balance = await getErc20Balance(erc20FeeProxyRequest, wallet.address, provider);
-    expect(bigNumberify(balance).gte('100')).toBeTruthy();
+    expect(BigNumber.from(balance).gte('100')).toBeTruthy();
   });
 
   it('should read the balance for ERC20 Proxy payment network', async () => {
     const balance = await getErc20Balance(erc20ProxyRequest, wallet.address, provider);
-    expect(bigNumberify(balance).gte('100')).toBeTruthy();
+    expect(BigNumber.from(balance).gte('100')).toBeTruthy();
   });
 });
 

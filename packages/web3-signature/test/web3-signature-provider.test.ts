@@ -19,13 +19,20 @@ const id1Raw = {
 
 const data = { What: 'ever', the: 'data', are: true };
 const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
-const signatureValueExpected = Utils.crypto.EcUtils.sign(id1Raw.signatureParams.privateKey, hashData);
+const signatureValueExpected = Utils.crypto.EcUtils.sign(
+  id1Raw.signatureParams.privateKey,
+  hashData,
+);
 
 const mockWeb3: any = {
-  getSigner: jest.fn().mockImplementation(() => ({signMessage: () => {return signatureValueExpected;} }))
-}
+  getSigner: jest.fn().mockImplementation(() => ({
+    signMessage: () => {
+      return signatureValueExpected;
+    },
+  })),
+};
 
-// use of infura only to initialize Web3SignatureProvider - but web3 is mockup afterward
+// use of infura only to initialize Web3SignatureProvider - but web3 is mocked afterward
 const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
 
 /* tslint:disable:no-unused-expression */
@@ -43,15 +50,19 @@ describe('web3-signature-provider', () => {
 
     it('cannot sign if web3 throw', async () => {
       const mockWeb3Throw: any = {
-        getSigner: () => ({signMessage: () => {throw {code: -32602};} })
-      }
+        getSigner: () => ({
+          signMessage: () => {
+            throw { code: -32602 };
+          },
+        }),
+      };
 
       // we mock eth as ganache don't support personal.sign anymore
       signProvider.web3Provider = mockWeb3Throw;
 
-      await expect(
-        signProvider.sign(data, id1Raw.identity),
-      ).rejects.toThrowError(`Impossible to sign for the identity: ${id1Raw.identity.value}`);
+      await expect(signProvider.sign(data, id1Raw.identity)).rejects.toThrowError(
+        `Impossible to sign for the identity: ${id1Raw.identity.value}`,
+      );
     });
 
     it('cannot sign with different identity than ethereum address', async () => {

@@ -1,10 +1,19 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
+import { getDefaultProvider } from '../provider';
+import { parseLogArgs } from '../utils';
 
 // The Ethereum proxy smart contract ABI fragment containing TransferWithReference event
 const ethProxyContractAbiFragment = [
   'event TransferWithReference(address to,uint256 amount,bytes indexed paymentReference)',
 ];
+
+/** TransferWithReference event */
+type TransferWithReferenceArgs = {
+  to: string;
+  amount: BigNumber;
+  paymentReference: string;
+};
 
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
@@ -31,10 +40,7 @@ export default class ProxyEthereumInfoRetriever
     private network: string,
   ) {
     // Creates a local or default provider
-    this.provider =
-      this.network === 'private'
-        ? new ethers.providers.JsonRpcProvider()
-        : ethers.getDefaultProvider(this.network);
+    this.provider = getDefaultProvider(this.network);
 
     // Setup the Ethereum proxy contract interface
     this.contractProxy = new ethers.Contract(
@@ -63,21 +69,25 @@ export default class ProxyEthereumInfoRetriever
     // Parses, filters and creates the events from the logs of the proxy contract
     const eventPromises = logs
       // Parses the logs
-      .map(log => {
+      .map((log) => {
         const parsedLog = this.contractProxy.interface.parseLog(log);
-        return { parsedLog, log };
+        return {
+          parsedLog: parseLogArgs<TransferWithReferenceArgs>(parsedLog),
+          blockNumber: log.blockNumber,
+          transactionHash: log.transactionHash,
+        };
       })
       // Keeps only the log with the right token and the right destination address
-      .filter(log => log.parsedLog.values.to.toLowerCase() === this.toAddress.toLowerCase())
+      .filter(({ parsedLog }) => parsedLog.to.toLowerCase() === this.toAddress.toLowerCase())
       // Creates the balance events
-      .map(async t => ({
-        amount: t.parsedLog.values.amount.toString(),
+      .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
+        amount: parsedLog.amount.toString(),
         name: this.eventName,
         parameters: {
-          block: t.log.blockNumber,
-          txHash: t.log.transactionHash,
+          block: blockNumber,
+          txHash: transactionHash,
         },
-        timestamp: (await this.provider.getBlock(t.log.blockNumber || 0)).timestamp,
+        timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
       }));
 
     return Promise.all(eventPromises);

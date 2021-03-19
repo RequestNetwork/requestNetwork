@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 
 /** Interface of the storage */
 export interface IStorage {
@@ -205,7 +205,7 @@ export enum GasPriceType {
 /** Interface of the class to retrieve gas price through a provider API */
 export interface IGasPriceProvider {
   providerUrl: string;
-  getGasPrice: (type: GasPriceType) => Promise<typeof bigNumber>;
+  getGasPrice: (type: GasPriceType) => Promise<BigNumber | null>;
 }
 
 /** Configuration for the IPFS error handling parameters */

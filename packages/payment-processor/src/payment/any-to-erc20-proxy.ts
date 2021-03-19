@@ -1,6 +1,4 @@
-import { constants, ContractTransaction, Signer } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
-import { bigNumberify, BigNumberish } from 'ethers/utils';
+import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
 import { getDecimalsForCurrency, getConversionPath } from '@requestnetwork/currency';
 import { proxyChainlinkConversionPath } from '@requestnetwork/smart-contracts';
@@ -40,7 +38,7 @@ export interface IPaymentSettings {
  */
 export async function payAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   paymentSettings: IPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
@@ -81,7 +79,7 @@ export async function payAnyToErc20ProxyRequest(
  */
 export async function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   paymentSettings: IPaymentSettings,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
@@ -124,11 +122,11 @@ export async function encodePayAnyToErc20ProxyRequest(
   const amountToPay = getAmountToPay(request, amount).mul(10 ** decimalPadding);
 
   // tslint:disable-next-line:no-magic-numbers
-  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0).mul(10 ** decimalPadding);
+  const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0).mul(10 ** decimalPadding);
   const proxyAddress = proxyChainlinkConversionPath.getAddress(paymentSettings.currency.network);
   const proxyContract = ProxyChainlinkConversionPathContract.connect(proxyAddress, signer);
 
-  return proxyContract.interface.functions.transferFromWithReferenceAndFee.encode([
+  return proxyContract.interface.encodeFunctionData('transferFromWithReferenceAndFee', [
     paymentAddress,
     amountToPay,
     path,

@@ -1,6 +1,4 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Provider } from 'ethers/providers';
-import { BigNumberish } from 'ethers/utils';
+import { ContractTransaction, providers, Signer, BigNumberish } from 'ethers';
 
 import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes } from '@requestnetwork/types';
@@ -9,10 +7,7 @@ import { _getErc20FeeProxyPaymentUrl } from './erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl } from './erc20-proxy';
 
 import { ITransactionOverrides } from './transaction-overrides';
-import {
-  getProvider,
-  getSigner,
-} from './utils';
+import { getProvider, getSigner } from './utils';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 
 /**
@@ -29,22 +24,24 @@ export async function approveErc20ForSwapToPayIfNeeded(
   request: ClientTypes.IRequestData,
   ownerAddress: string,
   paymentTokenAddress: string,
-  signerOrProvider: Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
   if (!request.currencyInfo.network) {
     throw new Error('Request currency network is missing');
   }
-  if (!await checkErc20Allowance(
-    ownerAddress,
-    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network),
-    signerOrProvider,
-    paymentTokenAddress,
-    minAmount
-    )) {
-      return approveErc20ForSwapToPay(request, paymentTokenAddress, signerOrProvider, overrides);
-    }
+  if (
+    !(await checkErc20Allowance(
+      ownerAddress,
+      erc20SwapToPayArtifact.getAddress(request.currencyInfo.network),
+      signerOrProvider,
+      paymentTokenAddress,
+      minAmount,
+    ))
+  ) {
+    return approveErc20ForSwapToPay(request, paymentTokenAddress, signerOrProvider, overrides);
+  }
 }
 
 /**
@@ -57,13 +54,13 @@ export async function approveErc20ForSwapToPayIfNeeded(
 export async function approveErc20ForSwapToPay(
   request: ClientTypes.IRequestData,
   paymentTokenAddress: string,
-  signerOrProvider: Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
     erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
-    signerOrProvider
+    signerOrProvider,
   );
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({

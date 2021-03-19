@@ -7,7 +7,7 @@ import { ethers } from 'ethers';
 const erc20LocalhostContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const proxyContractAddress = '0x2C2B9C9a4a25e24B174f26114e8926a9f2128FE4';
 const feeProxyContractAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
-const paymentReferenceMock = '0111111111111111111111111111111111111111111111111';
+const paymentReferenceMock = '01111111111111111111111111111111111111111111111111';
 
 /* tslint:disable:no-unused-expression */
 describe('api/erc20/proxy-info-retriever', () => {
