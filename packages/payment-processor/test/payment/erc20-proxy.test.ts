@@ -1,6 +1,5 @@
 /* eslint-disable spellcheck/spell-checker */
-import { Wallet } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
+import { Wallet, BigNumber, providers } from 'ethers';
 
 import {
   ClientTypes,
@@ -13,7 +12,6 @@ import Utils from '@requestnetwork/utils';
 import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from '../../src/payment/erc20-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
-import { bigNumberify } from 'ethers/utils';
 
 // tslint:disable: no-unused-expression
 // tslint:disable: await-promise
@@ -22,7 +20,7 @@ const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
-const provider = new JsonRpcProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 const validRequest: ClientTypes.IRequestData = {
@@ -147,10 +145,10 @@ describe('payErc20ProxyRequest', () => {
     expect(tx.hash).not.toBeUndefined();
 
     expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
-    expect(bigNumberify(balanceErc20After).lte(balanceErc20Before)).toBeTruthy(); // 'ERC20 balance should be lower'
+    expect(BigNumber.from(balanceErc20After).lte(balanceErc20Before)).toBeTruthy(); // 'ERC20 balance should be lower'
 
     expect(balanceErc20Before.toString()).toBe(
-      bigNumberify(balanceErc20After).add(validRequest.expectedAmount).toString(),
+      BigNumber.from(balanceErc20After).add(validRequest.expectedAmount).toString(),
     );
   });
 });

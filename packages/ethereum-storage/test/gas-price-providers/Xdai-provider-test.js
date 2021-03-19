@@ -1,8 +1,7 @@
 import { StorageTypes } from '@requestnetwork/types';
 import XdaiGasPriceProvider from '../../src/gas-price-providers/Xdai-provider';
 import XdaiGasPriceProvider from '../../src/gas-price-providers/Xdai-provider';
-
-const bigNumber: any = require('bn.js');
+import * as BigNumber from "bn.js"
 
 let XdaiGasProvider: XdaiGasPriceProvider;
 
@@ -27,15 +26,15 @@ describe('XdaiGasPriceProvider', () => {
     it('allows to get the requested gas price', async () => {
       await expect(
         XdaiGasProvider.getGasPrice(StorageTypes.GasPriceType.SAFELOW)
-      ).resolves.toEqual(new bigNumber(10000000000));
+      ).resolves.toEqual(new BigNumber(10000000000));
 
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD)
-      ).resolves.toEqual(new bigNumber(50000000000));
+      ).resolves.toEqual(new BigNumber(50000000000));
 
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.FAST)
-      ).resolves.toEqual(new bigNumber(100000000000));
+      ).resolves.toEqual(new BigNumber(100000000000));
     });
 
     it('throws when gas price is not safe to use', async () => {

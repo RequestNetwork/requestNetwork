@@ -5,6 +5,7 @@ import * as BtcPaymentNetwork from './btc';
 import DeclarativePaymentNetwork from './declarative';
 import * as Erc20PaymentNetwork from './erc20';
 import * as EthPaymentNetwork from './eth';
+import { initPaymentDetectionProvider, getDefaultProvider } from './provider';
 
 export {
   PaymentNetworkFactory,
@@ -13,4 +14,6 @@ export {
   DeclarativePaymentNetwork,
   Erc20PaymentNetwork,
   EthPaymentNetwork,
+  initPaymentDetectionProvider,
+  getDefaultProvider,
 };

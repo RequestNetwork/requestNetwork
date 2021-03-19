@@ -1,5 +1,4 @@
-import { ethers } from 'ethers';
-import { BigNumberish } from 'ethers/utils';
+import { ethers, BigNumberish } from 'ethers';
 
 import { ClientTypes } from '@requestnetwork/types';
 

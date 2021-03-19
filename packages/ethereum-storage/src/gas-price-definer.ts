@@ -6,7 +6,7 @@ import EthGasStationProvider from './gas-price-providers/ethgasstation-provider'
 import XdaiGasPriceProvider from './gas-price-providers/Xdai-provider';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-const bigNumber: any = require('bn.js');
+import * as BigNumber from 'bn.js';
 /**
  * Determines the gas price to use depending on the used network
  * Polls gas price API providers if necessary
@@ -51,14 +51,14 @@ export default class GasPriceDefiner {
   public async getGasPrice(
     type: StorageTypes.GasPriceType,
     networkName: string
-  ): Promise<string | undefined> {
+  ): Promise<BigNumber> {
     if (
       networkName ===
       EthereumUtils.getEthereumNetworkNameFromId(
         StorageTypes.EthereumNetwork.MAINNET
       )
     ) {
-      const gasPriceArray: Array<typeof bigNumber> = await this.pollProviders(
+      const gasPriceArray: Array<BigNumber> = await this.pollProviders(
         type,
         networkName
       );
@@ -66,11 +66,10 @@ export default class GasPriceDefiner {
         // Get the highest gas price from the providers
         return gasPriceArray
           .reduce(
-            (currentMax, gasPrice: typeof bigNumber) =>
-              bigNumber.max(currentMax, gasPrice),
-            new bigNumber(0)
-          )
-          .toString();
+            (currentMax, gasPrice: BigNumber) =>
+              BigNumber.max(currentMax, gasPrice),
+            new BigNumber(0)
+          );
       } else {
         this.logger.warn(
           'Cannot determine gas price: There is no available gas price provider',
@@ -83,17 +82,17 @@ export default class GasPriceDefiner {
         StorageTypes.EthereumNetwork.XDAI
       )
     ) {
-      const gasPrice: typeof bigNumber = await this.pollProviders(
+      const gasPrice: BigNumber[] = await this.pollProviders(
         type,
         networkName
       );
       if (gasPrice.length > 0) {
-        return gasPrice;
+        return gasPrice[0];
       } else {
         this.logger.warn('Not able to parse the gas fees correctly', ['xdai']);
       }
     }
-    return config.getDefaultEthereumGasPrice();
+    return new BigNumber(config.getDefaultEthereumGasPrice());
   }
   /**
    * Get all gas prices from the APIs
@@ -107,9 +106,15 @@ export default class GasPriceDefiner {
   public async pollProviders(
     type: StorageTypes.GasPriceType,
     networkName: string
+<<<<<<< HEAD
   ): Promise<Array<typeof bigNumber>> {
     const gasPriceArray: Array<typeof bigNumber> = [];
     // here we will have to push the gaspice based on the  blockchain network .
+=======
+  ): Promise<Array<BigNumber>> {
+    const gasPriceArray: Array<BigNumber> = [];
+    // here we will have to push the gaspice based on the type of network only
+>>>>>>> 9819a433163bbd584a8d3340e32737a30d32c5e1
 
     const providerList = this.gasPriceListMap[networkName];
     if (!providerList) {

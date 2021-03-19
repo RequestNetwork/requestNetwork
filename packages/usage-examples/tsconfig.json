@@ -11,6 +11,7 @@
     { "path": "../epk-signature" },
     { "path": "../multi-format" },
     { "path": "../payment-processor" },
+    { "path": "../payment-detection" },
     { "path": "../transaction-manager" },
     { "path": "../request-logic" },
     { "path": "../request-client.js" },
