@@ -683,7 +683,6 @@ workflows:
       # Release a next version package everytime we merge to master
       - next-release:
           requires:
-            - build
             - test-advanced-logic
             - test-data-access
             - test-data-format
