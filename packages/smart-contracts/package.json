@@ -45,7 +45,7 @@
     "test": "truffle test --contracts_directory=./src test/contracts/*.js"
   },
   "devDependencies": {
-    "@openzeppelin/contracts": "2.5.1",
+    "@openzeppelin/contracts": "3.4.1",
     "@openzeppelin/test-helpers": "0.5.6",
     "@requestnetwork/currency": "0.3.0",
     "@requestnetwork/utils": "0.30.0",
