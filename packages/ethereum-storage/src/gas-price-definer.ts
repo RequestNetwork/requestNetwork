@@ -3,7 +3,7 @@ import EthereumUtils from './ethereum-utils';
 import EtherchainProvider from './gas-price-providers/etherchain-provider';
 import EtherscanProvider from './gas-price-providers/etherscan-provider';
 import EthGasStationProvider from './gas-price-providers/ethgasstation-provider';
-import XdaiGasPriceProvider from './gas-price-providers/Xdai-provider';
+import xdaiGaspriceprovider from './gas-price-providers/Xdai-provider';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as BigNumber from 'bn.js';
@@ -25,7 +25,7 @@ export default class GasPriceDefiner {
   public gasPriceListMap: any = {
     mainnet: this.ethereumGasProvider,
     rinkeby: this.ethereumGasProvider,
-    xdai: [new XdaiGasPriceProvider()]
+    xdai: [new xdaiGasPriceProvider()]
   };
 
   /**
