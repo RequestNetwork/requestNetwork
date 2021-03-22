@@ -22,7 +22,7 @@ describe('GasPriceDefiner', () => {
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY),
       );
 
-      expect(gasPrice).toBe(config.getDefaultEthereumGasPrice());
+      expect(new BigNumber(gasPrice)).toBe(config.getDefaultEthereumGasPrice());
     });
 
     it('returns  pricing for fast transaction in  xdai  payment', async () => {
@@ -32,7 +32,7 @@ describe('GasPriceDefiner', () => {
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI),
       );
 
-      expect(gasPrice).toStrictEqual([new BigNumber(100000000000)]);
+      expect(gasPrice).toStrictEqual(new BigNumber(100000000000));
     });
 
 
@@ -45,7 +45,7 @@ describe('GasPriceDefiner', () => {
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
       );
 
-      expect(gasPrice).toBe(config.getDefaultEthereumGasPrice());
+      expect(new BigNumber(gasPrice)).toBe(config.getDefaultEthereumGasPrice());
     });
 
 
@@ -80,7 +80,7 @@ describe('GasPriceDefiner', () => {
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
       );
 
-      expect(gasPrice).toBe('500');
+      expect(gasPrice).toBe(new BigNumber(500));
     });
   });
 
@@ -92,18 +92,18 @@ describe('GasPriceDefiner', () => {
       let FastGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST, networkName);
 
       let StandardGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD, networkName);
-      expect(FastGasPrice).toEqual(
-        [new BigNumber(100000000000)]
+      expect(FastGasPrice).toBe(
+        new BigNumber(100000000000)
       );
 
-      expect(StandardGasPrice).toEqual(
-        [new BigNumber(50000000000)]
+      expect(StandardGasPrice).toBe(
+        new BigNumber(50000000000)
       );
 
       let lowGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.SAFELOW, networkName);
 
-      expect(lowGasPrice).toEqual(
-        [new BigNumber(10000000000)]
+      expect(lowGasPrice).toBe(
+        new BigNumber(10000000000)
       );
 
 
@@ -135,7 +135,6 @@ describe('GasPriceDefiner', () => {
         new BigNumber(100),
         new BigNumber(500),
         new BigNumber(200),
-        new BigNumber(300000),
       ]);
     });
 
