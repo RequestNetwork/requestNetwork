@@ -1,9 +1,8 @@
 import { StorageTypes } from '@requestnetwork/types';
-import xdaiGasPriceProvider from '../../src/gas-price-providers/Xdai-provider';
-import xdaiGasPriceProvider from '../../src/gas-price-providers/Xdai-provider';
+import XDaiGasPriceProvider from '../../src/gas-price-providers/Xdai-provider';
 import * as BigNumber from 'bn.js';
 
-let XdaiGasProvider: xdaiGasPriceProvider;
+let XDaiGasProvider: XDaiGasPriceProvider;
 
 const apiCorrectResponse = {
   fast: '10.0',
@@ -17,31 +16,29 @@ const apiNotSafeGasPriceResponse = {
   standard: '10000'
 };
 
-describe('xdaiGasPriceProvider', () => {
+describe('XDaiGasPriceProvider', () => {
   beforeEach(() => {
-    XdaiGasProvider = new xdaiGasPriceProvider();
+    XDaiGasProvider = new XDaiGasPriceProvider();
   });
 
   describe('getGasPrice', () => {
     it('allows to get the requested gas price', async () => {
-      await expect(
-        XdaiGasProvider.getGasPrice(StorageTypes.GasPriceType.SAFELOW)
-      ).resolves.toEqual(new BigNumber(10000000000));
+      await expect(XDaiGasProvider.getGasPrice(StorageTypes.GasPriceType.SAFELOW)).resolves.toEqual(
+        new BigNumber(10000000000)
+      );
 
-      await expect(
-        etherchainProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD)
-      ).resolves.toEqual(new BigNumber(50000000000));
+      await expect(etherchainProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD)).resolves.toEqual(
+        new BigNumber(50000000000)
+      );
 
-      await expect(
-        etherchainProvider.getGasPrice(StorageTypes.GasPriceType.FAST)
-      ).resolves.toEqual(new BigNumber(100000000000));
+      await expect(etherchainProvider.getGasPrice(StorageTypes.GasPriceType.FAST)).resolves.toEqual(
+        new BigNumber(100000000000)
+      );
     });
 
     it('throws when gas price is not safe to use', async () => {
       // when arbitrarily  fixed price is always arbitrarily above max
-      await expect(
-        etherchainProvider.getGasPrice(StorageTypes.GasPriceType.FAST)
-      )
+      await expect(etherchainProvider.getGasPrice(StorageTypes.GasPriceType.FAST))
         .toBe(10000000000000000000000)
         .rejects.toThrowError(`Xdai provided fixed  price not safe to use`);
     });

@@ -27,12 +27,12 @@ describe('GasPriceDefiner', () => {
 
     it('returns  pricing for fast transaction in  xdai  payment', async () => {
 
-      const gasPrice  = await gasPriceDefiner.getGasPrice(
+      const gasPrice = await gasPriceDefiner.getGasPrice(
         StorageTypes.GasPriceType.FAST,
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI),
       );
 
-      expect(gasPrice).toStrictEqual( [new bigNumber(100000000000)]);
+      expect(gasPrice).toStrictEqual([new BigNumber(100000000000)]);
     });
 
 
@@ -50,7 +50,7 @@ describe('GasPriceDefiner', () => {
 
 
     it('returns the max of values returned by ethereum providers', async () => {
-      
+
       const networkName = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)
       gasPriceDefiner.gasPriceListMap[networkName] = [
         {
@@ -85,38 +85,32 @@ describe('GasPriceDefiner', () => {
   });
 
   describe('pollProviders', () => {
-<<<<<<< HEAD
-=======
-    let FastGasPrice: any;
-    let StandardGasPrice: Promise<BigNumber>;
-    let lowGasPrice: Promise<BigNumber>;
->>>>>>> 9819a433163bbd584a8d3340e32737a30d32c5e1
     it('returns the gas prices of each type in  xdai', async () => {
-      
+
       let networkName = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI);
 
-      let FastGasPrice  = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST, networkName);
+      let FastGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST, networkName);
 
-      let StandardGasPrice  = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD, networkName);
+      let StandardGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD, networkName);
       expect(FastGasPrice).toEqual(
-        [new bigNumber(100000000000)]
+        [new BigNumber(100000000000)]
       );
 
       expect(StandardGasPrice).toEqual(
-        [new bigNumber(50000000000)]
+        [new BigNumber(50000000000)]
       );
 
       let lowGasPrice = await gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.SAFELOW, networkName);
 
       expect(lowGasPrice).toEqual(
-      [new bigNumber(10000000000)]
+        [new BigNumber(10000000000)]
       );
 
 
     });
 
     it('returns an array containing value from each provider of ethereum', async () => {
-        let networkName : string = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET);
+      let networkName: string = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET);
       gasPriceDefiner.gasPriceListMap[networkName] = [
         {
           getGasPrice: async (_type: StorageTypes.GasPriceType): Promise<BigNumber> =>
@@ -138,29 +132,23 @@ describe('GasPriceDefiner', () => {
       await expect(
         gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.STANDARD, networkName),
       ).resolves.toEqual([
-<<<<<<< HEAD
-        new bigNumber(100),
-        new bigNumber(500),
-        new bigNumber(200),
-=======
         new BigNumber(100),
         new BigNumber(500),
         new BigNumber(200),
         new BigNumber(300000),
->>>>>>> 9819a433163bbd584a8d3340e32737a30d32c5e1
       ]);
     });
 
     it('returns  empty array if there is no provider for the ethereum ', async () => {
-      let networkName : string = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET);
+      let networkName: string = EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET);
 
-      gasPriceDefiner.gasPriceListMap[networkName] =[];
-        await expect(
-          gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST, EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)),
-        ).resolves.toHaveLength(0);
+      gasPriceDefiner.gasPriceListMap[networkName] = [];
+      await expect(
+        gasPriceDefiner.pollProviders(StorageTypes.GasPriceType.FAST, EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)),
+      ).resolves.toHaveLength(0);
 
 
-      
+
 
     });
   });
