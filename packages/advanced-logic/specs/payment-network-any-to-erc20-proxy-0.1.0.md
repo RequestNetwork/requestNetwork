@@ -57,7 +57,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 - `feeAddress` is the destination address for the fee
 - `maxRateTimespan` is the time span maximum given for the payment
 
-[See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ProxyChainlinkConversionPath.sol)
+[See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/Erc20ConversionProxy.sol)
 
 | Network | Contract Address                           |
 | ------- | ------------------------------------------ |

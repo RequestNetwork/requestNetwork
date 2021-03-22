@@ -11,9 +11,10 @@ const { BigNumber } = require('ethers');
 const TestERC20 = artifacts.require('./TestERC20.sol');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const ChainlinkConversionPath = artifacts.require('./ChainlinkConversionPath.sol');
-const ProxyChainlinkConversionPath = artifacts.require('./ProxyChainlinkConversionPath.sol');
+const Erc20ConversionProxy = artifacts.require('./Erc20ConversionProxy.sol');
 
-contract('ProxyChainlinkConversionPath', function (accounts) {
+
+contract('Erc20ConversionProxy', function (accounts) {
   const from = accounts[0];
   const to = accounts[1];
   const feeAddress = accounts[2];
@@ -29,7 +30,7 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
   const EUR_address = '0x17B4158805772Ced11225E77339F90BeB5aAE968'; // Utils.crypto.last20bytesOfNormalizeKeccak256Hash({type: 'ISO4217', value: 'EUR' });
   const DAI_address = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
-  let testProxyChainlinkConversionPath;
+  let testErc20ConversionProxy;
   let testERC20;
   let erc20FeeProxy;
   let chainlinkConversionPath;
@@ -43,7 +44,7 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
       from,
     });
 
-    testProxyChainlinkConversionPath = await ProxyChainlinkConversionPath.new(
+    testErc20ConversionProxy = await Erc20ConversionProxy.new(
       erc20FeeProxy.address,
       chainlinkConversionPath.address,
       {
@@ -56,7 +57,7 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
     describe('transferFromWithReferenceAndFee with DAI', () => {
       it('allows to transfer DAI tokens for USD payment', async function () {
         const path = [USD_address, DAI_address];
-        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, {
+        await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
         });
 
@@ -71,8 +72,8 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
           smallerAmountInFIAT,
           path,
         );
-
-        const { logs } = await testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+    
+        const { logs } = await testErc20ConversionProxy.transferFromWithReferenceAndFee(
           to,
           smallAmountInFIAT,
           path,
@@ -116,9 +117,7 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
       });
       it('allows to transfer DAI tokens for EUR payment', async function () {
         const path = [EUR_address, USD_address, DAI_address];
-        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, {
-          from,
-        });
+        await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, { from });
 
         const fromOldBalance = await testERC20.balanceOf(from);
         const toOldBalance = await testERC20.balanceOf(to);
@@ -131,8 +130,8 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
           smallerAmountInFIAT,
           path,
         );
-
-        const { logs } = await testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+    
+        const { logs } = await testErc20ConversionProxy.transferFromWithReferenceAndFee(
           to,
           smallAmountInFIAT,
           path,
@@ -179,12 +178,12 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
     describe('transferFromWithReferenceAndFee with errors', () => {
       it('cannot transfer with invalid path', async function () {
         const path = [EUR_address, ETH_address, DAI_address];
-        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, {
+        await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
         });
 
         await expect(
-          testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+          testErc20ConversionProxy.transferFromWithReferenceAndFee(
             to,
             smallAmountInFIAT,
             path,
@@ -199,12 +198,12 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
       });
       it('cannot transfer if max to spend too low', async function () {
         const path = [USD_address, DAI_address];
-        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, {
+        await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
         });
 
         await expect(
-          testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+          testErc20ConversionProxy.transferFromWithReferenceAndFee(
             to,
             smallAmountInFIAT,
             path,
@@ -219,12 +218,12 @@ contract('ProxyChainlinkConversionPath', function (accounts) {
       });
       it('cannot transfer if rate is too old', async function () {
         const path = [USD_address, DAI_address];
-        await testERC20.approve(testProxyChainlinkConversionPath.address, thousandWith18Decimal, {
+        await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
         });
 
         await expect(
-          testProxyChainlinkConversionPath.transferFromWithReferenceAndFee(
+          testErc20ConversionProxy.transferFromWithReferenceAndFee(
             to,
             smallAmountInFIAT,
             path,

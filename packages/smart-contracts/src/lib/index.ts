@@ -5,7 +5,7 @@ import * as requestHashStorageArtifact from './requestHashStorageArtifact';
 import * as requestHashSubmitterArtifact from './requestHashSubmitterArtifact';
 import * as erc20SwapToPayArtifact from './erc20SwapToPayArtifact';
 import * as chainlinkConversionPath from './chainlinkConversionPath';
-import * as proxyChainlinkConversionPath from './proxyChainlinkConversionPath';
+import * as erc20ConversionProxy from './erc20ConversionProxy';
 
 export {
   ethereumProxyArtifact,
@@ -15,5 +15,5 @@ export {
   requestHashSubmitterArtifact,
   erc20SwapToPayArtifact,
   chainlinkConversionPath,
-  proxyChainlinkConversionPath,
+  erc20ConversionProxy,
 };
