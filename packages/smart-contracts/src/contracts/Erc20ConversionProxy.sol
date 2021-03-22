@@ -5,9 +5,9 @@ import "./interfaces/ERC20FeeProxy.sol";
 
 
 /**
- * @title ProxyChainlinkConversionPath
+ * @title Erc20ConversionProxy
  */
-contract ProxyChainlinkConversionPath {
+contract Erc20ConversionProxy {
   using SafeMath for uint256;
 
   address public paymentProxy;
