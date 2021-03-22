@@ -21,33 +21,30 @@ describe('Ethereum Utils', () => {
       expect(
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY),
       ).toBe('rinkeby');
-      expect(  
+      expect(
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI),
       ).toBe('xdai');
-      expect(  
-        EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.SOKOL),
-      ).toBe('sokol');
+
+
+      it(`should return undefined if the network doesn't exist`, async () => {
+        expect(EthereumUtils.getEthereumNetworkNameFromId(2000)).toBeUndefined();
+      });
     });
 
-    it(`should return undefined if the network doesn't exist`, async () => {
-      expect(EthereumUtils.getEthereumNetworkNameFromId(2000)).toBeUndefined();
+    describe('isGasPriceSafe', () => {
+      it('should return true when a safe value is given', async () => {
+        expect(EthereumUtils.isGasPriceSafe(new BigNumber(1))).toBe(true);
+        expect(EthereumUtils.isGasPriceSafe(new BigNumber(1000))).toBe(true);
+        expect(
+          EthereumUtils.isGasPriceSafe(new BigNumber(parseInt(getSafeGasPriceLimit()) - 1)),
+        ).toBe(true);
+      });
+
+      it('should return false when an unsafe value is given', async () => {
+        expect(EthereumUtils.isGasPriceSafe(new BigNumber(0))).toBe(false);
+        expect(EthereumUtils.isGasPriceSafe(new BigNumber(parseInt(getSafeGasPriceLimit())))).toBe(
+          false,
+        );
+      });
     });
   });
-
-  describe('isGasPriceSafe', () => {
-    it('should return true when a safe value is given', async () => {
-      expect(EthereumUtils.isGasPriceSafe(new BigNumber(1))).toBe(true);
-      expect(EthereumUtils.isGasPriceSafe(new BigNumber(1000))).toBe(true);
-      expect(
-        EthereumUtils.isGasPriceSafe(new BigNumber(parseInt(getSafeGasPriceLimit()) - 1)),
-      ).toBe(true);
-    });
-
-    it('should return false when an unsafe value is given', async () => {
-      expect(EthereumUtils.isGasPriceSafe(new BigNumber(0))).toBe(false);
-      expect(EthereumUtils.isGasPriceSafe(new BigNumber(parseInt(getSafeGasPriceLimit())))).toBe(
-        false,
-      );
-    });
-  });
-});
