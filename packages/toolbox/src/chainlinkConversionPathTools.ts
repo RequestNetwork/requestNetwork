@@ -134,7 +134,7 @@ class ChainlinkConversionPathTools {
   console.log('All aggregators:');
   console.log(allAggregators);
   console.log('#####################################################################');
-  console.log('All aggregators nodes for dijkstra:');
+  console.log('All aggregators nodes for currency pairs graph:');
   console.log(aggregatorsNodesForDijkstra);
   console.log('#####################################################################');
 })();
