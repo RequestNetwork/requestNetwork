@@ -1,4 +1,4 @@
-import { constants, ContractTransaction, Signer, providers, BigNumber } from 'ethers';
+import { constants, ContractTransaction, Signer, providers, BigNumber, BigNumberish } from 'ethers';
 
 import { getDecimalsForCurrency, getConversionPath } from '@requestnetwork/currency';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
@@ -21,7 +21,7 @@ import {
  */
 export interface IPaymentSettings {
   currency: RequestLogicTypes.ICurrency;
-  maxToSpend: BigNumber;
+  maxToSpend: BigNumberish;
 }
 
 /**
@@ -40,8 +40,8 @@ export async function payAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   paymentSettings: IPaymentSettings,
-  amount?: BigNumber,
-  feeAmount?: BigNumber,
+  amount?: BigNumberish,
+  feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   if (!paymentSettings.currency.network) {
@@ -81,8 +81,8 @@ export async function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   paymentSettings: IPaymentSettings,
-  amount?: BigNumber,
-  feeAmountOverride?: BigNumber,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
 ): Promise<string> {
   if (!paymentSettings.currency.network) {
     throw new Error('Cannot pay with a currency missing a network');
