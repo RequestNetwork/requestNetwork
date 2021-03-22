@@ -1,9 +1,9 @@
 import { StorageTypes } from '@requestnetwork/types';
-import XdaiGasPriceProvider from '../../src/gas-price-providers/Xdai-provider';
-import XdaiGasPriceProvider from '../../src/gas-price-providers/Xdai-provider';
-import * as BigNumber from "bn.js"
+import xdaiGasPriceProvider from '../../src/gas-price-providers/Xdai-provider';
+import xdaiGasPriceProvider from '../../src/gas-price-providers/Xdai-provider';
+import * as BigNumber from 'bn.js';
 
-let XdaiGasProvider: XdaiGasPriceProvider;
+let XdaiGasProvider: xdaiGasPriceProvider;
 
 const apiCorrectResponse = {
   fast: '10.0',
@@ -17,9 +17,9 @@ const apiNotSafeGasPriceResponse = {
   standard: '10000'
 };
 
-describe('XdaiGasPriceProvider', () => {
+describe('xdaiGasPriceProvider', () => {
   beforeEach(() => {
-    XdaiGasProvider = new XdaiGasPriceProvider();
+    XdaiGasProvider = new xdaiGasPriceProvider();
   });
 
   describe('getGasPrice', () => {

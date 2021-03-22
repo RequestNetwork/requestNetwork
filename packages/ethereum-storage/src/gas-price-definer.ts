@@ -48,44 +48,24 @@ export default class GasPriceDefiner {
    * @param networkName Name of the Ethereum network used that can influence the way to get the gas price
    * @returns Big number representing the gas price to use
    */
-  public async getGasPrice(
-    type: StorageTypes.GasPriceType,
-    networkName: string
-  ): Promise<BigNumber> {
-    if (
-      networkName ===
-      EthereumUtils.getEthereumNetworkNameFromId(
-        StorageTypes.EthereumNetwork.MAINNET
-      )
-    ) {
-      const gasPriceArray: Array<BigNumber> = await this.pollProviders(
-        type,
-        networkName
-      );
+  public async getGasPrice(type: StorageTypes.GasPriceType, networkName: string): Promise<BigNumber> {
+    if (networkName === EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)) {
+      const gasPriceArray: Array<BigNumber> = await this.pollProviders(type, networkName);
       if (gasPriceArray.length > 0) {
         // Get the highest gas price from the providers
-        return gasPriceArray
-          .reduce(
-            (currentMax, gasPrice: BigNumber) =>
-              BigNumber.max(currentMax, gasPrice),
-            new BigNumber(0)
-          );
-      } else {
-        this.logger.warn(
-          'Cannot determine gas price: There is no available gas price provider',
-          ['ethereum']
+        return gasPriceArray.reduce(
+          (currentMax, gasPrice: BigNumber) => BigNumber.max(currentMax, gasPrice),
+          new BigNumber(0)
         );
+      } else {
+        this.logger.warn('Cannot determine gas price: There is no available gas price provider', [
+          'ethereum'
+        ]);
       }
     } else if (
-      networkName ===
-      EthereumUtils.getEthereumNetworkNameFromId(
-        StorageTypes.EthereumNetwork.XDAI
-      )
+      networkName === EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)
     ) {
-      const gasPrice: BigNumber[] = await this.pollProviders(
-        type,
-        networkName
-      );
+      const gasPrice: BigNumber[] = await this.pollProviders(type, networkName);
       if (gasPrice.length > 0) {
         return gasPrice[0];
       } else {

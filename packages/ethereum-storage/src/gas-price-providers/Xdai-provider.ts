@@ -9,7 +9,7 @@ const API_MULTIPLIER: number = 10000000000;
  * thus there will be dummy API endpoints for keeping consistency
  *  @param  type : based on the type selected in the given level of txn payment , it will assign the gas to the GasDefinerFunction.
  */
-export default class XdaiGasPriceProvider implements StorageTypes.IGasPriceProvider {
+export default class xdaiGasPriceProvider implements StorageTypes.IGasPriceProvider {
   public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber> {
     let fixedGasPrice: BigNumber;
     const baseInt: number = 10;
