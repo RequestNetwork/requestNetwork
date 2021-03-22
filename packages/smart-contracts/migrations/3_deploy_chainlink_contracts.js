@@ -7,7 +7,7 @@ const USDT_fake = artifacts.require("UsdtFake");
 
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const ChainlinkConversionPath = artifacts.require("ChainlinkConversionPath");
-const ProxyChainlinkConversionPath = artifacts.require("ProxyChainlinkConversionPath");
+const Erc20ConversionProxy = artifacts.require("Erc20ConversionProxy");
 
 
 // Deploys, set up the contracts
@@ -33,5 +33,5 @@ module.exports = async function (deployer) {
     [USD_address, USD_address, USD_address, ETH_address],
     [AggDAI_USD.address, AggEUR_USD.address, AggETH_USD.address, AggUSDT_ETH.address]);
 
-  await deployer.deploy(ProxyChainlinkConversionPath, ERC20FeeProxy.address, ChainlinkConversionPath.address);
+  await deployer.deploy(Erc20ConversionProxy, ERC20FeeProxy.address, ChainlinkConversionPath.address);
 };
