@@ -1,4 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
+import * as BigNumber from 'bn.js';
 
 // This contains default values used to use Ethereum Network and IPFS
 // if information are not provided by the user
@@ -20,7 +21,7 @@ const config: any = {
 
   xdai: {
     default: 'private',
-    gasPriceDefault: '10',
+    gasPriceDefault: '50000000000',
     maxRetries: 2,
     nodeUrlDefault: {
       private: {
@@ -103,6 +104,17 @@ export function getDefaultEthereumGasPrice(): string {
   return process?.env?.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault;
 }
 
+
+/**
+ * Retrieve from config default fixed gas price to make transactions into Ethereum network
+ * @returns the gas price as a string 
+ */
+
+export function getDefaultXDaiGasPrice(): any {
+  const defaultPrice = new BigNumber(50000000000);
+  return defaultPrice;
+}
+
 /**
  * Retrieve from config the time to wait between query retries
  * @returns the query retry delay
@@ -126,9 +138,7 @@ export function getEthereumMaxRetries(): number {
  * @returns safe gas price limit
  */
 export function getSafeGasPriceLimit(): string {
-  return (
-    process?.env?.SAFE_GAS_PRICE_LIMIT || config.ethereum.safeGasPriceLimit
-  );
+  return process?.env?.SAFE_GAS_PRICE_LIMIT || config.ethereum.safeGasPriceLimit;
 }
 
 /**
