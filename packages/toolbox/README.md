@@ -57,7 +57,7 @@ yarn chainlinkPath
 #   }
 #   ...
 # }
-# All aggregators nodes for dijkstra: (Used to populate @requestnetwork/currency)
+# All aggregators nodes for the currency pairs graph: (Used to populate @requestnetwork/currency)
 # {
 #   network: {
 #      "currencyIn": {
