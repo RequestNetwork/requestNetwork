@@ -1,6 +1,4 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Provider, Web3Provider } from 'ethers/providers';
-import { BigNumberish, bigNumberify } from 'ethers/utils';
+import { ContractTransaction, Signer, BigNumberish, BigNumber, providers } from 'ethers';
 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
@@ -46,7 +44,7 @@ export class UnsupportedNetworkError extends Error {
  */
 export async function payRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
   paymentSettings?: IPaymentSettings,
@@ -91,7 +89,7 @@ export async function payRequest(
 export async function swapToPayRequest(
   request: ClientTypes.IRequestData,
   swapSettings: ISwapSettings,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
@@ -115,7 +113,7 @@ export async function swapToPayRequest(
 export async function hasSufficientFunds(
   request: ClientTypes.IRequestData,
   address: string,
-  provider?: Provider,
+  provider?: providers.Provider,
 ): Promise<boolean> {
   const paymentNetwork = getPaymentNetwork(request);
   if (!paymentNetwork || !supportedNetworks.includes(paymentNetwork)) {
@@ -133,7 +131,7 @@ export async function hasSufficientFunds(
   return isSolvent(
     address,
     request.currencyInfo,
-    bigNumberify(request.expectedAmount).add(feeAmount),
+    BigNumber.from(request.expectedAmount).add(feeAmount),
     provider,
   );
 }
@@ -151,7 +149,7 @@ export async function isSolvent(
   fromAddress: string,
   currency: RequestLogicTypes.ICurrency,
   amount: BigNumberish,
-  provider: Provider,
+  provider: providers.Provider,
 ): Promise<boolean> {
   const ethBalance = await provider.getBalance(fromAddress);
   const needsGas = !['Safe Multisig WalletConnect', 'Gnosis Safe Multisig'].includes(
@@ -162,7 +160,7 @@ export async function isSolvent(
     return ethBalance.gt(amount);
   } else {
     const balance = await getCurrencyBalance(fromAddress, currency, provider);
-    return (ethBalance.gt(0) || !needsGas) && bigNumberify(balance).gte(amount);
+    return (ethBalance.gt(0) || !needsGas) && BigNumber.from(balance).gte(amount);
   }
 }
 
@@ -176,7 +174,7 @@ export async function isSolvent(
 async function getCurrencyBalance(
   address: string,
   paymentCurrency: RequestLogicTypes.ICurrency,
-  provider: Provider,
+  provider: providers.Provider,
 ): Promise<BigNumberish> {
   switch (paymentCurrency.type) {
     case 'ETH': {

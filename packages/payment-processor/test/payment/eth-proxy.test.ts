@@ -1,5 +1,4 @@
-import { Wallet } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
+import { Wallet, BigNumber, providers } from 'ethers';
 
 import {
   ClientTypes,
@@ -10,7 +9,6 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import { bigNumberify } from 'ethers/utils';
 import { encodePayEthProxyRequest, payEthProxyRequest } from '../../src/payment/eth-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
@@ -19,7 +17,7 @@ import { getRequestPaymentValues } from '../../src/payment/utils';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
-const provider = new JsonRpcProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 const validRequest: ClientTypes.IRequestData = {
@@ -111,7 +109,7 @@ describe('payEthProxyRequest', () => {
         '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
       gasPrice: '20000000000',
       to: '0xf204a4Ef082f5c04bB89F7D5E6568B796096735a',
-      value: bigNumberify('0x64'),
+      value: BigNumber.from('0x64'),
     });
     wallet.sendTransaction = originalSendTransaction;
   });

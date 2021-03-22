@@ -1,6 +1,4 @@
-import { constants, ContractTransaction, Signer } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
-import { bigNumberify, BigNumberish } from 'ethers/utils';
+import { constants, ContractTransaction, Signer, BigNumberish, providers, BigNumber } from 'ethers';
 
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
@@ -26,7 +24,7 @@ import {
  */
 export async function payErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -53,7 +51,7 @@ export async function payErc20FeeProxyRequest(
  */
 export function encodePayErc20FeeRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
@@ -65,11 +63,11 @@ export function encodePayErc20FeeRequest(
     request,
   );
   const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = bigNumberify(feeAmountOverride || feeAmount || 0);
+  const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
   const proxyAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
   const proxyContract = Erc20FeeProxyContract.connect(proxyAddress, signer);
 
-  return proxyContract.interface.functions.transferFromWithReferenceAndFee.encode([
+  return proxyContract.interface.encodeFunctionData('transferFromWithReferenceAndFee', [
     tokenAddress,
     paymentAddress,
     amountToPay,
@@ -98,7 +96,7 @@ export function _getErc20FeeProxyPaymentUrl(
   );
   const contractAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
   const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = feeAmountOverride || bigNumberify(feeAmount || 0);
+  const feeToPay = feeAmountOverride || BigNumber.from(feeAmount || 0);
   const parameters = `transferFromWithReferenceAndFee?address=${request.currencyInfo.value}&address=${paymentAddress}&uint256=${amountToPay}&bytes=${paymentReference}&uint256=${feeToPay}&address=${feeAddress}`;
   return `ethereum:${contractAddress}/${parameters}`;
 }

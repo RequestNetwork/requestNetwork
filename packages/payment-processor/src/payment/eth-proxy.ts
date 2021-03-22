@@ -1,13 +1,7 @@
-import { ContractTransaction, Signer } from 'ethers';
-import { Web3Provider } from 'ethers/providers';
-import { BigNumberish } from 'ethers/utils';
-
+import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
-
 import { ethereumProxyArtifact } from '@requestnetwork/smart-contracts';
-
 import { EthProxyContract } from '../contracts/EthProxyContract';
-
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -26,7 +20,7 @@ import {
  */
 export async function payEthProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
@@ -51,7 +45,7 @@ export async function payEthProxyRequest(
  */
 export function encodePayEthProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
   const signer = getSigner(signerOrProvider);
@@ -61,7 +55,7 @@ export function encodePayEthProxyRequest(
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
 
   const proxyContract = EthProxyContract.connect(proxyAddress, signer);
-  return proxyContract.interface.functions.transferWithReference.encode([
+  return proxyContract.interface.encodeFunctionData('transferWithReference', [
     paymentAddress,
     `0x${paymentReference}`,
   ]);
