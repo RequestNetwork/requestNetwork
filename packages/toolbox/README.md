@@ -37,6 +37,40 @@ yarn run:create
 yarn run:create 12
 ```
 
+### Get conversion paths
+
+Returns all the aggregators used for the any-to-erc20 proxy.
+It can be used to populate the [currency pair](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/currency/src/chainlink-path-aggregators.ts#L9) (in @requestnetwork/currency) when we add a new aggregator to [ChainlinkConversionPath.sol](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ChainlinkConversionPath.sol) on any network.
+
+```bash
+yarn chainlinkPath
+
+# ###################################################################
+# All aggregators: (Used to list all the aggregators)
+# {
+#   network: {
+#      "currencyIn": {
+#        "currencyOut": "aggregator"
+#        ...
+#      }
+#      ...
+#   }
+#   ...
+# }
+# All aggregators nodes for the currency pairs graph: (Used to populate @requestnetwork/currency)
+# {
+#   network: {
+#      "currencyIn": {
+#        "currencyOut": 1,
+#        ...
+#      }
+#      ...
+#   }
+#   ...
+# }
+# ###################################################################
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
