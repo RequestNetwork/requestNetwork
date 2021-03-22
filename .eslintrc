@@ -136,7 +136,11 @@
           "versioning",
           "webpack",
           "wei",
-          "whitelisted"
+          "whitelisted",
+          "xdai",
+          "Dai",
+          "gaspice",
+          "XDai"
         ],
         "minLength": 3,
         "skipIfMatch": [
