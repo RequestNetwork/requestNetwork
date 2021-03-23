@@ -63,6 +63,14 @@ const extraERC20Tokens = {
     decimals: 18,
     address: '0x3845badAde8e6dFF049820680d1F14bD3903a5d0',
   },
+  // GRT (The Graph Token)
+  '0xc944e90c64b2c07662a292be6244bdf05cda44a7': {
+    name: 'GRT',
+    erc20: true,
+    symbol: 'GRT',
+    decimals: 18,
+    address: '0xc944e90c64b2c07662a292be6244bdf05cda44a7',
+  },
 };
 /* eslint-enable spellcheck/spell-checker */
 
