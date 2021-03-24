@@ -10,7 +10,7 @@ You don't need to read this document if:
 
 - you want to develop an app using the request protocol (see the API library instead [here](/packages/request-client.js))
 
-Prerequisite: Having read the request logic specification (see [here](/packages/request-logic/specs/request-logic-specification-v2.0.0.md))
+Prerequisite: Having read the request logic specification (see [here](/packages/request-logic/specs/request-logic-specification.md)
 
 The advanced logic is made of `extensions` that add features to simple requests from the request logic.
 
