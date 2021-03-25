@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, BigNumberish, BigNumber, providers } from 'ethers';
+import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
 import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 

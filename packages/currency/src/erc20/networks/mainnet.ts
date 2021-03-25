@@ -46,6 +46,22 @@ const extraERC20Tokens = {
     decimals: 6,
     address: '0x9bA00D6856a4eDF4665BcA2C2309936572473B7E',
   },
+  // OCEAN
+  '0x967da4048cD07aB37855c090aAF366e4ce1b9F48': {
+    name: 'OCEAN',
+    erc20: true,
+    symbol: 'OCEAN',
+    decimals: 18,
+    address: '0x967da4048cD07aB37855c090aAF366e4ce1b9F48',
+  },
+  // SAND (Sandbox Game)
+  '0x3845badAde8e6dFF049820680d1F14bD3903a5d0': {
+    name: 'SAND',
+    erc20: true,
+    symbol: 'SAND',
+    decimals: 18,
+    address: '0x3845badAde8e6dFF049820680d1F14bD3903a5d0',
+  },
 };
 
 // Merge metamask contracts list with our own

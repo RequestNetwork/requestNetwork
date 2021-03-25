@@ -1,15 +1,14 @@
-const artifactsProxyChainlinkConversionPath = require('../../artifacts/ProxyChainlinkConversionPath/artifacts.json');
-const ARTIFACTS_VERSION: string = artifactsProxyChainlinkConversionPath.lastVersion;
+const artifactsErc20ConversionProxy = require('../../artifacts/Erc20ConversionProxy/artifacts.json');
+const ARTIFACTS_VERSION: string = artifactsErc20ConversionProxy.lastVersion;
 
 /**
  * Retrieve the abi from the artifact of the used version
  * @returns the abi of the artifact as a json object
  */
 export function getContractAbi(): any {
-  const artifactFilename: string =
-    artifactsProxyChainlinkConversionPath[ARTIFACTS_VERSION].artifact;
+  const artifactFilename: string = artifactsErc20ConversionProxy[ARTIFACTS_VERSION].artifact;
 
-  const artifact = require(`../../artifacts/ProxyChainlinkConversionPath/${artifactFilename.replace(
+  const artifact = require(`../../artifacts/Erc20ConversionProxy/${artifactFilename.replace(
     /\.[^/.]+$/,
     '',
   )}.json`);
@@ -53,7 +52,7 @@ export function getDeploymentInformation(
   artifactsVersion: string = ARTIFACTS_VERSION,
 ): { address: string; creationBlockNumber: number } {
   const deploymentInformation =
-    artifactsProxyChainlinkConversionPath[artifactsVersion].deployment[networkName];
+    artifactsErc20ConversionProxy[artifactsVersion].deployment[networkName];
 
   // Check the artifact has been deployed into the specified network
   if (!deploymentInformation) {
