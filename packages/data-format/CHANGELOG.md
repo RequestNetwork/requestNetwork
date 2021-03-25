@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.8.5](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.8.0...@requestnetwork/data-format@0.8.5) (2021-03-15)
+
+
+### Bug Fixes
+
+* enable tree-shaking on data-format ([#411](https://github.com/RequestNetwork/requestNetwork/issues/411)) ([c6e34ed](https://github.com/RequestNetwork/requestNetwork/commit/c6e34edc74417456fdec91a280a6a5905babffaf))
+
+
+
+
+
 ## [0.8.4](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.8.0...@requestnetwork/data-format@0.8.4) (2021-03-03)
 
 
