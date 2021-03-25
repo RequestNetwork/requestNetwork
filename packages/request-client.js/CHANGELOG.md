@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.36.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.30.0...@requestnetwork/request-client.js@0.36.0) (2021-03-25)
+
+
+### Features
+
+* Add extra support erc20 tokens ([#388](https://github.com/RequestNetwork/requestNetwork/issues/388)) ([6fe92a1](https://github.com/RequestNetwork/requestNetwork/commit/6fe92a155e3ee9c287b5d2ab584a33c8cffb1e6a))
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+* update token list ([#384](https://github.com/RequestNetwork/requestNetwork/issues/384)) ([4913626](https://github.com/RequestNetwork/requestNetwork/commit/4913626c74458e17c27b1b21e2a7f4937fe2e841))
+
+
+
+
+
 # [0.35.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-client.js@0.30.0...@requestnetwork/request-client.js@0.35.0) (2021-03-15)
 
 

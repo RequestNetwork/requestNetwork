@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/toolbox@0.1.24...@requestnetwork/toolbox@0.2.0) (2021-03-25)
+
+
+### Features
+
+* tool to list all the aggregators supported by the protocol ([#443](https://github.com/RequestNetwork/requestNetwork/issues/443)) ([2206b0d](https://github.com/RequestNetwork/requestNetwork/commit/2206b0d900271b4b8da8b72ce53ab19c5181a960))
+
+
+
+
+
 ## [0.1.29](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/toolbox@0.1.24...@requestnetwork/toolbox@0.1.29) (2021-03-15)
 
 **Note:** Version bump only for package @requestnetwork/toolbox

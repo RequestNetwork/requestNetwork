@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.32](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/web3-signature@0.4.26...@requestnetwork/web3-signature@0.4.32) (2021-03-25)
+
+**Note:** Version bump only for package @requestnetwork/web3-signature
+
+
+
+
+
 ## [0.4.31](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/web3-signature@0.4.26...@requestnetwork/web3-signature@0.4.31) (2021-03-15)
 
 **Note:** Version bump only for package @requestnetwork/web3-signature
