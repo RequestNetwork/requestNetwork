@@ -44,9 +44,7 @@ export default class IgnoredDataIds {
    * @param reason reason we ignored the dataId
    * @param toRetry will be retry later if true
    */
-  public async save(
-    entry: StorageTypes.IEthereumEntry,
-  ): Promise<void> {
+  public async save(entry: StorageTypes.IEthereumEntry): Promise<void> {
     const previous = await this.ignoredDataIds.get(entry.hash);
 
     if (!previous) {
@@ -65,7 +63,7 @@ export default class IgnoredDataIds {
         // update it only if it was mean to be retry
         await this.ignoredDataIds.set(entry.hash, {
           entry,
-          iteration: previous.iteration as number + 1,
+          iteration: (previous.iteration as number) + 1,
           lastTryTimestamp: Date.now(),
           toRetry: entry.error?.type === StorageTypes.ErrorEntries.IPFS_CONNECTION_ERROR,
         });
@@ -77,9 +75,7 @@ export default class IgnoredDataIds {
    * Removes the ignored dataId from the cache
    * @param dataId dataId
    */
-  public async delete(
-    dataId: string,
-  ): Promise<void> {
+  public async delete(dataId: string): Promise<void> {
     await this.ignoredDataIds.delete(dataId);
     // update the list
     await this.deleteFromDataIdsList(dataId);
@@ -151,12 +147,15 @@ export default class IgnoredDataIds {
    * @param entry to check
    * @returns true if it is time to retry
    */
-  private shouldRetry(
-    entry: StorageTypes.IIgnoredDataId,
-  ): boolean {
+  private shouldRetry(entry: StorageTypes.IIgnoredDataId): boolean {
     // The entry should be retry periodically in an exponential interval of time
     // Every time we retry to exponentially increase the time of the next try
-    return entry.toRetry && (entry.lastTryTimestamp as number + Math.floor(Math.exp(entry.iteration)) * INTERVAL_RETRY_MS) <= Date.now();
+    return (
+      entry.toRetry &&
+      (entry.lastTryTimestamp as number) +
+        Math.floor(Math.exp(entry.iteration)) * INTERVAL_RETRY_MS <=
+        Date.now()
+    );
   }
 
   /**
@@ -188,7 +187,7 @@ export default class IgnoredDataIds {
     if (!listDataIds) {
       return;
     }
-    listDataIds = listDataIds.filter(e => e !== dataId);
+    listDataIds = listDataIds.filter((e) => e !== dataId);
     await this.listIgnoredDataIds.set('list', listDataIds);
   }
 }

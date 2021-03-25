@@ -14,7 +14,7 @@ const arbitraryDeltaAmount = '100000000000000000';
 const arbitraryExpectedAmountMinusDelta = '23400000000000000';
 const arbitraryExpectedAmountPlusDelta = '223400000000000000';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Amount', () => {
   describe('isValid', () => {
     it('can valid amount as small integer', () => {

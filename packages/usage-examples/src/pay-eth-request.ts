@@ -2,13 +2,13 @@ import { hasSufficientFunds, payRequest } from '@requestnetwork/payment-processo
 import { RequestNetwork } from '@requestnetwork/request-client.js';
 import { Wallet } from 'ethers';
 
-/* tslint:disable:no-floating-promises */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 
 // for demo purpose
 const wallet = Wallet.createRandom();
 const requestNetwork = new RequestNetwork();
 
-// tslint:disable-next-line: typedef
+// eslint-disable-next-line
 (async () => {
   const account = wallet.address;
 

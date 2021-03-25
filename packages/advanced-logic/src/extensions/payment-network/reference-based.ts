@@ -34,7 +34,6 @@ function createCreationAction(
   }
 
   if (!eightHexRegex.test(creationParameters.salt)) {
-    /* eslint-disable spellcheck/spell-checker */
     throw Error(
       `The salt must be a string of minimum 16 hexadecimal characters. Example: 'ea3bc7caf64110ca'`,
     );

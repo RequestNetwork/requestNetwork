@@ -92,7 +92,7 @@ class ChainlinkConversionPathTools {
   }
 }
 
-// tslint:disable:no-floating-promises
+/* eslint-disable @typescript-eslint/no-floating-promises */
 (async () => {
   const networks = [
     'private',
@@ -111,13 +111,11 @@ class ChainlinkConversionPathTools {
 
     // Include the reverse path of each aggregators
     aggregatorsNodesForDijkstra[network] = {};
-    // tslint:disable-next-line:forin
     for (let ccyIn in allAggregators[network]) {
       ccyIn = ccyIn.toLowerCase();
       if (!aggregatorsNodesForDijkstra[network][ccyIn]) {
         aggregatorsNodesForDijkstra[network][ccyIn] = {};
       }
-      // tslint:disable-next-line:forin
       for (let ccyOut in allAggregators[network][ccyIn]) {
         ccyOut = ccyOut.toLowerCase();
         if (!aggregatorsNodesForDijkstra[network][ccyOut]) {
@@ -129,7 +127,6 @@ class ChainlinkConversionPathTools {
     }
   }
 
-  // tslint:disable:no-console
   console.log('#####################################################################');
   console.log('All aggregators:');
   console.log(allAggregators);

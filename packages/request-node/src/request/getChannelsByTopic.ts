@@ -2,7 +2,7 @@ import { DataAccess } from '@requestnetwork/data-access';
 import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 
-const GET_CHANNELS_TIMEOUT: number = 600000;
+const GET_CHANNELS_TIMEOUT = 600000;
 
 /**
  * Handles getChannelsByTopic of data-access layer.
@@ -43,7 +43,10 @@ export default async function getChannelsByTopic(
 
       // Log the request time
       const requestEndTime = Date.now();
-      logger.debug(`getChannelsByTopic latency: ${requestEndTime - requestStartTime}ms`, ['metric', 'latency']);
+      logger.debug(`getChannelsByTopic latency: ${requestEndTime - requestStartTime}ms`, [
+        'metric',
+        'latency',
+      ]);
 
       serverResponse.status(httpStatus.OK).send(transactions);
     } catch (e) {

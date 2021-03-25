@@ -136,7 +136,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
         // propagate the confirmation
         result.emit('confirmed', resultAfterConfirmation);
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 

@@ -4,6 +4,7 @@ import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
 
 const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
@@ -111,7 +112,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
         result.emit('confirmed', resultConfirmed.data);
       })
       .catch((e: any) => {
-        // tslint:disable-next-line:no-magic-numbers
+        // eslint-disable-next-line no-magic-numbers
         if (e.response.status === 404) {
           throw new Error(
             `Transaction confirmation not receive after ${GET_CONFIRMATION_MAX_RETRY} retries`,

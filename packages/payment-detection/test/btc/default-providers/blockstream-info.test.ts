@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { PaymentTypes } from '@requestnetwork/types';
 
 import Blockstream from '../../../src/btc/default-providers/blockstream-info';
@@ -6,7 +5,7 @@ import Blockstream from '../../../src/btc/default-providers/blockstream-info';
 import * as BlockstreamData from './blockstream-info-data';
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/btc/providers/blockstream', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {

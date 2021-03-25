@@ -1,6 +1,6 @@
 import { LogTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 
 /** The different logging modes supported by this logger */
 export enum modeType {

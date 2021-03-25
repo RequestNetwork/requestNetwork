@@ -3,7 +3,8 @@ import { argv } from 'yargs';
 import { modeType } from './logger';
 
 // Load environment variables from .env file (without overriding variables already set)
-require('dotenv').config();
+import { config } from 'dotenv';
+config();
 
 /**
  * This contains default values used for the server and storage initialization
@@ -64,8 +65,8 @@ export function getServerPort(): number {
  * Get custom headers as a JSON stringified object from command line argument, environment variables or default values
  * @returns an object with the custom headers to be set
  */
-export function getCustomHeaders(): object {
-  const headersString = argv.headers || (process.env.HEADERS || defaultValues.server.headers);
+export function getCustomHeaders(): Record<string, string> {
+  const headersString = argv.headers || process.env.HEADERS || defaultValues.server.headers;
 
   try {
     return JSON.parse(headersString);
@@ -259,41 +260,23 @@ export function getHelpMessage(): string {
     OPTIONS
       SERVER OPTIONS
         port (${defaultValues.server.port})\t\t\t\tPort for the server to listen for API requests
-        headers (${
-          defaultValues.server.headers
-        })\t\t\t\tCustom headers to send with the API responses
-        externalUrl (${
-          defaultValues.server.externalUrl
-        })\t\t\t\tExternal url of the node (used to identified where the buffer data are stored before being broadcasted)
+        headers (${defaultValues.server.headers})\t\t\t\tCustom headers to send with the API responses
+        externalUrl (${defaultValues.server.externalUrl})\t\t\t\tExternal url of the node (used to identified where the buffer data are stored before being broadcasted)
 
       ETHEREUM OPTIONS
-        networkId (${
-          defaultValues.ethereumStorage.ethereum.networkId
-        })\t\t\t\tId of the Ethereum network used
-        providerUrl (${
-          defaultValues.ethereumStorage.ethereum.web3ProviderUrl
-        })\tUrl of the web3 provider for Ethereum
-        LastBlockNumberDelay (${
-          defaultValues.ethereumStorage.lastBlockNumberDelay
-        } ms)\t\t\tThe minimum delay between getLastBlockNumber calls
-        EthereumRetryDelay (${
-          defaultValues.ethereumStorage.retryDelay
-        })\t\t\tThe delay between subsequent call retries
+        networkId (${defaultValues.ethereumStorage.ethereum.networkId})\t\t\t\tId of the Ethereum network used
+        providerUrl (${defaultValues.ethereumStorage.ethereum.web3ProviderUrl})\tUrl of the web3 provider for Ethereum
+        LastBlockNumberDelay (${defaultValues.ethereumStorage.lastBlockNumberDelay} ms)\t\t\tThe minimum delay between getLastBlockNumber calls
+        EthereumRetryDelay (${defaultValues.ethereumStorage.retryDelay})\t\t\tThe delay between subsequent call retries
 
       IPFS OPTIONS
         ipfsHost (${defaultValues.ethereumStorage.ipfs.host})\t\t\tHost of the IPFS gateway
         ipfsPort (${defaultValues.ethereumStorage.ipfs.port})\t\t\t\tPort of the IPFS gateway
-        ipfsProtocol (${
-          defaultValues.ethereumStorage.ipfs.protocol
-        })\t\t\tProtocol used to connect to the IPFS gateway
-        ipfsTimeout (${
-          defaultValues.ethereumStorage.ipfs.timeout
-        })\t\t\tTimeout threshold to connect to the IPFS gateway
+        ipfsProtocol (${defaultValues.ethereumStorage.ipfs.protocol})\t\t\tProtocol used to connect to the IPFS gateway
+        ipfsTimeout (${defaultValues.ethereumStorage.ipfs.timeout})\t\t\tTimeout threshold to connect to the IPFS gateway
 
       OTHER OPTIONS
-        storageMaxConcurrency (${
-          defaultValues.ethereumStorage.concurrency
-        })\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
+        storageMaxConcurrency (${defaultValues.ethereumStorage.maxConcurrency})\t\t\tMaximum number of concurrent calls to Ethereum or IPFS
 
         logLevel (${defaultValues.log.level})\t\t\tThe node log level (ERROR, WARN, INFO or DEBUG)
         logMode (${defaultValues.log.mode})\t\t\tThe node log mode (human or machine)

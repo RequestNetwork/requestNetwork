@@ -7,7 +7,7 @@ let transactionParser: TransactionsParser;
 
 const data = '{ "what": "ever", "it": "is,", "this": "must", "work": true }';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('transaction-parser', () => {
   beforeEach(() => {
     transactionParser = new TransactionsParser();

@@ -29,7 +29,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
 
   private submitterContract: ethers.Contract | undefined;
   private provider: ethers.providers.JsonRpcProvider | ethers.providers.Web3Provider;
-  private networkName: string = '';
+  private networkName = '';
 
   /**
    * Creates an instance of HttpDataAccess.
@@ -113,7 +113,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     // submit the hash to ethereum
     const tx = await this.submitterContract.submitHash(
       ipfsHash,
-      // tslint:disable:no-magic-numbers
+      /* eslint-disable no-magic-numbers */
       ethers.utils.hexZeroPad(ethers.utils.hexlify(ipfsSize), 32),
       { value: fee },
     );

@@ -12,7 +12,7 @@ function calculate(requestId: string, salt: string, address: string): string {
     throw new Error('RequestId, salt and address are mandatory to calculate the payment reference');
   }
   // "The value is the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(requestId + salt + address))`"
-  // tslint:disable:no-magic-numbers
+  /* eslint-disable no-magic-numbers */
   return Utils.crypto.keccak256Hash((requestId + salt + address).toLowerCase()).slice(-16);
 }
 

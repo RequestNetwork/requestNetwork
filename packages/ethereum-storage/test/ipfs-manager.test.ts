@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { StorageTypes } from '@requestnetwork/types';
 import { EventEmitter } from 'events';
 import * as http from 'http';
@@ -50,7 +49,7 @@ const notAddedHash = 'QmXnnyufdzAWL5CqZ2RnSNgPbvCc1ALT73sNonExisting';
 const contentLengthOnIpfs = 29;
 const contentLengthOnIpfs2 = 38;
 
-// tslint:disable:no-magic-numbers
+/* eslint-disable no-magic-numbers */
 describe('Ipfs manager', () => {
   beforeEach(() => {
     ipfsManager = new IpfsManager(ipfsGatewayConnection, testErrorHandling);
@@ -154,7 +153,7 @@ describe('Ipfs manager', () => {
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
       // We filter the response of the request to prevent the promise to resolve
-      // tslint:disable-next-line:no-empty
+      // eslint-disable-next-line no-empty,@typescript-eslint/no-empty-function
       hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };
@@ -206,7 +205,7 @@ describe('Ipfs manager', () => {
 
     // Hook the get function of the protocol module to allow us to send customized event
     const requestHook = (request: string, _resCallback: any): EventEmitter => {
-      // tslint:disable-next-line:no-empty
+      // eslint-disable-next-line no-empty,@typescript-eslint/no-empty-function
       hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };

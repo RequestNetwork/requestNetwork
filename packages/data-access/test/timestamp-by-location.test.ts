@@ -1,5 +1,5 @@
-// tslint:disable: await-promise
-// tslint:disable: no-magic-numbers
+/* eslint-disable @typescript-eslint/await-thenable */
+/* eslint-disable no-magic-numbers */
 
 import TimestampByLocationTransactionIndex from '../src/transaction-index/timestamp-by-location';
 
@@ -7,7 +7,7 @@ const arbitraryDataId1 = 'dataId1';
 
 const arbitraryTimestamp = 10;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('LocationTimestamp', () => {
   it('can pushTimestampByLocation() and getTimestampFromLocation()', async () => {
     const timestampLocation = new TimestampByLocationTransactionIndex();

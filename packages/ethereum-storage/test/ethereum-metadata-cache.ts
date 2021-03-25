@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { StorageTypes } from '@requestnetwork/types';
 import EthereumMetadataCache from '../src/ethereum-metadata-cache';
 import SmartContractManager from '../src/smart-contract-manager';

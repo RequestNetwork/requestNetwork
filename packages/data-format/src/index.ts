@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import * as AJV from 'ajv';
 import * as jsonSchema from 'ajv/lib/refs/json-schema-draft-06.json';
 import * as schemaAddress from './format/address.json';

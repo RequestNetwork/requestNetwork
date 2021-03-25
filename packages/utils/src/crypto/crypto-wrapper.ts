@@ -26,7 +26,7 @@ const AUTH_TAG_LENGTH = 16;
  * @returns Promise resolving the 32 bytes generated
  */
 async function random32Bytes(): Promise<Buffer> {
-  // tslint:disable-next-line:no-magic-numbers
+  // eslint-disable-next-line no-magic-numbers
   return randomBytes(32);
 }
 
@@ -133,14 +133,12 @@ async function decryptWithAes256gcm(encryptedAndIv: Buffer, key: Buffer): Promis
  * @returns Promise resolving the N bytes generated
  */
 async function randomBytes(n: number): Promise<Buffer> {
-  return new Promise(
-    (resolve, reject): any => {
-      cryptoRandomBytes(n, (error, buffer) => {
-        if (error) {
-          return reject(`Error generating random bytes: ${error}`);
-        }
-        return resolve(buffer);
-      });
-    },
-  );
+  return new Promise((resolve, reject): any => {
+    cryptoRandomBytes(n, (error, buffer) => {
+      if (error) {
+        return reject(`Error generating random bytes: ${error}`);
+      }
+      return resolve(buffer);
+    });
+  });
 }

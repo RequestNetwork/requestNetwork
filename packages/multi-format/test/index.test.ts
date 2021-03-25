@@ -2,7 +2,7 @@ import { MultiFormatTypes } from '@requestnetwork/types';
 
 import MultiFormat from '../src/index';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils.multiFormat', () => {
   describe('serialize', () => {
     it('can serialize', () => {

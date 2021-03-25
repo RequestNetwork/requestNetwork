@@ -1,5 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
-
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -8,7 +6,7 @@ import { EventEmitter } from 'events';
 import EthereumStorage from '../src/ethereum-storage';
 import IpfsConnectionError from '../src/ipfs-connection-error';
 
-// tslint:disable:no-magic-numbers
+/* eslint-disable no-magic-numbers */
 
 const web3HttpProvider = require('web3-providers-http');
 const web3Utils = require('web3-utils');
@@ -119,7 +117,7 @@ const pastEventsMock = [
     transactionHash: '0xc',
   },
 ];
-// tslint:disable:typedef
+/* eslint-disable  */
 const getPastEventsMock = () => pastEventsMock;
 
 describe('EthereumStorage', () => {
@@ -221,9 +219,7 @@ describe('EthereumStorage', () => {
       await ethereumStorage.initialize();
 
       ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
-        StorageTypes.IEthereumMetadata
-      > => {
+      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
         return {
           blockConfirmation: 10,
           blockNumber: 10,
@@ -275,14 +271,12 @@ describe('EthereumStorage', () => {
     });
 
     it('throws when append and addHashAndSizeToEthereum throws', (done) => {
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
-        StorageTypes.IEthereumMetadata
-      > => {
+      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
         throw Error('fake error');
       };
 
       expect.assertions(1);
-      // tslint:disable-next-line: no-floating-promises
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       ethereumStorage.append(content1).then((result) => {
         result
           .on('confirmed', () => {
@@ -315,9 +309,7 @@ describe('EthereumStorage', () => {
 
       // Ethereum metadata is determined by the return data of addHashAndSizeToEthereum
       // We change the return data of this function to ensure the second call of append contain different metadata
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<
-        StorageTypes.IEthereumMetadata
-      > => {
+      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
         return {
           blockConfirmation: 20,
           blockNumber: 11,
@@ -518,9 +510,7 @@ describe('EthereumStorage', () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
       ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = async (): Promise<
-        StorageTypes.IEthereumEntriesWithLastTimestamp
-      > => {
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = async (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
         return {
           ethereumEntries: [
             {
@@ -593,9 +583,7 @@ describe('EthereumStorage', () => {
       );
 
       // Test with no meta
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
-        StorageTypes.IEthereumEntriesWithLastTimestamp
-      > => {
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
         return Promise.resolve({
           ethereumEntries: [
             {
@@ -667,9 +655,7 @@ describe('EthereumStorage', () => {
 
     it('allows to read hash on IPFS with retries', async () => {
       // Mock to test IPFS read retry
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<
-        StorageTypes.IEthereumEntriesWithLastTimestamp
-      > => {
+      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
         return Promise.resolve({
           ethereumEntries: [
             {
@@ -875,7 +861,7 @@ describe('EthereumStorage', () => {
         networkName: 'private',
         retryDelay: undefined,
       });
-      // tslint:disable-next-line:no-unused-expression
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       // 'config wrong'
       expect(status.ipfs).toBeDefined();
     }, 10000);

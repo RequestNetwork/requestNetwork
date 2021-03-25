@@ -1,7 +1,6 @@
-/* eslint-disable spellcheck/spell-checker */
 import Utils from '../src/utils';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils', () => {
   it('can deepSort() nested objects', () => {
     const arbitraryObjectSorted = {
@@ -20,7 +19,7 @@ describe('Utils', () => {
       ],
     };
 
-    /* tslint:disable:object-literal-sort-keys */
+    /* eslint-disable  */
     const arbitraryObjectNotSorted = {
       attribut1: 'valeurC',
       attribut3: [
@@ -36,7 +35,7 @@ describe('Utils', () => {
         },
       },
     };
-    /* tslint:enable:object-literal-sort-keys */
+    /* eslint-enable  */
     // 'deepSort(arbitraryObject) error'
     expect(JSON.stringify(Utils.deepSort(arbitraryObjectNotSorted))).toBe(
       JSON.stringify(arbitraryObjectSorted),
@@ -78,7 +77,7 @@ describe('Utils', () => {
   });
 
   it('cannot return true if variable is not a string', () => {
-    /* tslint:disable:no-magic-numbers */
+    /* eslint-disable no-magic-numbers */
     // 'istring("") error'
     expect(Utils.isString(1234)).toBe(false);
     // 'istring("") error'
@@ -105,7 +104,7 @@ describe('Utils', () => {
         { att1: 'value1', att2: 'value2' },
       ];
 
-      /* tslint:disable:object-literal-sort-keys */
+      /* eslint-disable  */
       // 'unique(arbitraryArray) error'
       expect(Utils.unique(arbitraryArray)).toEqual({
         uniqueItems: [
@@ -127,7 +126,7 @@ describe('Utils', () => {
         { att1: 'value1', att2: 'value2' },
       ];
 
-      /* tslint:disable:object-literal-sort-keys */
+      /* eslint-disable  */
       // 'unique(arbitraryArray) error'
       expect(Utils.unique(arbitraryArray)).toEqual({
         uniqueItems: [
@@ -147,7 +146,7 @@ describe('Utils', () => {
         { att5: 'value5', att6: 'value6' },
       ];
 
-      /* tslint:disable:object-literal-sort-keys */
+      /* eslint-disable  */
       // 'unique(arbitraryArray) error'
       expect(Utils.unique(arbitraryArray)).toEqual({
         uniqueItems: [
@@ -170,7 +169,7 @@ describe('Utils', () => {
         { att1: 'value1', att2: 'value2' },
       ];
 
-      /* tslint:disable:object-literal-sort-keys */
+      /* eslint-disable  */
       // 'uniqueByProperty(arbitraryArray) error'
       expect(Utils.uniqueByProperty(arbitraryArray, 'att1')).toEqual({
         uniqueItems: [
@@ -192,7 +191,7 @@ describe('Utils', () => {
         { att1: 'value5', att6: 'value6' },
       ];
 
-      /* tslint:disable:object-literal-sort-keys */
+      /* eslint-disable  */
       // 'unique(arbitraryArray) error'
       expect(Utils.uniqueByProperty(arbitraryArray, 'att1')).toEqual({
         uniqueItems: [

@@ -20,7 +20,7 @@ let block2: DataAccessTypes.IBlock = Block.pushTransaction(
 );
 block2 = Block.pushTransaction(block2, { data: 'data22' }, 'channel2');
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('HttpMetamaskDataAccess', () => {
   describe('getCacheAndClean()', () => {
     it('get transaction from cache and clean the one added', async () => {

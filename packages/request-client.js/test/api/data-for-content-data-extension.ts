@@ -1,5 +1,5 @@
-// tslint:disable:object-literal-sort-keys
-// tslint:disable:object-literal-key-quotes
+/* eslint-disable  */
+/* eslint-disable quote-props */
 export default {
   meta: {
     format: 'rnf_invoice',

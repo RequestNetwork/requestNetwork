@@ -47,7 +47,7 @@ export interface IReturnPersistTransaction extends EventEmitter {
     storageMeta?: any;
   };
   /** result of the execution */
-  result: {};
+  result: Record<string, never>;
 }
 
 /** return interface for getTransactionsByChannelId */

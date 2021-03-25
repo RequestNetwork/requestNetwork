@@ -6,21 +6,21 @@ import * as TestData from './utils/test-data-generator';
 import Version from '../../src/version';
 const CURRENT_VERSION = Version.currentVersion;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Request', () => {
   describe('getRoleInRequest', () => {
     it('can getRoleInRequest()', () => {
       // 'getRoleInRequest() error'
       expect(
-        Request.getRoleInRequest(TestData.payeeRaw.identity, TestData.requestCreatedNoExtension)
+        Request.getRoleInRequest(TestData.payeeRaw.identity, TestData.requestCreatedNoExtension),
       ).toEqual(RequestLogicTypes.ROLE.PAYEE);
       // 'getRoleInRequest() error'
       expect(
-        Request.getRoleInRequest(TestData.payerRaw.identity, TestData.requestCreatedNoExtension)
+        Request.getRoleInRequest(TestData.payerRaw.identity, TestData.requestCreatedNoExtension),
       ).toEqual(RequestLogicTypes.ROLE.PAYER);
       // 'getRoleInRequest() error'
       expect(
-        Request.getRoleInRequest(TestData.otherIdRaw.identity, TestData.requestCreatedNoExtension)
+        Request.getRoleInRequest(TestData.otherIdRaw.identity, TestData.requestCreatedNoExtension),
       ).toEqual(RequestLogicTypes.ROLE.THIRD_PARTY);
     });
   });
@@ -62,7 +62,9 @@ describe('Request', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestNoPayeeNoPayer)).toThrowError('request.payee and request.payer are missing');
+      expect(() => Request.checkRequest(requestNoPayeeNoPayer)).toThrowError(
+        'request.payee and request.payer are missing',
+      );
     });
     it('cannot valid request with no creator', () => {
       const requestError: any = {
@@ -93,7 +95,9 @@ describe('Request', () => {
         state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).toThrowError('expectedAmount must be a positive integer');
+      expect(() => Request.checkRequest(requestError)).toThrowError(
+        'expectedAmount must be a positive integer',
+      );
     });
     it('cannot valid request with expected amount not valid', () => {
       const requestError = {
@@ -112,7 +116,9 @@ describe('Request', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).toThrowError('expectedAmount must be a positive integer');
+      expect(() => Request.checkRequest(requestError)).toThrowError(
+        'expectedAmount must be a positive integer',
+      );
     });
     it('cannot valid request with creator identity type not supported', () => {
       const requestError: any = {
@@ -132,7 +138,9 @@ describe('Request', () => {
         timestamp: 1544426030,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).toThrowError('request.creator.type not supported');
+      expect(() => Request.checkRequest(requestError)).toThrowError(
+        'request.creator.type not supported',
+      );
     });
     it('cannot valid request with payer identity type not supported', () => {
       const requestError: any = {
@@ -152,7 +160,9 @@ describe('Request', () => {
         state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).toThrowError('request.payer.type not supported');
+      expect(() => Request.checkRequest(requestError)).toThrowError(
+        'request.payer.type not supported',
+      );
     });
     it('cannot valid request with payee identity type not supported', () => {
       const requestError: any = {
@@ -171,7 +181,9 @@ describe('Request', () => {
         state: RequestLogicTypes.STATE.CREATED,
         version: CURRENT_VERSION,
       };
-      expect(() => Request.checkRequest(requestError)).toThrowError('request.payee.type not supported');
+      expect(() => Request.checkRequest(requestError)).toThrowError(
+        'request.payee.type not supported',
+      );
     });
 
     it('cannot valid request with state missing', () => {

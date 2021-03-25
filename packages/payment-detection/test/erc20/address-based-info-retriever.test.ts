@@ -1,11 +1,11 @@
-// tslint:disable: no-invalid-this
-// tslint:disable: no-magic-numbers
+/* eslint-disable no-invalid-this */
+/* eslint-disable no-magic-numbers */
 import { PaymentTypes } from '@requestnetwork/types';
 import ERC20InfoRetriever from '../../src/erc20/address-based-info-retriever';
 
 const erc20LocalhostContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/address-based-info-retriever', () => {
   describe('on localhost', () => {
     const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';

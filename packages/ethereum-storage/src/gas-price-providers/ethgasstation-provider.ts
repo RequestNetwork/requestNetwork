@@ -7,13 +7,13 @@ import fetch from 'node-fetch';
 import * as BigNumber from 'bn.js';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
-const ETHGASSTATION_REQUEST_MAX_RETRY: number = 3;
+const ETHGASSTATION_REQUEST_MAX_RETRY = 3;
 
 // Delay between retries in ms
-const ETHGASSTATION_RETRY_DELAY: number = 100;
+const ETHGASSTATION_RETRY_DELAY = 100;
 
 // Multiplier to use to convert the gas price in wei
-const API_MULTIPLIER: number = 100000000;
+const API_MULTIPLIER = 100000000;
 
 /**
  * Retrieve and process the gas price returned by ethgasstation.org API
@@ -22,7 +22,7 @@ export default class EthGasStationProvider implements StorageTypes.IGasPriceProv
   /**
    * Url to connect to the provider API
    */
-  public providerUrl: string = 'https://ethgasstation.info/json/ethgasAPI.json';
+  public providerUrl = 'https://ethgasstation.info/json/ethgasAPI.json';
 
   /**
    * Fetch library to send http requests
@@ -42,7 +42,7 @@ export default class EthGasStationProvider implements StorageTypes.IGasPriceProv
       retryDelay: ETHGASSTATION_RETRY_DELAY,
     })();
 
-    // tslint:disable-next-line:no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     if (res.status >= 400) {
       throw new Error(
         `EthGasStation error ${res.status}. Bad response from server ${this.providerUrl}`,

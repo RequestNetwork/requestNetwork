@@ -2,10 +2,10 @@ import { EthereumStorage } from '@requestnetwork/ethereum-storage';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
-import * as Keyv from 'keyv';
+import Keyv from 'keyv';
 import KeyvFile from 'keyv-file';
 
-const hdWalletProvider = require('@truffle/hdwallet-provider');
+import hdWalletProvider from '@truffle/hdwallet-provider';
 
 /**
  * Get the ethereum storage with values from config

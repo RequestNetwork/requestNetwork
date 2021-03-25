@@ -28,8 +28,7 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "tslint --project . && eslint \"test/**/*.ts\"",
-    "lint-staged": "lint-staged",
+    "lint": "eslint \"test/**/*.ts\"",
     "test": "run-s test:node test:layers",
     "test:scheduled": "run-s test:erc20 test:btc",
     "test:layers": "jest \"test/layers.test.ts\"  --forceExit",
@@ -53,17 +52,15 @@
     "@requestnetwork/transaction-manager": "0.26.4",
     "@requestnetwork/types": "0.30.0",
     "@requestnetwork/utils": "0.30.0",
-    "@truffle/hdwallet-provider": "1.0.44",
+    "@truffle/hdwallet-provider": "1.2.3",
     "@types/jest": "26.0.13",
     "@types/node": "14.14.16",
     "ethers": "5.0.32",
     "jest": "26.4.2",
-    "lint-staged": "10.3.0",
     "npm-run-all": "4.1.5",
     "prettier": "2.2.1",
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
-    "tslint": "6.1.3",
     "typescript": "4.1.3",
     "web3-eth": "1.3.0"
   }

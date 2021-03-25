@@ -1,5 +1,5 @@
-// tslint:disable: no-magic-numbers
-// tslint:disable: no-invalid-this
+/* eslint-disable no-magic-numbers */
+/* eslint-disable no-invalid-this */
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import ERC20AddressBasedInfoRetriever from '@requestnetwork/payment-detection/src/erc20/address-based-info-retriever';
 

@@ -1,5 +1,5 @@
-// tslint:disable: await-promise
-// tslint:disable: no-magic-numbers
+/* eslint-disable @typescript-eslint/await-thenable */
+/* eslint-disable no-magic-numbers */
 
 import IgnoredLocation from '../src/ignored-location';
 
@@ -8,7 +8,7 @@ const arbitraryDataId2 = 'dataId2';
 const arbitraryReason = 'reason1';
 const arbitraryReason2 = 'reason2';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('IgnoredLocation', () => {
   describe('pushReasonByLocation', () => {
     it('can pushReasonByLocation()', async () => {

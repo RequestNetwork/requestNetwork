@@ -108,7 +108,7 @@ export enum PAYMENT_NETWORK_ID {
 
 /** Generic info retriever interface */
 export interface IPaymentNetworkInfoRetriever<
-  TPaymentNetworkEvent extends IPaymentNetworkEvent<{}>
+  TPaymentNetworkEvent extends IPaymentNetworkEvent<unknown>
 > {
   getTransferEvents(): Promise<TPaymentNetworkEvent[]>;
 }

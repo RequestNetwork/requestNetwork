@@ -41,6 +41,7 @@
     "simple-statistics": "7.4.0"
   },
   "devDependencies": {
+    "@types/benchmark": "2.1.0",
     "@types/node": "14.14.16",
     "prettier": "2.2.1",
     "ts-node": "9.0.0",

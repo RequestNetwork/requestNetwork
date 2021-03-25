@@ -30,7 +30,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/address-based', () => {
   beforeEach(() => {
     erc20AddressedBased = new ERC20AddressedBased({ advancedLogic: mockAdvancedLogic });

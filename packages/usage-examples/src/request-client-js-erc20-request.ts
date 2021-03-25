@@ -30,18 +30,17 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
   id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
   parameters: {
-    // eslint-disable-next-line spellcheck/spell-checker
     paymentAddress: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
   },
 };
 
-/* tslint:disable:no-floating-promises */
+/* eslint-disable @typescript-eslint/no-floating-promises */
 const requestNetwork = new RequestNetwork.RequestNetwork({
   signatureProvider,
   useMockStorage: true,
 });
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 
 const createParams = {
   paymentNetwork,
@@ -54,31 +53,31 @@ const createParams = {
 createParams.requestInfo.timestamp = RequestNetwork.Utils.getCurrentTimestampInSecond();
 requestNetwork
   .computeRequestId(createParams)
-  .then(requestId => {
+  .then((requestId) => {
     console.log(`The request will be created with ID ${requestId}`);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error.message || error);
     process.exit(1);
   });
 
 requestNetwork
   .createRequest(createParams)
-  .then(request => {
+  .then((request) => {
     console.log('clear request:');
     console.log(request);
     request
       .waitForConfirmation()
-      .then(confirmedRequest => {
+      .then((confirmedRequest) => {
         console.log('clear confirmed request:');
         console.log(confirmedRequest);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error.message || error);
         process.exit(1);
       });
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error.message || error);
     process.exit(1);
   });

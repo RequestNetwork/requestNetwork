@@ -24,7 +24,7 @@ export default async function ipfsAdd(
   const requestStartTime = Date.now();
 
   // Set the timeout from the value from config and convert seconds to milliseconds
-  // tslint:disable:no-magic-numbers
+  /* eslint-disable no-magic-numbers */
   clientRequest.setTimeout(getPersistTransactionTimeout() * 1000);
 
   // Verifies if data send from post are correct

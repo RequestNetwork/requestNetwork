@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestNetwork } from '@requestnetwork/request-client.js';
 import { PaymentTypes, SignatureTypes } from '@requestnetwork/types';
@@ -30,7 +29,7 @@ describe('BTC detection test-suite', () => {
       signer: payee.identity,
     });
 
-    // tslint:disable-next-line:no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     await new Promise((resolve: any): any => setTimeout(resolve, 1500));
     expect((await request.refresh()).balance?.balance).toBe('50500000');
   });
@@ -51,7 +50,7 @@ describe('BTC detection test-suite', () => {
       signer: payee.identity,
     });
 
-    // tslint:disable-next-line:no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     await new Promise((resolve: any): any => setTimeout(resolve, 1500));
     expect((await request.refresh()).balance?.balance).toBe('666743');
   });

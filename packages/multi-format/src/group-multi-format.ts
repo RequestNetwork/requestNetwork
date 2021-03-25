@@ -26,7 +26,7 @@ export default class GroupMultiFormat {
    */
   public isSerializableObject(data: MultiFormatTypes.IMultiFormatDeserialized): boolean {
     // check if one of the format of the group can handle the data
-    return this.availableFormats.some(format => format.isSerializableObject(data));
+    return this.availableFormats.some((format) => format.isSerializableObject(data));
   }
 
   /**
@@ -37,7 +37,7 @@ export default class GroupMultiFormat {
    */
   public isDeserializableString(formatted: string): boolean {
     // check if one of the format of the group can handle the string
-    return this.availableFormats.some(format => format.isDeserializableString(formatted));
+    return this.availableFormats.some((format) => format.isDeserializableString(formatted));
   }
 
   /**
@@ -48,7 +48,9 @@ export default class GroupMultiFormat {
    */
   public serialize(data: MultiFormatTypes.IMultiFormatDeserialized): string {
     // Find the format that can handle the data
-    const matchingFormat = this.availableFormats.find(format => format.isSerializableObject(data));
+    const matchingFormat = this.availableFormats.find((format) =>
+      format.isSerializableObject(data),
+    );
 
     // if found, serialize with the right format
     if (matchingFormat) {
@@ -66,7 +68,7 @@ export default class GroupMultiFormat {
    */
   public deserialize(formatted: string): MultiFormatTypes.IMultiFormatDeserialized {
     // Find the format that can handle the string
-    const matchingFormat = this.availableFormats.find(format =>
+    const matchingFormat = this.availableFormats.find((format) =>
       format.isDeserializableString(formatted),
     );
 

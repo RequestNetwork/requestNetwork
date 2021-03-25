@@ -35,7 +35,7 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
     });
   }
 
-  // tslint:disable-next-line: no-empty
+  // eslint-disable-next-line no-empty, @typescript-eslint/no-empty-function
   public async initialize(): Promise<void> {}
 
   /**

@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import * as rnf_invoice_0_0_1 from './rnf_invoice/rnf_invoice-0.0.1.json';
 import * as rnf_invoice_0_0_2 from './rnf_invoice/rnf_invoice-0.0.2.json';
 import * as rnf_invoice_0_0_3 from './rnf_invoice/rnf_invoice-0.0.3.json';

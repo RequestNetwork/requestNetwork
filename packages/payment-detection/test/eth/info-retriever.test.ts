@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { PaymentTypes } from '@requestnetwork/types';
 import EthInfoRetriever from '../../src/eth/info-retriever';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';

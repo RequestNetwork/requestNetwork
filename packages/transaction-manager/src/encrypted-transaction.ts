@@ -10,7 +10,7 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
   private data: TransactionTypes.ITransactionData = '';
 
   /** Hash computed from the decrypted data - start empty then filled by getHash() */
-  private dataHashSerialized: string = '';
+  private dataHashSerialized = '';
 
   /** Persisted data */
   private persistedData: TransactionTypes.ITransactionData;
@@ -57,7 +57,7 @@ export default class EncryptedTransaction implements TransactionTypes.ITransacti
     if (this.dataHashSerialized === '') {
       const data = await this.getData();
       try {
-        const dataHash = await Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
+        const dataHash = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data));
         this.dataHashSerialized = MultiFormat.serialize(dataHash);
       } catch (e) {
         throw new Error('Impossible to JSON parse the decrypted transaction data');

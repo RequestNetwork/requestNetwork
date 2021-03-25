@@ -13,7 +13,7 @@ export default class MockStorage implements StorageTypes.IStorage {
   > = new Map();
 
   // For test purpose we can force the next append call to emit Error
-  private forceEmitError: boolean = false;
+  private forceEmitError = false;
 
   public async initialize(): Promise<void> {
     return;
@@ -77,7 +77,7 @@ export default class MockStorage implements StorageTypes.IStorage {
         this.data.set(hash, dataToStore);
         result.emit('confirmed', resultData);
       }
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
     }, 100);
 
     return result;
@@ -103,7 +103,7 @@ export default class MockStorage implements StorageTypes.IStorage {
   }
 
   public async readMany(ids: string[]): Promise<StorageTypes.IEntry[]> {
-    return Promise.all(ids.map(id => this.read(id)));
+    return Promise.all(ids.map((id) => this.read(id)));
   }
 
   public async getData(): Promise<StorageTypes.IEntriesWithLastTimestamp> {

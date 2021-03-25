@@ -5,7 +5,7 @@ import ContentData from '../../src/extensions/content-data';
 
 import * as TestData from '../utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('content-data', () => {
   describe('applyActionToExtension', () => {
     it('can applyActionToExtensions', () => {
@@ -90,7 +90,9 @@ describe('content-data', () => {
       expect(extensionDataCreated).toEqual(TestData.createContentDataExtensionData);
     });
     it('cannot create extension data if parameters do not have content', () => {
-      expect(() => ContentData.createCreationAction({} as any)).toThrowError('No content has been given for the extension content-data');
+      expect(() => ContentData.createCreationAction({} as any)).toThrowError(
+        'No content has been given for the extension content-data',
+      );
     });
   });
 });

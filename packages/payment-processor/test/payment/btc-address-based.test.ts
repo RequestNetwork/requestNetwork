@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { Wallet } from 'ethers';
 
 import {
@@ -10,8 +9,8 @@ import {
 } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from '../../src/payment/btc-address-based';
-// tslint:disable: no-unused-expression
-// tslint:disable: await-promise
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable @typescript-eslint/await-thenable */
 
 const wallet = Wallet.createRandom();
 const paymentAddress = '1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX';

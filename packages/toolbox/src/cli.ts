@@ -1,7 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
-// tslint:disable:no-unused-expression
-/* eslint-disable spellcheck/spell-checker */
 require('yargs')
   .scriptName('request-toolbox')
   .commandDir('./commands', {

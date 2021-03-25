@@ -36,7 +36,7 @@ const fakeMetaDataAccessPersistReturn: DataAccessTypes.IReturnPersistTransaction
   new EventEmitter(),
   {
     meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
-    result: { topics: [fakeTxHash] },
+    result: {},
   },
 );
 
@@ -51,7 +51,7 @@ const fakeMetaDataAccessGetChannelsReturn: DataAccessTypes.IReturnGetChannelsByT
 };
 let fakeDataAccess: DataAccessTypes.IDataAccess;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('index', () => {
   beforeEach(() => {
     fakeDataAccess = {
@@ -69,7 +69,7 @@ describe('index', () => {
               meta: { transactionStorageLocation: 'fakeDataId', topics: extraTopics },
               result: { topics: [fakeTxHash] },
             },
-            // tslint:disable-next-line:no-magic-numbers
+            // eslint-disable-next-line no-magic-numbers
             100,
           );
         });
@@ -136,7 +136,7 @@ describe('index', () => {
             fakeMetaDataAccessPersistReturn,
           );
           setTimeout(() => {
-            // tslint:disable-next-line:no-magic-numbers
+            // eslint-disable-next-line no-magic-numbers
             persistWithEvent.emit('error', 'error for test purpose', 100);
           });
           return persistWithEvent;
@@ -1271,7 +1271,7 @@ describe('index', () => {
           '01a98f126de3fab2b5130af5161998bf6e59b2c380deafeff938ff3f798281bf23': [null, null],
         },
       });
-      // tslint:disable-next-line: no-unbound-method
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(fakeDataAccess.getChannelsByMultipleTopics).toHaveBeenCalledWith(
         [extraTopics[0]],
         undefined,

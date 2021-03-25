@@ -1,8 +1,8 @@
 import { DataAccess, TransactionIndex } from '@requestnetwork/data-access';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
-import * as cors from 'cors';
-import * as express from 'express';
+import cors from 'cors';
+import express from 'express';
 import * as httpStatus from 'http-status-codes';
 import KeyvFile from 'keyv-file';
 
@@ -16,6 +16,7 @@ import ipfsAdd from './request/ipfsAdd';
 import PersistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
 
 const NOT_FOUND_MESSAGE =
@@ -115,7 +116,7 @@ class RequestNode {
     const initializationEndTime: number = Date.now();
 
     this.logger.info(
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
       `Time to initialize: ${(initializationEndTime - initializationStartTime) / 1000}s`,
       ['metric', 'initialization'],
     );
@@ -173,7 +174,7 @@ class RequestNode {
       return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
     });
 
-    // Route for satus check
+    // Route for status check
     router.get('/status', (clientRequest: any, serverResponse: any) => {
       if (this.initialized) {
         return getStatus(clientRequest, serverResponse, this.dataAccess, this.logger);

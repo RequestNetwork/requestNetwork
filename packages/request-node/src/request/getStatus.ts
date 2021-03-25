@@ -3,9 +3,10 @@ import { LogTypes } from '@requestnetwork/types';
 import * as httpStatus from 'http-status-codes';
 import * as config from '../config';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package.json');
 
-const GET_CHANNELS_TIMEOUT: number = 600000;
+const GET_CHANNELS_TIMEOUT = 600000;
 
 /**
  * Handles getStatus of data-access layer.
@@ -36,7 +37,7 @@ export default async function getStatus(
 
   try {
     const dataAccessStatus = await dataAccess._getStatus(clientRequest.query.detailed);
-    let providerUrl: string = '';
+    let providerUrl = '';
 
     // let's extract only the hostname to hide any token or sensible key
     try {

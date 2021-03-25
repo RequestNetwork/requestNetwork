@@ -11,11 +11,11 @@ const fakeConsole = Object.assign({}, console, {
 });
 
 jest.useFakeTimers('modern');
-// tslint:disable-next-line: no-magic-numbers
+// eslint-disable-next-line no-magic-numbers
 const now = new Date(1599641831325);
 jest.setSystemTime(now);
 
-// tslint:disable:no-console
+/* eslint-disable no-console */
 describe('Simple logger', () => {
   afterEach(() => {
     jest.clearAllMocks();

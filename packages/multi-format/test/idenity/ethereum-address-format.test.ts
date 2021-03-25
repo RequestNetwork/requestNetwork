@@ -4,7 +4,7 @@ import EthereumAddressFormat from '../../src/identity/ethereum-address-format';
 
 let ethereumAddressFormat: EthereumAddressFormat;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('hash/identity/ethereum-address-format', () => {
   beforeEach(() => {
     ethereumAddressFormat = new EthereumAddressFormat();

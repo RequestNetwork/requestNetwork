@@ -40,10 +40,10 @@ const startNode = async (): Promise<void> => {
 // If -h option is used, commands are printed
 // Otherwise the node is started
 if (argv.h) {
-  // tslint:disable:no-console
+  /* eslint-disable no-console */
   console.log(config.getHelpMessage());
 } else {
-  startNode().catch(error => {
+  startNode().catch((error) => {
     logger.error(error);
     process.exit(1);
   });

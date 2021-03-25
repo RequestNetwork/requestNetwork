@@ -7,7 +7,7 @@ import * as DataERC20FeeAddData from '../../../utils/payment-network/erc20/fee-p
 import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-proxy-contract-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {

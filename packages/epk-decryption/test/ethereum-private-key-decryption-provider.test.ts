@@ -48,7 +48,7 @@ const decryptedDataExpected = JSON.stringify({
   attribut2: 'Value',
 });
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('ethereum-private-key-decryption-provider', () => {
   describe('constructor', () => {
     it('can construct', async () => {

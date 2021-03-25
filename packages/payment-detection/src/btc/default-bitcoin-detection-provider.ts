@@ -91,7 +91,7 @@ export default class DefaultBitcoinDetectionProvider
     const duplicatesWithCount: {
       [key: string]: { count: number; value: PaymentTypes.BTCBalanceWithEvents };
     } = array
-      .filter(info => info.balance !== '-1')
+      .filter((info) => info.balance !== '-1')
       .reduce(
         (
           accumulator: {

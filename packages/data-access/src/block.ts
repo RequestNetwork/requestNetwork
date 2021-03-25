@@ -176,8 +176,8 @@ function getTransactionsByPositions(
   const sortedPositions = Array.from(new Set(positions)).sort();
 
   return sortedPositions
-    .map(position => block.transactions[position])
-    .filter(position => position !== undefined);
+    .map((position) => block.transactions[position])
+    .filter((position) => position !== undefined);
 }
 
 /**
@@ -219,8 +219,8 @@ function getTransactionPositionsByChannelIds(
   channelIds: string[],
 ): number[] {
   const result: number[] = channelIds
-    .map(id => block.header.channelIds[id])
-    .filter(value => value !== undefined)
+    .map((id) => block.header.channelIds[id])
+    .filter((value) => value !== undefined)
     .reduce((accumulator, current) => accumulator.concat(current), []);
 
   // remove duplicates and sort

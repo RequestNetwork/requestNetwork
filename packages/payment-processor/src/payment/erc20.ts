@@ -175,7 +175,7 @@ export function encodeApproveAnyErc20(
   return erc20interface.encodeFunctionData('approve', [
     spenderAddress,
     BigNumber.from(2)
-      // tslint:disable-next-line: no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
       .pow(256)
       .sub(1),
   ]);

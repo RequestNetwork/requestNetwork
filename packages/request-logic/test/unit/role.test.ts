@@ -3,7 +3,7 @@ import Role from '../../src/role';
 
 import * as TestData from './utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Role', () => {
   it('can getRole() from object with payee and payer', () => {
     const obj = {
@@ -15,6 +15,8 @@ describe('Role', () => {
     // 'getRole("") error'
     expect(Role.getRole(TestData.payerRaw.identity, obj)).toBe(RequestLogicTypes.ROLE.PAYER);
     // 'getRole("") error'
-    expect(Role.getRole(TestData.otherIdRaw.identity, obj)).toBe(RequestLogicTypes.ROLE.THIRD_PARTY);
+    expect(Role.getRole(TestData.otherIdRaw.identity, obj)).toBe(
+      RequestLogicTypes.ROLE.THIRD_PARTY,
+    );
   });
 });

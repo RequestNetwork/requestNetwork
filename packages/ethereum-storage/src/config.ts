@@ -29,13 +29,12 @@ const config: any = {
       maxRetries: 3,
     },
     expectedBootstrapNodes: [
-      // eslint-disable-next-line spellcheck/spell-checker
       '/dns4/ipfs-bootstrap.request.network/tcp/4001/ipfs/QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967Fdxx',
-      // eslint-disable-next-line spellcheck/spell-checker
+
       '/dns4/ipfs-bootstrap-2.request.network/tcp/4001/ipfs/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj',
-      // eslint-disable-next-line spellcheck/spell-checker
+
       '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
-      // eslint-disable-next-line spellcheck/spell-checker
+
       '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
     ],
     maxIpfsReadRetry: 1,

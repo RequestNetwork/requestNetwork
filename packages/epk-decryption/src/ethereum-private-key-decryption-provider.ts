@@ -67,7 +67,7 @@ export default class EthereumPrivateKeyDecryptionProvider
    */
   public async isIdentityRegistered(identity: IdentityTypes.IIdentity): Promise<boolean> {
     return Array.from(this.decryptionParametersDictionary.keys()).some(
-      address => identity.value.toLowerCase() === address.toLowerCase(),
+      (address) => identity.value.toLowerCase() === address.toLowerCase(),
     );
   }
 
@@ -132,7 +132,7 @@ export default class EthereumPrivateKeyDecryptionProvider
    * @returns all the identities registered
    */
   public getAllRegisteredIdentities(): IdentityTypes.IIdentity[] {
-    return Array.from(this.decryptionParametersDictionary.keys(), address => ({
+    return Array.from(this.decryptionParametersDictionary.keys(), (address) => ({
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
       value: address,
     }));

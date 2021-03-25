@@ -22,7 +22,10 @@ export default {
  *
  * @returns boolean true, if version is supported false otherwise
  */
-function isSupported(version: string, versionConfiguration?: RequestLogicTypes.IVersionSupportConfig): boolean {
+function isSupported(
+  version: string,
+  versionConfiguration?: RequestLogicTypes.IVersionSupportConfig,
+): boolean {
   versionConfiguration = versionConfiguration || Config.specificationVersion;
 
   return (
