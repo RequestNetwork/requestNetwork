@@ -514,7 +514,7 @@ jobs:
           command: |
             FORCE_PUBLISH=$($(yarn bin)/lerna changed --json | jq '. | map(.name) | join (",")' -r)
             echo $FORCE_PUBLISH
-            $(yarn bin)/lerna publish \
+            $(yarn bin)/lerna publish from-package \
               --conventional-commits  \
               --conventional-prerelease \
               --exact \
@@ -650,6 +650,7 @@ workflows:
             branches:
               only:
                 - master
+                - fix-next-release
 
   nightly:
     triggers:
