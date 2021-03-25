@@ -281,7 +281,7 @@ export default class SmartContractManager {
     // Send transaction to contract
     // TODO(PROT-181): Implement a log manager for the library
     // use it for the different events (error, transactionHash, receipt and confirmation)
-    return new Promise((resolve, reject): any => {
+    return new Promise((resolve, reject) => {
       // This boolean is set to true once the ethereum metadata has been created and the promise has been resolved
       // When set to true, we use it to ignore next confirmation event function call
       let ethereumMetadataCreated = false;
@@ -321,8 +321,9 @@ export default class SmartContractManager {
             }
 
             // Get the new gas price for the transaction
-            const newGasPrice = new BigNumber(
-              await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName),
+            const newGasPrice = await gasPriceDefiner.getGasPrice(
+              StorageTypes.GasPriceType.FAST,
+              this.networkName,
             );
 
             // If the new gas price is higher than the previous, resubmit the transaction

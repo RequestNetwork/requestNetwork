@@ -21,10 +21,43 @@ describe('Ethereum Utils', () => {
       expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY)).toBe(
         'rinkeby',
       );
+      expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.SOKOL)).toBe(
+        'sokol',
+      );
+      expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI)).toBe(
+        'xdai',
+      );
     });
 
     it(`should return undefined if the network doesn't exist`, async () => {
       expect(EthereumUtils.getEthereumNetworkNameFromId(2000)).toBeUndefined();
+    });
+  });
+
+  describe('getEthereumIdFromNetworkName', () => {
+    it('allows to get the correct network name', async () => {
+      expect(EthereumUtils.getEthereumIdFromNetworkName('private')).toBe(
+        StorageTypes.EthereumNetwork.PRIVATE,
+      );
+      expect(EthereumUtils.getEthereumIdFromNetworkName('mainnet')).toBe(
+        StorageTypes.EthereumNetwork.MAINNET,
+      );
+      expect(EthereumUtils.getEthereumIdFromNetworkName('kovan')).toBe(
+        StorageTypes.EthereumNetwork.KOVAN,
+      );
+      expect(EthereumUtils.getEthereumIdFromNetworkName('rinkeby')).toBe(
+        StorageTypes.EthereumNetwork.RINKEBY,
+      );
+      expect(EthereumUtils.getEthereumIdFromNetworkName('sokol')).toBe(
+        StorageTypes.EthereumNetwork.SOKOL,
+      );
+      expect(EthereumUtils.getEthereumIdFromNetworkName('xdai')).toBe(
+        StorageTypes.EthereumNetwork.XDAI,
+      );
+    });
+
+    it(`should return undefined if the network doesn't exist`, async () => {
+      expect(EthereumUtils.getEthereumIdFromNetworkName('wrong')).toBeUndefined();
     });
   });
 
