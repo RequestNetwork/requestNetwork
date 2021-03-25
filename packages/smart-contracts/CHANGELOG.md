@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.25.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/smart-contracts@0.21.0...@requestnetwork/smart-contracts@0.25.0) (2021-03-25)
+
+
+### Features
+
+* Add payment-processor for any to erc20 payment network  ([#433](https://github.com/RequestNetwork/requestNetwork/issues/433)) ([7134310](https://github.com/RequestNetwork/requestNetwork/commit/7134310828f9440bac33f75719c7937872243ab6))
+* Payment detection for the any to erc20 payment network ([#419](https://github.com/RequestNetwork/requestNetwork/issues/419)) ([6f7338f](https://github.com/RequestNetwork/requestNetwork/commit/6f7338f42ddf793a733a31b434d6116beebefdf6))
+* support submitter and storage deployed on xDai ([#459](https://github.com/RequestNetwork/requestNetwork/issues/459)) ([dde976d](https://github.com/RequestNetwork/requestNetwork/commit/dde976da214420f732b439257fc2e82d1260a3ee))
+
+
+
+# 0.34.0 (2021-03-03)
+
+
+### Features
+
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+
+
+
+
+
 # [0.24.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/smart-contracts@0.21.0...@requestnetwork/smart-contracts@0.24.0) (2021-03-15)
 
 

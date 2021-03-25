@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.23.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.22.0...@requestnetwork/ethereum-storage@0.23.0) (2021-03-25)
+
+
+### Features
+
+* xdai gas price ([#457](https://github.com/RequestNetwork/requestNetwork/issues/457)) ([8f0822d](https://github.com/RequestNetwork/requestNetwork/commit/8f0822de91cb2d9f617fa94c4d11dcd9adf806b2))
+
+
+
+
+
 ## [0.22.5](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.22.0...@requestnetwork/ethereum-storage@0.22.5) (2021-03-15)
 
 **Note:** Version bump only for package @requestnetwork/ethereum-storage

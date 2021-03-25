@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/transaction-manager",
-  "version": "0.26.5",
+  "version": "0.26.6",
   "publishConfig": {
     "access": "public"
   },
@@ -38,9 +38,9 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/multi-format": "0.15.5",
-    "@requestnetwork/types": "0.31.0",
-    "@requestnetwork/utils": "0.31.0"
+    "@requestnetwork/multi-format": "0.15.6",
+    "@requestnetwork/types": "0.32.0",
+    "@requestnetwork/utils": "0.32.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
