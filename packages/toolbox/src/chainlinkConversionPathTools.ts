@@ -54,23 +54,23 @@ class ChainlinkConversionPathTools {
         const parsedLog = this.contractChainlinkConversionPath.interface.parseLog(log);
 
         // if the aggregator in 0x00 it means, it has been deleted
-        if (parsedLog.values._aggregator === '0x0000000000000000000000000000000000000000') {
-          aggregators.get(parsedLog.values._input)?.delete(parsedLog.values._output);
-          if (aggregators.get(parsedLog.values._input)?.size === 0) {
-            aggregators.delete(parsedLog.values._input);
+        if (parsedLog.args._aggregator === '0x0000000000000000000000000000000000000000') {
+          aggregators.get(parsedLog.args._input)?.delete(parsedLog.args._output);
+          if (aggregators.get(parsedLog.args._input)?.size === 0) {
+            aggregators.delete(parsedLog.args._input);
           }
         } else {
-          if (!aggregators.has(parsedLog.values._input)) {
+          if (!aggregators.has(parsedLog.args._input)) {
             // if input  does not exists we just add it with the output currency
             aggregators.set(
-              parsedLog.values._input,
-              new Map([[parsedLog.values._output, parsedLog.values._aggregator]]),
+              parsedLog.args._input,
+              new Map([[parsedLog.args._output, parsedLog.args._aggregator]]),
             );
           } else {
             // otherwise we just add a new output currency for this input currency
             aggregators
-              .get(parsedLog.values._input)!
-              .set(parsedLog.values._output, parsedLog.values._aggregator);
+              .get(parsedLog.args._input)!
+              .set(parsedLog.args._output, parsedLog.args._aggregator);
           }
         }
 
