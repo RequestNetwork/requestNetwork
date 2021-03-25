@@ -1,5 +1,3 @@
-import EthereumUtils from '../ethereum-utils';
-
 import { StorageTypes } from '@requestnetwork/types';
 
 import { toWei } from 'web3-utils';
@@ -19,13 +17,7 @@ export class XDaiFixedProvider implements StorageTypes.IGasPriceProvider {
       [StorageTypes.GasPriceType.STANDARD]: 5,
       [StorageTypes.GasPriceType.SAFELOW]: 1,
     }[type];
-    const price = toWei(new BigNumber(basePrice), 'gwei');
-
-    if (!EthereumUtils.isGasPriceSafe(price)) {
-      throw Error(`EthGasStation provided gas price not safe to use: ${price}`);
-    }
-
-    return price;
+    return toWei(new BigNumber(basePrice), 'gwei');
   }
 }
 
