@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.31.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/payment-detection@0.30.0...@requestnetwork/payment-detection@0.31.0) (2021-03-15)
+
+
+### Bug Fixes
+
+* Update currency package dependency in payment-detection ([#436](https://github.com/RequestNetwork/requestNetwork/issues/436)) ([de22c06](https://github.com/RequestNetwork/requestNetwork/commit/de22c06ce073f9a67168093459c66b0afae0d500))
+
+
+### Features
+
+* Payment detection for the any to erc20 payment network ([#419](https://github.com/RequestNetwork/requestNetwork/issues/419)) ([6f7338f](https://github.com/RequestNetwork/requestNetwork/commit/6f7338f42ddf793a733a31b434d6116beebefdf6))
+
+
+
+
+
 ## [0.30.4](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/payment-detection@0.30.0...@requestnetwork/payment-detection@0.30.4) (2021-03-03)
 
 **Note:** Version bump only for package @requestnetwork/payment-detection
