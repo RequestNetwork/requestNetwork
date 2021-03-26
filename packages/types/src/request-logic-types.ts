@@ -4,6 +4,7 @@ import * as Encryption from './encryption-types';
 import * as Extension from './extension-types';
 import * as Identity from './identity-types';
 import * as Signature from './signature-types';
+import * as Transaction from './transaction-types';
 
 /** Request Logic layer */
 export interface IRequestLogic {
@@ -109,8 +110,14 @@ export interface IAction {
 
 /** Interface of a request logic action confirmed */
 export interface IConfirmedAction {
+  state: Transaction.TransactionState;
   action: IAction;
   timestamp: number;
+}
+
+export interface IIgnoredTransaction {
+  transaction: IConfirmedAction;
+  reason: string;
 }
 
 /** Interface of a request logic unsigned action */

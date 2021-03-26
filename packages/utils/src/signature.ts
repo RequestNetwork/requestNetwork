@@ -43,7 +43,7 @@ function getIdentityFromSignatureParams(
  * @returns ISignature the signature
  */
 function sign(
-  data: any,
+  data: unknown,
   signatureParams: SignatureTypes.ISignatureParameters,
 ): SignatureTypes.ISignedData {
   let value: string;

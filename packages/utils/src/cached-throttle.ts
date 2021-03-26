@@ -5,23 +5,28 @@
  * @param target The target function
  * @param minimumDelay The minimum delay between calls to the target function in milliseconds
  */
-export default (target: any, minimumDelay: number): any => {
+export const cachedThrottle = <TParams extends unknown[], TReturn>(
+  target: (...params: TParams) => Promise<TReturn>,
+  minimumDelay: number,
+): ((...params: TParams) => Promise<TReturn>) => {
   if (!(target instanceof Function)) {
     throw new Error('Target can only be a function');
   }
 
   // The last cached response
-  let cachedResponse: any = null;
+  let cachedResponse: Promise<TReturn> | null = null;
 
   // the last time the function was called
   let lastCall = Number.NEGATIVE_INFINITY;
 
-  return (...args: any[]): any => {
-    if (Date.now() >= lastCall + minimumDelay) {
+  return (...args: TParams): Promise<TReturn> => {
+    if (!cachedResponse || Date.now() >= lastCall + minimumDelay) {
       lastCall = Date.now();
-      cachedResponse = target(args);
+      cachedResponse = target(...args);
     }
 
     return cachedResponse;
   };
 };
+
+export default cachedThrottle;
