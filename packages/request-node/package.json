@@ -70,7 +70,8 @@
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
     "ts-node-dev": "1.0.0-pre.62",
-    "typescript": "4.1.3"
+    "typescript": "4.1.3",
+    "@types/keyv": "3.1.1"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }

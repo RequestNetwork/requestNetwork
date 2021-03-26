@@ -25,13 +25,19 @@ const startNode = async (): Promise<void> => {
 
   logger.info(serverMessage);
 
-  // Instantiates the Request Node, listens for connections and initializes it
-  const requestNode = new RequestNode(logger);
-
   const port = config.getServerPort();
-  requestNode.listen(port, () => {
+  const requestNode = new RequestNode(logger);
+  const server = requestNode.listen(port, () => {
     logger.info(`Listening on port ${port}`);
     return 0;
+  });
+
+  process.on('SIGTERM', async () => {
+    requestNode.dataAccess.stopAutoSynchronization();
+    logger.info('Synchronization stopped');
+    await new Promise((r) => server.close(r));
+    logger.info('Server stopped');
+    process.exit(0);
   });
 
   await requestNode.initialize();
