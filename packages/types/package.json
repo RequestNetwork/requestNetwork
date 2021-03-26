@@ -37,7 +37,7 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "@ethersproject/bignumber": "^5.0.15",
+    "@ethersproject/bignumber": "5.0.15",
     "events": "3.2.0"
   },
   "devDependencies": {
