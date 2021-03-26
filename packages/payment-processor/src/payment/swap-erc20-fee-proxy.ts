@@ -1,9 +1,9 @@
 import { constants, ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
 import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
+import { ERC20SwapToPay__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes } from '@requestnetwork/types';
 
-import { Erc20SwapToPayContract } from '../contracts/Erc20SwapToPayContract';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -113,7 +113,7 @@ export function encodeSwapToPayErc20FeeRequest(
   }
 
   const swapToPayAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network);
-  const swapToPayContract = Erc20SwapToPayContract.connect(swapToPayAddress, signer);
+  const swapToPayContract = ERC20SwapToPay__factory.connect(swapToPayAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
     paymentAddress,

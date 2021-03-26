@@ -1,7 +1,7 @@
 import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import { ethereumProxyArtifact } from '@requestnetwork/smart-contracts';
-import { EthProxyContract } from '../contracts/EthProxyContract';
+import { EthereumProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -54,7 +54,7 @@ export function encodePayEthProxyRequest(
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
 
-  const proxyContract = EthProxyContract.connect(proxyAddress, signer);
+  const proxyContract = EthereumProxy__factory.connect(proxyAddress, signer);
   return proxyContract.interface.encodeFunctionData('transferWithReference', [
     paymentAddress,
     `0x${paymentReference}`,

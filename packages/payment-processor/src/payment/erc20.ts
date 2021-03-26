@@ -2,9 +2,9 @@ import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 
 
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { ERC20Contract } from '../contracts/Erc20Contract';
 import { _getErc20FeeProxyPaymentUrl, payErc20FeeProxyRequest } from './erc20-fee-proxy';
 import { ISwapSettings, swapErc20FeeProxyRequest } from './swap-erc20-fee-proxy';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
@@ -91,7 +91,7 @@ export async function checkErc20Allowance(
   tokenAddress: string,
   amount: BigNumberish,
 ): Promise<boolean> {
-  const erc20Contract = ERC20Contract.connect(tokenAddress, signerOrProvider);
+  const erc20Contract = ERC20__factory.connect(tokenAddress, signerOrProvider);
   const allowance = await erc20Contract.allowance(ownerAddress, spenderAddress);
   return allowance.gte(amount);
 }
@@ -171,7 +171,7 @@ export function encodeApproveAnyErc20(
   spenderAddress: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
 ): string {
-  const erc20interface = ERC20Contract.connect(tokenAddress, signerOrProvider).interface;
+  const erc20interface = ERC20__factory.connect(tokenAddress, signerOrProvider).interface;
   return erc20interface.encodeFunctionData('approve', [
     spenderAddress,
     BigNumber.from(2)
@@ -206,7 +206,7 @@ export async function getAnyErc20Balance(
   address: string,
   provider: providers.Provider,
 ): Promise<BigNumberish> {
-  const erc20Contract = ERC20Contract.connect(anyErc20Address, provider);
+  const erc20Contract = ERC20__factory.connect(anyErc20Address, provider);
   return erc20Contract.balanceOf(address);
 }
 
