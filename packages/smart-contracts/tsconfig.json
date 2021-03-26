@@ -5,7 +5,7 @@
     "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["./src/**/*", "./artifacts/**/*", "./types/**/*"],
+  "include": ["./src/**/*", "./artifacts/**/*"],
   "references": [{ "path": "../currency" }, { "path": "../utils" }],
   "files": [
     "./artifacts/ERC20Proxy/artifacts.json",
