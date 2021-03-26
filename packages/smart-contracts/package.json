@@ -28,7 +28,8 @@
     "test": "test/lib"
   },
   "files": [
-    "dist"
+    "dist",
+    "types"
   ],
   "scripts": {
     "build:lib": "tsc -b",
