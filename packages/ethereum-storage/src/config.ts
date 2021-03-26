@@ -1,5 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 // This contains default values used to use Ethereum Network and IPFS
 // if information are not provided by the user
@@ -85,7 +85,7 @@ export function getDefaultEthereumNetwork(): string {
  * @returns the gas price as a string
  */
 export function getDefaultEthereumGasPrice(): BigNumber {
-  return new BigNumber(process?.env?.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault);
+  return BigNumber.from(process?.env?.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault);
 }
 
 /**

@@ -43,7 +43,7 @@
     "@requestnetwork/types": "0.32.0",
     "@requestnetwork/utils": "0.32.0",
     "bluebird": "3.7.2",
-    "bn.js": "5.1.3",
+    "ethers": "^5.0.32",
     "form-data": "3.0.0",
     "ipfs-unixfs": "2.0.3",
     "keyv": "4.0.3",

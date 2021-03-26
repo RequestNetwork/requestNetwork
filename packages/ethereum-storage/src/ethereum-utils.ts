@@ -1,7 +1,7 @@
 import { StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 const networks = {
   [StorageTypes.EthereumNetwork.PRIVATE]: 'private',
@@ -44,8 +44,6 @@ export default {
    * @returns True if the gas price can be used
    */
   isGasPriceSafe(gasPrice: BigNumber): boolean {
-    return (
-      gasPrice.gt(new BigNumber(0)) && gasPrice.lt(new BigNumber(config.getSafeGasPriceLimit()))
-    );
+    return gasPrice.gt(0) && gasPrice.lt(config.getSafeGasPriceLimit());
   },
 };

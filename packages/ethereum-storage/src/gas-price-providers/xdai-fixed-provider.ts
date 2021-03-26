@@ -1,7 +1,6 @@
 import { StorageTypes } from '@requestnetwork/types';
 
-import { toWei } from 'web3-utils';
-import * as BigNumber from 'bn.js';
+import { BigNumber, utils } from 'ethers';
 
 /**
  * Provide a fixed gas price for xDAI.
@@ -17,7 +16,7 @@ export class XDaiFixedProvider implements StorageTypes.IGasPriceProvider {
       [StorageTypes.GasPriceType.STANDARD]: 5,
       [StorageTypes.GasPriceType.SAFELOW]: 1,
     }[type];
-    return toWei(new BigNumber(basePrice), 'gwei');
+    return BigNumber.from(utils.formatUnits(basePrice, 'gwei'));
   }
 }
 
