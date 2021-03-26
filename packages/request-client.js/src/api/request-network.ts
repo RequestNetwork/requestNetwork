@@ -342,7 +342,12 @@ export default class RequestNetwork {
     topics: any[];
     paymentNetwork: PaymentTypes.IPaymentNetwork | null;
   }> {
-    const requestParameters = parameters.requestInfo;
+    const currency = parameters.requestInfo.currency;
+    const requestParameters = {
+      ...parameters.requestInfo,
+      // if request currency is a string, convert it to currency object
+      currency: typeof currency === 'string' ? stringToCurrency(currency) : currency,
+    };
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
     const contentData = parameters.contentData;
     const topics = parameters.topics?.slice() || [];
@@ -351,17 +356,10 @@ export default class RequestNetwork {
       throw new Error('extensionsData in request parameters must be empty');
     }
 
-    // if request currency is a string, convert it to currency object
-    if (typeof requestParameters.currency === 'string') {
-      requestParameters.currency = stringToCurrency(requestParameters.currency);
-    } else {
-      // If ERC20, validate that the value is a checksum address
-      if (requestParameters.currency.type === RequestLogicTypes.CURRENCY.ERC20) {
-        if (!this.validERC20Address(requestParameters.currency.value)) {
-          throw new Error(
-            'The ERC20 currency address needs to be a valid Ethereum checksum address',
-          );
-        }
+    // If ERC20, validate that the value is a checksum address
+    if (requestParameters.currency.type === RequestLogicTypes.CURRENCY.ERC20) {
+      if (!this.validERC20Address(requestParameters.currency.value)) {
+        throw new Error('The ERC20 currency address needs to be a valid Ethereum checksum address');
       }
     }
 

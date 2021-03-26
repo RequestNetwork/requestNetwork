@@ -642,11 +642,11 @@ export default class Request {
       throw Error('request confirmation failed');
     }
 
-    let requestData: RequestLogicTypes.IRequest = Utils.deepCopy(this.requestData);
+    let requestData = Utils.deepCopy(this.requestData);
 
     let pending = Utils.deepCopy(this.pendingData);
     if (!requestData) {
-      requestData = pending;
+      requestData = pending as RequestLogicTypes.IRequest;
       requestData.state = RequestLogicTypes.STATE.PENDING;
       pending = { state: this.pendingData!.state };
     }
