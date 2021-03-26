@@ -1,6 +1,6 @@
 import { DataAccess } from '@requestnetwork/data-access';
 import { LogTypes } from '@requestnetwork/types';
-import * as httpStatus from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 
 const GET_CHANNELS_TIMEOUT = 600000;
 
@@ -31,7 +31,7 @@ export default async function getChannelsByTopic(
   // Verifies if data sent from get request are correct
   // clientRequest.query is expected to contain the topic of the transactions to search for
   if (!clientRequest.query || !clientRequest.query.topic) {
-    serverResponse.status(httpStatus.UNPROCESSABLE_ENTITY).send('Incorrect data');
+    serverResponse.status(StatusCodes.UNPROCESSABLE_ENTITY).send('Incorrect data');
   } else {
     try {
       // parse updatedBetween because in query everything is string
@@ -48,11 +48,11 @@ export default async function getChannelsByTopic(
         'latency',
       ]);
 
-      serverResponse.status(httpStatus.OK).send(transactions);
+      serverResponse.status(StatusCodes.OK).send(transactions);
     } catch (e) {
       logger.error(`getChannelsByTopic error: ${e}`);
 
-      serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
+      serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
     }
   }
 }

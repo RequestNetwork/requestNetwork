@@ -71,8 +71,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    */
   public constructor(
     externalBufferUrl: string,
-    ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection,
-    web3Connection?: StorageTypes.IWeb3Connection,
+    ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection,
+    web3Connection: StorageTypes.IWeb3Connection,
     {
       getLastBlockNumberDelay,
       logger,
@@ -123,7 +123,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     try {
       await this.smartContractManager.checkWeb3ProviderConnection(WEB3_PROVIDER_TIMEOUT);
     } catch (error) {
-      throw Error(`Ethereum node is not accessible: ${error}`);
+      throw new Error(`Ethereum node is not accessible: ${error}`);
     }
 
     // check if contracts are deployed on ethereum
@@ -386,9 +386,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   public async getData(
     options?: StorageTypes.ITimestampBoundaries,
   ): Promise<StorageTypes.IEntriesWithLastTimestamp> {
-    const contentDataIdAndMeta = await this.getContentAndDataId(options);
-
-    return contentDataIdAndMeta;
+    return this.getContentAndDataId(options);
   }
 
   /**

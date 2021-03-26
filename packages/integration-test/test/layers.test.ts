@@ -65,7 +65,7 @@ describe('Request system', () => {
     };
     const web3Connection: StorageTypes.IWeb3Connection = {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
-      web3Provider: provider,
+      signer: provider,
     };
     const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
 
@@ -242,7 +242,7 @@ describe('Request system', () => {
     };
     const web3Connection: StorageTypes.IWeb3Connection = {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
-      web3Provider: provider,
+      signer: provider,
     };
     const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
 

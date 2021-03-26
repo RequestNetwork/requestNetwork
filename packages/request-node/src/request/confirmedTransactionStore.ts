@@ -1,5 +1,5 @@
 import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
-import * as httpStatus from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 
 import Keyv from 'keyv';
 import KeyvFile from 'keyv-file';
@@ -36,7 +36,7 @@ export default class ConfirmedTransactionStore {
   ): Promise<void> {
     if (!clientRequest.query.transactionHash) {
       serverResponse
-        .status(httpStatus.UNPROCESSABLE_ENTITY)
+        .status(StatusCodes.UNPROCESSABLE_ENTITY)
         .send('transactionHash missing in the query');
     } else {
       try {
@@ -45,15 +45,15 @@ export default class ConfirmedTransactionStore {
         );
 
         if (result) {
-          return serverResponse.status(httpStatus.OK).send(result);
+          return serverResponse.status(StatusCodes.OK).send(result);
         }
 
-        return serverResponse.status(httpStatus.NOT_FOUND).send();
+        return serverResponse.status(StatusCodes.NOT_FOUND).send();
       } catch (e) {
         logger.error(`getConfirmedTransaction error: ${e}`);
         logger.debug(`getConfirmedTransaction fail`, ['metric', 'successRate']);
 
-        serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
+        serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
       }
     }
   }

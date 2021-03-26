@@ -5,7 +5,7 @@ import * as config from './config';
 import Keyv from 'keyv';
 import KeyvFile from 'keyv-file';
 
-import hdWalletProvider from '@truffle/hdwallet-provider';
+import { Wallet, providers } from 'ethers';
 
 /**
  * Get the ethereum storage with values from config
@@ -28,11 +28,12 @@ export function getEthereumStorage(
   };
 
   // Initializes web3 connection object
-  const provider = new hdWalletProvider(mnemonic, config.getStorageWeb3ProviderUrl());
+  const provider = new providers.JsonRpcProvider(config.getStorageWeb3ProviderUrl());
+  const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
   const web3Connection: StorageTypes.IWeb3Connection = {
     networkId: config.getStorageNetworkId(),
-    web3Provider: provider,
+    signer: wallet,
   };
 
   const store = new Keyv<string[]>({

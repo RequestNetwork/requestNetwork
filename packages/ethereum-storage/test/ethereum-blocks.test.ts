@@ -1,3 +1,4 @@
+import { providers } from 'ethers';
 import EthereumBlocks from '../src/ethereum-blocks';
 
 /* eslint-disable no-magic-numbers */
@@ -103,34 +104,30 @@ const mockBlocksEthereum = [
   9807,
   9906,
 ];
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
 
-const mockEth = {
-  getBlock: jest.fn((i: number): any => {
-    return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
-  }),
-  // eslint-disable-next-line 
-  getBlockNumber: jest.fn(() => Promise.resolve(99)),
-};
-
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-/* eslint-disable  */
 describe('EthereumBlocks', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.spyOn(provider, 'getBlock').mockImplementation((i: any): any => {
+      return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
+    });
+    jest.spyOn(provider, 'getBlockNumber').mockImplementation(() => Promise.resolve(99));
   });
   describe('getLastBlockNumber', () => {
     it('getLastBlockNumber', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
       expect(await ethereumBlocks.getLastBlockNumber()).toEqual(99);
     });
 
     // TODO
     it('respects the delay', async () => {
       // Generates a random block number
-      const randEth = {
-        getBlockNumber: (): number => Math.floor(Math.random() * 10e7),
-      };
-      const ethereumBlocks = new EthereumBlocks(randEth, 10, 0, 0, 10000);
+      jest
+        .spyOn(provider, 'getBlockNumber')
+        .mockImplementation(() => Promise.resolve(Math.floor(Math.random() * 10e7)));
+
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0, 10000);
 
       jest.useFakeTimers('modern');
       jest.setSystemTime(0);
@@ -148,10 +145,10 @@ describe('EthereumBlocks', () => {
 
     it('always fetches new with 0 as delay', async () => {
       // Generates a random block number
-      const randEth = {
-        getBlockNumber: (): number => Math.floor(Math.random() * 10e7),
-      };
-      const ethereumBlocks = new EthereumBlocks(randEth, 10, 0, 0, 0);
+      jest
+        .spyOn(provider, 'getBlockNumber')
+        .mockImplementation(() => Promise.resolve(Math.floor(Math.random() * 10e7)));
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0, 0);
 
       jest.useFakeTimers('modern');
       jest.setSystemTime(0);
@@ -169,7 +166,7 @@ describe('EthereumBlocks', () => {
 
   describe('getSecondLastBlockNumber', () => {
     it('getSecondLastBlockNumber', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
 
       await expect(ethereumBlocks.getSecondLastBlockNumber()).resolves.toEqual(98);
     });
@@ -177,19 +174,19 @@ describe('EthereumBlocks', () => {
 
   describe('getBlockTimestamp', () => {
     it('can getBlockTimestamp', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
       expect(await ethereumBlocks.getBlockTimestamp(50)).toEqual(mockBlocksEthereum[50]);
     });
 
     it('can getBlockTimestamp without asking twice the same block number', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
       expect(await ethereumBlocks.getBlockTimestamp(50)).toEqual(mockBlocksEthereum[50]);
       expect(await ethereumBlocks.getBlockTimestamp(50)).toEqual(mockBlocksEthereum[50]);
-      expect(mockEth.getBlock).toHaveBeenCalledTimes(1);
+      expect(provider.getBlock).toHaveBeenCalledTimes(1);
     });
 
     it('cannot getBlockTimestamp of a block that doest not exist', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
       await expect(ethereumBlocks.getBlockTimestamp(101)).rejects.toThrowError(
         `block 101 not found`,
       );
@@ -198,19 +195,16 @@ describe('EthereumBlocks', () => {
 
   describe('getConfirmationNumber', () => {
     it('can getConfirmationNumber', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
       expect(await ethereumBlocks.getConfirmationNumber(30)).toEqual(69);
     });
 
     it('must throw an error when eth crash', async () => {
-      const mockEthThrower = {
-        // eslint-disable-next-line
-        getBlockNumber: () => {
-          throw Error('Exception to be caught');
-        },
-      };
+      jest
+        .spyOn(provider, 'getBlockNumber')
+        .mockImplementation(() => Promise.reject(new Error('Exception to be caught')));
 
-      const ethereumBlocks = new EthereumBlocks(mockEthThrower, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
       await expect(ethereumBlocks.getConfirmationNumber(11)).rejects.toThrowError(
         `Error getting the confirmation number: Error: Exception to be caught`,
       );
@@ -219,7 +213,7 @@ describe('EthereumBlocks', () => {
 
   describe('getBlockNumbersFromTimestamp', () => {
     it('getBlockNumbersFromTimestamp', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
       expect(await ethereumBlocks.getBlockNumbersFromTimestamp(3190)).toMatchObject({
         blockBefore: 31,
         blockAfter: 32,
@@ -227,7 +221,7 @@ describe('EthereumBlocks', () => {
     });
 
     it('getBlockNumbersFromTimestamp some already known block', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
       await ethereumBlocks.getBlockTimestamp(15);
       await ethereumBlocks.getBlockTimestamp(20);
       await ethereumBlocks.getBlockTimestamp(60);
@@ -243,7 +237,7 @@ describe('EthereumBlocks', () => {
     });
 
     it('getBlockNumbersFromTimestamp of edge case', async () => {
-      const ethereumBlocks = new EthereumBlocks(mockEth, 10, 0, 0);
+      const ethereumBlocks = new EthereumBlocks(provider, 10, 0, 0);
 
       // first dichotomy research
       expect(await ethereumBlocks.getBlockNumbersFromTimestamp(4401)).toMatchObject({
