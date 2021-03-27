@@ -12,7 +12,7 @@ const web3Eth = require('web3-eth');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Utils = require('web3-utils');
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 // Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
 // 23 is the number of call of the transaction's confirmation event function
@@ -327,7 +327,7 @@ export default class SmartContractManager {
             );
 
             // If the new gas price is higher than the previous, resubmit the transaction
-            if (newGasPrice.gt(new BigNumber(gasPriceToUse))) {
+            if (newGasPrice.gt(gasPriceToUse)) {
               // Retry transaction with the new gas price and propagate back the result
               try {
                 resolve(
@@ -362,10 +362,8 @@ export default class SmartContractManager {
         })
         .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
           if (!ethereumMetadataCreated) {
-            const gasFee = new BigNumber(receiptAfterConfirmation.gasUsed).mul(
-              new BigNumber(gasPriceToUse),
-            );
-            const cost = gasFee.add(new BigNumber(fee));
+            const gasFee = BigNumber.from(receiptAfterConfirmation.gasUsed).mul(gasPriceToUse);
+            const cost = gasFee.add(BigNumber.from(fee));
 
             // Try to create ethereum metadata
             // If the promise rejects, which is likely to happen because the last block is not fetchable

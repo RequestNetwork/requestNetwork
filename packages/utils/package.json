@@ -44,7 +44,6 @@
     "ethers": "5.0.32"
   },
   "devDependencies": {
-    "@types/bn.js": "4.11.6",
     "@types/jest": "26.0.13",
     "jest": "26.4.2",
     "prettier": "2.2.1",

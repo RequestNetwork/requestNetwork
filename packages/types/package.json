@@ -41,7 +41,6 @@
     "events": "3.2.0"
   },
   "devDependencies": {
-    "@types/bn.js": "4.11.6",
     "@types/events": "3.0.0",
     "shx": "0.3.2",
     "ts-node": "9.0.0",
