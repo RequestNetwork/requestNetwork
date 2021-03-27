@@ -1,8 +1,4 @@
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-  SignatureProviderTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import Action from '../action';

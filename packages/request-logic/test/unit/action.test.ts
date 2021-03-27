@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import MultiFormat from '@requestnetwork/multi-format';
 import {
   IdentityTypes,
@@ -43,7 +42,7 @@ const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   supportedMethods: [SignatureTypes.METHOD.ECDSA],
 };
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Action', () => {
   it('can getRequestId() of current version', () => {
     const reqId = Action.getRequestId(signedAction);

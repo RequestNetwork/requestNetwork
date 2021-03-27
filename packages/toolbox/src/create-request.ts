@@ -16,7 +16,7 @@ export default {
  * @returns The created request
  */
 function createTestRequest(
-  expectedAmount: string = '1000',
+  expectedAmount = '1000',
   nodeConnectionConfig: AxiosRequestConfig = {},
 ): Promise<Request> {
   const signatureProvider = new EthereumPrivateKeySignatureProvider({

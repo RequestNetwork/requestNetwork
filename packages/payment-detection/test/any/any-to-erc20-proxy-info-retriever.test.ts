@@ -1,5 +1,5 @@
-// tslint:disable: no-invalid-this
-// tslint:disable: no-magic-numbers
+/* eslint-disable no-invalid-this */
+/* eslint-disable no-magic-numbers */
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AnyToErc20ProxyInfoRetriever from '../../src/any/any-to-erc20-proxy-info-retriever';
 import { ethers } from 'ethers';
@@ -11,7 +11,7 @@ const paymentReferenceMock = '01111111111111111111111111111111111111111111111111
 const acceptedTokens = [erc20LocalhostContractAddress];
 const USDCurrency = { type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' };
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/any/conversion-proxy-info-retriever', () => {
   describe('on mocked logs', () => {
     let proxyPaymentLog: ethers.providers.Log;
@@ -111,7 +111,6 @@ describe('api/any/conversion-proxy-info-retriever', () => {
     });
 
     it('skips the payment with a payment token that is not accepted', async () => {
-      // eslint-disable-next-line spellcheck/spell-checker
       // token 0xff...fff instead of the accepted one
       proxyPaymentLog.data =
         '0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff000000000000000000000000c12f17da12cd01a9cdbb216949ba0b41a6ffc4eb0000000000000000000000000000000000000000000000008a8b0a9b5a67faf30000000000000000000000000000000000000000000000001bb56885787b32300000000000000000000000000d1d4e623d10f9fba5db95830f7d3839406c6af2';
@@ -149,7 +148,6 @@ describe('api/any/conversion-proxy-info-retriever', () => {
     });
 
     it('skips the payment with a wrong conversion currency', async () => {
-      // eslint-disable-next-line spellcheck/spell-checker
       // currency 0xff...fff instead of the request one
       proxyConversionLog.data =
         '0x000000000000000000000000000000000000000000000000000000003b9aca00000000000000000000000000ffffffffffffffffffffffffffffffffffffffff000000000000000000000000000000000000000000000000000000000bebc2000000000000000000000000000000000000000000000000000000000000000000';

@@ -1,5 +1,5 @@
 import * as httpStatus from 'http-status-codes';
-import * as request from 'supertest';
+import request from 'supertest';
 import requestNode from '../src/requestNode';
 
 const channelId = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab';
@@ -15,8 +15,8 @@ const otherTransactionData = {
 let requestNodeInstance;
 let server: any;
 
-// tslint:disable:no-magic-numbers
-// tslint:disable:no-unused-expression
+/* eslint-disable no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('getTransactionsByChannelId', () => {
   beforeAll(async () => {
     requestNodeInstance = new requestNode();

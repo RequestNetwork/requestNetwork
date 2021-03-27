@@ -22,7 +22,7 @@ const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   extensions: {},
 };
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('requestLogicCore', () => {
   describe('applyActionToRequest', () => {
     it('cannot support unknown action', () => {
@@ -390,7 +390,9 @@ describe('requestLogicCore', () => {
       );
 
       // 'requestId is wrong'
-      expect(request.requestId).toBe(MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)));
+      expect(request.requestId).toBe(
+        MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(actionCreation)),
+      );
       // 'currency is wrong'
       expect(request.currency).toEqual({
         type: RequestLogicTypes.CURRENCY.ETH,

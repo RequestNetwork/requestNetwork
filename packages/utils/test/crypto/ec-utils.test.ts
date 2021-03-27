@@ -13,7 +13,7 @@ const rawId = {
 
 const anyData = 'this is any data!';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Utils.ecUtils', () => {
   describe('getAddressFromPrivateKey', () => {
     it('can get Address From PrivateKey', () => {

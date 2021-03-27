@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { AdvancedLogicTypes } from '@requestnetwork/types';
 
 import ContentDataExtension from '../../src/api/content-data-extension';
@@ -21,7 +20,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 let contentDataExtension: ContentDataExtension;
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/content-data-extension', () => {
   beforeEach(() => {
     jest.clearAllMocks();

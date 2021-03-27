@@ -1,7 +1,4 @@
-import {
-  IdentityTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import Role from './role';
@@ -23,7 +20,10 @@ export default {
  *
  * @returns Types.ROLE the role of the signer (payee, payer or third party)
  */
-function getRoleInRequest(identity: IdentityTypes.IIdentity, request: RequestLogicTypes.IRequest): RequestLogicTypes.ROLE {
+function getRoleInRequest(
+  identity: IdentityTypes.IIdentity,
+  request: RequestLogicTypes.IRequest,
+): RequestLogicTypes.ROLE {
   return Role.getRole(identity, request);
 }
 

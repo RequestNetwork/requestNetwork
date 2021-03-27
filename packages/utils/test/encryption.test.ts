@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { EncryptionTypes, IdentityTypes } from '@requestnetwork/types';
 import Encryption from '../src/encryption';
 
@@ -37,7 +36,7 @@ const data = {
   attribut2: 'Value',
 };
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Encryption', () => {
   describe('getIdentityFromEncryptionParams', () => {
     it('can getIdentityFromEncryptionParams()', () => {

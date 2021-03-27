@@ -6,7 +6,7 @@ import { LogTypes } from '@requestnetwork/types';
 export default class IntervalTimer {
   // Count the successive number of failure from the interval function
   // This value is used as we may not want to directly log an error if the interval function fails once
-  public intervalFunctionSuccessiveFailureCount: number = 0;
+  public intervalFunctionSuccessiveFailureCount = 0;
 
   private intervalFunction: any;
   private intervalTime: number;
@@ -26,7 +26,7 @@ export default class IntervalTimer {
     intervalFunction: () => Promise<void>,
     intervalTime: number,
     logger: LogTypes.ILogger,
-    successiveFailureThreshold: number = 1,
+    successiveFailureThreshold = 1,
   ) {
     this.intervalFunction = intervalFunction;
     this.intervalTime = intervalTime;

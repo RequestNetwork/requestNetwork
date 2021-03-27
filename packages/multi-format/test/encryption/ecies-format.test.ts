@@ -3,7 +3,7 @@ import { EncryptionTypes, MultiFormatTypes } from '@requestnetwork/types';
 import EciesFormat from '../../src/encryption/ecies-format';
 let eciesFormat: EciesFormat;
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('encryption/ecies-format', () => {
   beforeEach(() => {
     eciesFormat = new EciesFormat();

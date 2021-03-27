@@ -1,11 +1,10 @@
-/* eslint-disable spellcheck/spell-checker */
 import { PaymentTypes } from '@requestnetwork/types';
 import BlockCypherCom from '../../../src/btc/default-providers/blockcypher-com';
 
 import * as BlockCypherComData from './blockcypher-com-data';
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/btc/providers/blockCypherCom', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {

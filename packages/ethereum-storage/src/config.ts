@@ -1,4 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
+import * as BigNumber from 'bn.js';
 
 // This contains default values used to use Ethereum Network and IPFS
 // if information are not provided by the user
@@ -29,13 +30,12 @@ const config: any = {
       maxRetries: 3,
     },
     expectedBootstrapNodes: [
-      // eslint-disable-next-line spellcheck/spell-checker
       '/dns4/ipfs-bootstrap.request.network/tcp/4001/ipfs/QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967Fdxx',
-      // eslint-disable-next-line spellcheck/spell-checker
+
       '/dns4/ipfs-bootstrap-2.request.network/tcp/4001/ipfs/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj',
-      // eslint-disable-next-line spellcheck/spell-checker
+
       '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
-      // eslint-disable-next-line spellcheck/spell-checker
+
       '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
     ],
     maxIpfsReadRetry: 1,
@@ -84,8 +84,8 @@ export function getDefaultEthereumNetwork(): string {
  * Retrieve from config the default gas price to make transactions into Ethereum network
  * @returns the gas price as a string
  */
-export function getDefaultEthereumGasPrice(): string {
-  return process?.env?.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault;
+export function getDefaultEthereumGasPrice(): BigNumber {
+  return new BigNumber(process?.env?.GAS_PRICE_DEFAULT || config.ethereum.gasPriceDefault);
 }
 
 /**

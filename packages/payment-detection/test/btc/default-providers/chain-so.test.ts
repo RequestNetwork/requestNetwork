@@ -5,7 +5,7 @@ import ChainSo from '../../../src/btc/default-providers/chain-so';
 import * as ChainSoData from './chain-so-data';
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/btc/providers/chainSo', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {

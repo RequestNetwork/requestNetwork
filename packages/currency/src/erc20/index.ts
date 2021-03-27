@@ -8,10 +8,10 @@ import { supportedNetworks, supportedNetworksDetails, ERC20SymbolDetails } from 
  */
 export function getErc20Currency(
   symbol: string,
-  network: string = 'mainnet',
+  network = 'mainnet',
 ): RequestLogicTypes.ICurrency | undefined {
   // Check if it's on one of the other supported networks
-  if (supportedNetworks.hasOwnProperty(network) && supportedNetworks[network].has(symbol)) {
+  if (network in supportedNetworks && supportedNetworks[network].has(symbol)) {
     return supportedNetworks[network].get(symbol);
   }
 
@@ -29,7 +29,7 @@ export function getErc20Decimals(currency: RequestLogicTypes.ICurrency): number 
   let erc20Token;
 
   // Get the decimals from one of the supported ERC20 networks
-  if (supportedNetworksDetails.hasOwnProperty(network)) {
+  if (network in supportedNetworksDetails) {
     erc20Token = Object.values(supportedNetworksDetails[network]).find(
       ({ address }) => address.toLowerCase() === currency.value.toLowerCase(),
     );
@@ -57,7 +57,7 @@ export function getErc20Symbol(currency: RequestLogicTypes.ICurrency): string | 
   }
 
   // Find ERC20 symbol in one of the other supported ERC20 networks
-  if (supportedNetworks.hasOwnProperty(network)) {
+  if (network in supportedNetworks) {
     const entry = [...supportedNetworks[network].entries()].find(
       ([, obj]) => currency.value.toLowerCase() === obj.value.toLowerCase(),
     );

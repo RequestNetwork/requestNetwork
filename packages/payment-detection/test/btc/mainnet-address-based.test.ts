@@ -24,7 +24,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/btc/mainnet-address-based', () => {
   beforeEach(() => {
     btcAddressedBased = new BTCAddressedBased({ advancedLogic: mockAdvancedLogic });

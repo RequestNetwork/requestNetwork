@@ -75,7 +75,7 @@ export function getSigner(
 export function getPaymentNetworkExtension(
   request: ClientTypes.IRequestData,
 ): ExtensionTypes.IState | undefined {
-  // tslint:disable-next-line: typedef
+  // eslint-disable-next-line
   return Object.values(request.extensions).find(
     (x) => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
   );

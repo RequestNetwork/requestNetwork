@@ -1,7 +1,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { getCurrencyHash } from './index';
 
-const GRAPH = require('node-dijkstra');
+import GRAPH from 'node-dijkstra';
 
 // List of currencies supported by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
 // Network => currencyFrom => currencyTo => cost
@@ -58,7 +58,7 @@ const currencyPairs: any = {
 export function getPath(
   currencyFrom: RequestLogicTypes.ICurrency,
   currencyTo: RequestLogicTypes.ICurrency,
-  network: string = 'mainnet',
+  network = 'mainnet',
 ): string[] | null {
   if (!currencyPairs[network]) {
     throw Error('network not supported');

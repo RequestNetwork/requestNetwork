@@ -5,18 +5,16 @@ import Utils from '@requestnetwork/utils';
 
 import fetch from 'node-fetch';
 
-/* eslint-disable spellcheck/spell-checker */
-
 import * as BigNumber from 'bn.js';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
-const ETHERSCAN_REQUEST_MAX_RETRY: number = 3;
+const ETHERSCAN_REQUEST_MAX_RETRY = 3;
 
 // Delay between retries in ms
-const ETHERSCAN_REQUEST_RETRY_DELAY: number = 100;
+const ETHERSCAN_REQUEST_RETRY_DELAY = 100;
 
 // Multiplier to use to convert the gas price in wei
-const API_MULTIPLIER: number = 1000000000;
+const API_MULTIPLIER = 1000000000;
 
 /**
  * Retrieves and processes the gas price returned by etherscan.io API
@@ -25,7 +23,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
   /**
    * Url to connect to the provider API
    */
-  public providerUrl: string = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle';
+  public providerUrl = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle';
 
   /**
    * Fetch library to send http requests
@@ -45,7 +43,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
       retryDelay: ETHERSCAN_REQUEST_RETRY_DELAY,
     })();
 
-    // tslint:disable-next-line:no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     if (res.status >= 400) {
       throw new Error(
         `Etherscan error ${res.status}. Bad response from server ${this.providerUrl}`,

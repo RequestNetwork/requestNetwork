@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -29,7 +28,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/input-data', () => {
   beforeEach(() => {
     ethInputData = new EthInputData({ advancedLogic: mockAdvancedLogic });

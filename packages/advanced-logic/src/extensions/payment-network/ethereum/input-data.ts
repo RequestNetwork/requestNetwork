@@ -2,7 +2,7 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 
 import ReferenceBased from '../reference-based';
 
-const walletAddressValidator = require('wallet-address-validator');
+import * as walletAddressValidator from 'wallet-address-validator';
 
 const CURRENT_VERSION = '0.2.0';
 

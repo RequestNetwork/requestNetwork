@@ -1,7 +1,7 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
 
-const benchmark = require('benchmark');
+import * as benchmark from 'benchmark';
 
 const signatureInfo: Types.Signature.ISignatureParameters = {
   method: Types.Signature.METHOD.ECDSA,
@@ -41,32 +41,30 @@ function getCreateRequestThroughput(
     content: '',
   },
 ): Promise<IBenchmark> {
-  return new Promise(
-    (resolve): any => {
-      const requestNetwork = new RequestNetwork({ signatureProvider });
+  return new Promise((resolve): any => {
+    const requestNetwork = new RequestNetwork({ signatureProvider });
 
-      const suite = new benchmark.Suite();
+    const suite = new benchmark.Suite();
 
-      return suite
-        .add('create request', {
-          defer: true,
-          fn(deferred: any): Promise<any> {
-            // increment to avoid requestId collision
-            requestCreationHash.nonce = nonce++;
+    return suite
+      .add('create request', {
+        defer: true,
+        fn(deferred: any): Promise<any> {
+          // increment to avoid requestId collision
+          requestCreationHash.nonce = nonce++;
 
-            return requestNetwork
-              .createRequest({
-                contentData: actions.content,
-                requestInfo: requestCreationHash,
-                signer: signerIdentity,
-              })
-              .then(() => deferred.resolve());
-          },
-        })
-        .on('complete', (results: any) => resolve(analyzeBenchmark(results.currentTarget[0])))
-        .run();
-    },
-  );
+          return requestNetwork
+            .createRequest({
+              contentData: actions.content,
+              requestInfo: requestCreationHash,
+              signer: signerIdentity,
+            })
+            .then(() => deferred.resolve());
+        },
+      })
+      .on('complete', (results: any) => resolve(analyzeBenchmark(results.currentTarget[0])))
+      .run();
+  });
 }
 
 /**

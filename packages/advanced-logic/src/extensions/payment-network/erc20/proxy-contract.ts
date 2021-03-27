@@ -4,7 +4,7 @@ import ReferenceBased from '../reference-based';
 
 const CURRENT_VERSION = '0.1.0';
 
-const walletAddressValidator = require('wallet-address-validator');
+import * as walletAddressValidator from 'wallet-address-validator';
 
 /**
  * Implementation of the payment network to pay in ERC20 based on a reference provided to a proxy contract.

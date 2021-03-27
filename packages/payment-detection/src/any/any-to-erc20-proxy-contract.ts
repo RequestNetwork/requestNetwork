@@ -14,7 +14,7 @@ import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
 
 import { BigNumber } from 'ethers';
 
-// tslint:disable:max-classes-per-file
+/* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
 class NetworkNotSupported extends Error {}
 /** Exception when version not supported */

@@ -39,7 +39,7 @@ export default class PersistTransaction {
     const requestStartTime = Date.now();
 
     // Set the timeout from the value from config and convert seconds to milliseconds
-    // tslint:disable:no-magic-numbers
+    /* eslint-disable no-magic-numbers */
     clientRequest.setTimeout(getPersistTransactionTimeout() * 1000);
 
     // Verifies if data send from post are correct
@@ -73,7 +73,7 @@ export default class PersistTransaction {
         );
 
         // when the transaction is confirmed, store the information to be serve when requested
-        dataAccessResponse.on('confirmed', async dataAccessConfirmedResponse => {
+        dataAccessResponse.on('confirmed', async (dataAccessConfirmedResponse) => {
           await this.confirmedTransactionStore.addConfirmedTransaction(
             transactionHash.value,
             dataAccessConfirmedResponse,
@@ -82,7 +82,7 @@ export default class PersistTransaction {
         });
 
         // when the transaction fails, log an error
-        dataAccessResponse.on('error', async e => {
+        dataAccessResponse.on('error', async (e) => {
           const logData = [
             'transactionHash',
             transactionHash.value,

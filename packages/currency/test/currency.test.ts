@@ -1,4 +1,4 @@
-// tslint:disable:no-magic-numbers
+/* eslint-disable no-magic-numbers */
 import { RequestLogicTypes } from '@requestnetwork/types';
 import {
   currencyToString,
@@ -36,7 +36,9 @@ describe('api/currency', () => {
     });
 
     it('returns Celo CUSD', () => {
-      expect(getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'CUSD-celo')).toEqual({
+      expect(
+        getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'CUSD-celo'),
+      ).toEqual({
         address: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
         decimals: 18,
         name: 'Celo Dollar',
@@ -55,7 +57,7 @@ describe('api/currency', () => {
 
     it('returns CTBK', () => {
       expect(
-        getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'CTBK-rinkeby')
+        getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'CTBK-rinkeby'),
       ).toEqual({
         address: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
         decimals: 18,
@@ -75,10 +77,12 @@ describe('api/currency', () => {
 
   describe('getDecimalsForCurrency', () => {
     it('returns the correct number of decimals', () => {
-      expect(getDecimalsForCurrency({
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-      })).toEqual(18);
+      expect(
+        getDecimalsForCurrency({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        }),
+      ).toEqual(18);
     });
 
     it('throws for invalid currencies', () => {
@@ -86,15 +90,18 @@ describe('api/currency', () => {
         getDecimalsForCurrency({
           type: 'BANANA' as RequestLogicTypes.CURRENCY,
           value: 'SPLIT',
-        } as RequestLogicTypes.ICurrency)).toThrow();
+        } as RequestLogicTypes.ICurrency),
+      ).toThrow();
     });
 
     it('returns the correct number of decimals for a supported ERC20', () => {
-      expect(getDecimalsForCurrency({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
-      })).toEqual(18);
+      expect(
+        getDecimalsForCurrency({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
+        }),
+      ).toEqual(18);
     });
 
     it('throws for a non-supported ERC20', () => {
@@ -103,34 +110,43 @@ describe('api/currency', () => {
           network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 contract
-        })).toThrow();
+        }),
+      ).toThrow();
     });
 
     it('returns the correct number of decimals for a a celo ERC20', () => {
-      expect(getDecimalsForCurrency({
-        network: 'celo',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a', // Celo Dollar
-      })).toEqual(18);
+      expect(
+        getDecimalsForCurrency({
+          network: 'celo',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x765DE816845861e75A25fCA122bb6898B8B1282a', // Celo Dollar
+        }),
+      ).toEqual(18);
     });
 
     it('return the correct currency for USD and EUR strings', () => {
-      expect(getDecimalsForCurrency({
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-        value: 'USD',
-      })).toEqual(2);
+      expect(
+        getDecimalsForCurrency({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'USD',
+        }),
+      ).toEqual(2);
 
-      expect(getDecimalsForCurrency({
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-        value: 'EUR',
-      })).toEqual(2);
+      expect(
+        getDecimalsForCurrency({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'EUR',
+        }),
+      ).toEqual(2);
     });
 
     it('throws for unknown ISO4217 currency', () => {
-      expect(() => getDecimalsForCurrency({
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-        value: 'YOYO',
-      })).toThrow(`Unsupported ISO currency YOYO`);
+      expect(() =>
+        getDecimalsForCurrency({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'YOYO',
+        }),
+      ).toThrow(`Unsupported ISO currency YOYO`);
     });
   });
 
@@ -224,124 +240,183 @@ describe('api/currency', () => {
 
   describe('currencyToString', () => {
     it('return "ETH" string for ETH currency', () => {
-      expect(currencyToString({
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-      })).toEqual('ETH');
+      expect(
+        currencyToString({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        }),
+      ).toEqual('ETH');
     });
 
     it('return "ETH-rinkeby" string for ETH on rinkeby currency', () => {
-      expect(currencyToString({
-        network: 'rinkeby',
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-      })).toEqual('ETH-rinkeby');
+      expect(
+        currencyToString({
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        }),
+      ).toEqual('ETH-rinkeby');
     });
 
     it('return "BTC" string for BTC currency', () => {
-      expect(currencyToString({
-        type: RequestLogicTypes.CURRENCY.BTC,
-        value: 'BTC',
-      })).toEqual('BTC');
+      expect(
+        currencyToString({
+          type: RequestLogicTypes.CURRENCY.BTC,
+          value: 'BTC',
+        }),
+      ).toEqual('BTC');
     });
 
     it('return "BTC-testnet" string for BTC currency on testnet', () => {
-      expect(currencyToString({
-        network: 'testnet',
-        type: RequestLogicTypes.CURRENCY.BTC,
-        value: 'BTC',
-      })).toEqual('BTC-testnet');
+      expect(
+        currencyToString({
+          network: 'testnet',
+          type: RequestLogicTypes.CURRENCY.BTC,
+          value: 'BTC',
+        }),
+      ).toEqual('BTC-testnet');
     });
 
     it('return the "SAI" string for SAI currency', () => {
-      expect(currencyToString({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
-      })).toEqual('SAI');
+      expect(
+        currencyToString({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359',
+        }),
+      ).toEqual('SAI');
     });
 
     it('return the "REQ" string for REQ currency', () => {
-      expect(currencyToString({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x8f8221aFbB33998d8584A2B05749bA73c37a938a',
-      })).toEqual('REQ');
+      expect(
+        currencyToString({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8f8221aFbB33998d8584A2B05749bA73c37a938a',
+        }),
+      ).toEqual('REQ');
     });
 
     it('return the "CUSD-celo" string for Celo CUSD currency', () => {
-      expect(currencyToString({
-        network: 'celo',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
-      })).toEqual('CUSD-celo');
+      expect(
+        currencyToString({
+          network: 'celo',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+        }),
+      ).toEqual('CUSD-celo');
     });
 
     it('return the "CTBK-rinkeby" string for CTBK currency', () => {
-      expect(currencyToString({
-        network: 'rinkeby',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
-      })).toEqual('CTBK-rinkeby');
+      expect(
+        currencyToString({
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
+        }),
+      ).toEqual('CTBK-rinkeby');
     });
 
     it('return the correct strings for USD and EUR currency', () => {
-      expect(currencyToString({
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-        value: 'USD',
-      })).toEqual('USD');
+      expect(
+        currencyToString({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'USD',
+        }),
+      ).toEqual('USD');
 
-      expect(currencyToString({
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-        value: 'EUR',
-      })).toEqual('EUR');
+      expect(
+        currencyToString({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'EUR',
+        }),
+      ).toEqual('EUR');
     });
 
     it('return unknown for REQ not on mainnet', () => {
-      expect(currencyToString({
-        network: 'rinkeby',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x8f8221aFbB33998d8584A2B05749bA73c37a938a',
-      })).toEqual('unknown');
+      expect(
+        currencyToString({
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8f8221aFbB33998d8584A2B05749bA73c37a938a',
+        }),
+      ).toEqual('unknown');
     });
 
     it('return unknown unsupported currency', () => {
-      expect(currencyToString({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x1111111111111111111111111111111111111111',
-      })).toEqual('unknown');
+      expect(
+        currencyToString({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x1111111111111111111111111111111111111111',
+        }),
+      ).toEqual('unknown');
     });
 
     it('return unknown for Celo CUSD on mainnet', () => {
-      expect(currencyToString({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
-      })).toEqual('unknown');
+      expect(
+        currencyToString({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+        }),
+      ).toEqual('unknown');
     });
 
     it('return default if type unkown', () => {
-      expect(currencyToString({
-        type: 'unknown' as RequestLogicTypes.CURRENCY,
-        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
-      })).toEqual('unknown');
+      expect(
+        currencyToString({
+          type: 'unknown' as RequestLogicTypes.CURRENCY,
+          value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+        }),
+      ).toEqual('unknown');
     });
   });
 
   describe('getCurrencyHash', () => {
-    const ethDefault: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ETH, value:'eth'};
-    const ethMainnet: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ETH, value:'eth', network:'mainnet'};
-    const ethRinkeby: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ETH, value:'eth', network:'rinkeby'};
+    const ethDefault: RequestLogicTypes.ICurrency = {
+      type: RequestLogicTypes.CURRENCY.ETH,
+      value: 'eth',
+    };
+    const ethMainnet: RequestLogicTypes.ICurrency = {
+      type: RequestLogicTypes.CURRENCY.ETH,
+      value: 'eth',
+      network: 'mainnet',
+    };
+    const ethRinkeby: RequestLogicTypes.ICurrency = {
+      type: RequestLogicTypes.CURRENCY.ETH,
+      value: 'eth',
+      network: 'rinkeby',
+    };
 
-    const btcDefault: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.BTC, value:'btc'};
-    const btcMainnet: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.BTC, value:'btc', network:'mainnet'};
-    const btcRinkeby: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.BTC, value:'btc', network:'testnet'};
+    const btcDefault: RequestLogicTypes.ICurrency = {
+      type: RequestLogicTypes.CURRENCY.BTC,
+      value: 'btc',
+    };
+    const btcMainnet: RequestLogicTypes.ICurrency = {
+      type: RequestLogicTypes.CURRENCY.BTC,
+      value: 'btc',
+      network: 'mainnet',
+    };
+    const btcRinkeby: RequestLogicTypes.ICurrency = {
+      type: RequestLogicTypes.CURRENCY.BTC,
+      value: 'btc',
+      network: 'testnet',
+    };
 
-    const USD: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' };
-    const EUR: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ISO4217, value: 'EUR' };
+    const USD: RequestLogicTypes.ICurrency = {
+      type: RequestLogicTypes.CURRENCY.ISO4217,
+      value: 'USD',
+    };
+    const EUR: RequestLogicTypes.ICurrency = {
+      type: RequestLogicTypes.CURRENCY.ISO4217,
+      value: 'EUR',
+    };
 
-    const DAI: RequestLogicTypes.ICurrency = {type: RequestLogicTypes.CURRENCY.ERC20, value:'0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35'};
+    const DAI: RequestLogicTypes.ICurrency = {
+      type: RequestLogicTypes.CURRENCY.ERC20,
+      value: '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35',
+    };
 
     describe('ETH currency hash', () => {
       it('can get currency hash of eth', () => {

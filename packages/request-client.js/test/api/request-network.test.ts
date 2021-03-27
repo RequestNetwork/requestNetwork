@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import MultiFormat from '@requestnetwork/multi-format';
 import { DataAccessTypes, SignatureTypes, TransactionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -36,9 +35,9 @@ describe('api/request-network', () => {
     expect(RequestNetwork).toBeDefined();
 
     const requestnetwork = new RequestNetwork(mockDataAccess);
-    // tslint:disable-next-line: no-unbound-method
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(typeof requestnetwork.createRequest).toBe('function');
-    // tslint:disable-next-line: no-unbound-method
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(typeof requestnetwork.fromRequestId).toBe('function');
   });
 

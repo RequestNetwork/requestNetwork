@@ -26,7 +26,7 @@ const channelId = MultiFormat.serialize(dataHash);
 const dataHash2 = Utils.crypto.normalizeKeccak256Hash(JSON.parse(data2));
 const channelId2 = MultiFormat.serialize(dataHash2);
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('channel-parser', () => {
   beforeEach(() => {
     channelParser = new ChannelParser();

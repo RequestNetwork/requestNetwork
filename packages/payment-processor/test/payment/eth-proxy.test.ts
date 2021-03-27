@@ -12,8 +12,8 @@ import Utils from '@requestnetwork/utils';
 import { encodePayEthProxyRequest, payEthProxyRequest } from '../../src/payment/eth-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
-// tslint:disable: no-unused-expression
-// tslint:disable: await-promise
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable @typescript-eslint/await-thenable */
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';

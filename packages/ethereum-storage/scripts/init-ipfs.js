@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 const shell = require('shelljs');
 const fs = require('fs');
 const path = require('path');

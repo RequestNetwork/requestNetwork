@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { Wallet, providers, BigNumber } from 'ethers';
 
 import {

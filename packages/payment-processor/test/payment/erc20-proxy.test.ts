@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { Wallet, BigNumber, providers } from 'ethers';
 
 import {
@@ -13,8 +12,8 @@ import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from '../../src/payment/erc20-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
-// tslint:disable: no-unused-expression
-// tslint:disable: await-promise
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable @typescript-eslint/await-thenable */
 
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 

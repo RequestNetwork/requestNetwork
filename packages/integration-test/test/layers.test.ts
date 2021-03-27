@@ -42,11 +42,11 @@ const interval = setInterval(async () => {
   if (testsFinished) {
     nbBlocks++;
   }
-  // tslint:disable-next-line: no-magic-numbers
+  // eslint-disable-next-line no-magic-numbers
   if (nbBlocks > 25) {
     clearInterval(interval);
   }
-  // tslint:disable-next-line: no-magic-numbers
+  // eslint-disable-next-line no-magic-numbers
 }, 1000);
 
 afterAll(() => {
@@ -297,7 +297,7 @@ describe('Request system', () => {
     expect(resultCreation.result.requestId.length).toEqual(requestIdLength);
 
     // wait a bit
-    // tslint:disable-next-line:no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     await new Promise((r: any): any => setTimeout(r, 2000));
 
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
@@ -314,7 +314,6 @@ describe('Request system', () => {
 
     const pnBTCExtensionData = advancedLogic.extensions.addressBasedTestnetBtc.createCreationAction(
       {
-        // eslint-disable-next-line spellcheck/spell-checker
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
     );
@@ -407,7 +406,7 @@ describe('Request system', () => {
     };
 
     // wait a bit
-    // tslint:disable-next-line:no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     await new Promise((r: any): any => setTimeout(r, 1000));
 
     const resultReduce1 = await requestLogic.reduceExpectedAmountRequest(
@@ -418,7 +417,7 @@ describe('Request system', () => {
       resultReduce1.meta.transactionManagerMeta.dataAccessMeta.storageMeta.timestamp;
 
     // wait a bit
-    // tslint:disable-next-line:no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     await new Promise((r: any): any => setTimeout(r, 1100));
 
     // cancel request

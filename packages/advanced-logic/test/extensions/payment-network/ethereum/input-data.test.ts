@@ -7,7 +7,7 @@ import * as DataEthAddPaymentAddress from '../../../utils/payment-network/ethere
 import * as DataEthCreate from '../../../utils/payment-network/ethereum/create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/ethereum/input-data', () => {
   describe('createCreationAction', () => {
     it('can create a create action', () => {

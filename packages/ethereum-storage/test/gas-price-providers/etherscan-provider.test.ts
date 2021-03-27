@@ -1,4 +1,4 @@
-// tslint:disable: no-magic-numbers
+/* eslint-disable no-magic-numbers */
 import { StorageTypes } from '@requestnetwork/types';
 import EtherscanProvider from '../../src/gas-price-providers/etherscan-provider';
 

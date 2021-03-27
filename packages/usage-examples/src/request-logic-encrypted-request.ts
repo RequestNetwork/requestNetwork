@@ -61,7 +61,7 @@ const decryptionProvider: DecryptionProviderTypes.IDecryptionProvider = new Ethe
   payeeDecryptionParameters,
 );
 
-/* tslint:disable:no-console */
+/* eslint-disable no-console */
 (async (): Promise<any> => {
   // Data access setup
   const dataAccess = new DataAccess(new MockStorage());
@@ -96,10 +96,10 @@ const decryptionProvider: DecryptionProviderTypes.IDecryptionProvider = new Ethe
 
   return result.request;
 })()
-  .then(request => {
+  .then((request) => {
     console.log(request);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error.message || error);
     process.exit(1);
   });

@@ -48,7 +48,7 @@ function deepCopy(variable: any): any {
 function deepSort(nestedObject: any): any {
   // sort objects in arrays
   if (nestedObject instanceof Array) {
-    return nestedObject.map(i => deepSort(i));
+    return nestedObject.map((i) => deepSort(i));
   }
   // sort data keys
   if (nestedObject instanceof Object) {
@@ -153,11 +153,9 @@ function flatten2DimensionsArray(twoDimensionsArray: any[]): any[] {
  * @param message Timeout error message
  */
 function timeoutPromise(timeout: number, message: string): Promise<any> {
-  return new Promise(
-    (_resolve, reject): void => {
-      setTimeout(() => {
-        reject(new Error(message));
-      }, timeout);
-    },
-  );
+  return new Promise((_resolve, reject): void => {
+    setTimeout(() => {
+      reject(new Error(message));
+    }, timeout);
+  });
 }

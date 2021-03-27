@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 import { StorageTypes } from '@requestnetwork/types';
 import IgnoredDataIds from '../src/ignored-dataIds';
 
@@ -20,8 +19,8 @@ const entry2: StorageTypes.IEthereumEntry = {
 
 let ignoredDataIds: IgnoredDataIds;
 
-// tslint:disable:no-magic-numbers
-// tslint:disable:no-unused-expression
+/* eslint-disable no-magic-numbers */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('Ignored DataIds', () => {
   beforeEach(() => {
     ignoredDataIds = new IgnoredDataIds();

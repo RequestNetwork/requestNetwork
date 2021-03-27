@@ -35,6 +35,13 @@ jobs:
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
+      - run:
+          name: Verify format
+          command: yarn format:check
+      - run:
+          name: Verify lint
+          command: yarn lint
+     
       - persist_to_workspace:
           root: *working_directory
           paths: .
@@ -60,9 +67,6 @@ jobs:
           name: 'Build request-client.js'
           command: 'yarn workspace @requestnetwork/request-client.js run build:commonjs'
       - run:
-          name: 'Lint request-client.js'
-          command: 'yarn workspace @requestnetwork/request-client.js run lint '
-      - run:
           name: 'Deploy test contracts from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
@@ -83,9 +87,6 @@ jobs:
           name: 'Build data-access'
           command: 'yarn workspace @requestnetwork/data-access run build'
       - run:
-          name: 'Lint data-access'
-          command: 'yarn workspace @requestnetwork/data-access run lint '
-      - run:
           name: 'Test data-access'
           command: 'yarn workspace @requestnetwork/data-access run test'
       - persist_to_workspace:
@@ -103,9 +104,6 @@ jobs:
           name: 'Build data-format'
           command: 'yarn workspace @requestnetwork/data-format run build'
       - run:
-          name: 'Lint data-format'
-          command: 'yarn workspace @requestnetwork/data-format run lint'
-      - run:
           name: 'Test data-format'
           command: 'yarn workspace @requestnetwork/data-format run test'
       - persist_to_workspace:
@@ -122,9 +120,6 @@ jobs:
       - run:
           name: 'Build transaction-manager'
           command: 'yarn workspace @requestnetwork/transaction-manager run build'
-      - run:
-          name: 'Lint transaction-manager'
-          command: 'yarn workspace @requestnetwork/transaction-manager run lint'
       - run:
           name: 'Test transaction-manager'
           command: 'yarn workspace @requestnetwork/transaction-manager run test'
@@ -144,9 +139,6 @@ jobs:
       - run:
           name: 'Build ethereum-storage'
           command: 'yarn workspace @requestnetwork/ethereum-storage run build'
-      - run:
-          name: 'Lint ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run lint'
       - run:
           name: 'Deploy contracs smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
@@ -168,9 +160,6 @@ jobs:
       - run:
           name: 'Build smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run build:lib'
-      - run:
-          name: 'Lint smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run lint:lib'
       - run:
           name: 'Deploy contracs smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
@@ -194,9 +183,6 @@ jobs:
           name: 'Build request-logic'
           command: 'yarn workspace @requestnetwork/request-logic run build'
       - run:
-          name: 'Lint request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run lint'
-      - run:
           name: 'Test request-logic'
           command: 'yarn workspace @requestnetwork/request-logic run test'
       - persist_to_workspace:
@@ -213,9 +199,6 @@ jobs:
       - run:
           name: 'Build advanced-logic'
           command: 'yarn workspace @requestnetwork/advanced-logic run build'
-      - run:
-          name: 'Lint advanced-logic'
-          command: 'yarn workspace @requestnetwork/advanced-logic run lint'
       - run:
           name: 'Test advanced-logic'
           command: 'yarn workspace @requestnetwork/advanced-logic run test'
@@ -236,9 +219,6 @@ jobs:
           name: 'Build request-node'
           command: 'yarn workspace @requestnetwork/request-node run build'
       - run:
-          name: 'Lint request-node'
-          command: 'yarn workspace @requestnetwork/request-node run lint'
-      - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
@@ -258,9 +238,6 @@ jobs:
       - run:
           name: 'Build types'
           command: 'yarn workspace @requestnetwork/types run build'
-      - run:
-          name: 'Lint types'
-          command: 'yarn workspace @requestnetwork/types run lint'
   test-utils:
     docker:
       - *node_image
@@ -271,9 +248,6 @@ jobs:
       - run:
           name: 'Build utils'
           command: 'yarn workspace @requestnetwork/utils run build'
-      - run:
-          name: 'Lint utils'
-          command: 'yarn workspace @requestnetwork/utils run lint'
       - run:
           name: 'Test utils'
           command: 'yarn workspace @requestnetwork/utils run test'
@@ -292,9 +266,6 @@ jobs:
           name: 'Build currency'
           command: 'yarn workspace @requestnetwork/currency run build'
       - run:
-          name: 'Lint currency'
-          command: 'yarn workspace @requestnetwork/currency run lint'
-      - run:
           name: 'Test currency'
           command: 'yarn workspace @requestnetwork/currency run test'
       - persist_to_workspace:
@@ -311,9 +282,6 @@ jobs:
       - run:
           name: 'Build epk-signature'
           command: 'yarn workspace @requestnetwork/epk-signature run build'
-      - run:
-          name: 'Lint epk-signature'
-          command: 'yarn workspace @requestnetwork/epk-signature run lint'
       - run:
           name: 'Test epk-signature'
           command: 'yarn workspace @requestnetwork/epk-signature run test'
@@ -332,9 +300,6 @@ jobs:
           name: 'Build epk-decryption'
           command: 'yarn workspace @requestnetwork/epk-decryption run build'
       - run:
-          name: 'Lint epk-decryption'
-          command: 'yarn workspace @requestnetwork/epk-decryption run lint'
-      - run:
           name: 'Test epk-decryption'
           command: 'yarn workspace @requestnetwork/epk-decryption run test'
       - persist_to_workspace:
@@ -351,9 +316,6 @@ jobs:
       - run:
           name: 'Build web3-signature'
           command: 'yarn workspace @requestnetwork/web3-signature run build'
-      - run:
-          name: 'Lint web3-signature'
-          command: 'yarn workspace @requestnetwork/web3-signature run lint'
       - run:
           name: 'Test web3-signature'
           command: 'yarn workspace @requestnetwork/web3-signature run test'
@@ -373,9 +335,6 @@ jobs:
       - run:
           name: 'Build integration-test'
           command: 'yarn workspace @requestnetwork/integration-test run build'
-      - run:
-          name: 'Lint integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run lint'
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
@@ -407,9 +366,6 @@ jobs:
           name: 'Build usage-examples'
           command: 'yarn workspace @requestnetwork/usage-examples run build'
       - run:
-          name: 'Lint usage-examples'
-          command: 'yarn workspace @requestnetwork/usage-examples run lint'
-      - run:
           name: 'Execute usage-examples'
           command: 'yarn workspace @requestnetwork/usage-examples run start'
   test-toolbox:
@@ -422,9 +378,6 @@ jobs:
       - run:
           name: 'Build toolbox'
           command: 'yarn workspace @requestnetwork/toolbox run build'
-      - run:
-          name: 'Lint toolbox'
-          command: 'yarn workspace @requestnetwork/toolbox run lint'
   test-multi-format:
     docker:
       - *node_image
@@ -435,9 +388,6 @@ jobs:
       - run:
           name: 'Build multi-format'
           command: 'yarn workspace @requestnetwork/multi-format run build'
-      - run:
-          name: 'Lint multi-format'
-          command: 'yarn workspace @requestnetwork/multi-format run lint'
       - run:
           name: 'Test multi-format'
           command: 'yarn workspace @requestnetwork/multi-format run test'
@@ -456,9 +406,6 @@ jobs:
       - run:
           name: 'Build payment-detection'
           command: 'yarn workspace @requestnetwork/payment-detection run build'
-      - run:
-          name: 'Lint payment-detection'
-          command: 'yarn workspace @requestnetwork/payment-detection run lint'
       - run:
           name: 'Deploy test contracts from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
@@ -480,9 +427,6 @@ jobs:
       - run:
           name: 'Build payment-processor'
           command: 'yarn workspace @requestnetwork/payment-processor run build'
-      - run:
-          name: 'Lint payment-processor'
-          command: 'yarn workspace @requestnetwork/payment-processor run lint'
       - run:
           name: 'Deploy test contracts from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
@@ -525,9 +469,6 @@ jobs:
       - run:
           name: 'Build integration-test'
           command: 'yarn workspace @requestnetwork/integration-test run build'
-      - run:
-          name: 'Lint integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run lint'
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'

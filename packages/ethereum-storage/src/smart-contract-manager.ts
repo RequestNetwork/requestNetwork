@@ -7,7 +7,9 @@ import EthereumBlocks from './ethereum-blocks';
 import EthereumUtils from './ethereum-utils';
 import GasPriceDefiner from './gas-price-definer';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Eth = require('web3-eth');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Utils = require('web3-utils');
 
 import * as BigNumber from 'bn.js';
@@ -18,12 +20,10 @@ import * as BigNumber from 'bn.js';
 const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
 
 // Regular expression to detect if the Web3 API returns "query returned more than XXX results" error
-const MORE_THAN_XXX_RESULTS_REGEX: RegExp = new RegExp(
-  'query returned more than [1-9][0-9]* results',
-);
+const MORE_THAN_XXX_RESULTS_REGEX = new RegExp('query returned more than [1-9][0-9]* results');
 
 // String to match if the Web3 API throws "Transaction was not mined within XXX seconds" error
-const TRANSACTION_POLLING_TIMEOUT: string = 'Transaction was not mined within';
+const TRANSACTION_POLLING_TIMEOUT = 'Transaction was not mined within';
 
 const LENGTH_BYTES32_STRING = 64;
 
@@ -46,7 +46,7 @@ export default class SmartContractManager {
    */
   public maxConcurrency: number;
 
-  protected networkName: string = '';
+  protected networkName = '';
   protected hashStorageAddress: string;
   protected hashSubmitterAddress: string;
 
@@ -281,13 +281,13 @@ export default class SmartContractManager {
     // Send transaction to contract
     // TODO(PROT-181): Implement a log manager for the library
     // use it for the different events (error, transactionHash, receipt and confirmation)
-    return new Promise((resolve, reject): any => {
+    return new Promise((resolve, reject) => {
       // This boolean is set to true once the ethereum metadata has been created and the promise has been resolved
       // When set to true, we use it to ignore next confirmation event function call
-      let ethereumMetadataCreated: boolean = false;
+      let ethereumMetadataCreated = false;
 
       // Keep the transaction hash for future needs
-      let transactionHash: string = '';
+      let transactionHash = '';
       const transactionParameters = {
         from: account,
         gas: '100000',
@@ -321,8 +321,9 @@ export default class SmartContractManager {
             }
 
             // Get the new gas price for the transaction
-            const newGasPrice = new BigNumber(
-              await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName),
+            const newGasPrice = await gasPriceDefiner.getGasPrice(
+              StorageTypes.GasPriceType.FAST,
+              this.networkName,
             );
 
             // If the new gas price is higher than the previous, resubmit the transaction

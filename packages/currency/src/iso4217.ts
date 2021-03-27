@@ -3,7 +3,7 @@
 	See https://www.currency-iso.org/dam/downloads/lists/list_one.xml
 	Data last updated 2018-08-29
 */
-/* eslint-disable spellcheck/spell-checker */
+
 export default [
   {
     code: 'AED',
@@ -1268,7 +1268,7 @@ export default [
     countries: [
       'Benin',
       'Burkina Faso',
-      'Côte d\'Ivoire',
+      "Côte d'Ivoire",
       'Guinea-Bissau',
       'Mali',
       'Niger (The)',
@@ -1302,7 +1302,7 @@ export default [
     number: '994',
     digits: 0,
     currency: 'Sucre',
-    countries: ['Sistema Unitario De Compensacion Regional De Pagos \'Sucre\''],
+    countries: ["Sistema Unitario De Compensacion Regional De Pagos 'Sucre'"],
   },
   {
     code: 'XTS',

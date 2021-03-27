@@ -72,7 +72,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           result: { requestId },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -130,7 +130,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           result: { requestId },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -177,7 +177,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async acceptRequest(
     requestParameters: RequestLogicTypes.IAcceptParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -208,7 +208,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -227,7 +227,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async cancelRequest(
     requestParameters: RequestLogicTypes.ICancelParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -258,7 +258,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -277,7 +277,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async increaseExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IIncreaseExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -308,7 +308,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -327,7 +327,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async reduceExpectedAmountRequest(
     requestParameters: RequestLogicTypes.IReduceExpectedAmountParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -358,7 +358,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -377,7 +377,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   public async addExtensionsDataRequest(
     requestParameters: RequestLogicTypes.IAddExtensionsDataParameters,
     signerIdentity: IdentityTypes.IIdentity,
-    validate: boolean = false,
+    validate = false,
   ): Promise<RequestLogicTypes.IRequestLogicReturnWithConfirmation> {
     if (!this.signatureProvider) {
       throw new Error('You must give a signature provider to create actions');
@@ -409,7 +409,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });
       })
-      .on('error', error => {
+      .on('error', (error) => {
         result.emit('error', error);
       });
 
@@ -478,7 +478,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     updatedBetween?: RequestLogicTypes.ITimestampBoundaries,
   ): Promise<RequestLogicTypes.IReturnGetRequestsByTopic> {
     // hash all the topics
-    const hashedTopics = topics.map(topic =>
+    const hashedTopics = topics.map((topic) =>
       MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
     );
 
@@ -518,7 +518,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const requestId = RequestLogicCore.getRequestIdFromAction(action);
 
     // hash all the topics
-    const hashedTopics = topics.map(topic =>
+    const hashedTopics = topics.map((topic) =>
       MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(topic)),
     );
 
@@ -546,10 +546,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
     const actions = resultGetTx.result.transactions
       // filter the actions ignored by the previous layers
-      .filter(action => action !== null)
+      .filter((action) => action !== null)
       .sort((a: any, b: any) => a.timestamp - b.timestamp);
 
-    // tslint:disable-next-line:prefer-const
+    // eslint-disable-next-line prefer-const
     let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(actions);
 
     // array of transaction without duplicates to avoid replay attack
@@ -577,7 +577,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
     // Keeps the transaction ignored
     ignoredTransactions = ignoredTransactions.concat(
-      timestampedActionsWithoutDuplicates.duplicates.map(tx => {
+      timestampedActionsWithoutDuplicates.duplicates.map((tx) => {
         return {
           reason: 'Duplicated transaction',
           transaction: tx,
@@ -616,7 +616,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const ignoredTransactionsByApplication: any[] = [];
     // second parameter is null, because the first action must be a creation (no state expected)
     const confirmedRequestState = transactions
-      .filter(action => action.state === TransactionTypes.TransactionState.CONFIRMED)
+      .filter((action) => action.state === TransactionTypes.TransactionState.CONFIRMED)
       .reduce((requestState: any, actionConfirmed: any) => {
         try {
           return RequestLogicCore.applyActionToRequest(
@@ -636,7 +636,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       }, null);
 
     const pendingRequestState = transactions
-      .filter(action => action.state === TransactionTypes.TransactionState.PENDING)
+      .filter((action) => action.state === TransactionTypes.TransactionState.PENDING)
       .reduce((requestState: any, actionConfirmed: any) => {
         try {
           return RequestLogicCore.applyActionToRequest(
@@ -677,8 +677,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // Gets all the requests from the transactions
     const allRequestAndMetaPromises = Object.keys(channelsRawData.result.transactions).map(
       // Parses and removes corrupted or duplicated transactions
-      async channelId => {
-        // tslint:disable-next-line:prefer-const
+      async (channelId) => {
+        // eslint-disable-next-line prefer-const
         let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(
           transactionsByChannel[channelId],
         );
@@ -686,7 +686,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
           keptTransactions
             // filter the actions ignored by the previous layers
-            .filter(action => action !== null)
+            .filter((action) => action !== null)
             .map((t: any) => {
               try {
                 return {
@@ -709,7 +709,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
 
         // Keeps the ignored transactions
         ignoredTransactions = ignoredTransactions.concat(
-          timestampedActionsWithoutDuplicates.duplicates.map(tx => ({
+          timestampedActionsWithoutDuplicates.duplicates.map((tx) => ({
             reason: 'Duplicated transaction',
             transaction: tx,
           })),
@@ -825,7 +825,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       pending = pendingRequestState;
     } else if (pendingRequestState) {
       for (const key in pendingRequestState) {
-        if (pendingRequestState.hasOwnProperty(key)) {
+        if (key in pendingRequestState) {
           // TODO: Should find a better way to do that
           if (
             Utils.crypto.normalizeKeccak256Hash(pendingRequestState[key]).value !==
@@ -834,7 +834,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             if (!pending) {
               pending = {};
             }
-            // tslint:disable-next-line:prefer-conditional-expression
+            // eslint-disable-next-line
             if (key === 'events') {
               // keep only the new events in pending
               pending[key] = pendingRequestState[key].slice(confirmedRequestState[key].length);
@@ -866,7 +866,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     let confirmedFound = false;
     const keptTransactions = transactions
       .reverse()
-      .filter(action => {
+      .filter((action) => {
         if (!action) {
           return false;
         }

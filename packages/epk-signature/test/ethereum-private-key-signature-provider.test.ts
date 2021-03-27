@@ -44,7 +44,7 @@ const signedDataExpected = {
     value: signatureValueExpected,
   },
 };
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('ethereum-private-key-signature-provider', () => {
   describe('constructor', () => {
     it('can construct', async () => {

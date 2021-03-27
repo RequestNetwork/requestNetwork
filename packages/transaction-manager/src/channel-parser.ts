@@ -95,7 +95,7 @@ export default class ChannelParser {
             ]);
           }
           // from the first valid transaction, we can deduce the type of the channel
-          channelType = !!parsedData.channelKey
+          channelType = parsedData.channelKey
             ? TransactionTypes.ChannelType.ENCRYPTED
             : TransactionTypes.ChannelType.CLEAR;
 
@@ -203,7 +203,7 @@ export default class ChannelParser {
         }
 
         // We can deduce the type of the channel
-        result.channelType = !!parsedData.channelKey
+        result.channelType = parsedData.channelKey
           ? TransactionTypes.ChannelType.ENCRYPTED
           : TransactionTypes.ChannelType.CLEAR;
 

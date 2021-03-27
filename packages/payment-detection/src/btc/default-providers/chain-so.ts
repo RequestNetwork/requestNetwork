@@ -1,10 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import fetch from 'node-fetch';
-const converterBTC = require('satoshi-bitcoin');
+import * as converterBTC from 'satoshi-bitcoin';
 import { BigNumber } from 'ethers';
-
-/* eslint-disable spellcheck/spell-checker */
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const CHAINSO_REQUEST_MAX_RETRY = 3;
@@ -38,7 +36,7 @@ export default class ChainSo implements PaymentTypes.IBitcoinDetectionProvider {
         retryDelay: CHAINSO_REQUEST_RETRY_DELAY,
       })();
 
-      // tslint:disable-next-line:no-magic-numbers
+      // eslint-disable-next-line no-magic-numbers
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
@@ -50,7 +48,7 @@ export default class ChainSo implements PaymentTypes.IBitcoinDetectionProvider {
 
       return this.parse(data, eventName);
     } catch (err) {
-      // tslint:disable-next-line:no-console
+      // eslint-disable-next-line no-console
       console.warn(err.message || err);
       return { balance: '-1', events: [] };
     }

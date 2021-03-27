@@ -1,4 +1,4 @@
-// tslint:disable:no-console
+/* eslint-disable no-console */
 import { LogTypes } from '@requestnetwork/types';
 
 // The default log level to use if none is used at the constructor.
@@ -103,7 +103,7 @@ export default class SimpleLogger implements LogTypes.ILogger {
    * @param separator The log separator character
    */
   protected checkForSeparator(tags: string[], separator: string): void {
-    if (tags.some(tag => tag.includes(separator))) {
+    if (tags.some((tag) => tag.includes(separator))) {
       throw new Error(`Log tags can't can't contain ${separator} character`);
     }
   }

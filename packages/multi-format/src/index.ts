@@ -31,7 +31,9 @@ const availableFormats: GroupMultiFormat[] = [
  * @returns the deserialized object or throw
  */
 function deserialize(formatted: string): MultiFormatTypes.IMultiFormatDeserialized {
-  const matchingFormat = availableFormats.find(format => format.isDeserializableString(formatted));
+  const matchingFormat = availableFormats.find((format) =>
+    format.isDeserializableString(formatted),
+  );
 
   if (matchingFormat) {
     return matchingFormat.deserialize(formatted);
@@ -47,7 +49,7 @@ function deserialize(formatted: string): MultiFormatTypes.IMultiFormatDeserializ
  * @returns the serialized string or throw.
  */
 function serialize(data: MultiFormatTypes.IMultiFormatDeserialized): string {
-  const matchingFormat = availableFormats.find(format => format.isSerializableObject(data));
+  const matchingFormat = availableFormats.find((format) => format.isSerializableObject(data));
 
   if (matchingFormat) {
     return matchingFormat.serialize(data);

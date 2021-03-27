@@ -1,12 +1,12 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import anyToErc20Proxy from '../../../src/extensions/payment-network/any-to-erc20-proxy'
+import anyToErc20Proxy from '../../../src/extensions/payment-network/any-to-erc20-proxy';
 import * as DataConversionERC20FeeAddData from '../../utils/payment-network/erc20/any-to-erc20-proxy-add-data-generator';
 import * as DataConversionERC20FeeCreate from '../../utils/payment-network/erc20/any-to-erc20-proxy-create-data-generator';
 import * as TestData from '../../utils/test-data-generator';
 
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
@@ -123,7 +123,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
-          acceptedTokens: ['0x0000000000000000000000000000000000000003', 'invalid address']
+          acceptedTokens: ['0x0000000000000000000000000000000000000003', 'invalid address'],
         });
       }).toThrowError('acceptedTokens must contains only valid ethereum addresses');
     });
@@ -135,7 +135,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
           network: 'kovan',
-          acceptedTokens: ['0x0000000000000000000000000000000000000003']
+          acceptedTokens: ['0x0000000000000000000000000000000000000003'],
         });
       }).toThrowError('network not supported');
     });
@@ -146,7 +146,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
-          acceptedTokens: ['0x0000000000000000000000000000000000000003']
+          acceptedTokens: ['0x0000000000000000000000000000000000000003'],
         });
       }).toThrowError('acceptedTokens must contain only supported token addresses (ERC20 only)');
     });
@@ -157,7 +157,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       );
       requestCreatedNoExtension.currency = {
         type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH'
+        value: 'ETH',
       };
 
       const action: ExtensionTypes.IAction = Utils.deepCopy(
@@ -174,9 +174,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         );
-      }).toThrowError(
-        `The network (invalid network) is not supported for this payment network.`,
-      );
+      }).toThrowError(`The network (invalid network) is not supported for this payment network.`);
     });
 
     it('cannot applyActionToExtensions of creation on a non supported currency', () => {
@@ -185,7 +183,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       );
       requestCreatedNoExtension.currency = {
         type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'invalid value'
+        value: 'invalid value',
       };
 
       const action: ExtensionTypes.IAction = Utils.deepCopy(
@@ -205,7 +203,6 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         `The currency (invalid value) of the request is not supported for this payment network.`,
       );
     });
-
   });
 
   describe('createAddPaymentAddressAction', () => {
@@ -382,8 +379,11 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       });
 
       it('cannot applyActionToExtensions of creation with payment address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataConversionERC20FeeCreate.actionCreationFull);
-        testnetPaymentAddress.parameters.paymentAddress = DataConversionERC20FeeAddData.invalidAddress;
+        const testnetPaymentAddress = Utils.deepCopy(
+          DataConversionERC20FeeCreate.actionCreationFull,
+        );
+        testnetPaymentAddress.parameters.paymentAddress =
+          DataConversionERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
           anyToErc20Proxy.applyActionToExtension(
@@ -397,7 +397,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       });
 
       it('cannot applyActionToExtensions of creation with no tokens accepted', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataConversionERC20FeeCreate.actionCreationFull);
+        const testnetPaymentAddress = Utils.deepCopy(
+          DataConversionERC20FeeCreate.actionCreationFull,
+        );
         testnetPaymentAddress.parameters.acceptedTokens = [];
         // 'must throw'
         expect(() => {
@@ -412,7 +414,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       });
 
       it('cannot applyActionToExtensions of creation with token address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataConversionERC20FeeCreate.actionCreationFull);
+        const testnetPaymentAddress = Utils.deepCopy(
+          DataConversionERC20FeeCreate.actionCreationFull,
+        );
         testnetPaymentAddress.parameters.acceptedTokens = ['invalid address'];
         // 'must throw'
         expect(() => {
@@ -427,8 +431,11 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
-        const testnetRefundAddress = Utils.deepCopy(DataConversionERC20FeeCreate.actionCreationFull);
-        testnetRefundAddress.parameters.refundAddress = DataConversionERC20FeeAddData.invalidAddress;
+        const testnetRefundAddress = Utils.deepCopy(
+          DataConversionERC20FeeCreate.actionCreationFull,
+        );
+        testnetRefundAddress.parameters.refundAddress =
+          DataConversionERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
           anyToErc20Proxy.applyActionToExtension(
@@ -512,8 +519,11 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       });
 
       it('cannot applyActionToExtensions of addPaymentAddress with payment address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataConversionERC20FeeAddData.actionAddPaymentAddress);
-        testnetPaymentAddress.parameters.paymentAddress = DataConversionERC20FeeAddData.invalidAddress;
+        const testnetPaymentAddress = Utils.deepCopy(
+          DataConversionERC20FeeAddData.actionAddPaymentAddress,
+        );
+        testnetPaymentAddress.parameters.paymentAddress =
+          DataConversionERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
           anyToErc20Proxy.applyActionToExtension(
@@ -597,8 +607,11 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       });
 
       it('cannot applyActionToExtensions of addRefundAddress with refund address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(DataConversionERC20FeeAddData.actionAddRefundAddress);
-        testnetPaymentAddress.parameters.refundAddress = DataConversionERC20FeeAddData.invalidAddress;
+        const testnetPaymentAddress = Utils.deepCopy(
+          DataConversionERC20FeeAddData.actionAddRefundAddress,
+        );
+        testnetPaymentAddress.parameters.refundAddress =
+          DataConversionERC20FeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
           anyToErc20Proxy.applyActionToExtension(
@@ -712,5 +725,4 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError('feeAmount is not a valid amount');
     });
   });
-
 });

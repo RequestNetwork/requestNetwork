@@ -1,4 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
 /**
  * This is to generate the umd bundle only
  * From https://github.com/0xProject/0x-monorepo/blob/development/packages/0x.js/webpack.config.js

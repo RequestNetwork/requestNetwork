@@ -13,8 +13,8 @@ import * as btcModule from '../../src/payment/btc-address-based';
 import * as erc20Module from '../../src/payment/erc20';
 import * as ethModule from '../../src/payment/eth-input-data';
 
-// tslint:disable: no-unused-expression
-// tslint:disable: await-promise
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable @typescript-eslint/await-thenable */
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
@@ -98,10 +98,10 @@ describe('payRequest', () => {
 });
 describe('swapToPayRequest', () => {
   const swapSettings = {
-    // tslint:disable-next-line: no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     deadline: Date.now() + 1000,
     maxInputAmount: BigNumber.from('204'),
-    // eslint-disable-next-line spellcheck/spell-checker
+
     path: ['0xany', '0xanyother'],
   };
 
@@ -241,7 +241,7 @@ describe('hasSufficientFunds', () => {
       currencyInfo: {
         network: 'rinkeby',
         type: RequestLogicTypes.CURRENCY.ERC20,
-        // eslint-disable-next-line spellcheck/spell-checker
+
         value: '0xany',
       },
       expectedAmount: '100',
@@ -276,7 +276,7 @@ describe('hasSufficientFunds', () => {
     const mock = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
-    // tslint:disable-next-line: no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     const solvency = await isSolvent('any', fakeErc20, 100, walletConnectProvider as any);
     expect(solvency).toBeTruthy();
     expect(mock).toHaveBeenCalledTimes(1);
@@ -299,7 +299,7 @@ describe('hasSufficientFunds', () => {
     const mock = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
-    // tslint:disable-next-line: no-magic-numbers
+    // eslint-disable-next-line no-magic-numbers
     const solvency = await isSolvent('any', fakeErc20, 100, walletConnectProvider as any);
     expect(solvency).toBeFalsy();
     expect(mock).toHaveBeenCalledTimes(1);

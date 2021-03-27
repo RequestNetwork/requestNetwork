@@ -1,5 +1,3 @@
-/* eslint-disable spellcheck/spell-checker */
-
 import {
   ClientTypes,
   ExtensionTypes,
@@ -16,7 +14,7 @@ import {
   checkErc20Allowance,
 } from '../../src/payment/erc20';
 
-// tslint:disable: no-unused-expression
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';

@@ -61,7 +61,7 @@ const requestMock: RequestLogicTypes.IRequest = {
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
-/* tslint:disable:no-unused-expression */
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/declarative', () => {
   beforeEach(() => {
     declarative = new Declarative({ advancedLogic: mockAdvancedLogic });

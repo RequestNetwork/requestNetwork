@@ -52,6 +52,6 @@ export function _getEthPaymentUrl(
   const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);
 
-  // tslint:disable-next-line: no-console
+  // eslint-disable-next-line no-console
   return `ethereum:${paymentAddress}?value=${amountToPay}&data=${paymentReference}`;
 }

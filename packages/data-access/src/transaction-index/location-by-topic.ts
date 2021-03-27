@@ -99,7 +99,7 @@ export default class LocationByTopicTransactionIndex {
    * @returns list of the channel ids linked to the topics
    */
   public async getChannelIdsFromMultipleTopics(topics: string[]): Promise<string[]> {
-    const channelIdsPromises = topics.map(async topic => {
+    const channelIdsPromises = topics.map(async (topic) => {
       return Array.from((await this.channelIdByTopics.get(topic)) || []);
     });
     const channelIds = await Promise.all(channelIdsPromises);

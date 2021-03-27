@@ -1,5 +1,5 @@
-// tslint:disable: await-promise
-// tslint:disable: no-magic-numbers
+/* eslint-disable @typescript-eslint/await-thenable */
+/* eslint-disable no-magic-numbers */
 
 import { DataAccessTypes } from '@requestnetwork/types';
 
