@@ -41,6 +41,9 @@ jobs:
       - run:
           name: Verify lint
           command: yarn lint
+      - run:
+          name: Generate Smart Contract types'
+          command: yarn workspace @requestnetwork/smart-contracts run build
      
       - persist_to_workspace:
           root: *working_directory
