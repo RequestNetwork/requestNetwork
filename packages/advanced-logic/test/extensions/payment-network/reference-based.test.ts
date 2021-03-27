@@ -135,7 +135,7 @@ describe('extensions/payment-network/reference-based', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
         const unknownAction = Utils.deepCopy(DataAddPaymentAddress.actionAddPaymentAddress);
-        unknownAction.action = 'unknown action';
+        unknownAction.action = 'unknown action' as any;
         // 'must throw'
         expect(() => {
           referenceBasedManager.applyActionToExtension(
