@@ -226,10 +226,11 @@ export default class SmartContractManager {
   public async getMainAccount(): Promise<string> {
     // Get the accounts on the provider
     // Throws an error if timeout is reached
-    const accounts = await Promise.race([
-      Utils.timeoutPromise(this.timeout, 'Web3 getAccounts connection timeout'),
+    const accounts = await Utils.timeoutPromise<string[]>(
       this.eth.getAccounts(),
-    ]);
+      this.timeout,
+      'Web3 getAccounts connection timeout',
+    );
 
     if (!accounts || !accounts[0]) {
       throw Error('No account found');
@@ -258,10 +259,11 @@ export default class SmartContractManager {
 
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
-    const fee = await Promise.race([
-      Utils.timeoutPromise(this.timeout, 'Web3 getFeesAmount connection timeout'),
+    const fee = await Utils.timeoutPromise<string>(
       this.requestHashSubmitter.methods.getFeesAmount(feesParameters.contentSize).call(),
-    ]);
+      this.timeout,
+      'Web3 getFeesAmount connection timeout',
+    );
 
     // Determines the gas price to use
     // If the gas price is provided as a parameter, we use this value
@@ -531,14 +533,15 @@ export default class SmartContractManager {
 
     // Reading event logs
     // If getPastEvents doesn't throw, we can return the returned events from the function
-    let events;
+    let events: any;
     try {
       events = await Utils.retry(
-        (args: any) =>
-          Promise.race([
-            Utils.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
+        (args) =>
+          Utils.timeoutPromise(
             this.requestHashStorage.getPastEvents(args),
-          ]),
+            this.timeout,
+            'Web3 getPastEvents connection timeout',
+          ),
         {
           maxRetries: this.maxRetries || config.getEthereumMaxRetries(),
           retryDelay: this.retryDelay || config.getEthereumRetryDelay(),

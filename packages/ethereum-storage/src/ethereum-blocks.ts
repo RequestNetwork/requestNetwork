@@ -193,7 +193,7 @@ export default class EthereumBlocks {
    * @param blockNumber The block number
    * @returns An Ethereum block
    */
-  public async getBlock(blockNumber: number | string): Promise<providers.Block> {
+  public async getBlock(blockNumber: number | string): Promise<any> {
     return Utils.retry(this.eth.getBlock, {
       context: this.eth,
       maxRetries: this.maxRetries,
