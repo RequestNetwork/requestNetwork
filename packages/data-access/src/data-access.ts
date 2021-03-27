@@ -342,7 +342,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.result.transactions;
 
       return finalResult;
-    }, emptyChannelsWithTopics);
+    }, Utils.deepCopy(emptyChannelsWithTopics));
   }
 
   /**
@@ -393,7 +393,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.result.transactions;
 
       return finalResult;
-    }, emptyChannelsWithTopics);
+    }, Utils.deepCopy(emptyChannelsWithTopics));
   }
 
   /**
