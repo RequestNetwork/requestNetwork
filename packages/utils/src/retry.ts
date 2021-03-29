@@ -1,4 +1,4 @@
-// Default amount of retries!
+// Default amount of retries
 const DEFAULT_MAX_RETRIES = 5;
 
 // Default delay between retries
