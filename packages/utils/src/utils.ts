@@ -12,6 +12,7 @@ export default {
   timeoutPromise,
   unique,
   uniqueByProperty,
+  notNull,
 };
 
 const MILLISECOND_IN_SECOND = 1000;
@@ -34,7 +35,7 @@ function isString(variable: any): boolean {
  *
  * @returns any the deep copy
  */
-function deepCopy(variable: any): any {
+function deepCopy<T>(variable: T): T {
   return JSON.parse(JSON.stringify(variable));
 }
 
@@ -70,11 +71,11 @@ function deepSort(nestedObject: any): any {
  * @param array the array to curate
  * @returns an object containing the array with only unique element and an object with the duplication
  */
-function unique(array: any[]): { uniqueItems: any[]; duplicates: any[] } {
+function unique<T>(array: T[]): { uniqueItems: T[]; duplicates: T[] } {
   const result = array.reduce(
     (
-      accumulator: { uniqueItems: any[]; duplicates: any[]; uniqueItemsHashes: string[] },
-      element: any,
+      accumulator: { uniqueItems: T[]; duplicates: T[]; uniqueItemsHashes: string[] },
+      element: T,
     ) => {
       const hash = crypto.normalizeKeccak256Hash(element);
 
@@ -102,14 +103,11 @@ function unique(array: any[]): { uniqueItems: any[]; duplicates: any[] } {
  * @param array the array to curate
  * @returns an object containing the array with only unique element and an object with the duplication
  */
-function uniqueByProperty(
-  array: any[],
-  property: string,
-): { uniqueItems: any[]; duplicates: any[] } {
+function uniqueByProperty<T>(array: T[], property: keyof T): { uniqueItems: T[]; duplicates: T[] } {
   const result = array.reduce(
     (
-      accumulator: { uniqueItems: any[]; duplicates: any[]; uniqueItemsHashes: string[] },
-      element: any,
+      accumulator: { uniqueItems: T[]; duplicates: T[]; uniqueItemsHashes: string[] },
+      element: T,
     ) => {
       const hash = crypto.normalizeKeccak256Hash(element[property]);
 
@@ -143,7 +141,7 @@ function getCurrentTimestampInSecond(): number {
  *
  * @returns any[] the flat array
  */
-function flatten2DimensionsArray(twoDimensionsArray: any[]): any[] {
+function flatten2DimensionsArray<T>(twoDimensionsArray: T[][]): T[] {
   return twoDimensionsArray.reduce((accumulator, current) => accumulator.concat(current), []);
 }
 
@@ -152,10 +150,13 @@ function flatten2DimensionsArray(twoDimensionsArray: any[]): any[] {
  * @param timeout Timeout threshold to throw the error
  * @param message Timeout error message
  */
-function timeoutPromise(timeout: number, message: string): Promise<any> {
-  return new Promise((_resolve, reject): void => {
-    setTimeout(() => {
-      reject(new Error(message));
-    }, timeout);
+function timeoutPromise<T>(promise: Promise<T>, timeout: number, message: string): Promise<T> {
+  const timeoutPromise = new Promise<T>((_resolve, reject): void => {
+    setTimeout(() => reject(new Error(message)), timeout);
   });
+  return Promise.race<T>([timeoutPromise, promise]);
+}
+
+function notNull<T>(x: T | null | undefined): x is T {
+  return x !== null && x !== undefined;
 }

@@ -13,30 +13,30 @@ const DEFAULT_RETRY_DELAY = 100;
  * @param [options.maxRetries=DEFAULT_MAX_RETRIES] The maximum amount of retries for the function
  * @param [options.retryDelay=DEFAULT_RETRY_DELAY] The delay between retries
  */
-export default (
-  target: any,
+export const retry = <TParams extends unknown[], TReturn>(
+  target: (...params: TParams) => TReturn | Promise<TReturn>,
   {
     context,
     maxRetries = DEFAULT_MAX_RETRIES,
     retryDelay = DEFAULT_RETRY_DELAY,
   }: {
-    context?: any;
+    context?: ThisParameterType<(...params: TParams) => Promise<TReturn>>;
     maxRetries?: number;
     retryDelay?: number;
   } = {},
-): any => {
+): ((...params: TParams) => Promise<TReturn>) => {
   // If a context was passed in, bind it to to the target function
   if (context) {
     target = target.bind(context);
   }
 
   // Returns an external function that will contain the retry counter
-  return async (...args: any[]): Promise<any> => {
+  return async (...args: TParams): Promise<TReturn> => {
     // The current amount of retries
     let retry = 0;
 
     // Returns the retrying function that can be called
-    return (async function retryFunction(...innerArgs: any[]): Promise<any> {
+    return (async function retryFunction(...innerArgs: TParams): Promise<TReturn> {
       try {
         // Call the target function with the target object as context
         return await target(...innerArgs);
@@ -45,9 +45,7 @@ export default (
         if (retry < maxRetries) {
           retry++;
           // Wait for the delay before retrying
-          await new Promise((resolve: any): void => {
-            setTimeout(resolve, retryDelay);
-          });
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
 
           return retryFunction(...innerArgs);
         } else {
@@ -58,3 +56,5 @@ export default (
     })(...args);
   };
 };
+
+export default retry;

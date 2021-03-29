@@ -250,7 +250,8 @@ describe('Utils', () => {
 
       expect.assertions(3);
 
-      Utils.timeoutPromise(1000, errorMessage)
+      const promise = new Promise(() => {});
+      Utils.timeoutPromise(promise, 1000, errorMessage)
         .then(() => {
           fail('timeoutPromise should not be fulfilled');
         })

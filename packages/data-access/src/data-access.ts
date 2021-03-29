@@ -20,24 +20,32 @@ export interface IDataAccessOptions {
   /**
    * Logger instance
    */
-  logger?: LogTypes.ILogger;
+  logger: LogTypes.ILogger;
 
   /**
    *  the transaction index, defaults to TransactionIndex if not set.
    */
-  transactionIndex?: DataAccessTypes.ITransactionIndex;
+  transactionIndex: DataAccessTypes.ITransactionIndex;
 
   /**
    * synchronizationIntervalTime Interval time between each synchronization
    * Defaults to DEFAULT_INTERVAL_TIME.
    */
-  synchronizationIntervalTime?: number;
+  synchronizationIntervalTime: number;
 
   /**
    * Index of the ignored location with the reason
    */
-  ignoredLocationIndex?: IgnoredLocationIndex;
+  ignoredLocationIndex: IgnoredLocationIndex;
 }
+
+const emptyChannelsWithTopics: DataAccessTypes.IReturnGetChannelsByTopic = {
+  meta: {
+    storageMeta: {},
+    transactionsStorageLocation: {},
+  },
+  result: { transactions: {} },
+};
 
 /**
  * Implementation of Data-Access layer without encryption
@@ -77,29 +85,29 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * @param IStorage storage storage object
    * @param options
    */
-  public constructor(storage: StorageTypes.IStorage, options?: IDataAccessOptions) {
+  public constructor(storage: StorageTypes.IStorage, options?: Partial<IDataAccessOptions>) {
     const defaultOptions: IDataAccessOptions = {
       ignoredLocationIndex: new IgnoredLocationIndex(),
       logger: new Utils.SimpleLogger(),
       synchronizationIntervalTime: DEFAULT_INTERVAL_TIME,
       transactionIndex: new TransactionIndex(),
     };
-    options = {
+    const { ignoredLocationIndex, logger, synchronizationIntervalTime, transactionIndex } = {
       ...defaultOptions,
       ...options,
     };
     this.storage = storage;
     this.lastSyncStorageTimestamp = 0;
     this.synchronizationTimer = new IntervalTimer(
-      (): Promise<void> => this.synchronizeNewDataIds(),
-      options.synchronizationIntervalTime!,
-      options.logger!,
+      () => this.synchronizeNewDataIds(),
+      synchronizationIntervalTime,
+      logger,
       5,
     );
-    this.transactionIndex = options.transactionIndex!;
-    this.ignoredLocationIndex = options.ignoredLocationIndex!;
+    this.transactionIndex = transactionIndex;
+    this.ignoredLocationIndex = ignoredLocationIndex;
 
-    this.logger = options.logger!;
+    this.logger = logger;
   }
 
   /**
@@ -318,32 +326,23 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // Gather all the transactions in one object
-    return transactionsAndMeta.reduce(
-      (finalResult: DataAccessTypes.IReturnGetChannelsByTopic, channelIdAndTransactions: any) => {
-        const id = channelIdAndTransactions.channelId;
+    return transactionsAndMeta.reduce((finalResult, channelIdAndTransactions) => {
+      const id = channelIdAndTransactions.channelId;
 
-        // Adds the storage location of the channel's data
-        finalResult.meta.transactionsStorageLocation[id] =
-          channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
+      // Adds the storage location of the channel's data
+      finalResult.meta.transactionsStorageLocation[id] =
+        channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
 
-        // Adds the meta of the channel
-        finalResult.meta.storageMeta[id] =
-          channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
+      // Adds the meta of the channel
+      finalResult.meta.storageMeta[id] =
+        channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
 
-        // Adds the transaction of the channel
-        finalResult.result.transactions[id] =
-          channelIdAndTransactions.transactionsWithMeta.result.transactions;
+      // Adds the transaction of the channel
+      finalResult.result.transactions[id] =
+        channelIdAndTransactions.transactionsWithMeta.result.transactions;
 
-        return finalResult;
-      },
-      {
-        meta: {
-          storageMeta: {},
-          transactionsStorageLocation: {},
-        },
-        result: { transactions: {} },
-      },
-    );
+      return finalResult;
+    }, Utils.deepCopy(emptyChannelsWithTopics));
   }
 
   /**
@@ -378,32 +377,23 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // Gather all the transactions in one object
-    return transactionsAndMeta.reduce(
-      (finalResult: DataAccessTypes.IReturnGetChannelsByTopic, channelIdAndTransactions: any) => {
-        const id = channelIdAndTransactions.channelId;
+    return transactionsAndMeta.reduce((finalResult, channelIdAndTransactions) => {
+      const id = channelIdAndTransactions.channelId;
 
-        // Adds the storage location of the channel's data
-        finalResult.meta.transactionsStorageLocation[id] =
-          channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
+      // Adds the storage location of the channel's data
+      finalResult.meta.transactionsStorageLocation[id] =
+        channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
 
-        // Adds the meta of the channel
-        finalResult.meta.storageMeta[id] =
-          channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
+      // Adds the meta of the channel
+      finalResult.meta.storageMeta[id] =
+        channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
 
-        // Adds the transaction of the channel
-        finalResult.result.transactions[id] =
-          channelIdAndTransactions.transactionsWithMeta.result.transactions;
+      // Adds the transaction of the channel
+      finalResult.result.transactions[id] =
+        channelIdAndTransactions.transactionsWithMeta.result.transactions;
 
-        return finalResult;
-      },
-      {
-        meta: {
-          storageMeta: {},
-          transactionsStorageLocation: {},
-        },
-        result: { transactions: {} },
-      },
-    );
+      return finalResult;
+    }, Utils.deepCopy(emptyChannelsWithTopics));
   }
 
   /**
@@ -458,7 +448,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    *
    * @param detailed if true get the list of the files hashes
    */
-  public async _getStatus(detailed = false): Promise<any> {
+  public async _getStatus(detailed = false): Promise<DataAccessTypes.IDataAccessStatus> {
     this.checkInitialized();
 
     // last transaction timestamp retrieved
