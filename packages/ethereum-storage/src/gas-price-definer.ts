@@ -7,7 +7,7 @@ import EthGasStationProvider from './gas-price-providers/ethgasstation-provider'
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
 
 /**
@@ -61,8 +61,8 @@ export default class GasPriceDefiner {
       if (gasPriceArray.length > 0) {
         // Get the highest gas price from the providers
         return gasPriceArray.reduce(
-          (currentMax, gasPrice) => BigNumber.max(currentMax, gasPrice),
-          new BigNumber(0),
+          (currentMax, gasPrice) => (currentMax.gt(gasPrice) ? currentMax : gasPrice),
+          BigNumber.from(0),
         );
       } else {
         this.logger.warn('Cannot determine gas price: There is no available gas price provider', [

@@ -6,7 +6,7 @@ import EthereumUtils from '../src/ethereum-utils';
 import * as config from '../src/config';
 import GasPriceDefiner from '../src/gas-price-definer';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 let gasPriceDefiner: GasPriceDefiner;
 
@@ -19,7 +19,7 @@ describe('GasPriceDefiner', () => {
     it('returns default gas price from config if network has no provider', async () => {
       gasPriceDefiner.gasPriceProviderList = {
         [StorageTypes.EthereumNetwork.MAINNET]: [
-          { getGasPrice: () => Promise.resolve(new BigNumber(1)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(1)) },
         ],
       };
       const gasPrice = await gasPriceDefiner.getGasPrice(
@@ -33,10 +33,10 @@ describe('GasPriceDefiner', () => {
     it('returns gas price from appropriate gas provider', async () => {
       gasPriceDefiner.gasPriceProviderList = {
         [StorageTypes.EthereumNetwork.MAINNET]: [
-          { getGasPrice: () => Promise.resolve(new BigNumber(1)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(1)) },
         ],
         [StorageTypes.EthereumNetwork.XDAI]: [
-          { getGasPrice: () => Promise.resolve(new BigNumber(2)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(2)) },
         ],
       };
       const gasPrice = await gasPriceDefiner.getGasPrice(
@@ -44,7 +44,7 @@ describe('GasPriceDefiner', () => {
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.XDAI),
       );
 
-      expect(gasPrice).toEqual(new BigNumber(2));
+      expect(gasPrice).toEqual(BigNumber.from(2));
     });
 
     it('returns default gas price from config if no provider is available', async () => {
@@ -62,11 +62,11 @@ describe('GasPriceDefiner', () => {
     it('returns the max of values returned by providers', async () => {
       gasPriceDefiner.gasPriceProviderList = {
         [StorageTypes.EthereumNetwork.MAINNET]: [
-          { getGasPrice: () => Promise.resolve(new BigNumber(100)) },
-          { getGasPrice: () => Promise.resolve(new BigNumber(200)) },
-          { getGasPrice: () => Promise.resolve(new BigNumber(300)) },
-          { getGasPrice: () => Promise.resolve(new BigNumber(40)) },
-          { getGasPrice: () => Promise.resolve(new BigNumber(300)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(100)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(200)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(300)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(40)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(300)) },
         ],
       };
 
@@ -75,7 +75,7 @@ describe('GasPriceDefiner', () => {
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET),
       );
 
-      expect(gasPrice).toEqual(new BigNumber(300));
+      expect(gasPrice).toEqual(BigNumber.from(300));
     });
   });
 
@@ -83,10 +83,10 @@ describe('GasPriceDefiner', () => {
     it('returns an array containing value from each provider', async () => {
       gasPriceDefiner.gasPriceProviderList = {
         [StorageTypes.EthereumNetwork.MAINNET]: [
-          { getGasPrice: () => Promise.resolve(new BigNumber(100)) },
-          { getGasPrice: () => Promise.resolve(new BigNumber(500)) },
-          { getGasPrice: () => Promise.resolve(new BigNumber(200)) },
-          { getGasPrice: () => Promise.resolve(new BigNumber(300000)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(100)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(500)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(200)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(300000)) },
         ],
       };
 
@@ -96,10 +96,10 @@ describe('GasPriceDefiner', () => {
           StorageTypes.EthereumNetwork.MAINNET,
         ),
       ).resolves.toEqual([
-        new BigNumber(100),
-        new BigNumber(500),
-        new BigNumber(200),
-        new BigNumber(300000),
+        BigNumber.from(100),
+        BigNumber.from(500),
+        BigNumber.from(200),
+        BigNumber.from(300000),
       ]);
     });
 
@@ -117,9 +117,9 @@ describe('GasPriceDefiner', () => {
     it('handles failures and invalid returns', async () => {
       gasPriceDefiner.gasPriceProviderList = {
         [StorageTypes.EthereumNetwork.MAINNET]: [
-          { getGasPrice: () => Promise.resolve(new BigNumber(100)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(100)) },
           { getGasPrice: () => Promise.reject(new Error('oops!')) },
-          { getGasPrice: () => Promise.resolve(new BigNumber(500)) },
+          { getGasPrice: () => Promise.resolve(BigNumber.from(500)) },
           { getGasPrice: () => Promise.resolve(null) },
         ],
       };
@@ -129,7 +129,7 @@ describe('GasPriceDefiner', () => {
           StorageTypes.GasPriceType.STANDARD,
           StorageTypes.EthereumNetwork.MAINNET,
         ),
-      ).resolves.toEqual([new BigNumber(100), new BigNumber(500)]);
+      ).resolves.toEqual([BigNumber.from(100), BigNumber.from(500)]);
     });
   });
 });

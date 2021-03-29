@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from '@ethersproject/bignumber';
 
 /** Interface of the storage */
 export interface IStorage {
