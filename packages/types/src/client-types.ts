@@ -35,6 +35,7 @@ export interface ICreateRequestParameters {
   topics?: any[];
   contentData?: any;
   disablePaymentDetection?: boolean;
+  disableEvents?: boolean;
 }
 
 /** Parameters to create a request. ICreateParameters with a more flexible currency */
