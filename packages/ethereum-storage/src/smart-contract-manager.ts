@@ -12,7 +12,7 @@ const web3Eth = require('web3-eth');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Utils = require('web3-utils');
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 // Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
 // 23 is the number of call of the transaction's confirmation event function
@@ -226,10 +226,11 @@ export default class SmartContractManager {
   public async getMainAccount(): Promise<string> {
     // Get the accounts on the provider
     // Throws an error if timeout is reached
-    const accounts = await Promise.race([
-      Utils.timeoutPromise(this.timeout, 'Web3 getAccounts connection timeout'),
+    const accounts = await Utils.timeoutPromise<string[]>(
       this.eth.getAccounts(),
-    ]);
+      this.timeout,
+      'Web3 getAccounts connection timeout',
+    );
 
     if (!accounts || !accounts[0]) {
       throw Error('No account found');
@@ -258,10 +259,11 @@ export default class SmartContractManager {
 
     // Get the fee from the size of the content
     // Throws an error if timeout is reached
-    const fee = await Promise.race([
-      Utils.timeoutPromise(this.timeout, 'Web3 getFeesAmount connection timeout'),
+    const fee = await Utils.timeoutPromise<string>(
       this.requestHashSubmitter.methods.getFeesAmount(feesParameters.contentSize).call(),
-    ]);
+      this.timeout,
+      'Web3 getFeesAmount connection timeout',
+    );
 
     // Determines the gas price to use
     // If the gas price is provided as a parameter, we use this value
@@ -327,7 +329,7 @@ export default class SmartContractManager {
             );
 
             // If the new gas price is higher than the previous, resubmit the transaction
-            if (newGasPrice.gt(new BigNumber(gasPriceToUse))) {
+            if (newGasPrice.gt(gasPriceToUse)) {
               // Retry transaction with the new gas price and propagate back the result
               try {
                 resolve(
@@ -362,10 +364,8 @@ export default class SmartContractManager {
         })
         .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
           if (!ethereumMetadataCreated) {
-            const gasFee = new BigNumber(receiptAfterConfirmation.gasUsed).mul(
-              new BigNumber(gasPriceToUse),
-            );
-            const cost = gasFee.add(new BigNumber(fee));
+            const gasFee = BigNumber.from(receiptAfterConfirmation.gasUsed).mul(gasPriceToUse);
+            const cost = gasFee.add(BigNumber.from(fee));
 
             // Try to create ethereum metadata
             // If the promise rejects, which is likely to happen because the last block is not fetchable
@@ -533,14 +533,15 @@ export default class SmartContractManager {
 
     // Reading event logs
     // If getPastEvents doesn't throw, we can return the returned events from the function
-    let events;
+    let events: any;
     try {
       events = await Utils.retry(
-        (args: any) =>
-          Promise.race([
-            Utils.timeoutPromise(this.timeout, 'Web3 getPastEvents connection timeout'),
+        (args) =>
+          Utils.timeoutPromise(
             this.requestHashStorage.getPastEvents(args),
-          ]),
+            this.timeout,
+            'Web3 getPastEvents connection timeout',
+          ),
         {
           maxRetries: this.maxRetries || config.getEthereumMaxRetries(),
           retryDelay: this.retryDelay || config.getEthereumRetryDelay(),

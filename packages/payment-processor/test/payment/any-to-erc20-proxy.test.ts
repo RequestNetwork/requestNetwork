@@ -10,9 +10,9 @@ import {
 
 import Utils from '@requestnetwork/utils';
 
-import { ERC20Contract } from '../../src/contracts/Erc20Contract';
 import { approveErc20ForProxyConversionIfNeeded } from '../../src/payment/conversion-erc20';
 import { IPaymentSettings, payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
+import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -149,7 +149,7 @@ describe('conversion-erc20-fee-proxy', () => {
       }
       // get the balances to compare after payment
       const balanceEthBefore = await wallet.getBalance();
-      const balanceTokenBefore = await ERC20Contract.connect(
+      const balanceTokenBefore = await ERC20__factory.connect(
         erc20ContractAddress,
         provider,
       ).balanceOf(wallet.address);
@@ -170,7 +170,7 @@ describe('conversion-erc20-fee-proxy', () => {
 
       // Get the new balances
       const balanceEthAfter = await wallet.getBalance();
-      const balanceTokenAfter = await ERC20Contract.connect(
+      const balanceTokenAfter = await ERC20__factory.connect(
         erc20ContractAddress,
         provider,
       ).balanceOf(wallet.address);
@@ -213,7 +213,7 @@ describe('conversion-erc20-fee-proxy', () => {
       }
       // get the balances to compare after payment
       const balanceEthBefore = await wallet.getBalance();
-      const balanceTokenBefore = await ERC20Contract.connect(
+      const balanceTokenBefore = await ERC20__factory.connect(
         erc20ContractAddress,
         provider,
       ).balanceOf(wallet.address);
@@ -234,7 +234,7 @@ describe('conversion-erc20-fee-proxy', () => {
 
       // Get the new balances
       const balanceEthAfter = await wallet.getBalance();
-      const balanceTokenAfter = await ERC20Contract.connect(
+      const balanceTokenAfter = await ERC20__factory.connect(
         erc20ContractAddress,
         provider,
       ).balanceOf(wallet.address);

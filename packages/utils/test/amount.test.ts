@@ -1,4 +1,4 @@
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 import Amount from '../src/amount';
 
@@ -27,7 +27,7 @@ describe('Amount', () => {
     });
     it('cannot valid amount as bn', () => {
       // 'BN should not be valid'
-      expect(Amount.isValid(new BigNumber('1000000000000000000000000'))).toBe(false);
+      expect(Amount.isValid(BigNumber.from('1000000000000000000000000'))).toBe(false);
     });
     it('can valid amount as string representing integer', () => {
       // 'integer as string should be valid'
