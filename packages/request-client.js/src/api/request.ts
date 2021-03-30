@@ -60,6 +60,10 @@ export default class Request {
    * if true, skip the payment detection
    */
   private skipPaymentDetection = false;
+  /**
+   * if true, do not send blockchain confirmation events (on creation, approval, etc.)
+   */
+  private disableEvents = false;
 
   /**
    * Creates an instance of Request
@@ -79,6 +83,7 @@ export default class Request {
       contentDataExtension?: ContentDataExtension | null;
       requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest;
       skipPaymentDetection?: boolean;
+      disableEvents?: boolean;
     },
   ) {
     this.requestLogic = requestLogic;
@@ -87,8 +92,9 @@ export default class Request {
     this.paymentNetwork = options?.paymentNetwork || null;
     this.emitter = new EventEmitter();
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
+    this.disableEvents = options?.disableEvents || false;
 
-    if (options && options.requestLogicCreateResult) {
+    if (options && options.requestLogicCreateResult && !this.disableEvents) {
       options.requestLogicCreateResult
         .on('confirmed', async () => {
           this.emitter.emit('confirmed', await this.refresh());
@@ -157,13 +163,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    acceptResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
+    if (!this.disableEvents) {
+      acceptResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
 
     return requestData;
   }
@@ -199,13 +207,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    cancelResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
+    if (!this.disableEvents) {
+      cancelResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
 
     return requestData;
   }
@@ -247,14 +257,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    increaseExpectedResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
-
+    if (!this.disableEvents) {
+      increaseExpectedResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
     return requestData;
   }
 
@@ -296,13 +307,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    reduceExpectedResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
+    if (!this.disableEvents) {
+      reduceExpectedResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
 
     return requestData;
   }
@@ -342,14 +355,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    addExtensionResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
-
+    if (!this.disableEvents) {
+      addExtensionResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
     return requestData;
   }
 
@@ -388,13 +402,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    addExtensionResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
+    if (!this.disableEvents) {
+      addExtensionResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
 
     return requestData;
   }
@@ -444,13 +460,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    addExtensionResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
+    if (!this.disableEvents) {
+      addExtensionResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
 
     return requestData;
   }
@@ -503,13 +521,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    addExtensionResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
+    if (!this.disableEvents) {
+      addExtensionResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
 
     return requestData;
   }
@@ -562,13 +582,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    addExtensionResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
+    if (!this.disableEvents) {
+      addExtensionResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
 
     return requestData;
   }
@@ -621,13 +643,15 @@ export default class Request {
     // refresh the local request data
     const requestData = await this.refresh();
 
-    addExtensionResult
-      .on('confirmed', async () => {
-        requestData.emit('confirmed', await this.refresh());
-      })
-      .on('error', (error) => {
-        this.emitter.emit('error', error);
-      });
+    if (!this.disableEvents) {
+      addExtensionResult
+        .on('confirmed', async () => {
+          requestData.emit('confirmed', await this.refresh());
+        })
+        .on('error', (error) => {
+          this.emitter.emit('error', error);
+        });
+    }
 
     return requestData;
   }

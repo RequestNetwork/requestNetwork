@@ -76,6 +76,7 @@ export default class RequestNetwork {
       paymentNetwork,
       requestLogicCreateResult,
       skipPaymentDetection: parameters.disablePaymentDetection,
+      disableEvents: parameters.disableEvents,
     });
 
     // refresh the local request data
@@ -112,6 +113,7 @@ export default class RequestNetwork {
       paymentNetwork,
       requestLogicCreateResult,
       skipPaymentDetection: parameters.disablePaymentDetection,
+      disableEvents: parameters.disableEvents,
     });
 
     // refresh the local request data
@@ -142,7 +144,7 @@ export default class RequestNetwork {
    */
   public async fromRequestId(
     requestId: RequestLogicTypes.RequestId,
-    options?: { disablePaymentDetection: boolean },
+    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
   ): Promise<Request> {
     const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
       requestId,
@@ -170,6 +172,7 @@ export default class RequestNetwork {
       contentDataExtension: this.contentData,
       paymentNetwork,
       skipPaymentDetection: options?.disablePaymentDetection,
+      disableEvents: options?.disableEvents,
     });
 
     // refresh the local request data
@@ -189,7 +192,7 @@ export default class RequestNetwork {
   public async fromIdentity(
     identity: IdentityTypes.IIdentity,
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection: boolean },
+    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
   ): Promise<Request[]> {
     if (!this.supportedIdentities.includes(identity.type)) {
       throw new Error(`${identity.type} is not supported`);
@@ -208,7 +211,7 @@ export default class RequestNetwork {
   public async fromMultipleIdentities(
     identities: IdentityTypes.IIdentity[],
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection: boolean },
+    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
   ): Promise<Request[]> {
     const identityNotSupported = identities.find(
       (identity) => !this.supportedIdentities.includes(identity.type),
@@ -232,7 +235,7 @@ export default class RequestNetwork {
   public async fromTopic(
     topic: any,
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection: boolean },
+    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
@@ -263,6 +266,7 @@ export default class RequestNetwork {
           contentDataExtension: this.contentData,
           paymentNetwork,
           skipPaymentDetection: options?.disablePaymentDetection,
+          disableEvents: options?.disableEvents,
         });
 
         // refresh the local request data
@@ -286,7 +290,7 @@ export default class RequestNetwork {
   public async fromMultipleTopics(
     topics: any[],
     updatedBetween?: Types.ITimestampBoundaries,
-    options?: { disablePaymentDetection: boolean },
+    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
     const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByMultipleTopics(
@@ -318,6 +322,7 @@ export default class RequestNetwork {
           contentDataExtension: this.contentData,
           paymentNetwork,
           skipPaymentDetection: options?.disablePaymentDetection,
+          disableEvents: options?.disableEvents,
         });
 
         // refresh the local request data
