@@ -61,7 +61,7 @@ export default class Request {
    */
   private skipPaymentDetection = false;
   /**
-   * if true, do not send events
+   * if true, do not send blockchain confirmation events (on creation, approval, etc.)
    */
   private disableEvents = false;
 
