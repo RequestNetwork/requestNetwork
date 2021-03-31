@@ -6,7 +6,8 @@ import "./interfaces/ERC20FeeProxy.sol";
 
 /**
  * @title Erc20ConversionProxy
- */
+ * @notice This contract convert from chainlink then swaps ERC20 tokens before paying a request thanks to a conversion payment proxy
+  */
 contract Erc20ConversionProxy {
   using SafeMath for uint256;
 
