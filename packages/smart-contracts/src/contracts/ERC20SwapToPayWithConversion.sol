@@ -20,7 +20,7 @@ interface IUniswapV2Router02 {
 
 
 /**
- * @title ERC20SwapToPay
+ * @title ERC20SwapToPayWithConversion
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
   */
 contract ERC20SwapToPayWithConversion is Ownable {
