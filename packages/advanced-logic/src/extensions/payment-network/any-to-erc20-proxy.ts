@@ -278,6 +278,9 @@ function applyCreation(
     throw Error('version is missing');
   }
   if (!extensionAction.parameters.paymentAddress) {
+    throw Error('paymentAddress is missing');
+  }
+  if (!extensionAction.parameters.salt) {
     throw Error('salt is missing');
   }
   if (
@@ -308,7 +311,7 @@ function applyCreation(
     !extensionAction.parameters.acceptedTokens ||
     extensionAction.parameters.acceptedTokens.length === 0
   ) {
-    throw Error('acceptedTokens is required');
+    throw Error('acceptedTokens is required and cannot be empty');
   }
   if (
     extensionAction.parameters.acceptedTokens.some((address: string) => !isValidAddress(address))
