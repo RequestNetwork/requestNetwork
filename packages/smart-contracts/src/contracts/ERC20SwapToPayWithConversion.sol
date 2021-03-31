@@ -58,7 +58,24 @@ contract ERC20SwapToPayWithConversion is Ownable {
   }
 
   /**
-  * @notice TODO
+  * @notice Performs a token swap between a payment currency and a payment network currency after
+  *         a conversion from a request currency and then calls a payment proxy to pay 
+  *         the request, including fees.
+  * @param _to Transfer recipient = request issuer
+  * @param _requestAmount Amount to transfer in request currency
+  * @param _amountInMax Maximum amount allowed to spend for currency swap, in payment network currency.
+            This amount should take into account the fees.
+    @param _uniswapPath, path of ERC20 tokens to swap from paymentNetworkToken to spentToken. The first
+            address of the path should be the spent currency. The last element should be the
+            payment network currency.
+    @param _chainlinkPath, path of currencies to convert from request currency to paymentNetworkToken. The first
+            address of the path should be the request currency. The last element should be the
+            payment network currency.
+  * @param _paymentReference Reference of the payment related
+  * @param _requestFeeAmount Amount of the fee in request currency
+  * @param _feeAddress Where to pay the fee
+  * @param _uniswapDeadline Deadline for the swap to be valid
+  * @param _chainlinkMaxRateTimespan Max time span with the oldestrate, ignored if zero
   */
   function swapTransferWithReference(
     address _to,
