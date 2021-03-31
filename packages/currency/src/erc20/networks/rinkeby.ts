@@ -8,7 +8,7 @@ export const supportedRinkebyERC20 = new Map([
     {
       network: 'rinkeby',
       type: RequestLogicTypes.CURRENCY.ERC20,
-      value: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
+      value: '0x995d6A8C21F24be1Dd04E105DD0d83758343E258',
     },
   ],
 
@@ -28,7 +28,7 @@ export const supportedRinkebyERC20Details = {
   // Request Central Bank token, used for testing on rinkeby.
   CTBK: {
     // Faucet URL: https://central.request.network
-    address: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
+    address: '0x995d6A8C21F24be1Dd04E105DD0d83758343E258',
     decimals: 18,
     name: 'Central Bank Token',
   },
