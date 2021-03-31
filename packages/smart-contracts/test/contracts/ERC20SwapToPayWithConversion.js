@@ -89,7 +89,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
     await spendErc20.approve(testERC20SwapToPayWithConversion.address, initialFromBalance, { from });
   });
   
-  expectFromBalanceUnchanged = async () => {
+  expectPayerBalanceUnchanged = async () => {
     const finalFromBalance = await spendErc20.balanceOf(from);
     expect(finalFromBalance.toString()).to.equals(initialFromBalance.toString());
   };
@@ -202,7 +202,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
         { from },
       ),
     );
-    await expectFromBalanceUnchanged();
+    await expectPayerBalanceUnchanged();
   });
 
   it('cannot swap with a past deadline', async function () {
@@ -221,7 +221,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
         { from },
       ),
     );
-    await expectFromBalanceUnchanged();
+    await expectPayerBalanceUnchanged();
   });
 
 
@@ -243,7 +243,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
         { from },
       ),
     );
-    await expectFromBalanceUnchanged();
+    await expectPayerBalanceUnchanged();
   });
 
   it('cannot swap more tokens than balance', async function () {
@@ -264,7 +264,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
         { from },
       ),
     );
-    await expectFromBalanceUnchanged();
+    await expectPayerBalanceUnchanged();
   });
 
 });
