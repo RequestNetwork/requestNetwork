@@ -7,22 +7,29 @@ import EthGasStationProvider from './gas-price-providers/ethgasstation-provider'
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
+import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
 
 /**
  * Determines the gas price to use depending on the used network
  * Polls gas price API providers if necessary
  */
 export default class GasPriceDefiner {
-  /**
-   * List of gas price api provider to call to determine the used gas price
-   * This array is left public for mocking purpose
-   */
-  public gasPriceProviderList: StorageTypes.IGasPriceProvider[] = [
+  private defaultProviders = [
     new EtherchainProvider(),
     new EthGasStationProvider(),
     new EtherscanProvider(),
   ];
+  /**
+   * List of gas price api provider to call to determine the used gas price
+   * This array is left public for mocking purpose
+   */
+  public gasPriceProviderList: Partial<
+    Record<StorageTypes.EthereumNetwork, StorageTypes.IGasPriceProvider[]>
+  > = {
+    [StorageTypes.EthereumNetwork.MAINNET]: this.defaultProviders,
+    [StorageTypes.EthereumNetwork.XDAI]: [new XDaiFixedProvider()],
+  };
 
   /**
    * Logger instance
@@ -44,21 +51,19 @@ export default class GasPriceDefiner {
    * @param networkName Name of the Ethereum network used that can influence the way to get the gas price
    * @returns Big number representing the gas price to use
    */
-  public async getGasPrice(type: StorageTypes.GasPriceType, networkName: string): Promise<string> {
-    if (
-      networkName ===
-      EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.MAINNET)
-    ) {
-      const gasPriceArray: Array<BigNumber> = await this.pollProviders(type);
-
+  public async getGasPrice(
+    type: StorageTypes.GasPriceType,
+    networkName: string,
+  ): Promise<BigNumber> {
+    const network = EthereumUtils.getEthereumIdFromNetworkName(networkName);
+    if (network) {
+      const gasPriceArray = await this.pollProviders(type, network);
       if (gasPriceArray.length > 0) {
         // Get the highest gas price from the providers
-        return gasPriceArray
-          .reduce(
-            (currentMax, gasPrice: BigNumber) => BigNumber.max(currentMax, gasPrice),
-            new BigNumber(0),
-          )
-          .toString();
+        return gasPriceArray.reduce(
+          (currentMax, gasPrice) => (currentMax.gt(gasPrice) ? currentMax : gasPrice),
+          BigNumber.from(0),
+        );
       } else {
         this.logger.warn('Cannot determine gas price: There is no available gas price provider', [
           'ethereum',
@@ -76,22 +81,18 @@ export default class GasPriceDefiner {
    * @param type Gas price type (fast, standard or safe low)
    * @returns Array containing each gas price
    */
-  public async pollProviders(type: StorageTypes.GasPriceType): Promise<Array<BigNumber>> {
-    const gasPriceArray: Array<BigNumber> = [];
-
-    for (const gasPriceProvider of this.gasPriceProviderList) {
-      try {
-        // Get the gas price from the provider
-        const providerGasPrice = await gasPriceProvider.getGasPrice(type);
-        if (providerGasPrice) {
-          gasPriceArray.push(providerGasPrice);
-        }
-      } catch (err) {
-        // If the function throws, it means the gas price provider is not available or the value sent is not valid
-        this.logger.warn(err, ['ethereum', 'gas']);
-      }
-    }
-
-    return gasPriceArray;
+  public async pollProviders(
+    type: StorageTypes.GasPriceType,
+    network: StorageTypes.EthereumNetwork,
+  ): Promise<Array<BigNumber>> {
+    const providers = this.gasPriceProviderList[network] || [];
+    const results = await Promise.all(
+      providers.map((provider) =>
+        provider.getGasPrice(type).catch((err) => this.logger.warn(err, ['ethereum', 'gas'])),
+      ),
+    );
+    // use a type predicate to make typescript understand that the array cannot contain null
+    const notNull = <T>(val: T | void | null): val is T => val !== null && val !== undefined;
+    return results.filter(notNull);
   }
 }

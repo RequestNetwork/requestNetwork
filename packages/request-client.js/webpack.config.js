@@ -23,7 +23,6 @@ module.exports = {
     extensions: ['.ts', '.js', '.json'],
     alias: {
       // Dedup packages
-      'bn.js': path.resolve(__dirname, '../../node_modules/bn.js'),
       'ethereumjs-util': path.resolve(__dirname, '../../node_modules/ethereumjs-util'),
     },
   },

@@ -110,7 +110,7 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
         const unknownAction = Utils.deepCopy(DataBTCAddPaymentAddress.actionAddPaymentAddress);
-        unknownAction.action = 'unknown action';
+        unknownAction.action = 'unknown action' as any;
         // 'must throw'
         expect(() => {
           testnetBitcoinAddressBasedManager.applyActionToExtension(
@@ -124,7 +124,7 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
       });
       it('cannot applyActionToExtensions of unknown id', () => {
         const unknownAction = Utils.deepCopy(DataBTCAddPaymentAddress.actionAddPaymentAddress);
-        unknownAction.id = 'unknown id';
+        unknownAction.id = 'unknown id' as any;
         // 'must throw'
         expect(() => {
           testnetBitcoinAddressBasedManager.applyActionToExtension(

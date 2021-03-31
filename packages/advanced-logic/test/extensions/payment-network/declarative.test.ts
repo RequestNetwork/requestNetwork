@@ -123,7 +123,7 @@ describe('extensions/payment-network/any/declarative', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
         const unknownAction = Utils.deepCopy(TestDataDeclarative.actionCreationEmpty);
-        unknownAction.action = 'unknown action';
+        unknownAction.action = 'unknown action' as any;
         // 'must throw'
         expect(() => {
           PnAnyDeclarative.applyActionToExtension(

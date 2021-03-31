@@ -546,8 +546,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     const resultGetTx = await this.transactionManager.getTransactionsByChannelId(requestId);
     const actions = resultGetTx.result.transactions
       // filter the actions ignored by the previous layers
-      .filter((action) => action !== null)
-      .sort((a: any, b: any) => a.timestamp - b.timestamp);
+      .filter(Utils.notNull)
+      .sort((a, b) => a.timestamp - b.timestamp);
 
     // eslint-disable-next-line prefer-const
     let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(actions);
@@ -555,10 +555,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // array of transaction without duplicates to avoid replay attack
     const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
       keptTransactions
-        .map((t: any) => {
+        .filter(Utils.notNull)
+        .map((t) => {
           try {
             return {
-              action: JSON.parse(t.transaction.data),
+              action: JSON.parse(t.transaction.data || ''),
               state: t.state,
               timestamp: t.timestamp,
             };
@@ -571,7 +572,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
             return;
           }
         })
-        .filter((elem: any) => elem !== undefined),
+        .filter(Utils.notNull),
       'action',
     );
 
@@ -607,17 +608,18 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @returns the request and the ignoredTransactions
    */
   private async computeRequestFromTransactions(
-    transactions: TransactionTypes.ITimestampedTransaction[],
+    transactions: RequestLogicTypes.IConfirmedAction[],
   ): Promise<{
     confirmedRequestState: RequestLogicTypes.IRequest | null;
     pendingRequestState: RequestLogicTypes.IRequest | null;
-    ignoredTransactionsByApplication: any[];
+    ignoredTransactionsByApplication: RequestLogicTypes.IIgnoredTransaction[];
   }> {
-    const ignoredTransactionsByApplication: any[] = [];
+    const ignoredTransactionsByApplication: RequestLogicTypes.IIgnoredTransaction[] = [];
+
     // second parameter is null, because the first action must be a creation (no state expected)
     const confirmedRequestState = transactions
       .filter((action) => action.state === TransactionTypes.TransactionState.CONFIRMED)
-      .reduce((requestState: any, actionConfirmed: any) => {
+      .reduce((requestState, actionConfirmed) => {
         try {
           return RequestLogicCore.applyActionToRequest(
             requestState,
@@ -633,11 +635,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
           });
           return requestState;
         }
-      }, null);
+      }, null as RequestLogicTypes.IRequest | null);
 
     const pendingRequestState = transactions
       .filter((action) => action.state === TransactionTypes.TransactionState.PENDING)
-      .reduce((requestState: any, actionConfirmed: any) => {
+      .reduce((requestState, actionConfirmed) => {
         try {
           return RequestLogicCore.applyActionToRequest(
             requestState,
@@ -686,11 +688,11 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
           keptTransactions
             // filter the actions ignored by the previous layers
-            .filter((action) => action !== null)
-            .map((t: any) => {
+            .filter(Utils.notNull)
+            .map((t) => {
               try {
                 return {
-                  action: JSON.parse(t.transaction.data),
+                  action: JSON.parse(t.transaction.data || ''),
                   state: t.state,
                   timestamp: t.timestamp,
                 };
@@ -703,7 +705,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
                 return;
               }
             })
-            .filter((elem: any) => elem !== undefined),
+            .filter(Utils.notNull),
           'action',
         );
 

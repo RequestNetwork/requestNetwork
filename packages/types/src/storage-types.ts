@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from '@ethersproject/bignumber';
 
 /** Interface of the storage */
 export interface IStorage {
@@ -125,6 +125,8 @@ export enum EthereumNetwork {
   MAINNET = 1,
   RINKEBY = 4,
   KOVAN = 42,
+  SOKOL = 77,
+  XDAI = 100,
 }
 
 /** Information to connect to a web3 provider */
@@ -204,7 +206,6 @@ export enum GasPriceType {
 
 /** Interface of the class to retrieve gas price through a provider API */
 export interface IGasPriceProvider {
-  providerUrl: string;
   getGasPrice: (type: GasPriceType) => Promise<BigNumber | null>;
 }
 
