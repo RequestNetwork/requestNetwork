@@ -38,9 +38,10 @@ contract ERC20SwapToPayWithConversion is Ownable {
   }
 
   /**
-  * @notice Performs a token swap between a payment currency and a payment network currency after
-  *         a conversion from a request currency and then calls a payment proxy to pay
-  *         the request, including fees.
+  * @notice Performs a request payment, denominated in a token or currency A,
+  *         where the issuer expects a token B, and the payer uses a token C.
+  *         The conversion rate from A to B is done using Chainlink.
+  *         The token swap is done using Uniswap.
   * @param _to Transfer recipient = request issuer
   * @param _requestAmount Amount to transfer in request currency
   * @param _amountInMax Maximum amount allowed to spend for currency swap, in payment network currency.
