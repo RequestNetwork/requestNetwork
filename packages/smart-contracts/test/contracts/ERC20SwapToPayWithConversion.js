@@ -52,7 +52,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
       from: admin,
     });
 
-    // deploy fake chainlink conversion path
+    // deploy fake chainlink conversion path, for 1 USD = 3 paymentNetworkERC20
     chainlinkConversion= await ChainlinkConversionPath.new();
     aggTest = await AggTest.new();
     await chainlinkConversion.updateAggregator(
@@ -105,10 +105,11 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
   it('converts, swaps and pays the request', async function () {
     const beforePayerBalance = await spendErc20.balanceOf(from);
 
+    // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
     let { tx } = await testERC20SwapToPayWithConversion.swapTransferWithReference(
       to,
       fiatDecimal.mul(10),
-      erc20Decimal.mul(66),
+      erc20Decimal.mul(70),
       [spendErc20.address, paymentNetworkErc20.address], // _uniswapPath
       [USDhash, paymentNetworkErc20.address], // _chainlinkPath
       referenceExample,
@@ -151,7 +152,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
       receipt: { gasUsed },
     } = await testERC20SwapToPayWithConversion.swapTransferWithReference(
       to,
-      0,
+      1000,
       0,
       [spendErc20.address, paymentNetworkErc20.address], // _uniswapPath
       [USDhash, paymentNetworkErc20.address], // _chainlinkPath
@@ -186,7 +187,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
     expect(finalIssuerBalance.toNumber()).to.equals(0);
   });
 
-  it('cannot swap if too few payment tokens', async function () {
+  it('cannot swap with a too low maximum spent', async function () {
     await expectRevert.unspecified(
       testERC20SwapToPayWithConversion.swapTransferWithReference(
         to,
@@ -216,7 +217,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
         referenceExample,
         fiatDecimal.mul(1),
         builder,
-        exchangeRateOrigin - 15, // _unisapDeadline
+        exchangeRateOrigin - 15, // past _uniswapDeadline
         0, // _chainlinkMaxRateTimespan
         { from },
       ),
@@ -246,7 +247,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
     await expectPayerBalanceUnchanged();
   });
 
-  it('cannot swap more tokens than balance', async function () {
+  it('cannot swap more tokens than allowance', async function () {
     await spendErc20.approve(testERC20SwapToPayWithConversion.address, erc20Decimal.mul(60), { from });
 
     await expectRevert.unspecified(
