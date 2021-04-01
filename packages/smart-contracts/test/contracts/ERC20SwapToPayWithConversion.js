@@ -28,7 +28,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
   const referenceExample = '0xaaaa';
 
   let paymentNetworkErc20;
-  let spendErc20;
+  let spentErc20;
   let erc20FeeProxy;
   let erc20ConversionProxy;
   let fakeSwapRouter;
@@ -44,7 +44,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
     paymentNetworkErc20 = await TestERC20.new(erc20Decimal.mul(10000), {
       from: admin,
     });
-    spendErc20 = await TestERC20.new(erc20Decimal.mul(1000), {
+    spentErc20 = await TestERC20.new(erc20Decimal.mul(1000), {
       from: admin,
     });
 
@@ -71,7 +71,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
     fakeSwapRouter = await FakeSwapRouter.new({
       from: admin,
     });
-    await spendErc20.transfer(fakeSwapRouter.address, erc20Decimal.mul(100), {
+    await spentErc20.transfer(fakeSwapRouter.address, erc20Decimal.mul(100), {
       from: admin,
     });
     await paymentNetworkErc20.transfer(fakeSwapRouter.address, erc20Decimal.mul(200), {
@@ -79,38 +79,38 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
     });
 
     // give payer some token
-    await spendErc20.transfer(from, erc20Decimal.mul(200), {
+    await spentErc20.transfer(from, erc20Decimal.mul(200), {
       from: admin,
     });
 
     testERC20SwapToPayWithConversion = await ERC20SwapToPayWithConversion.new(fakeSwapRouter.address, erc20ConversionProxy.address);
 
-    initialFromBalance = await spendErc20.balanceOf(from);
-    await spendErc20.approve(testERC20SwapToPayWithConversion.address, initialFromBalance, { from });
+    initialFromBalance = await spentErc20.balanceOf(from);
+    await spentErc20.approve(testERC20SwapToPayWithConversion.address, initialFromBalance, { from });
   });
   
   expectPayerBalanceUnchanged = async () => {
-    const finalFromBalance = await spendErc20.balanceOf(from);
+    const finalFromBalance = await spentErc20.balanceOf(from);
     expect(finalFromBalance.toString()).to.equals(initialFromBalance.toString());
   };
 
   afterEach(async () => {
     // The contract should never keep any fund
     const contractPaymentCcyBalance = await paymentNetworkErc20.balanceOf(testERC20SwapToPayWithConversion.address);
-    const contractRequestCcyBalance = await spendErc20.balanceOf(testERC20SwapToPayWithConversion.address);
+    const contractRequestCcyBalance = await spentErc20.balanceOf(testERC20SwapToPayWithConversion.address);
     expect(contractPaymentCcyBalance.toNumber()).to.equals(0);
     expect(contractRequestCcyBalance.toNumber()).to.equals(0);
   });
 
   it('converts, swaps and pays the request', async function () {
-    const beforePayerBalance = await spendErc20.balanceOf(from);
+    const beforePayerBalance = await spentErc20.balanceOf(from);
 
     // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
     let { tx } = await testERC20SwapToPayWithConversion.swapTransferWithReference(
       to,
       fiatDecimal.mul(10),
       erc20Decimal.mul(70),
-      [spendErc20.address, paymentNetworkErc20.address], // _uniswapPath
+      [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
       [USDhash, paymentNetworkErc20.address], // _chainlinkPath
       referenceExample,
       fiatDecimal.mul(1),
@@ -142,7 +142,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
     expect(finalBuilderBalance.toString(), 'builder balance is wrong').to.equals(erc20Decimal.mul(3).toString());
     expect(finalIssuerBalance.toString(), 'issuer balance is wrong').to.equals(erc20Decimal.mul(30).toString());
 
-    const finalPayerBalance = await spendErc20.balanceOf(from);
+    const finalPayerBalance = await spentErc20.balanceOf(from);
     expect(beforePayerBalance.sub(finalPayerBalance).toString(), 'payer balance is wrong').to.equals(erc20Decimal.mul(66).toString());
   });
 
@@ -154,7 +154,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
       to,
       1000,
       0,
-      [spendErc20.address, paymentNetworkErc20.address], // _uniswapPath
+      [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
       [USDhash, paymentNetworkErc20.address], // _chainlinkPath
       referenceExample,
       0,
@@ -193,7 +193,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(50),
-        [spendErc20.address, paymentNetworkErc20.address], // _uniswapPath
+        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
         [USDhash, paymentNetworkErc20.address], // _chainlinkPath
         referenceExample,
         fiatDecimal.mul(1),
@@ -212,7 +212,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(66),
-        [spendErc20.address, paymentNetworkErc20.address], // _uniswapPath
+        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
         [USDhash, paymentNetworkErc20.address], // _chainlinkPath
         referenceExample,
         fiatDecimal.mul(1),
@@ -227,14 +227,14 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
 
 
   it('cannot swap more tokens than liquidity', async function () {
-    await spendErc20.approve(testERC20SwapToPayWithConversion.address, erc20Decimal.mul(6600), { from });
+    await spentErc20.approve(testERC20SwapToPayWithConversion.address, erc20Decimal.mul(6600), { from });
 
     await expectRevert.unspecified(
       testERC20SwapToPayWithConversion.swapTransferWithReference(
         to,
         fiatDecimal.mul(1000),
         erc20Decimal.mul(6600),
-        [spendErc20.address, paymentNetworkErc20.address], // _uniswapPath
+        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
         [USDhash, paymentNetworkErc20.address], // _chainlinkPath
         referenceExample,
         fiatDecimal.mul(100),
@@ -248,14 +248,14 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
   });
 
   it('cannot swap more tokens than allowance', async function () {
-    await spendErc20.approve(testERC20SwapToPayWithConversion.address, erc20Decimal.mul(60), { from });
+    await spentErc20.approve(testERC20SwapToPayWithConversion.address, erc20Decimal.mul(60), { from });
 
     await expectRevert.unspecified(
       testERC20SwapToPayWithConversion.swapTransferWithReference(
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(66),
-        [spendErc20.address, paymentNetworkErc20.address], // _uniswapPath
+        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
         [USDhash, paymentNetworkErc20.address], // _chainlinkPath
         referenceExample,
         fiatDecimal.mul(1),
