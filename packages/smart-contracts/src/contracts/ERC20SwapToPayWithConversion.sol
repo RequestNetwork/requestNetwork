@@ -83,11 +83,6 @@ contract ERC20SwapToPayWithConversion is Ownable {
       IERC20(_uniswapPath[0]).safeTransferFrom(msg.sender, address(this), _amountInMax),
       "Could not transfer payment token from swapper-payer");
 
-    // Allow the router to spend all this contract's spentToken
-    if (IERC20(_uniswapPath[0]).allowance(address(this),address(swapRouter)) < _amountInMax) {
-      approveRouterToSpend(_uniswapPath[0]);
-    }
-
     swapRouter.swapTokensForExactTokens(
       paymentNetworkTotalAmount,
       _amountInMax,
@@ -95,11 +90,6 @@ contract ERC20SwapToPayWithConversion is Ownable {
       address(this),
       _uniswapDeadline
     );
-
-    // Allow the payment network to spend all this contract's paymentNetworkToken
-    if (IERC20(_uniswapPath[_uniswapPath.length-1]).allowance(address(this),address(paymentProxy)) < paymentNetworkTotalAmount) {
-      approvePaymentProxyToSpend(_uniswapPath[_uniswapPath.length-1]);
-    }
 
     // Pay the request and fees
     paymentProxy.transferFromWithReferenceAndFee(

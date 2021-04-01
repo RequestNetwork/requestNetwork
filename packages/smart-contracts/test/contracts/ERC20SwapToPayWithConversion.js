@@ -104,6 +104,8 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
 
   it('converts, swaps and pays the request', async function () {
     const beforePayerBalance = await spentErc20.balanceOf(from);
+    await testERC20SwapToPayWithConversion.approvePaymentProxyToSpend(paymentNetworkErc20.address);
+    await testERC20SwapToPayWithConversion.approveRouterToSpend(spentErc20.address);
 
     // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
     let { tx } = await testERC20SwapToPayWithConversion.swapTransferWithReference(
@@ -152,7 +154,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
       receipt: { gasUsed },
     } = await testERC20SwapToPayWithConversion.swapTransferWithReference(
       to,
-      1000,
+      0,
       0,
       [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
       [USDhash, paymentNetworkErc20.address], // _chainlinkPath
