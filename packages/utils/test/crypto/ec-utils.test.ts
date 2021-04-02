@@ -91,6 +91,14 @@ describe('Utils.ecUtils', () => {
       expect(await ecUtils.decrypt(rawId.privateKey, encryptedData)).toBe(anyData);
     });
 
+    it('can encrypt with other public key formats', async () => {
+      const encryptedData = await ecUtils.encrypt(
+        '0396212fc129c2f78771218b2e93da7a5aac63490a42bb41b97848c39c14fe65cd',
+        anyData,
+      );
+      expect(encryptedData.length).toBe(226);
+    });
+
     it('cannot encrypt data with a wrong public key', async () => {
       await expect(ecUtils.encrypt('cf4a', anyData)).rejects.toThrowError(
         'The public key must be a string representing 64 bytes',

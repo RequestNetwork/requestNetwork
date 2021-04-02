@@ -45,7 +45,7 @@ function getAddressFromPrivateKey(privateKey: string): string {
  */
 function getAddressFromPublicKey(publicKey: string): string {
   try {
-    return ethers.utils.computeAddress(ethers.utils.hexlify('0x04' + publicKey));
+    return ethers.utils.computeAddress(normalizePublicKey(publicKey));
   } catch (e) {
     if (
       e.message === 'public key length is invalid' ||
@@ -115,10 +115,10 @@ function recover(signature: string, data: string): string {
 async function encrypt(publicKey: string, data: string): Promise<string> {
   try {
     // Encrypts the data with the publicKey, returns the encrypted data with encryption parameters (such as IV..)
-    const encrypted = await EcCrypto.encrypt(
-      Buffer.from(publicKeyConvert(Buffer.from('04' + publicKey, 'hex'))),
-      Buffer.from(data),
-    );
+    const compressed = normalizePublicKey(publicKey);
+    console.log('compressed', publicKey.length, compressed.length);
+    const encrypted = await EcCrypto.encrypt(Buffer.from(compressed), Buffer.from(data));
+
     // Transforms the object with the encrypted data into a smaller string-representation.
     return Buffer.concat([
       encrypted.iv,
@@ -127,31 +127,17 @@ async function encrypt(publicKey: string, data: string): Promise<string> {
       encrypted.ciphertext,
     ]).toString('hex');
   } catch (e) {
+    console.log(publicKey, publicKey.length);
     if (
       e.message === 'public key length is invalid' ||
       e.message === 'Expected public key to be an Uint8Array with length [33, 65]'
     ) {
+      console.log(e);
       throw new Error('The public key must be a string representing 64 bytes');
     }
     throw e;
   }
 }
-
-// inspired from https://github.com/pubkey/eth-crypto/blob/master/src/decrypt-with-private-key.js
-const parse = (str: string): EcCrypto.Ecies => {
-  const buf = Buffer.from(str, 'hex');
-
-  const ephemPublicKeyStr = buf.toString('hex', 16, 49);
-
-  return {
-    iv: Buffer.from(buf.toString('hex', 0, 16), 'hex'),
-    mac: Buffer.from(buf.toString('hex', 49, 81), 'hex'),
-    ciphertext: Buffer.from(buf.toString('hex', 81, buf.length), 'hex'),
-    ephemPublicKey: Buffer.from(
-      publicKeyConvert(new Uint8Array(Buffer.from(ephemPublicKeyStr, 'hex')), false),
-    ),
-  };
-};
 
 /**
  * Function to decrypt data with a public key
@@ -165,7 +151,7 @@ async function decrypt(privateKey: string, encrypted: string): Promise<string> {
   try {
     const buf = await EcCrypto.decrypt(
       Buffer.from(privateKey.replace(/^0x/, ''), 'hex'),
-      parse(encrypted),
+      eciesSplit(encrypted),
     );
     return buf.toString();
   } catch (e) {
@@ -187,3 +173,32 @@ async function decrypt(privateKey: string, encrypted: string): Promise<string> {
     throw e;
   }
 }
+
+/**
+ * Converts a public key to its uncompressed form.
+ */
+function normalizePublicKey(publicKey: string): Uint8Array {
+  if (publicKey.length !== 66 && publicKey.length !== 34) {
+    publicKey = `04${publicKey}`;
+  }
+  return publicKeyConvert(Buffer.from(publicKey, 'hex'));
+}
+
+/**
+ * Split an encrypted string to ECIES params
+ * inspired from https://github.com/pubkey/eth-crypto/blob/master/src/decrypt-with-private-key.js
+ */
+const eciesSplit = (str: string): EcCrypto.Ecies => {
+  const buf = Buffer.from(str, 'hex');
+
+  const ephemPublicKeyStr = buf.toString('hex', 16, 49);
+
+  return {
+    iv: Buffer.from(buf.toString('hex', 0, 16), 'hex'),
+    mac: Buffer.from(buf.toString('hex', 49, 81), 'hex'),
+    ciphertext: Buffer.from(buf.toString('hex', 81, buf.length), 'hex'),
+    ephemPublicKey: Buffer.from(
+      publicKeyConvert(new Uint8Array(Buffer.from(ephemPublicKeyStr, 'hex')), false),
+    ),
+  };
+};
