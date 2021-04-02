@@ -39,14 +39,14 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
+    "@ethersproject/transactions": "5.0.11",
     "@requestnetwork/types": "0.32.0",
-    "ethers": "5.0.32",
-    "secp256k1": "4.0.2",
     "eccrypto": "1.1.6",
-    "@ethersproject/transactions": "5.0.11"
+    "ethers": "5.0.32",
+    "secp256k1": "4.0.2"
   },
   "devDependencies": {
-    "@types/eccrypto": "^1.1.2",
+    "@types/eccrypto": "1.1.2",
     "@types/jest": "26.0.13",
     "jest": "26.4.2",
     "prettier": "2.2.1",
