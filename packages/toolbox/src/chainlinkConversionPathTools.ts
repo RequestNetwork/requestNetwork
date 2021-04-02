@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
+import yargs = require('yargs');
 
 // ABI fragment containing AggregatorUpdated event
 const chainlinkConversionPathAbiFragment = [
@@ -93,7 +94,7 @@ class ChainlinkConversionPathTools {
 }
 
 /* eslint-disable @typescript-eslint/no-floating-promises */
-(async () => {
+const listAggregators = async () => {
   const networks = [
     'private',
     'rinkeby',
@@ -134,4 +135,35 @@ class ChainlinkConversionPathTools {
   console.log('All aggregators nodes for currency pairs graph:');
   console.log(aggregatorsNodesForDijkstra);
   console.log('#####################################################################');
-})();
+};
+
+listAggregators();
+
+export const chainlinkAggregatorsCommandModule: yargs.CommandModule<{}> = {
+  command: 'listAggregators',
+  describe: 'Helpers on-chain conversion administration',
+  handler: listAggregators,
+};
+
+/* eslint-disable @typescript-eslint/no-floating-promises */
+const addAggregators = async () => {
+  builder: (yargs) =>
+    yargs.options({
+      from: {
+        demand: true,
+        type: 'string',
+        desc: 'Payment currency code',
+      },
+      to: {
+        demand: true,
+        type: 'string',
+        desc: 'Request currency code',
+      },
+      network: {
+        demand: true,
+        type: 'string',
+        desc: 'mainnet or rinkeby',
+        default: 'mainnet',
+      },
+    });
+};
