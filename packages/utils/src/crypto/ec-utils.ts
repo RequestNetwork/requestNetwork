@@ -137,6 +137,7 @@ async function encrypt(publicKey: string, data: string): Promise<string> {
   }
 }
 
+// inspired from https://github.com/pubkey/eth-crypto/blob/master/src/decrypt-with-private-key.js
 const parse = (str: string): EcCrypto.Ecies => {
   const buf = Buffer.from(str, 'hex');
 
