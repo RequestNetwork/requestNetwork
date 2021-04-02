@@ -32,7 +32,7 @@
     "types"
   ],
   "scripts": {
-    "build:types": "yarn generate-types && tsc  generated/**/*.ts --outDir types --declaration --declarationMap && cp generated/*.d.ts types/",
+    "build:types": "yarn generate-types && tsc -p tsconfig.types.json && cp generated/*.d.ts types/",
     "build:lib": "tsc -b",
     "build:sol": "truffle compile --contracts_directory=./src",
     "build": "yarn run build:lib && yarn run build:sol && yarn build:types",
