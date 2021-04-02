@@ -116,7 +116,6 @@ async function encrypt(publicKey: string, data: string): Promise<string> {
   try {
     // Encrypts the data with the publicKey, returns the encrypted data with encryption parameters (such as IV..)
     const compressed = normalizePublicKey(publicKey);
-    console.log('compressed', publicKey.length, compressed.length);
     const encrypted = await EcCrypto.encrypt(Buffer.from(compressed), Buffer.from(data));
 
     // Transforms the object with the encrypted data into a smaller string-representation.
@@ -127,12 +126,10 @@ async function encrypt(publicKey: string, data: string): Promise<string> {
       encrypted.ciphertext,
     ]).toString('hex');
   } catch (e) {
-    console.log(publicKey, publicKey.length);
     if (
       e.message === 'public key length is invalid' ||
       e.message === 'Expected public key to be an Uint8Array with length [33, 65]'
     ) {
-      console.log(e);
       throw new Error('The public key must be a string representing 64 bytes');
     }
     throw e;
