@@ -101,8 +101,8 @@ function recover(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentit
     } else if (v.toLowerCase() === '01') {
       signature = `${signedData.signature.value.slice(0, V_POSITION_FROM_END_IN_ECDSA_HEX)}1b`;
     }
-    const normalizedData = Crypto.normalize(signedData.data);
-    value = ethers.utils.verifyMessage(normalizedData, signature).toLowerCase();
+    const normalizedData = ethers.utils.hashMessage(Crypto.normalize(signedData.data));
+    value = Crypto.EcUtils.recover(signature, normalizedData).toLowerCase();
 
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,

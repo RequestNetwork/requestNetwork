@@ -1,7 +1,6 @@
 import * as EcCrypto from 'eccrypto';
-import { publicKeyConvert } from 'secp256k1';
+import { publicKeyConvert, ecdsaRecover } from 'secp256k1';
 import { ethers } from 'ethers';
-import { recoverAddress } from '@ethersproject/transactions';
 /**
  * Function to manage Elliptic-curve cryptography
  */
@@ -91,8 +90,26 @@ function sign(privateKey: string, data: string): string {
  */
 function recover(signature: string, data: string): string {
   try {
-    return recoverAddress(data, ethers.utils.splitSignature(signature));
+    signature = signature.replace(/^0x/, '');
+    data = data.replace(/^0x/, '');
+    // split into v-value and sig
+    const sigOnly = signature.substring(0, signature.length - 2); // all but last 2 chars
+    const vValue = signature.slice(-2); // last 2 chars
+
+    const recoveryNumber = vValue === '1c' ? 1 : 0;
+
+    return ethers.utils.computeAddress(
+      Buffer.from(
+        ecdsaRecover(
+          new Uint8Array(Buffer.from(sigOnly, 'hex')),
+          recoveryNumber,
+          new Uint8Array(Buffer.from(data, 'hex')),
+          false,
+        ),
+      ),
+    );
   } catch (e) {
+    console.log(e);
     if (
       e.message === 'signature length is invalid' ||
       e.message === 'Expected signature to be an Uint8Array with length 64' ||
