@@ -1,14 +1,15 @@
-const artifactsERC20SwapToPay = require('../../artifacts/ERC20SwapToPay/artifacts.json');
-const ARTIFACTS_VERSION: string = artifactsERC20SwapToPay.lastVersion;
+const artifactsERC20SwapToPayWithConversion = require('../../artifacts/ERC20SwapToPayWithConversion/artifacts.json');
+const ARTIFACTS_VERSION: string = artifactsERC20SwapToPayWithConversion.lastVersion;
 
 /**
  * Retrieve the abi from the artifact of the used version
  * @returns the abi of the artifact as a json object
  */
 export function getContractAbi(): any {
-  const artifactFilename: string = artifactsERC20SwapToPay[ARTIFACTS_VERSION].artifact;
+  const artifactFilename: string =
+    artifactsERC20SwapToPayWithConversion[ARTIFACTS_VERSION].artifact;
 
-  const artifact = require(`../../artifacts/ERC20SwapToPay/${artifactFilename.replace(
+  const artifact = require(`../../artifacts/ERC20SwapToPayWithConversion/${artifactFilename.replace(
     /\.[^/.]+$/,
     '',
   )}.json`);
@@ -51,7 +52,8 @@ export function getDeploymentInformation(
   networkName: string,
   artifactsVersion: string = ARTIFACTS_VERSION,
 ): { address: string; creationBlockNumber: number } {
-  const deploymentInformation = artifactsERC20SwapToPay[artifactsVersion].deployment[networkName];
+  const deploymentInformation =
+    artifactsERC20SwapToPayWithConversion[artifactsVersion].deployment[networkName];
 
   // Check the artifact has been deployed into the specified network
   if (!deploymentInformation) {
