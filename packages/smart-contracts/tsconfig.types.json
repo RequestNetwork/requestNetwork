@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "outDir": "./types",
+    "declaration": true,
+    "declarationMap": true,
+    "resolveJsonModule": true
+  },
+  "include": ["./generated"]
+}

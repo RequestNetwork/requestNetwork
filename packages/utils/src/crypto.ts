@@ -26,7 +26,7 @@ export default {
  * @param data The data to hash
  * @returns The hashed data multi-formatted
  */
-function normalizeKeccak256Hash(data: any): MultiFormatTypes.HashTypes.IHash {
+function normalizeKeccak256Hash(data: unknown): MultiFormatTypes.HashTypes.IHash {
   return {
     type: MultiFormatTypes.HashTypes.TYPE.KECCAK256,
     value: keccak256Hash(normalize(data)),
@@ -39,13 +39,13 @@ function normalizeKeccak256Hash(data: any): MultiFormatTypes.HashTypes.IHash {
  * @param data The data to normalize
  * @returns The normalized data
  */
-function normalize(data: any): string {
+function normalize(data: unknown): string {
   if (data === undefined) {
     return 'undefined';
   }
 
   // deeply sort data keys
-  const sortedData: any = Utils.deepSort(data);
+  const sortedData = Utils.deepSort(data);
 
   // convert to string and lowerCase it, to be case insensitive (e.g: avoid ethereum address casing checksum)
   return JSON.stringify(sortedData).toLowerCase();
@@ -69,7 +69,7 @@ function keccak256Hash(data: string): string {
  * @param data The data to hash
  * @returns The hashed data multi-formatted
  */
-function last20bytesOfNormalizedKeccak256Hash(data: any): string {
+function last20bytesOfNormalizedKeccak256Hash(data: unknown): string {
   const hash = keccak256Hash(normalize(data));
   // eslint-disable-next-line no-magic-numbers
   return `0x${hash.slice(-40)}`;

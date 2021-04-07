@@ -4,7 +4,7 @@ import cachedThrottle from '../src/cached-throttle';
 describe('Cached Throttle', () => {
   it('throttles a function', async () => {
     jest.useFakeTimers('modern');
-    const getTime = cachedThrottle(() => Math.random(), 1000);
+    const getTime = cachedThrottle(() => Promise.resolve(Math.random()), 1000);
 
     const firstCall = getTime();
     expect(firstCall).toBe(getTime());
@@ -19,7 +19,7 @@ describe('Cached Throttle', () => {
   });
 
   it('no throttle if delay is set to 0', async () => {
-    const getTime = cachedThrottle(() => Math.random(), 0);
+    const getTime = cachedThrottle(() => Promise.resolve(Math.random()), 0);
     jest.useFakeTimers('modern');
 
     const firstCall = getTime();

@@ -1,9 +1,9 @@
 import { constants, ContractTransaction, Signer, BigNumberish, providers, BigNumber } from 'ethers';
 
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { ERC20FeeProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
-import { Erc20FeeProxyContract } from '../contracts/Erc20FeeProxyContract';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
@@ -65,7 +65,7 @@ export function encodePayErc20FeeRequest(
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
   const proxyAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
-  const proxyContract = Erc20FeeProxyContract.connect(proxyAddress, signer);
+  const proxyContract = ERC20FeeProxy__factory.connect(proxyAddress, signer);
 
   return proxyContract.interface.encodeFunctionData('transferFromWithReferenceAndFee', [
     tokenAddress,

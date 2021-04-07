@@ -210,7 +210,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
         const unknownAction = Utils.deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
-        unknownAction.action = 'unknown action';
+        unknownAction.action = 'unknown action' as any;
         // 'must throw'
         expect(() => {
           erc20FeeProxyContract.applyActionToExtension(
@@ -225,7 +225,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
 
       it('cannot applyActionToExtensions of unknown id', () => {
         const unknownAction = Utils.deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
-        unknownAction.id = 'unknown id';
+        unknownAction.id = 'unknown id' as any;
         // 'must throw'
         expect(() => {
           erc20FeeProxyContract.applyActionToExtension(

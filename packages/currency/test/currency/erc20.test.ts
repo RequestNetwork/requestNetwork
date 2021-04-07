@@ -17,7 +17,7 @@ describe('erc20', () => {
         getErc20Symbol({
           network: 'rinkeby',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x995d6a8c21f24be1dd04e105dd0d83758343e258',
+          value: '0x995d6A8C21F24be1Dd04E105DD0d83758343E258',
         }),
       ).toEqual('CTBK');
     });

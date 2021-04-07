@@ -5,7 +5,7 @@ import Utils from '@requestnetwork/utils';
 
 import fetch from 'node-fetch';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
 const ETHERCHAIN_REQUEST_MAX_RETRY = 3;
@@ -64,7 +64,7 @@ export default class EtherchainProvider implements StorageTypes.IGasPriceProvide
     }
 
     // Retrieve the gas price from the provided gas price type and the format of the API response
-    const apiGasPrice = new BigNumber(
+    const apiGasPrice = BigNumber.from(
       parseFloat(
         {
           [StorageTypes.GasPriceType.FAST]: apiResponse.fast,

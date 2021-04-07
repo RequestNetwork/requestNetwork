@@ -1,7 +1,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import Utils from './utils';
 
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 
 /**
  * Function to manage amounts
@@ -44,8 +44,8 @@ function add(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amount):
     throw Error('delta must represent a positive integer');
   }
 
-  const amountBN: BigNumber = new BigNumber(amount);
-  const deltaBN: BigNumber = new BigNumber(delta);
+  const amountBN: BigNumber = BigNumber.from(amount);
+  const deltaBN: BigNumber = BigNumber.from(delta);
   return amountBN.add(deltaBN).toString();
 }
 
@@ -67,8 +67,8 @@ function reduce(amount: RequestLogicTypes.Amount, delta: RequestLogicTypes.Amoun
     throw Error('delta must represent a positive integer');
   }
 
-  const amountBN: BigNumber = new BigNumber(amount);
-  const deltaBN: BigNumber = new BigNumber(delta);
+  const amountBN: BigNumber = BigNumber.from(amount);
+  const deltaBN: BigNumber = BigNumber.from(delta);
   const newAmount = amountBN.sub(deltaBN).toString();
 
   // Check if the new amount is valid (basically it is not negative)

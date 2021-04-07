@@ -41,7 +41,7 @@ const options = [
           Manage identities, encryption and network interactions yourself but let us host the Request node.
         </p>
 				<p>
-					You can see the documentation on the <Link to="/docs/client/index">Request JavaScript Client documentation</Link> or <Link to="/docs/guides/5-request-client/0-intro">follow the guide</Link>.
+					You can see the documentation on the <Link to="/docs/client">Request JavaScript Client documentation</Link> or <Link to="/docs/guides/5-request-client/0-intro">follow the guide</Link>.
 				</p>
 
 				<p>

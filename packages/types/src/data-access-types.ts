@@ -20,7 +20,25 @@ export interface IDataAccess {
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
   ): Promise<IReturnGetChannelsByTopic>;
-  _getStatus(detailed?: boolean): any;
+  _getStatus(detailed?: boolean): Promise<IDataAccessStatus>;
+}
+
+export interface IDataAccessStatus {
+  filesIgnored: {
+    count: number;
+    list?: { [location: string]: string };
+  };
+  filesRetrieved: {
+    count: number;
+    lastTimestamp: number | null;
+    list?: string[];
+  };
+  lastSynchronizationTimestamp: number;
+  storage: any;
+  synchronizationConfig: {
+    intervalTime: number;
+    successiveFailureThreshold: number;
+  };
 }
 
 /** Enum of state possible for an action */

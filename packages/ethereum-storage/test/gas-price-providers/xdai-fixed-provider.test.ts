@@ -1,5 +1,5 @@
 import { StorageTypes } from '@requestnetwork/types';
-import * as BigNumber from 'bn.js';
+import { BigNumber } from 'ethers';
 import XDaiFixedProvider from '../../src/gas-price-providers/xdai-fixed-provider';
 
 describe('XDaiFixedProvider', () => {
@@ -9,15 +9,15 @@ describe('XDaiFixedProvider', () => {
 
       // Test with each gas price type
       await expect(provider.getGasPrice(StorageTypes.GasPriceType.SAFELOW)).resolves.toEqual(
-        new BigNumber(1000000000),
+        BigNumber.from(1000000000),
       );
 
       await expect(provider.getGasPrice(StorageTypes.GasPriceType.STANDARD)).resolves.toEqual(
-        new BigNumber(5000000000),
+        BigNumber.from(5000000000),
       );
 
       await expect(provider.getGasPrice(StorageTypes.GasPriceType.FAST)).resolves.toEqual(
-        new BigNumber(10000000000),
+        BigNumber.from(10000000000),
       );
     });
   });
