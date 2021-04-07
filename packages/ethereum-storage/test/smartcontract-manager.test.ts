@@ -186,6 +186,7 @@ describe('SmartContractManager', () => {
   });
 
   afterEach(() => {
+    jest.resetAllMocks();
     jest.restoreAllMocks();
   });
 
@@ -230,19 +231,21 @@ describe('SmartContractManager', () => {
   });
 
   // TODO since the migration to jest, this test fails.
-  it.skip('allows to add other content than hash to contractHashStorage', async () => {
+  it('allows to add other content than hash to contractHashStorage', async () => {
     await smartContractManager.addHashAndSizeToEthereum(otherContent, { contentSize: otherSize });
+    const lastBlock = await provider.getBlockNumber();
     // Reading last event log
-    const events = await contractHashStorage.getPastEvents({
-      event: 'NewHash',
-      toBlock: 'latest',
-    });
+    const events = await contractHashStorage.queryFilter(
+      contractHashStorage.filters.NewHash(null, null, null),
+      lastBlock,
+      'latest',
+    );
 
     // Only one event is parsed
     expect(events.length).toEqual(1);
 
     expect(events[0].args.hash).toEqual(otherContent);
-    expect(events[0].args.hashSubmitter).toEqual(addressRequestHashSubmitter);
+    expect(events[0].args.hashSubmitter.toLowerCase()).toEqual(addressRequestHashSubmitter);
     expect(events[0].args.feesParameters).toEqual(otherSizeBytes32Hex);
   });
 
@@ -437,7 +440,7 @@ describe('SmartContractManager', () => {
     expect(SmartContracts.requestHashSubmitterArtifact.getCreationBlockNumber('private')).toBe(1);
   });
 
-  xit('allows to getMetaFromEthereum() a hash', async () => {
+  it('allows to getMetaFromEthereum() a hash', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
     // For getPastEventsMock the number of the latest block is 3
     jest

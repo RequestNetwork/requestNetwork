@@ -16,7 +16,6 @@ import {
 } from '@requestnetwork/smart-contracts/types';
 import { TypedEvent } from '@requestnetwork/smart-contracts/types/commons';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 import * as web3Utils from 'web3-utils';
 
 // Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
