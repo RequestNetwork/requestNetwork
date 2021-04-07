@@ -2,13 +2,13 @@
 FROM node:14 as installer
 
 WORKDIR /app
+RUN npm install -g typescript
 ADD package.json .
 RUN npm install
 
 # Build request-node
-ADD src src
-RUN npm install -g typescript
 ADD docker/docker-tsconfig.json tsconfig.json
+ADD src src
 RUN tsc -b
 
 # Launch the server

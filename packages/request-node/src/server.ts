@@ -4,6 +4,7 @@ import { argv } from 'yargs';
 import * as config from './config';
 import Logger from './logger';
 import RequestNode from './requestNode';
+import withShutdown from 'http-shutdown';
 
 // Initialize the node logger
 const { logLevel, logMode } = config.getLogConfig();
@@ -27,15 +28,17 @@ const startNode = async (): Promise<void> => {
 
   const port = config.getServerPort();
   const requestNode = new RequestNode(logger);
-  const server = requestNode.listen(port, () => {
-    logger.info(`Listening on port ${port}`);
-    return 0;
-  });
+  const server = withShutdown(
+    requestNode.listen(port, () => {
+      logger.info(`Listening on port ${port}`);
+      return 0;
+    }),
+  );
 
   process.on('SIGTERM', async () => {
     requestNode.dataAccess.stopAutoSynchronization();
     logger.info('Synchronization stopped');
-    await new Promise((r) => server.close(r));
+    await new Promise((r) => server.shutdown(r));
     logger.info('Server stopped');
     process.exit(0);
   });

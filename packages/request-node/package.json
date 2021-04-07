@@ -49,6 +49,7 @@
     "cors": "2.8.5",
     "dotenv": "8.2.0",
     "express": "4.17.1",
+    "http-shutdown": "^1.2.2",
     "http-status-codes": "2.1.4",
     "keyv": "4.0.3",
     "keyv-file": "0.2.0",
