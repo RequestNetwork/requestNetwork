@@ -30,7 +30,9 @@ const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
 };
 
 const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-const wallet = ethers.Wallet.createRandom();
+const wallet = ethers.Wallet.fromMnemonic(
+  'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
+);
 const web3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
