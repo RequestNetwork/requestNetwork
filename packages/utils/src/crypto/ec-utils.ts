@@ -109,7 +109,6 @@ function recover(signature: string, data: string): string {
       ),
     );
   } catch (e) {
-    console.log(e);
     if (
       e.message === 'signature length is invalid' ||
       e.message === 'Expected signature to be an Uint8Array with length 64' ||
