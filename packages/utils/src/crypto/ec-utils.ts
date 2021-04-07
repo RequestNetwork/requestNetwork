@@ -44,7 +44,7 @@ function getAddressFromPrivateKey(privateKey: string): string {
  */
 function getAddressFromPublicKey(publicKey: string): string {
   try {
-    return ethers.utils.computeAddress(normalizePublicKey(publicKey));
+    return ethers.utils.computeAddress(compressPublicKey(publicKey));
   } catch (e) {
     if (
       e.message === 'public key length is invalid' ||
@@ -131,7 +131,7 @@ function recover(signature: string, data: string): string {
 async function encrypt(publicKey: string, data: string): Promise<string> {
   try {
     // Encrypts the data with the publicKey, returns the encrypted data with encryption parameters (such as IV..)
-    const compressed = normalizePublicKey(publicKey);
+    const compressed = compressPublicKey(publicKey);
     const encrypted = await EcCrypto.encrypt(Buffer.from(compressed), Buffer.from(data));
 
     // Transforms the object with the encrypted data into a smaller string-representation.
@@ -188,10 +188,12 @@ async function decrypt(privateKey: string, encrypted: string): Promise<string> {
 }
 
 /**
- * Converts a public key to its uncompressed form.
+ * Converts a public key to its compressed form.
  */
-function normalizePublicKey(publicKey: string): Uint8Array {
-  if (publicKey.length !== 66 && publicKey.length !== 34) {
+function compressPublicKey(publicKey: string): Uint8Array {
+  publicKey = publicKey.replace(/^0x/, '');
+  // if there are more bytes than the key itself, it means there is already a prefix
+  if (publicKey.length % 32 === 0) {
     publicKey = `04${publicKey}`;
   }
   return publicKeyConvert(Buffer.from(publicKey, 'hex'));
