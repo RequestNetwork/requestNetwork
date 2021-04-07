@@ -16,11 +16,12 @@ import {
   StorageTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { providers } from 'ethers';
+import { providers, Wallet } from 'ethers';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
-let provider: any;
+let provider: providers.Provider;
+let wallet: Wallet;
 let payeeSignatureInfo: SignatureTypes.ISignatureParameters;
 let payeeIdentity: IdentityTypes.IIdentity;
 let encryptionDataPayee: any;
@@ -56,6 +57,9 @@ describe('Request system', () => {
   beforeEach(async () => {
     // Storage setup
     provider = new providers.JsonRpcProvider('http://localhost:8545');
+    wallet = Wallet.fromMnemonic(
+      'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
+    ).connect(provider);
     const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
       host: 'localhost',
       port: 5001,
@@ -64,7 +68,7 @@ describe('Request system', () => {
     };
     const web3Connection: StorageTypes.IWeb3Connection = {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
-      signer: provider,
+      signer: wallet,
     };
     const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
 
@@ -144,11 +148,6 @@ describe('Request system', () => {
 
     // Logic setup
     requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
-  });
-
-  afterAll(() => {
-    // Stop web3 provider
-    provider.disconnect();
   });
 
   it('can create a request', async () => {
@@ -241,7 +240,7 @@ describe('Request system', () => {
     };
     const web3Connection: StorageTypes.IWeb3Connection = {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
-      signer: provider,
+      signer: wallet,
     };
     const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
 

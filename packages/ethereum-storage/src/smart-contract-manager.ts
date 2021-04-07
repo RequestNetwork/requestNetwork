@@ -18,11 +18,6 @@ import { TypedEvent } from '@requestnetwork/smart-contracts/types/commons';
 
 import * as web3Utils from 'web3-utils';
 
-// Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
-// 23 is the number of call of the transaction's confirmation event function
-// if higher the promise may block since the confirmation event function will not be called anymore
-// const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
-
 // Regular expression to detect if the Web3 API returns "query returned more than XXX results" error
 const MORE_THAN_XXX_RESULTS_REGEX = new RegExp('query returned more than [1-9][0-9]* results');
 

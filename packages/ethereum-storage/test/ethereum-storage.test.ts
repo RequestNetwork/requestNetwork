@@ -1,7 +1,7 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { ethers, providers } from 'ethers';
+import { Wallet, providers } from 'ethers';
 import { EventEmitter } from 'events';
 
 import EthereumStorage from '../src/ethereum-storage';
@@ -29,8 +29,8 @@ const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   timeout: 1000,
 };
 
-const provider = new ethers.providers.JsonRpcProvider('http://localhost:8545');
-const wallet = ethers.Wallet.fromMnemonic(
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
+const wallet = Wallet.fromMnemonic(
   'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
 );
 const web3Connection: StorageTypes.IWeb3Connection = {
@@ -39,9 +39,7 @@ const web3Connection: StorageTypes.IWeb3Connection = {
   signer: wallet.connect(provider),
 };
 
-const invalidHostNetworkProvider = new ethers.providers.JsonRpcProvider(
-  'http://nonexistentnetwork:8545',
-);
+const invalidHostNetworkProvider = new providers.JsonRpcProvider('http://nonexistentnetwork:8545');
 const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
