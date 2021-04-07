@@ -7,7 +7,7 @@ import EthereumBlocks from './ethereum-blocks';
 import EthereumUtils from './ethereum-utils';
 import GasPriceDefiner from './gas-price-definer';
 
-import { providers, Signer, BigNumber, CallOverrides } from 'ethers';
+import { providers, Signer, BigNumber, CallOverrides, utils } from 'ethers';
 import {
   RequestHashStorage,
   RequestHashStorage__factory,
@@ -15,8 +15,6 @@ import {
   RequestOpenHashSubmitter__factory,
 } from '@requestnetwork/smart-contracts/types';
 import { TypedEvent } from '@requestnetwork/smart-contracts/types/commons';
-
-import * as web3Utils from 'web3-utils';
 
 // Regular expression to detect if the Web3 API returns "query returned more than XXX results" error
 const MORE_THAN_XXX_RESULTS_REGEX = new RegExp('query returned more than [1-9][0-9]* results');
@@ -269,9 +267,9 @@ export default class SmartContractManager {
       (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.STANDARD, this.networkName));
 
     // parse the fees parameters to hex bytes
-    const feesParametersAsBytes = web3Utils.padLeft(
-      web3Utils.toHex(feesParameters.contentSize),
-      LENGTH_BYTES32_STRING,
+    const feesParametersAsBytes = utils.hexZeroPad(
+      utils.hexlify(feesParameters.contentSize),
+      LENGTH_BYTES32_STRING / 2,
     );
 
     // Send transaction to contract
@@ -536,7 +534,7 @@ export default class SmartContractManager {
       throw Error(`event is incorrect: doesn't have a hash or feesParameters`);
     }
 
-    const contentSize = web3Utils.hexToNumber(event.args.feesParameters);
+    const contentSize = Number.parseInt(utils.hexStripZeros(event.args.feesParameters));
     const meta = await this.createEthereumMetaData(event.blockNumber, event.transactionHash);
 
     return {

@@ -453,13 +453,13 @@ describe('SmartContractManager', () => {
     expect(meta.smartContractAddress).toBe('0x345ca3e014aaf5dca488057592ee47305d9b3e10');
     expect(meta.transactionHash).toBe('0xa');
     expect(meta.blockConfirmation).toBeGreaterThanOrEqual(0);
-  });
+  }, 10000);
 
   it('allows to getMetaFromEthereum() a hash not indexed', async () => {
     await expect(smartContractManager.getMetaFromEthereum('empty')).rejects.toThrowError(
       'contentHash not indexed on ethereum',
     );
-  });
+  }, 10000);
 
   it('badly formatted events from web3 should throw an error', async () => {
     jest
