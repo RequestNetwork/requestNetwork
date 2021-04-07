@@ -110,6 +110,7 @@ module.exports = async function (deployer) {
       ERC20NoReturn:            ${ERC20NoReturn.address}
       ERC20Revert:              ${ERC20Revert.address}
       ERC20Alpha:               ${erc20AlphaInstance.address}
+      TestERC20:                ${instanceTestERC20.address}
       FakeSwapRouter:           ${FakeSwapRouter.address}
       SwapToPay:                ${ERC20SwapToPay.address}
       `);
