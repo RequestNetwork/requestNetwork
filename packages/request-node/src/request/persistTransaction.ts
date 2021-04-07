@@ -1,5 +1,5 @@
 import { DataAccess } from '@requestnetwork/data-access';
-import { LogTypes, MultiFormatTypes } from '@requestnetwork/types';
+import { DataAccessTypes, LogTypes, MultiFormatTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import * as httpStatus from 'http-status-codes';
 import { getPersistTransactionTimeout } from '../config';
@@ -33,7 +33,7 @@ export default class PersistTransaction {
     logger: LogTypes.ILogger,
   ): Promise<void> {
     // Retrieves data access layer
-    let dataAccessResponse;
+    let dataAccessResponse: DataAccessTypes.IReturnPersistTransaction;
 
     // Used to compute request time
     const requestStartTime = Date.now();

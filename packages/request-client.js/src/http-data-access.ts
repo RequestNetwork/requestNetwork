@@ -74,7 +74,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     // We don't retry this request since it may fail because of a slow Storage
     // For example, if the Ethereum network is slow and we retry the request three times
     // three data will be persisted at the end
-    const { data } = await axios.post(
+    const { data } = await axios.post<DataAccessTypes.IReturnPersistTransaction>(
       '/persistTransaction',
       {
         channelId,
@@ -94,8 +94,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
 
     // Try to get the confirmation
     Utils.retry(
-      async () => {
-        return axios.get(
+      () => {
+        return axios.get<DataAccessTypes.IReturnPersistTransaction>(
           '/getConfirmedTransaction',
           Object.assign(this.axiosConfig, {
             params: { transactionHash },
@@ -107,11 +107,11 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
         retryDelay: GET_CONFIRMATION_RETRY_DELAY,
       },
     )()
-      .then((resultConfirmed: any) => {
+      .then((resultConfirmed) => {
         // when found, emit the event 'confirmed'
         result.emit('confirmed', resultConfirmed.data);
       })
-      .catch((e: any) => {
+      .catch((e) => {
         // eslint-disable-next-line no-magic-numbers
         if (e.response.status === 404) {
           throw new Error(

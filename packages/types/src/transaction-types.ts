@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { IPersistTransactionMeta } from './data-access-types';
 import * as Encryption from './encryption-types';
 
 /** Transaction Manager interface */
@@ -34,7 +35,7 @@ export interface IReturnPersistTransaction extends EventEmitter {
   /** meta information */
   meta: {
     /** meta-data from the layer below */
-    dataAccessMeta?: any;
+    dataAccessMeta?: IPersistTransactionMeta;
     /** encryption method used if transaction encrypted */
     encryptionMethod?: string;
   };
@@ -47,7 +48,7 @@ export interface IReturnGetTransactions {
   /** meta information */
   meta: {
     /** meta-data from the layer below */
-    dataAccessMeta?: any;
+    dataAccessMeta?: IPersistTransactionMeta;
     /** encryption method used if transaction encrypted */
     encryptionMethod?: string;
     /** Ignored transactions */
@@ -62,7 +63,7 @@ export interface IReturnGetTransactionsByChannels {
   /** meta information */
   meta: {
     /** meta-data from the layer below */
-    dataAccessMeta?: any;
+    dataAccessMeta?: IPersistTransactionMeta;
     /** encryption method used if transaction encrypted */
     encryptionMethod?: string;
     /** Ignored transactions */

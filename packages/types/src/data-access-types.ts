@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { IEntryMetadata } from './storage-types';
 
 /** Data Access Layer */
 export interface IDataAccess {
@@ -53,17 +54,20 @@ export interface ITimestampBoundaries {
   to?: number;
 }
 
+/** meta information of a transaction */
+export interface IPersistTransactionMeta {
+  /** location of the persisted transaction */
+  transactionStorageLocation: string;
+  /** topics used to index the persisted transaction */
+  topics: string[];
+  /** meta-data from the layer below */
+  storageMeta?: IEntryMetadata;
+}
+
 /** return interface for PersistTransaction  */
 export interface IReturnPersistTransaction extends EventEmitter {
   /** meta information */
-  meta: {
-    /** location of the persisted transaction */
-    transactionStorageLocation: string;
-    /** topics used to index the persisted transaction */
-    topics: string[];
-    /** meta-data from the layer below */
-    storageMeta?: any;
-  };
+  meta: IPersistTransactionMeta;
   /** result of the execution */
   result: Record<string, never>;
 }
@@ -75,7 +79,7 @@ export interface IReturnGetTransactions {
     /** location of the transactions (follow the position of the result.transactions) */
     transactionsStorageLocation: string[];
     /** meta-data from the layer below */
-    storageMeta?: any;
+    storageMeta?: IEntryMetadata;
   };
   /** result of the execution */
   result: { transactions: ITimestampedTransaction[] };
@@ -90,7 +94,7 @@ export interface IReturnGetChannelsByTopic {
       [key: string]: string[];
     };
     /** meta-data from the layer below */
-    storageMeta?: any;
+    storageMeta?: IEntryMetadata;
   };
   /** result of the execution: the transactions grouped by channel id */
   result: { transactions: ITransactionsByChannelIds };
