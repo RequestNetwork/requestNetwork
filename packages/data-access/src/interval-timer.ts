@@ -8,9 +8,9 @@ export default class IntervalTimer {
   // This value is used as we may not want to directly log an error if the interval function fails once
   public intervalFunctionSuccessiveFailureCount = 0;
 
-  private intervalFunction: any;
+  private intervalFunction: () => Promise<void>;
   private intervalTime: number;
-  private timeoutObject: any = null;
+  private timeoutObject: NodeJS.Timeout | null = null;
   private logger: LogTypes.ILogger;
   private successiveFailureThreshold: number;
 
@@ -37,7 +37,7 @@ export default class IntervalTimer {
   /**
    * Start the interval timer
    */
-  public start(): any {
+  public start(): void {
     // Timer can't be restarted
     if (this.timeoutObject) {
       throw Error('IntervalTimer already started');
@@ -81,7 +81,7 @@ export default class IntervalTimer {
   /**
    * Stop the interval timer
    */
-  public stop(): any {
+  public stop(): void {
     if (!this.timeoutObject) {
       throw Error(`Can't stop IntervalTimer if it has not been started`);
     }
@@ -95,7 +95,7 @@ export default class IntervalTimer {
    *
    * @return the current configuration attributes
    */
-  public getConfig(): any {
+  public getConfig(): { intervalTime: number; successiveFailureThreshold: number } {
     return {
       intervalTime: this.intervalTime,
       successiveFailureThreshold: this.successiveFailureThreshold,
