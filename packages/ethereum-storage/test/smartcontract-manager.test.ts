@@ -24,7 +24,9 @@ const web3Connection: StorageTypes.IWeb3Connection = {
 const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
-  signer: wallet.connect(new ethers.providers.JsonRpcProvider('http://nonexistent:8545')),
+  signer: wallet.connect(
+    new ethers.providers.JsonRpcProvider({ url: 'https://nonexistent.com', timeout: 100 }, 0),
+  ),
 };
 
 const invalidNetwork = 999999;
@@ -244,7 +246,7 @@ describe('SmartContractManager', () => {
     expect(events[0].args.feesParameters).toEqual(otherSizeBytes32Hex);
   });
 
-  xit('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
+  it('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
     // fake the creation of new blocks on ethereum
     const blockInterval = setInterval(async () => {
       await time.advanceBlock();
@@ -263,6 +265,31 @@ describe('SmartContractManager', () => {
       clearInterval(blockInterval);
     }
   }, 35000);
+
+  // We wrap this test in its own describe to allow a cleanup in case of failure.
+  // otherwise, the interval never stops
+  describe('Fast Block mining tests', () => {
+    let blockInterval: NodeJS.Timeout;
+    beforeEach(() => {
+      // This mock is used to ensure any block is never fetchable
+      jest
+        .spyOn(smartContractManager.provider, 'getBlock')
+        .mockImplementation(() => Promise.reject(null as any));
+
+      // fake the creation of new blocks on ethereum
+      blockInterval = setInterval(async () => {
+        await time.advanceBlock();
+      }, 50);
+    });
+    afterEach(() => {
+      clearInterval(blockInterval);
+    });
+    it('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
+      await expect(
+        smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: otherSize }),
+      ).rejects.toThrowError('Maximum number of confirmation reached');
+    }, 30000);
+  });
 
   it('allows to get all hashes', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
@@ -355,23 +382,18 @@ describe('SmartContractManager', () => {
     expect(ethereumEntries[1].feesParameters).toMatchObject({ contentSize: otherSize });
   });
 
-  it('getMainAccount with a invalid host provider should throw a timeout error', async () => {
-    smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
-    await expect(smartContractManager.getMainAccount()).rejects.toThrowError();
-  });
-
-  it('addHashAndSizeToEthereum with a invalid host provider should throw a timeout error', async () => {
+  it('addHashAndSizeToEthereum with a invalid host provider should throw an error', async () => {
     smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
     await expect(
       smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: realSize }),
-    ).rejects.toThrowError();
+    ).rejects.toThrowError(/could not detect network/);
   });
 
   it('getEntriesFromEthereum with a invalid host provider should throw a timeout error', async () => {
     smartContractManager = new SmartContractManager(invalidHostWeb3Connection);
     smartContractManager.ethereumBlocks.retryDelay = 0;
     smartContractManager.ethereumBlocks.maxRetries = 0;
-    await expect(smartContractManager.getEntriesFromEthereum()).rejects.toThrowError();
+    await expect(smartContractManager.getEntriesFromEthereum()).rejects.toThrowError(/timeout/);
   });
 
   it('getEntriesFromEthereum rejects if fromBlock is larger than toBlock', async () => {

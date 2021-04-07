@@ -1,5 +1,3 @@
-const web3Eth = require('web3-eth');
-
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
@@ -18,6 +16,7 @@ import {
   StorageTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { providers } from 'ethers';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
@@ -56,7 +55,7 @@ afterAll(() => {
 describe('Request system', () => {
   beforeEach(async () => {
     // Storage setup
-    provider = new web3Eth.providers.HttpProvider('http://localhost:8545');
+    provider = new providers.JsonRpcProvider('http://localhost:8545');
     const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
       host: 'localhost',
       port: 5001,
