@@ -1,4 +1,8 @@
 import yargs = require('yargs');
+import {
+  chainlinkAggregatorsCommandModule,
+  currencyHashCommandModule,
+} from './chainlinkConversionPathTools';
 import CreateRequest from './create-request';
 
 // Exports the functions so that can be imported from other packages
@@ -11,7 +15,5 @@ export default {
 yargs
   .env('RN')
   .command(chainlinkAggregatorsCommandModule)
-  .command(paymentCommandModule)
-  .command(invoiceTrackingModule)
-  .command(oneShotExportModule)
+  .command(currencyHashCommandModule)
   .demandCommand().argv;

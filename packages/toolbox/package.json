@@ -36,15 +36,17 @@
     "lint": "eslint \"src/**/*.ts\"",
     "prepare": "yarn run build",
     "cli": "cross-env NODE_ENV=development ts-node src/cli.ts",
-    "chainlinkPath": "ts-node src/chainlinkConversionPathTools.ts"
+    "chainlinkPath": "yarn start listAggregators",
+    "start": "ts-node ./src/index.ts"
   },
   "dependencies": {
+    "@requestnetwork/currency": "^0.5.0",
     "@requestnetwork/epk-signature": "0.5.31",
     "@requestnetwork/request-client.js": "0.36.0",
     "@requestnetwork/smart-contracts": "0.25.0",
     "@requestnetwork/types": "0.32.0",
     "axios": "0.21.1",
-    "ethers": "4.0.48",
+    "ethers": "^5.1.0",
     "yargs": "^16.2.0"
   },
   "devDependencies": {

@@ -1,11 +1,35 @@
 import { ethers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
 import yargs = require('yargs');
+import { getCurrencyHash, stringToCurrency } from '@requestnetwork/currency';
+import { LogDescription } from 'ethers/lib/utils';
 
 // ABI fragment containing AggregatorUpdated event
 const chainlinkConversionPathAbiFragment = [
   'event AggregatorUpdated(address _input, address _output, address _aggregator)',
 ];
+
+interface IOptions {
+  network?: string;
+  currencyCode?: string;
+}
+
+/** TransferWithReference event */
+type AggregatorUpdatedArgs = {
+  _input: string;
+  _output: string;
+  _aggregator: string;
+};
+
+/**
+ * Converts the Log's args from array to an object with keys being the name of the arguments
+ */
+export const parseLogArgs = <T>({ args, eventFragment }: LogDescription): T => {
+  return args.reduce((prev, current, i) => {
+    prev[eventFragment.inputs[i].name] = current;
+    return prev;
+  }, {});
+};
 
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
@@ -53,25 +77,22 @@ class ChainlinkConversionPathTools {
       // Map: Input currency => Output currency => aggregator address
       (aggregators: Map<string, Map<string, string>>, log: any) => {
         const parsedLog = this.contractChainlinkConversionPath.interface.parseLog(log);
+        const args = parseLogArgs<AggregatorUpdatedArgs>(parsedLog);
 
         // if the aggregator in 0x00 it means, it has been deleted
-        if (parsedLog.values._aggregator === '0x0000000000000000000000000000000000000000') {
-          aggregators.get(parsedLog.values._input)?.delete(parsedLog.values._output);
-          if (aggregators.get(parsedLog.values._input)?.size === 0) {
-            aggregators.delete(parsedLog.values._input);
+        if (args._aggregator === '0x0000000000000000000000000000000000000000') {
+          aggregators.get(args._input)?.delete(args._output);
+          if (aggregators.get(args._input)?.size === 0) {
+            aggregators.delete(args._input);
           }
         } else {
-          if (!aggregators.has(parsedLog.values._input)) {
+          if (!aggregators.has(args._input)) {
             // if input  does not exists we just add it with the output currency
-            aggregators.set(
-              parsedLog.values._input,
-              new Map([[parsedLog.values._output, parsedLog.values._aggregator]]),
-            );
+            aggregators.set(args._input, new Map([[args._output, args._aggregator]]));
           } else {
             // otherwise we just add a new output currency for this input currency
-            aggregators
-              .get(parsedLog.values._input)!
-              .set(parsedLog.values._output, parsedLog.values._aggregator);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            aggregators.get(args._input)!.set(args._output, args._aggregator);
           }
         }
 
@@ -93,14 +114,8 @@ class ChainlinkConversionPathTools {
   }
 }
 
-/* eslint-disable @typescript-eslint/no-floating-promises */
-const listAggregators = async () => {
-  const networks = [
-    'private',
-    'rinkeby',
-    // Need to be added after the mainnet deployment
-    // 'mainnet'
-  ];
+const listAggregators = async (options?: IOptions): Promise<void> => {
+  const networks = options?.network ? [options.network] : ['private', 'rinkeby', 'mainnet'];
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
   const allAggregators: any = {};
@@ -137,33 +152,40 @@ const listAggregators = async () => {
   console.log('#####################################################################');
 };
 
-listAggregators();
-
-export const chainlinkAggregatorsCommandModule: yargs.CommandModule<{}> = {
+export const chainlinkAggregatorsCommandModule: yargs.CommandModule<{}, IOptions> = {
   command: 'listAggregators',
-  describe: 'Helpers on-chain conversion administration',
+  describe: 'Helper for on-chain conversion administration',
+  builder: (yargs) =>
+    yargs.options({
+      network: {
+        demand: false,
+        type: 'string',
+        desc: 'Network for which to list aggregators (mainnet, rinkeby, private)',
+      },
+    }),
   handler: listAggregators,
 };
 
-/* eslint-disable @typescript-eslint/no-floating-promises */
-const addAggregators = async () => {
+const showCurrencyHash = async (options?: IOptions): Promise<void> => {
+  if (!options?.currencyCode) {
+    throw new Error('currencyCode missing');
+  }
+  console.log('#####################################################################');
+  console.log(`Currency hash of: ${options.currencyCode}`);
+  console.log(getCurrencyHash(stringToCurrency(options.currencyCode)));
+  console.log('#####################################################################');
+};
+
+export const currencyHashCommandModule: yargs.CommandModule<{}, IOptions> = {
+  command: 'currencyHash <currencyCode>',
+  describe: 'Shows the currency hash of a currency code',
   builder: (yargs) =>
     yargs.options({
-      from: {
+      currencyCode: {
         demand: true,
         type: 'string',
-        desc: 'Payment currency code',
+        desc: 'Currency code such as ETH or EUR',
       },
-      to: {
-        demand: true,
-        type: 'string',
-        desc: 'Request currency code',
-      },
-      network: {
-        demand: true,
-        type: 'string',
-        desc: 'mainnet or rinkeby',
-        default: 'mainnet',
-      },
-    });
+    }),
+  handler: showCurrencyHash,
 };
