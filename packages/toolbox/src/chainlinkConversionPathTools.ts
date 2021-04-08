@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
-import yargs = require('yargs');
+import * as yargs from 'yargs';
 import { getCurrencyHash, stringToCurrency } from '@requestnetwork/currency';
 import { LogDescription } from 'ethers/lib/utils';
 
