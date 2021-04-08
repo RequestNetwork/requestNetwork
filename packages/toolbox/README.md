@@ -71,6 +71,22 @@ yarn chainlinkPath
 # ###################################################################
 ```
 
+To get only aggregators of one network:
+
+```bash
+yarn chainlinkPath mainnet
+```
+
+To get a currency hash:
+
+```bash
+yarn request-toolbox currencyHash ETH
+# #####################################################################
+# Currency hash of: ETH
+# 0xf5af88e117747e87fc5929f2ff87221b1447652e
+# #####################################################################
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

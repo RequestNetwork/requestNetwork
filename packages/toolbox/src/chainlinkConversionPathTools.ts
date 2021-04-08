@@ -153,7 +153,7 @@ const listAggregators = async (options?: IOptions): Promise<void> => {
 };
 
 export const chainlinkAggregatorsCommandModule: yargs.CommandModule<{}, IOptions> = {
-  command: 'listAggregators',
+  command: 'listAggregators <network>',
   describe: 'Helper for on-chain conversion administration',
   builder: (yargs) =>
     yargs.options({
