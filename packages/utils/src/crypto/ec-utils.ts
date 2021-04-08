@@ -1,5 +1,6 @@
-import EthCrypto from 'eth-crypto';
-
+import * as EcCrypto from 'eccrypto';
+import { publicKeyConvert, ecdsaRecover } from 'secp256k1';
+import { ethers } from 'ethers';
 /**
  * Function to manage Elliptic-curve cryptography
  */
@@ -21,12 +22,12 @@ export default {
  */
 function getAddressFromPrivateKey(privateKey: string): string {
   try {
-    const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey);
-    return EthCrypto.publicKey.toAddress(publicKey);
+    return ethers.utils.computeAddress(ethers.utils.hexlify(privateKey));
   } catch (e) {
     if (
       e.message === 'private key length is invalid' ||
-      e.message === 'Expected private key to be an Uint8Array with length 32'
+      e.message === 'Expected private key to be an Uint8Array with length 32' ||
+      e.code === 'INVALID_ARGUMENT'
     ) {
       throw new Error('The private key must be a string representing 32 bytes');
     }
@@ -43,11 +44,12 @@ function getAddressFromPrivateKey(privateKey: string): string {
  */
 function getAddressFromPublicKey(publicKey: string): string {
   try {
-    return EthCrypto.publicKey.toAddress(publicKey);
+    return ethers.utils.computeAddress(compressPublicKey(publicKey));
   } catch (e) {
     if (
       e.message === 'public key length is invalid' ||
-      e.message === 'Expected public key to be an Uint8Array with length [33, 65]'
+      e.message === 'Expected public key to be an Uint8Array with length [33, 65]' ||
+      e.code === 'INVALID_ARGUMENT'
     ) {
       throw new Error('The public key must be a string representing 64 bytes');
     }
@@ -64,11 +66,13 @@ function getAddressFromPublicKey(publicKey: string): string {
  */
 function sign(privateKey: string, data: string): string {
   try {
-    return EthCrypto.sign(privateKey, data);
+    const signingKey = new ethers.utils.SigningKey(privateKey);
+    return ethers.utils.joinSignature(signingKey.signDigest(data));
   } catch (e) {
     if (
       e.message === 'private key length is invalid' ||
-      e.message === 'Expected private key to be an Uint8Array with length 32'
+      e.message === 'Expected private key to be an Uint8Array with length 32' ||
+      e.code === 'INVALID_ARGUMENT'
     ) {
       throw new Error('The private key must be a string representing 32 bytes');
     }
@@ -86,11 +90,29 @@ function sign(privateKey: string, data: string): string {
  */
 function recover(signature: string, data: string): string {
   try {
-    return EthCrypto.recover(signature, data);
+    signature = signature.replace(/^0x/, '');
+    data = data.replace(/^0x/, '');
+    // split into v-value and sig
+    const sigOnly = signature.substring(0, signature.length - 2); // all but last 2 chars
+    const vValue = signature.slice(-2); // last 2 chars
+
+    const recoveryNumber = vValue === '1c' ? 1 : 0;
+
+    return ethers.utils.computeAddress(
+      Buffer.from(
+        ecdsaRecover(
+          new Uint8Array(Buffer.from(sigOnly, 'hex')),
+          recoveryNumber,
+          new Uint8Array(Buffer.from(data, 'hex')),
+          false,
+        ),
+      ),
+    );
   } catch (e) {
     if (
       e.message === 'signature length is invalid' ||
-      e.message === 'Expected signature to be an Uint8Array with length 64'
+      e.message === 'Expected signature to be an Uint8Array with length 64' ||
+      e.code === 'INVALID_ARGUMENT'
     ) {
       throw new Error('The signature must be a string representing 66 bytes');
     }
@@ -109,10 +131,16 @@ function recover(signature: string, data: string): string {
 async function encrypt(publicKey: string, data: string): Promise<string> {
   try {
     // Encrypts the data with the publicKey, returns the encrypted data with encryption parameters (such as IV..)
-    const encrypted = await EthCrypto.encryptWithPublicKey(publicKey, data);
+    const compressed = compressPublicKey(publicKey);
+    const encrypted = await EcCrypto.encrypt(Buffer.from(compressed), Buffer.from(data));
 
     // Transforms the object with the encrypted data into a smaller string-representation.
-    return EthCrypto.cipher.stringify(encrypted);
+    return Buffer.concat([
+      encrypted.iv,
+      publicKeyConvert(encrypted.ephemPublicKey),
+      encrypted.mac,
+      encrypted.ciphertext,
+    ]).toString('hex');
   } catch (e) {
     if (
       e.message === 'public key length is invalid' ||
@@ -134,7 +162,11 @@ async function encrypt(publicKey: string, data: string): Promise<string> {
  */
 async function decrypt(privateKey: string, encrypted: string): Promise<string> {
   try {
-    return await EthCrypto.decryptWithPrivateKey(privateKey, EthCrypto.cipher.parse(encrypted));
+    const buf = await EcCrypto.decrypt(
+      Buffer.from(privateKey.replace(/^0x/, ''), 'hex'),
+      eciesSplit(encrypted),
+    );
+    return buf.toString();
   } catch (e) {
     if (
       e.message === 'Bad private key' ||
@@ -154,3 +186,34 @@ async function decrypt(privateKey: string, encrypted: string): Promise<string> {
     throw e;
   }
 }
+
+/**
+ * Converts a public key to its compressed form.
+ */
+function compressPublicKey(publicKey: string): Uint8Array {
+  publicKey = publicKey.replace(/^0x/, '');
+  // if there are more bytes than the key itself, it means there is already a prefix
+  if (publicKey.length % 32 === 0) {
+    publicKey = `04${publicKey}`;
+  }
+  return publicKeyConvert(Buffer.from(publicKey, 'hex'));
+}
+
+/**
+ * Split an encrypted string to ECIES params
+ * inspired from https://github.com/pubkey/eth-crypto/blob/master/src/decrypt-with-private-key.js
+ */
+const eciesSplit = (str: string): EcCrypto.Ecies => {
+  const buf = Buffer.from(str, 'hex');
+
+  const ephemPublicKeyStr = buf.toString('hex', 16, 49);
+
+  return {
+    iv: Buffer.from(buf.toString('hex', 0, 16), 'hex'),
+    mac: Buffer.from(buf.toString('hex', 49, 81), 'hex'),
+    ciphertext: Buffer.from(buf.toString('hex', 81, buf.length), 'hex'),
+    ephemPublicKey: Buffer.from(
+      publicKeyConvert(new Uint8Array(Buffer.from(ephemPublicKeyStr, 'hex')), false),
+    ),
+  };
+};
