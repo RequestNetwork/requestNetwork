@@ -1,18 +1,20 @@
 import { constants, ContractTransaction, Signer, BigNumber, providers } from 'ethers';
 
-import { erc20SwapToPayWithConversionArtifact } from '@requestnetwork/smart-contracts';
+import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20SwapToPayWithConversion__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes } from '@requestnetwork/types';
+import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import {
   getAmountToPay,
   getProvider,
   getRequestPaymentValues,
   getSigner,
-  validateErc20FeeProxyRequest,
+  validateConversionFeeProxyRequest,
 } from './utils';
 import { getConversionPath } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
+
+export { ISwapSettings } from './swap-erc20-fee-proxy';
 
 /**
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
@@ -26,10 +28,12 @@ export async function swapToPayAnyToErc20Request(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   options?: IRequestPaymentOptions,
 ): Promise<ContractTransaction> {
+  const network =
+    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network ||
+    'mainnet';
+
   const encodedTx = encodeSwapToPayAnyToErc20Request(request, signerOrProvider, options);
-  const proxyAddress = erc20SwapToPayWithConversionArtifact.getAddress(
-    request.currencyInfo.network!,
-  );
+  const proxyAddress = erc20SwapConversionArtifact.getAddress(network);
   const signer = getSigner(signerOrProvider);
 
   const tx = await signer.sendTransaction({
@@ -53,8 +57,6 @@ export function encodeSwapToPayAnyToErc20Request(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   options?: IRequestPaymentOptions,
 ): string {
-  validateErc20FeeProxyRequest(request, options?.amount, options?.feeAmount);
-
   const conversionSettings = options?.conversion;
   const swapSettings = options?.swap;
 
@@ -66,9 +68,6 @@ export function encodeSwapToPayAnyToErc20Request(
   }
   if (!conversionSettings.currency?.network) {
     throw new Error('Cannot pay with a currency missing a network');
-  }
-  if (!request.currencyInfo.network) {
-    throw new Error('Request currency network is missing');
   }
 
   /** On Chain conversion preparation */
@@ -84,9 +83,10 @@ export function encodeSwapToPayAnyToErc20Request(
       `Impossible to find a conversion path between from ${request.currencyInfo} to ${conversionSettings.currency}`,
     );
   }
+  validateConversionFeeProxyRequest(request, path);
 
   const signer = getSigner(signerOrProvider);
-  const tokenAddress = request.currencyInfo.value;
+  const paymentNetworkTokenAddress = conversionSettings.currency.value;
   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
     request,
   );
@@ -94,17 +94,18 @@ export function encodeSwapToPayAnyToErc20Request(
   const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0);
 
   if (
-    swapSettings.path[swapSettings.path.length - 1].toLowerCase() !== tokenAddress.toLowerCase()
+    swapSettings.path[swapSettings.path.length - 1].toLowerCase() !==
+    paymentNetworkTokenAddress.toLowerCase()
   ) {
-    throw new Error('Last item of the path should be the request currency');
+    throw new Error('Last item of the path should be the payment currency');
   }
   // eslint-disable-next-line no-magic-numbers
   if (Date.now() > swapSettings.deadline * 1000) {
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
 
-  const contractAddress = erc20SwapToPayWithConversionArtifact.getAddress(
-    request.currencyInfo.network,
+  const contractAddress = erc20SwapConversionArtifact.getAddress(
+    conversionSettings.currency?.network || 'mainnet',
   );
   const swapToPayContract = ERC20SwapToPayWithConversion__factory.connect(contractAddress, signer);
 

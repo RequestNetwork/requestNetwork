@@ -23,6 +23,8 @@
     "./artifacts/ChainlinkConversionPath/artifacts.json",
     "./artifacts/ChainlinkConversionPath/0.1.0.json",
     "./artifacts/Erc20ConversionProxy/artifacts.json",
-    "./artifacts/Erc20ConversionProxy/0.1.0.json"
+    "./artifacts/Erc20ConversionProxy/0.1.0.json",
+    "./artifacts/Erc20SwapConversion/artifacts.json",
+    "./artifacts/Erc20SwapConversion/0.1.0.json"
   ]
 }

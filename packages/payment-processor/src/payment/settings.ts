@@ -21,7 +21,7 @@ export interface IConversionSettings {
   /** should be a valid currency type and accepted token value */
   currency: RequestLogicTypes.ICurrency;
   /** maximum number of tokens to be spent when the conversion is made */
-  maxToSpend: BigNumberish;
+  maxToSpend?: BigNumberish;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { ContractTransaction, providers, Signer, BigNumberish } from 'ethers';
 
-import { erc20SwapToPayWithConversionArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes } from '@requestnetwork/types';
+import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
+import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import { getProvider, getSigner } from './utils';
@@ -17,7 +17,7 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
  * @param minAmount ensures the approved amount is sufficient to pay this amount
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function approveErc20ForSwapToPayWithConversionIfNeeded(
+export async function approveErc20ForSwapWithConversionIfNeeded(
   request: ClientTypes.IRequestData,
   ownerAddress: string,
   paymentTokenAddress: string,
@@ -25,13 +25,13 @@ export async function approveErc20ForSwapToPayWithConversionIfNeeded(
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  if (!request.currencyInfo.network) {
-    throw new Error('Request currency network is missing');
-  }
+  const network =
+    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network ||
+    'mainnet';
   if (
     !(await checkErc20Allowance(
       ownerAddress,
-      erc20SwapToPayWithConversionArtifact.getAddress(request.currencyInfo.network),
+      erc20SwapConversionArtifact.getAddress(network),
       signerOrProvider,
       paymentTokenAddress,
       minAmount,
@@ -59,9 +59,13 @@ export async function approveErc20ForSwapWithConversionToPay(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const network =
+    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network ||
+    'mainnet';
+
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
-    erc20SwapToPayWithConversionArtifact.getAddress(request.currencyInfo.network!),
+    erc20SwapConversionArtifact.getAddress(network),
     signerOrProvider,
   );
   const signer = getSigner(signerOrProvider);
