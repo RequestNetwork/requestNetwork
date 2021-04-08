@@ -8,8 +8,8 @@
         "creationBlockNumber": 0
       },
       "mainnet": {
-        "address": "TODO",
-        "creationBlockNumber": 0
+        "address": "0xF7228EFeFa12cd768E0F32a7c5cD0c0D68f835e4",
+        "creationBlockNumber": 12198519
       },
       "rinkeby": {
         "address": "0xBFAD7f00A3988BFf17144728b624267Fee7F236e",
