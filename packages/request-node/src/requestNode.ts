@@ -15,6 +15,7 @@ import getTransactionsByChannelId from './request/getTransactionsByChannelId';
 import ipfsAdd from './request/ipfsAdd';
 import PersistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
+import { Server } from 'http';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -38,7 +39,7 @@ class RequestNode {
   public dataAccess: DataAccess;
   public ethereumStorage: StorageTypes.IStorage;
 
-  private express: any;
+  private express: express.Express;
   private initialized: boolean;
   private logger: LogTypes.ILogger;
   private persistTransaction: PersistTransaction;
@@ -129,7 +130,7 @@ class RequestNode {
    * @param callback Callback called before listening for request
    * @returns Object of the listening server
    */
-  public listen(port: number | string, callback: () => number): any {
+  public listen(port: number | string, callback: () => number): Server {
     return this.express.listen(port, callback);
   }
 

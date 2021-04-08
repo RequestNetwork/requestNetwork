@@ -32,20 +32,21 @@
     "types"
   ],
   "scripts": {
+    "build:types": "yarn generate-types && tsc -p tsconfig.types.json && cp generated/*.d.ts types/",
     "build:lib": "tsc -b",
     "build:sol": "truffle compile --contracts_directory=./src",
-    "build": "yarn run build:lib && yarn run build:sol",
+    "build": "yarn run build:lib && yarn run build:sol && yarn build:types",
+    "clean:types": "shx rm -rf types",
     "clean:lib": "shx rm -rf dist",
     "clean:sol": "shx rm -rf build",
-    "clean": "yarn run clean:lib && yarn run clean:sol",
+    "clean": "yarn run clean:lib && yarn run clean:sol && yarn run clean:types",
     "lint:lib": "eslint \"src/lib/**/*.ts\"",
     "lint:sol": "solium --dir src/contracts",
     "lint": "yarn run lint:lib && yarn run lint:sol",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "deploy": "truffle --contracts_directory=./src deploy",
     "test": "truffle test --contracts_directory=./src test/contracts/*.js",
-    "generate-types": "typechain --target=ethers-v5 --outDir=types 'build/contracts/*.json'",
-    "postbuild": "yarn generate-types"
+    "generate-types": "typechain --target=ethers-v5 --outDir=generated 'build/contracts/*.json'"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "2.5.1",

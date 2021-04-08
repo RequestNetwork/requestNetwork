@@ -30,3 +30,4 @@ tsconfig.tsbuildinfo
 
 # ignore smart-contracts generated types
 packages/smart-contracts/types
+packages/smart-contracts/generated
