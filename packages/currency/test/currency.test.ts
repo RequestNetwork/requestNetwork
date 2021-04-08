@@ -404,13 +404,11 @@ describe('api/currency', () => {
       network: 'testnet',
     };
 
-    const USD: RequestLogicTypes.ICurrency = {
-      type: RequestLogicTypes.CURRENCY.ISO4217,
-      value: 'USD',
-    };
-    const EUR: RequestLogicTypes.ICurrency = {
-      type: RequestLogicTypes.CURRENCY.ISO4217,
-      value: 'EUR',
+    const getFiatFromCode = (fiatCurrencyCode: string): RequestLogicTypes.ICurrency => {
+      return {
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: fiatCurrencyCode,
+      };
     };
 
     const DAI: RequestLogicTypes.ICurrency = {
@@ -440,10 +438,29 @@ describe('api/currency', () => {
 
     describe('FIAT currency hash', () => {
       it('can get currency hash of USD', () => {
-        expect(getCurrencyHash(USD)).toBe('0x775eb53d00dd0acd3ec1696472105d579b9b386b');
+        expect(getCurrencyHash(getFiatFromCode('USD'))).toBe(
+          '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
+        );
       });
       it('can get currency hash of EUR', () => {
-        expect(getCurrencyHash(EUR)).toBe('0x17b4158805772ced11225e77339f90beb5aae968');
+        expect(getCurrencyHash(getFiatFromCode('EUR'))).toBe(
+          '0x17b4158805772ced11225e77339f90beb5aae968',
+        );
+      });
+      it('can get currency hash of SGD', () => {
+        expect(getCurrencyHash(getFiatFromCode('SGD'))).toBe(
+          '0xce80759e72fe1d3c07be79ffecc76a7a9b46c641',
+        );
+      });
+      it('can get currency hash of CHF', () => {
+        expect(getCurrencyHash(getFiatFromCode('CHF'))).toBe(
+          '0xfac26e3fd40adcdc6652f705d983b4830c00716c',
+        );
+      });
+      it('can get currency hash of GBP', () => {
+        expect(getCurrencyHash(getFiatFromCode('GBP'))).toBe(
+          '0x013f29832cd6525c4c6df81c2aae8032a1ff2db2',
+        );
       });
     });
 

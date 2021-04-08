@@ -1,5 +1,5 @@
 import { MultiFormatTypes } from '@requestnetwork/types';
-import EthCrypto from 'eth-crypto';
+import { ethers } from 'ethers';
 import CryptoWrapper from './crypto/crypto-wrapper';
 import EcUtils from './crypto/ec-utils';
 import Utils from './utils';
@@ -58,7 +58,7 @@ function normalize(data: unknown): string {
  * @returns The hashed data multi-formatted
  */
 function keccak256Hash(data: string): string {
-  return EthCrypto.hash.keccak256(data);
+  return ethers.utils.keccak256(ethers.utils.toUtf8Bytes(data));
 }
 
 /**
