@@ -1,4 +1,5 @@
 import { IdentityTypes, SignatureTypes } from '@requestnetwork/types';
+import { ethers } from 'ethers';
 import Crypto from './crypto';
 
 /**
@@ -59,9 +60,7 @@ function sign(
     const normalizedData = Crypto.normalize(data);
     value = Crypto.EcUtils.sign(
       signatureParams.privateKey,
-      Crypto.keccak256Hash(
-        `\x19Ethereum Signed Message:\n${normalizedData.length}${normalizedData}`,
-      ),
+      ethers.utils.hashMessage(normalizedData),
     );
 
     return { data, signature: { method: signatureParams.method, value } };
@@ -102,15 +101,8 @@ function recover(signedData: SignatureTypes.ISignedData): IdentityTypes.IIdentit
     } else if (v.toLowerCase() === '01') {
       signature = `${signedData.signature.value.slice(0, V_POSITION_FROM_END_IN_ECDSA_HEX)}1b`;
     }
-    const normalizedData = Crypto.normalize(signedData.data);
-    value = Crypto.EcUtils.recover(
-      signature,
-      Crypto.keccak256Hash(
-        // add the ethereum padding (only for ECDSA_ETHEREUM)
-        // This is to make the system compatible with the ethereum signatures
-        `\x19Ethereum Signed Message:\n${normalizedData.length}${normalizedData}`,
-      ),
-    ).toLowerCase();
+    const normalizedData = ethers.utils.hashMessage(Crypto.normalize(signedData.data));
+    value = Crypto.EcUtils.recover(signature, normalizedData).toLowerCase();
 
     return {
       type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,

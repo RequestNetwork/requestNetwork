@@ -40,10 +40,12 @@
   },
   "dependencies": {
     "@requestnetwork/types": "0.32.0",
-    "eth-crypto": "1.8.0",
-    "ethers": "5.0.32"
+    "eccrypto": "1.1.6",
+    "ethers": "5.0.32",
+    "secp256k1": "4.0.2"
   },
   "devDependencies": {
+    "@types/eccrypto": "1.1.2",
     "@types/jest": "26.0.13",
     "jest": "26.4.2",
     "prettier": "2.2.1",
