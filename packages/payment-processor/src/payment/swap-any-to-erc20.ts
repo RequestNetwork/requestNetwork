@@ -28,6 +28,9 @@ export async function swapToPayAnyToErc20Request(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   options?: IRequestPaymentOptions,
 ): Promise<ContractTransaction> {
+  if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
+    throw new Error(`The request must have the payment network any-to-erc20-proxy`);
+  }
   const network =
     request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network ||
     'mainnet';
@@ -66,18 +69,21 @@ export function encodeSwapToPayAnyToErc20Request(
   if (!swapSettings) {
     throw new Error(`Swap Settings are required`);
   }
-  if (!conversionSettings.currency?.network) {
-    throw new Error('Cannot pay with a currency missing a network');
-  }
+  const network = conversionSettings.currency?.network || 'mainnet';
 
   /** On Chain conversion preparation */
 
+  // check if conversion currency is accepted
+  if (
+    !request.extensions[
+      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
+    ].values.acceptedTokens.includes(conversionSettings.currency.value)
+  ) {
+    throw new Error(`The conversion currency is not an accepted token`);
+  }
+
   // Compute the path automatically
-  const path = getConversionPath(
-    request.currencyInfo,
-    conversionSettings.currency,
-    conversionSettings.currency.network,
-  );
+  const path = getConversionPath(request.currencyInfo, conversionSettings.currency, network);
   if (!path) {
     throw new Error(
       `Impossible to find a conversion path between from ${request.currencyInfo} to ${conversionSettings.currency}`,
@@ -111,9 +117,7 @@ export function encodeSwapToPayAnyToErc20Request(
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
 
-  const contractAddress = erc20SwapConversionArtifact.getAddress(
-    conversionSettings.currency?.network || 'mainnet',
-  );
+  const contractAddress = erc20SwapConversionArtifact.getAddress(network);
   const swapToPayContract = ERC20SwapToPayWithConversion__factory.connect(contractAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
