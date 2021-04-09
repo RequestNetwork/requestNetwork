@@ -1,4 +1,3 @@
-// tslint-disable:completed-docs
 import retry from '../src/retry';
 
 class TestClass {
