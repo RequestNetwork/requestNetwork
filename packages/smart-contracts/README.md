@@ -43,6 +43,7 @@ The package stores the following smart contracts:
 - `ERC20Proxy` smart contract used by the erc20 proxy contract payment network to store payment references of erc20 transfers
 - `EthereumProxy` smart contract used by the ethereum proxy contract payment network to store payment references of Ethereum transfers
 - `ERC20FeeProxy` smart contract used by the erc20 fee proxy contract payment network to store payment references of erc20 transfers with fees
+- `ERC20ConversionProxy` contract used to process a payment in ERC20 for an amount fixed in fiat, relying on `ERC20FeeProxy`, for pn-any-to-erc20 requests
 
 #### Smart contracts local deployment
 
