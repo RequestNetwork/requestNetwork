@@ -1,12 +1,8 @@
 import { ethers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
+import { ChainlinkConversionPath__factory } from '@requestnetwork/smart-contracts/types';
 import { getCurrencyHash, stringToCurrency } from '@requestnetwork/currency';
 import { LogDescription } from 'ethers/lib/utils';
-
-// ABI fragment containing AggregatorUpdated event
-const chainlinkConversionPathAbiFragment = [
-  'event AggregatorUpdated(address _input, address _output, address _aggregator)',
-];
 
 export interface IOptions {
   network?: string;
@@ -49,11 +45,11 @@ class ChainlinkConversionPathTools {
         : ethers.getDefaultProvider(this.network);
 
     // Setup the conversion proxy contract interface
-    this.contractChainlinkConversionPath = new ethers.Contract(
-      chainlinkConversionPath.getAddress(this.network),
-      chainlinkConversionPathAbiFragment,
+    this.contractChainlinkConversionPath = ChainlinkConversionPath__factory.connect(
+      chainlinkConversionPath.getAddress(network),
       this.provider,
     );
+
     this.chainlinkConversionPathCreationBlockNumber = chainlinkConversionPath.getCreationBlockNumber(
       this.network,
     );
@@ -62,19 +58,18 @@ class ChainlinkConversionPathTools {
   /**
    * Retrieves all the aggregators
    */
-  public async getAggregators(): Promise<any> {
-    // Create a filter to find all the Fee Transfer logs with the payment reference
-    const conversionFilter = this.contractChainlinkConversionPath.filters.AggregatorUpdated() as ethers.providers.Filter;
-    conversionFilter.fromBlock = this.chainlinkConversionPathCreationBlockNumber;
-    conversionFilter.toBlock = 'latest';
-
+  public async getAggregators(): Promise<Record<string, Record<string, string>>> {
     // Get the fee proxy contract event logs
-    const logs = await this.provider.getLogs(conversionFilter);
+    const logs = await this.contractChainlinkConversionPath.queryFilter(
+      this.contractChainlinkConversionPath.filters.AggregatorUpdated(),
+      this.chainlinkConversionPathCreationBlockNumber,
+      'latest',
+    );
 
     // Parses, filters and creates the events from the logs with the payment reference
     const aggregatorsMaps = logs.reduce(
       // Map: Input currency => Output currency => aggregator address
-      (aggregators: Map<string, Map<string, string>>, log: any) => {
+      (aggregators, log) => {
         const parsedLog = this.contractChainlinkConversionPath.interface.parseLog(log);
         const args = parseLogArgs<AggregatorUpdatedArgs>(parsedLog);
 
@@ -97,11 +92,11 @@ class ChainlinkConversionPathTools {
 
         return aggregators;
       },
-      new Map(),
+      new Map<string, Map<string, string>>(),
     );
 
     // From Map to Object to be easier to manipulate later
-    const aggregatorsAsObject: { [key: string]: { [key: string]: string } } = {};
+    const aggregatorsAsObject: Record<string, Record<string, string>> = {};
     aggregatorsMaps.forEach((elemL1: Map<string, string>, keyL1: string) => {
       aggregatorsAsObject[keyL1.toLocaleLowerCase()] = {};
       elemL1.forEach((aggregator: string, keyL2: string) => {
@@ -117,8 +112,8 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
   const networks = options?.network ? [options.network] : ['private', 'rinkeby', 'mainnet'];
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
-  const allAggregators: any = {};
-  const aggregatorsNodesForDijkstra: any = {};
+  const allAggregators: Record<string, Record<string, Record<string, string>>> = {};
+  const aggregatorsNodesForDijkstra: Record<string, Record<string, Record<string, number>>> = {};
   for (const network of networks) {
     allAggregators[network] = {};
     const chainlinkConversionPathTools = new ChainlinkConversionPathTools(network);
