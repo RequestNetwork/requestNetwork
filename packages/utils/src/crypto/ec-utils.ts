@@ -22,6 +22,9 @@ export default {
  */
 function getAddressFromPrivateKey(privateKey: string): string {
   try {
+    if (!privateKey.match(/^0x/)) {
+      privateKey = `0x` + privateKey;
+    }
     return ethers.utils.computeAddress(ethers.utils.hexlify(privateKey));
   } catch (e) {
     if (

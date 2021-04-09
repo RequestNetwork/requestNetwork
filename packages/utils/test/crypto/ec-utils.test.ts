@@ -27,6 +27,13 @@ describe('Utils.ecUtils', () => {
         'The private key must be a string representing 32 bytes',
       );
     });
+    it('can get an address from a private key without 0x', () => {
+      expect(
+        ecUtils.getAddressFromPrivateKey(
+          'af16c10a33bd8c2a0d55551080c3eb248ab727e5ff17d052c95f9d92b7e6528e',
+        ),
+      ).toBe('0xe011e28aBAa005223a2d4AEfFD5c2fF8D7B5291c');
+    });
   });
 
   describe('getAddressFromPublicKey', () => {
