@@ -139,7 +139,7 @@ export function getPath(
   network = 'mainnet',
 ): string[] | null {
   if (!currencyPairs[network]) {
-    throw Error('network not supported');
+    throw Error(`network ${network} not supported`);
   }
 
   // load the Graph
