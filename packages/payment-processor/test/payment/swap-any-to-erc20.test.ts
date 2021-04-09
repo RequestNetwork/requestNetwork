@@ -7,18 +7,16 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-// import Utils from '@requestnetwork/utils';
 
-// import { getErc20Balance } from '../../src/payment/erc20';
 import { approveErc20ForSwapWithConversionIfNeeded } from '../../src/payment/swap-conversion-erc20';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { ISwapSettings, swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20';
+import { swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 const erc20BeforeSwap = '0x9FBDa871d559710256a2502A2517b794B482Db40';
-const erc20BeforeConversion = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
+const erc20AfterConversion = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -54,8 +52,7 @@ const validRequest: ClientTypes.IRequestData = {
         feeAmount: '2',
         paymentAddress,
         salt: 'salt',
-        acceptedTokens: [erc20BeforeConversion],
-        // TODO missing stuff here !
+        acceptedTokens: [erc20AfterConversion],
         network: 'private',
       },
       version: '1.0',
@@ -72,12 +69,6 @@ const validRequest: ClientTypes.IRequestData = {
   version: '1.0',
 };
 
-const validSwapSettings: ISwapSettings = {
-  deadline: 2599732187000, // This test will fail in 2052
-  maxInputAmount: 204,
-  path: [erc20BeforeSwap, erc20BeforeConversion],
-};
-
 describe('swap-any-to-erc20', () => {
   describe('swapErc20FeeProxyRequest', () => {
     it('should swap and pay with an ERC20 request with fees', async () => {
@@ -89,59 +80,87 @@ describe('swap-any-to-erc20', () => {
         wallet.provider,
         BigNumber.from(204).mul(BigNumber.from(10).pow(18)),
       );
-      expect(approvalTx).toBeDefined();
+      // expect(approvalTx).toBeDefined();
       if (approvalTx) {
         await approvalTx.wait(1);
       }
 
       // get the balances to compare after payment
-      const balanceEthBefore = await wallet.getBalance();
-      const balanceAlphaBefore = await ERC20__factory.connect(
+      const balancePayerBSwapBefore = await ERC20__factory.connect(
         erc20BeforeSwap,
         provider,
       ).balanceOf(wallet.address);
-      // const issuerBalanceErc20Before = await getErc20Balance(
-      //   validRequest,
-      //   paymentAddress,
-      //   provider,
-      // );
-      // const feeBalanceErc20Before = await getErc20Balance(validRequest, feeAddress, provider);
+      const balancePayeeAConversionBefore = await ERC20__factory.connect(
+        erc20AfterConversion,
+        provider,
+      ).balanceOf(paymentAddress);
+      const balanceFeeAConversionBefore = await ERC20__factory.connect(
+        erc20AfterConversion,
+        provider,
+      ).balanceOf(feeAddress);
 
       // Swap and pay
       const tx = await swapToPayAnyToErc20Request(validRequest, wallet, {
-        swap: validSwapSettings,
+        swap: {
+          deadline: 2599732187000, // This test will fail in 2052
+          maxInputAmount: '3000000000000000000',
+          path: [erc20BeforeSwap, erc20AfterConversion],
+        },
         conversion: {
           currency: {
             type: 'ERC20' as any,
-            value: erc20BeforeConversion,
+            value: erc20AfterConversion,
             network: 'private',
           }
         },
+        overrides: {
+          gasLimit: 1000000
+        }
       })
+
       const confirmedTx = await tx.wait(1);
 
       expect(confirmedTx.status).toEqual(1);
       expect(tx.hash).toBeDefined();
 
       // Get the new balances
-      const balanceEthAfter = await wallet.getBalance();
-      const balanceAlphaAfter = await ERC20__factory.connect(erc20BeforeSwap, provider).balanceOf(
+      const balancePayerBSwapAfter = await ERC20__factory.connect(erc20BeforeSwap, provider).balanceOf(
         wallet.address,
       );
-      // const issuerBalanceErc20After = await getErc20Balance(validRequest, paymentAddress, provider);
-      // const feeBalanceErc20After = await getErc20Balance(validRequest, feeAddress, provider);
-
-      // Check each balance
-      expect(BigNumber.from(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
-      expect(BigNumber.from(balanceAlphaAfter).toString()).toEqual(
-        BigNumber.from(balanceAlphaBefore).sub(204).toString(),
+      const balancePayeeAConversionAfter = await ERC20__factory.connect(erc20AfterConversion, provider).balanceOf(
+        paymentAddress,
       );
-      // expect(BigNumber.from(issuerBalanceErc20After).toString()).toEqual(
-      //   BigNumber.from(issuerBalanceErc20Before).add(100).toString(),
-      // );
-      // expect(BigNumber.from(feeBalanceErc20After).toString()).toEqual(
-      //   BigNumber.from(feeBalanceErc20Before).add(2).toString(),
-      // );
+      const balanceFeeAConversionAfter = await ERC20__factory.connect(erc20AfterConversion, provider).balanceOf(
+        feeAddress,
+      );
+      
+      // Check each balance
+
+      //   expectedAmount:      100000000
+      //   feeAmount:        +    2000000
+      //                     =  102000000 (8 decimals)
+      //   AggDaiUsd.sol     /  101000000
+      //                     =  1009900990099009900 (18 decimals)
+      //   Swapper           *  2
+      //                     =  2019801980198019800 (18 decimals) paid by payer in erc20BeforeSwap
+      expect(BigNumber.from(balancePayerBSwapAfter).toString()).toEqual(
+        BigNumber.from(balancePayerBSwapBefore).sub('2019801980198019800').toString(),
+      );
+
+      //   expectedAmount:      100000000 (8 decimals)
+      //   AggDaiUsd.sol     /  101000000
+      //                     =  990099009900990099 (18 decimals) received by payee in erc20AfterConversion
+      expect(BigNumber.from(balancePayeeAConversionAfter).toString()).toEqual(
+        BigNumber.from(balancePayeeAConversionBefore).add('990099009900990099').toString(),
+      );
+
+      //   feeAmount:           2000000 (8 decimals)
+      //   AggDaiUsd.sol     /  101000000
+      //                     =  19801980198019801 (18 decimals) received by fee address in erc20AfterConversion
+      expect(BigNumber.from(balanceFeeAConversionAfter).toString()).toEqual(
+        BigNumber.from(balanceFeeAConversionBefore).add('19801980198019801').toString(),
+      );      
+      
     });
   });
 });

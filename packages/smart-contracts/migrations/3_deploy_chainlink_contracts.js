@@ -37,6 +37,10 @@ module.exports = async function (deployer) {
 
   await deployer.deploy(Erc20ConversionProxy, ERC20FeeProxy.address, ChainlinkConversionPath.address);
 
-  // ERC20SwapToPayWithConversion
-  await deployer.deploy(ERC20SwapToPayWithConversion, FakeSwapRouter.address, Erc20ConversionProxy.address);
+  // erc20SwapConversion
+  const erc20SwapConversion = await deployer.deploy(ERC20SwapToPayWithConversion, FakeSwapRouter.address, Erc20ConversionProxy.address);
+
+  await erc20SwapConversion.approvePaymentProxyToSpend('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
+  await erc20SwapConversion.approveRouterToSpend('0x9FBDa871d559710256a2502A2517b794B482Db40');
+
 };

@@ -11,7 +11,7 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { getConversionPath } from '@requestnetwork/currency';
+import { getDecimalsForCurrency, getConversionPath } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
@@ -90,8 +90,15 @@ export function encodeSwapToPayAnyToErc20Request(
   const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
     request,
   );
-  const amountToPay = getAmountToPay(request, options?.amount);
-  const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0);
+
+  const chainlinkDecimal = 8;
+  const decimalPadding = Math.max(
+    chainlinkDecimal - getDecimalsForCurrency(request.currencyInfo),
+    0,
+  );
+
+  const amountToPay = getAmountToPay(request, options?.amount).mul(10 ** decimalPadding);
+  const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0).mul(10 ** decimalPadding);
 
   if (
     swapSettings.path[swapSettings.path.length - 1].toLowerCase() !==
