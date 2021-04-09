@@ -137,7 +137,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           network: 'kovan',
           acceptedTokens: ['0x0000000000000000000000000000000000000003'],
         });
-      }).toThrowError('network not supported');
+      }).toThrowError('network kovan not supported');
     });
 
     it('cannot createCreationAction with tokens accepted not supported', () => {
@@ -148,7 +148,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           salt: 'ea3bc7caf64110ca',
           acceptedTokens: ['0x0000000000000000000000000000000000000003'],
         });
-      }).toThrowError('acceptedTokens must contain only supported token addresses (ERC20 only)');
+      }).toThrowError(
+        'acceptedTokens must contain only supported token addresses (ERC20 only). 0x0000000000000000000000000000000000000003 is not supported for mainnet.',
+      );
     });
 
     it('cannot applyActionToExtensions of creation on a non supported currency', () => {

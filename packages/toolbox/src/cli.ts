@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-unused-expressions */
+import * as yargs from 'yargs';
 
-require('yargs')
+yargs
+  .env('RN')
   .scriptName('request-toolbox')
   .commandDir('./commands', {
     extensions: process.env.NODE_ENV === 'development' ? ['ts'] : ['js'],
