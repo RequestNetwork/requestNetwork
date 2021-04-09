@@ -51,7 +51,7 @@ describe('chainlink-path-aggregators', () => {
 
       it('cannot get path from invalid network', () => {
         expect(() => getPath(USD, privateDAI, 'unsupported-network')).toThrowError(
-          'network not supported',
+          'network unsupported-network not supported',
         );
       });
     });

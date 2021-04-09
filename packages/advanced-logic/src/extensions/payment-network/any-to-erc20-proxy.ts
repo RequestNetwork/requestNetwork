@@ -35,15 +35,27 @@ const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, str
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },
   rinkeby: {
-    [RequestLogicTypes.CURRENCY.ISO4217]: ['USD', 'EUR'],
+    [RequestLogicTypes.CURRENCY.ISO4217]: ['EUR', 'GBP', 'USD'],
     [RequestLogicTypes.CURRENCY.ERC20]: ['0xfab46e002bbf0b4509813474841e0716e6730136'],
     [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },
   mainnet: {
-    [RequestLogicTypes.CURRENCY.ISO4217]: [],
-    [RequestLogicTypes.CURRENCY.ERC20]: [],
-    [RequestLogicTypes.CURRENCY.ETH]: [],
+    [RequestLogicTypes.CURRENCY.ISO4217]: ['CHF', 'EUR', 'GBP', 'SGD', 'USD'],
+    [RequestLogicTypes.CURRENCY.ERC20]: [
+      '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c',
+      '0x4e15361fd6b4bb609fa63c81a2be19d873717870',
+      '0x6b175474e89094c44da98b954eedeac495271d0f',
+      '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
+      '0x8290333cef9e6d528dd5618fb97a76f268f3edd4',
+      '0x967da4048cd07ab37855c090aaf366e4ce1b9f48',
+      '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
+      '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      '0xa117000000f279d81a1d3cc75430faa017fa5a2e',
+      '0xc944e90c64b2c07662a292be6244bdf05cda44a7',
+      '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    ],
+    [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },
 };
@@ -89,15 +101,16 @@ function createCreationAction(
 
   const network = creationParameters.network || 'mainnet';
   if (!supportedCurrencies[network]) {
-    throw Error('network not supported');
+    throw Error(`network ${network} not supported`);
   }
   const supportedErc20: string[] = supportedCurrencies[network][RequestLogicTypes.CURRENCY.ERC20];
-  if (
-    creationParameters.acceptedTokens.some(
-      (address) => !supportedErc20.includes(address.toLowerCase()),
-    )
-  ) {
-    throw Error('acceptedTokens must contain only supported token addresses (ERC20 only)');
+
+  for (const address of creationParameters.acceptedTokens) {
+    if (!supportedErc20.includes(address.toLowerCase())) {
+      throw Error(
+        `acceptedTokens must contain only supported token addresses (ERC20 only). ${address} is not supported for ${network}.`,
+      );
+    }
   }
 
   return ReferenceBased.createCreationAction(
