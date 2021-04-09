@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
-import * as yargs from 'yargs';
 import { getCurrencyHash, stringToCurrency } from '@requestnetwork/currency';
 import { LogDescription } from 'ethers/lib/utils';
 
@@ -9,7 +8,7 @@ const chainlinkConversionPathAbiFragment = [
   'event AggregatorUpdated(address _input, address _output, address _aggregator)',
 ];
 
-interface IOptions {
+export interface IOptions {
   network?: string;
   currencyCode?: string;
 }
@@ -114,7 +113,7 @@ class ChainlinkConversionPathTools {
   }
 }
 
-const listAggregators = async (options?: IOptions): Promise<void> => {
+export const listAggregators = async (options?: IOptions): Promise<void> => {
   const networks = options?.network ? [options.network] : ['private', 'rinkeby', 'mainnet'];
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
@@ -152,21 +151,7 @@ const listAggregators = async (options?: IOptions): Promise<void> => {
   console.log('#####################################################################');
 };
 
-export const chainlinkAggregatorsCommandModule: yargs.CommandModule<{}, IOptions> = {
-  command: 'listAggregators <network>',
-  describe: 'Helper for on-chain conversion administration',
-  builder: (yargs) =>
-    yargs.options({
-      network: {
-        demand: false,
-        type: 'string',
-        desc: 'Network for which to list aggregators (mainnet, rinkeby, private)',
-      },
-    }),
-  handler: listAggregators,
-};
-
-const showCurrencyHash = async (options?: IOptions): Promise<void> => {
+export const showCurrencyHash = async (options?: IOptions): Promise<void> => {
   if (!options?.currencyCode) {
     throw new Error('currencyCode missing');
   }
@@ -174,18 +159,4 @@ const showCurrencyHash = async (options?: IOptions): Promise<void> => {
   console.log(`Currency hash of: ${options.currencyCode}`);
   console.log(getCurrencyHash(stringToCurrency(options.currencyCode)));
   console.log('#####################################################################');
-};
-
-export const currencyHashCommandModule: yargs.CommandModule<{}, IOptions> = {
-  command: 'currencyHash <currencyCode>',
-  describe: 'Shows the currency hash of a currency code',
-  builder: (yargs) =>
-    yargs.options({
-      currencyCode: {
-        demand: true,
-        type: 'string',
-        desc: 'Currency code such as ETH or EUR',
-      },
-    }),
-  handler: showCurrencyHash,
 };
