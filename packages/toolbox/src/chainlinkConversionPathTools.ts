@@ -2,6 +2,8 @@ import { ethers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
 import { ChainlinkConversionPath__factory } from '@requestnetwork/smart-contracts/types';
 import { getCurrencyHash, stringToCurrency } from '@requestnetwork/currency';
+import { RequestLogicTypes } from '@requestnetwork/types';
+import iso4217 from '@requestnetwork/currency/dist/iso4217';
 import { LogDescription } from 'ethers/lib/utils';
 
 export interface IOptions {
@@ -108,13 +110,44 @@ class ChainlinkConversionPathTools {
   }
 }
 
+const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH'].reduce(
+  (prev, curr) => ({
+    ...prev,
+    [getCurrencyHash(stringToCurrency(curr)).toLowerCase()]: {
+      value: curr,
+      type: stringToCurrency(curr).type,
+    },
+  }),
+  {} as Record<string, { value: string; type: RequestLogicTypes.CURRENCY }>,
+);
+
+const addSupportedCurrency = (
+  ccy: string,
+  record: Record<RequestLogicTypes.CURRENCY, string[]>,
+) => {
+  const wellKnown = knownCurrencies[ccy];
+  const address = wellKnown ? wellKnown.value : ccy;
+  const type = wellKnown ? wellKnown.type : RequestLogicTypes.CURRENCY.ERC20;
+  if (!record[type].includes(address)) {
+    record[type].push(address);
+  }
+  record[type] = record[type].sort();
+};
+
 export const listAggregators = async (options?: IOptions): Promise<void> => {
   const networks = options?.network ? [options.network] : ['private', 'rinkeby', 'mainnet'];
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
   const allAggregators: Record<string, Record<string, Record<string, string>>> = {};
   const aggregatorsNodesForDijkstra: Record<string, Record<string, Record<string, number>>> = {};
+  const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, string[]>> = {};
   for (const network of networks) {
+    supportedCurrencies[network] = {
+      [RequestLogicTypes.CURRENCY.ISO4217]: [],
+      [RequestLogicTypes.CURRENCY.ERC20]: [],
+      [RequestLogicTypes.CURRENCY.ETH]: [],
+      [RequestLogicTypes.CURRENCY.BTC]: [],
+    };
     allAggregators[network] = {};
     const chainlinkConversionPathTools = new ChainlinkConversionPathTools(network);
     allAggregators[network] = await chainlinkConversionPathTools.getAggregators();
@@ -123,11 +156,14 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
     aggregatorsNodesForDijkstra[network] = {};
     for (let ccyIn in allAggregators[network]) {
       ccyIn = ccyIn.toLowerCase();
+      addSupportedCurrency(ccyIn, supportedCurrencies[network]);
       if (!aggregatorsNodesForDijkstra[network][ccyIn]) {
         aggregatorsNodesForDijkstra[network][ccyIn] = {};
       }
       for (let ccyOut in allAggregators[network][ccyIn]) {
         ccyOut = ccyOut.toLowerCase();
+        addSupportedCurrency(ccyOut, supportedCurrencies[network]);
+
         if (!aggregatorsNodesForDijkstra[network][ccyOut]) {
           aggregatorsNodesForDijkstra[network][ccyOut] = {};
         }
@@ -144,6 +180,8 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
   console.log('All aggregators nodes for currency pairs graph:');
   console.log(aggregatorsNodesForDijkstra);
   console.log('#####################################################################');
+  console.log('Supported currencies:');
+  console.log(supportedCurrencies);
 };
 
 export const showCurrencyHash = async (options?: IOptions): Promise<void> => {
