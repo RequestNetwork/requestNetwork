@@ -4,12 +4,6 @@
 It is a collection of miscellaneous tools.
 This package can use other package of the monorepo, but the other packages cannot use toolbox.
 
-## Installation
-
-```bash
-npm install @requestnetwork/toolbox
-```
-
 ## Usage
 
 ### Create request

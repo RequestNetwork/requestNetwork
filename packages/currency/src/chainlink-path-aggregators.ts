@@ -44,11 +44,13 @@ const currencyPairs: any = {
     },
   },
   mainnet: {
-    '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c': {
+    '0x4f99f266506be1475e943b2f097827011bfa4e93': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
-      '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
     },
     '0x775eb53d00dd0acd3ec1696472105d579b9b386b': {
+      '0x4f99f266506be1475e943b2f097827011bfa4e93': 1,
+      '0xfa6faefc053e6c8e393a73dcc12b09fcde019d25': 1,
+      '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
       '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c': 1,
       '0x8290333cef9e6d528dd5618fb97a76f268f3edd4': 1,
       '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 1,
@@ -59,9 +61,12 @@ const currencyPairs: any = {
       '0x013f29832cd6525c4c6df81c2aae8032a1ff2db2': 1,
       '0x17b4158805772ced11225e77339f90beb5aae968': 1,
       '0x6b175474e89094c44da98b954eedeac495271d0f': 1,
-      '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
+    },
+    '0xfa6faefc053e6c8e393a73dcc12b09fcde019d25': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
     '0xf5af88e117747e87fc5929f2ff87221b1447652e': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
       '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c': 1,
       '0xa117000000f279d81a1d3cc75430faa017fa5a2e': 1,
       '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9': 1,
@@ -72,7 +77,10 @@ const currencyPairs: any = {
       '0x6b175474e89094c44da98b954eedeac495271d0f': 1,
       '0xc944e90c64b2c07662a292be6244bdf05cda44a7': 1,
       '0x967da4048cd07ab37855c090aaf366e4ce1b9f48': 1,
+    },
+    '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+      '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
     },
     '0xa117000000f279d81a1d3cc75430faa017fa5a2e': {
       '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
