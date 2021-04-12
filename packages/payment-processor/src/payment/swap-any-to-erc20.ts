@@ -52,7 +52,6 @@ export async function swapToPayAnyToErc20Request(
  * Encodes the call to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
  * @param request request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum
- * @param settings settings for the swap and the on-chain conversion
  * @param options to override amount, feeAmount and transaction parameters
  */
 export function encodeSwapToPayAnyToErc20Request(

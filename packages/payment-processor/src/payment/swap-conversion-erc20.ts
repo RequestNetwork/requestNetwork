@@ -25,9 +25,11 @@ export async function approveErc20ForSwapWithConversionIfNeeded(
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
+  if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
+    throw new Error(`The request must have the payment network any-to-erc20-proxy`);
+  }
   const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network ||
-    'mainnet';
+    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
   if (
     !(await checkErc20Allowance(
       ownerAddress,
