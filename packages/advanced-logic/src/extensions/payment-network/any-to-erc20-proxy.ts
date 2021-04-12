@@ -41,7 +41,7 @@ const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, str
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },
   mainnet: {
-    [RequestLogicTypes.CURRENCY.ISO4217]: ['CHF', 'EUR', 'GBP', 'SGD', 'USD'],
+    [RequestLogicTypes.CURRENCY.ISO4217]: ['AUD', 'CAD', 'CHF', 'EUR', 'GBP', 'SGD', 'USD'],
     [RequestLogicTypes.CURRENCY.ERC20]: [
       '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c',
       '0x4e15361fd6b4bb609fa63c81a2be19d873717870',
