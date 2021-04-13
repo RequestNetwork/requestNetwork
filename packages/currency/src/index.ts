@@ -2,47 +2,12 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import iso4217 from './iso4217';
 import othersCurrencies from './others';
-
-import {
-  getErc20Currency,
-  getErc20Decimals,
-  getErc20Symbol,
-  getSupportedERC20Tokens,
-} from './erc20';
+import { getErc20Decimals, getErc20Symbol, getSupportedERC20Tokens } from './erc20';
+import { Currency } from './currency';
+export { Currency } from './currency';
+export { Token } from './token';
 
 export { getPath as getConversionPath } from './chainlink-path-aggregators';
-
-// Simple function to get the currency from the value alone
-const getCurrency = (currencyValue: string, network: string): RequestLogicTypes.ICurrency => {
-  // Check if it's a supported cryptocurrency
-  if (currencyValue === 'BTC') {
-    return {
-      type: RequestLogicTypes.CURRENCY.BTC,
-      value: 'BTC',
-    };
-  }
-  if (currencyValue === 'ETH') {
-    return {
-      type: RequestLogicTypes.CURRENCY.ETH,
-      value: 'ETH',
-    };
-  }
-
-  // Check if it's an ERC20 token and return it if found
-  const erc20Currency = getErc20Currency(currencyValue, network);
-  if (erc20Currency) {
-    return erc20Currency;
-  }
-
-  // Check if it's one of ISO4217 currencies
-  if (iso4217.find((i) => i.code === currencyValue)) {
-    return {
-      type: RequestLogicTypes.CURRENCY.ISO4217,
-      value: currencyValue,
-    };
-  }
-  throw new Error(`The currency ${currencyValue} is not supported`);
-};
 
 /**
  * Returns a Currency object from a user-friendly currency string.
@@ -61,7 +26,7 @@ export function stringToCurrency(currencyString: string): RequestLogicTypes.ICur
   // Split the currency string value and network (if available)
   const [value, network] = currencyString.split('-');
 
-  const currency = getCurrency(value, network);
+  const currency = Currency.fromSymbol(value, network);
 
   // If a network was declared, add it to the currency object
   if (network) {

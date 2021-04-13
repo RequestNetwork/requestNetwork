@@ -1,6 +1,7 @@
 /* eslint-disable no-magic-numbers */
 import { RequestLogicTypes } from '@requestnetwork/types';
 import {
+  Currency,
   currencyToString,
   getAllSupportedCurrencies,
   getCurrencyHash,
@@ -467,6 +468,100 @@ describe('api/currency', () => {
     describe('ERC20 currency hash', () => {
       it('can get currency hash of ERC20', () => {
         expect(getCurrencyHash(DAI)).toBe('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
+      });
+    });
+  });
+
+  describe('Currency.from()', () => {
+    describe('mainnet', () => {
+      it('ETH from ETH', () => {
+        expect(Currency.from('ETH')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        });
+      });
+
+      it('DAI from DAI', () => {
+        expect(Currency.from('DAI')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          network: 'mainnet',
+        });
+        expect(Currency.from('DAI').toString()).toEqual('DAI');
+      });
+
+      it('REQ from REQ', () => {
+        expect(Currency.from('REQ')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8f8221aFbB33998d8584A2B05749bA73c37a938a',
+          network: 'mainnet',
+        });
+      });
+
+      it('MPH from MPH', () => {
+        expect(Currency.from('MPH')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8888801af4d980682e47f1a9036e589479e835c5',
+          network: 'mainnet',
+        });
+      });
+
+      it('INDA from INDA', () => {
+        expect(Currency.from('INDA')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x433d86336dB759855A66cCAbe4338313a8A7fc77',
+          network: 'mainnet',
+        });
+      });
+
+      it('DAI from 0x6B175474E89094C44Da98b954EedeAC495271d0F', () => {
+        expect(Currency.from('0x6B175474E89094C44Da98b954EedeAC495271d0F')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          network: 'mainnet',
+        });
+      });
+
+      it('EUR from EUR', () => {
+        expect(Currency.from('EUR')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+          value: 'EUR',
+        });
+      });
+    });
+
+    describe('rinkeby', () => {
+      it('FAU from FAU', () => {
+        expect(Currency.from('FAU')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0xFab46E002BbF0b4509813474841E0716E6730136',
+          network: 'rinkeby',
+        });
+        expect(Currency.from('FAU').toString()).toEqual('FAU-rinkeby');
+      });
+
+      it('FAU from FAU-rinkeby', () => {
+        expect(Currency.from('FAU')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0xFab46E002BbF0b4509813474841E0716E6730136',
+          network: 'rinkeby',
+        });
+      });
+
+      it('CTBK from CTBK', () => {
+        expect(Currency.from('CTBK')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x995d6A8C21F24be1Dd04E105DD0d83758343E258',
+          network: 'rinkeby',
+        });
+      });
+    });
+
+    describe('errors', () => {
+      it('Unsupported currencies should throw', () => {
+        expect(() => Currency.from('UNSUPPORTED')).toThrow(
+          'The currency UNSUPPORTED does not exist or is not supported',
+        );
       });
     });
   });

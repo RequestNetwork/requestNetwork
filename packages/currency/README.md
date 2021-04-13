@@ -12,14 +12,33 @@ npm install @requestnetwork/currency
 ## Usage
 
 ```javascript
-import Currency from '@requestnetwork/currency';
+import { RequestLogicTypes } from '@requestnetwork/types';
+import { getDecimalsForCurrency, getCurrencyHash, Currency, Token } from '@requestnetwork/currency';
 
-const decimals = Currency.getDecimalsForCurrency({
+const decimals = getDecimalsForCurrency({
   type: RequestLogicTypes.CURRENCY.ETH,
   value: 'ETH',
-};
+});
 
 console.log(decimals); // 18
+
+const ETHHash = getCurrencyHash({
+  type: RequestLogicTypes.CURRENCY.ETH,
+  value: 'ETH',
+});
+
+console.log(ETHHash); // 0xF5AF88e117747e87fC5929F2ff87221B1447652E
+
+// Get currencies from their symbol
+const ETHCurrency: RequestLogicTypes.ICurrency = Currency.from('ETH');
+const FAUCurrency: RequestLogicTypes.ICurrency = Currency.from('DAI');
+// Get currencies from their address
+const DAICurrency: RequestLogicTypes.ICurrency = Currency.from(
+  '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+);
+
+console.log(FAUCurrency.toString()); // FAU-rinkeby
+console.log(DAICurrency.toString()); // DAI
 ```
 
 ## Contributing
