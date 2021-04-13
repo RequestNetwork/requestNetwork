@@ -39,6 +39,11 @@ const DAICurrency: RequestLogicTypes.ICurrency = Currency.from(
 
 console.log(FAUCurrency.toString()); // FAU-rinkeby
 console.log(DAICurrency.toString()); // DAI
+
+// Get a token symbol from its address
+const FAUToken = Token.from('0xFab46E002BbF0b4509813474841E0716E6730136');
+
+console.log(FAUToken.symbol); // FAU
 ```
 
 ## Contributing
