@@ -1,6 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { currencyToString } from '.';
-import { getSupportedERC20Currencies, getErc20Currency } from './erc20';
+import Utils from '@requestnetwork/utils';
+import { getSupportedERC20Currencies, getErc20Currency, getErc20Symbol } from './erc20';
 import iso4217 from './iso4217';
 
 /**
@@ -9,9 +9,10 @@ import iso4217 from './iso4217';
  * information: value, type and network (optional).
  */
 export class Currency implements RequestLogicTypes.ICurrency {
-  public value: string;
-  public type: RequestLogicTypes.CURRENCY;
-  public network?: string;
+  public readonly value: string;
+  public readonly type: RequestLogicTypes.CURRENCY;
+  public readonly network?: string;
+
   constructor(currency: RequestLogicTypes.ICurrency) {
     ({ value: this.value, type: this.type, network: this.network } = currency);
   }
@@ -23,8 +24,14 @@ export class Currency implements RequestLogicTypes.ICurrency {
    * @returns an ICurrency object
    */
   static from(symbolOrAddress: string): Currency {
+    if (symbolOrAddress === '') {
+      throw new Error(`Cannot guess currency from empty string.`);
+    }
     try {
-      const currencyFromSymbol = this.fromSymbol(symbolOrAddress);
+      const currencyFromSymbol = this.fromSymbol(
+        symbolOrAddress.split('-')[0],
+        symbolOrAddress.split('-')[1],
+      );
       return currencyFromSymbol;
     } catch (e) {
       const erc20Currencies = getSupportedERC20Currencies();
@@ -43,17 +50,22 @@ export class Currency implements RequestLogicTypes.ICurrency {
    * @returns RequestLogicTypes.ICurrency
    */
   static fromSymbol = (symbol: string, network?: string): Currency => {
+    if (symbol === '') {
+      throw new Error(`Cannot guess currency from empty symbol.`);
+    }
     // Check if it's a supported cryptocurrency
-    if (symbol === 'BTC') {
+    if (symbol === 'BTC' && (!network || network === 'mainnet')) {
       return new Currency({
         type: RequestLogicTypes.CURRENCY.BTC,
         value: 'BTC',
+        network: 'mainnet',
       });
     }
-    if (symbol === 'ETH') {
+    if (symbol === 'ETH' && (!network || network === 'mainnet' || network === 'rinkeby')) {
       return new Currency({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
+        network: network || 'mainnet',
       });
     }
 
@@ -70,10 +82,69 @@ export class Currency implements RequestLogicTypes.ICurrency {
         value: symbol,
       });
     }
-    throw new Error(`The currency ${symbol} is not supported`);
+    throw new Error(
+      `The currency symbol '${symbol}'${
+        network ? ` on ${network}` : ''
+      } is unknown or not supported`,
+    );
   };
 
-  public toString(): string {
-    return currencyToString(this);
+  /**
+   * @returns Symbol if known (FAU, DAI, ETH etc.)
+   */
+  public getSymbol(): string | 'unknown' {
+    let symbol: string;
+
+    switch (this.type) {
+      case RequestLogicTypes.CURRENCY.BTC:
+      case RequestLogicTypes.CURRENCY.ETH:
+        symbol = this.type;
+        break;
+      case RequestLogicTypes.CURRENCY.ISO4217:
+        symbol = this.value;
+        break;
+      case RequestLogicTypes.CURRENCY.ERC20:
+        symbol = getErc20Symbol(this) || 'unknown';
+        break;
+      default:
+        symbol = 'unknown';
+    }
+    return symbol;
+  }
+
+  /**
+   * Gets the hash of a currency
+   *
+   * @returns the hash of the currency
+   * @todo It onlys supports Ethereum-based currencies, fiat and BTC.
+   */
+  public getHash(): string {
+    if (this.type === RequestLogicTypes.CURRENCY.ERC20) {
+      return this.value;
+    }
+    if (
+      this.type === RequestLogicTypes.CURRENCY.ETH ||
+      this.type === RequestLogicTypes.CURRENCY.BTC
+    ) {
+      // ignore the network
+      return Utils.crypto.last20bytesOfNormalizedKeccak256Hash({
+        type: this.type,
+        value: this.value,
+      });
+    }
+    return Utils.crypto.last20bytesOfNormalizedKeccak256Hash(this);
+  }
+
+  /**
+   * @returns e.g.: 'ETH',  'ETH-rinkeby', 'FAU-rinkeby' etc.
+   */
+  public toString(): string | 'unknown' {
+    const symbol = this.getSymbol();
+
+    // Append currency network if relevant
+    const network =
+      this.network && this.network !== 'mainnet' && symbol !== 'unknown' ? `-${this.network}` : '';
+
+    return symbol + network;
   }
 }

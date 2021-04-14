@@ -7,19 +7,18 @@ import { getSupportedERC20Tokens } from './erc20';
  */
 export class Token extends Currency {
   constructor(
-    public value: string,
-    public type: RequestLogicTypes.CURRENCY,
-    public symbol: string,
-    public network?: string,
+    value: string,
+    type: RequestLogicTypes.CURRENCY,
+    public readonly symbol: string,
+    network?: string,
   ) {
     super({ value, type, network });
   }
 
   /**
-   * Gets a supported currency from a symbol, symbol-network or address.
+   * Gets a supported token from a symbol, symbol-network or address.
    * Iterates over all the supported networks if needed
    * @param symbolOrAddress e.g. 'DAI', 'FAU', 'FAU-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
-   * @returns an ICurrency object
    */
   static from(symbolOrAddress: string): Token {
     try {
@@ -48,8 +47,8 @@ export class Token extends Currency {
   /**
    * Same result as Currency.toString() but with a faster implementation because symbol is known
    */
-  toString = (): string => {
+  public toString(): string {
     const networkSuffix = this.network && this.network !== 'mainnet' ? `-${this.network}` : '';
     return this.symbol + networkSuffix;
-  };
+  }
 }

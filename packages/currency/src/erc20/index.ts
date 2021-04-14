@@ -11,8 +11,11 @@ export function getErc20Currency(
   network?: string,
 ): RequestLogicTypes.ICurrency | undefined {
   // Check if it's on one of the other supported networks
-  if (network && network in supportedNetworks && supportedNetworks[network].has(symbol)) {
-    return supportedNetworks[network].get(symbol);
+  if (network) {
+    if (network in supportedNetworks && supportedNetworks[network].has(symbol)) {
+      return supportedNetworks[network].get(symbol);
+    }
+    return;
   }
   for (network of Object.keys(supportedNetworks)) {
     if (supportedNetworks[network].has(symbol)) {

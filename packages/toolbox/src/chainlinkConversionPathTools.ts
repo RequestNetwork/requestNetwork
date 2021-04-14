@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
 import { ChainlinkConversionPath__factory } from '@requestnetwork/smart-contracts/types';
-import { getCurrencyHash, stringToCurrency } from '@requestnetwork/currency';
+import { Currency } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import iso4217 from '@requestnetwork/currency/dist/iso4217';
 import { LogDescription } from 'ethers/lib/utils';
@@ -110,16 +110,17 @@ class ChainlinkConversionPathTools {
   }
 }
 
-const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH'].reduce(
-  (prev, curr) => ({
+// Record currency [currency hash] => {value (address or symbol), type}
+const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH'].reduce((prev, symbol) => {
+  const currency = Currency.fromSymbol(symbol);
+  return {
     ...prev,
-    [getCurrencyHash(stringToCurrency(curr)).toLowerCase()]: {
-      value: curr,
-      type: stringToCurrency(curr).type,
+    [currency.getHash().toLowerCase()]: {
+      value: currency.value,
+      type: currency.type,
     },
-  }),
-  {} as Record<string, { value: string; type: RequestLogicTypes.CURRENCY }>,
-);
+  };
+}, {} as Record<string, { value: string; type: RequestLogicTypes.CURRENCY }>);
 
 const addSupportedCurrency = (
   ccy: string,
@@ -190,6 +191,6 @@ export const showCurrencyHash = async (options?: IOptions): Promise<void> => {
   }
   console.log('#####################################################################');
   console.log(`Currency hash of: ${options.currencyCode}`);
-  console.log(getCurrencyHash(stringToCurrency(options.currencyCode)));
+  console.log(Currency.fromSymbol(options.currencyCode).getHash());
   console.log('#####################################################################');
 };
