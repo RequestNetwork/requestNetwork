@@ -1,5 +1,4 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import iso4217 from './iso4217';
 import othersCurrencies from './others';
 import { getErc20Decimals, getSupportedERC20Tokens } from './erc20';
