@@ -128,20 +128,7 @@ export function getAllSupportedCurrencies(): {
  * @deprecated use new Currency().getHash() instead
  */
 export function getCurrencyHash(currency: RequestLogicTypes.ICurrency): string {
-  if (currency.type === RequestLogicTypes.CURRENCY.ERC20) {
-    return currency.value;
-  }
-  if (
-    currency.type === RequestLogicTypes.CURRENCY.ETH ||
-    currency.type === RequestLogicTypes.CURRENCY.BTC
-  ) {
-    // ignore the network
-    return Utils.crypto.last20bytesOfNormalizedKeccak256Hash({
-      type: currency.type,
-      value: currency.value,
-    });
-  }
-  return Utils.crypto.last20bytesOfNormalizedKeccak256Hash(currency);
+  return new Currency(currency).getHash();
 }
 
 export default {
