@@ -15,7 +15,6 @@ export function getErc20Currency(
     return supportedNetworks[network].get(symbol);
   }
   for (network of Object.keys(supportedNetworks)) {
-    // console.log(network, symbol);
     if (supportedNetworks[network].has(symbol)) {
       // console.log(supportedNetworks[network].get(symbol));
       return supportedNetworks[network].get(symbol);
