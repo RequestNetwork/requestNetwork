@@ -47,7 +47,6 @@ export class Token extends Currency {
 
   /**
    * Same result as Currency.toString() but with a faster implementation because symbol is known
-   * @returns
    */
   toString = (): string => {
     const networkSuffix = this.network && this.network !== 'mainnet' ? `-${this.network}` : '';
