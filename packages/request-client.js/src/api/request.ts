@@ -5,7 +5,7 @@ import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
-import { currencyToString } from '@requestnetwork/currency';
+import { Currency } from '@requestnetwork/currency';
 import localUtils from './utils';
 
 /**
@@ -679,7 +679,7 @@ export default class Request {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
-      currency: requestData.currency ? currencyToString(requestData.currency) : 'unknown',
+      currency: requestData.currency ? new Currency(requestData.currency).toString() : 'unknown',
       currencyInfo: requestData.currency,
       meta: this.requestMeta,
       pending,

@@ -16,7 +16,7 @@ import {
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
-import { stringToCurrency } from '@requestnetwork/currency';
+import { Currency } from '@requestnetwork/currency';
 import { utils as ethersUtils } from 'ethers';
 import Request from './request';
 import localUtils from './utils';
@@ -351,7 +351,7 @@ export default class RequestNetwork {
     const requestParameters = {
       ...parameters.requestInfo,
       // if request currency is a string, convert it to currency object
-      currency: typeof currency === 'string' ? stringToCurrency(currency) : currency,
+      currency: typeof currency === 'string' ? Currency.from(currency) : currency,
     };
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
     const contentData = parameters.contentData;
