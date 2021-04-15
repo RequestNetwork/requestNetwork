@@ -6,7 +6,7 @@ import * as metamaskContractMap from '@metamask/contract-metadata';
 // A Token description from the eth-contract-metadata list
 interface ITokenDescription {
   name: string;
-  logo: string;
+  logo?: string;
   erc20: boolean;
   symbol: string;
   decimals: number;

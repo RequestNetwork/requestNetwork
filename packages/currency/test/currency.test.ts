@@ -1,6 +1,6 @@
 /* eslint-disable no-magic-numbers */
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { Currency, getAllSupportedCurrencies, getDecimalsForCurrency } from '../src';
+import { Currency, getAllSupportedCurrencies } from '../src';
 
 describe('api/currency', () => {
   describe('getAllSupportedCurrencies', () => {
@@ -69,77 +69,77 @@ describe('api/currency', () => {
     });
   });
 
-  describe('getDecimalsForCurrency', () => {
+  describe('currency.getDecimals()', () => {
     it('returns the correct number of decimals', () => {
       expect(
-        getDecimalsForCurrency({
+        new Currency({
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
-        }),
+        }).getDecimals(),
       ).toEqual(18);
     });
 
     it('throws for invalid currencies', () => {
       expect(() =>
-        getDecimalsForCurrency({
+        new Currency({
           type: 'BANANA' as RequestLogicTypes.CURRENCY,
           value: 'SPLIT',
-        } as RequestLogicTypes.ICurrency),
+        } as RequestLogicTypes.ICurrency).getDecimals(),
       ).toThrow();
     });
 
     it('returns the correct number of decimals for a supported ERC20', () => {
       expect(
-        getDecimalsForCurrency({
+        new Currency({
           network: 'mainnet',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359', // SAI
-        }),
+        }).getDecimals(),
       ).toEqual(18);
     });
 
     it('throws for a non-supported ERC20', () => {
       expect(() =>
-        getDecimalsForCurrency({
+        new Currency({
           network: 'private',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 contract
-        }),
+        }).getDecimals(),
       ).toThrow();
     });
 
     it('returns the correct number of decimals for a a celo ERC20', () => {
       expect(
-        getDecimalsForCurrency({
+        new Currency({
           network: 'celo',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x765DE816845861e75A25fCA122bb6898B8B1282a', // Celo Dollar
-        }),
+        }).getDecimals(),
       ).toEqual(18);
     });
 
     it('return the correct currency for USD and EUR strings', () => {
       expect(
-        getDecimalsForCurrency({
+        new Currency({
           type: RequestLogicTypes.CURRENCY.ISO4217,
           value: 'USD',
-        }),
+        }).getDecimals(),
       ).toEqual(2);
 
       expect(
-        getDecimalsForCurrency({
+        new Currency({
           type: RequestLogicTypes.CURRENCY.ISO4217,
           value: 'EUR',
-        }),
+        }).getDecimals(),
       ).toEqual(2);
     });
 
     it('throws for unknown ISO4217 currency', () => {
       expect(() =>
-        getDecimalsForCurrency({
+        new Currency({
           type: RequestLogicTypes.CURRENCY.ISO4217,
           value: 'YOYO',
-        }),
+        }).getDecimals(),
       ).toThrow(`Unsupported ISO currency YOYO`);
     });
   });
@@ -200,27 +200,6 @@ describe('api/currency', () => {
       expect(Currency.fromSymbol('EUR')).toEqual({
         type: RequestLogicTypes.CURRENCY.ISO4217,
         value: 'EUR',
-      });
-    });
-  });
-
-  describe('Currency.fromSymbol()', () => {
-    it('throws for SAI not on mainnet', () => {
-      expect(() => Currency.fromSymbol('SAI-rinkeby')).toThrow();
-    });
-
-    it('throws for an unsupported currency', () => {
-      expect(() => Currency.fromSymbol('XXXXXXX')).toThrow();
-    });
-
-    describe('errors and edge cases', () => {
-      it('throws for empty symbol', () => {
-        expect(() => Currency.fromSymbol('')).toThrow(`Cannot guess currency from empty symbol.`);
-      });
-      it('Unsupported network should throw', () => {
-        expect(() => Currency.fromSymbol('ETH', 'UNSUPPORTED')).toThrow(
-          "The currency symbol 'ETH' on UNSUPPORTED is unknown or not supported",
-        );
       });
     });
   });
@@ -453,6 +432,27 @@ describe('api/currency', () => {
     });
   });
 
+  describe('Currency.fromSymbol()', () => {
+    it('throws for SAI not on mainnet', () => {
+      expect(() => Currency.fromSymbol('SAI-rinkeby')).toThrow();
+    });
+
+    it('throws for an unsupported currency', () => {
+      expect(() => Currency.fromSymbol('XXXXXXX')).toThrow();
+    });
+
+    describe('errors and edge cases', () => {
+      it('throws for empty symbol', () => {
+        expect(() => Currency.fromSymbol('')).toThrow(`Cannot guess currency from empty symbol.`);
+      });
+      it('Unsupported network should throw', () => {
+        expect(() => Currency.fromSymbol('ETH', 'UNSUPPORTED')).toThrow(
+          "The currency symbol 'ETH' on UNSUPPORTED is unknown or not supported",
+        );
+      });
+    });
+  });
+
   describe('Currency.from()', () => {
     describe('mainnet', () => {
       it('ETH from ETH', () => {
@@ -499,6 +499,14 @@ describe('api/currency', () => {
         expect(Currency.from('0x6B175474E89094C44Da98b954EedeAC495271d0F')).toMatchObject({
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          network: 'mainnet',
+        });
+      });
+
+      it('fetches extra-currency from address (INDA)', () => {
+        expect(Currency.from('0x433d86336db759855a66ccabe4338313a8a7fc77')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x433d86336db759855a66ccabe4338313a8a7fc77',
           network: 'mainnet',
         });
       });

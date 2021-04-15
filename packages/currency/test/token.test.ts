@@ -50,8 +50,28 @@ describe('api/currency Token', () => {
         });
       });
 
-      it('DAI from 0x6B175474E89094C44Da98b954EedeAC495271d0F', () => {
+      it('fetches extra-currency from address (INDA)', () => {
+        expect(Token.from('0x433d86336dB759855A66cCAbe4338313a8A7fc77')).toMatchObject({
+          symbol: 'INDA',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x433d86336dB759855A66cCAbe4338313a8A7fc77',
+          network: 'mainnet',
+        });
+      });
+
+      it('DAI from DAI address (checksum)', () => {
         expect(Token.from('0x6B175474E89094C44Da98b954EedeAC495271d0F')).toMatchObject({
+          symbol: 'DAI',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          network: 'mainnet',
+        });
+      });
+
+      it('DAI from DAI address (lower case)', () => {
+        expect(
+          Token.from('0x6B175474E89094C44Da98b954EedeAC495271d0F'.toLowerCase()),
+        ).toMatchObject({
           symbol: 'DAI',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',

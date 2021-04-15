@@ -31,7 +31,9 @@ export class Token extends Currency {
       );
     } catch (e) {
       const erc20Currencies = getSupportedERC20Tokens();
-      const currencyFromAddress = erc20Currencies.find((c) => c.address === symbolOrAddress);
+      const currencyFromAddress = erc20Currencies.find(
+        (c) => c.address.toLowerCase() === symbolOrAddress.toLowerCase(),
+      );
       if (!currencyFromAddress) {
         throw new Error(`The currency ${symbolOrAddress} does not exist or is not supported`);
       }
@@ -42,6 +44,13 @@ export class Token extends Currency {
         currencyFromAddress.symbol.split('-')[1] || 'mainnet',
       );
     }
+  }
+
+  /**
+   * Override for efficiency
+   */
+  public getSymbol(): string {
+    return this.symbol;
   }
 
   /**
