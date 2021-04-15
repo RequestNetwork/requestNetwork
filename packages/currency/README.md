@@ -13,19 +13,19 @@ npm install @requestnetwork/currency
 
 ```javascript
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { getDecimalsForCurrency, getCurrencyHash, Currency, Token } from '@requestnetwork/currency';
+import { Currency, Token } from '@requestnetwork/currency';
 
-const decimals = getDecimalsForCurrency({
+const decimals = new Currency({
   type: RequestLogicTypes.CURRENCY.ETH,
   value: 'ETH',
-});
+}).getDecimals();
 
 console.log(decimals); // 18
 
-const ETHHash = getCurrencyHash({
+const ETHHash = new Currency({
   type: RequestLogicTypes.CURRENCY.ETH,
   value: 'ETH',
-});
+}).getHash();
 
 console.log(ETHHash); // 0xF5AF88e117747e87fC5929F2ff87221B1447652E
 
