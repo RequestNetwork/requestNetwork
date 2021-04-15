@@ -1,4 +1,4 @@
-import { getDecimalsForCurrency, Currency } from '@requestnetwork/currency';
+import { Currency } from '@requestnetwork/currency';
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
@@ -153,7 +153,7 @@ export default class ProxyERC20InfoRetriever
       // Creates the balance events
       .map(async ({ conversionLog, proxyLog, blockNumber, transactionHash }) => {
         const chainlinkDecimal = 8;
-        const decimalPadding = chainlinkDecimal - getDecimalsForCurrency(this.requestCurrency);
+        const decimalPadding = chainlinkDecimal - new Currency(this.requestCurrency).getDecimals();
 
         const amountWithRightDecimal = conversionLog.amount.div(10 ** decimalPadding).toString();
         const feeAmountWithRightDecimal = conversionLog.feeAmount

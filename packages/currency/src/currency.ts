@@ -1,7 +1,13 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { getSupportedERC20Currencies, getErc20Currency, getErc20Symbol } from './erc20';
+import {
+  getSupportedERC20Currencies,
+  getErc20Currency,
+  getErc20Symbol,
+  getErc20Decimals,
+} from './erc20';
 import iso4217 from './iso4217';
+import otherCurrencies from './others';
 
 /**
  * @class Currency implements ICurrency with helpers
@@ -35,7 +41,9 @@ export class Currency implements RequestLogicTypes.ICurrency {
       return currencyFromSymbol;
     } catch (e) {
       const erc20Currencies = getSupportedERC20Currencies();
-      const currencyFromAddress = erc20Currencies.find((c) => c.value === symbolOrAddress);
+      const currencyFromAddress = erc20Currencies.find(
+        (c) => c.value.toLowerCase() === symbolOrAddress.toLowerCase(),
+      );
       if (!currencyFromAddress) {
         throw new Error(`The currency ${symbolOrAddress} does not exist or is not supported`);
       }
@@ -133,6 +141,33 @@ export class Currency implements RequestLogicTypes.ICurrency {
       });
     }
     return Utils.crypto.last20bytesOfNormalizedKeccak256Hash(this);
+  }
+
+  /**
+   * Returns the number of decimals
+   */
+  public getDecimals(): number {
+    // Return decimals if currency is an ERC20
+    if (this.type === RequestLogicTypes.CURRENCY.ERC20) {
+      return getErc20Decimals(this);
+    }
+
+    // Return the number of decimals for ISO-4217 currencies
+    if (this.type === RequestLogicTypes.CURRENCY.ISO4217) {
+      const iso = iso4217.find((i) => i.code === this.value);
+      if (!iso) {
+        throw new Error(`Unsupported ISO currency ${this.value}`);
+      }
+      return iso.digits;
+    }
+
+    // other currencies
+    const otherCurrency = otherCurrencies[this.type];
+    if (!otherCurrency) {
+      throw new Error(`Currency ${this.type} not implemented`);
+    }
+
+    return otherCurrency.decimals;
   }
 
   /**

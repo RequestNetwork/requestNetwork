@@ -1,7 +1,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import iso4217 from './iso4217';
 import othersCurrencies from './others';
-import { getErc20Decimals, getSupportedERC20Tokens } from './erc20';
+import { getSupportedERC20Tokens } from './erc20';
 import { Currency } from './currency';
 export { Currency } from './currency';
 export { Token } from './token';
@@ -54,30 +54,11 @@ export function currencyToString(currency: RequestLogicTypes.ICurrency): string 
  * Returns the number of decimals for a currency
  *
  * @param currency The currency
+ * @deprecated Use new Currency().getDecimals() instead
  * @returns The number of decimals
  */
 export function getDecimalsForCurrency(currency: RequestLogicTypes.ICurrency): number {
-  // Return decimals if currency is an ERC20
-  if (currency.type === RequestLogicTypes.CURRENCY.ERC20) {
-    return getErc20Decimals(currency);
-  }
-
-  // Return the number of decimals for ISO-4217 currencies
-  if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
-    const iso = iso4217.find((i) => i.code === currency.value);
-    if (!iso) {
-      throw new Error(`Unsupported ISO currency ${currency.value}`);
-    }
-    return iso.digits;
-  }
-
-  // other currencies
-  const otherCurrency = othersCurrencies[currency.type];
-  if (!otherCurrency) {
-    throw new Error(`Currency ${currency.type} not implemented`);
-  }
-
-  return otherCurrency.decimals;
+  return new Currency(currency).getDecimals();
 }
 
 /**
