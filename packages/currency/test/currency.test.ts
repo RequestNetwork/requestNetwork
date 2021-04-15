@@ -506,7 +506,7 @@ describe('api/currency', () => {
       it('fetches extra-currency from address (INDA)', () => {
         expect(Currency.from('0x433d86336db759855a66ccabe4338313a8a7fc77')).toMatchObject({
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x433d86336db759855a66ccabe4338313a8a7fc77',
+          value: '0x433d86336dB759855A66cCAbe4338313a8A7fc77',
           network: 'mainnet',
         });
       });
