@@ -178,10 +178,10 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
   console.log('All aggregators:');
   console.log(allAggregators);
   console.log('#####################################################################');
-  console.log('All aggregators nodes for currency pairs graph:');
+  console.log('All aggregators nodes (currency) :');
   console.log(aggregatorsNodesForDijkstra);
   console.log('#####################################################################');
-  console.log('Supported currencies:');
+  console.log('Supported currencies (advanced-logic) :');
   console.log(supportedCurrencies);
 };
 
