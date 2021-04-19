@@ -15,9 +15,9 @@ const Erc20ConversionProxy = artifacts.require('./Erc20ConversionProxy.sol');
 
 const FakeSwapRouter = artifacts.require('./FakeSwapRouter.sol');
 
-const ERC20SwapToPayWithConversion = artifacts.require('./ERC20SwapToPayWithConversion.sol');
+const ERC20SwapToConversion = artifacts.require('./ERC20SwapToConversion.sol');
 
-contract('ERC20SwapToPayWithConversion', function (accounts) {
+contract('ERC20SwapToConversion', function (accounts) {
   const admin = accounts[0];
   const from = accounts[1];
   const to = accounts[2];
@@ -32,7 +32,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
   let erc20FeeProxy;
   let erc20ConversionProxy;
   let fakeSwapRouter;
-  let testERC20SwapToPayWithConversion;
+  let testERC20SwapToConversion;
   let initialFromBalance;
   let chainlinkConversion;
   let aggTest;
@@ -83,10 +83,10 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
       from: admin,
     });
 
-    testERC20SwapToPayWithConversion = await ERC20SwapToPayWithConversion.new(fakeSwapRouter.address, erc20ConversionProxy.address);
+    testERC20SwapToConversion = await ERC20SwapToConversion.new(fakeSwapRouter.address, erc20ConversionProxy.address);
 
     initialFromBalance = await spentErc20.balanceOf(from);
-    await spentErc20.approve(testERC20SwapToPayWithConversion.address, initialFromBalance, { from });
+    await spentErc20.approve(testERC20SwapToConversion.address, initialFromBalance, { from });
   });
   
   expectPayerBalanceUnchanged = async () => {
@@ -96,19 +96,19 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
 
   afterEach(async () => {
     // The contract should never keep any fund
-    const contractPaymentCcyBalance = await paymentNetworkErc20.balanceOf(testERC20SwapToPayWithConversion.address);
-    const contractRequestCcyBalance = await spentErc20.balanceOf(testERC20SwapToPayWithConversion.address);
+    const contractPaymentCcyBalance = await paymentNetworkErc20.balanceOf(testERC20SwapToConversion.address);
+    const contractRequestCcyBalance = await spentErc20.balanceOf(testERC20SwapToConversion.address);
     expect(contractPaymentCcyBalance.toNumber()).to.equals(0);
     expect(contractRequestCcyBalance.toNumber()).to.equals(0);
   });
 
   it('converts, swaps and pays the request', async function () {
     const beforePayerBalance = await spentErc20.balanceOf(from);
-    await testERC20SwapToPayWithConversion.approvePaymentProxyToSpend(paymentNetworkErc20.address);
-    await testERC20SwapToPayWithConversion.approveRouterToSpend(spentErc20.address);
+    await testERC20SwapToConversion.approvePaymentProxyToSpend(paymentNetworkErc20.address);
+    await testERC20SwapToConversion.approveRouterToSpend(spentErc20.address);
 
     // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
-    let { tx } = await testERC20SwapToPayWithConversion.swapTransferWithReference(
+    let { tx } = await testERC20SwapToConversion.swapTransferWithReference(
       to,
       fiatDecimal.mul(10),
       erc20Decimal.mul(70),
@@ -152,7 +152,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
     let {
       tx,
       receipt: { gasUsed },
-    } = await testERC20SwapToPayWithConversion.swapTransferWithReference(
+    } = await testERC20SwapToConversion.swapTransferWithReference(
       to,
       0,
       0,
@@ -191,7 +191,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
 
   it('cannot swap with a too low maximum spent', async function () {
     await expectRevert.unspecified(
-      testERC20SwapToPayWithConversion.swapTransferWithReference(
+      testERC20SwapToConversion.swapTransferWithReference(
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(50),
@@ -210,7 +210,7 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
 
   it('cannot swap with a past deadline', async function () {
     await expectRevert.unspecified(
-      testERC20SwapToPayWithConversion.swapTransferWithReference(
+      testERC20SwapToConversion.swapTransferWithReference(
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(66),
@@ -229,10 +229,10 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
 
 
   it('cannot swap more tokens than liquidity', async function () {
-    await spentErc20.approve(testERC20SwapToPayWithConversion.address, erc20Decimal.mul(6600), { from });
+    await spentErc20.approve(testERC20SwapToConversion.address, erc20Decimal.mul(6600), { from });
 
     await expectRevert.unspecified(
-      testERC20SwapToPayWithConversion.swapTransferWithReference(
+      testERC20SwapToConversion.swapTransferWithReference(
         to,
         fiatDecimal.mul(1000),
         erc20Decimal.mul(6600),
@@ -250,10 +250,10 @@ contract('ERC20SwapToPayWithConversion', function (accounts) {
   });
 
   it('cannot swap more tokens than allowance', async function () {
-    await spentErc20.approve(testERC20SwapToPayWithConversion.address, erc20Decimal.mul(60), { from });
+    await spentErc20.approve(testERC20SwapToConversion.address, erc20Decimal.mul(60), { from });
 
     await expectRevert.unspecified(
-      testERC20SwapToPayWithConversion.swapTransferWithReference(
+      testERC20SwapToConversion.swapTransferWithReference(
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(66),

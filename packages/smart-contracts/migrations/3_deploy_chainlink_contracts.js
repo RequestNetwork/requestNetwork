@@ -5,7 +5,7 @@ const AggEUR_USD = artifacts.require("AggEurUsd");
 const AggUSDT_ETH = artifacts.require("AggUsdtEth");
 const USDT_fake = artifacts.require("UsdtFake");
 const FakeSwapRouter = artifacts.require('FakeSwapRouter');
-const ERC20SwapToPayWithConversion = artifacts.require('ERC20SwapToPayWithConversion');
+const ERC20SwapToConversion = artifacts.require('ERC20SwapToConversion');
 
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const ChainlinkConversionPath = artifacts.require("ChainlinkConversionPath");
@@ -38,7 +38,7 @@ module.exports = async function (deployer) {
   await deployer.deploy(Erc20ConversionProxy, ERC20FeeProxy.address, ChainlinkConversionPath.address);
 
   // erc20SwapConversion
-  const erc20SwapConversion = await deployer.deploy(ERC20SwapToPayWithConversion, FakeSwapRouter.address, Erc20ConversionProxy.address);
+  const erc20SwapConversion = await deployer.deploy(ERC20SwapToConversion, FakeSwapRouter.address, Erc20ConversionProxy.address);
 
   await erc20SwapConversion.approvePaymentProxyToSpend('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
   await erc20SwapConversion.approveRouterToSpend('0x9FBDa871d559710256a2502A2517b794B482Db40');
