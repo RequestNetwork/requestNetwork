@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumber, BigNumberish } from 'ethers';
 
-import { getDecimalsForCurrency, getConversionPath } from '@requestnetwork/currency';
+import { getConversionPath, Currency } from '@requestnetwork/currency';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -114,7 +114,7 @@ export async function encodePayAnyToErc20ProxyRequest(
 
   const chainlinkDecimal = 8;
   const decimalPadding = Math.max(
-    chainlinkDecimal - getDecimalsForCurrency(request.currencyInfo),
+    chainlinkDecimal - new Currency(request.currencyInfo).getDecimals(),
     0,
   );
 

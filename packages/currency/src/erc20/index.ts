@@ -8,11 +8,19 @@ import { supportedNetworks, supportedNetworksDetails, ERC20SymbolDetails } from 
  */
 export function getErc20Currency(
   symbol: string,
-  network = 'mainnet',
+  network?: string,
 ): RequestLogicTypes.ICurrency | undefined {
   // Check if it's on one of the other supported networks
-  if (network in supportedNetworks && supportedNetworks[network].has(symbol)) {
-    return supportedNetworks[network].get(symbol);
+  if (network) {
+    if (network in supportedNetworks && supportedNetworks[network].has(symbol)) {
+      return supportedNetworks[network].get(symbol);
+    }
+    return;
+  }
+  for (network of Object.keys(supportedNetworks)) {
+    if (supportedNetworks[network].has(symbol)) {
+      return supportedNetworks[network].get(symbol);
+    }
   }
 
   return;
@@ -70,19 +78,41 @@ export function getErc20Symbol(currency: RequestLogicTypes.ICurrency): string | 
 interface ERC20TokenDetails extends ERC20SymbolDetails {
   symbol: string;
 }
+
+/**
+ * Returns a list of supported ERC20 tokens
+ *
+ * @returns List of supported ERC20 tokens
+ */
+export function getSupportedERC20Tokens(): ERC20TokenDetails[] {
+  return Object.entries(supportedNetworksDetails).reduce(
+    (acc: ERC20TokenDetails[], [networkName, supportedCurrencies]) => {
+      return [
+        ...acc,
+        ...Object.entries(supportedCurrencies).map(([symbol, token]) => ({
+          ...token,
+          symbol: `${symbol}${networkName !== 'mainnet' ? `-${networkName}` : ''}`,
+        })),
+      ];
+    },
+    [],
+  );
+}
+
 /**
  * Returns a list of supported ERC20 currencies
  *
  * @returns List of supported ERC20 currencies
  */
-export function getSupportedERC20Tokens(): ERC20TokenDetails[] {
+export function getSupportedERC20Currencies(): RequestLogicTypes.ICurrency[] {
   return Object.entries(supportedNetworksDetails).reduce(
-    (acc: ERC20TokenDetails[], [networkName, network]) => {
+    (acc: RequestLogicTypes.ICurrency[], [networkName, supportedCurrencies]) => {
       return [
         ...acc,
-        ...Object.entries(network).map(([symbol, token]) => ({
-          ...token,
-          symbol: `${symbol}${networkName !== 'mainnet' ? `-${networkName}` : ''}`,
+        ...Object.entries(supportedCurrencies).map(([, token]) => ({
+          network: networkName,
+          value: token.address,
+          type: RequestLogicTypes.CURRENCY.ERC20,
         })),
       ];
     },
