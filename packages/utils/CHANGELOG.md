@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.33.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.33.0) (2021-04-19)
+
+
+### Bug Fixes
+
+* private key without trailing 0x ([#479](https://github.com/RequestNetwork/requestNetwork/issues/479)) ([4d71cae](https://github.com/RequestNetwork/requestNetwork/commit/4d71caec912e3adbab99cf029b07ee007d7c39bb))
+
+
+### Features
+
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+
+
+
+
+
 # [0.32.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.32.0) (2021-03-25)
 
 
