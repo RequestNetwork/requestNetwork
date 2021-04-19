@@ -60,6 +60,7 @@ const currencyPairs: any = {
       '0x013f29832cd6525c4c6df81c2aae8032a1ff2db2': 1,
       '0x17b4158805772ced11225e77339f90beb5aae968': 1,
       '0x6b175474e89094c44da98b954eedeac495271d0f': 1,
+      '0x3845badade8e6dff049820680d1f14bd3903a5d0': 1,
     },
     '0xfa6faefc053e6c8e393a73dcc12b09fcde019d25': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -126,6 +127,9 @@ const currencyPairs: any = {
     },
     '0x967da4048cd07ab37855c090aaf366e4ce1b9f48': {
       '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
+    },
+    '0x3845badade8e6dff049820680d1f14bd3903a5d0': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
   },
 };
