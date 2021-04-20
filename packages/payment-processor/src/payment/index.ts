@@ -34,7 +34,11 @@ export class UnsupportedNetworkError extends Error {
 
 /**
  * Processes a transaction to pay a Request.
- * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA, ERC20_FEE_PROXY_CONTRACT
+ * Supported networks:
+ * - ERC20_PROXY_CONTRACT
+ * - ETH_INPUT_DATA
+ * - ERC20_FEE_PROXY_CONTRACT
+ * - ANY_TO_ERC20_PROXY
  *
  * @throws UnsupportedNetworkError if network isn't supported for swap or payment.
  * @param request the request to pay.

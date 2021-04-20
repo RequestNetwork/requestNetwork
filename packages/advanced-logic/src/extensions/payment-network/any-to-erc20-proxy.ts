@@ -44,6 +44,7 @@ const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, str
     [RequestLogicTypes.CURRENCY.ISO4217]: ['AUD', 'CAD', 'CHF', 'EUR', 'GBP', 'SGD', 'USD'],
     [RequestLogicTypes.CURRENCY.ERC20]: [
       '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c',
+      '0x3845badade8e6dff049820680d1f14bd3903a5d0',
       '0x4e15361fd6b4bb609fa63c81a2be19d873717870',
       '0x6b175474e89094c44da98b954eedeac495271d0f',
       '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9',
