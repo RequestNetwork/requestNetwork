@@ -26,8 +26,10 @@ export async function approveErc20ForProxyConversionIfNeeded(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
   const network =
-    request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.network ||
-    'mainnet';
+    request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.network;
+  if (!network) {
+    throw new Error(`Payment network currency must have a network`);
+  }
 
   if (
     !(await checkErc20Allowance(

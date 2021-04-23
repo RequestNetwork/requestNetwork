@@ -28,12 +28,10 @@ export interface IPaymentSettings {
  * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
  * The payment is made by the ERC20 fee proxy contract.
  * @param request the request to pay
- * @param paymentTokenAddress the token address to pay the request
- * @param maxToSpend maximum of token the user is willing to spend
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param paymentSettings payment settings
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
- * @param network optionally, network of the payment. Defaults to 'mainnet'
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payAnyToErc20ProxyRequest(
@@ -70,12 +68,10 @@ export async function payAnyToErc20ProxyRequest(
 /**
  * Encodes the call to pay a request with an ERC20 currency that is different from the request currency (eg. fiat). The payment is made by the ERC20 fee proxy contract.
  * @param request request to pay
- * @param paymentTokenAddress token address to pay with
- * @param maxToSpend maximum of token the user is willing to spend
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param paymentSettings payment settings
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
- * @param network optionally, network of the payment. Defaults to 'mainnet'
  */
 export async function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
