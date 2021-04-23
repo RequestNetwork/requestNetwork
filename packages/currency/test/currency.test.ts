@@ -530,7 +530,7 @@ describe('api/currency', () => {
       });
 
       it('FAU from FAU-rinkeby', () => {
-        expect(Currency.from('FAU')).toMatchObject({
+        expect(Currency.from('FAU-rinkeby')).toMatchObject({
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0xFab46E002BbF0b4509813474841E0716E6730136',
           network: 'rinkeby',
