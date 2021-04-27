@@ -5,11 +5,9 @@
     "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["./src/**/*", "./artifacts/**/*"],
+  "include": ["./src/**/*", "./artifacts/**/*", "./src/**/*.json"],
   "references": [{ "path": "../currency" }, { "path": "../utils" }],
   "files": [
-    "./artifacts/ERC20Proxy/artifacts.json",
-    "./artifacts/ERC20Proxy/0.1.0.json",
     "./artifacts/RequestHashStorage/artifacts.json",
     "./artifacts/RequestHashStorage/0.1.0.json",
     "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/0.1.0.json",

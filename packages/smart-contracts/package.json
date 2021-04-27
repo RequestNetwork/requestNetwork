@@ -46,6 +46,7 @@
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "deploy": "truffle --contracts_directory=./src deploy",
     "test": "truffle test --contracts_directory=./src test/contracts/*.js",
+    "test:lib": "jest test test/lib",
     "generate-types": "typechain --target=ethers-v5 --outDir=generated 'build/contracts/*.json'"
   },
   "devDependencies": {
