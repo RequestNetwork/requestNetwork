@@ -1,7 +1,7 @@
 import { constants, ContractTransaction, Signer, BigNumber, providers } from 'ethers';
 
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
-import { ERC20SwapToPayWithConversion__factory } from '@requestnetwork/smart-contracts/types';
+import { ERC20SwapToConversion__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import {
@@ -117,7 +117,7 @@ export function encodeSwapToPayAnyToErc20Request(
   }
 
   const contractAddress = erc20SwapConversionArtifact.getAddress(network);
-  const swapToPayContract = ERC20SwapToPayWithConversion__factory.connect(contractAddress, signer);
+  const swapToPayContract = ERC20SwapToConversion__factory.connect(contractAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
     paymentAddress, // _to: string,

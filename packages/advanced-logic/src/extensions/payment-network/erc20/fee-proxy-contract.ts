@@ -245,6 +245,9 @@ function applyCreation(
     throw Error('version is missing');
   }
   if (!extensionAction.parameters.paymentAddress) {
+    throw Error('paymentAddress is missing');
+  }
+  if (!extensionAction.parameters.salt) {
     throw Error('salt is missing');
   }
   if (
