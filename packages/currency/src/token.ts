@@ -22,11 +22,14 @@ export class Token extends Currency {
    */
   static from(symbolOrAddress: string): Token {
     try {
-      const currencyFromSymbol = this.fromSymbol(symbolOrAddress);
+      const currencyFromSymbol = this.fromSymbol(
+        symbolOrAddress.split('-')[0],
+        symbolOrAddress.split('-')[1],
+      );
       return new Token(
         currencyFromSymbol.value,
         currencyFromSymbol.type,
-        symbolOrAddress,
+        symbolOrAddress.split('-')[0],
         currencyFromSymbol.network,
       );
     } catch (e) {
