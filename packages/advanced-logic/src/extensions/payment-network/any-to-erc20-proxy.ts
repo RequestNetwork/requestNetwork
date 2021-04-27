@@ -3,7 +3,7 @@ import Utils from '@requestnetwork/utils';
 import ReferenceBased from './reference-based';
 
 const CURRENT_VERSION = '0.1.0';
-// Default network if nothing is given in the data
+// Default network if the storage data does not give any
 const DEFAULT_NETWORK = 'mainnet';
 
 import * as walletAddressValidator from 'wallet-address-validator';
