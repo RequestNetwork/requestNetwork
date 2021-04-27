@@ -1,5 +1,5 @@
 import { BigNumber, providers } from 'ethers';
-import { RequestOpenHashSubmitter } from '../../types';
+import { RequestOpenHashSubmitter } from '../../src/types';
 import { erc20ProxyArtifact } from '../../src/lib';
 
 describe('Artifact', () => {
@@ -26,13 +26,11 @@ describe('Artifact', () => {
   });
 
   it('offers a strongly typed connect method', async () => {
-    expect(() => {
-      // @ts-expect-error the network is strongly typed
-      erc20ProxyArtifact.connect('not-a-network');
-    }).toThrow();
-
     // @ts-expect-error wrong contract type
-    erc20ProxyArtifact.connect('private') as RequestOpenHashSubmitter;
+    erc20ProxyArtifact.connect(
+      'private',
+      new providers.JsonRpcProvider(),
+    ) as RequestOpenHashSubmitter;
 
     const instance = erc20ProxyArtifact.connect('private', new providers.JsonRpcProvider());
 

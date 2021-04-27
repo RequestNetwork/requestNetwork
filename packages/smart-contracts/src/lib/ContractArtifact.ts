@@ -26,32 +26,16 @@ export type ArtifactInfo<
  * Provides information on a deployed smart-contract,
  * and utilities to connect to it
  **/
-export class ContractArtifact<
-  TContract extends Contract,
-  TNetwork extends string,
-  TVersions extends string
-> {
-  constructor(
-    // this parameter is only used to infer the Contract type
-    // because ContractArtifact<MyContract> isn't possible
-    // TS requires to all or nothing
-    // see https://github.com/Microsoft/TypeScript/issues/10571
-    _: new (
-      addressOrName: string,
-      contractInterface: ContractInterface,
-      signerOrProvider?: Signer | providers.Provider,
-    ) => TContract,
-    private info: ArtifactInfo<TVersions, TNetwork>,
-    private lastVersion: TVersions,
-  ) {}
+export class ContractArtifact<TContract extends Contract> {
+  constructor(private info: ArtifactInfo<string, string>, private lastVersion: string) {}
 
   /**
    * Returns an ethers contract instance for the given `networkName`
    */
   connect(
-    networkName: TNetwork,
-    signerOrProvider?: Signer | providers.Provider,
-    version?: TVersions,
+    networkName: string,
+    signerOrProvider: Signer | providers.Provider,
+    version: string = this.lastVersion,
   ): TContract {
     return new Contract(
       this.getAddress(networkName, version),
@@ -59,6 +43,7 @@ export class ContractArtifact<
       signerOrProvider,
     ) as TContract;
   }
+
   /**
    * Retrieve the abi from the artifact of the used version
    * @returns the abi of the artifact as a json object
@@ -73,7 +58,7 @@ export class ContractArtifact<
    * @param networkName the name of the network where the contract is deployed
    * @returns the address of the deployed contract
    */
-  getAddress(networkName: TNetwork, version = this.lastVersion): string {
+  getAddress(networkName: string, version = this.lastVersion): string {
     return this.getDeploymentInformation(networkName, version).address;
   }
 
@@ -83,7 +68,7 @@ export class ContractArtifact<
    * @param networkName the name of the network where the contract is deployed
    * @returns the number of the block where the contract was deployed
    */
-  getCreationBlockNumber(networkName: TNetwork, version = this.lastVersion): number {
+  getCreationBlockNumber(networkName: string, version = this.lastVersion): number {
     return this.getDeploymentInformation(networkName, version).creationBlockNumber;
   }
 
@@ -94,7 +79,7 @@ export class ContractArtifact<
    * @returns the deployment information of the contract as a json object containing address and the number of the creation block
    */
   getDeploymentInformation(
-    networkName: TNetwork,
+    networkName: string,
     version = this.lastVersion,
   ): { address: string; creationBlockNumber: number } {
     const info = this.info[version].deployment[networkName];
