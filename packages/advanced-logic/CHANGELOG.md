@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.32.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.27.0...@requestnetwork/advanced-logic@0.32.0) (2021-04-19)
+
+
+### Bug Fixes
+
+* acceptedTokens addresses are normalized in lower case ([#437](https://github.com/RequestNetwork/requestNetwork/issues/437)) ([882a3ba](https://github.com/RequestNetwork/requestNetwork/commit/882a3ba0fc453e764f2e2c66c50cb13d9a1a55d8))
+* check any-to-erc20 salt and minor error messages ([#470](https://github.com/RequestNetwork/requestNetwork/issues/470)) ([372009d](https://github.com/RequestNetwork/requestNetwork/commit/372009dcf1fde514ae88e157ea6c52e2f63449e7))
+
+
+### Features
+
+* payment network any to erc20 in advanced logic ([#414](https://github.com/RequestNetwork/requestNetwork/issues/414)) ([45f09f9](https://github.com/RequestNetwork/requestNetwork/commit/45f09f9ee5693378722559d414b07e887fb3c63c))
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+* SAND aggregator support for conversion ([#487](https://github.com/RequestNetwork/requestNetwork/issues/487)) ([46cbe1b](https://github.com/RequestNetwork/requestNetwork/commit/46cbe1bef7b703addb34d7f1d810fea4ff233f5b))
+* updated aggregators for AUD and CAD ([#482](https://github.com/RequestNetwork/requestNetwork/issues/482)) ([9d6c143](https://github.com/RequestNetwork/requestNetwork/commit/9d6c1438e2b99189155e7264943357c72f35a459))
+
+
+
+
+
 # [0.31.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.27.0...@requestnetwork/advanced-logic@0.31.0) (2021-03-25)
 
 
