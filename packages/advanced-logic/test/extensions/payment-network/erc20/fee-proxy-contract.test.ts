@@ -1,11 +1,13 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import erc20FeeProxyContract from '../../../../src/extensions/payment-network/erc20/fee-proxy-contract';
+import Erc20FeeProxyContract from '../../../../src/extensions/payment-network/erc20/fee-proxy-contract';
 
 import * as DataERC20FeeAddData from '../../../utils/payment-network/erc20/fee-proxy-contract-add-data-generator';
 import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-proxy-contract-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
+
+const erc20FeeProxyContract = new Erc20FeeProxyContract();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
@@ -240,7 +242,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
 
     describe('applyActionToExtension/create', () => {
-      it('can applyActionToExtensions of creation', () => {
+      it.only('can applyActionToExtensions of creation', () => {
         // 'new extension state wrong'
         expect(
           erc20FeeProxyContract.applyActionToExtension(

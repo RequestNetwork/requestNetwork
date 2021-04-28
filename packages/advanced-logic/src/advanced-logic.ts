@@ -11,7 +11,7 @@ import addressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet
 import declarative from './extensions/payment-network/declarative';
 import addressBasedErc20 from './extensions/payment-network/erc20/address-based';
 import feeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
-import proxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
+import Erc20ProxyPaymentNetwork from './extensions/payment-network/erc20/proxy-contract';
 import ethereumInputData from './extensions/payment-network/ethereum/input-data';
 import anyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 
@@ -30,7 +30,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     declarative,
     ethereumInputData,
     feeProxyContractErc20,
-    proxyContractErc20,
+    // proxyContractErc20, TODO TODO TODO
   };
 
   /**
@@ -58,8 +58,8 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: addressBasedTestnetBtc,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: declarative,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: addressBasedErc20,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: proxyContractErc20,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: feeProxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: new Erc20ProxyPaymentNetwork(),
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: new feeProxyContractErc20(),
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: ethereumInputData,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: anyToErc20Proxy,
     }[id];
