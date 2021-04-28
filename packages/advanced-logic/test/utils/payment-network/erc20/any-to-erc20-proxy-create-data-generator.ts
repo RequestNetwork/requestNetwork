@@ -73,6 +73,7 @@ export const extensionFullState = {
         parameters: {
           feeAddress,
           feeAmount,
+          network: 'mainnet',
           paymentAddress,
           refundAddress,
           salt,
@@ -86,6 +87,7 @@ export const extensionFullState = {
     values: {
       feeAddress,
       feeAmount,
+      network: 'mainnet',
       paymentAddress,
       refundAddress,
       salt,

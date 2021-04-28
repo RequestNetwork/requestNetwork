@@ -12,7 +12,7 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
  * if the current approval is missing or not sufficient.
  * @param request request to pay, used to know the network
  * @param ownerAddress address of the payer
- * @param paymentCurrency ERC20 currency used for the swap
+ * @param paymentTokenAddress ERC20 currency used for the swap
  * @param signerOrProvider the web3 provider. Defaults to Etherscan.
  * @param minAmount ensures the approved amount is sufficient to pay this amount
  * @param overrides optionally, override default transaction values, like gas.
@@ -62,8 +62,10 @@ export async function approveErc20ForSwapWithConversionToPay(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network ||
-    'mainnet';
+    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
+  if (!network) {
+    throw new Error(`Payment network currency must have a network`);
+  }
 
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
