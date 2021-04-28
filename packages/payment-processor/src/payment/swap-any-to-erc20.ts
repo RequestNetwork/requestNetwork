@@ -20,7 +20,6 @@ export { ISwapSettings } from './swap-erc20-fee-proxy';
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
  * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param paymentSettings settings for the swap: swap path, max amount to swap, deadline
  * @param options to override amount, feeAmount and transaction parameters
  */
 export async function swapToPayAnyToErc20Request(
@@ -31,9 +30,12 @@ export async function swapToPayAnyToErc20Request(
   if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
     throw new Error(`The request must have the payment network any-to-erc20-proxy`);
   }
+
   const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network ||
-    'mainnet';
+    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
+  if (!network) {
+    throw new Error(`Payment network currency must have a network`);
+  }
 
   const encodedTx = encodeSwapToPayAnyToErc20Request(request, signerOrProvider, options);
   const proxyAddress = erc20SwapConversionArtifact.getAddress(network);
@@ -68,7 +70,10 @@ export function encodeSwapToPayAnyToErc20Request(
   if (!swapSettings) {
     throw new Error(`Swap Settings are required`);
   }
-  const network = conversionSettings.currency?.network || 'mainnet';
+  const network = conversionSettings.currency?.network;
+  if (!network) {
+    throw new Error(`Currency in conversion settings must have a network`);
+  }
 
   /** On Chain conversion preparation */
 

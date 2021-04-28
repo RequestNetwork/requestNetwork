@@ -3,6 +3,8 @@ import Utils from '@requestnetwork/utils';
 import ReferenceBased from './reference-based';
 
 const CURRENT_VERSION = '0.1.0';
+// Default network if the storage data does not give any
+const DEFAULT_NETWORK = 'mainnet';
 
 import * as walletAddressValidator from 'wallet-address-validator';
 
@@ -100,7 +102,7 @@ function createCreationAction(
     throw Error('acceptedTokens must contains only valid ethereum addresses');
   }
 
-  const network = creationParameters.network || 'mainnet';
+  const network = creationParameters.network || DEFAULT_NETWORK;
   if (!supportedCurrencies[network]) {
     throw Error(`network ${network} not supported`);
   }
@@ -216,7 +218,10 @@ function applyActionToExtension(
   actionSigner: IdentityTypes.IIdentity,
   timestamp: number,
 ): RequestLogicTypes.IExtensionStates {
-  checkSupportedCurrency(requestState.currency, extensionAction.parameters.network || 'rinkeby');
+  checkSupportedCurrency(
+    requestState.currency,
+    extensionAction.parameters.network || DEFAULT_NETWORK,
+  );
 
   const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(extensionsState);
 
@@ -343,7 +348,7 @@ function applyCreation(
           paymentAddress: extensionAction.parameters.paymentAddress,
           refundAddress: extensionAction.parameters.refundAddress,
           salt: extensionAction.parameters.salt,
-          network: extensionAction.parameters.network,
+          network: extensionAction.parameters.network || DEFAULT_NETWORK,
           acceptedTokens: extensionAction.parameters.acceptedTokens,
           maxRateTimespan: extensionAction.parameters.maxRateTimespan,
         },
@@ -358,7 +363,7 @@ function applyCreation(
       paymentAddress: extensionAction.parameters.paymentAddress,
       refundAddress: extensionAction.parameters.refundAddress,
       salt: extensionAction.parameters.salt,
-      network: extensionAction.parameters.network,
+      network: extensionAction.parameters.network || DEFAULT_NETWORK,
       acceptedTokens: extensionAction.parameters.acceptedTokens,
       maxRateTimespan: extensionAction.parameters.maxRateTimespan,
     },
