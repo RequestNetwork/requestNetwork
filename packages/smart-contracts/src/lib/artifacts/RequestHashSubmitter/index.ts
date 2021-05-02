@@ -1,9 +1,9 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
-import type { ERC20Proxy } from '../../../types/ERC20Proxy';
+import type { RequestOpenHashSubmitter } from '../../../types/RequestOpenHashSubmitter';
 
-export const requestHashSubmitterArtifact = new ContractArtifact<ERC20Proxy>(
+export const requestHashSubmitterArtifact = new ContractArtifact<RequestOpenHashSubmitter>(
   {
     '0.1.0': {
       abi: ABI_0_1_0,
