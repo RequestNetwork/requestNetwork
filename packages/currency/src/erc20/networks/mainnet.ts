@@ -37,14 +37,14 @@ const extraERC20Tokens = {
     decimals: 18,
     address: '0x8888801af4d980682e47f1a9036e589479e835c5',
   },
-  // Aave USDC
-  '0x9bA00D6856a4eDF4665BcA2C2309936572473B7E': {
+  // Aave USDC (v2 only)
+  '0xBcca60bB61934080951369a648Fb03DF4F96263C': {
     name: 'aUSDC',
     erc20: true,
     logo: 'ausdc.svg',
     symbol: 'aUSDC',
     decimals: 6,
-    address: '0x9bA00D6856a4eDF4665BcA2C2309936572473B7E',
+    address: '0xBcca60bB61934080951369a648Fb03DF4F96263C',
   },
   // OCEAN
   '0x967da4048cD07aB37855c090aAF366e4ce1b9F48': {
@@ -61,6 +61,22 @@ const extraERC20Tokens = {
     symbol: 'SAND',
     decimals: 18,
     address: '0x3845badAde8e6dFF049820680d1F14bD3903a5d0',
+  },
+  // ANKR
+  '0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4': {
+    name: 'ANKR',
+    erc20: true,
+    symbol: 'ANKR',
+    decimals: 18,
+    address: '0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4',
+  },
+  // XSGD
+  '0x70e8dE73cE538DA2bEEd35d14187F6959a8ecA96': {
+    name: 'XSGD',
+    erc20: true,
+    symbol: 'XSGD',
+    decimals: 6,
+    address: '0x70e8dE73cE538DA2bEEd35d14187F6959a8ecA96',
   },
 };
 
