@@ -175,6 +175,9 @@ jobs:
       - run:
           name: 'Test smart contracts smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run test'
+      - run:
+          name: 'Test smart contracts utilities'
+          command: 'yarn workspace @requestnetwork/smart-contracts run test:lib'
   test-request-logic:
     docker:
       - *node_image

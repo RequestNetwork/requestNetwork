@@ -5,26 +5,6 @@
     "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["./src/**/*", "./artifacts/**/*"],
-  "references": [{ "path": "../currency" }, { "path": "../utils" }],
-  "files": [
-    "./artifacts/ERC20Proxy/artifacts.json",
-    "./artifacts/ERC20Proxy/0.1.0.json",
-    "./artifacts/RequestHashStorage/artifacts.json",
-    "./artifacts/RequestHashStorage/0.1.0.json",
-    "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/0.1.0.json",
-    "./artifacts/RequestHashSubmitter/RequestOpenHashSubmitter/artifacts.json",
-    "./artifacts/EthereumProxy/artifacts.json",
-    "./artifacts/EthereumProxy/0.1.0.json",
-    "./artifacts/ERC20FeeProxy/artifacts.json",
-    "./artifacts/ERC20FeeProxy/0.1.0.json",
-    "./artifacts/ERC20SwapToPay/artifacts.json",
-    "./artifacts/ERC20SwapToPay/0.1.0.json",
-    "./artifacts/ChainlinkConversionPath/artifacts.json",
-    "./artifacts/ChainlinkConversionPath/0.1.0.json",
-    "./artifacts/Erc20ConversionProxy/artifacts.json",
-    "./artifacts/Erc20ConversionProxy/0.1.0.json",
-    "./artifacts/Erc20SwapConversion/artifacts.json",
-    "./artifacts/Erc20SwapConversion/0.1.0.json"
-  ]
+  "include": ["./src/**/*", "./artifacts/**/*", "./src/**/*.json"],
+  "references": [{ "path": "../currency" }, { "path": "../utils" }]
 }
