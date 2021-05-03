@@ -2,6 +2,7 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import { supportedRinkebyERC20, supportedRinkebyERC20Details } from './rinkeby';
 import { supportedMainnetERC20, supportedMainnetERC20Details } from './mainnet';
 import { supportedCeloERC20, supportedCeloERC20Details } from './celo';
+import { supportedMaticERC20, supportedMaticERC20Details } from './matic';
 
 /**
  * ERC20 Symbol details type
@@ -33,10 +34,12 @@ export const supportedNetworks: ISupportedNetworksMap = {
   celo: supportedCeloERC20,
   rinkeby: supportedRinkebyERC20,
   mainnet: supportedMainnetERC20,
+  matic: supportedMaticERC20,
 };
 
 export const supportedNetworksDetails: ISupportedNetworksDetails = {
   celo: supportedCeloERC20Details,
   rinkeby: supportedRinkebyERC20Details,
   mainnet: supportedMainnetERC20Details,
+  matic: supportedMaticERC20Details,
 };

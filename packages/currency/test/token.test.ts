@@ -118,6 +118,33 @@ describe('api/currency Token', () => {
       });
     });
 
+    describe('matic', () => {
+      it('mOCEAN from mOCEAN', () => {
+        expect(Token.from('mOCEAN')).toMatchObject({
+          symbol: 'mOCEAN',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x282d8efCe846A88B159800bd4130ad77443Fa1A1',
+          network: 'matic',
+        });
+      });
+      it('mOCEAN from mOCEAN-matic', () => {
+        expect(Token.from('mOCEAN-matic')).toMatchObject({
+          symbol: 'mOCEAN',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x282d8efCe846A88B159800bd4130ad77443Fa1A1',
+          network: 'matic',
+        });
+      });
+      it('mOCEAN from address', () => {
+        expect(Token.from('0x282d8efCe846A88B159800bd4130ad77443Fa1A1')).toMatchObject({
+          symbol: 'mOCEAN',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x282d8efCe846A88B159800bd4130ad77443Fa1A1',
+          network: 'matic',
+        });
+      });
+    });
+
     describe('errors', () => {
       it('Unsupported tokens should throw', () => {
         expect(() => Token.from('UNSUPPORTED')).toThrow(
