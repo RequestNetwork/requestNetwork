@@ -1,7 +1,4 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
-import ReferenceBased from './reference-based';
-
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
 
 const CURRENT_VERSION = '0.1.0';
@@ -125,69 +122,13 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): RequestLogicTypes.IExtensionStates {
-    this.checkSupportedCurrency(
-      requestState.currency,
-      extensionAction.parameters.network || DEFAULT_NETWORK,
-    );
-
-    const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(
+    return super.applyActionToExtension(
       extensionsState,
+      extensionAction,
+      requestState,
+      actionSigner,
+      timestamp,
     );
-
-    if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE) {
-      if (requestState.extensions[extensionAction.id]) {
-        throw Error(`This extension has already been created`);
-      }
-
-      copiedExtensionState[extensionAction.id] = this.applyCreation(extensionAction, timestamp);
-
-      return copiedExtensionState;
-    }
-
-    // if the action is not "create", the state must have been created before
-    if (!requestState.extensions[extensionAction.id]) {
-      throw Error(`The extension should be created before receiving any other action`);
-    }
-
-    if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_PAYMENT_ADDRESS) {
-      copiedExtensionState[extensionAction.id] = ReferenceBased.applyAddPaymentAddress(
-        this.isValidAddress,
-        copiedExtensionState[extensionAction.id],
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-
-      return copiedExtensionState;
-    }
-
-    if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_REFUND_ADDRESS) {
-      copiedExtensionState[extensionAction.id] = ReferenceBased.applyAddRefundAddress(
-        this.isValidAddress,
-        copiedExtensionState[extensionAction.id],
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-
-      return copiedExtensionState;
-    }
-
-    if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE) {
-      copiedExtensionState[extensionAction.id] = this.applyAddFee(
-        copiedExtensionState[extensionAction.id],
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-
-      return copiedExtensionState;
-    }
-
-    throw Error(`Unknown action: ${extensionAction.action}`);
   }
 
   /**
@@ -250,30 +191,35 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
   }
 
   /**
+   * Validates the payment network of the request currency.
    * Throw if a currency is not supported
-   *
-   * @param currency currency to check
-   * @param network network of the payment
    */
-  protected checkSupportedCurrency(currency: RequestLogicTypes.ICurrency, network: string): void {
+  protected validateSupportedCurrency(
+    request: RequestLogicTypes.IRequest,
+    extensionAction: ExtensionTypes.IAction,
+  ): void {
+    const network =
+      extensionAction.parameters.network ||
+      request.extensions[this.paymentNetworkId]?.values.network;
+
+    // Nothing can be validated if the network has not been given yet
+    if (!network) {
+      return;
+    }
+
     if (!supportedCurrencies[network]) {
       throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
-    if (!supportedCurrencies[network][currency.type]) {
+    if (!supportedCurrencies[network][request.currency.type]) {
       throw new Error(
-        `The currency type (${currency.type}) of the request is not supported for this payment network.`,
+        `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
       );
     }
 
-    let normalizedCurrencyValue = currency.value;
-    if (currency.type !== RequestLogicTypes.CURRENCY.ISO4217) {
-      normalizedCurrencyValue = currency.value.toLowerCase();
-    }
-
-    if (!supportedCurrencies[network][currency.type].includes(normalizedCurrencyValue)) {
+    if (!supportedCurrencies[network][request.currency.type].includes(request.currency.value)) {
       throw new Error(
-        `The currency (${currency.value}) of the request is not supported for this payment network.`,
+        `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
       );
     }
   }

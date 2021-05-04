@@ -15,6 +15,9 @@ import proxyContractErc20 from './extensions/payment-network/erc20/proxy-contrac
 import ethereumInputData from './extensions/payment-network/ethereum/input-data';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 
+const anyToErc20Proxy = new AnyToErc20Proxy();
+const feeProxyContractErc20 = new FeeProxyContractErc20();
+
 /**
  * Module to manage Advanced logic extensions
  * Package to route the format and parsing of extensions following their id
@@ -26,10 +29,10 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     addressBasedErc20,
     addressBasedTestnetBtc,
     contentData,
-    AnyToErc20Proxy,
+    anyToErc20Proxy,
     declarative,
     ethereumInputData,
-    FeeProxyContractErc20,
+    feeProxyContractErc20,
     proxyContractErc20,
   };
 
@@ -59,9 +62,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: declarative,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: addressBasedErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: proxyContractErc20,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: new FeeProxyContractErc20(),
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: feeProxyContractErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: ethereumInputData,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: new AnyToErc20Proxy(),
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: anyToErc20Proxy,
     }[id];
 
     if (!extension) {

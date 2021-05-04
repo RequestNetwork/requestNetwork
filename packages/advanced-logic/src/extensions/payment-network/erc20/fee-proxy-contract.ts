@@ -174,16 +174,7 @@ export default class Erc20FeeProxyPaymentNetwork {
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): RequestLogicTypes.IExtensionStates {
-    if (
-      requestState.currency.type !== RequestLogicTypes.CURRENCY.ERC20 ||
-      (requestState.currency.network && !supportedNetworks.includes(requestState.currency.network))
-    ) {
-      throw Error(
-        `This extension can be used only on ERC20 requests and on supported networks ${supportedNetworks.join(
-          ', ',
-        )}`,
-      );
-    }
+    this.validateSupportedCurrency(requestState, extensionAction);
 
     const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(
       extensionsState,
@@ -387,5 +378,23 @@ export default class Erc20FeeProxyPaymentNetwork {
     });
 
     return copiedExtensionState;
+  }
+
+  protected validateSupportedCurrency(
+    request: RequestLogicTypes.IRequest,
+    extensionAction: ExtensionTypes.IAction,
+  ): void {
+    if (
+      request.currency.type !== RequestLogicTypes.CURRENCY.ERC20 ||
+      (request.currency.network &&
+        extensionAction.parameters.network === request.currency.network &&
+        !supportedNetworks.includes(request.currency.network))
+    ) {
+      throw Error(
+        `This extension can be used only on ERC20 requests and on supported networks ${supportedNetworks.join(
+          ', ',
+        )}`,
+      );
+    }
   }
 }
