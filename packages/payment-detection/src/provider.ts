@@ -11,9 +11,9 @@ let blockchainRpcs: Record<string, string> = {
 };
 
 export const initPaymentDetectionProvider = (overrides: {
-  /** */
+  /** RPC URL per network */
   blockchainRpcs?: Record<string, string>;
-  /** Options as specified in https://docs.ethers.io/v5/api/providers/#providers-getDefaultProvider  */
+  /** Default Provider Options as specified in https://docs.ethers.io/v5/api/providers/#providers-getDefaultProvider  */
   defaultProviderOptions?: Record<string, string>;
 }): void => {
   blockchainRpcs = { ...blockchainRpcs, ...overrides.blockchainRpcs };
@@ -24,12 +24,13 @@ export const getDefaultProvider = (
   network?: string | ethers.providers.Network | undefined,
   options?: Record<string, string>,
 ): providers.Provider => {
+  const defaultOptions = { ...defaultProviderOptions, ...options };
   if (typeof network === 'string') {
     const rpc = blockchainRpcs[network];
     if (rpc) {
-      return new providers.JsonRpcProvider(rpc);
+      return ethers.getDefaultProvider(rpc, defaultOptions);
     }
   }
 
-  return ethers.getDefaultProvider(network, { ...defaultProviderOptions, ...options });
+  return ethers.getDefaultProvider(network, defaultOptions);
 };
