@@ -114,7 +114,9 @@ describe('getNetworkProvider', () => {
         network: 'bitcoin',
       },
     };
-    expect(() => getNetworkProvider(request)).toThrowError('unsupported network');
+    expect(() => getNetworkProvider(request)).toThrowError(
+      'unsupported getDefaultProvider network',
+    );
   });
 });
 
