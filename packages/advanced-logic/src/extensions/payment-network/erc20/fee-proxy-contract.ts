@@ -98,17 +98,6 @@ export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwor
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): RequestLogicTypes.IExtensionStates {
-    // if (
-    //   requestState.currency.type !== RequestLogicTypes.CURRENCY.ERC20 ||
-    //   (requestState.currency.network && !this.supportedNetworks.includes(requestState.currency.network))
-    // ) {
-    //   throw Error(
-    //     `This extension can be used only on ERC20 requests and on supported networks ${this.supportedNetworks.join(
-    //       ', ',
-    //     )}`,
-    //   );
-    // }
-
     const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(
       extensionsState,
     );

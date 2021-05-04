@@ -12,7 +12,7 @@ const erc20FeeProxyContract = new Erc20FeeProxyContract();
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
   describe('createCreationAction', () => {
-    it('can create a create action with all parameters', () => {
+    it.only('can create a create action with all parameters', () => {
       // 'extension data is wrong'
       expect(
         erc20FeeProxyContract.createCreationAction({
@@ -242,7 +242,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
 
     describe('applyActionToExtension/create', () => {
-      it.only('can applyActionToExtensions of creation', () => {
+      it('can applyActionToExtensions of creation', () => {
         // 'new extension state wrong'
         expect(
           erc20FeeProxyContract.applyActionToExtension(
