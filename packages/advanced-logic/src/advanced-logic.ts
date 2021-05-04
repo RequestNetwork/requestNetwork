@@ -10,10 +10,10 @@ import addressBasedBtc from './extensions/payment-network/bitcoin/mainnet-addres
 import addressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
 import declarative from './extensions/payment-network/declarative';
 import addressBasedErc20 from './extensions/payment-network/erc20/address-based';
-import feeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
+import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import proxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
 import ethereumInputData from './extensions/payment-network/ethereum/input-data';
-import anyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
+import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 
 /**
  * Module to manage Advanced logic extensions
@@ -26,10 +26,10 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     addressBasedErc20,
     addressBasedTestnetBtc,
     contentData,
-    anyToErc20Proxy,
+    AnyToErc20Proxy,
     declarative,
     ethereumInputData,
-    feeProxyContractErc20,
+    FeeProxyContractErc20,
     proxyContractErc20,
   };
 
@@ -59,9 +59,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: declarative,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: addressBasedErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: proxyContractErc20,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: feeProxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: new FeeProxyContractErc20(),
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: ethereumInputData,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: anyToErc20Proxy,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: new AnyToErc20Proxy(),
     }[id];
 
     if (!extension) {
