@@ -6,6 +6,7 @@ let defaultProviderOptions: Record<string, string> = {
 };
 
 let blockchainRpcs: Record<string, string> = {
+  private: providers.JsonRpcProvider.defaultUrl(),
   matic: 'https://rpc-mainnet.matic.network/',
 };
 
