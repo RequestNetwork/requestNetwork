@@ -1,10 +1,8 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import ReferenceBased from '../reference-based';
+import Erc20ProxyPaymentNetwork from './proxy-contract';
 
 const CURRENT_VERSION = '0.1.0';
-
-import * as walletAddressValidator from 'wallet-address-validator';
 
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 
@@ -16,13 +14,15 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
  * The salt should have at least 8 bytes of randomness. A way to generate it is:
  *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
-export default class Erc20FeeProxyPaymentNetwork {
-  public currentVersion;
-  public paymentNetworkId;
-
+export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwork {
   public constructor() {
+    super();
     this.currentVersion = CURRENT_VERSION;
     this.paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
+    this.actions = {
+      ...this.actions,
+      [ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE]: this.applyAddFee,
+    };
   }
 
   /**
@@ -36,20 +36,9 @@ export default class Erc20FeeProxyPaymentNetwork {
     creationParameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
   ): ExtensionTypes.IAction {
     if (
-      creationParameters.paymentAddress &&
-      !this.isValidAddress(creationParameters.paymentAddress)
+      creationParameters.feeAddress &&
+      !Erc20ProxyPaymentNetwork.isValidAddress(creationParameters.feeAddress)
     ) {
-      throw Error('paymentAddress is not a valid ethereum address');
-    }
-
-    if (
-      creationParameters.refundAddress &&
-      !this.isValidAddress(creationParameters.refundAddress)
-    ) {
-      throw Error('refundAddress is not a valid ethereum address');
-    }
-
-    if (creationParameters.feeAddress && !this.isValidAddress(creationParameters.feeAddress)) {
       throw Error('feeAddress is not a valid ethereum address');
     }
 
@@ -64,57 +53,7 @@ export default class Erc20FeeProxyPaymentNetwork {
       throw Error('feeAddress requires feeAmount');
     }
 
-    return ReferenceBased.createCreationAction(
-      this.paymentNetworkId,
-      creationParameters,
-      this.currentVersion,
-    );
-  }
-
-  /**
-   * Creates the extensionsData to add a payment address
-   *
-   * @param addPaymentAddressParameters extensions parameters to create
-   *
-   * @returns IAction the extensionsData to be stored in the request
-   */
-  public createAddPaymentAddressAction(
-    addPaymentAddressParameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
-  ): ExtensionTypes.IAction {
-    if (
-      addPaymentAddressParameters.paymentAddress &&
-      !this.isValidAddress(addPaymentAddressParameters.paymentAddress)
-    ) {
-      throw Error('paymentAddress is not a valid ethereum address');
-    }
-
-    return ReferenceBased.createAddPaymentAddressAction(
-      this.paymentNetworkId,
-      addPaymentAddressParameters,
-    );
-  }
-
-  /**
-   * Creates the extensionsData to add a refund address
-   *
-   * @param addRefundAddressParameters extensions parameters to create
-   *
-   * @returns IAction the extensionsData to be stored in the request
-   */
-  public createAddRefundAddressAction(
-    addRefundAddressParameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
-  ): ExtensionTypes.IAction {
-    if (
-      addRefundAddressParameters.refundAddress &&
-      !this.isValidAddress(addRefundAddressParameters.refundAddress)
-    ) {
-      throw Error('refundAddress is not a valid ethereum address');
-    }
-
-    return ReferenceBased.createAddRefundAddressAction(
-      this.paymentNetworkId,
-      addRefundAddressParameters,
-    );
+    return super.createCreationAction(creationParameters);
   }
 
   /**
@@ -127,7 +66,10 @@ export default class Erc20FeeProxyPaymentNetwork {
   public createAddFeeAction(
     addFeeParameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
   ): ExtensionTypes.IAction {
-    if (addFeeParameters.feeAddress && !this.isValidAddress(addFeeParameters.feeAddress)) {
+    if (
+      addFeeParameters.feeAddress &&
+      !Erc20ProxyPaymentNetwork.isValidAddress(addFeeParameters.feeAddress)
+    ) {
       throw Error('feeAddress is not a valid ethereum address');
     }
 
@@ -148,95 +90,6 @@ export default class Erc20FeeProxyPaymentNetwork {
       parameters: addFeeParameters,
     };
   }
-  /**
-   * Applies the extension action to the request
-   * Is called to interpret the extensions data when applying the transaction
-   *
-   * @param extensionsState previous state of the extensions
-   * @param extensionAction action to apply
-   * @param requestState request state read-only
-   * @param actionSigner identity of the signer
-   *
-   * @returns state of the request updated
-   */
-  public applyActionToExtension(
-    extensionsState: RequestLogicTypes.IExtensionStates,
-    extensionAction: ExtensionTypes.IAction,
-    requestState: RequestLogicTypes.IRequest,
-    actionSigner: IdentityTypes.IIdentity,
-    timestamp: number,
-  ): RequestLogicTypes.IExtensionStates {
-    this.validateSupportedCurrency(requestState, extensionAction);
-
-    const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(
-      extensionsState,
-    );
-
-    if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE) {
-      if (requestState.extensions[extensionAction.id]) {
-        throw Error(`This extension has already been created`);
-      }
-
-      copiedExtensionState[extensionAction.id] = this.applyCreation(extensionAction, timestamp);
-
-      return copiedExtensionState;
-    }
-
-    // if the action is not "create", the state must have been created before
-    if (!requestState.extensions[extensionAction.id]) {
-      throw Error(`The extension should be created before receiving any other action`);
-    }
-
-    if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_PAYMENT_ADDRESS) {
-      copiedExtensionState[extensionAction.id] = ReferenceBased.applyAddPaymentAddress(
-        this.isValidAddress,
-        copiedExtensionState[extensionAction.id],
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-
-      return copiedExtensionState;
-    }
-
-    if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_REFUND_ADDRESS) {
-      copiedExtensionState[extensionAction.id] = ReferenceBased.applyAddRefundAddress(
-        this.isValidAddress,
-        copiedExtensionState[extensionAction.id],
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-
-      return copiedExtensionState;
-    }
-
-    if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE) {
-      copiedExtensionState[extensionAction.id] = this.applyAddFee(
-        copiedExtensionState[extensionAction.id],
-        extensionAction,
-        requestState,
-        actionSigner,
-        timestamp,
-      );
-
-      return copiedExtensionState;
-    }
-
-    throw Error(`Unknown action: ${extensionAction.action}`);
-  }
-
-  /**
-   * Check if an ethereum address is valid
-   *
-   * @param {string} address address to check
-   * @returns {boolean} true if address is valid
-   */
-  public isValidAddress(address: string): boolean {
-    return walletAddressValidator.validate(address, 'ethereum');
-  }
 
   /**
    * Applies a creation extension action
@@ -250,30 +103,9 @@ export default class Erc20FeeProxyPaymentNetwork {
     extensionAction: ExtensionTypes.IAction,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!extensionAction.version) {
-      throw Error('version is missing');
-    }
-    if (!extensionAction.parameters.paymentAddress) {
-      throw Error('paymentAddress is missing');
-    }
-    if (!extensionAction.parameters.salt) {
-      throw Error('salt is missing');
-    }
-    if (
-      extensionAction.parameters.paymentAddress &&
-      !this.isValidAddress(extensionAction.parameters.paymentAddress)
-    ) {
-      throw Error('paymentAddress is not a valid address');
-    }
-    if (
-      extensionAction.parameters.refundAddress &&
-      !this.isValidAddress(extensionAction.parameters.refundAddress)
-    ) {
-      throw Error('refundAddress is not a valid address');
-    }
     if (
       extensionAction.parameters.feeAddress &&
-      !this.isValidAddress(extensionAction.parameters.feeAddress)
+      !Erc20ProxyPaymentNetwork.isValidAddress(extensionAction.parameters.feeAddress)
     ) {
       throw Error('feeAddress is not a valid address');
     }
@@ -283,7 +115,11 @@ export default class Erc20FeeProxyPaymentNetwork {
     ) {
       throw Error('feeAmount is not a valid amount');
     }
+
+    const proxyPNCreationAction = super.applyCreation(extensionAction, timestamp);
+
     return {
+      ...proxyPNCreationAction,
       events: [
         {
           name: 'create',
@@ -297,16 +133,11 @@ export default class Erc20FeeProxyPaymentNetwork {
           timestamp,
         },
       ],
-      id: extensionAction.id,
-      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
+        ...proxyPNCreationAction.values,
         feeAddress: extensionAction.parameters.feeAddress,
         feeAmount: extensionAction.parameters.feeAmount,
-        paymentAddress: extensionAction.parameters.paymentAddress,
-        refundAddress: extensionAction.parameters.refundAddress,
-        salt: extensionAction.parameters.salt,
       },
-      version: extensionAction.version,
     };
   }
 
@@ -330,7 +161,7 @@ export default class Erc20FeeProxyPaymentNetwork {
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.feeAddress &&
-      !this.isValidAddress(extensionAction.parameters.feeAddress)
+      !Erc20ProxyPaymentNetwork.isValidAddress(extensionAction.parameters.feeAddress)
     ) {
       throw Error('feeAddress is not a valid address');
     }

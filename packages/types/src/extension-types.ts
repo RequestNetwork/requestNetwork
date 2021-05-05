@@ -27,6 +27,14 @@ export interface IExtension {
   ) => RequestLogic.IExtensionStates;
 }
 
+export type ApplyAction = (
+  extensionState: IState,
+  extensionAction: IAction,
+  requestState: RequestLogic.IRequest,
+  actionSigner: Identity.IIdentity,
+  timestamp: number,
+) => IState;
+
 /** Extensions state in advanced logic */
 export interface IState {
   type: TYPE;

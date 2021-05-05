@@ -1,11 +1,13 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import erc20ProxyContract from '../../../../src/extensions/payment-network/erc20/proxy-contract';
+import Erc20ProxyContract from '../../../../src/extensions/payment-network/erc20/proxy-contract';
 
 import * as DataERC20AddPaymentAddress from '../../../utils/payment-network/erc20/proxy-contract-add-payment-address-data-generator';
 import * as DataERC20Create from '../../../utils/payment-network/erc20/proxy-contract-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
+
+const erc20ProxyContract = new Erc20ProxyContract();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/proxy-contract', () => {

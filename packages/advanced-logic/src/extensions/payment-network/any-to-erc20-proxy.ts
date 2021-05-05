@@ -1,4 +1,4 @@
-import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
 
 const CURRENT_VERSION = '0.1.0';
@@ -63,7 +63,11 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (!creationParameters.acceptedTokens || creationParameters.acceptedTokens.length === 0) {
       throw Error('acceptedTokens is required');
     }
-    if (creationParameters.acceptedTokens.some((address) => !this.isValidAddress(address))) {
+    if (
+      creationParameters.acceptedTokens.some(
+        (address) => !Erc20FeeProxyPaymentNetwork.isValidAddress(address),
+      )
+    ) {
       throw Error('acceptedTokens must contains only valid ethereum addresses');
     }
 
@@ -85,33 +89,6 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     }
 
     return super.createCreationAction(creationParameters);
-  }
-
-  /**
-   * Applies the extension action to the request state
-   * Is called to interpret the extensions data when applying the transaction
-   *
-   * @param extensionsState previous state of the extensions
-   * @param extensionAction action to apply
-   * @param requestState request state read-only
-   * @param actionSigner identity of the signer
-   *
-   * @returns state of the request updated
-   */
-  public applyActionToExtension(
-    extensionsState: RequestLogicTypes.IExtensionStates,
-    extensionAction: ExtensionTypes.IAction,
-    requestState: RequestLogicTypes.IRequest,
-    actionSigner: IdentityTypes.IIdentity,
-    timestamp: number,
-  ): RequestLogicTypes.IExtensionStates {
-    return super.applyActionToExtension(
-      extensionsState,
-      extensionAction,
-      requestState,
-      actionSigner,
-      timestamp,
-    );
   }
 
   /**
@@ -138,7 +115,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     }
     if (
       extensionAction.parameters.acceptedTokens.some(
-        (address: string) => !this.isValidAddress(address),
+        (address: string) => !Erc20FeeProxyPaymentNetwork.isValidAddress(address),
       )
     ) {
       throw Error('acceptedTokens must contains only valid ethereum addresses');
