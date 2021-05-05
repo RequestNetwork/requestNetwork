@@ -34,7 +34,7 @@ export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwor
    */
   public createCreationAction(
     creationParameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
-  ): ExtensionTypes.IAction {
+  ): ExtensionTypes.IAction<ExtensionTypes.PnFeeReferenceBased.ICreationParameters> {
     if (
       creationParameters.feeAddress &&
       !Erc20ProxyPaymentNetwork.isValidAddress(creationParameters.feeAddress)

@@ -45,10 +45,10 @@ export interface IState {
 }
 
 /** Creation action object */
-export interface IAction {
+export interface IAction<T = any> {
   action: string;
   id: ID;
-  parameters?: any;
+  parameters?: T;
   version?: string;
 }
 
@@ -76,4 +76,9 @@ export enum ID {
 export enum TYPE {
   CONTENT_DATA = 'content-data',
   PAYMENT_NETWORK = 'payment-network',
+}
+
+/** Actions possible */
+export enum ACTION {
+  CREATE = 'create',
 }
