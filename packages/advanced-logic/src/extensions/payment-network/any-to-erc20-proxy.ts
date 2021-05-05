@@ -5,23 +5,6 @@ const CURRENT_VERSION = '0.1.0';
 // Default network if the storage data does not give any
 const DEFAULT_NETWORK = 'mainnet';
 
-// /**
-//  * Implementation of the payment network to pay in ERC20, including third-party fees payment, based on a reference provided to a proxy contract.
-//  * With this extension, one request can have three Ethereum addresses (one for payment, one for fees payment, and one for refund)
-//  * Every ERC20 ethereum transaction that reaches these addresses through the proxy contract and has the correct reference will be interpreted as a payment or a refund.
-//  * The value to give as input data is the last 8 bytes of a salted hash of the requestId and the address: `last8Bytes(hash(requestId + salt + address))`:
-//  * The salt should have at least 8 bytes of randomness. A way to generate it is:
-//  *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
-//  */
-// const conversionErc20FeeProxyContract: ExtensionTypes.PnAnyToErc20.IAnyToERC20 = {
-//   applyActionToExtension,
-//   createAddFeeAction,
-//   createAddPaymentAddressAction,
-//   createAddRefundAddressAction,
-//   createCreationAction,
-//   isValidAddress,
-// };
-
 /**
  * These currencies are supported by Chainlink for conversion.
  * Only ERC20 is supported as accepted token by the payment proxy.

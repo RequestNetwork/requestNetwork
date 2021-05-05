@@ -5,6 +5,9 @@ import ReferenceBased from '../reference-based';
 const CURRENT_VERSION = '0.1.0';
 
 import * as walletAddressValidator from 'wallet-address-validator';
+
+const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
+
 /**
  * Implementation of the payment network to pay in ERC20, including third-party fees payment, based on a reference provided to a proxy contract.
  * With this extension, one request can have three Ethereum addresses (one for payment, one for fees payment, and one for refund)
@@ -13,17 +16,6 @@ import * as walletAddressValidator from 'wallet-address-validator';
  * The salt should have at least 8 bytes of randomness. A way to generate it is:
  *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
-//  export const erc20FeeProxyContract: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = {
-//   applyActionToExtension,
-//   createAddFeeAction,
-//   createAddPaymentAddressAction,
-//   createAddRefundAddressAction,
-//   createCreationAction,
-//   isValidAddress,
-// };
-
-const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
-
 export default class Erc20FeeProxyPaymentNetwork {
   public currentVersion;
   public paymentNetworkId;
