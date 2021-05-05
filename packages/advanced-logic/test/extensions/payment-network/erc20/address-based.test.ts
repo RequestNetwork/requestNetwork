@@ -50,21 +50,21 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
       );
     });
 
-    it('cannot createCreationAction with payment address not an ethereum address', () => {
+    it('cannot createCreationAction with payment address not an address', () => {
       // 'must throw'
       expect(() => {
         erc20AddressBasedPaymentNetwork.createCreationAction({
           paymentAddress: DataERC20Create.invalidAddress,
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
-    it('cannot createCreationAction with refund address not an ethereum address', () => {
+    it('cannot createCreationAction with refund address not an address', () => {
       // 'must throw'
       expect(() => {
         erc20AddressBasedPaymentNetwork.createCreationAction({
           refundAddress: DataERC20Create.invalidAddress,
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
   });
 
@@ -78,13 +78,13 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
       ).toEqual(DataERC20AddPaymentAddress.actionAddPaymentAddress);
     });
 
-    it('cannot createAddPaymentAddressAction with payment address not an ethereum address', () => {
+    it('cannot createAddPaymentAddressAction with payment address not an address', () => {
       // 'must throw'
       expect(() => {
         erc20AddressBasedPaymentNetwork.createAddPaymentAddressAction({
           paymentAddress: DataERC20Create.invalidAddress,
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
   });
 
@@ -97,13 +97,13 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
         }),
       ).toEqual(DataERC20AddPaymentAddress.actionAddRefundAddress);
     });
-    it('cannot createAddRefundAddressAction with payment address not an ethereum address', () => {
+    it('cannot createAddRefundAddressAction with payment address not an address', () => {
       // 'must throw'
       expect(() => {
         erc20AddressBasedPaymentNetwork.createAddRefundAddressAction({
           refundAddress: DataERC20Create.invalidAddress,
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
   });
 

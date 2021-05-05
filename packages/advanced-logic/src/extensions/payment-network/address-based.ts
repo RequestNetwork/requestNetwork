@@ -36,14 +36,14 @@ export default abstract class AddressBasedPaymentNetwork extends AbstractExtensi
       creationParameters.paymentAddress &&
       !this.isValidAddress(creationParameters.paymentAddress)
     ) {
-      throw Error('paymentAddress is not a valid ethereum address');
+      throw Error('paymentAddress is not a valid address');
     }
 
     if (
       creationParameters.refundAddress &&
       !this.isValidAddress(creationParameters.refundAddress)
     ) {
-      throw Error('refundAddress is not a valid ethereum address');
+      throw Error('refundAddress is not a valid address');
     }
 
     return {
@@ -71,7 +71,7 @@ export default abstract class AddressBasedPaymentNetwork extends AbstractExtensi
       addPaymentAddressParameters.paymentAddress &&
       !this.isValidAddress(addPaymentAddressParameters.paymentAddress)
     ) {
-      throw Error('paymentAddress is not a valid ethereum address');
+      throw Error('paymentAddress is not a valid address');
     }
 
     return {
@@ -97,7 +97,7 @@ export default abstract class AddressBasedPaymentNetwork extends AbstractExtensi
       addRefundAddressParameters.refundAddress &&
       !this.isValidAddress(addRefundAddressParameters.refundAddress)
     ) {
-      throw Error('refundAddress is not a valid ethereum address');
+      throw Error('refundAddress is not a valid address');
     }
 
     return {
