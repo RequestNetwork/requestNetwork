@@ -2,6 +2,7 @@ import { providers } from 'ethers';
 
 type ProviderFactory = (network: string | undefined) => providers.Provider | string;
 
+let warned = false;
 /**
  * @param network the network to connect to
  * @param defaultFactory the defaultFactory to use as fallback if needed
@@ -31,7 +32,7 @@ export const initPaymentDetectionApiKeys = (
  * Define default URLs for networks supported by Request payment detection but not by ethers' Infura Provider
  */
 const networkRpcs: Record<string, string> = {
-  private: '',
+  private: providers.JsonRpcProvider.defaultUrl(),
   matic: 'https://rpc-mainnet.matic.network/',
 };
 
@@ -64,24 +65,28 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
         ? providersApiKeys.infura()
         : providersApiKeys.infura;
 
-    if (!apiKey) {
+    if (!apiKey && !warned) {
       console.warn(`No API Key specified for Infura, using ethers default API key.
       This is not recommended for Production environments.
       To override Infura's default api key, use RN_INFURA_KEY environment variable, or call
       initPaymentDetectionApiKeys({ infura: () => "myApiKey" });
       `);
+      warned = true;
     }
     return new providers.InfuraProvider(network, apiKey);
   } catch (e) {
     // suppress errors
   }
 
+  if (!warned) {
+    console.warn(
+      `No provider is specified for network ${network}, using ethers default provider. 
+      This is not recommended for Production environments.
+      Use setProviderFactory to override the default provider`,
+    );
+    warned = true;
+  }
   // use getDefaultProvider to keep the original behaviour
-  console.warn(
-    `No provider is specified for network ${network}, using ethers default provider. 
-          This is not recommended for Production environments.
-          Use setProviderFactory to override the default provider`,
-  );
   return providers.getDefaultProvider(network, providersApiKeys);
 };
 

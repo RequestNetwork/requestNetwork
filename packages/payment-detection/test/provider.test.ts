@@ -21,6 +21,13 @@ describe('getDefaultProvider', () => {
     await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 4 });
   });
 
+  it('Can take a private network', async () => {
+    const provider = getDefaultProvider('private') as providers.JsonRpcProvider;
+
+    expect(provider).toBeInstanceOf(providers.JsonRpcProvider);
+    expect(provider.connection.url).toBe('http://localhost:8545');
+  });
+
   it('Can take a non-standard network', async () => {
     const provider = getDefaultProvider('matic');
 
