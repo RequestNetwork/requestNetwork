@@ -1,18 +1,23 @@
 import { providers } from 'ethers';
-import { getDefaultProvider, initPaymentDetectionProvider } from '../src';
+import { getDefaultProvider, initPaymentDetectionApiKeys, setProviderFactory } from '../src';
 
 describe('getDefaultProvider', () => {
+  afterEach(() => {
+    // reset the provider factory
+    setProviderFactory();
+  });
+
   it('Defaults to Infura Mainnet', async () => {
     const provider = getDefaultProvider();
 
-    expect(provider).toBeInstanceOf(providers.FallbackProvider);
+    expect(provider).toBeInstanceOf(providers.InfuraProvider);
     await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 1 });
   });
 
   it('Can take a standard network', async () => {
     const provider = getDefaultProvider('rinkeby');
 
-    expect(provider).toBeInstanceOf(providers.FallbackProvider);
+    expect(provider).toBeInstanceOf(providers.InfuraProvider);
     await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 4 });
   });
 
@@ -34,11 +39,7 @@ describe('getDefaultProvider', () => {
     expect((getDefaultProvider('matic') as providers.JsonRpcProvider).connection.url).toBe(
       'https://rpc-mainnet.matic.network/',
     );
-    initPaymentDetectionProvider({
-      blockchainRpcs: {
-        matic: 'http://matic.fake',
-      },
-    });
+    setProviderFactory(() => 'http://matic.fake');
     expect(getDefaultProvider('matic')).toBeInstanceOf(providers.JsonRpcProvider);
     expect((getDefaultProvider('matic') as providers.JsonRpcProvider).connection.url).toBe(
       'http://matic.fake',
@@ -47,25 +48,28 @@ describe('getDefaultProvider', () => {
 
   it('Can override the RPC configuration for a new network', async () => {
     expect(() => getDefaultProvider('xdai')).toThrowError('unsupported getDefaultProvider network');
-    initPaymentDetectionProvider({
-      blockchainRpcs: {
-        xdai: 'http://xdaichain.fake',
-      },
+    setProviderFactory((network, defaultFactory) => {
+      if (network === 'xdai') {
+        return 'http://xdaichain.fake';
+      }
+      return defaultFactory(network);
     });
     expect(getDefaultProvider('xdai')).toBeInstanceOf(providers.JsonRpcProvider);
     expect((getDefaultProvider('xdai') as providers.JsonRpcProvider).connection.url).toBe(
       'http://xdaichain.fake',
     );
+    // still works for standard providers
+    expect((getDefaultProvider('rinkeby') as providers.JsonRpcProvider).connection.url).toMatch(
+      /https:\/\/rinkeby\.infura.*/,
+    );
   });
 
   it('Can override the api key for a standard provider', async () => {
-    initPaymentDetectionProvider({
-      defaultProviderOptions: {
-        infura: 'foo-bar',
-      },
+    initPaymentDetectionApiKeys({
+      infura: 'foo-bar',
     });
 
-    const provider = getDefaultProvider() as providers.FallbackProvider;
-    expect(provider.providerConfigs[0].provider).toMatchObject({ apiKey: 'foo-bar' });
+    const provider = getDefaultProvider() as providers.InfuraProvider;
+    expect(provider.connection.url).toEqual('https://mainnet.infura.io/v3/foo-bar');
   });
 });
