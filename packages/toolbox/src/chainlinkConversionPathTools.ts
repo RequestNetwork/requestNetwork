@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
+import { getDefaultProvider } from '@requestnetwork/payment-detection';
 import { ChainlinkConversionPath__factory } from '@requestnetwork/smart-contracts/types';
 import { Currency } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
@@ -41,10 +42,7 @@ class ChainlinkConversionPathTools {
    */
   constructor(private network: string) {
     // Creates a local or default provider
-    this.provider =
-      this.network === 'private'
-        ? new ethers.providers.JsonRpcProvider()
-        : ethers.getDefaultProvider(this.network);
+    this.provider = getDefaultProvider(this.network);
 
     // Setup the conversion proxy contract interface
     this.contractChainlinkConversionPath = ChainlinkConversionPath__factory.connect(
