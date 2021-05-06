@@ -24,30 +24,14 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
     },
   },
   ERC20: {
-    mainnet: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBased,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: ERC20ProxyContract,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyContract,
-    },
-    private: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBased,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: ERC20ProxyContract,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyContract,
-    },
-    rinkeby: {
+    '*': {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBased,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: ERC20ProxyContract,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyContract,
     },
   },
   ETH: {
-    mainnet: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
-    },
-    private: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
-    },
-    rinkeby: {
+    '*': {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
     },
   },
@@ -157,7 +141,8 @@ function supportedPaymentNetworksForCurrency(
   }
 
   const paymentNetwork =
-    supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] || {};
+    supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] ||
+    supportedPaymentNetwork[currency.type]['*'];
 
   return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
 }
