@@ -12,7 +12,7 @@ const BITCOIN_NETWORK = 'prod';
  * Every bitcoin transaction that reaches these addresses will be interpreted as payment or refund.
  * Important: the addresses must be exclusive to the request
  */
-export default class BitcoinTestnetAddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
+export default class BitcoinAddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
   public constructor() {
     super(ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED, CURRENT_VERSION);
   }
