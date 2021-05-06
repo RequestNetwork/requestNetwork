@@ -36,7 +36,7 @@ describe('api/currency Token', () => {
         expect(Token.from('MPH')).toMatchObject({
           symbol: 'MPH',
           type: RequestLogicTypes.CURRENCY.ERC20,
-          value: '0x8888801af4d980682e47f1a9036e589479e835c5',
+          value: '0x8888801aF4d980682e47f1A9036e589479e835C5',
           network: 'mainnet',
         });
       });
