@@ -1,6 +1,6 @@
-import { ethers, getDefaultProvider, Signer, providers, BigNumber, BigNumberish } from 'ethers';
+import { ethers, Signer, providers, BigNumber, BigNumberish } from 'ethers';
 
-import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
+import { PaymentReferenceCalculator, getDefaultProvider } from '@requestnetwork/payment-detection';
 import {
   ClientTypes,
   ExtensionTypes,
@@ -35,13 +35,7 @@ export function getProvider(): providers.Web3Provider {
  * @param request
  */
 export function getNetworkProvider(request: ClientTypes.IRequestData): providers.Provider {
-  if (request.currencyInfo.network === 'mainnet') {
-    return getDefaultProvider();
-  }
-  if (request.currencyInfo.network === 'rinkeby') {
-    return getDefaultProvider('rinkeby');
-  }
-  throw new UnsupportedCurrencyNetwork(request.currencyInfo.network);
+  return getDefaultProvider(request.currencyInfo.network);
 }
 
 /**
