@@ -111,11 +111,11 @@ describe('getNetworkProvider', () => {
   it('fails for other network', () => {
     const request: any = {
       currencyInfo: {
-        network: 'ropsten',
+        network: 'bitcoin',
       },
     };
     expect(() => getNetworkProvider(request)).toThrowError(
-      'Currency network ropsten is not supported',
+      'unsupported getDefaultProvider network',
     );
   });
 });

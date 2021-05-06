@@ -18,7 +18,7 @@ interface ITokenMap {
   [address: string]: ITokenDescription;
 }
 
-const extraERC20Tokens = {
+export const extraERC20Tokens = {
   // INDA
   '0x433d86336dB759855A66cCAbe4338313a8A7fc77': {
     name: 'Indacoin',
@@ -26,33 +26,21 @@ const extraERC20Tokens = {
     logo: 'inda.svg',
     symbol: 'INDA',
     decimals: 2,
-    address: '0x433d86336dB759855A66cCAbe4338313a8A7fc77',
   },
   // MPH
   '0x8888801af4d980682e47f1a9036e589479e835c5': {
-    name: 'MPH',
+    name: '88mph.app',
     erc20: true,
     logo: 'mph.svg',
     symbol: 'MPH',
     decimals: 18,
-    address: '0x8888801af4d980682e47f1a9036e589479e835c5',
-  },
-  // Aave USDC (v2 only)
-  '0xBcca60bB61934080951369a648Fb03DF4F96263C': {
-    name: 'aUSDC',
-    erc20: true,
-    logo: 'ausdc.svg',
-    symbol: 'aUSDC',
-    decimals: 6,
-    address: '0xBcca60bB61934080951369a648Fb03DF4F96263C',
   },
   // OCEAN
   '0x967da4048cD07aB37855c090aAF366e4ce1b9F48': {
-    name: 'OCEAN',
+    name: 'Ocean Token',
     erc20: true,
     symbol: 'OCEAN',
     decimals: 18,
-    address: '0x967da4048cD07aB37855c090aAF366e4ce1b9F48',
   },
   // SAND (Sandbox Game)
   '0x3845badAde8e6dFF049820680d1F14bD3903a5d0': {
@@ -60,15 +48,13 @@ const extraERC20Tokens = {
     erc20: true,
     symbol: 'SAND',
     decimals: 18,
-    address: '0x3845badAde8e6dFF049820680d1F14bD3903a5d0',
   },
   // ANKR
   '0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4': {
-    name: 'ANKR',
+    name: 'Ankr Network',
     erc20: true,
     symbol: 'ANKR',
     decimals: 18,
-    address: '0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4',
   },
   // XSGD
   '0x70e8dE73cE538DA2bEEd35d14187F6959a8ecA96': {
@@ -76,7 +62,13 @@ const extraERC20Tokens = {
     erc20: true,
     symbol: 'XSGD',
     decimals: 6,
-    address: '0x70e8dE73cE538DA2bEEd35d14187F6959a8ecA96',
+  },
+  // OLY
+  '0x6595b8fD9C920C81500dCa94e53Cdc712513Fb1f': {
+    name: 'Olyseum',
+    erc20: true,
+    symbol: 'OLY',
+    decimals: 18,
   },
 };
 
