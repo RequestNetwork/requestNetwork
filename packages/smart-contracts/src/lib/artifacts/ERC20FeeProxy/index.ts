@@ -26,7 +26,7 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
         },
         mumbai: {
           address: '0x131eb294E3803F23dc2882AB795631A12D1d8929',
-          creationBlockNumber: 14163521,
+          creationBlockNumber: 13127007,
         },
       },
     },
