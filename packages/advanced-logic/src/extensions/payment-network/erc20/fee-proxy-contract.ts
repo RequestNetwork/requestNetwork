@@ -23,7 +23,7 @@ const erc20FeeProxyContract: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBas
   isValidAddress,
 };
 
-const supportedNetworks = ['mainnet', 'rinkeby', 'private', 'matic'];
+const supportedNetworks = ['mainnet', 'rinkeby', 'private', 'matic', 'mumbai'];
 
 /**
  * Creates the extensionsData to create the extension ERC20 fee proxy contract payment detection
