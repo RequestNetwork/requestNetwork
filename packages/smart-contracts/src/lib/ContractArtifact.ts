@@ -45,6 +45,10 @@ export class ContractArtifact<TContract extends Contract> {
     ) as TContract;
   }
 
+  getInterface(): TContract['interface'] {
+    return Contract.getInterface(this.getContractAbi());
+  }
+
   /**
    * Retrieve the abi from the artifact of the used version
    * @returns the abi of the artifact as a json object
