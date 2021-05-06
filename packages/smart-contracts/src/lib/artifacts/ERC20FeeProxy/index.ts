@@ -17,12 +17,16 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           creationBlockNumber: 10774767,
         },
         matic: {
-          address: 'TODO',
-          creationBlockNumber: 0,
+          address: '0x2171a0dc12a9E5b1659feF2BB20E54c84Fa7dB0C',
+          creationBlockNumber: 14163521,
         },
         rinkeby: {
           address: '0xda46309973bFfDdD5a10cE12c44d2EE266f45A44',
           creationBlockNumber: 7118080,
+        },
+        mumbai: {
+          address: '0x131eb294E3803F23dc2882AB795631A12D1d8929',
+          creationBlockNumber: 14163521,
         },
       },
     },
