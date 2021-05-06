@@ -49,6 +49,7 @@
     "generate-types": "typechain --target=ethers-v5 --outDir=src/types 'build/contracts/*.json'"
   },
   "devDependencies": {
+    "@ethersproject/abi": "5.0.13",
     "@openzeppelin/contracts": "2.5.1",
     "@openzeppelin/test-helpers": "0.5.6",
     "@requestnetwork/currency": "0.6.0",

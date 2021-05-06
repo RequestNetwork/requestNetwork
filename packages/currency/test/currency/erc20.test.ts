@@ -1,5 +1,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { getErc20Decimals, getErc20Symbol } from '../../src/erc20';
+import * as metamaskContractMap from '@metamask/contract-metadata';
+import { extraERC20Tokens } from '../../src/erc20/networks/mainnet';
 
 describe('erc20', () => {
   describe('getErc20Symbol', () => {
@@ -125,6 +127,13 @@ describe('erc20', () => {
           value: '0x8888801aF4d980682e47f1A9036e589479e835C5', // MPH
         }),
       ).toEqual(18);
+    });
+  });
+  describe('does not redefine tokens', () => {
+    Object.entries(extraERC20Tokens).map(([address, { symbol }]) => {
+      it(`does not redefine ${symbol}`, () => {
+        expect(metamaskContractMap[address]).not.toBeDefined();
+      });
     });
   });
 });
