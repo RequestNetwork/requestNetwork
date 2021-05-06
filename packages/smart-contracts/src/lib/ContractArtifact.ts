@@ -1,4 +1,5 @@
-import { Contract, ContractInterface, providers, Signer } from 'ethers';
+import { Contract, providers, Signer } from 'ethers';
+import { JsonFragment } from '@ethersproject/abi';
 
 /**
  * Contract information specific to a network
@@ -12,7 +13,7 @@ export type ArtifactNetworkInfo = {
 
 /** Deployment information and ABI per network */
 export type ArtifactDeploymentInfo<TNetwork extends string = string> = {
-  abi: ContractInterface;
+  abi: JsonFragment[];
   deployment: Record<TNetwork, ArtifactNetworkInfo>;
 };
 
@@ -48,7 +49,7 @@ export class ContractArtifact<TContract extends Contract> {
    * Retrieve the abi from the artifact of the used version
    * @returns the abi of the artifact as a json object
    */
-  getContractAbi(version = this.lastVersion): ContractInterface {
+  getContractAbi(version = this.lastVersion): JsonFragment[] {
     return this.info[version].abi;
   }
 
