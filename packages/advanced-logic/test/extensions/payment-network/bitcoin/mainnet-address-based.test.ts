@@ -124,22 +124,6 @@ describe('extensions/payment-network/bitcoin/mainnet-address-based', () => {
           );
         }).toThrowError('Unknown action: unknown action');
       });
-      it('cannot applyActionToExtensions of unknown id', () => {
-        const unknownAction = Utils.deepCopy(DataBTCAddPaymentAddress.actionAddPaymentAddress);
-        unknownAction.id = 'unknown id' as any;
-        // 'must throw'
-        expect(() => {
-          mainnetBitcoinAddressBasedPN.applyActionToExtension(
-            DataBTCCreate.requestStateCreatedEmpty.extensions,
-            unknownAction,
-            DataBTCCreate.requestStateCreatedEmpty,
-            TestData.payeeRaw.identity,
-            TestData.arbitraryTimestamp,
-          );
-        }).toThrowError(
-          'This extension is not recognized by the BTC address based payment network',
-        );
-      });
     });
 
     describe('applyActionToExtension/create', () => {
