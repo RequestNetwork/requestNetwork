@@ -28,7 +28,7 @@ export const extraERC20Tokens = {
     decimals: 2,
   },
   // MPH
-  '0x8888801af4d980682e47f1a9036e589479e835c5': {
+  '0x8888801aF4d980682e47f1A9036e589479e835C5': {
     name: '88mph.app',
     erc20: true,
     logo: 'mph.svg',
