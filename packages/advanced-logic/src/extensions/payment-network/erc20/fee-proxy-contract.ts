@@ -14,14 +14,18 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
  * The salt should have at least 8 bytes of randomness. A way to generate it is:
  *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
-export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwork {
-  public constructor() {
-    super();
-    this.currentVersion = CURRENT_VERSION;
-    this.paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
+export default class Erc20FeeProxyPaymentNetwork<
+  TCreationParameters extends ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters
+> extends Erc20ProxyPaymentNetwork<TCreationParameters> {
+  // export default class ReferenceBasedPaymentNetwork<TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters> extends AddressBasedPaymentNetwork<TCreationParameters> {
+  public constructor(
+    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+    currentVersion: string = CURRENT_VERSION,
+  ) {
+    super(extensionId, currentVersion);
     this.actions = {
       ...this.actions,
-      [ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE]: this.applyAddFee,
+      [ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE]: this.applyAddFee.bind(this),
     };
   }
 
@@ -33,13 +37,10 @@ export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwor
    * @returns IExtensionCreationAction the extensionsData to be stored in the request
    */
   public createCreationAction(
-    creationParameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
-  ): ExtensionTypes.IAction<ExtensionTypes.PnFeeReferenceBased.ICreationParameters> {
-    if (
-      creationParameters.feeAddress &&
-      !Erc20ProxyPaymentNetwork.isValidAddress(creationParameters.feeAddress)
-    ) {
-      throw Error('feeAddress is not a valid ethereum address');
+    creationParameters: TCreationParameters,
+  ): ExtensionTypes.IAction<TCreationParameters> {
+    if (creationParameters.feeAddress && !this.isValidAddress(creationParameters.feeAddress)) {
+      throw Error('feeAddress is not a valid address');
     }
 
     if (creationParameters.feeAmount && !Utils.amount.isValid(creationParameters.feeAmount)) {
@@ -53,7 +54,9 @@ export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwor
       throw Error('feeAddress requires feeAmount');
     }
 
-    return super.createCreationAction(creationParameters);
+    return super.createCreationAction(
+      creationParameters,
+    ) as ExtensionTypes.IAction<TCreationParameters>;
   }
 
   /**
@@ -66,11 +69,8 @@ export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwor
   public createAddFeeAction(
     addFeeParameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
   ): ExtensionTypes.IAction {
-    if (
-      addFeeParameters.feeAddress &&
-      !Erc20ProxyPaymentNetwork.isValidAddress(addFeeParameters.feeAddress)
-    ) {
-      throw Error('feeAddress is not a valid ethereum address');
+    if (addFeeParameters.feeAddress && !this.isValidAddress(addFeeParameters.feeAddress)) {
+      throw Error('feeAddress is not a valid address');
     }
 
     if (addFeeParameters.feeAmount && !Utils.amount.isValid(addFeeParameters.feeAmount)) {
@@ -86,7 +86,7 @@ export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwor
 
     return {
       action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-      id: this.paymentNetworkId,
+      id: this.extensionId,
       parameters: addFeeParameters,
     };
   }
@@ -105,7 +105,7 @@ export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwor
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.feeAddress &&
-      !Erc20ProxyPaymentNetwork.isValidAddress(extensionAction.parameters.feeAddress)
+      !this.isValidAddress(extensionAction.parameters.feeAddress)
     ) {
       throw Error('feeAddress is not a valid address');
     }
@@ -161,7 +161,7 @@ export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwor
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.feeAddress &&
-      !Erc20ProxyPaymentNetwork.isValidAddress(extensionAction.parameters.feeAddress)
+      !this.isValidAddress(extensionAction.parameters.feeAddress)
     ) {
       throw Error('feeAddress is not a valid address');
     }
@@ -203,7 +203,7 @@ export default class Erc20FeeProxyPaymentNetwork extends Erc20ProxyPaymentNetwor
     return copiedExtensionState;
   }
 
-  protected validateSupportedCurrency(
+  protected validate(
     request: RequestLogicTypes.IRequest,
     extensionAction: ExtensionTypes.IAction,
   ): void {

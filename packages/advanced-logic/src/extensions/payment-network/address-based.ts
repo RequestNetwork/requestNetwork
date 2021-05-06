@@ -2,13 +2,13 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 import AbstractExtension from '../abstract-extension';
 import Utils from '@requestnetwork/utils';
 
-const CURRENT_VERSION = '0.1.0';
-
 /**
  * Core of the address based payment networks
  * This module is called by the address based payment networks to avoid code redundancy
  */
-export default abstract class AddressBasedPaymentNetwork extends AbstractExtension {
+export default abstract class AddressBasedPaymentNetwork<
+  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
+> extends AbstractExtension<TCreationParameters> {
   public constructor(public extensionId: ExtensionTypes.ID, public currentVersion: string) {
     super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);
     this.actions = {
@@ -30,8 +30,8 @@ export default abstract class AddressBasedPaymentNetwork extends AbstractExtensi
    * @returns IExtensionCreationAction the extensionsData to be stored in the request
    */
   public createCreationAction(
-    creationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
-  ): ExtensionTypes.IAction {
+    creationParameters: TCreationParameters,
+  ): ExtensionTypes.IAction<TCreationParameters> {
     if (
       creationParameters.paymentAddress &&
       !this.isValidAddress(creationParameters.paymentAddress)
@@ -49,11 +49,8 @@ export default abstract class AddressBasedPaymentNetwork extends AbstractExtensi
     return {
       action: ExtensionTypes.PnAddressBased.ACTION.CREATE,
       id: this.extensionId,
-      parameters: {
-        paymentAddress: creationParameters.paymentAddress,
-        refundAddress: creationParameters.refundAddress,
-      },
-      version: CURRENT_VERSION,
+      parameters: creationParameters,
+      version: this.currentVersion,
     };
   }
 
@@ -155,7 +152,7 @@ export default abstract class AddressBasedPaymentNetwork extends AbstractExtensi
         paymentAddress: extensionAction.parameters.paymentAddress,
         refundAddress: extensionAction.parameters.refundAddress,
       },
-      version: CURRENT_VERSION,
+      version: this.currentVersion,
     };
   }
 

@@ -44,10 +44,11 @@ const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, str
 };
 
 export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentNetwork {
-  public constructor() {
-    super();
-    this.currentVersion = CURRENT_VERSION;
-    this.paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY;
+  public constructor(
+    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+    currentVersion: string = CURRENT_VERSION,
+  ) {
+    super(extensionId, currentVersion);
   }
 
   /**
@@ -63,11 +64,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (!creationParameters.acceptedTokens || creationParameters.acceptedTokens.length === 0) {
       throw Error('acceptedTokens is required');
     }
-    if (
-      creationParameters.acceptedTokens.some(
-        (address) => !Erc20FeeProxyPaymentNetwork.isValidAddress(address),
-      )
-    ) {
+    if (creationParameters.acceptedTokens.some((address) => !this.isValidAddress(address))) {
       throw Error('acceptedTokens must contains only valid ethereum addresses');
     }
 
@@ -115,7 +112,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     }
     if (
       extensionAction.parameters.acceptedTokens.some(
-        (address: string) => !Erc20FeeProxyPaymentNetwork.isValidAddress(address),
+        (address: string) => !this.isValidAddress(address),
       )
     ) {
       throw Error('acceptedTokens must contains only valid ethereum addresses');
@@ -154,13 +151,12 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
    * Validates the payment network of the request currency.
    * Throw if a currency is not supported
    */
-  protected validateSupportedCurrency(
+  protected validate(
     request: RequestLogicTypes.IRequest,
     extensionAction: ExtensionTypes.IAction,
   ): void {
     const network =
-      extensionAction.parameters.network ||
-      request.extensions[this.paymentNetworkId]?.values.network;
+      extensionAction.parameters.network || request.extensions[this.extensionId]?.values.network;
 
     // Nothing can be validated if the network has not been given yet
     if (!network) {

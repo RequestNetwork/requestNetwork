@@ -75,7 +75,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
 
     it('cannot createCreationAction with refund address not an ethereum address', () => {
@@ -88,7 +88,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
 
     it('cannot createCreationAction with fee address not an ethereum address', () => {
@@ -101,7 +101,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('feeAddress is not a valid ethereum address');
+      }).toThrowError('feeAddress is not a valid address');
     });
 
     it('cannot createCreationAction with invalid fee amount', () => {
@@ -242,7 +242,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         anyToErc20Proxy.createAddPaymentAddressAction({
           paymentAddress: 'not an ethereum address',
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
   });
 
@@ -268,7 +268,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         anyToErc20Proxy.createAddRefundAddressAction({
           refundAddress: 'not an ethereum address',
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
   });
 
@@ -297,7 +297,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           feeAddress: 'not an ethereum address',
           feeAmount: '2000',
         });
-      }).toThrowError('feeAddress is not a valid ethereum address');
+      }).toThrowError('feeAddress is not a valid address');
     });
 
     it('cannot createAddFeeAction with amount non positive integer', () => {

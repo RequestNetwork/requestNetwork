@@ -1,4 +1,5 @@
 import * as Extension from '../extension-types';
+import { PnAddressBased } from '../extension-types';
 
 /** Manager of the extension */
 export interface IReferenceBased extends Extension.IExtension {
@@ -20,9 +21,7 @@ export interface IValues {
 }
 
 /** Parameters of creation action */
-export interface ICreationParameters {
-  paymentAddress?: string;
-  refundAddress?: string;
+export interface ICreationParameters extends PnAddressBased.ICreationParameters {
   salt: string;
 }
 

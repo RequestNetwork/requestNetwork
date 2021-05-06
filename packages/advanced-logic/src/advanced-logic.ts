@@ -12,7 +12,7 @@ import declarative from './extensions/payment-network/declarative';
 import AddressBasedErc20 from './extensions/payment-network/erc20/address-based';
 import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
-import ethereumInputData from './extensions/payment-network/ethereum/input-data';
+import EthereumInputData from './extensions/payment-network/ethereum/input-data';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 
 const anyToErc20Proxy = new AnyToErc20Proxy();
@@ -21,6 +21,7 @@ const proxyContractErc20 = new ProxyContractErc20();
 const addressBasedTestnetBtc = new AddressBasedTestnetBtc();
 const addressBasedBtc = new AddressBasedBtc();
 const addressBasedErc20 = new AddressBasedErc20();
+const ethereumInputData = new EthereumInputData();
 
 /**
  * Module to manage Advanced logic extensions

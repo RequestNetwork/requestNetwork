@@ -9,7 +9,7 @@ import Utils from '@requestnetwork/utils';
  * The salt should have at least 8 bytes of randomness. A way to generate it is:
  *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
-export default abstract class AbstractExtension {
+export default abstract class AbstractExtension<TCreationParameters> {
   public actions: { [actionId: string]: ExtensionTypes.ApplyAction };
 
   public constructor(
@@ -27,7 +27,7 @@ export default abstract class AbstractExtension {
    *
    * @returns IExtensionCreationAction the extensionsData to be stored in the request
    */
-  public createCreationAction<TCreationParameters>(
+  public createCreationAction(
     creationParameters: TCreationParameters,
   ): ExtensionTypes.IAction<TCreationParameters> {
     return {

@@ -20,7 +20,7 @@ export const actionCreationWithPaymentAndRefund = {
     refundAddress,
     salt,
   },
-  version: '0.1.0',
+  version: '0.2.0',
 };
 export const actionCreationOnlyPayment = {
   action: 'create',
@@ -28,7 +28,7 @@ export const actionCreationOnlyPayment = {
   parameters: {
     paymentAddress,
   },
-  version: '0.1.0',
+  version: '0.2.0',
 };
 export const actionCreationOnlyRefund = {
   action: 'create',
@@ -36,13 +36,13 @@ export const actionCreationOnlyRefund = {
   parameters: {
     refundAddress,
   },
-  version: '0.1.0',
+  version: '0.2.0',
 };
 export const actionCreationEmpty = {
   action: 'create',
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   parameters: {},
-  version: '0.1.0',
+  version: '0.2.0',
 };
 
 // ---------------------------------------------------------------------
@@ -67,7 +67,7 @@ export const extensionStateWithPaymentAndRefund = {
       refundAddress,
       salt,
     },
-    version: '0.1.0',
+    version: '0.2.0',
   },
 };
 export const extensionStateCreatedEmpty = {
@@ -82,7 +82,7 @@ export const extensionStateCreatedEmpty = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {},
-    version: '0.1.0',
+    version: '0.2.0',
   },
 };
 
@@ -127,7 +127,7 @@ export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
   requestId: TestData.requestIdMock,
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
-  version: '0.1.0',
+  version: '0.2.0',
 };
 
 export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest = {
@@ -169,7 +169,7 @@ export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest
   requestId: TestData.requestIdMock,
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
-  version: '0.1.0',
+  version: '0.2.0',
 };
 
 export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
@@ -211,5 +211,5 @@ export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
   requestId: TestData.requestIdMock,
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
-  version: '0.1.0',
+  version: '0.2.0',
 };

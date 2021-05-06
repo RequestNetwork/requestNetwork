@@ -17,31 +17,31 @@ export {
 };
 
 /** Extension interface is extended by the extensions implementation */
-export interface IExtension {
+export interface IExtension<T = any> {
   applyActionToExtension: (
     extensionsState: RequestLogic.IExtensionStates,
-    extensionAction: IAction,
+    extensionAction: IAction<T>,
     requestState: RequestLogic.IRequest,
     actionSigner: Identity.IIdentity,
     timestamp: number,
   ) => RequestLogic.IExtensionStates;
 }
 
-export type ApplyAction = (
-  extensionState: IState,
-  extensionAction: IAction,
+export type ApplyAction<T = any> = (
+  extensionState: IState<T>,
+  extensionAction: IAction<T>,
   requestState: RequestLogic.IRequest,
   actionSigner: Identity.IIdentity,
   timestamp: number,
-) => IState;
+) => IState<T>;
 
 /** Extensions state in advanced logic */
-export interface IState {
+export interface IState<T = any> {
   type: TYPE;
   id: ID;
   version: string;
   events: IEvent[];
-  values: any;
+  values: T;
 }
 
 /** Creation action object */

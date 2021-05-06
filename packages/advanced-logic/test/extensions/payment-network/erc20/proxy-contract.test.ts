@@ -56,7 +56,7 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
 
     it('cannot createCreationAction with refund address not an ethereum address', () => {
@@ -67,7 +67,7 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
   });
 
@@ -93,7 +93,7 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
         erc20ProxyContract.createAddPaymentAddressAction({
           paymentAddress: 'not an ethereum address',
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
   });
 
@@ -118,7 +118,7 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
         erc20ProxyContract.createAddRefundAddressAction({
           refundAddress: 'not an ethereum address',
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
   });
 
