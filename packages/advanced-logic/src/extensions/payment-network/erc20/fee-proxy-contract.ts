@@ -4,7 +4,7 @@ import Erc20ProxyPaymentNetwork from './proxy-contract';
 
 const CURRENT_VERSION = '0.1.0';
 
-const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
+const supportedNetworks = ['mainnet', 'rinkeby', 'private', 'matic', 'mumbai'];
 
 /**
  * Implementation of the payment network to pay in ERC20, including third-party fees payment, based on a reference provided to a proxy contract.
