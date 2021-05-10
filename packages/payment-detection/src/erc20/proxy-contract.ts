@@ -181,7 +181,6 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
       proxyContractAddress = info.address;
       proxyCreationBlockNumber = info.creationBlockNumber;
     } catch (e) {
-      console.log(e.message);
       if (e.message?.startsWith('No deployment for network')) {
         throw new NetworkNotSupported(
           `Network not supported for this payment network: ${request.currency.network}`,
