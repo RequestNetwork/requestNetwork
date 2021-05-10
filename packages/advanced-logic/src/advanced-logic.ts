@@ -8,7 +8,7 @@ import {
 import contentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
 import AddressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
-import declarative from './extensions/payment-network/declarative';
+import Declarative from './extensions/payment-network/declarative';
 import AddressBasedErc20 from './extensions/payment-network/erc20/address-based';
 import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
@@ -27,7 +27,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     addressBasedTestnetBtc: new AddressBasedTestnetBtc(),
     contentData,
     anyToErc20Proxy: new AnyToErc20Proxy(),
-    declarative,
+    declarative: new Declarative(),
     ethereumInputData: new EthereumInputData(),
     feeProxyContractErc20: new FeeProxyContractErc20(),
     proxyContractErc20: new ProxyContractErc20(),

@@ -5,13 +5,15 @@ import Utils from '@requestnetwork/utils';
 import * as TestDataDeclarative from '../../utils/payment-network/any/generator-data-create';
 import * as TestData from '../../utils/test-data-generator';
 
+const pnAnyDeclarative = new PnAnyDeclarative();
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/any/declarative', () => {
   describe('createCreationAction', () => {
     it('can createCreationAction with payment and refund instruction', () => {
       // 'extensionsdata is wrong'
       expect(
-        PnAnyDeclarative.createCreationAction({
+        pnAnyDeclarative.createCreationAction({
           paymentInfo: TestDataDeclarative.paymentInfo,
           refundInfo: TestDataDeclarative.refundInfo,
         }),
@@ -23,7 +25,7 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         Utils.deepCopy(
-          PnAnyDeclarative.createCreationAction({
+          pnAnyDeclarative.createCreationAction({
             paymentInfo: TestDataDeclarative.paymentInfo,
           }),
         ),
@@ -34,18 +36,11 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         Utils.deepCopy(
-          PnAnyDeclarative.createCreationAction({
+          pnAnyDeclarative.createCreationAction({
             refundInfo: TestDataDeclarative.refundInfo,
           }),
         ),
       ).toEqual(TestDataDeclarative.actionCreationOnlyRefund);
-    });
-    it('can createCreationAction with nothing', () => {
-      // deep copy to remove the undefined properties to comply deep.equal()
-      // 'extensionsdata is wrong'
-      expect(Utils.deepCopy(PnAnyDeclarative.createCreationAction())).toEqual(
-        TestDataDeclarative.actionCreationEmpty,
-      );
     });
   });
 
@@ -53,7 +48,7 @@ describe('extensions/payment-network/any/declarative', () => {
     it('can createAddPaymentInstructionAction', () => {
       // 'extensionsdata is wrong'
       expect(
-        PnAnyDeclarative.createAddPaymentInstructionAction({
+        pnAnyDeclarative.createAddPaymentInstructionAction({
           paymentInfo: TestDataDeclarative.paymentInfo,
         }),
       ).toEqual(TestDataDeclarative.actionPaymentInstruction);
@@ -64,7 +59,7 @@ describe('extensions/payment-network/any/declarative', () => {
     it('can createAddRefundInstructionAction', () => {
       // 'extensionsdata is wrong'
       expect(
-        PnAnyDeclarative.createAddRefundInstructionAction({
+        pnAnyDeclarative.createAddRefundInstructionAction({
           refundInfo: TestDataDeclarative.refundInfo,
         }),
       ).toEqual(TestDataDeclarative.actionRefundInstruction);
@@ -75,7 +70,7 @@ describe('extensions/payment-network/any/declarative', () => {
     it('can createDeclareSentPaymentAction', () => {
       // 'extensionsdata is wrong'
       expect(
-        PnAnyDeclarative.createDeclareSentPaymentAction({
+        pnAnyDeclarative.createDeclareSentPaymentAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
         }),
@@ -87,7 +82,7 @@ describe('extensions/payment-network/any/declarative', () => {
     it('can createDeclareSentRefundAction', () => {
       // 'extensionsdata is wrong'
       expect(
-        PnAnyDeclarative.createDeclareSentRefundAction({
+        pnAnyDeclarative.createDeclareSentRefundAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
         }),
@@ -99,7 +94,7 @@ describe('extensions/payment-network/any/declarative', () => {
     it('can createDeclareReceivedPaymentAction', () => {
       // 'extensionsdata is wrong'
       expect(
-        PnAnyDeclarative.createDeclareReceivedPaymentAction({
+        pnAnyDeclarative.createDeclareReceivedPaymentAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
         }),
@@ -111,7 +106,7 @@ describe('extensions/payment-network/any/declarative', () => {
     it('can createDeclareReceivedRefundAction', () => {
       // 'extensionsdata is wrong'
       expect(
-        PnAnyDeclarative.createDeclareReceivedRefundAction({
+        pnAnyDeclarative.createDeclareReceivedRefundAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
         }),
@@ -126,7 +121,7 @@ describe('extensions/payment-network/any/declarative', () => {
         unknownAction.action = 'unknown action' as any;
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             unknownAction,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -141,7 +136,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('can applyActionToExtensions of creation', () => {
         // 'new extension state wrong'
         expect(
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateNoExtensions.extensions,
             TestDataDeclarative.actionCreationWithPaymentAndRefund,
             TestDataDeclarative.requestStateNoExtensions,
@@ -153,7 +148,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of creation with a previous state', () => {
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
             TestDataDeclarative.actionCreationWithPaymentAndRefund,
             TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
@@ -168,7 +163,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('can applyActionToExtensions of addPaymentInstruction', () => {
         // 'new extension state wrong'
         expect(
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionPaymentInstruction,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -180,21 +175,21 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of addPaymentInstruction without a previous state', () => {
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateNoExtensions.extensions,
             TestDataDeclarative.actionPaymentInstruction,
             TestDataDeclarative.requestStateNoExtensions,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`This extension must have been already created`);
+        }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of addPaymentInstruction without a payee', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payee = undefined;
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionPaymentInstruction,
             previousState,
@@ -207,7 +202,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionPaymentInstruction,
             previousState,
@@ -219,7 +214,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of addPaymentInstruction with payment instruction already given', () => {
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
             TestDataDeclarative.actionPaymentInstruction,
             TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
@@ -234,7 +229,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('can applyActionToExtensions of addRefundInstruction', () => {
         // 'new extension state wrong'
         expect(
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionRefundInstruction,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -246,21 +241,21 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of addRefundInstruction without a previous state', () => {
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateNoExtensions.extensions,
             TestDataDeclarative.actionRefundInstruction,
             TestDataDeclarative.requestStateNoExtensions,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`This extension must have been already created`);
+        }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of addRefundInstruction without a payer', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payer = undefined;
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionRefundInstruction,
             previousState,
@@ -273,7 +268,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionRefundInstruction,
             previousState,
@@ -285,7 +280,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of addRefundInstruction with payment instruction already given', () => {
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
             TestDataDeclarative.actionRefundInstruction,
             TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
@@ -300,7 +295,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('can applyActionToExtensions of declareSentPayment', () => {
         // 'new extension state wrong'
         expect(
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareSentPayment,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -312,21 +307,21 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of declareSentPayment without a previous state', () => {
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateNoExtensions.extensions,
             TestDataDeclarative.actionDeclareSentPayment,
             TestDataDeclarative.requestStateNoExtensions,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`This extension must have been already created`);
+        }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of declareSentPayment without a payer', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payer = undefined;
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionDeclareSentPayment,
             previousState,
@@ -339,7 +334,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionDeclareSentPayment,
             previousState,
@@ -353,7 +348,7 @@ describe('extensions/payment-network/any/declarative', () => {
 
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareSentPayment,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -368,7 +363,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('can applyActionToExtensions of declareReceivedRefund', () => {
         // 'new extension state wrong'
         expect(
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareReceivedRefund,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -380,21 +375,21 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of declareReceivedRefund without a previous state', () => {
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateNoExtensions.extensions,
             TestDataDeclarative.actionDeclareReceivedRefund,
             TestDataDeclarative.requestStateNoExtensions,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`This extension must have been already created`);
+        }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of declareReceivedRefund without a payer', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payer = undefined;
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionDeclareReceivedRefund,
             previousState,
@@ -407,7 +402,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionDeclareReceivedRefund,
             previousState,
@@ -421,7 +416,7 @@ describe('extensions/payment-network/any/declarative', () => {
 
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareReceivedRefund,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -436,7 +431,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('can applyActionToExtensions of declareSentRefund', () => {
         // 'new extension state wrong'
         expect(
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareSentRefund,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -448,21 +443,21 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of declareSentRefund without a previous state', () => {
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateNoExtensions.extensions,
             TestDataDeclarative.actionDeclareSentRefund,
             TestDataDeclarative.requestStateNoExtensions,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`This extension must have been already created`);
+        }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of declareSentRefund without a payee', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payee = undefined;
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionDeclareSentRefund,
             previousState,
@@ -475,7 +470,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionDeclareSentRefund,
             previousState,
@@ -489,7 +484,7 @@ describe('extensions/payment-network/any/declarative', () => {
 
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareSentRefund,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -504,7 +499,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('can applyActionToExtensions of declareReceivedPayment', () => {
         // 'new extension state wrong'
         expect(
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareReceivedPayment,
             TestDataDeclarative.requestStateCreatedEmpty,
@@ -516,21 +511,21 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of declareReceivedPayment without a previous state', () => {
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateNoExtensions.extensions,
             TestDataDeclarative.actionDeclareReceivedPayment,
             TestDataDeclarative.requestStateNoExtensions,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`This extension must have been already created`);
+        }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of declareReceivedPayment without a payee', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payee = undefined;
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionDeclareReceivedPayment,
             previousState,
@@ -543,7 +538,7 @@ describe('extensions/payment-network/any/declarative', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
             TestDataDeclarative.actionDeclareReceivedPayment,
             previousState,
@@ -557,7 +552,7 @@ describe('extensions/payment-network/any/declarative', () => {
 
         // 'must throw'
         expect(() => {
-          PnAnyDeclarative.applyActionToExtension(
+          pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareReceivedPayment,
             TestDataDeclarative.requestStateCreatedEmpty,

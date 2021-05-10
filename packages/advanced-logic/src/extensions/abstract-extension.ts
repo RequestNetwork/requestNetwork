@@ -119,8 +119,11 @@ export default abstract class AbstractExtension<TCreationParameters> {
    * @param request
    * @param extensionAction action to apply
    */
-  protected abstract validate(
-    request: RequestLogicTypes.IRequest,
-    extensionAction: ExtensionTypes.IAction,
-  ): void;
+  protected validate(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _request: RequestLogicTypes.IRequest,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _extensionAction: ExtensionTypes.IAction,
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+  ): void {}
 }
