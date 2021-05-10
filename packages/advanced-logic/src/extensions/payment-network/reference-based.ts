@@ -48,8 +48,8 @@ export default abstract class ReferenceBasedPaymentNetwork<
   /**
    * Applies a creation extension action
    *
-   * @param isValidAddress address validator function
    * @param extensionAction action to apply
+   * @param timestamp ?
    *
    * @returns state of the extension created
    */
