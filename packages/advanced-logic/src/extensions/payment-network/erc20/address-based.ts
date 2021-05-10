@@ -16,7 +16,12 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
  */
 export default class Erc20AddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
   public constructor() {
-    super(ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED, CURRENT_VERSION);
+    super(
+      ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+      CURRENT_VERSION,
+      supportedNetworks,
+      RequestLogicTypes.CURRENCY.ERC20,
+    );
   }
 
   /**
@@ -27,22 +32,5 @@ export default class Erc20AddressBasedPaymentNetwork extends AddressBasedPayment
    */
   protected isValidAddress(address: string): boolean {
     return walletAddressValidator.validate(address, 'ethereum');
-  }
-
-  protected validate(
-    request: RequestLogicTypes.IRequest,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _extensionAction: ExtensionTypes.IAction,
-  ): void {
-    if (
-      request.currency.type !== RequestLogicTypes.CURRENCY.ERC20 ||
-      (request.currency.network && !supportedNetworks.includes(request.currency.network))
-    ) {
-      throw Error(
-        `This extension can be used only on ERC20 requests and on supported networks ${supportedNetworks.join(
-          ', ',
-        )}`,
-      );
-    }
   }
 }

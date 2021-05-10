@@ -9,7 +9,12 @@ import Utils from '@requestnetwork/utils';
 export default abstract class AddressBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
 > extends AbstractExtension<TCreationParameters> {
-  public constructor(public extensionId: ExtensionTypes.ID, public currentVersion: string) {
+  public constructor(
+    public extensionId: ExtensionTypes.ID,
+    public currentVersion: string,
+    public supportedNetworks: string[],
+    public supportedCurrencyType: string,
+  ) {
     super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);
     this.actions = {
       ...this.actions,
@@ -247,5 +252,28 @@ export default abstract class AddressBasedPaymentNetwork<
     });
 
     return copiedExtensionState;
+  }
+
+  /**
+   * Validate the extension action regarding the currency and network
+   * It must throw in case of error
+   *
+   * @param request
+   */
+  protected validate(
+    request: RequestLogicTypes.IRequest,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _extensionAction: ExtensionTypes.IAction,
+  ): void {
+    if (
+      request.currency.type !== this.supportedCurrencyType ||
+      (request.currency.network && !this.supportedNetworks.includes(request.currency.network))
+    ) {
+      throw Error(
+        `This extension can be used only on ${
+          this.supportedCurrencyType
+        } requests and on supported networks ${this.supportedNetworks.join(', ')}`,
+      );
+    }
   }
 }

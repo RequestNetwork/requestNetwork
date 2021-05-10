@@ -6,8 +6,6 @@ const CURRENT_VERSION = '0.1.0';
 
 import * as walletAddressValidator from 'wallet-address-validator';
 
-const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
-
 /**
  * Implementation of the payment network to pay in ERC20 based on a reference provided to a proxy contract.
  * With this extension, one request can have two Ethereum addresses (one for payment and one for refund) and a specific value to give as input data
@@ -20,10 +18,12 @@ export default class Erc20ProxyPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
   public constructor(
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
-    currentVersion: string = CURRENT_VERSION,
+    public extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+    public currentVersion: string = CURRENT_VERSION,
+    public supportedNetworks: string[] = ['mainnet', 'rinkeby', 'private'],
+    public supportedCurrencyType: string = RequestLogicTypes.CURRENCY.ERC20,
   ) {
-    super(extensionId, currentVersion);
+    super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);
   }
 
   /**
@@ -34,23 +34,5 @@ export default class Erc20ProxyPaymentNetwork<
    */
   protected isValidAddress(address: string): boolean {
     return walletAddressValidator.validate(address, 'ethereum');
-  }
-
-  protected validate(
-    request: RequestLogicTypes.IRequest,
-    extensionAction: ExtensionTypes.IAction,
-  ): void {
-    if (
-      request.currency.type !== RequestLogicTypes.CURRENCY.ERC20 ||
-      (request.currency.network &&
-        extensionAction.parameters.network === request.currency.network &&
-        !supportedNetworks.includes(request.currency.network))
-    ) {
-      throw Error(
-        `This extension can be used only on ERC20 requests and on supported networks ${supportedNetworks.join(
-          ', ',
-        )}`,
-      );
-    }
   }
 }

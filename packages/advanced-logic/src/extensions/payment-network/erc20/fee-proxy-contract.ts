@@ -4,8 +4,6 @@ import Erc20ProxyPaymentNetwork from './proxy-contract';
 
 const CURRENT_VERSION = '0.1.0';
 
-const supportedNetworks = ['mainnet', 'rinkeby', 'private', 'matic', 'mumbai'];
-
 /**
  * Implementation of the payment network to pay in ERC20, including third-party fees payment, based on a reference provided to a proxy contract.
  * With this extension, one request can have three Ethereum addresses (one for payment, one for fees payment, and one for refund)
@@ -21,6 +19,8 @@ export default class Erc20FeeProxyPaymentNetwork<
   public constructor(
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
     currentVersion: string = CURRENT_VERSION,
+    public supportedNetworks: string[] = ['mainnet', 'rinkeby', 'private', 'matic', 'mumbai'],
+    public supportedCurrencyType: string = RequestLogicTypes.CURRENCY.ERC20,
   ) {
     super(extensionId, currentVersion);
     this.actions = {
@@ -201,23 +201,5 @@ export default class Erc20FeeProxyPaymentNetwork<
     });
 
     return copiedExtensionState;
-  }
-
-  protected validate(
-    request: RequestLogicTypes.IRequest,
-    extensionAction: ExtensionTypes.IAction,
-  ): void {
-    if (
-      request.currency.type !== RequestLogicTypes.CURRENCY.ERC20 ||
-      (request.currency.network &&
-        extensionAction.parameters.network === request.currency.network &&
-        !supportedNetworks.includes(request.currency.network))
-    ) {
-      throw Error(
-        `This extension can be used only on ERC20 requests and on supported networks ${supportedNetworks.join(
-          ', ',
-        )}`,
-      );
-    }
   }
 }

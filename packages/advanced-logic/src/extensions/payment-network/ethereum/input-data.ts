@@ -20,7 +20,7 @@ export default class EthInputPaymentNetwork extends ReferenceBasedPaymentNetwork
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(extensionId, currentVersion);
+    super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
   }
 
   /**
