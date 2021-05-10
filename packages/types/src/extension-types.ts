@@ -82,3 +82,5 @@ export enum TYPE {
 export enum ACTION {
   CREATE = 'create',
 }
+
+export type SupportedActions = { [actionId: string]: ApplyAction };
