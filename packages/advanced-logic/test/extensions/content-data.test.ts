@@ -5,13 +5,15 @@ import ContentData from '../../src/extensions/content-data';
 
 import * as TestData from '../utils/test-data-generator';
 
+const contentData = new ContentData();
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('content-data', () => {
   describe('applyActionToExtension', () => {
     it('can applyActionToExtensions', () => {
       const requestCreatedNoExtensionBefore = Utils.deepCopy(TestData.requestCreatedNoExtension);
       const previousState = {};
-      const newExtensionState = ContentData.applyActionToExtension(
+      const newExtensionState = contentData.applyActionToExtension(
         previousState,
         TestData.createContentDataExtensionData,
         requestCreatedNoExtensionBefore,
@@ -29,7 +31,7 @@ describe('content-data', () => {
     });
     it('cannot create state if already state', () => {
       expect(() =>
-        ContentData.applyActionToExtension(
+        contentData.applyActionToExtension(
           TestData.expectedCreatedContentDataState,
           {
             action: ExtensionTypes.ContentData.ACTION.CREATE,
@@ -46,7 +48,7 @@ describe('content-data', () => {
 
     it('cannot create state if action parameters do not have content', () => {
       expect(() =>
-        ContentData.applyActionToExtension(
+        contentData.applyActionToExtension(
           {},
           {
             action: ExtensionTypes.ContentData.ACTION.CREATE,
@@ -64,7 +66,7 @@ describe('content-data', () => {
     it('cannot create state if action unknown', () => {
       // 'must throw'
       expect(() => {
-        ContentData.applyActionToExtension(
+        contentData.applyActionToExtension(
           {},
           {
             action: 'unknown action',
@@ -76,13 +78,13 @@ describe('content-data', () => {
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         );
-      }).toThrowError('Unknown action: unknown action');
+      }).toThrowError('The extension should be created before receiving any other action');
     });
   });
 
   describe('createCreationAction', () => {
     it('can createCreationAction', () => {
-      const extensionDataCreated = ContentData.createCreationAction({
+      const extensionDataCreated = contentData.createCreationAction({
         content: { what: 'ever', it: 'is' },
       });
 
@@ -90,7 +92,7 @@ describe('content-data', () => {
       expect(extensionDataCreated).toEqual(TestData.createContentDataExtensionData);
     });
     it('cannot create extension data if parameters do not have content', () => {
-      expect(() => ContentData.createCreationAction({} as any)).toThrowError(
+      expect(() => contentData.createCreationAction({} as any)).toThrowError(
         'No content has been given for the extension content-data',
       );
     });
