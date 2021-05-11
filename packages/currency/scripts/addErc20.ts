@@ -53,7 +53,6 @@ const handler = async ({ address, network, skipUpgrade }: IOptions) => {
       {
         [checksumAddress]: {
           name,
-          erc20: true,
           symbol,
           decimals,
         },

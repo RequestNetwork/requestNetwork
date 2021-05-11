@@ -194,6 +194,13 @@ describe('api/currency', () => {
         value: '0x995d6A8C21F24be1Dd04E105DD0d83758343E258',
       });
     });
+    it('return the correct currency for DAI-matic string', () => {
+      expect(Currency.from('DAI-matic')).toEqual({
+        network: 'matic',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+      });
+    });
 
     it('return the correct currency for USD and EUR strings', () => {
       expect(Currency.fromSymbol('USD')).toEqual({
@@ -443,6 +450,24 @@ describe('api/currency', () => {
 
     it('throws for an unsupported currency', () => {
       expect(() => Currency.fromSymbol('XXXXXXX')).toThrow();
+    });
+
+    it('supports a token that exists on two chains', () => {
+      expect(Currency.fromSymbol('DAI')).toEqual({
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      });
+      expect(Currency.fromSymbol('DAI', 'mainnet')).toEqual({
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      });
+      expect(Currency.fromSymbol('DAI', 'matic')).toEqual({
+        network: 'matic',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+      });
     });
 
     describe('errors and edge cases', () => {
