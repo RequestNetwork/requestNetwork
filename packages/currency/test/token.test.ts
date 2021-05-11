@@ -143,6 +143,14 @@ describe('api/currency Token', () => {
           network: 'matic',
         });
       });
+      it('DAI-matic from DAI-matic', () => {
+        expect(Token.from('DAI-matic')).toMatchObject({
+          symbol: 'DAI',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+          network: 'matic',
+        });
+      });
     });
 
     describe('errors', () => {

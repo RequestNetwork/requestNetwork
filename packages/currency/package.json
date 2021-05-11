@@ -37,7 +37,8 @@
     "lint": "eslint \"src/**/*.ts\"",
     "prepare": "yarn run build",
     "test": "jest",
-    "test:watch": "yarn test --watch"
+    "test:watch": "yarn test --watch",
+    "add-erc20": "ts-node scripts/addErc20.ts"
   },
   "dependencies": {
     "@metamask/contract-metadata": "1.25.0",
