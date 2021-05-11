@@ -26,6 +26,7 @@ describe('api/currency', () => {
         decimals: 18,
         name: 'Sai Stablecoin v1.0',
         symbol: 'SAI',
+        network: 'mainnet',
       });
     });
 
@@ -37,6 +38,7 @@ describe('api/currency', () => {
         decimals: 18,
         name: 'Celo Dollar',
         symbol: 'CUSD-celo',
+        network: 'celo',
       });
     });
 
@@ -46,6 +48,7 @@ describe('api/currency', () => {
         decimals: 2,
         name: 'Indacoin',
         symbol: 'INDA',
+        network: 'mainnet',
       });
     });
 
@@ -57,6 +60,7 @@ describe('api/currency', () => {
         decimals: 18,
         name: 'Central Bank Token',
         symbol: 'CTBK-rinkeby',
+        network: 'rinkeby',
       });
     });
 
