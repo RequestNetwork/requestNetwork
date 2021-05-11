@@ -212,7 +212,10 @@ export default class PaymentNetworkERC20FeeProxyContract<
       throw new NetworkNotSupported(`Payment network not supported by ERC20 payment detection`);
     }
 
-    const deploymentInformation = this.getDeploymentInformation(network, paymentNetwork.version);
+    const deploymentInformation = erc20FeeProxyArtifact.getDeploymentInformation(
+      network,
+      paymentNetwork.version,
+    );
 
     if (!deploymentInformation) {
       throw new VersionNotSupported(
@@ -307,7 +310,4 @@ export default class PaymentNetworkERC20FeeProxyContract<
   get paymentNetworkId(): ExtensionTypes.ID {
     return this._paymentNetworkId;
   }
-
-  protected getDeploymentInformation: DeploymentInformationGetter =
-    erc20FeeProxyArtifact.getDeploymentInformation;
 }
