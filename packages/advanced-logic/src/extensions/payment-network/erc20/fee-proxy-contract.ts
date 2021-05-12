@@ -77,11 +77,11 @@ export default class Erc20FeeProxyPaymentNetwork<
       throw Error('feeAmount is not a valid amount');
     }
 
-    if (!addFeeParameters.feeAmount && addFeeParameters.feeAddress) {
-      throw Error('feeAmount requires feeAddress');
+    if (addFeeParameters.feeAddress && !addFeeParameters.feeAmount) {
+      throw Error('feeAddress requires feeAmount');
     }
     if (addFeeParameters.feeAmount && !addFeeParameters.feeAddress) {
-      throw Error('feeAddress requires feeAmount');
+      throw Error('feeAmount requires feeAddress');
     }
 
     return {

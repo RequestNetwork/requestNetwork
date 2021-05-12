@@ -108,14 +108,6 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  /**
-   * Applies a creation
-   *
-   * @param isValidAddress address validator function
-   * @param extensionAction action to apply
-   *
-   * @returns state of the extension created
-   */
   protected applyCreation(
     extensionAction: ExtensionTypes.IAction,
     timestamp: number,
@@ -254,12 +246,6 @@ export default abstract class AddressBasedPaymentNetwork<
     return copiedExtensionState;
   }
 
-  /**
-   * Validate the extension action regarding the currency and network
-   * It must throw in case of error
-   *
-   * @param request
-   */
   protected validate(
     request: RequestLogicTypes.IRequest,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
