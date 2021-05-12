@@ -28,7 +28,14 @@ export type ArtifactInfo<
  * and utilities to connect to it
  **/
 export class ContractArtifact<TContract extends Contract> {
-  constructor(private info: ArtifactInfo<string, string>, private lastVersion: string) {}
+  constructor(private info: ArtifactInfo<string, string>, private lastVersion: string) {
+    this.connect = this.connect.bind(this);
+    this.getInterface = this.getInterface.bind(this);
+    this.getContractAbi = this.getContractAbi.bind(this);
+    this.getAddress = this.getAddress.bind(this);
+    this.getCreationBlockNumber = this.getCreationBlockNumber.bind(this);
+    this.getDeploymentInformation = this.getDeploymentInformation.bind(this);
+  }
 
   /**
    * Returns an ethers contract instance for the given `networkName`
