@@ -6,7 +6,11 @@ const eightHexRegex = /[0-9a-f]{16,}/;
 
 /**
  * Core of the reference based payment networks
- * This module is called by the reference based payment networks to avoid code redundancy
+ * Abstract implementation of the payment network to pay with a reference
+ * With this extension, one request can have two addresses (one for payment and one for refund) and a specific value to give as input data
+ * The value to give as input data is the last 8 bytes of a salted hash of the requestId and the address: `last8Bytes(hash(requestId + salt + address))`:
+ * The salt should have at least 8 bytes of randomness. A way to generate it is:
+ *   `Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16) + Math.floor(Math.random() * Math.pow(2, 4 * 8)).toString(16)`
  */
 export default abstract class ReferenceBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters

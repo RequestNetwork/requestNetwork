@@ -721,7 +721,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
   
       it('cannot applyActionToExtensions of addFee with fee amount not valid', () => {
         const testnetPaymentAddress = Utils.deepCopy(DataConversionERC20FeeAddData.actionAddFee);
-        testnetPaymentAddress.parameters.feeAmount = DataConversionERC20FeeAddData.invalidAddress;
+        testnetPaymentAddress.parameters.feeAmount = "invalid amount";
         expect(() => {
           anyToErc20Proxy.applyActionToExtension(
             DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
