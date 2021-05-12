@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/toolbox@0.1.24...@requestnetwork/toolbox@0.4.0) (2021-05-12)
+
+
+### Features
+
+* defaultProvider ([#497](https://github.com/RequestNetwork/requestNetwork/issues/497)) ([96e9486](https://github.com/RequestNetwork/requestNetwork/commit/96e94866a888b621001f56299b8484f576622ad5))
+* SAND aggregator support for conversion ([#487](https://github.com/RequestNetwork/requestNetwork/issues/487)) ([46cbe1b](https://github.com/RequestNetwork/requestNetwork/commit/46cbe1bef7b703addb34d7f1d810fea4ff233f5b))
+* updated aggregators for AUD and CAD ([#482](https://github.com/RequestNetwork/requestNetwork/issues/482)) ([9d6c143](https://github.com/RequestNetwork/requestNetwork/commit/9d6c1438e2b99189155e7264943357c72f35a459))
+
+
+
+# 0.36.0 (2021-03-25)
+
+
+### Features
+
+* tool to list all the aggregators supported by the protocol ([#443](https://github.com/RequestNetwork/requestNetwork/issues/443)) ([2206b0d](https://github.com/RequestNetwork/requestNetwork/commit/2206b0d900271b4b8da8b72ce53ab19c5181a960))
+
+
+
+
+
 # [0.3.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/toolbox@0.1.24...@requestnetwork/toolbox@0.3.0) (2021-04-19)
 
 

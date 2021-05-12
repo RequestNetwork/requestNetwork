@@ -90,7 +90,11 @@ export default abstract class AbstractExtension<TCreationParameters> {
   }
 
   /**
+<<<<<<< HEAD
    * Applies a creation extension action
+=======
+   * Applies an extension creation action
+>>>>>>> master
    *
    * @param extensionAction action to apply
    * @param _timestamp action timestamp

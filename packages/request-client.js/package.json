@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-client.js",
-  "version": "0.37.0",
+  "version": "0.38.0",
   "publishConfig": {
     "access": "public"
   },
@@ -42,18 +42,18 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/advanced-logic": "0.32.0",
-    "@requestnetwork/currency": "0.6.0",
-    "@requestnetwork/data-access": "0.24.0",
-    "@requestnetwork/data-format": "0.8.7",
-    "@requestnetwork/epk-signature": "0.5.32",
-    "@requestnetwork/multi-format": "0.15.7",
-    "@requestnetwork/payment-detection": "0.33.0",
-    "@requestnetwork/request-logic": "0.26.7",
-    "@requestnetwork/smart-contracts": "0.26.0",
-    "@requestnetwork/transaction-manager": "0.26.7",
-    "@requestnetwork/types": "0.33.0",
-    "@requestnetwork/utils": "0.33.0",
+    "@requestnetwork/advanced-logic": "0.33.0",
+    "@requestnetwork/currency": "0.7.0",
+    "@requestnetwork/data-access": "0.25.0",
+    "@requestnetwork/data-format": "0.8.8",
+    "@requestnetwork/epk-signature": "0.5.33",
+    "@requestnetwork/multi-format": "0.15.8",
+    "@requestnetwork/payment-detection": "0.34.0",
+    "@requestnetwork/request-logic": "0.26.8",
+    "@requestnetwork/smart-contracts": "0.27.0",
+    "@requestnetwork/transaction-manager": "0.26.8",
+    "@requestnetwork/types": "0.34.0",
+    "@requestnetwork/utils": "0.34.0",
     "axios": "0.21.1",
     "ethers": "5.0.32"
   },

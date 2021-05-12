@@ -67,10 +67,10 @@ export default abstract class ReferenceBasedPaymentNetwork<
       );
     }
 
-    const addressBasedCreationAction = super.applyCreation(extensionAction, timestamp);
+    const basicCreationAction = super.applyCreation(extensionAction, timestamp);
 
     return {
-      ...addressBasedCreationAction,
+      ...basicCreationAction,
       events: [
         {
           name: 'create',
@@ -85,7 +85,7 @@ export default abstract class ReferenceBasedPaymentNetwork<
       id: this.extensionId,
       type: this.extensionType,
       values: {
-        ...addressBasedCreationAction.values,
+        ...basicCreationAction.values,
         salt: extensionAction.parameters.salt,
       },
       version: this.currentVersion,

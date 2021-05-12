@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.33.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.27.0...@requestnetwork/advanced-logic@0.33.0) (2021-05-12)
+
+
+### Bug Fixes
+
+* acceptedTokens addresses are normalized in lower case ([#437](https://github.com/RequestNetwork/requestNetwork/issues/437)) ([882a3ba](https://github.com/RequestNetwork/requestNetwork/commit/882a3ba0fc453e764f2e2c66c50cb13d9a1a55d8))
+* check any-to-erc20 salt and minor error messages ([#470](https://github.com/RequestNetwork/requestNetwork/issues/470)) ([372009d](https://github.com/RequestNetwork/requestNetwork/commit/372009dcf1fde514ae88e157ea6c52e2f63449e7))
+* error message when salt is missing ([#491](https://github.com/RequestNetwork/requestNetwork/issues/491)) ([bbdd0b6](https://github.com/RequestNetwork/requestNetwork/commit/bbdd0b62f1c65545aba8fbb619e7f7a2781ee3f7))
+
+
+### Features
+
+* ARKO on-chain conversion ([#511](https://github.com/RequestNetwork/requestNetwork/issues/511)) ([590821b](https://github.com/RequestNetwork/requestNetwork/commit/590821bd23954ff01797d06292493dcda08fd651))
+* ERC20 Fee Proxy on Matic ([#495](https://github.com/RequestNetwork/requestNetwork/issues/495)) ([ac003d5](https://github.com/RequestNetwork/requestNetwork/commit/ac003d538715c18dc158ccc84249da10dc9a984f))
+* payment network any to erc20 in advanced logic ([#414](https://github.com/RequestNetwork/requestNetwork/issues/414)) ([45f09f9](https://github.com/RequestNetwork/requestNetwork/commit/45f09f9ee5693378722559d414b07e887fb3c63c))
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+* SAND aggregator support for conversion ([#487](https://github.com/RequestNetwork/requestNetwork/issues/487)) ([46cbe1b](https://github.com/RequestNetwork/requestNetwork/commit/46cbe1bef7b703addb34d7f1d810fea4ff233f5b))
+* updated aggregators for AUD and CAD ([#482](https://github.com/RequestNetwork/requestNetwork/issues/482)) ([9d6c143](https://github.com/RequestNetwork/requestNetwork/commit/9d6c1438e2b99189155e7264943357c72f35a459))
+
+
+
+
+
 # [0.32.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/advanced-logic@0.27.0...@requestnetwork/advanced-logic@0.32.0) (2021-04-19)
 
 
