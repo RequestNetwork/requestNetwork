@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.27.8](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.27.0...@requestnetwork/integration-test@0.27.8) (2021-05-12)
+
+**Note:** Version bump only for package @requestnetwork/integration-test
+
+
+
+
+
 ## [0.27.7](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.27.0...@requestnetwork/integration-test@0.27.7) (2021-04-19)
 
 **Note:** Version bump only for package @requestnetwork/integration-test

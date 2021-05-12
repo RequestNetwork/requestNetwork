@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.21.8](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/prototype-estimator@1.21.0...@requestnetwork/prototype-estimator@1.21.8) (2021-05-12)
+
+**Note:** Version bump only for package @requestnetwork/prototype-estimator
+
+
+
+
+
 ## [1.21.7](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/prototype-estimator@1.21.0...@requestnetwork/prototype-estimator@1.21.7) (2021-04-19)
 
 **Note:** Version bump only for package @requestnetwork/prototype-estimator
