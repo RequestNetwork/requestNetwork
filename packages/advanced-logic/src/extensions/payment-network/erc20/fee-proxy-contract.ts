@@ -15,7 +15,6 @@ const CURRENT_VERSION = '0.1.0';
 export default class Erc20FeeProxyPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters
 > extends Erc20ProxyPaymentNetwork<TCreationParameters> {
-  // export default class ReferenceBasedPaymentNetwork<TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters> extends AddressBasedPaymentNetwork<TCreationParameters> {
   public constructor(
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
     currentVersion: string = CURRENT_VERSION,

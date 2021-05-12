@@ -51,9 +51,7 @@ export default abstract class AddressBasedPaymentNetwork<
       throw Error('refundAddress is not a valid address');
     }
 
-    return super.createCreationAction(
-      creationParameters,
-    ) as ExtensionTypes.IAction<TCreationParameters>;
+    return super.createCreationAction(creationParameters);
   }
 
   /**
