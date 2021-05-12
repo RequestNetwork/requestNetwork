@@ -8,7 +8,9 @@ export interface IAddressBased extends Extension.IExtension {
   createAddRefundAddressAction: (
     creationParameters: IAddRefundAddressParameters,
   ) => Extension.IAction;
-  createCreationAction: (creationParameters: ICreationParameters) => Extension.IAction;
+  createCreationAction: (
+    creationParameters: ICreationParameters,
+  ) => Extension.IAction<ICreationParameters>;
   isValidAddress: (address: string) => boolean;
 }
 

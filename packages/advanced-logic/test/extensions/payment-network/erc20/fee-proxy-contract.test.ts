@@ -1,11 +1,13 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import erc20FeeProxyContract from '../../../../src/extensions/payment-network/erc20/fee-proxy-contract';
+import Erc20FeeProxyContract from '../../../../src/extensions/payment-network/erc20/fee-proxy-contract';
 
 import * as DataERC20FeeAddData from '../../../utils/payment-network/erc20/fee-proxy-contract-add-data-generator';
 import * as DataERC20FeeCreate from '../../../utils/payment-network/erc20/fee-proxy-contract-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
+
+const erc20FeeProxyContract = new Erc20FeeProxyContract();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
@@ -78,7 +80,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
 
     it('cannot createCreationAction with refund address not an ethereum address', () => {
@@ -89,7 +91,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
 
     it('cannot createCreationAction with fee address not an ethereum address', () => {
@@ -100,7 +102,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
           paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('feeAddress is not a valid ethereum address');
+      }).toThrowError('feeAddress is not a valid address');
     });
 
     it('cannot createCreationAction with invalid fee amount', () => {
@@ -137,7 +139,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         erc20FeeProxyContract.createAddPaymentAddressAction({
           paymentAddress: 'not an ethereum address',
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
   });
 
@@ -163,7 +165,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         erc20FeeProxyContract.createAddRefundAddressAction({
           refundAddress: 'not an ethereum address',
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
   });
 
@@ -192,7 +194,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
           feeAddress: 'not an ethereum address',
           feeAmount: '2000',
         });
-      }).toThrowError('feeAddress is not a valid ethereum address');
+      }).toThrowError('feeAddress is not a valid address');
     });
 
     it('cannot createAddFeeAction with amount non positive integer', () => {

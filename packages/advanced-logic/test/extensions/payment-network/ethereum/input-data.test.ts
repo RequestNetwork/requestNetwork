@@ -1,11 +1,14 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import ethereumInputData from '../../../../src/extensions/payment-network/ethereum/input-data';
+import EthereumInputDataPaymentNetwork from '../../../../src/extensions/payment-network/ethereum/input-data';
 
 import * as DataEthAddPaymentAddress from '../../../utils/payment-network/ethereum/add-payment-address-data-generator';
 import * as DataEthCreate from '../../../utils/payment-network/ethereum/create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
+
+
+const ethereumInputDataPaymentNetwork = new EthereumInputDataPaymentNetwork();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/ethereum/input-data', () => {
@@ -13,7 +16,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     it('can create a create action', () => {
       // 'extensionsdata is wrong'
       expect(
-        ethereumInputData.createCreationAction({
+        ethereumInputDataPaymentNetwork.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
@@ -33,7 +36,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     it('can create a create action with only salt', () => {
       // 'extensionsdata is wrong'
       expect(
-        ethereumInputData.createCreationAction({
+        ethereumInputDataPaymentNetwork.createCreationAction({
           salt: 'ea3bc7caf64110ca',
         }),
       ).toEqual({
@@ -49,23 +52,23 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     it('cannot createCreationAction with payment address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        ethereumInputData.createCreationAction({
+        ethereumInputDataPaymentNetwork.createCreationAction({
           paymentAddress: 'not an ethereum address',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
 
     it('cannot createCreationAction with refund address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        ethereumInputData.createCreationAction({
+        ethereumInputDataPaymentNetwork.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
   });
 
@@ -73,7 +76,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     it('can createAddPaymentAddressAction', () => {
       // 'extensionsdata is wrong'
       expect(
-        ethereumInputData.createAddPaymentAddressAction({
+        ethereumInputDataPaymentNetwork.createAddPaymentAddressAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
         }),
       ).toEqual({
@@ -88,10 +91,10 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     it('cannot createAddPaymentAddressAction with payment address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        ethereumInputData.createAddPaymentAddressAction({
+        ethereumInputDataPaymentNetwork.createAddPaymentAddressAction({
           paymentAddress: 'not an ethereum address',
         });
-      }).toThrowError('paymentAddress is not a valid ethereum address');
+      }).toThrowError('paymentAddress is not a valid address');
     });
   });
 
@@ -99,7 +102,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     it('can createAddRefundAddressAction', () => {
       // 'extensionsdata is wrong'
       expect(
-        ethereumInputData.createAddRefundAddressAction({
+        ethereumInputDataPaymentNetwork.createAddRefundAddressAction({
           refundAddress: '0x0000000000000000000000000000000000000002',
         }),
       ).toEqual({
@@ -113,10 +116,10 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     it('cannot createAddRefundAddressAction with payment address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
-        ethereumInputData.createAddRefundAddressAction({
+        ethereumInputDataPaymentNetwork.createAddRefundAddressAction({
           refundAddress: 'not an ethereum address',
         });
-      }).toThrowError('refundAddress is not a valid ethereum address');
+      }).toThrowError('refundAddress is not a valid address');
     });
   });
 
@@ -127,7 +130,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         unknownAction.action = 'unknown action' as any;
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateCreatedEmpty.extensions,
             unknownAction,
             DataEthCreate.requestStateCreatedEmpty,
@@ -142,7 +145,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         unknownAction.id = 'unknown id' as any;
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateCreatedEmpty.extensions,
             unknownAction,
             DataEthCreate.requestStateCreatedEmpty,
@@ -157,7 +160,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       it('can applyActionToExtensions of creation', () => {
         // 'new extension state wrong'
         expect(
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateNoExtensions.extensions,
             DataEthCreate.actionCreationWithPaymentAndRefund,
             DataEthCreate.requestStateNoExtensions,
@@ -170,7 +173,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       it('cannot applyActionToExtensions of creation with a previous state', () => {
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateCreatedWithPaymentAndRefund.extensions,
             DataEthCreate.actionCreationWithPaymentAndRefund,
             DataEthCreate.requestStateCreatedWithPaymentAndRefund,
@@ -190,7 +193,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         };
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             TestData.requestCreatedNoExtension.extensions,
             DataEthCreate.actionCreationWithPaymentAndRefund,
             requestCreatedNoExtension,
@@ -207,7 +210,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         testnetPaymentAddress.parameters.paymentAddress = DataEthAddPaymentAddress.invalidAddress;
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateNoExtensions.extensions,
             testnetPaymentAddress,
             DataEthCreate.requestStateNoExtensions,
@@ -224,7 +227,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         testnetRefundAddress.parameters.refundAddress = DataEthAddPaymentAddress.invalidAddress;
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateNoExtensions.extensions,
             testnetRefundAddress,
             DataEthCreate.requestStateNoExtensions,
@@ -239,7 +242,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       it('can applyActionToExtensions of addPaymentAddress', () => {
         // 'new extension state wrong'
         expect(
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateCreatedEmpty.extensions,
             DataEthAddPaymentAddress.actionAddPaymentAddress,
             DataEthCreate.requestStateCreatedEmpty,
@@ -251,7 +254,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       it('cannot applyActionToExtensions of addPaymentAddress without a previous state', () => {
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateNoExtensions.extensions,
             DataEthAddPaymentAddress.actionAddPaymentAddress,
             DataEthCreate.requestStateNoExtensions,
@@ -265,7 +268,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         previousState.payee = undefined;
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             previousState.extensions,
             DataEthAddPaymentAddress.actionAddPaymentAddress,
             previousState,
@@ -278,7 +281,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             previousState.extensions,
             DataEthAddPaymentAddress.actionAddPaymentAddress,
             previousState,
@@ -290,7 +293,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       it('cannot applyActionToExtensions of addPaymentAddress with payment address already given', () => {
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateCreatedWithPaymentAndRefund.extensions,
             DataEthAddPaymentAddress.actionAddPaymentAddress,
             DataEthCreate.requestStateCreatedWithPaymentAndRefund,
@@ -306,7 +309,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         testnetPaymentAddress.parameters.paymentAddress = DataEthAddPaymentAddress.invalidAddress;
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateCreatedEmpty.extensions,
             testnetPaymentAddress,
             DataEthCreate.requestStateCreatedEmpty,
@@ -321,7 +324,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       it('can applyActionToExtensions of addRefundAddress', () => {
         // 'new extension state wrong'
         expect(
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateCreatedEmpty.extensions,
             DataEthAddPaymentAddress.actionAddRefundAddress,
             DataEthCreate.requestStateCreatedEmpty,
@@ -333,7 +336,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       it('cannot applyActionToExtensions of addRefundAddress without a previous state', () => {
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateNoExtensions.extensions,
             DataEthAddPaymentAddress.actionAddRefundAddress,
             DataEthCreate.requestStateNoExtensions,
@@ -347,7 +350,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         previousState.payer = undefined;
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             previousState.extensions,
             DataEthAddPaymentAddress.actionAddRefundAddress,
             previousState,
@@ -360,7 +363,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             previousState.extensions,
             DataEthAddPaymentAddress.actionAddRefundAddress,
             previousState,
@@ -372,7 +375,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       it('cannot applyActionToExtensions of addRefundAddress with payment address already given', () => {
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateCreatedWithPaymentAndRefund.extensions,
             DataEthAddPaymentAddress.actionAddRefundAddress,
             DataEthCreate.requestStateCreatedWithPaymentAndRefund,
@@ -388,7 +391,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         testnetPaymentAddress.parameters.refundAddress = DataEthAddPaymentAddress.invalidAddress;
         // 'must throw'
         expect(() => {
-          ethereumInputData.applyActionToExtension(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
             DataEthCreate.requestStateCreatedEmpty.extensions,
             testnetPaymentAddress,
             DataEthCreate.requestStateCreatedEmpty,

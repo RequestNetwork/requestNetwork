@@ -17,30 +17,38 @@ export {
 };
 
 /** Extension interface is extended by the extensions implementation */
-export interface IExtension {
+export interface IExtension<T = any> {
   applyActionToExtension: (
     extensionsState: RequestLogic.IExtensionStates,
-    extensionAction: IAction,
+    extensionAction: IAction<T>,
     requestState: RequestLogic.IRequest,
     actionSigner: Identity.IIdentity,
     timestamp: number,
   ) => RequestLogic.IExtensionStates;
 }
 
+export type ApplyAction<T = any> = (
+  extensionState: IState<T>,
+  extensionAction: IAction<T>,
+  requestState: RequestLogic.IRequest,
+  actionSigner: Identity.IIdentity,
+  timestamp: number,
+) => IState<T>;
+
 /** Extensions state in advanced logic */
-export interface IState {
+export interface IState<T = any> {
   type: TYPE;
   id: ID;
   version: string;
   events: IEvent[];
-  values: any;
+  values: T;
 }
 
 /** Creation action object */
-export interface IAction {
+export interface IAction<T = any> {
   action: string;
   id: ID;
-  parameters?: any;
+  parameters?: T;
   version?: string;
 }
 
@@ -69,3 +77,10 @@ export enum TYPE {
   CONTENT_DATA = 'content-data',
   PAYMENT_NETWORK = 'payment-network',
 }
+
+/** Actions possible */
+export enum ACTION {
+  CREATE = 'create',
+}
+
+export type SupportedActions = { [actionId: string]: ApplyAction };

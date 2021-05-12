@@ -6,14 +6,14 @@ import {
 } from '@requestnetwork/types';
 
 import contentData from './extensions/content-data';
-import addressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
-import addressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
+import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
+import AddressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
 import declarative from './extensions/payment-network/declarative';
-import addressBasedErc20 from './extensions/payment-network/erc20/address-based';
-import feeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
-import proxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
-import ethereumInputData from './extensions/payment-network/ethereum/input-data';
-import anyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
+import AddressBasedErc20 from './extensions/payment-network/erc20/address-based';
+import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
+import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
+import EthereumInputData from './extensions/payment-network/ethereum/input-data';
+import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 
 /**
  * Module to manage Advanced logic extensions
@@ -22,15 +22,15 @@ import anyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic {
   /** Give access to the functions specific of the extensions supported */
   public extensions = {
-    addressBasedBtc,
-    addressBasedErc20,
-    addressBasedTestnetBtc,
+    addressBasedBtc: new AddressBasedBtc(),
+    addressBasedErc20: new AddressBasedErc20(),
+    addressBasedTestnetBtc: new AddressBasedTestnetBtc(),
     contentData,
-    anyToErc20Proxy,
+    anyToErc20Proxy: new AnyToErc20Proxy(),
     declarative,
-    ethereumInputData,
-    feeProxyContractErc20,
-    proxyContractErc20,
+    ethereumInputData: new EthereumInputData(),
+    feeProxyContractErc20: new FeeProxyContractErc20(),
+    proxyContractErc20: new ProxyContractErc20(),
   };
 
   /**
@@ -54,14 +54,16 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     const id: ExtensionTypes.ID = extensionAction.id;
     const extension: ExtensionTypes.IExtension | undefined = {
       [ExtensionTypes.ID.CONTENT_DATA]: contentData,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: addressBasedBtc,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: addressBasedTestnetBtc,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: declarative,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: addressBasedErc20,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: proxyContractErc20,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: feeProxyContractErc20,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: ethereumInputData,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: anyToErc20Proxy,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: this.extensions.addressBasedBtc,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: this.extensions
+        .addressBasedTestnetBtc,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: this.extensions.declarative,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: this.extensions.addressBasedErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: this.extensions.proxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: this.extensions
+        .feeProxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: this.extensions.ethereumInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: this.extensions.anyToErc20Proxy,
     }[id];
 
     if (!extension) {

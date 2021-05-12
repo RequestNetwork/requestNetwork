@@ -12,6 +12,7 @@ export const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 export const feeAmount = '2000000000000000000';
 export const invalidAddress = '0x not and address';
 export const tokenAddress = '0x6b175474e89094c44da98b954eedeac495271d0f';
+export const network = 'mainnet';
 // ---------------------------------------------------------------------
 export const salt = 'ea3bc7caf64110ca';
 // actions
@@ -25,6 +26,7 @@ export const actionCreationFull = {
     refundAddress,
     salt,
     acceptedTokens: [tokenAddress],
+    network
   },
   version: '0.1.0',
 };
@@ -34,6 +36,7 @@ export const actionCreationOnlyPayment = {
   parameters: {
     paymentAddress,
     acceptedTokens: [tokenAddress],
+    network
   },
   version: '0.1.0',
 };
@@ -43,6 +46,7 @@ export const actionCreationOnlyRefund = {
   parameters: {
     refundAddress,
     acceptedTokens: [tokenAddress],
+    network
   },
   version: '0.1.0',
 };
@@ -53,6 +57,7 @@ export const actionCreationOnlyFee = {
     feeAddress,
     feeAmount,
     acceptedTokens: [tokenAddress],
+    network
   },
   version: '0.1.0',
 };
@@ -73,7 +78,7 @@ export const extensionFullState = {
         parameters: {
           feeAddress,
           feeAmount,
-          network: 'mainnet',
+          network,
           paymentAddress,
           refundAddress,
           salt,
@@ -87,7 +92,7 @@ export const extensionFullState = {
     values: {
       feeAddress,
       feeAmount,
-      network: 'mainnet',
+      network,
       paymentAddress,
       refundAddress,
       salt,
