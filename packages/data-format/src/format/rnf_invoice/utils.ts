@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { Invoice, InvoiceItem } from './types';
 
-export const getInvoiceTotal = (invoice: Pick<Invoice, 'invoiceItems'>): BigNumber => {
+export const getInvoiceTotal = (invoice: Invoice): BigNumber => {
   return invoice.invoiceItems.reduce(
     (acc, item) => acc.add(getInvoiceLineTotal(item)),
     BigNumber.from(0),

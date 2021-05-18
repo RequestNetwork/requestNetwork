@@ -1,4 +1,4 @@
-import { getTotal } from '../../src/format/rnf_invoice/utils';
+import { getInvoiceTotal } from '../../src/format/rnf_invoice';
 
 const baseInvoiceItem = {
   name: 'test 1',
@@ -14,10 +14,10 @@ const baseInvoice = {
   creationDate: new Date().toISOString(),
 };
 
-describe('getTotal', () => {
+describe('getInvoiceTotal', () => {
   it('supports single items', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [baseInvoiceItem],
       }).toString(),
@@ -26,7 +26,7 @@ describe('getTotal', () => {
 
   it('supports single items with quantity', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [{ ...baseInvoiceItem, quantity: 2 }],
       }).toString(),
@@ -35,7 +35,7 @@ describe('getTotal', () => {
 
   it('supports multiple items', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [
           { ...baseInvoiceItem, unitPrice: '1000' },
@@ -47,7 +47,7 @@ describe('getTotal', () => {
 
   it('supports rnf_invoice 0.0.2 items with taxPercent tax', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         meta: {
           format: 'rnf_invoice',
@@ -67,7 +67,7 @@ describe('getTotal', () => {
 
   it('supports single items with fixed tax', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [
           {
@@ -82,7 +82,7 @@ describe('getTotal', () => {
 
   it('supports single item with percentage discount', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [
           {
@@ -97,7 +97,7 @@ describe('getTotal', () => {
 
   it('supports single item with tax', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [
           {
@@ -112,7 +112,7 @@ describe('getTotal', () => {
 
   it('supports single item with tax and percentage discount', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [
           {
@@ -128,7 +128,7 @@ describe('getTotal', () => {
 
   it('supports single item with fixed tax and discount', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [
           {
@@ -144,7 +144,7 @@ describe('getTotal', () => {
 
   it('supports floating quantity', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [
           {
@@ -159,7 +159,7 @@ describe('getTotal', () => {
 
   it('supports floating tax', () => {
     expect(
-      getTotal({
+      getInvoiceTotal({
         ...baseInvoice,
         invoiceItems: [
           {
