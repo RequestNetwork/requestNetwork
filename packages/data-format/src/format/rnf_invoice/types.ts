@@ -17,7 +17,7 @@ export interface Invoice {
 
 export interface InvoiceItem {
   currency: string;
-  deliveryDate?: Date;
+  deliveryDate?: string;
   deliveryPeriod?: string;
   discount?: string;
   name: string;
@@ -48,7 +48,7 @@ export interface ActorInfo {
 }
 
 export interface PaymentTerms {
-  dueDate?: Date;
+  dueDate?: string;
   lateFeesFix?: string;
   lateFeesPercent?: number;
   miscellaneous?: unknown;
@@ -62,9 +62,4 @@ export interface Address {
   'postal-code'?: string;
   region?: string;
   'street-address'?: string;
-}
-
-export interface Notes {
-  type: string;
-  message: string;
 }

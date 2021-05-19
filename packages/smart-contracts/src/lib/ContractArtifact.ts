@@ -1,5 +1,5 @@
 import { Contract, providers, Signer } from 'ethers';
-import { JsonFragment } from '@ethersproject/abi';
+import type { JsonFragment } from '@ethersproject/abi';
 
 /**
  * Contract information specific to a network
