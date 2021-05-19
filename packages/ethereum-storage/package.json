@@ -43,7 +43,7 @@
     "@requestnetwork/types": "0.34.0",
     "@requestnetwork/utils": "0.34.0",
     "bluebird": "3.7.2",
-    "ethers": "5.0.32",
+    "ethers": "5.1.4",
     "form-data": "3.0.0",
     "ipfs-unixfs": "2.0.3",
     "keyv": "4.0.3",
