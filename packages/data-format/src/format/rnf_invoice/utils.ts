@@ -1,4 +1,4 @@
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 import { Invoice, InvoiceItem } from './types';
 
 export const getInvoiceTotal = (invoice: Invoice): BigNumber => {
