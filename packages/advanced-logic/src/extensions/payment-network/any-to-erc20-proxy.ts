@@ -176,7 +176,12 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       );
     }
 
-    if (!supportedCurrencies[network][request.currency.type].includes(request.currency.value)) {
+    const currency =
+      request.currency.type === RequestLogicTypes.CURRENCY.ERC20
+        ? request.currency.value.toLowerCase()
+        : request.currency.value;
+
+    if (!supportedCurrencies[network][request.currency.type].includes(currency)) {
       throw new Error(
         `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
       );
