@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from 'ethers';
 
 /** Interface of the storage */
 export interface IStorage {
