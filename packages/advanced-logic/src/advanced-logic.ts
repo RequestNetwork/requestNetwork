@@ -5,10 +5,10 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import contentData from './extensions/content-data';
+import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
 import AddressBasedTestnetBtc from './extensions/payment-network/bitcoin/testnet-address-based';
-import declarative from './extensions/payment-network/declarative';
+import Declarative from './extensions/payment-network/declarative';
 import AddressBasedErc20 from './extensions/payment-network/erc20/address-based';
 import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
@@ -25,9 +25,9 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     addressBasedBtc: new AddressBasedBtc(),
     addressBasedErc20: new AddressBasedErc20(),
     addressBasedTestnetBtc: new AddressBasedTestnetBtc(),
-    contentData,
+    contentData: new ContentData(),
     anyToErc20Proxy: new AnyToErc20Proxy(),
-    declarative,
+    declarative: new Declarative(),
     ethereumInputData: new EthereumInputData(),
     feeProxyContractErc20: new FeeProxyContractErc20(),
     proxyContractErc20: new ProxyContractErc20(),
@@ -53,7 +53,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
   ): RequestLogicTypes.IExtensionStates {
     const id: ExtensionTypes.ID = extensionAction.id;
     const extension: ExtensionTypes.IExtension | undefined = {
-      [ExtensionTypes.ID.CONTENT_DATA]: contentData,
+      [ExtensionTypes.ID.CONTENT_DATA]: this.extensions.contentData,
       [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: this.extensions.addressBasedBtc,
       [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: this.extensions
         .addressBasedTestnetBtc,
