@@ -28,6 +28,15 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x131eb294E3803F23dc2882AB795631A12D1d8929',
           creationBlockNumber: 13127007,
         },
+        alfajores: {
+          address: '0x612cF8a29A9c8965a5fE512b7463165861c07EAa',
+          creationBlockNumber: 5216414,
+        },
+// Temporary address used to test
+        fuse: {
+          address: '0xee07ef5B414955188d2A9fF50bdCE784A49031Fc',
+          creationBlockNumber: 11068489,
+        },
       },
     },
   },
