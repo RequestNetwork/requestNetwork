@@ -20,6 +20,7 @@ export default class Erc20FeeProxyPaymentNetwork<
       'matic',
       'mumbai',
       'celo',
+      'alfajores',
       'fuse',
     ],
     public supportedCurrencyType: string = RequestLogicTypes.CURRENCY.ERC20,
