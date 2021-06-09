@@ -13,7 +13,15 @@ export default class Erc20FeeProxyPaymentNetwork<
   public constructor(
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
     currentVersion: string = CURRENT_VERSION,
-    public supportedNetworks: string[] = ['mainnet', 'rinkeby', 'private', 'matic', 'mumbai'],
+    public supportedNetworks: string[] = [
+      'mainnet',
+      'rinkeby',
+      'private',
+      'matic',
+      'mumbai',
+      'celo',
+      'fuse',
+    ],
     public supportedCurrencyType: string = RequestLogicTypes.CURRENCY.ERC20,
   ) {
     super(extensionId, currentVersion);
