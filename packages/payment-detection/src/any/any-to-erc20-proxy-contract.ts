@@ -13,6 +13,7 @@ import PaymentNetworkERC20FeeProxyContract, {
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
 import TheGraphAnyToErc20Retriever from './thegraph-info-retriever';
+import { networkSupportsTheGraph } from '../thegraph';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -127,9 +128,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
       toAddress,
     );
 
-    const useTheGraph = true;
-    // TODO
-    const infoRetriever = useTheGraph
+    const infoRetriever = networkSupportsTheGraph(network)
       ? new TheGraphAnyToErc20Retriever(
           request.currency,
           paymentReference,
