@@ -30,8 +30,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "yarn codegen && tsc -b",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "prebuild": "yarn codegen",
+    "build": "tsc -b",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo **/generated",
     "lint": "eslint \"src/**/*.ts\"",
     "prepare": "yarn run build",
     "test": "jest --runInBand",
