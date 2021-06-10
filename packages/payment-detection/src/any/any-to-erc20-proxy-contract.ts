@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
@@ -11,8 +12,7 @@ import PaymentNetworkERC20FeeProxyContract, {
 } from '../erc20/fee-proxy-contract';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
-
-import { BigNumber } from 'ethers';
+import TheGraphAnyToErc20Retriever from './thegraph-info-retriever';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -127,21 +127,35 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
       toAddress,
     );
 
-    const infoRetriever = new ProxyInfoRetriever(
-      request.currency,
-      paymentReference,
-      conversionProxyContractAddress,
-      conversionProxyCreationBlockNumber,
+    const useTheGraph = true;
+    // TODO
+    const infoRetriever = useTheGraph
+      ? new TheGraphAnyToErc20Retriever(
+          request.currency,
+          paymentReference,
+          conversionProxyContractAddress,
 
-      erc20FeeProxyContractAddress,
-      erc20FeeProxyCreationBlockNumber,
+          toAddress,
+          eventName,
+          network,
+          acceptedTokens,
+          maxRateTimespan,
+        )
+      : new ProxyInfoRetriever(
+          request.currency,
+          paymentReference,
+          conversionProxyContractAddress,
+          conversionProxyCreationBlockNumber,
 
-      toAddress,
-      eventName,
-      network,
-      acceptedTokens,
-      maxRateTimespan,
-    );
+          erc20FeeProxyContractAddress,
+          erc20FeeProxyCreationBlockNumber,
+
+          toAddress,
+          eventName,
+          network,
+          acceptedTokens,
+          maxRateTimespan,
+        );
 
     const events = await infoRetriever.getTransferEvents();
 
