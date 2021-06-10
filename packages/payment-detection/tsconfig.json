@@ -2,24 +2,8 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
-    "resolveJsonModule": true,
+    "rootDir": "src"
   },
-  "include": [
-    "./src/**/*",
-  ],
-  "references": [
-    {
-      "path": "../currency"
-    },
-    {
-      "path": "../types"
-    },
-    {
-      "path": "../utils"
-    },
-    {
-      "path": "../smart-contracts"
-    }
-  ]
+  "include": ["./src/**/*"],
+  "references": [{ "path": "../currency" }, { "path": "../types" }, { "path": "../utils" }, { "path": "../smart-contracts" }]
 }
