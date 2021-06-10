@@ -3,34 +3,11 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import ERC20AddressBasedInfoRetriever from '@requestnetwork/payment-detection/src/erc20/address-based-info-retriever';
 
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { account, tokens } from './erc20-mainnet-test-data';
+import { mockAdvancedLogic } from './mocks';
 
-const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
-  extensions: {
-    addressBasedErc20: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-    },
-  },
-};
-
-describe('ERC20 detection test-suite', () => {
+describe('ERC20 Address Based detection test-suite', () => {
   describe('check mainnet payment detection', () => {
     Object.entries(tokens).forEach(([symbol, { address, amount }]) => {
       it(`can detect the balance of ${symbol}`, async () => {
