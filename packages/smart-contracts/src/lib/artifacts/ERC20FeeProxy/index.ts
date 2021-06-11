@@ -32,7 +32,11 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x612cF8a29A9c8965a5fE512b7463165861c07EAa',
           creationBlockNumber: 5216414,
         },
-// Temporary address used to test
+        celo: {
+          address: '0x2171a0dc12a9E5b1659feF2BB20E54c84Fa7dB0C',
+          creationBlockNumber: 7169237,
+        },
+        // Temporary address used to test
         fuse: {
           address: '0xee07ef5B414955188d2A9fF50bdCE784A49031Fc',
           creationBlockNumber: 11068489,
