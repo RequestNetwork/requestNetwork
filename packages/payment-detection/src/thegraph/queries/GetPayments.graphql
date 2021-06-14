@@ -1,0 +1,25 @@
+query GetPayments(
+  $contractAddress: Bytes!
+  $reference: Bytes!
+  $tokenAddress: Bytes!
+  $to: Bytes!
+) {
+  payments(
+    where: {
+      contractAddress: $contractAddress
+      reference: $reference
+      tokenAddress: $tokenAddress
+      to: $to
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    amount
+    block
+    txHash
+    feeAmount
+    feeAddress
+    from
+    timestamp
+  }
+}

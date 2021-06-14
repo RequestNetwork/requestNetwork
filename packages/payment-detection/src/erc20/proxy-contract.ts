@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -9,8 +10,8 @@ import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
-
-import { BigNumber } from 'ethers';
+import TheGraphInfoRetriever from './thegraph-info-retriever';
+import { networkSupportsTheGraph } from '../thegraph';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -197,16 +198,24 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
       toAddress,
     );
 
-    const infoRetriever = new ProxyInfoRetriever(
-      paymentReference,
-      proxyContractAddress,
-      proxyCreationBlockNumber,
-      request.currency.value,
-      toAddress,
-      eventName,
-      network,
-    );
-
+    const infoRetriever = networkSupportsTheGraph(network)
+      ? new TheGraphInfoRetriever(
+          paymentReference,
+          proxyContractAddress,
+          request.currency.value,
+          toAddress,
+          eventName,
+          network,
+        )
+      : new ProxyInfoRetriever(
+          paymentReference,
+          proxyContractAddress,
+          proxyCreationBlockNumber,
+          request.currency.value,
+          toAddress,
+          eventName,
+          network,
+        );
     const events = await infoRetriever.getTransferEvents();
 
     const balance = events

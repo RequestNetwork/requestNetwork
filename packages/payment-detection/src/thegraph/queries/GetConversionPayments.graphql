@@ -1,0 +1,33 @@
+query GetConversionPayments(
+  $contractAddress: Bytes!
+  $reference: Bytes!
+  $acceptedTokens: [Bytes!]!
+  $to: Bytes!
+  $maxRateTimespan: Int!
+) {
+  payments(
+    where: {
+      contractAddress: $contractAddress
+      reference: $reference
+      tokenAddress_in: $acceptedTokens
+      to: $to
+      maxRateTimespan_gte: $maxRateTimespan
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    amount
+    block
+    txHash
+    feeAmount
+    feeAddress
+    from
+    timestamp
+    tokenAddress
+
+    currency
+    amountInCrypto
+    feeAmountInCrypto
+    maxRateTimespan
+  }
+}
