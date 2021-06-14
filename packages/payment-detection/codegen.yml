@@ -1,0 +1,10 @@
+overwrite: true
+schema: "https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-rinkeby"
+documents: src/thegraph/queries/*.graphql
+generates:
+  src/thegraph/generated/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-graphql-request"
+      - "typescript-document-nodes"

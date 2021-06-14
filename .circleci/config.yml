@@ -44,6 +44,9 @@ jobs:
       - run:
           name: Generate Smart Contract types
           command: yarn workspace @requestnetwork/smart-contracts run build
+      - run:
+          name: Generate Payment Detection queries
+          command: yarn workspace @requestnetwork/payment-detection run codegen
      
       - persist_to_workspace:
           root: *working_directory
