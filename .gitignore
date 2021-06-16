@@ -31,3 +31,5 @@ tsconfig.tsbuildinfo
 # ignore smart-contracts generated types
 packages/smart-contracts/types
 packages/smart-contracts/src/types
+# ignore thegraph generated types
+packages/payment-detection/src/thegraph/generated
