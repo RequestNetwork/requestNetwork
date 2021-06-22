@@ -12,9 +12,9 @@ export class XDaiFixedProvider implements StorageTypes.IGasPriceProvider {
    */
   public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber | null> {
     const basePrice = {
-      [StorageTypes.GasPriceType.FAST]: 10,
-      [StorageTypes.GasPriceType.STANDARD]: 5,
-      [StorageTypes.GasPriceType.SAFELOW]: 1,
+      [StorageTypes.GasPriceType.FAST]: 20,
+      [StorageTypes.GasPriceType.STANDARD]: 10,
+      [StorageTypes.GasPriceType.SAFELOW]: 2,
     }[type];
     return BigNumber.from(utils.parseUnits(basePrice.toString(), 'gwei'));
   }

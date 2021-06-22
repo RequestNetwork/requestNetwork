@@ -9,15 +9,15 @@ describe('XDaiFixedProvider', () => {
 
       // Test with each gas price type
       await expect(provider.getGasPrice(StorageTypes.GasPriceType.SAFELOW)).resolves.toEqual(
-        BigNumber.from(1000000000),
+        BigNumber.from(2000000000),
       );
 
       await expect(provider.getGasPrice(StorageTypes.GasPriceType.STANDARD)).resolves.toEqual(
-        BigNumber.from(5000000000),
+        BigNumber.from(10000000000),
       );
 
       await expect(provider.getGasPrice(StorageTypes.GasPriceType.FAST)).resolves.toEqual(
-        BigNumber.from(10000000000),
+        BigNumber.from(20000000000),
       );
     });
   });
