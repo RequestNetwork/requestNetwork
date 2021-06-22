@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.28.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.27.0...@requestnetwork/integration-test@0.28.0) (2021-06-22)
+
+
+### Bug Fixes
+
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+
+
+### Features
+
+* payment-detection with TheGraph ([#519](https://github.com/RequestNetwork/requestNetwork/issues/519)) ([c068b88](https://github.com/RequestNetwork/requestNetwork/commit/c068b88786111558a84cdff941bc60dd04f6034a))
+
+
+
+
+
 ## [0.27.8](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/integration-test@0.27.0...@requestnetwork/integration-test@0.27.8) (2021-05-12)
 
 **Note:** Version bump only for package @requestnetwork/integration-test

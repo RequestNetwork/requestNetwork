@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.35.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.35.0) (2021-06-22)
+
+
+### Bug Fixes
+
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+* private key without trailing 0x ([#479](https://github.com/RequestNetwork/requestNetwork/issues/479)) ([4d71cae](https://github.com/RequestNetwork/requestNetwork/commit/4d71caec912e3adbab99cf029b07ee007d7c39bb))
+
+
+### Features
+
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+
+
+
+
+
 # [0.34.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.34.0) (2021-05-12)
 
 

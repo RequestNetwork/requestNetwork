@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.35.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/payment-detection@0.30.0...@requestnetwork/payment-detection@0.35.0) (2021-06-22)
+
+
+### Bug Fixes
+
+* failing test (rate-limiting) ([#522](https://github.com/RequestNetwork/requestNetwork/issues/522)) ([3954d87](https://github.com/RequestNetwork/requestNetwork/commit/3954d87ba41aebcb6eab40fb02bf0b33b668da2d))
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+* this undefined for fee-proxy-contract ([#510](https://github.com/RequestNetwork/requestNetwork/issues/510)) ([67898bb](https://github.com/RequestNetwork/requestNetwork/commit/67898bb0136a03a9107b0bc41d79cfc5acd2b139))
+* Update currency package dependency in payment-detection ([#436](https://github.com/RequestNetwork/requestNetwork/issues/436)) ([de22c06](https://github.com/RequestNetwork/requestNetwork/commit/de22c06ce073f9a67168093459c66b0afae0d500))
+
+
+### Features
+
+* defaultProvider ([#497](https://github.com/RequestNetwork/requestNetwork/issues/497)) ([96e9486](https://github.com/RequestNetwork/requestNetwork/commit/96e94866a888b621001f56299b8484f576622ad5))
+* ERC20 Fee Proxy on Matic ([#495](https://github.com/RequestNetwork/requestNetwork/issues/495)) ([ac003d5](https://github.com/RequestNetwork/requestNetwork/commit/ac003d538715c18dc158ccc84249da10dc9a984f))
+* Payment detection for the any to erc20 payment network ([#419](https://github.com/RequestNetwork/requestNetwork/issues/419)) ([6f7338f](https://github.com/RequestNetwork/requestNetwork/commit/6f7338f42ddf793a733a31b434d6116beebefdf6))
+* payment-detection with TheGraph ([#519](https://github.com/RequestNetwork/requestNetwork/issues/519)) ([c068b88](https://github.com/RequestNetwork/requestNetwork/commit/c068b88786111558a84cdff941bc60dd04f6034a))
+* TheGraph get last synced block ([#521](https://github.com/RequestNetwork/requestNetwork/issues/521)) ([7d69ae4](https://github.com/RequestNetwork/requestNetwork/commit/7d69ae49c1bb56fffd94f3fa49ab038b040491bf))
+
+
+
+
+
 # [0.34.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/payment-detection@0.30.0...@requestnetwork/payment-detection@0.34.0) (2021-05-12)
 
 

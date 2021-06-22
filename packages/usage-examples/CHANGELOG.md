@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.23.9](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.23.0...@requestnetwork/usage-examples@0.23.9) (2021-06-22)
+
+
+### Bug Fixes
+
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+
+
+
+
+
 ## [0.23.8](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/usage-examples@0.23.0...@requestnetwork/usage-examples@0.23.8) (2021-05-12)
 
 **Note:** Version bump only for package @requestnetwork/usage-examples
