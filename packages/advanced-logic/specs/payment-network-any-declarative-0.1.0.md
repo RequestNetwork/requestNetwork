@@ -33,7 +33,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **values.receivedRefundAmount**  | Amount | Amount of refund declared received             | **Mandatory** |
 | **values.paymentInstruction**    | String | Instruction to make payments                   | Optional      |
 | **values.refundInstruction**     | String | Instruction to make refunds                    | Optional      |
-| **values.thirdparty**    | [Identity](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the third party | Optional      |
+| **values.thirdparty**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the third party | Optional      |
 
 ---
 
