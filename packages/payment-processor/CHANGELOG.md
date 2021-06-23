@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.37.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/payment-processor@0.30.0...@requestnetwork/payment-processor@0.37.0) (2021-06-22)
+
+
+### Bug Fixes
+
+* Add Signer as provider for the erc20 approval ([#406](https://github.com/RequestNetwork/requestNetwork/issues/406)) ([28708ac](https://github.com/RequestNetwork/requestNetwork/commit/28708ac3adb0e1db2032a53649db936d8b24799c))
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+* use ICurrency import from request-logic-types instead of dist ([#435](https://github.com/RequestNetwork/requestNetwork/issues/435)) ([1e050ec](https://github.com/RequestNetwork/requestNetwork/commit/1e050ecae39e2bbc92d413d21d19dc252d98da97))
+
+
+### Features
+
+* Add payment-processor for any to erc20 payment network  ([#433](https://github.com/RequestNetwork/requestNetwork/issues/433)) ([7134310](https://github.com/RequestNetwork/requestNetwork/commit/7134310828f9440bac33f75719c7937872243ab6))
+* defaultProvider ([#497](https://github.com/RequestNetwork/requestNetwork/issues/497)) ([96e9486](https://github.com/RequestNetwork/requestNetwork/commit/96e94866a888b621001f56299b8484f576622ad5))
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+* SAND aggregator support for conversion ([#487](https://github.com/RequestNetwork/requestNetwork/issues/487)) ([46cbe1b](https://github.com/RequestNetwork/requestNetwork/commit/46cbe1bef7b703addb34d7f1d810fea4ff233f5b))
+
+
+
+
+
 # [0.36.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/payment-processor@0.30.0...@requestnetwork/payment-processor@0.36.0) (2021-05-12)
 
 

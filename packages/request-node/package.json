@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/request-node",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "publishConfig": {
     "access": "public"
   },
@@ -40,10 +40,10 @@
     "init-ipfs": "node init-ipfs.js"
   },
   "dependencies": {
-    "@requestnetwork/data-access": "0.25.0",
-    "@requestnetwork/ethereum-storage": "0.25.0",
-    "@requestnetwork/types": "0.34.0",
-    "@requestnetwork/utils": "0.34.0",
+    "@requestnetwork/data-access": "0.26.0",
+    "@requestnetwork/ethereum-storage": "0.26.0",
+    "@requestnetwork/types": "0.35.0",
+    "@requestnetwork/utils": "0.35.0",
     "@truffle/hdwallet-provider": "1.2.3",
     "chalk": "4.1.0",
     "cors": "2.8.5",

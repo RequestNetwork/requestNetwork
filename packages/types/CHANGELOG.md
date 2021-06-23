@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.35.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.29.0...@requestnetwork/types@0.35.0) (2021-06-22)
+
+
+### Bug Fixes
+
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+
+
+### Features
+
+* optionally disable events ([#469](https://github.com/RequestNetwork/requestNetwork/issues/469)) ([e16a926](https://github.com/RequestNetwork/requestNetwork/commit/e16a926cc182a0048909de5cfe1cdd5f9772a153))
+* Payment detection for the any to erc20 payment network ([#419](https://github.com/RequestNetwork/requestNetwork/issues/419)) ([6f7338f](https://github.com/RequestNetwork/requestNetwork/commit/6f7338f42ddf793a733a31b434d6116beebefdf6))
+* payment network any to erc20 in advanced logic ([#414](https://github.com/RequestNetwork/requestNetwork/issues/414)) ([45f09f9](https://github.com/RequestNetwork/requestNetwork/commit/45f09f9ee5693378722559d414b07e887fb3c63c))
+* xdai gas price ([#457](https://github.com/RequestNetwork/requestNetwork/issues/457)) ([8f0822d](https://github.com/RequestNetwork/requestNetwork/commit/8f0822de91cb2d9f617fa94c4d11dcd9adf806b2))
+
+
+
+
+
 # [0.34.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/types@0.29.0...@requestnetwork/types@0.34.0) (2021-05-12)
 
 
