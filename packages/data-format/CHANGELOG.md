@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.8.0...@requestnetwork/data-format@0.9.0) (2021-06-22)
+
+
+### Bug Fixes
+
+* enable tree-shaking on data-format ([#411](https://github.com/RequestNetwork/requestNetwork/issues/411)) ([c6e34ed](https://github.com/RequestNetwork/requestNetwork/commit/c6e34edc74417456fdec91a280a6a5905babffaf))
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+
+
+### Features
+
+* invoice utils ([#513](https://github.com/RequestNetwork/requestNetwork/issues/513)) ([b1d2064](https://github.com/RequestNetwork/requestNetwork/commit/b1d206476dfb031df8b970d4f46f80a571faafde))
+
+
+
+
+
 ## [0.8.8](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/data-format@0.8.0...@requestnetwork/data-format@0.8.8) (2021-05-12)
 
 

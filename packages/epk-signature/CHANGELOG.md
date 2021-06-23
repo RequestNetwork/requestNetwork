@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.34](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/epk-signature@0.5.25...@requestnetwork/epk-signature@0.5.34) (2021-06-22)
+
+**Note:** Version bump only for package @requestnetwork/epk-signature
+
+
+
+
+
 ## [0.5.33](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/epk-signature@0.5.25...@requestnetwork/epk-signature@0.5.33) (2021-05-12)
 
 **Note:** Version bump only for package @requestnetwork/epk-signature

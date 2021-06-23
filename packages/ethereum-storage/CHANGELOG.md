@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.26.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.22.0...@requestnetwork/ethereum-storage@0.26.0) (2021-06-22)
+
+
+### Bug Fixes
+
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+
+
+### Features
+
+* increase XDaiFixedProvider prices ([#523](https://github.com/RequestNetwork/requestNetwork/issues/523)) ([eeca1e7](https://github.com/RequestNetwork/requestNetwork/commit/eeca1e7657e74579da66112045855a5d7dea8078))
+* xdai gas price ([#457](https://github.com/RequestNetwork/requestNetwork/issues/457)) ([8f0822d](https://github.com/RequestNetwork/requestNetwork/commit/8f0822de91cb2d9f617fa94c4d11dcd9adf806b2))
+
+
+
+
+
 # [0.25.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.22.0...@requestnetwork/ethereum-storage@0.25.0) (2021-05-12)
 
 

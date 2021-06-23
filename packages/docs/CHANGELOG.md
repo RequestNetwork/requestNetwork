@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/docs@0.1.16...@requestnetwork/docs@0.10.0) (2021-06-22)
+
+
+### Bug Fixes
+
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+
+
+### Features
+
+* OLY token & extra token cleanup ([#500](https://github.com/RequestNetwork/requestNetwork/issues/500)) ([93a1037](https://github.com/RequestNetwork/requestNetwork/commit/93a1037f7c6b8ff0ae45708c9c9b2c8ddd32ceae))
+* update token list ([#384](https://github.com/RequestNetwork/requestNetwork/issues/384)) ([4913626](https://github.com/RequestNetwork/requestNetwork/commit/4913626c74458e17c27b1b21e2a7f4937fe2e841))
+
+
+
+
+
 # [0.9.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/docs@0.1.16...@requestnetwork/docs@0.9.0) (2021-05-12)
 
 

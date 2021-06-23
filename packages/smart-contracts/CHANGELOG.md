@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.28.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/smart-contracts@0.21.0...@requestnetwork/smart-contracts@0.28.0) (2021-06-22)
+
+
+### Bug Fixes
+
+* Chainlink contracts updates ([#481](https://github.com/RequestNetwork/requestNetwork/issues/481)) ([0aaf65b](https://github.com/RequestNetwork/requestNetwork/commit/0aaf65b59c14dddaa6ae0260b06006244e4bf852))
+* invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+* this undefined for fee-proxy-contract ([#510](https://github.com/RequestNetwork/requestNetwork/issues/510)) ([67898bb](https://github.com/RequestNetwork/requestNetwork/commit/67898bb0136a03a9107b0bc41d79cfc5acd2b139))
+
+
+### Features
+
+* Add payment-processor for any to erc20 payment network  ([#433](https://github.com/RequestNetwork/requestNetwork/issues/433)) ([7134310](https://github.com/RequestNetwork/requestNetwork/commit/7134310828f9440bac33f75719c7937872243ab6))
+* add smartcontract to swap before payment with any to erc20 conversion ([#472](https://github.com/RequestNetwork/requestNetwork/issues/472)) ([a60f0b6](https://github.com/RequestNetwork/requestNetwork/commit/a60f0b6255e976808348ec62d0c2f0d0b3ff9617))
+* ERC20 Fee Proxy on Celo and Fuse ([#518](https://github.com/RequestNetwork/requestNetwork/issues/518)) ([8b759c3](https://github.com/RequestNetwork/requestNetwork/commit/8b759c3e2e264fe3887f29edf1ab162c4d49be54))
+* ERC20 Fee Proxy on Matic ([#495](https://github.com/RequestNetwork/requestNetwork/issues/495)) ([ac003d5](https://github.com/RequestNetwork/requestNetwork/commit/ac003d538715c18dc158ccc84249da10dc9a984f))
+* ERC20FeeProxy contract deployment on Celo ([#520](https://github.com/RequestNetwork/requestNetwork/issues/520)) ([6c5b5c4](https://github.com/RequestNetwork/requestNetwork/commit/6c5b5c4a175a1ab5b8a8450111e1224d7b113f4b))
+* mainnet conversion contract and aggregators ([#477](https://github.com/RequestNetwork/requestNetwork/issues/477)) ([d5ddd6a](https://github.com/RequestNetwork/requestNetwork/commit/d5ddd6ae5d394801de7d0febca9e3f99b3d1cee5))
+* Payment detection for the any to erc20 payment network ([#419](https://github.com/RequestNetwork/requestNetwork/issues/419)) ([6f7338f](https://github.com/RequestNetwork/requestNetwork/commit/6f7338f42ddf793a733a31b434d6116beebefdf6))
+* support submitter and storage deployed on xDai ([#459](https://github.com/RequestNetwork/requestNetwork/issues/459)) ([dde976d](https://github.com/RequestNetwork/requestNetwork/commit/dde976da214420f732b439257fc2e82d1260a3ee))
+
+
+
+# 0.34.0 (2021-03-03)
+
+
+### Features
+
+* payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+
+
+
+
+
 # [0.27.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/smart-contracts@0.21.0...@requestnetwork/smart-contracts@0.27.0) (2021-05-12)
 
 
