@@ -10,9 +10,10 @@ Prerequisite: Having read the advanced logic specification (see [here](/packages
 ## Description
 
 This extension allows to declare payments and the refunds in any currency.
-The payments and refunds are documented by the payer and the payee of the request.
 
-This extension do not ensure payment detection, only a consensus is made between the payer and the payee.
+The payments and refunds are documented by the payer, the payee of the request and optionnally a third party declared at the creation of the payment network (e.g: The third party could be a payment processor).
+
+This extension does not ensure payment detection, only a consensus is made between the payer and the payee or by a third party.
 
 As a payment network, this extension allows to deduce a payment `balance` for the request. (see
 [Interpretation](#Interpretation))
@@ -23,7 +24,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | -------------------------------- | ------ | ---------------------------------------------- | ------------- |
 | **id**                           | String | constant value: "pn-any-declarative"           | **Mandatory** |
 | **type**                         | String | constant value: "paymentNetwork"               | **Mandatory** |
-| **version**                      | String | constant value: "0.1.0"                        | **Mandatory** |
+| **version**                      | String | constant value: "0.2.0"                        | **Mandatory** |
 | **events**                       | Array  | List of the actions performed by the extension | **Mandatory** |
 | **values**                       | Object |                                                |               |
 | **values.sentPaymentAmount**     | Amount | Amount of payment declared sent                | **Mandatory** |
@@ -32,6 +33,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **values.receivedRefundAmount**  | Amount | Amount of refund declared received             | **Mandatory** |
 | **values.paymentInstruction**    | String | Instruction to make payments                   | Optional      |
 | **values.refundInstruction**     | String | Instruction to make refunds                    | Optional      |
+| **values.thirdparty**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the third party | Optional      |
 
 ---
 
@@ -45,10 +47,11 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | --------------------------------- | ------ | ------------------------------------ | ------------- |
 | **id**                            | String | constant value: "pn-any-declarative" | **Mandatory** |
 | **type**                          | String | constant value: "paymentNetwork"     | **Mandatory** |
-| **version**                       | String | constant value: "0.1.0"              | **Mandatory** |
+| **version**                       | String | constant value: "0.2.0"              | **Mandatory** |
 | **parameters**                    | Object |                                      |               |
 | **parameters.paymentInstruction** | String | Instruction to make payments         | Optional      |
 | **parameters.refundInstruction**  | String | Instruction to make refunds          | Optional      |
+| **parameters.thirdparty**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the third party | Optional      |
 
 #### Conditions
 
@@ -73,7 +76,7 @@ A extension state is created with the following properties:
 | -------------------------------- | ------------------------------------------------------------------ |
 | **id**                           | "pn-any-declarative"                                               |
 | **type**                         | "paymentNetwork"                                                   |
-| **version**                      | "0.1.0"                                                            |
+| **version**                      | "0.2.0"                                                            |
 | **values**                       |                                                                    |
 | **values.paymentInstruction**    | `paymentInstruction` from parameters if given, undefined otherwise |
 | **values.refundInstruction**     | `refundInstruction` from parameters if given, undefined otherwise  |
@@ -81,6 +84,7 @@ A extension state is created with the following properties:
 | **values.sentRefundAmount**      | "0"                                                                |
 | **values.receivedRefundAmount**  | "0"                                                                |
 | **values.receivedPaymentAmount** | "0"                                                                |
+| **values.thirdparty**            | `thirdparty` from parameters if given, undefined otherwise         |
 | **events**                       | Array with one 'create' event (see below)                          |
 
 the 'create' event:
@@ -91,6 +95,7 @@ the 'create' event:
 | **parameters**                    |                                                                    |
 | **parameters.paymentInstruction** | `paymentInstruction` from parameters if given, undefined otherwise |
 | **parameters.refundInstruction**  | `refundInstruction` from parameters if given, undefined otherwise  |
+| **parameters.thirdparty**         | `thirdparty` from parameters if given, undefined otherwise         |
 
 ---
 
@@ -113,7 +118,7 @@ the 'create' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payer`
+- The signer is the `payer` or the `thirdparty`
 
 ##### Warnings
 
@@ -154,7 +159,7 @@ the 'declareSentPayment' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payee`
+- The signer is the `payee` or the `thirdparty`
 
 ##### Warnings
 
@@ -195,7 +200,7 @@ the 'declareReceivedPayment' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payee`
+- The signer is the `payee` or the `thirdparty`
 
 ##### Warnings
 
@@ -236,7 +241,7 @@ the 'declareSentPayment' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payer`
+- The signer is the `payer` or the `thirdparty`
 
 ##### Warnings
 
@@ -276,7 +281,7 @@ the 'declareReceivedRefund' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payer`
+- The signer is the `payer` or the `thirdparty`
 - The extension property `refundInstruction` is undefined
 
 ##### Warnings
@@ -316,7 +321,7 @@ The 'addRefundInstruction' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payer`
+- The signer is the `payer` or the `thirdparty`
 - The extension property `paymentInstruction` is undefined
 
 ##### Warnings
