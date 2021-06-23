@@ -11,7 +11,7 @@ Prerequisite: Having read the advanced logic specification (see [here](/packages
 
 This extension allows to declare payments and the refunds in any currency.
 
-The payments and refunds are documented by the payer, the payee of the request and optionnally a third party declared at the creation of the payment network.
+The payments and refunds are documented by the payer, the payee of the request and optionnally a third party declared at the creation of the payment network (e.g: The third party could be a payment processor).
 
 This extension does not ensure payment detection, only a consensus is made between the payer and the payee or by a third party.
 
