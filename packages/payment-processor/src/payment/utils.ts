@@ -7,7 +7,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Currency from '@requestnetwork/currency';
+import { Currency } from '@requestnetwork/currency';
 
 /**
  * Thrown when the library does not support a payment blockchain network.
@@ -224,7 +224,9 @@ export function validateConversionFeeProxyRequest(
   const { tokensAccepted } = getRequestPaymentValues(request);
 
   const requestCurrencyHash = path[0];
-  if (requestCurrencyHash !== Currency.getCurrencyHash(request.currencyInfo)) {
+  if (
+    requestCurrencyHash.toLowerCase() !== new Currency(request.currencyInfo).getHash().toLowerCase()
+  ) {
     throw new Error(`The first entry of the path does not match the request currency`);
   }
 
