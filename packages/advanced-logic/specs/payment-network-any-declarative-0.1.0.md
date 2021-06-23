@@ -13,7 +13,7 @@ This extension allows to declare payments and the refunds in any currency.
 
 The payments and refunds are documented by the payer, the payee of the request and optionnally a third party declared at the creation of the payment network.
 
-This extension do not ensure payment detection only a consensus is made between the payer and the payee or by a third party.
+This extension does not ensure payment detection, only a consensus is made between the payer and the payee or by a third party.
 
 As a payment network, this extension allows to deduce a payment `balance` for the request. (see
 [Interpretation](#Interpretation))
