@@ -42,7 +42,7 @@
     "@requestnetwork/payment-detection": "0.35.0",
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
-    "@requestnetwork/utils": "^0.35.0",
+    "@requestnetwork/utils": "0.35.0",
     "ethers": "5.1.4"
   },
   "devDependencies": {
