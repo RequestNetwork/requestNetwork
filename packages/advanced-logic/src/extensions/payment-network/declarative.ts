@@ -234,6 +234,7 @@ export default class DeclarativePaymentNetwork<
         note: extensionAction.parameters.note,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -285,6 +286,7 @@ export default class DeclarativePaymentNetwork<
         note: extensionAction.parameters.note,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -336,6 +338,7 @@ export default class DeclarativePaymentNetwork<
         note: extensionAction.parameters.note,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -387,6 +390,7 @@ export default class DeclarativePaymentNetwork<
         note: extensionAction.parameters.note,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -434,6 +438,7 @@ export default class DeclarativePaymentNetwork<
         paymentInfo: extensionAction.parameters.paymentInfo,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -481,6 +486,7 @@ export default class DeclarativePaymentNetwork<
         refundInfo: extensionAction.parameters.refundInfo,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;

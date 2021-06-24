@@ -152,6 +152,7 @@ export default class PaymentNetworkDeclarative
             note: parameters.note,
           },
           timestamp: data.timestamp,
+          from: data.from,
         });
       } else if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND) {
         parameters.timestamp = data.timestamp;
@@ -165,6 +166,7 @@ export default class PaymentNetworkDeclarative
             note: parameters.note,
           },
           timestamp: data.timestamp,
+          from: data.from,
         });
       }
     });

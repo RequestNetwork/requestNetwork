@@ -1,3 +1,4 @@
+import { IIdentity } from './identity-types';
 import * as Extension from './extension-types';
 import * as RequestLogic from './request-logic-types';
 
@@ -86,6 +87,7 @@ export interface IPaymentNetworkEvent<TEventParameters> {
   name: EVENTS_NAMES;
   parameters?: TEventParameters;
   timestamp?: number;
+  from?: IIdentity;
 }
 
 /** payment network event names */

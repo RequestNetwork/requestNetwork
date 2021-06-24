@@ -187,6 +187,8 @@ describe('extensions/payment-network/any/declarative', () => {
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyPaymentInstructionAdded);
       });
       it('can applyActionToExtensions of addPaymentInstruction from thirdparty', () => {
+        const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptyPaymentInstructionAdded);
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
         // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
@@ -196,7 +198,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.thirdpartyIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyPaymentInstructionAdded);
+        ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of addPaymentInstruction without a previous state', () => {
         // 'must throw'
@@ -266,6 +268,9 @@ describe('extensions/payment-network/any/declarative', () => {
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyRefundInstructionAdded);
       });
       it('can applyActionToExtensions of addRefundInstruction from thirdparty', () => {
+        const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptyRefundInstructionAdded);
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+
         // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
@@ -275,7 +280,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.thirdpartyIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyRefundInstructionAdded);
+        ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of addRefundInstruction without a previous state', () => {
         // 'must throw'
@@ -345,6 +350,9 @@ describe('extensions/payment-network/any/declarative', () => {
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptySentPayment);
       });
       it('can applyActionToExtensions of declareSentPayment from thirdparty', () => {
+        const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptySentPayment);
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+
         // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
@@ -354,7 +362,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.thirdpartyIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptySentPayment);
+        ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of declareSentPayment without a previous state', () => {
         // 'must throw'
@@ -425,7 +433,10 @@ describe('extensions/payment-network/any/declarative', () => {
           ),
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyReceivedRefund);
       });
-      it('can applyActionToExtensions of declareReceivedRefund from thirdpart', () => {
+      it('can applyActionToExtensions of declareReceivedRefund from thirdparty', () => {
+        const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptyReceivedRefund);
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+
         // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
@@ -435,7 +446,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.thirdpartyIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyReceivedRefund);
+        ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of declareReceivedRefund without a previous state', () => {
         // 'must throw'
@@ -506,7 +517,10 @@ describe('extensions/payment-network/any/declarative', () => {
           ),
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptySentRefund);
       });
-      it('can applyActionToExtensions of declareSentRefund from third part', () => {
+      it('can applyActionToExtensions of declareSentRefund from thirdparty', () => {
+        const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptySentRefund);
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+
         // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
@@ -516,7 +530,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.thirdpartyIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptySentRefund);
+        ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of declareSentRefund without a previous state', () => {
         // 'must throw'
@@ -588,7 +602,10 @@ describe('extensions/payment-network/any/declarative', () => {
           ),
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyReceivedPayment);
       });
-      it('can applyActionToExtensions of declareReceivedPayment from thirdpart', () => {
+      it('can applyActionToExtensions of declareReceivedPayment from thirdparty', () => {
+        const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptyReceivedPayment);
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+
         // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
@@ -598,7 +615,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.thirdpartyIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyReceivedPayment);
+        ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of declareReceivedPayment without a previous state', () => {
         // 'must throw'
