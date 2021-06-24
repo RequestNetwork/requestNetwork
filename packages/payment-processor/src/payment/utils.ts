@@ -264,3 +264,28 @@ export function getAmountToPay(
   }
   return amountToPay;
 }
+
+/**
+ * Pads an amount to match Chainlink's own currency decimals (eg. for fiat amounts).
+ */
+export const padAmountForChainlink = (amount: BigNumberish, currency: Currency) => {
+  let decimalPadding: number;
+  switch (currency.type) {
+    case RequestLogicTypes.CURRENCY.ISO4217: {
+      const chainlinkFiatDecimal = 8;
+      decimalPadding = Math.max(chainlinkFiatDecimal - currency.getDecimals(), 0);
+      break;
+    }
+    case RequestLogicTypes.CURRENCY.ETH:
+    case RequestLogicTypes.CURRENCY.ERC20: {
+      decimalPadding = 0;
+      break;
+    }
+    default:
+      throw new Error(
+        'Unsupported request currency for conversion with Chainlink. The request currency has to be fiat, ETH or ERC20.',
+      );
+  }
+  // eslint-disable-next-line no-magic-numbers
+  return BigNumber.from(amount).mul(10 ** decimalPadding);
+};

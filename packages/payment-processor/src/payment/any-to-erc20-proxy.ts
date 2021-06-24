@@ -1,4 +1,4 @@
-import { constants, ContractTransaction, Signer, providers, BigNumber, BigNumberish } from 'ethers';
+import { constants, ContractTransaction, Signer, providers, BigNumberish } from 'ethers';
 
 import { getConversionPath, Currency } from '@requestnetwork/currency';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
@@ -11,6 +11,7 @@ import {
   getProvider,
   getRequestPaymentValues,
   getSigner,
+  padAmountForChainlink,
   validateConversionFeeProxyRequest,
 } from './utils';
 
@@ -108,17 +109,10 @@ export async function encodePayAnyToErc20ProxyRequest(
     maxRateTimespan,
   } = getRequestPaymentValues(request);
 
-  const chainlinkDecimal = 8;
-  const decimalPadding = Math.max(
-    chainlinkDecimal - new Currency(request.currencyInfo).getDecimals(),
-    0,
-  );
+  const requestCurrency = new Currency(request.currencyInfo);
+  const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
+  const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
 
-  // eslint-disable-next-line no-magic-numbers
-  const amountToPay = getAmountToPay(request, amount).mul(10 ** decimalPadding);
-
-  // eslint-disable-next-line no-magic-numbers
-  const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0).mul(10 ** decimalPadding);
   const proxyAddress = erc20ConversionProxy.getAddress(paymentSettings.currency.network);
   const proxyContract = Erc20ConversionProxy__factory.connect(proxyAddress, signer);
 
