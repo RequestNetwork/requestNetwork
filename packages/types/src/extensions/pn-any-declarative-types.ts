@@ -1,3 +1,4 @@
+import { IIdentity } from '../identity-types';
 import * as Extension from '../extension-types';
 import * as RequestLogicTypes from '../request-logic-types';
 
@@ -26,6 +27,7 @@ export interface IValues {
 export interface ICreationParameters {
   paymentInfo?: any;
   refundInfo?: any;
+  thirdparty?: IIdentity;
 }
 
 /** Parameters of declareSentPayment and declareSentRefund action */

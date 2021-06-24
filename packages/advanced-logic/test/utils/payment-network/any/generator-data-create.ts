@@ -9,6 +9,7 @@ export const paymentInfo = { IBAN: 'FR123456789123456789', BIC: 'CE123456789' };
 export const refundInfo = { IBAN: 'FR987654321987654321', BIC: 'CE987654321' };
 export const amount = '12345';
 export const note = { transactionId: '123456789' };
+export const thirdparty = TestData.thirdpartyIdRaw.identity;
 
 // ---------------------------------------------------------------------
 // actions
@@ -18,6 +19,15 @@ export const actionCreationWithPaymentAndRefund = {
   parameters: {
     paymentInfo,
     refundInfo,
+    thirdparty,
+  },
+  version: '0.1.0',
+};
+export const actionCreationWithThirdparty = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+  parameters: {
+    thirdparty,
   },
   version: '0.1.0',
 };
@@ -41,6 +51,12 @@ export const actionCreationEmpty = {
   action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   parameters: {},
+  version: '0.1.0',
+};
+export const actionCreationThirdparty = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+  parameters: { thirdparty },
   version: '0.1.0',
 };
 
@@ -102,6 +118,7 @@ export const extensionStateWithPaymentAndRefund = {
         parameters: {
           paymentInfo,
           refundInfo,
+          thirdparty,
         },
         timestamp: arbitraryTimestamp,
       },
@@ -115,6 +132,7 @@ export const extensionStateWithPaymentAndRefund = {
       refundInfo,
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
+      thirdparty,
     },
     version: '0.1.0',
   },
@@ -124,7 +142,7 @@ export const extensionStateCreatedEmpty = {
     events: [
       {
         name: 'create',
-        parameters: {},
+        parameters: { thirdparty },
         timestamp: arbitraryTimestamp,
       },
     ],
@@ -135,6 +153,7 @@ export const extensionStateCreatedEmpty = {
       receivedRefundAmount: '0',
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
+      thirdparty,
     },
     version: '0.1.0',
   },
@@ -145,7 +164,7 @@ export const extensionStateCreatedEmptyPaymentInstructionAdded = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {},
+        parameters: {thirdparty},
         timestamp: arbitraryTimestamp,
       },
       {
@@ -164,6 +183,7 @@ export const extensionStateCreatedEmptyPaymentInstructionAdded = {
       receivedRefundAmount: '0',
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
+      thirdparty,
     },
     version: '0.1.0',
   },
@@ -173,7 +193,7 @@ export const extensionStateCreatedEmptyRefundInstructionAdded = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {},
+        parameters: {thirdparty},
         timestamp: arbitraryTimestamp,
       },
       {
@@ -192,6 +212,7 @@ export const extensionStateCreatedEmptyRefundInstructionAdded = {
       refundInfo,
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
+      thirdparty,
     },
     version: '0.1.0',
   },
@@ -202,7 +223,7 @@ export const extensionStateCreatedEmptySentPayment = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {},
+        parameters: {thirdparty},
         timestamp: arbitraryTimestamp,
       },
       {
@@ -221,6 +242,7 @@ export const extensionStateCreatedEmptySentPayment = {
       receivedRefundAmount: '0',
       sentPaymentAmount: amount,
       sentRefundAmount: '0',
+      thirdparty,
     },
     version: '0.1.0',
   },
@@ -230,7 +252,7 @@ export const extensionStateCreatedEmptyReceivedRefund = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {},
+        parameters: {thirdparty},
         timestamp: arbitraryTimestamp,
       },
       {
@@ -249,6 +271,7 @@ export const extensionStateCreatedEmptyReceivedRefund = {
       receivedRefundAmount: amount,
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
+      thirdparty,
     },
     version: '0.1.0',
   },
@@ -258,7 +281,7 @@ export const extensionStateCreatedEmptySentRefund = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {},
+        parameters: {thirdparty},
         timestamp: arbitraryTimestamp,
       },
       {
@@ -277,6 +300,7 @@ export const extensionStateCreatedEmptySentRefund = {
       receivedRefundAmount: '0',
       sentPaymentAmount: '0',
       sentRefundAmount: amount,
+      thirdparty,
     },
     version: '0.1.0',
   },
@@ -286,7 +310,7 @@ export const extensionStateCreatedEmptyReceivedPayment = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {},
+        parameters: {thirdparty},
         timestamp: arbitraryTimestamp,
       },
       {
@@ -305,6 +329,7 @@ export const extensionStateCreatedEmptyReceivedPayment = {
       receivedRefundAmount: '0',
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
+      thirdparty,
     },
     version: '0.1.0',
   },

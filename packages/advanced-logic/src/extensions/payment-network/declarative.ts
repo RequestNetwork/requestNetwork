@@ -168,6 +168,7 @@ export default class DeclarativePaymentNetwork<
           parameters: {
             paymentInfo: extensionAction.parameters.paymentInfo,
             refundInfo: extensionAction.parameters.refundInfo,
+            thirdparty: extensionAction.parameters.thirdparty,
           },
           timestamp,
         },
@@ -181,6 +182,7 @@ export default class DeclarativePaymentNetwork<
         refundInfo: extensionAction.parameters.refundInfo,
         sentPaymentAmount: '0',
         sentRefundAmount: '0',
+        thirdparty: extensionAction.parameters.thirdparty,
       },
       version: CURRENT_VERSION,
     };
@@ -203,11 +205,14 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payer) {
-      throw Error(`The request must have a payer`);
+    if (!requestState.payer && !extensionState.values.thirdparty) {
+      throw Error(`The request must have a payer or a thirdparty`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
-      throw Error(`The signer must be the payer`);
+    if (
+      !Utils.identity.areEqual(actionSigner, requestState.payer) &&
+      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
+    ) {
+      throw Error(`The signer must be the payer or the thirdparty`);
     }
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
@@ -251,11 +256,14 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payee) {
-      throw Error(`The request must have a payee`);
+    if (!requestState.payee && !extensionState.values.thirdparty) {
+      throw Error(`The request must have a payee or a thirdparty`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
-      throw Error(`The signer must be the payee`);
+    if (
+      !Utils.identity.areEqual(actionSigner, requestState.payee) &&
+      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
+    ) {
+      throw Error(`The signer must be the payee or the thirdparty`);
     }
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
@@ -299,11 +307,14 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payee) {
-      throw Error(`The request must have a payee`);
+    if (!requestState.payee && !extensionState.values.thirdparty) {
+      throw Error(`The request must have a payee or a thirdparty`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
-      throw Error(`The signer must be the payee`);
+    if (
+      !Utils.identity.areEqual(actionSigner, requestState.payee) &&
+      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
+    ) {
+      throw Error(`The signer must be the payee or the thirdparty`);
     }
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
@@ -347,11 +358,14 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payer) {
-      throw Error(`The request must have a payer`);
+    if (!requestState.payer && !extensionState.values.thirdparty) {
+      throw Error(`The request must have a payer or a thirdparty`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
-      throw Error(`The signer must be the payer`);
+    if (
+      !Utils.identity.areEqual(actionSigner, requestState.payer) &&
+      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
+    ) {
+      throw Error(`The signer must be the payer or the thirdparty`);
     }
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
@@ -398,11 +412,14 @@ export default class DeclarativePaymentNetwork<
     if (extensionState.values.paymentInfo) {
       throw Error(`The payment instruction already given`);
     }
-    if (!requestState.payee) {
-      throw Error(`The request must have a payee`);
+    if (!requestState.payee && !extensionState.values.thirdparty) {
+      throw Error(`The request must have a payee or a thirdparty`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
-      throw Error(`The signer must be the payee`);
+    if (
+      !Utils.identity.areEqual(actionSigner, requestState.payee) &&
+      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
+    ) {
+      throw Error(`The signer must be the payee or the thirdparty`);
     }
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
@@ -442,11 +459,14 @@ export default class DeclarativePaymentNetwork<
     if (extensionState.values.refundInfo) {
       throw Error(`The refund instruction already given`);
     }
-    if (!requestState.payer) {
-      throw Error(`The request must have a payer`);
+    if (!requestState.payer && !extensionState.values.thirdparty) {
+      throw Error(`The request must have a payer or a thirdparty`);
     }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
-      throw Error(`The signer must be the payer`);
+    if (
+      !Utils.identity.areEqual(actionSigner, requestState.payer) &&
+      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
+    ) {
+      throw Error(`The signer must be the payer or the thirdparty`);
     }
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
