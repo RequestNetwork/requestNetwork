@@ -7,7 +7,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Currency from '@requestnetwork/currency';
+import { Currency } from '@requestnetwork/currency';
 
 /**
  * Thrown when the library does not support a payment blockchain network.
@@ -224,7 +224,9 @@ export function validateConversionFeeProxyRequest(
   const { tokensAccepted } = getRequestPaymentValues(request);
 
   const requestCurrencyHash = path[0];
-  if (requestCurrencyHash !== Currency.getCurrencyHash(request.currencyInfo)) {
+  if (
+    requestCurrencyHash.toLowerCase() !== new Currency(request.currencyInfo).getHash().toLowerCase()
+  ) {
     throw new Error(`The first entry of the path does not match the request currency`);
   }
 
@@ -262,3 +264,28 @@ export function getAmountToPay(
   }
   return amountToPay;
 }
+
+/**
+ * Pads an amount to match Chainlink's own currency decimals (eg. for fiat amounts).
+ */
+export const padAmountForChainlink = (amount: BigNumberish, currency: Currency) => {
+  let decimalPadding: number;
+  switch (currency.type) {
+    case RequestLogicTypes.CURRENCY.ISO4217: {
+      const chainlinkFiatDecimal = 8;
+      decimalPadding = Math.max(chainlinkFiatDecimal - currency.getDecimals(), 0);
+      break;
+    }
+    case RequestLogicTypes.CURRENCY.ETH:
+    case RequestLogicTypes.CURRENCY.ERC20: {
+      decimalPadding = 0;
+      break;
+    }
+    default:
+      throw new Error(
+        'Unsupported request currency for conversion with Chainlink. The request currency has to be fiat, ETH or ERC20.',
+      );
+  }
+  // eslint-disable-next-line no-magic-numbers
+  return BigNumber.from(amount).mul(10 ** decimalPadding);
+};
