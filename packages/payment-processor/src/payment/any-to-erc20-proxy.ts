@@ -11,9 +11,9 @@ import {
   getProvider,
   getRequestPaymentValues,
   getSigner,
-  padAmountForChainlink,
   validateConversionFeeProxyRequest,
 } from './utils';
+import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 
 /**
  * Details required to pay a request with on-chain conversion:

@@ -2,7 +2,7 @@ import { Currency } from '@requestnetwork/currency';
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
-import { parseLogArgs } from '../utils';
+import { parseLogArgs, unpadAmountFromChainlink } from '../utils';
 
 // The conversion proxy smart contract ABI fragment containing TransferWithConversionAndReference event
 const erc20ConversionProxyContractAbiFragment = [
@@ -152,21 +152,21 @@ export default class ProxyERC20InfoRetriever
       )
       // Creates the balance events
       .map(async ({ conversionLog, proxyLog, blockNumber, transactionHash }) => {
-        const chainlinkDecimal = 8;
-        const decimalPadding = chainlinkDecimal - new Currency(this.requestCurrency).getDecimals();
+        const requestCurrency = new Currency(this.requestCurrency);
 
-        const amountWithRightDecimal = conversionLog.amount.div(10 ** decimalPadding).toString();
-        const feeAmountWithRightDecimal = conversionLog.feeAmount
-          .div(10 ** decimalPadding)
-          .toString();
+        const amount = unpadAmountFromChainlink(conversionLog.amount, requestCurrency).toString();
+        const feeAmount = unpadAmountFromChainlink(
+          conversionLog.feeAmount,
+          requestCurrency,
+        ).toString();
 
         return {
-          amount: amountWithRightDecimal,
+          amount,
           name: this.eventName,
           parameters: {
             block: blockNumber,
             feeAddress: proxyLog.feeAddress || undefined,
-            feeAmount: feeAmountWithRightDecimal,
+            feeAmount,
             feeAmountInCrypto: proxyLog.feeAmount.toString() || undefined,
             amountInCrypto: proxyLog.amount.toString(),
             tokenAddress: proxyLog.tokenAddress,
