@@ -276,13 +276,14 @@ export const padAmountForChainlink = (amount: BigNumberish, currency: Currency) 
       decimalPadding = Math.max(chainlinkFiatDecimal - currency.getDecimals(), 0);
       break;
     }
+    case RequestLogicTypes.CURRENCY.ETH:
     case RequestLogicTypes.CURRENCY.ERC20: {
       decimalPadding = 0;
       break;
     }
     default:
       throw new Error(
-        'Unsupported request currency for conversion with Chainlink. The request currency has to be fiat or ERC20.',
+        'Unsupported request currency for conversion with Chainlink. The request currency has to be fiat, ETH or ERC20.',
       );
   }
   // eslint-disable-next-line no-magic-numbers

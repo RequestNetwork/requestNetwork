@@ -138,13 +138,18 @@ describe('conversion: padding amounts for Chainlink', () => {
     const requestCurrency = Currency.fromSymbol('BTC');
     const twentyBtc = '2000000000';
     expect(() => padAmountForChainlink(twentyBtc, requestCurrency)).toThrowError(
-      'Unsupported request currency for conversion with Chainlink. The request currency has to be fiat or ERC20.',
+      'Unsupported request currency for conversion with Chainlink. The request currency has to be fiat, ETH or ERC20.',
     );
   });
   it('should pad fiat amounts', () => {
     const requestCurrency = Currency.fromSymbol('EUR');
     const twentyEur = '2000';
     expect(padAmountForChainlink(twentyEur, requestCurrency).toString()).toBe('2000000000');
+  });
+  it('should not pad crypto amounts (ETH)', () => {
+    const requestCurrency = Currency.fromSymbol('ETH');
+    const twentyEth = '20000000000000000000';
+    expect(padAmountForChainlink(twentyEth, requestCurrency).toString()).toBe(twentyEth);
   });
   it('should not pad crypto amounts (DAI)', () => {
     const requestCurrency = Currency.fromSymbol('DAI');
