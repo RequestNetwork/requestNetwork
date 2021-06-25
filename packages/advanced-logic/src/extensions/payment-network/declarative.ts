@@ -205,15 +205,7 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payer && !extensionState.values.thirdparty) {
-      throw Error(`The request must have a payer or a thirdparty`);
-    }
-    if (
-      !Utils.identity.areEqual(actionSigner, requestState.payer) &&
-      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
-    ) {
-      throw Error(`The signer must be the payer or the thirdparty`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
@@ -257,15 +249,7 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payee && !extensionState.values.thirdparty) {
-      throw Error(`The request must have a payee or a thirdparty`);
-    }
-    if (
-      !Utils.identity.areEqual(actionSigner, requestState.payee) &&
-      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
-    ) {
-      throw Error(`The signer must be the payee or the thirdparty`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
@@ -309,15 +293,7 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payee && !extensionState.values.thirdparty) {
-      throw Error(`The request must have a payee or a thirdparty`);
-    }
-    if (
-      !Utils.identity.areEqual(actionSigner, requestState.payee) &&
-      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
-    ) {
-      throw Error(`The signer must be the payee or the thirdparty`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
@@ -361,15 +337,7 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payer && !extensionState.values.thirdparty) {
-      throw Error(`The request must have a payer or a thirdparty`);
-    }
-    if (
-      !Utils.identity.areEqual(actionSigner, requestState.payer) &&
-      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
-    ) {
-      throw Error(`The signer must be the payer or the thirdparty`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
@@ -416,15 +384,7 @@ export default class DeclarativePaymentNetwork<
     if (extensionState.values.paymentInfo) {
       throw Error(`The payment instruction already given`);
     }
-    if (!requestState.payee && !extensionState.values.thirdparty) {
-      throw Error(`The request must have a payee or a thirdparty`);
-    }
-    if (
-      !Utils.identity.areEqual(actionSigner, requestState.payee) &&
-      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
-    ) {
-      throw Error(`The signer must be the payee or the thirdparty`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
@@ -464,15 +424,7 @@ export default class DeclarativePaymentNetwork<
     if (extensionState.values.refundInfo) {
       throw Error(`The refund instruction already given`);
     }
-    if (!requestState.payer && !extensionState.values.thirdparty) {
-      throw Error(`The request must have a payer or a thirdparty`);
-    }
-    if (
-      !Utils.identity.areEqual(actionSigner, requestState.payer) &&
-      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
-    ) {
-      throw Error(`The signer must be the payer or the thirdparty`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
@@ -490,5 +442,46 @@ export default class DeclarativePaymentNetwork<
     });
 
     return copiedExtensionState;
+  }
+
+  /** Checks if signer is the right identity from the request and the role expected
+   *
+   * @param extensionsState previous state of the extensions
+   * @param requestState request state read-only
+   * @param actionSigner identity of the signer
+   * @param role The role to check (Payee or Payer)
+   *
+   * @returns throws in case of error
+   */
+  protected checkIdentities(
+    extensionState: ExtensionTypes.IState,
+    requestState: RequestLogicTypes.IRequest,
+    actionSigner: IdentityTypes.IIdentity,
+    role: RequestLogicTypes.ROLE,
+  ): void {
+    let requestRole;
+    let requestRoleStr;
+
+    if (role === RequestLogicTypes.ROLE.PAYER) {
+      requestRole = requestState.payer;
+      requestRoleStr = 'payer';
+    }
+    if (role === RequestLogicTypes.ROLE.PAYEE) {
+      requestRole = requestState.payee;
+      requestRoleStr = 'payee';
+    }
+    if (role === RequestLogicTypes.ROLE.THIRD_PARTY) {
+      throw Error(`role is already checked by default`);
+    }
+
+    if (!requestRole && !extensionState.values.thirdparty) {
+      throw Error(`The request must have a ${requestRoleStr} or a thirdparty`);
+    }
+    if (
+      !Utils.identity.areEqual(actionSigner, requestRole) &&
+      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
+    ) {
+      throw Error(`The signer must be the ${requestRoleStr} or the thirdparty`);
+    }
   }
 }
