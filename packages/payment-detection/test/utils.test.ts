@@ -1,5 +1,5 @@
 import { Currency } from '@requestnetwork/currency';
-import { padAmountForChainlink, unpadAmountFromChainlink } from '../src/utils';
+import { padAmountForChainlink, unpadAmountFromChainlink } from '../src';
 
 describe('conversion: padding amounts for Chainlink', () => {
   it('should throw on currencies not implemented in the library', () => {

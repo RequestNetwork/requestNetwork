@@ -7,7 +7,7 @@ import * as Erc20PaymentNetwork from './erc20';
 import * as EthPaymentNetwork from './eth';
 import { initPaymentDetectionApiKeys, setProviderFactory, getDefaultProvider } from './provider';
 import { getTheGraphClient, networkSupportsTheGraph } from './thegraph';
-import { padAmountForChainlink, unpadAmountFromChainlink } from './utils';
+import { parseLogArgs, padAmountForChainlink, unpadAmountFromChainlink } from './utils';
 export type { TheGraphClient } from './thegraph';
 
 export {
@@ -22,6 +22,7 @@ export {
   getDefaultProvider,
   getTheGraphClient,
   networkSupportsTheGraph,
+  parseLogArgs,
   padAmountForChainlink,
   unpadAmountFromChainlink,
 };
