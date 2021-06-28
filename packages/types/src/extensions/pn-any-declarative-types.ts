@@ -27,7 +27,8 @@ export interface IValues {
 export interface ICreationParameters {
   paymentInfo?: any;
   refundInfo?: any;
-  thirdparty?: IIdentity;
+  payeeDelegate?: IIdentity;
+  payerDelegate?: IIdentity;
 }
 
 /** Parameters of declareSentPayment and declareSentRefund action */
@@ -52,6 +53,15 @@ export interface IAddRefundInstructionParameters {
   refundInfo: any;
 }
 
+/** Parameters of addPayeeDelegate action */
+export interface IAddPayeeDelegateParameters {
+  payeeDelegate: IIdentity;
+}
+/** Parameters of addPayerDelegate action */
+export interface IAddPayerDelegateParameters {
+  payerDelegate: IIdentity;
+}
+
 /** Actions possible */
 export enum ACTION {
   CREATE = 'create',
@@ -64,4 +74,7 @@ export enum ACTION {
 
   ADD_PAYMENT_INSTRUCTION = 'addPaymentInstruction',
   ADD_REFUND_INSTRUCTION = 'addRefundInstruction',
+
+  ADD_PAYEE_DELEGATE = 'addPayeeDelegate',
+  ADD_PAYER_DELEGATE = 'addPayerDelegate',
 }

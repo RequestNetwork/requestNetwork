@@ -29,6 +29,12 @@ export default class DeclarativePaymentNetwork<
         .DECLARE_RECEIVED_PAYMENT]: this.applyDeclareReceivedPayment.bind(this),
       [ExtensionTypes.PnAnyDeclarative.ACTION
         .DECLARE_RECEIVED_REFUND]: this.applyDeclareReceivedRefund.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYEE_DELEGATE]: this.applyAddPayeeDelegate.bind(
+        this,
+      ),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYER_DELEGATE]: this.applyAddPayerDelegate.bind(
+        this,
+      ),
     };
   }
 
@@ -150,6 +156,44 @@ export default class DeclarativePaymentNetwork<
     };
   }
 
+  /**
+   * Creates the extensionsData to add payee delegate
+   *
+   * @param extensions extensions parameters to add payee delegate
+   *
+   * @returns IAction the extensionsData to be stored in the request
+   */
+  public createAddPayeeDelegateAction(
+    parameters: ExtensionTypes.PnAnyDeclarative.IAddPayeeDelegateParameters,
+  ): ExtensionTypes.IAction {
+    return {
+      action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYEE_DELEGATE,
+      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      parameters: {
+        payeeDelegate: parameters.payeeDelegate,
+      },
+    };
+  }
+
+  /**
+   * Creates the extensionsData to add payer delegate
+   *
+   * @param extensions extensions parameters to add payer delegate
+   *
+   * @returns IAction the extensionsData to be stored in the request
+   */
+  public createAddPayerDelegateAction(
+    parameters: ExtensionTypes.PnAnyDeclarative.IAddPayerDelegateParameters,
+  ): ExtensionTypes.IAction {
+    return {
+      action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYER_DELEGATE,
+      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      parameters: {
+        payerDelegate: parameters.payerDelegate,
+      },
+    };
+  }
+
   /** Applies a creation
    *
    * @param extensionAction action to apply
@@ -168,7 +212,8 @@ export default class DeclarativePaymentNetwork<
           parameters: {
             paymentInfo: extensionAction.parameters.paymentInfo,
             refundInfo: extensionAction.parameters.refundInfo,
-            thirdparty: extensionAction.parameters.thirdparty,
+            payeeDelegate: extensionAction.parameters.payeeDelegate,
+            payerDelegate: extensionAction.parameters.payerDelegate,
           },
           timestamp,
         },
@@ -182,7 +227,8 @@ export default class DeclarativePaymentNetwork<
         refundInfo: extensionAction.parameters.refundInfo,
         sentPaymentAmount: '0',
         sentRefundAmount: '0',
-        thirdparty: extensionAction.parameters.thirdparty,
+        payeeDelegate: extensionAction.parameters.payeeDelegate,
+        payerDelegate: extensionAction.parameters.payerDelegate,
       },
       version: CURRENT_VERSION,
     };
@@ -404,6 +450,86 @@ export default class DeclarativePaymentNetwork<
     return copiedExtensionState;
   }
 
+  /** Applies an add of payee's delegate
+   *
+   * @param extensionsState previous state of the extensions
+   * @param extensionAction action to apply
+   * @param requestState request state read-only
+   * @param actionSigner identity of the signer
+   * @param timestamp timestamp of the action
+   *
+   * @returns state of the extension created
+   */
+  protected applyAddPayeeDelegate(
+    extensionState: ExtensionTypes.IState,
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+    actionSigner: IdentityTypes.IIdentity,
+    timestamp: number,
+  ): ExtensionTypes.IState {
+    if (extensionState.values.payeeDelegate) {
+      throw Error(`The payee's delegate already given`);
+    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
+
+    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+
+    // increment payeeDelegate
+    copiedExtensionState.values.payeeDelegate = extensionAction.parameters.payeeDelegate;
+
+    // update events
+    copiedExtensionState.events.push({
+      name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYEE_DELEGATE,
+      parameters: {
+        payeeDelegate: extensionAction.parameters.payeeDelegate,
+      },
+      timestamp,
+      from: actionSigner,
+    });
+
+    return copiedExtensionState;
+  }
+
+  /** Applies an add of payer's delegate
+   *
+   * @param extensionsState previous state of the extensions
+   * @param extensionAction action to apply
+   * @param requestState request state read-only
+   * @param actionSigner identity of the signer
+   * @param timestamp timestamp of the action
+   *
+   * @returns state of the extension created
+   */
+  protected applyAddPayerDelegate(
+    extensionState: ExtensionTypes.IState,
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+    actionSigner: IdentityTypes.IIdentity,
+    timestamp: number,
+  ): ExtensionTypes.IState {
+    if (extensionState.values.payerDelegate) {
+      throw Error(`The payer's delegate already given`);
+    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
+
+    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+
+    // increment payeeDelegate
+    copiedExtensionState.values.payerDelegate = extensionAction.parameters.payerDelegate;
+
+    // update events
+    copiedExtensionState.events.push({
+      name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYER_DELEGATE,
+      parameters: {
+        payerDelegate: extensionAction.parameters.payerDelegate,
+      },
+      timestamp,
+      from: actionSigner,
+    });
+
+    return copiedExtensionState;
+  }
+
   /** Applies an add of refund instruction
    *
    * @param extensionsState previous state of the extensions
@@ -461,27 +587,30 @@ export default class DeclarativePaymentNetwork<
   ): void {
     let requestRole;
     let requestRoleStr;
+    let requestRoleDelegate;
 
     if (role === RequestLogicTypes.ROLE.PAYER) {
       requestRole = requestState.payer;
       requestRoleStr = 'payer';
+      requestRoleDelegate = extensionState.values.payerDelegate;
     }
     if (role === RequestLogicTypes.ROLE.PAYEE) {
       requestRole = requestState.payee;
       requestRoleStr = 'payee';
+      requestRoleDelegate = extensionState.values.payeeDelegate;
     }
     if (role === RequestLogicTypes.ROLE.THIRD_PARTY) {
       throw Error(`role is already checked by default`);
     }
 
-    if (!requestRole && !extensionState.values.thirdparty) {
-      throw Error(`The request must have a ${requestRoleStr} or a thirdparty`);
+    if (!requestRole) {
+      throw Error(`The request must have a ${requestRoleStr}`);
     }
     if (
       !Utils.identity.areEqual(actionSigner, requestRole) &&
-      !Utils.identity.areEqual(actionSigner, extensionState.values.thirdparty)
+      !Utils.identity.areEqual(actionSigner, requestRoleDelegate)
     ) {
-      throw Error(`The signer must be the ${requestRoleStr} or the thirdparty`);
+      throw Error(`The signer must be the ${requestRoleStr} or the ${requestRoleStr}Delegate`);
     }
   }
 }

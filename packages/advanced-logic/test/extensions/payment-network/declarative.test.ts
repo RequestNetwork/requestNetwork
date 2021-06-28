@@ -17,7 +17,7 @@ describe('extensions/payment-network/any/declarative', () => {
         pnAnyDeclarative.createCreationAction({
           paymentInfo: TestDataDeclarative.paymentInfo,
           refundInfo: TestDataDeclarative.refundInfo,
-          thirdparty: TestDataDeclarative.thirdparty,
+          payeeDelegate: TestDataDeclarative.payeeDelegate,
         }),
       ).toEqual(TestDataDeclarative.actionCreationWithPaymentAndRefund);
     });
@@ -45,16 +45,16 @@ describe('extensions/payment-network/any/declarative', () => {
       ).toEqual(TestDataDeclarative.actionCreationOnlyRefund);
     });
 
-    it('can createCreationAction with third party', () => {
+    it('can createCreationAction with payee delegate', () => {
       // deep copy to remove the undefined properties to comply deep.equal()
       // 'extensionsdata is wrong'
       expect(
         Utils.deepCopy(
           pnAnyDeclarative.createCreationAction({
-            thirdparty: TestDataDeclarative.thirdparty,
+            payeeDelegate: TestDataDeclarative.payeeDelegate,
           }),
         ),
-      ).toEqual(TestDataDeclarative.actionCreationWithThirdparty);
+      ).toEqual(TestDataDeclarative.actionCreationPayeeDelegate);
     });
   });
 
@@ -186,19 +186,19 @@ describe('extensions/payment-network/any/declarative', () => {
           ),
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyPaymentInstructionAdded);
       });
-      it('can applyActionToExtensions of addPaymentInstruction from thirdparty', () => {
-        const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptyPaymentInstructionAdded);
-        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+      it('can applyActionToExtensions of addPaymentInstruction from payeeDelegate', () => {
+        const expectedFromPayeeDelegate = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptyPaymentInstructionAdded);
+        expectedFromPayeeDelegate[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.payeeDelegate;
         // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionPaymentInstruction,
             TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.thirdpartyIdRaw.identity,
+            TestData.payeeDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(expectedFromThirdParty);
+        ).toEqual(expectedFromPayeeDelegate);
       });
       it('cannot applyActionToExtensions of addPaymentInstruction without a previous state', () => {
         // 'must throw'
@@ -215,7 +215,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of addPaymentInstruction without a payee', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payee = undefined;
-        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.thirdparty = undefined;
+        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.payeeDelegate = undefined;
         // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
@@ -225,7 +225,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The request must have a payee or a thirdparty`);
+        }).toThrowError(`The request must have a payee`);
       });
       it('cannot applyActionToExtensions of addPaymentInstruction signed by someone else than the payee', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
@@ -267,9 +267,9 @@ describe('extensions/payment-network/any/declarative', () => {
           ),
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyRefundInstructionAdded);
       });
-      it('can applyActionToExtensions of addRefundInstruction from thirdparty', () => {
+      it('can applyActionToExtensions of addRefundInstruction from payerDelegate', () => {
         const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptyRefundInstructionAdded);
-        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.payerDelegate;
 
         // 'new extension state wrong'
         expect(
@@ -277,7 +277,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionRefundInstruction,
             TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.thirdpartyIdRaw.identity,
+            TestData.payerDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
@@ -297,7 +297,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of addRefundInstruction without a payer', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payer = undefined;
-        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.thirdparty = undefined;
+        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.payeeDelegate = undefined;
         // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
@@ -307,7 +307,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The request must have a payer or a thirdparty`);
+        }).toThrowError(`The request must have a payer`);
       });
       it('cannot applyActionToExtensions of addRefundInstruction signed by someone else than the payer', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
@@ -349,9 +349,9 @@ describe('extensions/payment-network/any/declarative', () => {
           ),
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptySentPayment);
       });
-      it('can applyActionToExtensions of declareSentPayment from thirdparty', () => {
+      it('can applyActionToExtensions of declareSentPayment from payerDelegate', () => {
         const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptySentPayment);
-        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.payerDelegate;
 
         // 'new extension state wrong'
         expect(
@@ -359,7 +359,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareSentPayment,
             TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.thirdpartyIdRaw.identity,
+            TestData.payerDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
@@ -379,7 +379,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of declareSentPayment without a payer', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payer = undefined;
-        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.thirdparty = undefined;
+        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.payeeDelegate = undefined;
         // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
@@ -389,7 +389,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The request must have a payer or a thirdparty`);
+        }).toThrowError(`The request must have a payer`);
       });
       it('cannot applyActionToExtensions of declareSentPayment signed by someone else than the payer', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
@@ -433,9 +433,9 @@ describe('extensions/payment-network/any/declarative', () => {
           ),
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyReceivedRefund);
       });
-      it('can applyActionToExtensions of declareReceivedRefund from thirdparty', () => {
+      it('can applyActionToExtensions of declareReceivedRefund from payerDelegate', () => {
         const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptyReceivedRefund);
-        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.payerDelegate;
 
         // 'new extension state wrong'
         expect(
@@ -443,7 +443,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareReceivedRefund,
             TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.thirdpartyIdRaw.identity,
+            TestData.payerDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
@@ -463,7 +463,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of declareReceivedRefund without a payer', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payer = undefined;
-        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.thirdparty = undefined;
+        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.payeeDelegate = undefined;
         // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
@@ -473,7 +473,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The request must have a payer or a thirdparty`);
+        }).toThrowError(`The request must have a payer`);
       });
       it('cannot applyActionToExtensions of declareReceivedRefund signed by someone else than the payer', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
@@ -517,9 +517,9 @@ describe('extensions/payment-network/any/declarative', () => {
           ),
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptySentRefund);
       });
-      it('can applyActionToExtensions of declareSentRefund from thirdparty', () => {
+      it('can applyActionToExtensions of declareSentRefund from payeeDelegate', () => {
         const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptySentRefund);
-        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.payeeDelegate;
 
         // 'new extension state wrong'
         expect(
@@ -527,7 +527,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareSentRefund,
             TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.thirdpartyIdRaw.identity,
+            TestData.payeeDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
@@ -547,7 +547,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of declareSentRefund without a payee', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payee = undefined;
-        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.thirdparty = undefined;
+        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.payeeDelegate = undefined;
 
         // 'must throw'
         expect(() => {
@@ -558,7 +558,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The request must have a payee or a thirdparty`);
+        }).toThrowError(`The request must have a payee`);
       });
       it('cannot applyActionToExtensions of declareSentRefund signed by someone else than the payee', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
@@ -602,9 +602,9 @@ describe('extensions/payment-network/any/declarative', () => {
           ),
         ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyReceivedPayment);
       });
-      it('can applyActionToExtensions of declareReceivedPayment from thirdparty', () => {
+      it('can applyActionToExtensions of declareReceivedPayment from payeeDelegate', () => {
         const expectedFromThirdParty = Utils.deepCopy(TestDataDeclarative.extensionStateCreatedEmptyReceivedPayment);
-        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.thirdparty;
+        expectedFromThirdParty[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].events[1].from = TestDataDeclarative.payeeDelegate;
 
         // 'new extension state wrong'
         expect(
@@ -612,7 +612,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestDataDeclarative.requestStateCreatedEmpty.extensions,
             TestDataDeclarative.actionDeclareReceivedPayment,
             TestDataDeclarative.requestStateCreatedEmpty,
-            TestData.thirdpartyIdRaw.identity,
+            TestData.payeeDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
@@ -632,7 +632,7 @@ describe('extensions/payment-network/any/declarative', () => {
       it('cannot applyActionToExtensions of declareReceivedPayment without a payee', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
         previousState.payee = undefined;
-        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.thirdparty = undefined;
+        previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.payeeDelegate = undefined;
 
         // 'must throw'
         expect(() => {
@@ -643,7 +643,7 @@ describe('extensions/payment-network/any/declarative', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The request must have a payee or a thirdparty`);
+        }).toThrowError(`The request must have a payee`);
       });
       it('cannot applyActionToExtensions of declareReceivedPayment signed by someone else than the payee', () => {
         const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
