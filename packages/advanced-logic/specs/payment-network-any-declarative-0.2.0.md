@@ -11,7 +11,8 @@ Prerequisite: Having read the advanced logic specification (see [here](/packages
 
 This extension allows to declare payments and the refunds in any currency.
 
-The payments and refunds are documented by the payer, the payee of the request and optionnally a third party declared at the creation of the payment network (e.g: The third party could be a payment processor).
+The payments and refunds are documented by the payer and the payee of the request.
+Optionnally, the payee and the payer can delegate the declaration to a third party. (e.g: The third party could be a payment processor).
 
 This extension does not ensure payment detection, only a consensus is made between the payer and the payee or by a third party.
 
@@ -33,7 +34,8 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **values.receivedRefundAmount**  | Amount | Amount of refund declared received             | **Mandatory** |
 | **values.paymentInstruction**    | String | Instruction to make payments                   | Optional      |
 | **values.refundInstruction**     | String | Instruction to make refunds                    | Optional      |
-| **values.thirdparty**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the third party | Optional      |
+| **values.payeeDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payee's delegate | Optional      |
+| **values.payerDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payer's delegate | Optional      |
 
 ---
 
@@ -51,11 +53,15 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **parameters**                    | Object |                                      |               |
 | **parameters.paymentInstruction** | String | Instruction to make payments         | Optional      |
 | **parameters.refundInstruction**  | String | Instruction to make refunds          | Optional      |
-| **parameters.thirdparty**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the third party | Optional      |
+| **parameters.payeeDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payee's delegate | Optional      |
+| **parameters.payerDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payer's delegate | Optional      |
 
 #### Conditions
 
-None.
+This action is valid, if:
+
+- The `payeeDelegate` is given  The signer must be the `payee`
+- The `payerDelegate` is given  The signer must be the `payer`
 
 #### Warnings
 
@@ -84,7 +90,8 @@ A extension state is created with the following properties:
 | **values.sentRefundAmount**      | "0"                                                                |
 | **values.receivedRefundAmount**  | "0"                                                                |
 | **values.receivedPaymentAmount** | "0"                                                                |
-| **values.thirdparty**            | `thirdparty` from parameters if given, undefined otherwise         |
+| **values.payeeDelegate**         | `payeeDelegate` from parameters if given, undefined otherwise      |
+| **values.payerDelegate**         | `payerDelegate` from parameters if given, undefined otherwise      |
 | **events**                       | Array with one 'create' event (see below)                          |
 
 the 'create' event:
@@ -95,7 +102,8 @@ the 'create' event:
 | **parameters**                    |                                                                    |
 | **parameters.paymentInstruction** | `paymentInstruction` from parameters if given, undefined otherwise |
 | **parameters.refundInstruction**  | `refundInstruction` from parameters if given, undefined otherwise  |
-| **parameters.thirdparty**         | `thirdparty` from parameters if given, undefined otherwise         |
+| **parameters.payeeDelegate**      | `payeeDelegate` from parameters if given, undefined otherwise      |
+| **parameters.payerDelegate**      | `payerDelegate` from parameters if given, undefined otherwise      |
 
 ---
 
@@ -118,7 +126,7 @@ the 'create' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payer` or the `thirdparty`
+- The signer is the `payer` or the `payerDelegate`
 
 ##### Warnings
 
@@ -159,7 +167,7 @@ the 'declareSentPayment' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payee` or the `thirdparty`
+- The signer is the `payee` or the `payeeDelegate`
 
 ##### Warnings
 
@@ -200,7 +208,7 @@ the 'declareReceivedPayment' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payee` or the `thirdparty`
+- The signer is the `payee` or the `payeeDelegate`
 
 ##### Warnings
 
@@ -241,7 +249,7 @@ the 'declareSentPayment' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payer` or the `thirdparty`
+- The signer is the `payer` or the `payerDelegate`
 
 ##### Warnings
 
@@ -281,7 +289,7 @@ the 'declareReceivedRefund' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payer` or the `thirdparty`
+- The signer is the `payer` or the `payerDelegate`
 - The extension property `refundInstruction` is undefined
 
 ##### Warnings
@@ -321,7 +329,7 @@ The 'addRefundInstruction' event:
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payer` or the `thirdparty`
+- The signer is the `payer` or the `payerDelegate`
 - The extension property `paymentInstruction` is undefined
 
 ##### Warnings
@@ -344,6 +352,88 @@ The 'addPaymentInstruction' event:
 | **name**                          | 'addPaymentInstruction'              |
 | **parameters**                    |                                      |
 | **parameters.paymentInstruction** | `paymentInstruction` from parameters |
+
+---
+
+#### addPayeeDelegate
+
+##### Parameters
+
+|                                   | Type   | Description                          | Requirement   |
+| --------------------------------- | ------ | ------------------------------------ | ------------- |
+| **id**                            | String | constant value: "pn-any-declarative" | **Mandatory** |
+| **action**                        | String | constant value: "addPayeeDelegate"  | **Mandatory** |
+| **parameters**                    | Object |                                      |               |
+| **parameters.payeeDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payee's delegate | **Mandatory**       |
+
+##### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-any-declarative" exists
+- The signer is the `payee`
+- The extension property `payeeDelegate` is undefined
+
+##### Warnings
+
+None.
+
+##### Results
+
+A extension state is updated with the following properties:
+
+|  Property                     |  Value                                                      |
+| ----------------------------- | ----------------------------------------------------------- |
+| **values.payeeDelegate** | `payeeDelegate` from parameters                        |
+| **events**                    | add an 'addPayeeDelegate' event (see below) at its end |
+
+The 'addPayeeDelegate' event:
+
+|  Property                         |  Value                               |
+| --------------------------------- | ------------------------------------ |
+| **name**                          | 'addPayeeDelegate'              |
+| **parameters**                    |                                      |
+| **parameters.payeeDelegate** | `payeeDelegate` from parameters |
+
+#### addPayerDelegate
+
+##### Parameters
+
+|                                   | Type   | Description                          | Requirement   |
+| --------------------------------- | ------ | ------------------------------------ | ------------- |
+| **id**                            | String | constant value: "pn-any-declarative" | **Mandatory** |
+| **action**                        | String | constant value: "addPayerDelegate"  | **Mandatory** |
+| **parameters**                    | Object |                                      |               |
+| **parameters.payerDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payer's delegate | **Mandatory**       |
+
+##### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-any-declarative" exists
+- The signer is the `payer`
+- The extension property `payerDelegate` is undefined
+
+##### Warnings
+
+None.
+
+##### Results
+
+A extension state is updated with the following properties:
+
+|  Property                     |  Value                                                      |
+| ----------------------------- | ----------------------------------------------------------- |
+| **values.payerDelegate** | `payerDelegate` from parameters                        |
+| **events**                    | add an 'addPayeeDelegate' event (see below) at its end |
+
+The 'addPayeeDelegate' event:
+
+|  Property                         |  Value                               |
+| --------------------------------- | ------------------------------------ |
+| **name**                          | 'addPayeeDelegate'              |
+| **parameters**                    |                                      |
+| **parameters.payerDelegate** | `payerDelegate` from parameters |
 
 ---
 
