@@ -3,7 +3,6 @@ title: Portal Introduction
 sidebar_label: Portal Introduction
 keywords: [Request, REST, API, Tutorial, Portal]
 description: Learn how to integrate Request network and its features.
-
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -22,18 +21,20 @@ Two mechanisms are currently allowed:
 - API Key, explained below, to be used for scripting and test purposes
 - OAuth, explained in the [Apps](./3-api-apps.md) section
 
-## Portal outlook
+## Portal authentication
 
-If you have not already done it, head towards [the Request Portal dashboard](https://dashboard.request.network) and create your account.
+How to authenticate with Request on third-party apps such as [Cryptio](https://cryptio.co/) ?
 
-Once your account is created, you are able to:
+Head towards [the Request Portal dashboard](https://dashboard.request.network) and sign-in with your [Request Invoicing](https://invoicing.request.network) login. If it's the first time you use either app, create an account.
+
+Once your account is created, you are able to access your API keys, by clicking on your account and then Settings.
+<img alt="Getting the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
+
+From the Dashboard, you can also:
 
 - Create a request, which is useful for manual testing for example
 - List requests you sent or received, useful for debugging
 - Know your Request identity (cf. below)
-- Access your API keys, by clicking on your account and then Settings.
-
-<img alt="Getting the API key from the Portal" src={useBaseUrl('img/portal-api-key.gif')} />
 
 You have two API keys, use the Test one to follow this guide.
 
@@ -49,19 +50,19 @@ This simplification should be applied with great care, we do not recommend using
 Head to the Portal to create a first manual request, and use the snippet below to fetch requests associated with your identity
 
 ```jsx
-import ReactDOM from "react-dom";
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import ReactDOM from 'react-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const API_KEY = "YOUR-API-KEY";
+const API_KEY = 'YOUR-API-KEY';
 
 function RequestsList() {
   const [requests, setRequests] = useState([]);
 
   useEffect(() => {
     const fetchResult = async () => {
-      const result = await axios.get("https://api.request.network/requests/", {
-        headers: { Authorization: API_KEY }
+      const result = await axios.get('https://api.request.network/requests/', {
+        headers: { Authorization: API_KEY },
       });
       console.log(result);
       setRequests(result.data);
@@ -73,7 +74,7 @@ function RequestsList() {
     <div className="App">
       <h2>The most basic list of payment requests</h2>
       <ul>
-        {requests.map(request => {
+        {requests.map((request) => {
           return (
             <li key={request.requestId}>
               {request.requestInput.expectedAmount} {request.requestInput.currency}
@@ -85,9 +86,8 @@ function RequestsList() {
   );
 }
 
-const rootElement = document.getElementById("root");
+const rootElement = document.getElementById('root');
 ReactDOM.render(<RequestsList />, rootElement);
-
 
 const result = await axios.get('https://api.request.network/requests/' + requestId, {
   headers: { Authorization: API_KEY },
