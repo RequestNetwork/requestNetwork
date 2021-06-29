@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/toolbox",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "description": "Toolbox for Request Network.",
   "keywords": [
