@@ -355,24 +355,24 @@ The 'addPaymentInstruction' event:
 
 ---
 
-#### addPayeeDelegate
+#### addDelegate
 
 ##### Parameters
 
 |                                   | Type   | Description                          | Requirement   |
 | --------------------------------- | ------ | ------------------------------------ | ------------- |
 | **id**                            | String | constant value: "pn-any-declarative" | **Mandatory** |
-| **action**                        | String | constant value: "addPayeeDelegate"  | **Mandatory** |
+| **action**                        | String | constant value: "addDelegate"  | **Mandatory** |
 | **parameters**                    | Object |                                      |               |
-| **parameters.payeeDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payee's delegate | **Mandatory**       |
+| **parameters.delegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the delegate | **Mandatory**       |
 
 ##### Conditions
 
 This action is valid, if:
 
 - The extension state with the id "pn-any-declarative" exists
-- The signer is the `payee`
-- The extension property `payeeDelegate` is undefined
+- The signer is the `payee` and the extension property `payeeDelegate` is undefined
+- The signer is the `payer` and the extension property `payerDelegate` is undefined
 
 ##### Warnings
 
@@ -384,56 +384,18 @@ A extension state is updated with the following properties:
 
 |  Property                     |  Value                                                      |
 | ----------------------------- | ----------------------------------------------------------- |
-| **values.payeeDelegate** | `payeeDelegate` from parameters                        |
-| **events**                    | add an 'addPayeeDelegate' event (see below) at its end |
+| **values.payeeDelegate**      | `delegate` from parameters if signer is the `payee`, unchanged otherwise |
+| **values.payerDelegate**      | `delegate` from parameters if signer is the `payer`, unchanged otherwise    |
+| **events**                    | add an 'addDelegate' event (see below) at its end |
 
-The 'addPayeeDelegate' event:
-
-|  Property                         |  Value                               |
-| --------------------------------- | ------------------------------------ |
-| **name**                          | 'addPayeeDelegate'              |
-| **parameters**                    |                                      |
-| **parameters.payeeDelegate** | `payeeDelegate` from parameters |
-
-#### addPayerDelegate
-
-##### Parameters
-
-|                                   | Type   | Description                          | Requirement   |
-| --------------------------------- | ------ | ------------------------------------ | ------------- |
-| **id**                            | String | constant value: "pn-any-declarative" | **Mandatory** |
-| **action**                        | String | constant value: "addPayerDelegate"  | **Mandatory** |
-| **parameters**                    | Object |                                      |               |
-| **parameters.payerDelegate**    | [Identity](../request-logic/specs/request-logic-specification.md#identity-role-and-signature) | Identity of the payer's delegate | **Mandatory**       |
-
-##### Conditions
-
-This action is valid, if:
-
-- The extension state with the id "pn-any-declarative" exists
-- The signer is the `payer`
-- The extension property `payerDelegate` is undefined
-
-##### Warnings
-
-None.
-
-##### Results
-
-A extension state is updated with the following properties:
-
-|  Property                     |  Value                                                      |
-| ----------------------------- | ----------------------------------------------------------- |
-| **values.payerDelegate** | `payerDelegate` from parameters                        |
-| **events**                    | add an 'addPayeeDelegate' event (see below) at its end |
-
-The 'addPayeeDelegate' event:
+The 'addDelegate' event:
 
 |  Property                         |  Value                               |
 | --------------------------------- | ------------------------------------ |
-| **name**                          | 'addPayeeDelegate'              |
+| **name**                          | 'addDelegate'              |
 | **parameters**                    |                                      |
-| **parameters.payerDelegate** | `payerDelegate` from parameters |
+| **parameters.payeeDelegate**      | `delegate` from parameters if signer is the `payee`, undefined otherwise |
+| **parameters.payerDelegate**      | `delegate` from parameters if signer is the `payer`, undefined otherwise    |
 
 ---
 
