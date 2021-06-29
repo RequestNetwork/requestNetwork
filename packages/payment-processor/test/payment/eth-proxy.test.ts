@@ -131,7 +131,7 @@ describe('payEthProxyRequest', () => {
     expect(balanceEthBefore.toString()).toBe(
       balanceEthAfter
         .add(validRequest.expectedAmount)
-        .add(confirmedTx.gasUsed!.mul(tx.gasPrice))
+        .add(confirmedTx.gasUsed?.mul(tx?.gasPrice ?? 1))
         .toString(),
     );
   });
