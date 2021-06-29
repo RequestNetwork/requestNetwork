@@ -49,6 +49,7 @@
     "typescript": "4.1.3"
   },
   "resolutions": {
-    "@ethersproject/abi": "5.2.0"
+    "@ethersproject/abi": "5.2.0",
+    "@ethersproject/abstract-signer": "5.2.0"
   }
 }
