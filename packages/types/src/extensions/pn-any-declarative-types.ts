@@ -54,12 +54,8 @@ export interface IAddRefundInstructionParameters {
 }
 
 /** Parameters of addPayeeDelegate action */
-export interface IAddPayeeDelegateParameters {
-  payeeDelegate: IIdentity;
-}
-/** Parameters of addPayerDelegate action */
-export interface IAddPayerDelegateParameters {
-  payerDelegate: IIdentity;
+export interface IAddDelegateParameters {
+  delegate: IIdentity;
 }
 
 /** Actions possible */
@@ -75,6 +71,5 @@ export enum ACTION {
   ADD_PAYMENT_INSTRUCTION = 'addPaymentInstruction',
   ADD_REFUND_INSTRUCTION = 'addRefundInstruction',
 
-  ADD_PAYEE_DELEGATE = 'addPayeeDelegate',
-  ADD_PAYER_DELEGATE = 'addPayerDelegate',
+  ADD_DELEGATE = 'addDelegate',
 }
