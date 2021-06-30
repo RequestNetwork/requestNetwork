@@ -453,7 +453,7 @@ export default class DeclarativePaymentNetwork<
     }
 
     if (extensionState.values[delegateStr]) {
-      throw Error(`The ${delegateStr} is already given`);
+      throw Error(`The ${delegateStr} is already assigned`);
     }
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
