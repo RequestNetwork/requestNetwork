@@ -43,7 +43,7 @@
     "@requestnetwork/data-access": "0.26.0",
     "@requestnetwork/ethereum-storage": "0.26.1-next.1470",
     "@requestnetwork/types": "0.35.1-next.1470",
-    "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/utils": "0.35.1-next.1470",
     "@truffle/hdwallet-provider": "1.2.3",
     "chalk": "4.1.0",
     "cors": "2.8.5",

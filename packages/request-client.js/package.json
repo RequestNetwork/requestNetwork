@@ -53,7 +53,7 @@
     "@requestnetwork/smart-contracts": "0.28.1-next.1470",
     "@requestnetwork/transaction-manager": "0.26.9",
     "@requestnetwork/types": "0.35.1-next.1470",
-    "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/utils": "0.35.1-next.1470",
     "axios": "0.21.1",
     "ethers": "5.2.0"
   },

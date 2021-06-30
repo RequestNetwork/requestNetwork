@@ -51,7 +51,7 @@
     "@requestnetwork/request-logic": "0.26.9",
     "@requestnetwork/transaction-manager": "0.26.9",
     "@requestnetwork/types": "0.35.1-next.1470",
-    "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/utils": "0.35.1-next.1470",
     "@truffle/hdwallet-provider": "1.2.3",
     "@types/jest": "26.0.13",
     "@types/node": "14.14.16",

@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@requestnetwork/types": "0.35.1-next.1470",
-    "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/utils": "0.35.1-next.1470",
     "@types/node": "14.14.16",
     "lodash": "4.17.21",
     "wallet-address-validator": "0.2.4"

@@ -43,7 +43,7 @@
     "@requestnetwork/currency": "^0.8.1-next.1470",
     "@requestnetwork/smart-contracts": "0.28.1-next.1470",
     "@requestnetwork/types": "0.35.1-next.1470",
-    "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/utils": "0.35.1-next.1470",
     "axios": "0.21.1",
     "ethers": "5.2.0",
     "graphql": "15.5.0",
