@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/web3-signature",
-  "version": "0.4.31",
+  "version": "0.4.36",
   "publishConfig": {
     "access": "public"
   },
