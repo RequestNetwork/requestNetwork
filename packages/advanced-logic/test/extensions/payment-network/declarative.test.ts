@@ -736,49 +736,6 @@ describe('extensions/payment-network/any/declarative', () => {
           );
         }).toThrowError(`The signer must be the payee or the payer`);
       });
-      // it('cannot applyActionToExtensions of declareSentRefund without a payee', () => {
-      //   const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-      //   previousState.payee = undefined;
-      //   previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.payeeDelegate = undefined;
-
-      //   // 'must throw'
-      //   expect(() => {
-      //     pnAnyDeclarative.applyActionToExtension(
-      //       previousState.extensions,
-      //       TestDataDeclarative.actionDeclareSentRefund,
-      //       previousState,
-      //       TestData.payeeRaw.identity,
-      //       TestData.arbitraryTimestamp,
-      //     );
-      //   }).toThrowError(`The request must have a payee`);
-      // });
-      // it('cannot applyActionToExtensions of declareSentRefund signed by someone else than the payee', () => {
-      //   const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-      //   // 'must throw'
-      //   expect(() => {
-      //     pnAnyDeclarative.applyActionToExtension(
-      //       previousState.extensions,
-      //       TestDataDeclarative.actionDeclareSentRefund,
-      //       previousState,
-      //       TestData.payerRaw.identity,
-      //       TestData.arbitraryTimestamp,
-      //     );
-      //   }).toThrowError(`The signer must be the payee`);
-      // });
-      // it('cannot applyActionToExtensions of declareSentRefund with an invalid amount', () => {
-      //   TestDataDeclarative.actionDeclareSentRefund.parameters.amount = 'invalid amount';
-
-      //   // 'must throw'
-      //   expect(() => {
-      //     pnAnyDeclarative.applyActionToExtension(
-      //       TestDataDeclarative.requestStateCreatedEmpty.extensions,
-      //       TestDataDeclarative.actionDeclareSentRefund,
-      //       TestDataDeclarative.requestStateCreatedEmpty,
-      //       TestData.payeeRaw.identity,
-      //       TestData.arbitraryTimestamp,
-      //     );
-      //   }).toThrowError(`The amount is not a valid amount`);
-      // });
     });
   });
 });
