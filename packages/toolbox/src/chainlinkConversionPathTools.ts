@@ -1,11 +1,10 @@
 import { ethers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
-import { getDefaultProvider } from '@requestnetwork/payment-detection';
+import { getDefaultProvider, parseLogArgs } from '@requestnetwork/payment-detection';
 import { ChainlinkConversionPath__factory } from '@requestnetwork/smart-contracts/types';
 import { Currency } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import iso4217 from '@requestnetwork/currency/dist/iso4217';
-import { LogDescription } from 'ethers/lib/utils';
 
 export interface IOptions {
   network?: string;
@@ -17,16 +16,6 @@ type AggregatorUpdatedArgs = {
   _input: string;
   _output: string;
   _aggregator: string;
-};
-
-/**
- * Converts the Log's args from array to an object with keys being the name of the arguments
- */
-export const parseLogArgs = <T>({ args, eventFragment }: LogDescription): T => {
-  return args.reduce((prev, current, i) => {
-    prev[eventFragment.inputs[i].name] = current;
-    return prev;
-  }, {});
 };
 
 /**
