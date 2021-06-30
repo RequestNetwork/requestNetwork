@@ -87,7 +87,6 @@ export interface IPaymentNetworkEvent<TEventParameters> {
   name: EVENTS_NAMES;
   parameters?: TEventParameters;
   timestamp?: number;
-  from?: IIdentity;
 }
 
 /** payment network event names */
@@ -163,6 +162,7 @@ export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters
 /** Parameters for events of Declarative payments */
 export interface IDeclarativePaymentEventParameters {
   note?: string;
+  from?: IIdentity;
 }
 /** Declarative Payment Network Event */
 export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;

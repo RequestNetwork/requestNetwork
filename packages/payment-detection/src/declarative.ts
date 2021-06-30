@@ -149,10 +149,10 @@ export default class PaymentNetworkDeclarative
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
+            from: data.from,
             note: parameters.note,
           },
           timestamp: data.timestamp,
-          from: data.from,
         });
       } else if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND) {
         parameters.timestamp = data.timestamp;
@@ -164,9 +164,9 @@ export default class PaymentNetworkDeclarative
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             note: parameters.note,
+            from: data.from,
           },
           timestamp: data.timestamp,
-          from: data.from,
         });
       }
     });
