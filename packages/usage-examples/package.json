@@ -31,7 +31,7 @@
     "@requestnetwork/epk-decryption": "0.3.33",
     "@requestnetwork/epk-signature": "0.5.34",
     "@requestnetwork/multi-format": "0.15.9",
-    "@requestnetwork/payment-processor": "0.37.0",
+    "@requestnetwork/payment-processor": "0.37.1-next.1470",
     "@requestnetwork/request-client.js": "0.39.0",
     "@requestnetwork/request-logic": "0.26.9",
     "@requestnetwork/transaction-manager": "0.26.9",

@@ -37,7 +37,7 @@
     "@docusaurus/theme-live-codeblock": "2.0.0-alpha.72",
     "@docusaurus/utils": "2.0.0-alpha.72",
     "@metamask/contract-metadata": "1.25.0",
-    "@requestnetwork/payment-processor": "0.37.0",
+    "@requestnetwork/payment-processor": "0.37.1-next.1470",
     "@requestnetwork/request-client.js": "0.39.0",
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
