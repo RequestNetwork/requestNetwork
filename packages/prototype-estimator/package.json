@@ -29,7 +29,7 @@
     "@requestnetwork/advanced-logic": "0.34.0",
     "@requestnetwork/data-access": "0.26.0",
     "@requestnetwork/epk-signature": "0.5.34",
-    "@requestnetwork/ethereum-storage": "0.26.0",
+    "@requestnetwork/ethereum-storage": "0.26.1-next.1470",
     "@requestnetwork/multi-format": "0.15.9",
     "@requestnetwork/request-client.js": "0.39.0",
     "@requestnetwork/request-logic": "0.26.9",
