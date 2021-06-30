@@ -149,8 +149,8 @@ export default class PaymentNetworkDeclarative
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
-            from: data.from,
             note: parameters.note,
+            from: data.from,
           },
           timestamp: data.timestamp,
         });
