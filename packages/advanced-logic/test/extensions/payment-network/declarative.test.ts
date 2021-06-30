@@ -128,6 +128,19 @@ describe('extensions/payment-network/any/declarative', () => {
     });
   });
 
+
+  describe('createAddDelegateAction', () => {
+    it('can createAddDelegateAction', () => {
+      // 'extensionsdata is wrong'
+      expect(
+        pnAnyDeclarative.createAddDelegateAction({
+          delegate: TestDataDeclarative.delegateToAdd,
+        }),
+      ).toEqual(TestDataDeclarative.actionAddDelegate);
+    });
+  });
+
+
   describe('applyActionToExtension', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
@@ -672,6 +685,100 @@ describe('extensions/payment-network/any/declarative', () => {
           );
         }).toThrowError(`The amount is not a valid amount`);
       });
+    });
+
+    describe('applyActionToExtension/addDelegate', () => {
+      it('can applyActionToExtensions of addDelegate from payee', () => {
+        // 'new extension state wrong'
+        expect(
+          pnAnyDeclarative.applyActionToExtension(
+            TestDataDeclarative.requestStateCreatedEmptyNoDelegate.extensions,
+            TestDataDeclarative.actionAddDelegate,
+            TestDataDeclarative.requestStateCreatedEmptyNoDelegate,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyAddPayeeDelegate);
+      });
+      it('can applyActionToExtensions of addDelegate from payer', () => {
+        // 'new extension state wrong'
+        expect(
+          pnAnyDeclarative.applyActionToExtension(
+            TestDataDeclarative.requestStateCreatedEmptyNoDelegate.extensions,
+            TestDataDeclarative.actionAddDelegate,
+            TestDataDeclarative.requestStateCreatedEmptyNoDelegate,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyAddPayerDelegate);
+      });
+      it('cannot applyActionToExtensions of addDelegate if delegate already given', () => {
+        // 'must throw'
+        expect(() => {
+          pnAnyDeclarative.applyActionToExtension(
+            TestDataDeclarative.requestStateCreatedEmpty.extensions,
+            TestDataDeclarative.actionAddDelegate,
+            TestDataDeclarative.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`The payeeDelegate is already given`);
+      });
+      it('cannot applyActionToExtensions of addDelegate from a thirdparty', () => {
+        // 'must throw'
+        expect(() => {
+          pnAnyDeclarative.applyActionToExtension(
+            TestDataDeclarative.requestStateCreatedEmpty.extensions,
+            TestDataDeclarative.actionAddDelegate,
+            TestDataDeclarative.requestStateCreatedEmpty,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`The signer must be the payee or the payer`);
+      });
+      // it('cannot applyActionToExtensions of declareSentRefund without a payee', () => {
+      //   const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+      //   previousState.payee = undefined;
+      //   previousState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string].values.payeeDelegate = undefined;
+
+      //   // 'must throw'
+      //   expect(() => {
+      //     pnAnyDeclarative.applyActionToExtension(
+      //       previousState.extensions,
+      //       TestDataDeclarative.actionDeclareSentRefund,
+      //       previousState,
+      //       TestData.payeeRaw.identity,
+      //       TestData.arbitraryTimestamp,
+      //     );
+      //   }).toThrowError(`The request must have a payee`);
+      // });
+      // it('cannot applyActionToExtensions of declareSentRefund signed by someone else than the payee', () => {
+      //   const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+      //   // 'must throw'
+      //   expect(() => {
+      //     pnAnyDeclarative.applyActionToExtension(
+      //       previousState.extensions,
+      //       TestDataDeclarative.actionDeclareSentRefund,
+      //       previousState,
+      //       TestData.payerRaw.identity,
+      //       TestData.arbitraryTimestamp,
+      //     );
+      //   }).toThrowError(`The signer must be the payee`);
+      // });
+      // it('cannot applyActionToExtensions of declareSentRefund with an invalid amount', () => {
+      //   TestDataDeclarative.actionDeclareSentRefund.parameters.amount = 'invalid amount';
+
+      //   // 'must throw'
+      //   expect(() => {
+      //     pnAnyDeclarative.applyActionToExtension(
+      //       TestDataDeclarative.requestStateCreatedEmpty.extensions,
+      //       TestDataDeclarative.actionDeclareSentRefund,
+      //       TestDataDeclarative.requestStateCreatedEmpty,
+      //       TestData.payeeRaw.identity,
+      //       TestData.arbitraryTimestamp,
+      //     );
+      //   }).toThrowError(`The amount is not a valid amount`);
+      // });
     });
   });
 });

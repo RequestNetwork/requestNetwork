@@ -11,6 +11,7 @@ export const amount = '12345';
 export const note = { transactionId: '123456789' };
 export const payeeDelegate = TestData.payeeDelegateRaw.identity;
 export const payerDelegate = TestData.payerDelegateRaw.identity;
+export const delegateToAdd = TestData.otherIdRaw.identity;
 
 // ---------------------------------------------------------------------
 // actions
@@ -61,6 +62,13 @@ export const actionCreationPayeeDelegate = {
   version: '0.1.0',
 };
 
+export const actionAddDelegate = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+  parameters: {
+    delegate: delegateToAdd,
+  },
+};
 export const actionPaymentInstruction = {
   action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
@@ -161,6 +169,26 @@ export const extensionStateCreatedEmpty = {
   },
 };
 
+export const extensionStateCreatedEmptyNoDelegate = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {},
+        timestamp: arbitraryTimestamp,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
+    },
+    version: '0.1.0',
+  },
+};
 export const extensionStateCreatedEmptyPaymentInstructionAdded = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
@@ -317,6 +345,64 @@ export const extensionStateCreatedEmptySentRefund = {
     version: '0.1.0',
   },
 };
+export const extensionStateCreatedEmptyAddPayeeDelegate = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
+    events: [
+      {
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+        parameters: {},
+        timestamp: arbitraryTimestamp,
+      },
+      {
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
+        parameters: {
+          delegate: delegateToAdd,
+        },
+        timestamp: arbitraryTimestamp,
+        from: TestData.payeeRaw.identity,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
+      payeeDelegate: delegateToAdd,
+    },
+    version: '0.1.0',
+  },
+};
+export const extensionStateCreatedEmptyAddPayerDelegate = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
+    events: [
+      {
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+        parameters: {},
+        timestamp: arbitraryTimestamp,
+      },
+      {
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
+        parameters: {
+          delegate: delegateToAdd,
+        },
+        timestamp: arbitraryTimestamp,
+        from: TestData.payerRaw.identity,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
+      payerDelegate: delegateToAdd,
+    },
+    version: '0.1.0',
+  },
+};
 export const extensionStateCreatedEmptyReceivedPayment = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
@@ -459,6 +545,47 @@ export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,
   extensions: extensionStateCreatedEmpty,
+  extensionsData: [actionCreationEmpty],
+  payee: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payeeRaw.address,
+  },
+  payer: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payerRaw.address,
+  },
+  requestId: TestData.requestIdMock,
+  state: RequestLogicTypes.STATE.CREATED,
+  timestamp: TestData.arbitraryTimestamp,
+  version: '0.1.0',
+};
+
+export const requestStateCreatedEmptyNoDelegate: RequestLogicTypes.IRequest = {
+  creator: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payeeRaw.address,
+  },
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ISO4217,
+    value: 'EUR',
+  },
+  events: [
+    {
+      actionSigner: {
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: TestData.payeeRaw.address,
+      },
+      name: RequestLogicTypes.ACTION_NAME.CREATE,
+      parameters: {
+        expectedAmount: '123400000000000000',
+        extensionsDataLength: 1,
+        isSignedRequest: false,
+      },
+      timestamp: arbitraryTimestamp,
+    },
+  ],
+  expectedAmount: TestData.arbitraryExpectedAmount,
+  extensions: extensionStateCreatedEmptyNoDelegate,
   extensionsData: [actionCreationEmpty],
   payee: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,

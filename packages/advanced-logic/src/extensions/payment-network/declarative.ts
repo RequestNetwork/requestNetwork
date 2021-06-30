@@ -444,16 +444,16 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     let delegateStr: string;
-    if (actionSigner === requestState.payee) {
+    if (Utils.identity.areEqual(actionSigner, requestState.payee)) {
       delegateStr = 'payeeDelegate';
-    } else if (actionSigner === requestState.payer) {
+    } else if (Utils.identity.areEqual(actionSigner, requestState.payer)) {
       delegateStr = 'payerDelegate';
     } else {
       throw Error(`The signer must be the payee or the payer`);
     }
 
     if (extensionState.values[delegateStr]) {
-      throw Error(`The ${delegateStr} already given`);
+      throw Error(`The ${delegateStr} is already given`);
     }
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
