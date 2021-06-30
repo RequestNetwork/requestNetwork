@@ -543,9 +543,6 @@ export default class DeclarativePaymentNetwork<
       requestRoleStr = 'payee';
       requestRoleDelegate = extensionState.values.payeeDelegate;
     }
-    if (role === RequestLogicTypes.ROLE.THIRD_PARTY) {
-      throw Error(`role is already checked by default`);
-    }
 
     if (!requestRole) {
       throw Error(`The request must have a ${requestRoleStr}`);
