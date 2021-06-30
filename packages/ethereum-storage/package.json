@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@requestnetwork/smart-contracts": "0.28.1-next.1470",
-    "@requestnetwork/types": "0.35.0",
+    "@requestnetwork/types": "0.35.1-next.1470",
     "@requestnetwork/utils": "0.35.0",
     "bluebird": "3.7.2",
     "ethers": "5.2.0",

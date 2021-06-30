@@ -41,7 +41,7 @@
   "dependencies": {
     "@requestnetwork/advanced-logic": "0.34.0",
     "@requestnetwork/multi-format": "0.15.9",
-    "@requestnetwork/types": "0.35.0",
+    "@requestnetwork/types": "0.35.1-next.1470",
     "@requestnetwork/utils": "0.35.0",
     "semver": "5.6.0"
   },

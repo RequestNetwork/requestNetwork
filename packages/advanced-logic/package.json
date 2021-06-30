@@ -38,7 +38,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@requestnetwork/types": "0.35.0",
+    "@requestnetwork/types": "0.35.1-next.1470",
     "@requestnetwork/utils": "0.35.0",
     "@types/node": "14.14.16",
     "lodash": "4.17.21",
