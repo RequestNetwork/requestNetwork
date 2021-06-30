@@ -410,7 +410,7 @@ export default class DeclarativePaymentNetwork<
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
-    // increment paymentInfo
+    // assign paymentInfo
     copiedExtensionState.values.paymentInfo = extensionAction.parameters.paymentInfo;
 
     // update events
@@ -458,7 +458,7 @@ export default class DeclarativePaymentNetwork<
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
-    // increment payeeDelegate
+    // assign payeeDelegate or payerDelegate
     copiedExtensionState.values[delegateStr] = extensionAction.parameters.delegate;
 
     // update events
@@ -498,7 +498,7 @@ export default class DeclarativePaymentNetwork<
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
-    // increment refundInfo
+    // assign refundInfo
     copiedExtensionState.values.refundInfo = extensionAction.parameters.refundInfo;
 
     // update events
