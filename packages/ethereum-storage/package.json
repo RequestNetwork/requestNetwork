@@ -39,7 +39,7 @@
     "init-ipfs": "node scripts/init-ipfs.js"
   },
   "dependencies": {
-    "@requestnetwork/smart-contracts": "0.28.0",
+    "@requestnetwork/smart-contracts": "0.28.1-next.1470",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
     "bluebird": "3.7.2",
