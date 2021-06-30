@@ -40,7 +40,7 @@
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
-    "@requestnetwork/currency": "0.8.0",
+    "@requestnetwork/currency": "^0.8.1-next.1470",
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
