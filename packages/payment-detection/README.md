@@ -20,3 +20,14 @@ The payment networks available are:
 - `Types.Payment.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT`('pn-erc20-proxy-contract'): uses an intermediary contract to document which request is being paid, through the `PaymentReference`. (see [the specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-erc20-address-based-0.1.0.md))
 - `Types.Payment.PAYMENT_NETWORK_ID.ETH_INPUT_DATA`('pn-eth-input-data'): uses the transaction input data to pass the `PaymentReference`. (see [the specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-eth-input-data-0.1.0.md))
 - `Types.Payment.PAYMENT_NETWORK_ID.DECLARATIVE`('pn-any-declarative'): a manual alternative, where payer can declare a payment sent, and payee can declare it received, working for any currency. (see [the specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/payment-network-any-declarative-0.1.0.md))
+
+
+### Sources
+
+| Payment Network | Chain | Source |
+| -- | -- | -- |
+| `BITCOIN_ADDRESS_BASED` | mainnet, testnet | blockchain.com, blockcypher.com, blockstream.info, chain.so (at least 2 must match)| 
+| `ERC20_ADDRESS_BASED` | any EVM-compatible chain | Ethereum node or Web3 RPC | 
+|`ERC20_PROXY_CONTRACT` | any EVM-compatible chain | TheGraph [payment subgraph](https://github.com/RequestNetwork/payments-subgraph) or Web3 RPC |
+|`ETH_INPUT_DATA` | Direct transfer: mainnet, rinkeby.<br />Proxy: any EVM-compatible chain | Direct transfer: Etherscan.<br />Proxy: Ethereum node or Web3 RPC |
+| `DECLARATIVE` | same as Request storage | Request storage  | 
