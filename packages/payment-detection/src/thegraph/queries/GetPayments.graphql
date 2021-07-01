@@ -17,6 +17,8 @@ query GetPayments(
     amount
     block
     txHash
+    gasUsed
+    gasPrice
     feeAmount
     feeAddress
     from

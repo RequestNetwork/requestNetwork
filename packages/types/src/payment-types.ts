@@ -119,6 +119,8 @@ export interface IERC20PaymentEventParameters {
   to: string;
   block?: number;
   txHash?: string;
+  gasUsed?: string;
+  gasPrice?: string;
 }
 
 /** Parameters for events of ERC20 payments with fees */

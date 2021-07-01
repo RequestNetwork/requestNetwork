@@ -83,7 +83,7 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events[0].timestamp).toBe(1599013969);
   });
 
-  it('can getBalance on a matic request, with TheGraph', async () => {
+  fit('can getBalance on a matic request, with TheGraph', async () => {
     const mockRequest = createMockRequest({
       network: 'matic',
       requestId: '014bcd076791fb915af457df1d3f26c81ff66f7e278e4a18f0e48a1705572a6306',
@@ -98,7 +98,12 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe('payment');
     expect(balance.events[0].parameters?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
+    expect(balance.events[0].parameters.from).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
     expect(balance.events[0].amount).toBe('1000000000000000000');
     expect(balance.events[0].timestamp).toBe(1621953168);
+    // TODO
+    expect(balance.events[0].parameters.gasPrice).toBe(1000000000);
+    // TODO
+    expect(balance.events[0].parameters.gasUsed).toBe(64511);
   }, 15000);
 });

@@ -3,6 +3,14 @@
 `@requestnetwork/payment-detection` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It contains client-side payment detection for all supported payment networks.
 
+## Contributing
+
+Auto-generate the types coming from subgraphs for The Graph-based payment detections.
+
+```
+yarn codegen
+```
+
 ### Payment and Refund detections
 
 If a payment network has been given to the request, the payment detection can be done.
