@@ -59,9 +59,17 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.balance).toBe('1000000000000000000');
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe('payment');
+    expect(balance.events[0].parameters?.txHash).toBe(
+      '0xed57733272ad5cb96725ceb0a22e1dcc5701a7b78f219768c8281b7ea6a87574',
+    );
     expect(balance.events[0].parameters?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
+    // FIXME should be set when Mainnet uses TheGraph
+    // expect(balance.events[0].parameters?.from).toBe('0x4e64c2d06d19d13061e62e291b2c4e9fe5679b93');
     expect(balance.events[0].amount).toBe('1000000000000000000');
     expect(balance.events[0].timestamp).toBe(1599070058);
+    // FIXME should be set when Mainnet uses TheGraph
+    // expect(balance.events[0].parameters.gasPrice).toBe('1000000000');
+    // expect(balance.events[0].parameters.gasUsed).toBe('70626');
   });
 
   it('can getBalance on a rinkeby request', async () => {
@@ -78,12 +86,21 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.balance).toBe('1000000000000000000000');
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe('payment');
+    expect(balance.events[0].parameters?.txHash).toBe(
+      '0x751dfbdbc049fb05652228a1c07317e2dd22e47172b83b6c21f426f9f09975b1',
+    );
     expect(balance.events[0].parameters?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
+    // FIXME should be set when Rinkeby uses TheGraph
+    // expect(balance.events[0].parameters?.from).toBe('0xF4255c5e53a08f72b0573D1b8905C5a50aA9c2De');
     expect(balance.events[0].amount).toBe('1000000000000000000000');
     expect(balance.events[0].timestamp).toBe(1599013969);
+    // FIXME should be set when Rinkeby uses TheGraph
+    // expect(balance.events[0].parameters.gasPrice).toBe('472000000000');
+    // Warning: TheGraph returns 100000 but the gasUsed value on etherscan & other is 51055
+    // expect(balance.events[0].parameters.gasUsed).toBe('51055');
   });
 
-  fit('can getBalance on a matic request, with TheGraph', async () => {
+  it('can getBalance on a matic request, with TheGraph', async () => {
     const mockRequest = createMockRequest({
       network: 'matic',
       requestId: '014bcd076791fb915af457df1d3f26c81ff66f7e278e4a18f0e48a1705572a6306',
@@ -97,13 +114,14 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.balance).toBe('1000000000000000000');
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe('payment');
+    expect(balance.events[0].parameters?.txHash).toBe(
+      '0xb84736493f9c39dfd48ab814198d07a500b03d6622061d1300be624860532ffa',
+    );
     expect(balance.events[0].parameters?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
     expect(balance.events[0].parameters.from).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
     expect(balance.events[0].amount).toBe('1000000000000000000');
     expect(balance.events[0].timestamp).toBe(1621953168);
-    // TODO
-    expect(balance.events[0].parameters.gasPrice).toBe(1000000000);
-    // TODO
-    expect(balance.events[0].parameters.gasUsed).toBe(64511);
+    expect(balance.events[0].parameters.gasPrice).toBe('1000000000');
+    expect(balance.events[0].parameters.gasUsed).toBe('270000');
   }, 15000);
 });
