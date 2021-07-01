@@ -19,7 +19,7 @@ const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 const alphaPaymentSettings: IPaymentSettings = {
   currency: {
     type: RequestLogicTypes.CURRENCY.ERC20,
-    value: erc20ContractAddress,
+    value: erc20ContractAddress.toLowerCase(), // implicit test without the CHECKSUM
     network: 'private',
   },
   maxToSpend: BigNumber.from(2).pow(256).sub(1),
