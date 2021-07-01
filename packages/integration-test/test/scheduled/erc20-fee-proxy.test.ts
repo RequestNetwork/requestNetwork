@@ -122,6 +122,6 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events[0].amount).toBe('1000000000000000000');
     expect(balance.events[0].timestamp).toBe(1621953168);
     expect(balance.events[0].parameters.gasPrice).toBe('1000000000');
-    expect(balance.events[0].parameters.gasUsed).toBe('270000');
+    expect(balance.events[0].parameters.gasUsed).toBe('64511');
   }, 15000);
 });
