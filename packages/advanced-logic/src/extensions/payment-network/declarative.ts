@@ -544,6 +544,10 @@ export default class DeclarativePaymentNetwork<
       requestRoleDelegate = extensionState.values.payeeDelegate;
     }
 
+    if (role === RequestLogicTypes.ROLE.THIRD_PARTY) {
+      throw Error(`Only payee and payer are expected`);
+    }
+
     if (!requestRole) {
       throw Error(`The request must have a ${requestRoleStr}`);
     }
