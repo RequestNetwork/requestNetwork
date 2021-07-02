@@ -80,9 +80,7 @@ export function encodeSwapToPayAnyToErc20Request(
   // check if conversion currency is accepted
   if (
     !request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.acceptedTokens
-      .map((t: string) => {
-        return t.toLowerCase();
-      })
+      .map(t => t.toLowerCase())
       .includes(conversionSettings.currency.value.toLowerCase())
   ) {
     throw new Error(`The conversion currency is not an accepted token`);
