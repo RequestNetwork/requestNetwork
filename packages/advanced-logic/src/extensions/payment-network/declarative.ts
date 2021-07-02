@@ -404,7 +404,7 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     if (extensionState.values.paymentInfo) {
-      throw Error(`The payment instruction already given`);
+      throw Error(`The payment instruction already assigned`);
     }
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
 
@@ -453,7 +453,7 @@ export default class DeclarativePaymentNetwork<
     }
 
     if (extensionState.values[delegateStr]) {
-      throw Error(`The ${delegateStr} is already given`);
+      throw Error(`The ${delegateStr} is already assigned`);
     }
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
@@ -492,7 +492,7 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     if (extensionState.values.refundInfo) {
-      throw Error(`The refund instruction already given`);
+      throw Error(`The refund instruction already assigned`);
     }
     this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
 
