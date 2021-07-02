@@ -53,6 +53,32 @@ export const otherIdRaw = {
   },
 };
 
+export const payeeDelegateRaw = {
+  address: '0x2191eF87E392377ec08E7c08Eb105Ef5448eCED5',
+  identity: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0x2191eF87E392377ec08E7c08Eb105Ef5448eCED5',
+  },
+  privateKey: '0x82d052c865f5763aad42add438569276c00d3d88a2d062d36b2bae914d58b8c8',
+  signatureParams: {
+    method: SignatureTypes.METHOD.ECDSA,
+    privateKey: '0x82d052c865f5763aad42add438569276c00d3d88a2d062d36b2bae914d58b8c8',
+  },
+};
+
+export const payerDelegateRaw = {
+  address: '0xd77317EE9Cb566eaf4b8E0D5d27F0b399A9F2a06',
+  identity: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0xd77317EE9Cb566eaf4b8E0D5d27F0b399A9F2a06',
+  },
+  privateKey: '0x4ee0957314d1c18c7fbddca3e850b979539b3a52fa028748ec21dc68c4f644fe',
+  signatureParams: {
+    method: SignatureTypes.METHOD.ECDSA,
+    privateKey: '0x4ee0957314d1c18c7fbddca3e850b979539b3a52fa028748ec21dc68c4f644fe',
+  },
+};
+
 export const requestIdMock = '0x1c2610cbc5bee43b6bc9800e69ec832fb7d50ea098a88877a0afdcac5981d3f8';
 export const arbitraryExpectedAmount = '123400000000000000';
 export const arbitraryDeltaAmount = '100000000000000000';

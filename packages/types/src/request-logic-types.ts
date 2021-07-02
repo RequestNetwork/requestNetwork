@@ -286,4 +286,6 @@ export enum ROLE {
   PAYEE = 'payee',
   PAYER = 'payer',
   THIRD_PARTY = 'third-party',
+  PAYEE_DELEGATE = 'payeeDelegate',
+  PAYER_DELEGATE = 'payerDelegate',
 }

@@ -1,3 +1,4 @@
+import { IIdentity } from '../identity-types';
 import * as Extension from '../extension-types';
 import * as RequestLogicTypes from '../request-logic-types';
 
@@ -26,6 +27,8 @@ export interface IValues {
 export interface ICreationParameters {
   paymentInfo?: any;
   refundInfo?: any;
+  payeeDelegate?: IIdentity;
+  payerDelegate?: IIdentity;
 }
 
 /** Parameters of declareSentPayment and declareSentRefund action */
@@ -50,6 +53,11 @@ export interface IAddRefundInstructionParameters {
   refundInfo: any;
 }
 
+/** Parameters of addPayeeDelegate action */
+export interface IAddDelegateParameters {
+  delegate: IIdentity;
+}
+
 /** Actions possible */
 export enum ACTION {
   CREATE = 'create',
@@ -62,4 +70,6 @@ export enum ACTION {
 
   ADD_PAYMENT_INSTRUCTION = 'addPaymentInstruction',
   ADD_REFUND_INSTRUCTION = 'addRefundInstruction',
+
+  ADD_DELEGATE = 'addDelegate',
 }

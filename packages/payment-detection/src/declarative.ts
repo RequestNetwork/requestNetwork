@@ -150,6 +150,7 @@ export default class PaymentNetworkDeclarative
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             note: parameters.note,
+            from: data.from,
           },
           timestamp: data.timestamp,
         });
@@ -163,6 +164,7 @@ export default class PaymentNetworkDeclarative
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             note: parameters.note,
+            from: data.from,
           },
           timestamp: data.timestamp,
         });

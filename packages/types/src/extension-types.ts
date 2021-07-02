@@ -57,6 +57,7 @@ export interface IEvent {
   name: string;
   parameters: any;
   timestamp: number;
+  from?: Identity.IIdentity;
 }
 
 /** Identification of extensions handled by this implementation */
