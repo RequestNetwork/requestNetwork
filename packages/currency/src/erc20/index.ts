@@ -2,22 +2,20 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
 import { supportedNetworks } from './networks';
 
-const tokenAliases: Record<string, string> = {
-  // retro-compatibility for error in past RN casing.
-  CUSD: 'cUSD',
+export const tokenAliases: Record<string, string> = {
   // retro-compatibility for old name for the CELO Token.
-  cGLD: 'CELO',
+  CGLD: 'CELO-celo',
 };
 
 const getTokenInfoFromSymbol = (symbol: string, network?: string) => {
-  if (tokenAliases[symbol]) {
-    symbol = tokenAliases[symbol];
+  if (tokenAliases[symbol?.toUpperCase()]) {
+    symbol = tokenAliases[symbol?.toUpperCase()];
   }
   for (const networkKey of Object.keys(supportedNetworks).filter(
     (net) => !network || net === network,
   )) {
     const token = Object.entries(supportedNetworks[networkKey]).find(
-      ([, info]) => info.symbol === symbol,
+      ([, info]) => info.symbol.toLowerCase() === symbol.toLowerCase(),
     );
     if (token) {
       return {
