@@ -30,14 +30,14 @@ describe('api/currency', () => {
       });
     });
 
-    it('returns Celo CUSD', () => {
+    it('returns Celo cUSD', () => {
       expect(
-        getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'CUSD-celo'),
+        getAllSupportedCurrencies().ERC20.find(({ symbol }) => symbol === 'cUSD-celo'),
       ).toEqual({
         address: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
         decimals: 18,
         name: 'Celo Dollar',
-        symbol: 'CUSD-celo',
+        symbol: 'cUSD-celo',
         network: 'celo',
       });
     });
@@ -179,11 +179,35 @@ describe('api/currency', () => {
       });
     });
 
-    it('return the correct currency for CUSD-celo string', () => {
+    it('return the correct currency for cUSD-celo string', () => {
+      expect(Currency.from('cUSD-celo')).toEqual({
+        network: 'celo',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+      });
+    });
+
+    it('return the correct currency for CUSD-celo string (with alternative casing)', () => {
       expect(Currency.from('CUSD-celo')).toEqual({
         network: 'celo',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+      });
+    });
+
+    it('return the correct currency for CELO-celo string', () => {
+      expect(Currency.from('CELO-celo')).toEqual({
+        network: 'celo',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x471EcE3750Da237f93B8E339c536989b8978a438',
+      });
+    });
+
+    it('return the correct currency for cGLD-celo string (old token name)', () => {
+      expect(Currency.from('CELO-celo')).toEqual({
+        network: 'celo',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x471EcE3750Da237f93B8E339c536989b8978a438',
       });
     });
 
@@ -283,7 +307,7 @@ describe('api/currency', () => {
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
         }).toString(),
-      ).toEqual('CUSD-celo');
+      ).toEqual('cUSD-celo');
     });
 
     it('return the "CTBK-rinkeby" string for CTBK currency', () => {
@@ -600,7 +624,7 @@ describe('api/currency', () => {
 
       it('Unsupported currencies should throw', () => {
         expect(() => Currency.from('UNSUPPORTED')).toThrow(
-          'The currency UNSUPPORTED does not exist or is not supported',
+          "The currency symbol 'UNSUPPORTED' is unknown or not supported",
         );
       });
     });

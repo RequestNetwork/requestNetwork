@@ -1,5 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import * as ethers from 'ethers';
 import {
   getSupportedERC20Currencies,
   getErc20Currency,
@@ -8,7 +9,6 @@ import {
 } from './erc20';
 import iso4217 from './iso4217';
 import otherCurrencies from './others';
-
 /**
  * @class Currency implements ICurrency with helpers
  * Represents a currency supported by the Request Logic, with minimum required
@@ -30,25 +30,25 @@ export class Currency implements RequestLogicTypes.ICurrency {
    * @returns an ICurrency object
    */
   static from(symbolOrAddress: string): Currency {
-    if (symbolOrAddress === '') {
+    if (!symbolOrAddress) {
       throw new Error(`Cannot guess currency from empty string.`);
     }
-    try {
-      const currencyFromSymbol = this.fromSymbol(
-        symbolOrAddress.split('-')[0],
-        symbolOrAddress.split('-')[1],
-      );
-      return currencyFromSymbol;
-    } catch (e) {
+    if (ethers.utils.isAddress(symbolOrAddress)) {
       const erc20Currencies = getSupportedERC20Currencies();
       const currencyFromAddress = erc20Currencies.find(
         (c) => c.value.toLowerCase() === symbolOrAddress.toLowerCase(),
       );
       if (!currencyFromAddress) {
-        throw new Error(`The currency ${symbolOrAddress} does not exist or is not supported`);
+        throw new Error(`The address ${symbolOrAddress} does not exist or is not supported`);
       }
       return new Currency(currencyFromAddress);
     }
+
+    const currencyFromSymbol = this.fromSymbol(
+      symbolOrAddress.split('-')[0],
+      symbolOrAddress.split('-')[1],
+    );
+    return currencyFromSymbol;
   }
 
   /**
