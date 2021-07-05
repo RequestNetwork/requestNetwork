@@ -63,6 +63,39 @@ And in another terminal:
 yarn run deploy
 ```
 
+You can generate types with the command below if the contracts have been built and the JSON output is in `build/contracts/`.
+
+```bash
+yarn generate-types
+```
+
+#### Deployment with hardhat
+
+```bash
+# Local deployment for testing
+yarn deploy
+
+# Example on Rinkeby
+yarn hardhat deploy-all --network rinkeby
+
+# Example on a local network: use --force to deploy even if the address is known from artifacts
+yarn hardhat deploy-all --network rinkeby --force
+```
+
+#### Tests
+
+After a local deployment:
+
+```bash
+yarn test
+```
+
+Or with a specific chain name, configured in `hardhat.config.ts`. Beware that some of the tests intensively deploy contracts (not suited with live networks)
+
+```bash
+yarn hardhat test --network other
+```
+
 #### Configuring the provider using Truffle and the development network
 
 When deploying the smart contracts for development you can manually set the provider host and port via env variables:
