@@ -1,6 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import iso4217 from './iso4217';
-import othersCurrencies from './others';
+import { nativeCurrencies } from './native';
 import { getSupportedERC20Tokens } from './erc20';
 import { Currency } from './currency';
 export { Currency } from './currency';
@@ -67,7 +67,13 @@ export function getDecimalsForCurrency(currency: RequestLogicTypes.ICurrency): n
  * @returns List of all supported currencies
  */
 export function getAllSupportedCurrencies(): {
-  [type: string]: Array<{ name: string; symbol: string; decimals: number; address?: string }>;
+  [type: string]: Array<{
+    name: string;
+    symbol: string;
+    decimals: number;
+    network?: string;
+    address?: string;
+  }>;
 } {
   // Creates the list of ISO currencies
   const isoCurrencies = iso4217.map((cc) => ({
@@ -80,20 +86,8 @@ export function getAllSupportedCurrencies(): {
   const erc20Currencies = getSupportedERC20Tokens();
 
   return {
-    [RequestLogicTypes.CURRENCY.ETH]: [
-      {
-        decimals: othersCurrencies.ETH.decimals,
-        name: othersCurrencies.ETH.name,
-        symbol: othersCurrencies.ETH.code,
-      },
-    ],
-    [RequestLogicTypes.CURRENCY.BTC]: [
-      {
-        decimals: othersCurrencies.BTC.decimals,
-        name: othersCurrencies.BTC.name,
-        symbol: othersCurrencies.BTC.code,
-      },
-    ],
+    ...nativeCurrencies,
+
     [RequestLogicTypes.CURRENCY.ISO4217]: isoCurrencies,
     [RequestLogicTypes.CURRENCY.ERC20]: erc20Currencies,
   };

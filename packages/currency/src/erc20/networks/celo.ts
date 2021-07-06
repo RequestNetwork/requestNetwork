@@ -11,7 +11,7 @@ export const supportedCeloERC20: TokenMap = {
   },
   // https://explorer.celo.org/address/0x471EcE3750Da237f93B8E339c536989b8978a438/read_contract
   '0x471EcE3750Da237f93B8E339c536989b8978a438': {
-    symbol: 'CELO',
+    symbol: 'cGLD',
     decimals: 18,
     name: 'Celo Gold',
   },

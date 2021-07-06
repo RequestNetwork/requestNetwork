@@ -2,15 +2,7 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
 import { supportedNetworks } from './networks';
 
-export const tokenAliases: Record<string, string> = {
-  // retro-compatibility for old name for the CELO Token.
-  CGLD: 'CELO-celo',
-};
-
 const getTokenInfoFromSymbol = (symbol: string, network?: string) => {
-  if (tokenAliases[symbol?.toUpperCase()]) {
-    symbol = tokenAliases[symbol?.toUpperCase()];
-  }
   for (const networkKey of Object.keys(supportedNetworks).filter(
     (net) => !network || net === network,
   )) {
