@@ -44,7 +44,7 @@ export const nativeCurrencies = {
       symbol: 'BTC',
       decimals: 8,
       name: 'Bitcoin',
-      network: 'bitcoin',
+      network: 'mainnet',
     },
     {
       symbol: 'BTC',
