@@ -5,7 +5,7 @@ import ReferenceBasedPaymentNetwork from '../reference-based';
 import * as walletAddressValidator from 'wallet-address-validator';
 
 const CURRENT_VERSION = '0.2.0';
-const supportedNetworks = ['mainnet', 'rinkeby'];
+const supportedNetworks = ['mainnet', 'rinkeby', 'xdai', 'sokol', 'fuse', 'celo', 'matic'];
 
 /**
  * Implementation of the payment network to pay in ETH based on input data.

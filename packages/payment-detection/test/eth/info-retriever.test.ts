@@ -44,4 +44,18 @@ describe('api/eth/info-retriever', () => {
     );
     await expect(infoRetreiver.getTransferEvents()).rejects.toThrowError();
   });
+
+  describe('Multichain', () => {
+    ['mainnet', 'rinkeby', 'xdai', 'sokol', 'fuse', 'celo', 'matic'].forEach((network) => {
+      it(`Can get the balance on ${network}`, async () => {
+        const retriever = new EthInfoRetriever(
+          '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+          network,
+          '9649a1a4dd5854ed',
+        );
+        await expect(retriever.getTransferEvents()).resolves.not.toThrow();
+      });
+    });
+  });
 });

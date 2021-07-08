@@ -13,7 +13,16 @@ import EthInputDataInfoRetriever from './info-retriever';
 import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
 
 import { BigNumber } from 'ethers';
-const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
+const supportedNetworks = [
+  'mainnet',
+  'rinkeby',
+  'private',
+  'xdai',
+  'sokol',
+  'fuse',
+  'matic',
+  'celo',
+];
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -195,14 +204,6 @@ export default class PaymentNetworkETHInputData
     paymentNetworkVersion: string,
   ): Promise<PaymentTypes.ETHBalanceWithEvents> {
     const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
-    const proxyContractAddress = SmartContracts.ethereumProxyArtifact.getAddress(
-      network,
-      contractVersion,
-    );
-    const proxyCreationBlockNumber = SmartContracts.ethereumProxyArtifact.getCreationBlockNumber(
-      network,
-      contractVersion,
-    );
 
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
@@ -213,17 +214,29 @@ export default class PaymentNetworkETHInputData
 
     const eventsInputData = await infoRetriever.getTransferEvents();
 
-    const proxyInfoRetriever = new EthProxyInputDataInfoRetriever(
-      paymentReference,
-      proxyContractAddress,
-      proxyCreationBlockNumber,
-      address,
-      eventName,
-      network,
-    );
+    let eventsFromProxy: PaymentTypes.ETHPaymentNetworkEvent[] = [];
+    try {
+      const proxyContractAddress = SmartContracts.ethereumProxyArtifact.getAddress(
+        network,
+        contractVersion,
+      );
+      const proxyCreationBlockNumber = SmartContracts.ethereumProxyArtifact.getCreationBlockNumber(
+        network,
+        contractVersion,
+      );
+      const proxyInfoRetriever = new EthProxyInputDataInfoRetriever(
+        paymentReference,
+        proxyContractAddress,
+        proxyCreationBlockNumber,
+        address,
+        eventName,
+        network,
+      );
 
-    const eventsFromProxy = await proxyInfoRetriever.getTransferEvents();
-
+      eventsFromProxy = await proxyInfoRetriever.getTransferEvents();
+    } catch (error) {
+      console.warn(error);
+    }
     const events = eventsInputData
       .concat(eventsFromProxy)
       .sort(
