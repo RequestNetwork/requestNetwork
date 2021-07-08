@@ -15,6 +15,7 @@ export interface IAnyDeclarative extends Extension.IExtension {
     parameters: IAddRefundInstructionParameters,
   ) => Extension.IAction;
   createCreationAction: (parameters?: ICreationParameters) => Extension.IAction;
+  createAddDelegateAction: (parameters: IAddDelegateParameters) => Extension.IAction;
 }
 
 /** Extension values of the extension */
