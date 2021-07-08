@@ -4,7 +4,7 @@ import * as ethers from 'ethers';
 import { getAllSupportedCurrencies } from './getAllSupportedCurrencies';
 import { getSupportedERC20Currencies, getErc20Symbol, getErc20Decimals } from './erc20';
 import iso4217 from './iso4217';
-import { nativeCurrencies } from './native';
+import { getNativeSymbol, nativeCurrencies } from './native';
 
 /**
  * @class Currency implements ICurrency with helpers
@@ -90,7 +90,7 @@ export class Currency implements RequestLogicTypes.ICurrency {
     switch (this.type) {
       case RequestLogicTypes.CURRENCY.BTC:
       case RequestLogicTypes.CURRENCY.ETH:
-        symbol = this.type;
+        symbol = getNativeSymbol(this.type, this.network);
         break;
       case RequestLogicTypes.CURRENCY.ISO4217:
         symbol = this.value;
@@ -155,15 +155,9 @@ export class Currency implements RequestLogicTypes.ICurrency {
   }
 
   /**
-   * @returns e.g.: 'ETH',  'ETH-rinkeby', 'FAU-rinkeby' etc.
+   * @returns e.g.: 'ETH', 'DAI', 'RIN', 'FAU'.
    */
   public toString(): string | 'unknown' {
-    const symbol = this.getSymbol();
-
-    // Append currency network if relevant
-    const network =
-      this.network && this.network !== 'mainnet' && symbol !== 'unknown' ? `-${this.network}` : '';
-
-    return symbol + network;
+    return this.getSymbol();
   }
 }

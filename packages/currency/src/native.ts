@@ -9,7 +9,7 @@ export const nativeCurrencies = {
       network: 'mainnet',
     },
     {
-      symbol: 'ETH',
+      symbol: 'RIN',
       decimals: 18,
       name: 'Rinkeby Ether',
       network: 'rinkeby',
@@ -25,6 +25,12 @@ export const nativeCurrencies = {
       decimals: 18,
       name: 'xDAI',
       network: 'xdai',
+    },
+    {
+      symbol: 'POA',
+      decimals: 18,
+      name: 'POA Sokol Ether',
+      network: 'sokol',
     },
     {
       symbol: 'FUSE',
@@ -53,4 +59,15 @@ export const nativeCurrencies = {
       network: 'testnet',
     },
   ],
+};
+
+export const getNativeSymbol = (type: keyof typeof nativeCurrencies, network?: string): string => {
+  const currency = nativeCurrencies[type]?.find((x) => x.network === (network || 'mainnet'));
+  if (currency) {
+    return currency.symbol;
+  }
+  if (network !== 'mainnet') {
+    return `${type}-${network}`;
+  }
+  return type;
 };
