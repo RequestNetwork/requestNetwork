@@ -26,14 +26,6 @@ const payerIdentity: IdentityTypes.IIdentity = {
   type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
 };
-const delegatePayeeIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  value: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
-};
-const delegatePayerIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  value: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
-};
 
 const requestCreationHashBTC: Types.IRequestInfo = {
   currency: 'BTC',
@@ -82,17 +74,6 @@ const signatureProvider = new EthereumPrivateKeySignatureProvider({
 signatureProvider.addSignatureParameters({
   method: Types.Signature.METHOD.ECDSA,
   privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
-});
-
-// delegatePayer 0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc
-signatureProvider.addSignatureParameters({
-  method: Types.Signature.METHOD.ECDSA,
-  privateKey: '0x0f62d96d6675f32685bbdb8ac13cda7c23436f63efbb9d07700d8669ff12b7c4',
-});
-// delegatePayee 0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE
-signatureProvider.addSignatureParameters({
-  method: Types.Signature.METHOD.ECDSA,
-  privateKey: '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
 });
 
 describe('Request client using a request node', () => {
@@ -628,82 +609,5 @@ describe('ERC20 localhost request creation and detection test', () => {
     // amount in crypto after apply the rates of the fake aggregators
     expect(event?.parameters?.amountInCrypto).toBe('9900990099009900990');
     expect(event?.parameters?.maxRateTimespan).toBe('1000000');
-  });
-});
-
-describe('Request creation and payment detection for declarative', () => {
-  const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-    id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
-    parameters: {
-      paymentInfo: { IBAN: 'FR1234' },
-    },
-  };
-
-  const declarativeRequestCreationHash: Types.IRequestInfo = {
-    currency: {
-      type: Types.RequestLogic.CURRENCY.ISO4217,
-      value: 'EUR',
-    },
-    expectedAmount: '1000',
-    payee: payeeIdentity,
-    payer: payerIdentity,
-  };
-
-  it('can create an declarative request and declare payment and refund from payer & payee', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
-
-    // Create a request
-    const request = await requestNetwork.createRequest({
-      paymentNetwork,
-      requestInfo: declarativeRequestCreationHash,
-      signer: payeeIdentity,
-    });
-
-    let requestData = await request.declareReceivedPayment(
-      '1000',
-      'transfer received',
-      payeeIdentity,
-    );
-    requestData = await request.declareReceivedRefund('900', 'refund received', payerIdentity);
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
-    expect(requestData.balance!.balance).toBe('100');
-  });
-
-  it('can create an declarative request and declare payment delegatePayee', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
-
-    // Create a request
-    const request = await requestNetwork.createRequest({
-      paymentNetwork,
-      requestInfo: declarativeRequestCreationHash,
-      signer: payeeIdentity,
-    });
-    let requestData = await request.addDeclarativeDelegate(delegatePayeeIdentity, payeeIdentity);
-    requestData = await request.declareReceivedPayment(
-      '1000',
-      'transfer received',
-      delegatePayeeIdentity,
-    );
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
-    expect(requestData.balance!.balance).toBe('1000');
-  });
-
-  it('can create an declarative request and declare refund delegatePayer', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
-
-    // Create a request
-    const request = await requestNetwork.createRequest({
-      paymentNetwork,
-      requestInfo: declarativeRequestCreationHash,
-      signer: payeeIdentity,
-    });
-    let requestData = await request.addDeclarativeDelegate(delegatePayerIdentity, payerIdentity);
-    requestData = await request.declareReceivedRefund(
-      '900',
-      'refund received',
-      delegatePayerIdentity,
-    );
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
-    expect(requestData.balance!.balance).toBe('-900');
   });
 });
