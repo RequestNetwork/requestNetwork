@@ -657,14 +657,13 @@ export default class Request {
   }
 
   /**
-   * Declare a refund is received for the declarative payment network
+   * Add a delegate for the declarative payment network
    *
-   * @param amount Amount received
-   * @param note Note from payer about the received refund
+   * @param delegate Identity of the delegate
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @returns The updated request
    */
-  public async declareDeclarativeDelegate(
+  public async addDeclarativeDelegate(
     delegate: IdentityTypes.IIdentity,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {

@@ -696,7 +696,7 @@ describe('Request creation and payment detection for declarative', () => {
       request.on('confirmed', resolve),
     );
 
-    requestData = await request.declareDeclarativeDelegate(delegatePayeeIdentity, payeeIdentity);
+    requestData = await request.addDeclarativeDelegate(delegatePayeeIdentity, payeeIdentity);
     requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
     requestData = await request.declareReceivedPayment(
       '1000',
@@ -720,7 +720,7 @@ describe('Request creation and payment detection for declarative', () => {
       request.on('confirmed', resolve),
     );
 
-    requestData = await request.declareDeclarativeDelegate(delegatePayerIdentity, payerIdentity);
+    requestData = await request.addDeclarativeDelegate(delegatePayerIdentity, payerIdentity);
     requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
     requestData = await request.declareReceivedRefund(
       '900',
