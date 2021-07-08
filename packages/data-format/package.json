@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "ajv": "6.12.4",
-    "ethers": "5.2.0"
+    "ethers": "5.4.1"
   },
   "devDependencies": {
     "@types/node": "14.14.16",

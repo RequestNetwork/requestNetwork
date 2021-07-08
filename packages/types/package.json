@@ -37,7 +37,7 @@
     "prepare": "yarn run build"
   },
   "dependencies": {
-    "ethers": "5.2.0",
+    "ethers": "5.4.1",
     "events": "3.2.0"
   },
   "devDependencies": {

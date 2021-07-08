@@ -32,10 +32,10 @@
     "gen:code2md": "aurelius 'docs/**/*'"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.72",
-    "@docusaurus/preset-classic": "2.0.0-alpha.72",
-    "@docusaurus/theme-live-codeblock": "2.0.0-alpha.72",
-    "@docusaurus/utils": "2.0.0-alpha.72",
+    "@docusaurus/core": "2.0.0-beta.3",
+    "@docusaurus/preset-classic": "2.0.0-beta.3",
+    "@docusaurus/theme-live-codeblock": "2.0.0-beta.3",
+    "@docusaurus/utils": "2.0.0-beta.3",
     "@metamask/contract-metadata": "1.25.0",
     "@requestnetwork/payment-processor": "0.37.0",
     "@requestnetwork/request-client.js": "0.39.0",
@@ -44,7 +44,7 @@
     "bn.js": "5.1.3",
     "classnames": "2.2.6",
     "core-js": "3.6.5",
-    "ethers": "5.2.0",
+    "ethers": "5.4.1",
     "mobx": "5.15.6",
     "react": "16.13.1",
     "react-dom": "16.13.1",

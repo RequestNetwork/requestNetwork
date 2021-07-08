@@ -46,7 +46,7 @@
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
     "axios": "0.21.1",
-    "ethers": "5.2.0",
+    "ethers": "5.4.1",
     "yargs": "16.2.0"
   },
   "devDependencies": {

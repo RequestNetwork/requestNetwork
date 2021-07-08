@@ -37,7 +37,7 @@
     "@requestnetwork/transaction-manager": "0.26.9",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "ethers": "5.2.0"
+    "ethers": "5.4.1"
   },
   "devDependencies": {
     "prettier": "2.2.1",
