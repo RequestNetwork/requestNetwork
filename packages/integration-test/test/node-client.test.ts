@@ -649,7 +649,7 @@ describe('Request creation and payment detection for declarative', () => {
     payer: payerIdentity,
   };
 
-  it('can create an declarative request and declare payment and refund from payer & payee', async () => {
+  it('can create a declarative request and declare payment and refund from payer & payee', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // Create a request
@@ -683,7 +683,7 @@ describe('Request creation and payment detection for declarative', () => {
     expect(requestData.balance!.balance).toBe('100');
   });
 
-  it('can create an declarative request and declare payment delegatePayee', async () => {
+  it('can create a declarative request and declare payment by delegatePayee', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // Create a request
@@ -707,7 +707,7 @@ describe('Request creation and payment detection for declarative', () => {
     expect(requestData.balance!.balance).toBe('1000');
   });
 
-  it('can create an declarative request and declare refund delegatePayer', async () => {
+  it('can create a declarative request and declare refund by delegatePayer', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // Create a request
