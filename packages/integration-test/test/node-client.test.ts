@@ -649,7 +649,7 @@ describe('Request creation and payment detection for declarative', () => {
     payer: payerIdentity,
   };
 
-  it('can create a declarative request and declare payment and refund from payer & payee', async () => {
+  it('can create an declarative request and declare payment and refund from payer & payee', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // Create a request
@@ -659,31 +659,17 @@ describe('Request creation and payment detection for declarative', () => {
       signer: payeeIdentity,
     });
 
-    expect(request).toBeInstanceOf(Request);
-    expect(request.requestId).toBeDefined();
-
-    // Get the data
-    let requestData = request.getData();
-    expect(requestData.expectedAmount).toBe('1000');
-    expect(requestData.state).toBe(Types.RequestLogic.STATE.PENDING);
-    expect(requestData.balance).toBeNull();
-    expect(requestData.meta).toBeDefined();
-    expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
-
-    requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
-    expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
-    expect(requestData.pending).toBeNull();
-
-    requestData = await request.declareReceivedPayment('1000', 'transfer received', payeeIdentity);
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
-    expect(requestData.balance!.balance).toBe('1000');
-
+    let requestData = await request.declareReceivedPayment(
+      '1000',
+      'transfer received',
+      payeeIdentity,
+    );
     requestData = await request.declareReceivedRefund('900', 'refund received', payerIdentity);
     requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
     expect(requestData.balance!.balance).toBe('100');
   });
 
-  it('can create a declarative request and declare payment by delegatePayee', async () => {
+  it('can create an declarative request and declare payment delegatePayee', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // Create a request
@@ -692,12 +678,7 @@ describe('Request creation and payment detection for declarative', () => {
       requestInfo: declarativeRequestCreationHash,
       signer: payeeIdentity,
     });
-    let requestData: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
-      request.on('confirmed', resolve),
-    );
-
-    requestData = await request.addDeclarativeDelegate(delegatePayeeIdentity, payeeIdentity);
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    let requestData = await request.addDeclarativeDelegate(delegatePayeeIdentity, payeeIdentity);
     requestData = await request.declareReceivedPayment(
       '1000',
       'transfer received',
@@ -707,7 +688,7 @@ describe('Request creation and payment detection for declarative', () => {
     expect(requestData.balance!.balance).toBe('1000');
   });
 
-  it('can create a declarative request and declare refund by delegatePayer', async () => {
+  it('can create an declarative request and declare refund delegatePayer', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // Create a request
@@ -716,12 +697,7 @@ describe('Request creation and payment detection for declarative', () => {
       requestInfo: declarativeRequestCreationHash,
       signer: payeeIdentity,
     });
-    let requestData: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
-      request.on('confirmed', resolve),
-    );
-
-    requestData = await request.addDeclarativeDelegate(delegatePayerIdentity, payerIdentity);
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    let requestData = await request.addDeclarativeDelegate(delegatePayerIdentity, payerIdentity);
     requestData = await request.declareReceivedRefund(
       '900',
       'refund received',
