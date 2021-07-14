@@ -1,69 +1,81 @@
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const RequestHashStorage = artifacts.require('./RequestHashStorage.sol');
+import '@nomiclabs/hardhat-ethers';
+import { ethers } from 'hardhat';
+import { Signer } from 'ethers';
+import { expect, use } from 'chai';
+import { solidity } from 'ethereum-waffle';
+import { RequestHashStorage__factory } from '../../types';
+import { RequestHashStorage } from '../../types';
 
-contract('RequestHashStorage', function (accounts) {
-  const admin = accounts[0];
-  const hashSubmitter = accounts[1];
-  const otherGuy = accounts[2];
+use(solidity);
+
+describe('contract: RequestHashStorage', () => {
+  let admin: string;
+  let submitter: string;
+  let thirdParty: string;
+
+  let adminSigner: Signer;
+  let otherSigner: Signer;
+  let submitterSigner: Signer;
+  let requestHashStorage: RequestHashStorage;
+
   const feesParameters = '0x0000000000000000000000000000000000000000000000000000000000000010';
-  let requestHashStorage;
   const hashExample = 'Qmaisz6NMhDB51cCvNWa1GMS7LU1pAxdF4Ld6Ft9kZEP2a';
 
+  before(async () => {
+    [admin, submitter, thirdParty] = (await ethers.getSigners()).map((s) => s.address);
+    [adminSigner, submitterSigner, otherSigner] = await ethers.getSigners();
+  });
+
   beforeEach(async () => {
-    requestHashStorage = await RequestHashStorage.new({
-      from: admin,
-    });
-    requestHashStorage.addWhitelisted(hashSubmitter);
+    requestHashStorage = await new RequestHashStorage__factory(adminSigner).deploy();
+    await requestHashStorage.addWhitelisted(submitter);
   });
 
-  it('Allows the admin whitelist to be changed', async function () {
-    let { logs } = await requestHashStorage.addWhitelistAdmin(otherGuy, { from: admin });
-    expectEvent.inLogs(logs, 'WhitelistAdminAdded', {
-      account: otherGuy,
-    });
-  });
-
-  it('Non admin should not be able to change the admin whitelist', async function () {
-    await expectRevert.unspecified(
-      requestHashStorage.addWhitelistAdmin(otherGuy, { from: otherGuy }),
+  it('allows the whitelisted admin to be changed', async () => {
+    await expect(requestHashStorage.addWhitelistAdmin(thirdParty)).to.emit(
+      requestHashStorage,
+      'WhitelistAdminAdded',
     );
   });
 
-  it('Allows the whitelist to be changed', async function () {
-    let { logs } = await requestHashStorage.addWhitelisted(otherGuy, { from: admin });
-    expectEvent.inLogs(logs, 'WhitelistedAdded', {
-      account: otherGuy,
-    });
-
-    ({ logs } = await requestHashStorage.removeWhitelisted(otherGuy, { from: admin }));
-    expectEvent.inLogs(logs, 'WhitelistedRemoved', {
-      account: otherGuy,
-    });
+  it('does not let non-admin change the admin whitelist', async () => {
+    await expect(
+      requestHashStorage.connect(otherSigner).addWhitelistAdmin(thirdParty),
+    ).to.be.revertedWith('WhitelistAdminRole: caller does not have the WhitelistAdmin role');
   });
 
-  it('Non admin should not be able to change the whitelist', async function () {
-    await expectRevert.unspecified(requestHashStorage.addWhitelisted(otherGuy, { from: otherGuy }));
-    await expectRevert.unspecified(requestHashStorage.addWhitelisted(admin, { from: otherGuy }));
-  });
-
-  it('Allows address whitelisted to submit hash', async function () {
-    let { logs } = await requestHashStorage.declareNewHash(hashExample, feesParameters, {
-      from: hashSubmitter,
-    });
-
-    expectEvent.inLogs(logs, 'NewHash', {
-      hash: hashExample,
-      hashSubmitter,
-      feesParameters,
-    });
-  });
-
-  it('Non whitelisted should not be able to submit hash', async function () {
-    await expectRevert.unspecified(
-      requestHashStorage.declareNewHash(hashExample, feesParameters, { from: admin }),
+  it('allows the whitelist to be changed', async () => {
+    await expect(requestHashStorage.addWhitelisted(thirdParty)).to.emit(
+      requestHashStorage,
+      'WhitelistedAdded',
     );
-    await expectRevert.unspecified(
-      requestHashStorage.declareNewHash(hashExample, feesParameters, { from: otherGuy }),
+
+    await expect(requestHashStorage.removeWhitelisted(thirdParty)).to.emit(
+      requestHashStorage,
+      'WhitelistedRemoved',
     );
+  });
+
+  it('does not let non-admin change the whitelist', async () => {
+    await expect(
+      requestHashStorage.connect(otherSigner).addWhitelisted(thirdParty),
+    ).to.be.revertedWith('WhitelistAdminRole: caller does not have the WhitelistAdmin role');
+    await expect(
+      requestHashStorage.connect(otherSigner).removeWhitelisted(admin),
+    ).to.be.revertedWith('WhitelistAdminRole: caller does not have the WhitelistAdmin role');
+  });
+
+  it('allows whitelisted address to submit hash', async function () {
+    await expect(
+      requestHashStorage.connect(submitterSigner).declareNewHash(hashExample, feesParameters),
+    )
+      .to.emit(requestHashStorage, 'NewHash')
+      .withArgs(hashExample, submitter, feesParameters);
+  });
+
+  it('does not let non-whitelisted submit hashes', async function () {
+    await expect(
+      requestHashStorage.connect(otherSigner).declareNewHash(hashExample, feesParameters),
+    ).to.be.revertedWith('WhitelistedRole: caller does not have the Whitelisted role');
   });
 });

@@ -1,333 +1,310 @@
-const ethers = require('ethers');
+import { ethers, network } from 'hardhat';
+import { BigNumber, Signer } from 'ethers';
+import { expect, use } from 'chai';
+import { solidity } from 'ethereum-waffle';
+import {
+  TestERC20__factory,
+  TestERC20,
+  FakeSwapRouter__factory,
+  ERC20FeeProxy__factory,
+  ERC20FeeProxy,
+  FakeSwapRouter,
+  ERC20SwapToPay__factory,
+  ERC20SwapToPay,
+  BadERC20__factory,
+  BadERC20,
+} from '../../types';
+import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../..';
 
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
-const { BigNumber } = require('ethers');
-const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
-const BadERC20 = artifacts.require('./BadERC20.sol');
-const TestERC20 = artifacts.require('./TestERC20.sol');
-const FakeSwapRouter = artifacts.require('./FakeSwapRouter.sol');
-const SwapToPay = artifacts.require('./ERC20SwapToPay.sol');
+use(solidity);
 
-contract('SwapToPay', function (accounts) {
-  const admin = accounts[0];
-  const from = accounts[1];
-  const to = accounts[2];
-  const builder = accounts[3];
+describe('contract: SwapToPay', () => {
+  let from: string;
+  let to: string;
+  let builder: string;
+  let adminSigner: Signer;
+  let signer: Signer;
 
   const exchangeRateOrigin = Math.floor(Date.now() / 1000);
   const referenceExample = '0xaaaa';
 
-  let paymentErc20;
-  let requestErc20;
-  let erc20FeeProxy;
-  let fakeRouter;
-  let testSwapToPay;
-  let initialFromBalance;
-  let maxGasUsed;
+  let paymentNetworkErc20: TestERC20;
+  let spentErc20: TestERC20;
+  let erc20FeeProxy: ERC20FeeProxy;
+  let fakeSwapRouter: FakeSwapRouter;
+  let testSwapToPay: ERC20SwapToPay;
+  let initialFromBalance: BigNumber;
+  let defaultSwapRouterAddress: string;
+
+  const erc20Decimal = BigNumber.from('1000000000000000000');
+  const erc20Liquidity = erc20Decimal.mul(100);
+
+  before(async () => {
+    [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
+    [adminSigner, signer] = await ethers.getSigners();
+
+    erc20FeeProxy = ERC20FeeProxy__factory.connect(
+      erc20FeeProxyArtifact.getAddress(network.name),
+      adminSigner,
+    );
+
+    testSwapToPay = ERC20SwapToPay__factory.connect(
+      erc20SwapToPayArtifact.getAddress(network.name),
+      adminSigner,
+    );
+  });
 
   beforeEach(async () => {
-    paymentErc20 = await TestERC20.new(10000, {
-      from: admin,
-    });
-    requestErc20 = await TestERC20.new(1000, {
-      from: admin,
-    });
+    paymentNetworkErc20 = await new TestERC20__factory(adminSigner).deploy(erc20Decimal.mul(10000));
+    spentErc20 = await new TestERC20__factory(adminSigner).deploy(erc20Decimal.mul(1000));
 
     // Deploy a fake router and feed it with 200 payment ERC20 + 100 requested ERC20
     // The fake router fakes 2 payment ERC20 = 1 requested ERC20
-    fakeRouter = await FakeSwapRouter.new({
-      from: admin,
-    });
-    await paymentErc20.transfer(fakeRouter.address, 200, {
-      from: admin,
-    });
-    await requestErc20.transfer(fakeRouter.address, 100, {
-      from: admin,
-    });
+    fakeSwapRouter = await new FakeSwapRouter__factory(adminSigner).deploy();
+    await spentErc20.transfer(fakeSwapRouter.address, erc20Liquidity.mul(2));
+    await paymentNetworkErc20.transfer(fakeSwapRouter.address, erc20Liquidity);
 
-    await paymentErc20.transfer(from, 200, {
-      from: admin,
-    });
+    defaultSwapRouterAddress = await testSwapToPay.swapRouter();
+    await testSwapToPay.setRouter(fakeSwapRouter.address);
+    await testSwapToPay.approveRouterToSpend(spentErc20.address);
+    await testSwapToPay.approvePaymentProxyToSpend(paymentNetworkErc20.address);
+    testSwapToPay = await testSwapToPay.connect(signer);
 
-    erc20FeeProxy = await ERC20FeeProxy.new({
-      from: admin,
-    });
-
-    testSwapToPay = await SwapToPay.new(fakeRouter.address, erc20FeeProxy.address, { from: admin });
-
-    initialFromBalance = await paymentErc20.balanceOf(from);
-    await paymentErc20.approve(testSwapToPay.address, initialFromBalance, { from });
+    await spentErc20.transfer(from, erc20Decimal.mul(600));
+    spentErc20 = TestERC20__factory.connect(spentErc20.address, signer);
+    initialFromBalance = await spentErc20.balanceOf(from);
+    await spentErc20.approve(testSwapToPay.address, initialFromBalance);
   });
 
   afterEach(async () => {
+    testSwapToPay = testSwapToPay.connect(adminSigner);
+    await testSwapToPay.setRouter(defaultSwapRouterAddress);
+
     // The contract should never keep any fund
-    const contractPaymentCcyBalance = await paymentErc20.balanceOf(testSwapToPay.address);
-    const contractRequestCcyBalance = await requestErc20.balanceOf(testSwapToPay.address);
+    const contractPaymentCcyBalance = await spentErc20.balanceOf(testSwapToPay.address);
+    const contractRequestCcyBalance = await paymentNetworkErc20.balanceOf(testSwapToPay.address);
     expect(contractPaymentCcyBalance.toNumber()).to.equals(0);
     expect(contractRequestCcyBalance.toNumber()).to.equals(0);
   });
 
-  expectFromBalanceUnchanged = async () => {
-    const finalFromBalance = await paymentErc20.balanceOf(from);
-    expect(finalFromBalance.toNumber()).to.equals(initialFromBalance.toNumber());
+  const expectFromBalanceUnchanged = async () => {
+    const finalFromBalance = await spentErc20.balanceOf(from);
+    expect(finalFromBalance.toString()).to.equals(initialFromBalance.toString());
   };
 
   it('swaps and pays the request', async function () {
-    let {
-      tx,
-      receipt: { gasUsed },
-    } = await testSwapToPay.swapTransferWithReference(
-      to,
-      10,
-      // Here we spend 26 max, for 22 used in theory, to test that 4 is given back
-      26,
-      [paymentErc20.address, requestErc20.address],
-      referenceExample,
-      1,
-      builder,
-      exchangeRateOrigin + 100,
-      { from },
-    );
-    await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
-      tokenAddress: requestErc20.address,
-      to,
-      amount: '10',
-      paymentReference: ethers.utils.keccak256(referenceExample),
-      feeAmount: '1',
-      feeAddress: builder,
-    });
+    await expect(
+      testSwapToPay.swapTransferWithReference(
+        to,
+        10,
+        // Here we spend 26 max, for 22 used in theory, to test that 4 is given back
+        26,
+        [spentErc20.address, paymentNetworkErc20.address],
+        referenceExample,
+        1,
+        builder,
+        exchangeRateOrigin + 100,
+      ),
+    )
+      .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        ethers.utils.getAddress(paymentNetworkErc20.address),
+        to,
+        '10',
+        ethers.utils.keccak256(referenceExample),
+        '1',
+        ethers.utils.getAddress(builder),
+      );
 
-    const finalBuilderBalance = await requestErc20.balanceOf(builder);
-    const finalIssuerBalance = await requestErc20.balanceOf(to);
+    const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
+    const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     expect(finalBuilderBalance.toNumber()).to.equals(1);
     expect(finalIssuerBalance.toNumber()).to.equals(10);
 
     // Test that the contract does not hold any fund after the transaction
-    const finalContractPaymentBalance = await paymentErc20.balanceOf(testSwapToPay.address);
-    const finalContractRequestBalance = await requestErc20.balanceOf(testSwapToPay.address);
+    const finalContractPaymentBalance = await spentErc20.balanceOf(testSwapToPay.address);
+    const finalContractRequestBalance = await paymentNetworkErc20.balanceOf(testSwapToPay.address);
     expect(finalContractPaymentBalance.toNumber()).to.equals(0);
     expect(finalContractRequestBalance.toNumber()).to.equals(0);
-    maxGasUsed = gasUsed;
-  });
-
-  it('swaps and pays the request with less gas', async function () {
-    await testSwapToPay.approvePaymentProxyToSpend(requestErc20.address, {
-      from: admin,
-    });
-    await testSwapToPay.approveRouterToSpend(paymentErc20.address, {
-      from: admin,
-    });
-
-    let {
-      tx,
-      receipt: { gasUsed },
-    } = await testSwapToPay.swapTransferWithReference(
-      to,
-      10,
-      22,
-      [paymentErc20.address, requestErc20.address],
-      referenceExample,
-      1,
-      builder,
-      exchangeRateOrigin + 100,
-      { from },
-    );
-    await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
-      tokenAddress: requestErc20.address,
-      to,
-      amount: '10',
-      paymentReference: ethers.utils.keccak256(referenceExample),
-      feeAmount: '1',
-      feeAddress: builder,
-    });
-
-    const finalBuilderBalance = await requestErc20.balanceOf(builder);
-    const finalIssuerBalance = await requestErc20.balanceOf(to);
-    expect(finalBuilderBalance.toNumber()).to.equals(1);
-    expect(finalIssuerBalance.toNumber()).to.equals(10);
-    // Everything should behave exactly the same, except gas usage.
-    // 50k gas units are saved by approving the router and proxy in advance for first users, per token
-    // console.log(`${maxGasUsed - gasUsed} gas units saved by approving in advance`);
-    expect(gasUsed).to.below(maxGasUsed);
   });
 
   it('does not pay anyone if I swap 0', async function () {
-    let {
-      tx,
-      receipt: { gasUsed },
-    } = await testSwapToPay.swapTransferWithReference(
-      to,
-      0,
-      0,
-      [paymentErc20.address, requestErc20.address],
-      referenceExample,
-      0,
-      builder,
-      exchangeRateOrigin + 100,
-      { from },
-    );
-    await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
-      tokenAddress: requestErc20.address,
-      to,
-      amount: '0',
-      paymentReference: ethers.utils.keccak256(referenceExample),
-      feeAmount: '0',
-      feeAddress: builder,
-    });
+    await expect(
+      testSwapToPay.swapTransferWithReference(
+        to,
+        0,
+        0,
+        [spentErc20.address, paymentNetworkErc20.address],
+        referenceExample,
+        0,
+        builder,
+        exchangeRateOrigin + 100,
+      ),
+    )
+      .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        paymentNetworkErc20.address,
+        to,
+        '0',
+        ethers.utils.keccak256(referenceExample),
+        '0',
+        builder,
+      );
 
-    const finalBuilderBalance = await requestErc20.balanceOf(builder);
-    const finalIssuerBalance = await requestErc20.balanceOf(to);
+    const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
+    const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     expect(finalBuilderBalance.toNumber()).to.equals(0);
     expect(finalIssuerBalance.toNumber()).to.equals(0);
   });
 
   it('cannot swap if too few payment tokens', async function () {
-    await expectRevert.unspecified(
+    await expect(
       testSwapToPay.swapTransferWithReference(
         to,
         10,
         21, // Should be at least (10 + 1) * 2
-        [paymentErc20.address, requestErc20.address],
+        [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
         1,
         builder,
         exchangeRateOrigin + 15,
-        { from },
       ),
-    );
+    ).to.be.reverted;
     await expectFromBalanceUnchanged();
   });
 
   it('cannot swap with a past deadline', async function () {
-    await expectRevert.unspecified(
+    await expect(
       testSwapToPay.swapTransferWithReference(
         to,
         10,
         22,
-        [paymentErc20.address, requestErc20.address],
+        [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
         1,
         builder,
         exchangeRateOrigin - 15, // Past deadline
-        { from },
       ),
-    );
+    ).to.be.reverted;
     await expectFromBalanceUnchanged();
   });
 
   it('cannot swap more tokens than liquidity', async function () {
-    await paymentErc20.approve(testSwapToPay.address, '22000000', { from });
+    const tooHighAmount = 100;
 
-    await expectRevert.unspecified(
+    expect(erc20Liquidity.mul(2).lt(initialFromBalance), 'Test irrelevant with low balance').to.be
+      .true;
+    expect(
+      erc20Liquidity.lt(erc20Decimal.mul(tooHighAmount).mul(2)),
+      'Test irrelevant with low amount',
+    ).to.be.true;
+
+    await expect(
       testSwapToPay.swapTransferWithReference(
         to,
-        10000000,
-        22000000,
-        [paymentErc20.address, requestErc20.address],
+        erc20Decimal.mul(tooHighAmount),
+        initialFromBalance,
+        [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
         1000000,
         builder,
         exchangeRateOrigin + 15,
-        { from },
       ),
-    );
+    ).to.be.reverted;
     await expectFromBalanceUnchanged();
   });
 
   it('cannot swap more tokens than balance', async function () {
-    await paymentErc20.approve(testSwapToPay.address, '300', { from });
+    const highAmount = erc20Decimal.mul(900);
+    await spentErc20.approve(testSwapToPay.address, highAmount);
 
-    await expectRevert.unspecified(
+    expect(highAmount.gt(initialFromBalance), 'Test irrelevant with high balance').to.be.true;
+
+    await expect(
       testSwapToPay.swapTransferWithReference(
         to,
         100,
-        220, // From's balance is 200
-        [paymentErc20.address, requestErc20.address],
+        highAmount,
+        [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
         10,
         builder,
         exchangeRateOrigin + 15,
-        { from },
       ),
-    );
+    ).to.be.reverted;
     await expectFromBalanceUnchanged();
   });
 
-  describe('Bad ERC20 support', async function () {
-    it('can approve bad ERC20 to be spent by the proxy', async function () {
-      badERC20 = await BadERC20.new(1000, 'BadERC20', 'BAD', 8, {
-        from,
-      });
-      let { tx } = await testSwapToPay.approvePaymentProxyToSpend(badERC20.address);
-      //Approval(address indexed owner, address indexed spender, uint value)
-      await expectEvent.inTransaction(tx, BadERC20, 'Approval', {
-        owner: testSwapToPay.address,
-        spender: erc20FeeProxy.address,
-        value: BigNumber.from(2).pow(256).sub(1).toString(),
-      });
+  describe('Bad ERC20 support', () => {
+    let badERC20: BadERC20;
+    beforeEach(async () => {
+      badERC20 = await new BadERC20__factory(adminSigner).deploy(1000, 'BadERC20', 'BAD', 8);
+    });
+    it('can approve bad ERC20 to be spent by the proxy', async () => {
+      await expect(testSwapToPay.approvePaymentProxyToSpend(badERC20.address))
+        .to.emit(badERC20, 'Approval')
+        .withArgs(
+          testSwapToPay.address,
+          erc20FeeProxy.address,
+          BigNumber.from(2).pow(256).sub(1).toString(),
+        );
 
       const approval = await badERC20.allowance(testSwapToPay.address, erc20FeeProxy.address);
       expect(approval.toString()).to.equals(BigNumber.from(2).pow(256).sub(1).toString());
     });
 
-    it('can approve bad ERC20 to be swapped by the router', async function () {
-      badERC20 = await BadERC20.new(1000, 'BadERC20', 'BAD', 8, {
-        from,
-      });
-      let { tx } = await testSwapToPay.approveRouterToSpend(badERC20.address);
-      //Approval(address indexed owner, address indexed spender, uint value)
-      await expectEvent.inTransaction(tx, BadERC20, 'Approval', {
-        owner: testSwapToPay.address,
-        spender: fakeRouter.address,
-        value: BigNumber.from(2).pow(256).sub(1).toString(),
-      });
+    it('can approve bad ERC20 to be swapped by the router', async () => {
+      await expect(testSwapToPay.approveRouterToSpend(badERC20.address))
+        .to.emit(badERC20, 'Approval')
+        .withArgs(
+          testSwapToPay.address,
+          fakeSwapRouter.address,
+          BigNumber.from(2).pow(256).sub(1).toString(),
+        );
 
-      const approval = await badERC20.allowance(testSwapToPay.address, fakeRouter.address);
+      const approval = await badERC20.allowance(testSwapToPay.address, fakeSwapRouter.address);
       expect(approval.toString()).to.equals(BigNumber.from(2).pow(256).sub(1).toString());
     });
 
-    it('swaps badERC20 to another ERC20 for payment', async function () {
-      badERC20 = await BadERC20.new(1000, 'BadERC20', 'BAD', 8, {
-        from,
-      });
-
+    it('swaps badERC20 to another ERC20 for payment', async () => {
       await testSwapToPay.approveRouterToSpend(badERC20.address);
 
-      await badERC20.approve(testSwapToPay.address, initialFromBalance, { from });
+      await badERC20.transfer(from, '100');
+      await badERC20.connect(signer).approve(testSwapToPay.address, initialFromBalance);
 
-      let {
-        tx,
-        receipt: { gasUsed },
-      } = await testSwapToPay.swapTransferWithReference(
-        to,
-        10,
-        26,
-        [badERC20.address, requestErc20.address],
-        referenceExample,
-        1,
-        builder,
-        exchangeRateOrigin + 100,
-        { from },
-      );
-      await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
-        tokenAddress: requestErc20.address,
-        to,
-        amount: '10',
-        paymentReference: ethers.utils.keccak256(referenceExample),
-        feeAmount: '1',
-        feeAddress: builder,
-      });
+      await expect(
+        testSwapToPay.swapTransferWithReference(
+          to,
+          10,
+          26,
+          [badERC20.address, paymentNetworkErc20.address],
+          referenceExample,
+          1,
+          builder,
+          exchangeRateOrigin + 100,
+        ),
+      )
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+        .withArgs(
+          paymentNetworkErc20.address,
+          to,
+          '10',
+          ethers.utils.keccak256(referenceExample),
+          '1',
+          builder,
+        );
 
       // Test that issuer and builder (fee receiver) have been paid
-      const finalBuilderBalance = await requestErc20.balanceOf(builder);
-      const finalIssuerBalance = await requestErc20.balanceOf(to);
+      const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
+      const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
       expect(finalBuilderBalance.toNumber()).to.equals(1);
       expect(finalIssuerBalance.toNumber()).to.equals(10);
 
       // Test that the contract does not hold any fund after the transaction
       const finalContractPaymentBalance = await badERC20.balanceOf(testSwapToPay.address);
-      const finalContractRequestBalance = await requestErc20.balanceOf(testSwapToPay.address);
+      const finalContractRequestBalance = await paymentNetworkErc20.balanceOf(
+        testSwapToPay.address,
+      );
       expect(finalContractPaymentBalance.toNumber()).to.equals(0);
       expect(finalContractRequestBalance.toNumber()).to.equals(0);
     });

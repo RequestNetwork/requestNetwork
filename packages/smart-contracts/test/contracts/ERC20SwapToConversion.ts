@@ -1,187 +1,202 @@
-const ethers = require('ethers');
+import { ethers, network } from 'hardhat';
+import { BigNumber, Signer } from 'ethers';
+import { expect, use } from 'chai';
+import { solidity } from 'ethereum-waffle';
+import { Currency } from '@requestnetwork/currency';
+import {
+  ChainlinkConversionPath__factory,
+  Erc20ConversionProxy__factory,
+  Erc20ConversionProxy,
+  TestERC20__factory,
+  TestERC20,
+  AggTest__factory,
+  FakeSwapRouter__factory,
+  ERC20SwapToConversion__factory,
+  ERC20SwapToConversion,
+  FakeSwapRouter,
+  ChainlinkConversionPath,
+} from '../../types';
+import {
+  chainlinkConversionPath as chainlinkConvArtifact,
+  erc20ConversionProxy as erc20ConversionProxyArtifact,
+  erc20SwapConversionArtifact,
+} from '../..';
 
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
-const { BigNumber } = require('ethers');
+use(solidity);
 
+describe('contract: ERC20SwapToConversion', () => {
+  let from: string;
+  let to: string;
+  let builder: string;
+  let adminSigner: Signer;
+  let signer: Signer;
 
-const TestERC20 = artifacts.require('./TestERC20.sol');
-
-const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
-
-const ChainlinkConversionPath = artifacts.require('./ChainlinkConversionPath.sol');
-const AggTest = artifacts.require('AggTest.sol');
-const Erc20ConversionProxy = artifacts.require('./Erc20ConversionProxy.sol');
-
-const FakeSwapRouter = artifacts.require('./FakeSwapRouter.sol');
-
-const ERC20SwapToConversion = artifacts.require('./ERC20SwapToConversion.sol');
-
-contract('ERC20SwapToConversion', function (accounts) {
-  const admin = accounts[0];
-  const from = accounts[1];
-  const to = accounts[2];
-  const builder = accounts[3];
-
-  const USDhash = '0x775EB53d00DD0Acd3EC1696472105d579B9b386b';
+  const USDhash = Currency.fromSymbol('USD').getHash();
   const exchangeRateOrigin = Math.floor(Date.now() / 1000);
   const referenceExample = '0xaaaa';
 
-  let paymentNetworkErc20;
-  let spentErc20;
-  let erc20FeeProxy;
-  let erc20ConversionProxy;
-  let fakeSwapRouter;
-  let testERC20SwapToConversion;
-  let initialFromBalance;
-  let chainlinkConversion;
-  let aggTest;
+  let paymentNetworkErc20: TestERC20;
+  let spentErc20: TestERC20;
+  let erc20ConversionProxy: Erc20ConversionProxy;
+  let swapConversionProxy: ERC20SwapToConversion;
+  let initialFromBalance: BigNumber;
+  let fakeSwapRouter: FakeSwapRouter;
+  let chainlinkConversion: ChainlinkConversionPath;
+  let defaultSwapRouterAddress: string;
 
-  const fiatDecimal = BigNumber.from("100000000");
-  const erc20Decimal = BigNumber.from("1000000000000000000");
+  const fiatDecimal = BigNumber.from('100000000');
+  const erc20Decimal = BigNumber.from('1000000000000000000');
+
+  const erc20Liquidity = erc20Decimal.mul(100);
+
+  before(async () => {
+    [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
+    [adminSigner, signer] = await ethers.getSigners();
+    chainlinkConversion = ChainlinkConversionPath__factory.connect(
+      chainlinkConvArtifact.getAddress(network.name),
+      adminSigner,
+    );
+    erc20ConversionProxy = Erc20ConversionProxy__factory.connect(
+      erc20ConversionProxyArtifact.getAddress(network.name),
+      adminSigner,
+    );
+    swapConversionProxy = ERC20SwapToConversion__factory.connect(
+      erc20SwapConversionArtifact.getAddress(network.name),
+      adminSigner,
+    );
+  });
 
   beforeEach(async () => {
-    paymentNetworkErc20 = await TestERC20.new(erc20Decimal.mul(10000), {
-      from: admin,
-    });
-    spentErc20 = await TestERC20.new(erc20Decimal.mul(1000), {
-      from: admin,
-    });
-
-    erc20FeeProxy = await ERC20FeeProxy.new({
-      from: admin,
-    });
+    paymentNetworkErc20 = await new TestERC20__factory(adminSigner).deploy(erc20Decimal.mul(10000));
+    spentErc20 = await new TestERC20__factory(adminSigner).deploy(erc20Decimal.mul(1000));
 
     // deploy fake chainlink conversion path, for 1 USD = 3 paymentNetworkERC20
-    chainlinkConversion= await ChainlinkConversionPath.new();
-    aggTest = await AggTest.new();
+    const aggTest = await new AggTest__factory(adminSigner).deploy();
     await chainlinkConversion.updateAggregator(
-        USDhash, 
-        paymentNetworkErc20.address,
-        aggTest.address);
-
-    // deploy conversion proxy
-    erc20ConversionProxy= await Erc20ConversionProxy.new(
-      erc20FeeProxy.address,
-      chainlinkConversion.address);
-    
+      USDhash,
+      paymentNetworkErc20.address,
+      aggTest.address,
+    );
 
     // Deploy a fake router and feed it with 200 payment ERC20 + 100 requested ERC20
     // The fake router fakes 2 payment ERC20 = 1 requested ERC20
-    fakeSwapRouter = await FakeSwapRouter.new({
-      from: admin,
-    });
-    await spentErc20.transfer(fakeSwapRouter.address, erc20Decimal.mul(100), {
-      from: admin,
-    });
-    await paymentNetworkErc20.transfer(fakeSwapRouter.address, erc20Decimal.mul(200), {
-      from: admin,
-    });
+    fakeSwapRouter = await new FakeSwapRouter__factory(adminSigner).deploy();
+
+    await spentErc20.transfer(fakeSwapRouter.address, erc20Liquidity);
+    await paymentNetworkErc20.transfer(fakeSwapRouter.address, erc20Liquidity.mul(2));
+
+    defaultSwapRouterAddress = await swapConversionProxy.swapRouter();
+    await swapConversionProxy.setRouter(fakeSwapRouter.address);
+    await swapConversionProxy.approveRouterToSpend(spentErc20.address);
+    await swapConversionProxy.approvePaymentProxyToSpend(paymentNetworkErc20.address);
+    swapConversionProxy = await swapConversionProxy.connect(signer);
 
     // give payer some token
-    await spentErc20.transfer(from, erc20Decimal.mul(200), {
-      from: admin,
-    });
-
-    testERC20SwapToConversion = await ERC20SwapToConversion.new(fakeSwapRouter.address, erc20ConversionProxy.address);
-
+    await spentErc20.transfer(from, erc20Decimal.mul(600));
+    spentErc20 = TestERC20__factory.connect(spentErc20.address, signer);
     initialFromBalance = await spentErc20.balanceOf(from);
-    await spentErc20.approve(testERC20SwapToConversion.address, initialFromBalance, { from });
+    await spentErc20.approve(swapConversionProxy.address, initialFromBalance);
   });
-  
-  expectPayerBalanceUnchanged = async () => {
-    const finalFromBalance = await spentErc20.balanceOf(from);
-    expect(finalFromBalance.toString()).to.equals(initialFromBalance.toString());
-  };
 
   afterEach(async () => {
+    swapConversionProxy = swapConversionProxy.connect(adminSigner);
+    await swapConversionProxy.setRouter(defaultSwapRouterAddress);
     // The contract should never keep any fund
-    const contractPaymentCcyBalance = await paymentNetworkErc20.balanceOf(testERC20SwapToConversion.address);
-    const contractRequestCcyBalance = await spentErc20.balanceOf(testERC20SwapToConversion.address);
+    const contractPaymentCcyBalance = await paymentNetworkErc20.balanceOf(
+      swapConversionProxy.address,
+    );
+    const contractRequestCcyBalance = await spentErc20.balanceOf(swapConversionProxy.address);
     expect(contractPaymentCcyBalance.toNumber()).to.equals(0);
     expect(contractRequestCcyBalance.toNumber()).to.equals(0);
   });
 
+  const expectPayerBalanceUnchanged = async () => {
+    const finalFromBalance = await spentErc20.balanceOf(from);
+    expect(finalFromBalance.toString()).to.equals(initialFromBalance.toString());
+  };
+
   it('converts, swaps and pays the request', async function () {
-    const beforePayerBalance = await spentErc20.balanceOf(from);
-    await testERC20SwapToConversion.approvePaymentProxyToSpend(paymentNetworkErc20.address);
-    await testERC20SwapToConversion.approveRouterToSpend(spentErc20.address);
-
     // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
-    let { tx } = await testERC20SwapToConversion.swapTransferWithReference(
-      to,
-      fiatDecimal.mul(10),
-      erc20Decimal.mul(70),
-      [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
-      [USDhash, paymentNetworkErc20.address], // _chainlinkPath
-      referenceExample,
-      fiatDecimal.mul(1),
-      builder,
-      exchangeRateOrigin + 100, // _uniswapDeadline
-      0, // _chainlinkMaxRateTimespan
-      { from },
-    );
-
-    await expectEvent.inTransaction(tx, Erc20ConversionProxy, 'TransferWithConversionAndReference', {
-      amount: fiatDecimal.mul(10).toString(),
-      currency: USDhash,
-      paymentReference: ethers.utils.keccak256(referenceExample),
-      feeAmount: fiatDecimal.mul(1).toString(),
-      maxRateTimespan: '0',
-    });
-
-    await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
-      tokenAddress: paymentNetworkErc20.address,
-      to,
-      amount: erc20Decimal.mul(10).mul(3).toString(),
-      paymentReference: ethers.utils.keccak256(referenceExample),
-      feeAmount: erc20Decimal.mul(1).mul(3).toString(),
-      feeAddress: builder,
-    });
+    await expect(
+      swapConversionProxy.swapTransferWithReference(
+        to,
+        fiatDecimal.mul(10),
+        erc20Decimal.mul(70),
+        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
+        [USDhash, paymentNetworkErc20.address], // _chainlinkPath
+        referenceExample,
+        fiatDecimal.mul(1),
+        builder,
+        exchangeRateOrigin + 100, // _uniswapDeadline
+        0, // _chainlinkMaxRateTimespan
+      ),
+    )
+      .to.emit(erc20ConversionProxy, 'TransferWithConversionAndReference')
+      .withArgs(
+        fiatDecimal.mul(10).toString(),
+        ethers.utils.getAddress(USDhash),
+        ethers.utils.keccak256(referenceExample),
+        fiatDecimal.mul(1).toString(),
+        '0',
+      )
+      .to.emit(erc20ConversionProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        ethers.utils.getAddress(paymentNetworkErc20.address),
+        ethers.utils.getAddress(to),
+        erc20Decimal.mul(10).mul(3).toString(),
+        ethers.utils.keccak256(referenceExample),
+        erc20Decimal.mul(1).mul(3).toString(),
+        ethers.utils.getAddress(builder),
+      );
 
     const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
-    expect(finalBuilderBalance.toString(), 'builder balance is wrong').to.equals(erc20Decimal.mul(3).toString());
-    expect(finalIssuerBalance.toString(), 'issuer balance is wrong').to.equals(erc20Decimal.mul(30).toString());
-
     const finalPayerBalance = await spentErc20.balanceOf(from);
-    expect(beforePayerBalance.sub(finalPayerBalance).toString(), 'payer balance is wrong').to.equals(erc20Decimal.mul(66).toString());
+    expect(finalBuilderBalance.toString(), 'builder balance is wrong').to.equals(
+      erc20Decimal.mul(3).toString(),
+    );
+    expect(finalIssuerBalance.toString(), 'issuer balance is wrong').to.equals(
+      erc20Decimal.mul(30).toString(),
+    );
+
+    expect(
+      initialFromBalance.sub(finalPayerBalance).toString(),
+      'payer balance is wrong',
+    ).to.equals(erc20Decimal.mul(66).toString());
   });
 
   it('does not pay anyone if I swap 0', async function () {
-    let {
-      tx,
-      receipt: { gasUsed },
-    } = await testERC20SwapToConversion.swapTransferWithReference(
-      to,
-      0,
-      0,
-      [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
-      [USDhash, paymentNetworkErc20.address], // _chainlinkPath
-      referenceExample,
-      0,
-      builder,
-      exchangeRateOrigin + 100, // _uniswapDeadline
-      0, // _chainlinkMaxRateTimespan
-      { from },
-    );
-
-    await expectEvent.inTransaction(tx, Erc20ConversionProxy, 'TransferWithConversionAndReference', {
-      amount: '0',
-      currency: USDhash,
-      paymentReference: ethers.utils.keccak256(referenceExample),
-      feeAmount: '0',
-      maxRateTimespan: '0',
-    });
-
-    await expectEvent.inTransaction(tx, ERC20FeeProxy, 'TransferWithReferenceAndFee', {
-      tokenAddress: paymentNetworkErc20.address,
-      to,
-      amount: '0',
-      paymentReference: ethers.utils.keccak256(referenceExample),
-      feeAmount: '0',
-      feeAddress: builder,
-    });
+    await expect(
+      swapConversionProxy.swapTransferWithReference(
+        to,
+        0,
+        0,
+        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
+        [USDhash, paymentNetworkErc20.address], // _chainlinkPath
+        referenceExample,
+        0,
+        builder,
+        exchangeRateOrigin + 100, // _uniswapDeadline
+        0, // _chainlinkMaxRateTimespan
+      ),
+    )
+      .to.emit(erc20ConversionProxy, 'TransferWithConversionAndReference')
+      .withArgs(
+        '0',
+        ethers.utils.getAddress(USDhash),
+        ethers.utils.keccak256(referenceExample),
+        '0',
+        '0',
+      )
+      .to.emit(erc20ConversionProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        ethers.utils.getAddress(paymentNetworkErc20.address),
+        ethers.utils.getAddress(to),
+        '0',
+        ethers.utils.keccak256(referenceExample),
+        '0',
+        builder,
+      );
 
     const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
@@ -190,8 +205,26 @@ contract('ERC20SwapToConversion', function (accounts) {
   });
 
   it('cannot swap with a too low maximum spent', async function () {
-    await expectRevert.unspecified(
-      testERC20SwapToConversion.swapTransferWithReference(
+    await expect(
+      swapConversionProxy.swapTransferWithReference(
+        to,
+        fiatDecimal.mul(10),
+        erc20Decimal.mul(50), // Too low
+        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
+        [USDhash, paymentNetworkErc20.address], // _chainlinkPath
+        referenceExample,
+        fiatDecimal.mul(1),
+        builder,
+        exchangeRateOrigin + 100, // _uniswapDeadline
+        0, // _chainlinkMaxRateTimespan
+      ),
+    ).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
+    await expectPayerBalanceUnchanged();
+  });
+
+  it('cannot swap with a past deadline', async function () {
+    await expect(
+      swapConversionProxy.swapTransferWithReference(
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(50),
@@ -200,60 +233,43 @@ contract('ERC20SwapToConversion', function (accounts) {
         referenceExample,
         fiatDecimal.mul(1),
         builder,
-        exchangeRateOrigin + 100, // _uniswapDeadline
+        exchangeRateOrigin - 15, // past _uniswapDeadline
         0, // _chainlinkMaxRateTimespan
-        { from },
       ),
-    );
+    ).to.be.revertedWith('UniswapV2Router: EXPIRED');
     await expectPayerBalanceUnchanged();
   });
 
-  it('cannot swap with a past deadline', async function () {
-    await expectRevert.unspecified(
-      testERC20SwapToConversion.swapTransferWithReference(
+  it('cannot swap more tokens than liquidity', async function () {
+    const tooHighAmount = 100;
+
+    expect(erc20Liquidity.lt(initialFromBalance), 'Test irrelevant with low balance').to.be.true;
+    expect(
+      erc20Liquidity.lt(erc20Decimal.mul(tooHighAmount).mul(3)),
+      'Test irrelevant with low amount',
+    ).to.be.true;
+    await expect(
+      swapConversionProxy.swapTransferWithReference(
         to,
-        fiatDecimal.mul(10),
-        erc20Decimal.mul(66),
+        fiatDecimal.mul(tooHighAmount),
+        initialFromBalance,
         [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
         [USDhash, paymentNetworkErc20.address], // _chainlinkPath
         referenceExample,
         fiatDecimal.mul(1),
         builder,
-        exchangeRateOrigin - 15, // past _uniswapDeadline
-        0, // _chainlinkMaxRateTimespan
-        { from },
-      ),
-    );
-    await expectPayerBalanceUnchanged();
-  });
-
-
-  it('cannot swap more tokens than liquidity', async function () {
-    await spentErc20.approve(testERC20SwapToConversion.address, erc20Decimal.mul(6600), { from });
-
-    await expectRevert.unspecified(
-      testERC20SwapToConversion.swapTransferWithReference(
-        to,
-        fiatDecimal.mul(1000),
-        erc20Decimal.mul(6600),
-        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
-        [USDhash, paymentNetworkErc20.address], // _chainlinkPath
-        referenceExample,
-        fiatDecimal.mul(100),
-        builder,
         exchangeRateOrigin + 100, // _uniswapDeadline
         0, // _chainlinkMaxRateTimespan
-        { from },
       ),
-    );
+    ).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
     await expectPayerBalanceUnchanged();
   });
 
   it('cannot swap more tokens than allowance', async function () {
-    await spentErc20.approve(testERC20SwapToConversion.address, erc20Decimal.mul(60), { from });
+    await spentErc20.approve(swapConversionProxy.address, erc20Decimal.mul(60));
 
-    await expectRevert.unspecified(
-      testERC20SwapToConversion.swapTransferWithReference(
+    await expect(
+      swapConversionProxy.swapTransferWithReference(
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(66),
@@ -264,10 +280,8 @@ contract('ERC20SwapToConversion', function (accounts) {
         builder,
         exchangeRateOrigin + 100, // _unisapDeadline
         0, // _chainlinkMaxRateTimespan
-        { from },
       ),
-    );
+    ).to.be.revertedWith('Could not transfer payment token from swapper-payer');
     await expectPayerBalanceUnchanged();
   });
-
 });

@@ -1,184 +1,175 @@
-const BigNumber = require('bn.js');
+import '@nomiclabs/hardhat-ethers';
+import { ethers } from 'hardhat';
+import { BigNumber, Signer } from 'ethers';
+import { expect, use } from 'chai';
+import { solidity } from 'ethereum-waffle';
+import { StorageFeeCollector, StorageFeeCollector__factory } from '../../types';
 
-const chai = require('chai');
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const StorageFeeCollector = artifacts.require('./StorageFeeCollector.sol');
+use(solidity);
 
-chai.use(require('chai-bn')(BigNumber));
-const { expect } = chai;
+describe('contract: StorageFeeCollector', () => {
+  let burner: string;
+  let burner2: string;
+  let thirdParty: string;
 
-contract('StorageFeeCollector', function (accounts) {
-  const admin = accounts[0];
-  const otherGuy = accounts[1];
-  const burner = accounts[2];
-  const burner2 = accounts[3];
-  let storageFeeCollector;
+  let adminSigner: Signer;
+  let otherSigner: Signer;
+  let storageFeeCollector: StorageFeeCollector;
+
+  before(async () => {
+    [, thirdParty, burner, burner2] = (await ethers.getSigners()).map((s) => s.address);
+    [adminSigner, otherSigner] = await ethers.getSigners();
+  });
 
   beforeEach(async () => {
-    storageFeeCollector = await StorageFeeCollector.new(burner, {
-      from: admin,
-    });
+    storageFeeCollector = await new StorageFeeCollector__factory(adminSigner).deploy(burner);
   });
 
   describe('addWhitelistAdmin', () => {
-    it('Allows the admin whitelist to be changed', async function () {
-      let { logs } = await storageFeeCollector.addWhitelistAdmin(otherGuy, { from: admin });
-      expectEvent.inLogs(logs, 'WhitelistAdminAdded', {
-        account: otherGuy,
-      });
+    it('Allows the admin whitelist to be changed', async () => {
+      await expect(storageFeeCollector.addWhitelistAdmin(thirdParty))
+        .to.emit(storageFeeCollector, 'WhitelistAdminAdded')
+        .withArgs(thirdParty);
     });
 
-    it('Non admin should not be able to change the admin whitelist', async function () {
-      await expectRevert.unspecified(
-        storageFeeCollector.addWhitelistAdmin(otherGuy, { from: otherGuy }),
-      );
+    it('Non admin should not be able to change the admin whitelist', async () => {
+      await expect(storageFeeCollector.addWhitelistAdmin(thirdParty, { from: thirdParty })).to.be
+        .reverted;
     });
   });
 
   describe('setRequestBurnerContract', async () => {
-    it('Allows burnerContract to be changed', async function () {
-      let { logs } = await storageFeeCollector.setRequestBurnerContract(burner2, { from: admin });
-      expectEvent.inLogs(logs, 'UpdatedBurnerContract', {
-        burnerAddress: burner2,
-      });
-      expect(
-        await storageFeeCollector.requestBurnerContract.call(),
-        'burner not changed',
-      ).to.be.equal(burner2);
+    it('Allows burnerContract to be changed', async () => {
+      await expect(storageFeeCollector.setRequestBurnerContract(burner2))
+        .to.emit(storageFeeCollector, 'UpdatedBurnerContract')
+        .withArgs(burner2);
+      expect(await storageFeeCollector.requestBurnerContract(), 'burner not changed').to.be.equal(
+        burner2,
+      );
     });
 
-    it('Non admin should not be able to change burnerContract', async function () {
-      await expectRevert.unspecified(
-        storageFeeCollector.setRequestBurnerContract(burner2, { from: otherGuy }),
-      );
+    it('Non admin should not be able to change burnerContract', async () => {
+      await expect(
+        storageFeeCollector.connect(otherSigner).setRequestBurnerContract(burner2),
+      ).to.be.revertedWith('WhitelistAdminRole: caller does not have the WhitelistAdmin role');
     });
   });
 
   describe('setFeeParameters', async () => {
-    it('Allows parameters to be changed', async function () {
-      const minimumFee = new BigNumber(1);
-      const rateFeesNumerator = new BigNumber(2);
-      const rateFeesDenominator = new BigNumber(3);
+    it('Allows parameters to be changed', async () => {
+      const minimumFee = BigNumber.from(1);
+      const rateFeesNumerator = BigNumber.from(2);
+      const rateFeesDenominator = BigNumber.from(3);
 
-      let { logs } = await storageFeeCollector.setFeeParameters(
-        minimumFee,
-        rateFeesNumerator,
-        rateFeesDenominator,
-        { from: admin },
-      );
-      expectEvent.inLogs(logs, 'UpdatedFeeParameters', {
-        minimumFee,
-        rateFeesNumerator,
-        rateFeesDenominator,
-      });
+      await expect(
+        storageFeeCollector.setFeeParameters(minimumFee, rateFeesNumerator, rateFeesDenominator),
+      )
+        .to.emit(storageFeeCollector, 'UpdatedFeeParameters')
+        .withArgs(minimumFee, rateFeesNumerator, rateFeesDenominator);
 
       expect(
-        await storageFeeCollector.minimumFee.call(),
+        (await storageFeeCollector.minimumFee()).toString(),
         'minimumFee not changed',
-      ).to.be.a.bignumber.that.equals(minimumFee);
+      ).to.equal(minimumFee.toString());
       expect(
-        await storageFeeCollector.rateFeesNumerator.call(),
+        (await storageFeeCollector.rateFeesNumerator()).toString(),
         'rateFeesNumerator not changed',
-      ).to.be.a.bignumber.that.equals(rateFeesNumerator);
+      ).to.equal(rateFeesNumerator.toString());
       expect(
-        await storageFeeCollector.rateFeesDenominator.call(),
+        (await storageFeeCollector.rateFeesDenominator()).toString(),
         'rateFeesDenominator not changed',
-      ).to.be.a.bignumber.that.equals(rateFeesDenominator);
+      ).to.equal(rateFeesDenominator.toString());
     });
 
-    it('Non admin should not be able to change parameters', async function () {
-      const minimumFee = new BigNumber(1);
-      const rateFeesNumerator = new BigNumber(2);
-      const rateFeesDenominator = new BigNumber(3);
+    it('Non admin should not be able to change parameters', async () => {
+      const minimumFee = BigNumber.from(1);
+      const rateFeesNumerator = BigNumber.from(2);
+      const rateFeesDenominator = BigNumber.from(3);
 
-      await expectRevert.unspecified(
-        storageFeeCollector.setFeeParameters(minimumFee, rateFeesNumerator, rateFeesDenominator, {
-          from: otherGuy,
-        }),
-      );
+      await expect(
+        storageFeeCollector
+          .connect(otherSigner)
+          .setFeeParameters(minimumFee, rateFeesNumerator, rateFeesDenominator),
+      ).to.be.revertedWith('WhitelistAdminRole: caller does not have the WhitelistAdmin role');
     });
   });
 
   describe('getFeesAmount', async () => {
     it('getFeesAmount gives correct values', async function () {
-      const minimumFee = new BigNumber(100);
-      const rateFeesNumerator = new BigNumber(3);
-      const rateFeesDenominator = new BigNumber(5);
+      const minimumFee = BigNumber.from(100);
+      const rateFeesNumerator = BigNumber.from(3);
+      const rateFeesDenominator = BigNumber.from(5);
 
-      let { logs } = await storageFeeCollector.setFeeParameters(
+      await storageFeeCollector.setFeeParameters(
         minimumFee,
         rateFeesNumerator,
         rateFeesDenominator,
-        { from: admin },
       );
 
-      const contentSize = new BigNumber(1000);
+      const contentSize = BigNumber.from(1000);
 
       let estimation = await storageFeeCollector.getFeesAmount(contentSize);
-      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(new BigNumber(600));
+      expect(estimation.toString(), 'estimation wrong').to.equal('600');
     });
 
-    it('getFeesAmount gives correct values under the minimum', async function () {
-      const minimumFee = new BigNumber(1000000);
-      const rateFeesNumerator = new BigNumber(3);
-      const rateFeesDenominator = new BigNumber(5);
+    it('getFeesAmount gives correct values under the minimum', async () => {
+      const minimumFee = BigNumber.from(1000000);
+      const rateFeesNumerator = BigNumber.from(3);
+      const rateFeesDenominator = BigNumber.from(5);
 
-      let { logs } = await storageFeeCollector.setFeeParameters(
+      await storageFeeCollector.setFeeParameters(
         minimumFee,
         rateFeesNumerator,
         rateFeesDenominator,
-        { from: admin },
       );
 
-      const contentSize = new BigNumber(1000);
+      const contentSize = BigNumber.from(1000);
 
-      let estimation = await storageFeeCollector.getFeesAmount(contentSize);
+      const estimation = await storageFeeCollector.getFeesAmount(contentSize);
 
-      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(
-        new BigNumber(minimumFee),
-      );
+      expect(estimation.toString(), 'estimation wrong').to.equal(minimumFee.toString());
     });
 
-    it('getFeesAmount gives correct values with default value', async function () {
-      const contentSize = new BigNumber(1000);
+    it('getFeesAmount gives correct values with default value', async () => {
+      const contentSize = BigNumber.from(1000);
 
-      let estimation = await storageFeeCollector.getFeesAmount(contentSize);
-      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(new BigNumber(0));
+      const estimation = await storageFeeCollector.getFeesAmount(contentSize);
+      expect(estimation.toString(), 'estimation wrong').to.equal('0');
     });
 
-    it('getFeesAmount gives correct values with denominator equal 0', async function () {
-      const minimumFee = new BigNumber(100);
-      const rateFeesNumerator = new BigNumber(3);
-      const rateFeesDenominator = new BigNumber(0);
+    it('getFeesAmount gives correct values with denominator equal 0', async () => {
+      const minimumFee = BigNumber.from(100);
+      const rateFeesNumerator = BigNumber.from(3);
+      const rateFeesDenominator = BigNumber.from(0);
 
-      let { logs } = await storageFeeCollector.setFeeParameters(
+      await storageFeeCollector.setFeeParameters(
         minimumFee,
         rateFeesNumerator,
         rateFeesDenominator,
-        { from: admin },
       );
 
-      const contentSize = new BigNumber(1000);
+      const contentSize = BigNumber.from(1000);
 
-      let estimation = await storageFeeCollector.getFeesAmount(contentSize);
-      expect(estimation, 'estimation wrong').to.be.a.bignumber.that.equals(new BigNumber(3000));
+      const estimation = await storageFeeCollector.getFeesAmount(contentSize);
+      expect(estimation.toString(), 'estimation wrong').to.equal('3000');
     });
 
-    it('getFeesAmount must revert if overflow', async function () {
-      const minimumFee = new BigNumber(100);
-      const rateFeesNumerator = new BigNumber(10).pow(new BigNumber(255));
+    it('getFeesAmount must revert if overflow', async () => {
+      const minimumFee = BigNumber.from(100);
+      // const rateFeesNumerator = BigNumber.from(10).pow(BigNumber.from(255));
+      const rateFeesNumerator = BigNumber.from(10).pow(75);
+      const rateFeesDenominator = BigNumber.from(2);
 
-      const rateFeesDenominator = new BigNumber(2);
-
-      let { logs } = await storageFeeCollector.setFeeParameters(
-        minimumFee,
-        rateFeesNumerator,
-        rateFeesDenominator,
-        { from: admin },
+      await storageFeeCollector.setFeeParameters(
+        minimumFee.toString(),
+        rateFeesNumerator.toString(),
+        rateFeesDenominator.toString(),
       );
-      const contentSize = new BigNumber(1000);
+      const contentSize = BigNumber.from(1000);
 
-      await expectRevert.unspecified(storageFeeCollector.getFeesAmount(contentSize));
+      await expect(storageFeeCollector.getFeesAmount(contentSize)).to.be.revertedWith(
+        'SafeMath: multiplication overflow',
+      );
     });
   });
 });
