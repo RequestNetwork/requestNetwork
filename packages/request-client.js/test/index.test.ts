@@ -32,6 +32,10 @@ const signatureParametersPayer: SignatureTypes.ISignatureParameters = {
   method: SignatureTypes.METHOD.ECDSA,
   privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
 };
+const signatureParametersDelegate: SignatureTypes.ISignatureParameters = {
+  method: Types.Signature.METHOD.ECDSA,
+  privateKey: '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
+};
 const payeeIdentity: IdentityTypes.IIdentity = {
   type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
@@ -40,13 +44,19 @@ const payerIdentity: IdentityTypes.IIdentity = {
   type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
   value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
 };
+const delegateIdentity: IdentityTypes.IIdentity = {
+  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+  value: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
+};
 
 const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
   sign: (data: any, signer: IdentityTypes.IIdentity): any => {
     if (signer.value === payeeIdentity.value) {
       return Utils.signature.sign(data, signatureParametersPayee);
-    } else {
+    } else if (signer.value === payerIdentity.value) {
       return Utils.signature.sign(data, signatureParametersPayer);
+    } else {
+      return Utils.signature.sign(data, signatureParametersDelegate);
     }
   },
   supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
@@ -778,6 +788,36 @@ describe('index', () => {
       expect(mock.history.post).toHaveLength(1);
     });
 
+    it('allows to declare a received payment from delegate', async () => {
+      const requestNetwork = new RequestNetwork({
+        useMockStorage: true,
+        signatureProvider: fakeSignatureProvider,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {},
+      };
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      await request.waitForConfirmation();
+
+      let requestData = await request.addDeclarativeDelegate(delegateIdentity, payeeIdentity);
+      await new Promise((resolve): any => requestData.on('confirmed', resolve));
+
+      requestData = await request.declareReceivedPayment(
+        '10',
+        'received payment',
+        delegateIdentity,
+      );
+      requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+      expect(requestData.balance!.balance).toEqual('10');
+    });
+
     it('allows to declare a sent refund', async () => {
       const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
 
@@ -822,6 +862,32 @@ describe('index', () => {
 
       expect(mock.history.get).toHaveLength(4);
       expect(mock.history.post).toHaveLength(1);
+    });
+
+    it('allows to declare a received refund from delegate', async () => {
+      const requestNetwork = new RequestNetwork({
+        useMockStorage: true,
+        signatureProvider: fakeSignatureProvider,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {},
+      };
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      await request.waitForConfirmation();
+
+      let requestData = await request.addDeclarativeDelegate(delegateIdentity, payerIdentity);
+      await new Promise((resolve): any => requestData.on('confirmed', resolve));
+
+      requestData = await request.declareReceivedRefund('11', 'received refund', delegateIdentity);
+      requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+      expect(requestData.balance!.balance).toEqual('-11');
     });
 
     it('allows to get the right balance', async () => {
