@@ -1,5 +1,5 @@
 import { BigNumber, providers } from 'ethers';
-import { ERC20Proxy, RequestOpenHashSubmitter } from '../../src/types';
+import { RequestOpenHashSubmitter } from '../../src/types';
 import { erc20ProxyArtifact } from '../../src/lib';
 
 describe('Artifact', () => {
@@ -32,8 +32,7 @@ describe('Artifact', () => {
       new providers.JsonRpcProvider(),
     ) as RequestOpenHashSubmitter;
 
-    let instance: ERC20Proxy;
-    instance = erc20ProxyArtifact.connect('private', new providers.JsonRpcProvider());
+    const instance = erc20ProxyArtifact.connect('private', new providers.JsonRpcProvider());
 
     // @ts-expect-error wrong parameter type
     const p1 = instance.transferFromWithReference(BigNumber.from(0));

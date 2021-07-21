@@ -35,10 +35,10 @@
     "build:lib": "tsc -b && cp src/types/*.d.ts dist/src/types && cp -r dist/src/types types",
     "build:sol": "yarn hardhat compile",
     "build": "yarn build:sol && yarn build:lib",
-    "clean:types": "shx rm -rf types",
+    "clean:types": "shx rm -rf types && shx rm -rf src/types",
     "clean:lib": "shx rm -rf dist",
     "clean:sol": "shx rm -rf build",
-    "clean": "yarn run clean:lib && yarn run clean:sol && yarn run clean:types",
+    "clean": "yarn run clean:lib && yarn run clean:sol && yarn run clean:types && yarn hardhat clean",
     "lint:lib": "eslint \"src/lib/**/*.ts\"",
     "lint:sol": "solium --dir src/contracts",
     "lint": "yarn run lint:lib && yarn run lint:sol",
@@ -54,7 +54,6 @@
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "2.5.1",
     "@openzeppelin/test-helpers": "0.5.6",
-    "@requestnetwork/currency": "^0.8.0",
     "@requestnetwork/utils": "0.35.0",
     "@typechain/ethers-v5": "7.0.1",
     "@typechain/hardhat": "^2.1.2",
@@ -70,5 +69,8 @@
     "hardhat": "^2.4.1",
     "shx": "0.3.2",
     "typechain": "^5.1.1"
+  },
+  "dependencies": {
+    "@requestnetwork/currency": "^0.8.0"
   }
 }
