@@ -3,8 +3,7 @@ import { ethers } from 'hardhat';
 import { Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { RequestHashStorage__factory } from '../../types';
-import { RequestHashStorage } from '../../types';
+import { RequestHashStorage__factory, RequestHashStorage } from '../../src/types';
 
 use(solidity);
 

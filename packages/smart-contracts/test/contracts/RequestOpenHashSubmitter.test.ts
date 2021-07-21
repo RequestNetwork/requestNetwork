@@ -6,9 +6,9 @@ import { solidity } from 'ethereum-waffle';
 import {
   RequestHashStorage__factory,
   RequestHashStorage,
-  RequestOpenHashSubmitter,
   RequestOpenHashSubmitter__factory,
-} from '../../types';
+  RequestOpenHashSubmitter,
+} from '../../src/types';
 
 use(solidity);
 

@@ -1,5 +1,5 @@
 import { ethers } from 'hardhat';
-import { ERC20Proxy, ERC20Proxy__factory } from '../../types';
+import { ERC20Proxy, ERC20Proxy__factory } from '../../src/types';
 import { Contract, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';

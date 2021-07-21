@@ -3,7 +3,7 @@ import { ethers } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { StorageFeeCollector, StorageFeeCollector__factory } from '../../types';
+import { StorageFeeCollector, StorageFeeCollector__factory } from '../../src/types';
 
 use(solidity);
 

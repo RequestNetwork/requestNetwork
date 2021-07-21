@@ -1,19 +1,18 @@
 import { ethers, network } from 'hardhat';
 import {
   ERC20FeeProxy__factory,
-  ChainlinkConversionPath__factory,
   Erc20ConversionProxy__factory,
   ERC20FeeProxy,
   ChainlinkConversionPath,
   TestERC20,
   Erc20ConversionProxy,
   TestERC20__factory,
-} from '../../types';
+} from '../../src/types';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { Currency } from '@requestnetwork/currency';
-import { chainlinkConversionPath } from '../..';
+import { chainlinkConversionPath } from '../../src/lib';
 import { localERC20AlphaArtifact } from './localArtifacts';
 
 use(solidity);
@@ -43,9 +42,7 @@ describe('contract: Erc20ConversionProxy', () => {
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
 
-    chainlinkPath = await new ChainlinkConversionPath__factory(signer).attach(
-      await chainlinkConversionPath.getAddress(network.name),
-    );
+    chainlinkPath = chainlinkConversionPath.connect(network.name, signer);
     erc20FeeProxy = await new ERC20FeeProxy__factory(signer).deploy();
     testErc20ConversionProxy = await new Erc20ConversionProxy__factory(signer).deploy(
       erc20FeeProxy.address,

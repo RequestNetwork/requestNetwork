@@ -2,8 +2,8 @@ const { expect } = require('chai');
 import { Currency } from '@requestnetwork/currency';
 import { ethers, network } from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
-import { chainlinkConversionPath } from '../..';
-import { ChainlinkConversionPath, ChainlinkConversionPath__factory } from '../../types';
+import { chainlinkConversionPath as chainlinkConvArtifact } from '../../src/lib';
+import { ChainlinkConversionPath } from '../../src/types';
 import { localERC20AlphaArtifact, localUSDTArtifact } from './localArtifacts';
 
 const address1 = '0x1111111111111111111111111111111111111111';
@@ -21,16 +21,14 @@ let USDT_address: string;
 let conversionPathInstance: ChainlinkConversionPath;
 
 describe('contract: ChainlinkConversionPath', () => {
-  beforeEach(async () => {
+  before(async () => {
     const [signer] = await ethers.getSigners();
-    conversionPathInstance = new ChainlinkConversionPath__factory(signer).attach(
-      chainlinkConversionPath.getAddress(network.name),
-    );
+    conversionPathInstance = chainlinkConvArtifact.connect(network.name, signer);
     USDT_address = localUSDTArtifact.getAddress(network.name);
     DAI_address = localERC20AlphaArtifact.getAddress(network.name);
   });
 
-  describe('updateAggregator', async () => {
+  describe('admin tasks', async () => {
     it('can updateAggregator', async () => {
       let addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
       expect(addressAggregator).equal('0x0000000000000000000000000000000000000000');
@@ -40,9 +38,7 @@ describe('contract: ChainlinkConversionPath', () => {
       addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
       expect(addressAggregator).equal(address3);
     });
-  });
 
-  describe('updateAggregatorsList', async () => {
     it('can updateAggregatorsList', async () => {
       let addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
       expect(
