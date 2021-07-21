@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@openzeppelin/contracts": "^4.2.0",
+    "@openzeppelin/contracts": "2.2.0",
     "@openzeppelin/test-helpers": "0.5.6",
     "@requestnetwork/currency": "0.8.0",
     "@requestnetwork/utils": "0.35.0",

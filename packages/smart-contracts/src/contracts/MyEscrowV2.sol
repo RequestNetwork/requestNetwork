@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.8.6;
+pragma solidity >=0.7.0;
 
-import "./@openzeppelin/contracts/tokens/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "src/contracts/interfaces/ERC20FeeProxy.sol";
 
 
