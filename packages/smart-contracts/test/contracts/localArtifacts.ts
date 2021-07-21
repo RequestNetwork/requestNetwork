@@ -1,6 +1,6 @@
 import { ContractArtifact } from '../..';
 
-import { ERC20Alpha } from '../../src/types';
+import { ERC20Alpha } from '../../src/types/ERC20Alpha';
 
 export const localERC20AlphaArtifact = new ContractArtifact<ERC20Alpha>(
   {

@@ -1,10 +1,10 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { erc20SwapConversionArtifact, erc20ConversionProxy } from '..';
-import { deploy as deployOne } from './deploy-one';
+import { erc20SwapConversionArtifact } from '../src/lib';
+import deployOne from './deploy-one';
 
 const contractName = 'ERC20SwapToConversion';
 // Uniswap V2 Router address
-const swapRouterAddress = '0x7a250d5630b4cf539739df2c5dacb4c659f2488d';
+const localSwapRouterAddress = '0x7a250d5630b4cf539739df2c5dacb4c659f2488d';
 
 // The required ERC20 approvals for swapping will be performed on these tokens.
 const defaultTokens: { [network: string]: string[] } = {
@@ -16,23 +16,26 @@ const defaultTokens: { [network: string]: string[] } = {
   ],
 };
 
-export async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
-  try {
-    if (!args.conversionProxyAddress) {
-      args.conversionProxyAddress = erc20ConversionProxy.getAddress(hre.network.name);
-    }
-  } catch (e) {
+export default async function deploy(
+  args: { conversionProxyAddress?: string; swapProxyAddress?: string },
+  hre: HardhatRuntimeEnvironment,
+) {
+  if (!args.conversionProxyAddress) {
+    // FIXME: should try to retrieve information from artifacts instead
     console.error(
-      `No conversion proxy deployed on ${hre.network.name}, cannot deploy ${contractName}.`,
+      `Missing conversion proxy on ${hre.network.name}, cannot deploy ${contractName}.`,
     );
-    return;
+  }
+  if (!args.swapProxyAddress) {
+    // FIXME: should try to retrieve information from artifacts instead
+    console.error(`Missing swap router, cannot deploy ${contractName}.`);
   }
   const convSwapProxyAddress = await deployOne(
     args,
     hre,
-    erc20SwapConversionArtifact,
     contractName,
-    [swapRouterAddress, args.conversionProxyAddress],
+    [localSwapRouterAddress, args.conversionProxyAddress],
+    erc20SwapConversionArtifact,
   );
 
   console.log(`Approving tokens for swaps...`);
@@ -49,4 +52,5 @@ export async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
   }
 
   console.log('Done');
+  return convSwapProxyAddress;
 }

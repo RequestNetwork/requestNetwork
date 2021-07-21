@@ -33,8 +33,8 @@
   ],
   "scripts": {
     "build:lib": "tsc -b && cp src/types/*.d.ts dist/src/types && cp -r dist/src/types types",
-    "build:sol": "truffle compile --contracts_directory=./src",
-    "build": "yarn build:sol && yarn generate-types && yarn build:lib",
+    "build:sol": "npx hardhat compile",
+    "build": "yarn build:sol && yarn build:lib",
     "clean:types": "shx rm -rf types",
     "clean:lib": "shx rm -rf dist",
     "clean:sol": "shx rm -rf build",
@@ -58,6 +58,7 @@
     "@requestnetwork/currency": "^0.8.0",
     "@requestnetwork/utils": "0.35.0",
     "@typechain/ethers-v5": "7.0.1",
+    "@typechain/hardhat": "^2.1.2",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^8.2.3",
     "@types/node": "14.14.16",
@@ -68,7 +69,6 @@
     "ganache-cli": "6.12.0",
     "hardhat": "^2.4.1",
     "shx": "0.3.2",
-    "truffle": "5.1.44",
-    "typechain": "5.1.1"
+    "typechain": "^5.1.1"
   }
 }

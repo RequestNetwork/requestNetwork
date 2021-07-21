@@ -8,7 +8,7 @@ import {
   TestERC20,
   Erc20ConversionProxy,
   TestERC20__factory,
-} from '../../src/types';
+} from '../../types';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
