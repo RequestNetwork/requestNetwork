@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity >=0.7.0;
+pragma solidity >=0.4.0 <0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "src/contracts/interfaces/ERC20FeeProxy.sol";
@@ -12,8 +12,8 @@ contract MyEscrow {
     struct Invoice {
         IERC20 paymentToken; 
         uint256 amount;
-        address payable payee;
-        address payable payer;
+        address payee;
+        address payer;
         uint256 feeAmount;
         address feeAddress;
     }
@@ -29,9 +29,9 @@ contract MyEscrow {
     event EscrowCompleted(bytes indexed paymentReference, address payer);
     // TODO: also describe events sent by contracts we delegate-call here (if needed);
    
-    IERC20FeeProxy public paymentProxy;
+    IERC20FeeProxy paymentProxy;
 
-    constructor(address _paymentProxyAddress) {
+    constructor(address _paymentProxyAddress) public {
      paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     }
 
@@ -42,7 +42,7 @@ contract MyEscrow {
     /// @param amount Amount to transfer
     /// @param payee address of the reciever/ beneficiary of the escrow funds
     /// @param payer Address of the payer of the invoiced escrow
-    function initAndDeposit(address paymentoken, address _payee, uint256 _amount, bytes calldata _paymentReference, uint256 _feeAmount, address _feeAddress) 
+    function initAndDeposit(IERC20 paymentToken, address payee, uint256 amount, address payer, bytes memory _paymentRef, uint256 feeAmount, address feeAddress) 
         public
         payable
     {
@@ -52,12 +52,12 @@ contract MyEscrow {
         );
 
         paymentsMapping[_paymentRef] = Invoice(
-        _paymentToken, 
-        _payee,
-        _amount,
-        msg.sender,
-        _feeAmount,
-        _feeAddress
+        paymentToken, 
+        payee,
+        amount,
+        payer,
+        feeAmount,
+        feeAddress
         );
         
         _deposit(_paymentRef);
@@ -86,7 +86,7 @@ contract MyEscrow {
     /// @param _paymentRef Reference of the Invoice related
     /// @dev   Internal function called from initAndDeposit
     function _deposit(bytes memory _paymentRef) internal {
-        require(paymentToken.transferFrom(
+        require(paymentsMapping[_paymentRef].paymentToken.transferFrom(
             paymentsMapping[_paymentRef].payer,
             address(this), 
             paymentsMapping[_paymentRef].amount
@@ -100,26 +100,26 @@ contract MyEscrow {
     /// @dev   Internal function called from WithdrawFunds
     function _withdraw(bytes memory _paymentRef)  internal {
       // TODO : delegate call instead
-        paymentProxy.delegatecall(transferFromWithReferenceAndFee(
-            referenceMapping[_paymentRef].paymentToken,
-            referenceMapping[_paymentRef].payee, 
-            referenceMapping[_paymentRef].amount, 
+        paymentProxy.transferFromWithReferenceAndFee(
+            paymentsMapping[_paymentRef].paymentToken,
+            paymentsMapping[_paymentRef].payee, 
+            paymentsMapping[_paymentRef].amount, 
             _paymentRef, 
-            referenceMapping[_paymentRef].feeAmount, 
-            referenceMapping[_paymentRef].feeAddress 
-        ));
+            paymentsMapping[_paymentRef].feeAmount, 
+            paymentsMapping[_paymentRef].feeAddress 
+        );
     } 
 
     /** Getter functions */
     /// Get the Invoice details of a given _paymentRef
     /// @param _paymentRef Reference of the Invoice related
     /// @dev onlyOwner modifier 
-    function getInvoice(bytes memory _paymentRef) public view onlyOwner 
-        returns (
+    function getInvoice(bytes memory _paymentRef) public view returns 
+    (
         uint amount, 
         address payee,
         address payer
-        ) 
+    ) 
     {
         require(
             paymentsMapping[_paymentRef].amount != 0,
