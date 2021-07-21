@@ -28,7 +28,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
   const conversionPathInstance = await (
     await hre.ethers.getContractFactory('ChainlinkConversionPath', deployer)
   ).deploy();
-  // ).attach(chainlinkConversionPath.getAddress(hre.network.name));
 
   // all these aggregators are for test purposes
   await conversionPathInstance.updateAggregatorsList(

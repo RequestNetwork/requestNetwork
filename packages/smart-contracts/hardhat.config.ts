@@ -4,9 +4,12 @@ import '@nomiclabs/hardhat-ganache';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import { task } from 'hardhat/config';
+import { config } from 'dotenv';
 import deployRequest from './scripts/1_deploy-request-storage';
 import deployPayment from './scripts/2_deploy-main-payments';
 import deployConversion from './scripts/3_deploy_chainlink_contract';
+
+config();
 
 export default {
   solidity: '0.5.17',
@@ -18,16 +21,18 @@ export default {
   networks: {
     private: {
       url: 'http://127.0.0.1:8545',
+      accounts: undefined,
     },
     rinkeby: {
-      url: 'https://rinkeby.infura.io/v3/a84806bba3e44dd9a7c676a529ec1abd',
+      url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.infura.io/v3/YOUR_API_KEY',
       chainId: 4,
-      // TODO should change
-      accounts: ['04ffa7316c2264ef3325da9f878640db7195f0d9adbcfdcf6ce57d0940746d47'],
+      accounts: process.env.DEPLOYMENT_PRIVATE_KEY
+        ? [process.env.DEPLOYMENT_PRIVATE_KEY]
+        : undefined,
     },
   },
   etherscan: {
-    apiKey: '9GET7DGKSMY9SPNJC7633MDS4IDVNU8B63',
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   typechain: {
     outDir: 'src/types',

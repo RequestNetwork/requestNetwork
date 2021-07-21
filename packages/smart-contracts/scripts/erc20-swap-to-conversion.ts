@@ -1,5 +1,4 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { erc20SwapConversionArtifact } from '../src/lib';
 import deployOne from './deploy-one';
 
 const contractName = 'ERC20SwapToConversion';
@@ -30,13 +29,10 @@ export default async function deploy(
     // FIXME: should try to retrieve information from artifacts instead
     console.error(`Missing swap router, cannot deploy ${contractName}.`);
   }
-  const convSwapProxyAddress = await deployOne(
-    args,
-    hre,
-    contractName,
-    [localSwapRouterAddress, args.conversionProxyAddress],
-    erc20SwapConversionArtifact,
-  );
+  const convSwapProxyAddress = await deployOne(args, hre, contractName, [
+    localSwapRouterAddress,
+    args.conversionProxyAddress,
+  ]);
 
   console.log(`Approving tokens for swaps...`);
   const mainFactory = await hre.ethers.getContractFactory(contractName);

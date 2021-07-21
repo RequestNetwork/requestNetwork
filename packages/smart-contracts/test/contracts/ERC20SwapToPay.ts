@@ -7,10 +7,9 @@ import {
   TestERC20,
   FakeSwapRouter__factory,
   FakeSwapRouter,
-  ERC20SwapToPay__factory,
-  ERC20SwapToPay,
   BadERC20__factory,
   BadERC20,
+  ERC20SwapToPay,
   ERC20FeeProxy,
 } from '../../src/types';
 import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib';
@@ -42,13 +41,8 @@ describe('contract: SwapToPay', () => {
     [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
 
-    // FIXME use the artifact.connect() method from Benji
     erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, adminSigner);
-
-    testSwapToPay = ERC20SwapToPay__factory.connect(
-      erc20SwapToPayArtifact.getAddress(network.name),
-      adminSigner,
-    );
+    testSwapToPay = erc20SwapToPayArtifact.connect(network.name, adminSigner);
   });
 
   beforeEach(async () => {

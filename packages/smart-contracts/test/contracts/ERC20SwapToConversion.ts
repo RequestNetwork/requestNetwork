@@ -4,23 +4,20 @@ import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { Currency } from '@requestnetwork/currency';
 import {
-  ChainlinkConversionPath__factory,
-  Erc20ConversionProxy__factory,
-  Erc20ConversionProxy,
   TestERC20__factory,
   TestERC20,
-  AggTest__factory,
   FakeSwapRouter__factory,
-  ERC20SwapToConversion__factory,
-  ERC20SwapToConversion,
   FakeSwapRouter,
+  AggTest__factory,
+  Erc20ConversionProxy,
+  ERC20SwapToConversion,
   ChainlinkConversionPath,
-} from '../../types';
+} from '../../src/types';
 import {
   chainlinkConversionPath as chainlinkConvArtifact,
   erc20ConversionProxy as erc20ConversionProxyArtifact,
   erc20SwapConversionArtifact,
-} from '../..';
+} from '../../src/lib';
 
 use(solidity);
 
@@ -52,18 +49,9 @@ describe('contract: ERC20SwapToConversion', () => {
   before(async () => {
     [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
-    chainlinkConversion = ChainlinkConversionPath__factory.connect(
-      chainlinkConvArtifact.getAddress(network.name),
-      adminSigner,
-    );
-    erc20ConversionProxy = Erc20ConversionProxy__factory.connect(
-      erc20ConversionProxyArtifact.getAddress(network.name),
-      adminSigner,
-    );
-    swapConversionProxy = ERC20SwapToConversion__factory.connect(
-      erc20SwapConversionArtifact.getAddress(network.name),
-      adminSigner,
-    );
+    chainlinkConversion = chainlinkConvArtifact.connect(network.name, adminSigner);
+    erc20ConversionProxy = erc20ConversionProxyArtifact.connect(network.name, adminSigner);
+    swapConversionProxy = erc20SwapConversionArtifact.connect(network.name, adminSigner);
   });
 
   beforeEach(async () => {

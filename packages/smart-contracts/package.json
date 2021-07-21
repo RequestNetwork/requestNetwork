@@ -45,8 +45,7 @@
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "deploy": "yarn hardhat deploy-local-env --network private",
     "test": "yarn hardhat test --network private",
-    "test:lib": "jest test test/lib",
-    "generate-types": "typechain --target=ethers-v5 --out-dir=src/types 'build/contracts/*.json'"
+    "test:lib": "jest test test/lib"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
@@ -64,6 +63,7 @@
     "@types/node": "14.14.16",
     "chai-as-promised": "7.1.1",
     "chai-bn": "0.2.1",
+    "dotenv": "^10.0.0",
     "ethereum-waffle": "^3.4.0",
     "ethers": "5.2.0",
     "ganache-cli": "6.12.0",
