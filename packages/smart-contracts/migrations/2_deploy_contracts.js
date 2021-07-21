@@ -4,8 +4,8 @@ const ERC20Proxy = artifacts.require('./ERC20Proxy.sol');
 const EthereumProxy = artifacts.require('./EthereumProxy.sol');
 const ERC20FeeProxy = artifacts.require('./ERC20FeeProxy.sol');
 const FakeSwapRouter = artifacts.require('FakeSwapRouter');
-const ERC20SwapToPay = artifacts.require('ERC20SwapToPay');
-const MyEscrowV2 = artifacts.require('MyEscrowV2');
+const ERC20SwapToPay = artifacts.require('./ERC20SwapToPay');
+const MyEscrowV2 = artifacts.require('./MyEscrowV2');
 
 const erc20 = artifacts.require('./TestERC20.sol');
 const BadERC20 = artifacts.require('./BadERC20.sol');
@@ -59,6 +59,11 @@ module.exports = async function (deployer) {
       '0xdeea051f2e9120e0',
     );
 
+
+    // MyEscrowV2
+    await deployer.deploy(MyEscrowV2);
+    console.log('MyEscrow Contract deployed: ' + MyEscrowV2.address);
+
     // Deploy Ethereym proxy contract
     await deployer.deploy(EthereumProxy);
     console.log('EthereumProxy Contract deployed: ' + EthereumProxy.address);
@@ -96,9 +101,7 @@ module.exports = async function (deployer) {
     await deployer.deploy(ERC20SwapToPay, FakeSwapRouter.address, ERC20FeeProxy.address);
     console.log('SwapToPay Contract deployed: ' + ERC20SwapToPay.address);
     
-    // MyEscrowV2
-    await deployer.deploy(MyEscrowV2);
-    console.log('MyEscrow Contract deployed: ' + MyEscrowV2.address);
+    
 
 
 
@@ -120,6 +123,7 @@ module.exports = async function (deployer) {
       TestERC20:                ${instanceTestERC20.address}
       FakeSwapRouter:           ${FakeSwapRouter.address}
       SwapToPay:                ${ERC20SwapToPay.address}
+      MyEscrowV2:               ${MyEscrowV2.address}
       `);
   } catch (e) {
     console.error(e);

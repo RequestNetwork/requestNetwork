@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.6;
 
-import "./artifacts\verification\ERC20SwapToPay.sol\IERC20.sol";
-import "https://github.com/RequestNetwork/requestNetwork/blob/mvp-escrow/packages/smart-contracts/src/contracts/interfaces/ERC20FeeProxy.sol";
+import "./@openzeppelin/contracts/tokens/ERC20/IERC20.sol";
+import "src/contracts/interfaces/ERC20FeeProxy.sol";
 
 
 
