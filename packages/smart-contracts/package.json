@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "build:lib": "tsc -b && cp src/types/*.d.ts dist/src/types && cp -r dist/src/types types",
-    "build:sol": "npx hardhat compile",
+    "build:sol": "yarn hardhat compile",
     "build": "yarn build:sol && yarn build:lib",
     "clean:types": "shx rm -rf types",
     "clean:lib": "shx rm -rf dist",
