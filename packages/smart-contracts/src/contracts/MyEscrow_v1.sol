@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "https://github.com/RequestNetwork/requestNetwork/blob/mvp-escrow/packages/smart-contracts/src/contracts/interfaces/ERC20FeeProxy.sol";
 
 
-/// @author Viken Blockchain Solutions
+
 /// @title Invoice based escrow smart-contract
 contract MyEscrow is Escrow {
 /** Struct */
