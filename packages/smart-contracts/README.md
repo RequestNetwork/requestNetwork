@@ -68,7 +68,9 @@ The package stores the following smart contracts:
 - `ERC20SwapToPay` same as `ERC20FeeProxy` but allowing the payer to swap another token before paying
 - `ERC20SwapToConversion` same as `ERC20ConversionProxy` but allowing the payer to swap another token before paying
 
-## Smart contracts local deployment
+## Smart contracts deployment
+
+### Local deployment
 
 The smart contracts can be deployed locally with the following commands:
 
@@ -88,6 +90,10 @@ And in another terminal, deploy the smart contracts locally with:
 ```bash
 yarn run deploy
 ```
+
+### Live deployment
+
+(Not possible yet)
 
 ### Tests
 

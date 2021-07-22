@@ -2,7 +2,7 @@ import { Contract } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { ContractArtifact } from '../src/lib';
 
-export default async function deploy(
+export async function deployOne(
   args: any,
   hre: HardhatRuntimeEnvironment,
   contractName: string,
@@ -23,12 +23,7 @@ export default async function deploy(
   }
 
   const factory = await hre.ethers.getContractFactory(contractName, deployer);
-  let mainInstance: Contract;
-  if (constructorParams) {
-    mainInstance = await factory.deploy(...constructorParams);
-  } else {
-    mainInstance = await factory.deploy();
-  }
+  const mainInstance = await factory.deploy(...(constructorParams || []));
 
   await mainInstance.deployed();
   instanceAddress = mainInstance.address;
