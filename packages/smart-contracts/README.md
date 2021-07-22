@@ -25,6 +25,7 @@ Library usage:
 ```js
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { providers } from 'ethers';
 
 const requestHashStorageMainnetAddress = SmartContracts.requestHashStorageArtifact.getAddress(
   'mainnet',
