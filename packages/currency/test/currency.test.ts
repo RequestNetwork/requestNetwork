@@ -12,14 +12,6 @@ describe('api/currency', () => {
       });
     });
 
-    it('returns FTM', () => {
-      expect(getAllSupportedCurrencies().ETH[1]).toMatchObject({
-        decimals: 18,
-        name: 'Fantom',
-        symbol: 'FTM',
-      });
-    });
-
     it('returns BTC', () => {
       expect(getAllSupportedCurrencies().BTC[0]).toEqual({
         decimals: 8,
