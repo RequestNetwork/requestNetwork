@@ -13,7 +13,17 @@ import EthInputDataInfoRetriever from './info-retriever';
 import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
 
 import { BigNumber } from 'ethers';
-const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
+const supportedNetworks = [
+  'mainnet',
+  'rinkeby',
+  'private',
+  'xdai',
+  'sokol',
+  'fuse',
+  'matic',
+  'celo',
+  'fantom',
+];
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -194,16 +204,6 @@ export default class PaymentNetworkETHInputData
     paymentReference: string,
     paymentNetworkVersion: string,
   ): Promise<PaymentTypes.ETHBalanceWithEvents> {
-    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
-    const proxyContractAddress = SmartContracts.ethereumProxyArtifact.getAddress(
-      network,
-      contractVersion,
-    );
-    const proxyCreationBlockNumber = SmartContracts.ethereumProxyArtifact.getCreationBlockNumber(
-      network,
-      contractVersion,
-    );
-
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
       eventName,
@@ -211,26 +211,28 @@ export default class PaymentNetworkETHInputData
       paymentReference,
     );
 
-    const eventsInputData = await infoRetriever.getTransferEvents();
+    const events = await infoRetriever.getTransferEvents();
+    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetworkVersion);
 
-    const proxyInfoRetriever = new EthProxyInputDataInfoRetriever(
-      paymentReference,
-      proxyContractAddress,
-      proxyCreationBlockNumber,
-      address,
-      eventName,
-      network,
-    );
-
-    const eventsFromProxy = await proxyInfoRetriever.getTransferEvents();
-
-    const events = eventsInputData
-      .concat(eventsFromProxy)
+    if (proxyContractArtifact) {
+      const proxyInfoRetriever = new EthProxyInputDataInfoRetriever(
+        paymentReference,
+        proxyContractArtifact.address,
+        proxyContractArtifact.creationBlockNumber,
+        address,
+        eventName,
+        network,
+      );
+      const proxyEvents = await proxyInfoRetriever.getTransferEvents();
+      for (const event of proxyEvents) {
+        events.push(event);
+      }
+    }
+    const balance = events
       .sort(
         (a: PaymentTypes.ETHPaymentNetworkEvent, b: PaymentTypes.ETHPaymentNetworkEvent) =>
           (a.timestamp || 0) - (b.timestamp || 0),
-      );
-    const balance = events
+      )
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
       .toString();
 
@@ -238,5 +240,21 @@ export default class PaymentNetworkETHInputData
       balance,
       events,
     };
+  }
+
+  /*
+   * Fetches events from the Ethereum Proxy, or returns null
+   */
+  private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
+    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
+    try {
+      return SmartContracts.ethereumProxyArtifact.getDeploymentInformation(
+        network,
+        contractVersion,
+      );
+    } catch (error) {
+      console.warn(error);
+    }
+    return null;
   }
 }
