@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import deployOne from './deploy-one';
+import { deployOne } from './deploy-one';
 
 const contractName = 'ERC20SwapToConversion';
 // Uniswap V2 Router address

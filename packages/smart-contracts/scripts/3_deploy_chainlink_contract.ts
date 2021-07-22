@@ -2,7 +2,7 @@ import { Currency } from '@requestnetwork/currency';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import deployERC20ConversionProxy from './erc20-conversion-proxy';
 import deploySwapConversion from './erc20-swap-to-conversion';
-import deployOne from './deploy-one';
+import { deployOne } from './deploy-one';
 
 export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
   const [deployer] = await hre.ethers.getSigners();
