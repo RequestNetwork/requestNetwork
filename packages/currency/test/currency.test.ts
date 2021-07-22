@@ -12,6 +12,14 @@ describe('api/currency', () => {
       });
     });
 
+    it('returns FTM', () => {
+      expect(getAllSupportedCurrencies().ETH[1]).toMatchObject({
+        decimals: 18,
+        name: 'Fantom',
+        symbol: 'FTM',
+      });
+    });
+
     it('returns BTC', () => {
       expect(getAllSupportedCurrencies().BTC[0]).toEqual({
         decimals: 8,
@@ -148,11 +156,18 @@ describe('api/currency', () => {
     });
   });
 
-  describe('currency.toString()', () => {
+  describe('Currency.fromSymbol()', () => {
     it('return the correct currency for ETH string', () => {
       expect(Currency.fromSymbol('ETH')).toMatchObject({
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
+      });
+    });
+
+    it('return the correct currency for FTM string', () => {
+      expect(Currency.fromSymbol('FTM')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'FTM',
       });
     });
 
@@ -213,6 +228,42 @@ describe('api/currency', () => {
         value: 'EUR',
       });
     });
+
+    describe('errors and edge cases', () => {
+      it('throws for SAI not on mainnet', () => {
+        expect(() => Currency.fromSymbol('SAI-rinkeby')).toThrow();
+      });
+
+      it('throws for an unsupported currency', () => {
+        expect(() => Currency.fromSymbol('XXXXXXX')).toThrow();
+      });
+
+      it('supports a token that exists on two chains', () => {
+        expect(Currency.fromSymbol('DAI')).toEqual({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        });
+        expect(Currency.fromSymbol('DAI', 'mainnet')).toEqual({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        });
+        expect(Currency.fromSymbol('DAI', 'matic')).toEqual({
+          network: 'matic',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+        });
+      });
+      it('throws for empty symbol', () => {
+        expect(() => Currency.fromSymbol('')).toThrow(`Cannot guess currency from empty symbol.`);
+      });
+      it('Unsupported network should throw', () => {
+        expect(() => Currency.fromSymbol('ETH', 'UNSUPPORTED')).toThrow(
+          "The currency symbol 'ETH' on UNSUPPORTED is unknown or not supported",
+        );
+      });
+    });
   });
 
   describe('currency.toString()', () => {
@@ -234,6 +285,16 @@ describe('api/currency', () => {
           value: 'ETH',
         }).toString(),
       ).toEqual('ETH-rinkeby');
+    });
+
+    it('return "FTM" string for FTM currency', () => {
+      expect(
+        new Currency({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'FTM',
+          network: 'fantom',
+        }).toString(),
+      ).toEqual('FTM-fantom');
     });
 
     it('return "BTC" string for BTC currency', () => {
@@ -443,51 +504,19 @@ describe('api/currency', () => {
     });
   });
 
-  describe('Currency.fromSymbol()', () => {
-    it('throws for SAI not on mainnet', () => {
-      expect(() => Currency.fromSymbol('SAI-rinkeby')).toThrow();
-    });
-
-    it('throws for an unsupported currency', () => {
-      expect(() => Currency.fromSymbol('XXXXXXX')).toThrow();
-    });
-
-    it('supports a token that exists on two chains', () => {
-      expect(Currency.fromSymbol('DAI')).toEqual({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      });
-      expect(Currency.fromSymbol('DAI', 'mainnet')).toEqual({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      });
-      expect(Currency.fromSymbol('DAI', 'matic')).toEqual({
-        network: 'matic',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
-      });
-    });
-
-    describe('errors and edge cases', () => {
-      it('throws for empty symbol', () => {
-        expect(() => Currency.fromSymbol('')).toThrow(`Cannot guess currency from empty symbol.`);
-      });
-      it('Unsupported network should throw', () => {
-        expect(() => Currency.fromSymbol('ETH', 'UNSUPPORTED')).toThrow(
-          "The currency symbol 'ETH' on UNSUPPORTED is unknown or not supported",
-        );
-      });
-    });
-  });
-
   describe('Currency.from()', () => {
     describe('mainnet', () => {
       it('ETH from ETH', () => {
         expect(Currency.from('ETH')).toMatchObject({
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
+        });
+      });
+
+      it('FTM from FTM', () => {
+        expect(Currency.from('FTM')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'FTM',
         });
       });
 

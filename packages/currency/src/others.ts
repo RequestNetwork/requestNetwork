@@ -11,4 +11,10 @@ export default {
     name: 'Bitcoin',
     blockchain: 'Bitcoin',
   },
+  FTM: {
+    code: 'FTM',
+    decimals: 18,
+    name: 'Fantom',
+    blockchain: 'Fantom',
+  },
 };

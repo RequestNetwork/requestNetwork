@@ -86,6 +86,11 @@ export function getAllSupportedCurrencies(): {
         name: othersCurrencies.ETH.name,
         symbol: othersCurrencies.ETH.code,
       },
+      {
+        decimals: othersCurrencies.FTM.decimals,
+        name: othersCurrencies.FTM.name,
+        symbol: othersCurrencies.FTM.code,
+      },
     ],
     [RequestLogicTypes.CURRENCY.BTC]: [
       {

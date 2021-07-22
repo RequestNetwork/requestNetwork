@@ -76,6 +76,13 @@ export class Currency implements RequestLogicTypes.ICurrency {
         network: network || 'mainnet',
       });
     }
+    if (symbol === 'FTM' && (!network || network === 'fantom')) {
+      return new Currency({
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'FTM',
+        network: 'fantom',
+      });
+    }
 
     // Check if it's an ERC20 token and return it if found
     const erc20Currency = getErc20Currency(symbol, network);
@@ -106,8 +113,6 @@ export class Currency implements RequestLogicTypes.ICurrency {
     switch (this.type) {
       case RequestLogicTypes.CURRENCY.BTC:
       case RequestLogicTypes.CURRENCY.ETH:
-        symbol = this.type;
-        break;
       case RequestLogicTypes.CURRENCY.ISO4217:
         symbol = this.value;
         break;
