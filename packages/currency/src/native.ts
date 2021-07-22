@@ -44,6 +44,12 @@ export const nativeCurrencies = {
       name: 'CELO',
       network: 'celo',
     },
+    {
+      symbol: 'FTM',
+      decimals: 18,
+      name: 'Fantom',
+      network: 'fantom',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {

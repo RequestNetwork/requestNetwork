@@ -70,7 +70,7 @@ describe('api/currency', () => {
     });
   });
 
-  describe('currency.getDecimals()', () => {
+  describe('Currency.getDecimals()', () => {
     it('returns the correct number of decimals', () => {
       expect(
         new Currency({
@@ -205,7 +205,7 @@ describe('api/currency', () => {
     });
   });
 
-  describe('currency.toString()', () => {
+  describe('Currency.fromSymbol()', () => {
     it('return the correct currency for ETH string', () => {
       expect(Currency.fromSymbol('ETH')).toMatchObject({
         type: RequestLogicTypes.CURRENCY.ETH,
@@ -296,9 +296,47 @@ describe('api/currency', () => {
         value: 'EUR',
       });
     });
+
+    describe('errors and edge cases', () => {
+      it('throws for SAI not on mainnet', () => {
+        expect(() => Currency.fromSymbol('SAI-rinkeby')).toThrow();
+      });
+
+      it('throws for an unsupported currency', () => {
+        expect(() => Currency.fromSymbol('XXXXXXX')).toThrow();
+      });
+
+      it('supports a token that exists on two chains', () => {
+        expect(Currency.fromSymbol('DAI')).toEqual({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        });
+        expect(Currency.fromSymbol('DAI', 'mainnet')).toEqual({
+          network: 'mainnet',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+        });
+        expect(Currency.fromSymbol('DAI', 'matic')).toEqual({
+          network: 'matic',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+        });
+      });
+
+      it('throws for empty symbol', () => {
+        expect(() => Currency.fromSymbol('')).toThrow(`Cannot guess currency from empty symbol.`);
+      });
+
+      it('Unsupported network should throw', () => {
+        expect(() => Currency.fromSymbol('ETH', 'UNSUPPORTED')).toThrow(
+          "The currency symbol 'ETH' on UNSUPPORTED is unknown or not supported",
+        );
+      });
+    });
   });
 
-  describe('currency.toString()', () => {
+  describe('Currency.toString()', () => {
     it('return "ETH" string for ETH currency', () => {
       expect(
         new Currency({
@@ -316,7 +354,37 @@ describe('api/currency', () => {
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
         }).toString(),
-      ).toEqual('ETH-rinkeby');
+      ).toEqual('RIN-rinkeby');
+    });
+
+    it('return "ETH-rinkeby" string for RIN on rinkeby currency', () => {
+      expect(
+        new Currency({
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'RIN',
+        }).toString(),
+      ).toEqual('RIN-rinkeby');
+    });
+
+    it('return "MATIC" string for MATIC currency', () => {
+      expect(
+        new Currency({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'MATIC',
+          network: 'matic',
+        }).toString(),
+      ).toEqual('MATIC-matic');
+    });
+
+    it('return "FTM" string for FTM currency', () => {
+      expect(
+        new Currency({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'FTM',
+          network: 'fantom',
+        }).toString(),
+      ).toEqual('FTM-fantom');
     });
 
     it('return "BTC" string for BTC currency', () => {
@@ -526,45 +594,6 @@ describe('api/currency', () => {
     });
   });
 
-  describe('Currency.fromSymbol()', () => {
-    it('throws for SAI not on mainnet', () => {
-      expect(() => Currency.fromSymbol('SAI-rinkeby')).toThrow();
-    });
-
-    it('throws for an unsupported currency', () => {
-      expect(() => Currency.fromSymbol('XXXXXXX')).toThrow();
-    });
-
-    it('supports a token that exists on two chains', () => {
-      expect(Currency.fromSymbol('DAI')).toEqual({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      });
-      expect(Currency.fromSymbol('DAI', 'mainnet')).toEqual({
-        network: 'mainnet',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-      });
-      expect(Currency.fromSymbol('DAI', 'matic')).toEqual({
-        network: 'matic',
-        type: RequestLogicTypes.CURRENCY.ERC20,
-        value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
-      });
-    });
-
-    describe('errors and edge cases', () => {
-      it('throws for empty symbol', () => {
-        expect(() => Currency.fromSymbol('')).toThrow(`Cannot guess currency from empty symbol.`);
-      });
-      it('Unsupported network should throw', () => {
-        expect(() => Currency.fromSymbol('ETH', 'UNSUPPORTED')).toThrow(
-          "The currency symbol 'ETH' on UNSUPPORTED is unknown or not supported",
-        );
-      });
-    });
-  });
-
   describe('Currency.from()', () => {
     describe('mainnet', () => {
       it('ETH from ETH', () => {
@@ -697,11 +726,25 @@ describe('api/currency', () => {
             value: 'ETH',
           });
         });
+        it('RIN', () => {
+          expect(Currency.from('RIN')).toEqual({
+            network: 'rinkeby',
+            type: 'ETH',
+            value: 'RIN',
+          });
+        });
+        it('RIN-rinkeby', () => {
+          expect(Currency.from('RIN-rinkeby')).toEqual({
+            network: 'rinkeby',
+            type: 'ETH',
+            value: 'RIN',
+          });
+        });
         it('ETH-rinkeby', () => {
           expect(Currency.from('ETH-rinkeby')).toEqual({
             network: 'rinkeby',
             type: 'ETH',
-            value: 'ETH',
+            value: 'RIN',
           });
         });
       });
@@ -741,6 +784,13 @@ describe('api/currency', () => {
             value: 'xDAI',
           });
         });
+        it('FTM', () => {
+          expect(Currency.from('FTM')).toEqual({
+            network: 'fantom',
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'FTM',
+          });
+        });
       });
     });
 
@@ -754,7 +804,7 @@ describe('api/currency', () => {
         expect(Currency.from('ETH-rinkeby')).toEqual({
           network: 'rinkeby',
           type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
+          value: 'RIN',
         });
         expect(Currency.from('ETH')).toEqual({
           network: 'mainnet',

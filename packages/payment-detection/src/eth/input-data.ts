@@ -22,6 +22,7 @@ const supportedNetworks = [
   'fuse',
   'matic',
   'celo',
+  'fantom',
 ];
 
 // interface of the object indexing the proxy contract version
