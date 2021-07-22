@@ -90,8 +90,6 @@ export class Currency implements RequestLogicTypes.ICurrency {
     switch (this.type) {
       case RequestLogicTypes.CURRENCY.BTC:
       case RequestLogicTypes.CURRENCY.ETH:
-        symbol = this.type;
-        break;
       case RequestLogicTypes.CURRENCY.ISO4217:
         symbol = this.value;
         break;
