@@ -64,7 +64,7 @@
     "ethereum-waffle": "3.4.0",
     "ethers": "5.2.0",
     "ganache-cli": "6.12.0",
-    "hardhat": "^2.4.1",
+    "hardhat": "2.4.1",
     "shx": "0.3.2",
     "typechain": "^5.1.1"
   }
