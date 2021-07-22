@@ -45,7 +45,7 @@
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "deploy": "yarn hardhat deploy-local-env --network private",
     "test": "yarn hardhat test --network private",
-    "test:lib": "jest test test/lib"
+    "test:lib": "yarn jest test/lib"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.0.2",

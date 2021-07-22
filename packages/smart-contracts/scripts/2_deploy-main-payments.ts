@@ -5,7 +5,7 @@ import { deployOne } from '../scripts/deploy-one';
 // Deploys, set up the contracts
 export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
   try {
-    const [deployer, useless] = await hre.ethers.getSigners();
+    const [deployer] = await hre.ethers.getSigners();
 
     console.log(
       `Deploying with the account: ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId})`,
@@ -79,7 +79,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     ]);
     console.log('SwapToPay Contract deployed: ' + ERC20SwapToPayAddress);
     // FIXME useless transaction to keep the same contract addresses
-    await testERC20Instance.transfer(useless.address, '1');
+    await testERC20Instance.transfer(deployer.address, '1');
 
     // ----------------------------------
     console.log('Contracts deployed');
