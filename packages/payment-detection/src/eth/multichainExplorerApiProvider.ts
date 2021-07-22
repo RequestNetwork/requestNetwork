@@ -10,7 +10,7 @@ const networks: Record<string, ethers.providers.Network> = {
 /**
  * A provider that supports multiple APIs, like Etherscan and Blockscout
  */
-export class MultichainApiProvider extends ethers.providers.EtherscanProvider {
+export class MultichainExplorerApiProvider extends ethers.providers.EtherscanProvider {
   constructor(network?: ethers.providers.Networkish, apiKey?: string) {
     if (typeof network === 'string' && networks[network]) {
       network = networks[network];

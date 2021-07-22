@@ -347,7 +347,7 @@ describe('api/currency', () => {
       ).toEqual('ETH');
     });
 
-    it('return "ETH-rinkeby" string for ETH on rinkeby currency', () => {
+    it('return "RIN-rinkeby" string for ETH on rinkeby currency', () => {
       expect(
         new Currency({
           network: 'rinkeby',
@@ -357,7 +357,7 @@ describe('api/currency', () => {
       ).toEqual('RIN-rinkeby');
     });
 
-    it('return "ETH-rinkeby" string for RIN on rinkeby currency', () => {
+    it('return "RIN-rinkeby" string for RIN on rinkeby currency', () => {
       expect(
         new Currency({
           network: 'rinkeby',
