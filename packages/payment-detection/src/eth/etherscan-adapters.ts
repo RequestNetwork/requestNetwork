@@ -4,6 +4,7 @@ const networks: Record<string, ethers.providers.Network> = {
   sokol: { chainId: 77, name: 'sokol' },
   fuse: { chainId: 122, name: 'fuse' },
   celo: { chainId: 42220, name: 'celo' },
+  fantom: { chainId: 250, name: 'fantom' },
 };
 
 /**
@@ -28,6 +29,8 @@ export class MultichainApiProvider extends ethers.providers.EtherscanProvider {
         return 'https://explorer.celo.org';
       case 'matic':
         return 'https://api.polygonscan.com';
+      case 'fantom':
+        return 'https://api.ftmscan.com';
       default:
         return super.getBaseUrl();
     }
