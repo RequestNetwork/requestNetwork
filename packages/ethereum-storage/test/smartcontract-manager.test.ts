@@ -252,7 +252,7 @@ describe('SmartContractManager', () => {
 
     // This mock is used to ensure any block is never fetchable
     smartContractManager.eth.getBlock = (_block: any): any => {
-      throw 'some error';
+      return null;
     };
 
     try {
@@ -262,7 +262,7 @@ describe('SmartContractManager', () => {
     } finally {
       clearInterval(blockInterval);
     }
-  }, 30000);
+  }, 35000);
 
   it('allows to get all hashes', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
