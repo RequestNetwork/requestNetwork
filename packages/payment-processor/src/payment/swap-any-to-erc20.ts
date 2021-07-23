@@ -11,7 +11,7 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { getDecimalsForCurrency, getConversionPath } from '@requestnetwork/currency';
+import { getConversionPath, Currency } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
@@ -103,7 +103,7 @@ export function encodeSwapToPayAnyToErc20Request(
 
   const chainlinkDecimal = 8;
   const decimalPadding = Math.max(
-    chainlinkDecimal - getDecimalsForCurrency(request.currencyInfo),
+    chainlinkDecimal - new Currency(request.currencyInfo).getDecimals(),
     0,
   );
 

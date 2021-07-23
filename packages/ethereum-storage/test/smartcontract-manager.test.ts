@@ -252,14 +252,16 @@ describe('SmartContractManager', () => {
 
     // This mock is used to ensure any block is never fetchable
     smartContractManager.eth.getBlock = (_block: any): any => {
-      return null;
+      throw 'some error';
     };
 
-    await expect(
-      smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: otherSize }),
-    ).rejects.toThrowError('Maximum number of confirmation reached');
-
-    clearInterval(blockInterval);
+    try {
+      await expect(
+        smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: otherSize }),
+      ).rejects.toThrowError('Maximum number of confirmation reached');
+    } finally {
+      clearInterval(blockInterval);
+    }
   }, 30000);
 
   it('allows to get all hashes', async () => {

@@ -3,7 +3,11 @@ import { deployOne } from './deploy-one';
 
 const contractName = 'ERC20SwapToConversion';
 // Uniswap V2 Router address
-const localSwapRouterAddress = '0x7a250d5630b4cf539739df2c5dacb4c659f2488d';
+const swapRouterAddress: Record<string, string> = {
+  private: '0x4E72770760c011647D4873f60A3CF6cDeA896CD8',
+  mainnet: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+  rinkeby: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+};
 
 // The required ERC20 approvals for swapping will be performed on these tokens.
 const defaultTokens: { [network: string]: string[] } = {
@@ -25,12 +29,11 @@ export default async function deploy(
       `Missing conversion proxy on ${hre.network.name}, cannot deploy ${contractName}.`,
     );
   }
-  if (!args.swapProxyAddress) {
-    // FIXME: should try to retrieve information from artifacts instead
+  if (!swapRouterAddress[hre.network.name] && !args.swapProxyAddress) {
     console.error(`Missing swap router, cannot deploy ${contractName}.`);
   }
   const convSwapProxyAddress = await deployOne(args, hre, contractName, [
-    localSwapRouterAddress,
+    swapRouterAddress[hre.network.name] ?? args.swapProxyAddress,
     args.conversionProxyAddress,
   ]);
 
