@@ -59,15 +59,11 @@ export class Currency implements RequestLogicTypes.ICurrency {
       throw new Error(`Cannot guess currency from empty symbol.`);
     }
 
-    // retrocompatibility from ETH-rinkeby to RIN
-    if (symbol === 'ETH' && network === 'rinkeby') {
-      return Currency.fromSymbol('RIN', 'rinkeby');
-    }
-
     for (const [type, currencies] of Object.entries(getAllSupportedCurrencies())) {
       const currency = currencies.find(
         (cur) =>
-          cur.symbol.toLowerCase() === symbol.toLowerCase() &&
+          // test native tokens have the network in their symbol already
+          cur.symbol.toLowerCase().split('-')[0] === symbol.toLowerCase() &&
           (!network || network === cur.network),
       );
 
@@ -167,9 +163,14 @@ export class Currency implements RequestLogicTypes.ICurrency {
     const symbol = this.getSymbol();
 
     // Append currency network if relevant
-    const network =
-      this.network && this.network !== 'mainnet' && symbol !== 'unknown' ? `-${this.network}` : '';
-
-    return symbol + network;
+    if (
+      this.network &&
+      this.network !== 'mainnet' &&
+      symbol !== 'unknown' &&
+      symbol.indexOf('-') < 0
+    ) {
+      return [symbol, this.network].join('-');
+    }
+    return symbol;
   }
 }

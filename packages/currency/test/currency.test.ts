@@ -205,6 +205,65 @@ describe('api/currency', () => {
     });
   });
 
+  describe('Currency.getSymbol()', () => {
+    describe('Native', () => {
+      it('ETH', () => {
+        expect(
+          new Currency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          }).getSymbol(),
+        ).toEqual('ETH');
+      });
+
+      it('ETH with wrong value', () => {
+        expect(
+          new Currency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'not ETH',
+          }).getSymbol(),
+        ).toEqual('ETH');
+      });
+
+      it('Other EVM networks', () => {
+        expect(
+          new Currency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            network: 'matic',
+            value: 'anything',
+          }).getSymbol(),
+        ).toEqual('MATIC');
+
+        expect(
+          new Currency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            network: 'rinkeby',
+            value: 'anything',
+          }).getSymbol(),
+        ).toEqual('ETH-rinkeby');
+      });
+
+      it('BTC', () => {
+        expect(
+          new Currency({
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+          }).getSymbol(),
+        ).toEqual('BTC');
+      });
+
+      it('BTC testnet', () => {
+        expect(
+          new Currency({
+            type: RequestLogicTypes.CURRENCY.BTC,
+            value: 'BTC',
+            network: 'testnet',
+          }).getSymbol(),
+        ).toEqual('BTC-testnet');
+      });
+    });
+  });
+
   describe('Currency.fromSymbol()', () => {
     it('return the correct currency for ETH string', () => {
       expect(Currency.fromSymbol('ETH')).toMatchObject({
@@ -347,24 +406,14 @@ describe('api/currency', () => {
       ).toEqual('ETH');
     });
 
-    it('return "RIN-rinkeby" string for ETH on rinkeby currency', () => {
+    it('return "ETH-rinkeby" string for ETH on rinkeby currency', () => {
       expect(
         new Currency({
           network: 'rinkeby',
           type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
+          value: 'ETH-rinkeby',
         }).toString(),
-      ).toEqual('RIN-rinkeby');
-    });
-
-    it('return "RIN-rinkeby" string for RIN on rinkeby currency', () => {
-      expect(
-        new Currency({
-          network: 'rinkeby',
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'RIN',
-        }).toString(),
-      ).toEqual('RIN-rinkeby');
+      ).toEqual('ETH-rinkeby');
     });
 
     it('return "MATIC" string for MATIC currency', () => {
@@ -707,7 +756,7 @@ describe('api/currency', () => {
           expect(Currency.from('BTC-testnet')).toEqual({
             network: 'testnet',
             type: 'BTC',
-            value: 'BTC',
+            value: 'BTC-testnet',
           });
         });
       });
@@ -726,25 +775,11 @@ describe('api/currency', () => {
             value: 'ETH',
           });
         });
-        it('RIN', () => {
-          expect(Currency.from('RIN')).toEqual({
-            network: 'rinkeby',
-            type: 'ETH',
-            value: 'RIN',
-          });
-        });
-        it('RIN-rinkeby', () => {
-          expect(Currency.from('RIN-rinkeby')).toEqual({
-            network: 'rinkeby',
-            type: 'ETH',
-            value: 'RIN',
-          });
-        });
         it('ETH-rinkeby', () => {
           expect(Currency.from('ETH-rinkeby')).toEqual({
             network: 'rinkeby',
             type: 'ETH',
-            value: 'RIN',
+            value: 'ETH-rinkeby',
           });
         });
       });
@@ -804,7 +839,7 @@ describe('api/currency', () => {
         expect(Currency.from('ETH-rinkeby')).toEqual({
           network: 'rinkeby',
           type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'RIN',
+          value: 'ETH-rinkeby',
         });
         expect(Currency.from('ETH')).toEqual({
           network: 'mainnet',
