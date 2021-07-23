@@ -31,6 +31,10 @@ export default class ETHInfoRetriever
     const history = await provider.getHistory(this.toAddress);
 
     const events = history
+      // remove potential duplicates (eg. if sender and receiver are the same)
+      .filter(
+        (transaction, index) => history.findIndex((x) => x.hash === transaction.hash) === index,
+      )
       // keep only when address is the destination
       .filter(
         (transaction) =>

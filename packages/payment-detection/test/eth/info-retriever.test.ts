@@ -59,5 +59,26 @@ describe('api/eth/info-retriever', () => {
         });
       },
     );
+
+    it('can detect a MATIC payment to self', async () => {
+      // NB: The from and to are the same
+      const paymentAddress = '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93';
+      const paymentReference = PaymentReferenceCalculator.calculate(
+        '01b809015dcda94dccfc626609b0a1d8f8e656ec787cf7f59d59d242dc9f1db0ca',
+        'a1a2a3a4a5a6a7a8',
+        paymentAddress,
+      );
+
+      const infoRetriever = new EthInfoRetriever(
+        paymentAddress,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
+        'matic',
+        paymentReference,
+      );
+      const events = await infoRetriever.getTransferEvents();
+      expect(events).toHaveLength(1);
+
+      expect(events[0].amount).toBe('1000000000000000');
+    });
   });
 });
