@@ -215,7 +215,7 @@ describe('Request client using a request node', () => {
 
     // wait 1,5 sec and store the timestamp
     /* eslint-disable no-magic-numbers */
-    // eslint-disable-next-line 
+    // eslint-disable-next-line
     await new Promise((r) => setTimeout(r, 1500));
     const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
 
@@ -292,7 +292,7 @@ describe('Request client using a request node', () => {
 
     // wait 1,5 sec and store the timestamp
     /* eslint-disable no-magic-numbers */
-    // eslint-disable-next-line 
+    // eslint-disable-next-line
     await new Promise((r) => setTimeout(r, 1500));
 
     // get requests with boundaries
