@@ -262,6 +262,35 @@ describe('api/currency', () => {
         ).toEqual('BTC-testnet');
       });
     });
+    describe('ERC20', () => {
+      it('DAI', () => {
+        expect(
+          new Currency({
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            network: 'mainnet',
+          }).getSymbol(),
+        ).toEqual('DAI');
+      });
+      it('DAI matic', () => {
+        expect(
+          new Currency({
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+            network: 'matic',
+          }).getSymbol(),
+        ).toEqual('DAI');
+      });
+      it('FAU rinkeby', () => {
+        expect(
+          new Currency({
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: '0xFab46E002BbF0b4509813474841E0716E6730136',
+            network: 'rinkeby',
+          }).getSymbol(),
+        ).toEqual('FAU');
+      });
+    });
   });
 
   describe('Currency.fromSymbol()', () => {
