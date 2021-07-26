@@ -19,13 +19,23 @@ contract Erc20ConversionProxy {
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
   }
 
-  // Event to declare a transfer with a reference
+  // Event to declare a conversion with a reference
   event TransferWithConversionAndReference(
     uint256 amount,
     address currency,
     bytes indexed paymentReference,
     uint256 feeAmount,
     uint256 maxRateTimespan
+  );
+  
+  // Event to declare a transfer with a reference
+  event TransferWithReferenceAndFee(
+    address tokenAddress,
+    address to,
+    uint256 amount,
+    bytes indexed paymentReference,
+    uint256 feeAmount,
+    address feeAddress
   );
 
   /**

@@ -29,7 +29,7 @@ jobs:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: Yarn install
-          command:  yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+          command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - save_cache:
           name: Save Yarn Package Cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
@@ -42,12 +42,21 @@ jobs:
           name: Verify lint
           command: yarn lint
       - run:
+          name: Build types
+          command: yarn workspace @requestnetwork/types run build
+      - run:
+          name: Build utils
+          command: yarn workspace @requestnetwork/utils run build
+      - run:
+          name: Build currency
+          command: yarn workspace @requestnetwork/currency run build
+      - run:
           name: Generate Smart Contract types
           command: yarn workspace @requestnetwork/smart-contracts run build
       - run:
           name: Generate Payment Detection queries
           command: yarn workspace @requestnetwork/payment-detection run codegen
-     
+
       - persist_to_workspace:
           root: *working_directory
           paths: .
@@ -164,14 +173,8 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
-          name: 'Build smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run build:lib'
-      - run:
           name: 'Deploy contracs smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Build smart contracts smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run build:sol'
       - run:
           name: 'Lint smart contracts smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run lint:sol'
@@ -237,16 +240,6 @@ jobs:
           root: *working_directory
           paths:
             - packages/request-node/coverage/
-  test-types:
-    docker:
-      - *node_image
-    working_directory: *working_directory
-    steps:
-      - attach_workspace:
-          at: *working_directory
-      - run:
-          name: 'Build types'
-          command: 'yarn workspace @requestnetwork/types run build'
   test-utils:
     docker:
       - *node_image
@@ -254,9 +247,6 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
-      - run:
-          name: 'Build utils'
-          command: 'yarn workspace @requestnetwork/utils run build'
       - run:
           name: 'Test utils'
           command: 'yarn workspace @requestnetwork/utils run test'
@@ -271,9 +261,6 @@ jobs:
     steps:
       - attach_workspace:
           at: *working_directory
-      - run:
-          name: 'Build currency'
-          command: 'yarn workspace @requestnetwork/currency run build'
       - run:
           name: 'Test currency'
           command: 'yarn workspace @requestnetwork/currency run test'
@@ -510,7 +497,7 @@ jobs:
       - run:
           name: 'Allow github ssh host'
           command: mkdir ~/.ssh; echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ==' >> ~/.ssh/known_hosts
-      # this build step shouldn't be necessary because publishing already builds, 
+      # this build step shouldn't be necessary because publishing already builds,
       #  but without it, some packages like epk-signature are missing the dist folder.
       - run:
           name: 'Build all'
@@ -573,9 +560,6 @@ workflows:
           requires:
             - build
       - test-request-node:
-          requires:
-            - build
-      - test-types:
           requires:
             - build
       - test-utils:
@@ -648,7 +632,6 @@ workflows:
             - test-request-logic
             - test-request-node
             - test-transaction-manager
-            - test-types
             - test-utils
             - test-currency
             - test-web3-signature
