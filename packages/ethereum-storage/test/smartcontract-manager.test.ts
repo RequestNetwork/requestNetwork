@@ -252,7 +252,7 @@ describe('SmartContractManager', () => {
 
     // This mock is used to ensure any block is never fetchable
     smartContractManager.eth.getBlock = (_block: any): any => {
-      return null;
+      return {};
     };
 
     try {
