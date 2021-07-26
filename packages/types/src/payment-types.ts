@@ -1,3 +1,4 @@
+import { IIdentity } from './identity-types';
 import * as Extension from './extension-types';
 import * as RequestLogic from './request-logic-types';
 
@@ -161,6 +162,7 @@ export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters
 /** Parameters for events of Declarative payments */
 export interface IDeclarativePaymentEventParameters {
   note?: string;
+  from?: IIdentity;
 }
 /** Declarative Payment Network Event */
 export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;

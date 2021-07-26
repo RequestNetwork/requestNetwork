@@ -231,7 +231,7 @@
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "result",
+          "name": "rate",
           "type": "uint256"
         },
         {

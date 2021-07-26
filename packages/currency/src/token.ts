@@ -1,6 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { Currency } from './currency';
-import { getSupportedERC20Tokens } from './erc20';
 
 /**
  * @class Token extends Currency to reference the symbol
@@ -21,32 +20,8 @@ export class Token extends Currency {
    * @param symbolOrAddress e.g. 'DAI', 'FAU', 'FAU-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
    */
   static from(symbolOrAddress: string): Token {
-    try {
-      const currencyFromSymbol = this.fromSymbol(
-        symbolOrAddress.split('-')[0],
-        symbolOrAddress.split('-')[1],
-      );
-      return new Token(
-        currencyFromSymbol.value,
-        currencyFromSymbol.type,
-        symbolOrAddress.split('-')[0],
-        currencyFromSymbol.network,
-      );
-    } catch (e) {
-      const erc20Currencies = getSupportedERC20Tokens();
-      const currencyFromAddress = erc20Currencies.find(
-        (c) => c.address.toLowerCase() === symbolOrAddress.toLowerCase(),
-      );
-      if (!currencyFromAddress) {
-        throw new Error(`The currency ${symbolOrAddress} does not exist or is not supported`);
-      }
-      return new Token(
-        currencyFromAddress.address,
-        RequestLogicTypes.CURRENCY.ERC20,
-        currencyFromAddress.symbol.split('-')[0],
-        currencyFromAddress.symbol.split('-')[1] || 'mainnet',
-      );
-    }
+    const currency = super.from(symbolOrAddress);
+    return new Token(currency.value, currency.type, currency.getSymbol(), currency.network);
   }
 
   /**

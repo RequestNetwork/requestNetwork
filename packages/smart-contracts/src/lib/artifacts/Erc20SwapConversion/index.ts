@@ -17,8 +17,8 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
           creationBlockNumber: 0,
         },
         rinkeby: {
-          address: 'TODO',
-          creationBlockNumber: 0,
+          address: '0x38443a9501F20C3bf2BDff14244665F3aEC86bA2',
+          creationBlockNumber: 8884276,
         },
       },
     },

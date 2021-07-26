@@ -29,6 +29,7 @@ export default class DeclarativePaymentNetwork<
         .DECLARE_RECEIVED_PAYMENT]: this.applyDeclareReceivedPayment.bind(this),
       [ExtensionTypes.PnAnyDeclarative.ACTION
         .DECLARE_RECEIVED_REFUND]: this.applyDeclareReceivedRefund.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE]: this.applyAddDelegate.bind(this),
     };
   }
 
@@ -150,6 +151,25 @@ export default class DeclarativePaymentNetwork<
     };
   }
 
+  /**
+   * Creates the extensionsData to add delegate
+   *
+   * @param extensions extensions parameters to add delegate
+   *
+   * @returns IAction the extensionsData to be stored in the request
+   */
+  public createAddDelegateAction(
+    parameters: ExtensionTypes.PnAnyDeclarative.IAddDelegateParameters,
+  ): ExtensionTypes.IAction {
+    return {
+      action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
+      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      parameters: {
+        delegate: parameters.delegate,
+      },
+    };
+  }
+
   /** Applies a creation
    *
    * @param extensionAction action to apply
@@ -168,6 +188,8 @@ export default class DeclarativePaymentNetwork<
           parameters: {
             paymentInfo: extensionAction.parameters.paymentInfo,
             refundInfo: extensionAction.parameters.refundInfo,
+            payeeDelegate: extensionAction.parameters.payeeDelegate,
+            payerDelegate: extensionAction.parameters.payerDelegate,
           },
           timestamp,
         },
@@ -181,6 +203,8 @@ export default class DeclarativePaymentNetwork<
         refundInfo: extensionAction.parameters.refundInfo,
         sentPaymentAmount: '0',
         sentRefundAmount: '0',
+        payeeDelegate: extensionAction.parameters.payeeDelegate,
+        payerDelegate: extensionAction.parameters.payerDelegate,
       },
       version: CURRENT_VERSION,
     };
@@ -203,12 +227,7 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payer) {
-      throw Error(`The request must have a payer`);
-    }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
-      throw Error(`The signer must be the payer`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
@@ -229,6 +248,7 @@ export default class DeclarativePaymentNetwork<
         note: extensionAction.parameters.note,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -251,12 +271,7 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payee) {
-      throw Error(`The request must have a payee`);
-    }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
-      throw Error(`The signer must be the payee`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
@@ -277,6 +292,7 @@ export default class DeclarativePaymentNetwork<
         note: extensionAction.parameters.note,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -299,12 +315,7 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payee) {
-      throw Error(`The request must have a payee`);
-    }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
-      throw Error(`The signer must be the payee`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
@@ -325,6 +336,7 @@ export default class DeclarativePaymentNetwork<
         note: extensionAction.parameters.note,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -347,12 +359,7 @@ export default class DeclarativePaymentNetwork<
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!requestState.payer) {
-      throw Error(`The request must have a payer`);
-    }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
-      throw Error(`The signer must be the payer`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
     if (!Utils.amount.isValid(extensionAction.parameters.amount)) {
       throw Error(`The amount is not a valid amount`);
     }
@@ -373,6 +380,7 @@ export default class DeclarativePaymentNetwork<
         note: extensionAction.parameters.note,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -396,18 +404,13 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     if (extensionState.values.paymentInfo) {
-      throw Error(`The payment instruction already given`);
+      throw Error(`The payment instruction already assigned`);
     }
-    if (!requestState.payee) {
-      throw Error(`The request must have a payee`);
-    }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payee)) {
-      throw Error(`The signer must be the payee`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYEE);
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
-    // increment paymentInfo
+    // assign paymentInfo
     copiedExtensionState.values.paymentInfo = extensionAction.parameters.paymentInfo;
 
     // update events
@@ -417,6 +420,55 @@ export default class DeclarativePaymentNetwork<
         paymentInfo: extensionAction.parameters.paymentInfo,
       },
       timestamp,
+      from: actionSigner,
+    });
+
+    return copiedExtensionState;
+  }
+
+  /** Applies an add of a delegate
+   *
+   * @param extensionsState previous state of the extensions
+   * @param extensionAction action to apply
+   * @param requestState request state read-only
+   * @param actionSigner identity of the signer
+   * @param timestamp timestamp of the action
+   *
+   * @returns state of the extension created
+   */
+  protected applyAddDelegate(
+    extensionState: ExtensionTypes.IState,
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+    actionSigner: IdentityTypes.IIdentity,
+    timestamp: number,
+  ): ExtensionTypes.IState {
+    let delegateStr: string;
+    if (Utils.identity.areEqual(actionSigner, requestState.payee)) {
+      delegateStr = 'payeeDelegate';
+    } else if (Utils.identity.areEqual(actionSigner, requestState.payer)) {
+      delegateStr = 'payerDelegate';
+    } else {
+      throw Error(`The signer must be the payee or the payer`);
+    }
+
+    if (extensionState.values[delegateStr]) {
+      throw Error(`The ${delegateStr} is already assigned`);
+    }
+
+    const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
+
+    // assign payeeDelegate or payerDelegate
+    copiedExtensionState.values[delegateStr] = extensionAction.parameters.delegate;
+
+    // update events
+    copiedExtensionState.events.push({
+      name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
+      parameters: {
+        delegate: extensionAction.parameters.delegate,
+      },
+      timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
@@ -440,18 +492,13 @@ export default class DeclarativePaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     if (extensionState.values.refundInfo) {
-      throw Error(`The refund instruction already given`);
+      throw Error(`The refund instruction already assigned`);
     }
-    if (!requestState.payer) {
-      throw Error(`The request must have a payer`);
-    }
-    if (!Utils.identity.areEqual(actionSigner, requestState.payer)) {
-      throw Error(`The signer must be the payer`);
-    }
+    this.checkIdentities(extensionState, requestState, actionSigner, RequestLogicTypes.ROLE.PAYER);
 
     const copiedExtensionState: ExtensionTypes.IState = Utils.deepCopy(extensionState);
 
-    // increment refundInfo
+    // assign refundInfo
     copiedExtensionState.values.refundInfo = extensionAction.parameters.refundInfo;
 
     // update events
@@ -461,8 +508,50 @@ export default class DeclarativePaymentNetwork<
         refundInfo: extensionAction.parameters.refundInfo,
       },
       timestamp,
+      from: actionSigner,
     });
 
     return copiedExtensionState;
+  }
+
+  /** Checks if signer is the right identity from the request and the role expected
+   *
+   * @param extensionsState previous state of the extensions
+   * @param requestState request state read-only
+   * @param actionSigner identity of the signer
+   * @param role The role to check (Payee or Payer)
+   *
+   * @returns throws in case of error
+   */
+  protected checkIdentities(
+    extensionState: ExtensionTypes.IState,
+    requestState: RequestLogicTypes.IRequest,
+    actionSigner: IdentityTypes.IIdentity,
+    role: RequestLogicTypes.ROLE,
+  ): void {
+    let requestRole;
+    let requestRoleStr;
+    let requestRoleDelegate;
+
+    if (role === RequestLogicTypes.ROLE.PAYER) {
+      requestRole = requestState.payer;
+      requestRoleStr = 'payer';
+      requestRoleDelegate = extensionState.values.payerDelegate;
+    }
+    if (role === RequestLogicTypes.ROLE.PAYEE) {
+      requestRole = requestState.payee;
+      requestRoleStr = 'payee';
+      requestRoleDelegate = extensionState.values.payeeDelegate;
+    }
+
+    if (!requestRole) {
+      throw Error(`The request must have a ${requestRoleStr}`);
+    }
+    if (
+      !Utils.identity.areEqual(actionSigner, requestRole) &&
+      !Utils.identity.areEqual(actionSigner, requestRoleDelegate)
+    ) {
+      throw Error(`The signer must be the ${requestRoleStr} or the ${requestRoleStr}Delegate`);
+    }
   }
 }

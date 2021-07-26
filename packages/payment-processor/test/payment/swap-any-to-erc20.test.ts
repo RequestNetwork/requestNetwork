@@ -10,14 +10,16 @@ import {
 import Utils from '@requestnetwork/utils';
 
 import { approveErc20ForSwapWithConversionIfNeeded } from '../../src/payment/swap-conversion-erc20';
-import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
+import { ERC20, ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-const erc20BeforeSwap = '0x9FBDa871d559710256a2502A2517b794B482Db40';
-const erc20AfterConversion = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
+const paymentTokenAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
+const acceptedTokenAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
+let paymentToken: ERC20;
+let acceptedToken: ERC20;
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -53,7 +55,7 @@ const validRequest: ClientTypes.IRequestData = {
         feeAmount: '2',
         paymentAddress,
         salt: 'salt',
-        acceptedTokens: [erc20AfterConversion],
+        acceptedTokens: [acceptedTokenAddress],
         network: 'private',
       },
       version: '1.0',
@@ -73,35 +75,35 @@ const validRequest: ClientTypes.IRequestData = {
 const validSwapSettings = {
   deadline: 2599732187000, // This test will fail in 2052
   maxInputAmount: '3000000000000000000',
-  path: [erc20BeforeSwap, erc20AfterConversion],
+  path: [paymentTokenAddress, acceptedTokenAddress],
 };
 const validConversionSettings = {
   currency: {
     type: 'ERC20' as any,
-    value: erc20AfterConversion,
+    value: acceptedTokenAddress,
     network: 'private',
-  }
+  },
 };
+
+beforeAll(async () => {
+  paymentToken = await ERC20__factory.connect(paymentTokenAddress, provider);
+  acceptedToken = await ERC20__factory.connect(acceptedTokenAddress, provider);
+});
 
 describe('swap-any-to-erc20', () => {
   describe('swapErc20FeeProxyRequest', () => {
-
     it('should throw an error if the settings are missing', async () => {
       await expect(
         swapToPayAnyToErc20Request(validRequest, wallet, {
-          conversion: validConversionSettings
-        })
-      ).rejects.toThrowError(
-        'Swap Settings are required',
-      );
+          conversion: validConversionSettings,
+        }),
+      ).rejects.toThrowError('Swap Settings are required');
 
       await expect(
         swapToPayAnyToErc20Request(validRequest, wallet, {
           swap: validSwapSettings,
-        })
-      ).rejects.toThrowError(
-        'Conversion Settings are required',
-      );
+        }),
+      ).rejects.toThrowError('Conversion Settings are required');
     });
 
     it('should throw an error if the payment network is wrong', async () => {
@@ -112,27 +114,24 @@ describe('swap-any-to-erc20', () => {
         swapToPayAnyToErc20Request(request, wallet, {
           conversion: validConversionSettings,
           swap: validSwapSettings,
-        })
-      ).rejects.toThrowError(
-        'The request must have the payment network any-to-erc20-proxy',
-      );
+        }),
+      ).rejects.toThrowError('The request must have the payment network any-to-erc20-proxy');
     });
 
     it('should throw an error if the conversion path is impossible', async () => {
       const request = Utils.deepCopy(validRequest);
-      request.currencyInfo = {
+      (request.currencyInfo = {
         type: RequestLogicTypes.CURRENCY.ISO4217,
         value: 'XXX',
-      },
-
-      await expect(
-        swapToPayAnyToErc20Request(request, wallet, {
-          conversion: validConversionSettings,
-          swap: validSwapSettings,
-        })
-      ).rejects.toThrowError(
-        `Impossible to find a conversion path between from ${request.currencyInfo} to ${validConversionSettings.currency}`,
-      );
+      }),
+        await expect(
+          swapToPayAnyToErc20Request(request, wallet, {
+            conversion: validConversionSettings,
+            swap: validSwapSettings,
+          }),
+        ).rejects.toThrowError(
+          `Impossible to find a conversion path between from ${request.currencyInfo} to ${validConversionSettings.currency}`,
+        );
     });
 
     it('should throw an error if the conversion currency is not an acceptedTokens', async () => {
@@ -143,18 +142,16 @@ describe('swap-any-to-erc20', () => {
       };
       await expect(
         swapToPayAnyToErc20Request(validRequest, wallet, {
-          conversion: { 
-            currency: wrongCurrency
+          conversion: {
+            currency: wrongCurrency,
           },
           swap: {
             deadline: 2599732187000, // This test will fail in 2052
             maxInputAmount: '3000000000000000000',
-            path: [erc20BeforeSwap, wrongCurrency.value],
+            path: [paymentTokenAddress, wrongCurrency.value],
           },
-        })
-      ).rejects.toThrowError(
-        `The conversion currency is not an accepted token`,
-      );
+        }),
+      ).rejects.toThrowError(`The conversion currency is not an accepted token`);
     });
 
     it('should swap and pay with an ERC20 request with fees', async () => {
@@ -162,7 +159,7 @@ describe('swap-any-to-erc20', () => {
       const approvalTx = await approveErc20ForSwapWithConversionIfNeeded(
         validRequest,
         wallet.address,
-        erc20BeforeSwap,
+        paymentTokenAddress,
         wallet.provider,
         BigNumber.from(204).mul(BigNumber.from(10).pow(18)),
       );
@@ -171,24 +168,15 @@ describe('swap-any-to-erc20', () => {
       }
 
       // get the balances to compare after payment
-      const balancePayerBSwapBefore = await ERC20__factory.connect(
-        erc20BeforeSwap,
-        provider,
-      ).balanceOf(wallet.address);
-      const balancePayeeAConversionBefore = await ERC20__factory.connect(
-        erc20AfterConversion,
-        provider,
-      ).balanceOf(paymentAddress);
-      const balanceFeeAConversionBefore = await ERC20__factory.connect(
-        erc20AfterConversion,
-        provider,
-      ).balanceOf(feeAddress);
+      const initialPayerBalance = await paymentToken.balanceOf(wallet.address);
+      const initialPayeeBalance = await acceptedToken.balanceOf(paymentAddress);
+      const initialBuilderBalance = await acceptedToken.balanceOf(feeAddress);
 
       // Swap and pay
       const tx = await swapToPayAnyToErc20Request(validRequest, wallet, {
         swap: validSwapSettings,
-        conversion: validConversionSettings
-      })
+        conversion: validConversionSettings,
+      });
 
       const confirmedTx = await tx.wait(1);
 
@@ -196,16 +184,10 @@ describe('swap-any-to-erc20', () => {
       expect(tx.hash).toBeDefined();
 
       // Get the new balances
-      const balancePayerBSwapAfter = await ERC20__factory.connect(erc20BeforeSwap, provider).balanceOf(
-        wallet.address,
-      );
-      const balancePayeeAConversionAfter = await ERC20__factory.connect(erc20AfterConversion, provider).balanceOf(
-        paymentAddress,
-      );
-      const balanceFeeAConversionAfter = await ERC20__factory.connect(erc20AfterConversion, provider).balanceOf(
-        feeAddress,
-      );
-      
+      const finalPayerBalance = await paymentToken.balanceOf(wallet.address);
+      const finalPayeeBalance = await acceptedToken.balanceOf(paymentAddress);
+      const finalBuilderBalance = await acceptedToken.balanceOf(feeAddress);
+
       // Check each balance
 
       //   expectedAmount:      100000000
@@ -215,24 +197,23 @@ describe('swap-any-to-erc20', () => {
       //                     =  1009900990099009900 (18 decimals)
       //   Swapper           *  2
       //                     =  2019801980198019800 (18 decimals) paid by payer in erc20BeforeSwap
-      expect(BigNumber.from(balancePayerBSwapAfter).toString()).toEqual(
-        BigNumber.from(balancePayerBSwapBefore).sub('2019801980198019800').toString(),
+      expect(finalPayerBalance.toString()).toEqual(
+        initialPayerBalance.sub('2019801980198019800').toString(),
       );
 
       //   expectedAmount:      100000000 (8 decimals)
       //   AggDaiUsd.sol     /  101000000
       //                     =  990099009900990099 (18 decimals) received by payee in erc20AfterConversion
-      expect(BigNumber.from(balancePayeeAConversionAfter).toString()).toEqual(
-        BigNumber.from(balancePayeeAConversionBefore).add('990099009900990099').toString(),
+      expect(finalPayeeBalance.toString()).toEqual(
+        initialPayeeBalance.add('990099009900990099').toString(),
       );
 
       //   feeAmount:           2000000 (8 decimals)
       //   AggDaiUsd.sol     /  101000000
       //                     =  19801980198019801 (18 decimals) received by fee address in erc20AfterConversion
-      expect(BigNumber.from(balanceFeeAConversionAfter).toString()).toEqual(
-        BigNumber.from(balanceFeeAConversionBefore).add('19801980198019801').toString(),
-      );      
-      
+      expect(finalBuilderBalance.toString()).toEqual(
+        initialBuilderBalance.add('19801980198019801').toString(),
+      );
     });
   });
 });

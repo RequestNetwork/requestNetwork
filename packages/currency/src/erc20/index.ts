@@ -2,48 +2,11 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import { ethers } from 'ethers';
 import { supportedNetworks } from './networks';
 
-const getTokenInfoFromSymbol = (symbol: string, network?: string) => {
-  for (const networkKey of Object.keys(supportedNetworks).filter(
-    (net) => !network || net === network,
-  )) {
-    const token = Object.entries(supportedNetworks[networkKey]).find(
-      ([, info]) => info.symbol === symbol,
-    );
-    if (token) {
-      return {
-        address: token[0],
-        network: networkKey,
-        ...token[1],
-      };
-    }
-  }
-  return null;
-};
-
 const getTokenInfoFromCurrency = (currency: RequestLogicTypes.ICurrency) => {
   const network = currency.network || 'mainnet';
   const address = ethers.utils.getAddress(currency.value.toLowerCase());
   return supportedNetworks[network]?.[address];
 };
-
-/**
- * Returns a Currency object for an ERC20, if found
- * @param symbol The ERC20 token symbol
- * @param network The ERC20 contract network
- */
-export function getErc20Currency(
-  symbol: string,
-  network?: string,
-): RequestLogicTypes.ICurrency | undefined {
-  const info = getTokenInfoFromSymbol(symbol, network);
-  if (info) {
-    return {
-      type: RequestLogicTypes.CURRENCY.ERC20,
-      value: info.address,
-      network: info.network,
-    };
-  }
-}
 
 /**
  * Get the amount of decimals for an ERC20 currency
@@ -98,7 +61,7 @@ export function getSupportedERC20Tokens(): ERC20TokenDetails[] {
           network: networkName,
           decimals: token.decimals,
           name: token.name,
-          symbol: `${token.symbol}${networkName !== 'mainnet' ? `-${networkName}` : ''}`,
+          symbol: token.symbol,
         })),
       ];
     },

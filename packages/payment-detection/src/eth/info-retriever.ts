@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { ethers } from 'ethers';
+import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider';
 
 /**
  * Gets a list of transfer events for an address and payment reference
@@ -27,10 +27,14 @@ export default class ETHInfoRetriever
         'ETH input data info-retriever works with etherscan and cannot work on a local network',
       );
     }
-    const provider = new ethers.providers.EtherscanProvider(this.network, this.etherscanApiKey);
+    const provider = new MultichainExplorerApiProvider(this.network, this.etherscanApiKey);
     const history = await provider.getHistory(this.toAddress);
 
     const events = history
+      // remove potential duplicates (eg. if sender and receiver are the same)
+      .filter(
+        (transaction, index) => history.findIndex((x) => x.hash === transaction.hash) === index,
+      )
       // keep only when address is the destination
       .filter(
         (transaction) =>

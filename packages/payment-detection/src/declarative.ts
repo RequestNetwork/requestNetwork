@@ -124,6 +124,20 @@ export default class PaymentNetworkDeclarative
   }
 
   /**
+   * Creates the extensions data to declare a delegate
+   *
+   * @param Parameters to declare declare a delegate
+   * @returns The extensionData object
+   */
+  public createExtensionsDataForAddDelegate(
+    parameters: ExtensionTypes.PnAnyDeclarative.IAddDelegateParameters,
+  ): ExtensionTypes.IAction {
+    return this.extension.createAddDelegateAction({
+      delegate: parameters.delegate,
+    });
+  }
+
+  /**
    * Gets the balance and the payment/refund events
    * The balance of a request using declarative payment network is the sum of declared received payments
    * subtracted by the sum of the declared received refund
@@ -150,6 +164,7 @@ export default class PaymentNetworkDeclarative
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             note: parameters.note,
+            from: data.from,
           },
           timestamp: data.timestamp,
         });
@@ -163,6 +178,7 @@ export default class PaymentNetworkDeclarative
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             note: parameters.note,
+            from: data.from,
           },
           timestamp: data.timestamp,
         });
