@@ -156,7 +156,7 @@ describe('api/currency Token', () => {
     describe('errors', () => {
       it('Unsupported tokens should throw', () => {
         expect(() => Token.from('UNSUPPORTED')).toThrow(
-          'The currency UNSUPPORTED does not exist or is not supported',
+          "The currency symbol 'UNSUPPORTED' is unknown or not supported",
         );
       });
     });

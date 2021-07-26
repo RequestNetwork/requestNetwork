@@ -1,13 +1,10 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import {
-  getSupportedERC20Currencies,
-  getErc20Currency,
-  getErc20Symbol,
-  getErc20Decimals,
-} from './erc20';
+import * as ethers from 'ethers';
+import { getAllSupportedCurrencies } from './getAllSupportedCurrencies';
+import { getSupportedERC20Currencies, getErc20Symbol, getErc20Decimals } from './erc20';
 import iso4217 from './iso4217';
-import otherCurrencies from './others';
+import { getNativeSymbol, nativeCurrencies } from './native';
 
 /**
  * @class Currency implements ICurrency with helpers
@@ -30,25 +27,25 @@ export class Currency implements RequestLogicTypes.ICurrency {
    * @returns an ICurrency object
    */
   static from(symbolOrAddress: string): Currency {
-    if (symbolOrAddress === '') {
+    if (!symbolOrAddress) {
       throw new Error(`Cannot guess currency from empty string.`);
     }
-    try {
-      const currencyFromSymbol = this.fromSymbol(
-        symbolOrAddress.split('-')[0],
-        symbolOrAddress.split('-')[1],
-      );
-      return currencyFromSymbol;
-    } catch (e) {
+    if (ethers.utils.isAddress(symbolOrAddress)) {
       const erc20Currencies = getSupportedERC20Currencies();
       const currencyFromAddress = erc20Currencies.find(
         (c) => c.value.toLowerCase() === symbolOrAddress.toLowerCase(),
       );
       if (!currencyFromAddress) {
-        throw new Error(`The currency ${symbolOrAddress} does not exist or is not supported`);
+        throw new Error(`The address ${symbolOrAddress} does not exist or is not supported`);
       }
       return new Currency(currencyFromAddress);
     }
+
+    const currencyFromSymbol = this.fromSymbol(
+      symbolOrAddress.split('-')[0],
+      symbolOrAddress.split('-')[1],
+    );
+    return currencyFromSymbol;
   }
 
   /**
@@ -58,38 +55,27 @@ export class Currency implements RequestLogicTypes.ICurrency {
    * @returns RequestLogicTypes.ICurrency
    */
   static fromSymbol = (symbol: string, network?: string): Currency => {
-    if (symbol === '') {
+    if (!symbol) {
       throw new Error(`Cannot guess currency from empty symbol.`);
     }
-    // Check if it's a supported cryptocurrency
-    if (symbol === 'BTC' && (!network || network === 'mainnet')) {
-      return new Currency({
-        type: RequestLogicTypes.CURRENCY.BTC,
-        value: 'BTC',
-        network: 'mainnet',
-      });
-    }
-    if (symbol === 'ETH' && (!network || network === 'mainnet' || network === 'rinkeby')) {
-      return new Currency({
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH',
-        network: network || 'mainnet',
-      });
+
+    for (const [type, currencies] of Object.entries(getAllSupportedCurrencies())) {
+      const currency = currencies.find(
+        (cur) =>
+          // test native tokens have the network in their symbol already
+          cur.symbol.toLowerCase().split('-')[0] === symbol.toLowerCase() &&
+          (!network || network === cur.network),
+      );
+
+      if (currency) {
+        return new Currency({
+          type: type as RequestLogicTypes.CURRENCY,
+          value: currency.address || currency.symbol,
+          network: currency.network,
+        });
+      }
     }
 
-    // Check if it's an ERC20 token and return it if found
-    const erc20Currency = getErc20Currency(symbol, network);
-    if (erc20Currency) {
-      return new Currency(erc20Currency);
-    }
-
-    // Check if it's one of ISO4217 currencies
-    if (iso4217.find((i) => i.code === symbol)) {
-      return new Currency({
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-        value: symbol,
-      });
-    }
     throw new Error(
       `The currency symbol '${symbol}'${
         network ? ` on ${network}` : ''
@@ -106,7 +92,7 @@ export class Currency implements RequestLogicTypes.ICurrency {
     switch (this.type) {
       case RequestLogicTypes.CURRENCY.BTC:
       case RequestLogicTypes.CURRENCY.ETH:
-        symbol = this.type;
+        symbol = getNativeSymbol(this.type, this.network);
         break;
       case RequestLogicTypes.CURRENCY.ISO4217:
         symbol = this.value;
@@ -162,24 +148,29 @@ export class Currency implements RequestLogicTypes.ICurrency {
     }
 
     // other currencies
-    const otherCurrency = otherCurrencies[this.type];
+    const otherCurrency = nativeCurrencies[this.type]?.find((x) => x.symbol === this.value);
     if (!otherCurrency) {
-      throw new Error(`Currency ${this.type} not implemented`);
+      throw new Error(`Currency ${this.type} - ${this.value} not implemented`);
     }
 
     return otherCurrency.decimals;
   }
 
   /**
-   * @returns e.g.: 'ETH',  'ETH-rinkeby', 'FAU-rinkeby' etc.
+   * @returns e.g.: 'ETH', 'DAI', 'RIN', 'FAU'.
    */
   public toString(): string | 'unknown' {
     const symbol = this.getSymbol();
 
     // Append currency network if relevant
-    const network =
-      this.network && this.network !== 'mainnet' && symbol !== 'unknown' ? `-${this.network}` : '';
-
-    return symbol + network;
+    if (
+      this.network &&
+      this.network !== 'mainnet' &&
+      symbol !== 'unknown' &&
+      symbol.indexOf('-') < 0
+    ) {
+      return [symbol, this.network].join('-');
+    }
+    return symbol;
   }
 }

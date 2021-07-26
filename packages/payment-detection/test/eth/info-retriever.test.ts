@@ -44,4 +44,41 @@ describe('api/eth/info-retriever', () => {
     );
     await expect(infoRetreiver.getTransferEvents()).rejects.toThrowError();
   });
+
+  describe('Multichain', () => {
+    ['mainnet', 'rinkeby', 'xdai', 'sokol', 'fuse', 'celo', 'matic', 'fantom'].forEach(
+      (network) => {
+        it(`Can get the balance on ${network}`, async () => {
+          const retriever = new EthInfoRetriever(
+            '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+            PaymentTypes.EVENTS_NAMES.PAYMENT,
+            network,
+            '9649a1a4dd5854ed',
+          );
+          await expect(retriever.getTransferEvents()).resolves.not.toThrow();
+        });
+      },
+    );
+
+    it('can detect a MATIC payment to self', async () => {
+      // NB: The from and to are the same
+      const paymentAddress = '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93';
+      const paymentReference = PaymentReferenceCalculator.calculate(
+        '01b809015dcda94dccfc626609b0a1d8f8e656ec787cf7f59d59d242dc9f1db0ca',
+        'a1a2a3a4a5a6a7a8',
+        paymentAddress,
+      );
+
+      const infoRetriever = new EthInfoRetriever(
+        paymentAddress,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
+        'matic',
+        paymentReference,
+      );
+      const events = await infoRetriever.getTransferEvents();
+      expect(events).toHaveLength(1);
+
+      expect(events[0].amount).toBe('1000000000000000');
+    });
+  });
 });

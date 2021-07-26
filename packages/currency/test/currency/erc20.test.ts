@@ -24,14 +24,14 @@ describe('erc20', () => {
         }),
       ).toEqual('CTBK');
     });
-    it('get the symbol for CUSD currency (Celo network)', () => {
+    it('get the symbol for cUSD currency (Celo network)', () => {
       expect(
         getErc20Symbol({
           network: 'celo',
           type: RequestLogicTypes.CURRENCY.ERC20,
           value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
         }),
-      ).toEqual('CUSD');
+      ).toEqual('cUSD');
     });
 
     it('can get the symbol for different address case', () => {
