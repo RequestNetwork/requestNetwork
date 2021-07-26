@@ -5,6 +5,6 @@
     "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["./src/**/*", "./artifacts/**/*", "./src/**/*.json"],
+  "include": ["./src/**/*", "./src/**/*.json"],
   "references": [{ "path": "../currency" }, { "path": "../utils" }]
 }

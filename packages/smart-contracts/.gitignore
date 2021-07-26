@@ -1,1 +1,4 @@
 build/
+
+#Hardhat files
+cache

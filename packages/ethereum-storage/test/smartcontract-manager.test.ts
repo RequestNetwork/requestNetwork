@@ -255,12 +255,14 @@ describe('SmartContractManager', () => {
       return null;
     };
 
-    await expect(
-      smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: otherSize }),
-    ).rejects.toThrowError('Maximum number of confirmation reached');
-
-    clearInterval(blockInterval);
-  }, 30000);
+    try {
+      await expect(
+        smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: otherSize }),
+      ).rejects.toThrowError('Maximum number of confirmation reached');
+    } finally {
+      clearInterval(blockInterval);
+    }
+  }, 35000);
 
   it('allows to get all hashes', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'

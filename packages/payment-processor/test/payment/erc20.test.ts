@@ -6,6 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { Wallet, providers, BigNumber } from 'ethers';
+import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import {
   _getErc20PaymentUrl,
   approveErc20,
@@ -132,7 +133,7 @@ describe('hasErc20approval & approveErc20', () => {
       const otherWallet = new Wallet(
         '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
       ).connect(provider);
-      const feeProxyAddres = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
+      const feeProxyAddres = erc20FeeProxyArtifact.getAddress('private');
       let hasApproval = await hasErc20Approval(erc20FeeProxyRequest, otherWallet.address, provider);
       // Warning: this test can run only once!
       // 'already has approval'

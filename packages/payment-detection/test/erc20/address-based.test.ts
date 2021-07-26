@@ -73,6 +73,7 @@ describe('api/erc20/address-based', () => {
   });
 
   it('can getBalance on a localhost request', async () => {
+    // This test relies on the transfer of 10 TestERC20 in the contract constructor
     const mockRequest = {
       creator: { type: '', value: '0x2' },
       currency: {
