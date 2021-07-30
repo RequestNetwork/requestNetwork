@@ -20,6 +20,10 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0xBFAD7f00A3988BFf17144728b624267Fee7F236e',
           creationBlockNumber: 7684572,
         },
+        matic: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 17427745,
+        },
       },
     },
   },
