@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.25 <0.7.0;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 interface ERC20fraction {
   function decimals() external view returns (uint8);
@@ -20,7 +20,7 @@ interface AggregatorFraction {
  *
  * @notice ChainlinkConversionPath is a contract computing currency conversion rates based on Chainlink aggretators
  */
-contract ChainlinkConversionPath is WhitelistAdminRole {
+contract ChainlinkConversionPath is AccessControl {
   using SafeMath for uint256;
 
   uint constant DECIMALS = 1e18;
@@ -40,7 +40,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   */
   function updateAggregator(address _input, address _output, address _aggregator)
     external
-    onlyWhitelistAdmin
+    onlyRole(DEFAULT_ADMIN_ROLE)
   {
     allAggregators[_input][_output] = _aggregator;
     emit AggregatorUpdated(_input, _output, _aggregator);
@@ -54,7 +54,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   */
   function updateAggregatorsList(address[] calldata _inputs, address[] calldata _outputs, address[] calldata _aggregators)
     external
-    onlyWhitelistAdmin
+    onlyRole(DEFAULT_ADMIN_ROLE)
   {
     require(_inputs.length == _outputs.length, "arrays must have the same length");
     require(_inputs.length == _aggregators.length, "arrays must have the same length");
@@ -182,7 +182,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   /**
   * @notice Gets decimals from an address currency
   * @param _addr address to check
-  * @return number of decimals
+  * @return decimals number of decimals
   */
   function getDecimals(address _addr)
     private

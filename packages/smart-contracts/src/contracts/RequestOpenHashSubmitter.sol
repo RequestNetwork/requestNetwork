@@ -1,4 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./StorageFeeCollector.sol";
 import "./RequestHashStorage.sol";
@@ -27,7 +28,7 @@ contract RequestOpenHashSubmitter is StorageFeeCollector {
   }
 
   // Fallback function returns funds to the sender
-  function()
+  fallback()
     external
     payable
   {

@@ -1,15 +1,15 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
-
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title StorageFeeCollector
  *
  * @notice StorageFeeCollector is a contract managing the fees
  */
-contract StorageFeeCollector is WhitelistAdminRole {
+contract StorageFeeCollector is AccessControl {
   using SafeMath for uint256;
 
   /**
@@ -55,7 +55,7 @@ contract StorageFeeCollector is WhitelistAdminRole {
     */
   function setFeeParameters(uint256 _minimumFee, uint256 _rateFeesNumerator, uint256 _rateFeesDenominator)
     external
-    onlyWhitelistAdmin
+    onlyRole(DEFAULT_ADMIN_ROLE)
   {
     minimumFee = _minimumFee;
     rateFeesNumerator = _rateFeesNumerator;
@@ -69,7 +69,7 @@ contract StorageFeeCollector is WhitelistAdminRole {
     */
   function setRequestBurnerContract(address payable _requestBurnerContract)
     external
-    onlyWhitelistAdmin
+    onlyRole(DEFAULT_ADMIN_ROLE)
   {
     requestBurnerContract = _requestBurnerContract;
     emit UpdatedBurnerContract(requestBurnerContract);

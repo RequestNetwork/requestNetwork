@@ -1,19 +1,21 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/roles/WhitelistedRole.sol";
-
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title RequestHashStorage
  * @notice This contract is the entry point to retrieve all the hashes of the request network system.
   */
-contract RequestHashStorage is WhitelistedRole {
+contract RequestHashStorage is AccessControl {
+
+  bytes32 PUBLISHER_ROLE = "PUBLISHER";
 
   // Event to declare a new hash
   event NewHash(string hash, address hashSubmitter, bytes feesParameters);
 
   // Fallback function returns funds to the sender
-  function()
+  fallback()
     external
   {
     revert("not payable fallback");
@@ -26,7 +28,7 @@ contract RequestHashStorage is WhitelistedRole {
    */
   function declareNewHash(string calldata _hash, bytes calldata _feesParameters)
     external
-    onlyWhitelisted
+    onlyRole(PUBLISHER_ROLE)
   {
     // Emit event for log
     emit NewHash(_hash, msg.sender, _feesParameters);

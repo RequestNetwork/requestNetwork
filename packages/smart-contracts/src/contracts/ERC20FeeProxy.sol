@@ -1,4 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 
 /**
@@ -17,7 +18,7 @@ contract ERC20FeeProxy {
   );
 
   // Fallback function returns funds to the sender
-  function() external payable {
+  fallback() external payable {
     revert("not payable fallback");
   }
 
@@ -56,7 +57,7 @@ contract ERC20FeeProxy {
   /**
    * @notice Call transferFrom ERC20 function and validates the return data of a ERC20 contract call.
    * @dev This is necessary because of non-standard ERC20 tokens that don't have a return value.
-   * @return The return value of the ERC20 call, returning true for non-standard tokens
+   * @return result The return value of the ERC20 call, returning true for non-standard tokens
    */
   function safeTransferFrom(address _tokenAddress, address _to, uint256 _amount) internal returns (bool result) {
     /* solium-disable security/no-inline-assembly */

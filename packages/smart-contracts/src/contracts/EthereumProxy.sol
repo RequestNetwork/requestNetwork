@@ -1,4 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 
 /**
@@ -10,7 +11,7 @@ contract EthereumProxy {
   event TransferWithReference(address to, uint256 amount, bytes indexed paymentReference);
 
   // Fallback function returns funds to the sender
-  function() external payable {
+  fallback() external payable {
     revert("not payable fallback");
   }
 
