@@ -144,7 +144,11 @@ export default class RequestNetwork {
    */
   public async fromRequestId(
     requestId: RequestLogicTypes.RequestId,
-    options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
+    options?: {
+      disablePaymentDetection?: boolean;
+      disableEvents?: boolean;
+      explorerApiKeys?: Record<string, string>;
+    },
   ): Promise<Request> {
     const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
       requestId,
@@ -164,6 +168,7 @@ export default class RequestNetwork {
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
         request: requestState,
+        explorerApiKeys: options?.explorerApiKeys,
       },
     );
 

@@ -90,16 +90,19 @@ export default class PaymentNetworkFactory {
    * @param advancedLogic the advanced-logic layer in charge of the extensions
    * @param request the request
    * @param bitcoinDetectionProvider bitcoin detection provider
+   * @param explorerApiKeys the explorer API (eg Etherscan) api keys, for PNs that rely on it. Record by network name.
    * @returns the module to handle the payment network or null if no payment network found
    */
   public static getPaymentNetworkFromRequest({
     advancedLogic,
     request,
     bitcoinDetectionProvider,
+    explorerApiKeys,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     request: RequestLogicTypes.IRequest;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
+    explorerApiKeys?: Record<string, string>;
   }): PaymentTypes.IPaymentNetwork | null {
     const currency = request.currency;
     const extensionPaymentNetwork = Object.values(request.extensions || {}).find(
@@ -124,6 +127,7 @@ export default class PaymentNetworkFactory {
     return new paymentNetworkForCurrency[paymentNetworkId]({
       advancedLogic,
       bitcoinDetectionProvider,
+      explorerApiKeys,
     });
   }
 }

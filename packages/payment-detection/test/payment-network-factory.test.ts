@@ -7,6 +7,7 @@ import {
 
 import BTCAddressedBased from '../src/btc/mainnet-address-based';
 import Declarative from '../src/declarative';
+import PaymentNetworkETHInputData from '../src/eth/input-data';
 
 import PaymentNetworkFactory from '../src/payment-network-factory';
 
@@ -178,6 +179,33 @@ describe('api/payment-network/payment-network-factory', () => {
           request,
         }),
       ).toBeInstanceOf(Declarative);
+    });
+
+    it('can pass options down to the paymentNetwork', async () => {
+      const request: any = {
+        currency: {
+          type: 'ETH',
+          network: 'mainnet',
+          value: 'ETH',
+        },
+        extensions: {
+          [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA as string]: {
+            id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          },
+        },
+      };
+      const pn = PaymentNetworkFactory.getPaymentNetworkFromRequest({
+        advancedLogic: mockAdvancedLogic,
+        request,
+        explorerApiKeys: {
+          homestead: 'abcd',
+        },
+      });
+      expect(pn).toBeInstanceOf(PaymentNetworkETHInputData);
+      expect((pn as any).explorerApiKeys).toMatchObject({
+        homestead: 'abcd',
+      });
     });
   });
 });
