@@ -54,6 +54,7 @@ describe('api/eth/info-retriever', () => {
             PaymentTypes.EVENTS_NAMES.PAYMENT,
             network,
             '9649a1a4dd5854ed',
+            process.env[`EXPLORER_API_KEY_${network.toUpperCase()}`],
           );
           await expect(retriever.getTransferEvents()).resolves.not.toThrow();
         });
@@ -74,6 +75,7 @@ describe('api/eth/info-retriever', () => {
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'matic',
         paymentReference,
+        process.env[`EXPLORER_API_KEY_MATIC`],
       );
       const events = await infoRetriever.getTransferEvents();
       expect(events).toHaveLength(1);

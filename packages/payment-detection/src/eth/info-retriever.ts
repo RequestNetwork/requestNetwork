@@ -11,14 +11,14 @@ export default class ETHInfoRetriever
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    * @param paymentReference The reference to identify the payment
-   * @param etherscanApiToken The etherscan API token
+   * @param explorerApiKey The explorer (etherscan...) API key
    */
   constructor(
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
     private paymentReference: string,
-    private etherscanApiKey: string = 'TCVQQU5V39TAS1V6HF61P9K7IJZVEHH1D9',
+    private explorerApiKey?: string,
   ) {}
 
   public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
@@ -27,7 +27,7 @@ export default class ETHInfoRetriever
         'ETH input data info-retriever works with etherscan and cannot work on a local network',
       );
     }
-    const provider = new MultichainExplorerApiProvider(this.network, this.etherscanApiKey);
+    const provider = new MultichainExplorerApiProvider(this.network, this.explorerApiKey);
     const history = await provider.getHistory(this.toAddress);
 
     const events = history

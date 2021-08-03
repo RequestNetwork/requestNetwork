@@ -42,11 +42,19 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 export default class PaymentNetworkETHInputData
   implements PaymentTypes.IPaymentNetwork<PaymentTypes.IETHPaymentEventParameters> {
   private extension: ExtensionTypes.PnReferenceBased.IReferenceBased;
+  private explorerApiKeys: Record<string, string>;
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+  public constructor({
+    advancedLogic,
+    explorerApiKeys,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    explorerApiKeys?: Record<string, string>;
+  }) {
     this.extension = advancedLogic.extensions.ethereumInputData;
+    this.explorerApiKeys = explorerApiKeys || {};
   }
 
   /**
@@ -209,6 +217,7 @@ export default class PaymentNetworkETHInputData
       eventName,
       network,
       paymentReference,
+      this.explorerApiKeys[network],
     );
 
     const events = await infoRetriever.getTransferEvents();
