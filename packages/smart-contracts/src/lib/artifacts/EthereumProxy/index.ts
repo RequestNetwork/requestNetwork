@@ -20,10 +20,13 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff',
           creationBlockNumber: 5955681,
         },
-        matic: {
-          address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
-          creationBlockNumber: 17427737,
-        },
+        // FIXME: Temporarily disable this artifact to fix ETH payment detection
+        //  because Matic doesn't support eth_getLogs for many blocks.
+        //  The fix will be to use TheGraph for Ethereum Proxy
+        // matic: {
+        //   address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
+        //   creationBlockNumber: 17427737,
+        // },
       },
     },
   },
