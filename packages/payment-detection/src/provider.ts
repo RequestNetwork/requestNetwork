@@ -34,6 +34,8 @@ export const initPaymentDetectionApiKeys = (
 const networkRpcs: Record<string, string> = {
   private: providers.JsonRpcProvider.defaultUrl(),
   matic: 'https://rpc-mainnet.matic.network/',
+  fantom: 'https://rpcapi.fantom.network',
+  fuse: 'https://rpc.fuse.io',
 };
 
 /**

@@ -15,6 +15,9 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
     if (typeof network === 'string' && networks[network]) {
       network = networks[network];
     }
+    if (!apiKey && (network === 'mainnet' || network === 'rinkeby')) {
+      apiKey = 'TCVQQU5V39TAS1V6HF61P9K7IJZVEHH1D9';
+    }
     super(network, apiKey);
   }
 
