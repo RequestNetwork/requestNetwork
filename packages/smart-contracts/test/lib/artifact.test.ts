@@ -1,6 +1,6 @@
 import { BigNumber, providers } from 'ethers';
 import { RequestOpenHashSubmitter } from '../../src/types';
-import { erc20ProxyArtifact } from '../../src/lib';
+import { erc20FeeProxyArtifact, erc20ProxyArtifact } from '../../src/lib';
 
 describe('Artifact', () => {
   it('can get the contract info for latest version', () => {
@@ -43,5 +43,30 @@ describe('Artifact', () => {
     const p2 = instance.transferFromWithReference('', '', BigNumber.from(0), '');
     // silence warnings (we're only interested in types in this test)
     await expect(p2).rejects.toThrow();
+  });
+
+  it('can get all addresses for a contract with multiple versions', () => {
+    expect(erc20FeeProxyArtifact.getAllAddresses('matic')).toMatchObject(
+      expect.arrayContaining([
+        { version: '0.1.0', address: expect.stringMatching(/^0x.*$/) },
+        { version: '0.2.0', address: expect.stringMatching(/^0x.*$/) },
+      ]),
+    );
+  });
+
+  it('throws for a non-existing network', () => {
+    expect(() => erc20ProxyArtifact.getDeploymentInformation('fakenetwork')).toThrowError(
+      `No deployment for network: fakenetwork`,
+    );
+  });
+
+  it('throws for a non-existing version', () => {
+    expect(() => erc20ProxyArtifact.getDeploymentInformation('mainnet', 'fake')).toThrowError(
+      `No deployment for version: fake`,
+    );
+  });
+
+  it('allows to safely check for an existing artifact', () => {
+    expect(erc20ProxyArtifact.getOptionalDeploymentInformation('mainnet', 'fake')).toBeNull();
   });
 });
