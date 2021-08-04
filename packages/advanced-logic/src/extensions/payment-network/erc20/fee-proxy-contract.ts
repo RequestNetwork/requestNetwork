@@ -2,7 +2,7 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 import Utils from '@requestnetwork/utils';
 import Erc20ProxyPaymentNetwork from './proxy-contract';
 
-const CURRENT_VERSION = '0.1.0';
+const CURRENT_VERSION = '0.2.0';
 
 /**
  * Implementation of the payment network to pay in ERC20, including third-party fees payment, based on a reference provided to a proxy contract.
@@ -57,9 +57,9 @@ export default class Erc20FeeProxyPaymentNetwork<
       throw Error('feeAddress requires feeAmount');
     }
 
-    return super.createCreationAction(
-      creationParameters,
-    ) as ExtensionTypes.IAction<TCreationParameters>;
+    return super.createCreationAction(creationParameters) as ExtensionTypes.IAction<
+      TCreationParameters
+    >;
   }
 
   /**
