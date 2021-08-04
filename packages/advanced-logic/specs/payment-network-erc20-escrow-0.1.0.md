@@ -37,7 +37,7 @@ The `LockWithReference` event is emitted when the tokens are locked. This event 
 
 ## Interpretation
 
-When a request is paid with escrow, the events `TransferWithReferenceAndFee` are interepreted the same way and from the same contract.
+When a request is paid with escrow, the events `TransferWithReferenceAndFee` are interpreted the same way and from the same contract.
 
 Additionally, `LockWithReferenceAndFee` and `LockFreeze` events can be used to compute a pre-payment balance.
 
