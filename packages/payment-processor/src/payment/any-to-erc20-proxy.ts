@@ -8,12 +8,14 @@ import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
+  getPaymentNetworkExtension,
   getProvider,
   getRequestPaymentValues,
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
+import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Details required to pay a request with on-chain conversion:
@@ -43,27 +45,14 @@ export async function payAnyToErc20ProxyRequest(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  if (!paymentSettings.currency.network) {
-    throw new Error('Cannot pay with a currency missing a network');
-  }
-  const encodedTx = await encodePayAnyToErc20ProxyRequest(
+  const { data, to, value } = preparePayAnyToErc20ProxyRequestTransaction(
     request,
-    signerOrProvider,
     paymentSettings,
     amount,
     feeAmount,
   );
-  const proxyAddress = erc20ConversionProxy.getAddress(paymentSettings.currency.network);
   const signer = getSigner(signerOrProvider);
-
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: proxyAddress,
-    value: 0,
-    ...overrides,
-  });
-
-  return tx;
+  return signer.sendTransaction({ data, to, value, ...overrides });
 }
 
 /**
@@ -74,13 +63,12 @@ export async function payAnyToErc20ProxyRequest(
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
-export async function encodePayAnyToErc20ProxyRequest(
+export function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   paymentSettings: IPaymentSettings,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-): Promise<string> {
+): string {
   if (!paymentSettings.currency.network) {
     throw new Error('Cannot pay with a currency missing a network');
   }
@@ -100,7 +88,6 @@ export async function encodePayAnyToErc20ProxyRequest(
   // Check request
   validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
-  const signer = getSigner(signerOrProvider);
   const {
     paymentReference,
     paymentAddress,
@@ -113,10 +100,8 @@ export async function encodePayAnyToErc20ProxyRequest(
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
 
-  const proxyAddress = erc20ConversionProxy.getAddress(paymentSettings.currency.network);
-  const proxyContract = Erc20ConversionProxy__factory.connect(proxyAddress, signer);
-
-  return proxyContract.interface.encodeFunctionData('transferFromWithReferenceAndFee', [
+  const proxyContract = Erc20ConversionProxy__factory.createInterface();
+  return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
     paymentAddress,
     amountToPay,
     path,
@@ -126,4 +111,27 @@ export async function encodePayAnyToErc20ProxyRequest(
     paymentSettings.maxToSpend,
     maxRateTimespan || 0,
   ]);
+}
+
+export function preparePayAnyToErc20ProxyRequestTransaction(
+  request: ClientTypes.IRequestData,
+  paymentSettings: IPaymentSettings,
+  amount?: BigNumberish,
+  feeAmount?: BigNumberish,
+): IPreparedTransaction {
+  if (!paymentSettings.currency.network) {
+    throw new Error('Cannot pay with a currency missing a network');
+  }
+  const encodedTx = encodePayAnyToErc20ProxyRequest(request, paymentSettings, amount, feeAmount);
+  const pn = getPaymentNetworkExtension(request);
+
+  const proxyAddress = erc20ConversionProxy.getAddress(
+    paymentSettings.currency.network,
+    pn?.version,
+  );
+  return {
+    data: encodedTx,
+    to: proxyAddress,
+    value: 0,
+  };
 }
