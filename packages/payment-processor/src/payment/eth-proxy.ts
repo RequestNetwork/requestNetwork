@@ -27,7 +27,7 @@ export async function payEthProxyRequest(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const signer = getSigner(signerOrProvider);
-  const { data, to, value } = preparePayEthProxyRequestTransaction(request, amount);
+  const { data, to, value } = prepareEthProxyPaymentTransaction(request, amount);
   return signer.sendTransaction({ data, to, value, ...overrides });
 }
 
@@ -49,7 +49,7 @@ export function encodePayEthProxyRequest(request: ClientTypes.IRequestData): str
   ]);
 }
 
-export function preparePayEthProxyRequestTransaction(
+export function prepareEthProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): IPreparedTransaction {

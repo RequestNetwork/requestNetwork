@@ -45,7 +45,7 @@ export async function payAnyToErc20ProxyRequest(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = preparePayAnyToErc20ProxyRequestTransaction(
+  const { data, to, value } = prepareAnyToErc20ProxyPaymentTransaction(
     request,
     paymentSettings,
     amount,
@@ -113,7 +113,7 @@ export function encodePayAnyToErc20ProxyRequest(
   ]);
 }
 
-export function preparePayAnyToErc20ProxyRequestTransaction(
+export function prepareAnyToErc20ProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
   paymentSettings: IPaymentSettings,
   amount?: BigNumberish,

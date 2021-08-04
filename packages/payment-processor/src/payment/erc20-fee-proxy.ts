@@ -31,7 +31,7 @@ export async function payErc20FeeProxyRequest(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = preparePayErc20FeeRequestTransaction(request, amount, feeAmount);
+  const { data, to, value } = prepareErc20FeeProxyPaymentTransaction(request, amount, feeAmount);
   const signer = getSigner(signerOrProvider);
   return signer.sendTransaction({ data, to, value, ...overrides });
 }
@@ -103,7 +103,7 @@ export function _getErc20FeeProxyPaymentUrl(
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
-export function preparePayErc20FeeRequestTransaction(
+export function prepareErc20FeeProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
