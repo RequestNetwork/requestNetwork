@@ -35,6 +35,8 @@ export class ContractArtifact<TContract extends Contract> {
     this.getAddress = this.getAddress.bind(this);
     this.getCreationBlockNumber = this.getCreationBlockNumber.bind(this);
     this.getDeploymentInformation = this.getDeploymentInformation.bind(this);
+    this.getAllAddresses = this.getAllAddresses.bind(this);
+    this.getOptionalDeploymentInformation = this.getOptionalDeploymentInformation.bind(this);
   }
 
   /**
