@@ -53,4 +53,20 @@ describe('Artifact', () => {
       ]),
     );
   });
+
+  it('throws for a non-existing network', () => {
+    expect(() => erc20ProxyArtifact.getDeploymentInformation('fakenetwork')).toThrowError(
+      `No deployment for network: fakenetwork`,
+    );
+  });
+
+  it('throws for a non-existing version', () => {
+    expect(() => erc20ProxyArtifact.getDeploymentInformation('mainnet', 'fake')).toThrowError(
+      `No deployment for version: fake`,
+    );
+  });
+
+  it('allows to safely check for an existing artifact', () => {
+    expect(erc20ProxyArtifact.getOptionalDeploymentInformation('mainnet', 'fake')).toBeNull();
+  });
 });

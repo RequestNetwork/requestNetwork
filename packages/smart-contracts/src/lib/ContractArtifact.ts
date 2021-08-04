@@ -109,7 +109,7 @@ export class ContractArtifact<TContract extends Contract> {
   ): { address: string; creationBlockNumber: number } {
     const versionInfo = this.info[version];
     if (!versionInfo) {
-      throw Error(`No deployment for version ${version}.`);
+      throw Error(`No deployment for version: ${version}.`);
     }
     const info = versionInfo.deployment[networkName];
     // Check the artifact has been deployed into the specified network
@@ -117,5 +117,12 @@ export class ContractArtifact<TContract extends Contract> {
       throw Error(`No deployment for network: ${networkName}.`);
     }
     return info;
+  }
+
+  getOptionalDeploymentInformation(
+    networkName: string,
+    version = this.lastVersion,
+  ): { address: string; creationBlockNumber: number } | null {
+    return this.info[version]?.deployment[networkName] || null;
   }
 }
