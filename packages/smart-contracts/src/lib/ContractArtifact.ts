@@ -99,9 +99,9 @@ export class ContractArtifact<TContract extends Contract> {
 
   /**
    * Retrieve the deployment information from the artifact of the used version
-   * deployed into the specified network
+   * deployed into the specified network. Will trow an error if the version of network is incorrect.
    * @param networkName the name of the network where the contract is deployed
-   * @returns the deployment information of the contract as a json object containing address and the number of the creation block
+   * @returns The address and the number of the creation block
    */
   getDeploymentInformation(
     networkName: string,
@@ -119,6 +119,12 @@ export class ContractArtifact<TContract extends Contract> {
     return info;
   }
 
+  /**
+   * Retrieve the deployment information from the artifact of the used version
+   * deployed into the specified network
+   * @param networkName the name of the network where the contract is deployed
+   * @returns The address and the number of the creation block, or null if not found
+   */
   getOptionalDeploymentInformation(
     networkName: string,
     version = this.lastVersion,
