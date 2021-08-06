@@ -1,5 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { getPath } from '../src/chainlink-path-aggregators';
+import { Currency } from '../src/currency';
 
 describe('chainlink-path-aggregators', () => {
   describe('getPath', () => {
@@ -80,6 +81,18 @@ describe('chainlink-path-aggregators', () => {
           '0xf5af88e117747e87fc5929f2ff87221b1447652e',
           // MKR
           '0x9f8f72aa9304c8b593d555f12ef6589cc3a579a2',
+        ]);
+      });
+    });
+
+    describe('matic', () => {
+      it.only('cannot get path from USD to DAI on matic', () => {
+        expect(getPath(Currency.from('USD'), Currency.from('DAI'), 'matic')).toBeNull();
+      });
+      it.only('can get path from USD to DAI-matic on matic', () => {
+        expect(getPath(Currency.from('USD'), Currency.from('DAI-matic'), 'matic')).toEqual([
+          '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
+          '0x6b175474e89094c44da98b954eedeac495271d0f',
         ]);
       });
     });

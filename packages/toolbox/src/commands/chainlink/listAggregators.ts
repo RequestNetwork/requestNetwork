@@ -10,5 +10,16 @@ export const builder = (): yargs.Argv<IOptions> =>
       type: 'string',
       desc: 'Network for which to list aggregators (mainnet, rinkeby, private)',
     },
+    web3Url: {
+      demand: false,
+      type: 'string',
+      desc: 'A Web3 RPC url. If not provided will use the default',
+    },
+    lastBlock: {
+      demand: false,
+      type: 'number',
+      desc:
+        'If specified, will check until this block. Useful for networks with a limitation on the block range',
+    },
   });
 export const handler = listAggregators;
