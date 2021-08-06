@@ -72,6 +72,11 @@ export const extraERC20Tokens = {
     symbol: 'RLY',
     decimals: 18,
   },
+  '0x7815bDa662050D84718B988735218CFfd32f75ea': {
+    name: 'YEL Token',
+    symbol: 'YEL',
+    decimals: 18,
+  },
 };
 
 // Merge metamask contracts list with our own
