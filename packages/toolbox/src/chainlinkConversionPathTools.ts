@@ -34,7 +34,7 @@ class ChainlinkConversionPathTools {
   /**
    * @param network The Ethereum network to use
    */
-  constructor(private network: string, private web3Url?: string, private lastBlock?: number) {
+  constructor(private network: string, web3Url?: string, private lastBlock?: number) {
     // Creates a local or default provider
     this.provider = web3Url
       ? new providers.JsonRpcProvider(web3Url)

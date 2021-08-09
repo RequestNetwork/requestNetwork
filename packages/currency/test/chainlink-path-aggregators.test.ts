@@ -86,13 +86,13 @@ describe('chainlink-path-aggregators', () => {
     });
 
     describe('matic', () => {
-      it.only('cannot get path from USD to DAI on matic', () => {
+      it('cannot get path from USD to DAI on matic', () => {
         expect(getPath(Currency.from('USD'), Currency.from('DAI'), 'matic')).toBeNull();
       });
-      it.only('can get path from USD to DAI-matic on matic', () => {
+      it('can get path from USD to DAI-matic on matic', () => {
         expect(getPath(Currency.from('USD'), Currency.from('DAI-matic'), 'matic')).toEqual([
           '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
-          '0x6b175474e89094c44da98b954eedeac495271d0f',
+          '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
         ]);
       });
     });
