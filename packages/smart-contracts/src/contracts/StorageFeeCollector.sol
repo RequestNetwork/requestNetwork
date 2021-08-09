@@ -40,9 +40,7 @@ contract StorageFeeCollector is AccessControl {
    * @param _requestBurnerContract Address of the contract where to send the ether.
    * This burner contract will have a function that can be called by anyone and will exchange ether to req via Kyber and burn the REQ
    */
-  constructor(address payable _requestBurnerContract)
-    public
-  {
+  constructor(address payable _requestBurnerContract) {
     requestBurnerContract = _requestBurnerContract;
   }
 

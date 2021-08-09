@@ -30,8 +30,9 @@ export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment)
     console.log('RequestOpenHashSubmitter Contract deployed: ' + RequestOpenHashSubmitter.address);
 
     // Whitelist the requestSubmitter in requestHashDeclaration
-    await RequestHashStorage.addWhitelisted(RequestOpenHashSubmitter.address);
-    console.log('requestSubmitter Whitelisted in requestHashDeclaration');
+    // await RequestHashStorage.addWhitelisted(RequestOpenHashSubmitter.address);
+    await RequestHashStorage.grantRole("PUBLISHER", RequestOpenHashSubmitter.address);
+    console.log('requestSubmitter get the "PUBLISHER" role in requestHashDeclaration');
 
     // ----------------------------------
     console.log('Contracts deployed');

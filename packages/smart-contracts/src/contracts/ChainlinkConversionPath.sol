@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 interface ERC20fraction {
@@ -21,8 +20,6 @@ interface AggregatorFraction {
  * @notice ChainlinkConversionPath is a contract computing currency conversion rates based on Chainlink aggretators
  */
 contract ChainlinkConversionPath is AccessControl {
-  using SafeMath for uint256;
-
   uint constant DECIMALS = 1e18;
 
   // Mapping of Chainlink aggregators (input currency => output currency => contract address)
@@ -84,7 +81,7 @@ contract ChainlinkConversionPath is AccessControl {
     (uint256 rate, uint256 timestamp, uint256 decimals) = getRate(_path);
 
     // initialize the result
-    result = _amountIn.mul(rate).div(decimals);
+    result = (_amountIn * rate) / decimals;
 
     oldestRateTimestamp = timestamp;
   }
@@ -125,25 +122,25 @@ contract ChainlinkConversionPath is AccessControl {
 
       // mul with the difference of decimals before the current rate computation (for more precision)
       if (decimalsAggregator > decimalsInput) {
-        rate = rate.mul(10**(decimalsAggregator-decimalsInput));
+        rate = rate * (10**(decimalsAggregator-decimalsInput));
       }
       if (decimalsAggregator < decimalsOutput) {
-        rate = rate.mul(10**(decimalsOutput-decimalsAggregator));
+        rate = rate * (10**(decimalsOutput-decimalsAggregator));
       }
 
       // Apply the current rate (if path uses an aggregator in the reverse way, div instead of mul)
       if (reverseAggregator) {
-        rate = rate.mul(10**decimalsAggregator).div(currentRate);
+        rate = (rate * (10**decimalsAggregator)) / currentRate;
       } else {
-        rate = rate.mul(currentRate).div(10**decimalsAggregator);
+        rate = (rate * currentRate) / (10**decimalsAggregator);
       }
 
       // div with the difference of decimals AFTER the current rate computation (for more precision)
       if (decimalsAggregator < decimalsInput) {
-        rate = rate.div(10**(decimalsInput-decimalsAggregator));
+        rate = rate / (10**(decimalsInput-decimalsAggregator));
       }
       if (decimalsAggregator > decimalsOutput) {
-        rate = rate.div(10**(decimalsAggregator-decimalsOutput));
+        rate = rate / (10**(decimalsAggregator-decimalsOutput));
       }
     }
   }

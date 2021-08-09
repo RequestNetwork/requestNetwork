@@ -27,7 +27,7 @@ contract ERC20SwapToPay is Ownable {
   IUniswapV2Router02 public swapRouter;
   IERC20FeeProxy public paymentProxy;
 
-  constructor(address _swapRouterAddress, address _paymentProxyAddress) public {
+  constructor(address _swapRouterAddress, address _paymentProxyAddress) {
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
   }

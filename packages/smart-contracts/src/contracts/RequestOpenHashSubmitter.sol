@@ -22,7 +22,6 @@ contract RequestOpenHashSubmitter is StorageFeeCollector {
    */
   constructor(address _addressRequestHashStorage, address payable _addressBurner)
     StorageFeeCollector(_addressBurner)
-    public
   {
     requestHashStorage = RequestHashStorage(_addressRequestHashStorage);
   }
