@@ -1,4 +1,5 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { utils } from 'ethers';
 
 const addressBurnerContract = '0xfCb4393e7fAef06fAb01c00d67c1895545AfF3b8';
 
@@ -30,8 +31,8 @@ export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment)
     console.log('RequestOpenHashSubmitter Contract deployed: ' + RequestOpenHashSubmitter.address);
 
     // Whitelist the requestSubmitter in requestHashDeclaration
-    // await RequestHashStorage.addWhitelisted(RequestOpenHashSubmitter.address);
-    await RequestHashStorage.grantRole("PUBLISHER", RequestOpenHashSubmitter.address);
+    const PUBLISHER_ROLE = utils.formatBytes32String("PUBLISHER");
+    await RequestHashStorage.grantRole(PUBLISHER_ROLE, RequestOpenHashSubmitter.address);
     console.log('requestSubmitter get the "PUBLISHER" role in requestHashDeclaration');
 
     // ----------------------------------
