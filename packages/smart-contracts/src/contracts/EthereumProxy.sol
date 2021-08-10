@@ -14,6 +14,7 @@ contract EthereumProxy {
   fallback() external payable {
     revert("not payable fallback");
   }
+
   receive() external payable {
     revert("not payable receive");
   }

@@ -7,8 +7,9 @@ import "./interfaces/ERC20FeeProxy.sol";
 
 /**
  * @title Erc20ConversionProxy
- * @notice This contract convert from chainlink then swaps ERC20 tokens before paying a request thanks to a conversion payment proxy
-  */
+ * @notice This contract convert from chainlink
+ *         then swaps ERC20 tokens before paying a request thanks to a conversion payment proxy
+ */
 contract Erc20ConversionProxy {
   address public paymentProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
@@ -107,7 +108,11 @@ contract Erc20ConversionProxy {
     view
     returns (uint256 amountToPay, uint256 amountToPayInFees)
   {
-    (uint256 rate, uint256 oldestTimestampRate, uint256 decimals) = chainlinkConversionPath.getRate(_path);
+    (
+      uint256 rate,
+      uint256 oldestTimestampRate,
+      uint256 decimals
+    ) = chainlinkConversionPath.getRate(_path);
 
     // Check rate timespan
     require(

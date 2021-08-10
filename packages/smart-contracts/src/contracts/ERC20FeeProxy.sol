@@ -4,7 +4,8 @@ pragma solidity ^0.8.0;
 
 /**
  * @title ERC20FeeProxy
- * @notice This contract performs an ERC20 token transfer, with a Fee sent to a third address and stores a reference
+ * @notice This contract performs an ERC20 token transfer,
+ *         with a Fee sent to a third address and stores a reference
  */
 contract ERC20FeeProxy {
   // Event to declare a transfer with a reference
@@ -26,7 +27,7 @@ contract ERC20FeeProxy {
   }
 
   /**
-    * @notice Performs a ERC20 token transfer with a reference and a transfer to a second address for the payment of a fee
+    * @notice Performs ERC20 token transfer with a reference and a transfer to a second address for the payment of a fee
     * @param _tokenAddress Address of the ERC20 token smart contract
     * @param _to Transfer recipient
     * @param _amount Amount to transfer
@@ -62,7 +63,14 @@ contract ERC20FeeProxy {
    * @dev This is necessary because of non-standard ERC20 tokens that don't have a return value.
    * @return result The return value of the ERC20 call, returning true for non-standard tokens
    */
-  function safeTransferFrom(address _tokenAddress, address _to, uint256 _amount) internal returns (bool result) {
+  function safeTransferFrom(
+    address _tokenAddress,
+    address _to,
+    uint256 _amount
+  ) 
+    internal
+    returns (bool result) 
+  {
     /* solium-disable security/no-inline-assembly */
     // check if the address is a contract
     assembly {
