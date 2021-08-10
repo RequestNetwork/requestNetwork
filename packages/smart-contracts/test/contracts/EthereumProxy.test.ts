@@ -1,9 +1,8 @@
-import { ethers, network } from 'hardhat';
+import { ethers } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { EthereumProxy } from '../../src/types';
-import { ethereumProxyArtifact } from '../../src/lib/';
+import { EthereumProxy, EthereumProxy__factory } from '../../src/types';
 
 use(solidity);
 
@@ -20,7 +19,8 @@ describe('contract: EthereumProxy', () => {
   before(async () => {
     [from, to] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
-    ethProxy = ethereumProxyArtifact.connect(network.name, signer);
+    // ethProxy = ethereumProxyArtifact.connect(network.name, signer);
+    ethProxy = await new EthereumProxy__factory(signer).deploy();
   });
 
   it('allows to store a reference', async () => {

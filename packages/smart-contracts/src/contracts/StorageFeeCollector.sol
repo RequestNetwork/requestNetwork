@@ -42,6 +42,7 @@ contract StorageFeeCollector is AccessControl {
    */
   constructor(address payable _requestBurnerContract) {
     requestBurnerContract = _requestBurnerContract;
+    _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
   }
 
   /**

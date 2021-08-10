@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-ethers';
 import { ethers } from 'hardhat';
-import { BigNumber, Signer } from 'ethers';
+import { BigNumber, Signer, utils } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { StorageFeeCollector, StorageFeeCollector__factory } from '../../src/types';
@@ -8,19 +8,20 @@ import { StorageFeeCollector, StorageFeeCollector__factory } from '../../src/typ
 use(solidity);
 
 describe('contract: StorageFeeCollector', () => {
+  let adminAddress: string;
   let burner: string;
   let burner2: string;
   let thirdParty: string;
 
   let adminSigner: Signer;
-  let otherSigner: Signer;
+  let thirdPartySigner: Signer;
   let storageFeeCollector: StorageFeeCollector;
 
-  const ADMIN_ROLE = '0x00';
+  const ADMIN_ROLE = utils.formatBytes32String('');
 
   before(async () => {
-    [, thirdParty, burner, burner2] = (await ethers.getSigners()).map((s) => s.address);
-    [adminSigner, otherSigner] = await ethers.getSigners();
+    [adminAddress, thirdParty, burner, burner2] = (await ethers.getSigners()).map((s) => s.address);
+    [adminSigner, thirdPartySigner] = await ethers.getSigners();
   });
 
   beforeEach(async () => {
@@ -30,8 +31,12 @@ describe('contract: StorageFeeCollector', () => {
   describe('addWhitelistAdmin', () => {
     it('Allows the admin whitelist to be changed', async () => {
       await expect(storageFeeCollector.grantRole(ADMIN_ROLE, thirdParty))
-        .to.emit(storageFeeCollector, 'WhitelistAdminAdded')
-        .withArgs(thirdParty);
+        .to.emit(storageFeeCollector, 'RoleGranted',
+        ).withArgs(
+          ADMIN_ROLE,
+          thirdParty,
+          adminAddress
+        );
     });
 
     it('Non admin should not be able to change the admin whitelist', async () => {
@@ -52,8 +57,8 @@ describe('contract: StorageFeeCollector', () => {
 
     it('Non admin should not be able to change burnerContract', async () => {
       await expect(
-        storageFeeCollector.connect(otherSigner).setRequestBurnerContract(burner2),
-      ).to.be.revertedWith('WhitelistAdminRole: caller does not have the WhitelistAdmin role');
+        storageFeeCollector.connect(thirdPartySigner).setRequestBurnerContract(burner2),
+      ).to.be.revertedWith(`AccessControl: account ${thirdParty.toLowerCase()} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`);
     });
   });
 
@@ -90,9 +95,9 @@ describe('contract: StorageFeeCollector', () => {
 
       await expect(
         storageFeeCollector
-          .connect(otherSigner)
+          .connect(thirdPartySigner)
           .setFeeParameters(minimumFee, rateFeesNumerator, rateFeesDenominator),
-      ).to.be.revertedWith('WhitelistAdminRole: caller does not have the WhitelistAdmin role');
+      ).to.be.revertedWith(`AccessControl: account ${thirdParty.toLowerCase()} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`);
     });
   });
 
@@ -169,9 +174,7 @@ describe('contract: StorageFeeCollector', () => {
       );
       const contentSize = BigNumber.from(1000);
 
-      await expect(storageFeeCollector.getFeesAmount(contentSize)).to.be.revertedWith(
-        'SafeMath: multiplication overflow',
-      );
+      await expect(storageFeeCollector.getFeesAmount(contentSize)).to.be.reverted;
     });
   });
 });

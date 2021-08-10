@@ -21,7 +21,7 @@ import { Currency } from '@requestnetwork/currency';
 
 use(solidity);
 
-describe.only('contract: Erc20ConversionProxy', () => {
+describe('contract: Erc20ConversionProxy', () => {
   let from: string;
   let to: string;
   let feeAddress: string;
@@ -57,8 +57,8 @@ describe.only('contract: Erc20ConversionProxy', () => {
     const USDT_token = await new UsdtFake__factory(signer).deploy();
     const USDT_address = USDT_token.address;
 
-    testERC20 = await new TestERC20__factory(signer).deploy(10000);
-    await testERC20.approve(erc20FeeProxy.address, '100');
+    testERC20 = await new TestERC20__factory(signer).deploy(thousandWith18Decimal);
+    await testERC20.approve(erc20FeeProxy.address, thousandWith18Decimal);
     DAI_address = testERC20.address;
 
     const aggDAI_USD = await new AggDaiUsd__factory(signer).deploy();
@@ -76,7 +76,7 @@ describe.only('contract: Erc20ConversionProxy', () => {
 
   describe('transferFromWithReferenceAndFee', () => {
     describe('transferFromWithReferenceAndFee with DAI', () => {
-      it.only('allows to transfer DAI tokens for USD payment', async function () {
+      it('allows to transfer DAI tokens for USD payment', async function () {
         const path = [USD_address, DAI_address];
         await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
