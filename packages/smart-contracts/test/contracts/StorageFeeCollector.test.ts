@@ -16,6 +16,8 @@ describe('contract: StorageFeeCollector', () => {
   let otherSigner: Signer;
   let storageFeeCollector: StorageFeeCollector;
 
+  const ADMIN_ROLE = '0x00';
+
   before(async () => {
     [, thirdParty, burner, burner2] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, otherSigner] = await ethers.getSigners();
@@ -27,13 +29,13 @@ describe('contract: StorageFeeCollector', () => {
 
   describe('addWhitelistAdmin', () => {
     it('Allows the admin whitelist to be changed', async () => {
-      await expect(storageFeeCollector.addWhitelistAdmin(thirdParty))
+      await expect(storageFeeCollector.grantRole(ADMIN_ROLE, thirdParty))
         .to.emit(storageFeeCollector, 'WhitelistAdminAdded')
         .withArgs(thirdParty);
     });
 
     it('Non admin should not be able to change the admin whitelist', async () => {
-      await expect(storageFeeCollector.addWhitelistAdmin(thirdParty, { from: thirdParty })).to.be
+      await expect(storageFeeCollector.grantRole(ADMIN_ROLE, thirdParty, { from: thirdParty })).to.be
         .reverted;
     });
   });
@@ -108,7 +110,7 @@ describe('contract: StorageFeeCollector', () => {
 
       const contentSize = BigNumber.from(1000);
 
-      let estimation = await storageFeeCollector.getFeesAmount(contentSize);
+      const estimation = await storageFeeCollector.getFeesAmount(contentSize);
       expect(estimation.toString(), 'estimation wrong').to.equal('600');
     });
 

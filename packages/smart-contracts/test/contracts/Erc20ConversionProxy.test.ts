@@ -1,23 +1,27 @@
-import { ethers, network } from 'hardhat';
+import { ethers } from 'hardhat';
 import {
   ERC20FeeProxy__factory,
   Erc20ConversionProxy__factory,
   ERC20FeeProxy,
-  ChainlinkConversionPath,
   TestERC20,
   Erc20ConversionProxy,
   TestERC20__factory,
+
+  ChainlinkConversionPath__factory, ChainlinkConversionPath,
+  AggDaiUsd__factory,
+  AggEthUsd__factory,
+  AggEurUsd__factory,
+  AggUsdtEth__factory,
+  UsdtFake__factory
 } from '../../src/types';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { Currency } from '@requestnetwork/currency';
-import { chainlinkConversionPath } from '../../src/lib';
-import { localERC20AlphaArtifact } from './localArtifacts';
 
 use(solidity);
 
-describe('contract: Erc20ConversionProxy', () => {
+describe.only('contract: Erc20ConversionProxy', () => {
   let from: string;
   let to: string;
   let feeAddress: string;
@@ -36,26 +40,43 @@ describe('contract: Erc20ConversionProxy', () => {
   let testErc20ConversionProxy: Erc20ConversionProxy;
   let testERC20: TestERC20;
   let erc20FeeProxy: ERC20FeeProxy;
-  let chainlinkPath: ChainlinkConversionPath;
+  let conversionPathInstance: ChainlinkConversionPath;
 
   before(async () => {
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
 
-    chainlinkPath = chainlinkConversionPath.connect(network.name, signer);
+    conversionPathInstance = await new ChainlinkConversionPath__factory(signer).deploy();
+
     erc20FeeProxy = await new ERC20FeeProxy__factory(signer).deploy();
     testErc20ConversionProxy = await new Erc20ConversionProxy__factory(signer).deploy(
       erc20FeeProxy.address,
-      chainlinkPath.address,
+      conversionPathInstance.address,
     );
-    DAI_address = await localERC20AlphaArtifact.getAddress(network.name);
-    testERC20 = await new TestERC20__factory(signer).attach(DAI_address);
+    
+    const USDT_token = await new UsdtFake__factory(signer).deploy();
+    const USDT_address = USDT_token.address;
+
+    testERC20 = await new TestERC20__factory(signer).deploy(10000);
     await testERC20.approve(erc20FeeProxy.address, '100');
+    DAI_address = testERC20.address;
+
+    const aggDAI_USD = await new AggDaiUsd__factory(signer).deploy();
+    const aggETH_USD = await new AggEthUsd__factory(signer).deploy();
+    const aggEUR_USD = await new AggEurUsd__factory(signer).deploy();
+    const aggUSDT_ETH = await new AggUsdtEth__factory(signer).deploy();
+
+    await conversionPathInstance.updateAggregatorsList(
+      [DAI_address, EUR_address, ETH_address, USDT_address],
+      [USD_address, USD_address, USD_address, ETH_address],
+      [aggDAI_USD.address, aggEUR_USD.address, aggETH_USD.address, aggUSDT_ETH.address],
+    );
+
   });
 
   describe('transferFromWithReferenceAndFee', () => {
     describe('transferFromWithReferenceAndFee with DAI', () => {
-      it('allows to transfer DAI tokens for USD payment', async function () {
+      it.only('allows to transfer DAI tokens for USD payment', async function () {
         const path = [USD_address, DAI_address];
         await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
@@ -64,8 +85,8 @@ describe('contract: Erc20ConversionProxy', () => {
         const fromOldBalance = await testERC20.balanceOf(from);
         const toOldBalance = await testERC20.balanceOf(to);
         const feeOldBalance = await testERC20.balanceOf(feeAddress);
-        const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
-        const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
+        const conversionToPay = await conversionPathInstance.getConversion(smallAmountInFIAT, path);
+        const conversionFees = await conversionPathInstance.getConversion(smallerAmountInFIAT, path);
 
         await expect(
           testErc20ConversionProxy.transferFromWithReferenceAndFee(
@@ -118,8 +139,8 @@ describe('contract: Erc20ConversionProxy', () => {
         const fromOldBalance = await testERC20.balanceOf(from);
         const toOldBalance = await testERC20.balanceOf(to);
         const feeOldBalance = await testERC20.balanceOf(feeAddress);
-        const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
-        const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
+        const conversionToPay = await conversionPathInstance.getConversion(smallAmountInFIAT, path);
+        const conversionFees = await conversionPathInstance.getConversion(smallerAmountInFIAT, path);
 
         await expect(
           testErc20ConversionProxy.transferFromWithReferenceAndFee(

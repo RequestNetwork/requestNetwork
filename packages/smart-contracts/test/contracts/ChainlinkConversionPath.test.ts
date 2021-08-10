@@ -1,10 +1,16 @@
 const { expect } = require('chai');
 import { Currency } from '@requestnetwork/currency';
-import { ethers, network } from 'hardhat';
+import { ethers } from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
-import { chainlinkConversionPath as chainlinkConvArtifact } from '../../src/lib';
-import { ChainlinkConversionPath } from '../../src/types';
-import { localERC20AlphaArtifact, localUSDTArtifact } from './localArtifacts';
+import {
+  ChainlinkConversionPath__factory, ChainlinkConversionPath,
+  AggDaiUsd__factory,
+  AggEthUsd__factory,
+  AggEurUsd__factory,
+  AggUsdtEth__factory,
+  ERC20Alpha__factory,
+  UsdtFake__factory
+ } from '../../src/types';
 
 const address1 = '0x1111111111111111111111111111111111111111';
 const address2 = '0x2222222222222222222222222222222222222222';
@@ -23,9 +29,24 @@ let conversionPathInstance: ChainlinkConversionPath;
 describe('contract: ChainlinkConversionPath', () => {
   before(async () => {
     const [signer] = await ethers.getSigners();
-    conversionPathInstance = chainlinkConvArtifact.connect(network.name, signer);
-    USDT_address = localUSDTArtifact.getAddress(network.name);
-    DAI_address = localERC20AlphaArtifact.getAddress(network.name);
+    conversionPathInstance = await new ChainlinkConversionPath__factory(signer).deploy();
+
+    const USDT_token = await new UsdtFake__factory(signer).deploy();
+    USDT_address = USDT_token.address;
+
+    const DAI_token = await new ERC20Alpha__factory(signer).deploy(10000);
+    DAI_address = DAI_token.address;
+
+    const aggDAI_USD = await new AggDaiUsd__factory(signer).deploy();
+    const aggETH_USD = await new AggEthUsd__factory(signer).deploy();
+    const aggEUR_USD = await new AggEurUsd__factory(signer).deploy();
+    const aggUSDT_ETH = await new AggUsdtEth__factory(signer).deploy();
+
+    await conversionPathInstance.updateAggregatorsList(
+      [DAI_address, EUR_address, ETH_address, USDT_address],
+      [USD_address, USD_address, USD_address, ETH_address],
+      [aggDAI_USD.address, aggEUR_USD.address, aggETH_USD.address, aggUSDT_ETH.address],
+    );
   });
 
   describe('admin tasks', async () => {
@@ -33,7 +54,12 @@ describe('contract: ChainlinkConversionPath', () => {
       let addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
       expect(addressAggregator).equal('0x0000000000000000000000000000000000000000');
 
-      await conversionPathInstance.updateAggregator(address1, address2, address3);
+      await expect(conversionPathInstance.updateAggregator(address1, address2, address3)).to.emit(
+        conversionPathInstance,
+        'AggregatorUpdated',
+      ).withArgs(
+        address1, address2, address3
+      );
 
       addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
       expect(addressAggregator).equal(address3);
@@ -97,63 +123,63 @@ describe('contract: ChainlinkConversionPath', () => {
         expect(conversion.rate.toString(), '41666666666');
       });
     });
+
+    describe('Ethereum rates', async () => {
+      it('can get rate from USD to ETH', async () => {
+        const conversion = await conversionPathInstance.getRate([USD_address, ETH_address]);
+        expect(conversion.rate.toString(), '20000000000000000000000000');
+      });
+
+      it('can get rate from ETH to USD', async () => {
+        const conversion = await conversionPathInstance.getRate([ETH_address, USD_address]);
+        expect(conversion.rate.toString(), '50000000000');
+      });
+
+      it('can get rate from EUR to USD to ETH', async () => {
+        const conversion = await conversionPathInstance.getRate([
+          EUR_address,
+          USD_address,
+          ETH_address,
+        ]);
+        expect(conversion.rate.toString(), '24000000000000000000000000');
+      });
+
+      it('can get rate from USD to ERC20', async () => {
+        const conversion = await conversionPathInstance.getRate([USD_address, DAI_address]);
+        expect(conversion.rate.toString(), '9900990099009900990099009900');
+      });
+
+      it('can get rate from ETH to USD to ERC20', async () => {
+        const conversion = await conversionPathInstance.getRate([
+          ETH_address,
+          USD_address,
+          DAI_address,
+        ]);
+        expect(conversion.rate.toString(), '495049504950495049504');
+      });
+    });
+
+    describe('USDT rates', async () => {
+      it('can get rate from USD to ETH to USDT', async () => {
+        const conversion = await conversionPathInstance.getRate([
+          USD_address,
+          ETH_address,
+          USDT_address,
+        ]);
+        expect(conversion.rate.toString(), '10000000000000000');
+      });
+
+      it('can get rate from USDT to ETH to USD', async () => {
+        const conversion = await conversionPathInstance.getRate([
+          USDT_address,
+          ETH_address,
+          USD_address,
+        ]);
+        expect(conversion.rate.toString(), '100000000000000000000');
+      });
+    });
   });
-
-  describe('Ethereum rates', async () => {
-    it('can get rate from USD to ETH', async () => {
-      const conversion = await conversionPathInstance.getRate([USD_address, ETH_address]);
-      expect(conversion.rate.toString(), '20000000000000000000000000');
-    });
-
-    it('can get rate from ETH to USD', async () => {
-      const conversion = await conversionPathInstance.getRate([ETH_address, USD_address]);
-      expect(conversion.rate.toString(), '50000000000');
-    });
-
-    it('can get rate from EUR to USD to ETH', async () => {
-      const conversion = await conversionPathInstance.getRate([
-        EUR_address,
-        USD_address,
-        ETH_address,
-      ]);
-      expect(conversion.rate.toString(), '24000000000000000000000000');
-    });
-
-    it('can get rate from USD to ERC20', async () => {
-      const conversion = await conversionPathInstance.getRate([USD_address, DAI_address]);
-      expect(conversion.rate.toString(), '9900990099009900990099009900');
-    });
-
-    it('can get rate from ETH to USD to ERC20', async () => {
-      const conversion = await conversionPathInstance.getRate([
-        ETH_address,
-        USD_address,
-        DAI_address,
-      ]);
-      expect(conversion.rate.toString(), '495049504950495049504');
-    });
-  });
-
-  describe('USDT rates', async () => {
-    it('can get rate from USD to ETH to USDT', async () => {
-      const conversion = await conversionPathInstance.getRate([
-        USD_address,
-        ETH_address,
-        USDT_address,
-      ]);
-      expect(conversion.rate.toString(), '10000000000000000');
-    });
-
-    it('can get rate from USDT to ETH to USD', async () => {
-      const conversion = await conversionPathInstance.getRate([
-        USDT_address,
-        ETH_address,
-        USD_address,
-      ]);
-      expect(conversion.rate.toString(), '100000000000000000000');
-    });
-  });
-
+  
   describe('getConversion', async () => {
     describe('only fiat conversion', async () => {
       it('can convert EUR to USD', async () => {

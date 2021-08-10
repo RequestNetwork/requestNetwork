@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-ethers';
 import { ethers } from 'hardhat';
-import { BigNumber, Signer } from 'ethers';
+import { BigNumber, Signer, utils } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import {
@@ -13,7 +13,6 @@ import {
 use(solidity);
 
 describe('contract: RequestOpenHashSubmitter', () => {
-  let admin: string;
   let submitter: string;
   let burner: string;
   let thirdParty: string;
@@ -21,6 +20,8 @@ describe('contract: RequestOpenHashSubmitter', () => {
   let adminSigner: Signer;
   let otherSigner: Signer;
   let submitterSigner: Signer;
+  let adminSignerAddress: string;
+  let otherSignerAddress: string;
 
   let requestOpenHashSubmitter: RequestOpenHashSubmitter;
   let requestHashStorage: RequestHashStorage;
@@ -28,11 +29,16 @@ describe('contract: RequestOpenHashSubmitter', () => {
   const hashExample = 'Qmaisz6NMhDB51cCvNWa1GMS7LU1pAxdF4Ld6Ft9kZEP2a';
   const feesParameters = '0x00000000000000000000000000000000000000000000000000000000000003e8'; // = 1000
 
+  const ADMIN_ROLE = utils.formatBytes32String('');
+  const PUBLISHER_ROLE = utils.formatBytes32String("PUBLISHER");
+
   before(async () => {
-    [admin, submitter, thirdParty, burner] = (await ethers.getSigners()).map((s) => s.address);
+    [, submitter, thirdParty, burner] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, submitterSigner, otherSigner] = await ethers.getSigners();
     requestHashStorage = await new RequestHashStorage__factory(adminSigner).deploy();
-    await requestHashStorage.addWhitelisted(submitter);
+    await requestHashStorage.grantRole(PUBLISHER_ROLE, submitter);
+    otherSignerAddress = (await otherSigner.getAddress()).toLowerCase();
+    adminSignerAddress = await adminSigner.getAddress();
   });
 
   beforeEach(async () => {
@@ -40,34 +46,38 @@ describe('contract: RequestOpenHashSubmitter', () => {
       requestHashStorage.address,
       burner,
     );
-    await requestHashStorage.addWhitelisted(requestOpenHashSubmitter.address);
+    await requestHashStorage.grantRole(PUBLISHER_ROLE, requestOpenHashSubmitter.address);
   });
 
   describe('addWhitelisted', () => {
-    it('Allows the whitelist to be changed', async () => {
-      await expect(requestOpenHashSubmitter.connect(adminSigner).addWhitelistAdmin(thirdParty))
-        .to.emit(requestOpenHashSubmitter, 'WhitelistAdminAdded')
-        .withArgs(thirdParty);
 
-      await expect(requestOpenHashSubmitter.connect(otherSigner).renounceWhitelistAdmin())
-        .to.emit(requestOpenHashSubmitter, 'WhitelistAdminRemoved')
-        .withArgs(thirdParty);
+    it('Allows the whitelist to be changed', async () => {
+      await expect(requestOpenHashSubmitter.connect(adminSigner).grantRole(ADMIN_ROLE, thirdParty))
+        .to.emit(requestOpenHashSubmitter, 'RoleGranted').withArgs(
+          ADMIN_ROLE,
+          thirdParty,
+          adminSignerAddress
+        );
+
+      await expect(requestOpenHashSubmitter.connect(adminSigner).revokeRole(ADMIN_ROLE, thirdParty))
+        .to.emit(requestOpenHashSubmitter, 'RoleRevoked').withArgs(
+          ADMIN_ROLE,
+          thirdParty,
+          adminSignerAddress
+        );
     });
 
-    it('Non admin should not be able to change the whitelist', async () => {
+    it('Non admin should not be able to change the admin list', async () => {
       await expect(
-        requestHashStorage.connect(otherSigner).addWhitelisted(thirdParty),
-      ).to.be.revertedWith('WhitelistAdminRole: caller does not have the WhitelistAdmin role');
-      await expect(
-        requestHashStorage.connect(otherSigner).addWhitelisted(admin),
-      ).to.be.revertedWith('WhitelistAdminRole: caller does not have the WhitelistAdmin role');
+        requestHashStorage.connect(otherSigner).grantRole(ADMIN_ROLE, thirdParty),
+      ).to.be.revertedWith(`AccessControl: account ${otherSignerAddress} is missing role 0x0000000000000000000000000000000000000000000000000000000000000000`);
     });
   });
 
   describe('submitHash', () => {
     it('Allows submitHash without fee', async function () {
       const provider = new ethers.providers.JsonRpcProvider();
-      let oldBurnerBalance = await provider.getBalance(burner);
+      const oldBurnerBalance = await provider.getBalance(burner);
 
       await expect(
         requestOpenHashSubmitter.connect(submitterSigner).submitHash(hashExample, feesParameters),

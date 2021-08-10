@@ -24,6 +24,7 @@ contract RequestOpenHashSubmitter is StorageFeeCollector {
     StorageFeeCollector(_addressBurner)
   {
     requestHashStorage = RequestHashStorage(_addressRequestHashStorage);
+    _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
   }
 
   // Fallback function returns funds to the sender
@@ -32,6 +33,9 @@ contract RequestOpenHashSubmitter is StorageFeeCollector {
     payable
   {
     revert("not payable fallback");
+  }
+  receive() external payable {
+    revert("not payable receive");
   }
 
   /**

@@ -29,6 +29,11 @@ contract ChainlinkConversionPath is AccessControl {
   // declare a new aggregator
   event AggregatorUpdated(address _input, address _output, address _aggregator);
 
+  constructor()
+  {
+    _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+  }
+
   /**
     * @notice Update an aggregator
     * @param _input address representing the input currency
@@ -163,7 +168,7 @@ contract ChainlinkConversionPath is AccessControl {
     aggregator = AggregatorFraction(allAggregators[_input][_output]);
     reverseAggregator = false;
 
-    // if no aggregator found we try to find an aggregator in the reverse way
+    // // if no aggregator found we try to find an aggregator in the reverse way
     if (address(aggregator) == address(0x00)) {
       aggregator = AggregatorFraction(allAggregators[_output][_input]);
       reverseAggregator = true;
@@ -171,7 +176,7 @@ contract ChainlinkConversionPath is AccessControl {
 
     require(address(aggregator) != address(0x00), "No aggregator found");
 
-    // get the decimals for the two currencies
+    // // get the decimals for the two currencies
     decimalsInput = getDecimals(_input);
     decimalsOutput = getDecimals(_output);
   }

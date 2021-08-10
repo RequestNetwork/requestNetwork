@@ -24,6 +24,9 @@ contract ERC20Proxy {
   {
     revert("not payable fallback");
   }
+  receive() external payable {
+    revert("not payable receive");
+  }
 
   /**
   * @notice Performs a ERC20 token transfer with a reference

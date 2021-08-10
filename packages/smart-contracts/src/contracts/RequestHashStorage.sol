@@ -11,6 +11,11 @@ contract RequestHashStorage is AccessControl {
 
   bytes32 PUBLISHER_ROLE = "PUBLISHER";
 
+  constructor()
+  {
+    _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+  }
+
   // Event to declare a new hash
   event NewHash(string hash, address hashSubmitter, bytes feesParameters);
 
