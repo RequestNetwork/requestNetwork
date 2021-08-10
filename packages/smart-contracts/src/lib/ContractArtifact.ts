@@ -35,6 +35,8 @@ export class ContractArtifact<TContract extends Contract> {
     this.getAddress = this.getAddress.bind(this);
     this.getCreationBlockNumber = this.getCreationBlockNumber.bind(this);
     this.getDeploymentInformation = this.getDeploymentInformation.bind(this);
+    this.getAllAddresses = this.getAllAddresses.bind(this);
+    this.getOptionalDeploymentInformation = this.getOptionalDeploymentInformation.bind(this);
   }
 
   /**
@@ -75,6 +77,19 @@ export class ContractArtifact<TContract extends Contract> {
   }
 
   /**
+   * Retrieve all addresses for all versions
+   * @param networkName the name of the network where the contract is deployed
+   * @returns the addresses of the deployed contract and the associated version.
+   */
+  getAllAddresses(networkName: string): { version: string; address: string }[] {
+    const entries = Object.entries(this.info);
+    return entries.map(([version, { deployment }]) => ({
+      version,
+      address: deployment[networkName]?.address,
+    }));
+  }
+
+  /**
    * Retrieve the block creation number from the artifact of the used version
    * deployed into the specified network
    * @param networkName the name of the network where the contract is deployed
@@ -86,19 +101,36 @@ export class ContractArtifact<TContract extends Contract> {
 
   /**
    * Retrieve the deployment information from the artifact of the used version
-   * deployed into the specified network
+   * deployed into the specified network. Will trow an error if the version of network is incorrect.
    * @param networkName the name of the network where the contract is deployed
-   * @returns the deployment information of the contract as a json object containing address and the number of the creation block
+   * @returns The address and the number of the creation block
    */
   getDeploymentInformation(
     networkName: string,
     version = this.lastVersion,
   ): { address: string; creationBlockNumber: number } {
-    const info = this.info[version].deployment[networkName];
+    const versionInfo = this.info[version];
+    if (!versionInfo) {
+      throw Error(`No deployment for version: ${version}.`);
+    }
+    const info = versionInfo.deployment[networkName];
     // Check the artifact has been deployed into the specified network
     if (!info) {
-      throw Error(`No deployment for network: ${networkName}`);
+      throw Error(`No deployment for network: ${networkName}.`);
     }
     return info;
+  }
+
+  /**
+   * Retrieve the deployment information from the artifact of the used version
+   * deployed into the specified network
+   * @param networkName the name of the network where the contract is deployed
+   * @returns The address and the number of the creation block, or null if not found
+   */
+  getOptionalDeploymentInformation(
+    networkName: string,
+    version = this.lastVersion,
+  ): { address: string; creationBlockNumber: number } | null {
+    return this.info[version]?.deployment[networkName] || null;
   }
 }
