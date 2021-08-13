@@ -36,12 +36,6 @@ export const extraERC20Tokens = {
     symbol: 'OCEAN',
     decimals: 18,
   },
-  // SAND (Sandbox Game)
-  '0x3845badAde8e6dFF049820680d1F14bD3903a5d0': {
-    name: 'SAND',
-    symbol: 'SAND',
-    decimals: 18,
-  },
   // ANKR
   '0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4': {
     name: 'Ankr Network',
