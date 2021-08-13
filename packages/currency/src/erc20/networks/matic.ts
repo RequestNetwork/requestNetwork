@@ -22,4 +22,9 @@ export const supportedMaticERC20: TokenMap = {
     symbol: 'USDT',
     decimals: 6,
   },
+  '0xD3b71117E6C1558c1553305b44988cd944e97300': {
+    name: 'YEL Token',
+    symbol: 'YEL',
+    decimals: 18,
+  },
 };

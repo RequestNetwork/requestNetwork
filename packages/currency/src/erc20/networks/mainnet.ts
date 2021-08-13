@@ -36,12 +36,6 @@ export const extraERC20Tokens = {
     symbol: 'OCEAN',
     decimals: 18,
   },
-  // SAND (Sandbox Game)
-  '0x3845badAde8e6dFF049820680d1F14bD3903a5d0': {
-    name: 'SAND',
-    symbol: 'SAND',
-    decimals: 18,
-  },
   // ANKR
   '0x8290333ceF9e6D528dD5618Fb97a76f268f3EDD4': {
     name: 'Ankr Network',
@@ -70,6 +64,11 @@ export const extraERC20Tokens = {
   '0xf1f955016EcbCd7321c7266BccFB96c68ea5E49b': {
     name: 'Rally',
     symbol: 'RLY',
+    decimals: 18,
+  },
+  '0x7815bDa662050D84718B988735218CFfd32f75ea': {
+    name: 'YEL Token',
+    symbol: 'YEL',
     decimals: 18,
   },
 };
