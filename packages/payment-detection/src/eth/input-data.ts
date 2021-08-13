@@ -23,6 +23,9 @@ const supportedNetworks = [
   'matic',
   'celo',
   'fantom',
+  // Near
+  'aurora',
+  'aurora-testnet',
 ];
 
 // interface of the object indexing the proxy contract version

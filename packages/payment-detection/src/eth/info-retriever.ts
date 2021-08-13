@@ -14,11 +14,11 @@ export default class ETHInfoRetriever
    * @param explorerApiKey The explorer (etherscan...) API key
    */
   constructor(
-    private toAddress: string,
-    private eventName: PaymentTypes.EVENTS_NAMES,
-    private network: string,
-    private paymentReference: string,
-    private explorerApiKey?: string,
+    protected toAddress: string,
+    protected eventName: PaymentTypes.EVENTS_NAMES,
+    protected network: string,
+    protected paymentReference: string,
+    protected explorerApiKey?: string,
   ) {}
 
   public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
