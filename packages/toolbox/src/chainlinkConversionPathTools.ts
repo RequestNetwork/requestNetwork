@@ -1,7 +1,10 @@
-import { ethers } from 'ethers';
+import { ethers, providers } from 'ethers';
 import { chainlinkConversionPath } from '@requestnetwork/smart-contracts';
 import { getDefaultProvider, parseLogArgs } from '@requestnetwork/payment-detection';
-import { ChainlinkConversionPath__factory } from '@requestnetwork/smart-contracts/types';
+import {
+  ChainlinkConversionPath__factory,
+  ChainlinkConversionPath,
+} from '@requestnetwork/smart-contracts/types';
 import { Currency } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import iso4217 from '@requestnetwork/currency/dist/iso4217';
@@ -9,6 +12,8 @@ import iso4217 from '@requestnetwork/currency/dist/iso4217';
 export interface IOptions {
   network?: string;
   currencyCode?: string;
+  web3Url?: string;
+  lastBlock?: number;
 }
 
 /** TransferWithReference event */
@@ -22,16 +27,18 @@ type AggregatorUpdatedArgs = {
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 class ChainlinkConversionPathTools {
-  public contractChainlinkConversionPath: ethers.Contract;
+  public contractChainlinkConversionPath: ChainlinkConversionPath;
   public chainlinkConversionPathCreationBlockNumber: number;
   public provider: ethers.providers.Provider;
 
   /**
    * @param network The Ethereum network to use
    */
-  constructor(private network: string) {
+  constructor(private network: string, web3Url?: string, private lastBlock?: number) {
     // Creates a local or default provider
-    this.provider = getDefaultProvider(this.network);
+    this.provider = web3Url
+      ? new providers.JsonRpcProvider(web3Url)
+      : getDefaultProvider(this.network);
 
     // Setup the conversion proxy contract interface
     this.contractChainlinkConversionPath = ChainlinkConversionPath__factory.connect(
@@ -52,7 +59,7 @@ class ChainlinkConversionPathTools {
     const logs = await this.contractChainlinkConversionPath.queryFilter(
       this.contractChainlinkConversionPath.filters.AggregatorUpdated(),
       this.chainlinkConversionPathCreationBlockNumber,
-      'latest',
+      this.lastBlock || 'latest',
     );
 
     // Parses, filters and creates the events from the logs with the payment reference
@@ -137,7 +144,11 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
       [RequestLogicTypes.CURRENCY.BTC]: [],
     };
     allAggregators[network] = {};
-    const chainlinkConversionPathTools = new ChainlinkConversionPathTools(network);
+    const chainlinkConversionPathTools = new ChainlinkConversionPathTools(
+      network,
+      options?.web3Url,
+      options?.lastBlock,
+    );
     allAggregators[network] = await chainlinkConversionPathTools.getAggregators();
 
     // Include the reverse path of each aggregators
