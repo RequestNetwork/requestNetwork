@@ -8,11 +8,12 @@ import { config } from 'dotenv';
 import deployRequest from './scripts/1_deploy-request-storage';
 import deployPayment from './scripts/2_deploy-main-payments';
 import deployConversion from './scripts/3_deploy_chainlink_contract';
+//import deployEscrow from './scripts/4_deploy_myescrow_contract';
 
 config();
 
 export default {
-  solidity: '0.8.4',
+  solidity: '0.8.6',
   paths: {
     sources: 'src/contracts',
     tests: 'test/contracts',
@@ -24,7 +25,7 @@ export default {
       accounts: undefined,
     },
     rinkeby: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.infura.io/v3/YOUR_API_KEY',
+      url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.infura.io/v3/b1a9cbc1382b41e2aab9271f095d07fa',
       chainId: 4,
       accounts: process.env.DEPLOYMENT_PRIVATE_KEY
         ? [process.env.DEPLOYMENT_PRIVATE_KEY]
@@ -46,5 +47,6 @@ task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hr
   await deployRequest(args, hre);
   await deployPayment(args, hre);
   await deployConversion(args, hre);
+  await deployEscrow(args, hre);
   console.log('All contracts (re)deployed locally');
 });
