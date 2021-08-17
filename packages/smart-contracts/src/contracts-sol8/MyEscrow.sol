@@ -160,7 +160,7 @@ contract MyEscrow {
         
         uint256 _duration = 31556926; 
         // For testing purposes
-        uint256 _endtime = block.timestamp + 1; //+ _duration;
+        uint256 _endtime = block.timestamp + 1 ; //+ _duration;
         tokentimelock = new TokenTimelock(IERC20(invoiceMapping[_paymentRef].paymentToken), address(this), _endtime); 
         
         disputeMapping[_paymentRef] = Dispute(
@@ -190,7 +190,7 @@ contract MyEscrow {
     }
 
 
-    // Transfer dispute funds to beneficiary / is the payer
+    // Transfers the locked funds to beneficiary/payer
     function withdrawLockedFunds(bytes memory _paymentRef) public onlyPayer(_paymentRef) {
         require(disputeMapping[_paymentRef].amount != 0, "MyEscrow: No Invoice found!");
         
