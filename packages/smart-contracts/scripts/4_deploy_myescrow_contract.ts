@@ -1,10 +1,25 @@
 import '@nomiclabs/hardhat-ethers';
-import { Currency } from '@requestnetwork/currency';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import deployERC20ConversionProxy from './erc20-conversion-proxy';
-import deploySwapConversion from './erc20-swap-to-conversion';
 import { deployOne } from './deploy-one';
 
+
+export default async function deploy(arg: any, hre: HardhatRuntimeEnvironment) {
+
+  // Deploy the contracts
+  const TestTokenInstance = await deployOne(arg, hre, 'TestToken');
+  const ERC20FeeProxyInstance = await deployOne(arg, hre, 'ERC20FeeProxy');
+  const MyEscrowInstance = await deployOne(ERC20FeeProxyInstance, hre, 'MyEscrow');
+
+  console.log("Contract deployment status:")
+  console.log(`
+
+    TestERC20:                      ${TestTokenInstance},
+    IERC20FeeProxy deployed to:     ${ERC20FeeProxyInstance},
+    MyEscrow deployed to:           ${MyEscrowInstance} 
+  `);
+
+}
+/*
 export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
   const [deployer] = await hre.ethers.getSigners();
   const AggDAI_USD_address = await deployOne(args, hre, 'AggregatorMock', [101000000, 8, 60]);
@@ -76,3 +91,4 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     Erc20SwapConversionProxy: ${erc20SwapConversionAddress}
     `);
 }
+*/
