@@ -11,6 +11,7 @@ export * from './payment/swap-any-to-erc20';
 export * from './payment/swap-erc20';
 export * from './payment/swap-erc20-fee-proxy';
 export * from './payment/conversion-erc20';
+export * from './payment/myescrow-payment';
 import * as utils from './payment/utils';
 
 export { utils };
