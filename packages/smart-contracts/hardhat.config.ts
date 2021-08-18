@@ -47,6 +47,6 @@ task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hr
   await deployRequest(args, hre);
   await deployPayment(args, hre);
   await deployConversion(args, hre);
-  await deployEscrow(args, hre);
+  //await deployEscrow(args, hre);
   console.log('All contracts (re)deployed locally');
 });

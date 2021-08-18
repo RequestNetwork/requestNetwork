@@ -4,7 +4,7 @@ pragma solidity 0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
-import "./interface/ERC20FeeProxy.sol";
+import "./interface/TestERC20FeeProxy.sol";
 
 
 /// @title Invoice based escrow smart-contract
@@ -53,12 +53,12 @@ contract MyEscrow {
     
    
 
-    IERC20FeeProxy public paymentProxy;
+    ITestERC20FeeProxy public paymentProxy;
     TokenTimelock public tokentimelock;
 
 
     constructor(address payable _paymentProxyAddress) {
-        paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
+        paymentProxy = ITestERC20FeeProxy(_paymentProxyAddress);
     }
 
 
