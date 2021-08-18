@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
  * @title ERC20FeeProxy
  * @notice This contract performs an ERC20 token transfer, with a Fee sent to a third address and stores a reference
  */
-contract ERC20FeeProxy {
+contract TestERC20FeeProxy {
   // Event to declare a transfer with a reference
   event TransferWithReferenceAndFee(
     address tokenAddress,

@@ -1,21 +1,27 @@
 import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from './deploy-one';
-
+import {
+  MyEscrow__factory,
+  MyEscrow
+} from '../src/types';
 
 export default async function deploy(arg: any, hre: HardhatRuntimeEnvironment) {
-
+  // Assign the deployer
+  const [ deployer ] = await hre.ethers.getSigners();
   // Deploy the contracts
   const TestTokenInstance = await deployOne(arg, hre, 'TestToken');
-  const ERC20FeeProxyInstance = await deployOne(arg, hre, 'ERC20FeeProxy');
-  const MyEscrowInstance = await deployOne(ERC20FeeProxyInstance, hre, 'MyEscrow');
+  const TestERC20FeeProxyInstance = await deployOne(arg, hre, 'TestERC20FeeProxy');
+  let MyEscrowInstance: MyEscrow;
+  MyEscrowInstance = await new MyEscrow__factory(deployer).deploy(TestERC20FeeProxyInstance);
+  
+  //const MyEscrowInstance = await deployOne(TestERC20FeeProxyInstance, hre, 'MyEscrow');
 
-  console.log("Contract deployment status:")
+  console.log("MyEscrow contracts deployment status:")
   console.log(`
-
-    TestERC20:                      ${TestTokenInstance},
-    IERC20FeeProxy deployed to:     ${ERC20FeeProxyInstance},
-    MyEscrow deployed to:           ${MyEscrowInstance} 
+    TestToken contract deployed to address:               ${TestTokenInstance},
+    ITestERC20FeeProxy contract deployed to address:      ${TestERC20FeeProxyInstance},
+    MyEscrow contract deployed to address:                ${MyEscrowInstance.address} 
   `);
 
 }
