@@ -71,6 +71,20 @@ To get only aggregators of one network:
 yarn chainlinkPath mainnet
 ```
 
+To get aggregators of a network with a lot of blocks, you have to gather most updates with updateAggregatorsList.
+
+Case 1: you only use updateAGgregatorsList, and update every pair each time, take this block of its last execution.
+
+```bash
+yarn chainlinkPath --network=matic --firstBlock=$LAST_EXECUTION_BLOCK
+```
+
+Case 2: you used updateAggregator a few times after a full updateAggregatorsList (mass update), all within a blockspan of less than 100'000.
+
+```bash
+yarn chainlinkPath --network=matic --firstBlock=$MASS_UPDATE_BLOCK --lastBlock=$LAST_SINGLE_UPDATE_BLOCK
+```
+
 To get a currency hash:
 
 ```bash

@@ -14,6 +14,7 @@ export interface IOptions {
   currencyCode?: string;
   web3Url?: string;
   lastBlock?: number;
+  startBlock?: number;
 }
 
 /** TransferWithReference event */
@@ -30,14 +31,19 @@ class ChainlinkConversionPathTools {
   public contractChainlinkConversionPath: ChainlinkConversionPath;
   public chainlinkConversionPathCreationBlockNumber: number;
   public provider: ethers.providers.Provider;
+  private lastBlock?: number;
+  private firstBlock?: number;
 
   /**
    * @param network The Ethereum network to use
    */
-  constructor(private network: string, web3Url?: string, private lastBlock?: number) {
+  constructor(
+    private network: string,
+    options?: { web3Url?: string; lastBlock?: number; firstBlock?: number },
+  ) {
     // Creates a local or default provider
-    this.provider = web3Url
-      ? new providers.JsonRpcProvider(web3Url)
+    this.provider = options?.web3Url
+      ? new providers.JsonRpcProvider(options?.web3Url)
       : getDefaultProvider(this.network);
 
     // Setup the conversion proxy contract interface
@@ -49,6 +55,9 @@ class ChainlinkConversionPathTools {
     this.chainlinkConversionPathCreationBlockNumber = chainlinkConversionPath.getCreationBlockNumber(
       this.network,
     );
+
+    this.lastBlock = options?.lastBlock;
+    this.firstBlock = options?.firstBlock;
   }
 
   /**
@@ -58,8 +67,8 @@ class ChainlinkConversionPathTools {
     // Get the fee proxy contract event logs
     const logs = await this.contractChainlinkConversionPath.queryFilter(
       this.contractChainlinkConversionPath.filters.AggregatorUpdated(),
-      this.chainlinkConversionPathCreationBlockNumber,
-      this.lastBlock || 'latest',
+      this.firstBlock ?? this.chainlinkConversionPathCreationBlockNumber,
+      this.lastBlock ?? 'latest',
     );
 
     // Parses, filters and creates the events from the logs with the payment reference
@@ -144,11 +153,7 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
       [RequestLogicTypes.CURRENCY.BTC]: [],
     };
     allAggregators[network] = {};
-    const chainlinkConversionPathTools = new ChainlinkConversionPathTools(
-      network,
-      options?.web3Url,
-      options?.lastBlock,
-    );
+    const chainlinkConversionPathTools = new ChainlinkConversionPathTools(network, options);
     allAggregators[network] = await chainlinkConversionPathTools.getAggregators();
 
     // Include the reverse path of each aggregators
@@ -177,9 +182,11 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
   console.log(allAggregators);
   console.log('#####################################################################');
   console.log('All aggregators nodes (currency) :');
+  console.log('../currency/src/chainlink-path-aggregators.ts');
   console.log(aggregatorsNodesForDijkstra);
   console.log('#####################################################################');
   console.log('Supported currencies (advanced-logic) :');
+  console.log('../advanced-logic/src/extensions/payment-network/any-to-erc20-proxy.ts');
   console.log(supportedCurrencies);
 };
 
