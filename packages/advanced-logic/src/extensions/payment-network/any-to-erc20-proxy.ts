@@ -43,7 +43,7 @@ const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, str
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },
   matic: {
-    ISO4217: ['USD'],
+    ISO4217: ['AUD', 'CAD', 'CHF', 'EUR', 'GBP', 'SGD', 'USD'],
     ERC20: [
       '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
       '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
