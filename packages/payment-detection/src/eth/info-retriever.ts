@@ -7,18 +7,18 @@ import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider';
 export default class ETHInfoRetriever
   implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
   /**
-   * @param address Address to check
+   * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    * @param paymentReference The reference to identify the payment
    * @param explorerApiKey The explorer (etherscan...) API key
    */
   constructor(
-    protected toAddress: string,
-    protected eventName: PaymentTypes.EVENTS_NAMES,
-    protected network: string,
-    protected paymentReference: string,
-    protected explorerApiKey?: string,
+    private toAddress: string,
+    private eventName: PaymentTypes.EVENTS_NAMES,
+    private network: string,
+    private paymentReference: string,
+    private explorerApiKey?: string,
   ) {}
 
   public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {

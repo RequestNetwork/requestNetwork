@@ -1,38 +1,51 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import ETHInfoRetriever from '../eth/info-retriever';
 import { Client } from 'pg';
 
 /**
  * Gets a list of transfer events for an address and payment reference
  */
-export default class NearInfoRetriever extends ETHInfoRetriever {
+export default class NearInfoRetriever {
   private contractName: ReturnType<typeof getContractName>;
   private connectionString: ReturnType<typeof getIndexerConnectionString>;
   /**
-   * @param address Address to check
+   * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    * @param paymentReference The reference to identify the payment
-   * @param explorerApiKey The explorer (etherscan...) API key
    */
   constructor(
-    protected toAddress: string,
-    protected eventName: PaymentTypes.EVENTS_NAMES,
-    protected network: string,
-    protected paymentReference: string,
+    private toAddress: string,
+    private eventName: PaymentTypes.EVENTS_NAMES,
+    private network: string,
+    private paymentReference: string,
   ) {
-    super(toAddress, eventName, network, paymentReference);
     if (this.network !== 'aurora' && this.network !== 'aurora-testnet') {
-      throw new Error('Near input data info-retriever works with Near mainnet and testnet');
+      throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
     this.contractName = getContractName(this.network);
     this.connectionString = getIndexerConnectionString(this.network);
   }
 
+  public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+    const events = (await this.getTransactionsFromNearIndexerDatabase()).map((transaction) => ({
+      amount: transaction.amount,
+      name: this.eventName,
+      parameters: {
+        block: transaction.block,
+        confirmations: transaction.confirmations,
+        txHash: transaction.txHash,
+      },
+      timestamp: Number(
+        transaction.blockTimestamp.substring(0, transaction.blockTimestamp.length - 9),
+      ),
+    }));
+    return events;
+  }
+
   /**
    * Documentation: https://github.com/near/near-indexer-for-explorer/blob/master/docs/near-indexer-for-explorer-db.png
    */
-  protected async getTransactionsFromNearIndexerDatabase(): Promise<NearIndexerTransaction[]> {
+  private async getTransactionsFromNearIndexerDatabase(): Promise<NearIndexerTransaction[]> {
     const query = `SELECT t.transaction_hash as "txHash",
         b.block_height as block,
         t.block_timestamp as "blockTimestamp",
@@ -73,22 +86,6 @@ export default class NearInfoRetriever extends ETHInfoRetriever {
       console.log(err.stack);
       throw Error(`Error retrieving data: ${err.message}\n${err.stack}`);
     }
-  }
-
-  public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const events = (await this.getTransactionsFromNearIndexerDatabase()).map((transaction) => ({
-      amount: transaction.amount,
-      name: this.eventName,
-      parameters: {
-        block: transaction.block,
-        confirmations: transaction.confirmations,
-        txHash: transaction.txHash,
-      },
-      timestamp: Number(
-        transaction.blockTimestamp.substring(0, transaction.blockTimestamp.length - 9),
-      ),
-    }));
-    return events;
   }
 }
 
