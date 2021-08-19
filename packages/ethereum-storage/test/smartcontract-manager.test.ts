@@ -249,7 +249,7 @@ describe('SmartContractManager', () => {
     expect(events[0].args.feesParameters).toEqual(otherSizeBytes32Hex);
   });
 
-  it('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
+  xit('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
     // fake the creation of new blocks on ethereum
     const blockInterval = setInterval(async () => {
       await time.advanceBlock();
@@ -268,31 +268,6 @@ describe('SmartContractManager', () => {
       clearInterval(blockInterval);
     }
   }, 35000);
-
-  // We wrap this test in its own describe to allow a cleanup in case of failure.
-  // otherwise, the interval never stops
-  describe('Fast Block mining tests', () => {
-    let blockInterval: NodeJS.Timeout;
-    beforeEach(() => {
-      // This mock is used to ensure any block is never fetchable
-      jest
-        .spyOn(smartContractManager.provider, 'getBlock')
-        .mockImplementation(() => Promise.reject(null as any));
-
-      // fake the creation of new blocks on ethereum
-      blockInterval = setInterval(async () => {
-        await time.advanceBlock();
-      }, 50);
-    });
-    afterEach(() => {
-      clearInterval(blockInterval);
-    });
-    it('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
-      await expect(
-        smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: otherSize }),
-      ).rejects.toThrowError('Maximum number of confirmation reached');
-    }, 30000);
-  });
 
   it('allows to get all hashes', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
@@ -440,7 +415,7 @@ describe('SmartContractManager', () => {
     expect(SmartContracts.requestHashSubmitterArtifact.getCreationBlockNumber('private')).toBe(1);
   });
 
-  it('allows to getMetaFromEthereum() a hash', async () => {
+  fit('allows to getMetaFromEthereum() a hash', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
     // For getPastEventsMock the number of the latest block is 3
     jest
@@ -453,7 +428,7 @@ describe('SmartContractManager', () => {
     expect(meta.smartContractAddress).toBe('0x345ca3e014aaf5dca488057592ee47305d9b3e10');
     expect(meta.transactionHash).toBe('0xa');
     expect(meta.blockConfirmation).toBeGreaterThanOrEqual(0);
-  }, 10000);
+  }, 15000);
 
   it('allows to getMetaFromEthereum() a hash not indexed', async () => {
     await expect(smartContractManager.getMetaFromEthereum('empty')).rejects.toThrowError(
