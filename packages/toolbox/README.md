@@ -73,7 +73,7 @@ yarn chainlinkPath mainnet
 
 To get aggregators of a network with a lot of blocks, you have to gather most updates with updateAggregatorsList.
 
-Case 1: you only use updateAGgregatorsList, and update every pair each time, take this block of its last execution.
+Case 1: you only use updateAggregatorsList, and update every pair each time, take this block of its last execution.
 
 ```bash
 yarn chainlinkPath --network=matic --firstBlock=$LAST_EXECUTION_BLOCK
