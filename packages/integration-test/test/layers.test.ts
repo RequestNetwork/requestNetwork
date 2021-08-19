@@ -20,7 +20,7 @@ import { providers, Wallet } from 'ethers';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
-let provider: providers.Provider;
+let provider: providers.JsonRpcProvider;
 let wallet: Wallet;
 let payeeSignatureInfo: SignatureTypes.ISignatureParameters;
 let payeeIdentity: IdentityTypes.IIdentity;
@@ -33,12 +33,10 @@ let signatureProvider: any;
 
 let dataAccess: DataAccessTypes.IDataAccess;
 
-const { time } = require('@openzeppelin/test-helpers');
-
 let nbBlocks = 0;
 let testsFinished = false;
 const interval = setInterval(async () => {
-  await time.advanceBlock();
+  await provider.send('evm_mine', []);
   if (testsFinished) {
     nbBlocks++;
   }

@@ -37,7 +37,6 @@
     "test:btc": "jest test/scheduled/btc.test.ts --forceExit"
   },
   "devDependencies": {
-    "@openzeppelin/test-helpers": "0.5.6",
     "@requestnetwork/advanced-logic": "0.34.0",
     "@requestnetwork/currency": "0.8.0",
     "@requestnetwork/data-access": "0.26.0",

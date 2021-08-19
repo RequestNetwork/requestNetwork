@@ -5,7 +5,6 @@ import { ethers, providers } from 'ethers';
 import SmartContractManager from '../src/smart-contract-manager';
 import * as web3Utils from 'web3-utils';
 import { RequestHashStorage__factory } from '@requestnetwork/smart-contracts/types';
-const { time } = require('@openzeppelin/test-helpers');
 
 /* eslint-disable no-magic-numbers */
 
@@ -248,26 +247,6 @@ describe('SmartContractManager', () => {
     expect(events[0].args.hashSubmitter.toLowerCase()).toEqual(addressRequestHashSubmitter);
     expect(events[0].args.feesParameters).toEqual(otherSizeBytes32Hex);
   });
-
-  xit('cannot add hash to ethereum if block of the transaction is not fetchable within 23 confirmation', async () => {
-    // fake the creation of new blocks on ethereum
-    const blockInterval = setInterval(async () => {
-      await time.advanceBlock();
-    }, 50);
-
-    // This mock is used to ensure any block is never fetchable
-    jest
-      .spyOn(smartContractManager.provider, 'getBlock')
-      .mockImplementation(() => Promise.reject(null as any));
-
-    try {
-      await expect(
-        smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: otherSize }),
-      ).rejects.toThrowError('Maximum number of confirmation reached');
-    } finally {
-      clearInterval(blockInterval);
-    }
-  }, 35000);
 
   it('allows to get all hashes', async () => {
     // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
