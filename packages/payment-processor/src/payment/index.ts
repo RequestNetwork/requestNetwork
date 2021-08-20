@@ -11,6 +11,8 @@ import { getNetworkProvider, getProvider, getSigner } from './utils';
 import { ISwapSettings } from './swap-erc20-fee-proxy';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { IPaymentSettings, payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
+import { WalletConnection } from 'near-api-js';
+import { isNearNetwork, isNearAccountSolvent } from './utils-near';
 
 export const supportedNetworks = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
@@ -33,6 +35,15 @@ export class UnsupportedNetworkError extends Error {
 }
 
 /**
+ * Error thrown when the payment currency network is not supported.
+ */
+export class UnsupportedPaymentChain extends Error {
+  constructor(public currencyNetworkName?: string) {
+    super(`Payment currency network ${currencyNetworkName} is not supported`);
+  }
+}
+
+/**
  * Processes a transaction to pay a Request.
  * Supported networks:
  * - ERC20_PROXY_CONTRACT
@@ -41,6 +52,7 @@ export class UnsupportedNetworkError extends Error {
  * - ANY_TO_ERC20_PROXY
  *
  * @throws UnsupportedNetworkError if network isn't supported for swap or payment.
+ * @throws UnsupportedPaymentChain if the currency network is not supported (eg Near)
  * @param request the request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
@@ -53,6 +65,7 @@ export async function payRequest(
   overrides?: ITransactionOverrides,
   paymentSettings?: IPaymentSettings,
 ): Promise<ContractTransaction> {
+  throwIfNotWeb3(request);
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
   switch (paymentNetwork) {
@@ -84,6 +97,7 @@ export async function payRequest(
  * Supported payment networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA, ERC20_FEE_PROXY_CONTRACT
  *
  * @throws UnsupportedNetworkError if network isn't supported for swap or payment.
+ * @throws UnsupportedPaymentChain if the currency network is not supported (eg Near)
  * @param request the request to pay.
  * @param swapSettings the information of how to swap from another payment token.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
@@ -97,6 +111,7 @@ export async function swapToPayRequest(
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  throwIfNotWeb3(request);
   const signer = getSigner(signerOrProvider);
   const paymentNetwork = getPaymentNetwork(request);
   if (!canSwapToPay(request)) {
@@ -112,20 +127,24 @@ export async function swapToPayRequest(
  * @throws UnsupportedNetworkError if network isn't supported
  * @param request the request to verify.
  * @param address the address holding the funds
- * @param provider the Web3 provider. Defaults to Etherscan.
+ * @param providerOptions.provider the Web3 provider. Defaults to getDefaultProvider.
+ * @param providerOptions.nearWalletConnection the Near WalletConnection
  */
 export async function hasSufficientFunds(
   request: ClientTypes.IRequestData,
   address: string,
-  provider?: providers.Provider,
+  providerOptions?: {
+    provider?: providers.Provider;
+    nearWalletConnection?: WalletConnection;
+  },
 ): Promise<boolean> {
   const paymentNetwork = getPaymentNetwork(request);
   if (!paymentNetwork || !supportedNetworks.includes(paymentNetwork)) {
     throw new UnsupportedNetworkError(paymentNetwork);
   }
 
-  if (!provider) {
-    provider = getNetworkProvider(request);
+  if (!providerOptions?.nearWalletConnection && !providerOptions?.provider) {
+    providerOptions = { provider: getNetworkProvider(request) };
   }
 
   let feeAmount = 0;
@@ -136,7 +155,7 @@ export async function hasSufficientFunds(
     address,
     request.currencyInfo,
     BigNumber.from(request.expectedAmount).add(feeAmount),
-    provider,
+    providerOptions,
   );
 }
 
@@ -146,15 +165,28 @@ export async function hasSufficientFunds(
  * @param fromAddress the address willing to pay
  * @param amount
  * @param currency
- * @param provider the Web3 provider. Defaults to Etherscan.
+ * @param providerOptions.provider the Web3 provider. Defaults to getDefaultProvider.
+ * @param providerOptions.nearWalletConnection the Near WalletConnection
  * @throws UnsupportedNetworkError if network isn't supported
  */
 export async function isSolvent(
   fromAddress: string,
   currency: RequestLogicTypes.ICurrency,
   amount: BigNumberish,
-  provider: providers.Provider,
+  providerOptions?: {
+    provider?: providers.Provider;
+    nearWalletConnection?: WalletConnection;
+  },
 ): Promise<boolean> {
+  // Near case
+  if (isNearNetwork(currency.network) && providerOptions?.nearWalletConnection) {
+    return isNearAccountSolvent(amount, providerOptions.nearWalletConnection);
+  }
+  // Main case (web3)
+  if (!providerOptions?.provider) {
+    throw new Error('provider missing');
+  }
+  const provider = providerOptions.provider;
   const ethBalance = await provider.getBalance(fromAddress);
   const needsGas = !['Safe Multisig WalletConnect', 'Gnosis Safe Multisig'].includes(
     (provider as any)?.provider?.wc?._peerMeta?.name,
@@ -228,3 +260,11 @@ export function _getPaymentUrl(request: ClientTypes.IRequestData, amount?: BigNu
       throw new UnsupportedNetworkError(paymentNetwork);
   }
 }
+
+// FIXME: should also compare the signer.chainId with the request.currencyInfo.network...
+const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
+  // FIXME: there is a near web3Provider equivalent: https://github.com/aurora-is-near/near-web3-provider
+  if (request.currencyInfo?.network && isNearNetwork(request.currencyInfo.network)) {
+    throw new UnsupportedPaymentChain(request.currencyInfo.network);
+  }
+};

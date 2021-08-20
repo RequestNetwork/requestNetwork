@@ -9,9 +9,11 @@ import {
   swapToPayRequest,
   isSolvent,
 } from '../../src/payment';
+import { payNearInputDataRequest } from '../../src/payment/near-input-data';
 import * as btcModule from '../../src/payment/btc-address-based';
 import * as erc20Module from '../../src/payment/erc20';
 import * as ethModule from '../../src/payment/eth-input-data';
+import * as nearUtils from '../../src/payment/utils-near';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -24,9 +26,18 @@ const fakeErc20: RequestLogicTypes.ICurrency = {
   value: 'any',
   network: 'live',
 };
+const nearCurrency = {
+  type: RequestLogicTypes.CURRENCY.ETH,
+  network: 'aurora',
+  value: 'near',
+};
 
 describe('payRequest', () => {
-  it('paying a declarative request should fail', async () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('cannot pay a declarative request', async () => {
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE]: {
@@ -43,7 +54,7 @@ describe('payRequest', () => {
     );
   });
 
-  it('paying a BTC request should fail', async () => {
+  it('cannot pay a BTC request', async () => {
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: {
@@ -95,7 +106,70 @@ describe('payRequest', () => {
     await payRequest(request, wallet);
     expect(spy).toHaveBeenCalledTimes(1);
   });
+
+  it('cannot pay if the currency network is not implemented with web3', async () => {
+    const request: any = {
+      currencyInfo: {
+        network: 'aurora',
+      },
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {},
+          version: '1.0',
+        },
+      },
+    };
+
+    await expect(payRequest(request, wallet)).rejects.toThrowError(
+      'Payment currency network aurora is not supported',
+    );
+  });
+
+  it('pays a NEAR request with NEAR payment method', async () => {
+    const addressValiditySpy = jest
+      .spyOn(nearUtils, 'isValidNearAddress')
+      .mockReturnValue(Promise.resolve(true));
+    const paymentSpy = jest
+      .spyOn(nearUtils, 'processNearPayment')
+      .mockReturnValue(Promise.resolve());
+    const mockedNearWalletConnection = {
+      account: () => ({
+        functionCall: () => true,
+        state: () => Promise.resolve({ amount: 100 }),
+      }),
+    } as any;
+    const request: any = {
+      requestId: '0x123',
+      currencyInfo: nearCurrency,
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            salt: '0x456',
+            paymentAddress: '0x789',
+          },
+          version: '1.0',
+        },
+      },
+    };
+
+    await payNearInputDataRequest(request, mockedNearWalletConnection, '1');
+    expect(addressValiditySpy).toHaveBeenCalledTimes(1);
+    expect(paymentSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      'aurora',
+      '1',
+      '0x789',
+      '700912030bd973e3',
+    );
+  });
 });
+
 describe('swapToPayRequest', () => {
   const swapSettings = {
     // eslint-disable-next-line no-magic-numbers
@@ -105,7 +179,7 @@ describe('swapToPayRequest', () => {
     path: ['0xany', '0xanyother'],
   };
 
-  it('swapping to pay a declarative request should fail', async () => {
+  it('cannot pay a declarative request', async () => {
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE]: {
@@ -122,7 +196,7 @@ describe('swapToPayRequest', () => {
     );
   });
 
-  it('swapping to pay a BTC request should fail', async () => {
+  it('cannot pay a BTC request', async () => {
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: {
@@ -139,7 +213,7 @@ describe('swapToPayRequest', () => {
     );
   });
 
-  it('swapping to pay a ETH request should fail', async () => {
+  it('cannot swap to pay an ETH request', async () => {
     const request: any = {
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
@@ -153,6 +227,26 @@ describe('swapToPayRequest', () => {
     };
     await expect(swapToPayRequest(request, swapSettings, wallet)).rejects.toThrowError(
       'Payment network pn-eth-input-data is not supported',
+    );
+  });
+
+  it('cannot swap to pay a non-EVM request currency', async () => {
+    const request: any = {
+      currencyInfo: {
+        network: 'aurora',
+      },
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {},
+          version: '1.0',
+        },
+      },
+    };
+    await expect(swapToPayRequest(request, swapSettings, wallet)).rejects.toThrowError(
+      'Payment currency network aurora is not supported',
     );
   });
 
@@ -200,7 +294,7 @@ describe('hasSufficientFunds', () => {
     );
   });
 
-  it('should call the ETH payment method', async () => {
+  it('should call the ETH getBalance method', async () => {
     const fakeProvider: any = {
       getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
     };
@@ -223,7 +317,7 @@ describe('hasSufficientFunds', () => {
         },
       },
     };
-    await hasSufficientFunds(request, 'abcd', fakeProvider);
+    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
     expect(fakeProvider.getBalance).toHaveBeenCalledTimes(1);
   });
 
@@ -255,7 +349,7 @@ describe('hasSufficientFunds', () => {
         },
       },
     };
-    await hasSufficientFunds(request, 'abcd', fakeProvider);
+    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
@@ -277,7 +371,9 @@ describe('hasSufficientFunds', () => {
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
     // eslint-disable-next-line no-magic-numbers
-    const solvency = await isSolvent('any', fakeErc20, 100, walletConnectProvider as any);
+    const solvency = await isSolvent('any', fakeErc20, 100, {
+      provider: walletConnectProvider as any,
+    });
     expect(solvency).toBeTruthy();
     expect(mock).toHaveBeenCalledTimes(1);
   });
@@ -300,9 +396,35 @@ describe('hasSufficientFunds', () => {
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
     // eslint-disable-next-line no-magic-numbers
-    const solvency = await isSolvent('any', fakeErc20, 100, walletConnectProvider as any);
+    const solvency = await isSolvent('any', fakeErc20, 100, {
+      provider: walletConnectProvider as any,
+    });
     expect(solvency).toBeFalsy();
     expect(mock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should check NEAR solvency with NEAR methods', async () => {
+    const mockedNearWalletConnection = {
+      account: () => ({
+        state: jest.fn().mockReturnValue(Promise.resolve({ amount: 100 })),
+      }),
+    } as any;
+
+    const solvency = await isSolvent('any', nearCurrency, 100, {
+      nearWalletConnection: mockedNearWalletConnection,
+    });
+    expect(solvency).toBeTruthy();
+  });
+
+  it('should check NEAR non-solvency with NEAR methods', async () => {
+    const nearWalletConnection = {
+      account: () => ({
+        state: jest.fn().mockReturnValue(Promise.resolve({ amount: 99 })),
+      }),
+    } as any;
+
+    const solvency = await isSolvent('any', nearCurrency, 100, { nearWalletConnection });
+    expect(solvency).toBeFalsy();
   });
 });
 
