@@ -59,7 +59,7 @@ export const nativeCurrencies = {
     {
       symbol: 'NEAR-testnet',
       decimals: 24,
-      name: 'Near',
+      name: 'Near Testnet',
       network: 'aurora-testnet',
     },
   ],
