@@ -41,11 +41,17 @@ export class Currency implements RequestLogicTypes.ICurrency {
       return new Currency(currencyFromAddress);
     }
 
-    const currencyFromSymbol = this.fromSymbol(
-      symbolOrAddress.split('-')[0],
-      symbolOrAddress.split('-')[1],
-    );
-    return currencyFromSymbol;
+    try {
+      const currencyFromSymbol = this.fromSymbol(
+        symbolOrAddress.split('-')[0],
+        symbolOrAddress.split('-')[1],
+      );
+      return currencyFromSymbol;
+    } catch (e) {
+      // Testnet native tokens (ETH-rinkeby, NEAR-testnet etc.)
+      const currencyFromSymbol = this.fromSymbol(symbolOrAddress);
+      return currencyFromSymbol;
+    }
   }
 
   /**
@@ -63,8 +69,8 @@ export class Currency implements RequestLogicTypes.ICurrency {
       const currency = currencies.find(
         (cur) =>
           // test native tokens have the network in their symbol already
-          cur.symbol.toLowerCase().split('-')[0] === symbol.toLowerCase() &&
-          (!network || network === cur.network),
+          cur.symbol.toLowerCase() === symbol.toLowerCase() &&
+          (!network || network.toLowerCase() === cur.network?.toLowerCase()),
       );
 
       if (currency) {
