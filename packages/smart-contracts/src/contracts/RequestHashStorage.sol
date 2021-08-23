@@ -21,7 +21,9 @@ contract RequestHashStorage is WhitelistedRole {
   /**
    * @notice Declare a new hash
    * @param _hash hash to store
-   * @param _feesParameters Parameters use to compute the fees. This is a bytes to stay generic, the structure is on the charge of the hashSubmitter contracts.
+   * @param _feesParameters Parameters use to compute the fees. 
+                            This is a bytes to stay generic,
+                            the structure is on the charge of the hashSubmitter contracts.
    */
   function declareNewHash(string calldata _hash, bytes calldata _feesParameters)
     external

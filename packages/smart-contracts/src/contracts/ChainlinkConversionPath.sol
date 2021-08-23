@@ -49,7 +49,11 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     * @param _outputs list of addresses representing the output currencies
     * @param _aggregators list of addresses of the aggregator contracts
   */
-  function updateAggregatorsList(address[] calldata _inputs, address[] calldata _outputs, address[] calldata _aggregators)
+  function updateAggregatorsList(
+    address[] calldata _inputs,
+    address[] calldata _outputs,
+    address[] calldata _aggregators
+  )
     external
     onlyWhitelistAdmin
   {
@@ -107,7 +111,12 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
 
     // For every conversion of the path
     for (uint i; i < _path.length - 1; i++) {
-      (AggregatorFraction aggregator, bool reverseAggregator, uint256 decimalsInput, uint256 decimalsOutput) = getAggregatorAndDecimals(_path[i], _path[i + 1]);
+      (
+        AggregatorFraction aggregator,
+        bool reverseAggregator,
+        uint256 decimalsInput,
+        uint256 decimalsOutput
+      ) = getAggregatorAndDecimals(_path[i], _path[i + 1]);
 
       // store the latest timestamp of the path
       uint256 currentTimestamp = aggregator.latestTimestamp();

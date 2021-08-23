@@ -146,7 +146,15 @@ contract ERC20SwapToConversion is Ownable {
   /*
   * Internal functions to reduce the stack in swapTransferWithReference()
   */
-  function getConversion(address[] memory _path, uint256 _requestAmount, uint256 _requestFeeAmount) internal view returns (uint256 conversion) {
+  function getConversion(
+    address[] memory _path,
+    uint256 _requestAmount,
+    uint256 _requestFeeAmount
+  )
+    internal
+    view
+    returns (uint256 conversion)
+  {
     (conversion, ) = chainlinkConversionPath.getConversion(_requestAmount + _requestFeeAmount, _path);
   }
 }

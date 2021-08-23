@@ -36,7 +36,8 @@ contract StorageFeeCollector is WhitelistAdminRole {
 
   /**
    * @param _requestBurnerContract Address of the contract where to send the ether.
-   * This burner contract will have a function that can be called by anyone and will exchange ether to req via Kyber and burn the REQ
+   * This burner contract will have a function that can be called by anyone
+   * and will exchange ether to req via Kyber and burn the REQ
    */
   constructor(address payable _requestBurnerContract) {
     requestBurnerContract = _requestBurnerContract;
@@ -44,7 +45,8 @@ contract StorageFeeCollector is WhitelistAdminRole {
 
   /**
     * @notice Sets the fees rate and minimum fee.
-    * @dev if the _rateFeesDenominator is 0, it will be treated as 1. (in other words, the computation of the fees will not use it)
+    * @dev if the _rateFeesDenominator is 0, it will be treated as 1.
+            (in other words, the computation of the fees will not use it)
     * @param _minimumFee minimum fixed fee
     * @param _rateFeesNumerator numerator rate
     * @param _rateFeesDenominator denominator rate

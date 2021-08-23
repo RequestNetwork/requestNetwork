@@ -25,7 +25,8 @@ contract ERC20FeeProxy {
   }
 
   /**
-    * @notice Performs a ERC20 token transfer with a reference and a transfer to a second address for the payment of a fee
+    * @notice Performs a ERC20 token transfer with a reference
+              and a transfer to a second address for the payment of a fee
     * @param _tokenAddress Address of the ERC20 token smart contract
     * @param _to Transfer recipient
     * @param _amount Amount to transfer
