@@ -1,8 +1,8 @@
 pragma solidity ^0.5.12;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "./legacy_openzeppelin/contracts/math/SafeMath.sol";
+import "./legacy_openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./legacy_openzeppelin/contracts/ownership/Ownable.sol";
 import "./lib/SafeERC20.sol";
 import "./Erc20ConversionProxy.sol";
 import "./ChainlinkConversionPath.sol";

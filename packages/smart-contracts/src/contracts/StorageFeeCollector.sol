@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
+import "./legacy_openzeppelin/contracts/math/SafeMath.sol";
+import "./legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
 
 
 /**
