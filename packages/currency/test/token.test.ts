@@ -153,6 +153,33 @@ describe('api/currency Token', () => {
       });
     });
 
+    describe('near', () => {
+      it('NEAR from NEAR', () => {
+        expect(Token.from('NEAR')).toMatchObject({
+          symbol: 'NEAR',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'NEAR',
+          network: 'aurora',
+        });
+      });
+      it('NEAR from NEAR-near (legacy)', () => {
+        expect(Token.from('NEAR-near')).toMatchObject({
+          symbol: 'NEAR',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'NEAR',
+          network: 'aurora',
+        });
+      });
+      it('NEAR from NEAR-testnet', () => {
+        expect(Token.from('NEAR-testnet')).toMatchObject({
+          symbol: 'NEAR-testnet',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'NEAR-testnet',
+          network: 'aurora-testnet',
+        });
+      });
+    });
+
     describe('errors', () => {
       it('Unsupported tokens should throw', () => {
         expect(() => Token.from('UNSUPPORTED')).toThrow(
