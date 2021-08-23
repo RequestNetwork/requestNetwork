@@ -1,3 +1,4 @@
 import InputData from './input-data';
+import { NearInfoRetriever, getNearContractName } from './near-info-retriever';
 
-export { InputData };
+export { InputData, NearInfoRetriever, getNearContractName };

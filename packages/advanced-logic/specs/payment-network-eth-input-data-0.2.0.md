@@ -81,8 +81,8 @@ Note: to use the Rinkeby testnet just set the `currency.network` to "rinkeby"
 
 This action is valid if:
 
-- The request `currency.type` must be "ETH"
-- The request `currency.network` must be "mainnet" or 'rinkeby"
+- The request `currency.type` must be "ETH" or an EVM chain native token
+- The request `currency.network` must be "mainnet", "rinkeby" or an EVM chain
 - The `salt` is not empty and long enough (8 bytes of randomness minimum).
 
 #### Warnings
