@@ -14,6 +14,7 @@ import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
 import TheGraphAnyToErc20Retriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -29,9 +30,16 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
    * @param extension The advanced logic payment network extensions
    */
 
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+  public constructor({
+    advancedLogic,
+    currencyManager,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    currencyManager: CurrencyManager;
+  }) {
     super({
       advancedLogic,
+      currencyManager,
     });
     this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY;
     this._extension = advancedLogic.extensions.anyToErc20Proxy;
@@ -128,9 +136,11 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
       toAddress,
     );
 
+    const currency = await this.getCurrency(request.currency);
+
     const infoRetriever = networkSupportsTheGraph(network)
       ? new TheGraphAnyToErc20Retriever(
-          request.currency,
+          currency,
           paymentReference,
           conversionProxyContractAddress,
 
@@ -141,7 +151,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
           maxRateTimespan,
         )
       : new ProxyInfoRetriever(
-          request.currency,
+          currency,
           paymentReference,
           conversionProxyContractAddress,
           conversionProxyCreationBlockNumber,

@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish } from 'ethers';
 
-import { getConversionPath, Currency } from '@requestnetwork/currency';
+import { getConversionPath } from '@requestnetwork/currency';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';

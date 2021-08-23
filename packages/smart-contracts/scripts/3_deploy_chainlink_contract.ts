@@ -1,5 +1,5 @@
 import '@nomiclabs/hardhat-ethers';
-import { Currency } from '@requestnetwork/currency';
+import { getCurrencyHash } from '@requestnetwork/currency';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import deployERC20ConversionProxy from './erc20-conversion-proxy';
 import deploySwapConversion from './erc20-swap-to-conversion';
@@ -14,14 +14,14 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
   const USDT_fake_address = await deployOne(args, hre, 'UsdtFake');
 
   // all these addresses are for test purposes
-  const ETH_address = Currency.fromSymbol('ETH').getHash();
-  const USD_address = Currency.fromSymbol('USD').getHash();
-  const EUR_address = Currency.fromSymbol('EUR').getHash();
+  const ETH_address = getCurrencyHash('ETH')();
+  const USD_address = getCurrencyHash('USD')();
+  const EUR_address = getCurrencyHash('EUR')();
   // Cf. ERC20Alpha in TestERC20.sol
-  const DAI_address = new Currency({
+  const DAI_address = getCurrencyHash({
     type: 'ERC20' as any,
     value: '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35',
-  }).getHash();
+  });
   const USDT_address = USDT_fake_address;
 
   console.log(`USDT address: ${USDT_address}`);

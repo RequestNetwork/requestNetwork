@@ -1,5 +1,5 @@
-import { Currency } from '@requestnetwork/currency';
-import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { getCurrencyHash, CurrencyDefinition, CurrencyManager } from '@requestnetwork/currency';
+import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs, unpadAmountFromChainlink } from '../utils';
@@ -51,7 +51,7 @@ export default class ProxyERC20InfoRetriever
    * @param network The Ethereum network to use
    */
   constructor(
-    private requestCurrency: RequestLogicTypes.ICurrency,
+    private requestCurrency: CurrencyDefinition,
     private paymentReference: string,
     private conversionProxyContractAddress: string,
     private conversionProxyCreationBlockNumber: number,
@@ -145,14 +145,14 @@ export default class ProxyERC20InfoRetriever
           // check the rate timespan
           this.maxRateTimespan >= conversionLog.maxRateTimespan.toNumber() &&
           // check the requestCurrency
-          new Currency(this.requestCurrency).getHash().toLowerCase() ===
+          getCurrencyHash(CurrencyManager.toStorageCurrency(this.requestCurrency)).toLowerCase() ===
             conversionLog.currency.toLowerCase() &&
           // check to address
           proxyLog.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
       // Creates the balance events
       .map(async ({ conversionLog, proxyLog, blockNumber, transactionHash }) => {
-        const requestCurrency = new Currency(this.requestCurrency);
+        const requestCurrency = this.requestCurrency;
 
         const amount = unpadAmountFromChainlink(conversionLog.amount, requestCurrency).toString();
         const feeAmount = unpadAmountFromChainlink(
