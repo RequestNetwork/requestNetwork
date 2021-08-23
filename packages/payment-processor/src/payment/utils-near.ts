@@ -8,7 +8,6 @@ export async function isValidNearAddress(nearNetwork: Near, address: string) {
     await nearNetwork.connection.provider.query(`account/${address}`, '');
     return true;
   } catch (e) {
-    console.warn(e.stack);
     return false;
   }
 }
