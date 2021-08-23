@@ -1,13 +1,13 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
-import "../../GSN/Context.sol";
+import '@openzeppelin/contracts/utils/Context.sol';
 import "../Roles.sol";
 
 /**
  * @title WhitelistAdminRole
  * @dev WhitelistAdmins are responsible for assigning and removing Whitelisted accounts.
  */
-contract WhitelistAdminRole is Context {
+abstract contract WhitelistAdminRole is Context {
     using Roles for Roles.Role;
 
     event WhitelistAdminAdded(address indexed account);
@@ -15,7 +15,7 @@ contract WhitelistAdminRole is Context {
 
     Roles.Role private _whitelistAdmins;
 
-    constructor () internal {
+    constructor () {
         _addWhitelistAdmin(_msgSender());
     }
 

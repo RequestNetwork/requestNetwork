@@ -1,4 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./legacy_openzeppelin/contracts/math/SafeMath.sol";
 import "./legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
@@ -40,9 +41,7 @@ contract StorageFeeCollector is WhitelistAdminRole {
    * @param _requestBurnerContract Address of the contract where to send the ether.
    * This burner contract will have a function that can be called by anyone and will exchange ether to req via Kyber and burn the REQ
    */
-  constructor(address payable _requestBurnerContract)
-    public
-  {
+  constructor(address payable _requestBurnerContract) {
     requestBurnerContract = _requestBurnerContract;
   }
 

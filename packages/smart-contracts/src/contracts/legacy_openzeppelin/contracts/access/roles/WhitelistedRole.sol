@@ -1,6 +1,6 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
-import "../../GSN/Context.sol";
+import '@openzeppelin/contracts/utils/Context.sol';
 import "../Roles.sol";
 import "./WhitelistAdminRole.sol";
 
@@ -10,7 +10,7 @@ import "./WhitelistAdminRole.sol";
  * crowdsale). This role is special in that the only accounts that can add it are WhitelistAdmins (who can also remove
  * it), and not Whitelisteds themselves.
  */
-contract WhitelistedRole is Context, WhitelistAdminRole {
+abstract contract WhitelistedRole is Context, WhitelistAdminRole {
     using Roles for Roles.Role;
 
     event WhitelistedAdded(address indexed account);

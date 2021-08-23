@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.25 <0.7.0;
+pragma solidity ^0.8.0;
 
 import "./legacy_openzeppelin/contracts/math/SafeMath.sol";
 import "./legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
@@ -182,7 +182,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   /**
   * @notice Gets decimals from an address currency
   * @param _addr address to check
-  * @return number of decimals
+  * @return decimals number of decimals
   */
   function getDecimals(address _addr)
     private

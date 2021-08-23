@@ -1,8 +1,8 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "./legacy_openzeppelin/contracts/math/SafeMath.sol";
-import "./legacy_openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./legacy_openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./lib/SafeERC20.sol";
 import "./Erc20ConversionProxy.sol";
 import "./ChainlinkConversionPath.sol";
@@ -25,13 +25,12 @@ interface IUniswapV2Router02 {
   */
 contract ERC20SwapToConversion is Ownable {
   using SafeERC20 for IERC20;
-  using SafeMath for uint256;
 
   IUniswapV2Router02 public swapRouter;
   Erc20ConversionProxy public paymentProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
-  constructor(address _swapRouterAddress, address _paymentProxyAddress) public {
+  constructor(address _swapRouterAddress, address _paymentProxyAddress) {
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = Erc20ConversionProxy(_paymentProxyAddress);
     chainlinkConversionPath = ChainlinkConversionPath(paymentProxy.chainlinkConversionPath());
@@ -148,6 +147,6 @@ contract ERC20SwapToConversion is Ownable {
   * Internal functions to reduce the stack in swapTransferWithReference()
   */
   function getConversion(address[] memory _path, uint256 _requestAmount, uint256 _requestFeeAmount) internal view returns (uint256 conversion) {
-    (conversion, ) = chainlinkConversionPath.getConversion(_requestAmount.add(_requestFeeAmount), _path);
+    (conversion, ) = chainlinkConversionPath.getConversion(_requestAmount + _requestFeeAmount, _path);
   }
 }

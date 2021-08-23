@@ -1,4 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./ChainlinkConversionPath.sol";
 import "./interfaces/ERC20FeeProxy.sol";
@@ -14,7 +15,7 @@ contract Erc20ConversionProxy {
   address public paymentProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
-  constructor(address _paymentProxyAddress, address _chainlinkConversionPathAddress) public {
+  constructor(address _paymentProxyAddress, address _chainlinkConversionPathAddress) {
     paymentProxy = _paymentProxyAddress;
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
   }

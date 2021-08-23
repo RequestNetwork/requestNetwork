@@ -1,6 +1,7 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "./legacy_openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 
 /**
@@ -17,11 +18,11 @@ contract ERC20Proxy {
   );
 
   // Fallback function returns funds to the sender
-  function()
-    external
-    payable
-  {
+  fallback() external payable {
     revert("not payable fallback");
+  }
+  receive() external payable {
+    revert("not payable receive");
   }
 
   /**

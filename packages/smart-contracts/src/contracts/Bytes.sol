@@ -1,5 +1,5 @@
-pragma solidity ^0.5.0;
-
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 /**
  * @title Bytes util library.
@@ -10,7 +10,7 @@ library Bytes {
     * @notice Extract a bytes32 from a bytes.
     * @param data bytes from where the bytes32 will be extract
     * @param offset position of the first byte of the bytes32
-    * @return address
+    * @return bs
     */
   function extractBytes32(bytes memory data, uint offset)
     internal

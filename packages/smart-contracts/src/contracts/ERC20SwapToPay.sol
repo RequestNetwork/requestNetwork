@@ -1,7 +1,8 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "./legacy_openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./legacy_openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./lib/SafeERC20.sol";
 import "./interfaces/ERC20FeeProxy.sol";
 
@@ -26,7 +27,7 @@ contract ERC20SwapToPay is Ownable {
   IUniswapV2Router02 public swapRouter;
   IERC20FeeProxy public paymentProxy;
 
-  constructor(address _swapRouterAddress, address _paymentProxyAddress) public {
+  constructor(address _swapRouterAddress, address _paymentProxyAddress) {
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
   }
@@ -70,8 +71,8 @@ contract ERC20SwapToPay is Ownable {
     address _to,
     uint256 _amount,      // requestedToken
     uint256 _amountInMax, // spentToken
-    address[] calldata _path, // from requestedToken to spentToken
-    bytes calldata _paymentReference,
+    address[] memory _path, // from requestedToken to spentToken
+    bytes memory _paymentReference,
     uint256 _feeAmount,   // requestedToken
     address _feeAddress,
     uint256 _deadline

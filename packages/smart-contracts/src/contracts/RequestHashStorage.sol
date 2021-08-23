@@ -1,4 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./legacy_openzeppelin/contracts/access/roles/WhitelistedRole.sol";
 
@@ -13,9 +14,7 @@ contract RequestHashStorage is WhitelistedRole {
   event NewHash(string hash, address hashSubmitter, bytes feesParameters);
 
   // Fallback function returns funds to the sender
-  function()
-    external
-  {
+  fallback() external {
     revert("not payable fallback");
   }
 
