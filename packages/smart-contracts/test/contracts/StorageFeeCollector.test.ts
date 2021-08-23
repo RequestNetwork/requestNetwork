@@ -167,9 +167,7 @@ describe('contract: StorageFeeCollector', () => {
       );
       const contentSize = BigNumber.from(1000);
 
-      await expect(storageFeeCollector.getFeesAmount(contentSize)).to.be.revertedWith(
-        'SafeMath: multiplication overflow',
-      );
+      await expect(storageFeeCollector.getFeesAmount(contentSize)).to.be.reverted;
     });
   });
 });

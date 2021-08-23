@@ -17,32 +17,32 @@ contract TestERC20 is ERC20 {
 
 
 contract ERC20True {
-  function transferFrom(address _from, address _to, uint _value) public returns (bool) {
+  function transferFrom(address, address, uint) pure public returns (bool) {
     return true;
   }
 }
 
 
 contract ERC20False {
-  function transferFrom(address _from, address _to, uint _value) public returns (bool) {
+  function transferFrom(address, address, uint) pure public returns (bool) {
     return false;
   }
 }
 
 
 contract ERC20NoReturn {
-  function transferFrom(address _from, address _to, uint _value) public {}
+  function transferFrom(address _from, address _to, uint _value) pure public {}
 }
 
 
 contract ERC20Revert {
-  function transferFrom(address _from, address _to, uint _value) public {
+  function transferFrom(address, address, uint) pure public {
     revert("bad thing happened");
   }
 }
 
 contract ERC20Alpha is ERC20 {
-  constructor(uint256 initialSupply) ERC20("Alpha ERC 20", "ALPHA") public {
+  constructor(uint256 initialSupply) ERC20("Alpha ERC 20", "ALPHA") {
     _mint(msg.sender, initialSupply);
   }
 }

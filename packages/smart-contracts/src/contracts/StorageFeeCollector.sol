@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./legacy_openzeppelin/contracts/math/SafeMath.sol";
 import "./legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
 
 
@@ -11,8 +10,6 @@ import "./legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
  * @notice StorageFeeCollector is a contract managing the fees
  */
 contract StorageFeeCollector is WhitelistAdminRole {
-  using SafeMath for uint256;
-
   /**
    * Fee computation for storage are based on four parameters:
    * minimumFee (wei) fee that will be applied for any size of storage
@@ -85,10 +82,10 @@ contract StorageFeeCollector is WhitelistAdminRole {
     returns(uint256)
   {
     // Transactions fee
-    uint256 computedAllFee = _contentSize.mul(rateFeesNumerator);
+    uint256 computedAllFee = _contentSize * rateFeesNumerator;
 
     if (rateFeesDenominator != 0) {
-      computedAllFee = computedAllFee.div(rateFeesDenominator);
+      computedAllFee = computedAllFee / rateFeesDenominator;
     }
 
     if (computedAllFee <= minimumFee) {

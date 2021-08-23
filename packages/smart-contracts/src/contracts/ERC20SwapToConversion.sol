@@ -61,8 +61,8 @@ contract ERC20SwapToConversion is Ownable {
     address _to,
     uint256 _requestAmount, // requestCurrency
     uint256 _amountInMax, // SpentToken
-    address[] calldata _uniswapPath, // from paymentNetworkToken to spentToken on uniswap
-    address[] calldata _chainlinkPath, // from requestCurrency to spentToken on chainlink
+    address[] memory _uniswapPath, // from paymentNetworkToken to spentToken on uniswap
+    address[] memory _chainlinkPath, // from requestCurrency to spentToken on chainlink
     bytes calldata _paymentReference,
     uint256 _requestFeeAmount, // requestCurrency
     address _feeAddress,

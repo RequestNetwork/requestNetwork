@@ -71,8 +71,8 @@ contract ERC20SwapToPay is Ownable {
     address _to,
     uint256 _amount,      // requestedToken
     uint256 _amountInMax, // spentToken
-    address[] memory _path, // from requestedToken to spentToken
-    bytes memory _paymentReference,
+    address[] calldata _path, // from requestedToken to spentToken
+    bytes calldata _paymentReference,
     uint256 _feeAmount,   // requestedToken
     address _feeAddress,
     uint256 _deadline
@@ -84,7 +84,9 @@ contract ERC20SwapToPay is Ownable {
 
     uint256 requestedTotalAmount = _amount + _feeAmount;
 
+    // solhint-disable-next-line
     require(spentToken.allowance(msg.sender, address(this)) > _amountInMax, "Not sufficient allowance for swap to pay.");
+    // solhint-disable-next-line
     require(spentToken.safeTransferFrom(msg.sender, address(this), _amountInMax), "Could not transfer payment token from swapper-payer");
 
     // Allow the router to spend all this contract's spentToken
