@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import EthInfoRetriever from '../../src/eth/info-retriever';
-import NearInfoRetriever from '../../src/eth/near-info-retriever';
+import { NearInfoRetriever } from '../../src/eth/near-info-retriever';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 
 describe('api/eth/info-retriever', () => {

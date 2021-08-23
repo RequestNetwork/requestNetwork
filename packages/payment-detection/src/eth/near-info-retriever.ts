@@ -4,8 +4,8 @@ import { Client } from 'pg';
 /**
  * Gets a list of transfer events for an address and payment reference
  */
-export default class NearInfoRetriever {
-  private contractName: ReturnType<typeof getContractName>;
+export class NearInfoRetriever {
+  private contractName: ReturnType<typeof getNearContractName>;
   private connectionString: ReturnType<typeof getIndexerConnectionString>;
   /**
    * @param toAddress Address to check
@@ -22,7 +22,7 @@ export default class NearInfoRetriever {
     if (this.network !== 'aurora' && this.network !== 'aurora-testnet') {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
-    this.contractName = getContractName(this.network);
+    this.contractName = getNearContractName(this.network);
     this.connectionString = getIndexerConnectionString(this.network);
   }
 
@@ -89,7 +89,7 @@ export default class NearInfoRetriever {
   }
 }
 
-const getContractName = (chainName: string) => {
+export const getNearContractName = (chainName: string) => {
   switch (chainName) {
     case 'aurora':
       return 'request-network';

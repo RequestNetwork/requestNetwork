@@ -50,6 +50,18 @@ export const nativeCurrencies = {
       name: 'Fantom',
       network: 'fantom',
     },
+    {
+      symbol: 'NEAR',
+      decimals: 24,
+      name: 'Near',
+      network: 'aurora',
+    },
+    {
+      symbol: 'NEAR-testnet',
+      decimals: 24,
+      name: 'Near Testnet',
+      network: 'aurora-testnet',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {

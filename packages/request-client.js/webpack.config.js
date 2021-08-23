@@ -55,4 +55,6 @@ module.exports = {
     new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false }),
     new DuplicatePackageCheckerPlugin(),
   ],
+  // External dependencies used by the 'pg' package (Near)
+  externals: ['pg-native', 'dns', 'fs', 'net', 'tls'],
 };
