@@ -828,6 +828,33 @@ describe('api/currency', () => {
       });
     });
 
+    describe('near', () => {
+      it('NEAR from near', () => {
+        expect(Currency.from('NEAR')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'NEAR',
+          network: 'aurora',
+        });
+        expect(Currency.from('FAU').toString()).toEqual('FAU-rinkeby');
+      });
+
+      it('NEAR from NEAR-near (legacy)', () => {
+        expect(Currency.from('NEAR-near')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'NEAR',
+          network: 'aurora',
+        });
+      });
+
+      it('NEAR-testnet from NEAR-testnet', () => {
+        expect(Currency.from('NEAR-testnet')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'NEAR-testnet',
+          network: 'aurora-testnet',
+        });
+      });
+    });
+
     describe('native tokens', () => {
       describe('Bitcoin', () => {
         it('BTC', () => {

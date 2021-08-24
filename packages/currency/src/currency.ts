@@ -65,6 +65,8 @@ export class Currency implements RequestLogicTypes.ICurrency {
       throw new Error(`Cannot guess currency from empty symbol.`);
     }
 
+    ({ symbol, network } = Currency.legacyTranslation(symbol, network));
+
     for (const [type, currencies] of Object.entries(getAllSupportedCurrencies())) {
       const currency = currencies.find(
         (cur) =>
@@ -87,6 +89,16 @@ export class Currency implements RequestLogicTypes.ICurrency {
         network ? ` on ${network}` : ''
       } is unknown or not supported`,
     );
+  };
+
+  private static legacyTranslation = (
+    symbol: string,
+    network?: string,
+  ): { symbol: string; network?: string } => {
+    if (symbol === 'NEAR' && network === 'near') {
+      return { symbol, network: 'aurora' };
+    }
+    return { symbol, network };
   };
 
   /**
