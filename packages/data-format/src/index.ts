@@ -46,7 +46,7 @@ export default {
    * @return true if the object format is known
    */
   isKnownFormat(data: any): boolean {
-    return !!data.meta && data.meta.format === 'rnf_invoice';
+    return !!data.meta && (data.meta.format === 'rnf_invoice' || data.meta.format === "rnf_generic");
   },
 };
 

@@ -1,6 +1,6 @@
 export interface Invoice {
   meta: {
-    format: 'rnf_invoice';
+    format: 'rnf_invoice' | 'rnf_generic';
     version: string;
   };
   buyerInfo?: ActorInfo;
