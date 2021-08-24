@@ -13,6 +13,6 @@ const formats: Record<string, Record<string, any>> = {
   },
   rnf_generic: {
     '0.0.1': rnf_generic_0_0_1,
-  }
+  },
 };
 export default formats;
