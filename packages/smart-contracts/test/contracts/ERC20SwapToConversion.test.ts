@@ -8,7 +8,7 @@ import {
   TestERC20,
   FakeSwapRouter__factory,
   FakeSwapRouter,
-  AggTest__factory,
+  AggregatorMock__factory,
   Erc20ConversionProxy,
   ERC20SwapToConversion,
   ChainlinkConversionPath,
@@ -59,7 +59,7 @@ describe('contract: ERC20SwapToConversion', () => {
     spentErc20 = await new TestERC20__factory(adminSigner).deploy(erc20Decimal.mul(1000));
 
     // deploy fake chainlink conversion path, for 1 USD = 3 paymentNetworkERC20
-    const aggTest = await new AggTest__factory(adminSigner).deploy();
+    const aggTest = await new AggregatorMock__factory(adminSigner).deploy(300000000, 8, 60);
     await chainlinkConversion.updateAggregator(
       USDhash,
       paymentNetworkErc20.address,
