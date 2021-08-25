@@ -1,4 +1,5 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./ChainlinkConversionPath.sol";
 import "./interfaces/ERC20FeeProxy.sol";
@@ -6,15 +7,14 @@ import "./interfaces/ERC20FeeProxy.sol";
 
 /**
  * @title Erc20ConversionProxy
- * @notice This contract convert from chainlink then swaps ERC20 tokens before paying a request thanks to a conversion payment proxy
+ * @notice This contract convert from chainlink then swaps ERC20 tokens
+ *         before paying a request thanks to a conversion payment proxy
   */
 contract Erc20ConversionProxy {
-  using SafeMath for uint256;
-
   address public paymentProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
-  constructor(address _paymentProxyAddress, address _chainlinkConversionPathAddress) public {
+  constructor(address _paymentProxyAddress, address _chainlinkConversionPathAddress) {
     paymentProxy = _paymentProxyAddress;
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
   }
@@ -68,7 +68,7 @@ contract Erc20ConversionProxy {
       _maxRateTimespan);
 
     require(
-      amountToPay.add(amountToPayInFees) <= _maxToSpend,
+      amountToPay + amountToPayInFees <= _maxToSpend,
       "Amount to pay is over the user limit"
     );
 
@@ -105,18 +105,19 @@ contract Erc20ConversionProxy {
     uint256 _maxRateTimespan
   )
     internal
+    view
     returns (uint256 amountToPay, uint256 amountToPayInFees)
   {
     (uint256 rate, uint256 oldestTimestampRate, uint256 decimals) = chainlinkConversionPath.getRate(_path);
 
     // Check rate timespan
     require(
-      _maxRateTimespan == 0 || block.timestamp.sub(oldestTimestampRate) <= _maxRateTimespan,
+      _maxRateTimespan == 0 || block.timestamp - oldestTimestampRate <= _maxRateTimespan,
       "aggregator rate is outdated"
     );
 
     // Get the amount to pay in the crypto currency chosen
-    amountToPay = _requestAmount.mul(rate).div(decimals);
-    amountToPayInFees = _feeAmount.mul(rate).div(decimals);
+    amountToPay = (_requestAmount * rate) / decimals;
+    amountToPayInFees = (_feeAmount * rate) /decimals;
   }
 }

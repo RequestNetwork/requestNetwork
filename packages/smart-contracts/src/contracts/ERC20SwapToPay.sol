@@ -1,7 +1,8 @@
-pragma solidity ^0.5.12;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./lib/SafeERC20.sol";
 import "./interfaces/ERC20FeeProxy.sol";
 
@@ -26,7 +27,7 @@ contract ERC20SwapToPay is Ownable {
   IUniswapV2Router02 public swapRouter;
   IERC20FeeProxy public paymentProxy;
 
-  constructor(address _swapRouterAddress, address _paymentProxyAddress) public {
+  constructor(address _swapRouterAddress, address _paymentProxyAddress) {
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
   }
@@ -83,8 +84,10 @@ contract ERC20SwapToPay is Ownable {
 
     uint256 requestedTotalAmount = _amount + _feeAmount;
 
-    require(spentToken.allowance(msg.sender, address(this)) > _amountInMax, "Not sufficient allowance for swap to pay.");
-    require(spentToken.safeTransferFrom(msg.sender, address(this), _amountInMax), "Could not transfer payment token from swapper-payer");
+    require(spentToken.allowance(msg.sender, address(this)) > _amountInMax,
+                                 "Not sufficient allowance for swap to pay.");
+    require(spentToken.safeTransferFrom(msg.sender, address(this), _amountInMax), 
+                                        "Could not transfer payment token from swapper-payer");
 
     // Allow the router to spend all this contract's spentToken
     if (spentToken.allowance(address(this),address(swapRouter)) < _amountInMax) {

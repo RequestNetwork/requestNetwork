@@ -1,6 +1,7 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/roles/WhitelistedRole.sol";
+import "./legacy_openzeppelin/contracts/access/roles/WhitelistedRole.sol";
 
 
 /**
@@ -12,17 +13,12 @@ contract RequestHashStorage is WhitelistedRole {
   // Event to declare a new hash
   event NewHash(string hash, address hashSubmitter, bytes feesParameters);
 
-  // Fallback function returns funds to the sender
-  function()
-    external
-  {
-    revert("not payable fallback");
-  }
-
   /**
    * @notice Declare a new hash
    * @param _hash hash to store
-   * @param _feesParameters Parameters use to compute the fees. This is a bytes to stay generic, the structure is on the charge of the hashSubmitter contracts.
+   * @param _feesParameters Parameters use to compute the fees. 
+                            This is a bytes to stay generic,
+                            the structure is on the charge of the hashSubmitter contracts.
    */
   function declareNewHash(string calldata _hash, bytes calldata _feesParameters)
     external

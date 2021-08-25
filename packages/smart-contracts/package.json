@@ -40,7 +40,7 @@
     "clean:hardhat": "shx rm -rf cache && shx rm -rf build",
     "clean": "yarn clean:lib && yarn clean:types && yarn clean:hardhat",
     "lint:lib": "eslint \"src/lib/**/*.ts\"",
-    "lint:sol": "solium --dir src/contracts",
+    "lint:sol": "solhint \"src/contracts/**/*.sol\"",
     "lint": "yarn run lint:lib && yarn run lint:sol",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "deploy": "yarn hardhat deploy-local-env --network private",
@@ -52,7 +52,7 @@
     "@nomiclabs/hardhat-etherscan": "2.1.3",
     "@nomiclabs/hardhat-ganache": "2.0.0",
     "@nomiclabs/hardhat-waffle": "2.0.1",
-    "@openzeppelin/contracts": "2.5.1",
+    "@openzeppelin/contracts": "4.2.0",
     "@openzeppelin/test-helpers": "0.5.6",
     "@requestnetwork/currency": "0.8.0",
     "@typechain/ethers-v5": "7.0.1",
@@ -66,6 +66,7 @@
     "ganache-cli": "6.12.0",
     "hardhat": "2.4.1",
     "shx": "0.3.2",
+    "solhint": "3.3.6",
     "typechain": "5.1.1"
   }
 }

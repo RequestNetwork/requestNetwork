@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.25 <0.7.0;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
+import "./legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol";
 
 interface ERC20fraction {
   function decimals() external view returns (uint8);
@@ -21,8 +20,6 @@ interface AggregatorFraction {
  * @notice ChainlinkConversionPath is a contract computing currency conversion rates based on Chainlink aggretators
  */
 contract ChainlinkConversionPath is WhitelistAdminRole {
-  using SafeMath for uint256;
-
   uint constant DECIMALS = 1e18;
 
   // Mapping of Chainlink aggregators (input currency => output currency => contract address)
@@ -52,7 +49,11 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     * @param _outputs list of addresses representing the output currencies
     * @param _aggregators list of addresses of the aggregator contracts
   */
-  function updateAggregatorsList(address[] calldata _inputs, address[] calldata _outputs, address[] calldata _aggregators)
+  function updateAggregatorsList(
+    address[] calldata _inputs,
+    address[] calldata _outputs,
+    address[] calldata _aggregators
+  )
     external
     onlyWhitelistAdmin
   {
@@ -84,7 +85,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
     (uint256 rate, uint256 timestamp, uint256 decimals) = getRate(_path);
 
     // initialize the result
-    result = _amountIn.mul(rate).div(decimals);
+    result = (_amountIn * rate) / decimals;
 
     oldestRateTimestamp = timestamp;
   }
@@ -110,7 +111,12 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
 
     // For every conversion of the path
     for (uint i; i < _path.length - 1; i++) {
-      (AggregatorFraction aggregator, bool reverseAggregator, uint256 decimalsInput, uint256 decimalsOutput) = getAggregatorAndDecimals(_path[i], _path[i + 1]);
+      (
+        AggregatorFraction aggregator,
+        bool reverseAggregator,
+        uint256 decimalsInput,
+        uint256 decimalsOutput
+      ) = getAggregatorAndDecimals(_path[i], _path[i + 1]);
 
       // store the latest timestamp of the path
       uint256 currentTimestamp = aggregator.latestTimestamp();
@@ -125,25 +131,25 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
 
       // mul with the difference of decimals before the current rate computation (for more precision)
       if (decimalsAggregator > decimalsInput) {
-        rate = rate.mul(10**(decimalsAggregator-decimalsInput));
+        rate = rate * (10**(decimalsAggregator-decimalsInput));
       }
       if (decimalsAggregator < decimalsOutput) {
-        rate = rate.mul(10**(decimalsOutput-decimalsAggregator));
+        rate = rate * (10**(decimalsOutput-decimalsAggregator));
       }
 
       // Apply the current rate (if path uses an aggregator in the reverse way, div instead of mul)
       if (reverseAggregator) {
-        rate = rate.mul(10**decimalsAggregator).div(currentRate);
+        rate = rate * (10**decimalsAggregator) / currentRate;
       } else {
-        rate = rate.mul(currentRate).div(10**decimalsAggregator);
+        rate = rate * currentRate / (10**decimalsAggregator);
       }
 
       // div with the difference of decimals AFTER the current rate computation (for more precision)
       if (decimalsAggregator < decimalsInput) {
-        rate = rate.div(10**(decimalsInput-decimalsAggregator));
+        rate = rate / (10**(decimalsInput-decimalsAggregator));
       }
       if (decimalsAggregator > decimalsOutput) {
-        rate = rate.div(10**(decimalsAggregator-decimalsOutput));
+        rate = rate / (10**(decimalsAggregator-decimalsOutput));
       }
     }
   }
@@ -182,7 +188,7 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
   /**
   * @notice Gets decimals from an address currency
   * @param _addr address to check
-  * @return number of decimals
+  * @return decimals number of decimals
   */
   function getDecimals(address _addr)
     private
