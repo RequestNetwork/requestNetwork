@@ -146,10 +146,10 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
 
       // div with the difference of decimals AFTER the current rate computation (for more precision)
       if (decimalsAggregator < decimalsInput) {
-        rate = rate * (10**(decimalsInput-decimalsAggregator));
+        rate = rate / (10**(decimalsInput-decimalsAggregator));
       }
       if (decimalsAggregator > decimalsOutput) {
-        rate = rate * (10**(decimalsAggregator-decimalsOutput));
+        rate = rate / (10**(decimalsAggregator-decimalsOutput));
       }
     }
   }
