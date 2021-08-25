@@ -11,9 +11,6 @@ contract EthereumProxy {
   event TransferWithReference(address to, uint256 amount, bytes indexed paymentReference);
 
   // Fallback function returns funds to the sender
-  fallback() external payable {
-    revert("not payable fallback");
-  }
   receive() external payable {
     revert("not payable receive");
   }

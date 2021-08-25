@@ -18,13 +18,9 @@ contract ERC20Proxy {
   );
 
   // Fallback function returns funds to the sender
-  fallback() external payable {
-    revert("not payable fallback");
-  }
   receive() external payable {
     revert("not payable receive");
   }
-
   /**
   * @notice Performs a ERC20 token transfer with a reference
   * @param _tokenAddress Address of the ERC20 token smart contract

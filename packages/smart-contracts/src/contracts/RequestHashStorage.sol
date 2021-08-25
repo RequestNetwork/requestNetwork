@@ -14,8 +14,11 @@ contract RequestHashStorage is WhitelistedRole {
   event NewHash(string hash, address hashSubmitter, bytes feesParameters);
 
   // Fallback function returns funds to the sender
-  fallback() external {
-    revert("not payable fallback");
+  fallback() external payable {
+    revert("not payable receive");
+  }
+  receive() external payable {
+    revert("not payable receive");
   }
 
   /**
