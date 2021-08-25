@@ -24,8 +24,9 @@ const supportedNetworks = [
   'celo',
   'fantom',
   // Near
-  'aurora',
-  'aurora-testnet',
+  // FIXME Near payment detection
+  // 'aurora',
+  // 'aurora-testnet',
 ];
 
 // interface of the object indexing the proxy contract version

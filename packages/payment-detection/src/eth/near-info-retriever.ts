@@ -1,12 +1,14 @@
+// @ts-nocheck
 import { PaymentTypes } from '@requestnetwork/types';
-import { Client } from 'pg';
+import { Connection } from 'autobahn';
 
 /**
  * Gets a list of transfer events for an address and payment reference
  */
 export class NearInfoRetriever {
   private contractName: ReturnType<typeof getNearContractName>;
-  private connectionString: ReturnType<typeof getIndexerConnectionString>;
+  private procedureName: ReturnType<typeof getProcedureName>;
+  private nearWebSocketUrl: string;
   /**
    * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
@@ -14,7 +16,7 @@ export class NearInfoRetriever {
    * @param paymentReference The reference to identify the payment
    */
   constructor(
-    private toAddress: string,
+    private paymentAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
     private paymentReference: string,
@@ -23,11 +25,13 @@ export class NearInfoRetriever {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
     this.contractName = getNearContractName(this.network);
-    this.connectionString = getIndexerConnectionString(this.network);
+    this.procedureName = getProcedureName(this.network);
+    this.nearWebSocketUrl = 'wss://near-explorer-wamp.onrender.com/ws';
   }
 
-  public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const events = (await this.getTransactionsFromNearIndexerDatabase()).map((transaction) => ({
+  public async getTransferEvents() {
+    const events = await this.getTransactionsFromNearIndexerDatabase();
+    return events.map((transaction) => ({
       amount: transaction.amount,
       name: this.eventName,
       parameters: {
@@ -39,13 +43,20 @@ export class NearInfoRetriever {
         transaction.blockTimestamp.substring(0, transaction.blockTimestamp.length - 9),
       ),
     }));
-    return events;
   }
 
   /**
    * Documentation: https://github.com/near/near-indexer-for-explorer/blob/master/docs/near-indexer-for-explorer-db.png
    */
   private async getTransactionsFromNearIndexerDatabase(): Promise<NearIndexerTransaction[]> {
+    // _callback: (transactions: NearIndexerTransaction[]) => void,
+    // try {
+    //   // for Node.js
+    //   var autobahn = require('autobahn');
+    // } catch (e) {
+    //   // for browsers (where AutobahnJS is available globally)
+    //   throw new Error('TODO Autobahn');
+    // }
     const query = `SELECT t.transaction_hash as "txHash",
         b.block_height as block,
         t.block_timestamp as "blockTimestamp",
@@ -63,29 +74,51 @@ export class NearInfoRetriever {
       INNER JOIN blocks b ON (b.block_timestamp = r.included_in_block_timestamp)
       INNER JOIN execution_outcomes e ON (e.receipt_id = r.receipt_id)
       INNER JOIN action_receipt_actions ra ON (ra.receipt_id = r.receipt_id)
-      WHERE r.receiver_account_id = '${this.toAddress}'
+      WHERE r.receiver_account_id = :paymentAddress
       AND r.predecessor_account_id != 'system'
       AND a.action_kind = 'FUNCTION_CALL'
       AND e.status = 'SUCCESS_VALUE'
-      AND t.receiver_account_id = $1
+      AND t.receiver_account_id = :contractName
       AND b.block_height >= (select MAX(block_height) from blocks) - 1e8
-      AND (a.args::json->'args_json')::json->>'payment_reference' = '0x${this.paymentReference}'
+      AND (a.args::json->'args_json')::json->>'payment_reference' = :paymentReference
       AND ra.action_kind = 'TRANSFER'
       ORDER BY b.block_height DESC
       LIMIT 100`;
-
-    try {
-      const client = new Client({
-        connectionString: this.connectionString,
-      });
-      await client.connect();
-      const res = await client.query(query, [this.contractName]);
-      await client.end();
-      return res.rows as NearIndexerTransaction[];
-    } catch (err) {
-      console.log(err.stack);
-      throw Error(`Error retrieving data: ${err.message}\n${err.stack}`);
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        const connection = new Connection({
+          url: this.nearWebSocketUrl,
+          realm: 'near-explorer',
+        });
+        connection.onopen = async (session) => {
+          await session
+            .call(this.procedureName, [
+              query,
+              {
+                contractName: this.contractName,
+                paymentAddress: this.paymentAddress,
+                paymentReference: `0x${this.paymentReference}`,
+              },
+            ])
+            .then((data: any) => {
+              connection.close();
+              resolve(data as NearIndexerTransaction[]);
+            })
+            .catch((err: Error) => {
+              throw Error(reason);
+            });
+        };
+        connection.onclose = (reason, details) => {
+          if (reason === 'unsupported' || reason === 'unreachable') {
+            reject(`Could not connect to Near indexer web socket: ${reason}`);
+          }
+          return false;
+        };
+        connection.open();
+      } catch (err) {
+        reject(`Could not connect to Near indexer web socket: ${err.message}.\n${err.stack}`);
+      }
+    });
   }
 }
 
@@ -100,17 +133,18 @@ export const getNearContractName = (chainName: string) => {
   }
 };
 
-const getIndexerConnectionString = (chainName: string) => {
+const getProcedureName = (chainName: string) => {
   // Public NEAR Indexer database (see: https://github.com/near/near-indexer-for-explorer)
   switch (chainName) {
     case 'aurora':
-      return 'postgres://public_readonly:nearprotocol@104.199.89.51/mainnet_explorer';
+      return 'com.nearprotocol.mainnet.explorer.select:INDEXER_BACKEND';
     case 'aurora-testnet':
-      return 'postgres://public_readonly:nearprotocol@35.184.214.98/testnet_explorer';
+      return 'com.nearprotocol.testnet.explorer.select:INDEXER_BACKEND';
   }
+  throw new Error(`Invalid chain name '${chainName} for Near info retriever.`);
 };
 
-type NearIndexerTransaction = {
+export type NearIndexerTransaction = {
   txHash: string;
   block: number;
   blockTimestamp: string;

@@ -84,7 +84,7 @@ describe('api/eth/info-retriever', () => {
       expect(events[0].amount).toBe('1000000000000000');
     });
 
-    it('can detect a NEAR payment', async () => {
+    it.only('can detect a NEAR payment', async () => {
       const paymentAddress = 'benji.testnet';
       const paymentReference = PaymentReferenceCalculator.calculate(
         '0124dc29327931e5d7631c2d866ee62d79a3b38e2b9976e4e218ebd1ece83c9d5d',
