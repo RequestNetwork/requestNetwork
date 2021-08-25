@@ -13,14 +13,6 @@ contract RequestHashStorage is WhitelistedRole {
   // Event to declare a new hash
   event NewHash(string hash, address hashSubmitter, bytes feesParameters);
 
-  // Fallback function returns funds to the sender
-  fallback() external payable {
-    revert("not payable receive");
-  }
-  receive() external payable {
-    revert("not payable receive");
-  }
-
   /**
    * @notice Declare a new hash
    * @param _hash hash to store
