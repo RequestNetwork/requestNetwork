@@ -25,16 +25,4 @@ contract AggregatorMock {
     // one minute old
     return block.timestamp - _rateAge;
   }
-
-  function setDecimals(uint8 _d) public {
-      _decimals = _d;
-  }
-
-  function setRate(int256 _r) public {
-      _rate = _r;
-  }
-
-  function setRageAge(uint8 _ra) public {
-      _rateAge = _ra;
-  }
 }
