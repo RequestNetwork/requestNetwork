@@ -17,7 +17,8 @@ const supportedNetworks = [
 ];
 
 /**
- * Implementation of the payment network to pay in ETH based on input data.
+ * Implementation of the payment network to pay in native token
+ * FIXME: rename into EVMNativePaymentNetwork
  */
 export default class EthInputPaymentNetwork extends ReferenceBasedPaymentNetwork {
   public constructor(

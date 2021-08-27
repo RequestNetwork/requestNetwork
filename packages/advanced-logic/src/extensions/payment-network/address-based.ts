@@ -148,6 +148,7 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
+  // FIXME: valid address should take a `network` parameter to be more generic
   protected abstract isValidAddress(_address: string): boolean;
 
   /**
