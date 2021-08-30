@@ -37,21 +37,4 @@ export default class EthInputPaymentNetwork extends ReferenceBasedPaymentNetwork
   protected isValidAddress(address: string): boolean {
     return walletAddressValidator.validate(address, 'ethereum');
   }
-
-  protected validate(
-    request: RequestLogicTypes.IRequest,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _extensionAction: ExtensionTypes.IAction,
-  ): void {
-    if (
-      request.currency.type !== RequestLogicTypes.CURRENCY.ETH ||
-      (request.currency.network && !supportedNetworks.includes(request.currency.network))
-    ) {
-      throw Error(
-        `This extension can be used only on ETH requests and on supported networks ${supportedNetworks.join(
-          ', ',
-        )}`,
-      );
-    }
-  }
 }

@@ -1,9 +1,7 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { InvalidPaymentAddressError, MissingPaymentNetworkError } from './address-based';
 
 import ReferenceBasedPaymentNetwork from './reference-based';
-
-// const CURRENT_VERSION = '0.2.0';
-// const supportedNetworks = ['aurora', 'aurora-testnet'];
 
 /**
  * Implementation of the payment network to pay in ETH based on input data.
@@ -17,20 +15,59 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
     super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
   }
 
-  protected validate(
-    request: RequestLogicTypes.IRequest,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _extensionAction: ExtensionTypes.IAction,
-  ): void {
-    if (
-      request.currency.type !== RequestLogicTypes.CURRENCY.ETH ||
-      (request.currency.network && !this.supportedNetworks.includes(request.currency.network))
-    ) {
-      throw Error(
-        `This extension can be used only on ETH-like requests and on supported networks ${this.supportedNetworks.join(
-          ', ',
-        )}`,
-      );
+  public createCreationAction(
+    creationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
+  ): ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> {
+    const networkName = creationParameters.paymentNetworkName;
+    if (!networkName) {
+      throw new MissingPaymentNetworkError(this.extensionId);
     }
+    if (
+      creationParameters.paymentAddress &&
+      !this.isValidAddress(creationParameters.paymentAddress, networkName)
+    ) {
+      throw new InvalidPaymentAddressError();
+    }
+    if (
+      creationParameters.refundAddress &&
+      !this.isValidAddress(creationParameters.refundAddress, networkName)
+    ) {
+      throw new InvalidPaymentAddressError('refundAddress');
+    }
+    return super.createCreationAction(creationParameters);
+  }
+
+  public createAddPaymentAddressAction(
+    addPaymentAddressParameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
+  ): ExtensionTypes.IAction {
+    if (!addPaymentAddressParameters.paymentNetworkName) {
+      throw new MissingPaymentNetworkError(this.extensionId);
+    }
+    if (
+      !this.isValidAddress(
+        addPaymentAddressParameters.paymentAddress,
+        addPaymentAddressParameters.paymentNetworkName,
+      )
+    ) {
+      throw new InvalidPaymentAddressError();
+    }
+    return super.createAddPaymentAddressAction(addPaymentAddressParameters);
+  }
+
+  public createAddRefundAddressAction(
+    addRefundAddressParameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
+  ): ExtensionTypes.IAction {
+    if (!addRefundAddressParameters.paymentNetworkName) {
+      throw new MissingPaymentNetworkError(this.extensionId);
+    }
+    if (
+      !this.isValidAddress(
+        addRefundAddressParameters.refundAddress,
+        addRefundAddressParameters.paymentNetworkName,
+      )
+    ) {
+      throw new InvalidPaymentAddressError('refundAddress');
+    }
+    return super.createAddRefundAddressAction(addRefundAddressParameters);
   }
 }

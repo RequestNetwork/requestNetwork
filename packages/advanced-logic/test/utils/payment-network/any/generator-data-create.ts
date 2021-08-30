@@ -61,6 +61,17 @@ export const actionCreationPayeeDelegate = {
   parameters: { payeeDelegate },
   version: '0.1.0',
 };
+export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+  parameters: {
+    paymentAddress: 'pay.near',
+    refundAddress: 'refund.near',
+    salt: 'ea3bc7caf64110ca',
+    // paymentNetworkName: 'aurora',
+  },
+  version: '0.1.0',
+};
 
 export const actionAddDelegate = {
   action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
@@ -168,6 +179,30 @@ export const extensionStateCreatedEmpty = {
     version: '0.1.0',
   },
 };
+export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {
+          paymentAddress: 'pay.near',
+          refundAddress: 'refund.near',
+          salt: 'ea3bc7caf64110ca',
+          // paymentNetworkName: 'aurora',
+        },
+        timestamp: arbitraryTimestamp,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      paymentAddress: 'pay.near',
+      refundAddress: 'refund.near',
+      salt: 'ea3bc7caf64110ca',
+    },
+    version: '0.1.0',
+  },
+};
 
 export const extensionStateCreatedEmptyNoDelegate = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
@@ -194,7 +229,7 @@ export const extensionStateCreatedEmptyPaymentInstructionAdded = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -225,7 +260,7 @@ export const extensionStateCreatedEmptyRefundInstructionAdded = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -257,7 +292,7 @@ export const extensionStateCreatedEmptySentPayment = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -288,7 +323,7 @@ export const extensionStateCreatedEmptyReceivedRefund = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -319,7 +354,7 @@ export const extensionStateCreatedEmptySentRefund = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -408,7 +443,7 @@ export const extensionStateCreatedEmptyReceivedPayment = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
