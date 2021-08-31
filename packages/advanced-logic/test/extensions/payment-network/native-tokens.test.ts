@@ -97,11 +97,11 @@ describe('extensions/payment-network/native-tokens', () => {
       });
       describe('createAddRefundAddress', () => {
         it('works with valid payment address', () => {
-          expect(() => {
+          expect(
             testCase.paymentNetwork.createAddRefundAddressAction({
               refundAddress: `refund.${testCase.suffix}`,
-            });
-          }).toBeTruthy();
+            }),
+          ).toBeTruthy();
         });
         it('throws with invalid payment address', () => {
           expect(() => {
