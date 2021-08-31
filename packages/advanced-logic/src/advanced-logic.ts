@@ -13,6 +13,7 @@ import AddressBasedErc20 from './extensions/payment-network/erc20/address-based'
 import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
 import EthereumInputData from './extensions/payment-network/ethereum/input-data';
+import NearNative from './extensions/payment-network/near-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 
 /**
@@ -29,6 +30,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     anyToErc20Proxy: new AnyToErc20Proxy(),
     declarative: new Declarative(),
     ethereumInputData: new EthereumInputData(),
+    nativeTokens: [new NearNative()],
     feeProxyContractErc20: new FeeProxyContractErc20(),
     proxyContractErc20: new ProxyContractErc20(),
   };
@@ -63,10 +65,20 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: this.extensions
         .feeProxyContractErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: this.extensions.ethereumInputData,
+      [ExtensionTypes.ID
+        .PAYMENT_NETWORK_NATIVE_TOKEN]: this.getNativeTokenExtensionForStateAndAction(
+        extensionAction,
+        requestState,
+      ),
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: this.extensions.anyToErc20Proxy,
     }[id];
 
     if (!extension) {
+      if (id === ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN) {
+        throw Error(
+          `extension with id: ${id} not found for network: ${requestState.currency.network}`,
+        );
+      }
       throw Error(`extension not recognized, id: ${id}`);
     }
 
@@ -77,5 +89,26 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       actionSigner,
       timestamp,
     );
+  }
+
+  protected getNativeTokenExtensionForStateAndAction(
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+  ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
+    if (
+      requestState.currency.network &&
+      extensionAction.parameters.paymentNetworkName &&
+      requestState.currency.network !== extensionAction.parameters.paymentNetworkName
+    ) {
+      throw new Error(
+        `Cannot apply action for network ${extensionAction.parameters.paymentNetworkName} on state with payment network: ${requestState.currency.network}`,
+      );
+    }
+    const network = requestState.currency.network ?? extensionAction.parameters.paymentNetworkName;
+    return network
+      ? this.extensions.nativeTokens.find((nativeTokenExtension) =>
+          nativeTokenExtension.supportedNetworks.includes(network),
+        )
+      : undefined;
   }
 }

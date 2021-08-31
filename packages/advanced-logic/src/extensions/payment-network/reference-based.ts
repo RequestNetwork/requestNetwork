@@ -21,7 +21,7 @@ export default abstract class ReferenceBasedPaymentNetwork<
   }
 
   /**
-   * Creates the extensionsData to create the ETH payment detection extension
+   * Creates the extensionsData to create the payment detection extension
    *
    * @param creationParameters extensions parameters to create
    *

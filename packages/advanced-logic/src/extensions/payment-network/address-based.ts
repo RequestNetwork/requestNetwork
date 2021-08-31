@@ -41,7 +41,7 @@ export default abstract class AddressBasedPaymentNetwork<
       creationParameters.paymentAddress &&
       !this.isValidAddress(creationParameters.paymentAddress)
     ) {
-      throw Error('paymentAddress is not a valid address');
+      throw new InvalidPaymentAddressError();
     }
 
     if (
@@ -68,7 +68,7 @@ export default abstract class AddressBasedPaymentNetwork<
       addPaymentAddressParameters.paymentAddress &&
       !this.isValidAddress(addPaymentAddressParameters.paymentAddress)
     ) {
-      throw Error('paymentAddress is not a valid address');
+      throw new InvalidPaymentAddressError();
     }
 
     return {
@@ -114,13 +114,13 @@ export default abstract class AddressBasedPaymentNetwork<
       extensionAction.parameters.paymentAddress &&
       !this.isValidAddress(extensionAction.parameters.paymentAddress)
     ) {
-      throw Error('paymentAddress is not a valid address');
+      throw new InvalidPaymentAddressError();
     }
     if (
       extensionAction.parameters.refundAddress &&
       !this.isValidAddress(extensionAction.parameters.refundAddress)
     ) {
-      throw Error('refundAddress is not a valid address');
+      throw new InvalidPaymentAddressError('refundAddress');
     }
 
     const genericCreationAction = super.applyCreation(extensionAction, timestamp);
@@ -148,7 +148,7 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  protected abstract isValidAddress(_address: string): boolean;
+  protected abstract isValidAddress(_address: string, _networkName?: string): boolean;
 
   /**
    * Applies add payment address
@@ -169,9 +169,9 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.paymentAddress &&
-      !this.isValidAddress(extensionAction.parameters.paymentAddress)
+      !this.isValidAddress(extensionAction.parameters.paymentAddress, requestState.currency.network)
     ) {
-      throw Error('paymentAddress is not a valid address');
+      throw new InvalidPaymentAddressError();
     }
     if (extensionState.values.paymentAddress) {
       throw Error(`Payment address already given`);
@@ -216,7 +216,7 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.refundAddress &&
-      !this.isValidAddress(extensionAction.parameters.refundAddress)
+      !this.isValidAddress(extensionAction.parameters.refundAddress, requestState.currency.network)
     ) {
       throw Error('refundAddress is not a valid address');
     }
@@ -249,15 +249,28 @@ export default abstract class AddressBasedPaymentNetwork<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _extensionAction: ExtensionTypes.IAction,
   ): void {
-    if (
-      request.currency.type !== this.supportedCurrencyType ||
-      (request.currency.network && !this.supportedNetworks.includes(request.currency.network))
-    ) {
-      throw Error(
-        `This extension can be used only on ${
-          this.supportedCurrencyType
-        } requests and on supported networks ${this.supportedNetworks.join(', ')}`,
-      );
+    if (request.currency.type !== this.supportedCurrencyType) {
+      throw Error(`This extension can be used only on ${this.supportedCurrencyType} requests`);
     }
+    if (request.currency.network && !this.supportedNetworks.includes(request.currency.network)) {
+      throw new UnsupportedNetworkError(request.currency.network, this.supportedNetworks);
+    }
+  }
+}
+
+export class InvalidPaymentAddressError extends Error {
+  constructor(addressReference: string = 'paymentAddress') {
+    super(`${addressReference} is not a valid address`);
+  }
+}
+
+export class UnsupportedNetworkError extends Error {
+  constructor(unsupportedNetworkName: string, supportedNetworks?: string[]) {
+    const supportedNetworkDetails = !!supportedNetworks
+      ? ` (only ${supportedNetworks.join(', ')})`
+      : '';
+    super(
+      `Payment network '${unsupportedNetworkName}' is not supported by this extension${supportedNetworkDetails}`,
+    );
   }
 }

@@ -285,9 +285,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(
-          'This extension can be used only on ERC20 requests and on supported networks mainnet, rinkeby, private',
-        );
+        }).toThrowError('This extension can be used only on ERC20 requests');
       });
 
       it('cannot applyActionToExtensions of creation with payment address not valid', () => {
