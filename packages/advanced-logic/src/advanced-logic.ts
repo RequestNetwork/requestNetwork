@@ -96,23 +96,18 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     requestState: RequestLogicTypes.IRequest,
   ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
     if (
-      !!requestState.currency.network &&
-      !!extensionAction.parameters.paymentNetworkName &&
+      requestState.currency.network &&
+      extensionAction.parameters.paymentNetworkName &&
       requestState.currency.network !== extensionAction.parameters.paymentNetworkName
     ) {
       throw new Error(
         `Cannot apply action for network ${extensionAction.parameters.paymentNetworkName} on state with payment network: ${requestState.currency.network}`,
       );
     }
-    return !!requestState.currency.network
+    const network = requestState.currency.network ?? extensionAction.parameters.paymentNetworkName;
+    return network
       ? this.extensions.nativeTokens.find((nativeTokenExtension) =>
-          nativeTokenExtension.supportedNetworks.includes(requestState.currency.network!),
-        )
-      : !!extensionAction.parameters.paymentNetworkName
-      ? this.extensions.nativeTokens.find((nativeTokenExtension) =>
-          nativeTokenExtension.supportedNetworks.includes(
-            extensionAction.parameters.paymentNetworkName,
-          ),
+          nativeTokenExtension.supportedNetworks.includes(network),
         )
       : undefined;
   }
