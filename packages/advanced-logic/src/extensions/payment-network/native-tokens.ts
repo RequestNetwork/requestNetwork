@@ -1,5 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { InvalidPaymentAddressError, MissingPaymentNetworkError } from './address-based';
+import { InvalidPaymentAddressError } from './address-based';
 
 import ReferenceBasedPaymentNetwork from './reference-based';
 
@@ -19,8 +19,10 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
     creationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
   ): ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> {
     const networkName = creationParameters.paymentNetworkName;
-    if (!networkName) {
-      throw new MissingPaymentNetworkError(this.extensionId);
+    if (!networkName && (creationParameters.paymentAddress || creationParameters.refundAddress)) {
+      throw new Error(
+        `The network name is mandatory for the creation of the extension ${this.extensionId}.`,
+      );
     }
     if (
       creationParameters.paymentAddress &&
@@ -35,39 +37,5 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
       throw new InvalidPaymentAddressError('refundAddress');
     }
     return super.createCreationAction(creationParameters);
-  }
-
-  public createAddPaymentAddressAction(
-    addPaymentAddressParameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
-  ): ExtensionTypes.IAction {
-    if (!addPaymentAddressParameters.paymentNetworkName) {
-      throw new MissingPaymentNetworkError(this.extensionId);
-    }
-    if (
-      !this.isValidAddress(
-        addPaymentAddressParameters.paymentAddress,
-        addPaymentAddressParameters.paymentNetworkName,
-      )
-    ) {
-      throw new InvalidPaymentAddressError();
-    }
-    return super.createAddPaymentAddressAction(addPaymentAddressParameters);
-  }
-
-  public createAddRefundAddressAction(
-    addRefundAddressParameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
-  ): ExtensionTypes.IAction {
-    if (!addRefundAddressParameters.paymentNetworkName) {
-      throw new MissingPaymentNetworkError(this.extensionId);
-    }
-    if (
-      !this.isValidAddress(
-        addRefundAddressParameters.refundAddress,
-        addRefundAddressParameters.paymentNetworkName,
-      )
-    ) {
-      throw new InvalidPaymentAddressError('refundAddress');
-    }
-    return super.createAddRefundAddressAction(addRefundAddressParameters);
   }
 }

@@ -3,6 +3,7 @@ import * as TestData from '../../test-data-generator';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 export const arbitraryTimestamp = 1544426030;
+export const arbitrarySalt = 'ea3bc7caf64110ca';
 
 // ---------------------------------------------------------------------
 export const paymentInfo = { IBAN: 'FR123456789123456789', BIC: 'CE123456789' };
@@ -14,6 +15,8 @@ export const payerDelegate = TestData.payerDelegateRaw.identity;
 export const delegateToAdd = TestData.otherIdRaw.identity;
 
 // ---------------------------------------------------------------------
+const salt = arbitrarySalt;
+
 // actions
 export const actionCreationWithPaymentAndRefund = {
   action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
@@ -67,8 +70,7 @@ export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<Extens
   parameters: {
     paymentAddress: 'pay.near',
     refundAddress: 'refund.near',
-    salt: 'ea3bc7caf64110ca',
-    // paymentNetworkName: 'aurora',
+    salt,
   },
   version: '0.1.0',
 };
@@ -187,8 +189,7 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
         parameters: {
           paymentAddress: 'pay.near',
           refundAddress: 'refund.near',
-          salt: 'ea3bc7caf64110ca',
-          // paymentNetworkName: 'aurora',
+          salt,
         },
         timestamp: arbitraryTimestamp,
       },
@@ -198,7 +199,34 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
     values: {
       paymentAddress: 'pay.near',
       refundAddress: 'refund.near',
-      salt: 'ea3bc7caf64110ca',
+      salt,
+    },
+    version: '0.1.0',
+  },
+};
+export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {
+          salt,
+        },
+        timestamp: arbitraryTimestamp,
+      },
+      {
+        name: 'addPaymentAddress',
+        parameters: {
+          paymentAddress: 'pay.near',
+        },
+        timestamp: arbitraryTimestamp,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      paymentAddress: 'pay.near',
+      salt,
     },
     version: '0.1.0',
   },

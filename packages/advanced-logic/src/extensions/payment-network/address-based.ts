@@ -148,7 +148,6 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  // FIXME: valid address should take a `network` parameter to be more generic
   protected abstract isValidAddress(_address: string, _networkName?: string): boolean;
 
   /**
@@ -265,19 +264,13 @@ export class InvalidPaymentAddressError extends Error {
   }
 }
 
-export class MissingPaymentNetworkError extends Error {
-  constructor(extensionId: ExtensionTypes.ID) {
-    super(`The payment network is mandatory for extension ${extensionId}.`);
-  }
-}
-
 export class UnsupportedNetworkError extends Error {
   constructor(unsupportedNetworkName: string, supportedNetworks?: string[]) {
     const supportedNetworkDetails = !!supportedNetworks
       ? ` (only ${supportedNetworks.join(', ')})`
       : '';
     super(
-      `Payment network ${unsupportedNetworkName} is not supported by this extension${supportedNetworkDetails}`,
+      `Payment network '${unsupportedNetworkName}' is not supported by this extension${supportedNetworkDetails}`,
     );
   }
 }

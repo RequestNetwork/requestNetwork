@@ -3,11 +3,15 @@ import NearNativePaymentNetwork from '../../../src/extensions/payment-network/ne
 import {
   actionCreationWithNativeTokenPayment,
   extensionStateWithNativeTokenPaymentAndRefund,
+  extensionStateWithPaymentAddressAdded,
   requestStateNoExtensions,
+  arbitrarySalt,
 } from '../../utils/payment-network/any/generator-data-create';
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+
+const salt = arbitrarySalt;
 
 describe('extensions/payment-network/native-tokens', () => {
   const nearCurrency = {
@@ -45,21 +49,21 @@ describe('extensions/payment-network/native-tokens', () => {
     describe(`action creations for ${testCase.name}`, () => {
       describe('createCreationAction', () => {
         it('works with valid payment address', () => {
-          expect(() => {
+          expect(
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: `pay.${testCase.suffix}`,
               refundAddress: `refund.${testCase.suffix}`,
-              salt: 'ea3bc7caf64110ca',
+              salt,
               paymentNetworkName: testCase.networkName,
-            });
-          }).toBeTruthy();
+            }),
+          ).toBeTruthy();
         });
         it('throws with invalid payment address', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: 'not a near address',
               refundAddress: `refund.${testCase.suffix}`,
-              salt: 'ea3bc7caf64110ca',
+              salt,
               paymentNetworkName: testCase.networkName,
             });
           }).toThrowError('paymentAddress is not a valid address');
@@ -69,7 +73,7 @@ describe('extensions/payment-network/native-tokens', () => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: `pay.${testCase.wrongSuffix}`,
               refundAddress: `refund.${testCase.wrongSuffix}`,
-              salt: 'ea3bc7caf64110ca',
+              salt,
               paymentNetworkName: testCase.networkName,
             });
           }).toThrowError('paymentAddress is not a valid address');
@@ -77,26 +81,16 @@ describe('extensions/payment-network/native-tokens', () => {
       });
       describe('createAddPaymentAddressAction', () => {
         it('works with valid payment address', () => {
-          expect(() => {
+          expect(
             testCase.paymentNetwork.createAddPaymentAddressAction({
               paymentAddress: `pay.${testCase.suffix}`,
-              paymentNetworkName: testCase.networkName,
-            });
-          }).toBeTruthy();
+            }),
+          ).toBeTruthy();
         });
         it('throws with invalid payment address', () => {
           expect(() => {
             testCase.paymentNetwork.createAddPaymentAddressAction({
               paymentAddress: 'not a near address',
-              paymentNetworkName: testCase.networkName,
-            });
-          }).toThrowError('paymentAddress is not a valid address');
-        });
-        it('throws with payment address on the wrong network', () => {
-          expect(() => {
-            testCase.paymentNetwork.createAddPaymentAddressAction({
-              paymentAddress: `pay.${testCase.wrongSuffix}`,
-              paymentNetworkName: testCase.networkName,
             });
           }).toThrowError('paymentAddress is not a valid address');
         });
@@ -106,7 +100,6 @@ describe('extensions/payment-network/native-tokens', () => {
           expect(() => {
             testCase.paymentNetwork.createAddRefundAddressAction({
               refundAddress: `refund.${testCase.suffix}`,
-              paymentNetworkName: testCase.networkName,
             });
           }).toBeTruthy();
         });
@@ -114,15 +107,6 @@ describe('extensions/payment-network/native-tokens', () => {
           expect(() => {
             testCase.paymentNetwork.createAddRefundAddressAction({
               refundAddress: `not a near address`,
-              paymentNetworkName: testCase.networkName,
-            });
-          }).toThrowError('refundAddress is not a valid address');
-        });
-        it('throws with payment address on the wrong network', () => {
-          expect(() => {
-            testCase.paymentNetwork.createAddRefundAddressAction({
-              refundAddress: `refund.${testCase.wrongSuffix}`,
-              paymentNetworkName: testCase.networkName,
             });
           }).toThrowError('refundAddress is not a valid address');
         });
@@ -130,73 +114,51 @@ describe('extensions/payment-network/native-tokens', () => {
     });
   });
 
-  describe('Native NEAR token exceptions', () => {
+  describe('action creations, edge cases', () => {
     const partialCreationParams: ExtensionTypes.PnReferenceBased.ICreationParameters = {
       paymentAddress: `pay.near`,
       refundAddress: `refund.near`,
-      salt: 'ea3bc7caf64110ca',
+      salt,
     };
+    it('createCreationAction() works with no payment or refund address nor network name', () => {
+      expect(
+        new NearNativePaymentNetwork().createCreationAction({
+          salt,
+        }),
+      ).toBeTruthy();
+    });
     it('createCreationAction() throws with unsupported payment network', () => {
       expect(() => {
         new NearNativePaymentNetwork().createCreationAction({
           ...partialCreationParams,
           paymentNetworkName: 'another-chain',
         });
-      }).toThrowError(`Payment network another-chain is not supported by this extension (only`);
+      }).toThrowError(`Payment network 'another-chain' is not supported by this extension (only`);
     });
     it('createCreationAction() throws without payment network', () => {
       expect(() => {
         new NearNativePaymentNetwork().createCreationAction(partialCreationParams);
-      }).toThrowError(`The payment network is mandatory for extension pn-native-token.`);
-    });
-    it('createAddPaymentAddressAction() throws with unsupported payment network', () => {
-      expect(() => {
-        new NearNativePaymentNetwork().createAddPaymentAddressAction({
-          paymentAddress: `pay.near`,
-          paymentNetworkName: 'another-chain',
-        });
-      }).toThrowError(`Payment network another-chain is not supported`);
-    });
-    it('createAddPaymentAddressAction() throws without payment network', () => {
-      expect(() => {
-        new NearNativePaymentNetwork().createAddPaymentAddressAction({
-          paymentAddress: `pay.near`,
-        });
-      }).toThrowError(`The payment network is mandatory for extension pn-native-token.`);
-    });
-    it('createAddRefundAddressAction() throws with unsupported payment network', () => {
-      expect(() => {
-        new NearNativePaymentNetwork().createAddRefundAddressAction({
-          refundAddress: `refund.near`,
-          paymentNetworkName: 'another-chain',
-        });
-      }).toThrowError(`Payment network another-chain is not supported`);
-    });
-    it('createAddRefundAddressAction() throws without payment network', () => {
-      expect(() => {
-        new NearNativePaymentNetwork().createAddRefundAddressAction({
-          refundAddress: `refund.near`,
-        });
-      }).toThrowError(`The payment network is mandatory for extension pn-native-token.`);
+      }).toThrowError(
+        `The network name is mandatory for the creation of the extension pn-native-token.`,
+      );
     });
   });
 
   describe('AdvancedLogic.applyActionToExtension', () => {
-    const testCase = nativeTokenTestCases[0];
+    const mainnetTestCase = nativeTokenTestCases[0];
     it('works with state and action on the same network', () => {
       const advancedLogic = new AdvancedLogic();
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
-        currency: testCase.currency,
+        currency: mainnetTestCase.currency,
       };
 
       const creationAction = {
-        // const creationAction: typeof actionCreationWithNativeTokenPayment = {
         ...actionCreationWithNativeTokenPayment,
         parameters: {
           ...actionCreationWithNativeTokenPayment.parameters,
-          paymentNetworkName: testCase.currency.network,
+          paymentNetworkName: mainnetTestCase.currency.network,
         },
       };
 
@@ -215,15 +177,14 @@ describe('extensions/payment-network/native-tokens', () => {
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
-        currency: { ...testCase.currency, network: undefined },
+        currency: { ...mainnetTestCase.currency, network: undefined },
       };
 
       const creationAction = {
-        // const creationAction: typeof actionCreationWithNativeTokenPayment = {
         ...actionCreationWithNativeTokenPayment,
         parameters: {
           ...actionCreationWithNativeTokenPayment.parameters,
-          paymentNetworkName: testCase.currency.network,
+          paymentNetworkName: mainnetTestCase.currency.network,
         },
       };
 
@@ -242,11 +203,10 @@ describe('extensions/payment-network/native-tokens', () => {
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
-        currency: testCase.currency,
+        currency: mainnetTestCase.currency,
       };
 
       const creationAction = {
-        // const creationAction: typeof actionCreationWithNativeTokenPayment = {
         ...actionCreationWithNativeTokenPayment,
         parameters: {
           ...actionCreationWithNativeTokenPayment.parameters,
@@ -264,13 +224,100 @@ describe('extensions/payment-network/native-tokens', () => {
 
       expect(newExtensionState).toEqual(extensionStateWithNativeTokenPaymentAndRefund);
     });
+    it('works when adding a payment address to a created state', () => {
+      const advancedLogic = new AdvancedLogic();
+      const nearPn = new NearNativePaymentNetwork();
+
+      const requestState: typeof requestStateNoExtensions = {
+        ...requestStateNoExtensions,
+        currency: mainnetTestCase.currency,
+      };
+
+      const intermediateExtensionState = advancedLogic.applyActionToExtensions(
+        requestState.extensions,
+        nearPn.createCreationAction({ salt, paymentNetworkName: 'aurora' }),
+        requestState,
+        payeeRaw.identity,
+        arbitraryTimestamp,
+      );
+
+      requestState.extensions = intermediateExtensionState;
+
+      const addPaymentAddressAction = nearPn.createAddPaymentAddressAction({
+        paymentAddress: 'pay.near',
+      });
+
+      const newExtensionState = advancedLogic.applyActionToExtensions(
+        intermediateExtensionState,
+        addPaymentAddressAction,
+        requestState,
+        payeeRaw.identity,
+        arbitraryTimestamp,
+      );
+
+      expect(newExtensionState).toEqual(extensionStateWithPaymentAddressAdded);
+    });
+    it('throws when creating the extension on a different network from the request network', () => {
+      const advancedLogic = new AdvancedLogic();
+      const nearPn = new NearNativePaymentNetwork();
+
+      const requestState: typeof requestStateNoExtensions = {
+        ...requestStateNoExtensions,
+        currency: mainnetTestCase.currency,
+      };
+
+      expect(() => {
+        advancedLogic.applyActionToExtensions(
+          requestState.extensions,
+          nearPn.createCreationAction({ salt, paymentNetworkName: 'aurora-testnet' }),
+          requestState,
+          payeeRaw.identity,
+          arbitraryTimestamp,
+        );
+      }).toThrowError(
+        'Cannot apply action for network aurora-testnet on state with payment network: aurora',
+      );
+    });
+    it('throws when adding a payment address a different network', () => {
+      const advancedLogic = new AdvancedLogic();
+      const nearPn = new NearNativePaymentNetwork();
+
+      const requestState: typeof requestStateNoExtensions = {
+        ...requestStateNoExtensions,
+        currency: mainnetTestCase.currency,
+      };
+
+      const intermediateExtensionState = advancedLogic.applyActionToExtensions(
+        requestState.extensions,
+        nearPn.createCreationAction({ salt, paymentNetworkName: 'aurora' }),
+        requestState,
+        payeeRaw.identity,
+        arbitraryTimestamp,
+      );
+
+      requestState.extensions = intermediateExtensionState;
+
+      const addPaymentAddressAction = nearPn.createAddPaymentAddressAction({
+        paymentAddress: 'pay.testnet',
+      });
+
+      expect(() => {
+        advancedLogic.applyActionToExtensions(
+          intermediateExtensionState,
+          addPaymentAddressAction,
+          requestState,
+          payeeRaw.identity,
+          arbitraryTimestamp,
+        );
+      }).toThrowError('paymentAddress is not a valid address');
+    });
     it('throws with no state or action payment network', () => {
       const advancedLogic = new AdvancedLogic();
 
       const wrongNativeTokenRequestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
         currency: {
-          ...testCase.currency,
+          ...mainnetTestCase.currency,
           network: undefined,
         },
       };
@@ -300,7 +347,7 @@ describe('extensions/payment-network/native-tokens', () => {
       const wrongNativeTokenRequestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
         currency: {
-          ...testCase.currency,
+          ...mainnetTestCase.currency,
           network: wrongNetwork,
         },
       };
@@ -328,14 +375,14 @@ describe('extensions/payment-network/native-tokens', () => {
 
       const requestState = {
         ...requestStateNoExtensions,
-        currency: testCase.currency,
+        currency: mainnetTestCase.currency,
       };
 
       const wrongActionCreation = {
         ...actionCreationWithNativeTokenPayment,
         parameters: {
           ...actionCreationWithNativeTokenPayment.parameters,
-          paymentNetworkName: testCase.wrongCurrency.network,
+          paymentNetworkName: mainnetTestCase.wrongCurrency.network,
         },
       };
 
@@ -348,7 +395,7 @@ describe('extensions/payment-network/native-tokens', () => {
           arbitraryTimestamp,
         ),
       ).toThrowError(
-        `Cannot apply action for network ${testCase.wrongCurrency.network} on state with payment network: ${testCase.currency.network}`,
+        `Cannot apply action for network ${mainnetTestCase.wrongCurrency.network} on state with payment network: ${mainnetTestCase.currency.network}`,
       );
     });
   });
