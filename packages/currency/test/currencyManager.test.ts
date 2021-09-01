@@ -22,91 +22,126 @@ describe('CurrencyManager', () => {
   });
 
   describe('Accessing currencies', () => {
+    const defaultManager = CurrencyManager.getDefault();
     it('access a common token by its symbol', () => {
-      const manager = CurrencyManager.getDefault();
-      expect(manager.from('DAI')).toMatchObject({
+      expect(defaultManager.from('DAI')).toMatchObject({
         symbol: 'DAI',
         network: 'mainnet',
       });
-      expect(manager.fromSymbol('DAI')).toBeDefined();
+      expect(defaultManager.fromSymbol('DAI')).toBeDefined();
     });
 
     it('access a chain-specific token by its symbol', () => {
-      const manager = CurrencyManager.getDefault();
-      expect(manager.from('CELO')).toMatchObject({
+      expect(defaultManager.from('CELO')).toMatchObject({
         network: 'celo',
       });
-      expect(manager.fromSymbol('CELO')).toMatchObject({
+      expect(defaultManager.fromSymbol('CELO')).toMatchObject({
         network: 'celo',
       });
     });
 
     it('access a multichain token by its symbol and network', () => {
-      const manager = CurrencyManager.getDefault();
-      expect(manager.from('DAI-matic')).toMatchObject({
+      expect(defaultManager.from('DAI-matic')).toMatchObject({
         symbol: 'DAI',
         network: 'matic',
       });
 
-      expect(manager.fromSymbol('DAI-matic')).toBeUndefined();
+      expect(defaultManager.fromSymbol('DAI-matic')).toBeUndefined();
 
-      expect(manager.from('DAI', 'matic')).toMatchObject({
+      expect(defaultManager.from('DAI', 'matic')).toMatchObject({
         symbol: 'DAI',
         network: 'matic',
       });
-      expect(manager.fromSymbol('DAI', 'matic')).toMatchObject({
+      expect(defaultManager.fromSymbol('DAI', 'matic')).toMatchObject({
         symbol: 'DAI',
         network: 'matic',
       });
     });
 
     it('access a mainnet token by its address with or without network', () => {
-      const manager = CurrencyManager.getDefault();
-      expect(manager.from('0x6B175474E89094C44Da98b954EedeAC495271d0F')).toMatchObject({
+      expect(defaultManager.from('0x6B175474E89094C44Da98b954EedeAC495271d0F')).toMatchObject({
         symbol: 'DAI',
         network: 'mainnet',
       });
-      expect(manager.from('0x6B175474E89094C44Da98b954EedeAC495271d0F', 'mainnet')).toMatchObject({
+      expect(
+        defaultManager.from('0x6B175474E89094C44Da98b954EedeAC495271d0F', 'mainnet'),
+      ).toMatchObject({
+        symbol: 'DAI',
+        network: 'mainnet',
+      });
+      expect(
+        defaultManager.fromAddress('0x6B175474E89094C44Da98b954EedeAC495271d0F'),
+      ).toMatchObject({
+        symbol: 'DAI',
+        network: 'mainnet',
+      });
+      expect(
+        defaultManager.fromAddress('0x6B175474E89094C44Da98b954EedeAC495271d0F', 'mainnet'),
+      ).toMatchObject({
+        symbol: 'DAI',
+        network: 'mainnet',
+      });
+    });
+
+    it('access a mainnet token by its address whatever the case', () => {
+      expect(defaultManager.from('0x6b175474e89094c44da98b954eedeac495271d0f')).toMatchObject({
+        symbol: 'DAI',
+        network: 'mainnet',
+      });
+      expect(defaultManager.from('0x6B175474E89094C44DA98B954EEDEAC495271D0F')).toMatchObject({
         symbol: 'DAI',
         network: 'mainnet',
       });
     });
 
     it('access a token by its address and network', () => {
-      const manager = CurrencyManager.getDefault();
-
-      expect(manager.from('0xD3b71117E6C1558c1553305b44988cd944e97300', 'matic')).toMatchObject({
-        symbol: 'YEL',
-        network: 'matic',
-      });
-      expect(manager.from('0xD3b71117E6C1558c1553305b44988cd944e97300', 'fantom')).toMatchObject({
-        symbol: 'YEL',
-        network: 'fantom',
-      });
-
       expect(
-        manager.fromAddress('0xD3b71117E6C1558c1553305b44988cd944e97300', 'matic'),
+        defaultManager.from('0xD3b71117E6C1558c1553305b44988cd944e97300', 'matic'),
       ).toMatchObject({
         symbol: 'YEL',
         network: 'matic',
       });
       expect(
-        manager.fromAddress('0xD3b71117E6C1558c1553305b44988cd944e97300', 'fantom'),
+        defaultManager.from('0xD3b71117E6C1558c1553305b44988cd944e97300', 'fantom'),
       ).toMatchObject({
         symbol: 'YEL',
         network: 'fantom',
+      });
+
+      expect(
+        defaultManager.fromAddress('0xD3b71117E6C1558c1553305b44988cd944e97300', 'matic'),
+      ).toMatchObject({
+        symbol: 'YEL',
+        network: 'matic',
+      });
+      expect(
+        defaultManager.fromAddress('0xD3b71117E6C1558c1553305b44988cd944e97300', 'fantom'),
+      ).toMatchObject({
+        symbol: 'YEL',
+        network: 'fantom',
+      });
+    });
+
+    it('defaults to mainnet for native tokens with a mainnet equivalent', () => {
+      expect(defaultManager.from('MATIC')).toMatchObject({
+        symbol: 'MATIC',
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+      });
+      expect(defaultManager.from('MATIC-matic')).toMatchObject({
+        symbol: 'MATIC',
+        network: 'matic',
+        type: RequestLogicTypes.CURRENCY.ETH,
       });
     });
 
     it('returns undefined for empty symbol', () => {
-      const manager = CurrencyManager.getDefault();
-      expect(manager.fromSymbol('')).toBeUndefined();
+      expect(defaultManager.fromSymbol('')).toBeUndefined();
     });
 
     it('returns undefined and logs a warning on conflict', () => {
-      const manager = CurrencyManager.getDefault();
       const warnSpy = jest.spyOn(console, 'warn');
-      expect(manager.from('0xD3b71117E6C1558c1553305b44988cd944e97300')).toBeUndefined();
+      expect(defaultManager.from('0xD3b71117E6C1558c1553305b44988cd944e97300')).toBeUndefined();
       expect(warnSpy).toHaveBeenCalledWith(
         '0xD3b71117E6C1558c1553305b44988cd944e97300 has several matches on matic, fantom. To avoid errors, specify a network.',
       );
@@ -149,15 +184,34 @@ describe('CurrencyManager', () => {
           network: 'mainnet',
         },
       },
-      // matic: {
-      //   MATIC: { symbol: 'MATIC', network: 'matic' },
-      // },
+      evm: {
+        // defaults to mainnet tokens!
+        MATIC: { symbol: 'MATIC', network: 'mainnet', type: RequestLogicTypes.CURRENCY.ERC20 },
+        FTM: { symbol: 'FTM', network: 'mainnet', type: RequestLogicTypes.CURRENCY.ERC20 },
+        FUSE: { symbol: 'FUSE', network: 'mainnet', type: RequestLogicTypes.CURRENCY.ERC20 },
+        'MATIC-matic': { symbol: 'MATIC', network: 'matic', type: RequestLogicTypes.CURRENCY.ETH },
+        'FTM-fantom': { symbol: 'FTM', network: 'fantom', type: RequestLogicTypes.CURRENCY.ETH },
+        'FUSE-fuse': { symbol: 'FUSE', network: 'fuse', type: RequestLogicTypes.CURRENCY.ETH },
+      },
       celo: {
         CELO: { symbol: 'CELO', network: 'celo' },
         cUSD: {
           address: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
           decimals: 18,
           symbol: 'cUSD',
+          network: 'celo',
+        },
+        // different case
+        CUSD: {
+          address: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+          decimals: 18,
+          symbol: 'cUSD',
+          network: 'celo',
+        },
+        cGLD: {
+          address: '0x471EcE3750Da237f93B8E339c536989b8978a438',
+          decimals: 18,
+          symbol: 'cGLD',
           network: 'celo',
         },
       },
@@ -189,7 +243,7 @@ describe('CurrencyManager', () => {
       describe(network, () => {
         Object.entries(testCases).forEach(([symbol, expected]) => {
           it(`Resolves ${symbol}`, () => {
-            expect(currencyManager.fromSymbol(symbol)).toMatchObject(expected);
+            expect(currencyManager.from(symbol)).toMatchObject(expected);
           });
         });
       });

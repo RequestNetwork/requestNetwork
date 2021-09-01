@@ -37,3 +37,6 @@ export interface ICurrencyManager<TMeta = unknown> {
   fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromStorageCurrency(currency: StorageCurrency): CurrencyDefinition<TMeta> | undefined;
 }
+
+// Format  { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
+export type LegacyTokenMap = Record<string, Record<string, [string, string]>>;

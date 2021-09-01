@@ -10,14 +10,20 @@ import {
   CurrencyInput,
   ERC20Currency,
   ICurrencyManager,
+  LegacyTokenMap,
 } from './types';
 
 const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
 export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta> {
   private knownCurrencies: CurrencyDefinition<TMeta>[];
-  constructor(knownCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[]) {
+  private legacyTokens: LegacyTokenMap;
+  constructor(
+    knownCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
+    legacyTokens?: LegacyTokenMap,
+  ) {
     this.knownCurrencies = knownCurrencies.map(CurrencyManager.fromInput);
+    this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
   }
 
   from(symbolOrAddress: string, network?: string): CurrencyDefinition<TMeta> | undefined {
@@ -25,10 +31,15 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       return this.fromAddress(symbolOrAddress, network);
     }
     const parts = symbolOrAddress.split('-');
-    return this.fromSymbol(parts[0], network || parts[1]);
+    return (
+      this.fromSymbol(parts[0], network || parts[1]) ||
+      // try without splitting the symbol to support currencies like ETH-rinkeby
+      this.fromSymbol(symbolOrAddress, network)
+    );
   }
 
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined {
+    address = utils.getAddress(address);
     const matches = this.knownCurrencies.filter(
       (x) => x.type === ERC20 && x.address === address && (!network || x.network === network),
     );
@@ -45,6 +56,11 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined {
     symbol = symbol.toUpperCase();
     network = network?.toLowerCase();
+
+    const legacy = network ? this.legacyTokens[network]?.[symbol] : undefined;
+    if (legacy) {
+      [symbol, network] = legacy;
+    }
 
     return this.knownCurrencies.find(
       (x) =>
@@ -109,7 +125,18 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       .map(CurrencyManager.fromInput);
   }
 
+  static getDefaultLegacyTokens(): LegacyTokenMap {
+    return {
+      near: {
+        NEAR: ['NEAR', 'aurora'],
+      },
+    };
+  }
+
   static getDefault(): CurrencyManager {
-    return new CurrencyManager(CurrencyManager.getDefaultList());
+    return new CurrencyManager(
+      CurrencyManager.getDefaultList(),
+      CurrencyManager.getDefaultLegacyTokens(),
+    );
   }
 }
