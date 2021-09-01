@@ -198,6 +198,22 @@ describe('CurrencyManager', () => {
             network: 'mainnet',
           }),
         ).toMatchObject({ id: 'ETH-mainnet' });
+
+        expect(
+          defaultManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH-rinkeby',
+            network: 'rinkeby',
+          }),
+        ).toMatchObject({ id: 'ETH-rinkeby-rinkeby' });
+
+        expect(
+          defaultManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+            network: 'rinkeby',
+          }),
+        ).toMatchObject({ id: 'ETH-rinkeby-rinkeby' });
       });
 
       it('can access fiat currencies from storage format', () => {
@@ -356,6 +372,7 @@ describe('CurrencyManager', () => {
     defaultList.forEach((currency) => {
       it(currency.id, () => {
         const def = CurrencyManager.fromInput(currency);
+        expect(def).toBeDefined();
         expect(def).toEqual(defaultManager.from(def.id));
         if ('network' in def) {
           expect(def).toEqual(defaultManager.from(def.symbol, def.network));

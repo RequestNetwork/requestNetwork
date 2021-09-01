@@ -70,18 +70,19 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   }
 
   fromStorageCurrency(currency: StorageCurrency): CurrencyDefinition<TMeta> | undefined {
+    if (!currency) {
+      return;
+    }
     if (!currency.type) {
       throw new Error('Invalid format');
     }
-    if (!currency.network) {
-      currency.network = 'mainnet';
-    }
+    const networkOrDefault = currency.network || 'mainnet';
     return this.knownCurrencies.find(
       (x) =>
         x.type === currency.type &&
-        ((x.type === ERC20 && currency.value === x.address && x.network === currency.network) ||
-          ((x.type === ETH || x.type === BTC) && x.network === currency.network) ||
-          x.symbol === currency.value),
+        ((x.type === ERC20 && currency.value === x.address && x.network === networkOrDefault) ||
+          ((x.type === ETH || x.type === BTC) && x.network === networkOrDefault) ||
+          (x.symbol === currency.value && !currency.network)),
     );
   }
 
