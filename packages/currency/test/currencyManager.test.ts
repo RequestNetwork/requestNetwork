@@ -158,6 +158,57 @@ describe('CurrencyManager', () => {
         defaultManager.fromAddress('0xFab46E002BbF0b4509813474841E0716E6730136', 'mainnet'),
       ).not.toBeDefined();
     });
+
+    describe('fromStorageCurrency', () => {
+      it('can access a token from its storage format', () => {
+        expect(
+          defaultManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          }),
+        ).toMatchObject({ id: 'DAI-mainnet' });
+        expect(
+          defaultManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+            network: 'mainnet',
+          }),
+        ).toMatchObject({ id: 'DAI-mainnet' });
+      });
+
+      it('can access native tokens from storage format', () => {
+        expect(
+          defaultManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          }),
+        ).toMatchObject({ id: 'ETH-mainnet' });
+
+        expect(
+          defaultManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+          }),
+        ).toMatchObject({ id: 'ETH-mainnet' });
+
+        expect(
+          defaultManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'WRONG!',
+            network: 'mainnet',
+          }),
+        ).toMatchObject({ id: 'ETH-mainnet' });
+      });
+
+      it('can access fiat currencies from storage format', () => {
+        expect(
+          defaultManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ISO4217,
+            value: 'EUR',
+          }),
+        ).toMatchObject({ id: 'EUR' });
+      });
+    });
   });
 
   describe('Extending currencies', () => {
@@ -258,6 +309,61 @@ describe('CurrencyManager', () => {
             expect(currencyManager.from(symbol)).toMatchObject(expected);
           });
         });
+      });
+    });
+  });
+
+  describe('Conflicting currencies', () => {
+    const currencyManager = CurrencyManager.getDefault();
+    it('TOP', () => {
+      expect(currencyManager.from('TOP')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+      });
+      expect(currencyManager.from('TOP', 'mainnet')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ERC20,
+      });
+    });
+    it('BOB', () => {
+      expect(currencyManager.from('BOB')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+      });
+      expect(currencyManager.from('BOB', 'mainnet')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ERC20,
+      });
+    });
+    it('MNT', () => {
+      expect(currencyManager.from('MNT')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+      });
+      expect(currencyManager.from('MNT', 'mainnet')).toMatchObject({
+        type: RequestLogicTypes.CURRENCY.ERC20,
+      });
+    });
+  });
+
+  describe('Back & forth', () => {
+    // exclude conflicting & native testnet
+    const defaultList = CurrencyManager.getDefaultList().filter(
+      (x) =>
+        !['BOB', 'MNT', 'TOP'].includes(x.symbol) &&
+        !(
+          (x.type === RequestLogicTypes.CURRENCY.ETH ||
+            x.type === RequestLogicTypes.CURRENCY.BTC) &&
+          x.symbol.includes('-')
+        ),
+    );
+    const defaultManager = new CurrencyManager(defaultList);
+    defaultList.forEach((currency) => {
+      it(currency.id, () => {
+        const def = CurrencyManager.fromInput(currency);
+        expect(def).toEqual(defaultManager.from(def.id));
+        if ('network' in def) {
+          expect(def).toEqual(defaultManager.from(def.symbol, def.network));
+          expect(def).toEqual(defaultManager.fromSymbol(def.symbol, def.network));
+        }
+        expect(def).toEqual(
+          defaultManager.fromStorageCurrency(CurrencyManager.toStorageCurrency(def)),
+        );
       });
     });
   });

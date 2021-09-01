@@ -65,16 +65,23 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return this.knownCurrencies.find(
       (x) =>
         x.symbol.toUpperCase() === symbol &&
-        (x.type === ISO4217 || x.network === network || !network),
+        ((x.type === ISO4217 && !network) || ('network' in x && x.network === network) || !network),
     );
   }
 
   fromStorageCurrency(currency: StorageCurrency): CurrencyDefinition<TMeta> | undefined {
+    if (!currency.type) {
+      throw new Error('Invalid format');
+    }
+    if (!currency.network) {
+      currency.network = 'mainnet';
+    }
     return this.knownCurrencies.find(
       (x) =>
-        currency.type &&
+        x.type === currency.type &&
         ((x.type === ERC20 && currency.value === x.address && x.network === currency.network) ||
-          (x.symbol === currency.value && (!('network' in x) || x.network === currency.network))),
+          ((x.type === ETH || x.type === BTC) && x.network === currency.network) ||
+          x.symbol === currency.value),
     );
   }
 
