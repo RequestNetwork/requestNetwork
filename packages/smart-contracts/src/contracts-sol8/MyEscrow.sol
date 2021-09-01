@@ -9,7 +9,6 @@ import "./interface/TestERC20FeeProxy.sol";
 
 /// @title Invoice based escrow smart-contract
 contract MyEscrow {
-
     struct Invoice {
         IERC20 paymentToken; 
         uint256 amount;
@@ -48,11 +47,9 @@ contract MyEscrow {
     /// Events to notify when the escrow is Initiated or Completed
     event EscrowInitiated(bytes indexed paymentReference, uint256 amount, address payee, IERC20 paymentToken, uint256 feeAmount, address feeAddress);
     event EscrowCompleted(bytes indexed paymentReference, address payer, uint256 amount);
-    event LockPeriodStarted(bytes indexed paymentReference, uint256 amount, address payee, address payer, IERC20 paymentToken);
-    event LockPeriodEnded(bytes indexed paymentReference, uint256 amount, address payee, IERC20 paymentToken);
+    event LockPeriodStarted(bytes indexed paymentReference, uint256 amount, address payee, address payer, IERC20 paymentToken, TokenTimelock tokentimelock);
+    event LockPeriodEnded(bytes indexed paymentReference, uint256 amount, address payer, IERC20 paymentToken);
     
-   
-
     ITestERC20FeeProxy public paymentProxy;
     TokenTimelock public tokentimelock;
 
@@ -98,6 +95,7 @@ contract MyEscrow {
 
         uint256 amount = invoiceMapping[_paymentRef].amount;
         
+        /// Give approval to transfer from escrow => tokentimelock contract
         invoiceMapping[_paymentRef].paymentToken.approve(address(paymentProxy),  2**255);
         invoiceMapping[_paymentRef].amount = 0;
 
@@ -111,6 +109,8 @@ contract MyEscrow {
             invoiceMapping[_paymentRef].feeAmount, 
             invoiceMapping[_paymentRef].feeAddress 
         );
+
+        /// Delete the details in the invoiceMapping
         delete invoiceMapping[_paymentRef];
 
         emit EscrowCompleted(_paymentRef, invoiceMapping[_paymentRef].payer, amount);
@@ -126,41 +126,45 @@ contract MyEscrow {
             address(this), 
             invoiceMapping[_paymentRef].amount + invoiceMapping[_paymentRef].feeAmount
         ), 
-        "MyEscrow: Cannot lock tokens to Escrow as requested, did you approve CTBK?"); 
+        "MyEscrow: Cannot lock tokens to Escrow as requested, did you approve CTBK?");
     }
- 
 
-  
-    /// Get the Invoice details of a given _paymentRef
+
+    /// Return details of a given _paymentRef
     /// @param _paymentRef Reference of the Invoice related
-    function getInvoice(bytes memory _paymentRef) public view returns 
+    ///
+    function getInvoice(bytes memory _paymentRef) public view returns
     (
         uint256 amount, 
         address payee,
         address payer
-    ) 
+    )
     {
         require(
             invoiceMapping[_paymentRef].amount != 0,
             "MyEscrow: Payment reference does not exist!"
         );
-        return ( 
-            invoiceMapping[_paymentRef].amount, 
+
+        return (
+            invoiceMapping[_paymentRef].amount,
             invoiceMapping[_paymentRef].payee,
             invoiceMapping[_paymentRef].payer
         );
     }
 
 
+ /* --------- DISPUTES & LOCKPERIODS  --------- */
 
- ///--------- DISPUTES ---------  
-    // Open dispute and lock funds for a year.
+
+    /// Open dispute and lock funds for a year.
+    /// @param _paymentRef Reference of the Invoice related.
     function initLockPeriod(bytes memory _paymentRef) public payable onlyPayer(_paymentRef) {
         require(invoiceMapping[_paymentRef].amount != 0, "MyEscrow: No Invoice found!");
         
         uint256 _duration = 31556926; 
-        // For testing purposes
+        // FIX: For testing purposes
         uint256 _endtime = block.timestamp + 1 ; //+ _duration;
+    
         tokentimelock = new TokenTimelock(IERC20(invoiceMapping[_paymentRef].paymentToken), address(this), _endtime); 
         
         disputeMapping[_paymentRef] = Dispute(
@@ -176,24 +180,30 @@ contract MyEscrow {
             tokentimelock
         );
 
+        // Transfer form escrow contract => tokentimelock contract
         require(
             disputeMapping[_paymentRef].paymentToken.transfer(
                 address(disputeMapping[_paymentRef].tokentimelock),
                 disputeMapping[_paymentRef].amount),
-                
                 "MyEscrow: Transfer to tokentimelock contract failed!"
         );
         
         delete invoiceMapping[_paymentRef];
 
-        emit LockPeriodStarted(_paymentRef, disputeMapping[_paymentRef].amount, disputeMapping[_paymentRef].payee, disputeMapping[_paymentRef].payer, disputeMapping[_paymentRef].paymentToken);
+        emit LockPeriodStarted(_paymentRef, disputeMapping[_paymentRef].amount, disputeMapping[_paymentRef].payee, disputeMapping[_paymentRef].payer, disputeMapping[_paymentRef].paymentToken, disputeMapping[_paymentRef].tokentimelock);
     }
 
 
-    // Transfers the locked funds to beneficiary/payer
+
+
+    // Transfer from tokentimelock contract => payer
+    /// @param _paymentRef Reference of the Invoice related
+    ///
     function withdrawLockedFunds(bytes memory _paymentRef) public onlyPayer(_paymentRef) {
         require(disputeMapping[_paymentRef].amount != 0, "MyEscrow: No Invoice found!");
         
+
+        // close tokentimelock and transfer funds to payer through paymentProxy.transferFromWithReferenceAndFee.
         tokentimelock.release();
         
         uint256 _amount = disputeMapping[_paymentRef].amount;
@@ -209,17 +219,21 @@ contract MyEscrow {
             _amount, 
             _paymentRef, 
             disputeMapping[_paymentRef].feeAmount, 
-            disputeMapping[_paymentRef].feeAddress 
+            disputeMapping[_paymentRef].feeAddress
         );
+
+        // delete paymentreference from disputeMapping
         delete disputeMapping[_paymentRef];
         
-        emit LockPeriodEnded(_paymentRef, _amount, msg.sender, _token );
+        emit LockPeriodEnded(_paymentRef, _amount, msg.sender, _token);
     }
 
 
-    function getDispute(bytes memory _paymentRef) public view returns (uint256 time) {
-        time = disputeMapping[_paymentRef].tokentimelock.releaseTime();
-        return time;
+    /// Return endTime of tokentimelock contract   
+    /// @param _paymentRef Reference of the Invoice related
+    function getLockPeriodEndTime(bytes memory _paymentRef) public view onlyPayer(_paymentRef) returns (uint256 time) {
+        return disputeMapping[_paymentRef].tokentimelock.releaseTime();
     }
-    
+
+
 }

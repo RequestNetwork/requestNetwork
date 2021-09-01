@@ -15,8 +15,8 @@ export * from './EthereumProxy';
 export * from './RequestHashStorage';
 export * from './RequestHashSubmitter';
 
-
 /**
  * Request MyEscrow
  */
 export * from './MyEscrow';
+export * from './TestERC20FeeProxy';
