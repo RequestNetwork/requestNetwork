@@ -1,4 +1,3 @@
-export { getAllSupportedCurrencies } from './getAllSupportedCurrencies';
 export { getSupportedERC20Tokens } from './erc20';
 export { getPath as getConversionPath } from './chainlink-path-aggregators';
 export { getHash as getCurrencyHash } from './getHash';

@@ -14,7 +14,7 @@ import {
 
 const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
-export class CurrencyManager<TMeta = never> implements ICurrencyManager<TMeta> {
+export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta> {
   private knownCurrencies: CurrencyDefinition<TMeta>[];
   constructor(knownCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[]) {
     this.knownCurrencies = knownCurrencies.map(CurrencyManager.fromInput);
@@ -62,7 +62,7 @@ export class CurrencyManager<TMeta = never> implements ICurrencyManager<TMeta> {
     );
   }
 
-  static fromInput<TMeta = never>({
+  static fromInput<TMeta = unknown>({
     id,
     hash,
     meta,
@@ -88,7 +88,7 @@ export class CurrencyManager<TMeta = never> implements ICurrencyManager<TMeta> {
     };
   }
 
-  static getDefaultList<TMeta = never>(): CurrencyDefinition<TMeta>[] {
+  static getDefaultList(): CurrencyDefinition[] {
     const isoCurrencies: CurrencyInput[] = iso4217.map((cc) => ({
       decimals: cc.digits,
       name: cc.currency,
@@ -109,7 +109,7 @@ export class CurrencyManager<TMeta = never> implements ICurrencyManager<TMeta> {
       .map(CurrencyManager.fromInput);
   }
 
-  static getDefault<TMeta = never>(): CurrencyManager<TMeta> {
-    return new CurrencyManager<TMeta>(CurrencyManager.getDefaultList());
+  static getDefault(): CurrencyManager {
+    return new CurrencyManager(CurrencyManager.getDefaultList());
   }
 }

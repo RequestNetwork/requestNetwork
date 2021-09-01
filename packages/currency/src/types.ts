@@ -23,7 +23,7 @@ export type CurrencyInput =
   | ({ type: RequestLogicTypes.CURRENCY.ISO4217 } & ISO4217Currency)
   | ({ type: RequestLogicTypes.CURRENCY.ERC20 } & ERC20Currency);
 
-export type CurrencyDefinition<TMeta = never> = CurrencyInput & {
+export type CurrencyDefinition<TMeta = unknown> = CurrencyInput & {
   id: string;
   hash: string;
   meta: TMeta;
@@ -31,7 +31,7 @@ export type CurrencyDefinition<TMeta = never> = CurrencyInput & {
 
 export type StorageCurrency = RequestLogicTypes.ICurrency;
 
-export interface ICurrencyManager<TMeta = never> {
+export interface ICurrencyManager<TMeta = unknown> {
   from(symbolOrAddress: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined;
