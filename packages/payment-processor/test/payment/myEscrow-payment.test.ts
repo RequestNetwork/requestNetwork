@@ -53,7 +53,8 @@ const validRequest: ClientTypes.IRequestData = {
   extensions: {
     [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_TIME_LOCKED_ESCROW,
+    //id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_TIME_LOCKED_ESCROW,
+      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,

@@ -158,7 +158,8 @@ export function encodeInitAndDepositRequest(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
   // ERC20 token to be used
@@ -193,7 +194,8 @@ export function encodeWithdrawFundsRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
@@ -216,7 +218,8 @@ export function encodeInitLockPeriodRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
@@ -239,7 +242,9 @@ export function encodeDisputeMappingRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
@@ -262,7 +267,8 @@ export function encodeWithdrawLockedFundsRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
