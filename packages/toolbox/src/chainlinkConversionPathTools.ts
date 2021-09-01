@@ -114,7 +114,7 @@ class ChainlinkConversionPathTools {
 }
 
 const getCurrency = (symbol: string) => {
-  const currencyManager = new CurrencyManager(CurrencyManager.getDefaultList());
+  const currencyManager = CurrencyManager.getDefault();
   const currency = currencyManager.fromSymbol(symbol);
   if (!currency) {
     throw new Error(`Currency ${symbol} not found`);

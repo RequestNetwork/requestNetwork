@@ -1,8 +1,14 @@
-import { CurrencyDefinition, StorageCurrency } from '@requestnetwork/currency';
+import {
+  CurrencyDefinition,
+  CurrencyManager,
+  getCurrencyHash,
+  StorageCurrency,
+} from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { Contract, providers, utils } from 'ethers';
 import { getDefaultProvider } from '../provider';
 
+// TODO - remove this when https://github.com/RequestNetwork/requestNetwork/pull/569 is merged (it fixes the ABI of ERC20 contract)
 class TokenContract extends Contract {
   constructor(address: string, signer?: providers.Provider) {
     super(
@@ -38,13 +44,18 @@ export const loadCurrencyFromContract = async (
     if (!symbol) {
       return null;
     }
-
-    return {
+    const definition = {
       address: currency.value,
       decimals,
       symbol,
       network: currency.network,
       type: RequestLogicTypes.CURRENCY.ERC20,
+    };
+    return {
+      ...definition,
+      id: CurrencyManager.currencyId(definition),
+      hash: getCurrencyHash(CurrencyManager.toStorageCurrency(definition)),
+      meta: null as never,
     };
   } catch (e) {
     return null;

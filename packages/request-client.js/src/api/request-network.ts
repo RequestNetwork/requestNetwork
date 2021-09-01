@@ -1,3 +1,4 @@
+import { utils as ethersUtils } from 'ethers';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { RequestLogic } from '@requestnetwork/request-logic';
@@ -14,14 +15,14 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as Types from '../types';
-import ContentDataExtension from './content-data-extension';
 import {
-  CurrencyDefinition,
+  CurrencyInput,
   CurrencyManager,
+  ICurrencyManager,
   UnsupportedCurrencyError,
 } from '@requestnetwork/currency';
-import { utils as ethersUtils } from 'ethers';
+import * as Types from '../types';
+import ContentDataExtension from './content-data-extension';
 import Request from './request';
 import localUtils from './utils';
 
@@ -37,7 +38,7 @@ export default class RequestNetwork {
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
   private contentData: ContentDataExtension;
-  private currencyManager: CurrencyManager;
+  private currencyManager: ICurrencyManager;
 
   /**
    * @param dataAccess instance of data-access layer
@@ -50,20 +51,20 @@ export default class RequestNetwork {
     signatureProvider,
     decryptionProvider,
     bitcoinDetectionProvider,
-    tokenList,
+    currencies,
   }: {
     dataAccess: DataAccessTypes.IDataAccess;
     signatureProvider?: SignatureProviderTypes.ISignatureProvider;
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
-    tokenList?: CurrencyDefinition[];
+    currencies?: CurrencyInput[];
   }) {
     this.advancedLogic = new AdvancedLogic();
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
     this.bitcoinDetectionProvider = bitcoinDetectionProvider;
-    this.currencyManager = new CurrencyManager(tokenList || CurrencyManager.getDefaultList());
+    this.currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());
   }
 
   /**

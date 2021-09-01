@@ -2,10 +2,10 @@ import { EventEmitter } from 'events';
 
 import { DeclarativePaymentNetwork as PaymentNetworkDeclarative } from '@requestnetwork/payment-detection';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
-import { CurrencyManager } from '@requestnetwork/currency';
 import localUtils from './utils';
 
 /**
@@ -68,7 +68,7 @@ export default class Request {
   /**
    * A list of known tokens
    */
-  private currencyManager: CurrencyManager;
+  private currencyManager: ICurrencyManager;
 
   /**
    * Creates an instance of Request
@@ -83,7 +83,7 @@ export default class Request {
   constructor(
     requestId: RequestLogicTypes.RequestId,
     requestLogic: RequestLogicTypes.IRequestLogic,
-    currencyManager: CurrencyManager,
+    currencyManager: ICurrencyManager,
     options?: {
       paymentNetwork?: PaymentTypes.IPaymentNetwork | null;
       contentDataExtension?: ContentDataExtension | null;

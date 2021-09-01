@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { CurrencyDefinition, CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
 import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
@@ -42,7 +42,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
 > implements PaymentTypes.IPaymentNetwork<ExtensionType> {
   protected _paymentNetworkId: ExtensionTypes.ID;
   protected _extension: ExtensionType;
-  protected _currencyManager: CurrencyManager;
+  protected _currencyManager: ICurrencyManager;
 
   /**
    * @param extension The advanced logic payment network extensions
@@ -52,7 +52,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
     currencyManager,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    currencyManager: CurrencyManager;
+    currencyManager: ICurrencyManager;
   }) {
     this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
     this._extension = advancedLogic.extensions.feeProxyContractErc20;

@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish } from 'ethers';
 
-import { getConversionPath } from '@requestnetwork/currency';
+import { CurrencyManager, getConversionPath, ICurrencyManager } from '@requestnetwork/currency';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -13,7 +13,7 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { padAmountForChainlink } from '@requestnetwork/payment-detection';
+import { padAmountForChainlink, getChainlinkPaddingSize } from '@requestnetwork/payment-detection';
 
 /**
  * Details required to pay a request with on-chain conversion:
@@ -23,6 +23,7 @@ import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 export interface IPaymentSettings {
   currency: RequestLogicTypes.ICurrency;
   maxToSpend: BigNumberish;
+  currencyManager?: ICurrencyManager;
 }
 
 /**
@@ -46,7 +47,7 @@ export async function payAnyToErc20ProxyRequest(
   if (!paymentSettings.currency.network) {
     throw new Error('Cannot pay with a currency missing a network');
   }
-  const encodedTx = await encodePayAnyToErc20ProxyRequest(
+  const encodedTx = encodePayAnyToErc20ProxyRequest(
     request,
     signerOrProvider,
     paymentSettings,
@@ -74,23 +75,36 @@ export async function payAnyToErc20ProxyRequest(
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
-export async function encodePayAnyToErc20ProxyRequest(
+export function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   paymentSettings: IPaymentSettings,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-): Promise<string> {
+): string {
   if (!paymentSettings.currency.network) {
     throw new Error('Cannot pay with a currency missing a network');
   }
+  const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
+
+  const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
+  if (!requestCurrency) {
+    throw new Error(
+      `Could not find request currency ${request.currencyInfo.value}. Did you forget to specify the currencyManager?`,
+    );
+  }
+  const paymentCurrency = currencyManager.fromStorageCurrency(paymentSettings.currency);
+  if (!paymentCurrency) {
+    throw new Error(
+      `Could not find payment currency ${paymentSettings.currency.value}. Did you forget to specify the currencyManager?`,
+    );
+  }
+  if (paymentCurrency.type !== RequestLogicTypes.CURRENCY.ERC20) {
+    throw new Error(`Payment currency must be an ERC20`);
+  }
 
   // Compute the path automatically
-  const path = getConversionPath(
-    request.currencyInfo,
-    paymentSettings.currency,
-    paymentSettings.currency.network,
-  );
+  const path = getConversionPath(requestCurrency, paymentCurrency, paymentCurrency.network);
   if (!path) {
     throw new Error(
       `Impossible to find a conversion path between from ${request.currencyInfo} to ${paymentSettings.currency}`,
@@ -109,9 +123,15 @@ export async function encodePayAnyToErc20ProxyRequest(
     maxRateTimespan,
   } = getRequestPaymentValues(request);
 
-  const requestCurrency = new Currency(request.currencyInfo);
-  const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
-  const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
+  const decimals = requestCurrency.decimals;
+  const amountToPay = padAmountForChainlink(
+    getAmountToPay(request, amount),
+    getChainlinkPaddingSize(requestCurrency.type, decimals),
+  );
+  const feeToPay = padAmountForChainlink(
+    feeAmountOverride || feeAmount || 0,
+    getChainlinkPaddingSize(requestCurrency.type, decimals),
+  );
 
   const proxyAddress = erc20ConversionProxy.getAddress(paymentSettings.currency.network);
   const proxyContract = Erc20ConversionProxy__factory.connect(proxyAddress, signer);

@@ -1,8 +1,8 @@
-import { getCurrencyHash, CurrencyDefinition, CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyDefinition } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
-import { parseLogArgs, unpadAmountFromChainlink } from '../utils';
+import { getChainlinkPaddingSize, parseLogArgs, unpadAmountFromChainlink } from '../utils';
 
 // The conversion proxy smart contract ABI fragment containing TransferWithConversionAndReference event
 const erc20ConversionProxyContractAbiFragment = [
@@ -145,8 +145,7 @@ export default class ProxyERC20InfoRetriever
           // check the rate timespan
           this.maxRateTimespan >= conversionLog.maxRateTimespan.toNumber() &&
           // check the requestCurrency
-          getCurrencyHash(CurrencyManager.toStorageCurrency(this.requestCurrency)).toLowerCase() ===
-            conversionLog.currency.toLowerCase() &&
+          this.requestCurrency.hash.toLowerCase() === conversionLog.currency.toLowerCase() &&
           // check to address
           proxyLog.to.toLowerCase() === this.toAddress.toLowerCase(),
       )
@@ -154,11 +153,9 @@ export default class ProxyERC20InfoRetriever
       .map(async ({ conversionLog, proxyLog, blockNumber, transactionHash }) => {
         const requestCurrency = this.requestCurrency;
 
-        const amount = unpadAmountFromChainlink(conversionLog.amount, requestCurrency).toString();
-        const feeAmount = unpadAmountFromChainlink(
-          conversionLog.feeAmount,
-          requestCurrency,
-        ).toString();
+        const decimals = getChainlinkPaddingSize(requestCurrency.type, requestCurrency.decimals);
+        const amount = unpadAmountFromChainlink(conversionLog.amount, decimals).toString();
+        const feeAmount = unpadAmountFromChainlink(conversionLog.feeAmount, decimals).toString();
 
         return {
           amount,

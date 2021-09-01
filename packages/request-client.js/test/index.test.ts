@@ -1927,35 +1927,53 @@ describe('index', () => {
       expect(request.getData().currency).toBe('unknown');
     });
 
-    it('allows overriding the default tokenList', async () => {
+    describe('allows overriding the default currencies', () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: fakeSignatureProvider,
         useMockStorage: true,
-        tokenList: [
+        currencies: [
           {
-            network: "private",
+            network: 'private',
             address: testErc20Data.currency.value,
-            name: 'Test ERC20 Data',
+            type: RequestLogicTypes.CURRENCY.ERC20,
             decimals: 18,
             symbol: '_TEST',
           },
         ],
       });
-      const request = await requestNetwork.createRequest({
-        requestInfo: testErc20Data,
-        paymentNetwork,
-        signer: payeeIdentity,
+
+      it('allows creating a request by currency properties', async () => {
+        const request = await requestNetwork.createRequest({
+          requestInfo: testErc20Data,
+          paymentNetwork,
+          signer: payeeIdentity,
+        });
+
+        expect(request.getData().currency).toBe('_TEST');
       });
 
-      expect(request.getData().currency).toBe('_TEST');
+      it('allows creating a request by currency name', async () => {
+        const request = await requestNetwork.createRequest({
+          requestInfo: {
+            ...testErc20Data,
+            currency: '_TEST',
+          },
+          paymentNetwork,
+          signer: payeeIdentity,
+        });
 
-      const daiRequest = await requestNetwork.createRequest({
-        requestInfo: daiData,
-        paymentNetwork,
-        signer: payeeIdentity,
+        expect(request.getData().currency).toBe('_TEST');
       });
 
-      expect(daiRequest.getData().currency).toBe('unknown');
+      it('does not contain a default token', async () => {
+        const daiRequest = await requestNetwork.createRequest({
+          requestInfo: daiData,
+          paymentNetwork,
+          signer: payeeIdentity,
+        });
+
+        expect(daiRequest.getData().currency).toBe('unknown');
+      });
     });
   });
 });

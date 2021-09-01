@@ -7,6 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import PaymentNetworkERC20FeeProxyContract, {
   DeploymentInformationGetter,
 } from '../erc20/fee-proxy-contract';
@@ -14,7 +15,6 @@ import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
 import TheGraphAnyToErc20Retriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
-import { CurrencyManager } from '@requestnetwork/currency';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -35,7 +35,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
     currencyManager,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    currencyManager: CurrencyManager;
+    currencyManager: ICurrencyManager;
   }) {
     super({
       advancedLogic,

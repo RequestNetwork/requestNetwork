@@ -1,4 +1,4 @@
-import { ethers, Signer, providers, BigNumber, BigNumberish } from 'ethers';
+import { ethers, Signer, providers, BigNumber, BigNumberish, Contract } from 'ethers';
 
 import { PaymentReferenceCalculator, getDefaultProvider } from '@requestnetwork/payment-detection';
 import {
@@ -7,7 +7,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { getCurrencyHash } from '@requestnetwork/currency';
+import { CurrencyManager, getCurrencyHash } from '@requestnetwork/currency';
 
 /**
  * Thrown when the library does not support a payment blockchain network.
@@ -272,3 +272,25 @@ export function getAmountToPay(
   }
   return amountToPay;
 }
+
+export const getDecimalsForCurrency = (
+  storageCurrency: RequestLogicTypes.ICurrency,
+): Promise<number> => {
+  const currency = CurrencyManager.getDefault().fromStorageCurrency(storageCurrency);
+  if (currency) {
+    return Promise.resolve(currency.decimals);
+  }
+  if (storageCurrency.type === RequestLogicTypes.CURRENCY.ERC20) {
+    return getDecimalsForToken(storageCurrency.value, storageCurrency.network);
+  }
+  throw new Error(`Decimals not found for ${storageCurrency.value}`);
+};
+
+export const getDecimalsForToken = (address: string, network?: string): Promise<number> => {
+  const contract = new Contract(
+    address,
+    ['function decimals() view returns (uint8)'],
+    getDefaultProvider(network),
+  );
+  return contract.decimals();
+};

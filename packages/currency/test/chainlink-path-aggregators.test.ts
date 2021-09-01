@@ -1,34 +1,27 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '../src';
 import { getPath } from '../src/chainlink-path-aggregators';
-import { Currency } from '../src/currency';
 
 describe('chainlink-path-aggregators', () => {
   describe('getPath', () => {
-    const BTC: RequestLogicTypes.ICurrency = { type: RequestLogicTypes.CURRENCY.BTC, value: 'btc' };
+    const currencyManager = new CurrencyManager([
+      ...CurrencyManager.getDefaultList(),
+      {
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        symbol: 'privateDAI',
+        network: 'private',
+        address: '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35',
+        decimals: 18,
+      },
+    ]);
+    const BTC = currencyManager.from('BTC')!;
+    const USD = currencyManager.from('USD')!;
+    const EUR = currencyManager.from('EUR')!;
 
-    const USD: RequestLogicTypes.ICurrency = {
-      type: RequestLogicTypes.CURRENCY.ISO4217,
-      value: 'USD',
-    };
-    const EUR: RequestLogicTypes.ICurrency = {
-      type: RequestLogicTypes.CURRENCY.ISO4217,
-      value: 'EUR',
-    };
-
-    const privateDAI: RequestLogicTypes.ICurrency = {
-      type: RequestLogicTypes.CURRENCY.ERC20,
-      value: '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35',
-    };
-
-    const DAI: RequestLogicTypes.ICurrency = {
-      type: RequestLogicTypes.CURRENCY.ERC20,
-      value: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-    };
-
-    const MKR: RequestLogicTypes.ICurrency = {
-      type: RequestLogicTypes.CURRENCY.ERC20,
-      value: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
-    };
+    const privateDAI = currencyManager.from('privateDAI')!;
+    const DAI = currencyManager.from('DAI')!;
+    const DAImatic = currencyManager.from('DAI-matic')!;
+    const MKR = currencyManager.from('MKR')!;
 
     describe('private network', () => {
       it('can get path from EUR to DAI', () => {
@@ -87,10 +80,10 @@ describe('chainlink-path-aggregators', () => {
 
     describe('matic', () => {
       it('cannot get path from USD to DAI on matic', () => {
-        expect(getPath(Currency.from('USD'), Currency.from('DAI'), 'matic')).toBeNull();
+        expect(getPath(USD, DAI, 'matic')).toBeNull();
       });
       it('can get path from USD to DAI-matic on matic', () => {
-        expect(getPath(Currency.from('USD'), Currency.from('DAI-matic'), 'matic')).toEqual([
+        expect(getPath(USD, DAImatic, 'matic')).toEqual([
           '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
           '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
         ]);

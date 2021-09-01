@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
 import Declarative from './declarative';
@@ -13,7 +13,6 @@ import ERC20FeeProxyContract from './erc20/fee-proxy-contract';
 import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
 import AnyToErc20Proxy from './any/any-to-erc20-proxy-contract';
-import NearNativeTokenPaymentDetector from './near-detector';
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
@@ -71,7 +70,7 @@ export default class PaymentNetworkFactory {
     currency: RequestLogicTypes.ICurrency;
     paymentNetworkCreationParameters: PaymentTypes.IPaymentNetworkCreateParameters;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
-    currencyManager: CurrencyManager;
+    currencyManager: ICurrencyManager;
   }): PaymentTypes.IPaymentNetwork {
     const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
 
