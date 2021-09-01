@@ -12,6 +12,9 @@ import Utils from '@requestnetwork/utils';
 import { approveErc20ForSwapWithConversionIfNeeded } from '../../src/payment/swap-conversion-erc20';
 import { ERC20, ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20';
+import { IConversionSettings } from '../../src/payment/settings';
+
+import { currencyManager } from './shared';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -77,12 +80,13 @@ const validSwapSettings = {
   maxInputAmount: '3000000000000000000',
   path: [paymentTokenAddress, acceptedTokenAddress],
 };
-const validConversionSettings = {
+const validConversionSettings: IConversionSettings = {
   currency: {
     type: 'ERC20' as any,
     value: acceptedTokenAddress,
     network: 'private',
   },
+  currencyManager,
 };
 
 beforeAll(async () => {
@@ -144,6 +148,7 @@ describe('swap-any-to-erc20', () => {
         swapToPayAnyToErc20Request(validRequest, wallet, {
           conversion: {
             currency: wrongCurrency,
+            currencyManager,
           },
           swap: {
             deadline: 2599732187000, // This test will fail in 2052

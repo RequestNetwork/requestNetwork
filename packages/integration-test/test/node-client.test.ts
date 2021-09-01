@@ -2,12 +2,13 @@ import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryp
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
-import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
+import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import {
   payRequest,
   approveErc20ForProxyConversionIfNeeded,
 } from '@requestnetwork/payment-processor';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import { Wallet, providers, BigNumber } from 'ethers';
 
@@ -541,12 +542,22 @@ describe('ERC20 localhost request creation and detection test', () => {
   });
 
   it('can create ERC20 requests with any to erc20 proxy', async () => {
+    const tokenContractAddress = '0x38cf23c52bb4b13f051aec09580a2de845a7fa35';
+
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
+      currencies: [
+        ...CurrencyManager.getDefaultList(),
+        {
+          address: tokenContractAddress,
+          decimals: 18,
+          network: 'private',
+          symbol: 'localDAI',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+        },
+      ],
     });
-
-    const tokenContractAddress = '0x38cf23c52bb4b13f051aec09580a2de845a7fa35';
 
     const paymentNetworkAnyToERC20: PaymentTypes.IPaymentNetworkCreateParameters = {
       id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
