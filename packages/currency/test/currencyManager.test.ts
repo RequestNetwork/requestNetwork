@@ -146,6 +146,18 @@ describe('CurrencyManager', () => {
         '0xD3b71117E6C1558c1553305b44988cd944e97300 has several matches on matic, fantom. To avoid errors, specify a network.',
       );
     });
+
+    it('returns undefined for a known address on another network', () => {
+      expect(
+        defaultManager.fromAddress('0xFab46E002BbF0b4509813474841E0716E6730136'),
+      ).toBeDefined();
+      expect(
+        defaultManager.fromAddress('0xFab46E002BbF0b4509813474841E0716E6730136', 'rinkeby'),
+      ).toBeDefined();
+      expect(
+        defaultManager.fromAddress('0xFab46E002BbF0b4509813474841E0716E6730136', 'mainnet'),
+      ).not.toBeDefined();
+    });
   });
 
   describe('Extending currencies', () => {
