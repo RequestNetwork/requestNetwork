@@ -51,7 +51,8 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW]: {
+    //[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW]: {
+    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
       events: [],
     //id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_TIME_LOCKED_ESCROW,
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
@@ -126,21 +127,24 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
   
       await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
+        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request"
+        //'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
       );
     });
     it('Should throw an error if the currencyInfo has no value', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
+        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request"
+        //'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
       );
     });
     it('Should throw an error if currencyInfo has no network', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.network = '';
       await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
+        //'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
+        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request"
       );
     });
     it('Should throw an error if request has no extension', async () => {
