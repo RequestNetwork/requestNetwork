@@ -544,19 +544,20 @@ describe('ERC20 localhost request creation and detection test', () => {
   it('can create ERC20 requests with any to erc20 proxy', async () => {
     const tokenContractAddress = '0x38cf23c52bb4b13f051aec09580a2de845a7fa35';
 
+    const currencies = [
+      ...CurrencyManager.getDefaultList(),
+      {
+        address: tokenContractAddress,
+        decimals: 18,
+        network: 'private',
+        symbol: 'localDAI',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+      },
+    ];
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
-      currencies: [
-        ...CurrencyManager.getDefaultList(),
-        {
-          address: tokenContractAddress,
-          decimals: 18,
-          network: 'private',
-          symbol: 'localDAI',
-          type: RequestLogicTypes.CURRENCY.ERC20,
-        },
-      ],
+      currencies,
     });
 
     const paymentNetworkAnyToERC20: PaymentTypes.IPaymentNetworkCreateParameters = {
@@ -600,6 +601,7 @@ describe('ERC20 localhost request creation and detection test', () => {
         network: 'private',
       },
       maxToSpend,
+      currencyManager: new CurrencyManager(currencies),
     });
     await paymentTx.wait();
 

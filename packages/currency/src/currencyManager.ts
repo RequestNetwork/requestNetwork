@@ -15,6 +15,9 @@ import {
 
 const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
+/**
+ * Handles a list of currencies and provide features to retrieve them, as well as convert to/from storage format
+ */
 export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta> {
   private knownCurrencies: CurrencyDefinition<TMeta>[];
   private legacyTokens: LegacyTokenMap;
@@ -26,6 +29,12 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
   }
 
+  /**
+   * Gets a supported currency from a symbol, symbol-network or address.
+   *
+   * @param symbolOrAddress e.g. 'DAI', 'FAU', 'FAU-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
+   * @param network e.g. rinkeby, mainnet
+   */
   from(symbolOrAddress: string, network?: string): CurrencyDefinition<TMeta> | undefined {
     if (utils.isAddress(symbolOrAddress)) {
       return this.fromAddress(symbolOrAddress, network);
@@ -38,6 +47,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     );
   }
 
+  /**
+   * Gets a supported currency from its address and network.
+   * If more than 1 currencies are found, undefined is returned
+   */
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined {
     address = utils.getAddress(address);
     const matches = this.knownCurrencies.filter(
@@ -53,6 +66,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return matches[0];
   }
 
+  /**
+   * Gets a supported currency from its symbol and network.
+   */
   fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined {
     symbol = symbol.toUpperCase();
     network = network?.toLowerCase();
@@ -69,6 +85,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     );
   }
 
+  /**
+   * Retrieves a currency given its storage format (ICurrency)
+   */
   fromStorageCurrency(currency: StorageCurrency): CurrencyDefinition<TMeta> | undefined {
     if (!currency) {
       return;
@@ -86,6 +105,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     );
   }
 
+  /**
+   * Adds computed parameters to a CurrencyInput
+   */
   static fromInput<TMeta = unknown>({
     id,
     hash,
@@ -100,10 +122,16 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     };
   }
 
+  /**
+   * Utility function to compute the unique
+   */
   static currencyId(currency: CurrencyInput): string {
     return 'network' in currency ? `${currency.symbol}-${currency.network}` : currency.symbol;
   }
 
+  /**
+   * Converts a currency to the storage format (ICurrency)
+   */
   static toStorageCurrency(currency: CurrencyInput): StorageCurrency {
     return {
       type: currency.type,
@@ -112,6 +140,15 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     };
   }
 
+  /**
+   * Returns the list of currencies supported by Request out of the box
+   * Contains:
+   * - ISO currencies
+   * - ERC20 currencies from Metamask/contract-metadata + some additional tokens
+   * - ETH, & some EVM-compatible chains native tokens
+   * - NEAR, YEL, ZIL, BTC
+   * - ETH-rinkeby, FAU-rinkeby, CTBK-rinkeby
+   */
   static getDefaultList(): CurrencyDefinition[] {
     const isoCurrencies: CurrencyInput[] = iso4217.map((cc) => ({
       decimals: cc.digits,
@@ -133,6 +170,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       .map(CurrencyManager.fromInput);
   }
 
+  /**
+   * Returns the default list of legacy names (for symbol or network)
+   */
   static getDefaultLegacyTokens(): LegacyTokenMap {
     return {
       near: {
@@ -141,6 +181,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     };
   }
 
+  /**
+   * Returns a default instance of CurrencyManager based on default lists
+   */
   static getDefault(): CurrencyManager {
     return new CurrencyManager(
       CurrencyManager.getDefaultList(),

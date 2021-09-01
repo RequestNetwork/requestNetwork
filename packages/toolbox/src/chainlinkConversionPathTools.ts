@@ -5,7 +5,7 @@ import {
   ChainlinkConversionPath__factory,
   ChainlinkConversionPath,
 } from '@requestnetwork/smart-contracts/types';
-import { CurrencyManager, getCurrencyHash } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import iso4217 from '@requestnetwork/currency/dist/iso4217';
 
@@ -119,17 +119,17 @@ const getCurrency = (symbol: string) => {
   if (!currency) {
     throw new Error(`Currency ${symbol} not found`);
   }
-  return CurrencyManager.toStorageCurrency(currency);
+  return currency;
 };
 
 // Record currency [currency hash] => {value (address or symbol), type}
 const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH'].reduce((prev, symbol) => {
   const currency = getCurrency(symbol);
-  const hash = getCurrencyHash(currency);
+
   return {
     ...prev,
-    [hash.toLowerCase()]: {
-      value: currency.value,
+    [currency.hash.toLowerCase()]: {
+      value: CurrencyManager.toStorageCurrency(currency).value,
       type: currency.type,
     },
   };
@@ -207,6 +207,6 @@ export const showCurrencyHash = async (options?: IOptions): Promise<void> => {
   const currency = getCurrency(options.currencyCode);
   console.log('#####################################################################');
   console.log(`Currency hash of: ${options.currencyCode}`);
-  console.log(getCurrencyHash(currency));
+  console.log(currency.hash);
   console.log('#####################################################################');
 };
