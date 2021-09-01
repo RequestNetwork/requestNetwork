@@ -72,6 +72,7 @@ export enum ID {
   PAYMENT_NETWORK_NATIVE_TOKEN = 'pn-native-token',
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
   PAYMENT_NETWORK_ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
+  PAYMENT_NETWORK_ERC20_TIME_LOCKED_ESCROW = 'pn-erc20-time-lock-escrow',
 }
 
 /** Type of extensions */
