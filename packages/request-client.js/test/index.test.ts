@@ -1874,7 +1874,7 @@ describe('index', () => {
     });
   });
 
-  fdescribe('Token lists', () => {
+  describe('Token lists', () => {
     const testErc20Data = {
       ...TestData.parametersWithoutExtensionsData,
       currency: {

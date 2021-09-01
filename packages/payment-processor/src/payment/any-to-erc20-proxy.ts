@@ -13,7 +13,7 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { padAmountForChainlink, getChainlinkPaddingSize } from '@requestnetwork/payment-detection';
+import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 
 /**
  * Details required to pay a request with on-chain conversion:
@@ -123,15 +123,8 @@ export function encodePayAnyToErc20ProxyRequest(
     maxRateTimespan,
   } = getRequestPaymentValues(request);
 
-  const decimals = requestCurrency.decimals;
-  const amountToPay = padAmountForChainlink(
-    getAmountToPay(request, amount),
-    getChainlinkPaddingSize(requestCurrency.type, decimals),
-  );
-  const feeToPay = padAmountForChainlink(
-    feeAmountOverride || feeAmount || 0,
-    getChainlinkPaddingSize(requestCurrency.type, decimals),
-  );
+  const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
+  const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
 
   const proxyAddress = erc20ConversionProxy.getAddress(paymentSettings.currency.network);
   const proxyContract = Erc20ConversionProxy__factory.connect(proxyAddress, signer);

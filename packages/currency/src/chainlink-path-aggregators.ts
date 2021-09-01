@@ -196,8 +196,8 @@ const currencyPairs: any = {
  * @returns conversion path
  */
 export function getPath(
-  currencyFrom: CurrencyDefinition,
-  currencyTo: CurrencyDefinition,
+  currencyFrom: Pick<CurrencyDefinition, 'hash'>,
+  currencyTo: Pick<CurrencyDefinition, 'hash'>,
   network = 'mainnet',
 ): string[] | null {
   if (!currencyPairs[network]) {

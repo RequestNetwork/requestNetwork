@@ -13,43 +13,35 @@ describe('conversion: padding amounts for Chainlink', () => {
   it('should pad fiat amounts', () => {
     const requestCurrency = currencyManager.fromSymbol('EUR')!;
     const twentyEur = '2000';
-    expect(padAmountForChainlink(twentyEur, requestCurrency.decimals).toString()).toBe(
-      '2000000000',
-    );
+    expect(padAmountForChainlink(twentyEur, requestCurrency).toString()).toBe('2000000000');
   });
   it('should unpad fiat amounts', () => {
-    const requestCurrency = currencyManager.fromSymbol('EUR');
-    expect(unpadAmountFromChainlink('2000000000', requestCurrency.decimals).toString()).toBe(
-      '2000',
-    );
+    const requestCurrency = currencyManager.fromSymbol('EUR')!;
+    expect(unpadAmountFromChainlink('2000000000', requestCurrency).toString()).toBe('2000');
   });
   it('should not pad crypto amounts (ETH)', () => {
     const requestCurrency = currencyManager.fromSymbol('ETH')!;
     const twentyEth = '20000000000000000000';
-    expect(padAmountForChainlink(twentyEth, requestCurrency.decimals).toString()).toBe(twentyEth);
+    expect(padAmountForChainlink(twentyEth, requestCurrency).toString()).toBe(twentyEth);
   });
   it('should not unpad fiat amounts (ETH)', () => {
     const requestCurrency = currencyManager.fromSymbol('ETH')!;
     const twentyEth = '20000000000000000000';
-    expect(unpadAmountFromChainlink(twentyEth, requestCurrency.decimals).toString()).toBe(
-      twentyEth,
-    );
+    expect(unpadAmountFromChainlink(twentyEth, requestCurrency).toString()).toBe(twentyEth);
   });
   it('should not pad crypto amounts (DAI)', () => {
     const requestCurrency = currencyManager.fromSymbol('DAI')!;
     const twentyDai = '20000000000000000000';
-    expect(padAmountForChainlink(twentyDai, requestCurrency.decimals).toString()).toBe(twentyDai);
+    expect(padAmountForChainlink(twentyDai, requestCurrency).toString()).toBe(twentyDai);
   });
   it('should not unpad crypto amounts (DAI)', () => {
     const requestCurrency = currencyManager.fromSymbol('DAI')!;
     const twentyDai = '20000000000000000000';
-    expect(unpadAmountFromChainlink(twentyDai, requestCurrency.decimals).toString()).toBe(
-      twentyDai,
-    );
+    expect(unpadAmountFromChainlink(twentyDai, requestCurrency).toString()).toBe(twentyDai);
   });
   it('should not pad crypto amounts (USDC)', () => {
     const requestCurrency = currencyManager.fromSymbol('USDC')!;
     const twentyUsdc = '20000000';
-    expect(padAmountForChainlink(twentyUsdc, requestCurrency.decimals).toString()).toBe(twentyUsdc);
+    expect(padAmountForChainlink(twentyUsdc, requestCurrency).toString()).toBe(twentyUsdc);
   });
 });

@@ -1,3 +1,4 @@
+import { CurrencyDefinition } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish } from 'ethers';
 import { LogDescription } from 'ethers/lib/utils';
@@ -15,20 +16,26 @@ export const parseLogArgs = <T>({ args, eventFragment }: LogDescription): T => {
 /**
  * Pads an amount to match Chainlink's own currency decimals (eg. for fiat amounts).
  */
-export const padAmountForChainlink = (amount: BigNumberish, paddingSize: number): BigNumber => {
+export const padAmountForChainlink = (
+  amount: BigNumberish,
+  currency: Pick<CurrencyDefinition, 'decimals' | 'type'>,
+): BigNumber => {
   // eslint-disable-next-line no-magic-numbers
-  return BigNumber.from(amount).mul(10 ** paddingSize);
+  return BigNumber.from(amount).mul(10 ** getChainlinkPaddingSize(currency));
 };
 
-export const unpadAmountFromChainlink = (amount: BigNumberish, paddingSize: number): BigNumber => {
+export const unpadAmountFromChainlink = (
+  amount: BigNumberish,
+  currency: Pick<CurrencyDefinition, 'decimals' | 'type'>,
+): BigNumber => {
   // eslint-disable-next-line no-magic-numbers
-  return BigNumber.from(amount).div(10 ** paddingSize);
+  return BigNumber.from(amount).div(10 ** getChainlinkPaddingSize(currency));
 };
 
-export const getChainlinkPaddingSize = (
-  type: RequestLogicTypes.CURRENCY,
-  decimals: number,
-): number => {
+const getChainlinkPaddingSize = ({
+  type,
+  decimals,
+}: Pick<CurrencyDefinition, 'decimals' | 'type'>): number => {
   switch (type) {
     case RequestLogicTypes.CURRENCY.ISO4217: {
       const chainlinkFiatDecimal = 8;

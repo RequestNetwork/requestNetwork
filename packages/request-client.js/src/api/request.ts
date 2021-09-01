@@ -747,8 +747,6 @@ export default class Request {
       contentData: this.contentData,
       currency: currency ? currency.symbol : 'unknown',
       currencyInfo: requestData.currency,
-      // TODO
-      currencyDetails: currency,
       meta: this.requestMeta,
       pending,
     });
