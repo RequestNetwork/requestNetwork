@@ -134,7 +134,7 @@ describe('swap-any-to-erc20', () => {
             swap: validSwapSettings,
           }),
         ).rejects.toThrowError(
-          `Impossible to find a conversion path between from ${request.currencyInfo} to ${validConversionSettings.currency}`,
+          /Impossible to find a conversion path between from XXX \(0x.*\) to ERC20_1 \(0x.*\)/,
         );
     });
 

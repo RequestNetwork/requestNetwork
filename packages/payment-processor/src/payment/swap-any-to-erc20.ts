@@ -104,7 +104,7 @@ export function encodeSwapToPayAnyToErc20Request(
   const path = getConversionPath(requestCurrency, paymentCurrency, network);
   if (!path) {
     throw new Error(
-      `Impossible to find a conversion path between from ${request.currencyInfo} to ${conversionSettings.currency}`,
+      `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
     );
   }
   validateConversionFeeProxyRequest(request, path);
