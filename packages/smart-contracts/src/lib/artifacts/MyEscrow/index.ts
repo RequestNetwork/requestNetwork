@@ -17,8 +17,8 @@ export const myEscrowArtifact = new ContractArtifact<MyEscrow>(
           creationBlockNumber: 10774767,
         },
         rinkeby: {
-          address: 'TODO',
-          creationBlockNumber: 7118080,
+          address: '0xE4c4bDA12049e7Ed741d3Fa91F311265E87fB32e',
+          creationBlockNumber: 9221352,
         },
       },
     },
