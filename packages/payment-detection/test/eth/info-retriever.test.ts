@@ -1,6 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import EthInfoRetriever from '../../src/eth/info-retriever';
-import { NearInfoRetriever } from '../../src/eth/near-info-retriever';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 
 describe('api/eth/info-retriever', () => {
@@ -82,26 +81,6 @@ describe('api/eth/info-retriever', () => {
       expect(events).toHaveLength(1);
 
       expect(events[0].amount).toBe('1000000000000000');
-    });
-
-    it.only('can detect a NEAR payment', async () => {
-      const paymentAddress = 'benji.testnet';
-      const paymentReference = PaymentReferenceCalculator.calculate(
-        '0124dc29327931e5d7631c2d866ee62d79a3b38e2b9976e4e218ebd1ece83c9d5d',
-        'a1a2a3a4a5a6a7a8',
-        paymentAddress,
-      );
-
-      const infoRetriever = new NearInfoRetriever(
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'aurora-testnet',
-        paymentReference,
-      );
-      const events = await infoRetriever.getTransferEvents();
-      expect(events).toHaveLength(2);
-
-      expect(events[0].amount).toBe('3141593000000000000000000');
     });
   });
 });

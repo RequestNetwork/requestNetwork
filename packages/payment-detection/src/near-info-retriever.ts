@@ -1,35 +1,34 @@
-// @ts-nocheck
 import { PaymentTypes } from '@requestnetwork/types';
 import { Connection } from 'autobahn';
 
+const NEAR_WEB_SOCKET_URL = 'wss://near-explorer-wamp.onrender.com/ws';
+
 /**
- * Gets a list of transfer events for an address and payment reference
+ * Gets a list of transfer events for a set of Near payment details
  */
 export class NearInfoRetriever {
-  private contractName: ReturnType<typeof getNearContractName>;
-  private procedureName: ReturnType<typeof getProcedureName>;
   private nearWebSocketUrl: string;
   /**
+   * @param paymentReference The reference to identify the payment
    * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
-   * @param paymentReference The reference to identify the payment
    */
   constructor(
-    private paymentAddress: string,
+    private paymentReference: string,
+    private toAddress: string,
+    private proxyContractName: string,
+    private procedureName: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
-    private paymentReference: string,
   ) {
     if (this.network !== 'aurora' && this.network !== 'aurora-testnet') {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
-    this.contractName = getNearContractName(this.network);
-    this.procedureName = getProcedureName(this.network);
-    this.nearWebSocketUrl = 'wss://near-explorer-wamp.onrender.com/ws';
+    this.nearWebSocketUrl = NEAR_WEB_SOCKET_URL;
   }
 
-  public async getTransferEvents() {
+  public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
     const events = await this.getTransactionsFromNearIndexerDatabase();
     return events.map((transaction) => ({
       amount: transaction.amount,
@@ -49,14 +48,6 @@ export class NearInfoRetriever {
    * Documentation: https://github.com/near/near-indexer-for-explorer/blob/master/docs/near-indexer-for-explorer-db.png
    */
   private async getTransactionsFromNearIndexerDatabase(): Promise<NearIndexerTransaction[]> {
-    // _callback: (transactions: NearIndexerTransaction[]) => void,
-    // try {
-    //   // for Node.js
-    //   var autobahn = require('autobahn');
-    // } catch (e) {
-    //   // for browsers (where AutobahnJS is available globally)
-    //   throw new Error('TODO Autobahn');
-    // }
     const query = `SELECT t.transaction_hash as "txHash",
         b.block_height as block,
         t.block_timestamp as "blockTimestamp",
@@ -95,8 +86,8 @@ export class NearInfoRetriever {
             .call(this.procedureName, [
               query,
               {
-                contractName: this.contractName,
-                paymentAddress: this.paymentAddress,
+                contractName: this.proxyContractName,
+                paymentAddress: this.toAddress,
                 paymentReference: `0x${this.paymentReference}`,
               },
             ])
@@ -105,10 +96,10 @@ export class NearInfoRetriever {
               resolve(data as NearIndexerTransaction[]);
             })
             .catch((err: Error) => {
-              throw Error(reason);
+              reject(`Could not connect to Near indexer web socket: ${err.message}.\n${err.stack}`);
             });
         };
-        connection.onclose = (reason, details) => {
+        connection.onclose = (reason) => {
           if (reason === 'unsupported' || reason === 'unreachable') {
             reject(`Could not connect to Near indexer web socket: ${reason}`);
           }
@@ -121,28 +112,6 @@ export class NearInfoRetriever {
     });
   }
 }
-
-export const getNearContractName = (chainName: string) => {
-  switch (chainName) {
-    case 'aurora':
-      return 'request-network';
-    case 'aurora-testnet':
-      return 'dev-1626339335241-5544297';
-    default:
-      throw Error(`Unconfigured chain '${chainName}'.`);
-  }
-};
-
-const getProcedureName = (chainName: string) => {
-  // Public NEAR Indexer database (see: https://github.com/near/near-indexer-for-explorer)
-  switch (chainName) {
-    case 'aurora':
-      return 'com.nearprotocol.mainnet.explorer.select:INDEXER_BACKEND';
-    case 'aurora-testnet':
-      return 'com.nearprotocol.testnet.explorer.select:INDEXER_BACKEND';
-  }
-  throw new Error(`Invalid chain name '${chainName} for Near info retriever.`);
-};
 
 export type NearIndexerTransaction = {
   txHash: string;

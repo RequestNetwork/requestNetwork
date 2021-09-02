@@ -23,7 +23,7 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
    * @param {string} address address to check
    * @returns {boolean} true if address is valid
    */
-  protected isValidAddress(address: string, networkName?: string): boolean {
+  public isValidAddress(address: string, networkName?: string): boolean {
     switch (networkName) {
       case 'aurora':
         return this.isValidMainnet(address);

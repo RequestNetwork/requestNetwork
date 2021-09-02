@@ -1,14 +1,17 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AbstractExtension from '../abstract-extension';
 import Utils from '@requestnetwork/utils';
+import { PnAddressBased } from 'types/src/extension-types';
 
 /**
  * Core of the address based payment networks
  * This module is called by the address based payment networks to avoid code redundancy
  */
 export default abstract class AddressBasedPaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
-> extends AbstractExtension<TCreationParameters> {
+    TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
+  >
+  extends AbstractExtension<TCreationParameters>
+  implements PnAddressBased.IAddressBased<TCreationParameters> {
   public constructor(
     public extensionId: ExtensionTypes.ID,
     public currentVersion: string,
@@ -148,7 +151,7 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  protected abstract isValidAddress(_address: string, _networkName?: string): boolean;
+  public abstract isValidAddress(_address: string, _networkName?: string): boolean;
 
   /**
    * Applies add payment address

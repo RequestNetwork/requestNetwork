@@ -30,7 +30,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     anyToErc20Proxy: new AnyToErc20Proxy(),
     declarative: new Declarative(),
     ethereumInputData: new EthereumInputData(),
-    nativeTokens: [new NearNative()],
+    nativeToken: [new NearNative()],
     feeProxyContractErc20: new FeeProxyContractErc20(),
     proxyContractErc20: new ProxyContractErc20(),
   };
@@ -53,6 +53,21 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): RequestLogicTypes.IExtensionStates {
+    const extension = this.getExtensionForActionAndState(extensionAction, requestState);
+
+    return extension.applyActionToExtension(
+      extensionsState,
+      extensionAction,
+      requestState,
+      actionSigner,
+      timestamp,
+    );
+  }
+
+  protected getExtensionForActionAndState(
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+  ): ExtensionTypes.IExtension<any> {
     const id: ExtensionTypes.ID = extensionAction.id;
     const extension: ExtensionTypes.IExtension | undefined = {
       [ExtensionTypes.ID.CONTENT_DATA]: this.extensions.contentData,
@@ -66,7 +81,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         .feeProxyContractErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: this.extensions.ethereumInputData,
       [ExtensionTypes.ID
-        .PAYMENT_NETWORK_NATIVE_TOKEN]: this.getNativeTokenExtensionForStateAndAction(
+        .PAYMENT_NETWORK_NATIVE_TOKEN]: this.getNativeTokenExtensionForActionAndState(
         extensionAction,
         requestState,
       ),
@@ -81,17 +96,10 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       }
       throw Error(`extension not recognized, id: ${id}`);
     }
-
-    return extension.applyActionToExtension(
-      extensionsState,
-      extensionAction,
-      requestState,
-      actionSigner,
-      timestamp,
-    );
+    return extension;
   }
 
-  protected getNativeTokenExtensionForStateAndAction(
+  protected getNativeTokenExtensionForActionAndState(
     extensionAction: ExtensionTypes.IAction,
     requestState: RequestLogicTypes.IRequest,
   ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
@@ -106,7 +114,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     }
     const network = requestState.currency.network ?? extensionAction.parameters.paymentNetworkName;
     return network
-      ? this.extensions.nativeTokens.find((nativeTokenExtension) =>
+      ? this.extensions.nativeToken.find((nativeTokenExtension) =>
           nativeTokenExtension.supportedNetworks.includes(network),
         )
       : undefined;

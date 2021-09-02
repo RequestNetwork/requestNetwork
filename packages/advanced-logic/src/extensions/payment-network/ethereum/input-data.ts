@@ -34,7 +34,7 @@ export default class EthInputPaymentNetwork extends ReferenceBasedPaymentNetwork
    * @param {string} address address to check
    * @returns {boolean} true if address is valid
    */
-  protected isValidAddress(address: string): boolean {
+  public isValidAddress(address: string): boolean {
     return walletAddressValidator.validate(address, 'ethereum');
   }
 }
