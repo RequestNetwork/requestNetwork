@@ -34,7 +34,7 @@ export const testerc20FeeProxyArtifact = new ContractArtifact<TestERC20FeeProxy>
           creationBlockNumber: 10774767,
         },
         rinkeby: {
-          address: 'TODO',
+          address: '0xda46309973bFfDdD5a10cE12c44d2EE266f45A44',
           creationBlockNumber: 7118080,
         },
       },
