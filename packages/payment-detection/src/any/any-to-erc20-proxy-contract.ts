@@ -24,7 +24,9 @@ class VersionNotSupported extends Error {}
 /**
  * Handle payment networks with conversion proxy contract extension
  */
-export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProxyContract<ExtensionTypes.PnAnyToErc20.IAnyToERC20> {
+export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProxyContract<
+  ExtensionTypes.PnAnyToErc20.IAnyToERC20
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */

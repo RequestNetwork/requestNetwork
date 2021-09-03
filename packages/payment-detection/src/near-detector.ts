@@ -16,7 +16,9 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment
  */
-export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
+  PaymentTypes.IETHPaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extension
    */
@@ -24,10 +26,7 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
     super(advancedLogic.extensions.nativeToken[0], ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN);
   }
 
-  public static getNearContractName = (
-    chainName: string,
-    paymentNetworkVersion = '0.1.0',
-  ) => {
+  public static getNearContractName = (chainName: string, paymentNetworkVersion = '0.1.0') => {
     NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     switch (chainName) {
       case 'aurora':

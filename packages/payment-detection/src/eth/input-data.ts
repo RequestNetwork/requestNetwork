@@ -19,7 +19,9 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<
+  PaymentTypes.IETHPaymentEventParameters
+> {
   private explorerApiKeys: Record<string, string>;
   /**
    * @param extension The advanced logic payment network extensions
