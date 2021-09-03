@@ -12,7 +12,6 @@ export interface IAddressBased<TCreationParameters = ICreationParameters>
   createCreationAction: (
     creationParameters: TCreationParameters,
   ) => Extension.IAction<TCreationParameters>;
-  isValidAddress: (address: string) => boolean;
   supportedNetworks: string[];
 }
 

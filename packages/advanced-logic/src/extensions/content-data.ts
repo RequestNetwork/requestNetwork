@@ -31,9 +31,9 @@ export default class ContentDataExtension<
       throw Error('No content has been given for the extension content-data');
     }
 
-    return super.createCreationAction(creationParameters) as ExtensionTypes.IAction<
-      TCreationParameters
-    >;
+    return super.createCreationAction(
+      creationParameters,
+    ) as ExtensionTypes.IAction<TCreationParameters>;
   }
 
   /**

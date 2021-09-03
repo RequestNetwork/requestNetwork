@@ -151,7 +151,7 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  public abstract isValidAddress(_address: string, _networkName?: string): boolean;
+  protected abstract isValidAddress(_address: string, _networkName?: string): boolean;
 
   /**
    * Applies add payment address
