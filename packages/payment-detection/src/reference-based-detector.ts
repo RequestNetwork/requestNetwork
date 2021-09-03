@@ -163,9 +163,8 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   }
 
   /**
-   * Extracts the balance and events matchin an address and a payment reference
+   * Extracts the balance and events matching an address and a payment reference
    *
-   * @private
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
@@ -204,9 +203,8 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   }
 
   /**
-   * Extracts payment events of an address
+   * Extracts payment events of an address matching an address and a payment reference
    *
-   * @private
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
