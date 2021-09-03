@@ -31,13 +31,13 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
     paymentNetworkCreationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
-    const salt =
+    paymentNetworkCreationParameters.salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
     return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,
-      salt,
+      ...paymentNetworkCreationParameters,
     });
   }
 
