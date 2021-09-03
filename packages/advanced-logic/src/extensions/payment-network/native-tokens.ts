@@ -28,13 +28,13 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
       creationParameters.paymentAddress &&
       !this.isValidAddress(creationParameters.paymentAddress, networkName)
     ) {
-      throw new InvalidPaymentAddressError();
+      throw new InvalidPaymentAddressError(creationParameters.paymentAddress);
     }
     if (
       creationParameters.refundAddress &&
       !this.isValidAddress(creationParameters.refundAddress, networkName)
     ) {
-      throw new InvalidPaymentAddressError('refundAddress');
+      throw new InvalidPaymentAddressError(creationParameters.refundAddress, 'refundAddress');
     }
     return super.createCreationAction(creationParameters);
   }
