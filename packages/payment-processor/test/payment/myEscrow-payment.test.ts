@@ -51,10 +51,8 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    //[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW]: {
     [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
       events: [],
-    //id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_TIME_LOCKED_ESCROW,
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
@@ -127,7 +125,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
   
       await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
-        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request"
+        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
         //'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
       );
     });
@@ -135,7 +133,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
-        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request"
+        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
         //'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
       );
     });
@@ -144,7 +142,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       request.currencyInfo.network = '';
       await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
         //'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
-        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request"
+        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
       );
     });
     it('Should throw an error if request has no extension', async () => {
@@ -173,27 +171,26 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       wallet.sendTransaction = originalSendTransaction;
     });
     it('Should let the payer to initAndDeposit an new MyEscrow', async () => {
-      const request = Utils.deepCopy(validRequest);
-      let values = getRequestPaymentValues(request);
+      let values = getRequestPaymentValues(validRequest);
     
       // first approve the contract
-      const approvalTx = await approveErc20(request, wallet);
+      const approvalTx = await approveErc20(validRequest, wallet);
       if(approvalTx) {
         await approvalTx.wait(1);
       };
       
       // Get the balance to compare after payment
-      const payerBalanceErc20Before = await getErc20Balance(request, wallet.address, provider);
-      const payeeBalanceErc20Before = await getErc20Balance(request, values.paymentAddress, provider);
-      const EscrowBalanceErc20Before = await getErc20Balance(request, escrowAddress, provider);
+      const payerBalanceErc20Before = await getErc20Balance(validRequest, wallet.address, provider);
+      const payeeBalanceErc20Before = await getErc20Balance(validRequest, values.paymentAddress, provider);
+      const EscrowBalanceErc20Before = await getErc20Balance(validRequest, escrowAddress, provider);
       
       // Execute the initAndDeposit function call
-      expect(await initAndDepositRequest(request, wallet));
+      expect(await initAndDepositRequest(validRequest, wallet));
       
       // Get the balance to compare after payment
-      const payerBalanceErc20After = await getErc20Balance(request, wallet.address, provider);
-      const payeeBalanceErc20After = await getErc20Balance(request, values.paymentAddress, provider);
-      const EscrowBalanceErc20After = await getErc20Balance(request, escrowAddress, provider);
+      const payerBalanceErc20After = await getErc20Balance(validRequest, wallet.address, provider);
+      const payeeBalanceErc20After = await getErc20Balance(validRequest, values.paymentAddress, provider);
+      const EscrowBalanceErc20After = await getErc20Balance(validRequest, escrowAddress, provider);
 
       console.log(`
       --------   Ref: 0x${values.paymentReference} : InitAndDepositRequest ---------
@@ -217,20 +214,19 @@ describe('*CONTRACT: MyEscrow.sol', () => {
   
   describe('*EXECUTE: WithdrawFundsRequest: ', () => {
     it('should Withdraw funds from the MyEscrow: ', async () => {
-      const request = Utils.deepCopy(validRequest);
       const values = getRequestPaymentValues(validRequest);
       // get the balance to compare after payment
-      const payerBalanceErc20Before = await getErc20Balance(request, wallet.address, provider);
-      const payeeBalanceErc20Before = await getErc20Balance(request, values.paymentAddress, provider);
-      const EscrowBalanceErc20Before = await getErc20Balance(request, escrowAddress, provider);
-      const FeeBalanceErc20Before = await getErc20Balance(request, values.feeAddress, provider);
+      const payerBalanceErc20Before = await getErc20Balance(validRequest, wallet.address, provider);
+      const payeeBalanceErc20Before = await getErc20Balance(validRequest, values.paymentAddress, provider);
+      const EscrowBalanceErc20Before = await getErc20Balance(validRequest, escrowAddress, provider);
+      const FeeBalanceErc20Before = await getErc20Balance(validRequest, values.feeAddress, provider);
       
       await withdrawFundsRequest(validRequest, wallet);
       
-      const payerBalanceErc20After = await getErc20Balance(request, wallet.address, provider);
-      const payeeBalanceErc20After = await getErc20Balance(request, values.paymentAddress, provider);
-      const EscrowBalanceErc20After = await getErc20Balance(request, escrowAddress, provider);
-      const FeeBalanceErc20After = await getErc20Balance(request, values.feeAddress, provider);
+      const payerBalanceErc20After = await getErc20Balance(validRequest, wallet.address, provider);
+      const payeeBalanceErc20After = await getErc20Balance(validRequest, values.paymentAddress, provider);
+      const EscrowBalanceErc20After = await getErc20Balance(validRequest, escrowAddress, provider);
+      const FeeBalanceErc20After = await getErc20Balance(validRequest, values.feeAddress, provider);
       
       console.log(`
       --------    Ref: 0x${values.paymentReference} : WithdrawFundsRequest    ---------
@@ -259,12 +255,12 @@ describe('*CONTRACT: MyEscrow.sol', () => {
 
   describe('*EXECUTE: InitLockedPeriodRequest: ', () => {
     it('should add to disputeMapping and create a new TokenTimelockContract: ', async () => {
-      const request = Utils.deepCopy(validRequest);
+
       // Initiates a new escrow
-      await (await initAndDepositRequest(request, wallet)).wait(1);
+      await (await initAndDepositRequest(validRequest, wallet)).wait(1);
      
       // Lock the escrowed funds in a new TokenTimeLock contract 
-      await (await initLockPeriodRequest(request, wallet)).wait(1);
+      await (await initLockPeriodRequest(validRequest, wallet)).wait(1);
      
     });
     it('should return the disputeMapping: ', async () => {

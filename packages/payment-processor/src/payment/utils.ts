@@ -124,12 +124,10 @@ const {
   ETH_INPUT_DATA,
   ERC20_FEE_PROXY_CONTRACT,
   ANY_TO_ERC20_PROXY,
-  ERC20_TIME_LOCKED_ESCROW,
 } = PaymentTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ERC20_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
-  [ERC20_TIME_LOCKED_ESCROW]: RequestLogicTypes.CURRENCY.ERC20,
   [ETH_INPUT_DATA]: RequestLogicTypes.CURRENCY.ETH,
 };
 
@@ -157,16 +155,12 @@ export function validateRequest(
 
   // ERC20 based payment networks are only valid if the request currency has a value
   const validCurrencyValue =
-    (paymentNetworkId !== ERC20_PROXY_CONTRACT &&
-      paymentNetworkId !== ERC20_FEE_PROXY_CONTRACT &&
-      paymentNetworkId !== ERC20_TIME_LOCKED_ESCROW) ||
+    (paymentNetworkId !== ERC20_PROXY_CONTRACT && paymentNetworkId !== ERC20_FEE_PROXY_CONTRACT) ||
     request.currencyInfo.value;
 
   // Payment network with fees should have both or none of fee address and fee amount
   const validFeeParams =
-    (paymentNetworkId !== ANY_TO_ERC20_PROXY &&
-      paymentNetworkId !== ERC20_FEE_PROXY_CONTRACT &&
-      paymentNetworkId !== ERC20_TIME_LOCKED_ESCROW) ||
+    (paymentNetworkId !== ANY_TO_ERC20_PROXY && paymentNetworkId !== ERC20_FEE_PROXY_CONTRACT) ||
     !!feeAddress === !!feeAmount;
 
   if (!validFeeParams) {
