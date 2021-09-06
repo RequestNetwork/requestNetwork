@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
 
 import { myEscrowArtifact } from '@requestnetwork/smart-contracts';
-import { MyEscrow__factory } from '@requestnetwork/smart-contracts/types/types';
+import { MyEscrow__factory } from '@requestnetwork/smart-contracts/types/';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
@@ -43,7 +44,7 @@ export async function initAndDepositRequest(
     value: 0,
     ...overrides,
   });
-  //console.log(tx);
+  console.log(tx);
   return tx;
 }
 
@@ -68,7 +69,7 @@ export async function initLockPeriodRequest(
     value: 0,
     ...overrides,
   });
-  // console.log(tx);
+  console.log(tx);
   return tx;
 }
 
@@ -93,7 +94,7 @@ export async function withdrawFundsRequest(
     value: 0,
     ...overrides,
   });
-  // console.log(tx);
+  console.log(tx);
   return tx;
 }
 
@@ -118,7 +119,7 @@ export async function withdrawLockedFundsRequest(
     value: 0,
     ...overrides,
   });
-  // console.log(tx);
+  console.log(tx);
   return tx;
 }
 
@@ -143,7 +144,7 @@ export async function disputeMappingRequest(
     value: 0,
     ...overrides,
   });
-  // console.log(tx);
+  console.log(tx);
   return tx;
 }
 
