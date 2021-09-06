@@ -8,7 +8,7 @@ import { config } from 'dotenv';
 import deployRequest from './scripts/1_deploy-request-storage';
 import deployPayment from './scripts/2_deploy-main-payments';
 import deployConversion from './scripts/3_deploy_chainlink_contract';
-//import deployEscrow from './scripts/4_deploy_myescrow_contract';
+import deployEscrow from './scripts/4_deploy_myescrow_contract';
 
 config();
 
@@ -47,6 +47,6 @@ task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hr
   await deployRequest(args, hre);
   await deployPayment(args, hre);
   await deployConversion(args, hre);
-  //await deployEscrow(args, hre);
+  await deployEscrow(args, hre);
   console.log('All contracts (re)deployed locally');
 });

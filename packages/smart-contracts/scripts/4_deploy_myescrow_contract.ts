@@ -4,7 +4,7 @@ import { deployOne } from './deploy-one';
 import {
   MyEscrow__factory,
   MyEscrow
-} from '../src/lib/a';
+} from '../src/types';
 
 export default async function deploy(arg: any, hre: HardhatRuntimeEnvironment) {
   // Assign the deployer
