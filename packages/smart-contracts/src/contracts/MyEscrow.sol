@@ -50,12 +50,12 @@ contract MyEscrow {
     event LockPeriodStarted(bytes indexed paymentReference, uint256 amount, address payee, address payer, IERC20 paymentToken, TokenTimelock tokentimelock);
     event LockPeriodEnded(bytes indexed paymentReference, uint256 amount, address payer, IERC20 paymentToken);
     
-    ITestERC20FeeProxy public paymentProxy;
+    IERC20FeeProxy public paymentProxy;
     TokenTimelock public tokentimelock;
 
 
     constructor(address payable _paymentProxyAddress) {
-        paymentProxy = ITestERC20FeeProxy(_paymentProxyAddress);
+        paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     }
 
 
