@@ -19,4 +19,3 @@ export * from './RequestHashSubmitter';
  * Request MyEscrow
  */
 export * from './MyEscrow';
-export * from './TestERC20FeeProxy';

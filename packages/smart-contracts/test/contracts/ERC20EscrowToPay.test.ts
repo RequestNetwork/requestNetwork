@@ -6,16 +6,16 @@ import {
   MyEscrow__factory,
   TestToken__factory,
   ERC20FeeProxy__factory,
-  TestERC20FeeProxy,
+  ERC20FeeProxy,
   TestToken,
   MyEscrow
 } from '../../src/types';
 
 use(solidity);
 
-describe("Contracts: TestToken, TestERC20FeeProxy, MyEscrow", () => {
+describe("Contracts: TestToken, ERC20FeeProxy, MyEscrow", () => {
   let paymentRef1: BytesLike, paymentRef2: BytesLike, feeAmount: number, amount: number;
-  let token: TestToken, myEscrow: MyEscrow, erc20FeeProxy: TestERC20FeeProxy;
+  let token: TestToken, myEscrow: MyEscrow, erc20FeeProxy: ERC20FeeProxy;
   let date: Date;
   let disputeMapping: any;
   let timelockBalance: BigNumber, payerBalanceNew: BigNumber, totalSupply: BigNumber, escrowBalance: BigNumber, feeAddressBalance: BigNumber, payerBalanceOld: BigNumber;
