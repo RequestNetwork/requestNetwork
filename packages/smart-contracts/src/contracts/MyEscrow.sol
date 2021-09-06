@@ -4,7 +4,7 @@ pragma solidity 0.8.6;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
-import "./interface/TestERC20FeeProxy.sol";
+import "./interfaces/ERC20FeeProxy.sol";
 
 
 /// @title Invoice based escrow smart-contract
