@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { ethers } from 'hardhat';
 import { BigNumber, BytesLike, Signer } from 'ethers';
 import { expect, use } from 'chai';
@@ -100,6 +101,7 @@ describe("Contracts: TestToken, ERC20FeeProxy, MyEscrow", () => {
           const initialOwnerBalance = await token.balanceOf(ownerAddress);
 
           // Transfer 50 TestERC20 tokens, from payer (25) to owner, 'require' will evaluate false and revert the transaction.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         expect(token.connect(payer).transfer(payeeAddress, 1500)).to.be.revertedWith('ERC20: transfer amount exceeds balance');
         
 
