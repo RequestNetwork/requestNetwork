@@ -4,7 +4,6 @@ import getBalanceErrorObject from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { BigNumber } from 'ethers';
-import { IReferenceBased } from 'types/src/extensions/pn-any-reference-based-types';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
@@ -16,7 +15,7 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
   public constructor(
-    protected extension: IReferenceBased,
+    protected extension: ExtensionTypes.PnReferenceBased.IReferenceBased,
     protected extensionType: ExtensionTypes.ID,
   ) {}
 
