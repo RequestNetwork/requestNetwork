@@ -2,7 +2,7 @@
 import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
 
 import { myEscrowArtifact } from '@requestnetwork/smart-contracts';
-import { MyEscrow__factory } from '@requestnetwork/smart-contracts/types/';
+import { MyEscrow__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
@@ -159,7 +159,6 @@ export function encodeInitAndDepositRequest(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
 ): string {
-  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
@@ -195,7 +194,6 @@ export function encodeWithdrawFundsRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
-  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
@@ -219,7 +217,6 @@ export function encodeInitLockPeriodRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
-  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
@@ -243,7 +240,6 @@ export function encodeDisputeMappingRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
-  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
 
   const signer = getSigner(signerOrProvider);
@@ -268,7 +264,6 @@ export function encodeWithdrawLockedFundsRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
-  //validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_TIME_LOCKED_ESCROW);
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
