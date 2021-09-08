@@ -23,6 +23,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createCreationAction(): any {
         return;
       },
+      supportedNetworks: ['mainnet'],
     },
   },
 };
@@ -37,7 +38,10 @@ describe('api/eth/input-data', () => {
   it('can createExtensionsDataForCreation', async () => {
     const spy = jest.spyOn(mockAdvancedLogic.extensions.ethereumInputData, 'createCreationAction');
 
-    await ethInputData.createExtensionsDataForCreation({ paymentAddress: 'ethereum address' });
+    await ethInputData.createExtensionsDataForCreation({
+      paymentAddress: 'ethereum address',
+      salt: 'ea3bc7caf64110ca',
+    });
 
     expect(spy).toHaveBeenCalledTimes(1);
   });

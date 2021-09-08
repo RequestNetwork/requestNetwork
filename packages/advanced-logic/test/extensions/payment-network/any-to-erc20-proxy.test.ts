@@ -75,7 +75,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
     });
 
     it('cannot createCreationAction with refund address not an ethereum address', () => {
@@ -88,7 +88,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
     });
 
     it('cannot createCreationAction with fee address not an ethereum address', () => {
@@ -242,7 +242,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         anyToErc20Proxy.createAddPaymentAddressAction({
           paymentAddress: 'not an ethereum address',
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
     });
   });
 
@@ -268,7 +268,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         anyToErc20Proxy.createAddRefundAddressAction({
           refundAddress: 'not an ethereum address',
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
     });
   });
 
@@ -427,7 +427,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataConversionERC20FeeAddData.invalidAddress}' is not a valid address`,
+        );
       });
 
       it('cannot applyActionToExtensions of creation with no tokens accepted', () => {
@@ -479,7 +481,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('refundAddress is not a valid address');
+        }).toThrowError(
+          `refundAddress '${DataConversionERC20FeeAddData.invalidAddress}' is not a valid address`,
+        );
       });
     });
 
@@ -567,7 +571,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataConversionERC20FeeAddData.invalidAddress}' is not a valid address`,
+        );
       });
     });
 

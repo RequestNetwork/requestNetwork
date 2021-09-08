@@ -37,10 +37,10 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
   }
 
   private isValidTestnet(address: string): boolean {
-    return !!address.match(/\.testnet/);
+    return !!address.match(/\.testnet$/);
   }
 
   private isValidMainnet(address: string): boolean {
-    return !!address.match(/\.near/);
+    return !!address.match(/\.near$/);
   }
 }

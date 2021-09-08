@@ -54,11 +54,11 @@ export async function processNearPayment(
     await contract.transfer_with_reference(
       {
         to,
-        amount,
+        amount: amount.toString(),
         payment_reference,
       },
-      GAS_LIMIT,
-      amount,
+      GAS_LIMIT.toString(),
+      amount.toString(),
     );
     return;
   } catch (e) {

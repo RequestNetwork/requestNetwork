@@ -57,7 +57,9 @@ describe('extensions/payment-network/bitcoin/mainnet-address-based', () => {
         mainnetBitcoinAddressBasedPN.createCreationAction({
           paymentAddress: DataBTCCreate.paymentTestnetBTCAddress,
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError(
+        `paymentAddress '${DataBTCCreate.paymentTestnetBTCAddress}' is not a valid address`,
+      );
     });
     it('cannot createCreationAction with refund address not a mainnet address', () => {
       // 'must throw'
@@ -65,7 +67,9 @@ describe('extensions/payment-network/bitcoin/mainnet-address-based', () => {
         mainnetBitcoinAddressBasedPN.createCreationAction({
           refundAddress: DataBTCCreate.refundTestnetBTCAddress,
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError(
+        `refundAddress '${DataBTCCreate.refundTestnetBTCAddress}' is not a valid address`,
+      );
     });
   });
 
@@ -85,7 +89,9 @@ describe('extensions/payment-network/bitcoin/mainnet-address-based', () => {
         mainnetBitcoinAddressBasedPN.createAddPaymentAddressAction({
           paymentAddress: DataBTCCreate.paymentTestnetBTCAddress,
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError(
+        `paymentAddress '${DataBTCCreate.paymentTestnetBTCAddress}' is not a valid address`,
+      );
     });
   });
 
@@ -104,7 +110,9 @@ describe('extensions/payment-network/bitcoin/mainnet-address-based', () => {
         mainnetBitcoinAddressBasedPN.createAddRefundAddressAction({
           refundAddress: DataBTCCreate.refundTestnetBTCAddress,
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError(
+        `refundAddress '${DataBTCCreate.refundTestnetBTCAddress}' is not a valid address`,
+      );
     });
   });
 
@@ -179,7 +187,9 @@ describe('extensions/payment-network/bitcoin/mainnet-address-based', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataBTCAddPaymentAddress.paymentTestnetBTCAddress}' is not a valid address`,
+        );
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
@@ -197,7 +207,9 @@ describe('extensions/payment-network/bitcoin/mainnet-address-based', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('refundAddress is not a valid address');
+        }).toThrowError(
+          `refundAddress '${DataBTCAddPaymentAddress.refundTestnetBTCAddress}' is not a valid address`,
+        );
       });
     });
 
@@ -280,7 +292,9 @@ describe('extensions/payment-network/bitcoin/mainnet-address-based', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataBTCAddPaymentAddress.paymentTestnetBTCAddress}' is not a valid address`,
+        );
       });
     });
 

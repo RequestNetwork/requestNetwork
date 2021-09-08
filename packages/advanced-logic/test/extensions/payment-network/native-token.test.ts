@@ -66,7 +66,7 @@ describe('extensions/payment-network/native-token', () => {
               salt,
               paymentNetworkName: testCase.networkName,
             });
-          }).toThrowError('paymentAddress is not a valid address');
+          }).toThrowError("paymentAddress 'not a near address' is not a valid address");
         });
         it('throws with payment address on the wrong network', () => {
           expect(() => {
@@ -76,7 +76,7 @@ describe('extensions/payment-network/native-token', () => {
               salt,
               paymentNetworkName: testCase.networkName,
             });
-          }).toThrowError('paymentAddress is not a valid address');
+          }).toThrowError(`paymentAddress 'pay.${testCase.wrongSuffix}' is not a valid address`);
         });
       });
       describe('createAddPaymentAddressAction', () => {
@@ -92,7 +92,7 @@ describe('extensions/payment-network/native-token', () => {
             testCase.paymentNetwork.createAddPaymentAddressAction({
               paymentAddress: 'not a near address',
             });
-          }).toThrowError('paymentAddress is not a valid address');
+          }).toThrowError("paymentAddress 'not a near address' is not a valid address");
         });
       });
       describe('createAddRefundAddress', () => {
@@ -108,7 +108,7 @@ describe('extensions/payment-network/native-token', () => {
             testCase.paymentNetwork.createAddRefundAddressAction({
               refundAddress: `not a near address`,
             });
-          }).toThrowError('refundAddress is not a valid address');
+          }).toThrowError("refundAddress 'not a near address' is not a valid address");
         });
       });
     });
@@ -309,7 +309,7 @@ describe('extensions/payment-network/native-token', () => {
           payeeRaw.identity,
           arbitraryTimestamp,
         );
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError("paymentAddress 'pay.testnet' is not a valid address");
     });
     it('throws with no state or action payment network', () => {
       const advancedLogic = new AdvancedLogic();

@@ -33,10 +33,11 @@ export type DeploymentInformationGetter = (
 
 /**
  * Handle payment networks with ERC20 fee proxy contract extension
+ * FIXME: inherit ReferenceBasedDetector
  */
 export default class PaymentNetworkERC20FeeProxyContract<
   ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
-> implements PaymentTypes.IPaymentNetwork {
+> implements PaymentTypes.IPaymentNetwork<ExtensionType> {
   protected _paymentNetworkId: ExtensionTypes.ID;
   protected _extension: ExtensionType;
 
@@ -78,7 +79,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
    * @returns The extensionData object
    */
   public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
+    parameters: ExtensionTypes.PnFeeReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this._extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
@@ -92,7 +93,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
    * @returns The extensionData object
    */
   public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
+    parameters: ExtensionTypes.PnFeeReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this._extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,

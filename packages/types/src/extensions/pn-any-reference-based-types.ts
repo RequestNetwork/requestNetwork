@@ -1,22 +1,17 @@
-import * as Extension from '../extension-types';
 import { PnAddressBased } from '../extension-types';
+export {
+  ACTION,
+  IAddPaymentAddressParameters,
+  IAddRefundAddressParameters,
+} from './pn-any-address-based-types';
 
 /** Manager of the extension */
-export interface IReferenceBased extends Extension.IExtension {
-  createAddPaymentAddressAction: (
-    creationParameters: IAddPaymentAddressParameters,
-  ) => Extension.IAction;
-  createAddRefundAddressAction: (
-    creationParameters: IAddRefundAddressParameters,
-  ) => Extension.IAction;
-  createCreationAction: (creationParameters: ICreationParameters) => Extension.IAction;
-  isValidAddress: (address: string) => boolean;
-}
+export type IReferenceBased<
+  TCreationParameters = ICreationParameters
+> = PnAddressBased.IAddressBased<TCreationParameters>;
 
 /** Extension values of the extension */
-export interface IValues {
-  paymentAddress?: string;
-  refundAddress?: string;
+export interface IValues extends PnAddressBased.IValues {
   salt: string;
 }
 
@@ -24,21 +19,4 @@ export interface IValues {
 export interface ICreationParameters extends PnAddressBased.ICreationParameters {
   salt: string;
   paymentNetworkName?: string;
-}
-
-/** Parameters of addPaymentAddress action */
-export interface IAddPaymentAddressParameters {
-  paymentAddress: string;
-}
-
-/** Parameters of addRefundAddress action */
-export interface IAddRefundAddressParameters {
-  refundAddress: string;
-}
-
-/** Actions possible */
-export enum ACTION {
-  CREATE = 'create',
-  ADD_PAYMENT_ADDRESS = 'addPaymentAddress',
-  ADD_REFUND_ADDRESS = 'addRefundAddress',
 }
