@@ -327,7 +327,7 @@ describe('api/currency', () => {
     });
 
     it('return the correct currency for cUSD-celo string', () => {
-      expect(Currency.from('cUSD-celo')).toEqual({
+      expect(Currency.fromSymbol('cUSD')).toEqual({
         network: 'celo',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
@@ -335,7 +335,7 @@ describe('api/currency', () => {
     });
 
     it('return the correct currency for CUSD-celo string (with alternative casing)', () => {
-      expect(Currency.from('CUSD-celo')).toEqual({
+      expect(Currency.fromSymbol('CUSD', 'celo')).toEqual({
         network: 'celo',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
@@ -343,7 +343,7 @@ describe('api/currency', () => {
     });
 
     it('return the correct currency for cGLD-celo string', () => {
-      expect(Currency.from('cGLD-celo')).toEqual({
+      expect(Currency.fromSymbol('cGLD')).toEqual({
         network: 'celo',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x471EcE3750Da237f93B8E339c536989b8978a438',
@@ -351,7 +351,7 @@ describe('api/currency', () => {
     });
 
     it('return the correct currency for CELO-celo string', () => {
-      expect(Currency.from('CELO-celo')).toEqual({
+      expect(Currency.fromSymbol('CELO')).toEqual({
         network: 'celo',
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'CELO',
@@ -359,17 +359,31 @@ describe('api/currency', () => {
     });
 
     it('return the correct currency for CTBK-rinkeby string', () => {
-      expect(Currency.from('CTBK-rinkeby')).toEqual({
+      expect(Currency.fromSymbol('CTBK')).toEqual({
         network: 'rinkeby',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x995d6A8C21F24be1Dd04E105DD0d83758343E258',
       });
     });
     it('return the correct currency for DAI-matic string', () => {
-      expect(Currency.from('DAI-matic')).toEqual({
+      expect(Currency.fromSymbol('DAI', 'matic')).toEqual({
         network: 'matic',
         type: RequestLogicTypes.CURRENCY.ERC20,
         value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+      });
+    });
+    it('return the correct currency for NEAR', () => {
+      expect(Currency.fromSymbol('NEAR')).toEqual({
+        network: 'aurora',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'NEAR',
+      });
+    });
+    it('return the correct currency for NEAR-testnet', () => {
+      expect(Currency.fromSymbol('NEAR-testnet')).toEqual({
+        network: 'aurora-testnet',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'NEAR-testnet',
       });
     });
 
@@ -763,6 +777,82 @@ describe('api/currency', () => {
           network: 'rinkeby',
         });
       });
+
+      it('CTBK from CTBK-rinkeby', () => {
+        expect(Currency.from('CTBK-rinkeby')).toEqual({
+          network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x995d6A8C21F24be1Dd04E105DD0d83758343E258',
+        });
+      });
+    });
+
+    describe('Celo', () => {
+      it('return the correct currency for cUSD-celo string', () => {
+        expect(Currency.from('cUSD-celo')).toEqual({
+          network: 'celo',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+        });
+      });
+
+      it('return the correct currency for CUSD-celo string (with alternative casing)', () => {
+        expect(Currency.from('CUSD-celo')).toEqual({
+          network: 'celo',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x765DE816845861e75A25fCA122bb6898B8B1282a',
+        });
+      });
+
+      it('return the correct currency for cGLD-celo string', () => {
+        expect(Currency.from('cGLD-celo')).toEqual({
+          network: 'celo',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x471EcE3750Da237f93B8E339c536989b8978a438',
+        });
+      });
+
+      it('return the correct currency for CELO-celo string', () => {
+        expect(Currency.from('CELO-celo')).toEqual({
+          network: 'celo',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'CELO',
+        });
+      });
+      it('return the correct currency for DAI-matic string', () => {
+        expect(Currency.from('DAI-matic')).toEqual({
+          network: 'matic',
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          value: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+        });
+      });
+    });
+
+    describe('near', () => {
+      it('NEAR from near', () => {
+        expect(Currency.from('NEAR')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'NEAR',
+          network: 'aurora',
+        });
+        expect(Currency.from('FAU').toString()).toEqual('FAU-rinkeby');
+      });
+
+      it('NEAR from NEAR-near (legacy)', () => {
+        expect(Currency.from('NEAR-near')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'NEAR',
+          network: 'aurora',
+        });
+      });
+
+      it('NEAR-testnet from NEAR-testnet', () => {
+        expect(Currency.from('NEAR-testnet')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'NEAR-testnet',
+          network: 'aurora-testnet',
+        });
+      });
     });
 
     describe('native tokens', () => {
@@ -853,6 +943,20 @@ describe('api/currency', () => {
             network: 'fantom',
             type: RequestLogicTypes.CURRENCY.ETH,
             value: 'FTM',
+          });
+        });
+        it('NEAR', () => {
+          expect(Currency.from('NEAR')).toEqual({
+            network: 'aurora',
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'NEAR',
+          });
+        });
+        it('NEAR-testnet', () => {
+          expect(Currency.from('NEAR-testnet')).toEqual({
+            network: 'aurora-testnet',
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'NEAR-testnet',
           });
         });
       });

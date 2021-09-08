@@ -7,7 +7,7 @@ import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider';
 export default class ETHInfoRetriever
   implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
   /**
-   * @param address Address to check
+   * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    * @param paymentReference The reference to identify the payment

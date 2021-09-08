@@ -34,6 +34,11 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://api.polygonscan.com';
       case 'fantom':
         return 'https://api.ftmscan.com';
+      // Near
+      case 'aurora':
+        return 'https://explorer.mainnet.near.org';
+      case 'aurora-testnet':
+        return 'https://explorer.testnet.near.org';
       default:
         return super.getBaseUrl();
     }

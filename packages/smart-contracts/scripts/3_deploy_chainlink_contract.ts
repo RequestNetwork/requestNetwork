@@ -7,10 +7,10 @@ import { deployOne } from './deploy-one';
 
 export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
   const [deployer] = await hre.ethers.getSigners();
-  const AggDAI_USD_address = await deployOne(args, hre, 'AggDaiUsd');
-  const AggETH_USD_address = await deployOne(args, hre, 'AggEthUsd');
-  const AggEUR_USD_address = await deployOne(args, hre, 'AggEurUsd');
-  const AggUSDT_ETH_address = await deployOne(args, hre, 'AggUsdtEth');
+  const AggDAI_USD_address = await deployOne(args, hre, 'AggregatorMock', [101000000, 8, 60]);
+  const AggETH_USD_address = await deployOne(args, hre, 'AggregatorMock', [50000000000, 8, 60]);
+  const AggEUR_USD_address = await deployOne(args, hre, 'AggregatorMock', [120000000, 8, 60]);
+  const AggUSDT_ETH_address = await deployOne(args, hre, 'AggregatorMock', [2000000000000000, 18, 60]);
   const USDT_fake_address = await deployOne(args, hre, 'UsdtFake');
 
   // all these addresses are for test purposes

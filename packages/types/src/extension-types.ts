@@ -69,6 +69,7 @@ export enum ID {
   PAYMENT_NETWORK_ERC20_PROXY_CONTRACT = 'pn-erc20-proxy-contract',
   PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT = 'pn-erc20-fee-proxy-contract',
   PAYMENT_NETWORK_ETH_INPUT_DATA = 'pn-eth-input-data',
+  PAYMENT_NETWORK_NATIVE_TOKEN = 'pn-native-token',
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
   PAYMENT_NETWORK_ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
 }

@@ -1,20 +1,16 @@
-import * as Extension from '../extension-types';
+import { PnReferenceBased, IAction } from '../extension-types';
+export {
+  IAddPaymentAddressParameters,
+  IAddRefundAddressParameters,
+} from './pn-any-reference-based-types';
 
 /** Fee reference-based payment network extension interface */
-export interface IFeeReferenceBased extends Extension.IExtension {
-  createCreationAction: (creationParameters: ICreationParameters) => Extension.IAction;
-  createAddPaymentAddressAction: (
-    creationParameters: Extension.PnReferenceBased.IAddPaymentAddressParameters,
-  ) => Extension.IAction;
-  createAddRefundAddressAction: (
-    creationParameters: Extension.PnReferenceBased.IAddRefundAddressParameters,
-  ) => Extension.IAction;
-  createAddFeeAction: (creationParameters: IAddFeeParameters) => Extension.IAction;
-  isValidAddress: (address: string) => boolean;
+export interface IFeeReferenceBased extends PnReferenceBased.IReferenceBased<ICreationParameters> {
+  createAddFeeAction: (creationParameters: IAddFeeParameters) => IAction<IAddFeeParameters>;
 }
 
 /** Parameters for the creation action */
-export interface ICreationParameters extends Extension.PnReferenceBased.ICreationParameters {
+export interface ICreationParameters extends PnReferenceBased.ICreationParameters {
   feeAddress?: string;
   feeAmount?: string;
 }
@@ -27,8 +23,10 @@ export interface IAddFeeParameters {
 
 /** Actions specific to the fee payment networks */
 export enum ACTION {
+  // Standard referenceBased
   CREATE = 'create',
   ADD_PAYMENT_ADDRESS = 'addPaymentAddress',
   ADD_REFUND_ADDRESS = 'addRefundAddress',
+  // Specific to FeeReferenceBased
   ADD_FEE = 'addFee',
 }

@@ -41,11 +41,17 @@ export class Currency implements RequestLogicTypes.ICurrency {
       return new Currency(currencyFromAddress);
     }
 
-    const currencyFromSymbol = this.fromSymbol(
-      symbolOrAddress.split('-')[0],
-      symbolOrAddress.split('-')[1],
-    );
-    return currencyFromSymbol;
+    try {
+      const currencyFromSymbol = this.fromSymbol(
+        symbolOrAddress.split('-')[0],
+        symbolOrAddress.split('-')[1],
+      );
+      return currencyFromSymbol;
+    } catch (e) {
+      // Testnet native tokens (ETH-rinkeby, NEAR-testnet etc.)
+      const currencyFromSymbol = this.fromSymbol(symbolOrAddress);
+      return currencyFromSymbol;
+    }
   }
 
   /**
@@ -59,12 +65,14 @@ export class Currency implements RequestLogicTypes.ICurrency {
       throw new Error(`Cannot guess currency from empty symbol.`);
     }
 
+    ({ symbol, network } = Currency.legacyTranslation(symbol, network));
+
     for (const [type, currencies] of Object.entries(getAllSupportedCurrencies())) {
       const currency = currencies.find(
         (cur) =>
           // test native tokens have the network in their symbol already
-          cur.symbol.toLowerCase().split('-')[0] === symbol.toLowerCase() &&
-          (!network || network === cur.network),
+          cur.symbol.toLowerCase() === symbol.toLowerCase() &&
+          (!network || network.toLowerCase() === cur.network?.toLowerCase()),
       );
 
       if (currency) {
@@ -81,6 +89,16 @@ export class Currency implements RequestLogicTypes.ICurrency {
         network ? ` on ${network}` : ''
       } is unknown or not supported`,
     );
+  };
+
+  private static legacyTranslation = (
+    symbol: string,
+    network?: string,
+  ): { symbol: string; network?: string } => {
+    if (symbol === 'NEAR' && network === 'near') {
+      return { symbol, network: 'aurora' };
+    }
+    return { symbol, network };
   };
 
   /**

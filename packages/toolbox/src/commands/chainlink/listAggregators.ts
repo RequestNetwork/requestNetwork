@@ -21,5 +21,10 @@ export const builder = (): yargs.Argv<IOptions> =>
       desc:
         'If specified, will check until this block. Useful for networks with a limitation on the block range',
     },
+    startBlock: {
+      demand: false,
+      type: 'number',
+      desc: 'Warning: only use it after a full updateAggregatorsList, or merge the result manually',
+    },
   });
 export const handler = listAggregators;
