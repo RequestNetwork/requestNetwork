@@ -76,7 +76,7 @@ const validRequest: ClientTypes.IRequestData = {
 
 const escrowAddress = myEscrowArtifact.getAddress(validRequest.currencyInfo.network!); 
 
-let { paymentReference } = getRequestPaymentValues(validRequest);
+const { paymentReference } = getRequestPaymentValues(validRequest);
 describe('*CONTRACT: MyEscrow.sol', () => {
   beforeEach( () => {
     jest.restoreAllMocks();
@@ -171,7 +171,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       wallet.sendTransaction = originalSendTransaction;
     });
     it('Should let the payer to initAndDeposit an new MyEscrow', async () => {
-      let values = getRequestPaymentValues(validRequest);
+      const values = getRequestPaymentValues(validRequest);
     
       // first approve the contract
       const approvalTx = await approveErc20(validRequest, wallet);
