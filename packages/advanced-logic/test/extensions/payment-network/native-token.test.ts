@@ -1,4 +1,4 @@
-import NativeTokenPaymentNetwork from '../../../src/extensions/payment-network/native-tokens';
+import NativeTokenPaymentNetwork from '../../../src/extensions/payment-network/native-token';
 import NearNativePaymentNetwork from '../../../src/extensions/payment-network/near-native';
 import {
   actionCreationWithNativeTokenPayment,
@@ -13,7 +13,7 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 const salt = arbitrarySalt;
 
-describe('extensions/payment-network/native-tokens', () => {
+describe('extensions/payment-network/native-token', () => {
   const nearCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR',
