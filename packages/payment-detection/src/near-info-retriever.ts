@@ -88,7 +88,7 @@ export class NearInfoRetriever {
               {
                 contractName: this.proxyContractName,
                 paymentAddress: this.toAddress,
-                paymentReference: `0x${this.paymentReference}`,
+                paymentReference: this.paymentReference,
               },
             ])
             .then((data: any) => {

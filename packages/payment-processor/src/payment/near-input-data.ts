@@ -21,7 +21,7 @@ export async function payNearInputDataRequest(
     throw new Error('request.currencyInfo should be a Near network');
   }
 
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN);
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
 
