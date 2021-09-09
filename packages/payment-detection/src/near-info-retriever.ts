@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { Connection } from 'autobahn';
+const autobahn = require('autobahn-browser');
 
 const NEAR_WEB_SOCKET_URL = 'wss://near-explorer-wamp.onrender.com/ws';
 
@@ -77,11 +77,11 @@ export class NearInfoRetriever {
       LIMIT 100`;
     return new Promise((resolve, reject) => {
       try {
-        const connection = new Connection({
+        const connection: any = new autobahn.Connection({
           url: this.nearWebSocketUrl,
           realm: 'near-explorer',
         });
-        connection.onopen = async (session) => {
+        connection.onopen = async (session: any) => {
           await session
             .call(this.procedureName, [
               query,
@@ -99,7 +99,7 @@ export class NearInfoRetriever {
               reject(`Could not connect to Near indexer web socket: ${err.message}.\n${err.stack}`);
             });
         };
-        connection.onclose = (reason) => {
+        connection.onclose = (reason: string) => {
           if (reason === 'unsupported' || reason === 'unreachable') {
             reject(`Could not connect to Near indexer web socket: ${reason}`);
           }
