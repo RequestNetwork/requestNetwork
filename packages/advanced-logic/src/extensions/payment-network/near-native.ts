@@ -36,11 +36,15 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
     }
   }
 
+  private isValidNear(address: string): boolean {
+    return !!address.match(/^(([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/);
+  }
+
   private isValidTestnet(address: string): boolean {
-    return !!address.match(/\.testnet$/);
+    return this.isValidNear(address) && !address.match(/\.near$/);
   }
 
   private isValidMainnet(address: string): boolean {
-    return !!address.match(/\.near$/);
+    return this.isValidNear(address) && !address.match(/\.testnet$/);
   }
 }

@@ -124,11 +124,13 @@ const {
   ETH_INPUT_DATA,
   ERC20_FEE_PROXY_CONTRACT,
   ANY_TO_ERC20_PROXY,
+  NATIVE_TOKEN,
 } = PaymentTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ERC20_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ETH_INPUT_DATA]: RequestLogicTypes.CURRENCY.ETH,
+  [NATIVE_TOKEN]: RequestLogicTypes.CURRENCY.ETH,
 };
 
 /**

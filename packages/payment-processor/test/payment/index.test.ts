@@ -145,9 +145,9 @@ describe('payRequest', () => {
       requestId: '0x123',
       currencyInfo: nearCurrency,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]: {
           events: [],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
             salt: '0x456',
