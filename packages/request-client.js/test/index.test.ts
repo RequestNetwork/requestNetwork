@@ -1965,13 +1965,14 @@ describe('index', () => {
         expect(request.getData().currency).toBe('_TEST');
       });
 
-      it('does not contain a default token', async () => {
+      it('overrides the default token list', async () => {
         const daiRequest = await requestNetwork.createRequest({
           requestInfo: daiData,
           paymentNetwork,
           signer: payeeIdentity,
         });
 
+        // the currencyManager provided to the requestNetwork object does not contain DAI
         expect(daiRequest.getData().currency).toBe('unknown');
       });
     });

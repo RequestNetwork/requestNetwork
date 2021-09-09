@@ -21,6 +21,12 @@ const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta> {
   private knownCurrencies: CurrencyDefinition<TMeta>[];
   private legacyTokens: LegacyTokenMap;
+
+  /**
+   *
+   * @param knownCurrencies The list of currencies known by the Manager.
+   * @param legacyTokens A mapping of legacy currency name or network name, in the format { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
+   */
   constructor(
     knownCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
     legacyTokens?: LegacyTokenMap,
@@ -123,7 +129,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   }
 
   /**
-   * Utility function to compute the unique
+   * Utility function to compute the unique identifier
    */
   static currencyId(currency: CurrencyInput): string {
     return 'network' in currency ? `${currency.symbol}-${currency.network}` : currency.symbol;
