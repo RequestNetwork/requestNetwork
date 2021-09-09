@@ -13,6 +13,7 @@ import ERC20FeeProxyContract from './erc20/fee-proxy-contract';
 import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
 import AnyToErc20Proxy from './any/any-to-erc20-proxy-contract';
+import NearNativeTokenPaymentDetector from './near-detector';
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
