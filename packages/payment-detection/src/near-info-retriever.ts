@@ -1,5 +1,4 @@
 import { PaymentTypes } from '@requestnetwork/types';
-const autobahn = require('autobahn-browser');
 
 const NEAR_WEB_SOCKET_URL = 'wss://near-explorer-wamp.onrender.com/ws';
 
@@ -77,6 +76,7 @@ export class NearInfoRetriever {
       LIMIT 100`;
     return new Promise((resolve, reject) => {
       try {
+        const autobahn = require('autobahn');
         const connection: any = new autobahn.Connection({
           url: this.nearWebSocketUrl,
           realm: 'near-explorer',
