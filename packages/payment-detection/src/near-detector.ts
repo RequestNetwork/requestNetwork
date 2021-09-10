@@ -28,7 +28,7 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
     NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     switch (chainName) {
       case 'aurora':
-        return 'request-network';
+        return 'requestnetwork.near';
       case 'aurora-testnet':
         return 'dev-1626339335241-5544297';
       default:
