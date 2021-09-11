@@ -3,14 +3,14 @@ import { Contract } from 'near-api-js';
 import { Near, WalletConnection } from 'near-api-js';
 import { Near as NearPaymentDetection } from '@requestnetwork/payment-detection';
 
-export async function isValidNearAddress(nearNetwork: Near, address: string) {
+export const isValidNearAddress = async (nearNetwork: Near, address: string): Promise<boolean> => {
   try {
     await nearNetwork.connection.provider.query(`account/${address}`, '');
     return true;
   } catch (e) {
     return false;
   }
-}
+};
 
 export const isNearNetwork = (network?: string): boolean => {
   return !!network && (network === 'aurora-testnet' || network === 'aurora');
@@ -19,7 +19,7 @@ export const isNearNetwork = (network?: string): boolean => {
 export const isNearAccountSolvent = (
   amount: BigNumberish,
   nearWalletConnection: WalletConnection,
-) => {
+): Promise<boolean> => {
   return nearWalletConnection
     .account()
     .state()
@@ -35,13 +35,13 @@ const GAS_LIMIT = ethers.utils.parseUnits(GAS_LIMIT_IN_TGAS.toString(), 12);
 /**
  * Used for mocking only.
  */
-export async function processNearPayment(
+export const processNearPayment = async (
   walletConnection: WalletConnection,
   network: string,
   amount: BigNumberish,
   to: string,
   payment_reference: string,
-) {
+): Promise<void> => {
   try {
     const contract = new Contract(
       walletConnection.account(),
@@ -54,7 +54,6 @@ export async function processNearPayment(
     await contract.transfer_with_reference(
       {
         to,
-        amount: amount.toString(),
         payment_reference,
       },
       GAS_LIMIT.toString(),
@@ -64,4 +63,4 @@ export async function processNearPayment(
   } catch (e) {
     throw new Error(`Could not pay Near request. Got ${e.message}`);
   }
-}
+};

@@ -3,7 +3,7 @@ import { UnsupportedNetworkError } from './address-based';
 
 import NativeTokenPaymentNetwork from './native-token';
 
-const CURRENT_VERSION = '0.1.0';
+const CURRENT_VERSION = '0.2.0';
 const supportedNetworks = ['aurora', 'aurora-testnet'];
 
 /**

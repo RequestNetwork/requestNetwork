@@ -30,7 +30,7 @@ export class NearInfoRetriever {
   public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
     const events = await this.getTransactionsFromNearIndexerDatabase();
     return events.map((transaction) => ({
-      amount: transaction.amount,
+      amount: transaction.deposit,
       name: this.eventName,
       parameters: {
         block: transaction.block,
@@ -55,7 +55,6 @@ export class NearInfoRetriever {
         COALESCE(a.args::json->>'deposit', '') as deposit,
         COALESCE(a.args::json->>'method_name', '') as method_name,
         COALESCE((a.args::json->'args_json')::json->>'to', '') as "to",
-        COALESCE((a.args::json->'args_json')::json->>'amount', '') as amount,
         (a.args::json->'args_json')::json->>'payment_reference' as paymentReference,
         (select MAX(block_height) from blocks) - b.block_height as confirmations
       FROM transactions t
@@ -123,6 +122,5 @@ export type NearIndexerTransaction = {
   deposit: string;
   method_name: string;
   to: string;
-  amount: string;
   paymentReference: string;
 };
