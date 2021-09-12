@@ -27,7 +27,7 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
 
   public static getNearContractName = (
     chainName: string,
-    paymentNetworkVersion = '0.1.0',
+    paymentNetworkVersion = '0.2.0',
   ): string => {
     const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     const versionMap: Record<string, Record<string, string>> = {
