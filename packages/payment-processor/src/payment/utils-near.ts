@@ -41,7 +41,7 @@ export const processNearPayment = async (
   amount: BigNumberish,
   to: string,
   payment_reference: string,
-  version: string = '0.2.0',
+  version = '0.2.0',
 ): Promise<void> => {
   if (version !== '0.2.0') {
     if (version === '0.1.0') {
