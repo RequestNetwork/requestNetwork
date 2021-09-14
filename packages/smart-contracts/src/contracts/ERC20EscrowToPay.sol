@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "./interfaces/ERC20FeeProxy.sol";
 
 
-/// @title Invoice based escrow smart-contract
-contract MyEscrow {
+/// @title Escrow based invoice
+contract ERC20EscrowToPay {
     struct Invoice {
         IERC20 paymentToken; 
         uint256 amount;
@@ -44,14 +44,19 @@ contract MyEscrow {
         _;
     }
 
-    /// Events to notify when the escrow is Initiated or Completed
-    event EscrowInitiated(bytes indexed paymentReference, uint256 amount, address payee, IERC20 paymentToken, uint256 feeAmount, address feeAddress);
+    /// Events
+    event EscrowInitiated(bytes indexed paymentReference, uint256 amount, address payee, IERC20 paymentToken);
     event EscrowCompleted(bytes indexed paymentReference, address payer, uint256 amount);
     event LockPeriodStarted(bytes indexed paymentReference, uint256 amount, address payee, address payer, IERC20 paymentToken, TokenTimelock tokentimelock);
     event LockPeriodEnded(bytes indexed paymentReference, uint256 amount, address payer, IERC20 paymentToken);
     
     IERC20FeeProxy public paymentProxy;
     TokenTimelock public tokentimelock;
+
+
+    //TODO: remove hardcoded feeAmount and feeAddress
+    uint256 feeAmount = 1;
+    address feeAddress = 0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE;
 
 
     constructor(address payable _paymentProxyAddress) {
@@ -63,7 +68,7 @@ contract MyEscrow {
     /// @param _paymentRef Reference of the Invoice related
     /// @param amount Amount to transfer
     /// @param payee address of the reciever/ beneficiary of the escrow funds
-    function initAndDeposit(IERC20 paymentToken, uint256 amount, address payee, bytes memory _paymentRef, uint256 feeAmount, address feeAddress) 
+    function openEscrow(IERC20 paymentToken,uint256 amount, address payee, bytes memory _paymentRef) 
         public
         payable
     {
@@ -83,14 +88,14 @@ contract MyEscrow {
         
         _deposit(_paymentRef);
 
-        emit EscrowInitiated(_paymentRef, invoiceMapping[_paymentRef].amount, invoiceMapping[_paymentRef].payee, invoiceMapping[_paymentRef].paymentToken, invoiceMapping[_paymentRef].feeAmount, invoiceMapping[_paymentRef].feeAddress);
+        emit EscrowInitiated(_paymentRef, invoiceMapping[_paymentRef].amount, invoiceMapping[_paymentRef].payee, invoiceMapping[_paymentRef].paymentToken);
     }
 
 
     /// Withdraw the funds of escrow from a given _paymentRef
     /// @param _paymentRef Reference of the payment related
     /// @dev require msg.sender to be the function executer
-    function withdrawFunds(bytes calldata _paymentRef) public onlyPayer(_paymentRef) {
+    function closeEscrow(bytes calldata _paymentRef) public onlyPayer(_paymentRef) {
         require(invoiceMapping[_paymentRef].amount != 0, "MyEscrow: Payment reference does not exist");
 
         uint256 amount = invoiceMapping[_paymentRef].amount;
@@ -126,7 +131,7 @@ contract MyEscrow {
             address(this), 
             invoiceMapping[_paymentRef].amount + invoiceMapping[_paymentRef].feeAmount
         ), 
-        "MyEscrow: Cannot lock tokens to Escrow as requested, did you approve CTBK?");
+        "MyEscrow: Cannot transfer tokens to Escrow as requested, did you approve CTBK?");
     }
 
 
@@ -158,10 +163,12 @@ contract MyEscrow {
 
     /// Open dispute and lock funds for a year.
     /// @param _paymentRef Reference of the Invoice related.
-    function initLockPeriod(bytes memory _paymentRef) public payable onlyPayer(_paymentRef) {
+    function openDispute(bytes memory _paymentRef) public payable onlyPayer(_paymentRef) {
         require(invoiceMapping[_paymentRef].amount != 0, "MyEscrow: No Invoice found!");
         
+        // duration is set to 12 months
         uint256 _duration = 31556926; 
+
         // FIX: For testing purposes
         uint256 _endtime = block.timestamp + 1 ; //+ _duration;
     
