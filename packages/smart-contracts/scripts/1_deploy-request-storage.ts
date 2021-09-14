@@ -16,7 +16,7 @@ export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment)
       deployer,
     );
     const RequestHashStorage = await RequestHashStorage__factory.deploy();
-    console.log('RequestHashStorage Contract deployed: ' + RequestHashStorage.address);
+    console.log('RequestHashStorage Contract deployed:       ' + RequestHashStorage.address);
 
     // Deploy the contract RequestOpenHashSubmitter
     const RequestOpenHashSubmitter__factory = await hre.ethers.getContractFactory(
@@ -36,8 +36,8 @@ export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment)
     // ----------------------------------
     console.log('Contracts deployed');
     console.log(`
-      RequestHashStorage:       ${RequestHashStorage.address}
-      RequestOpenHashSubmitter: ${RequestOpenHashSubmitter.address}
+      RequestHashStorage:              ${RequestHashStorage.address}
+      RequestOpenHashSubmitter:        ${RequestOpenHashSubmitter.address}
       `);
   } catch (e) {
     console.error(e);

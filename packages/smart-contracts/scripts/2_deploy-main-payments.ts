@@ -8,7 +8,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     const [deployer] = await hre.ethers.getSigners();
 
     console.log(
-      `Deploying with the account: ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId})`,
+      `Deploying with the account:            ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId})`,
     );
 
     const erc20Factory = await hre.ethers.getContractFactory('TestERC20');
@@ -20,7 +20,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     const instanceRequestERC20Proxy = await (
       await hre.ethers.getContractFactory('ERC20Proxy')
     ).deploy();
-    console.log('ERC20Proxy Contract deployed: ' + instanceRequestERC20Proxy.address);
+    console.log('ERC20Proxy Contract deployed:          ' + instanceRequestERC20Proxy.address);
 
     // create some events for test purpose
     await testERC20Instance.approve(instanceRequestERC20Proxy.address, 110);
@@ -37,32 +37,36 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       '0xdeea051f2e9120e0',
     );
 
-    // Deploy Ethereym proxy contract
+    // Deploy Ethereum proxy contract
     const EthereumProxyAddress = await deployOne(args, hre, 'EthereumProxy');
-    console.log('EthereumProxy Contract deployed: ' + EthereumProxyAddress);
+    console.log('EthereumProxy Contract deployed:       ' + EthereumProxyAddress);
 
     // Deploy ERC20 Fee proxy contract
     const ERC20FeeProxyAddress = await deployOne(args, hre, 'ERC20FeeProxy');
-    console.log('ERC20FeeProxy Contract deployed: ' + ERC20FeeProxyAddress);
+    console.log('ERC20FeeProxy Contract deployed:       ' + ERC20FeeProxyAddress);
+    
+    // Deploy ERC20 EscrowToPay contract
+    const ERC20EscrowToPayAddress = await deployOne(args, hre, 'ERC20EscrowToPay', [ERC20FeeProxyAddress]);
+    console.log(`ERC20EscrowToPay Contract deployed:    ${ERC20EscrowToPayAddress}`);
 
     // Deploy the BadERC20 contract
     const BadERC20Address = await deployOne(args, hre, 'BadERC20', [1000, 'BadERC20', 'BAD', 8]);
-    console.log('BadERC20 Contract deployed: ' + BadERC20Address);
+  console.log('BadERC20 Contract deployed:            ' + BadERC20Address);
 
     // Deploy test ERC20 contracts
     const ERC20TrueAddress = await deployOne(args, hre, 'ERC20True');
-    console.log('ERC20True Contract deployed: ' + ERC20TrueAddress);
+    console.log('ERC20True Contract deployed:           ' + ERC20TrueAddress);
 
     const ERC20FalseAddress = await deployOne(args, hre, 'ERC20False');
-    console.log('ERC20False Contract deployed: ' + ERC20FalseAddress);
+    console.log('ERC20False Contract deployed:          ' + ERC20FalseAddress);
 
     const ERC20NoReturnAddress = await deployOne(args, hre, 'ERC20NoReturn');
-    console.log('ERC20NoReturn Contract deployed: ' + ERC20NoReturnAddress);
+    console.log('ERC20NoReturn Contract deployed:       ' + ERC20NoReturnAddress);
 
     const ERC20Revert = await (
       await hre.ethers.getContractFactory('ERC20Revert', deployer)
     ).deploy();
-    console.log('ERC20Revert Contract deployed: ' + ERC20Revert.address);
+    console.log('ERC20Revert Contract deployed:         ' + ERC20Revert.address);
 
     // Swap-to-pay related contracts
     // Payment erc20: ALPHA
@@ -78,26 +82,29 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       ERC20FeeProxyAddress,
     ]);
     // FIXME SwapToPay deployed without approbation for router and proxy
-    console.log('SwapToPay Contract deployed: ' + ERC20SwapToPayAddress);
+    console.log('SwapToPay Contract deployed:           ' + ERC20SwapToPayAddress);
     // FIXME useless transaction to keep the same contract addresses
     await testERC20Instance.transfer(deployer.address, '1');
 
     // ----------------------------------
     console.log('Contracts deployed');
     console.log(`
-      TestERC20:                ${testERC20Instance.address}
-      ERC20Proxy:               ${instanceRequestERC20Proxy.address}
-      EthereumProxy:            ${EthereumProxyAddress}
-      ERC20FeeProxy:            ${ERC20FeeProxyAddress}
-      BadERC20:                 ${BadERC20Address}
-      ERC20True:                ${ERC20TrueAddress}
-      ERC20False:               ${ERC20FalseAddress}
-      ERC20NoReturn:            ${ERC20NoReturnAddress}
-      ERC20Revert:              ${ERC20Revert.address}
-      ERC20Alpha:               ${erc20AlphaInstance.address}
-      TestERC20:                ${testERC20Instance.address}
-      FakeSwapRouter:           ${FakeSwapRouterAddress}
-      SwapToPay:                ${ERC20SwapToPayAddress}
+      Deployer:                        ${deployer.address}
+
+      TestERC20:                       ${testERC20Instance.address}
+      ERC20Proxy:                      ${instanceRequestERC20Proxy.address}
+      EthereumProxy:                   ${EthereumProxyAddress}
+      ERC20FeeProxy:                   ${ERC20FeeProxyAddress}
+      ERC20EscrowToPay:                ${ERC20EscrowToPayAddress}
+      BadERC20:                        ${BadERC20Address}
+      ERC20True:                       ${ERC20TrueAddress}
+      ERC20False:                      ${ERC20FalseAddress}
+      ERC20NoReturn:                   ${ERC20NoReturnAddress}
+      ERC20Revert:                     ${ERC20Revert.address}
+      ERC20Alpha:                      ${erc20AlphaInstance.address}
+      TestERC20:                       ${testERC20Instance.address}
+      FakeSwapRouter:                  ${FakeSwapRouterAddress}
+      SwapToPay:                       ${ERC20SwapToPayAddress}
       `);
   } catch (e) {
     console.error(e);
