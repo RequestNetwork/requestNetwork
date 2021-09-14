@@ -31,8 +31,11 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
   ): string => {
     const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     const versionMap: Record<string, Record<string, string>> = {
-      aurora: { '0.1.0': 'requestnetwork.near', '0.2.0': 'TODO-MISSING' },
-      'aurora-testnet': { '0.1.0': 'dev-1626339335241-5544297', '0.2.0': 'TODO-MISSING' },
+      aurora: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
+      'aurora-testnet': {
+        '0.1.0': 'dev-1626339335241-5544297',
+        '0.2.0': 'dev-1631521265288-35171138540673',
+      },
     };
     if (versionMap[chainName]?.[version]) {
       return versionMap[chainName][version];
