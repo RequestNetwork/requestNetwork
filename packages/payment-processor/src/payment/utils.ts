@@ -119,6 +119,14 @@ export function getRequestPaymentValues(
   };
 }
 
+export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): string {
+  const extension = getPaymentNetworkExtension(request);
+  if (!extension) {
+    throw new Error('no payment network found');
+  }
+  return extension.version;
+}
+
 const {
   ERC20_PROXY_CONTRACT,
   ETH_INPUT_DATA,
