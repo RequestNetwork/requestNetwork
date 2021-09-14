@@ -18,4 +18,4 @@ export * from './RequestHashSubmitter';
 /**
  * Request MyEscrow
  */
-export * from './MyEscrow';
+export * from './ERC20EscrowToPay';

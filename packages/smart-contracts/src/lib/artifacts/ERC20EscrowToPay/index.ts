@@ -1,9 +1,9 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
-import type { MyEscrow } from '../../../types/MyEscrow';
+import type { ERC20EscrowToPay } from '../../../types/ERC20EscrowToPay';
 
-export const myEscrowArtifact = new ContractArtifact<MyEscrow>(
+export const ERC20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
   {
     '0.1.0': {
       abi: ABI_0_1_0,
@@ -13,11 +13,11 @@ export const myEscrowArtifact = new ContractArtifact<MyEscrow>(
           creationBlockNumber: 0,
         },
         mainnet: {
-          address: 'TODO',
+          address: 'TODO: Add mainnet address when contract is deployed',
           creationBlockNumber: 10774767,
         },
         rinkeby: {
-          address: '0xE4c4bDA12049e7Ed741d3Fa91F311265E87fB32e',
+          address: 'TODO: Add rinkeby address when contract is deployed',
           creationBlockNumber: 9221352,
         },
       },
