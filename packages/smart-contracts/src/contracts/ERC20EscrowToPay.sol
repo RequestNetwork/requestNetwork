@@ -76,8 +76,6 @@ contract ERC20EscrowToPay {
     );
     event LockPeriodEnded(bytes indexed paymentReference, uint feeAmount);
     
-   
-
 
     constructor(address payable _paymentProxyAddress) {
         owner = payable(msg.sender);
@@ -134,7 +132,6 @@ contract ERC20EscrowToPay {
     /// @dev    require msg.sender to be the function executer.
     function closeEscrow(bytes calldata _paymentRef) public onlyPayers(_paymentRef) {
         require(invoiceMapping[_paymentRef].amount != 0, "MyEscrow: Payment reference does not exist");
-       //if (invoiceMapping[_paymentRef].amount == 0) revert NotValid("MyEscrow: Payment reference does not exist");
 
         //TODO: remove hardcoded feeAddress
         address _feeAddress = 0xdD870fA1b7C4700F2BD7f44238821C26f7392148;
