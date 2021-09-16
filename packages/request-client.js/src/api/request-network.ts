@@ -379,7 +379,7 @@ export default class RequestNetwork {
    */
   private getCurrency(input: string | RequestLogicTypes.ICurrency): RequestLogicTypes.ICurrency {
     if (typeof input === 'string') {
-      const currency = this.currencyManager.fromSymbol(input);
+      const currency = this.currencyManager.from(input);
       if (!currency) {
         throw new UnsupportedCurrencyError(input);
       }
