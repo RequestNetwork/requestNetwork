@@ -260,11 +260,30 @@ contract ERC20EscrowToPay {
         );
     }
 
+    /// @notice Close a dispute and transfer the funds to the payee account.
+    /// @dev Executes a call to release() on the tokentimelock contract.
+    /// @param _paymentRef The payment reference of the invoice. 
+    /// @return String description if successfully executed.
+    /// @inheritdoc	Copies all missing tags from the base function (must be followed by the contract name)
+    function resolveDispute(bytes memory _paymentRef) external returns (string memory) {
+        require(
+            disputeMapping[_paymentRef].amount != 0, 
+            "ERC20EscrowToPay: No Invoice or Dispute found, wrong payment reference?"
+        );
+        require(
+            msg.sender == disputeMapping[_paymentRef].payer,
+            "ERC20EscrowToPay: Only the Payer can call this function!"
+        );
+
+        // transfers the timelocked funds back to this ERC20EscrowToPay contract.
+        tokentimelock.release();
+
+    }
 
     /// @notice Transfer funds from tokentimelock contract => payer.
     /// @param  _paymentRef Reference of the Invoice related.
     function withdrawLockedFunds(bytes memory _paymentRef) public onlyPayers(_paymentRef) {
-        require(disputeMapping[_paymentRef].amount != 0, "MyEscrow: No Invoice found!");
+        require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPay: No Invoice found!");
         
 
         // close tokentimelock and transfer funds to payer through paymentProxy.transferFromWithReferenceAndFee.
