@@ -745,7 +745,7 @@ export default class Request {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
-      currency: currency ? currency.symbol : 'unknown',
+      currency: currency ? currency.id : 'unknown',
       currencyInfo: requestData.currency,
       meta: this.requestMeta,
       pending,

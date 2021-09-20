@@ -1355,7 +1355,7 @@ describe('index', () => {
       expect(data).toBeDefined();
       expect(data.balance).toBeDefined();
       expect(data.meta).toBeDefined();
-      expect(data.currency).toBe('ETH-rinkeby');
+      expect(data.currency).toBe('ETH-rinkeby-rinkeby');
       expect(data.extensionsData[0].parameters.salt).toBe(salt);
       expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
       jest.useRealTimers();
@@ -1910,7 +1910,7 @@ describe('index', () => {
         signer: payeeIdentity,
       });
 
-      expect(request.getData().currency).toBe('DAI');
+      expect(request.getData().currency).toBe('DAI-mainnet');
     });
 
     it('shows unknown when the currency is not known', async () => {
@@ -1949,7 +1949,7 @@ describe('index', () => {
           signer: payeeIdentity,
         });
 
-        expect(request.getData().currency).toBe('_TEST');
+        expect(request.getData().currency).toBe('_TEST-private');
       });
 
       it('allows creating a request by currency name', async () => {
@@ -1962,7 +1962,7 @@ describe('index', () => {
           signer: payeeIdentity,
         });
 
-        expect(request.getData().currency).toBe('_TEST');
+        expect(request.getData().currency).toBe('_TEST-private');
       });
 
       it('overrides the default token list', async () => {
