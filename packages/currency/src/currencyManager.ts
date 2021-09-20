@@ -41,7 +41,13 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * @param symbolOrAddress e.g. 'DAI', 'FAU', 'FAU-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
    * @param network e.g. rinkeby, mainnet
    */
-  from(symbolOrAddress: string, network?: string): CurrencyDefinition<TMeta> | undefined {
+  from(
+    symbolOrAddress: string | undefined,
+    network?: string,
+  ): CurrencyDefinition<TMeta> | undefined {
+    if (!symbolOrAddress) {
+      return;
+    }
     if (utils.isAddress(symbolOrAddress)) {
       return this.fromAddress(symbolOrAddress, network);
     }
@@ -76,7 +82,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Gets a supported currency from its symbol and network.
    */
   fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined {
-    symbol = symbol.toUpperCase();
+    symbol = symbol?.toUpperCase();
     network = network?.toLowerCase();
 
     const legacy = network ? this.legacyTokens[network]?.[symbol] : undefined;

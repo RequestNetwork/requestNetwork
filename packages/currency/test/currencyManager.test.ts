@@ -159,6 +159,11 @@ describe('CurrencyManager', () => {
       ).not.toBeDefined();
     });
 
+    it('returns undefined for undefined or empty string', () => {
+      expect(defaultManager.from(undefined)).toBeUndefined();
+      expect(defaultManager.from('')).toBeUndefined();
+    });
+
     describe('fromStorageCurrency', () => {
       it('can access a token from its storage format', () => {
         expect(
