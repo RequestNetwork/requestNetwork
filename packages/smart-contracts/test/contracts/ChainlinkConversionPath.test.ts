@@ -134,9 +134,8 @@ describe('contract: ChainlinkConversionPath', () => {
     });
   });
 
-  describe.only('USDT rates', async () => {
+  describe('USDT rates', async () => {
     it('can get rate from USD to ETH to USDT', async () => {
-      console.log({USDT_address})
       const conversion = await conversionPathInstance.getRate([
         USD_address,
         ETH_address,
