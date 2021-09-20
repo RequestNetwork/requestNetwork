@@ -92,7 +92,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       TestERC20:                ${testERC20Instance.address}
       ERC20Proxy:               ${instanceRequestERC20Proxy.address}
       EthereumProxy:            ${EthereumProxyAddress}
-      EthereumFeeProxyAddress:  ${EthereumFeeProxyAddress}
+      EthereumFeeProxy:         ${EthereumFeeProxyAddress}
       ERC20FeeProxy:            ${ERC20FeeProxyAddress}
       BadERC20:                 ${BadERC20Address}
       ERC20True:                ${ERC20TrueAddress}
