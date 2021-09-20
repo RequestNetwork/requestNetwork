@@ -264,7 +264,6 @@ contract ERC20EscrowToPay {
     /// @dev Executes a call to release() on the tokentimelock contract.
     /// @param _paymentRef The payment reference of the invoice. 
     /// @return String description if successfully executed.
-    /// @inheritdoc	Copies all missing tags from the base function (must be followed by the contract name)
     function resolveDispute(bytes memory _paymentRef) external returns (string memory) {
         require(
             disputeMapping[_paymentRef].amount != 0, 
@@ -278,6 +277,26 @@ contract ERC20EscrowToPay {
         // transfers the timelocked funds back to this ERC20EscrowToPay contract.
         tokentimelock.release();
 
+        uint256 _amount = disputeMapping[_paymentRef].amount;
+        uint _feeAmount = disputeMapping[_paymentRef].feeAmount;
+        
+        disputeMapping[_paymentRef].paymentToken.approve(address(paymentProxy),  2**255);
+        disputeMapping[_paymentRef].amount = 0;
+
+        // Pay the request and fees
+        paymentProxy.transferFromWithReferenceAndFee(
+            address(disputeMapping[_paymentRef].paymentToken),
+            disputeMapping[_paymentRef].payee, 
+            _amount, 
+            _paymentRef, 
+            _feeAmount, 
+            disputeMapping[_paymentRef].feeAddress
+        );
+
+        // delete paymentreference from disputeMapping
+        delete disputeMapping[_paymentRef];
+
+        return "Dispute is resolved and funds is tranfered to the payee account";
     }
 
     /// @notice Transfer funds from tokentimelock contract => payer.
