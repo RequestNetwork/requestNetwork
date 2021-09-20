@@ -20,6 +20,7 @@ contract ERC20EscrowToPay {
         address payee;
         address payer;
         uint feeAmount;
+        address feeAddress;
         uint256 claimDate;
     }
 
@@ -30,6 +31,7 @@ contract ERC20EscrowToPay {
         address payee;
         address payer;
         uint feeAmount;
+        address feeAddress;
         uint256 duration;
         uint256 endTime;
         TokenTimelock tokentimelock;
@@ -57,7 +59,8 @@ contract ERC20EscrowToPay {
         IERC20 paymentToken,
         uint256 amount,
         address payee,
-        uint feeAmount,
+        uint256 feeAmount,
+        address feeAddress,
         uint256 claimDate
     );
     event LockPeriodStarted(
@@ -89,7 +92,7 @@ contract ERC20EscrowToPay {
     /// @param _paymentRef Reference of the Invoice related
     /// @param amount Amount to transfer
     /// @param payee address of the reciever/ beneficiary of the escrow funds
-    function openEscrow(bytes memory _paymentRef, IERC20 paymentToken,uint256 amount, address payee) 
+    function openEscrow(bytes memory _paymentRef, IERC20 paymentToken,uint256 amount, address payee, uint256 feeAmount, address feeAddress) 
         public
         payable
         returns (bytes memory, uint256)
@@ -99,9 +102,7 @@ contract ERC20EscrowToPay {
             "MyEscrow: This paymentRef already exists, is this the correct paymentRef?"
         );
         
-        /// feeAmount is 1% of the invoice amount.
-        uint feeAmount = amount *1/100;
-        
+
         uint256 sixMonths = 15778458;
         uint256 claimDate = block.timestamp + sixMonths;
         
@@ -111,6 +112,7 @@ contract ERC20EscrowToPay {
         payee,
         msg.sender,
         feeAmount,
+        feeAddress,
         claimDate
         );
         
@@ -118,11 +120,12 @@ contract ERC20EscrowToPay {
 
         emit OpenEscrow(
             _paymentRef,
-            invoiceMapping[_paymentRef].paymentToken,
-            invoiceMapping[_paymentRef].amount,
-            invoiceMapping[_paymentRef].payee,
-            invoiceMapping[_paymentRef].feeAmount,
-            invoiceMapping[_paymentRef].claimDate
+            paymentToken,
+            amount,
+            payee,
+            feeAmount,
+            feeAddress,
+            claimDate
         );
         
         return (_paymentRef, claimDate);
@@ -136,13 +139,12 @@ contract ERC20EscrowToPay {
         require(invoiceMapping[_paymentRef].amount != 0, "MyEscrow: Payment reference does not exist");
        //if (invoiceMapping[_paymentRef].amount == 0) revert NotValid("MyEscrow: Payment reference does not exist");
 
-        //TODO: remove hardcoded feeAddress
-        address _feeAddress = 0xdD870fA1b7C4700F2BD7f44238821C26f7392148;
         
         uint256 _amount = invoiceMapping[_paymentRef].amount;
         uint _feeAmount = invoiceMapping[_paymentRef].feeAmount;
+        address _feeAddress = invoiceMapping[_paymentRef].feeAddress;
         
-        /// Give approval to transfer from escrow => tokentimelock contract.
+        /// Give approval to transfer from ERC20EscrowToPay => ERC20FeeProxy contract.
         invoiceMapping[_paymentRef].paymentToken.approve(address(paymentProxy),  2**255);
         invoiceMapping[_paymentRef].amount = 0;
 
@@ -153,8 +155,8 @@ contract ERC20EscrowToPay {
             invoiceMapping[_paymentRef].payee, 
             _amount, 
             _paymentRef, 
-            _feeAmount,
-            _feeAddress
+            invoiceMapping[_paymentRef].feeAmount,
+            invoiceMapping[_paymentRef].feeAddress
         );
 
         /// Delete the details in the invoiceMapping.
@@ -190,7 +192,8 @@ contract ERC20EscrowToPay {
         uint256 amount, 
         address payee,
         address payer,
-        uint256 feeAmount
+        uint256 feeAmount,
+        address feeAddress
     )
     {
         require(
@@ -202,7 +205,8 @@ contract ERC20EscrowToPay {
             invoiceMapping[_paymentRef].amount,
             invoiceMapping[_paymentRef].payee,
             invoiceMapping[_paymentRef].payer,
-            invoiceMapping[_paymentRef].feeAmount
+            invoiceMapping[_paymentRef].feeAmount,
+            invoiceMapping[_paymentRef].feeAddress
         );
     }
 
@@ -230,6 +234,7 @@ contract ERC20EscrowToPay {
             invoiceMapping[_paymentRef].payee,
             invoiceMapping[_paymentRef].payer,
             invoiceMapping[_paymentRef].feeAmount,
+            invoiceMapping[_paymentRef].feeAddress,
             _lockDuration,
             _endtime,
             tokentimelock
@@ -261,8 +266,6 @@ contract ERC20EscrowToPay {
     function withdrawLockedFunds(bytes memory _paymentRef) public onlyPayers(_paymentRef) {
         require(disputeMapping[_paymentRef].amount != 0, "MyEscrow: No Invoice found!");
         
-        //TODO: remove hardcoded feeAddress
-        address _feeAddress = 0xdD870fA1b7C4700F2BD7f44238821C26f7392148;
 
         // close tokentimelock and transfer funds to payer through paymentProxy.transferFromWithReferenceAndFee.
         tokentimelock.release();
@@ -280,8 +283,8 @@ contract ERC20EscrowToPay {
             disputeMapping[_paymentRef].payer, 
             _amount, 
             _paymentRef, 
-            uint256(_feeAmount), 
-            _feeAddress
+            _feeAmount, 
+            disputeMapping[_paymentRef].feeAddress
         );
 
         // delete paymentreference from disputeMapping
