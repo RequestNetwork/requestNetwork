@@ -6,6 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
 import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
@@ -13,6 +14,7 @@ import ProxyInfoRetriever from './proxy-info-retriever';
 import { BigNumber } from 'ethers';
 import { networkSupportsTheGraph } from '../thegraph';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
+import { loadCurrencyFromContract } from './currency';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -40,13 +42,21 @@ export default class PaymentNetworkERC20FeeProxyContract<
 > implements PaymentTypes.IPaymentNetwork<ExtensionType> {
   protected _paymentNetworkId: ExtensionTypes.ID;
   protected _extension: ExtensionType;
+  protected _currencyManager: ICurrencyManager;
 
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+  public constructor({
+    advancedLogic,
+    currencyManager,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    currencyManager: ICurrencyManager;
+  }) {
     this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
     this._extension = advancedLogic.extensions.feeProxyContractErc20;
+    this._currencyManager = currencyManager;
   }
 
   /**
@@ -320,5 +330,26 @@ export default class PaymentNetworkERC20FeeProxyContract<
    */
   get paymentNetworkId(): ExtensionTypes.ID {
     return this._paymentNetworkId;
+  }
+
+  protected async getCurrency(
+    storageCurrency: RequestLogicTypes.ICurrency,
+  ): Promise<CurrencyDefinition> {
+    const currency = this._currencyManager.fromStorageCurrency(storageCurrency);
+    if (currency) {
+      return currency;
+    }
+
+    if (storageCurrency.type !== RequestLogicTypes.CURRENCY.ERC20) {
+      throw new Error(`Currency ${storageCurrency.value} not known`);
+    }
+
+    const contractCurrency = await loadCurrencyFromContract(storageCurrency);
+    if (!contractCurrency) {
+      throw new Error(
+        `Cannot retrieve currency for contrat ${storageCurrency.value} (${storageCurrency.network})`,
+      );
+    }
+    return contractCurrency;
   }
 }

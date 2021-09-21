@@ -5,6 +5,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 import ERC20FeeProxyContract from '../../src/erc20/fee-proxy-contract';
 
 let erc20FeeProxyContract: ERC20FeeProxyContract;
@@ -31,10 +32,15 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
 };
 
+const currencyManager = CurrencyManager.getDefault();
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/fee-proxy-contract', () => {
   beforeEach(() => {
-    erc20FeeProxyContract = new ERC20FeeProxyContract({ advancedLogic: mockAdvancedLogic });
+    erc20FeeProxyContract = new ERC20FeeProxyContract({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+    });
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -229,7 +235,10 @@ describe('api/erc20/fee-proxy-contract', () => {
         ],
       });
     };
-    erc20FeeProxyContract = new ERC20FeeProxyContract({ advancedLogic: mockAdvancedLogic });
+    erc20FeeProxyContract = new ERC20FeeProxyContract({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+    });
     erc20FeeProxyContract.extractBalanceAndEvents = mockExtractBalanceAndEvents;
 
     const balance = await erc20FeeProxyContract.getBalance(mockRequest);

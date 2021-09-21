@@ -11,7 +11,7 @@ import {
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { Currency } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { localERC20AlphaArtifact } from './localArtifacts';
 
@@ -28,9 +28,11 @@ describe('contract: Erc20ConversionProxy', () => {
   const hundredWith18Decimal = '100000000000000000000';
   const referenceExample = '0xaaaa';
 
-  const ETH_address = Currency.fromSymbol('ETH').getHash();
-  const USD_address = Currency.fromSymbol('USD').getHash();
-  const EUR_address = Currency.fromSymbol('EUR').getHash();
+  const currencyManager = CurrencyManager.getDefault();
+
+  const ETH_address = currencyManager.fromSymbol('ETH')!.hash;
+  const USD_address = currencyManager.fromSymbol('USD')!.hash;
+  const EUR_address = currencyManager.fromSymbol('EUR')!.hash;
   let DAI_address: string;
 
   let testErc20ConversionProxy: Erc20ConversionProxy;

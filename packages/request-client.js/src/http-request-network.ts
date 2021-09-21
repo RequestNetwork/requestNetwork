@@ -1,3 +1,4 @@
+import { CurrencyInput } from '@requestnetwork/currency';
 import {
   DataAccessTypes,
   DecryptionProviderTypes,
@@ -36,6 +37,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       useMockStorage,
       web3,
       ethereumProviderUrl,
+      currencies,
     }: {
       decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
       nodeConnectionConfig?: AxiosRequestConfig;
@@ -44,6 +46,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       useLocalEthereumBroadcast?: boolean;
       web3?: any;
       ethereumProviderUrl?: string;
+      currencies?: CurrencyInput[];
     } = {
       nodeConnectionConfig: {},
       useLocalEthereumBroadcast: false,
@@ -64,7 +67,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       : // useLocalEthereumBroadcast === false => use http-data-access
         new HttpDataAccess(nodeConnectionConfig);
 
-    super(dataAccess, signatureProvider, decryptionProvider);
+    super({ dataAccess, signatureProvider, decryptionProvider, currencies });
 
     // store it for test purpose
     this._mockStorage = _mockStorage;

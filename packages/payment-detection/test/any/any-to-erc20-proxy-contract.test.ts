@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -5,9 +6,12 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
+import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import AnyToErc20Proxy from '../../src/any/any-to-erc20-proxy-contract';
 
 let anyToErc20Proxy: AnyToErc20Proxy;
+const currencyManager = CurrencyManager.getDefault();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -34,7 +38,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/any/conversion-fee-proxy-contract', () => {
   beforeEach(() => {
-    anyToErc20Proxy = new AnyToErc20Proxy({ advancedLogic: mockAdvancedLogic });
+    anyToErc20Proxy = new AnyToErc20Proxy({ advancedLogic: mockAdvancedLogic, currencyManager });
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -296,7 +300,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       });
       //}
     };
-    anyToErc20Proxy = new AnyToErc20Proxy({ advancedLogic: mockAdvancedLogic });
+    anyToErc20Proxy = new AnyToErc20Proxy({ advancedLogic: mockAdvancedLogic, currencyManager });
     anyToErc20Proxy.extractBalanceAndEvents = mockExtractBalanceAndEvents;
 
     const balance = await anyToErc20Proxy.getBalance(mockRequest);
@@ -305,5 +309,32 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.feeBalance
         .balance,
     ).toBe('15');
+  });
+
+  it('can retrieve the decimals from a contract if unknown', async () => {
+    const anyToErc20Proxy = new AnyToErc20Proxy({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+    }) as any;
+
+    const spy = jest.spyOn(ERC20__factory, 'connect').mockImplementation(() => {
+      return {
+        decimals: () => Promise.resolve(42),
+        symbol: () => Promise.resolve('FAKE'),
+      } as any;
+    });
+
+    expect(
+      await anyToErc20Proxy.getCurrency({
+        type: 'ERC20',
+        network: 'mainnet',
+        value: ethers.constants.AddressZero,
+      }),
+    ).toMatchObject({
+      decimals: 42,
+      symbol: 'FAKE',
+    });
+
+    expect(spy).toHaveBeenCalledWith(ethers.constants.AddressZero, expect.anything());
   });
 });

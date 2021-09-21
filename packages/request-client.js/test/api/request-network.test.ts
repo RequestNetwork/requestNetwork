@@ -34,7 +34,7 @@ describe('api/request-network', () => {
   it('exists', async () => {
     expect(RequestNetwork).toBeDefined();
 
-    const requestnetwork = new RequestNetwork(mockDataAccess);
+    const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccess });
     // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(typeof requestnetwork.createRequest).toBe('function');
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -64,7 +64,7 @@ describe('api/request-network', () => {
         },
       };
 
-      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
 
       await expect(
         requestnetwork.createRequest({
@@ -102,7 +102,7 @@ describe('api/request-network', () => {
         },
       };
 
-      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
 
       const request = await requestnetwork.fromRequestId(TestData.actionRequestId);
 
@@ -156,7 +156,7 @@ describe('api/request-network', () => {
         },
       };
 
-      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
       await expect(requestnetwork.fromRequestId(requestId)).rejects.toThrowError(
         `Invalid transaction(s) found: [{"reason":"Impossible to JSON parse the transaction","transaction":{"state":"pending","timestamp":1549953337,"transaction":{"data":"broken transaction"}}},{"reason":"Signer must be the payee or the payer","transaction":{"action":{"data":{"name":"create","parameters":{"currency":{"network":"testnet","type":"BTC","value":"BTC"},"expectedAmount":"100000000000","extensionsData":[{"action":"create","id":"pn-testnet-bitcoin-address-based","parameters":{"paymentAddress":"mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v"},"version":"0.1.0"}],"payee":{"type":"ethereumAddress","value":"0x627306090abab3a6e1400e9345bc60c78a8bef57"},"payer":{"type":"ethereumAddress","value":"0xf17f52151ebef6c7334fad080c5704d77216b732"},"timestamp":1549953337},"version":"2.0.3"},"signature":{"method":"ecdsa","value":"0xba762b281fb82cb317221ec87666d04b793e77013f9ca3951d59b4ba1e1f9554508a462ebafabd1ca4de2b6c25e878e74d1891cc1732001e5c0d8c59cb0ffa371b"}},"state":"pending","timestamp":1549953338}}]`,
       );
@@ -219,7 +219,7 @@ describe('api/request-network', () => {
         },
       };
 
-      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
       const requests: Request[] = await requestnetwork.fromIdentity(TestData.payee.identity);
 
       expect(requests.length).toBe(2);
@@ -227,7 +227,7 @@ describe('api/request-network', () => {
       expect(requests[1].requestId).toBe(TestData.actionRequestIdSecondRequest);
     });
     it('cannot get request with identity type not supported', async () => {
-      const requestnetwork = new RequestNetwork(mockDataAccess);
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccess });
 
       await expect(
         requestnetwork.fromIdentity({ type: 'not supported', value: 'whatever' } as any),
@@ -282,7 +282,7 @@ describe('api/request-network', () => {
         },
       };
 
-      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
       const requests: Request[] = await requestnetwork.fromTopic(TestData.payee.identity);
 
       expect(requests.length).toBe(2);
@@ -349,7 +349,7 @@ describe('api/request-network', () => {
         },
       };
 
-      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
       const requests: Request[] = await requestnetwork.fromMultipleIdentities([
         TestData.payee.identity,
       ]);
@@ -359,7 +359,7 @@ describe('api/request-network', () => {
       expect(requests[1].requestId).toBe(TestData.actionRequestIdSecondRequest);
     });
     it('cannot get request with identity type not supported', async () => {
-      const requestnetwork = new RequestNetwork(mockDataAccess);
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccess });
 
       await expect(
         requestnetwork.fromMultipleIdentities([
@@ -416,7 +416,7 @@ describe('api/request-network', () => {
         },
       };
 
-      const requestnetwork = new RequestNetwork(mockDataAccessWithTxs);
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
       const requests: Request[] = await requestnetwork.fromMultipleTopics([
         TestData.payee.identity,
       ]);
