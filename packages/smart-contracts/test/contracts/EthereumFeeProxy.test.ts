@@ -28,7 +28,7 @@ describe('contract: EthereumFeeProxy', () => {
     const feeAddressOldBalance = await provider.getBalance(feeAddress);
 
     await expect(
-      ethFeeProxy.transferFromWithReferenceAndFee(to, referenceExample, feeAmount, feeAddress, {
+      ethFeeProxy.transferWithReferenceAndFee(to, referenceExample, feeAmount, feeAddress, {
         value: amount.add(feeAmount),
       }),
     )
@@ -47,7 +47,7 @@ describe('contract: EthereumFeeProxy', () => {
 
   it('cannot transfer if msg.value is too low', async () => {
     await expect(
-        ethFeeProxy.transferFromWithReferenceAndFee(to, referenceExample, amount, feeAddress, {
+        ethFeeProxy.transferWithReferenceAndFee(to, referenceExample, amount, feeAddress, {
             value: feeAmount,
           })
         ).to.be.reverted;

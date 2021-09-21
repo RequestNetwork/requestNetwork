@@ -60,7 +60,7 @@
           "type": "address"
         }
       ],
-      "name": "transferFromWithReferenceAndFee",
+      "name": "transferWithReferenceAndFee",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"

@@ -28,7 +28,7 @@ contract EthereumFeeProxy {
   * @param _feeAmount The amount of the payment fee (part of the msg.value)
   * @param _feeAddress The fee recipient
   */
-  function transferFromWithReferenceAndFee(
+  function transferWithReferenceAndFee(
     address payable _to,
     bytes calldata _paymentReference,
     uint256 _feeAmount,
