@@ -4,6 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 import PaymentNetworkFactory from '../src/payment-network-factory';
 import PaymentReferenceCalculator from '../src/payment-reference-calculator';
 import NearNativeTokenPaymentDetector from '../src/near-detector';
@@ -13,6 +14,8 @@ import { deepCopy } from 'ethers/lib/utils';
 const mockNearPaymentNetwork = {
   supportedNetworks: ['aurora', 'aurora-testnet'],
 };
+const currencyManager = CurrencyManager.getDefault();
+
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
@@ -68,6 +71,7 @@ describe('Near payments detection', () => {
       PaymentNetworkFactory.getPaymentNetworkFromRequest({
         advancedLogic: mockAdvancedLogic,
         request,
+        currencyManager,
       }),
     ).toBeInstanceOf(NearNativeTokenPaymentDetector);
   });
@@ -77,6 +81,7 @@ describe('Near payments detection', () => {
       PaymentNetworkFactory.getPaymentNetworkFromRequest({
         advancedLogic: mockAdvancedLogic,
         request: { ...request, currency: { ...request.currency, network: 'aurora' } },
+        currencyManager,
       }),
     ).toBeInstanceOf(NearNativeTokenPaymentDetector);
   });
