@@ -12,7 +12,7 @@ import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
 import { BigNumber } from 'ethers';
-// !TODO: will be addes later on
+// !TODO: will be added later on
 // import { networkSupportsTheGraph } from '../thegraph';
 // import TheGraphInfoRetriever from './thegraph-info-retriever';
 
@@ -55,7 +55,7 @@ export default class PaymentNetworkETHFeeProxyContract<
     currencyManager: ICurrencyManager;
   }) {
     this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT;
-    this._extension = advancedLogic.extensions.feeProxyContractErc20;
+    this._extension = advancedLogic.extensions.feeProxyContractEth;
     this._currencyManager = currencyManager;
   }
 
