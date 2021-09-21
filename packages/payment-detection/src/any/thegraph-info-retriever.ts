@@ -1,5 +1,5 @@
-import { Currency } from '@requestnetwork/currency';
-import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { PaymentTypes } from '@requestnetwork/types';
+import { CurrencyDefinition } from '@requestnetwork/currency';
 import { BigNumber, utils } from 'ethers';
 import { getTheGraphClient, TheGraphClient } from '../thegraph';
 
@@ -21,7 +21,7 @@ export class TheGraphAnyToErc20Retriever
    * @param maxRateTimespan The the maximum span between the time the rate was fetched and the payment
    */
   constructor(
-    private requestCurrency: RequestLogicTypes.ICurrency,
+    private requestCurrency: CurrencyDefinition,
     private paymentReference: string,
     private conversionProxyContractAddress: string,
     private toAddress: string,
@@ -56,7 +56,7 @@ export class TheGraphAnyToErc20Retriever
     // Creates the balance events
     return events.payments.map((payment) => {
       const chainlinkDecimal = 8;
-      const decimalPadding = chainlinkDecimal - new Currency(this.requestCurrency).getDecimals();
+      const decimalPadding = chainlinkDecimal - this.requestCurrency.decimals;
       const amountWithRightDecimal = BigNumber.from(payment.amount)
         .div(10 ** decimalPadding)
         .toString();

@@ -1,3 +1,4 @@
+import { utils as ethersUtils } from 'ethers';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { RequestLogic } from '@requestnetwork/request-logic';
@@ -14,10 +15,14 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import {
+  CurrencyInput,
+  CurrencyManager,
+  ICurrencyManager,
+  UnsupportedCurrencyError,
+} from '@requestnetwork/currency';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
-import { Currency } from '@requestnetwork/currency';
-import { utils as ethersUtils } from 'ethers';
 import Request from './request';
 import localUtils from './utils';
 
@@ -33,6 +38,7 @@ export default class RequestNetwork {
   private advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 
   private contentData: ContentDataExtension;
+  private currencyManager: ICurrencyManager;
 
   /**
    * @param dataAccess instance of data-access layer
@@ -40,17 +46,25 @@ export default class RequestNetwork {
    * @param decryptionProvider module in charge of the decryption
    * @param bitcoinDetectionProvider bitcoin detection provider
    */
-  public constructor(
-    dataAccess: DataAccessTypes.IDataAccess,
-    signatureProvider?: SignatureProviderTypes.ISignatureProvider,
-    decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider,
-    bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider,
-  ) {
+  public constructor({
+    dataAccess,
+    signatureProvider,
+    decryptionProvider,
+    bitcoinDetectionProvider,
+    currencies,
+  }: {
+    dataAccess: DataAccessTypes.IDataAccess;
+    signatureProvider?: SignatureProviderTypes.ISignatureProvider;
+    decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
+    bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
+    currencies?: CurrencyInput[];
+  }) {
     this.advancedLogic = new AdvancedLogic();
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
     this.bitcoinDetectionProvider = bitcoinDetectionProvider;
+    this.currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());
   }
 
   /**
@@ -71,13 +85,18 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(requestLogicCreateResult.result.requestId, this.requestLogic, {
-      contentDataExtension: this.contentData,
-      paymentNetwork,
-      requestLogicCreateResult,
-      skipPaymentDetection: parameters.disablePaymentDetection,
-      disableEvents: parameters.disableEvents,
-    });
+    const request = new Request(
+      requestLogicCreateResult.result.requestId,
+      this.requestLogic,
+      this.currencyManager,
+      {
+        contentDataExtension: this.contentData,
+        paymentNetwork,
+        requestLogicCreateResult,
+        skipPaymentDetection: parameters.disablePaymentDetection,
+        disableEvents: parameters.disableEvents,
+      },
+    );
 
     // refresh the local request data
     await request.refresh();
@@ -108,13 +127,18 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(requestLogicCreateResult.result.requestId, this.requestLogic, {
-      contentDataExtension: this.contentData,
-      paymentNetwork,
-      requestLogicCreateResult,
-      skipPaymentDetection: parameters.disablePaymentDetection,
-      disableEvents: parameters.disableEvents,
-    });
+    const request = new Request(
+      requestLogicCreateResult.result.requestId,
+      this.requestLogic,
+      this.currencyManager,
+      {
+        contentDataExtension: this.contentData,
+        paymentNetwork,
+        requestLogicCreateResult,
+        skipPaymentDetection: parameters.disablePaymentDetection,
+        disableEvents: parameters.disableEvents,
+      },
+    );
 
     // refresh the local request data
     await request.refresh();
@@ -173,7 +197,7 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(requestId, this.requestLogic, {
+    const request = new Request(requestId, this.requestLogic, this.currencyManager, {
       contentDataExtension: this.contentData,
       paymentNetwork,
       skipPaymentDetection: options?.disablePaymentDetection,
@@ -267,12 +291,17 @@ export default class RequestNetwork {
         );
 
         // create the request object
-        const request = new Request(requestState.requestId, this.requestLogic, {
-          contentDataExtension: this.contentData,
-          paymentNetwork,
-          skipPaymentDetection: options?.disablePaymentDetection,
-          disableEvents: options?.disableEvents,
-        });
+        const request = new Request(
+          requestState.requestId,
+          this.requestLogic,
+          this.currencyManager,
+          {
+            contentDataExtension: this.contentData,
+            paymentNetwork,
+            skipPaymentDetection: options?.disablePaymentDetection,
+            disableEvents: options?.disableEvents,
+          },
+        );
 
         // refresh the local request data
         await request.refresh();
@@ -323,12 +352,17 @@ export default class RequestNetwork {
         );
 
         // create the request object
-        const request = new Request(requestState.requestId, this.requestLogic, {
-          contentDataExtension: this.contentData,
-          paymentNetwork,
-          skipPaymentDetection: options?.disablePaymentDetection,
-          disableEvents: options?.disableEvents,
-        });
+        const request = new Request(
+          requestState.requestId,
+          this.requestLogic,
+          this.currencyManager,
+          {
+            contentDataExtension: this.contentData,
+            paymentNetwork,
+            skipPaymentDetection: options?.disablePaymentDetection,
+            disableEvents: options?.disableEvents,
+          },
+        );
 
         // refresh the local request data
         await request.refresh();
@@ -338,6 +372,20 @@ export default class RequestNetwork {
     );
 
     return Promise.all(requestPromises);
+  }
+
+  /*
+   * If request currency is a string, convert it to currency object
+   */
+  private getCurrency(input: string | RequestLogicTypes.ICurrency): RequestLogicTypes.ICurrency {
+    if (typeof input === 'string') {
+      const currency = this.currencyManager.from(input);
+      if (!currency) {
+        throw new UnsupportedCurrencyError(input);
+      }
+      return CurrencyManager.toStorageCurrency(currency);
+    }
+    return input;
   }
 
   /**
@@ -352,11 +400,11 @@ export default class RequestNetwork {
     topics: any[];
     paymentNetwork: PaymentTypes.IPaymentNetwork | null;
   }> {
-    const currency = parameters.requestInfo.currency;
+    const currency = this.getCurrency(parameters.requestInfo.currency);
+
     const requestParameters = {
       ...parameters.requestInfo,
-      // if request currency is a string, convert it to currency object
-      currency: typeof currency === 'string' ? Currency.from(currency) : currency,
+      currency,
     };
     const paymentNetworkCreationParameters = parameters.paymentNetwork;
     const contentData = parameters.contentData;
@@ -382,8 +430,9 @@ export default class RequestNetwork {
       paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
-        currency: requestParameters.currency as RequestLogicTypes.ICurrency,
+        currency: requestParameters.currency,
         paymentNetworkCreationParameters,
+        currencyManager: this.currencyManager,
       });
 
       if (paymentNetwork) {
