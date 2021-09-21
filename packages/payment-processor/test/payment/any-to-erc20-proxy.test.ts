@@ -13,6 +13,7 @@ import Utils from '@requestnetwork/utils';
 import { approveErc20ForProxyConversionIfNeeded } from '../../src/payment/conversion-erc20';
 import { IPaymentSettings, payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
+import { currencyManager } from './shared';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -23,6 +24,7 @@ const alphaPaymentSettings: IPaymentSettings = {
     network: 'private',
   },
   maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  currencyManager,
 };
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';

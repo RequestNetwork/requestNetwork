@@ -2,6 +2,7 @@ import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { PnReferenceBased } from '@requestnetwork/types/dist/extension-types';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 const advancedLogic = new AdvancedLogic();
 const currency = {
@@ -24,6 +25,7 @@ describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
         id: PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
         parameters: createCreationActionParams,
       },
+      currencyManager: CurrencyManager.getDefault(),
     });
     const action = await paymentNetwork.createExtensionsDataForCreation(createCreationActionParams);
     expect(action.parameters.paymentAddress).toEqual('payment.testnet');
@@ -37,6 +39,7 @@ describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
         id: PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
         parameters: { ...createCreationActionParams, paymentNetworkName: undefined },
       },
+      currencyManager: CurrencyManager.getDefault(),
     });
     await expect(async () => {
       await paymentNetwork.createExtensionsDataForCreation(createCreationActionParams);

@@ -4,6 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
 import Declarative from './declarative';
@@ -64,11 +65,13 @@ export default class PaymentNetworkFactory {
     currency,
     paymentNetworkCreationParameters,
     bitcoinDetectionProvider,
+    currencyManager,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     currency: RequestLogicTypes.ICurrency;
     paymentNetworkCreationParameters: PaymentTypes.IPaymentNetworkCreateParameters;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
+    currencyManager: ICurrencyManager;
   }): PaymentTypes.IPaymentNetwork {
     const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
 
@@ -85,6 +88,7 @@ export default class PaymentNetworkFactory {
     return new paymentNetworkForCurrency[paymentNetworkCreationParameters.id]({
       advancedLogic,
       bitcoinDetectionProvider,
+      currencyManager,
     });
   }
 
