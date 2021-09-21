@@ -9,7 +9,7 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0xF328c11c4dF88d18FcBd30ad38d8B4714F4b33bF',
+          address: '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c',
           creationBlockNumber: 0,
         },
         mainnet: {
