@@ -61,6 +61,8 @@ contract ERC20EscrowToPay {
         _;
     }
 
+    error WithdrawFailed(string description);
+
     /// Events
     event OpenEscrow(
         bytes indexed paymentReference,
@@ -79,12 +81,7 @@ contract ERC20EscrowToPay {
         address payee,
         address payer
     );
-    event EscrowCompleted(
-        bytes indexed paymentReference,
-        uint256 amount,
-        uint feeAmount,
-        address feeAddress
-    );
+    event EscrowCompleted(bytes indexed paymentReference);
     event LockPeriodEnded(bytes indexed paymentReference, uint feeAmount);
     
    
@@ -144,38 +141,26 @@ contract ERC20EscrowToPay {
     /// Withdraw the funds of escrow from a given _paymentRef.
     /// @param  _paymentRef Reference of the payment related.
     /// @dev    require msg.sender to be the function executer.
-    function closeEscrow(bytes calldata _paymentRef) public onlyPayers(_paymentRef) {
+    function closeEscrow(bytes memory _paymentRef) public {
         require(invoiceMapping[_paymentRef].amount != 0, "MyEscrow: Payment reference does not exist");
-       //if (invoiceMapping[_paymentRef].amount == 0) revert NotValid("MyEscrow: Payment reference does not exist");
-
-        
-        uint256 _amount = invoiceMapping[_paymentRef].amount;
-        uint _feeAmount = invoiceMapping[_paymentRef].feeAmount;
-        address _feeAddress = invoiceMapping[_paymentRef].feeAddress;
-        
-        /// Give approval to transfer from ERC20EscrowToPay => ERC20FeeProxy contract.
-        invoiceMapping[_paymentRef].paymentToken.approve(address(paymentProxy),  2**255);
-        invoiceMapping[_paymentRef].amount = 0;
-
-
-        // Pay the request and fees.
-        paymentProxy.transferFromWithReferenceAndFee(
-            address(invoiceMapping[_paymentRef].paymentToken),
-            invoiceMapping[_paymentRef].payee, 
-            _amount, 
-            _paymentRef, 
-            invoiceMapping[_paymentRef].feeAmount,
-            invoiceMapping[_paymentRef].feeAddress
+        require(
+            msg.sender == invoiceMapping[_paymentRef].payer ||
+            (msg.sender == invoiceMapping[_paymentRef].payee && invoiceMapping[_paymentRef].claimDate <= block.timestamp),
+            "ERC20EscrowToPay: You are not a valid payer, only a valid payer can closeEscrow()!"
         );
 
-        /// Delete the details in the invoiceMapping.
+
+        /// withdraw the invoice funds from Escrow
+        require(
+            _withdraw( _paymentRef, invoiceMapping[_paymentRef].payee), 
+            "ERC20EscrowToPay: FAILED to Withdraw from ESCROW!"
+        );        
+
+        /// Delete the invoiceMapping[_paymentRef] data.
         delete invoiceMapping[_paymentRef];
 
         emit EscrowCompleted(
-            _paymentRef,
-            _amount,
-            _feeAmount,
-            _feeAddress
+            _paymentRef
         );
         
     }
@@ -192,6 +177,54 @@ contract ERC20EscrowToPay {
         ), 
         "MyEscrow: Cannot transfer tokens to Escrow as requested, did you approve ERC20 token?");
     }
+
+
+    /// @notice Withdraw the funds from the escrow.  
+    /// @param  _paymentRef Reference of the related Invoice.
+    /// @dev    Internal function to withdraw funds to a given reciever.
+    function _withdraw(bytes memory _paymentRef, address _receiver) internal returns (bool Success) {
+        IERC20 _token;
+        uint _amount;
+        uint _feeAmount;
+        address _feeAddress;
+
+        if (invoiceMapping[_paymentRef].amount != 0 ) {
+            _token = invoiceMapping[_paymentRef].paymentToken;
+            _amount = invoiceMapping[_paymentRef].amount;
+            
+            invoiceMapping[_paymentRef].amount = 0;
+            
+            _feeAmount = invoiceMapping[_paymentRef].feeAmount;
+            _feeAddress = invoiceMapping[_paymentRef].feeAddress;
+        }
+        if (disputeMapping[_paymentRef].amount != 0) {
+            _token = disputeMapping[_paymentRef].paymentToken;
+            _amount = disputeMapping[_paymentRef].amount;
+            
+             disputeMapping[_paymentRef].amount = 0;
+
+            _feeAmount = disputeMapping[_paymentRef].feeAmount;
+            _feeAddress = disputeMapping[_paymentRef].feeAddress;
+        }
+        else {
+            revert WithdrawFailed("Withdraw FAILED");
+        }
+        
+        /// Give approval to transfer from ERC20EscrowToPay => ERC20FeeProxy contract.
+        _token.approve(address(paymentProxy),  2**255);
+
+        // Pay the invoice request and fees
+        paymentProxy.transferFromWithReferenceAndFee(
+            address(_token),
+            _receiver,
+            _amount, 
+            _paymentRef, 
+            _feeAmount, 
+            payable(_feeAddress)
+        );  
+
+        return true;
+    } 
 
 
     /// @notice Return Invoice details from _paymentRef.
@@ -247,8 +280,15 @@ contract ERC20EscrowToPay {
     /// Open dispute and lock funds for a year.
     /// @param _paymentRef Reference of the Invoice related.
     function openDispute(bytes memory _paymentRef) public payable onlyPayers(_paymentRef) {
-        require(invoiceMapping[_paymentRef].amount != 0, "ERC20EscrowToPay: No Invoice found, Wrong payment reference?");
-        
+        require(
+            invoiceMapping[_paymentRef].amount != 0, 
+            "ERC20EscrowToPay: No Invoice found, Wrong payment reference?"
+        );
+        require(
+            disputeMapping[_paymentRef].amount == 0, 
+            "MyEscrow: A dispute already exists, is this the correct paymentRef?"
+        );
+
         // duration is set to 12 months
         uint256 _lockDuration = 31556926; 
 
@@ -289,6 +329,7 @@ contract ERC20EscrowToPay {
             disputeMapping[_paymentRef].payer
         );
     }
+
 
     /// @notice Close a dispute and transfer the funds to the payee account.
     /// @dev Executes a call to release() on the tokentimelock contract.
@@ -335,7 +376,6 @@ contract ERC20EscrowToPay {
     function withdrawLockedFunds(bytes memory _paymentRef) public onlyPayers(_paymentRef) {
         require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPay: No Invoice found!");
         
-
         // close tokentimelock and transfer funds to payer through paymentProxy.transferFromWithReferenceAndFee.
         disputeMapping[_paymentRef].tokentimelock.release();
         
