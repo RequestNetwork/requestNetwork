@@ -47,8 +47,8 @@ describe('contract: ChainlinkConversionPath', () => {
       );
 
       addressAggregator = await conversionPathInstance.allAggregators(address4, address5);
-      expect(addressAggregator, '0x0000000000000000000000000000000000000000').equal(
-        'addressAggregator must be 0x',
+      expect(addressAggregator, 'addressAggregator must be 0x').equal(
+        '0x0000000000000000000000000000000000000000',
       );
 
       await conversionPathInstance.updateAggregatorsList(
