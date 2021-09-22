@@ -23,6 +23,7 @@ describe('api/eth/proxy-info-retriever', () => {
 
       // inject mock provider.getLogs()
       infoRetriever.provider.getLogs = (filter): any => {
+        // return nothing when it's from the "eth-fee-proxy" event (as we use the same getLogs for both contracts)
         if(filter.topics && filter.topics[0] === '0xa1c241e337c4610a9d0f881111e977e9dc8690c85fe2108897bb1483c66e6a96') {
           return []
         }

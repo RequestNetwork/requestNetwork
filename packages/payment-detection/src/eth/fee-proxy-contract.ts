@@ -23,17 +23,6 @@ class NetworkNotSupported extends Error {}
 class VersionNotSupported extends Error {}
 
 /**
- * Gets the payment proxy deployment information
- */
-export type DeploymentInformationGetter = (
-  networkName: string,
-  artifactsVersion?: string,
-) => {
-  address: string;
-  creationBlockNumber: number;
-};
-
-/**
  * Handle payment networks with ETH fee proxy contract extension
  * FIXME: inherit ReferenceBasedDetector
  */
