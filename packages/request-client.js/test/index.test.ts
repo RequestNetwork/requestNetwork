@@ -420,6 +420,41 @@ describe('index', () => {
     expect(requestFromId.requestId).toBe(request.requestId);
   });
 
+  it('allows to get a request from its ID with a payment network', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: payeeIdentity,
+    });
+    await request.waitForConfirmation();
+
+    const requestFromId = await requestNetwork.fromRequestId(request.requestId);
+
+    expect(requestFromId.getData()).toMatchObject({
+      requestId: request.requestId,
+      currency: 'BTC-testnet-testnet',
+      currencyInfo: {
+        network: 'testnet',
+        type: RequestLogicTypes.CURRENCY.BTC,
+        value: 'BTC',
+      },
+      balance: {
+        balance: '0',
+        events: [],
+      },
+    });
+  });
+
   it('allows to refresh a request', async () => {
     const mock = new AxiosMockAdapter(axios);
     mock.onPost('/persistTransaction').reply(200, { result: {} });
