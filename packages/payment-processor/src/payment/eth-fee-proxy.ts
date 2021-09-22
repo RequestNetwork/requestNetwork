@@ -11,7 +11,6 @@ import {
   getProvider,
   getRequestPaymentValues,
   getSigner,
-  validateEthFeeProxyRequest,
   validateRequest,
 } from './utils';
 import { IPreparedTransaction } from './prepared-transaction';
@@ -65,39 +64,6 @@ export function encodePayEthFeeProxyRequest(
 }
 
 /**
- * Return the EIP-681 format URL with the transaction to pay an ETH
- * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
- *
- * @param request
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
- */
-export function _getEthFeeProxyPaymentUrl(
-  request: ClientTypes.IRequestData,
-  amount?: BigNumberish,
-  feeAmountOverride?: BigNumberish,
-): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT);
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAddress,
-    feeAmount,
-    version,
-  } = getRequestPaymentValues(request);
-  const contractAddress = ethereumFeeProxyArtifact.getAddress(
-    request.currencyInfo.network!,
-    version,
-  );
-  const feeToPay = feeAmountOverride || BigNumber.from(feeAmount || 0);
-  const amountToPay = getAmountToPay(request, amount);
-  const parameters = `transferWithReferenceAndFee?&address=${paymentAddress}&bytes=${paymentReference}&uint256=${feeToPay}&address=${feeAddress}&value=${amountToPay.add(
-    feeToPay,
-  )}`;
-  return `ethereum:${contractAddress}/${parameters}`;
-}
-
-/**
  * Prepate the transaction to pay a request through the ETH fee proxy contract, can be used with a Multisig contract.
  * @param request request to pay
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
@@ -126,4 +92,28 @@ export function prepareEthFeeProxyPaymentTransaction(
     to: proxyAddress,
     value: amountToPay.add(feeToPay),
   };
+}
+
+/**
+ * Validates the amount and fee parameters for an Eth Fee Proxy based request.
+ * @param request to validate
+ * @param feeAmountOverride optionally, the custom fee amount
+ * @param paymentNetwork defaults to ETH Fee Proxy contract
+ */
+export function validateEthFeeProxyRequest(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+  paymentNetwork: PaymentTypes.PAYMENT_NETWORK_ID = PaymentTypes.PAYMENT_NETWORK_ID
+    .ETH_FEE_PROXY_CONTRACT,
+): void {
+  validateRequest(request, paymentNetwork);
+
+  const { feeAmount } = getRequestPaymentValues(request);
+  const amountToPay = getAmountToPay(request, amount);
+  const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
+
+  if (amountToPay.isZero() && feeToPay.isZero()) {
+    throw new Error('Request payment amount and fee are 0');
+  }
 }

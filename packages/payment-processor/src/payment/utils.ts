@@ -217,30 +217,6 @@ export function validateErc20FeeProxyRequest(
 }
 
 /**
- * Validates the amount and fee parameters for an Eth Fee Proxy based request.
- * @param request to validate
- * @param feeAmountOverride optionally, the custom fee amount
- * @param paymentNetwork defaults to ETH Fee Proxy contract
- */
-export function validateEthFeeProxyRequest(
-  request: ClientTypes.IRequestData,
-  amount?: BigNumberish,
-  feeAmountOverride?: BigNumberish,
-  paymentNetwork: PaymentTypes.PAYMENT_NETWORK_ID = PaymentTypes.PAYMENT_NETWORK_ID
-    .ETH_FEE_PROXY_CONTRACT,
-): void {
-  validateRequest(request, paymentNetwork);
-
-  const { feeAmount } = getRequestPaymentValues(request);
-  const amountToPay = getAmountToPay(request, amount);
-  const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
-
-  if (amountToPay.isZero() && feeToPay.isZero()) {
-    throw new Error('Request payment amount and fee are 0');
-  }
-}
-
-/**
  * Validates the parameters for an ERC20 Fee Proxy payment.
  * @param request to validate
  * @param tokenAddress token address to pay with
