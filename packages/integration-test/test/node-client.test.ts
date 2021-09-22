@@ -625,8 +625,7 @@ describe('ERC20 localhost request creation and detection test', () => {
   });
 });
 
-
-describe.only('ETH localhost request creation and detection test', () => {
+describe('ETH localhost request creation and detection test', () => {
   const ethRequestCreationHash: Types.IRequestInfo = {
     currency: {
       network: 'private',
