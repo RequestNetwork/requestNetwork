@@ -5,11 +5,13 @@ import { EthereumProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
+  getPaymentNetworkExtension,
   getProvider,
   getRequestPaymentValues,
   getSigner,
   validateRequest,
 } from './utils';
+import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ETH Request with the proxy contract.
@@ -24,17 +26,9 @@ export async function payEthProxyRequest(
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodePayEthProxyRequest(request, signerOrProvider);
-  const proxyAddress = ethereumProxyArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
-  const amountToPay = getAmountToPay(request, amount);
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: proxyAddress,
-    value: amountToPay,
-    ...overrides,
-  });
-  return tx;
+  const { data, to, value } = prepareEthProxyPaymentTransaction(request, amount);
+  return signer.sendTransaction({ data, to, value, ...overrides });
 }
 
 /**
@@ -43,20 +37,32 @@ export async function payEthProxyRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function encodePayEthProxyRequest(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
-): string {
+export function encodePayEthProxyRequest(request: ClientTypes.IRequestData): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
-  const signer = getSigner(signerOrProvider);
-
-  const proxyAddress = ethereumProxyArtifact.getAddress(request.currencyInfo.network!);
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
 
-  const proxyContract = EthereumProxy__factory.connect(proxyAddress, signer);
-  return proxyContract.interface.encodeFunctionData('transferWithReference', [
+  const proxyContract = EthereumProxy__factory.createInterface();
+  return proxyContract.encodeFunctionData('transferWithReference', [
     paymentAddress,
     `0x${paymentReference}`,
   ]);
+}
+
+export function prepareEthProxyPaymentTransaction(
+  request: ClientTypes.IRequestData,
+  amount?: BigNumberish,
+): IPreparedTransaction {
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
+
+  const encodedTx = encodePayEthProxyRequest(request);
+  const pn = getPaymentNetworkExtension(request);
+  const proxyAddress = ethereumProxyArtifact.getAddress(request.currencyInfo.network!, pn?.version);
+  const amountToPay = getAmountToPay(request, amount);
+
+  return {
+    data: encodedTx,
+    to: proxyAddress,
+    value: amountToPay,
+  };
 }

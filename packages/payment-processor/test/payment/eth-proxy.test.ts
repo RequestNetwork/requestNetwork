@@ -48,7 +48,7 @@ const validRequest: ClientTypes.IRequestData = {
         paymentAddress,
         salt: 'salt',
       },
-      version: '1.0',
+      version: '0.1.0',
     },
   },
   extensionsData: [],
@@ -138,8 +138,8 @@ describe('payEthProxyRequest', () => {
 });
 
 describe('encodePayEthProxyRequest', () => {
-  it('should encode pay for an ETH request', async () => {
-    expect(await encodePayEthProxyRequest(validRequest, wallet)).toBe(
+  it('should encode pay for an ETH request', () => {
+    expect(encodePayEthProxyRequest(validRequest)).toBe(
       '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
     );
   });
