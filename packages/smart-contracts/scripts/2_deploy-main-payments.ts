@@ -82,12 +82,17 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     // FIXME useless transaction to keep the same contract addresses
     await testERC20Instance.transfer(deployer.address, '1');
 
+    // Deploy Ethereym fee proxy contract
+    const EthereumFeeProxyAddress = await deployOne(args, hre, 'EthereumFeeProxy');
+    console.log('EthereumFeeProxy Contract deployed: ' + EthereumFeeProxyAddress);
+
     // ----------------------------------
     console.log('Contracts deployed');
     console.log(`
       TestERC20:                ${testERC20Instance.address}
       ERC20Proxy:               ${instanceRequestERC20Proxy.address}
       EthereumProxy:            ${EthereumProxyAddress}
+      EthereumFeeProxy:         ${EthereumFeeProxyAddress}
       ERC20FeeProxy:            ${ERC20FeeProxyAddress}
       BadERC20:                 ${BadERC20Address}
       ERC20True:                ${ERC20TrueAddress}
@@ -95,7 +100,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       ERC20NoReturn:            ${ERC20NoReturnAddress}
       ERC20Revert:              ${ERC20Revert.address}
       ERC20Alpha:               ${erc20AlphaInstance.address}
-      TestERC20:                ${testERC20Instance.address}
       FakeSwapRouter:           ${FakeSwapRouterAddress}
       SwapToPay:                ${ERC20SwapToPayAddress}
       `);
