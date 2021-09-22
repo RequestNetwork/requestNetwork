@@ -42,16 +42,13 @@ describe('contract: ChainlinkConversionPath', () => {
 
     it('can updateAggregatorsList', async () => {
       let addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
-      expect(
-        addressAggregator,
+      expect(addressAggregator).to.be(
         '0x0000000000000000000000000000000000000000',
         'addressAggregator must be 0x',
       );
 
       addressAggregator = await conversionPathInstance.allAggregators(address4, address5);
-      expect(
-        addressAggregator,
-        '0x0000000000000000000000000000000000000000',
+      expect(addressAggregator, '0x0000000000000000000000000000000000000000').to.be(
         'addressAggregator must be 0x',
       );
 
@@ -62,9 +59,9 @@ describe('contract: ChainlinkConversionPath', () => {
       );
 
       addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
-      expect(addressAggregator, address3, 'addressAggregator must be 0x333..');
+      expect(addressAggregator).to.be(address3, 'addressAggregator must be 0x333..');
       addressAggregator = await conversionPathInstance.allAggregators(address4, address5);
-      expect(addressAggregator, address6, 'addressAggregator must be 0x666..');
+      expect(addressAggregator).to.be(address6, 'addressAggregator must be 0x666..');
     });
   });
 
