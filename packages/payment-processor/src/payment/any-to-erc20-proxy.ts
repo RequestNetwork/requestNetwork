@@ -46,10 +46,7 @@ export async function payAnyToErc20ProxyRequest(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  if (!paymentSettings.currency.network) {
-    throw new Error('Cannot pay with a currency missing a network');
-  }
-  const encodedTx = encodePayAnyToErc20ProxyRequest(
+  const { data, to, value } = prepareAnyToErc20ProxyPaymentTransaction(
     request,
     paymentSettings,
     amount,
