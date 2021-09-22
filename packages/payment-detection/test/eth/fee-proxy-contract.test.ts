@@ -1,7 +1,5 @@
 import {
   AdvancedLogicTypes,
-  ExtensionTypes,
-  IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
@@ -28,6 +26,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddFeeAction(): any {
         return;
       },
+      supportedNetworks: ['private']
     },
   },
 };
@@ -148,7 +147,7 @@ describe('api/eth/fee-proxy-contract', () => {
 
   it('should not throw when getBalance fail', async () => {
     expect(
-      await ethFeeProxyContract.getBalance({ extensions: {} } as RequestLogicTypes.IRequest),
+      await ethFeeProxyContract.getBalance({ currency: {network: 'private'}, extensions: {} } as RequestLogicTypes.IRequest),
     ).toEqual({
       balance: null,
       error: {
@@ -157,96 +156,5 @@ describe('api/eth/fee-proxy-contract', () => {
       },
       events: [],
     });
-  });
-
-  it('can get the fees out of payment events', async () => {
-    const mockRequest: RequestLogicTypes.IRequest = {
-      creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
-      currency: {
-        network: 'private',
-        type: RequestLogicTypes.CURRENCY.ETH,
-        value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ETH token
-      },
-      events: [],
-      expectedAmount: '1000',
-      extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: {
-          events: [],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
-          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-          values: {
-            feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
-            feeAmount: '5',
-            paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-          },
-          version: '0',
-        },
-      },
-      extensionsData: [],
-      requestId: '0x1',
-      state: RequestLogicTypes.STATE.CREATED,
-      timestamp: 0,
-      version: '0.2',
-    };
-
-    const mockExtractBalanceAndEvents = () => {
-      return Promise.resolve({
-        balance: '1000',
-        events: [
-          // Wrong fee address
-          {
-            amount: '0',
-            name: PaymentTypes.EVENTS_NAMES.PAYMENT,
-            parameters: {
-              block: 1,
-              feeAddress: 'fee address',
-              feeAmount: '5',
-              to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-              txHash: '0xABC',
-            },
-            timestamp: 10,
-          },
-          // Correct fee address and a fee value
-          {
-            amount: '500',
-            name: PaymentTypes.EVENTS_NAMES.PAYMENT,
-            parameters: {
-              block: 1,
-              feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
-              feeAmount: '5',
-              to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-              txHash: '0xABCD',
-            },
-            timestamp: 11,
-          },
-          // No fee
-          {
-            amount: '500',
-            name: PaymentTypes.EVENTS_NAMES.PAYMENT,
-            parameters: {
-              block: 1,
-              feeAddress: '',
-              feeAmount: '0',
-              to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-              txHash: '0xABCDE',
-            },
-            timestamp: 12,
-          },
-        ],
-      });
-    };
-    ethFeeProxyContract = new ETHFeeProxyContract({
-      advancedLogic: mockAdvancedLogic,
-      currencyManager,
-    });
-    ethFeeProxyContract.extractBalanceAndEvents = mockExtractBalanceAndEvents;
-
-    const balance = await ethFeeProxyContract.getBalance(mockRequest);
-
-    expect(balance.balance).toBe('1000');
-    expect(
-      mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT].values
-        .feeBalance.balance,
-    ).toBe('5');
   });
 });
