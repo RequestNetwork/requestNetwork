@@ -4,34 +4,40 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 import PaymentNetworkFactory from '../src/payment-network-factory';
 import PaymentReferenceCalculator from '../src/payment-reference-calculator';
 import NearNativeTokenPaymentDetector from '../src/near-detector';
 import { NearInfoRetriever } from '../src/near-info-retriever';
+import { deepCopy } from 'ethers/lib/utils';
 
 const mockNearPaymentNetwork = {
   supportedNetworks: ['aurora', 'aurora-testnet'],
 };
+const currencyManager = CurrencyManager.getDefault();
+
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
   },
   extensions: { nativeToken: [mockNearPaymentNetwork] },
 };
+const salt = 'f60b918fa5e83c1d';
+const paymentAddress = 'yoissuer.testnet';
 const request: any = {
-  requestId: '0124dc29327931e5d7631c2d866ee62d79a3b38e2b9976e4e218ebd1ece83c9d5d',
+  requestId: '01edb4d8d3396bd688ffa028fbcebd224ba0fdfb5f690eeb45b86aa02cb7d58891',
   currency: {
     network: 'aurora-testnet',
     type: RequestLogicTypes.CURRENCY.ETH,
-    value: 'NEAR',
+    value: 'NEAR-testnet',
   },
   extensions: {
     [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
       id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
-        paymentAddress: 'benji.testnet',
-        salt: 'a1a2a3a4a5a6a7a8',
+        paymentAddress,
+        salt,
       },
       version: '0.1.0',
     },
@@ -40,10 +46,9 @@ const request: any = {
 
 describe('Near payments detection', () => {
   it('NearInfoRetriever can detect a NEAR payment', async () => {
-    const paymentAddress = 'benji.testnet';
     const paymentReference = PaymentReferenceCalculator.calculate(
-      '0124dc29327931e5d7631c2d866ee62d79a3b38e2b9976e4e218ebd1ece83c9d5d',
-      'a1a2a3a4a5a6a7a8',
+      request.requestId,
+      salt,
       paymentAddress,
     );
 
@@ -56,9 +61,9 @@ describe('Near payments detection', () => {
       'aurora-testnet',
     );
     const events = await infoRetriever.getTransferEvents();
-    expect(events).toHaveLength(2);
+    expect(events).toHaveLength(1);
 
-    expect(events[0].amount).toBe('3141593000000000000000000');
+    expect(events[0].amount).toBe('400000000000000000000000');
   });
 
   it('PaymentNetworkFactory can get the detector (testnet)', async () => {
@@ -66,6 +71,7 @@ describe('Near payments detection', () => {
       PaymentNetworkFactory.getPaymentNetworkFromRequest({
         advancedLogic: mockAdvancedLogic,
         request,
+        currencyManager,
       }),
     ).toBeInstanceOf(NearNativeTokenPaymentDetector);
   });
@@ -75,6 +81,7 @@ describe('Near payments detection', () => {
       PaymentNetworkFactory.getPaymentNetworkFromRequest({
         advancedLogic: mockAdvancedLogic,
         request: { ...request, currency: { ...request.currency, network: 'aurora' } },
+        currencyManager,
       }),
     ).toBeInstanceOf(NearNativeTokenPaymentDetector);
   });
@@ -85,7 +92,50 @@ describe('Near payments detection', () => {
     });
     const balance = await paymentDetector.getBalance(request);
 
-    expect(balance.balance).toBe('6283186000000000000000000');
-    expect(balance.events).toHaveLength(2);
+    expect(balance.balance).toBe('400000000000000000000000');
+    expect(balance.events).toHaveLength(1);
+  });
+
+  describe('Edge cases for NearNativeTokenPaymentDetector', () => {
+    it('throws with a wrong version', async () => {
+      let requestWithWrongVersion = deepCopy(request);
+      requestWithWrongVersion = {
+        ...requestWithWrongVersion,
+        extensions: {
+          [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN]: {
+            ...requestWithWrongVersion.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN],
+            version: '3.14',
+          },
+        },
+      };
+      const paymentDetector = new NearNativeTokenPaymentDetector({
+        advancedLogic: mockAdvancedLogic,
+      });
+      expect(await paymentDetector.getBalance(requestWithWrongVersion)).toMatchObject({
+        balance: null,
+        error: { code: 0, message: 'Near payment detection not implemented for version 3.14' },
+        events: [],
+      });
+    });
+
+    it('throws with a wrong currency network', async () => {
+      let requestWithWrongNetwork = deepCopy(request);
+      requestWithWrongNetwork = {
+        ...requestWithWrongNetwork,
+        currency: { ...requestWithWrongNetwork.currency, network: 'unknown-network' },
+      };
+      const paymentDetector = new NearNativeTokenPaymentDetector({
+        advancedLogic: mockAdvancedLogic,
+      });
+      expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({
+        balance: null,
+        error: {
+          code: 2,
+          message:
+            'Payment network unknown-network not supported by pn-native-token payment detection. Supported networks: aurora, aurora-testnet',
+        },
+        events: [],
+      });
+    });
   });
 });

@@ -1,5 +1,4 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { Connection } from 'autobahn';
 
 const NEAR_WEB_SOCKET_URL = 'wss://near-explorer-wamp.onrender.com/ws';
 
@@ -31,7 +30,7 @@ export class NearInfoRetriever {
   public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
     const events = await this.getTransactionsFromNearIndexerDatabase();
     return events.map((transaction) => ({
-      amount: transaction.amount,
+      amount: transaction.deposit,
       name: this.eventName,
       parameters: {
         block: transaction.block,
@@ -56,7 +55,6 @@ export class NearInfoRetriever {
         COALESCE(a.args::json->>'deposit', '') as deposit,
         COALESCE(a.args::json->>'method_name', '') as method_name,
         COALESCE((a.args::json->'args_json')::json->>'to', '') as "to",
-        COALESCE((a.args::json->'args_json')::json->>'amount', '') as amount,
         (a.args::json->'args_json')::json->>'payment_reference' as paymentReference,
         (select MAX(block_height) from blocks) - b.block_height as confirmations
       FROM transactions t
@@ -77,18 +75,19 @@ export class NearInfoRetriever {
       LIMIT 100`;
     return new Promise((resolve, reject) => {
       try {
-        const connection = new Connection({
+        const autobahn = require('autobahn');
+        const connection: any = new autobahn.Connection({
           url: this.nearWebSocketUrl,
           realm: 'near-explorer',
         });
-        connection.onopen = async (session) => {
+        connection.onopen = async (session: any) => {
           await session
             .call(this.procedureName, [
               query,
               {
                 contractName: this.proxyContractName,
                 paymentAddress: this.toAddress,
-                paymentReference: `0x${this.paymentReference}`,
+                paymentReference: this.paymentReference,
               },
             ])
             .then((data: any) => {
@@ -99,7 +98,7 @@ export class NearInfoRetriever {
               reject(`Could not connect to Near indexer web socket: ${err.message}.\n${err.stack}`);
             });
         };
-        connection.onclose = (reason) => {
+        connection.onclose = (reason: string) => {
           if (reason === 'unsupported' || reason === 'unreachable') {
             reject(`Could not connect to Near indexer web socket: ${reason}`);
           }
@@ -123,6 +122,5 @@ export type NearIndexerTransaction = {
   deposit: string;
   method_name: string;
   to: string;
-  amount: string;
   paymentReference: string;
 };

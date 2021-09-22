@@ -2,10 +2,10 @@ import { EventEmitter } from 'events';
 
 import { DeclarativePaymentNetwork as PaymentNetworkDeclarative } from '@requestnetwork/payment-detection';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
-import { Currency } from '@requestnetwork/currency';
 import localUtils from './utils';
 
 /**
@@ -66,6 +66,11 @@ export default class Request {
   private disableEvents = false;
 
   /**
+   * A list of known tokens
+   */
+  private currencyManager: ICurrencyManager;
+
+  /**
    * Creates an instance of Request
    *
    * @param requestLogic Instance of the request-logic layer
@@ -78,6 +83,7 @@ export default class Request {
   constructor(
     requestId: RequestLogicTypes.RequestId,
     requestLogic: RequestLogicTypes.IRequestLogic,
+    currencyManager: ICurrencyManager,
     options?: {
       paymentNetwork?: PaymentTypes.IPaymentNetwork | null;
       contentDataExtension?: ContentDataExtension | null;
@@ -93,6 +99,7 @@ export default class Request {
     this.emitter = new EventEmitter();
     this.skipPaymentDetection = options?.skipPaymentDetection || false;
     this.disableEvents = options?.disableEvents || false;
+    this.currencyManager = currencyManager;
 
     if (options && options.requestLogicCreateResult && !this.disableEvents) {
       options.requestLogicCreateResult
@@ -733,11 +740,12 @@ export default class Request {
       pending = { state: this.pendingData!.state };
     }
 
+    const currency = this.currencyManager.fromStorageCurrency(requestData.currency);
     return Object.assign(new EventEmitter(), {
       ...requestData,
       balance: this.balance,
       contentData: this.contentData,
-      currency: requestData.currency ? new Currency(requestData.currency).toString() : 'unknown',
+      currency: currency ? currency.id : 'unknown',
       currencyInfo: requestData.currency,
       meta: this.requestMeta,
       pending,

@@ -3,14 +3,14 @@ import { Contract } from 'near-api-js';
 import { Near, WalletConnection } from 'near-api-js';
 import { Near as NearPaymentDetection } from '@requestnetwork/payment-detection';
 
-export async function isValidNearAddress(nearNetwork: Near, address: string) {
+export const isValidNearAddress = async (nearNetwork: Near, address: string): Promise<boolean> => {
   try {
     await nearNetwork.connection.provider.query(`account/${address}`, '');
     return true;
   } catch (e) {
     return false;
   }
-}
+};
 
 export const isNearNetwork = (network?: string): boolean => {
   return !!network && (network === 'aurora-testnet' || network === 'aurora');
@@ -19,7 +19,7 @@ export const isNearNetwork = (network?: string): boolean => {
 export const isNearAccountSolvent = (
   amount: BigNumberish,
   nearWalletConnection: WalletConnection,
-) => {
+): Promise<boolean> => {
   return nearWalletConnection
     .account()
     .state()
@@ -33,19 +33,32 @@ const GAS_LIMIT_IN_TGAS = 30;
 const GAS_LIMIT = ethers.utils.parseUnits(GAS_LIMIT_IN_TGAS.toString(), 12);
 
 /**
- * Used for mocking only.
+ * Export used for mocking only.
  */
-export async function processNearPayment(
+export const processNearPayment = async (
   walletConnection: WalletConnection,
   network: string,
   amount: BigNumberish,
   to: string,
   payment_reference: string,
-) {
+  version = '0.2.0',
+): Promise<void> => {
+  if (version !== '0.2.0') {
+    if (version === '0.1.0') {
+      throw new Error(
+        'Native Token payments on Near with extension v0.1.0 are not supported anymore',
+      );
+    }
+    throw new Error('Native Token payments on Near only support v0.2.0 extensions');
+  }
+  if (!(await isValidNearAddress(walletConnection._near, to))) {
+    throw new Error(`Invalid NEAR payment address: ${to}`);
+  }
+
   try {
     const contract = new Contract(
       walletConnection.account(),
-      NearPaymentDetection.getContractName(network),
+      NearPaymentDetection.getContractName(network, version),
       {
         changeMethods: ['transfer_with_reference'],
         viewMethods: [],
@@ -54,7 +67,6 @@ export async function processNearPayment(
     await contract.transfer_with_reference(
       {
         to,
-        amount: amount.toString(),
         payment_reference,
       },
       GAS_LIMIT.toString(),
@@ -64,4 +76,4 @@ export async function processNearPayment(
   } catch (e) {
     throw new Error(`Could not pay Near request. Got ${e.message}`);
   }
-}
+};

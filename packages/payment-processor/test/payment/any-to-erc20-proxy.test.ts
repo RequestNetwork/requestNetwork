@@ -13,6 +13,7 @@ import Utils from '@requestnetwork/utils';
 import { approveErc20ForProxyConversionIfNeeded } from '../../src/payment/conversion-erc20';
 import { IPaymentSettings, payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
+import { currencyManager } from './shared';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -23,6 +24,7 @@ const alphaPaymentSettings: IPaymentSettings = {
     network: 'private',
   },
   maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  currencyManager,
 };
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
@@ -127,7 +129,7 @@ describe('conversion-erc20-fee-proxy', () => {
         data:
           '0x3af2c012000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000005f5e1000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000001e8480000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000000000000000017b4158805772ced11225e77339f90beb5aae968000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b00000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa35000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
         gasPrice: '20000000000',
-        to: '0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a',
+        to: '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E',
         value: 0,
       });
       wallet.sendTransaction = originalSendTransaction;

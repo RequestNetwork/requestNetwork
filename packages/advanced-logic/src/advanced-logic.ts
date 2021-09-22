@@ -12,6 +12,7 @@ import Declarative from './extensions/payment-network/declarative';
 import AddressBasedErc20 from './extensions/payment-network/erc20/address-based';
 import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
+import FeeProxyContractEth from './extensions/payment-network/ethereum/fee-proxy-contract';
 import EthereumInputData from './extensions/payment-network/ethereum/input-data';
 import NearNative from './extensions/payment-network/near-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
@@ -33,6 +34,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     nativeToken: [new NearNative()],
     feeProxyContractErc20: new FeeProxyContractErc20(),
     proxyContractErc20: new ProxyContractErc20(),
+    feeProxyContractEth: new FeeProxyContractEth(),
   };
 
   /**
@@ -86,6 +88,8 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         requestState,
       ),
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: this.extensions.anyToErc20Proxy,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: this.extensions
+        .feeProxyContractEth,
     }[id];
 
     if (!extension) {

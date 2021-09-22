@@ -1,6 +1,7 @@
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-magic-numbers */
-import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { PaymentTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 import AnyToErc20ProxyInfoRetriever from '../../src/any/any-to-erc20-proxy-info-retriever';
 import { ethers } from 'ethers';
 
@@ -9,7 +10,7 @@ const conversionProxyContractAddress = '0x2C2B9C9a4a25e24B174f26114e8926a9f2128F
 const erc20FeeProxyContractAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
 const paymentReferenceMock = '01111111111111111111111111111111111111111111111111';
 const acceptedTokens = [erc20LocalhostContractAddress];
-const USDCurrency = { type: RequestLogicTypes.CURRENCY.ISO4217, value: 'USD' };
+const USDCurrency = CurrencyManager.getDefault().from('USD')!;
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/any/conversion-proxy-info-retriever', () => {

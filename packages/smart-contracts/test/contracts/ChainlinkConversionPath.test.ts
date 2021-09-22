@@ -1,5 +1,5 @@
 const { expect } = require('chai');
-import { Currency } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { ethers, network } from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
 import { chainlinkConversionPath as chainlinkConvArtifact } from '../../src/lib';
@@ -13,9 +13,10 @@ const address4 = '0x4444444444444444444444444444444444444444';
 const address5 = '0x5555555555555555555555555555555555555555';
 const address6 = '0x6666666666666666666666666666666666666666';
 
-const ETH_address = Currency.fromSymbol('ETH').getHash();
-const USD_address = Currency.fromSymbol('USD').getHash();
-const EUR_address = Currency.fromSymbol('EUR').getHash();
+const currencyManager = CurrencyManager.getDefault();
+const ETH_address = currencyManager.fromSymbol('ETH')!.hash;
+const USD_address = currencyManager.fromSymbol('USD')!.hash;
+const EUR_address = currencyManager.fromSymbol('EUR')!.hash;
 let DAI_address: string;
 let USDT_address: string;
 let conversionPathInstance: ChainlinkConversionPath;

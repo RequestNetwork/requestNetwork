@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish } from 'ethers';
 
-import { getConversionPath, Currency } from '@requestnetwork/currency';
+import { CurrencyManager, getConversionPath, ICurrencyManager } from '@requestnetwork/currency';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -25,6 +25,7 @@ import { IPreparedTransaction } from './prepared-transaction';
 export interface IPaymentSettings {
   currency: RequestLogicTypes.ICurrency;
   maxToSpend: BigNumberish;
+  currencyManager?: ICurrencyManager;
 }
 
 /**
@@ -45,7 +46,10 @@ export async function payAnyToErc20ProxyRequest(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = prepareAnyToErc20ProxyPaymentTransaction(
+  if (!paymentSettings.currency.network) {
+    throw new Error('Cannot pay with a currency missing a network');
+  }
+  const encodedTx = encodePayAnyToErc20ProxyRequest(
     request,
     paymentSettings,
     amount,
@@ -72,16 +76,29 @@ export function encodePayAnyToErc20ProxyRequest(
   if (!paymentSettings.currency.network) {
     throw new Error('Cannot pay with a currency missing a network');
   }
+  const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
+
+  const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
+  if (!requestCurrency) {
+    throw new Error(
+      `Could not find request currency ${request.currencyInfo.value}. Did you forget to specify the currencyManager?`,
+    );
+  }
+  const paymentCurrency = currencyManager.fromStorageCurrency(paymentSettings.currency);
+  if (!paymentCurrency) {
+    throw new Error(
+      `Could not find payment currency ${paymentSettings.currency.value}. Did you forget to specify the currencyManager?`,
+    );
+  }
+  if (paymentCurrency.type !== RequestLogicTypes.CURRENCY.ERC20) {
+    throw new Error(`Payment currency must be an ERC20`);
+  }
 
   // Compute the path automatically
-  const path = getConversionPath(
-    request.currencyInfo,
-    paymentSettings.currency,
-    paymentSettings.currency.network,
-  );
+  const path = getConversionPath(requestCurrency, paymentCurrency, paymentCurrency.network);
   if (!path) {
     throw new Error(
-      `Impossible to find a conversion path between from ${request.currencyInfo} to ${paymentSettings.currency}`,
+      `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
     );
   }
 
@@ -96,7 +113,6 @@ export function encodePayAnyToErc20ProxyRequest(
     maxRateTimespan,
   } = getRequestPaymentValues(request);
 
-  const requestCurrency = new Currency(request.currencyInfo);
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
 

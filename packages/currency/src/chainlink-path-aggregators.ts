@@ -1,6 +1,5 @@
-import { RequestLogicTypes } from '@requestnetwork/types';
 import GRAPH from 'node-dijkstra';
-import { Currency } from './currency';
+import { CurrencyDefinition } from './types';
 
 // List of currencies supported by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
 // Network => currencyFrom => currencyTo => cost
@@ -197,8 +196,8 @@ const currencyPairs: any = {
  * @returns conversion path
  */
 export function getPath(
-  currencyFrom: RequestLogicTypes.ICurrency,
-  currencyTo: RequestLogicTypes.ICurrency,
+  currencyFrom: Pick<CurrencyDefinition, 'hash'>,
+  currencyTo: Pick<CurrencyDefinition, 'hash'>,
   network = 'mainnet',
 ): string[] | null {
   if (!currencyPairs[network]) {
@@ -209,8 +208,5 @@ export function getPath(
   const route = new GRAPH(currencyPairs[network]);
 
   // Get the path
-  return route.path(
-    new Currency(currencyFrom).getHash().toLowerCase(),
-    new Currency(currencyTo).getHash().toLowerCase(),
-  );
+  return route.path(currencyFrom.hash.toLowerCase(), currencyTo.hash.toLowerCase());
 }

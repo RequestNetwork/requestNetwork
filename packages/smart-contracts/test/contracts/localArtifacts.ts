@@ -22,7 +22,7 @@ export const localUSDTArtifact = new ContractArtifact<ERC20Alpha>(
       abi: [],
       deployment: {
         private: {
-          address: '0x8ACEe021a27779d8E98B9650722676B850b25E11',
+          address: '0xF328c11c4dF88d18FcBd30ad38d8B4714F4b33bF',
           creationBlockNumber: 0,
         },
       },

@@ -1,5 +1,6 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks';
 
@@ -42,6 +43,7 @@ const createMockRequest = ({
 
 const erc20AddressedBased = new Erc20PaymentNetwork.FeeProxyContract({
   advancedLogic: mockAdvancedLogic,
+  currencyManager: CurrencyManager.getDefault(),
 });
 
 describe('ERC20 Fee Proxy detection test-suite', () => {

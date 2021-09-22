@@ -11,7 +11,7 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { getConversionPath, Currency } from '@requestnetwork/currency';
+import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
@@ -25,7 +25,7 @@ export { ISwapSettings } from './swap-erc20-fee-proxy';
 export async function swapToPayAnyToErc20Request(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
-  options?: IRequestPaymentOptions,
+  options: IRequestPaymentOptions,
 ): Promise<ContractTransaction> {
   if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
     throw new Error(`The request must have the payment network any-to-erc20-proxy`);
@@ -59,7 +59,7 @@ export async function swapToPayAnyToErc20Request(
 export function encodeSwapToPayAnyToErc20Request(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
-  options?: IRequestPaymentOptions,
+  options: IRequestPaymentOptions,
 ): string {
   const conversionSettings = options?.conversion;
   const swapSettings = options?.swap;
@@ -70,9 +70,23 @@ export function encodeSwapToPayAnyToErc20Request(
   if (!swapSettings) {
     throw new Error(`Swap Settings are required`);
   }
+  const currencyManager = conversionSettings.currencyManager || CurrencyManager.getDefault();
   const network = conversionSettings.currency?.network;
   if (!network) {
     throw new Error(`Currency in conversion settings must have a network`);
+  }
+
+  const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
+  if (!requestCurrency) {
+    throw new Error(
+      `Could not find request currency ${request.currencyInfo.value}. Did you forget to specify the currencyManager?`,
+    );
+  }
+  const paymentCurrency = currencyManager.fromStorageCurrency(conversionSettings.currency);
+  if (!paymentCurrency) {
+    throw new Error(
+      `Could not find payment currency ${conversionSettings.currency.value}. Did you forget to specify the currencyManager?`,
+    );
   }
 
   /** On Chain conversion preparation */
@@ -87,10 +101,10 @@ export function encodeSwapToPayAnyToErc20Request(
   }
 
   // Compute the path automatically
-  const path = getConversionPath(request.currencyInfo, conversionSettings.currency, network);
+  const path = getConversionPath(requestCurrency, paymentCurrency, network);
   if (!path) {
     throw new Error(
-      `Impossible to find a conversion path between from ${request.currencyInfo} to ${conversionSettings.currency}`,
+      `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
     );
   }
   validateConversionFeeProxyRequest(request, path);
@@ -102,10 +116,11 @@ export function encodeSwapToPayAnyToErc20Request(
   );
 
   const chainlinkDecimal = 8;
-  const decimalPadding = Math.max(
-    chainlinkDecimal - new Currency(request.currencyInfo).getDecimals(),
-    0,
-  );
+  const decimals = currencyManager.fromStorageCurrency(request.currencyInfo)?.decimals;
+  if (!decimals) {
+    throw new Error(`Could not find currency decimals for  ${request.currencyInfo.value}`);
+  }
+  const decimalPadding = Math.max(chainlinkDecimal - decimals, 0);
 
   const amountToPay = getAmountToPay(request, options?.amount).mul(10 ** decimalPadding);
   const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0).mul(10 ** decimalPadding);

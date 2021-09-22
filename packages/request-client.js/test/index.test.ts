@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 import {
   DecryptionProviderTypes,
@@ -418,6 +418,41 @@ describe('index', () => {
     const requestFromId = await requestNetwork.fromRequestId(request.requestId);
 
     expect(requestFromId.requestId).toBe(request.requestId);
+  });
+
+  it('allows to get a request from its ID with a payment network', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: payeeIdentity,
+    });
+    await request.waitForConfirmation();
+
+    const requestFromId = await requestNetwork.fromRequestId(request.requestId);
+
+    expect(requestFromId.getData()).toMatchObject({
+      requestId: request.requestId,
+      currency: 'BTC-testnet-testnet',
+      currencyInfo: {
+        network: 'testnet',
+        type: RequestLogicTypes.CURRENCY.BTC,
+        value: 'BTC',
+      },
+      balance: {
+        balance: '0',
+        events: [],
+      },
+    });
   });
 
   it('allows to refresh a request', async () => {
@@ -1355,7 +1390,7 @@ describe('index', () => {
       expect(data).toBeDefined();
       expect(data.balance).toBeDefined();
       expect(data.meta).toBeDefined();
-      expect(data.currency).toBe('ETH-rinkeby');
+      expect(data.currency).toBe('ETH-rinkeby-rinkeby');
       expect(data.extensionsData[0].parameters.salt).toBe(salt);
       expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
       jest.useRealTimers();
@@ -1871,6 +1906,110 @@ describe('index', () => {
       const data = await request.refresh();
 
       expect(data.extensionsData[0].parameters.salt.length).toBe(16);
+    });
+  });
+
+  describe('Token lists', () => {
+    const testErc20Data = {
+      ...TestData.parametersWithoutExtensionsData,
+      currency: {
+        network: 'private',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // Test Erc20
+      },
+    };
+    const daiData = {
+      ...TestData.parametersWithoutExtensionsData,
+      currency: {
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
+      },
+    };
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      parameters: {
+        paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+      },
+    };
+
+    it('supports a default list when nothing is provided', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+      const request = await requestNetwork.createRequest({
+        requestInfo: daiData,
+        paymentNetwork,
+        signer: payeeIdentity,
+      });
+
+      expect(request.getData().currency).toBe('DAI-mainnet');
+    });
+
+    it('shows unknown when the currency is not known', async () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+      });
+      const request = await requestNetwork.createRequest({
+        requestInfo: testErc20Data,
+        paymentNetwork,
+        signer: payeeIdentity,
+      });
+
+      expect(request.getData().currency).toBe('unknown');
+    });
+
+    describe('allows overriding the default currencies', () => {
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: fakeSignatureProvider,
+        useMockStorage: true,
+        currencies: [
+          {
+            network: 'private',
+            address: testErc20Data.currency.value,
+            type: RequestLogicTypes.CURRENCY.ERC20,
+            decimals: 18,
+            symbol: '_TEST',
+          },
+        ],
+      });
+
+      it('allows creating a request by currency properties', async () => {
+        const request = await requestNetwork.createRequest({
+          requestInfo: testErc20Data,
+          paymentNetwork,
+          signer: payeeIdentity,
+        });
+
+        expect(request.getData().currency).toBe('_TEST-private');
+      });
+
+      it('allows creating a request by currency name', async () => {
+        const request = await requestNetwork.createRequest({
+          requestInfo: {
+            ...testErc20Data,
+            currency: '_TEST',
+          },
+          paymentNetwork,
+          signer: payeeIdentity,
+        });
+
+        expect(request.getData().currency).toBe('_TEST-private');
+      });
+
+      it('overrides the default token list', async () => {
+        const daiRequest = await requestNetwork.createRequest({
+          requestInfo: daiData,
+          paymentNetwork,
+          signer: payeeIdentity,
+        });
+
+        // the currencyManager provided to the requestNetwork object does not contain DAI
+        expect(daiRequest.getData().currency).toBe('unknown');
+      });
     });
   });
 });

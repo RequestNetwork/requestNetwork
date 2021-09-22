@@ -72,7 +72,7 @@ export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<Extens
     refundAddress: 'refund.near',
     salt,
   },
-  version: '0.1.0',
+  version: '0.2.0',
 };
 
 export const actionAddDelegate = {
@@ -201,7 +201,7 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
       refundAddress: 'refund.near',
       salt,
     },
-    version: '0.1.0',
+    version: '0.2.0',
   },
 };
 export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtensionStates = {
@@ -228,7 +228,7 @@ export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtension
       paymentAddress: 'pay.near',
       salt,
     },
-    version: '0.1.0',
+    version: '0.2.0',
   },
 };
 

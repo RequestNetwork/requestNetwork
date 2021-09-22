@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-
+import { CurrencyManager } from '@requestnetwork/currency';
 import BTCAddressedBased from '../src/btc/mainnet-address-based';
 import Declarative from '../src/declarative';
 import PaymentNetworkETHInputData from '../src/eth/input-data';
@@ -17,6 +17,8 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {},
 };
+
+const currencyManager = CurrencyManager.getDefault();
 
 // Most of the tests are done as integration tests in ../index.test.ts
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -39,6 +41,7 @@ describe('api/payment-network/payment-network-factory', () => {
             value: 'BTC',
           },
           paymentNetworkCreationParameters,
+          currencyManager,
         }),
       ).toBeInstanceOf(BTCAddressedBased);
     });
@@ -60,6 +63,7 @@ describe('api/payment-network/payment-network-factory', () => {
             value: 'BTC',
           },
           paymentNetworkCreationParameters,
+          currencyManager,
         }),
       ).toBeInstanceOf(Declarative);
     });
@@ -81,6 +85,7 @@ describe('api/payment-network/payment-network-factory', () => {
             value: 'BTC',
           },
           paymentNetworkCreationParameters,
+          currencyManager,
         });
       }).toThrowError(
         'the payment network id: ETHEREUM_MAGIC is not supported for the currency: BTC',
@@ -109,6 +114,7 @@ describe('api/payment-network/payment-network-factory', () => {
         PaymentNetworkFactory.getPaymentNetworkFromRequest({
           advancedLogic: mockAdvancedLogic,
           request,
+          currencyManager,
         }),
       ).toBeInstanceOf(BTCAddressedBased);
     });
@@ -132,6 +138,7 @@ describe('api/payment-network/payment-network-factory', () => {
         PaymentNetworkFactory.getPaymentNetworkFromRequest({
           advancedLogic: mockAdvancedLogic,
           request,
+          currencyManager,
         }),
       ).toBeNull();
     });
@@ -155,6 +162,7 @@ describe('api/payment-network/payment-network-factory', () => {
         PaymentNetworkFactory.getPaymentNetworkFromRequest({
           advancedLogic: mockAdvancedLogic,
           request,
+          currencyManager,
         });
       }).toThrowError(
         'the payment network id: content-data is not supported for the currency: BTC',
@@ -177,6 +185,7 @@ describe('api/payment-network/payment-network-factory', () => {
         PaymentNetworkFactory.getPaymentNetworkFromRequest({
           advancedLogic: mockAdvancedLogic,
           request,
+          currencyManager,
         }),
       ).toBeInstanceOf(Declarative);
     });
@@ -198,6 +207,7 @@ describe('api/payment-network/payment-network-factory', () => {
       const pn = PaymentNetworkFactory.getPaymentNetworkFromRequest({
         advancedLogic: mockAdvancedLogic,
         request,
+        currencyManager,
         explorerApiKeys: {
           homestead: 'abcd',
         },
