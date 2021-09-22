@@ -8,6 +8,7 @@ export * from './ERC20Proxy';
 export * from './ERC20SwapToPay';
 export * from './Erc20SwapConversion';
 export * from './EthereumProxy';
+export * from './EthereumFeeProxy';
 
 /**
  * Request Storage
