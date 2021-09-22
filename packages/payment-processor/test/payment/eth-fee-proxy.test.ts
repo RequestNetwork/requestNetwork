@@ -51,7 +51,7 @@ const validRequest: ClientTypes.IRequestData = {
         paymentAddress,
         salt: 'salt',
       },
-      version: '1.0',
+      version: '0.2.0',
     },
   },
   extensionsData: [],
@@ -141,7 +141,7 @@ describe('payEthFeeProxyRequest', () => {
 
 describe('encodePayEthFeeProxyRequest', () => {
   it('should encode pay for an ETH request', async () => {
-    expect(await encodePayEthFeeProxyRequest(validRequest, wallet)).toBe(
+    expect(await encodePayEthFeeProxyRequest(validRequest)).toBe(
       '0xb868980b000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b73200000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
     );
   });
