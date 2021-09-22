@@ -44,7 +44,7 @@
     "@types/events": "3.0.0",
     "shx": "0.3.2",
     "ts-node": "9.0.0",
-    "typescript": "4.1.3"
+    "typescript": "4.4.3"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }
