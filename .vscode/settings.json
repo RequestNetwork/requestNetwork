@@ -1,5 +1,6 @@
 {
   "mochaExplorer.require": "ts-node/register",
   "mochaExplorer.files": "**/test/**/*.test.ts",
-  "mochaExplorer.cwd": "./"
+  "mochaExplorer.cwd": "./",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
