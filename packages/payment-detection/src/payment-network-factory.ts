@@ -109,9 +109,11 @@ export default class PaymentNetworkFactory {
     request,
     bitcoinDetectionProvider,
     explorerApiKeys,
+    currencyManager,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     request: RequestLogicTypes.IRequest;
+    currencyManager: ICurrencyManager;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
     explorerApiKeys?: Record<string, string>;
   }): PaymentTypes.IPaymentNetwork | null {
@@ -139,6 +141,7 @@ export default class PaymentNetworkFactory {
       advancedLogic,
       bitcoinDetectionProvider,
       explorerApiKeys,
+      currencyManager,
     });
   }
 }
