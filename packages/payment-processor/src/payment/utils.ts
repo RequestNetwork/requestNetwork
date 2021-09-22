@@ -89,6 +89,7 @@ export function getRequestPaymentValues(
   tokensAccepted?: string[];
   maxRateTimespan?: string;
   network?: string;
+  version: string;
 } {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
@@ -116,6 +117,7 @@ export function getRequestPaymentValues(
     tokensAccepted,
     maxRateTimespan,
     network,
+    version: extension.version,
   };
 }
 
