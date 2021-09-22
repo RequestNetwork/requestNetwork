@@ -193,6 +193,7 @@ export default class RequestNetwork {
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
         request: requestState,
         explorerApiKeys: options?.explorerApiKeys,
+        currencyManager: this.currencyManager,
       },
     );
 
@@ -287,6 +288,7 @@ export default class RequestNetwork {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
             request: requestState,
+            currencyManager: this.currencyManager,
           },
         );
 
@@ -348,6 +350,7 @@ export default class RequestNetwork {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
             request: requestState,
+            currencyManager: this.currencyManager,
           },
         );
 

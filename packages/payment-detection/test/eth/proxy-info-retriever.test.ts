@@ -22,7 +22,10 @@ describe('api/eth/proxy-info-retriever', () => {
       );
 
       // inject mock provider.getLogs()
-      infoRetriever.provider.getLogs = (): any => {
+      infoRetriever.provider.getLogs = (filter): any => {
+        if(filter.topics && filter.topics[0] === '0xa1c241e337c4610a9d0f881111e977e9dc8690c85fe2108897bb1483c66e6a96') {
+          return []
+        }
         return [
           {
             address: proxyContractAddress,

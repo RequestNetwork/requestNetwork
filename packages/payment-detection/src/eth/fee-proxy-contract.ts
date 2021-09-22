@@ -1,4 +1,4 @@
-import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { ethereumFeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -225,7 +225,7 @@ export default class PaymentNetworkETHFeeProxyContract<
       throw new NetworkNotSupported(`Payment network not supported by ETH payment detection`);
     }
 
-    const deploymentInformation = erc20FeeProxyArtifact.getDeploymentInformation(
+    const deploymentInformation = ethereumFeeProxyArtifact.getDeploymentInformation(
       network,
       paymentNetwork.version,
     );
