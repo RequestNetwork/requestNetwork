@@ -3,7 +3,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { CurrencyManager } from '@requestnetwork/currency';
 import ETHFeeProxyContract from '../../src/eth/fee-proxy-contract';
 
 let ethFeeProxyContract: ETHFeeProxyContract;
@@ -31,14 +30,11 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
 };
 
-const currencyManager = CurrencyManager.getDefault();
-
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/fee-proxy-contract', () => {
   beforeEach(() => {
     ethFeeProxyContract = new ETHFeeProxyContract({
       advancedLogic: mockAdvancedLogic,
-      currencyManager,
     });
   });
 
@@ -92,6 +88,7 @@ describe('api/eth/fee-proxy-contract', () => {
 
     await ethFeeProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
+      salt: 'ea3bc7caf64110ca',
     });
 
     // Can't check parameters since salt is generated in createExtensionsDataForCreation
@@ -152,7 +149,7 @@ describe('api/eth/fee-proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-        message: 'The request does not have the extension : pn-eth-fee-proxy-contract',
+        message: 'The request does not have the extension: pn-eth-fee-proxy-contract',
       },
       events: [],
     });
