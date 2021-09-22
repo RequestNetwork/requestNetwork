@@ -1,4 +1,4 @@
-import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { ethereumFeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -220,16 +220,18 @@ export default class PaymentNetworkETHFeeProxyContract<
     paymentNetwork: ExtensionTypes.IState,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
     const network = request.currency.network;
+    console.log('network', network);
 
     if (!network) {
       throw new NetworkNotSupported(`Payment network not supported by ETH payment detection`);
     }
 
-    const deploymentInformation = erc20FeeProxyArtifact.getDeploymentInformation(
+    const deploymentInformation = ethereumFeeProxyArtifact.getDeploymentInformation(
       network,
       paymentNetwork.version,
     );
 
+    console.log('deploymentInformation', deploymentInformation);
     if (!deploymentInformation) {
       throw new VersionNotSupported(
         `Payment network version not supported: ${paymentNetwork.version}`,
@@ -239,6 +241,7 @@ export default class PaymentNetworkETHFeeProxyContract<
     const proxyContractAddress: string | undefined = deploymentInformation.address;
     const proxyCreationBlockNumber: number = deploymentInformation.creationBlockNumber;
 
+    console.log('proxyContractAddress', proxyContractAddress);
     if (!proxyContractAddress) {
       throw new NetworkNotSupported(
         `Network not supported for this payment network: ${request.currency.network}`,
@@ -250,7 +253,7 @@ export default class PaymentNetworkETHFeeProxyContract<
       salt,
       toAddress,
     );
-
+    console.log('ProxyInfoRetriever');
     const infoRetriever =
       //   networkSupportsTheGraph(network)
       //   ? new TheGraphInfoRetriever(

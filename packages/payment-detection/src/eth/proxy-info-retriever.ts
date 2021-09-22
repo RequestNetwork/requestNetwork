@@ -86,6 +86,8 @@ export default class ProxyEthereumInfoRetriever
 
     // Get the fee proxy contract event logs
     const feeProxyLogs = await this.provider.getLogs(feeFilter);
+    console.log('feeProxyLogs', feeProxyLogs);
+    console.log('proxyLogs', proxyLogs);
 
     // Merge both events
     const logs = [...proxyLogs, ...feeProxyLogs];
