@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+import { expect } from 'chai';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ethers, network } from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
