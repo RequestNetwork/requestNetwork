@@ -1,4 +1,4 @@
-const { expect } = require('chai');
+import { expect } from 'chai';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ethers, network } from 'hardhat';
 import '@nomiclabs/hardhat-ethers';
@@ -30,7 +30,7 @@ describe('contract: ChainlinkConversionPath', () => {
   });
 
   describe('admin tasks', async () => {
-    it('can updateAggregator', async () => {
+    it('can updateAggregator and updateAggregatorsList', async () => {
       let addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
       expect(addressAggregator).equal('0x0000000000000000000000000000000000000000');
 
@@ -38,21 +38,10 @@ describe('contract: ChainlinkConversionPath', () => {
 
       addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
       expect(addressAggregator).equal(address3);
-    });
-
-    it('can updateAggregatorsList', async () => {
-      let addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
-      expect(
-        addressAggregator,
-        '0x0000000000000000000000000000000000000000',
-        'addressAggregator must be 0x',
-      );
 
       addressAggregator = await conversionPathInstance.allAggregators(address4, address5);
-      expect(
-        addressAggregator,
+      expect(addressAggregator, 'addressAggregator must be 0x').equal(
         '0x0000000000000000000000000000000000000000',
-        'addressAggregator must be 0x',
       );
 
       await conversionPathInstance.updateAggregatorsList(
@@ -62,9 +51,9 @@ describe('contract: ChainlinkConversionPath', () => {
       );
 
       addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
-      expect(addressAggregator, address3, 'addressAggregator must be 0x333..');
+      expect(addressAggregator, 'addressAggregator must be 0x333..').equal(address3);
       addressAggregator = await conversionPathInstance.allAggregators(address4, address5);
-      expect(addressAggregator, address6, 'addressAggregator must be 0x666..');
+      expect(addressAggregator, 'addressAggregator must be 0x666..').equal(address6);
     });
   });
 
