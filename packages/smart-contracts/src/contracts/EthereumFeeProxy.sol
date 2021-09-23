@@ -36,7 +36,8 @@ contract EthereumFeeProxy {
   )
     external
     payable
-  {
+  { 
+    // TODO reentrancy guard !!!
     _to.transfer(msg.value - _feeAmount);
     _feeAddress.transfer(_feeAmount);
     emit TransferWithReferenceAndFee(_to, msg.value - _feeAmount, _paymentReference, _feeAmount, _feeAddress);
