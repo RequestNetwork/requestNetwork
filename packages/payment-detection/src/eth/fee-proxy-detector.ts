@@ -10,13 +10,13 @@ interface IProxyContractVersion {
 }
 
 const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
-  ['0.2.0']: '0.2.0',
+  ['0.1.0']: '0.1.0',
 };
 
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class PaymentNetworkETHFeeProxy extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
    */

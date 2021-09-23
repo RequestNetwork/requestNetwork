@@ -3,9 +3,9 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import ETHFeeProxyContract from '../../src/eth/fee-proxy-contract';
+import ETHFeeProxyDetector from '../../src/eth/fee-proxy-detector';
 
-let ethFeeProxyContract: ETHFeeProxyContract;
+let ethFeeProxyContract: ETHFeeProxyDetector;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -33,7 +33,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/fee-proxy-contract', () => {
   beforeEach(() => {
-    ethFeeProxyContract = new ETHFeeProxyContract({
+    ethFeeProxyContract = new ETHFeeProxyDetector({
       advancedLogic: mockAdvancedLogic,
     });
   });

@@ -111,7 +111,7 @@ export default class ProxyEthereumInfoRetriever
           block: blockNumber,
           txHash: transactionHash,
           to: this.toAddress,
-          feeAddress: parsedLog.feeAddress || undefined,
+          feeAddress: parsedLog.feeAddress,
           feeAmount: parsedLog.feeAmount?.toString() || undefined,
         },
         timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
