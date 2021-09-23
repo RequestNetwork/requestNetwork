@@ -89,6 +89,7 @@ export function getRequestPaymentValues(
   tokensAccepted?: string[];
   maxRateTimespan?: string;
   network?: string;
+  version: string;
 } {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
@@ -116,6 +117,7 @@ export function getRequestPaymentValues(
     tokensAccepted,
     maxRateTimespan,
     network,
+    version: extension.version,
   };
 }
 
@@ -130,6 +132,7 @@ export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): s
 const {
   ERC20_PROXY_CONTRACT,
   ETH_INPUT_DATA,
+  ETH_FEE_PROXY_CONTRACT,
   ERC20_FEE_PROXY_CONTRACT,
   ANY_TO_ERC20_PROXY,
   NATIVE_TOKEN,
@@ -138,6 +141,7 @@ const currenciesMap: any = {
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ERC20_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ETH_INPUT_DATA]: RequestLogicTypes.CURRENCY.ETH,
+  [ETH_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ETH,
   [NATIVE_TOKEN]: RequestLogicTypes.CURRENCY.ETH,
 };
 

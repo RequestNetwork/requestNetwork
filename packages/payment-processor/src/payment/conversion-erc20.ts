@@ -25,8 +25,8 @@ export async function approveErc20ForProxyConversionIfNeeded(
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  const network =
-    request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.network;
+  const pn = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY];
+  const network = pn.values.network;
   if (!network) {
     throw new Error(`Payment network currency must have a network`);
   }
@@ -34,7 +34,7 @@ export async function approveErc20ForProxyConversionIfNeeded(
   if (
     !(await checkErc20Allowance(
       ownerAddress,
-      erc20ConversionProxy.getAddress(network),
+      erc20ConversionProxy.getAddress(network, pn.version),
       signerOrProvider,
       paymentTokenAddress,
       minAmount,
@@ -63,12 +63,12 @@ export async function approveErc20ForProxyConversion(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const network =
-    request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.network;
+  const pn = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY];
+  const network = pn.values.network;
 
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
-    erc20ConversionProxy.getAddress(network),
+    erc20ConversionProxy.getAddress(network, pn.version),
     signerOrProvider,
   );
   const signer = getSigner(signerOrProvider);

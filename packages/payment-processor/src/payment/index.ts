@@ -6,6 +6,7 @@ import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
 import { payErc20Request } from './erc20';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
+import { payEthFeeProxyRequest } from './eth-fee-proxy';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
 import { ISwapSettings } from './swap-erc20-fee-proxy';
@@ -87,6 +88,8 @@ export async function payRequest(
     }
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
       return payEthInputDataRequest(request, signer, amount, overrides);
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT:
+      return payEthFeeProxyRequest(request, signer, amount, undefined, overrides);
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }

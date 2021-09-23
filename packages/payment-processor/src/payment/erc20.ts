@@ -237,12 +237,15 @@ export function _getErc20PaymentUrl(
  * @returns the payment network proxy address
  */
 function getProxyAddress(request: ClientTypes.IRequestData): string {
-  const id = getPaymentNetworkExtension(request)?.id;
+  const pn = getPaymentNetworkExtension(request);
+  const id = pn?.id;
+  const version = pn?.version;
+
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
-    return erc20ProxyArtifact.getAddress(request.currencyInfo.network!);
+    return erc20ProxyArtifact.getAddress(request.currencyInfo.network!, version);
   }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
-    return erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);
+    return erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!, version);
   }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
     throw new Error(`ERC20 address based payment network doesn't need approval`);
