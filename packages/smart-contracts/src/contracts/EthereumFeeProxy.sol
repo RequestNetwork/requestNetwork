@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
 /**
  * @title EthereumFeeProxy
  * @notice This contract performs an Ethereum transfer with a Fee sent to a third address and stores a reference
  */
-contract EthereumFeeProxy {
+contract EthereumFeeProxy is ReentrancyGuard{
   // Event to declare a transfer with a reference
   event TransferWithReferenceAndFee(
     address to,
@@ -14,7 +16,6 @@ contract EthereumFeeProxy {
     uint256 feeAmount,
     address feeAddress
   );
-
 
   // Fallback function returns funds to the sender
   receive() external payable {
@@ -63,10 +64,10 @@ contract EthereumFeeProxy {
     uint256 _feeAmount,
     address payable _feeAddress
   )
+    nonReentrant
     public
     payable
-  { 
-    // TODO reentrancy guard ?
+  {
     _to.transfer(_amount);
     _feeAddress.transfer(_feeAmount);
     // transfer the remaining ethers to the sender
