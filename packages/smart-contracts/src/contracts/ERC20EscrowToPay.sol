@@ -1,7 +1,6 @@
 /// SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.6;
 
-
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "./interfaces/ERC20FeeProxy.sol";
@@ -9,8 +8,9 @@ import "./interfaces/ERC20FeeProxy.sol";
 
 /// @title Escrow based invoice
 contract ERC20EscrowToPay {
-    
+
     IERC20FeeProxy private paymentProxy;
+    TokenTimelock private tokentimelock;
     address payable private owner;
     
     struct Invoice {
@@ -80,10 +80,15 @@ contract ERC20EscrowToPay {
     );
     event LockPeriodEnded(bytes indexed paymentReference);
     
-    constructor() {
+    constructor(address payable _paymentProxyAddress) {
         owner = payable(msg.sender);
-        // TODO: remove locally deployed ERC20FeeProxy address.
-        paymentProxy = IERC20FeeProxy(payable(0xD177da9Bc48017370f80dFa41df8B2E3e21232F5));
+        paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
+    }
+
+
+    // Fallback function returns funds to the sender
+    receive() external payable {
+        revert("not payable receive");
     }
 
 
@@ -91,19 +96,24 @@ contract ERC20EscrowToPay {
     /// @param _paymentRef Reference of the Invoice related.
     /// @param amount Amount to transfer.
     /// @param payee address of the reciever/ beneficiary of the escrow funds.
-    function openEscrow(bytes memory _paymentRef, IERC20 paymentToken,uint256 amount, address payee, uint256 feeAmount, address feeAddress) 
+    function openEscrow(
+        bytes memory _paymentRef,
+        IERC20 paymentToken,
+        uint256 amount,
+        address payee,
+        uint256 feeAmount,
+        address feeAddress
+    ) 
         public
         payable
-        returns (bytes memory, uint256)
     {
         require(
             invoiceMapping[_paymentRef].amount == 0, 
             "MyEscrow: This paymentRef already exists, is this the correct paymentRef?"
         );
         
-        
         uint256 sixMonths = 15778458;
-        // Variable claimDate is used to set a timestamp on when the payee can execute closeEscrow().
+        // Variable claimDate is used to set a timestamp on when the payee can execute closeEscrow
         uint256 claimDate = block.timestamp + sixMonths;
         
         invoiceMapping[_paymentRef] = Invoice(
@@ -128,7 +138,6 @@ contract ERC20EscrowToPay {
             claimDate
         );
         
-        return (_paymentRef, claimDate);
     }
 
 
@@ -144,7 +153,7 @@ contract ERC20EscrowToPay {
             "ERC20EscrowToPay: Only the payer or payee can excecute this call!"
         );
         /// withdraw the funds from Escrow. 
-        _withdraw( _paymentRef, invoiceMapping[_paymentRef].payee);
+        _withdraw(_paymentRef, invoiceMapping[_paymentRef].payee);
 
 
         /// Delete the invoiceMapping[_paymentRef] data.
@@ -158,12 +167,14 @@ contract ERC20EscrowToPay {
 
   
     /// @notice Used to change the feeAmount and feeAddress of any escrow.
-    function changeFeeAndAddress(bytes memory _paymentRef, uint _feeAmount, address _feeAddress) external OnlyOwner() returns 
-    (
-        bytes memory paymentRef,
-        uint feeAmount,
-        address feeAddress
+    function changeFeeAndAddress(
+        bytes memory _paymentRef,
+        uint _feeAmount, 
+        address _feeAddress
     ) 
+        external 
+        OnlyOwner()
+        returns (bytes memory paymentRef, uint feeAmount, address feeAddress) 
     {
         require(
             invoiceMapping[_paymentRef].amount != 0, 
@@ -194,6 +205,7 @@ contract ERC20EscrowToPay {
             "ERC20EscrowToPay: A dispute already exists, is this the correct paymentRef?"
         );
 
+        
         disputeMapping[_paymentRef] = Dispute(
             _paymentRef,
             invoiceMapping[_paymentRef].paymentToken, 
@@ -202,9 +214,9 @@ contract ERC20EscrowToPay {
             invoiceMapping[_paymentRef].payer,
             invoiceMapping[_paymentRef].feeAmount,
             invoiceMapping[_paymentRef].feeAddress,
-            0000,
-            0000,
-            " "
+            0,
+            0,
+            tokentimelock
         );
 
         /// Deletes the invoiceMapping
@@ -239,6 +251,7 @@ contract ERC20EscrowToPay {
     /// @notice Creates a tokentimelock contract and returns the escrowed funds to the payer after 12 months.
     /// @dev Pays the fees and transferes funds to timelockcontract.
     function lockDisputedFunds(bytes memory _paymentRef) public OnlyPayer(_paymentRef) {
+        require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPay: No dispute found, worng paymentRef?");
         /// duration is set to 12 months
         uint256 _lockDuration = 31556926; 
 
@@ -267,7 +280,9 @@ contract ERC20EscrowToPay {
     /// @notice Transfer funds from tokentimelock contract => payer.
     /// @param  _paymentRef Reference of the Invoice related.
     function withdrawLockedFunds(bytes memory _paymentRef) public OnlyPayer(_paymentRef) {
-        require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPay: No dispute found!");
+        require(address(disputeMapping[_paymentRef].tokentimelock) != 0x0000000000000000000000000000000000000000, 
+        "ERC20EscrowToPay: No timelockcontract found!");
+        
         // close tokentimelock and returns the escrowed funds to the payer.
         disputeMapping[_paymentRef].tokentimelock.release();
         
@@ -278,7 +293,7 @@ contract ERC20EscrowToPay {
     }
 
 
- /// @notice Transfers paymentToken from payer to MyEscrow smartcontract.  
+    /// @notice Transfers paymentToken from payer to MyEscrow smartcontract.  
     /// @param  _paymentRef Reference of the related Invoice.
     /// @dev    Internal function called by openEscrow.
     function _deposit(bytes memory _paymentRef) internal {
@@ -294,7 +309,12 @@ contract ERC20EscrowToPay {
     /// @notice Withdraw the funds from the escrow.  
     /// @param  _paymentRef Reference of the related Invoice.
     /// @dev    Internal function to withdraw funds to a given reciever.
-    function _withdraw(bytes memory _paymentRef, address _receiver) internal returns (bool, string memory) {
+    function _withdraw(bytes memory _paymentRef, address _receiver) internal returns
+    (
+        bool, 
+        string memory
+    )
+    {
         /// Normal flow, funds are transfered to payee.
         if (invoiceMapping[_paymentRef].amount != 0 ) {
             uint256 _amount = invoiceMapping[_paymentRef].amount;
