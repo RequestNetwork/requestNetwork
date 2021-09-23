@@ -624,3 +624,62 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(event?.parameters?.maxRateTimespan).toBe('1000000');
   });
 });
+
+describe('ETH localhost request creation and detection test', () => {
+  const ethRequestCreationHash: Types.IRequestInfo = {
+    currency: {
+      network: 'private',
+      type: Types.RequestLogic.CURRENCY.ETH,
+      value: Types.RequestLogic.CURRENCY.ETH,
+    },
+    expectedAmount: '1000',
+    payee: payeeIdentity,
+    payer: payerIdentity,
+  };
+
+  it('can create ETH requests and pay with ETH Fee proxy', async () => {
+    const currencies = [
+      ...CurrencyManager.getDefaultList()
+    ];
+    const requestNetwork = new RequestNetwork({
+      signatureProvider,
+      useMockStorage: true,
+      currencies,
+    });
+
+    const paymentNetworkETHFeeProxy: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
+      parameters: {
+        paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+        feeAmount: '200',
+        network: 'private',
+        maxRateTimespan: 1000000,
+      },
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork: paymentNetworkETHFeeProxy,
+      requestInfo: ethRequestCreationHash,
+      signer: payeeIdentity,
+    });
+
+    let data = await request.refresh();
+    expect(data.balance).toBeNull();
+
+    const paymentTx = await payRequest(data, wallet);
+    await paymentTx.wait();
+
+    data = await request.refresh();
+    expect(data.balance?.balance).toBe('1000');
+    expect(data.balance?.events.length).toBe(1);
+    const event = data.balance?.events[0];
+    expect(event?.amount).toBe('1000');
+    expect(event?.name).toBe('payment');
+
+    expect(event?.parameters?.feeAmount).toBe('200');
+    expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
+    // amount in crypto after apply the rates of the fake aggregators
+    expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
+  });
+});

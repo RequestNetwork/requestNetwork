@@ -2,7 +2,7 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import FeeReferenceBasedPaymentNetwork from '../fee-reference-based';
 import * as walletAddressValidator from 'wallet-address-validator';
 
-const CURRENT_VERSION = '0.2.0';
+const CURRENT_VERSION = '0.1.0';
 
 /**
  * Implementation of the payment network to pay in Ethereum, including third-party fees payment, based on a reference provided to a proxy contract.
