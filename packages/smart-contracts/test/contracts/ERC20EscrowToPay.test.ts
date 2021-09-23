@@ -1,30 +1,30 @@
-/* eslint-disable prefer-const */
 import { ethers } from 'hardhat';
 import { BigNumber, BytesLike, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import {
-  MyEscrow__factory,
-  TestToken__factory,
+  ERC20EscrowToPayV1__factory,
+  TestERC20__factory,
   ERC20FeeProxy__factory,
   ERC20FeeProxy,
-  TestToken,
-  MyEscrow
+  TestERC20,
+  ERC20EscrowToPayV1
 } from '../../src/types';
 
 use(solidity);
 
-describe("Contracts: TestToken, ERC20FeeProxy, MyEscrow", () => {
-  let paymentRef1: BytesLike, paymentRef2: BytesLike, feeAmount: number, amount: number;
-  let token: TestToken, myEscrow: MyEscrow, erc20FeeProxy: ERC20FeeProxy;
+describe("Contracts: TestToken, ERC20FeeProxy, ERC20EscrowToPayV1", () => {
+  let paymentRef1: BytesLike, paymentRef2: BytesLike;
+  let feeAmount: string, amount: string;
+  let token: TestERC20, erc20EscrowToPay: ERC20EscrowToPayV1, erc20FeeProxy: ERC20FeeProxy;
   let date: Date;
   let disputeMapping: any;
   let timelockBalance: BigNumber, payerBalanceNew: BigNumber, totalSupply: BigNumber, escrowBalance: BigNumber, feeAddressBalance: BigNumber, payerBalanceOld: BigNumber;
   let owner: Signer, payee: Signer, payer: Signer, buidler: Signer;
-  let ownerAddress: string, payeeAddress: string, payerAddress: string, buidlerAddress: string, erc20FeeProxyAddress: string, myEscrowAddress: string;
+  let ownerAddress: string, payeeAddress: string, payerAddress: string, buidlerAddress: string, erc20FeeProxyAddress: string, erc20EscrowToPayAddress: string;
   
-  amount = 100;
-  feeAmount = 10;
+  amount = '100';
+  feeAmount = '10';
   paymentRef1 = '0xaaaa';
   paymentRef2 = '0xbbbb';
   
@@ -39,17 +39,16 @@ describe("Contracts: TestToken, ERC20FeeProxy, MyEscrow", () => {
   payerAddress = await payer.getAddress();
   buidlerAddress = await buidler.getAddress();
   
-  // Get the ContractFactory
-  token = await new TestToken__factory(owner).deploy();
+  // Deploy the smart-contracts. 
+  token = await new TestERC20__factory(owner).deploy('10000000');
   erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
-  myEscrow = await new MyEscrow__factory(owner).deploy(erc20FeeProxy.address);
+  erc20EscrowToPay = await new ERC20EscrowToPayV1__factory(owner).deploy(erc20FeeProxy.address);
   
-  // await the deployment of the contracts
-  totalSupply = await token.balanceOf(ownerAddress);
-  await token.transfer(payerAddress, 1000);
   erc20FeeProxyAddress = erc20FeeProxy.address;
-  myEscrowAddress = myEscrow.address;
+  erc20EscrowToPayAddress = erc20EscrowToPay.address;
   
+  totalSupply = await token.totalSupply();
+  await token.transfer(payerAddress, '1000');
 
       console.log(`
                               ------ PRE-TEST STATUS ------
@@ -63,25 +62,20 @@ describe("Contracts: TestToken, ERC20FeeProxy, MyEscrow", () => {
 
       *CONTRACTS:
           -TestERC20 Address       :               ${token.address},
-          -TestERC20 owner         :               ${await token.owner()},
           -ERC20FeeProxy Address   :               ${erc20FeeProxyAddress},
-          -MyEscrow Address        :               ${myEscrowAddress}
+          -erc20EscrowToPayAddress :               ${erc20EscrowToPayAddress}
       `);  
   });
 
-  describe("Deployments", () => {
-      it("TestERC20: Should set the right owner", async () => {
-          // Excpect the contract owner to be equal to owner.
-          expect(await token.owner()).to.equal(ownerAddress);
-      });
+  describe("ERC20TestToken", () => {
       it("TestERC20: Should assign the totalsupply of TestERC20 tokens to the owner", async () => {
           expect(await token.totalSupply()).to.equal(totalSupply);
       });
       it("ERC20FeeProxy: Contract address should remain the same at every deployment", async () => {
       expect(erc20FeeProxy.address).to.equal(erc20FeeProxyAddress);
       });
-      it("MyEscrow: Contract address should remain the same at every deployment", async () => {
-          expect(myEscrow.address).to.equal(myEscrowAddress);
+      it("ERC20EscrowToPay: Contract address should remain the same at every deployment", async () => {
+          expect(erc20EscrowToPay.address).to.equal(erc20EscrowToPayAddress);
       });
   });
   
@@ -95,7 +89,7 @@ describe("Contracts: TestToken, ERC20FeeProxy, MyEscrow", () => {
           // OBS: We use .connect(signer) to send a transaction from another account
           await token.connect(payer).transfer(payeeAddress, 25);
           const payeeBalance = await token.balanceOf(payeeAddress);
-          expect(payeeBalance).to.equal(25);
+          expect(payeeBalance).to.equal(35);
       });
       it("TestERC20: Should fail if sender don't have enough TestERC20 tokens", async () => {
           const initialOwnerBalance = await token.balanceOf(ownerAddress);
@@ -119,43 +113,43 @@ describe("Contracts: TestToken, ERC20FeeProxy, MyEscrow", () => {
           await token.transfer(payeeAddress, 50);
 
           const payeeBalance = await token.balanceOf(payeeAddress);
-          expect(payeeBalance).to.equal(75);
+          expect(payeeBalance).to.equal(85);
       });
   });
 
-  describe("Transactions - MyEscrow Contract :", () => {
+  describe("Transactions - ERC20EscrowToPayV1 Contract :", () => {
       
-      it("MyEscrow: Should let payer to deposit 100 TestERC20 tokens into the Escrow contract", async () => {
+      it("ERC20EscrowToPayV1: Should let payer to deposit 100 TestERC20 tokens into the Escrow contract", async () => {
           await token.balanceOf(payerAddress);
-          await token.connect(payer).approve(myEscrow.address, 110);
+          await token.connect(payer).approve(erc20EscrowToPay.address, 110);
             
-          await myEscrow.connect(payer).initAndDeposit(token.address, amount, payeeAddress, paymentRef1, feeAmount, buidlerAddress);
+          await erc20EscrowToPay.connect(payer).openEscrow(paymentRef1, token.address, amount, payeeAddress, feeAmount, buidlerAddress);
           const payerBalanceNew = await token.balanceOf(payerAddress);
           expect(payerBalanceNew).to.equal(1015);
       });
-      it("MyEscrow: Should return the Invoice data from the invoiceMapping", async () => {
-          const receipt = await myEscrow.getInvoice(paymentRef1);
+      it("ERC20EscrowToPayV1: Should return the Invoice data from the invoiceMapping", async () => {
+          const receipt = await erc20EscrowToPay.invoiceMapping(paymentRef1);
           console.log(receipt);
           expect(receipt.payee, receipt.payer).to.equal(payeeAddress, payerAddress);
       });
-      it("MyEscrow: Should let the payer withdraw funds to the payee", async () => {
-          await myEscrow.connect(payer).withdrawFunds(paymentRef1);
+      it("ERC20EscrowToPayV1: Should let the payer withdraw funds to the payee", async () => {
+          await erc20EscrowToPay.connect(payer).closeEscrow(paymentRef1);
           const payeeBalance = await token.balanceOf(payeeAddress);
           expect(payeeBalance).to.equal(75 + amount);
       });
   });
 
   describe("Transactions - Lock Period:", () => {
-      it("MyEscrow: Should let the payer initiate a new escrow", async () => {
+      it("ERC20EscrowToPayV1: Should let the payer initiate a new escrow", async () => {
           console.log('');
           
-          await token.connect(payer).approve(myEscrow.address, 110);
-          await expect(myEscrow.connect(payer).initAndDeposit(token.address, amount, payeeAddress, paymentRef2, feeAmount, buidlerAddress))
-          .to.emit(myEscrow, "EscrowInitiated");
+          await token.connect(payer).approve(erc20EscrowToPay.address, '110');
+          await expect(erc20EscrowToPay.connect(payer).openEscrow(paymentRef2, token.address, amount, payeeAddress, feeAmount, buidlerAddress))
+          .to.emit(erc20EscrowToPay, "OpenEscrow");
           //.withArgs('Oxbbbb', 100, payeeAddress, token.address, 10, feeAddress.address);
 
 
-          escrowBalance = await token.balanceOf(myEscrow.address);
+          escrowBalance = await token.balanceOf(erc20EscrowToPay.address);
           expect(escrowBalance).to.equal(amount + feeAmount);
           
           console.log(' ------ New escrow initiated -----');
@@ -164,23 +158,23 @@ describe("Contracts: TestToken, ERC20FeeProxy, MyEscrow", () => {
               Escrow balance incl.fee :               ${escrowBalance},
           `);
       }); 
-      it("MyEscrow: Should let the payer initiate the lock period", async () => {
+      it("ERC20EscrowToPayV1: Should let the payer initiate a dispute", async () => {
           // Initiate Lock Period
-          expect(await myEscrow.connect(payer).initLockPeriod(paymentRef2));
-          escrowBalance = await token.balanceOf(myEscrow.address);
+          expect(await erc20EscrowToPay.connect(payer).openDispute(paymentRef2));
+          escrowBalance = await token.balanceOf(erc20EscrowToPay.address);
       });
-      it("MyEscrow: Should get the correct data from the disputeMapping", async () => {
-          disputeMapping = await myEscrow.connect(payer).disputeMapping(paymentRef2);
+      it("ERC20EscrowToPayV1: Should get the correct data from the disputeMapping", async () => {
+          disputeMapping = await erc20EscrowToPay.connect(payer).disputeMapping(paymentRef2);
     
           timelockBalance = await token.balanceOf(disputeMapping.tokentimelock);
 
-          const timestamp = await myEscrow.connect(payer).getLockPeriodEndTime(paymentRef2);
+          const timestamp = await erc20EscrowToPay.connect(payer).getLockPeriodEndTime(paymentRef2);
           date = new Date(timestamp.toNumber() * 1000);
       });
-      it("MyEscrow: Should check the timelock balance is correct", async () => {
+      it("ERC20EscrowToPayV1: Should check the timelock balance is correct", async () => {
           expect(await disputeMapping.amount).to.be.equal(timelockBalance);
       });
-      it("MyEscrow: Should display the correct values of the TokenTimelock period", async () => {
+      it("ERC20EscrowToPayV1: Should display the correct values of the TokenTimelock period", async () => {
 
           console.log(` 
           ------ Lock Period Initiated -----
@@ -192,38 +186,38 @@ describe("Contracts: TestToken, ERC20FeeProxy, MyEscrow", () => {
               TimeLock endtime        :               ${date}
 
               --- Escrow balance reset to zero ---
-              MyEscrow address        :               ${myEscrow.address},
-              MyEscrow balance        :               ${escrowBalance}
+              ERC20EscrowToPayV1 address        :               ${erc20EscrowToPay.address},
+              ERC20EscrowToPayV1 balance        :               ${escrowBalance}
           `);
       });
-      it("MyEscrow: Should payout the funds when lock period is over", async () => {
+      it("ERC20EscrowToPayV1: Should payout the funds when lock period is over", async () => {
         payerBalanceOld = await token.balanceOf(payerAddress);
         
-        expect(myEscrow.connect(payer).withdrawLockedFunds(paymentRef2));
+        expect(erc20EscrowToPay.connect(payer).withdrawLockedFunds(paymentRef2));
 
-        escrowBalance = await token.balanceOf(myEscrow.address);
-        disputeMapping = await myEscrow.connect(payer).disputeMapping(paymentRef2);
+        escrowBalance = await token.balanceOf(erc20EscrowToPay.address);
+        disputeMapping = await erc20EscrowToPay.connect(payer).disputeMapping(paymentRef2);
         timelockBalance = await token.balanceOf(disputeMapping.tokentimelock);
         payerBalanceNew = await token.balanceOf(payerAddress);
         feeAddressBalance = await token.balanceOf(buidlerAddress);
 
         console.log(`
         --- PAYER BALANCE ---    
-            Payer Old Balance       :               ${payerBalanceOld},
-            Payer New Balance       :               ${payerBalanceNew}
+            Payer Old Balance                   :               ${payerBalanceOld},
+            Payer New Balance                   :               ${payerBalanceNew}
 
         --- DisputeMapping DELETED ---
-            Payment reference       :               ${disputeMapping.paymentReference},
-            TokenTimelock contract  :               ${disputeMapping.tokentimelock},
-            TimeLock balance        :               ${timelockBalance},
-            TimeLock endtime        :               ${date}
+            Payment reference                   :               ${disputeMapping.paymentReference},
+            TokenTimelock contract              :               ${disputeMapping.tokentimelock},
+            TimeLock balance                    :               ${timelockBalance},
+            TimeLock endtime                    :               ${date}
         
-            MyEscrow address        :               ${myEscrow.address},
-            MyEscrow balance        :               ${escrowBalance._isBigNumber}
+            ERC20EscrowToPay address            :               ${erc20EscrowToPay.address},
+            ERC20EscrowToPay balance            :               ${escrowBalance._isBigNumber}
             
         --- FEE DETAILS ---
-            Fee Address             :               ${buidlerAddress}, 
-            Fee Address balance     :               ${feeAddressBalance}
+            Fee Address                         :               ${buidlerAddress}, 
+            Fee Address balance                 :               ${feeAddressBalance}
         `);
       });  
   });
