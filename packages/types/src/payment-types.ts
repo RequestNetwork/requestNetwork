@@ -146,10 +146,22 @@ export interface IETHPaymentEventParameters {
   confirmations?: number;
   txHash?: string;
 }
+/** Parameters for events of ERC20 payments with fees */
+export interface IETHFeePaymentEventParameters extends IETHPaymentEventParameters {
+  feeAddress?: string;
+  feeAmount?: string;
+  feeAmountInCrypto?: string;
+  amountInCrypto?: string;
+}
+
 /** ETH Payment Network Event */
-export type ETHPaymentNetworkEvent = IPaymentNetworkEvent<IETHPaymentEventParameters>;
+export type ETHPaymentNetworkEvent = IPaymentNetworkEvent<
+  IETHPaymentEventParameters | IETHFeePaymentEventParameters
+>;
 /** ETH BalanceWithEvents */
-export type ETHBalanceWithEvents = IBalanceWithEvents<IETHPaymentEventParameters>;
+export type ETHBalanceWithEvents = IBalanceWithEvents<
+  IETHPaymentEventParameters | IETHFeePaymentEventParameters
+>;
 
 /** Parameters for events of BTC payments */
 export interface IBTCPaymentEventParameters {

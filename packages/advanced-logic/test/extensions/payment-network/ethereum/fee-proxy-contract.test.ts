@@ -32,7 +32,7 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
           refundAddress: '0x0000000000000000000000000000000000000003',
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.2.0',
+        version: '0.1.0',
       });
     });
 
@@ -52,7 +52,7 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.2.0',
+        version: '0.1.0',
       });
     });
 
@@ -68,7 +68,7 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
         parameters: {
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.2.0',
+        version: '0.1.0',
       });
     });
 
