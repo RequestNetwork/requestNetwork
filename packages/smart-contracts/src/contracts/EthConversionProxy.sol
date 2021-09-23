@@ -2,8 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "./ChainlinkConversionPath.sol";
-import "./interfaces/ETHFeeProxy.sol";
-
 
 /**
  * @title EthConversionProxy
@@ -54,13 +52,13 @@ contract EthConversionProxy {
     bytes calldata _paymentReference,
     uint256 _feeAmount,
     address _feeAddress,
-    // uint256 _maxToSpend, // TODO useless? (msg.value will do the trick)
     uint256 _maxRateTimespan
   )
-  external
-  payable
+    external
+    payable
   {
-    // TODO check  _path[_path.length - 1] is ethers
+    // Request currency hash for ether: 0xF5AF88e117747e87fC5929F2ff87221B1447652E
+    require(_path[_path.length - 1] == address(0xF5AF88e117747e87fC5929F2ff87221B1447652E), "payment currency must be ethers");
 
     (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(
       _path,
@@ -68,16 +66,10 @@ contract EthConversionProxy {
       _feeAmount,
       _maxRateTimespan);
 
-    // TODO useless? will be done by .tranfer()
-    require(
-      amountToPay + amountToPayInFees <= msg.value,
-      "Amount to pay is over msg.value"
-    );
-
     // Pay the request and fees
     (bool status, ) = paymentProxy.delegatecall(
       abi.encodeWithSignature(
-        "transferFromWithReferenceAndFee(address,uint256,bytes,uint256,address)",
+        "transferExactEthWithReferenceAndFee(address,uint256,bytes,uint256,address)",
         _to,
         amountToPay,
         _paymentReference,
@@ -85,8 +77,8 @@ contract EthConversionProxy {
         _feeAddress
       )
     );
-    require(status, "transferFromWithReferenceAndFee failed");
 
+    require(status, "paymentProxy transferExactEthWithReferenceAndFee failed");
 
     // Event to declare a transfer with a reference
     emit TransferWithConversionAndReference(
@@ -97,10 +89,6 @@ contract EthConversionProxy {
       _feeAmount,
       _maxRateTimespan
     );
-
-    // transfer the remaining ethers to the sender
-    // TODO check reentrancy (or guard?)
-    address(msg.sender).transfer(msg.value - amountToPay - amountToPayInFees);
   }
 
   function getConversions(
