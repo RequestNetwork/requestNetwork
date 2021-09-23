@@ -22,10 +22,10 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: { nativeToken: [mockNearPaymentNetwork] },
 };
-const salt = 'f60b918fa5e83c1d';
-const paymentAddress = 'yoissuer.testnet';
+const salt = '360ab22e5fb6c41c';
+const paymentAddress = 'pay.testnet';
 const request: any = {
-  requestId: '01edb4d8d3396bd688ffa028fbcebd224ba0fdfb5f690eeb45b86aa02cb7d58891',
+  requestId: '017a738821782329122ffb1b944dc2bbcecc56fdc8d95b050fe49a1fc04349a9c4',
   currency: {
     network: 'aurora-testnet',
     type: RequestLogicTypes.CURRENCY.ETH,
@@ -39,7 +39,7 @@ const request: any = {
         paymentAddress,
         salt,
       },
-      version: '0.1.0',
+      version: '0.2.0',
     },
   },
 };
@@ -55,7 +55,7 @@ describe('Near payments detection', () => {
     const infoRetriever = new NearInfoRetriever(
       paymentReference,
       paymentAddress,
-      'dev-1626339335241-5544297',
+      'dev-1631521265288-35171138540673',
       'com.nearprotocol.testnet.explorer.select:INDEXER_BACKEND',
       PaymentTypes.EVENTS_NAMES.PAYMENT,
       'aurora-testnet',
@@ -63,7 +63,7 @@ describe('Near payments detection', () => {
     const events = await infoRetriever.getTransferEvents();
     expect(events).toHaveLength(1);
 
-    expect(events[0].amount).toBe('400000000000000000000000');
+    expect(events[0].amount).toBe('2000000000000000000000000');
   });
 
   it('PaymentNetworkFactory can get the detector (testnet)', async () => {
@@ -92,8 +92,8 @@ describe('Near payments detection', () => {
     });
     const balance = await paymentDetector.getBalance(request);
 
-    expect(balance.balance).toBe('400000000000000000000000');
     expect(balance.events).toHaveLength(1);
+    expect(balance.balance).toBe('2000000000000000000000000');
   });
 
   describe('Edge cases for NearNativeTokenPaymentDetector', () => {
