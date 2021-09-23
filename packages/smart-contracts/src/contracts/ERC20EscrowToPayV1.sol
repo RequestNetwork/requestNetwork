@@ -7,7 +7,7 @@ import "./interfaces/ERC20FeeProxy.sol";
 
 
 /// @title Escrow based invoice
-contract ERC20EscrowToPay {
+contract ERC20EscrowToPayV1 {
 
     IERC20FeeProxy private paymentProxy;
     TokenTimelock private tokentimelock;

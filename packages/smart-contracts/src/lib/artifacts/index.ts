@@ -9,13 +9,11 @@ export * from './ERC20SwapToPay';
 export * from './Erc20SwapConversion';
 export * from './EthereumProxy';
 
+
 /**
  * Request Storage
  */
 export * from './RequestHashStorage';
 export * from './RequestHashSubmitter';
 
-/**
- * Request MyEscrow
- */
-export * from './ERC20EscrowToPay';
+
