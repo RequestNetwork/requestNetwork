@@ -1,7 +1,6 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { AdvancedLogicTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
-import EthInputDataInfoRetriever from './info-retriever';
 import ProxyEthereumInfoRetriever from './proxy-info-retriever';
 import FeeReferenceBasedDetector from '../fee-reference-based-detector';
 
@@ -18,22 +17,14 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
  * Handle payment networks with ETH input data extension
  */
 export default class PaymentNetworkETHFeeProxy extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
-  private explorerApiKeys: Record<string, string>;
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({
-    advancedLogic,
-    explorerApiKeys,
-  }: {
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    explorerApiKeys?: Record<string, string>;
-  }) {
+  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     super(
       advancedLogic.extensions.feeProxyContractEth,
       ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
     );
-    this.explorerApiKeys = explorerApiKeys || {};
   }
 
   /**
@@ -54,31 +45,22 @@ export default class PaymentNetworkETHFeeProxy extends FeeReferenceBasedDetector
     paymentReference: string,
     paymentNetworkVersion: string,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const infoRetriever = new EthInputDataInfoRetriever(
+    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetworkVersion);
+
+    if (!proxyContractArtifact) {
+      throw Error('ETH fee proxy contract not found');
+    }
+
+    const proxyInfoRetriever = new ProxyEthereumInfoRetriever(
+      paymentReference,
+      proxyContractArtifact.address,
+      proxyContractArtifact.creationBlockNumber,
       address,
       eventName,
       network,
-      paymentReference,
-      this.explorerApiKeys[network],
     );
-    const events = await infoRetriever.getTransferEvents();
-    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetworkVersion);
 
-    if (proxyContractArtifact) {
-      const proxyInfoRetriever = new ProxyEthereumInfoRetriever(
-        paymentReference,
-        proxyContractArtifact.address,
-        proxyContractArtifact.creationBlockNumber,
-        address,
-        eventName,
-        network,
-      );
-      const proxyEvents = await proxyInfoRetriever.getTransferEvents();
-      for (const event of proxyEvents) {
-        events.push(event);
-      }
-    }
-    return events;
+    return await proxyInfoRetriever.getTransferEvents();
   }
 
   /*
@@ -87,7 +69,7 @@ export default class PaymentNetworkETHFeeProxy extends FeeReferenceBasedDetector
   private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
     const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
     try {
-      return SmartContracts.ethereumProxyArtifact.getDeploymentInformation(
+      return SmartContracts.ethereumFeeProxyArtifact.getDeploymentInformation(
         network,
         contractVersion,
       );
