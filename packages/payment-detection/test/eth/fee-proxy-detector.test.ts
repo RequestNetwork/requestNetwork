@@ -5,7 +5,7 @@ import {
 } from '@requestnetwork/types';
 import ETHFeeProxyDetector from '../../src/eth/fee-proxy-detector';
 
-let ethFeeProxyContract: ETHFeeProxyDetector;
+let ethFeeProxyDetector: ETHFeeProxyDetector;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -33,7 +33,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/fee-proxy-contract', () => {
   beforeEach(() => {
-    ethFeeProxyContract = new ETHFeeProxyDetector({
+    ethFeeProxyDetector = new ETHFeeProxyDetector({
       advancedLogic: mockAdvancedLogic,
     });
   });
@@ -44,7 +44,7 @@ describe('api/eth/fee-proxy-contract', () => {
       'createCreationAction',
     );
 
-    await ethFeeProxyContract.createExtensionsDataForCreation({
+    await ethFeeProxyDetector.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
     });
@@ -64,7 +64,7 @@ describe('api/eth/fee-proxy-contract', () => {
       'createCreationAction',
     );
 
-    await ethFeeProxyContract.createExtensionsDataForCreation({
+    await ethFeeProxyDetector.createExtensionsDataForCreation({
       feeAddress: 'fee address',
       feeAmount: '2000',
       paymentAddress: 'ethereum address',
@@ -86,7 +86,7 @@ describe('api/eth/fee-proxy-contract', () => {
       'createCreationAction',
     );
 
-    await ethFeeProxyContract.createExtensionsDataForCreation({
+    await ethFeeProxyDetector.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
     });
@@ -101,7 +101,7 @@ describe('api/eth/fee-proxy-contract', () => {
       'createAddPaymentAddressAction',
     );
 
-    ethFeeProxyContract.createExtensionsDataForAddPaymentInformation({
+    ethFeeProxyDetector.createExtensionsDataForAddPaymentInformation({
       paymentAddress: 'ethereum address',
     });
 
@@ -116,7 +116,7 @@ describe('api/eth/fee-proxy-contract', () => {
       'createAddRefundAddressAction',
     );
 
-    ethFeeProxyContract.createExtensionsDataForAddRefundInformation({
+    ethFeeProxyDetector.createExtensionsDataForAddRefundInformation({
       refundAddress: 'ethereum address',
     });
 
@@ -131,7 +131,7 @@ describe('api/eth/fee-proxy-contract', () => {
       'createAddFeeAction',
     );
 
-    ethFeeProxyContract.createExtensionsDataForAddFeeInformation({
+    ethFeeProxyDetector.createExtensionsDataForAddFeeInformation({
       feeAddress: 'ethereum address',
       feeAmount: '2000',
     });
@@ -144,7 +144,7 @@ describe('api/eth/fee-proxy-contract', () => {
 
   it('should not throw when getBalance fail', async () => {
     expect(
-      await ethFeeProxyContract.getBalance({ currency: {network: 'private'}, extensions: {} } as RequestLogicTypes.IRequest),
+      await ethFeeProxyDetector.getBalance({ currency: {network: 'private'}, extensions: {} } as RequestLogicTypes.IRequest),
     ).toEqual({
       balance: null,
       error: {
