@@ -12,7 +12,7 @@ import ERC20AddressBased from './erc20/address-based';
 import ERC20FeeProxyContract from './erc20/fee-proxy-contract';
 import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
-import ETHFeeProxyContract from './eth/fee-proxy-contract';
+import ETHFeeProxyDetector from './eth/fee-proxy-detector';
 import AnyToErc20Proxy from './any/any-to-erc20-proxy-contract';
 import NearNativeTokenPaymentDetector from './near-detector';
 
@@ -40,7 +40,7 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
     },
     '*': {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: ETHFeeProxyContract,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: ETHFeeProxyDetector,
     },
   },
 };
