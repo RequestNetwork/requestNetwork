@@ -95,8 +95,8 @@ describe("Contracts: TestToken, ERC20FeeProxy, ERC20EscrowToPayV1", () => {
           const initialOwnerBalance = await token.balanceOf(ownerAddress);
 
           // Transfer 50 TestERC20 tokens, from payer (25) to owner, 'require' will evaluate false and revert the transaction.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        expect(token.connect(payer).transfer(payeeAddress, 1500)).to.be.revertedWith('ERC20: transfer amount exceeds balance');
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          expect(token.connect(payer).transfer(payeeAddress, 1500)).to.be.revertedWith('ERC20: transfer amount exceeds balance');
         
 
           // Owner balance should not have changed.
@@ -129,7 +129,7 @@ describe("Contracts: TestToken, ERC20FeeProxy, ERC20EscrowToPayV1", () => {
       });
       it("ERC20EscrowToPayV1: Should return the Invoice data from the invoiceMapping", async () => {
           const receipt = await erc20EscrowToPay.invoiceMapping(paymentRef1);
-          console.log(receipt);
+          
           expect(receipt.payee, receipt.payer).to.equal(payeeAddress, payerAddress);
       });
       it("ERC20EscrowToPayV1: Should let the payer withdraw funds to the payee", async () => {
@@ -141,8 +141,7 @@ describe("Contracts: TestToken, ERC20FeeProxy, ERC20EscrowToPayV1", () => {
 
   describe("Transactions - Lock Period:", () => {
       it("ERC20EscrowToPayV1: Should let the payer initiate a new escrow", async () => {
-          console.log('');
-          
+
           await token.connect(payer).approve(erc20EscrowToPay.address, '110');
           await expect(erc20EscrowToPay.connect(payer).openEscrow(paymentRef2, token.address, amount, payeeAddress, feeAmount, buidlerAddress))
           .to.emit(erc20EscrowToPay, "OpenEscrow");
