@@ -61,15 +61,7 @@ contract ERC20EscrowToPayV1 {
     error WithdrawFailed(string description);
 
     /// Events
-    event OpenEscrow(
-        bytes indexed paymentReference,
-        IERC20 paymentToken,
-        uint256 amount,
-        address payee,
-        uint256 feeAmount,
-        address feeAddress,
-        uint256 claimDate
-    );
+    event OpenEscrow(bytes indexed paymentReference);
     event EscrowCompleted(bytes indexed paymentReference);
     event DisputeOpened(bytes indexed paymentReference);
     event DisputeResolved(bytes indexed paymentReference);
@@ -128,15 +120,7 @@ contract ERC20EscrowToPayV1 {
         
         _deposit(_paymentRef);
 
-        emit OpenEscrow(
-            _paymentRef,
-            paymentToken,
-            amount,
-            payee,
-            feeAmount,
-            feeAddress,
-            claimDate
-        );
+        emit OpenEscrow(_paymentRef );
         
     }
 
