@@ -2,7 +2,7 @@ import { constants, ContractTransaction, Signer, providers, BigNumberish } from 
 
 import { CurrencyManager, getConversionPath, ICurrencyManager } from '@requestnetwork/currency';
 import { ethConversionArtifact } from '@requestnetwork/smart-contracts';
-// import { et } from '@requestnetwork/smart-contracts/types';
+import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
@@ -113,7 +113,7 @@ export function encodePayAnyToEthProxyRequest(
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
 
   const proxyContract = EthConversionProxy__factory.createInterface();
-  return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
+  return proxyContract.encodeFunctionData('transferWithReferenceAndFee', [
     paymentAddress,
     amountToPay,
     path,

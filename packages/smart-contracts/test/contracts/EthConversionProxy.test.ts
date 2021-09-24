@@ -14,7 +14,7 @@ import { chainlinkConversionPath } from '../../src/lib';
 
 use(solidity);
 
-describe('contract: EthConversionProxy', () => {
+describe.only('contract: EthConversionProxy', () => {
   let from: string;
   let to: string;
   let feeAddress: string;
@@ -46,8 +46,8 @@ describe('contract: EthConversionProxy', () => {
     );
   });
 
-  describe('transferFromWithReferenceAndFee', () => {
-    describe('transferFromWithReferenceAndFee with ETH', () => {
+  describe('transferWithReferenceAndFee', () => {
+    describe('transferWithReferenceAndFee with ETH', () => {
       it('allows to transfer ETH for USD payment', async function () {
         const path = [USD_address, ETH_address];
 
@@ -57,7 +57,7 @@ describe('contract: EthConversionProxy', () => {
         const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
         const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
 
-        const tx = testEthConversionProxy.transferFromWithReferenceAndFee(
+        const tx = testEthConversionProxy.transferWithReferenceAndFee(
             to,
             smallAmountInFIAT,
             path,
@@ -113,7 +113,7 @@ describe('contract: EthConversionProxy', () => {
         const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
         const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
 
-        const tx = testEthConversionProxy.transferFromWithReferenceAndFee(
+        const tx = testEthConversionProxy.transferWithReferenceAndFee(
             to,
             smallAmountInFIAT,
             path,
@@ -122,7 +122,7 @@ describe('contract: EthConversionProxy', () => {
             feeAddress,
             0,
             {
-                value: conversionFees.result.add(conversionToPay.result).add("100000"),
+                value: conversionFees.result.add(conversionToPay.result)//.add("100000"),
             }
           )
 
@@ -151,26 +151,27 @@ describe('contract: EthConversionProxy', () => {
           .sub(feeOldBalance)
           .toString();
 
+        expect(contractBalance.toString()).to.equals("0");
+        expect(contractFeeBalance.toString()).to.equals("0");
+
         const gasPrice = (await provider.getFeeData()).gasPrice || 0;
         // Check balance changes
         expect(fromNewBalance.toString()).to.equals(
-            fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result).sub(receipt.gasUsed.mul(gasPrice)).toString(),
+            fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result).sub(receipt.cumulativeGasUsed.mul(gasPrice)).toString(),
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
-        expect(contractBalance.toString()).to.equals("0");
-        expect(contractFeeBalance.toString()).to.equals("0");
       });
     });
 
-    describe('transferFromWithReferenceAndFee with errors', () => {
+    describe('transferWithReferenceAndFee with errors', () => {
       it('cannot transfer if msg.value too low', async function () {
         const path = [USD_address, ETH_address];
 
         const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
 
         await expect(
-            testEthConversionProxy.transferFromWithReferenceAndFee(
+            testEthConversionProxy.transferWithReferenceAndFee(
                 to,
                 smallAmountInFIAT,
                 path,
@@ -191,7 +192,7 @@ describe('contract: EthConversionProxy', () => {
         const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
         const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
         await expect(
-            testEthConversionProxy.transferFromWithReferenceAndFee(
+            testEthConversionProxy.transferWithReferenceAndFee(
                 to,
                 smallAmountInFIAT,
                 path,

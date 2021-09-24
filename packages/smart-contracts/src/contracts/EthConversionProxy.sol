@@ -2,13 +2,16 @@
 pragma solidity ^0.8.0;
 
 import "./ChainlinkConversionPath.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title EthConversionProxy
- * @notice This contract convert from chainlink then swaps ETH tokens
+ * @notice This contract convert from chainlink then swaps ETH
  *         before paying a request thanks to a conversion payment proxy
+ *         the dependance with ReentrancyGuard is required to perform
+ *         "transferExactEthWithReferenceAndFee" of the eth-fee-proxy contract
   */
-contract EthConversionProxy {
+contract EthConversionProxy is ReentrancyGuard {
   address public paymentProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
@@ -45,7 +48,7 @@ contract EthConversionProxy {
    * @param _feeAddress The fee recipient
    * @param _maxRateTimespan Max time span with the oldestrate, ignored if zero
    */
-  function transferFromWithReferenceAndFee(
+  function transferWithReferenceAndFee(
     address _to,
     uint256 _requestAmount,
     address[] calldata _path,
