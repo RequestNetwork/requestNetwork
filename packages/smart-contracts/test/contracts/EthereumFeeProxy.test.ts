@@ -45,6 +45,27 @@ describe('contract: EthereumFeeProxy', () => {
     expect(contractBalance.toString()).to.equals("0");
   });
 
+  it('allows to pays exact eth with a reference with extra msg.value', async () => {
+    const toOldBalance = await provider.getBalance(to);
+    const feeAddressOldBalance = await provider.getBalance(feeAddress);
+
+    await expect(
+      ethFeeProxy.transferExactEthWithReferenceAndFee(to, amount, referenceExample, feeAmount, feeAddress, {
+        value: amount.add(feeAmount).add('10000'),
+      }),
+    ).to.emit(ethFeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(to, amount.toString(), ethers.utils.keccak256(referenceExample), feeAmount.toString(), feeAddress);
+
+      const toNewBalance = await provider.getBalance(to);
+      const feeAddressNewBalance = await provider.getBalance(feeAddress);
+      const contractBalance = await provider.getBalance(ethFeeProxy.address);
+
+    // Check balance changes
+    expect(toNewBalance.toString()).to.equals(toOldBalance.add(amount).toString());
+    expect(feeAddressNewBalance.toString()).to.equals(feeAddressOldBalance.add(feeAmount).toString());
+    expect(contractBalance.toString()).to.equals("0");
+  });
+
   it('cannot transfer if msg.value is too low', async () => {
     await expect(
         ethFeeProxy.transferWithReferenceAndFee(to, referenceExample, amount, feeAddress, {

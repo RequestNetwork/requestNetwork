@@ -4,7 +4,7 @@ import PaymentReferenceCalculator from './payment-reference-calculator';
 import * as BtcPaymentNetwork from './btc';
 import DeclarativePaymentNetwork from './declarative';
 import * as Erc20PaymentNetwork from './erc20';
-import { InputData as EthPaymentNetwork } from './eth';
+import { InputData as EthPaymentNetwork, FeeProxyDetector as EthFeePaymentNetwork } from './eth';
 import { initPaymentDetectionApiKeys, setProviderFactory, getDefaultProvider } from './provider';
 import { getTheGraphClient, networkSupportsTheGraph } from './thegraph';
 import { parseLogArgs, padAmountForChainlink, unpadAmountFromChainlink } from './utils';
@@ -25,6 +25,7 @@ export {
   DeclarativePaymentNetwork,
   Erc20PaymentNetwork,
   EthPaymentNetwork,
+  EthFeePaymentNetwork,
   Near,
   setProviderFactory,
   initPaymentDetectionApiKeys,

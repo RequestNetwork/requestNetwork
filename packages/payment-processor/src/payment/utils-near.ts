@@ -29,7 +29,7 @@ export const isNearAccountSolvent = (
     });
 };
 
-const GAS_LIMIT_IN_TGAS = 30;
+const GAS_LIMIT_IN_TGAS = 50;
 const GAS_LIMIT = ethers.utils.parseUnits(GAS_LIMIT_IN_TGAS.toString(), 12);
 
 /**

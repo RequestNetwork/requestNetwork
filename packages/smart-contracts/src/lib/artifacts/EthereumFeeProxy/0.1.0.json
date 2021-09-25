@@ -45,6 +45,39 @@
           "type": "address"
         },
         {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_paymentReference",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_feeAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address payable",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "transferExactEthWithReferenceAndFee",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address payable",
+          "name": "_to",
+          "type": "address"
+        },
+        {
           "internalType": "bytes",
           "name": "_paymentReference",
           "type": "bytes"
