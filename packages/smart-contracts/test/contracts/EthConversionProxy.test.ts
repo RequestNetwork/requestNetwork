@@ -14,7 +14,7 @@ import { chainlinkConversionPath } from '../../src/lib';
 
 use(solidity);
 
-describe.only('contract: EthConversionProxy', () => {
+describe('contract: EthConversionProxy', () => {
   let from: string;
   let to: string;
   let feeAddress: string;
