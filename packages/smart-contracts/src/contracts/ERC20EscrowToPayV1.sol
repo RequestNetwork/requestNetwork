@@ -137,11 +137,7 @@ contract ERC20EscrowToPayV1 {
 
   
     /// @notice Used to change the feeAmount and feeAddress of any escrow.
-    function changeFeeAndAddress(
-        bytes memory _paymentRef,
-        uint _feeAmount, 
-        address _feeAddress
-    ) 
+    function changeFeeAndAddress(bytes memory _paymentRef, uint _feeAmount, address _feeAddress) 
         external 
         OnlyOwner()
         returns (bytes memory paymentRef, uint feeAmount, address feeAddress) 

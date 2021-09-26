@@ -1,5 +1,5 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
-import { erc20ProxyArtifact, myEscrowArtifact } from '@requestnetwork/smart-contracts';
+import { erc20ProxyArtifact, ERC20EscrowToPayV1} from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
@@ -244,7 +244,7 @@ function getProxyAddress(request: ClientTypes.IRequestData): string {
     return erc20ProxyArtifact.getAddress(request.currencyInfo.network!);
   }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_TIME_LOCKED_ESCROW) {
-    return myEscrowArtifact.getAddress(request.currencyInfo.network!);
+    return ERC20EscrowToPayV1Artifact.getAddress(request.currencyInfo.network!);
   }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
     return erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!);

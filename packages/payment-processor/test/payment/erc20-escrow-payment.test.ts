@@ -8,17 +8,24 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import {
-  withdrawFundsRequest,
-  initAndDepositRequest,
-  encodeWithdrawFundsRequest,
-  encodeInitAndDepositRequest,
-  initLockPeriodRequest,
-  withdrawLockedFundsRequest,
+  openEscrowRequest,
+  openDisputeRequest,
+  closeEscrowRequest,
+  //resolveDisputeRequest,
+  //lockDisputedFundsRequest,
+  //withdrawLockedFundsRequest,
   disputeMappingRequest,
-} from '../../src/payment/myEscrow-payment';
+  encodeDisputeMappingRequest,
+  encodeOpenEscrowRequest,
+ // encodeOpenDisputeRequest,
+  encodeCloseEscrowRequest,
+  //encodeResolveDisputeRequest,
+  //encodeLockDisputedFundsRequest,
+  //encodeWithdrawLockedFundsRequest,
+} from '../../src/payment/erc20-escrow-payment_v1';
 import { getAmountToPay, getRequestPaymentValues, } from '../../src/payment/utils';
 import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
-import { myEscrowArtifact } from '../../../smart-contracts/dist/src/lib';
+import { ERC20EscrowToPayV1 } from '../../../smart-contracts/dist/src/lib';
 
 
 /* eslint-disable no-magic-numbers */
@@ -74,7 +81,7 @@ const validRequest: ClientTypes.IRequestData = {
   timestamp: 0,  version: '1.0',
 };
 
-const escrowAddress = myEscrowArtifact.getAddress(validRequest.currencyInfo.network!); 
+const escrowAddress = ERC20EscrowToPayV1.getAddress(validRequest.currencyInfo.network!); 
 
 const { paymentReference } = getRequestPaymentValues(validRequest);
 describe('*CONTRACT: MyEscrow.sol', () => {
@@ -112,10 +119,10 @@ describe('*CONTRACT: MyEscrow.sol', () => {
 
   describe('*ENCODE REQUESTED PAYMENT VALUES:', () => {
     it('Should return encoded data initAndDeposit', async () => {
-      expect(encodeInitAndDepositRequest(validRequest, wallet)).toBe(`0x9a509c3e0000000000000000000000009fbda871d559710256a2502a2517b794b482db400000000000000000000000000000000000000000000000000000000000000064000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b73200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${paymentReference}000000000000000000000000000000000000000000000000`);
+      expect(encodeOpenEscrowRequest(validRequest, wallet)).toBe(`0x9a509c3e0000000000000000000000009fbda871d559710256a2502a2517b794b482db400000000000000000000000000000000000000000000000000000000000000064000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b73200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${paymentReference}000000000000000000000000000000000000000000000000`);
     });
     it('Should return encoded data withdrawFunds', async () => {
-      expect(encodeWithdrawFundsRequest(validRequest, wallet)).toBe(`0x3b56da6900000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${paymentReference}000000000000000000000000000000000000000000000000`);
+      expect(encodeCloseEscrowRequest(validRequest, wallet)).toBe(`0x3b56da6900000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${paymentReference}000000000000000000000000000000000000000000000000`);
     });
   });
 
@@ -124,7 +131,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
   
-      await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
+      await expect(openEscrowRequest(request, wallet)).rejects.toThrowError(
         "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
         //'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
       );
@@ -132,7 +139,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
     it('Should throw an error if the currencyInfo has no value', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = '';
-      await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
+      await expect(openEscrowRequest(request, wallet)).rejects.toThrowError(
         "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
         //'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
       );
@@ -140,7 +147,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
     it('Should throw an error if currencyInfo has no network', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.network = '';
-      await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
+      await expect(openEscrowRequest(request, wallet)).rejects.toThrowError(
         //'request cannot be processed, or is not an pn-erc20-time-lock-escrow request',
         "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
       );
@@ -149,7 +156,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       const request = Utils.deepCopy(validRequest);
       request.extensions = [] as any;
   
-      await expect(initAndDepositRequest(request, wallet)).rejects.toThrowError(
+      await expect(openEscrowRequest(request, wallet)).rejects.toThrowError(
         'no payment network found',
       );
     });
@@ -157,7 +164,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       const spy = jest.fn();
       const originalSendTransaction = wallet.sendTransaction.bind(wallet);
       wallet.sendTransaction = spy;
-      await initAndDepositRequest(validRequest, wallet, {
+      await openEscrowRequest(validRequest, wallet, {
         gasPrice: '20000000000',
       });
       
@@ -185,7 +192,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       const EscrowBalanceErc20Before = await getErc20Balance(validRequest, escrowAddress, provider);
       
       // Execute the initAndDeposit function call
-      expect(await initAndDepositRequest(validRequest, wallet));
+      expect(await openEscrowRequest(validRequest, wallet));
       
       // Get the balance to compare after payment
       const payerBalanceErc20After = await getErc20Balance(validRequest, wallet.address, provider);
@@ -221,7 +228,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       const EscrowBalanceErc20Before = await getErc20Balance(validRequest, escrowAddress, provider);
       const FeeBalanceErc20Before = await getErc20Balance(validRequest, values.feeAddress, provider);
       
-      await withdrawFundsRequest(validRequest, wallet);
+      await closeEscrowRequest(validRequest, wallet);
       
       const payerBalanceErc20After = await getErc20Balance(validRequest, wallet.address, provider);
       const payeeBalanceErc20After = await getErc20Balance(validRequest, values.paymentAddress, provider);
@@ -257,10 +264,10 @@ describe('*CONTRACT: MyEscrow.sol', () => {
     it('should add to disputeMapping and create a new TokenTimelockContract: ', async () => {
 
       // Initiates a new escrow
-      await (await initAndDepositRequest(validRequest, wallet)).wait(1);
+      await (await openEscrowRequest(validRequest, wallet)).wait(1);
      
       // Lock the escrowed funds in a new TokenTimeLock contract 
-      await (await initLockPeriodRequest(validRequest, wallet)).wait(1);
+      await (await openEscrowRequest(validRequest, wallet)).wait(1);
      
     });
     it('should return the disputeMapping: ', async () => {
@@ -274,7 +281,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       const FeeBalanceErc20Before = await getErc20Balance(validRequest, values.feeAddress, provider);
 
       // Initiates a new escrow
-      await withdrawLockedFundsRequest(validRequest, wallet);
+      await openDisputeRequest(validRequest, wallet);
     
       const payerBalanceErc20After = await getErc20Balance(validRequest, wallet.address, provider);
       const payeeBalanceErc20After = await getErc20Balance(validRequest, values.paymentAddress, provider);
