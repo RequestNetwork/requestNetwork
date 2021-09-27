@@ -61,7 +61,10 @@ contract EthConversionProxy is ReentrancyGuard {
     payable
   {
     // Request currency hash for ether: 0xF5AF88e117747e87fC5929F2ff87221B1447652E
-    require(_path[_path.length - 1] == address(0xF5AF88e117747e87fC5929F2ff87221B1447652E), "payment currency must be ethers");
+    require(
+      _path[_path.length - 1] == address(0xF5AF88e117747e87fC5929F2ff87221B1447652E),
+      "payment currency must be ethers"
+    );
 
     (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(
       _path,
