@@ -1,5 +1,10 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import { AdvancedLogicTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
 import EthInputDataInfoRetriever from './info-retriever';
 import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
@@ -39,23 +44,26 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
   }
 
   /**
-   * Extracts the balance and events of an address
+   * Extracts payment events of an address matching an address and a payment reference
    *
-   * @private
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param network The id of network we want to check
+   * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
-   * @param paymentNetworkVersion the version of the payment network
+   * @param paymentNetwork the payment network
    * @returns The balance
    */
   protected async extractEvents(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    network: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
     paymentReference: string,
-    paymentNetworkVersion: string,
+    paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+    const network = requestCurrency.network;
+    if (!network) {
+      throw Error('requestCurrency.network must be defined');
+    }
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
       eventName,
@@ -64,7 +72,7 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
       this.explorerApiKeys[network],
     );
     const events = await infoRetriever.getTransferEvents();
-    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetworkVersion);
+    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetwork.version);
 
     if (proxyContractArtifact) {
       const proxyInfoRetriever = new EthProxyInputDataInfoRetriever(

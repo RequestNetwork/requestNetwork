@@ -7,6 +7,7 @@ import * as PnAnyToErc20 from './extensions/pn-any-to-er20-types';
 import * as PnAnyToEth from './extensions/pn-any-to-eth-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
+import * as PnAnyToAnyConversion from './extensions/pn-any-to-any-conversion-reference-based-types';
 
 export {
   ContentData,
@@ -16,6 +17,7 @@ export {
   PnReferenceBased,
   PnAnyToErc20,
   PnAnyToEth,
+  PnAnyToAnyConversion,
 };
 
 /** Extension interface is extended by the extensions implementation */

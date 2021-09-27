@@ -147,7 +147,7 @@ export interface IETHPaymentEventParameters {
   confirmations?: number;
   txHash?: string;
 }
-/** Parameters for events of ERC20 payments with fees */
+/** Parameters for events of ETH payments with fees */
 export interface IETHFeePaymentEventParameters extends IETHPaymentEventParameters {
   feeAddress?: string;
   feeAmount?: string;

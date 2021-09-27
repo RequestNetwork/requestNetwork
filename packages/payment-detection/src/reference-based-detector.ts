@@ -102,14 +102,14 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
       const payments = await this.extractBalanceAndEvents(
         paymentNetwork.values.paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
-        request.currency.network,
+        request.currency,
         request.requestId,
         paymentNetwork,
       );
       const refunds = await this.extractBalanceAndEvents(
         paymentNetwork.values.refundAddress,
         PaymentTypes.EVENTS_NAMES.REFUND,
-        request.currency.network,
+        request.currency,
         request.requestId,
         paymentNetwork,
       );
@@ -140,7 +140,7 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   protected async extractBalanceAndEvents(
     paymentAddress: string | undefined,
     eventName: PaymentTypes.EVENTS_NAMES,
-    network: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
     requestId: string,
     paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
@@ -153,9 +153,9 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
       return await this.extractBalanceAndEventsFromPaymentRef(
         paymentAddress,
         eventName,
-        network,
+        requestCurrency,
         paymentReference,
-        paymentNetwork.version,
+        paymentNetwork,
       );
     }
     return { balance: '0', events: [] };
@@ -174,16 +174,16 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   protected async extractBalanceAndEventsFromPaymentRef(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    network: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
     paymentReference: string,
-    paymentNetworkVersion: string,
+    paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
     const events = await this.extractEvents(
       address,
       eventName,
-      network,
+      requestCurrency,
       paymentReference,
-      paymentNetworkVersion,
+      paymentNetwork,
     );
     const balance = events
       .sort(
@@ -206,16 +206,16 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
    *
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param network The id of network we want to check
+   * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
-   * @param paymentNetworkVersion the version of the payment network
+   * @param paymentNetwork the payment network
    * @returns The balance
    */
   protected abstract extractEvents(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    network: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
     paymentReference: string,
-    paymentNetworkVersion: string,
+    paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
 }
