@@ -13,7 +13,7 @@ import deployPayment from './scripts/2_deploy-main-payments';
 config();
 
 export default {
-  solidity: '0.8.6',
+  solidity: '0.8.7',
   paths: {
     sources: 'src/contracts',
     tests: 'test/contracts',
