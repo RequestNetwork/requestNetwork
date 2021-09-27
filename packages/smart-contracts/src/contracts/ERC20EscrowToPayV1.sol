@@ -8,10 +8,10 @@ import "./interfaces/ERC20FeeProxy.sol";
 
 /// @title Escrow based invoice
 contract ERC20EscrowToPayV1 {
+    using SafeErc2 for IERC20;
 
-    IERC20FeeProxy private paymentProxy;
-    TokenTimelock private tokentimelock;
-    address payable private owner;
+    
+    TokenTimelock tokentimelock;
     
     struct Invoice {
         IERC20 paymentToken; 
@@ -51,7 +51,8 @@ contract ERC20EscrowToPayV1 {
     }
     modifier OnlyOwner() {
         require(msg.sender == owner,
-            "ERC20EscrowToPay: Only the owner can excecute this call!");
+            "ERC20EscrowToPay: Only the owner can excecute this call!"
+        );
         _;
     }
 
@@ -68,7 +69,7 @@ contract ERC20EscrowToPayV1 {
     
     constructor(address payable _paymentProxyAddress) {
         owner = payable(msg.sender);
-        paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
+        IERC20FeeProxy paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     }
 
 
@@ -203,7 +204,7 @@ contract ERC20EscrowToPayV1 {
     /// @notice Creates a tokentimelock contract and returns the escrowed funds to the payer after 12 months.
     /// @dev Pays the fees and transferes funds to timelockcontract.
     function lockDisputedFunds(bytes memory _paymentRef) public OnlyPayer(_paymentRef) returns (address) {
-        require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPay: No dispute found, worng paymentRef?");
+        require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPay: No dispute found, wrong paymentRef?");
         require(disputeMapping[_paymentRef].tokentimelock == tokentimelock, 
         "ERC20EscrowToPay: No timelock contract found!");
 
@@ -257,7 +258,7 @@ contract ERC20EscrowToPayV1 {
     /// @param  _paymentRef Reference of the related Invoice.
     /// @dev    Internal function called by openEscrow.
     function _deposit(bytes memory _paymentRef) internal {
-        require(invoiceMapping[_paymentRef].paymentToken.transferFrom(
+        require(invoiceMapping[_paymentRef].paymentToken.safeTransferFrom(
             invoiceMapping[_paymentRef].payer,
             address(this), 
             (invoiceMapping[_paymentRef].amount + invoiceMapping[_paymentRef].feeAmount)
@@ -281,7 +282,7 @@ contract ERC20EscrowToPayV1 {
             
             invoiceMapping[_paymentRef].amount = 0;
 
-            /// Give approval to transfer from ERC20EscrowToPay => ERC20FeeProxy contract.
+            /// Give approval to transfer from ERC20EscrowToPayV1 => ERC20FeeProxy contract.
              invoiceMapping[_paymentRef].paymentToken.approve(address(paymentProxy), _amount + invoiceMapping[_paymentRef].feeAmount);
     
             // Pay the invoice request and fees

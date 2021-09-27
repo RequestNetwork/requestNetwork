@@ -15,7 +15,7 @@ import {
   //lockDisputedFundsRequest,
   //withdrawLockedFundsRequest,
   disputeMappingRequest,
-  encodeDisputeMappingRequest,
+  //encodeDisputeMappingRequest,
   encodeOpenEscrowRequest,
  // encodeOpenDisputeRequest,
   encodeCloseEscrowRequest,

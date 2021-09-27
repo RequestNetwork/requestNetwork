@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
-
 import { ERC20EscrowToPayV1 } from '@requestnetwork/smart-contracts';
 import { ERC20EscrowToPayV1__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
