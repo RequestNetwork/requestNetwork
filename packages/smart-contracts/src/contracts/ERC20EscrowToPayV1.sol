@@ -164,28 +164,11 @@ contract ERC20EscrowToPayV1 {
         emit EscrowCompleted(_paymentRef);  
     }
     
-    /** 
-     * @notice Closes an open dispute and pays the invoice request to it's issuer.
-     * @param _paymentRef Reference of the related Invoice.
-     * @dev The fees is paid to the fee address.
-     */
-    function resolveDispute(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
-        require(msg.sender == disputeMapping[_paymentRef].payer,"ERC20EscrowToPayV1: Only the payer can resolve an active dispute.");
-        require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPayV1: No open dispute found, wrong payment reference?");
-        require(_withdraw( _paymentRef, disputeMapping[_paymentRef].payee), 
-            "ResolveDispute: call to _withdraw() Failed"
-        ); 
-        delete disputeMapping[_paymentRef];
-        
-        emit DisputeResolved(_paymentRef);
-    }
-
-
     /**
      * @notice Allaws the payer to initiate a dispute if they have an isssue with the payee.
      * @param _paymentRef Reference of the Invoice related.
      */
-    function openDispute(bytes memory _paymentRef) public payable OnlyPayer(_paymentRef) {
+    function openDispute(bytes memory _paymentRef) external payable OnlyPayer(_paymentRef) {
         require(msg.sender == invoiceMapping[_paymentRef].payer, 
             "ERC20EscrowToPay: You are not the valid payer. Only the valid payer can open a dispute!");
         require(invoiceMapping[_paymentRef].amount != 0, 
@@ -204,10 +187,25 @@ contract ERC20EscrowToPayV1 {
             0,
             TokenTimelock(0x0000000000000000000000000000000000000000)
         );
-
         delete invoiceMapping[_paymentRef];
 
         emit DisputeOpened(_paymentRef);
+    }
+
+    /** 
+     * @notice Closes an open dispute and pays the invoice request to it's issuer.
+     * @param _paymentRef Reference of the related Invoice.
+     * @dev The fees is paid to the fee address.
+     */
+    function resolveDispute(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
+        require(msg.sender == disputeMapping[_paymentRef].payer,"ERC20EscrowToPayV1: Only the payer can resolve an active dispute.");
+        require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPayV1: No open dispute found, wrong payment reference?");
+        require(_withdraw( _paymentRef, disputeMapping[_paymentRef].payee), 
+            "ResolveDispute: call to _withdraw() Failed"
+        ); 
+        delete disputeMapping[_paymentRef];
+        
+        emit DisputeResolved(_paymentRef);
     }
 
     /**
@@ -216,7 +214,7 @@ contract ERC20EscrowToPayV1 {
      * @dev  The fees is paid to the fee address, disputed funds are locked in tokentimelock contract ith the payer as _beneficiary.
      * @return tokentimelock The TokenTimelock contract address.
      */
-    function lockDisputedFunds(bytes memory _paymentRef) public OnlyPayer(_paymentRef) returns (address tokentimelock) {
+    function lockDisputedFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) returns (address tokentimelock) {
         require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPay: No dispute found, wrong paymentRef?");
         require(disputeMapping[_paymentRef].tokentimelock == TokenTimelock(0x0000000000000000000000000000000000000000), 
                 "ERC20EscrowToPay: No timelock contract found!"
@@ -252,8 +250,10 @@ contract ERC20EscrowToPayV1 {
         return address(disputeMapping[_paymentRef].tokentimelock);
     }
 
-    /// @notice Transfer funds from tokentimelock contract => payer.
-    /// @param  _paymentRef Reference of the Invoice related.
+    /**
+     * @notice Withdraw the locked funds from tokentimelock contract and transfer to payer.
+     * @param  _paymentRef Reference of the Invoice related.
+     */
     function withdrawLockedFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
         require(disputeMapping[_paymentRef].tokentimelock != TokenTimelock(0x0000000000000000000000000000000000000000) &&
             disputeMapping[_paymentRef].amount != 0,
@@ -283,11 +283,10 @@ contract ERC20EscrowToPayV1 {
             invoiceMapping[_paymentRef].payer,
             address(this), 
             (invoiceMapping[_paymentRef].amount + invoiceMapping[_paymentRef].feeAmount)), 
-            "ERC20EscrowToPay: Can't transfer tokens to Escrow, did you approve ERC20 token first?"
+            "_deposit: Can't _deposit tokens to Escrow, did you approve ERC20 token first?"
         );
         return true; 
     }
-
 
     /// @notice Withdraw the funds from the escrow.  
     /// @param  _paymentRef Reference of the related Invoice.
