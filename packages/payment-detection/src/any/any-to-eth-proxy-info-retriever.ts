@@ -7,10 +7,6 @@ import { parseLogArgs, unpadAmountFromChainlink } from '../utils';
 // The conversion proxy smart contract ABI fragment containing TransferWithConversionAndReference event
 const ethConversionProxyContractAbiFragment = [
   'event TransferWithConversionAndReference(uint256 amount, address currency, bytes indexed paymentReference, uint256 feeAmount, uint256 maxRateTimespan)',
-];
-
-// The ETH proxy smart contract ABI fragment containing TransferWithReference event
-const ethFeeProxyContractAbiFragment = [
   'event TransferWithReferenceAndFee(address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
 ];
 
@@ -38,7 +34,6 @@ type TransferWithReferenceAndFeeArgs = {
 export default class AnyToEthProxyInfoRetriever
   implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
   public contractConversionProxy: ethers.Contract;
-  public contractETHFeeProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
   /**
@@ -55,8 +50,6 @@ export default class AnyToEthProxyInfoRetriever
     private paymentReference: string,
     private conversionProxyContractAddress: string,
     private conversionProxyCreationBlockNumber: number,
-    private ethFeeProxyContractAddress: string,
-    private ethFeeProxyCreationBlockNumber: number,
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
@@ -69,12 +62,6 @@ export default class AnyToEthProxyInfoRetriever
     this.contractConversionProxy = new ethers.Contract(
       this.conversionProxyContractAddress,
       ethConversionProxyContractAbiFragment,
-      this.provider,
-    );
-
-    this.contractETHFeeProxy = new ethers.Contract(
-      this.ethFeeProxyContractAddress,
-      ethFeeProxyContractAbiFragment,
       this.provider,
     );
   }
@@ -101,14 +88,12 @@ export default class AnyToEthProxyInfoRetriever
     const conversionLogs = await this.provider.getLogs(conversionFilter);
 
     // Create a filter to find all the Fee Transfer logs with the payment reference
-    const feeFilter = this.contractETHFeeProxy.filters.TransferWithReferenceAndFee(
+    const feeFilter = this.contractConversionProxy.filters.TransferWithReferenceAndFee(
       null,
       null,
       '0x' + this.paymentReference,
-      null,
-      null,
     ) as ethers.providers.Filter;
-    feeFilter.fromBlock = this.ethFeeProxyCreationBlockNumber;
+    feeFilter.fromBlock = this.conversionProxyCreationBlockNumber;
     feeFilter.toBlock = 'latest';
 
     // Get the fee proxy contract event logs
@@ -123,7 +108,7 @@ export default class AnyToEthProxyInfoRetriever
         if (!proxyLog) {
           throw new Error('proxy log not found');
         }
-        const parsedProxyLog = this.contractETHFeeProxy.interface.parseLog(proxyLog);
+        const parsedProxyLog = this.contractConversionProxy.interface.parseLog(proxyLog);
         return {
           transactionHash: log.transactionHash,
           blockNumber: log.blockNumber,

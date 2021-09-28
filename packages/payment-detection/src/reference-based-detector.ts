@@ -77,19 +77,22 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
-    if (!request.currency.network) {
-      request.currency.network = 'mainnet';
-    }
+    // TODO
+    // if (!request.currency.network) {
+    //   request.currency.network = 'mainnet';
+    // }
+    const paymentNetwork = request.extensions[this.extensionType];
+    const networkOfPayment = this.getNetworkOfPayment(request.currency, paymentNetwork);
+
     const supportedNetworks = this.extension.supportedNetworks;
-    if (!supportedNetworks.includes(request.currency.network)) {
+    if (!supportedNetworks.includes(networkOfPayment)) {
       return getBalanceErrorObject(
-        `Payment network ${request.currency.network} not supported by ${
+        `Payment network ${networkOfPayment} not supported by ${
           this.extensionType
         } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
         PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
       );
     }
-    const paymentNetwork = request.extensions[this.extensionType];
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
@@ -218,4 +221,16 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
     paymentReference: string,
     paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+
+  /**
+   * Get the network of the payment
+   *
+   * @param requestCurrency The request currency
+   * @param paymentNetwork the payment network
+   * @returns The network of payment
+   */
+  protected abstract getNetworkOfPayment(
+    requestCurrency: RequestLogicTypes.ICurrency,
+    paymentNetwork: ExtensionTypes.IState<any>,
+  ): string;
 }

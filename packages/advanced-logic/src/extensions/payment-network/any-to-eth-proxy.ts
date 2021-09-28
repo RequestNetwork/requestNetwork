@@ -50,7 +50,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(extensionId, currentVersion, []);
+    super(extensionId, currentVersion, Object.keys(supportedCurrencies));
   }
 
   /**

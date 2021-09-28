@@ -23,7 +23,7 @@ import { IPreparedTransaction } from './prepared-transaction';
  * - maxToSpend: maximum number of tokens to be spent when the conversion is made
  */
 export interface IPaymentSettings {
-  currency: RequestLogicTypes.ICurrency;
+  currency?: RequestLogicTypes.ICurrency;
   maxToSpend: BigNumberish;
   currencyManager?: ICurrencyManager;
 }
@@ -70,6 +70,9 @@ export function encodePayAnyToErc20ProxyRequest(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
+  if (!paymentSettings.currency) {
+    throw new Error('Cannot pay with a missing currency');
+  }
   if (!paymentSettings.currency.network) {
     throw new Error('Cannot pay with a currency missing a network');
   }
@@ -132,6 +135,9 @@ export function prepareAnyToErc20ProxyPaymentTransaction(
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
 ): IPreparedTransaction {
+  if (!paymentSettings.currency) {
+    throw new Error('Cannot pay with a missing currency');
+  }
   if (!paymentSettings.currency.network) {
     throw new Error('Cannot pay with a currency missing a network');
   }

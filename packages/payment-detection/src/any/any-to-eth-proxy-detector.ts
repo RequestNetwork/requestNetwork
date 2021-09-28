@@ -23,7 +23,7 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class ETHFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.IETHPaymentEventParameters> {
+export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.IETHPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -35,8 +35,8 @@ export default class ETHFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.I
     currencyManager: ICurrencyManager;
   }) {
     super(
-      advancedLogic.extensions.feeProxyContractEth,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+      advancedLogic.extensions.anyToEthProxy,
+      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
       currencyManager,
     );
   }
@@ -58,19 +58,13 @@ export default class ETHFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.I
     paymentReference: string,
     paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = requestCurrency.network;
-    if (!network) {
-      throw Error('requestCurrency.network must be defined');
-    }
+    const network = this.getNetworkOfPayment(requestCurrency, paymentNetwork);
 
-    const { ethFeeProxyContract, conversionProxyContract } = await this.safeGetProxiesArtifacts(
+    const conversionProxyContract = await this.safeGetProxyArtifact(
       network,
       paymentNetwork.version,
     );
 
-    if (!ethFeeProxyContract) {
-      throw Error('ETH fee proxy contract not found');
-    }
     if (!conversionProxyContract) {
       throw Error('ETH conversion proxy contract not found');
     }
@@ -85,8 +79,6 @@ export default class ETHFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.I
       paymentReference,
       conversionProxyContract.address,
       conversionProxyContract.creationBlockNumber,
-      ethFeeProxyContract.address,
-      ethFeeProxyContract.creationBlockNumber,
       address,
       eventName,
       network,
@@ -96,32 +88,37 @@ export default class ETHFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.I
     return await proxyInfoRetriever.getTransferEvents();
   }
 
+  /**
+   * Get the network of the payment
+   *
+   * @param requestCurrency The request currency
+   * @param paymentNetwork the payment network
+   * @returns The network of payment
+   */
+  protected getNetworkOfPayment(
+    _requestCurrency: RequestLogicTypes.ICurrency,
+    paymentNetwork: ExtensionTypes.IState<any>,
+  ): string {
+    const network = paymentNetwork.values.network;
+    if (!network) {
+      throw Error('paymentNetwork.values.network must be defined');
+    }
+    return network;
+  }
+
   /*
    * Fetches events from the Ethereum Proxy, or returns null
    */
-  private async safeGetProxiesArtifacts(network: string, paymentNetworkVersion: string) {
+  private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
     const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
-    let ethFeeProxyContract = null;
-    let conversionProxyContract = null;
-
     try {
-      ethFeeProxyContract = SmartContracts.ethConversionArtifact.getDeploymentInformation(
+      return SmartContracts.ethConversionArtifact.getDeploymentInformation(
         network,
         contractVersion,
       );
     } catch (error) {
       console.warn(error);
     }
-
-    try {
-      conversionProxyContract = SmartContracts.ethereumFeeProxyArtifact.getDeploymentInformation(
-        network,
-        contractVersion,
-      );
-    } catch (error) {
-      console.warn(error);
-    }
-
-    return { ethFeeProxyContract, conversionProxyContract };
+    return null;
   }
 }

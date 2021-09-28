@@ -63,4 +63,16 @@ export default abstract class AnyToAnyDetector<
     paymentReference: string,
     paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+
+  /**
+   * Get the network of the payment
+   *
+   * @param requestCurrency The request currency
+   * @param paymentNetwork the payment network
+   * @returns The network of payment
+   */
+  protected abstract getNetworkOfPayment(
+    requestCurrency: RequestLogicTypes.ICurrency,
+    paymentNetwork: ExtensionTypes.IState<any>,
+  ): string;
 }
