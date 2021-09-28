@@ -355,6 +355,7 @@ contract ERC20EscrowToPayV1 {
      * @param _paymentRef Reference of the related Invoice.
      * @param _feeAmount The amount of fee to pay.
      * @param _feeAddress The fee recipient.
+     * @dev Housekeeping.
      */
     function changeFeeAndAddress(bytes memory _paymentRef, uint _feeAmount, address _feeAddress) 
         external 
@@ -373,7 +374,8 @@ contract ERC20EscrowToPayV1 {
   
     /**
     * @notice ONLY for testnet purposes, removes the smartcontract from the blockchain. 
-    * @dev OnlyOwner condition 
+    * @dev OnlyOwner condition
+    * @dev Housekeeping. 
     */
     function removeContract() external OnlyOwner() {
       require( msg.sender == owner, "ERC20EscrowToPay: You are not the Owner, only the owner can execute this call!"); 
