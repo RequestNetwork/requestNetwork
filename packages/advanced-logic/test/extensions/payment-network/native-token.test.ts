@@ -398,5 +398,38 @@ describe('extensions/payment-network/native-token', () => {
         `Cannot apply action for network ${mainnetTestCase.wrongCurrency.network} on state with payment network: ${mainnetTestCase.currency.network}`,
       );
     });
+
+    it('keeps the version used at creation', () => {
+      const advancedLogic = new AdvancedLogic();
+      const requestState = {
+        ...requestStateNoExtensions,
+        currency: mainnetTestCase.currency,
+      };
+      const newState = advancedLogic.applyActionToExtensions(
+        {},
+        { ...actionCreationWithNativeTokenPayment, version: 'ABCD' },
+        requestState,
+        payeeRaw.identity,
+        arbitraryTimestamp,
+      );
+      expect(newState[mainnetTestCase.paymentNetwork.extensionId].version).toBe('ABCD');
+    });
+
+    it('requires a version at creation', () => {
+      expect(() => {
+        const advancedLogic = new AdvancedLogic();
+        const requestState = {
+          ...requestStateNoExtensions,
+          currency: mainnetTestCase.currency,
+        };
+        advancedLogic.applyActionToExtensions(
+          {},
+          { ...actionCreationWithNativeTokenPayment, version: '' },
+          requestState,
+          payeeRaw.identity,
+          arbitraryTimestamp,
+        );
+      }).toThrowError('version is required at creation');
+    });
   });
 });

@@ -82,13 +82,10 @@ export default abstract class ReferenceBasedPaymentNetwork<
           timestamp,
         },
       ],
-      id: this.extensionId,
-      type: this.extensionType,
       values: {
         ...basicCreationAction.values,
         salt: extensionAction.parameters.salt,
       },
-      version: this.currentVersion,
     };
   }
 }
