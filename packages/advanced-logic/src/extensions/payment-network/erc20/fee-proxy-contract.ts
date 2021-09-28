@@ -23,6 +23,8 @@ export default class Erc20FeeProxyPaymentNetwork<
       'celo',
       'alfajores',
       'fuse',
+      'bsc',
+      'bsctest',
     ],
     public supportedCurrencyType: string = RequestLogicTypes.CURRENCY.ERC20,
   ) {
