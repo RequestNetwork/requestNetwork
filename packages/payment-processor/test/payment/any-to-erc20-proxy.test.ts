@@ -81,16 +81,19 @@ const validEuroRequest: ClientTypes.IRequestData = {
 describe('conversion-erc20-fee-proxy', () => {
   describe('error checking', () => {
     it('should throw an error if the token is not accepted', async () => {
+
       await expect(
         payAnyToErc20ProxyRequest(
           validEuroRequest,
           wallet,
           {
-            ...alphaPaymentSettings,
             currency: {
-              ...alphaPaymentSettings.currency,
+              type: RequestLogicTypes.CURRENCY.ERC20,
               value: '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
+              network: 'private',
             },
+            maxToSpend: BigNumber.from(2).pow(256).sub(1),
+            currencyManager,
           },
           undefined,
           undefined,
