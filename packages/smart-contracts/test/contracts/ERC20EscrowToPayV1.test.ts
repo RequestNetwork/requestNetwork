@@ -116,7 +116,7 @@ describe("Contract: ERC20EscrowToPayV1", () => {
             expect(feeNewBalance.toString()).to.equals(feeOldBalance.add(1).toString());
             expect(escrowNewBalance.toString()).to.equals(escrowOldBalance.sub(101).toString());
         });
-        it("ERC20EscrowToPayV1: Should escalate a dispute, pay the fees and timelock the funds", async () => {
+        it("ERC20EscrowToPayV1: Should escalate the dispute, pay the fees and timelock the funds", async () => {
             await testERC20.connect(payer).approve(erc20EscrowToPayAddress, '202');
             await erc20EscrowToPayV1.connect(payer).openEscrow(
                 referenceExample3,
@@ -151,7 +151,7 @@ describe("Contract: ERC20EscrowToPayV1", () => {
             const payerOldBalance = await testERC20.balanceOf(payerAddress);
             const tokenTimelockOldBalance = await testERC20.balanceOf(tokentimelock);
     
-            await expect(erc20EscrowToPayV1.connect(payer).withdrawLockedFunds(referenceExample3)).to.be.reverted;
+            await expect(erc20EscrowToPayV1.connect(payer).withdrawTimeLockedFunds(referenceExample3)).to.be.reverted;
             
             const tokenTimelockNewBalance = await testERC20.balanceOf(tokentimelock);
             const payerNewBalance = await testERC20.balanceOf(payerAddress);
@@ -159,7 +159,7 @@ describe("Contract: ERC20EscrowToPayV1", () => {
             expect(payerNewBalance.toString()).to.equals(payerOldBalance);
             expect(tokenTimelockNewBalance.toString()).to.equals(tokenTimelockOldBalance);
         });
-        it("ERC20EscrowToPayV1: Shouldn't let the payee close the escrow before claimDate", async () => {
+        it("ERC20EscrowToPayV1: Shouldn't let the payee close the escrow before the claimDate", async () => {
             await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 1010);
             expect(
                 await erc20EscrowToPayV1.connect(payer).openEscrow(

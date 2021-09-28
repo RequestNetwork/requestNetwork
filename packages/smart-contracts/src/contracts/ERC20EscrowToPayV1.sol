@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/TokenTimelock.sol";
 import "./interfaces/ERC20FeeProxy.sol";
 
 /**
- * @title   ERC20EscrowToPay.
+ * @title   ERC20EscrowToPayV1.
  * @author  Ivo Garofalo.
  * @notice  Request Invoice with Escrow.
  */
@@ -58,20 +58,28 @@ contract ERC20EscrowToPayV1 {
     /// Errors
     error WithdrawFailed(string description);
 
-    /// @notice Emitted when an new escrow is initiated.
-    /// @param paymentReference Reference of the payment related.
+    /**
+     * @notice Emitted when an new escrow is initiated.
+     * @param paymentReference Reference of the payment related.
+     */
     event OpenEscrow(bytes indexed paymentReference);
 
-    /// @notice Emitted when an non-disputed escrow is completed successfully.
-    /// @param paymentReference Reference of the payment related.
+    /**
+     * @notice Emitted when an non-disputed escrow is completed successfully.
+     * @param paymentReference Reference of the payment related.
+     */
     event EscrowCompleted(bytes indexed paymentReference);
 
-    /// @notice Emitted when a new dispute is initiated.
-    /// @param paymentReference Reference of the payment related.
+    /**
+     * @notice Emitted when a new dispute is initiated.
+     * @param paymentReference Reference of the payment related.
+     */
     event DisputeOpened(bytes indexed paymentReference);
 
-    /// @notice Emitted when a dispute has been successfully resolved.
-    /// @param paymentReference Reference of the payment related.
+    /**
+     * @notice Emitted when a dispute has been successfully resolved.
+     * @param paymentReference Reference of the payment related.
+     */
     event DisputeResolved(bytes indexed paymentReference);
 
     /**
@@ -79,11 +87,13 @@ contract ERC20EscrowToPayV1 {
      * @param paymentReference Reference of the payment related.
      * @param tokentimelock address of the new tokentimelock contract.
      * @param paymentToken address of the timelocked ERC20 token.
-    */
+     */
     event LockPeriodStarted(bytes indexed paymentReference, TokenTimelock tokentimelock, IERC20 paymentToken);
 
-    /// @notice Emitted when a tokentimelock period is completed successfully.
-    /// @param paymentReference Reference of the payment related.
+    /**
+     * @notice Emitted when a tokentimelock period is completed successfully.
+     * @param paymentReference Reference of the payment related.
+     */
     event LockPeriodEnded(bytes indexed paymentReference);
     
     constructor(address payable _paymentProxyAddress) {
@@ -122,24 +132,22 @@ contract ERC20EscrowToPayV1 {
         require(invoiceMapping[_paymentRef].amount == 0, 
             "ERC20EscrowToPayV1: This invoice already exists, is this the correct paymentReference?"
         ); 
-        require(_deposit(_paymentRef),
-            "OpenEscrow: Call to _deposit failed!"
-        );
-
-        uint256 sixMonths = 15778458;
         
+        uint256 sixMonths = 15778458;
         // claimDate is used to set a timestamp on when the payee can execute closeEscrow.
         uint256 _claimDate = block.timestamp + sixMonths;
         
         invoiceMapping[_paymentRef] = Invoice(
-        _paymentToken, 
-        _amount,
-        _payee,
-        msg.sender,
-        _feeAmount,
-        _feeAddress,
-        _claimDate
+            _paymentToken, 
+            _amount,
+            _payee,
+            msg.sender,
+            _feeAmount,
+            _feeAddress,
+            _claimDate
         );
+        
+        require(_deposit(_paymentRef),"OpenEscrow: Call to _deposit failed!");
 
         emit OpenEscrow(_paymentRef);
         return true;
@@ -168,7 +176,7 @@ contract ERC20EscrowToPayV1 {
      * @notice Allaws the payer to initiate a dispute if they have an isssue with the payee.
      * @param _paymentRef Reference of the Invoice related.
      */
-    function openDispute(bytes memory _paymentRef) external payable OnlyPayer(_paymentRef) {
+    function openDispute(bytes memory _paymentRef) external {
         require(msg.sender == invoiceMapping[_paymentRef].payer, 
             "ERC20EscrowToPay: You are not the valid payer. Only the valid payer can open a dispute!");
         require(invoiceMapping[_paymentRef].amount != 0, 
@@ -198,8 +206,12 @@ contract ERC20EscrowToPayV1 {
      * @dev The fees is paid to the fee address.
      */
     function resolveDispute(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
-        require(msg.sender == disputeMapping[_paymentRef].payer,"ERC20EscrowToPayV1: Only the payer can resolve an active dispute.");
-        require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPayV1: No open dispute found, wrong payment reference?");
+        require(msg.sender == disputeMapping[_paymentRef].payer,
+            "ERC20EscrowToPayV1: Only the payer can resolve an active dispute."
+        );
+        require(disputeMapping[_paymentRef].amount != 0, 
+            "ERC20EscrowToPayV1: No open dispute found, wrong payment reference?"
+        );
         require(_withdraw( _paymentRef, disputeMapping[_paymentRef].payee), 
             "ResolveDispute: call to _withdraw() Failed"
         ); 
@@ -222,7 +234,6 @@ contract ERC20EscrowToPayV1 {
 
         /// Tokentimelock _lockDuration is set to 12 months.
         uint256 _lockDuration = 31556926; 
-
         uint256 _endtime = block.timestamp + _lockDuration;
 
         /// Initiate a new tokentimelock contract
@@ -254,9 +265,9 @@ contract ERC20EscrowToPayV1 {
      * @notice Withdraw the locked funds from tokentimelock contract and transfer to payer.
      * @param  _paymentRef Reference of the Invoice related.
      */
-    function withdrawLockedFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
-        require(disputeMapping[_paymentRef].tokentimelock != TokenTimelock(0x0000000000000000000000000000000000000000) &&
-            disputeMapping[_paymentRef].amount != 0,
+    function withdrawTimeLockedFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
+        require(disputeMapping[_paymentRef].tokentimelock != TokenTimelock(0x0000000000000000000000000000000000000000) 
+            && disputeMapping[_paymentRef].amount != 0,
             "ERC20EscrowToPay: No timelock contract found!"
         );
 
@@ -269,15 +280,19 @@ contract ERC20EscrowToPayV1 {
         emit LockPeriodEnded(_paymentRef);
     }
     
-    /// @notice Returns the endTime of the tokentimelock contract.   
-    /// @param  _paymentRef Reference of the Invoice related.
+    /** 
+     * @notice Returns the endTime of the tokentimelock contract.   
+     * @param  _paymentRef Reference of the Invoice related.
+     */
     function getLockPeriodEndTime(bytes memory _paymentRef) external view OnlyPayer(_paymentRef) returns (uint256 time) {
         return disputeMapping[_paymentRef].tokentimelock.releaseTime();
     }
     
-    /// @notice Transfers paymentToken from payer to MyEscrow smartcontract.  
-    /// @param  _paymentRef Reference of the related Invoice.
-    /// @dev    Internal function called by openEscrow.
+    /**
+     * @notice Transfers paymentToken from payer to MyEscrow smartcontract.  
+     * @param _paymentRef Reference of the related Invoice.
+     * @dev Internal function to execute transferFrom() payer.
+     */
     function _deposit(bytes memory _paymentRef) internal returns (bool result){
         require(invoiceMapping[_paymentRef].paymentToken.transferFrom(
             invoiceMapping[_paymentRef].payer,
@@ -288,18 +303,18 @@ contract ERC20EscrowToPayV1 {
         return true; 
     }
 
-    /// @notice Withdraw the funds from the escrow.  
-    /// @param  _paymentRef Reference of the related Invoice.
-    /// @dev    Internal function to withdraw funds to a given reciever.
+    /**
+     * @notice Withdraw the funds from the escrow.  
+     * @param _paymentRef Reference of the related Invoice.
+     * @dev Internal function to pay fees and withdraw funds to a given reciever.
+     */
     function _withdraw(bytes memory _paymentRef, address _receiver) internal returns (bool result) {
         /// Normal flow, funds are transfered to payee.
         if (invoiceMapping[_paymentRef].amount != 0 ) {
             uint256 _amount = invoiceMapping[_paymentRef].amount;
-            
             invoiceMapping[_paymentRef].amount = 0;
-
             /// Give approval to transfer from ERC20EscrowToPayV1 => ERC20FeeProxy contract.
-             invoiceMapping[_paymentRef].paymentToken.approve(address(paymentProxy), _amount + invoiceMapping[_paymentRef].feeAmount);
+            invoiceMapping[_paymentRef].paymentToken.approve(address(paymentProxy), _amount + invoiceMapping[_paymentRef].feeAmount);
     
             // Pay the invoice request and fees
             paymentProxy.transferFromWithReferenceAndFee(
@@ -335,8 +350,12 @@ contract ERC20EscrowToPayV1 {
         revert WithdrawFailed("Withdraw FAILED");  
     } 
 
-
-    /// @notice Used to change the feeAmount and feeAddress of any escrow.
+    /**
+     * @notice Used to change the feeAmount and feeAddress of any escrow.
+     * @param _paymentRef Reference of the related Invoice.
+     * @param _feeAmount The amount of fee to pay.
+     * @param _feeAddress The fee recipient.
+     */
     function changeFeeAndAddress(bytes memory _paymentRef, uint _feeAmount, address _feeAddress) 
         external 
         OnlyOwner()
@@ -352,10 +371,12 @@ contract ERC20EscrowToPayV1 {
         return (_paymentRef, invoiceMapping[_paymentRef].feeAmount, invoiceMapping[_paymentRef].feeAddress);  
     }
   
-
-    /// @notice ONLY for testnet purposes, removes the smartcontract from the blockchain. 
+    /**
+    * @notice ONLY for testnet purposes, removes the smartcontract from the blockchain. 
+    * @dev OnlyOwner condition 
+    */
     function removeContract() external OnlyOwner() {
-      require(owner == msg.sender, "ERC20EscrowToPay: You are not the Owner, only the owner can execute this call!"); 
+      require( msg.sender == owner, "ERC20EscrowToPay: You are not the Owner, only the owner can execute this call!"); 
         selfdestruct(owner);
     }
 
