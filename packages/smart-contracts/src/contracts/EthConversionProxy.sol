@@ -14,10 +14,12 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 contract EthConversionProxy is ReentrancyGuard {
   address public paymentProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
+  address public nativeTokenHash;
 
-  constructor(address _paymentProxyAddress, address _chainlinkConversionPathAddress) {
+  constructor(address _paymentProxyAddress, address _chainlinkConversionPathAddress, address _nativeTokenHash) {
     paymentProxy = _paymentProxyAddress;
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+    nativeTokenHash = _nativeTokenHash;
   }
 
   // Event to declare a conversion with a reference
@@ -60,10 +62,9 @@ contract EthConversionProxy is ReentrancyGuard {
     external
     payable
   {
-    // Request currency hash for ether: 0xF5AF88e117747e87fC5929F2ff87221B1447652E
     require(
-      _path[_path.length - 1] == address(0xF5AF88e117747e87fC5929F2ff87221B1447652E),
-      "payment currency must be ethers"
+      _path[_path.length - 1] == nativeTokenHash,
+      "payment currency must be the native token"
     );
 
     (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(
@@ -115,7 +116,7 @@ contract EthConversionProxy is ReentrancyGuard {
       "aggregator rate is outdated"
     );
 
-    // Get the amount to pay in the crypto currency chosen
+    // Get the amount to pay in the native token
     amountToPay = (_requestAmount * rate) / decimals;
     amountToPayInFees = (_feeAmount * rate) /decimals;
   }

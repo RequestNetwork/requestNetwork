@@ -72,6 +72,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       ...args,
       chainlinkConversionPathAddress: conversionPathInstance.address,
       ethFeeProxyAddress: '0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241',
+      nativeTokenHash: ETH_address,
     },
     hre,
   );

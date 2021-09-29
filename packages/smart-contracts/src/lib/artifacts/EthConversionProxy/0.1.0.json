@@ -11,6 +11,11 @@
           "internalType": "address",
           "name": "_chainlinkConversionPathAddress",
           "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_nativeTokenHash",
+          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
@@ -96,6 +101,19 @@
       "outputs": [
         {
           "internalType": "contract ChainlinkConversionPath",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nativeTokenHash",
+      "outputs": [
+        {
+          "internalType": "address",
           "name": "",
           "type": "address"
         }

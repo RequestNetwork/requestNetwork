@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from './deploy-one';
 
 export default async function deploy(
-  args: { chainlinkConversionPathAddress?: string; ethFeeProxyAddress?: string },
+  args: { chainlinkConversionPathAddress?: string; ethFeeProxyAddress?: string, nativeTokenHash?: string },
   hre: HardhatRuntimeEnvironment,
 ) {
   const contractName = 'EthConversionProxy';
@@ -20,8 +20,14 @@ export default async function deploy(
     return;
   }
 
+  if (!args.nativeTokenHash) {
+    console.error(`Missing nativeTokenHash on ${hre.network.name}, cannot deploy ${contractName}.`);
+    return;
+  }
+
   return deployOne(args, hre, contractName, [
     args.ethFeeProxyAddress,
     args.chainlinkConversionPathAddress,
+    args.nativeTokenHash,
   ]);
 }

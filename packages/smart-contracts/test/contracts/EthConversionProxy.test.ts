@@ -43,6 +43,7 @@ describe('contract: EthConversionProxy', () => {
     testEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
       ethFeeProxy.address,
       chainlinkPath.address,
+      ETH_address,
     );
   });
 
