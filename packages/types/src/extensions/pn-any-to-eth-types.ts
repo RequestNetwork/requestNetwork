@@ -1,8 +1,8 @@
 import * as Extension from '../extension-types';
 import * as PnAnyFees from './pn-any-fee-reference-based-types';
 
-/** Any to ERC20e reference-based payment network extension interface */
-export interface IAnyToERC20 extends PnAnyFees.IFeeReferenceBased {
+/** Any to ETH reference-based payment network extension interface */
+export interface IAnyToETH extends PnAnyFees.IFeeReferenceBased {
   createCreationAction: (creationParameters: ICreationParameters) => Extension.IAction;
 }
 
