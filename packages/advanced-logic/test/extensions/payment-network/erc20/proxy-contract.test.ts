@@ -239,6 +239,29 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
           `refundAddress '${DataERC20AddPaymentAddress.invalidAddress}' is not a valid address`,
         );
       });
+
+      it('keeps the version used at creation', () => {
+        const newState = erc20ProxyContract.applyActionToExtension(
+          {},
+          { ...DataERC20Create.actionCreationWithPaymentAndRefund, version: 'ABCD' },
+          DataERC20Create.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+        expect(newState[erc20ProxyContract.extensionId].version).toBe('ABCD');
+      });
+
+      it('requires a version at creation', () => {
+        expect(() => {
+          erc20ProxyContract.applyActionToExtension(
+            {},
+            { ...DataERC20Create.actionCreationWithPaymentAndRefund, version: '' },
+            DataERC20Create.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('version is required at creation');
+      });
     });
 
     describe('applyActionToExtension/addPaymentAddress', () => {

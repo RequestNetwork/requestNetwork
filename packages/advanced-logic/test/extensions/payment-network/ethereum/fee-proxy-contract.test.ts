@@ -321,6 +321,29 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
           `refundAddress '${DataEthFeeAddData.invalidAddress}' is not a valid address`,
         );
       });
+
+      it('keeps the version used at creation', () => {
+        const newState = ethFeeProxyContract.applyActionToExtension(
+          {},
+          { ...DataEthFeeCreate.actionCreationFull, version: 'ABCD' },
+          DataEthFeeCreate.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+        expect(newState[ethFeeProxyContract.extensionId].version).toBe('ABCD');
+      });
+
+      it('requires a version at creation', () => {
+        expect(() => {
+          ethFeeProxyContract.applyActionToExtension(
+            {},
+            { ...DataEthFeeCreate.actionCreationFull, version: '' },
+            DataEthFeeCreate.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('version is required at creation');
+      });
     });
 
     describe('applyActionToExtension/addPaymentAddress', () => {
@@ -494,105 +517,105 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
         }).toThrowError('refundAddress is not a valid address');
       });
     });
-  });
 
-  describe('applyActionToExtension/addFee', () => {
-    it('can applyActionToExtensions of addFee', () => {
-      // 'new extension state wrong'
-      expect(
-        ethFeeProxyContract.applyActionToExtension(
-          DataEthFeeCreate.requestStateCreatedEmpty.extensions,
-          DataEthFeeAddData.actionAddFee,
-          DataEthFeeCreate.requestStateCreatedEmpty,
-          TestData.payeeRaw.identity,
-          TestData.arbitraryTimestamp,
-        ),
-      ).toEqual(DataEthFeeAddData.extensionStateWithFeeAfterCreation);
-    });
+    describe('applyActionToExtension/addFee', () => {
+      it('can applyActionToExtensions of addFee', () => {
+        // 'new extension state wrong'
+        expect(
+          ethFeeProxyContract.applyActionToExtension(
+            DataEthFeeCreate.requestStateCreatedEmpty.extensions,
+            DataEthFeeAddData.actionAddFee,
+            DataEthFeeCreate.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(DataEthFeeAddData.extensionStateWithFeeAfterCreation);
+      });
 
-    it('cannot applyActionToExtensions of addFee without a previous state', () => {
-      // 'must throw'
-      expect(() => {
-        ethFeeProxyContract.applyActionToExtension(
-          DataEthFeeCreate.requestStateNoExtensions.extensions,
-          DataEthFeeAddData.actionAddFee,
-          DataEthFeeCreate.requestStateNoExtensions,
-          TestData.payeeRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError(`The extension should be created before receiving any other action`);
-    });
+      it('cannot applyActionToExtensions of addFee without a previous state', () => {
+        // 'must throw'
+        expect(() => {
+          ethFeeProxyContract.applyActionToExtension(
+            DataEthFeeCreate.requestStateNoExtensions.extensions,
+            DataEthFeeAddData.actionAddFee,
+            DataEthFeeCreate.requestStateNoExtensions,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`The extension should be created before receiving any other action`);
+      });
 
-    it('cannot applyActionToExtensions of addFee without a payee', () => {
-      const previousState = Utils.deepCopy(DataEthFeeCreate.requestStateCreatedEmpty);
-      previousState.payee = undefined;
-      // 'must throw'
-      expect(() => {
-        ethFeeProxyContract.applyActionToExtension(
-          previousState.extensions,
-          DataEthFeeAddData.actionAddFee,
-          previousState,
-          TestData.payeeRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError(`The request must have a payee`);
-    });
+      it('cannot applyActionToExtensions of addFee without a payee', () => {
+        const previousState = Utils.deepCopy(DataEthFeeCreate.requestStateCreatedEmpty);
+        previousState.payee = undefined;
+        // 'must throw'
+        expect(() => {
+          ethFeeProxyContract.applyActionToExtension(
+            previousState.extensions,
+            DataEthFeeAddData.actionAddFee,
+            previousState,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`The request must have a payee`);
+      });
 
-    it('cannot applyActionToExtensions of addFee signed by someone else than the payee', () => {
-      const previousState = Utils.deepCopy(DataEthFeeCreate.requestStateCreatedEmpty);
-      // 'must throw'
-      expect(() => {
-        ethFeeProxyContract.applyActionToExtension(
-          previousState.extensions,
-          DataEthFeeAddData.actionAddFee,
-          previousState,
-          TestData.payerRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError(`The signer must be the payee`);
-    });
+      it('cannot applyActionToExtensions of addFee signed by someone else than the payee', () => {
+        const previousState = Utils.deepCopy(DataEthFeeCreate.requestStateCreatedEmpty);
+        // 'must throw'
+        expect(() => {
+          ethFeeProxyContract.applyActionToExtension(
+            previousState.extensions,
+            DataEthFeeAddData.actionAddFee,
+            previousState,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`The signer must be the payee`);
+      });
 
-    it('cannot applyActionToExtensions of addFee with fee data already given', () => {
-      // 'must throw'
-      expect(() => {
-        ethFeeProxyContract.applyActionToExtension(
-          DataEthFeeCreate.requestFullStateCreated.extensions,
-          DataEthFeeAddData.actionAddFee,
-          DataEthFeeCreate.requestFullStateCreated,
-          TestData.payeeRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError(`Fee address already given`);
-    });
+      it('cannot applyActionToExtensions of addFee with fee data already given', () => {
+        // 'must throw'
+        expect(() => {
+          ethFeeProxyContract.applyActionToExtension(
+            DataEthFeeCreate.requestFullStateCreated.extensions,
+            DataEthFeeAddData.actionAddFee,
+            DataEthFeeCreate.requestFullStateCreated,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`Fee address already given`);
+      });
 
-    it('cannot applyActionToExtensions of addFee with fee address not valid', () => {
-      const testnetPaymentAddress = Utils.deepCopy(DataEthFeeAddData.actionAddFee);
-      testnetPaymentAddress.parameters.feeAddress = DataEthFeeAddData.invalidAddress;
-      // 'must throw'
-      expect(() => {
-        ethFeeProxyContract.applyActionToExtension(
-          DataEthFeeCreate.requestStateCreatedEmpty.extensions,
-          testnetPaymentAddress,
-          DataEthFeeCreate.requestStateCreatedEmpty,
-          TestData.payerRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError('feeAddress is not a valid address');
-    });
+      it('cannot applyActionToExtensions of addFee with fee address not valid', () => {
+        const testnetPaymentAddress = Utils.deepCopy(DataEthFeeAddData.actionAddFee);
+        testnetPaymentAddress.parameters.feeAddress = DataEthFeeAddData.invalidAddress;
+        // 'must throw'
+        expect(() => {
+          ethFeeProxyContract.applyActionToExtension(
+            DataEthFeeCreate.requestStateCreatedEmpty.extensions,
+            testnetPaymentAddress,
+            DataEthFeeCreate.requestStateCreatedEmpty,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('feeAddress is not a valid address');
+      });
 
-    it('cannot applyActionToExtensions of addFee with fee amount not valid', () => {
-      const testnetPaymentAddress = Utils.deepCopy(DataEthFeeAddData.actionAddFee);
-      testnetPaymentAddress.parameters.feeAmount = DataEthFeeAddData.invalidAddress;
-      // 'must throw'
-      expect(() => {
-        ethFeeProxyContract.applyActionToExtension(
-          DataEthFeeCreate.requestStateCreatedEmpty.extensions,
-          testnetPaymentAddress,
-          DataEthFeeCreate.requestStateCreatedEmpty,
-          TestData.payerRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError('feeAmount is not a valid amount');
+      it('cannot applyActionToExtensions of addFee with fee amount not valid', () => {
+        const testnetPaymentAddress = Utils.deepCopy(DataEthFeeAddData.actionAddFee);
+        testnetPaymentAddress.parameters.feeAmount = DataEthFeeAddData.invalidAddress;
+        // 'must throw'
+        expect(() => {
+          ethFeeProxyContract.applyActionToExtension(
+            DataEthFeeCreate.requestStateCreatedEmpty.extensions,
+            testnetPaymentAddress,
+            DataEthFeeCreate.requestStateCreatedEmpty,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('feeAmount is not a valid amount');
+      });
     });
   });
 });
