@@ -239,6 +239,29 @@ describe('extensions/payment-network/ethereum/input-data', () => {
           `refundAddress '${DataEthAddPaymentAddress.invalidAddress}' is not a valid address`,
         );
       });
+
+      it('keeps the version used at creation', () => {
+        const newState = ethereumInputDataPaymentNetwork.applyActionToExtension(
+          {},
+          { ...DataEthCreate.actionCreationWithPaymentAndRefund, version: 'ABCD' },
+          DataEthCreate.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+        expect(newState[ethereumInputDataPaymentNetwork.extensionId].version).toBe('ABCD');
+      });
+
+      it('requires a version at creation', () => {
+        expect(() => {
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
+            {},
+            { ...DataEthCreate.actionCreationWithPaymentAndRefund, version: '' },
+            DataEthCreate.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('version is required at creation');
+      });
     });
 
     describe('applyActionToExtension/addPaymentAddress', () => {

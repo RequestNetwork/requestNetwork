@@ -485,6 +485,28 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           `refundAddress '${DataConversionERC20FeeAddData.invalidAddress}' is not a valid address`,
         );
       });
+      it('keeps the version used at creation', () => {
+        const newState = anyToErc20Proxy.applyActionToExtension(
+          {},
+          { ...DataConversionERC20FeeCreate.actionCreationFull, version: 'ABCD' },
+          DataConversionERC20FeeCreate.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+        expect(newState[anyToErc20Proxy.extensionId].version).toBe('ABCD');
+      });
+
+      it('requires a version at creation', () => {
+        expect(() => {
+          anyToErc20Proxy.applyActionToExtension(
+            {},
+            { ...DataConversionERC20FeeCreate.actionCreationFull, version: '' },
+            DataConversionERC20FeeCreate.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('version is required at creation');
+      });
     });
 
     describe('applyActionToExtension/addPaymentAddress', () => {
