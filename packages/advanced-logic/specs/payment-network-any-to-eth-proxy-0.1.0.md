@@ -1,23 +1,16 @@
-# Payment Network - Any currency - conversion to ethers with Fee
-
-You may be interested in this document if:
-
-- you want to create your own implementation of the Request protocol
-- you are curious enough to dive and see what is under the hood of the Request protocol
-
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
+# Payment Network - Any currency conversion to ETH with Fee
 
 ## Description
 
-This extension allows the payments and the refunds to be made in ethers on the Ethereum blockchain for a request made in others currencies.
+This extension allows the payments and the refunds to be made in ETH on Ethereum or native tokens on EVM blockchains for a request made in others currencies.
 The rate is computing at the payment thanks to onchain oracles.
 This Payment Network is quite similar to the [ETH Fee Proxy Contract](./payment-network-eth-fee-proxy-contract-0.1.0.md) extension, with a rate conversion before the payment.
 
-The payment is made through a proxy contract. This proxy contract call the [ETH Fee Proxy Contract](./payment-network-eth-fee-proxy-contract-0.1.0.md) to do the ethers transfer on behalf of the user. The contract ensures a link between an ethers transfer and a request through a `paymentReference`.
+The payment is made through a proxy contract. This proxy contract call the [ETH Fee Proxy Contract](./payment-network-eth-fee-proxy-contract-0.1.0.md) to do the ETH transfer on behalf of the user. The contract ensures a link between an ETH transfer and a request through a `paymentReference`.
 
 This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
-The contract also ensures that the `feeAmount` amount of the ethers transfer will be forwarded to the `feeAddress`.
+The contract also ensures that the `feeAmount` amount of the ETH transfer will be forwarded to the `feeAddress`.
 
 - `requestId` is the id of the request
 - `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
