@@ -63,7 +63,6 @@ export default class ContentDataExtension<
         ...genericCreationAction.values,
         content: extensionAction.parameters.content,
       },
-      version: this.currentVersion,
     };
   }
 }

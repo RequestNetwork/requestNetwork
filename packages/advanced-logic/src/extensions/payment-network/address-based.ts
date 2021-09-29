@@ -138,7 +138,6 @@ export default abstract class AddressBasedPaymentNetwork<
         paymentAddress,
         refundAddress,
       },
-      version: this.currentVersion,
     };
   }
 
@@ -253,7 +252,7 @@ export default abstract class AddressBasedPaymentNetwork<
 }
 
 export class InvalidPaymentAddressError extends Error {
-  constructor(address?: string, addressReference: string = 'paymentAddress') {
+  constructor(address?: string, addressReference = 'paymentAddress') {
     const formattedAddress = address ? ` '${address}'` : '';
     super(`${addressReference}${formattedAddress} is not a valid address`);
   }
@@ -261,7 +260,7 @@ export class InvalidPaymentAddressError extends Error {
 
 export class UnsupportedNetworkError extends Error {
   constructor(unsupportedNetworkName: string, supportedNetworks?: string[]) {
-    const supportedNetworkDetails = !!supportedNetworks
+    const supportedNetworkDetails = supportedNetworks
       ? ` (only ${supportedNetworks.join(', ')})`
       : '';
     super(
