@@ -2,6 +2,7 @@ import '@nomiclabs/hardhat-ethers';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import deployERC20ConversionProxy from './erc20-conversion-proxy';
+import deployEthConversionProxy from './eth-conversion-proxy';
 import deploySwapConversion from './erc20-swap-to-conversion';
 import { deployOne } from './deploy-one';
 
@@ -65,6 +66,15 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
   // FIXME: should try to retrieve information from artifacts instead
   await erc20SwapConversion.approveRouterToSpend('0x9FBDa871d559710256a2502A2517b794B482Db40');
 
+  // EthConversion
+  const ethConversionProxyAddress = await deployEthConversionProxy(
+    {
+      ...args,
+      chainlinkConversionPathAddress: conversionPathInstance.address,
+      ethFeeProxyAddress: '0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241',
+    },
+    hre,
+  );
   // ----------------------------------
   console.log('Contracts deployed');
   console.log(`
@@ -73,5 +83,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     ChainlinkConversionPath:  ${conversionPathInstance.address}
     Erc20ConversionProxy:     ${erc20ConversionAddress}
     Erc20SwapConversionProxy: ${erc20SwapConversionAddress}
+    EthConversionProxy:       ${ethConversionProxyAddress}
     `);
 }
