@@ -403,4 +403,41 @@ describe('CurrencyManager', () => {
       });
     });
   });
+
+  describe('Validate addresses', () => {
+    it('should validate bitcoin addresses', () => {
+      const currencyManager = CurrencyManager.getDefault();
+      const currency = currencyManager.from('BTC', 'mainnet')!;
+      expect(
+        currencyManager.validatePaymentAddress('1JwZzh9HLK5M4VZ98yBQLeFiGuL97vQvL3', currency),
+      ).toBeTruthy();
+    });
+    it('should validate ethereum addresses', () => {
+      const currencyManager = CurrencyManager.getDefault();
+      const currency = currencyManager.from('ETH', 'mainnet')!;
+      expect(
+        currencyManager.validatePaymentAddress(
+          '0x536c01DD083dF744753d5fcE8f0dd03587f00887',
+          currency,
+        ),
+      ).toBeTruthy();
+    });
+    it('should not validate bitcoin address for ethereum network', () => {
+      const currencyManager = CurrencyManager.getDefault();
+      const currency = currencyManager.from('ETH', 'mainnet')!;
+      expect(
+        currencyManager.validatePaymentAddress('1JwZzh9HLK5M4VZ98yBQLeFiGuL97vQvL3', currency),
+      ).toBeFalsy();
+    });
+    it('should not validate ethereum address for bitcoin network', () => {
+      const currencyManager = CurrencyManager.getDefault();
+      const currency = currencyManager.from('BTC', 'mainnet')!;
+      expect(
+        currencyManager.validatePaymentAddress(
+          '0x536c01DD083dF744753d5fcE8f0dd03587f00887',
+          currency,
+        ),
+      ).toBeFalsy();
+    });
+  });
 });

@@ -1,5 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
+import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
 import { getHash } from './getHash';
 import iso4217 from './iso4217';
@@ -11,6 +12,7 @@ import {
   ERC20Currency,
   ICurrencyManager,
   LegacyTokenMap,
+  NativeCurrency,
 } from './types';
 
 const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
@@ -170,6 +172,45 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       value: currency.type === ERC20 ? currency.address : currency.symbol,
       network: currency.type === ISO4217 ? undefined : currency.network,
     };
+  }
+
+  /**
+   * Validates if a Near address is valid according to a currency network.
+   * Returns true if the currency network is not given and the address is correct for any network
+   */
+  private isValidNearAddressForCurrencyNetwork(address: string, network?: string): boolean {
+    if (!network) {
+      return (
+        this.isValidNearAddressForCurrencyNetwork(address, 'aurora') ||
+        this.isValidNearAddressForCurrencyNetwork(address, 'aurora-testnet')
+      );
+    }
+    if (network === 'aurora') {
+      return !!address.match(/\.near$/);
+    }
+    if (network === 'aurora-testnet') {
+      return !!address.match(/\.testnet$/);
+    }
+    return false;
+  }
+
+  private isNearCurrency(
+    currency: Pick<CurrencyDefinition, 'symbol'>,
+  ): currency is NativeCurrency & { type: RequestLogicTypes.CURRENCY.ETH } {
+    return currency.symbol === 'NEAR' || currency.symbol === 'NEAR-testnet';
+  }
+
+  validatePaymentAddress(paymentAddress: string, currency: CurrencyDefinition): boolean {
+    if (!currency) {
+      return false;
+    }
+    if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
+      return false;
+    }
+    if (this.isNearCurrency(currency)) {
+      return this.isValidNearAddressForCurrencyNetwork(paymentAddress, currency.network);
+    }
+    return addressValidator.validate(paymentAddress, currency.symbol);
   }
 
   /**
