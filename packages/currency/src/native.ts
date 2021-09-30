@@ -9,7 +9,7 @@ export const nativeCurrencies = {
       network: 'mainnet',
     },
     {
-      symbol: 'ETH-rinkeby',
+      symbol: 'ETH',
       decimals: 18,
       name: 'Rinkeby Ether',
       network: 'rinkeby',
