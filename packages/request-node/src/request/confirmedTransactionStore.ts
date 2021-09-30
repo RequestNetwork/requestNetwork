@@ -1,8 +1,8 @@
+import type { Request, Response } from 'express';
 import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
-import * as httpStatus from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 
-import Keyv from 'keyv';
-import KeyvFile from 'keyv-file';
+import Keyv, { Store } from 'keyv';
 
 /**
  * Class for storing confirmed transactions information
@@ -10,12 +10,17 @@ import KeyvFile from 'keyv-file';
  * The client can call the getConfirmed entry point, to get the confirmed event.
  */
 export default class ConfirmedTransactionStore {
-  public store: Keyv<DataAccessTypes.IReturnPersistTransaction>;
+  private store: Keyv<DataAccessTypes.IReturnPersistTransaction>;
 
   /**
    * Confirmed transactions store constructor
    */
-  constructor(store?: KeyvFile) {
+  constructor(
+    private logger: LogTypes.ILogger,
+    store?: Store<DataAccessTypes.IReturnPersistTransaction>,
+  ) {
+    this.getConfirmedTransaction = this.getConfirmedTransaction.bind(this);
+
     this.store = new Keyv<DataAccessTypes.IReturnPersistTransaction>({
       namespace: 'ConfirmedTransactions',
       store,
@@ -30,31 +35,32 @@ export default class ConfirmedTransactionStore {
    * @param logger logger
    */
   public async getConfirmedTransaction(
-    clientRequest: any,
-    serverResponse: any,
-    logger: LogTypes.ILogger,
+    clientRequest: Request,
+    serverResponse: Response,
   ): Promise<void> {
-    if (!clientRequest.query.transactionHash) {
-      serverResponse
-        .status(httpStatus.UNPROCESSABLE_ENTITY)
-        .send('transactionHash missing in the query');
-    } else {
-      try {
-        const result: DataAccessTypes.IReturnPersistTransaction | undefined = await this.store.get(
-          clientRequest.query.transactionHash,
-        );
-
-        if (result) {
-          return serverResponse.status(httpStatus.OK).send(result);
-        }
-
-        return serverResponse.status(httpStatus.NOT_FOUND).send();
-      } catch (e) {
-        logger.error(`getConfirmedTransaction error: ${e}`);
-        logger.debug(`getConfirmedTransaction fail`, ['metric', 'successRate']);
-
-        serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
+    try {
+      const { transactionHash } = clientRequest.query;
+      if (!transactionHash || typeof transactionHash !== 'string') {
+        serverResponse
+          .status(StatusCodes.UNPROCESSABLE_ENTITY)
+          .send('transactionHash missing in the query');
+        return;
       }
+      const result: DataAccessTypes.IReturnPersistTransaction | undefined = await this.store.get(
+        transactionHash,
+      );
+
+      if (result) {
+        serverResponse.status(StatusCodes.OK).send(result);
+        return;
+      }
+
+      serverResponse.status(StatusCodes.NOT_FOUND).send();
+    } catch (e) {
+      this.logger.error(`getConfirmedTransaction error: ${e}`);
+      this.logger.debug(`getConfirmedTransaction fail`, ['metric', 'successRate']);
+
+      serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
     }
   }
 
