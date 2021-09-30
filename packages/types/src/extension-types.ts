@@ -4,7 +4,7 @@ import * as PnAnyDeclarative from './extensions/pn-any-declarative-types';
 import * as PnFeeReferenceBased from './extensions/pn-any-fee-reference-based-types';
 import * as PnReferenceBased from './extensions/pn-any-reference-based-types';
 import * as PnAnyToErc20 from './extensions/pn-any-to-er20-types';
-import * as PnAnyToEth from './extensions/pn-any-to-er20-types';
+import * as PnAnyToEth from './extensions/pn-any-to-eth-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
 
