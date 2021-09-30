@@ -3,12 +3,7 @@ import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs, unpadAmountFromChainlink } from '../utils';
-
-// The conversion proxy smart contract ABI fragment containing TransferWithConversionAndReference event
-const ethConversionProxyContractAbiFragment = [
-  'event TransferWithConversionAndReference(uint256 amount, address currency, bytes indexed paymentReference, uint256 feeAmount, uint256 maxRateTimespan)',
-  'event TransferWithReferenceAndFee(address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
-];
+import type { JsonFragment } from '@ethersproject/abi';
 
 /** TransferWithConversionAndReference event */
 type TransferWithConversionAndReferenceArgs = {
@@ -21,6 +16,7 @@ type TransferWithConversionAndReferenceArgs = {
 
 /** TransferWithReferenceAndFee event */
 type TransferWithReferenceAndFeeArgs = {
+  tokenAddress?: string;
   to: string;
   amount: BigNumber;
   paymentReference: string;
@@ -31,16 +27,15 @@ type TransferWithReferenceAndFeeArgs = {
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
-export default class AnyToEthProxyInfoRetriever
-  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
+export default class ConversionInfoRetriever {
   public contractConversionProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
   /**
    * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
-   * @param conversionProxyContractAddress The address of the proxy contract
-   * @param conversionProxyCreationBlockNumber The block that created the proxy contract
+   * @param conversionProxyContractAddress The address of the conversion proxy contract
+   * @param conversionProxyCreationBlockNumber The block that created the conversion proxy contract
    * @param toAddress Address of the balance we want to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The Ethereum network to use
@@ -50,9 +45,11 @@ export default class AnyToEthProxyInfoRetriever
     private paymentReference: string,
     private conversionProxyContractAddress: string,
     private conversionProxyCreationBlockNumber: number,
+    private conversionProxyContractAbiFragment: JsonFragment[],
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
+    private acceptedTokens?: string[],
     private maxRateTimespan: number = 0,
   ) {
     // Creates a local or default provider
@@ -61,9 +58,10 @@ export default class AnyToEthProxyInfoRetriever
     // Setup the conversion proxy contract interface
     this.contractConversionProxy = new ethers.Contract(
       this.conversionProxyContractAddress,
-      ethConversionProxyContractAbiFragment,
+      this.conversionProxyContractAbiFragment,
       this.provider,
     );
+    this.acceptedTokens = acceptedTokens?.map((token) => token.toLowerCase());
   }
 
   /**
@@ -74,7 +72,7 @@ export default class AnyToEthProxyInfoRetriever
    * The conversion proxy's logs are used to compute the amounts in request currency (typically fiat).
    * The payment proxy's logs are used the same way as for a pn-fee-proxy request.
    */
-  public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<PaymentTypes.ConversionPaymentNetworkEvent[]> {
     // Create a filter to find all the Fee Transfer logs with the payment reference
     const conversionFilter = this.contractConversionProxy.filters.TransferWithConversionAndReference(
       null,
@@ -88,13 +86,7 @@ export default class AnyToEthProxyInfoRetriever
     const conversionLogs = await this.provider.getLogs(conversionFilter);
 
     // Create a filter to find all the Fee Transfer logs with the payment reference
-    const feeFilter = this.contractConversionProxy.filters.TransferWithReferenceAndFee(
-      null,
-      null,
-      '0x' + this.paymentReference,
-    ) as ethers.providers.Filter;
-    feeFilter.fromBlock = this.conversionProxyCreationBlockNumber;
-    feeFilter.toBlock = 'latest';
+    const feeFilter = this.getFeeFilter();
 
     // Get the fee proxy contract event logs
     const feeLogs = await this.provider.getLogs(feeFilter);
@@ -120,6 +112,10 @@ export default class AnyToEthProxyInfoRetriever
       // With ethers v5, the criteria below can be added to the conversionFilter (PROT-1234)
       .filter(
         ({ conversionLog, proxyLog }) =>
+          // filter the token allowed
+          (!this.acceptedTokens ||
+            !proxyLog.tokenAddress ||
+            this.acceptedTokens.includes(proxyLog.tokenAddress.toLowerCase())) &&
           // check the rate timespan
           this.maxRateTimespan >= conversionLog.maxRateTimespan.toNumber() &&
           // check the requestCurrency
@@ -146,6 +142,7 @@ export default class AnyToEthProxyInfoRetriever
             feeAmount,
             feeAmountInCrypto: proxyLog.feeAmount.toString() || undefined,
             amountInCrypto: proxyLog.amount.toString(),
+            tokenAddress: proxyLog.tokenAddress,
             to: this.toAddress,
             txHash: transactionHash,
             maxRateTimespan: conversionLog.maxRateTimespan.toString(),
@@ -155,5 +152,18 @@ export default class AnyToEthProxyInfoRetriever
       });
 
     return Promise.all(eventPromises);
+  }
+
+  protected getFeeFilter(): ethers.providers.Filter {
+    // Create a filter to find all the Fee Transfer logs with the payment reference
+    const feeFilter = this.contractConversionProxy.filters.TransferWithReferenceAndFee(
+      null,
+      null,
+      null,
+      '0x' + this.paymentReference,
+    ) as ethers.providers.Filter;
+    feeFilter.fromBlock = this.conversionProxyCreationBlockNumber;
+    feeFilter.toBlock = 'latest';
+    return feeFilter;
   }
 }

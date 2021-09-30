@@ -8,7 +8,7 @@ import {
 
 import { ICurrencyManager } from '@requestnetwork/currency';
 
-import ProxyInfoRetriever from './any-to-eth-proxy-info-retriever';
+import ProxyInfoRetriever from './any-to-any-proxy-info-retriever';
 import AnyToAnyDetector from '../any-to-any-detector';
 
 // interface of the object indexing the proxy contract version
@@ -79,6 +79,7 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
       paymentReference,
       conversionProxyContract.address,
       conversionProxyContract.creationBlockNumber,
+      conversionProxyContract.abi,
       address,
       eventName,
       network,
@@ -112,10 +113,12 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
   private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
     const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
     try {
-      return SmartContracts.ethConversionArtifact.getDeploymentInformation(
+      const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractVersion);
+      const contractInfos = SmartContracts.ethConversionArtifact.getDeploymentInformation(
         network,
         contractVersion,
       );
+      return { ...contractInfos, ...{ abi } };
     } catch (error) {
       console.warn(error);
     }
