@@ -37,13 +37,13 @@ export const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURREN
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },
   matic: {
-    ISO4217: ['AUD', 'CAD', 'CHF', 'EUR', 'GBP', 'SGD', 'USD'],
-    ERC20: [
+    [RequestLogicTypes.CURRENCY.ISO4217]: ['AUD', 'CAD', 'CHF', 'EUR', 'GBP', 'SGD', 'USD'],
+    [RequestLogicTypes.CURRENCY.ERC20]: [
       '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
       '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
       '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
     ],
-    ETH: ['ETH'],
-    BTC: [],
+    [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
+    [RequestLogicTypes.CURRENCY.BTC]: [],
   },
 };

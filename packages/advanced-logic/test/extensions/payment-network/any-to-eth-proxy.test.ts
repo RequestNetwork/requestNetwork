@@ -12,7 +12,7 @@ const anyToEthProxy = new AnyToEthProxy();
 describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToEthProxy.createCreationAction({
           feeAddress: '0x0000000000000000000000000000000000000001',
@@ -40,7 +40,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
     });
 
     it('can create a create action without fee parameters', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToEthProxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -126,7 +126,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       }).toThrowError('network kovan not supported');
     });
 
-    it('cannot applyActionToExtensions of creation on a non supported currency', () => {
+    it('cannot applyActionToExtensions of creation with an invalid network', () => {
       const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
         TestData.requestCreatedNoExtension,
       );
@@ -182,7 +182,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
 
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToEthProxy.createAddPaymentAddressAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -208,7 +208,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
 
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToEthProxy.createAddRefundAddressAction({
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -222,7 +222,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       });
     });
 
-    it('cannot createAddRefundAddressAction with payment address not an ethereum address', () => {
+    it('cannot createAddRefundAddressAction with refund address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
         anyToEthProxy.createAddRefundAddressAction({
@@ -234,7 +234,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
 
   describe('createAddFeeAction', () => {
     it('can createAddFeeAction', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToEthProxy.createAddFeeAction({
           feeAddress: '0x0000000000000000000000000000000000000002',
@@ -250,7 +250,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       });
     });
 
-    it('cannot createAddFeeAddressAction with payment address not an ethereum address', () => {
+    it('cannot createAddFeeAddressAction with fee address not an ethereum address', () => {
       // 'must throw'
       expect(() => {
         anyToEthProxy.createAddFeeAction({
