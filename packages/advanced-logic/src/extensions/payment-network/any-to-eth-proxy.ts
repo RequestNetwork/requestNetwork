@@ -3,8 +3,6 @@ import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
 import { supportedCurrencies } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
-// Default network if the storage data does not give any
-const DEFAULT_NETWORK = 'mainnet';
 
 export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPaymentNetwork {
   public constructor(
@@ -63,7 +61,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
             paymentAddress: extensionAction.parameters.paymentAddress,
             refundAddress: extensionAction.parameters.refundAddress,
             salt: extensionAction.parameters.salt,
-            network: extensionAction.parameters.network || DEFAULT_NETWORK,
+            network: extensionAction.parameters.network,
             maxRateTimespan: extensionAction.parameters.maxRateTimespan,
           },
           timestamp,
@@ -71,7 +69,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
       ],
       values: {
         ...feePNCreationAction.values,
-        network: extensionAction.parameters.network || DEFAULT_NETWORK,
+        network: extensionAction.parameters.network,
         maxRateTimespan: extensionAction.parameters.maxRateTimespan,
       },
     };
