@@ -2,7 +2,7 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import ReferenceBasedPaymentNetwork from '../reference-based';
 
-import * as walletAddressValidator from 'wallet-address-validator';
+import * as walletAddressValidator from 'multicoin-address-validator';
 
 const CURRENT_VERSION = '0.2.0';
 const supportedNetworks = [

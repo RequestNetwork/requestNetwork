@@ -1,7 +1,7 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import * as walletAddressValidator from 'wallet-address-validator';
 import AddressBasedPaymentNetwork from '../address-based';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.1.0';
 const BITCOIN_NETWORK = 'testnet';
@@ -30,6 +30,8 @@ export default class BitcoinTestnetAddressBasedPaymentNetwork extends AddressBas
    * @returns true if address is valid
    */
   protected isValidAddress(address: string): boolean {
-    return walletAddressValidator.validate(address, 'bitcoin', BITCOIN_NETWORK);
+    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
+    const currency = currencyManager.from('BTC', BITCOIN_NETWORK)!;
+    return CurrencyManager.validateAddress(address, currency);
   }
 }

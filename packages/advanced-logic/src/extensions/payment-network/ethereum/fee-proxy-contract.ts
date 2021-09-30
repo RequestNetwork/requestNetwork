@@ -1,6 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import FeeReferenceBasedPaymentNetwork from '../fee-reference-based';
-import * as walletAddressValidator from 'wallet-address-validator';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.1.0';
 
@@ -25,6 +25,8 @@ export default class EthereumFeeProxyPaymentNetwork<
    * @returns {boolean} true if address is valid
    */
   protected isValidAddress(address: string): boolean {
-    return walletAddressValidator.validate(address, 'ethereum');
+    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
+    const currency = currencyManager.from('ETH', 'mainnet')!;
+    return CurrencyManager.validateAddress(address, currency);
   }
 }

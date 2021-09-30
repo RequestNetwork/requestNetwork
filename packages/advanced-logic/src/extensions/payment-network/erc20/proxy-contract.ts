@@ -1,10 +1,9 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import ReferenceBasedPaymentNetwork from '../reference-based';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.1.0';
-
-import * as walletAddressValidator from 'wallet-address-validator';
 
 /**
  * Implementation of the payment network to pay in ERC20 based on a reference provided to a proxy contract.
@@ -28,6 +27,8 @@ export default class Erc20ProxyPaymentNetwork<
    * @returns {boolean} true if address is valid
    */
   protected isValidAddress(address: string): boolean {
-    return walletAddressValidator.validate(address, 'ethereum');
+    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
+    const currency = currencyManager.from('ETH', 'mainnet')!;
+    return CurrencyManager.validateAddress(address, currency);
   }
 }

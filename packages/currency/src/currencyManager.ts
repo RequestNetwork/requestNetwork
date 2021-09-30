@@ -12,8 +12,8 @@ import {
   ERC20Currency,
   ICurrencyManager,
   LegacyTokenMap,
-  NativeCurrency,
 } from './types';
+import { isValidNearAddress } from './currency-utils';
 
 const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
@@ -21,8 +21,8 @@ const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
  * Handles a list of currencies and provide features to retrieve them, as well as convert to/from storage format
  */
 export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta> {
-  private knownCurrencies: CurrencyDefinition<TMeta>[];
-  private legacyTokens: LegacyTokenMap;
+  private readonly knownCurrencies: CurrencyDefinition<TMeta>[];
+  private readonly legacyTokens: LegacyTokenMap;
 
   /**
    *
@@ -175,42 +175,38 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   }
 
   /**
-   * Validates if a Near address is valid according to a currency network.
-   * Returns true if the currency network is not given and the address is correct for any network
+   * Validates an address for a given currency.
+   * Throws if the currency is not given or if the currency is an ISO4217 currency.
    */
-  private isValidNearAddressForCurrencyNetwork(address: string, network?: string): boolean {
-    if (!network) {
-      return (
-        this.isValidNearAddressForCurrencyNetwork(address, 'aurora') ||
-        this.isValidNearAddressForCurrencyNetwork(address, 'aurora-testnet')
-      );
-    }
-    if (network === 'aurora') {
-      return !!address.match(/\.near$/);
-    }
-    if (network === 'aurora-testnet') {
-      return !!address.match(/\.testnet$/);
-    }
-    return false;
-  }
-
-  private isNearCurrency(
-    currency: Pick<CurrencyDefinition, 'symbol'>,
-  ): currency is NativeCurrency & { type: RequestLogicTypes.CURRENCY.ETH } {
-    return currency.symbol === 'NEAR' || currency.symbol === 'NEAR-testnet';
-  }
-
-  validatePaymentAddress(paymentAddress: string, currency: CurrencyDefinition): boolean {
+  static validateAddress(address: string, currency: CurrencyDefinition): boolean {
     if (!currency) {
-      return false;
+      throw new Error('Could not validate an address for an undefined currency');
     }
-    if (currency.type === RequestLogicTypes.CURRENCY.ISO4217) {
-      return false;
+    switch (currency.type) {
+      case RequestLogicTypes.CURRENCY.ISO4217:
+        throw new Error(`Could not validate an address for an ISO4217 currency`);
+      case RequestLogicTypes.CURRENCY.ETH:
+      case RequestLogicTypes.CURRENCY.ERC20:
+        switch (currency.symbol) {
+          case 'NEAR':
+          case 'NEAR-testnet':
+            return isValidNearAddress(address, currency.network);
+          default:
+            return addressValidator.validate(
+              address,
+              'ETH',
+              currency.network === 'rinkeby' ? 'testnet' : 'prod',
+            );
+        }
+      case RequestLogicTypes.CURRENCY.BTC:
+        return addressValidator.validate(
+          address,
+          'BTC',
+          currency.network === 'testnet' ? 'testnet' : 'prod',
+        );
+      default:
+        throw new Error(`Could not validate an address for an unknown currency type`);
     }
-    if (this.isNearCurrency(currency)) {
-      return this.isValidNearAddressForCurrencyNetwork(paymentAddress, currency.network);
-    }
-    return addressValidator.validate(paymentAddress, currency.symbol);
   }
 
   /**
