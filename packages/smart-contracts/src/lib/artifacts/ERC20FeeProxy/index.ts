@@ -41,6 +41,10 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0xee07ef5B414955188d2A9fF50bdCE784A49031Fc',
           creationBlockNumber: 11068489,
         },
+        xdai: {
+          address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+          creationBlockNumber: 18326896
+        },
       },
     },
     '0.2.0': {
@@ -79,6 +83,10 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0xee07ef5B414955188d2A9fF50bdCE784A49031Fc',
           creationBlockNumber: 11068489,
         },
+        xdai: {
+          address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+          creationBlockNumber: 18326896
+        }
       },
     },
   },
