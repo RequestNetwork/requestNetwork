@@ -88,9 +88,10 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
     const network =
       extensionAction.parameters.network || request.extensions[this.extensionId]?.values.network;
 
-    // Nothing can be validated if the network has not been given yet
     if (!network) {
-      return;
+      throw new Error(
+        `The network must be provided from the creation action or from the extension state`,
+      );
     }
 
     if (!supportedCurrencies[network]) {

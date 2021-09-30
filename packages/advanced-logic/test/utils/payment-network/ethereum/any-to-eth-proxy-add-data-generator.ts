@@ -13,6 +13,7 @@ export const refundAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 export const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 export const feeAmount = '2000000000000000000';
 export const invalidAddress = '0x not and address';
+const network = 'mainnet';
 // ---------------------------------------------------------------------
 export const salt = 'ea3bc7caf64110ca';
 // actions
@@ -46,7 +47,9 @@ export const extensionStateWithPaymentAfterCreation = {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
-        parameters: {},
+        parameters: {
+          network
+        },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -61,6 +64,7 @@ export const extensionStateWithPaymentAfterCreation = {
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress,
+      network,
     },
     version: '0.1.0',
   },
@@ -71,7 +75,9 @@ export const extensionStateWithRefundAfterCreation = {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
-        parameters: {},
+        parameters: {
+          network
+        },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -86,6 +92,7 @@ export const extensionStateWithRefundAfterCreation = {
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       refundAddress,
+      network,
     },
     version: '0.1.0',
   },
@@ -96,7 +103,9 @@ export const extensionStateWithFeeAfterCreation = {
     events: [
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
-        parameters: {},
+        parameters: {
+          network
+        },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -113,6 +122,7 @@ export const extensionStateWithFeeAfterCreation = {
     values: {
       feeAddress,
       feeAmount,
+      network,
     },
     version: '0.1.0',
   },

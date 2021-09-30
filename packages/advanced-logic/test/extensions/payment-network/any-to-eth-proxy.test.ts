@@ -9,7 +9,7 @@ import * as TestData from '../../utils/test-data-generator';
 const anyToEthProxy = new AnyToEthProxy();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', () => {
+describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
       // 'extension data is wrong'
@@ -460,7 +460,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The extension should be created before receiving any other action`);
+        }).toThrowError(`The network must be provided from the creation action or from the extension state`);
       });
 
       it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
@@ -550,7 +550,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The extension should be created before receiving any other action`);
+        }).toThrowError(`The network must be provided from the creation action or from the extension state`);
       });
 
       it('cannot applyActionToExtensions of addRefundAddress without a payer', () => {
@@ -637,7 +637,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The extension should be created before receiving any other action`);
+        }).toThrowError(`The network must be provided from the creation action or from the extension state`);
       });
 
       it('cannot applyActionToExtensions of addFee without a payee', () => {

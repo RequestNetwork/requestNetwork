@@ -99,13 +99,17 @@ export const extensionStateCreatedEmpty = {
     events: [
       {
         name: 'create',
-        parameters: {},
+        parameters: {
+          network: 'mainnet',
+        },
         timestamp: arbitraryTimestamp,
       },
     ],
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-    values: {},
+    values: {
+      network: 'mainnet',
+    },
     version: '0.1.0',
   },
 };
