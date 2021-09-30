@@ -202,6 +202,29 @@ describe('extensions/payment-network/bitcoin/testnet-address-based', () => {
           `refundAddress '${DataBTCAddPaymentAddress.refundBTCAddress}' is not a valid address`,
         );
       });
+
+      it('keeps the version used at creation', () => {
+        const newState = testnetBitcoinAddressBasedPN.applyActionToExtension(
+          {},
+          { ...DataBTCCreate.actionCreationWithPaymentAndRefund, version: 'ABCD' },
+          DataBTCCreate.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+        expect(newState[testnetBitcoinAddressBasedPN.extensionId].version).toBe('ABCD');
+      });
+
+      it('requires a version at creation', () => {
+        expect(() => {
+          testnetBitcoinAddressBasedPN.applyActionToExtension(
+            {},
+            { ...DataBTCCreate.actionCreationWithPaymentAndRefund, version: '' },
+            DataBTCCreate.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('version is required at creation');
+      });
     });
 
     describe('applyActionToExtension/addPaymentAddress', () => {

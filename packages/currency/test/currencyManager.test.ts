@@ -58,6 +58,13 @@ describe('CurrencyManager', () => {
       });
     });
 
+    it('access a currency by its id', () => {
+      expect(defaultManager.from('ETH-rinkeby-rinkeby')).toMatchObject({
+        symbol: 'ETH-rinkeby',
+        network: 'rinkeby'
+      });
+    });
+
     it('access a mainnet token by its address with or without network', () => {
       expect(defaultManager.from('0x6B175474E89094C44Da98b954EedeAC495271d0F')).toMatchObject({
         symbol: 'DAI',
