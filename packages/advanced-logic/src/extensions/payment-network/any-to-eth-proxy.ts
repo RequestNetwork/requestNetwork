@@ -1,6 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
-import { supportedCurrencies } from './chainlink-supported-currencies';
+import { supportedCurrencies } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
 // Default network if the storage data does not give any
