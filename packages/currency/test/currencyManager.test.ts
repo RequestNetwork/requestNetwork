@@ -61,7 +61,11 @@ describe('CurrencyManager', () => {
     it('access a currency by its id', () => {
       expect(defaultManager.from('ETH-rinkeby-rinkeby')).toMatchObject({
         symbol: 'ETH-rinkeby',
-        network: 'rinkeby'
+        network: 'rinkeby',
+      });
+      expect(defaultManager.from('NEAR-testnet-aurora-testnet')).toMatchObject({
+        symbol: 'NEAR-testnet',
+        network: 'aurora-testnet',
       });
     });
 
@@ -328,6 +332,14 @@ describe('CurrencyManager', () => {
       other: {
         EUR: { decimals: 2, symbol: 'EUR' },
         USD: { decimals: 2, symbol: 'USD' },
+      },
+      'non-evm': {
+        NEAR: { symbol: 'NEAR', network: 'aurora', type: RequestLogicTypes.CURRENCY.ETH },
+        'NEAR-testnet': {
+          symbol: 'NEAR-testnet',
+          network: 'aurora-testnet',
+          type: RequestLogicTypes.CURRENCY.ETH,
+        },
       },
     };
     Object.entries(testCasesPerNetwork).forEach(([network, testCases]) => {
