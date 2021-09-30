@@ -1,10 +1,8 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
-import { supportedCurrencies } from './chainlink-supported-currencies';
+import { supportedCurrencies } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
-// Default network if the storage data does not give any
-const DEFAULT_NETWORK = 'mainnet';
 
 export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPaymentNetwork {
   public constructor(
@@ -63,7 +61,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
             paymentAddress: extensionAction.parameters.paymentAddress,
             refundAddress: extensionAction.parameters.refundAddress,
             salt: extensionAction.parameters.salt,
-            network: extensionAction.parameters.network || DEFAULT_NETWORK,
+            network: extensionAction.parameters.network,
             maxRateTimespan: extensionAction.parameters.maxRateTimespan,
           },
           timestamp,
@@ -71,7 +69,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
       ],
       values: {
         ...feePNCreationAction.values,
-        network: extensionAction.parameters.network || DEFAULT_NETWORK,
+        network: extensionAction.parameters.network,
         maxRateTimespan: extensionAction.parameters.maxRateTimespan,
       },
     };
@@ -90,9 +88,10 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
     const network =
       extensionAction.parameters.network || request.extensions[this.extensionId]?.values.network;
 
-    // Nothing can be validated if the network has not been given yet
     if (!network) {
-      return;
+      throw new Error(
+        `The network must be provided from the creation action or from the extension state`,
+      );
     }
 
     if (!supportedCurrencies[network]) {

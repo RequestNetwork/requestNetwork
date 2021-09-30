@@ -1,10 +1,8 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
-import { supportedCurrencies } from './chainlink-supported-currencies';
+import { supportedCurrencies } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
-// Default network if the storage data does not give any
-const DEFAULT_NETWORK = 'mainnet';
 
 export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentNetwork {
   public constructor(
@@ -94,7 +92,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
             paymentAddress: extensionAction.parameters.paymentAddress,
             refundAddress: extensionAction.parameters.refundAddress,
             salt: extensionAction.parameters.salt,
-            network: extensionAction.parameters.network || DEFAULT_NETWORK,
+            network: extensionAction.parameters.network,
             acceptedTokens: extensionAction.parameters.acceptedTokens,
             maxRateTimespan: extensionAction.parameters.maxRateTimespan,
           },
@@ -103,7 +101,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       ],
       values: {
         ...feePNCreationAction.values,
-        network: extensionAction.parameters.network || DEFAULT_NETWORK,
+        network: extensionAction.parameters.network,
         acceptedTokens: extensionAction.parameters.acceptedTokens,
         maxRateTimespan: extensionAction.parameters.maxRateTimespan,
       },
