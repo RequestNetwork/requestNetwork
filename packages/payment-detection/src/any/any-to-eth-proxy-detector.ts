@@ -6,8 +6,10 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import ProxyEthereumInfoRetriever from './proxy-info-retriever';
-import FeeReferenceBasedDetector from '../fee-reference-based-detector';
+import { ICurrencyManager } from '@requestnetwork/currency';
+
+import ProxyInfoRetriever from './any-to-eth-proxy-info-retriever';
+import AnyToAnyDetector from '../any-to-any-detector';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -21,14 +23,21 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.IETHPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+  public constructor({
+    advancedLogic,
+    currencyManager,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    currencyManager: ICurrencyManager;
+  }) {
     super(
-      advancedLogic.extensions.feeProxyContractEth,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+      advancedLogic.extensions.anyToEthProxy,
+      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+      currencyManager,
     );
   }
 
@@ -51,19 +60,29 @@ export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<Payme
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
     const network = this.getNetworkOfPayment(requestCurrency, paymentNetwork);
 
-    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetwork.version);
+    const conversionProxyContract = await this.safeGetProxyArtifact(
+      network,
+      paymentNetwork.version,
+    );
 
-    if (!proxyContractArtifact) {
-      throw Error('ETH fee proxy contract not found');
+    if (!conversionProxyContract) {
+      throw Error('ETH conversion proxy contract not found');
     }
 
-    const proxyInfoRetriever = new ProxyEthereumInfoRetriever(
+    const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
+    if (!currency) {
+      throw Error('requestCurrency not found in currency manager');
+    }
+
+    const proxyInfoRetriever = new ProxyInfoRetriever(
+      currency,
       paymentReference,
-      proxyContractArtifact.address,
-      proxyContractArtifact.creationBlockNumber,
+      conversionProxyContract.address,
+      conversionProxyContract.creationBlockNumber,
       address,
       eventName,
       network,
+      paymentNetwork.values?.maxRateTimespan,
     );
 
     return await proxyInfoRetriever.getTransferEvents();
@@ -77,13 +96,12 @@ export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<Payme
    * @returns The network of payment
    */
   protected getNetworkOfPayment(
-    requestCurrency: RequestLogicTypes.ICurrency,
-    // eslint-disable-next-line
-    _paymentNetwork: ExtensionTypes.IState<any>,
+    _requestCurrency: RequestLogicTypes.ICurrency,
+    paymentNetwork: ExtensionTypes.IState<any>,
   ): string {
-    const network = requestCurrency.network;
+    const network = paymentNetwork.values.network;
     if (!network) {
-      throw Error('requestCurrency.network must be defined');
+      throw Error('paymentNetwork.values.network must be defined');
     }
     return network;
   }
@@ -94,7 +112,7 @@ export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<Payme
   private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
     const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
     try {
-      return SmartContracts.ethereumFeeProxyArtifact.getDeploymentInformation(
+      return SmartContracts.ethConversionArtifact.getDeploymentInformation(
         network,
         contractVersion,
       );
