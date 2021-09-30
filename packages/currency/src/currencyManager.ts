@@ -34,7 +34,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     this.knownCurrencies = [];
     for (const input of inputCurrencies) {
       const currency = CurrencyManager.fromInput(input);
-      if (this.knownCurrencies.findIndex((x) => x.id === currency.id) >= 0) {
+      if (this.knownCurrencies.some((x) => x.id === currency.id)) {
         throw new Error(`Duplicate found: ${currency.id}`);
       }
       this.knownCurrencies.push(currency);
