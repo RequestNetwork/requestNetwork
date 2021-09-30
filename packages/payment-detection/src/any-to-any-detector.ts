@@ -71,7 +71,7 @@ export default abstract class AnyToAnyDetector<
    * @param paymentNetwork the payment network
    * @returns The network of payment
    */
-  protected abstract getNetworkOfPayment(
+  protected abstract getPaymentChain(
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentNetwork: ExtensionTypes.IState<any>,
   ): string;

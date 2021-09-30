@@ -77,17 +77,13 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
-    // TODO
-    // if (!request.currency.network) {
-    //   request.currency.network = 'mainnet';
-    // }
     const paymentNetwork = request.extensions[this.extensionType];
-    const networkOfPayment = this.getNetworkOfPayment(request.currency, paymentNetwork);
+    const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
 
     const supportedNetworks = this.extension.supportedNetworks;
-    if (!supportedNetworks.includes(networkOfPayment)) {
+    if (!supportedNetworks.includes(paymentChain)) {
       return getBalanceErrorObject(
-        `Payment network ${networkOfPayment} not supported by ${
+        `Payment network ${paymentChain} not supported by ${
           this.extensionType
         } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
         PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
@@ -229,8 +225,15 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
    * @param paymentNetwork the payment network
    * @returns The network of payment
    */
-  protected abstract getNetworkOfPayment(
+  protected getPaymentChain(
     requestCurrency: RequestLogicTypes.ICurrency,
-    paymentNetwork: ExtensionTypes.IState<any>,
-  ): string;
+    // eslint-disable-next-line
+    _paymentNetwork: ExtensionTypes.IState<any>,
+  ): string {
+    const network = requestCurrency.network;
+    if (!network) {
+      throw Error('requestCurrency.network must be defined');
+    }
+    return network;
+  }
 }

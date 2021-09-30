@@ -63,7 +63,7 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
   };
 
   /**
-   * Extracts payment events of an address matching an address and a payment reference
+   * Extracts payment events from an and a payment reference
    *
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
@@ -79,7 +79,7 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
     paymentReference: string,
     paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getNetworkOfPayment(requestCurrency, paymentNetwork);
+    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
     const infoRetriever = new NearInfoRetriever(
       paymentReference,
@@ -91,25 +91,6 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
     );
     const events = await infoRetriever.getTransferEvents();
     return events;
-  }
-
-  /**
-   * Get the network of the payment
-   *
-   * @param requestCurrency The request currency
-   * @param paymentNetwork the payment network
-   * @returns The network of payment
-   */
-  protected getNetworkOfPayment(
-    requestCurrency: RequestLogicTypes.ICurrency,
-    // eslint-disable-next-line
-    _paymentNetwork: ExtensionTypes.IState<any>,
-  ): string {
-    const network = requestCurrency.network;
-    if (!network) {
-      throw Error('requestCurrency.network must be defined');
-    }
-    return network;
   }
 
   protected static getVersionOrThrow = (paymentNetworkVersion: string): string => {

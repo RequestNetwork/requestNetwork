@@ -58,7 +58,7 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
     paymentReference: string,
     paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getNetworkOfPayment(requestCurrency, paymentNetwork);
+    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
     const conversionProxyContract = await this.safeGetProxyArtifact(
       network,
@@ -96,7 +96,7 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
    * @param paymentNetwork the payment network
    * @returns The network of payment
    */
-  protected getNetworkOfPayment(
+  protected getPaymentChain(
     _requestCurrency: RequestLogicTypes.ICurrency,
     paymentNetwork: ExtensionTypes.IState<any>,
   ): string {
