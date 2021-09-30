@@ -1,34 +1,27 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
+import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
 import { supportedCurrencies } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
 
-export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentNetwork {
+export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPaymentNetwork {
   public constructor(
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(extensionId, currentVersion, [], RequestLogicTypes.CURRENCY.ERC20);
+    super(extensionId, currentVersion, Object.keys(supportedCurrencies));
   }
 
   /**
-   * Creates the extensionsData to create the extension ERC20 fee proxy contract payment detection
+   * Creates the extensionsData to create the extension ETH fee proxy contract payment detection
    *
    * @param creationParameters extensions parameters to create
    *
    * @returns IExtensionCreationAction the extensionsData to be stored in the request
    */
   public createCreationAction(
-    creationParameters: ExtensionTypes.PnAnyToErc20.ICreationParameters,
+    creationParameters: ExtensionTypes.PnAnyToEth.ICreationParameters,
   ): ExtensionTypes.IAction {
-    if (!creationParameters.acceptedTokens || creationParameters.acceptedTokens.length === 0) {
-      throw Error('acceptedTokens is required');
-    }
-    if (creationParameters.acceptedTokens.some((address) => !this.isValidAddress(address))) {
-      throw Error('acceptedTokens must contains only valid ethereum addresses');
-    }
-
     const network = creationParameters.network;
     if (!network) {
       throw Error('network is required');
@@ -36,16 +29,6 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (!supportedCurrencies[network]) {
       throw Error(`network ${network} not supported`);
     }
-    const supportedErc20: string[] = supportedCurrencies[network][RequestLogicTypes.CURRENCY.ERC20];
-
-    for (const address of creationParameters.acceptedTokens) {
-      if (!supportedErc20.includes(address.toLowerCase())) {
-        throw Error(
-          `acceptedTokens must contain only supported token addresses (ERC20 only). ${address} is not supported for ${network}.`,
-        );
-      }
-    }
-
     return super.createCreationAction(creationParameters);
   }
 
@@ -65,20 +48,6 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       throw Error('network is required');
     }
 
-    if (
-      !extensionAction.parameters.acceptedTokens ||
-      extensionAction.parameters.acceptedTokens.length === 0
-    ) {
-      throw Error('acceptedTokens is required and cannot be empty');
-    }
-    if (
-      extensionAction.parameters.acceptedTokens.some(
-        (address: string) => !this.isValidAddress(address),
-      )
-    ) {
-      throw Error('acceptedTokens must contains only valid ethereum addresses');
-    }
-
     const feePNCreationAction = super.applyCreation(extensionAction, timestamp);
 
     return {
@@ -93,7 +62,6 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
             refundAddress: extensionAction.parameters.refundAddress,
             salt: extensionAction.parameters.salt,
             network: extensionAction.parameters.network,
-            acceptedTokens: extensionAction.parameters.acceptedTokens,
             maxRateTimespan: extensionAction.parameters.maxRateTimespan,
           },
           timestamp,
@@ -102,7 +70,6 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       values: {
         ...feePNCreationAction.values,
         network: extensionAction.parameters.network,
-        acceptedTokens: extensionAction.parameters.acceptedTokens,
         maxRateTimespan: extensionAction.parameters.maxRateTimespan,
       },
     };
@@ -121,9 +88,10 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     const network =
       extensionAction.parameters.network || request.extensions[this.extensionId]?.values.network;
 
-    // Nothing can be validated if the network has not been given yet
     if (!network) {
-      return;
+      throw new Error(
+        `The network must be provided from the creation action or from the extension state`,
+      );
     }
 
     if (!supportedCurrencies[network]) {
