@@ -36,27 +36,39 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   }
 
   /**
-   * Gets a supported currency from a symbol, symbol-network or address.
+   * Gets a supported currency from a symbol, symbol-network, currency definition id or address.
    *
-   * @param symbolOrAddress e.g. 'DAI', 'FAU', 'FAU-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
+   * @param currencyIdentifier e.g. 'DAI', 'FAU', 'FAU-rinkeby', 'ETH-rinkeby-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
    * @param network e.g. rinkeby, mainnet
    */
   from(
-    symbolOrAddress: string | undefined,
+    currencyIdentifier: string | undefined,
     network?: string,
   ): CurrencyDefinition<TMeta> | undefined {
-    if (!symbolOrAddress) {
+    if (!currencyIdentifier) {
       return;
     }
-    if (utils.isAddress(symbolOrAddress)) {
-      return this.fromAddress(symbolOrAddress, network);
+    if (utils.isAddress(currencyIdentifier)) {
+      return this.fromAddress(currencyIdentifier, network);
     }
-    const parts = symbolOrAddress.split('-');
+    const currencyFromId = this.fromId(currencyIdentifier);
+    if (currencyFromId) {
+      return currencyFromId;
+    }
+
+    const parts = currencyIdentifier.split('-');
     return (
       this.fromSymbol(parts[0], network || parts[1]) ||
       // try without splitting the symbol to support currencies like ETH-rinkeby
-      this.fromSymbol(symbolOrAddress, network)
+      this.fromSymbol(currencyIdentifier, network)
     );
+  }
+
+  /**
+   * Gets a supported currency from its CurrencyDefinition id
+   */
+  fromId(id: string): CurrencyDefinition<TMeta> | undefined {
+    return this.knownCurrencies.find((knownCurrency) => knownCurrency.id === id);
   }
 
   /**
