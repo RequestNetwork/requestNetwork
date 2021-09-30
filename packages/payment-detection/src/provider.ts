@@ -36,7 +36,7 @@ const networkRpcs: Record<string, string> = {
   matic: 'https://rpc-mainnet.matic.network/',
   fantom: 'https://rpcapi.fantom.network',
   fuse: 'https://rpc.fuse.io',
-  bsc: 'https://bsc-dataseed1.binance.org',
+  bsctest: 'https://data-seed-prebsc-1-s1.binance.org:8545',
 };
 
 /**
