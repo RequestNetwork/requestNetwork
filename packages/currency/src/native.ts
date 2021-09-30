@@ -51,6 +51,12 @@ export const nativeCurrencies = {
       network: 'fantom',
     },
     {
+      symbol: 'BNB',
+      decimals: 18,
+      name: 'BNB',
+      network: 'bsctest',
+    },
+    {
       symbol: 'NEAR',
       decimals: 24,
       name: 'Near',
