@@ -1,8 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-
 import ReferenceBasedPaymentNetwork from '../reference-based';
-
-import * as walletAddressValidator from 'multicoin-address-validator';
 
 const CURRENT_VERSION = '0.2.0';
 const supportedNetworks = [
@@ -27,15 +24,5 @@ export default class EthInputPaymentNetwork extends ReferenceBasedPaymentNetwork
     currentVersion: string = CURRENT_VERSION,
   ) {
     super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
-  }
-
-  /**
-   * Check if an ethereum address is valid
-   *
-   * @param {string} address address to check
-   * @returns {boolean} true if address is valid
-   */
-  protected isValidAddress(address: string): boolean {
-    return walletAddressValidator.validate(address, 'ethereum');
   }
 }

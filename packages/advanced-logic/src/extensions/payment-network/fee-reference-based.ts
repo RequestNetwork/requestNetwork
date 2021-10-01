@@ -13,7 +13,7 @@ export default abstract class ReferenceBasedWithFeePaymentNetwork<
     public extensionId: ExtensionTypes.ID,
     public currentVersion: string,
     public supportedNetworks: string[],
-    public supportedCurrencyType: string,
+    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);
     this.actions = {

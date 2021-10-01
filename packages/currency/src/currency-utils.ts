@@ -6,6 +6,9 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
   if (!network) {
     return isValidNearAddress(address, 'aurora') || isValidNearAddress(address, 'aurora-testnet');
   }
+  if (!address.match(/^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/)) {
+    return false;
+  }
   if (network === 'aurora') {
     return !!address.match(/\.near$/);
   }

@@ -1,6 +1,6 @@
+import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes } from '@requestnetwork/types';
 import { UnsupportedNetworkError } from './address-based';
-
 import NativeTokenPaymentNetwork from './native-token';
 
 const CURRENT_VERSION = '0.2.0';
@@ -36,15 +36,15 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
     }
   }
 
-  private isValidNear(address: string): boolean {
-    return !!address.match(/^(([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/);
+  private isValidMainnet(address: string): boolean {
+    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
+    const currency = currencyManager.from('NEAR', 'aurora');
+    return CurrencyManager.validateAddress(address, currency);
   }
 
   private isValidTestnet(address: string): boolean {
-    return this.isValidNear(address) && !address.match(/\.near$/);
-  }
-
-  private isValidMainnet(address: string): boolean {
-    return this.isValidNear(address) && !address.match(/\.testnet$/);
+    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
+    const currency = currencyManager.from('NEAR-testnet', 'aurora-testnet');
+    return CurrencyManager.validateAddress(address, currency);
   }
 }

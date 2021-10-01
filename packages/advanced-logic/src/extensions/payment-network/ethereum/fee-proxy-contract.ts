@@ -1,6 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import FeeReferenceBasedPaymentNetwork from '../fee-reference-based';
-import { CurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.1.0';
 
@@ -16,17 +15,5 @@ export default class EthereumFeeProxyPaymentNetwork<
     public supportedNetworks: string[] = ['mainnet', 'rinkeby', 'private'],
   ) {
     super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
-  }
-
-  /**
-   * Check if an ethereum address is valid
-   *
-   * @param {string} address address to check
-   * @returns {boolean} true if address is valid
-   */
-  protected isValidAddress(address: string): boolean {
-    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
-    const currency = currencyManager.from('ETH', 'mainnet')!;
-    return CurrencyManager.validateAddress(address, currency);
   }
 }

@@ -177,10 +177,12 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Validates an address for a given currency.
    * Throws if the currency is not given or if the currency is an ISO4217 currency.
+   * We allow undefined type for the "currency" argument to make it easier to chain with the
+   * CurrencyManager.from() method but if the argument is not defined it will throw an error.
    */
-  static validateAddress(address: string, currency: CurrencyDefinition): boolean {
+  static validateAddress(address: string, currency: CurrencyInput | undefined): boolean {
     if (!currency) {
-      throw new Error('Could not validate an address for an undefined currency');
+      throw new Error('Could not validate an address of an undefined currency');
     }
     switch (currency.type) {
       case RequestLogicTypes.CURRENCY.ISO4217:
@@ -192,11 +194,11 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
           case 'NEAR-testnet':
             return isValidNearAddress(address, currency.network);
           default:
-            return addressValidator.validate(
-              address,
-              'ETH',
-              currency.network === 'rinkeby' ? 'testnet' : 'prod',
-            );
+            // we don't pass a third argument to the validate method here
+            // because there is no difference between testnet and prod
+            // for the ethereum validator, see:
+            // https://github.com/christsim/multicoin-address-validator/blob/f8f3626f441c0d53fdc3b89678629dc1d33c0546/src/ethereum_validator.js
+            return addressValidator.validate(address, 'ETH');
         }
       case RequestLogicTypes.CURRENCY.BTC:
         return addressValidator.validate(

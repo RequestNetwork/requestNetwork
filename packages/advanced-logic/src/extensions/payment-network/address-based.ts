@@ -1,6 +1,7 @@
+import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import AbstractExtension from '../abstract-extension';
 import Utils from '@requestnetwork/utils';
+import AbstractExtension from '../abstract-extension';
 
 /**
  * Core of the address based payment networks
@@ -15,7 +16,7 @@ export default abstract class AddressBasedPaymentNetwork<
     public extensionId: ExtensionTypes.ID,
     public currentVersion: string,
     public supportedNetworks: string[],
-    public supportedCurrencyType: string,
+    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);
     this.actions = {
@@ -141,7 +142,30 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  protected abstract isValidAddress(_address: string, _networkName?: string): boolean;
+  protected isValidAddress(address: string, networkName?: string): boolean {
+    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
+    switch (this.supportedCurrencyType) {
+      case RequestLogicTypes.CURRENCY.BTC: {
+        if (networkName) {
+          const currency = currencyManager.from('BTC', networkName);
+          return CurrencyManager.validateAddress(address, currency);
+        }
+        return this.supportedNetworks.some((network) => {
+          const currency = currencyManager.from('BTC', network);
+          return CurrencyManager.validateAddress(address, currency);
+        });
+      }
+      case RequestLogicTypes.CURRENCY.ETH:
+      case RequestLogicTypes.CURRENCY.ERC20: {
+        const currency = currencyManager.from('ETH', 'mainnet');
+        return CurrencyManager.validateAddress(address, currency);
+      }
+      default:
+        throw new Error(
+          `Default implementation of isValidAddress() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
+        );
+    }
+  }
 
   /**
    * Applies add payment address

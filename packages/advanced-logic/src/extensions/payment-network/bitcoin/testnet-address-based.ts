@@ -1,7 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-
 import AddressBasedPaymentNetwork from '../address-based';
-import { CurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.1.0';
 const BITCOIN_NETWORK = 'testnet';
@@ -21,17 +19,5 @@ export default class BitcoinTestnetAddressBasedPaymentNetwork extends AddressBas
       [BITCOIN_NETWORK],
       RequestLogicTypes.CURRENCY.BTC,
     );
-  }
-
-  /**
-   * Check if a bitcoin address is valid
-   *
-   * @param address address to check
-   * @returns true if address is valid
-   */
-  protected isValidAddress(address: string): boolean {
-    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
-    const currency = currencyManager.from('BTC', BITCOIN_NETWORK)!;
-    return CurrencyManager.validateAddress(address, currency);
   }
 }

@@ -463,6 +463,7 @@ describe('CurrencyManager', () => {
         describe(`valid cases for ${network}`, () => {
           Object.entries(testCases).forEach(([, currencyTemplate]) => {
             it(`should validate ${network}.${currencyTemplate.symbol}`, () => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const currency = currencyManager.fromSymbol(currencyTemplate.symbol!)!;
               switch (currency.type) {
                 case RequestLogicTypes.CURRENCY.ETH:
@@ -492,25 +493,25 @@ describe('CurrencyManager', () => {
 
     describe(`invalid cases`, () => {
       it('should not validate bitcoin addresses on ethereum network', () => {
-        const currency = currencyManager.from('ETH', 'mainnet')!;
+        const currency = currencyManager.from('ETH', 'mainnet');
         expect(CurrencyManager.validateAddress(bitcoinAddresses.mainnet, currency)).toBeFalsy();
       });
       it('should not validate bitcoin mainnet addresses on bitcoin testnet network', () => {
-        const currency = currencyManager.from('BTC-testnet', 'testnet')!;
+        const currency = currencyManager.from('BTC-testnet', 'testnet');
         expect(CurrencyManager.validateAddress(bitcoinAddresses.mainnet, currency)).toBeFalsy();
       });
       it('should not validate bitcoin testnet addresses on bitcoin mainnet network', () => {
-        const currency = currencyManager.from('BTC-testnet', 'mainnet')!;
+        const currency = currencyManager.from('BTC-testnet', 'mainnet');
         expect(CurrencyManager.validateAddress(bitcoinAddresses.testnet, currency)).toBeFalsy();
       });
       it('should not validate ethereum addresses on bitcoin network', () => {
-        const currency = currencyManager.from('BTC', 'mainnet')!;
+        const currency = currencyManager.from('BTC', 'mainnet');
         expect(CurrencyManager.validateAddress(eip55Addresses[0], currency)).toBeFalsy();
       });
       describe(`ISO4217 currencies`, () => {
         Object.entries(testCasesPerNetwork.other).forEach(([, currencyTemplate]) => {
           it(`should throw for ${currencyTemplate.symbol} currency`, () => {
-            const currency = currencyManager.from(currencyTemplate.symbol)!;
+            const currency = currencyManager.from(currencyTemplate.symbol);
             expect(() => CurrencyManager.validateAddress('anyAddress', currency)).toThrow();
           });
         });
