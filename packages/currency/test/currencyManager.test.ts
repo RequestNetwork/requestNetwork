@@ -19,6 +19,13 @@ describe('CurrencyManager', () => {
       const manager = new CurrencyManager(list);
       expect(manager.from('ANY')).toBeDefined();
     });
+
+    it('fails if there is a duplicate token in the list', () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const dai = CurrencyManager.getDefaultList().find((x) => x.id === 'DAI-mainnet')!;
+      const list: CurrencyInput[] = [dai, dai, dai, dai];
+      expect(() => new CurrencyManager(list)).toThrowError('Duplicate found: DAI-mainnet');
+    });
   });
 
   describe('Accessing currencies', () => {
@@ -55,6 +62,13 @@ describe('CurrencyManager', () => {
       expect(defaultManager.fromSymbol('DAI', 'matic')).toMatchObject({
         symbol: 'DAI',
         network: 'matic',
+      });
+    });
+
+    it('access a currency by its id', () => {
+      expect(defaultManager.from('ETH-rinkeby-rinkeby')).toMatchObject({
+        symbol: 'ETH-rinkeby',
+        network: 'rinkeby',
       });
     });
 

@@ -14,6 +14,7 @@ const supportedNetworks = [
   'matic',
   'celo',
   'fantom',
+  'bsctest',
 ];
 
 /**

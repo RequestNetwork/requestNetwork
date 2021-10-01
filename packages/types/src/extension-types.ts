@@ -4,6 +4,7 @@ import * as PnAnyDeclarative from './extensions/pn-any-declarative-types';
 import * as PnFeeReferenceBased from './extensions/pn-any-fee-reference-based-types';
 import * as PnReferenceBased from './extensions/pn-any-reference-based-types';
 import * as PnAnyToErc20 from './extensions/pn-any-to-er20-types';
+import * as PnAnyToEth from './extensions/pn-any-to-eth-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
 
@@ -14,6 +15,7 @@ export {
   PnFeeReferenceBased,
   PnReferenceBased,
   PnAnyToErc20,
+  PnAnyToEth,
 };
 
 /** Extension interface is extended by the extensions implementation */
@@ -73,6 +75,7 @@ export enum ID {
   PAYMENT_NETWORK_NATIVE_TOKEN = 'pn-native-token',
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
   PAYMENT_NETWORK_ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
+  PAYMENT_NETWORK_ANY_TO_ETH_PROXY = 'pn-any-to-eth-proxy',
 }
 
 /** Type of extensions */
