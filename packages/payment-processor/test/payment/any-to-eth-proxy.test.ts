@@ -8,13 +8,11 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-// import Utils from '@requestnetwork/utils';
-
-// import { approveEthForProxyConversionIfNeeded } from '../../src/payment/conversion-eth';
+import Utils from '@requestnetwork/utils';
 import { IPaymentSettings, payAnyToEthProxyRequest } from '../../src/payment/any-to-eth-proxy';
 import { currencyManager } from './shared';
 
-const alphaPaymentSettings: IPaymentSettings = {
+const paymentSettings: IPaymentSettings = {
   currencyManager,
   maxToSpend: BigNumber.from('10000000000000000000')
 };
@@ -69,7 +67,18 @@ const validEuroRequest: ClientTypes.IRequestData = {
   version: '1.0',
 };
 
-describe.only('any-to-eth-proxy', () => {
+describe('any-to-eth-proxy', () => {
+  describe('error checking', () => {
+    it('should throw an error if request has no extension', async () => {
+      const request = Utils.deepCopy(validEuroRequest);
+      request.extensions = [] as any;
+
+      await expect(
+        payAnyToEthProxyRequest(request, wallet, paymentSettings),
+      ).rejects.toThrowError('no payment network found');
+    });
+  });
+
   describe('payment', () => {
     it('should convert and pay a request in EUR with ETH', async () => {
       // get the balances to compare after payment
@@ -81,7 +90,7 @@ describe.only('any-to-eth-proxy', () => {
       const tx = await payAnyToEthProxyRequest(
         validEuroRequest,
         wallet,
-        alphaPaymentSettings
+        paymentSettings
       );
 
       const confirmedTx = await tx.wait(1);
