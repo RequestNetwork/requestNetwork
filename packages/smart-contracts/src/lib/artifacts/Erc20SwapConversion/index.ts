@@ -20,6 +20,10 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
           address: '0x38443a9501F20C3bf2BDff14244665F3aEC86bA2',
           creationBlockNumber: 8884276,
         },
+        bsctest: {
+          address: '0x1d6B06C6f7adFd9314BD4C58a6D306261113a1D4',
+          creationBlockNumber: 12759710,
+        },
       },
     },
   },
