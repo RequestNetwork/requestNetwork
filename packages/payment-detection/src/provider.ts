@@ -37,6 +37,7 @@ const networkRpcs: Record<string, string> = {
   fantom: 'https://rpcapi.fantom.network',
   fuse: 'https://rpc.fuse.io',
   bsctest: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+  xdai: 'https://holy-proud-morning.xdai.quiknode.pro/c4b453842239c88f006d523c09c9a800de5dace4'
 };
 
 /**
@@ -47,7 +48,6 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
   if (!network) {
     network = 'homestead';
   }
-
   // Returns environment variable override
   const envVar = process?.env ? process.env[`RN_WEB3_RPC_URL_${network.toUpperCase()}`] : null;
   if (envVar) {
