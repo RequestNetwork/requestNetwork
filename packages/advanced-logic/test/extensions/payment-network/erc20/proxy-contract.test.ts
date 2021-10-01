@@ -16,7 +16,7 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
       // 'extensionsdata is wrong'
       expect(
         erc20ProxyContract.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         }),
@@ -24,7 +24,7 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
         parameters: {
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         },
@@ -63,7 +63,7 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
       // 'must throw'
       expect(() => {
         erc20ProxyContract.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
@@ -76,13 +76,13 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
       // 'extensionsdata is wrong'
       expect(
         erc20ProxyContract.createAddPaymentAddressAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
         parameters: {
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
         },
       });
     });

@@ -15,7 +15,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     it('can create a create action with all parameters', () => {
       expect(
         erc20FeeProxyContract.createCreationAction({
-          feeAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
           paymentAddress: '0x0000000000000000000000000000000000000002',
           refundAddress: '0x0000000000000000000000000000000000000003',
@@ -25,7 +25,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
         parameters: {
-          feeAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
           paymentAddress: '0x0000000000000000000000000000000000000002',
           refundAddress: '0x0000000000000000000000000000000000000003',
@@ -38,7 +38,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     it('can create a create action without fee parameters', () => {
       expect(
         erc20FeeProxyContract.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         }),
@@ -46,7 +46,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
         parameters: {
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         },
@@ -84,7 +84,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       // 'must throw'
       expect(() => {
         erc20FeeProxyContract.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
@@ -96,7 +96,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       expect(() => {
         erc20FeeProxyContract.createCreationAction({
           feeAddress: 'not an ethereum address',
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
         });
       }).toThrowError('feeAddress is not a valid address');
@@ -107,7 +107,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       expect(() => {
         erc20FeeProxyContract.createCreationAction({
           feeAmount: '-20000',
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
         });
       }).toThrowError('feeAmount is not a valid amount');
@@ -118,13 +118,13 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     it('can createAddPaymentAddressAction', () => {
       expect(
         erc20FeeProxyContract.createAddPaymentAddressAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
         parameters: {
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
         },
       });
     });

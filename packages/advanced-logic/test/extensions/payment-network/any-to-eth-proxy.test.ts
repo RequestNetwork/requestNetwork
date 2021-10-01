@@ -14,7 +14,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
     it('can create a create action with all parameters', () => {
       expect(
         anyToEthProxy.createCreationAction({
-          feeAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
           paymentAddress: '0x0000000000000000000000000000000000000002',
           refundAddress: '0x0000000000000000000000000000000000000003',
@@ -26,7 +26,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
         parameters: {
-          feeAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
           paymentAddress: '0x0000000000000000000000000000000000000002',
           refundAddress: '0x0000000000000000000000000000000000000003',
@@ -41,7 +41,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
     it('can create a create action without fee parameters', () => {
       expect(
         anyToEthProxy.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
@@ -50,7 +50,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
         parameters: {
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
@@ -76,7 +76,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       // 'must throw'
       expect(() => {
         anyToEthProxy.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
 
           network: 'rinkeby',
           refundAddress: 'not an ethereum address',
@@ -90,7 +90,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       expect(() => {
         anyToEthProxy.createCreationAction({
           feeAddress: 'not an ethereum address',
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
 
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
@@ -103,7 +103,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       expect(() => {
         anyToEthProxy.createCreationAction({
           feeAmount: '-20000',
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
 
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
@@ -115,7 +115,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       // 'must throw'
       expect(() => {
         anyToEthProxy.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
           network: 'kovan',
         });
@@ -180,13 +180,13 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
     it('can createAddPaymentAddressAction', () => {
       expect(
         anyToEthProxy.createAddPaymentAddressAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
         parameters: {
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
         },
       });
     });
