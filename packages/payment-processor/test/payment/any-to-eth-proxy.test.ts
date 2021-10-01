@@ -9,12 +9,13 @@ import {
 } from '@requestnetwork/types';
 
 import Utils from '@requestnetwork/utils';
-import { IPaymentSettings, payAnyToEthProxyRequest } from '../../src/payment/any-to-eth-proxy';
+import { payAnyToEthProxyRequest } from '../../src/payment/any-to-eth-proxy';
 import { currencyManager } from './shared';
 
-const paymentSettings: IPaymentSettings = {
+import { IConversionPaymentSettings } from '../../src/index';
+const paymentSettings: IConversionPaymentSettings = {
+  maxToSpend: BigNumber.from(2).pow(256).sub(1),
   currencyManager,
-  maxToSpend: BigNumber.from('10000000000000000000')
 };
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';

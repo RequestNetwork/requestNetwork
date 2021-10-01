@@ -11,13 +11,14 @@ import {
 import Utils from '@requestnetwork/utils';
 
 import { approveErc20ForProxyConversionIfNeeded } from '../../src/payment/conversion-erc20';
-import { IPaymentSettings, payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
+import { payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { currencyManager } from './shared';
+import { IConversionPaymentSettings } from '../../src/index';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
-const alphaPaymentSettings: IPaymentSettings = {
+const alphaPaymentSettings: IConversionPaymentSettings = {
   currency: {
     type: RequestLogicTypes.CURRENCY.ERC20,
     value: erc20ContractAddress,
