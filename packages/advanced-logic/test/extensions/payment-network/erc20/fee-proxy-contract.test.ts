@@ -13,6 +13,7 @@ const erc20FeeProxyContract = new Erc20FeeProxyContract();
 describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
+      
       expect(
         erc20FeeProxyContract.createCreationAction({
           feeAddress: '0x0000000000000000000000000000000000000001',
@@ -36,6 +37,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
 
     it('can create a create action without fee parameters', () => {
+      
       expect(
         erc20FeeProxyContract.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -55,6 +57,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
 
     it('can create a create action with only salt', () => {
+      
       expect(
         erc20FeeProxyContract.createCreationAction({
           salt: 'ea3bc7caf64110ca',
@@ -116,6 +119,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
 
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
+      
       expect(
         erc20FeeProxyContract.createAddPaymentAddressAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -141,6 +145,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
 
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
+      
       expect(
         erc20FeeProxyContract.createAddRefundAddressAction({
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -166,6 +171,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
 
   describe('createAddFeeAction', () => {
     it('can createAddFeeAction', () => {
+      
       expect(
         erc20FeeProxyContract.createAddFeeAction({
           feeAddress: '0x0000000000000000000000000000000000000002',
