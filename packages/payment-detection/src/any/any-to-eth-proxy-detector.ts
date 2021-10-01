@@ -83,7 +83,7 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
       address,
       eventName,
       network,
-      [],
+      undefined,
       paymentNetwork.values?.maxRateTimespan,
     );
 
