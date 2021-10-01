@@ -98,10 +98,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       maxRetries,
       retryDelay,
     });
-    this.ethereumMetadataCache = new EthereumMetadataCache(
-      this.smartContractManager,
-      metadataStore,
-    );
+    this.ethereumMetadataCache = new EthereumMetadataCache(metadataStore);
     this.ignoredDataIds = new IgnoredDataIds(metadataStore);
     this.buffer = {};
     this.externalBufferUrl = externalBufferUrl;

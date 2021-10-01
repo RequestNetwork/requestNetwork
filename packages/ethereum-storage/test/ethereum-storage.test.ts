@@ -336,31 +336,29 @@ describe('EthereumStorage', () => {
     });
 
     it('allows to read a file', async () => {
-      // For this test, we don't want to use the ethereum metadata cache
-      // We want to force the retrieval of metadata with getPastEvents function
-      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
+      const appendResult = await ethereumStorage.append(content1);
+      const confirmation = new Promise((r) => appendResult.on('confirmed', r));
 
-      await ethereumStorage.append(content1);
+      const resultBeforeConfirmation = await ethereumStorage.read(hash1);
+      expect(resultBeforeConfirmation.meta.ethereum).not.toBeDefined();
+      expect(resultBeforeConfirmation.meta.state).toBe(StorageTypes.ContentState.PENDING);
+
+      await confirmation;
       const result = await ethereumStorage.read(hash1);
 
-      if (!result.meta.ethereum) {
-        fail('result.meta.ethereum does not exist');
-        return;
-      }
+      expect(result.meta.ethereum).toBeDefined();
+      expect(result.meta.state).toBe(StorageTypes.ContentState.CONFIRMED);
 
       expect(result.content).toBe(content1);
-      expect(result.meta.ipfs).toMatchObject({
-        size: realSize1,
-      });
+      expect(result.meta.ipfs).toMatchObject({ size: realSize1 });
 
-      expect(result.meta.ethereum.blockNumber).toEqual(pastEventsMock[0].blockNumber);
-      expect(result.meta.ethereum.networkName).toEqual('private');
-      expect(result.meta.ethereum.smartContractAddress).toEqual(
+      expect(result.meta.ethereum?.blockNumber).toEqual(10);
+      expect(result.meta.ethereum?.networkName).toEqual('private');
+      expect(result.meta.ethereum?.smartContractAddress).toEqual(
         '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
       );
-      expect(result.meta.ethereum.blockNumber).toEqual(pastEventsMock[0].blockNumber);
-      expect(result.meta.ethereum.blockConfirmation).toBeGreaterThan(1);
-      expect(result.meta.ethereum.blockTimestamp).toBeDefined();
+      expect(result.meta.ethereum?.blockConfirmation).toBeGreaterThan(1);
+      expect(result.meta.ethereum?.blockTimestamp).toBeDefined();
     });
 
     it('cannot read if ipfs read fail', async () => {
@@ -598,34 +596,30 @@ describe('EthereumStorage', () => {
       await expect(ethereumStorage.getData()).rejects.toThrowError('The event log has no metadata');
     });
 
-    it('allows to read a file', async () => {
-      ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
-
+    it('allows to read several files', async () => {
       const content = [content1, content2];
       const realSizes = [realSize1, realSize2];
 
-      await ethereumStorage.append(content1);
-      await ethereumStorage.append(content2);
+      const r1 = await ethereumStorage.append(content1);
+      await new Promise((r) => r1.on('confirmed', r));
+      const r2 = await ethereumStorage.append(content2);
+      await new Promise((r) => r2.on('confirmed', r));
       const results = await ethereumStorage.readMany([hash1, hash2]);
 
       results.forEach((result, index) => {
-        if (!result.meta.ethereum) {
-          fail('result.meta.ethereum does not exist');
-          return;
-        }
+        expect(result.meta.ethereum).toBeDefined();
         expect(result.content).toBe(content[index]);
         expect(result.meta.ipfs).toMatchObject({
           size: realSizes[index],
         });
 
-        expect(result.meta.ethereum.blockNumber).toEqual(pastEventsMock[index + 1].blockNumber);
-        expect(result.meta.ethereum.networkName).toEqual('private');
-        expect(result.meta.ethereum.smartContractAddress).toEqual(
+        expect(result.meta.ethereum?.blockNumber).toEqual(10);
+        expect(result.meta.ethereum?.networkName).toEqual('private');
+        expect(result.meta.ethereum?.smartContractAddress).toEqual(
           '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
         );
-        expect(result.meta.ethereum.blockNumber).toEqual(pastEventsMock[index + 1].blockNumber);
-        expect(result.meta.ethereum.blockConfirmation).toBeGreaterThanOrEqual(1);
-        expect(result.meta.ethereum.blockTimestamp).toBeDefined();
+        expect(result.meta.ethereum?.blockConfirmation).toBeGreaterThanOrEqual(1);
+        expect(result.meta.ethereum?.blockTimestamp).toBeDefined();
       });
     });
 
