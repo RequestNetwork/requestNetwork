@@ -9,11 +9,12 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
   if (!address.match(/^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/)) {
     return false;
   }
-  if (network === 'aurora') {
-    return !!address.match(/\.near$/);
+  switch (network) {
+    case 'aurora':
+      return !!address.match(/\.near$/);
+    case 'aurora-testnet':
+      return !!address.match(/\.testnet$/);
+    default:
+      throw new Error(`Cannot validate NEAR address for network ${network}`);
   }
-  if (network === 'aurora-testnet') {
-    return !!address.match(/\.testnet$/);
-  }
-  return false;
 };

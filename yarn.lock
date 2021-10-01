@@ -5434,7 +5434,7 @@
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-8.2.3.tgz#bbeb55fbc73f28ea6de601fbfa4613f58d785323"
   integrity sha512-ekGvFhFgrc2zYQoX4JeZPmVzZxw6Dtllga7iGHzfbYIYkAMUx/sAFP2GdFpLff+vdHXu5fl7WX9AT+TtqYcsyw==
 
-"@types/multicoin-address-validator@^0.5.0":
+"@types/multicoin-address-validator@0.5.0":
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/@types/multicoin-address-validator/-/multicoin-address-validator-0.5.0.tgz#3888ec229c799652972849ae3456de7958f1424f"
   integrity sha512-I0D2PiV0r5u9pmnFqx5F5tbI4v1Xek+KDMCiTIZMyXO3UM6VoFYt9Tpqk7jfOEXBMVjmkX7anYy6E6KZfnAihg==
@@ -18116,7 +18116,7 @@ multicodec@^1.0.0:
     buffer "^5.6.0"
     varint "^5.0.0"
 
-multicoin-address-validator@^0.5.2:
+multicoin-address-validator@0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/multicoin-address-validator/-/multicoin-address-validator-0.5.2.tgz#02f4574a6936bee17252571b2c410222cdb0e9f3"
   integrity sha512-0X0g1dhWKhtpadIe+cwTonTObw7FrHZkJVfd9yjlPFnictOrVZOaMFWLU0iV1Ok9vl4oi8H0t4OWAAMRAuYwJw==

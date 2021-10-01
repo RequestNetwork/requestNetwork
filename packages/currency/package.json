@@ -44,7 +44,7 @@
     "@metamask/contract-metadata": "1.28.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "@types/multicoin-address-validator": "^0.5.0",
+    "@types/multicoin-address-validator": "0.5.0",
     "multicoin-address-validator": "0.5.2",
     "node-dijkstra": "2.5.0"
   },
