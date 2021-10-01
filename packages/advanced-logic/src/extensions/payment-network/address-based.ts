@@ -142,18 +142,15 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  protected isValidAddress(address: string, networkName?: string): boolean {
+  protected isValidAddressForNetwork(address: string, networkName: string): boolean {
     const currencyManager: CurrencyManager = CurrencyManager.getDefault();
     switch (this.supportedCurrencyType) {
       case RequestLogicTypes.CURRENCY.BTC: {
-        if (networkName) {
-          const currency = currencyManager.from('BTC', networkName);
-          return CurrencyManager.validateAddress(address, currency);
-        }
-        return this.supportedNetworks.some((network) => {
-          const currency = currencyManager.from('BTC', network);
-          return CurrencyManager.validateAddress(address, currency);
-        });
+        const currency = currencyManager.from(
+          networkName === 'testnet' ? 'BTC-testnet' : 'BTC',
+          networkName,
+        );
+        return CurrencyManager.validateAddress(address, currency);
       }
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20: {
@@ -162,9 +159,18 @@ export default abstract class AddressBasedPaymentNetwork<
       }
       default:
         throw new Error(
-          `Default implementation of isValidAddress() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
+          `Default implementation of isValidAddressForNetwork() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
         );
     }
+  }
+
+  protected isValidAddress(address: string, networkName?: string): boolean {
+    if (networkName) {
+      return this.isValidAddressForNetwork(address, networkName);
+    }
+    return this.supportedNetworks.some((network) =>
+      this.isValidAddressForNetwork(address, network),
+    );
   }
 
   /**

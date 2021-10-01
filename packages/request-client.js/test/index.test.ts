@@ -1491,7 +1491,7 @@ describe('index', () => {
         id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           salt: 'a1a2a3a4a5a6a7a8',
         },
       };
@@ -1562,7 +1562,7 @@ describe('index', () => {
         id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           salt: 'a1a2a3a4a5a6a7a8',
         },
       };
@@ -1658,7 +1658,7 @@ describe('index', () => {
         id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           salt: 'a1a2a3a4a5a6a7a8',
         },
       };

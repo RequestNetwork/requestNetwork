@@ -13,23 +13,22 @@ const erc20FeeProxyContract = new Erc20FeeProxyContract();
 describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
-      
       expect(
         erc20FeeProxyContract.createCreationAction({
-          feeAddress: '0x0000000000000000000000000000000000000001',
+          feeAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
           feeAmount: '0',
-          paymentAddress: '0x0000000000000000000000000000000000000002',
-          refundAddress: '0x0000000000000000000000000000000000000003',
+          paymentAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x4F365ED331391DfCFd2De1C9479DDb50F4B2D599',
           salt: 'ea3bc7caf64110ca',
         }),
       ).toEqual({
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
         parameters: {
-          feeAddress: '0x0000000000000000000000000000000000000001',
+          feeAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
           feeAmount: '0',
-          paymentAddress: '0x0000000000000000000000000000000000000002',
-          refundAddress: '0x0000000000000000000000000000000000000003',
+          paymentAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x4F365ED331391DfCFd2De1C9479DDb50F4B2D599',
           salt: 'ea3bc7caf64110ca',
         },
         version: '0.2.0',
@@ -37,19 +36,18 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
 
     it('can create a create action without fee parameters', () => {
-      
       expect(
         erc20FeeProxyContract.createCreationAction({
-          paymentAddress: '0x0000000000000000000000000000000000000001',
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           salt: 'ea3bc7caf64110ca',
         }),
       ).toEqual({
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
         parameters: {
-          paymentAddress: '0x0000000000000000000000000000000000000001',
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           salt: 'ea3bc7caf64110ca',
         },
         version: '0.2.0',
@@ -57,7 +55,6 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
 
     it('can create a create action with only salt', () => {
-      
       expect(
         erc20FeeProxyContract.createCreationAction({
           salt: 'ea3bc7caf64110ca',
@@ -77,7 +74,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       expect(() => {
         erc20FeeProxyContract.createCreationAction({
           paymentAddress: 'not an ethereum address',
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           salt: 'ea3bc7caf64110ca',
         });
       }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
@@ -87,7 +84,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       // 'must throw'
       expect(() => {
         erc20FeeProxyContract.createCreationAction({
-          paymentAddress: '0x0000000000000000000000000000000000000001',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
@@ -99,7 +96,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       expect(() => {
         erc20FeeProxyContract.createCreationAction({
           feeAddress: 'not an ethereum address',
-          paymentAddress: '0x0000000000000000000000000000000000000001',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
           salt: 'ea3bc7caf64110ca',
         });
       }).toThrowError('feeAddress is not a valid address');
@@ -110,7 +107,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       expect(() => {
         erc20FeeProxyContract.createCreationAction({
           feeAmount: '-20000',
-          paymentAddress: '0x0000000000000000000000000000000000000001',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
           salt: 'ea3bc7caf64110ca',
         });
       }).toThrowError('feeAmount is not a valid amount');
@@ -119,16 +116,15 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
 
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
-      
       expect(
         erc20FeeProxyContract.createAddPaymentAddressAction({
-          paymentAddress: '0x0000000000000000000000000000000000000001',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
         parameters: {
-          paymentAddress: '0x0000000000000000000000000000000000000001',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
         },
       });
     });
@@ -145,16 +141,15 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
 
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
-      
       expect(
         erc20FeeProxyContract.createAddRefundAddressAction({
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
         parameters: {
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
         },
       });
     });
@@ -171,17 +166,16 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
 
   describe('createAddFeeAction', () => {
     it('can createAddFeeAction', () => {
-      
       expect(
         erc20FeeProxyContract.createAddFeeAction({
-          feeAddress: '0x0000000000000000000000000000000000000002',
+          feeAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           feeAmount: '2000',
         }),
       ).toEqual({
         action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
         parameters: {
-          feeAddress: '0x0000000000000000000000000000000000000002',
+          feeAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           feeAmount: '2000',
         },
       });
@@ -201,7 +195,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
       // 'must throw'
       expect(() => {
         erc20FeeProxyContract.createAddFeeAction({
-          feeAddress: '0x0000000000000000000000000000000000000002',
+          feeAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           feeAmount: '-30000',
         });
       }).toThrowError('feeAmount is not a valid amount');

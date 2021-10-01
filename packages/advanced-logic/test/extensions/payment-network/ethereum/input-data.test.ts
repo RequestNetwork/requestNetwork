@@ -16,16 +16,16 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       // 'extensionsdata is wrong'
       expect(
         ethereumInputDataPaymentNetwork.createCreationAction({
-          paymentAddress: '0x0000000000000000000000000000000000000001',
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           salt: 'ea3bc7caf64110ca',
         }),
       ).toEqual({
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
         parameters: {
-          paymentAddress: '0x0000000000000000000000000000000000000001',
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           salt: 'ea3bc7caf64110ca',
         },
         version: '0.2.0',
@@ -53,7 +53,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       expect(() => {
         ethereumInputDataPaymentNetwork.createCreationAction({
           paymentAddress: 'not an ethereum address',
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
           salt: 'ea3bc7caf64110ca',
         });
       }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
@@ -63,7 +63,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       // 'must throw'
       expect(() => {
         ethereumInputDataPaymentNetwork.createCreationAction({
-          paymentAddress: '0x0000000000000000000000000000000000000001',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
@@ -76,13 +76,13 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       // 'extensionsdata is wrong'
       expect(
         ethereumInputDataPaymentNetwork.createAddPaymentAddressAction({
-          paymentAddress: '0x0000000000000000000000000000000000000001',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
         parameters: {
-          paymentAddress: '0x0000000000000000000000000000000000000001',
+          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
         },
       });
     });
@@ -102,13 +102,13 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       // 'extensionsdata is wrong'
       expect(
         ethereumInputDataPaymentNetwork.createAddRefundAddressAction({
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
         parameters: {
-          refundAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
         },
       });
     });
