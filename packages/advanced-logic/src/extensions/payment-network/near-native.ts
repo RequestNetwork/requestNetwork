@@ -1,4 +1,3 @@
-import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes } from '@requestnetwork/types';
 import { UnsupportedNetworkError } from './address-based';
 import NativeTokenPaymentNetwork from './native-token';
@@ -26,25 +25,21 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
   protected isValidAddress(address: string, networkName?: string): boolean {
     switch (networkName) {
       case 'aurora':
-        return this.isValidMainnet(address);
+        return this.isValidMainnetAddress(address);
       case 'aurora-testnet':
-        return this.isValidTestnet(address);
+        return this.isValidTestnetAddress(address);
       case undefined:
-        return this.isValidMainnet(address) || this.isValidTestnet(address);
+        return this.isValidMainnetAddress(address) || this.isValidTestnetAddress(address);
       default:
         throw new UnsupportedNetworkError(networkName, this.supportedNetworks);
     }
   }
 
-  private isValidMainnet(address: string): boolean {
-    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
-    const currency = currencyManager.from('NEAR', 'aurora');
-    return CurrencyManager.validateAddress(address, currency);
+  private isValidMainnetAddress(address: string): boolean {
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'aurora');
   }
 
-  private isValidTestnet(address: string): boolean {
-    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
-    const currency = currencyManager.from('NEAR-testnet', 'aurora-testnet');
-    return CurrencyManager.validateAddress(address, currency);
+  private isValidTestnetAddress(address: string): boolean {
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'aurora-testnet');
   }
 }

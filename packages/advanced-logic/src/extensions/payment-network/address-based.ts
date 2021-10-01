@@ -142,28 +142,6 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  protected isValidAddressForNetwork(address: string, networkName: string): boolean {
-    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
-    switch (this.supportedCurrencyType) {
-      case RequestLogicTypes.CURRENCY.BTC: {
-        const currency = currencyManager.from(
-          networkName === 'testnet' ? 'BTC-testnet' : 'BTC',
-          networkName,
-        );
-        return CurrencyManager.validateAddress(address, currency);
-      }
-      case RequestLogicTypes.CURRENCY.ETH:
-      case RequestLogicTypes.CURRENCY.ERC20: {
-        const currency = currencyManager.from('ETH', 'mainnet');
-        return CurrencyManager.validateAddress(address, currency);
-      }
-      default:
-        throw new Error(
-          `Default implementation of isValidAddressForNetwork() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
-        );
-    }
-  }
-
   protected isValidAddress(address: string, networkName?: string): boolean {
     if (networkName) {
       return this.isValidAddressForNetwork(address, networkName);
@@ -171,6 +149,34 @@ export default abstract class AddressBasedPaymentNetwork<
     return this.supportedNetworks.some((network) =>
       this.isValidAddressForNetwork(address, network),
     );
+  }
+
+  protected isValidAddressForNetwork(address: string, network: string): boolean {
+    switch (this.supportedCurrencyType) {
+      case RequestLogicTypes.CURRENCY.BTC:
+        return this.isValidAddressForSymbolAndNetwork(
+          address,
+          network === 'testnet' ? 'BTC-testnet' : 'BTC',
+          network,
+        );
+      case RequestLogicTypes.CURRENCY.ETH:
+      case RequestLogicTypes.CURRENCY.ERC20:
+        return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
+      default:
+        throw new Error(
+          `Default implementation of isValidAddressForNetwork() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
+        );
+    }
+  }
+
+  protected isValidAddressForSymbolAndNetwork(
+    address: string,
+    symbol: string,
+    network: string,
+  ): boolean {
+    const currencyManager = CurrencyManager.getDefault();
+    const currency = currencyManager.from(symbol, network);
+    return CurrencyManager.validateAddress(address, currency);
   }
 
   /**
