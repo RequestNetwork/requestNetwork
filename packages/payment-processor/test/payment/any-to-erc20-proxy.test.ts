@@ -92,7 +92,7 @@ describe('conversion-erc20-fee-proxy', () => {
               ...alphaPaymentSettings.currency,
               value: '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
             },
-          },
+          } as IConversionPaymentSettings,
           undefined,
           undefined,
         ),

@@ -721,7 +721,7 @@ describe('ETH localhost request creation and detection test', () => {
     let data = await request.refresh();
 
     // USD => ETH
-    const maxToSpend = BigNumber.from('30000000000000000');
+    const maxToSpend = '30000000000000000';
     const paymentTx = await payRequest(data, wallet, undefined, undefined, {
       maxToSpend,
       currencyManager: new CurrencyManager(currencies),

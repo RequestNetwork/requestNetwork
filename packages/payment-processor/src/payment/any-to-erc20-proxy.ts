@@ -1,4 +1,4 @@
-import { constants, ContractTransaction, Signer, providers, BigNumberish } from 'ethers';
+import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
 import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
@@ -114,7 +114,7 @@ export function encodePayAnyToErc20ProxyRequest(
     `0x${paymentReference}`,
     feeToPay,
     feeAddress || constants.AddressZero,
-    paymentSettings.maxToSpend,
+    BigNumber.from(paymentSettings.maxToSpend),
     maxRateTimespan || 0,
   ]);
 }

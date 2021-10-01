@@ -1,4 +1,4 @@
-import { Wallet, providers, BigNumber } from 'ethers';
+import { Wallet, providers } from 'ethers';
 
 import {
   ClientTypes,
@@ -14,7 +14,7 @@ import { currencyManager } from './shared';
 
 import { IConversionPaymentSettings } from '../../src/index';
 const paymentSettings: IConversionPaymentSettings = {
-  maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  maxToSpend: '2500000000000000',
   currencyManager,
 };
 

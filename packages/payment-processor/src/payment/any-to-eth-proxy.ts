@@ -1,4 +1,4 @@
-import { constants, ContractTransaction, Signer, providers, BigNumberish } from 'ethers';
+import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
 import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
 import { ethConversionArtifact } from '@requestnetwork/smart-contracts';
@@ -132,6 +132,6 @@ export function prepareAnyToEthProxyPaymentTransaction(
   return {
     data: encodedTx,
     to: proxyAddress,
-    value: paymentSettings.maxToSpend,
+    value: BigNumber.from(paymentSettings.maxToSpend),
   };
 }
