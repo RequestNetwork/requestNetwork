@@ -1,7 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
 import { supportedCurrencies } from './conversion-supported-currencies';
-import { CurrencyManager } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.1.0';
 
@@ -31,13 +30,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (!creationParameters.acceptedTokens || creationParameters.acceptedTokens.length === 0) {
       throw Error('acceptedTokens is required');
     }
-    const currencyManager: CurrencyManager = CurrencyManager.getDefault();
-    const currency = currencyManager.from('ETH', 'mainnet');
-    if (
-      creationParameters.acceptedTokens.some(
-        (address) => !CurrencyManager.validateAddress(address, currency),
-      )
-    ) {
+    if (creationParameters.acceptedTokens.some((address) => !this.isValidAddress(address))) {
       throw Error('acceptedTokens must contains only valid ethereum addresses');
     }
 
