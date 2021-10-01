@@ -41,16 +41,16 @@ export default class ConversionInfoRetriever {
    * @param network The Ethereum network to use
    */
   constructor(
-    private requestCurrency: CurrencyDefinition,
-    private paymentReference: string,
-    private conversionProxyContractAddress: string,
-    private conversionProxyCreationBlockNumber: number,
-    private conversionProxyContractAbiFragment: JsonFragment[],
-    private toAddress: string,
-    private eventName: PaymentTypes.EVENTS_NAMES,
-    private network: string,
-    private acceptedTokens?: string[],
-    private maxRateTimespan: number = 0,
+    protected requestCurrency: CurrencyDefinition,
+    protected paymentReference: string,
+    protected conversionProxyContractAddress: string,
+    protected conversionProxyCreationBlockNumber: number,
+    protected conversionProxyContractAbiFragment: JsonFragment[],
+    protected toAddress: string,
+    protected eventName: PaymentTypes.EVENTS_NAMES,
+    protected network: string,
+    protected acceptedTokens?: string[],
+    protected maxRateTimespan: number = 0,
   ) {
     // Creates a local or default provider
     this.provider = getDefaultProvider(this.network);
@@ -78,6 +78,8 @@ export default class ConversionInfoRetriever {
       null,
       null,
       '0x' + this.paymentReference,
+      null,
+      null,
     ) as ethers.providers.Filter;
     conversionFilter.fromBlock = this.conversionProxyCreationBlockNumber;
     conversionFilter.toBlock = 'latest';

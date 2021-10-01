@@ -8,7 +8,7 @@ import {
 
 import { ICurrencyManager } from '@requestnetwork/currency';
 
-import ProxyInfoRetriever from './any-to-any-proxy-info-retriever';
+import ProxyInfoRetriever from './any-to-eth-proxy-info-retriever';
 import AnyToAnyDetector from '../any-to-any-detector';
 
 // interface of the object indexing the proxy contract version
@@ -83,6 +83,7 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
       address,
       eventName,
       network,
+      undefined,
       paymentNetwork.values?.maxRateTimespan,
     );
 
