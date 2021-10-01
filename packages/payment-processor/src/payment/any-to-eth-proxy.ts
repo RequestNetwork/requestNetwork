@@ -6,13 +6,7 @@ import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/typ
 import { ClientTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
-import {
-  getAmountToPay,
-  getProvider,
-  getRequestPaymentValues,
-  getSigner,
-  //  TODO:    validateConversionFeeProxyRequest,
-} from './utils';
+import { getAmountToPay, getProvider, getRequestPaymentValues, getSigner } from './utils';
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IConversionPaymentSettings } from './index';
@@ -91,9 +85,6 @@ export function encodePayAnyToEthProxyRequest(
       `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
     );
   }
-
-  // Check request
-  // TODO: validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
