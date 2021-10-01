@@ -28,7 +28,8 @@
     "test": "lerna run test",
     "format": "prettier packages/**/src/**/*.ts -w",
     "format:check": "prettier packages/**/src/**/*.ts -c",
-    "link:all": "for d in packages/*; do pushd $d; yarn link; popd; done"
+    "link:all": "for d in packages/*; do pushd $d; yarn link; popd; done",
+    "unlink:all": "for d in packages/*; do pushd $d; yarn unlink; popd; done"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.18.0",
