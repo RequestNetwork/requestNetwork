@@ -14,7 +14,7 @@ contract ERC20EscrowToPayV2 {
     address public feeAddress;
 
     struct Request {
-        address tokenAddress;
+        IERC20 tokenAddress;
         address _from;
         uint256 amount;
         bool isFrozen;
@@ -46,19 +46,19 @@ contract ERC20EscrowToPayV2 {
      * @notice Emitted when an new escrow is initiated.
      * @param paymentReference Reference of the payment related.
      */
-    event RequestInEscrow(bytes paymentReference);
+    event RequestInEscrow(bytes indexed paymentReference);
 
     /**
      * @notice Emitted when a lockDisputedFunds function has been executed successfully.
      * @param paymentReference Reference of the payment related.
      */
-    event RequestPaidFromEscrow(bytes paymentReference);
+    event RequestPaidFromEscrow(bytes indexed paymentReference);
 
     /**
      * @notice Emitted when a tokentimelock period is completed successfully.
      * @param paymentReference Reference of the payment related.
      */
-    event RequestFreezed(bytes paymentReference);
+    event RequestFreezed(bytes indexed paymentReference);
     
     /**
      * @notice Emitted when selfDestruct() is called on this contract.
@@ -85,33 +85,17 @@ contract ERC20EscrowToPayV2 {
     * @param _feeAmount The amount of the payment fee.
     * @dev Uses transferFromWithReferenceAndFee() to pay to escrow and fees.
     */
-    function PayRequestToEscrow(
-        address _tokenAddress,
-        uint256 _amount,
-        bytes memory _paymentRef,
-        uint256 _feeAmount
-    ) external {
+    function PayRequestToEscrow(address _tokenAddress, uint256 _amount, bytes memory _paymentRef, uint256 _feeAmount) external {
+
         requestMapping[_paymentRef] = Request(
-            _tokenAddress,
-            address(this),
+            IERC20(_tokenAddress),
+            msg.sender,
             _amount,
             false,
             0
         );
         
-        deposit
-         /// Give approval to transfer from ERC20EscrowToPayV1 => ERC20FeeProxy contract.
-        IERC20(requestMapping[_paymentRef].tokenAddress).approve(address(paymentProxy), 2 ** 255);
-        
-        IERC20FeeProxy(paymentProxy).transferFromWithReferenceAndFee(
-            requestMapping[_paymentRef].tokenAddress,
-            address(this),
-            _amount,    
-            _paymentRef, 
-            _feeAmount, 
-            feeAddress
-        );
-        
+        _deposit(_paymentRef, _feeAmount);
         emit RequestInEscrow(_paymentRef);
     }
     
@@ -121,7 +105,7 @@ contract ERC20EscrowToPayV2 {
      * @param _to Address of the receiver.
      * @dev Uses transferFromWithReferenceAndFee() to pay _to without fees.
      */
-    function payRequestFromEscrow(bytes memory _paymentRef, address _to) 
+    function payRequestFromEscrow(bytes memory _paymentRef, address _to, uint256 _feeAmount) 
         external
         IsInEscrow(_paymentRef) 
         OnlyPayer(_paymentRef) 
@@ -134,12 +118,12 @@ contract ERC20EscrowToPayV2 {
         requestMapping[_paymentRef].amount = 0;
         // Pay the request to escrow, fee is already paid.
         paymentProxy.transferFromWithReferenceAndFee(
-            requestMapping[_paymentRef].tokenAddress,
+            address(requestMapping[_paymentRef].tokenAddress),
             _to,
             _amount, 
             _paymentRef, 
-            0, 
-            address(0)
+            _feeAmount, 
+            feeAddress
         );  
         delete requestMapping[_paymentRef];
         emit RequestPaidFromEscrow(_paymentRef);  
@@ -175,16 +159,46 @@ contract ERC20EscrowToPayV2 {
      * @param _paymentRef Reference of the related Invoice.
      * @dev Internal function to execute transferFrom() payer.
      */
-    function _deposit(bytes memory _paymentRef) internal returns (bool result){
-        require(requestMapping[_paymentRef].paymentToken.transferFrom(
-            requestMapping[_paymentRef].payer,
-            address(this), 
-            (requestMapping[_paymentRef].amount + requestMapping[_paymentRef].feeAmount)), 
-            "Deposit failed, did you approve ERC20 token first?"
-        );
+    function _deposit(bytes memory _paymentRef, uint256 _feeAmount) internal returns (bool result){
+        
+        // Pay the invoice request and fees
+            requestMapping[_paymentRef].tokenAddress.transferFrom(
+                requestMapping[_paymentRef]._from,
+                address(this),
+                (requestMapping[_paymentRef].amount+_feeAmount)
+            );  
         return true; 
     }
   
+     /**
+     * @notice Withdraw the funds from the escrow.  
+     * @param _paymentRef Reference of the related Invoice.
+     * @param _receiver Receiving address.
+     * @dev Internal function to pay fees and withdraw funds to a given reciever.
+     */
+    function _withdraw(bytes memory _paymentRef, address _receiver) internal returns (bool result) {
+        if (requestMapping[_paymentRef].amount != 0 ) {
+            
+            uint256 _amount = requestMapping[_paymentRef].amount;
+            requestMapping[_paymentRef].amount = 0;
+           
+            /// Give approval to transfer from ERC20EscrowToPayV1 => ERC20FeeProxy contract.
+            requestMapping[_paymentRef].tokenAddress.approve(address(paymentProxy), 2**255);
+    
+            // Pay the invoice request and fees
+            paymentProxy.transferFromWithReferenceAndFee(
+                address(requestMapping[_paymentRef].tokenAddress),
+                _receiver,
+                _amount, 
+                _paymentRef, 
+                0, 
+                address(0)
+            );  
+            return true;
+        }
+        revert WithdrawFailed();  
+    } 
+
     /**
     * @notice ONLY for testnet purposes, removes the smartcontract from the blockchain. 
     * @dev OnlyOwner condition
