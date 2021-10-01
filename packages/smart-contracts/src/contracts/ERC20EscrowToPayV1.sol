@@ -40,11 +40,11 @@ contract ERC20EscrowToPayV1 {
     mapping(bytes => Dispute) public disputeMapping;
 
     modifier OnlyOwner {
-        require(msg.sender == owner, "ERC20EscrowToPay: Not Authorized.");
+        require(msg.sender == owner, " Not Authorized.");
         _;
     }
     modifier OnlyPayer(bytes memory _paymentRef) {
-        require(msg.sender == disputeMapping[_paymentRef].payer, "ERC20EscrowToPay: Not Authorized.");
+        require(msg.sender == disputeMapping[_paymentRef].payer, " Not Authorized.");
         _;
     }
 
@@ -154,11 +154,11 @@ contract ERC20EscrowToPayV1 {
      */
     function closeEscrow(bytes memory _paymentRef) external {
         require(requestMapping[_paymentRef].amount != 0, 
-            "ERC20EscrowToPay: No Request found.");
+            "No Request found.");
         require(msg.sender == requestMapping[_paymentRef].payer ||
             (msg.sender == requestMapping[_paymentRef].payee  &&
             requestMapping[_paymentRef].claimDate <= block.timestamp),
-            "ERC20EscrowToPay: Not authorized!");
+            "Not authorized!");
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee));
         
         delete requestMapping[_paymentRef];
@@ -172,11 +172,11 @@ contract ERC20EscrowToPayV1 {
      */
     function openDispute(bytes memory _paymentRef) external {
         require(msg.sender == requestMapping[_paymentRef].payer, 
-            "ERC20EscrowToPay: Not Auhorized!");
+            "Not Auhorized!");
         require(requestMapping[_paymentRef].amount != 0, 
-            "ERC20EscrowToPay: No Request found");
+            "No Request found");
         require(disputeMapping[_paymentRef].amount == 0, 
-            "ERC20EscrowToPay: Request is already Frozen");
+            "Request is already Frozen");
 
         disputeMapping[_paymentRef] = Dispute(
             _paymentRef,
@@ -201,8 +201,8 @@ contract ERC20EscrowToPayV1 {
      * @dev The fees is paid to the fee address.
      */
     function resolveDispute(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
-        require(msg.sender == disputeMapping[_paymentRef].payer,"ERC20EscrowToPay: Not Authorized.");
-        require(disputeMapping[_paymentRef].amount != 0, "ERC20EscrowToPay: Not found.");
+        require(msg.sender == disputeMapping[_paymentRef].payer,"Not Authorized.");
+        require(disputeMapping[_paymentRef].amount != 0, "Not found.");
         require(_withdraw( _paymentRef, disputeMapping[_paymentRef].payee));
         delete disputeMapping[_paymentRef];
         emit DisputeResolved(_paymentRef);
@@ -275,7 +275,7 @@ contract ERC20EscrowToPayV1 {
             requestMapping[_paymentRef].payer,
             address(this), 
             (requestMapping[_paymentRef].amount + requestMapping[_paymentRef].feeAmount)), 
-            "ERC20EscrowToPay: Deposit failed, did you approve ERC20 token first?"
+            " Deposit failed, did you approve ERC20 token first?"
         );
         return true; 
     }
@@ -341,7 +341,7 @@ contract ERC20EscrowToPayV1 {
         returns (bytes memory paymentRef, uint feeAmount, address feeAddress) 
     {
         require(requestMapping[_paymentRef].amount != 0, 
-            "ERC20EscrowToPay: No Request found."
+            " No Request found."
         );
         
         requestMapping[_paymentRef].feeAmount = _feeAmount;
@@ -356,7 +356,7 @@ contract ERC20EscrowToPayV1 {
     * @dev Housekeeping. 
     */
     function removeContract() external OnlyOwner() {
-      require( msg.sender == owner, "ERC20EscrowToPay: Only the owner can remove this contract."); 
+      require( msg.sender == owner, " Only the owner can remove this contract."); 
         selfdestruct(payable(owner));
         emit ContractRemoved();
     }
