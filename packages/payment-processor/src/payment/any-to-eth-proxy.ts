@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish } from 'ethers';
 
-import { CurrencyManager, getConversionPath, ICurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
 import { ethConversionArtifact } from '@requestnetwork/smart-contracts';
 import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes } from '@requestnetwork/types';
@@ -15,15 +15,7 @@ import {
 } from './utils';
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
-
-/**
- * Details required to pay a request with on-chain conversion:
- * - currency: should be a valid currency type and accepted token value
- */
-export interface IPaymentSettings {
-  maxToSpend: BigNumberish;
-  currencyManager?: ICurrencyManager;
-}
+import { IConversionPaymentSettings } from './index';
 
 /**
  * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
@@ -38,7 +30,7 @@ export interface IPaymentSettings {
 export async function payAnyToEthProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
-  paymentSettings: IPaymentSettings,
+  paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -63,7 +55,7 @@ export async function payAnyToEthProxyRequest(
  */
 export function encodePayAnyToEthProxyRequest(
   request: ClientTypes.IRequestData,
-  paymentSettings: IPaymentSettings,
+  paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
@@ -120,7 +112,7 @@ export function encodePayAnyToEthProxyRequest(
 
 export function prepareAnyToEthProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
-  paymentSettings: IPaymentSettings,
+  paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
 ): IPreparedTransaction {

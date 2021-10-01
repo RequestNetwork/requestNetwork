@@ -11,15 +11,23 @@ import { ITransactionOverrides } from './transaction-overrides';
 import { getNetworkProvider, getProvider, getSigner } from './utils';
 import { ISwapSettings } from './swap-erc20-fee-proxy';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { IPaymentSettings, payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
+import { payAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
+import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
 import { isNearNetwork, isNearAccountSolvent } from './utils-near';
+import { ICurrencyManager } from '@requestnetwork/currency';
 
 export const supportedNetworks = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
 ];
+
+export interface IConversionPaymentSettings {
+  currency?: RequestLogicTypes.ICurrency;
+  maxToSpend: BigNumberish;
+  currencyManager?: ICurrencyManager;
+}
 
 const getPaymentNetwork = (request: ClientTypes.IRequestData): ExtensionTypes.ID | undefined => {
   // eslint-disable-next-line
@@ -64,7 +72,7 @@ export async function payRequest(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
-  paymentSettings?: IPaymentSettings,
+  paymentSettings?: IConversionPaymentSettings,
 ): Promise<ContractTransaction> {
   throwIfNotWeb3(request);
   const signer = getSigner(signerOrProvider);
@@ -78,6 +86,19 @@ export async function payRequest(
         throw new Error('Missing payment settings for a payment with conversion');
       }
       return payAnyToErc20ProxyRequest(
+        request,
+        signer,
+        paymentSettings,
+        amount,
+        undefined,
+        overrides,
+      );
+    }
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY: {
+      if (!paymentSettings) {
+        throw new Error('Missing payment settings for a payment with conversion');
+      }
+      return payAnyToEthProxyRequest(
         request,
         signer,
         paymentSettings,

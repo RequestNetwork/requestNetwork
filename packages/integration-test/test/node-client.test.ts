@@ -682,4 +682,75 @@ describe('ETH localhost request creation and detection test', () => {
     // amount in crypto after apply the rates of the fake aggregators
     expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
   });
+
+  it('can create & pay a request with any to eth proxy', async () => {
+    const currencies = [
+      ...CurrencyManager.getDefaultList(),
+      ...[{
+        network: 'private',
+        symbol: 'ETH',
+        decimals: 18,
+        type: RequestLogicTypes.CURRENCY.ETH as any,
+      }],
+    ];
+
+    const requestNetwork = new RequestNetwork({
+      signatureProvider,
+      useMockStorage: true,
+      currencies,
+    });
+
+    const paymentNetworkAnyToETH: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+      parameters: {
+        paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
+        feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+        feeAmount: '200',
+        network: 'private',
+        maxRateTimespan: 1000000,
+      },
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork: paymentNetworkAnyToETH,
+      requestInfo: requestCreationHashUSD,
+      signer: payeeIdentity,
+    });
+
+    let data = await request.refresh();
+
+    // USD => ETH
+    const maxToSpend = BigNumber.from('30000000000000000');
+    const paymentTx = await payRequest(data, wallet, undefined, undefined, {
+      maxToSpend,
+      currencyManager: new CurrencyManager(currencies),
+    });
+
+    await paymentTx.wait();
+
+    data = await request.refresh();
+
+    expect(data.balance?.balance).toBe('1000');
+    expect(data.balance?.events.length).toBe(1);
+    const event = data.balance?.events[0];
+    expect(event?.amount).toBe('1000');
+    expect(event?.name).toBe('payment');
+
+    expect(event?.parameters?.feeAmount).toBe('200');
+    expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
+    // amount in crypto after apply the rates of the fake aggregators
+    //   expectedAmount:       10.00
+    //   AggETHUsd.sol       /   500
+    //                       =  0.02 (over 18 decimals for this ETH)
+    expect(event?.parameters?.amountInCrypto).toBe('20000000000000000');
+    // amount in crypto after apply the rates of the fake aggregators
+    //   feesAmount:            2.00
+    //   AggETHUsd.sol       /   500
+    //                       =  0.004 (over 18 decimals for this ETH)
+    expect(event?.parameters?.feeAmountInCrypto).toBe('4000000000000000');
+    expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
+    // amount in crypto after apply the rates of the fake aggregators
+    expect(event?.parameters?.maxRateTimespan).toBe('1000000');
+  });
 });
