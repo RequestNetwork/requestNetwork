@@ -14,10 +14,10 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
     it('can create a create action with all parameters', () => {
       expect(
         anyToErc20Proxy.createCreationAction({
-          feeAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
-          paymentAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
-          refundAddress: '0x4F365ED331391DfCFd2De1C9479DDb50F4B2D599',
+          paymentAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0x0000000000000000000000000000000000000003',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
           acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
@@ -27,10 +27,10 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
-          feeAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
-          paymentAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
-          refundAddress: '0x4F365ED331391DfCFd2De1C9479DDb50F4B2D599',
+          paymentAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0x0000000000000000000000000000000000000003',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
           acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
@@ -43,8 +43,8 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
     it('can create a create action without fee parameters', () => {
       expect(
         anyToErc20Proxy.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
           acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
@@ -53,8 +53,8 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         action: 'create',
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
           acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
@@ -68,7 +68,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       expect(() => {
         anyToErc20Proxy.createCreationAction({
           paymentAddress: 'not an ethereum address',
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x0000000000000000000000000000000000000002',
           acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
@@ -80,7 +80,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
           network: 'rinkeby',
           refundAddress: 'not an ethereum address',
@@ -94,7 +94,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       expect(() => {
         anyToErc20Proxy.createCreationAction({
           feeAddress: 'not an ethereum address',
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
@@ -107,7 +107,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       expect(() => {
         anyToErc20Proxy.createCreationAction({
           feeAmount: '-20000',
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
@@ -119,7 +119,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
         });
@@ -130,9 +130,9 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
-          acceptedTokens: ['0x4F365ED331391DfCFd2De1C9479DDb50F4B2D599', 'invalid address'],
+          acceptedTokens: ['0x0000000000000000000000000000000000000003', 'invalid address'],
           network: 'rinkeby',
         });
       }).toThrowError('acceptedTokens must contains only valid ethereum addresses');
@@ -142,10 +142,10 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
           network: 'kovan',
-          acceptedTokens: ['0x4F365ED331391DfCFd2De1C9479DDb50F4B2D599'],
+          acceptedTokens: ['0x0000000000000000000000000000000000000003'],
         });
       }).toThrowError('network kovan not supported');
     });
@@ -154,13 +154,13 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
           salt: 'ea3bc7caf64110ca',
-          acceptedTokens: ['0x4F365ED331391DfCFd2De1C9479DDb50F4B2D599'],
+          acceptedTokens: ['0x0000000000000000000000000000000000000003'],
           network: 'mainnet',
         });
       }).toThrowError(
-        'acceptedTokens must contain only supported token addresses (ERC20 only). 0x4F365ED331391DfCFd2De1C9479DDb50F4B2D599 is not supported for mainnet.',
+        'acceptedTokens must contain only supported token addresses (ERC20 only). 0x0000000000000000000000000000000000000003 is not supported for mainnet.',
       );
     });
 
@@ -222,13 +222,13 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
     it('can createAddPaymentAddressAction', () => {
       expect(
         anyToErc20Proxy.createAddPaymentAddressAction({
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
-          paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
         },
       });
     });
@@ -247,13 +247,13 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
     it('can createAddRefundAddressAction', () => {
       expect(
         anyToErc20Proxy.createAddRefundAddressAction({
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x0000000000000000000000000000000000000002',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x0000000000000000000000000000000000000002',
         },
       });
     });
@@ -272,14 +272,14 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
     it('can createAddFeeAction', () => {
       expect(
         anyToErc20Proxy.createAddFeeAction({
-          feeAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '2000',
         }),
       ).toEqual({
         action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
         parameters: {
-          feeAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '2000',
         },
       });
@@ -299,7 +299,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createAddFeeAction({
-          feeAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '-30000',
         });
       }).toThrowError('feeAmount is not a valid amount');

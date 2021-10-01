@@ -17,7 +17,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       expect(
         ethereumInputDataPaymentNetwork.createCreationAction({
           paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         }),
       ).toEqual({
@@ -25,7 +25,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0x70971e4e57d8957039d30F4e37Da0236943b3bD3',
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         },
         version: '0.2.0',
@@ -53,7 +53,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       expect(() => {
         ethereumInputDataPaymentNetwork.createCreationAction({
           paymentAddress: 'not an ethereum address',
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         });
       }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
@@ -102,13 +102,13 @@ describe('extensions/payment-network/ethereum/input-data', () => {
       // 'extensionsdata is wrong'
       expect(
         ethereumInputDataPaymentNetwork.createAddRefundAddressAction({
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x0000000000000000000000000000000000000002',
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
         id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
         parameters: {
-          refundAddress: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          refundAddress: '0x0000000000000000000000000000000000000002',
         },
       });
     });

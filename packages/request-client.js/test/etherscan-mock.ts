@@ -47,7 +47,7 @@ export default class EtherscanProviderMock {
           timestamp: 1588776378,
         },
       ],
-      '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37': [
+      '0x0000000000000000000000000000000000000002': [
         {
           hash: '0x7525522e8bfe96ffd8285f145801aee77c6ba3b290f8358bb67f55b835fadbd2',
           blockHash: '0x145de303511bc3383bfcfc260fd4aa07e3bdd09429216ca955535c327b13e36d',
@@ -57,7 +57,7 @@ export default class EtherscanProviderMock {
           from: '0x716A22779846078Df6B8c591F3ebEEE3Ad32e153',
           gasPrice: BigNumber.from('0x3b9aca00'),
           gasLimit: BigNumber.from('0x01d978'),
-          to: '0xA91CF25B49Ad916366FC6A1741Abe02AB54aEb37',
+          to: '0x0000000000000000000000000000000000000002',
           value: BigNumber.from('0x00'),
           nonce: 0,
           data: '0xe5e1',
