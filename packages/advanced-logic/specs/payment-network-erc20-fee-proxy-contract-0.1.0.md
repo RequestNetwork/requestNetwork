@@ -39,7 +39,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 
 | Network                    | Contract Address                           |
 | -------------------------- | ------------------------------------------ |
-| Mainnet                    | 0x370DE27fdb7D1Ff1e1BaA7D11c5820a324Cf623C |
+| Ethereum Mainnet           | 0x370DE27fdb7D1Ff1e1BaA7D11c5820a324Cf623C |
 | Matic                      | 0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9 |
 | Celo                       | 0x2171a0dc12a9E5b1659feF2BB20E54c84Fa7dB0C |
 | Ethereum Testnet - Rinkeby | 0xda46309973bffddd5a10ce12c44d2ee266f45a44 |
