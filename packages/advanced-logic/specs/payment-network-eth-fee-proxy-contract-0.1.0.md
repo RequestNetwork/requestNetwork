@@ -7,7 +7,7 @@ This Payment Network is similar to the [Ethereum Proxy Contract](./payment-netwo
 
 The payment is primarly made through a proxy contract, and can also be declared manually. Fees shall not be paid for declarative payments.
 
-This proxy contract does the ethers transfers on behalf of the user. The contract ensures a link between the ethers transfers and a request through a `paymentReference`, consisting of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
+This proxy contract does the Ether transfers on behalf of the user. The contract ensures a link between the ethers transfers and a request through a `paymentReference`, consisting of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
 The contract also ensures that the `feeAmount` amount is forwarded to the `feeAddress`.
 
