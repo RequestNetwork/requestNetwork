@@ -176,6 +176,9 @@ export default abstract class AddressBasedPaymentNetwork<
   ): boolean {
     const currencyManager = CurrencyManager.getDefault();
     const currency = currencyManager.from(symbol, network);
+    if (!currency) {
+      throw new Error(`Currency not found in default manager: ${symbol} / ${network}`);
+    }
     return CurrencyManager.validateAddress(address, currency);
   }
 

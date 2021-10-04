@@ -176,14 +176,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
 
   /**
    * Validates an address for a given currency.
-   * Throws if the currency is not given or if the currency is an ISO4217 currency.
-   * We allow undefined type for the "currency" argument to make it easier to chain with the
-   * CurrencyManager.from() method but if the argument is not defined it will throw an error.
+   * Throws if the currency is an ISO4217 currency.
    */
-  static validateAddress(address: string, currency: CurrencyInput | undefined): boolean {
-    if (!currency) {
-      throw new Error('Could not validate an address of an undefined currency');
-    }
+  static validateAddress(address: string, currency: CurrencyInput): boolean {
     switch (currency.type) {
       case RequestLogicTypes.CURRENCY.ISO4217:
         throw new Error(`Could not validate an address for an ISO4217 currency`);

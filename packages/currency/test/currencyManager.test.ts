@@ -451,8 +451,16 @@ describe('CurrencyManager', () => {
       },
     };
 
-    const testValidateAddressForCurrency = (address: string, currency: CurrencyDefinition) => {
-      expect(CurrencyManager.validateAddress(address, currency)).toBeTruthy();
+    const testValidateAddressForCurrency = (
+      address: string,
+      currency: CurrencyDefinition | undefined,
+      expectedResult = true,
+    ) => {
+      if (!currency) {
+        throw new Error('currency is undefined');
+      }
+      const result = CurrencyManager.validateAddress(address, currency);
+      expect(result).toBe(expectedResult);
     };
 
     describe(`valid cases`, () => {
@@ -494,24 +502,25 @@ describe('CurrencyManager', () => {
     describe(`invalid cases`, () => {
       it('should not validate bitcoin addresses on ethereum network', () => {
         const currency = currencyManager.from('ETH', 'mainnet');
-        expect(CurrencyManager.validateAddress(bitcoinAddresses.mainnet, currency)).toBeFalsy();
+        testValidateAddressForCurrency(bitcoinAddresses.mainnet, currency, false);
       });
       it('should not validate bitcoin mainnet addresses on bitcoin testnet network', () => {
         const currency = currencyManager.from('BTC-testnet', 'testnet');
-        expect(CurrencyManager.validateAddress(bitcoinAddresses.mainnet, currency)).toBeFalsy();
+        testValidateAddressForCurrency(bitcoinAddresses.mainnet, currency, false);
       });
       it('should not validate bitcoin testnet addresses on bitcoin mainnet network', () => {
         const currency = currencyManager.from('BTC-testnet', 'mainnet');
-        expect(CurrencyManager.validateAddress(bitcoinAddresses.testnet, currency)).toBeFalsy();
+        testValidateAddressForCurrency(bitcoinAddresses.testnet, currency, false);
       });
       it('should not validate ethereum addresses on bitcoin network', () => {
         const currency = currencyManager.from('BTC', 'mainnet');
-        expect(CurrencyManager.validateAddress(eip55Addresses[0], currency)).toBeFalsy();
+        testValidateAddressForCurrency(eip55Addresses[0], currency, false);
       });
       describe(`ISO4217 currencies`, () => {
         Object.entries(testCasesPerNetwork.other).forEach(([, currencyTemplate]) => {
           it(`should throw for ${currencyTemplate.symbol} currency`, () => {
-            const currency = currencyManager.from(currencyTemplate.symbol);
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const currency = currencyManager.from(currencyTemplate.symbol)!;
             expect(() => CurrencyManager.validateAddress('anyAddress', currency)).toThrow();
           });
         });
