@@ -6,10 +6,10 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title EthConversionProxy
- * @notice This contract convert from chainlink then swaps ETH
- *         before paying a request thanks to a conversion payment proxy
- *         the dependance with ReentrancyGuard is required to perform
- *         "transferExactEthWithReferenceAndFee" of the eth-fee-proxy contract
+ * @notice This contract converts from chainlink then swaps ETH (or native token)
+ *         before paying a request thanks to a conversion payment proxy.
+ *         The inheritance from ReentrancyGuard is required to perform
+ *         "transferExactEthWithReferenceAndFee" on the eth-fee-proxy contract
   */
 contract EthConversionProxy is ReentrancyGuard {
   address public paymentProxy;
