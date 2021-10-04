@@ -24,14 +24,21 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
 
   /**
    *
-   * @param knownCurrencies The list of currencies known by the Manager.
+   * @param inputCurrencies The list of currencies known by the Manager.
    * @param legacyTokens A mapping of legacy currency name or network name, in the format { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
    */
   constructor(
-    knownCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
+    inputCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
     legacyTokens?: LegacyTokenMap,
   ) {
-    this.knownCurrencies = knownCurrencies.map(CurrencyManager.fromInput);
+    this.knownCurrencies = [];
+    for (const input of inputCurrencies) {
+      const currency = CurrencyManager.fromInput(input);
+      if (this.knownCurrencies.some((x) => x.id === currency.id)) {
+        throw new Error(`Duplicate found: ${currency.id}`);
+      }
+      this.knownCurrencies.push(currency);
+    }
     this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
   }
 

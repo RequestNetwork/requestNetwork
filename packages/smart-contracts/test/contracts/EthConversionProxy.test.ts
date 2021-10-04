@@ -19,15 +19,15 @@ describe('contract: EthConversionProxy', () => {
   let to: string;
   let feeAddress: string;
   let signer: Signer;
-  const smallAmountInFIAT = BigNumber.from('100000000'); 
-  const smallerAmountInFIAT = BigNumber.from('10000000');
+  const amountInFiat = BigNumber.from('100000000'); 
+  const feesAmountInFiat = BigNumber.from('10000000');
   const referenceExample = '0xaaaa';
 
   const currencyManager = CurrencyManager.getDefault();
 
-  const ETH_address = currencyManager.fromSymbol('ETH')!.hash;
-  const USD_address = currencyManager.fromSymbol('USD')!.hash;
-  const EUR_address = currencyManager.fromSymbol('EUR')!.hash;
+  const ETH_hash = currencyManager.fromSymbol('ETH')!.hash;
+  const USD_hash = currencyManager.fromSymbol('USD')!.hash;
+  const EUR_hash = currencyManager.fromSymbol('EUR')!.hash;
 
   let testEthConversionProxy: EthConversionProxy;
   let ethFeeProxy: EthereumFeeProxy;
@@ -43,27 +43,27 @@ describe('contract: EthConversionProxy', () => {
     testEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
       ethFeeProxy.address,
       chainlinkPath.address,
-      ETH_address,
+      ETH_hash,
     );
   });
 
   describe('transferWithReferenceAndFee', () => {
     describe('transferWithReferenceAndFee with ETH', () => {
       it('allows to transfer ETH for USD payment', async function () {
-        const path = [USD_address, ETH_address];
+        const path = [USD_hash, ETH_hash];
 
         const fromOldBalance = await provider.getBalance(from);
         const toOldBalance = await provider.getBalance(to);
         const feeOldBalance = await provider.getBalance(feeAddress);
-        const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
-        const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
+        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
+        const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
 
         const tx = testEthConversionProxy.transferWithReferenceAndFee(
             to,
-            smallAmountInFIAT,
+            amountInFiat,
             path,
             referenceExample,
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             feeAddress,
             0,
             {
@@ -74,10 +74,10 @@ describe('contract: EthConversionProxy', () => {
         await expect(tx)
           .to.emit(testEthConversionProxy, 'TransferWithConversionAndReference')
           .withArgs(
-            smallAmountInFIAT,
+            amountInFiat,
             ethers.utils.getAddress(path[0]),
             ethers.utils.keccak256(referenceExample),
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             '0',
           );
 
@@ -106,20 +106,20 @@ describe('contract: EthConversionProxy', () => {
       });
 
       it('allows to transfer ETH for EUR payment and extra msg.value', async function () {
-        const path = [EUR_address, USD_address, ETH_address];
+        const path = [EUR_hash, USD_hash, ETH_hash];
 
         const fromOldBalance = await provider.getBalance(from);
         const toOldBalance = await provider.getBalance(to);
         const feeOldBalance = await provider.getBalance(feeAddress);
-        const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
-        const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
+        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
+        const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
 
         const tx = testEthConversionProxy.transferWithReferenceAndFee(
             to,
-            smallAmountInFIAT,
+            amountInFiat,
             path,
             referenceExample,
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             feeAddress,
             0,
             {
@@ -130,10 +130,10 @@ describe('contract: EthConversionProxy', () => {
         await expect(tx)
           .to.emit(testEthConversionProxy, 'TransferWithConversionAndReference')
           .withArgs(
-            smallAmountInFIAT,
+            amountInFiat,
             ethers.utils.getAddress(path[0]),
             ethers.utils.keccak256(referenceExample),
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             '0',
           );
 
@@ -167,17 +167,17 @@ describe('contract: EthConversionProxy', () => {
 
     describe('transferWithReferenceAndFee with errors', () => {
       it('cannot transfer if msg.value too low', async function () {
-        const path = [USD_address, ETH_address];
+        const path = [USD_hash, ETH_hash];
 
-        const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
+        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
 
         await expect(
             testEthConversionProxy.transferWithReferenceAndFee(
                 to,
-                smallAmountInFIAT,
+                amountInFiat,
                 path,
                 referenceExample,
-                smallerAmountInFIAT,
+                feesAmountInFiat,
                 feeAddress,
                 0,
                 {
@@ -188,17 +188,17 @@ describe('contract: EthConversionProxy', () => {
       });
 
       it('cannot transfer if rate is too old', async function () {
-        const path = [USD_address, ETH_address];
+        const path = [USD_hash, ETH_hash];
 
-        const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
-        const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
+        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
+        const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
         await expect(
             testEthConversionProxy.transferWithReferenceAndFee(
                 to,
-                smallAmountInFIAT,
+                amountInFiat,
                 path,
                 referenceExample,
-                smallerAmountInFIAT,
+                feesAmountInFiat,
                 feeAddress,
                 1, // second
                 {
