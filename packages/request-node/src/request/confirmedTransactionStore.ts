@@ -1,7 +1,4 @@
-import type { Request, Response } from 'express';
-import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
-import { StatusCodes } from 'http-status-codes';
-
+import { DataAccessTypes } from '@requestnetwork/types';
 import Keyv, { Store } from 'keyv';
 
 /**
@@ -15,53 +12,17 @@ export default class ConfirmedTransactionStore {
   /**
    * Confirmed transactions store constructor
    */
-  constructor(
-    private logger: LogTypes.ILogger,
-    store?: Store<DataAccessTypes.IReturnPersistTransaction>,
-  ) {
-    this.getConfirmedTransaction = this.getConfirmedTransaction.bind(this);
-
+  constructor(store?: Store<DataAccessTypes.IReturnPersistTransaction>) {
     this.store = new Keyv<DataAccessTypes.IReturnPersistTransaction>({
       namespace: 'ConfirmedTransactions',
       store,
     });
   }
 
-  /**
-   * Returns the information of a confirmed transaction
-   *
-   * @param clientRequest http client request object
-   * @param serverResponse http server response object
-   * @param logger logger
-   */
   public async getConfirmedTransaction(
-    clientRequest: Request,
-    serverResponse: Response,
-  ): Promise<void> {
-    try {
-      const { transactionHash } = clientRequest.query;
-      if (!transactionHash || typeof transactionHash !== 'string') {
-        serverResponse
-          .status(StatusCodes.UNPROCESSABLE_ENTITY)
-          .send('transactionHash missing in the query');
-        return;
-      }
-      const result: DataAccessTypes.IReturnPersistTransaction | undefined = await this.store.get(
-        transactionHash,
-      );
-
-      if (result) {
-        serverResponse.status(StatusCodes.OK).send(result);
-        return;
-      }
-
-      serverResponse.status(StatusCodes.NOT_FOUND).send();
-    } catch (e) {
-      this.logger.error(`getConfirmedTransaction error: ${e}`);
-      this.logger.debug(`getConfirmedTransaction fail`, ['metric', 'successRate']);
-
-      serverResponse.status(StatusCodes.INTERNAL_SERVER_ERROR).send(e);
-    }
+    transactionHash: string,
+  ): Promise<DataAccessTypes.IReturnPersistTransaction | undefined> {
+    return this.store.get(transactionHash);
   }
 
   /**

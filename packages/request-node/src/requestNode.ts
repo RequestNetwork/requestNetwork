@@ -1,23 +1,23 @@
 import { DataAccess, TransactionIndex } from '@requestnetwork/data-access';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 import cors from 'cors';
+import { Server } from 'http';
 import express, { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import KeyvFile from 'keyv-file';
 
-import Utils from '@requestnetwork/utils';
 import { getCustomHeaders, getInitializationStorageFilePath, getMnemonic } from './config';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
-import GetChannelsByTopicHandler from './request/getChannelsByTopic';
-import getStatus from './request/getStatus';
-import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId';
-import IpfsAddHandler from './request/ipfsAdd';
-import PersistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
-import { Server } from 'http';
-import GetChannelHandler from './request/getChannelsByTopic';
+
+import GetConfirmedTransactionHandler from './request/getConfirmedTransactionHandler';
+import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId';
+import PersistTransactionHandler from './request/persistTransaction';
+import GetChannelsByTopicHandler from './request/getChannelsByTopic';
 import GetStatusHandler from './request/getStatus';
+import IpfsAddHandler from './request/ipfsAdd';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -44,13 +44,14 @@ class RequestNode {
   private express: express.Application;
   private initialized: boolean;
   private logger: LogTypes.ILogger;
-  private persistTransaction: PersistTransaction;
+  private persistTransactionHandler: PersistTransactionHandler;
   private confirmedTransactionStore: ConfirmedTransactionStore;
   private requestNodeVersion: string;
 
   private getTransactionsByChannelIdHandler: GetTransactionsByChannelIdHandler;
+  private getConfirmedTransactionHandler: GetConfirmedTransactionHandler;
   private getChannelByTopicHandler: GetChannelsByTopicHandler;
-  private getStatusHandler: getStatus;
+  private getStatusHandler: GetStatusHandler;
   private ipfsAddHandler: IpfsAddHandler;
   /**
    * Request Node constructor
@@ -83,15 +84,19 @@ class RequestNode {
       transactionIndex,
     });
 
-    this.confirmedTransactionStore = new ConfirmedTransactionStore(this.logger, store);
+    this.confirmedTransactionStore = new ConfirmedTransactionStore(store);
+    this.getConfirmedTransactionHandler = new GetConfirmedTransactionHandler(
+      this.logger,
+      this.confirmedTransactionStore,
+    );
     this.getTransactionsByChannelIdHandler = new GetTransactionsByChannelIdHandler(
       this.logger,
       this.dataAccess,
     );
-    this.getChannelByTopicHandler = new GetChannelHandler(this.logger, this.dataAccess);
+    this.getChannelByTopicHandler = new GetChannelsByTopicHandler(this.logger, this.dataAccess);
     this.getStatusHandler = new GetStatusHandler(this.logger, this.dataAccess);
     this.ipfsAddHandler = new IpfsAddHandler(this.logger, this.ethereumStorage);
-    this.persistTransaction = new PersistTransaction(
+    this.persistTransactionHandler = new PersistTransactionHandler(
       this.confirmedTransactionStore,
       this.dataAccess,
       this.logger,
@@ -179,8 +184,8 @@ class RequestNode {
     router.get('/readyz', (_, res) => res.status(StatusCodes.OK).send('OK'));
     router.get('/status', this.getStatusHandler.handler);
     router.post('/ipfsAdd', this.ipfsAddHandler.handler);
-    router.post('/persistTransaction', this.persistTransaction.handler);
-    router.get('/getConfirmedTransaction', this.confirmedTransactionStore.getConfirmedTransaction);
+    router.post('/persistTransaction', this.persistTransactionHandler.handler);
+    router.get('/getConfirmedTransaction', this.getConfirmedTransactionHandler.handler);
     router.get('/getTransactionsByChannelId', this.getTransactionsByChannelIdHandler.handler);
     router.get('/getChannelsByTopic', this.getChannelByTopicHandler.handler);
     this.express.use('/', router);
