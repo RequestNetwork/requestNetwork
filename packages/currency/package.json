@@ -44,12 +44,12 @@
     "@metamask/contract-metadata": "1.28.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "@types/multicoin-address-validator": "0.5.0",
     "multicoin-address-validator": "0.5.2",
     "node-dijkstra": "2.5.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
+    "@types/multicoin-address-validator": "0.5.0",
     "@types/node-dijkstra": "2.5.1",
     "ethers": "5.2.0",
     "jest": "26.4.2",
