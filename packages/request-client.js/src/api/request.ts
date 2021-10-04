@@ -165,10 +165,10 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    const acceptResult = await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
-
     // refresh the local request data
     const requestData = await this.refresh();
+
+    const acceptResult = await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
 
     if (!this.disableEvents) {
       acceptResult
@@ -209,10 +209,10 @@ export default class Request {
       requestId: this.requestId,
     };
 
-    const cancelResult = await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
-
     // refresh the local request data
     const requestData = await this.refresh();
+
+    const cancelResult = await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
 
     if (!this.disableEvents) {
       cancelResult
@@ -255,14 +255,14 @@ export default class Request {
       requestId: this.requestId,
     };
 
+    // refresh the local request data
+    const requestData = await this.refresh();
+
     const increaseExpectedResult = await this.requestLogic.increaseExpectedAmountRequest(
       parameters,
       signerIdentity,
       true,
     );
-
-    // refresh the local request data
-    const requestData = await this.refresh();
 
     if (!this.disableEvents) {
       increaseExpectedResult
@@ -305,14 +305,14 @@ export default class Request {
       requestId: this.requestId,
     };
 
+    // refresh the local request data
+    const requestData = await this.refresh();
+
     const reduceExpectedResult = await this.requestLogic.reduceExpectedAmountRequest(
       parameters,
       signerIdentity,
       true,
     );
-
-    // refresh the local request data
-    const requestData = await this.refresh();
 
     if (!this.disableEvents) {
       reduceExpectedResult
@@ -353,14 +353,14 @@ export default class Request {
       requestId: this.requestId,
     };
 
+    // refresh the local request data
+    const requestData = await this.refresh();
+
     const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
       parameters,
       signerIdentity,
       true,
     );
-
-    // refresh the local request data
-    const requestData = await this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
@@ -400,14 +400,14 @@ export default class Request {
       requestId: this.requestId,
     };
 
+    // refresh the local request data
+    const requestData = await this.refresh();
+
     const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
       parameters,
       signerIdentity,
       true,
     );
-
-    // refresh the local request data
-    const requestData = await this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
@@ -458,14 +458,14 @@ export default class Request {
       requestId: this.requestId,
     };
 
+    // refresh the local request data
+    const requestData = await this.refresh();
+
     const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
       parameters,
       signerIdentity,
       true,
     );
-
-    // refresh the local request data
-    const requestData = await this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
@@ -519,14 +519,14 @@ export default class Request {
       requestId: this.requestId,
     };
 
+    // refresh the local request data
+    const requestData = await this.refresh();
+
     const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
       parameters,
       signerIdentity,
       true,
     );
-
-    // refresh the local request data
-    const requestData = await this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
@@ -580,14 +580,14 @@ export default class Request {
       requestId: this.requestId,
     };
 
+    // refresh the local request data
+    const requestData = await this.refresh();
+
     const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
       parameters,
       signerIdentity,
       true,
     );
-
-    // refresh the local request data
-    const requestData = await this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
@@ -641,14 +641,14 @@ export default class Request {
       requestId: this.requestId,
     };
 
+    // refresh the local request data
+    const requestData = await this.refresh();
+
     const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
       parameters,
       signerIdentity,
       true,
     );
-
-    // refresh the local request data
-    const requestData = await this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
@@ -699,14 +699,14 @@ export default class Request {
       requestId: this.requestId,
     };
 
+    // refresh the local request data
+    const requestData = await this.refresh();
+
     const addExtensionResult = await this.requestLogic.addExtensionsDataRequest(
       parameters,
       signerIdentity,
       true,
     );
-
-    // refresh the local request data
-    const requestData = await this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
