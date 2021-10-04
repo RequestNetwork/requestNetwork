@@ -553,6 +553,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     let { ignoredTransactions, keptTransactions } = this.removeOldPendingTransactions(actions);
 
     // array of transaction without duplicates to avoid replay attack
+    // TODO debug this
     const timestampedActionsWithoutDuplicates = Utils.uniqueByProperty(
       keptTransactions
         .filter(Utils.notNull)
