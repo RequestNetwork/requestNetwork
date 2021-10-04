@@ -67,7 +67,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // When receive the confirmation from transaction manager propagate it
     resultPersistTx
       .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
-        console.log('requestlogic confirmed');
+        console.log('requestlogic create confirmed');
         result.emit('confirmed', {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
           result: { requestId },
@@ -355,6 +355,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
     // When receive the confirmation from transaction manager propagate it
     resultPersistTx
       .on('confirmed', (resultPersistTxConfirmed: TransactionTypes.IReturnPersistTransaction) => {
+        console.log('requestlogic reduceExpectedAmountRequest confirmed');
         result.emit('confirmed', {
           meta: { transactionManagerMeta: resultPersistTxConfirmed.meta },
         });

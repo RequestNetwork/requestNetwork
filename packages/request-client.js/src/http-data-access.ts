@@ -71,69 +71,74 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-    console.log('data access persistTransaction');
     // We don't retry this request since it may fail because of a slow Storage
     // For example, if the Ethereum network is slow and we retry the request three times
     // three data will be persisted at the end
-    const { data } = await axios.post(
-      '/persistTransaction',
-      {
-        channelId,
-        topics,
-        transactionData,
-      },
-      this.axiosConfig,
-    );
+    try {
+      const { data } = await axios.post(
+        '/persistTransaction',
+        {
+          channelId,
+          topics,
+          transactionData,
+        },
+        this.axiosConfig,
+      );
 
-    const transactionHash: string = Utils.crypto.normalizeKeccak256Hash(transactionData).value;
+      const transactionHash: string = Utils.crypto.normalizeKeccak256Hash(transactionData).value;
 
-    // Create the return result with EventEmitter
-    const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
-      new EventEmitter(),
-      data,
-    );
+      // Create the return result with EventEmitter
+      const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(
+        new EventEmitter(),
+        data,
+      );
 
-    console.log('before retry function');
-    // Try to get the confirmation
-    Utils.retry(
-      async () => {
-        console.log('in retry function');
-        try {
-          const get = await axios.get(
-            '/getConfirmedTransaction',
-            Object.assign(this.axiosConfig, {
-              params: { transactionHash },
-            }),
-          );
-          console.log('OK');
-          console.log(get.data);
-          return get;
-        } catch (e) {
-          console.error(e.message);
-          throw e;
-        }
-      },
-      {
-        maxRetries: GET_CONFIRMATION_MAX_RETRY,
-        retryDelay: GET_CONFIRMATION_RETRY_DELAY,
-      },
-    )()
-      .then((resultConfirmed: any) => {
-        // when found, emit the event 'confirmed'
-        result.emit('confirmed', resultConfirmed.data);
-      })
-      .catch((e: any) => {
-        // eslint-disable-next-line no-magic-numbers
-        if (e.response.status === 404) {
-          throw new Error(
-            `Transaction confirmation not receive after ${GET_CONFIRMATION_MAX_RETRY} retries`,
-          );
-        } else {
-          throw new Error(e.message);
-        }
-      });
+      // Try to get the confirmation
+      console.log('timeout');
+      setTimeout(() => {
+        Utils.retry(
+          async () => {
+            console.log('in retry function');
+            try {
+              const get = await axios.get(
+                '/getConfirmedTransaction',
+                Object.assign(this.axiosConfig, {
+                  params: { transactionHash },
+                }),
+              );
+              console.log('OK');
+              return get;
+            } catch (e) {
+              console.error(e.message);
+              throw e;
+            }
+          },
+          {
+            maxRetries: GET_CONFIRMATION_MAX_RETRY,
+            retryDelay: GET_CONFIRMATION_RETRY_DELAY,
+          },
+        )()
+          .then((resultConfirmed: any) => {
+            // when found, emit the event 'confirmed'
+            result.emit('confirmed', resultConfirmed.data);
+          })
+          .catch((e: any) => {
+            // eslint-disable-next-line no-magic-numbers
+            if (e.response.status === 404) {
+              throw new Error(
+                `Transaction confirmation not receive after ${GET_CONFIRMATION_MAX_RETRY} retries`,
+              );
+            } else {
+              throw new Error(e.message);
+            }
+          });
+      }, 500);
 
-    return result;
+      return result;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   /**
