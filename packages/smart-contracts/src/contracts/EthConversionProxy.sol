@@ -32,6 +32,7 @@ contract EthConversionProxy is ReentrancyGuard {
   );
   
   // Event to declare a transfer with a reference
+  // This event is emitted by this contract from a delegate call of the payment-proxy 
   event TransferWithReferenceAndFee(
     address to,
     uint256 amount,
