@@ -97,17 +97,20 @@ describe('Request client using a request node', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
 
+    console.log('before wait');
     requestData = await request.waitForConfirmation();
+    console.log('after wait');
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
 
     // Reduce the amount and get the data
-    requestData = await request.reduceExpectedAmountRequest('200', payeeIdentity);
+    const requestDataPromise = request.reduceExpectedAmountRequest('200', payeeIdentity);
+    expect(requestData.pending!.expectedAmount).toBe('800');
+    await requestDataPromise;
     expect(requestData.expectedAmount).toBe('1000');
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.balance).toBeNull();
     expect(requestData.meta).toBeDefined();
-    expect(requestData.pending!.expectedAmount).toBe('800');
 
     requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
     expect(requestData.expectedAmount).toBe('800');
@@ -638,9 +641,7 @@ describe('ETH localhost request creation and detection test', () => {
   };
 
   it('can create ETH requests and pay with ETH Fee proxy', async () => {
-    const currencies = [
-      ...CurrencyManager.getDefaultList()
-    ];
+    const currencies = [...CurrencyManager.getDefaultList()];
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,

@@ -104,7 +104,10 @@ export default class Request {
     if (options && options.requestLogicCreateResult && !this.disableEvents) {
       options.requestLogicCreateResult
         .on('confirmed', async () => {
-          this.emitter.emit('confirmed', await this.refresh());
+          console.log('confirmed root');
+          const updated = await this.refresh();
+          // console.log(updated);
+          this.emitter.emit('confirmed', updated);
         })
         .on('error', (error) => {
           this.confirmationErrorOccurredAtCreation = true;
@@ -134,8 +137,12 @@ export default class Request {
    * @returns the request data
    */
   public waitForConfirmation(): Promise<Types.IRequestDataWithEvents> {
+    console.log('waitForConfirmation()');
     return new Promise((resolve, reject): any => {
-      this.on('confirmed', resolve);
+      this.on('confirmed', (d) => {
+        console.log('confirmed child');
+        resolve(d);
+      });
       this.on('error', reject);
     });
   }

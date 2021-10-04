@@ -71,6 +71,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     topics?: string[],
   ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    console.log('data access persistTransaction');
     // We don't retry this request since it may fail because of a slow Storage
     // For example, if the Ethereum network is slow and we retry the request three times
     // three data will be persisted at the end
@@ -92,15 +93,25 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       data,
     );
 
+    console.log('before retry function');
     // Try to get the confirmation
     Utils.retry(
       async () => {
-        return axios.get(
-          '/getConfirmedTransaction',
-          Object.assign(this.axiosConfig, {
-            params: { transactionHash },
-          }),
-        );
+        console.log('in retry function');
+        try {
+          const get = await axios.get(
+            '/getConfirmedTransaction',
+            Object.assign(this.axiosConfig, {
+              params: { transactionHash },
+            }),
+          );
+          console.log('OK');
+          console.log(get.data);
+          return get;
+        } catch (e) {
+          console.error(e.message);
+          throw e;
+        }
       },
       {
         maxRetries: GET_CONFIRMATION_MAX_RETRY,

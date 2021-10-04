@@ -125,6 +125,7 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     // When receive the confirmation from data-access propagate to the higher layer
     persistResult
       .on('confirmed', (resultPersistTransaction: DataAccessTypes.IReturnPersistTransaction) => {
+        console.log('transactionmanager confirmed');
         const resultAfterConfirmation = {
           meta: {
             dataAccessMeta: resultPersistTransaction.meta,
