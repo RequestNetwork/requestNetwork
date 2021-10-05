@@ -6,6 +6,7 @@ import { deployOne } from '../scripts/deploy-one';
 export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
   try {
     const [deployer] = await hre.ethers.getSigners();
+    const [feeAddress] = await hre.ethers.getSigners();
 
     console.log(
       `Deploying with the account:            ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId})`,
@@ -46,8 +47,12 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     console.log('ERC20FeeProxy Contract deployed:       ' + ERC20FeeProxyAddress);
     
     // Deploy ERC20 EscrowToPay contract
-    const ERC20EscrowToPayAddress = await deployOne(args, hre, 'ERC20EscrowToPayV1', [ERC20FeeProxyAddress]);
-    console.log(`ERC20EscrowToPay Contract deployed:    ${ERC20EscrowToPayAddress}`);
+    const ERC20EscrowToPayV1Address = await deployOne(args, hre, 'ERC20EscrowToPayV1', [ERC20FeeProxyAddress]);
+    console.log(`ERC20EscrowToPayV1 Contract deployed:  ${ERC20EscrowToPayV1Address}`);
+
+    // Deploy ERC20 EscrowToPay contract
+    const ERC20EscrowToPayV2Address = await deployOne(args, hre, 'ERC20EscrowToPayV2', [ERC20FeeProxyAddress, feeAddress.address]);
+    console.log(`ERC20EscrowToPayV2 Contract deployed:  ${ERC20EscrowToPayV2Address}`);
 
     // Deploy the BadERC20 contract
     const BadERC20Address = await deployOne(args, hre, 'BadERC20', [1000, 'BadERC20', 'BAD', 8]);
@@ -95,7 +100,8 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       ERC20Proxy:                      ${instanceRequestERC20Proxy.address}
       EthereumProxy:                   ${EthereumProxyAddress}
       ERC20FeeProxy:                   ${ERC20FeeProxyAddress}
-      ERC20EscrowToPay:                ${ERC20EscrowToPayAddress}
+      ERC20EscrowToPayV1:              ${ERC20EscrowToPayV1Address}
+      ERC20EscrowToPayV2:              ${ERC20EscrowToPayV2Address}
       BadERC20:                        ${BadERC20Address}
       ERC20True:                       ${ERC20TrueAddress}
       ERC20False:                      ${ERC20FalseAddress}
