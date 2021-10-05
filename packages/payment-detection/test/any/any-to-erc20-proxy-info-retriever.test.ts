@@ -4,94 +4,17 @@ import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import AnyToErc20ProxyInfoRetriever from '../../src/any/any-to-erc20-proxy-info-retriever';
 import { ethers } from 'ethers';
+import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 
+const conversionDeploymentInformation = erc20ConversionProxy.getDeploymentInformation('private');
+const conversionProxyAbi = erc20ConversionProxy.getContractAbi();
 const erc20LocalhostContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
-const conversionProxyContractAddress = '0x2C2B9C9a4a25e24B174f26114e8926a9f2128FE4';
+const conversionProxyContractAddress = conversionDeploymentInformation.address;
 const paymentReferenceMock = '01111111111111111111111111111111111111111111111111';
 const acceptedTokens = [erc20LocalhostContractAddress];
 const USDCurrency = CurrencyManager.getDefault().from('USD')!;
-const conversionAbi = [
-  {
-     "inputs":[
-        {
-           "indexed":false,
-           "internalType":"uint256",
-           "name":"amount",
-           "type":"uint256"
-        },
-        {
-           "indexed":false,
-           "internalType":"address",
-           "name":"currency",
-           "type":"address"
-        },
-        {
-           "indexed":true,
-           "internalType":"bytes",
-           "name":"paymentReference",
-           "type":"bytes"
-        },
-        {
-           "indexed":false,
-           "internalType":"uint256",
-           "name":"feeAmount",
-           "type":"uint256"
-        },
-        {
-           "indexed":false,
-           "internalType":"uint256",
-           "name":"maxRateTimespan",
-           "type":"uint256"
-        }
-     ],
-     "name":"TransferWithConversionAndReference",
-     "type":"event"
-  },
-  {
-     "anonymous":false,
-     "inputs":[
-        {
-           "indexed":false,
-           "internalType":"address",
-           "name":"tokenAddress",
-           "type":"address"
-        },
-        {
-           "indexed":false,
-           "internalType":"address",
-           "name":"to",
-           "type":"address"
-        },
-        {
-           "indexed":false,
-           "internalType":"uint256",
-           "name":"amount",
-           "type":"uint256"
-        },
-        {
-           "indexed":true,
-           "internalType":"bytes",
-           "name":"paymentReference",
-           "type":"bytes"
-        },
-        {
-           "indexed":false,
-           "internalType":"uint256",
-           "name":"feeAmount",
-           "type":"uint256"
-        },
-        {
-           "indexed":false,
-           "internalType":"address",
-           "name":"feeAddress",
-           "type":"address"
-        }
-     ],
-     "name":"TransferWithReferenceAndFee",
-     "type":"event"
-  },
-];
-  
+
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/any/conversion-proxy-info-retriever', () => {
   describe('on mocked logs', () => {
@@ -158,7 +81,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,
-        conversionAbi,
+        conversionProxyAbi,
         paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',
@@ -207,7 +130,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,
-        conversionAbi,
+        conversionProxyAbi,
         paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',
