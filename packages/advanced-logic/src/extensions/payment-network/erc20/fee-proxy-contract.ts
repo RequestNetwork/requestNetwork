@@ -1,8 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import FeeReferenceBasedPaymentNetwork from '../fee-reference-based';
 
-import * as walletAddressValidator from 'wallet-address-validator';
-
 const CURRENT_VERSION = '0.2.0';
 
 /**
@@ -25,18 +23,8 @@ export default class Erc20FeeProxyPaymentNetwork<
       'fuse',
       'bsctest',
     ],
-    public supportedCurrencyType: string = RequestLogicTypes.CURRENCY.ERC20,
+    public supportedCurrencyType: RequestLogicTypes.CURRENCY = RequestLogicTypes.CURRENCY.ERC20,
   ) {
     super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);
-  }
-
-  /**
-   * Check if an ethereum address is valid
-   *
-   * @param {string} address address to check
-   * @returns {boolean} true if address is valid
-   */
-  protected isValidAddress(address: string): boolean {
-    return walletAddressValidator.validate(address, 'ethereum');
   }
 }

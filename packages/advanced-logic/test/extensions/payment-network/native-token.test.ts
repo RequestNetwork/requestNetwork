@@ -432,4 +432,22 @@ describe('extensions/payment-network/native-token', () => {
       }).toThrowError('version is required at creation');
     });
   });
+
+  it('should throw when isValidAddress is not overridden', () => {
+    class TestNativePaymentNetwork extends NativeTokenPaymentNetwork {
+      public testIsValidAddress() {
+        this.isValidAddress('test', 'test');
+      }
+    }
+    expect(() => {
+      const testNativePaymentNetwork = new TestNativePaymentNetwork(
+        ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+        'test',
+        [],
+      );
+      testNativePaymentNetwork.testIsValidAddress();
+    }).toThrowError(
+      'Default implementation of isValidAddress() does not support native tokens. Please override this method.',
+    );
+  });
 });
