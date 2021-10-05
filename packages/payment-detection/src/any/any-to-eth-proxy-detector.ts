@@ -60,12 +60,14 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
     const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
-    const conversionProxyContract = await this.safeGetProxyArtifact(
+    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetwork.version];
+    const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractVersion);
+    const contractInfos = SmartContracts.ethConversionArtifact.getOptionalDeploymentInformation(
       network,
-      paymentNetwork.version,
+      contractVersion,
     );
 
-    if (!conversionProxyContract) {
+    if (!contractInfos) {
       throw Error('ETH conversion proxy contract not found');
     }
 
@@ -77,9 +79,9 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
     const proxyInfoRetriever = new ProxyInfoRetriever(
       currency,
       paymentReference,
-      conversionProxyContract.address,
-      conversionProxyContract.creationBlockNumber,
-      conversionProxyContract.abi,
+      contractInfos.address,
+      contractInfos.creationBlockNumber,
+      abi,
       address,
       eventName,
       network,
@@ -106,23 +108,5 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
       throw Error('paymentNetwork.values.network must be defined');
     }
     return network;
-  }
-
-  /*
-   * Fetches events from the Ethereum Proxy, or returns null
-   */
-  private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
-    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
-    try {
-      const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractVersion);
-      const contractInfos = SmartContracts.ethConversionArtifact.getDeploymentInformation(
-        network,
-        contractVersion,
-      );
-      return { ...contractInfos, ...{ abi } };
-    } catch (error) {
-      console.warn(error);
-    }
-    return null;
   }
 }
