@@ -1,4 +1,4 @@
-import * as httpStatus from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import requestNode from '../src/requestNode';
 
@@ -34,7 +34,7 @@ describe('persistTransaction', () => {
       .post('/persistTransaction')
       .send({ channelId, topics, transactionData })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     expect(serverResponse.body.result).toMatchObject({});
 
@@ -43,7 +43,7 @@ describe('persistTransaction', () => {
       .post('/persistTransaction')
       .send({ channelId: anotherChannelId, transactionData: anotherTransactionData })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     expect(serverResponse.body.result).toMatchObject({});
   });
@@ -53,7 +53,7 @@ describe('persistTransaction', () => {
       .post('/persistTransaction')
       .send({})
       .set('Accept', 'application/json')
-      .expect(httpStatus.UNPROCESSABLE_ENTITY);
+      .expect(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 
   it('responds with status 500 to requests with badly formatted value', async () => {
@@ -64,6 +64,6 @@ describe('persistTransaction', () => {
         transactionData: badlyFormattedTransactionData,
       })
       .set('Accept', 'application/json')
-      .expect(httpStatus.INTERNAL_SERVER_ERROR);
+      .expect(StatusCodes.INTERNAL_SERVER_ERROR);
   });
 });

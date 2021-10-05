@@ -1,4 +1,4 @@
-import * as httpStatus from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import requestNode from '../src/requestNode';
 
@@ -41,7 +41,7 @@ describe('ipfsAdd', () => {
       .post('/ipfsAdd')
       .send({ data: blockString })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK)
+      .expect(StatusCodes.OK)
       .expect({
         ipfsHash: 'QmaViWwahWwCU7DgYBLYwfvBuEU9bj3F3rmLDoAS5ujqXX',
         ipfsSize: 1026,
@@ -53,7 +53,7 @@ describe('ipfsAdd', () => {
       .post('/ipfsAdd')
       .send({})
       .set('Accept', 'application/json')
-      .expect(httpStatus.BAD_REQUEST);
+      .expect(StatusCodes.BAD_REQUEST);
   });
 
   it('responds with status 400 to requests with badly formatted value', async () => {
@@ -63,6 +63,6 @@ describe('ipfsAdd', () => {
         data: 'not parsable',
       })
       .set('Accept', 'application/json')
-      .expect(httpStatus.BAD_REQUEST);
+      .expect(StatusCodes.BAD_REQUEST);
   });
 });
