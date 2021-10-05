@@ -208,6 +208,40 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
   });
 
+  describe('createDeclarePaymentAction', () => {
+    it('can createDeclarePaymentAction', () => {
+      expect(
+        erc20FeeProxyContract.createDeclarePaymentAction({
+          amount: '1000000000000',
+          txHash: 'some-transaction-hash'
+        }),
+      ).toEqual({
+        action: ExtensionTypes.PnFeeReferenceBased.ACTION.DECLARE_PAYMENT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+        parameters: {
+          amount: '1000000000000',
+          txHash: 'some-transaction-hash',
+        },
+      });
+    });
+
+    it('cannot createDeclarePaymentAction if amount is empty', () => {
+      expect(() => erc20FeeProxyContract.createDeclarePaymentAction({
+          amount: '',
+          txHash: 'some-transaction-hash'
+        }),
+      ).toThrowError('amount is required');
+    });
+
+    it('cannot createDeclarePaymentAction if amount is not valid', () => {
+      expect(() => erc20FeeProxyContract.createDeclarePaymentAction({
+        amount: 'this is not amount',
+        txHash: 'some-transaction-hash'
+      }),
+    ).toThrowError('amount is not valid amount');
+    });
+  });
+
   describe('applyActionToExtension', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
@@ -593,6 +627,45 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
           TestData.arbitraryTimestamp,
         );
       }).toThrowError('feeAmount is not a valid amount');
+    });
+  });
+
+  describe('applyActionToExtension/declarePayment', () => {
+    it('can applyActionToExtensions of declarePayment', () => {
+      expect(
+        erc20FeeProxyContract.applyActionToExtension(
+          DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+          DataERC20FeeAddData.actionDeclarePayment,
+          DataERC20FeeCreate.requestStateCreatedEmpty,
+          TestData.payeeRaw.identity,
+          TestData.arbitraryTimestamp,
+        ),
+      ).toEqual(DataERC20FeeAddData.extensionStateAfterDeclarePayment);
+    });
+
+    it('cannot applyActionToExtensions of declarePayment if payee is undefined', () => {
+      const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+      previousState.payee = undefined;
+
+      expect(() => erc20FeeProxyContract.applyActionToExtension(
+          DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+          DataERC20FeeAddData.actionDeclarePayment,
+          previousState,
+          TestData.payeeRaw.identity,
+          TestData.arbitraryTimestamp,
+        ),
+      ).toThrowError('The request must have a payee');
+    });
+
+    it('cannot applyActionToExtensions of declarePayment if the signer is not the payee', () => {
+      expect(() => erc20FeeProxyContract.applyActionToExtension(
+          DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+          DataERC20FeeAddData.actionDeclarePayment,
+          DataERC20FeeCreate.requestStateCreatedEmpty,
+          TestData.payerRaw.identity,
+          TestData.arbitraryTimestamp,
+        ),
+      ).toThrowError('The signer must be the payee');
     });
   });
 });

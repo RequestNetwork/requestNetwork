@@ -169,6 +169,40 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
     });
   });
 
+  describe('createDeclarePaymentAction', () => {
+    it('can createDeclarePaymentAction', () => {
+      expect(
+        ethFeeProxyContract.createDeclarePaymentAction({
+          amount: '1000000000000',
+          txHash: 'some-transaction-hash'
+        }),
+      ).toEqual({
+        action: ExtensionTypes.PnReferenceBased.ACTION.DECLARE_PAYMENT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+        parameters: {
+          amount: '1000000000000',
+          txHash: 'some-transaction-hash',
+        },
+      });
+    });
+
+    it('cannot createDeclarePaymentAction if amount is empty', () => {
+      expect(() => ethFeeProxyContract.createDeclarePaymentAction({
+          amount: '',
+          txHash: 'some-transaction-hash'
+        }),
+      ).toThrowError('amount is required');
+    });
+
+    it('cannot createDeclarePaymentAction if amount is not valid', () => {
+      expect(() => ethFeeProxyContract.createDeclarePaymentAction({
+        amount: 'this is not amount',
+        txHash: 'some-transaction-hash'
+      }),
+    ).toThrowError('amount is not valid amount');
+    });
+  });
+
   describe('createAddFeeAction', () => {
     it('can createAddFeeAction', () => {
       // 'extension data is wrong'
@@ -593,6 +627,45 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
           TestData.arbitraryTimestamp,
         );
       }).toThrowError('feeAmount is not a valid amount');
+    });
+  });
+
+  describe('applyActionToExtension/declarePayment', () => {
+    it('can applyActionToExtensions of declarePayment', () => {
+      expect(
+        ethFeeProxyContract.applyActionToExtension(
+          DataEthFeeCreate.requestStateCreatedEmpty.extensions,
+          DataEthFeeCreate.actionDeclarePayment,
+          DataEthFeeCreate.requestStateCreatedEmpty,
+          TestData.payeeRaw.identity,
+          TestData.arbitraryTimestamp,
+        ),
+      ).toEqual(DataEthFeeCreate.extensionStateAfterDeclarePayment);
+    });
+
+    it('cannot applyActionToExtensions of declarePayment if payee is undefined', () => {
+      const previousState = Utils.deepCopy(DataEthFeeCreate.requestStateCreatedEmpty);
+      previousState.payee = undefined;
+
+      expect(() => ethFeeProxyContract.applyActionToExtension(
+          DataEthFeeCreate.requestStateCreatedEmpty.extensions,
+          DataEthFeeCreate.actionDeclarePayment,
+          previousState,
+          TestData.payeeRaw.identity,
+          TestData.arbitraryTimestamp,
+        ),
+      ).toThrowError('The request must have a payee');
+    });
+
+    it('cannot applyActionToExtensions of declarePayment if the signer is not the payee', () => {
+      expect(() => ethFeeProxyContract.applyActionToExtension(
+          DataEthFeeCreate.requestStateCreatedEmpty.extensions,
+          DataEthFeeCreate.actionDeclarePayment,
+          DataEthFeeCreate.requestStateCreatedEmpty,
+          TestData.payerRaw.identity,
+          TestData.arbitraryTimestamp,
+        ),
+      ).toThrowError('The signer must be the payee');
     });
   });
 });

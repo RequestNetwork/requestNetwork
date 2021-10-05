@@ -27,6 +27,8 @@ export enum ACTION {
   CREATE = 'create',
   ADD_PAYMENT_ADDRESS = 'addPaymentAddress',
   ADD_REFUND_ADDRESS = 'addRefundAddress',
+  // Specific to ReferenceBased
+  DECLARE_PAYMENT = 'declarePayment',
   // Specific to FeeReferenceBased
   ADD_FEE = 'addFee',
 }

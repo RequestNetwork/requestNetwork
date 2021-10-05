@@ -122,6 +122,40 @@ describe('extensions/payment-network/ethereum/input-data', () => {
     });
   });
 
+  describe('createDeclarePaymentAction', () => {
+    it('can createDeclarePaymentAction', () => {
+      expect(
+        ethereumInputDataPaymentNetwork.createDeclarePaymentAction({
+          amount: '1000000000000',
+          txHash: 'some-transaction-hash'
+        }),
+      ).toEqual({
+        action: ExtensionTypes.PnReferenceBased.ACTION.DECLARE_PAYMENT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+        parameters: {
+          amount: '1000000000000',
+          txHash: 'some-transaction-hash',
+        },
+      });
+    });
+
+    it('cannot createDeclarePaymentAction if amount is empty', () => {
+      expect(() => ethereumInputDataPaymentNetwork.createDeclarePaymentAction({
+          amount: '',
+          txHash: 'some-transaction-hash'
+        }),
+      ).toThrowError('amount is required');
+    });
+
+    it('cannot createDeclarePaymentAction if amount is not valid', () => {
+      expect(() => ethereumInputDataPaymentNetwork.createDeclarePaymentAction({
+        amount: 'this is not amount',
+        txHash: 'some-transaction-hash'
+      }),
+    ).toThrowError('amount is not valid amount');
+    });
+  });
+
   describe('applyActionToExtension', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
@@ -404,6 +438,45 @@ describe('extensions/payment-network/ethereum/input-data', () => {
             TestData.arbitraryTimestamp,
           );
         }).toThrowError('refundAddress is not a valid address');
+      });
+    });
+
+    describe('applyActionToExtension/declarePayment', () => {
+      it('can applyActionToExtensions of declarePayment', () => {
+        expect(
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
+            DataEthCreate.requestStateCreatedEmpty.extensions,
+            DataEthCreate.actionDeclarePayment,
+            DataEthCreate.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(DataEthCreate.extensionStateAfterDeclarePayment);
+      });
+  
+      it('cannot applyActionToExtensions of declarePayment if payee is undefined', () => {
+        const previousState = Utils.deepCopy(DataEthCreate.requestStateCreatedEmpty);
+        previousState.payee = undefined;
+  
+        expect(() => ethereumInputDataPaymentNetwork.applyActionToExtension(
+            DataEthCreate.requestStateCreatedEmpty.extensions,
+            DataEthCreate.actionDeclarePayment,
+            previousState,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toThrowError('The request must have a payee');
+      });
+  
+      it('cannot applyActionToExtensions of declarePayment if the signer is not the payee', () => {
+        expect(() => ethereumInputDataPaymentNetwork.applyActionToExtension(
+            DataEthCreate.requestStateCreatedEmpty.extensions,
+            DataEthCreate.actionDeclarePayment,
+            DataEthCreate.requestStateCreatedEmpty,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toThrowError('The signer must be the payee');
       });
     });
   });

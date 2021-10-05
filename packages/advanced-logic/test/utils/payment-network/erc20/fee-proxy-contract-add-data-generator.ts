@@ -13,6 +13,8 @@ export const refundAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 export const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 export const feeAmount = '2000000000000000000';
 export const invalidAddress = '0x not and address';
+export const amount = '123400000000000000';
+export const txHash = 'somehash';
 // ---------------------------------------------------------------------
 export const salt = 'ea3bc7caf64110ca';
 // actions
@@ -38,6 +40,14 @@ export const actionAddFee = {
     feeAmount,
   },
 };
+export const actionDeclarePayment = {
+  action: ExtensionTypes.PnFeeReferenceBased.ACTION.DECLARE_PAYMENT,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+  parameters: {
+    amount,
+    txHash,
+  },
+}
 
 // ---------------------------------------------------------------------
 // extensions states
@@ -113,6 +123,33 @@ export const extensionStateWithFeeAfterCreation = {
     values: {
       feeAddress,
       feeAmount,
+    },
+    version: '0.1.0',
+  },
+};
+
+export const extensionStateAfterDeclarePayment = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT as string]: {
+    events: [
+      {
+        name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
+        parameters: {},
+        timestamp: arbitraryTimestamp,
+      },
+      {
+        name: ExtensionTypes.PnFeeReferenceBased.ACTION.DECLARE_PAYMENT,
+        parameters: {
+          amount,
+          txHash,
+        },
+        timestamp: arbitraryTimestamp
+      }
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      amount,
+      txHash,
     },
     version: '0.1.0',
   },

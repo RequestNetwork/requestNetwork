@@ -122,6 +122,40 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
     });
   });
 
+  describe('createDeclarePaymentAction', () => {
+    it('can createDeclarePaymentAction', () => {
+      expect(
+        erc20ProxyContract.createDeclarePaymentAction({
+          amount: '1000000000000',
+          txHash: 'some-transaction-hash'
+        }),
+      ).toEqual({
+        action: ExtensionTypes.PnReferenceBased.ACTION.DECLARE_PAYMENT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+        parameters: {
+          amount: '1000000000000',
+          txHash: 'some-transaction-hash',
+        },
+      });
+    });
+
+    it('cannot createDeclarePaymentAction if amount is empty', () => {
+      expect(() => erc20ProxyContract.createDeclarePaymentAction({
+          amount: '',
+          txHash: 'some-transaction-hash'
+        }),
+      ).toThrowError('amount is required');
+    });
+
+    it('cannot createDeclarePaymentAction if amount is not valid', () => {
+      expect(() => erc20ProxyContract.createDeclarePaymentAction({
+        amount: 'this is not amount',
+        txHash: 'some-transaction-hash'
+      }),
+    ).toThrowError('amount is not valid amount');
+    });
+  });
+
   describe('applyActionToExtension', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
@@ -404,6 +438,45 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
             TestData.arbitraryTimestamp,
           );
         }).toThrowError('refundAddress is not a valid address');
+      });
+    });
+
+    describe('applyActionToExtension/declarePayment', () => {
+      it('can applyActionToExtensions of declarePayment', () => {
+        expect(
+          erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedEmpty.extensions,
+            DataERC20Create.actionDeclarePayment,
+            DataERC20Create.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(DataERC20Create.extensionStateAfterDeclarePayment);
+      });
+  
+      it('cannot applyActionToExtensions of declarePayment if payee is undefined', () => {
+        const previousState = Utils.deepCopy(DataERC20Create.requestStateCreatedEmpty);
+        previousState.payee = undefined;
+  
+        expect(() => erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedEmpty.extensions,
+            DataERC20Create.actionDeclarePayment,
+            previousState,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toThrowError('The request must have a payee');
+      });
+  
+      it('cannot applyActionToExtensions of declarePayment if the signer is not the payee', () => {
+        expect(() => erc20ProxyContract.applyActionToExtension(
+            DataERC20Create.requestStateCreatedEmpty.extensions,
+            DataERC20Create.actionDeclarePayment,
+            DataERC20Create.requestStateCreatedEmpty,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toThrowError('The signer must be the payee');
       });
     });
   });
