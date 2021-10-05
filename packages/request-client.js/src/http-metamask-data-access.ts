@@ -5,13 +5,8 @@ import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
+import constants from './constants';
 import HttpDataAccess from './http-data-access';
-
-// Maximum number of retries to attempt when http requests to the Node fail
-const HTTP_REQUEST_MAX_RETRY = 3;
-
-// Delay between retry in ms
-const HTTP_REQUEST_RETRY_DELAY = 100;
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -192,8 +187,8 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
           }),
         ),
       {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
+        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
       },
     )();
 

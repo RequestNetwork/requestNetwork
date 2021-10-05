@@ -20,9 +20,9 @@ import * as TestDataRealBTC from './data-test-real-btc';
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { BigNumber } from 'ethers';
 import EtherscanProviderMock from './etherscan-mock';
+import constants from '../src/constants';
 
 const packageJson = require('../package.json');
-const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
 
 const signatureParametersPayee: SignatureTypes.ISignatureParameters = {
   method: SignatureTypes.METHOD.ECDSA,
@@ -142,6 +142,8 @@ const mockBTCProvider = {
   },
 };
 
+jest.spyOn(constants, 'GET_CONFIRMATION_RETRY_DELAY', 'get').mockImplementation(() => 100);
+
 // Integration tests
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('index', () => {
@@ -153,7 +155,7 @@ describe('index', () => {
     const mock = new AxiosMockAdapter(axios);
 
     const callback = (config: any): any => {
-      expect(config.headers[REQUEST_CLIENT_VERSION_HEADER]).toBe(packageJson.version);
+      expect(config.headers[constants.REQUEST_CLIENT_VERSION_HEADER]).toBe(packageJson.version);
       return [200, {}];
     };
     const spy = jest.fn(callback);
@@ -347,6 +349,7 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     expect(request).toBeInstanceOf(Request);
     expect(request.requestId).toBeDefined();
@@ -356,8 +359,6 @@ describe('index', () => {
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
     const requestIdLength = 66;
     expect(request.requestId.length).toBe(requestIdLength);
-
-    await request.waitForConfirmation();
   });
 
   it('allows to compute a request id', async () => {
@@ -396,13 +397,12 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     expect(request).toBeInstanceOf(Request);
     expect(request.requestId).toBe(requestId);
     expect(mock.history.get).toHaveLength(3);
     expect(mock.history.post).toHaveLength(1);
-
-    await request.waitForConfirmation();
   });
 
   it('allows to get a request from its ID', async () => {
@@ -661,12 +661,14 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     mock.resetHistory();
 
-    await request.accept(payerIdentity);
+    const requestDataWithEvents = await request.accept(payerIdentity);
+    await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-    expect(mock.history.get).toHaveLength(4);
+    expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
   });
 
@@ -715,12 +717,14 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     mock.resetHistory();
 
-    await request.cancel(payeeIdentity);
+    const requestData = await request.cancel(payeeIdentity);
+    await new Promise((resolve): any => requestData.on('confirmed', resolve));
 
-    expect(mock.history.get).toHaveLength(4);
+    expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
   });
 
@@ -731,12 +735,14 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     mock.resetHistory();
 
-    await request.increaseExpectedAmountRequest(3, payerIdentity);
+    const requestDataWithEvents = await request.increaseExpectedAmountRequest(3, payerIdentity);
+    await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-    expect(mock.history.get).toHaveLength(4);
+    expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
   });
 
@@ -747,12 +753,14 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     mock.resetHistory();
 
-    await request.reduceExpectedAmountRequest(3, payeeIdentity);
+    const requestDataWithEvents = await request.reduceExpectedAmountRequest(3, payeeIdentity);
+    await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-    expect(mock.history.get).toHaveLength(4);
+    expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
   });
 
@@ -794,9 +802,10 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareSentPayment('10', 'sent payment', payerIdentity);
+      const requestDataWithEvents = await request.declareSentPayment('10', 'sent payment', payerIdentity);
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
@@ -817,9 +826,10 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareReceivedPayment('10', 'received payment', payeeIdentity);
+      const requestDataWithEvents = await request.declareReceivedPayment('10', 'received payment', payeeIdentity);
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
@@ -870,9 +880,10 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareSentRefund('10', 'sent refund', payeeIdentity);
+      const requestDataWithEvents = await request.declareSentRefund('10', 'sent refund', payeeIdentity);
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
@@ -893,9 +904,10 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareReceivedRefund('10', 'received refund', payerIdentity);
+      const requestDataWithEvents = await request.declareReceivedRefund('10', 'received refund', payerIdentity);
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
@@ -1861,7 +1873,7 @@ describe('index', () => {
         requestInfo,
         signer: payeeIdentity,
       });
-
+      // await request.waitForConfirmation();
       await new Promise((resolve): any => setTimeout(resolve, 150));
       const data = await request.refresh();
 

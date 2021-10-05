@@ -3,23 +3,10 @@ import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
+import constants from './constants';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
-
-const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
-
-// Maximum number of retries to attempt when http requests to the Node fail
-const HTTP_REQUEST_MAX_RETRY = 3;
-
-// Delay between retry in ms
-const HTTP_REQUEST_RETRY_DELAY = 100;
-
-// Maximum number of retries to get the confirmation of a persistTransaction
-const GET_CONFIRMATION_MAX_RETRY = 500;
-
-// Delay between retry in ms to get the confirmation of a persistTransaction
-const GET_CONFIRMATION_RETRY_DELAY = 3000;
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -43,7 +30,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       {
         baseURL: 'http://localhost:3000',
         headers: {
-          [REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
+          [constants.REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
         },
       },
       nodeConnectionConfig,
@@ -105,8 +92,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
             );
           },
           {
-            maxRetries: GET_CONFIRMATION_MAX_RETRY,
-            retryDelay: GET_CONFIRMATION_RETRY_DELAY,
+            maxRetries: constants.GET_CONFIRMATION_MAX_RETRY,
+            retryDelay: constants.GET_CONFIRMATION_RETRY_DELAY,
           },
         )()
           .then((resultConfirmed: any) => {
@@ -117,13 +104,13 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
             // eslint-disable-next-line no-magic-numbers
             if (e.response.status === 404) {
               throw new Error(
-                `Transaction confirmation not receive after ${GET_CONFIRMATION_MAX_RETRY} retries`,
+                `Transaction confirmation not receive after ${constants.GET_CONFIRMATION_MAX_RETRY} retries`,
               );
             } else {
               throw new Error(e.message);
             }
           }),
-      GET_CONFIRMATION_RETRY_DELAY,
+      constants.GET_CONFIRMATION_RETRY_DELAY,
     );
 
     return result;
@@ -148,8 +135,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
           }),
         ),
       {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
+        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
       },
     )();
 
@@ -175,8 +162,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
           }),
         ),
       {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
+        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
       },
     )();
 
@@ -202,8 +189,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
           }),
         ),
       {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
+        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
       },
     )();
 
@@ -225,8 +212,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
           }),
         ),
       {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
+        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
       },
     )();
 
