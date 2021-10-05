@@ -1,4 +1,4 @@
-import * as httpStatus from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import requestNode from '../src/requestNode';
 
@@ -36,13 +36,13 @@ describe('getTransactionsByChannelId', () => {
         transactionData,
       })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     let serverResponse = await request(server)
       .get('/getTransactionsByChannelId')
       .query({ channelId })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     expect(serverResponse.body.result.transactions).toHaveLength(1);
     expect(serverResponse.body.result.transactions[0].transaction).toEqual(transactionData);
@@ -54,13 +54,13 @@ describe('getTransactionsByChannelId', () => {
         transactionData: otherTransactionData,
       })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     serverResponse = await request(server)
       .get('/getTransactionsByChannelId')
       .query({ channelId: anotherChannelId })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     expect(serverResponse.body.result.transactions).toHaveLength(1);
     expect(serverResponse.body.result.transactions[0].transaction).toEqual(otherTransactionData);
@@ -71,7 +71,7 @@ describe('getTransactionsByChannelId', () => {
       .get('/getTransactionsByChannelId')
       .query({ channelId: nonExistentChannelId })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     expect(serverResponse.body.result.transactions).toMatchObject({});
   });
@@ -80,6 +80,6 @@ describe('getTransactionsByChannelId', () => {
     await request(server)
       .get('/getTransactionsByChannelId')
       .set('Accept', 'application/json')
-      .expect(httpStatus.UNPROCESSABLE_ENTITY);
+      .expect(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 });

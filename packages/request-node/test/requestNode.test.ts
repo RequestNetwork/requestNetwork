@@ -1,6 +1,6 @@
-import * as httpStatus from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
-import requestNode from '../src/requestNode';
+import RequestNode from '../src/requestNode';
 
 const packageJson = require('../package.json');
 const requestNodeVersion = packageJson.version;
@@ -16,7 +16,7 @@ let server: any;
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('requestNode server', () => {
   beforeAll(async () => {
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     await requestNodeInstance.initialize();
 
     server = (requestNodeInstance as any).express;
@@ -27,41 +27,41 @@ describe('requestNode server', () => {
   });
 
   it('responds with status 404 to unimplemented requests', async () => {
-    await request(server).post('/').expect(httpStatus.NOT_FOUND);
+    await request(server).post('/').expect(StatusCodes.NOT_FOUND);
   });
 
   it('responds with status 200 to health check requests', async () => {
-    await request(server).get('/healthz').expect(httpStatus.OK);
+    await request(server).get('/healthz').expect(StatusCodes.OK);
   });
 
   it('responds with status 200 to readyness check requests when ready', async () => {
-    await request(server).get('/readyz').expect(httpStatus.OK);
+    await request(server).get('/readyz').expect(StatusCodes.OK);
   });
 
   it('responds with status 503 to readyness check requests when not ready', async () => {
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     server = (requestNodeInstance as any).express;
-    await request(server).get('/readyz').expect(httpStatus.SERVICE_UNAVAILABLE);
+    await request(server).get('/readyz').expect(StatusCodes.SERVICE_UNAVAILABLE);
   });
 
   it('responds with status 503 if server is uninitialized', async () => {
     // Import directly requestNode to create a server where we don't call requestNodeInstance.initialize()
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     const notInitializedServer = (requestNodeInstance as any).express;
 
     await request(notInitializedServer)
       .post('/persistTransaction')
       .set('Accept', 'application/json')
-      .expect(httpStatus.SERVICE_UNAVAILABLE);
+      .expect(StatusCodes.SERVICE_UNAVAILABLE);
 
     await request(notInitializedServer)
       .get('/getTransactionsByChannelId')
       .set('Accept', 'application/json')
-      .expect(httpStatus.SERVICE_UNAVAILABLE);
+      .expect(StatusCodes.SERVICE_UNAVAILABLE);
   });
 
   it('initialization failure should throw an error', async () => {
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     requestNodeInstance.dataAccess.initialize = dataAccessInitializeFailureMock;
 
     await expect(requestNodeInstance.initialize()).rejects.toThrowError(Error);
@@ -70,7 +70,7 @@ describe('requestNode server', () => {
   it('serves custom headers', async () => {
     // Import directly requestNode to create a server
     process.env.HEADERS = '{"x-custom-test-header": "test-passed"}';
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     server = (requestNodeInstance as any).express;
 
     await request(server).post('/').expect('x-custom-test-header', 'test-passed');
@@ -78,7 +78,7 @@ describe('requestNode server', () => {
 
   it('the response header contains the Request Node version', async () => {
     // Import directly requestNode to create a server
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     server = (requestNodeInstance as any).express;
 
     await request(server).post('/').expect('X-Request-Network-Node-Version', requestNodeVersion);
@@ -88,9 +88,7 @@ describe('requestNode server', () => {
     process.env.ETHEREUM_NETWORK_ID = '4';
 
     // 'must throw'
-    expect(() => {
-      new requestNode();
-    }).toThrowError(
+    expect(() => new RequestNode()).toThrowError(
       'the environment variable MNEMONIC must be set up. The default mnemonic is only for private network.',
     );
   });

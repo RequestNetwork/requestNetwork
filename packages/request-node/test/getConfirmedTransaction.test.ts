@@ -1,7 +1,7 @@
 import Utils from '@requestnetwork/utils';
-import * as httpStatus from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
-import requestNode from '../src/requestNode';
+import RequestNode from '../src/requestNode';
 
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
@@ -15,7 +15,7 @@ let server: any;
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('getConfirmedTransaction', () => {
   beforeAll(async () => {
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     await requestNodeInstance.initialize();
 
     server = (requestNodeInstance as any).express;
@@ -30,13 +30,13 @@ describe('getConfirmedTransaction', () => {
       .post('/persistTransaction')
       .send({ channelId, transactionData })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     await request(server)
       .get('/getConfirmedTransaction')
       .query({ transactionHash })
       .set('Accept', 'application/json')
-      .expect(httpStatus.NOT_FOUND);
+      .expect(StatusCodes.NOT_FOUND);
 
     let serverResponse: request.Response | undefined;
     // retry mechanism to account for ganache delay
@@ -48,12 +48,12 @@ describe('getConfirmedTransaction', () => {
         .get('/getConfirmedTransaction')
         .query({ transactionHash })
         .set('Accept', 'application/json');
-      if (serverResponse.status === httpStatus.OK) {
+      if (serverResponse.status === StatusCodes.OK) {
         break;
       }
     }
     expect(serverResponse).toBeDefined();
-    expect(serverResponse!.status).toBe(httpStatus.OK);
+    expect(serverResponse!.status).toBe(StatusCodes.OK);
 
     expect(serverResponse!.body.result).toMatchObject({});
     // 'getConfirmedTransaction request meta'
@@ -65,6 +65,6 @@ describe('getConfirmedTransaction', () => {
       .get('/getConfirmedTransaction')
       .query({})
       .set('Accept', 'application/json')
-      .expect(httpStatus.UNPROCESSABLE_ENTITY);
+      .expect(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 });
