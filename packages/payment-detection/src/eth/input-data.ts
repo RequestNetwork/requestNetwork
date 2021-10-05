@@ -24,7 +24,7 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<PaymentTypes.IPaymentEventParameters> {
   private explorerApiKeys: Record<string, string>;
   /**
    * @param extension The advanced logic payment network extensions
@@ -37,7 +37,7 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
     explorerApiKeys?: Record<string, string>;
   }) {
     super(
-      advancedLogic.extensions.ethereumInputData,
+      advancedLogic.extensions.ethereumInputData as ExtensionTypes.PnReferenceBased.IReferenceBased,
       ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     );
     this.explorerApiKeys = explorerApiKeys || {};
@@ -59,7 +59,7 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentReference: string,
     paymentNetwork: ExtensionTypes.IState<any>,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IPaymentEventParameters>[]> {
     const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
     const infoRetriever = new EthInputDataInfoRetriever(

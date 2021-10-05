@@ -7,7 +7,10 @@ import { getTheGraphClient, TheGraphClient } from '../thegraph';
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 export class TheGraphAnyToErc20Retriever
-  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
+  implements
+    PaymentTypes.IPaymentNetworkInfoRetriever<
+      PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>
+    > {
   private client: TheGraphClient;
 
   /**
@@ -43,7 +46,9 @@ export class TheGraphAnyToErc20Retriever
    * The conversion proxy's logs are used to compute the amounts in request currency (typically fiat).
    * The payment proxy's logs are used the same way as for a pn-fee-proxy request.
    */
-  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<
+    PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>[]
+  > {
     const variables = {
       contractAddress: this.conversionProxyContractAddress,
       reference: utils.keccak256(`0x${this.paymentReference}`),

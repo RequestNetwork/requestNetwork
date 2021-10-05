@@ -14,4 +14,5 @@ export type IConversionReferenceBased<
 export interface ICreationParameters extends PnFeeReferenceBased.ICreationParameters {
   maxRateTimespan?: number;
   network?: string;
+  acceptedTokens?: string[];
 }

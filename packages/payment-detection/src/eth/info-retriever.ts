@@ -5,7 +5,10 @@ import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider';
  * Gets a list of transfer events for an address and payment reference
  */
 export default class ETHInfoRetriever
-  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
+  implements
+    PaymentTypes.IPaymentNetworkInfoRetriever<
+      PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>
+    > {
   /**
    * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
@@ -21,7 +24,9 @@ export default class ETHInfoRetriever
     private explorerApiKey?: string,
   ) {}
 
-  public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<
+    PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>[]
+  > {
     if (this.network === 'private') {
       throw new Error(
         'ETH input data info-retriever works with etherscan and cannot work on a local network',

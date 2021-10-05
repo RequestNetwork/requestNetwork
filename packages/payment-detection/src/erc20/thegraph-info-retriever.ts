@@ -24,7 +24,9 @@ export class TheGraphInfoRetriever {
     this.client = getTheGraphClient(this.network);
   }
 
-  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<
+    PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>[]
+  > {
     const variables = {
       contractAddress: this.proxyContractAddress,
       reference: utils.keccak256(`0x${this.paymentReference}`),

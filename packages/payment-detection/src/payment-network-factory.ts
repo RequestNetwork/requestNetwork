@@ -13,7 +13,7 @@ import ERC20FeeProxyContract from './erc20/fee-proxy-contract';
 import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
 import ETHFeeProxyDetector from './eth/fee-proxy-detector';
-import AnyToErc20Proxy from './any/any-to-erc20-proxy-contract';
+import AnyToErc20Proxy from './any/any-to-erc20-proxy-detector';
 import NearNativeTokenPaymentDetector from './near-detector';
 import AnyToEthProxy from './any/any-to-eth-proxy-detector';
 
@@ -76,7 +76,7 @@ export default class PaymentNetworkFactory {
     paymentNetworkCreationParameters: PaymentTypes.IPaymentNetworkCreateParameters;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
     currencyManager: ICurrencyManager;
-  }): PaymentTypes.IPaymentNetwork {
+  }): PaymentTypes.IPaymentNetworkDetection {
     const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
 
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
@@ -118,7 +118,7 @@ export default class PaymentNetworkFactory {
     currencyManager: ICurrencyManager;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
     explorerApiKeys?: Record<string, string>;
-  }): PaymentTypes.IPaymentNetwork | null {
+  }): PaymentTypes.IPaymentNetworkDetection | null {
     const currency = request.currency;
     const extensionPaymentNetwork = Object.values(request.extensions || {}).find(
       (extension) => extension.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,

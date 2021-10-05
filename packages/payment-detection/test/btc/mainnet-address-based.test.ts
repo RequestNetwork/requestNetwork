@@ -9,17 +9,6 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
     return;
   },
   extensions: {
-    addressBasedBtc: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-    },
   },
 };
 
@@ -28,40 +17,6 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/btc/mainnet-address-based', () => {
   beforeEach(() => {
     btcAddressedBased = new BTCAddressedBased({ advancedLogic: mockAdvancedLogic });
-  });
-
-  it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.addressBasedBtc, 'createCreationAction');
-
-    await btcAddressedBased.createExtensionsDataForCreation({ paymentAddress: 'address bitcoin' });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.addressBasedBtc,
-      'createAddPaymentAddressAction',
-    );
-
-    btcAddressedBased.createExtensionsDataForAddPaymentInformation({
-      paymentAddress: 'address bitcoin',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.addressBasedBtc,
-      'createAddRefundAddressAction',
-    );
-
-    btcAddressedBased.createExtensionsDataForAddRefundInformation({
-      refundAddress: 'address bitcoin',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('should not throw when getBalance fail', async () => {

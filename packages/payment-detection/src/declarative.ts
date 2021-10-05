@@ -12,129 +12,17 @@ import { BigNumber } from 'ethers';
  * @class PaymentNetworkDeclarative
  */
 export default class PaymentNetworkDeclarative
-  implements PaymentTypes.IPaymentNetwork<PaymentTypes.IDeclarativePaymentEventParameters> {
-  private extension: ExtensionTypes.PnAnyDeclarative.IAnyDeclarative;
+  implements
+    PaymentTypes.IPaymentNetworkDetection<PaymentTypes.IDeclarativePaymentEventParameters> {
+  public extension: ExtensionTypes.PnAnyDeclarative.IAnyDeclarative;
+  protected extensionType: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE;
 
+  /**
+   * @param extension The advanced logic payment network extensions
+   */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.declarative;
-  }
-
-  /**
-   * Creates the extensions data for the creation of this extension
-   *
-   * @param any paymentNetworkCreationParameters
-   * @param paymentNetworkCreationParameters Parameters to create the extension
-   * @returns The extensionData object
-   */
-  public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnAnyDeclarative.ICreationParameters,
-  ): Promise<ExtensionTypes.IAction> {
-    return this.extension.createCreationAction({
-      paymentInfo: paymentNetworkCreationParameters.paymentInfo,
-      refundInfo: paymentNetworkCreationParameters.refundInfo,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add payment info
-   *
-   * @param Parameters to add payment information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnAnyDeclarative.IAddPaymentInstructionParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddPaymentInstructionAction({
-      paymentInfo: parameters.paymentInfo,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add refund info
-   *
-   * @param Parameters to add refund information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnAnyDeclarative.IAddRefundInstructionParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddRefundInstructionAction({
-      refundInfo: parameters.refundInfo,
-    });
-  }
-
-  /**
-   * Creates the extensions data to declare a payment is sent
-   *
-   * @param Parameters to declare sent payment
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForDeclareSentPayment(
-    parameters: ExtensionTypes.PnAnyDeclarative.ISentParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createDeclareSentPaymentAction({
-      amount: parameters.amount,
-      note: parameters.note,
-    });
-  }
-
-  /**
-   * Creates the extensions data to declare a refund is sent
-   *
-   * @param Parameters to declare sent refund
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForDeclareSentRefund(
-    parameters: ExtensionTypes.PnAnyDeclarative.ISentParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createDeclareSentRefundAction({
-      amount: parameters.amount,
-      note: parameters.note,
-    });
-  }
-
-  /**
-   * Creates the extensions data to declare a payment is received
-   *
-   * @param Parameters to declare received payment
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForDeclareReceivedPayment(
-    parameters: ExtensionTypes.PnAnyDeclarative.IReceivedParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createDeclareReceivedPaymentAction({
-      amount: parameters.amount,
-      note: parameters.note,
-    });
-  }
-
-  /**
-   * Creates the extensions data to declare a refund is received
-   *
-   * @param Parameters to declare received refund
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForDeclareReceivedRefund(
-    parameters: ExtensionTypes.PnAnyDeclarative.IReceivedParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createDeclareReceivedRefundAction({
-      amount: parameters.amount,
-      note: parameters.note,
-    });
-  }
-
-  /**
-   * Creates the extensions data to declare a delegate
-   *
-   * @param Parameters to declare declare a delegate
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddDelegate(
-    parameters: ExtensionTypes.PnAnyDeclarative.IAddDelegateParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddDelegateAction({
-      delegate: parameters.delegate,
-    });
+    this.extension = advancedLogic.extensions
+      .declarative as ExtensionTypes.PnAnyDeclarative.IAnyDeclarative;
   }
 
   /**

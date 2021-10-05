@@ -12,20 +12,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
   },
-  extensions: {
-    ethereumInputData: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-      supportedNetworks: ['mainnet'],
-    },
-  },
+  extensions: {},
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
@@ -33,43 +20,6 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/eth/input-data', () => {
   beforeEach(() => {
     ethInputData = new EthInputData({ advancedLogic: mockAdvancedLogic });
-  });
-
-  it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.ethereumInputData, 'createCreationAction');
-
-    await ethInputData.createExtensionsDataForCreation({
-      paymentAddress: 'ethereum address',
-      salt: 'ea3bc7caf64110ca',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.ethereumInputData,
-      'createAddPaymentAddressAction',
-    );
-
-    ethInputData.createExtensionsDataForAddPaymentInformation({
-      paymentAddress: 'ethereum address',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.ethereumInputData,
-      'createAddRefundAddressAction',
-    );
-
-    ethInputData.createExtensionsDataForAddRefundInformation({
-      refundAddress: 'ethereum address',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   // Skip because input-data cannot be used without etherscan

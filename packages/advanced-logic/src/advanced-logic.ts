@@ -17,6 +17,7 @@ import EthereumInputData from './extensions/payment-network/ethereum/input-data'
 import NearNative from './extensions/payment-network/near-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
+import NativeTokenPaymentNetwork from './extensions/payment-network/native-token';
 
 /**
  * Module to manage Advanced logic extensions
@@ -24,7 +25,7 @@ import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
  */
 export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic {
   /** Give access to the functions specific of the extensions supported */
-  public extensions = {
+  public extensions: AdvancedLogicTypes.ExtensionsMap = {
     addressBasedBtc: new AddressBasedBtc(),
     addressBasedErc20: new AddressBasedErc20(),
     addressBasedTestnetBtc: new AddressBasedTestnetBtc(),
@@ -73,7 +74,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     requestState: RequestLogicTypes.IRequest,
   ): ExtensionTypes.IExtension<any> {
     const id: ExtensionTypes.ID = extensionAction.id;
-    const extension: ExtensionTypes.IExtension | undefined = {
+    const extension: ExtensionTypes.IExtension[] | ExtensionTypes.IExtension | undefined = {
       [ExtensionTypes.ID.CONTENT_DATA]: this.extensions.contentData,
       [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: this.extensions.addressBasedBtc,
       [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: this.extensions
@@ -94,6 +95,10 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         .feeProxyContractEth,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY]: this.extensions.anyToEthProxy,
     }[id];
+
+    if (Array.isArray(extension)) {
+      throw Error(`extension not found, id: ${id}`);
+    }
 
     if (!extension) {
       if (id === ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN) {
@@ -121,7 +126,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     }
     const network = requestState.currency.network ?? extensionAction.parameters.paymentNetworkName;
     return network
-      ? this.extensions.nativeToken.find((nativeTokenExtension) =>
+      ? (this.extensions.nativeToken as NativeTokenPaymentNetwork[]).find((nativeTokenExtension) =>
           nativeTokenExtension.supportedNetworks.includes(network),
         )
       : undefined;

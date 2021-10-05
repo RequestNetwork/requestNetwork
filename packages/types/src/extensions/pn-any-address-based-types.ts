@@ -2,16 +2,13 @@ import * as Extension from '../extension-types';
 
 /** Manager of the extension */
 export interface IAddressBased<TCreationParameters = ICreationParameters>
-  extends Extension.IExtension {
+  extends Extension.IExtension<TCreationParameters> {
   createAddPaymentAddressAction: (
     creationParameters: IAddPaymentAddressParameters,
   ) => Extension.IAction;
   createAddRefundAddressAction: (
     creationParameters: IAddRefundAddressParameters,
   ) => Extension.IAction;
-  createCreationAction: (
-    creationParameters: TCreationParameters,
-  ) => Extension.IAction<TCreationParameters>;
   supportedNetworks: string[];
 }
 

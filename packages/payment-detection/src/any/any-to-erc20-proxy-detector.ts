@@ -8,8 +8,10 @@ import {
 
 import { ICurrencyManager } from '@requestnetwork/currency';
 
-import ProxyInfoRetriever from './any-to-eth-proxy-info-retriever';
+import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
 import AnyToAnyDetector from '../any-to-any-detector';
+import { networkSupportsTheGraph } from '../thegraph';
+import TheGraphAnyToErc20Retriever from './thegraph-info-retriever';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -21,9 +23,9 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 };
 
 /**
- * Handle payment networks with ETH input data extension
+ * Handle payment networks with ANY TO ERC20 conversion proxy
  */
-export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.IConversionPaymentEventParameters> {
+export default class AnyToErc20FeeProxyDetector extends AnyToAnyDetector<PaymentTypes.IConversionPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -35,8 +37,8 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
     currencyManager: ICurrencyManager;
   }) {
     super(
-      advancedLogic.extensions.anyToEthProxy as ExtensionTypes.PnAnyToEth.IAnyToEth,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+      advancedLogic.extensions.anyToErc20Proxy as ExtensionTypes.PnAnyToErc20.IAnyToERC20,
+      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
       currencyManager,
     );
   }
@@ -60,15 +62,13 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
   ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IConversionPaymentEventParameters>[]> {
     const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
-    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetwork.version];
-    const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractVersion);
-    const contractInfos = SmartContracts.ethConversionArtifact.getOptionalDeploymentInformation(
+    const conversionProxyContract = await this.safeGetProxyArtifact(
       network,
-      contractVersion,
+      paymentNetwork.version,
     );
 
-    if (!contractInfos) {
-      throw Error('ETH conversion proxy contract not found');
+    if (!conversionProxyContract) {
+      throw Error('ERC20 conversion proxy contract not found');
     }
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
@@ -76,18 +76,29 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
       throw Error('requestCurrency not found in currency manager');
     }
 
-    const proxyInfoRetriever = new ProxyInfoRetriever(
-      currency,
-      paymentReference,
-      contractInfos.address,
-      contractInfos.creationBlockNumber,
-      abi,
-      address,
-      eventName,
-      network,
-      undefined,
-      paymentNetwork.values?.maxRateTimespan,
-    );
+    const proxyInfoRetriever = networkSupportsTheGraph(network)
+      ? new TheGraphAnyToErc20Retriever(
+          currency,
+          paymentReference,
+          conversionProxyContract.address,
+          address,
+          eventName,
+          network,
+          paymentNetwork.values?.acceptedTokens,
+          paymentNetwork.values?.maxRateTimespan,
+        )
+      : new ProxyInfoRetriever(
+          currency,
+          paymentReference,
+          conversionProxyContract.address,
+          conversionProxyContract.creationBlockNumber,
+          conversionProxyContract.abi,
+          address,
+          eventName,
+          network,
+          paymentNetwork.values?.acceptedTokens,
+          paymentNetwork.values?.maxRateTimespan,
+        );
 
     return await proxyInfoRetriever.getTransferEvents();
   }
@@ -108,5 +119,23 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
       throw Error('paymentNetwork.values.network must be defined');
     }
     return network;
+  }
+
+  /*
+   * Fetches events from the Ethereum Proxy, or returns null
+   */
+  private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
+    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
+    try {
+      const abi = SmartContracts.erc20ConversionProxy.getContractAbi(contractVersion);
+      const contractInfos = SmartContracts.erc20ConversionProxy.getDeploymentInformation(
+        network,
+        contractVersion,
+      );
+      return { ...contractInfos, ...{ abi } };
+    } catch (error) {
+      console.warn(error);
+    }
+    return null;
   }
 }

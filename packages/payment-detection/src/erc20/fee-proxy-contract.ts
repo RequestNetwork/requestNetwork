@@ -5,7 +5,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
 import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
@@ -39,9 +38,9 @@ export type DeploymentInformationGetter = (
  */
 export default class PaymentNetworkERC20FeeProxyContract<
   ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
-> implements PaymentTypes.IPaymentNetwork<ExtensionType> {
+> implements PaymentTypes.IPaymentNetworkDetection<ExtensionType> {
+  public extension: ExtensionTypes.IExtension;
   protected _paymentNetworkId: ExtensionTypes.ID;
-  protected _extension: ExtensionType;
   protected _currencyManager: ICurrencyManager;
 
   /**
@@ -55,74 +54,9 @@ export default class PaymentNetworkERC20FeeProxyContract<
     currencyManager: ICurrencyManager;
   }) {
     this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
-    this._extension = advancedLogic.extensions.feeProxyContractErc20;
+    this.extension = advancedLogic.extensions
+      .feeProxyContractErc20 as ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased;
     this._currencyManager = currencyManager;
-  }
-
-  /**
-   * Creates the extensions data for the creation of this extension.
-   * Will set a salt if none is already given
-   *
-   * @param paymentNetworkCreationParameters Parameters to create the extension
-   * @returns The extensionData object
-   */
-  public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: PaymentTypes.IFeeReferenceBasedCreationParameters,
-  ): Promise<ExtensionTypes.IAction> {
-    // If no salt is given, generate one
-    const salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
-
-    return this._extension.createCreationAction({
-      feeAddress: paymentNetworkCreationParameters.feeAddress,
-      feeAmount: paymentNetworkCreationParameters.feeAmount,
-      paymentAddress: paymentNetworkCreationParameters.paymentAddress,
-      refundAddress: paymentNetworkCreationParameters.refundAddress,
-      salt,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add payment address
-   *
-   * @param parameters to add payment information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnFeeReferenceBased.IAddPaymentAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this._extension.createAddPaymentAddressAction({
-      paymentAddress: parameters.paymentAddress,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add refund address
-   *
-   * @param Parameters to add refund information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnFeeReferenceBased.IAddRefundAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this._extension.createAddRefundAddressAction({
-      refundAddress: parameters.refundAddress,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add fee address and amount
-   *
-   * @param Parameters to add refund information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddFeeInformation(
-    parameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
-  ): ExtensionTypes.IAction {
-    return this._extension.createAddFeeAction({
-      feeAddress: parameters.feeAddress,
-      feeAmount: parameters.feeAmount,
-    });
   }
 
   /**
@@ -180,7 +114,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
         .sub(BigNumber.from(refunds.balance || 0))
         .toString();
 
-      const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
+      const events: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>[] = [
         ...payments.events,
         ...refunds.events,
       ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
@@ -289,7 +223,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
    */
   public extractFeeAndEvents(
     feeAddress: string,
-    paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[],
+    paymentEvents: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>[],
   ): PaymentTypes.IBalanceWithEvents {
     if (!feeAddress) {
       return {
@@ -301,7 +235,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
     return paymentEvents.reduce(
       (
         feeBalance: PaymentTypes.IBalanceWithEvents,
-        event: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>,
+        event: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>,
       ): PaymentTypes.IBalanceWithEvents => {
         // Skip if feeAddress or feeAmount are not set, or if feeAddress doesn't match the PN one
         if (

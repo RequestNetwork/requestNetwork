@@ -27,7 +27,10 @@ type TransferWithReferenceAndFeeArgs = TransferWithReferenceArgs & {
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 export default class ProxyERC20InfoRetriever
-  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
+  implements
+    PaymentTypes.IPaymentNetworkInfoRetriever<
+      PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>
+    > {
   public contractProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
@@ -63,7 +66,9 @@ export default class ProxyERC20InfoRetriever
   /**
    * Retrieves transfer events for the current contract, address and network.
    */
-  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<
+    PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>[]
+  > {
     // Create a filter to find all the Transfer logs for the toAddress
     const filter = this.contractProxy.filters.TransferWithReference(
       null,

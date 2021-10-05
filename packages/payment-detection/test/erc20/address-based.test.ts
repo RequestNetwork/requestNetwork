@@ -14,19 +14,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
   },
-  extensions: {
-    addressBasedErc20: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-    },
-  },
+  extensions: {},
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
@@ -34,42 +22,6 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 describe('api/erc20/address-based', () => {
   beforeEach(() => {
     erc20AddressedBased = new ERC20AddressedBased({ advancedLogic: mockAdvancedLogic });
-  });
-
-  it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.addressBasedErc20, 'createCreationAction');
-
-    await erc20AddressedBased.createExtensionsDataForCreation({
-      paymentAddress: 'ethereum address',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.addressBasedErc20,
-      'createAddPaymentAddressAction',
-    );
-
-    erc20AddressedBased.createExtensionsDataForAddPaymentInformation({
-      paymentAddress: 'ethereum address',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.addressBasedErc20,
-      'createAddRefundAddressAction',
-    );
-
-    erc20AddressedBased.createExtensionsDataForAddRefundInformation({
-      refundAddress: 'ethereum address',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('can getBalance on a localhost request', async () => {

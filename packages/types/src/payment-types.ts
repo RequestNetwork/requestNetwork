@@ -1,6 +1,7 @@
 import { IIdentity } from './identity-types';
 import * as Extension from './extension-types';
 import * as RequestLogic from './request-logic-types';
+import { ExtensionTypes } from '.';
 
 /** Object interface to list the payment network id and its module by currency */
 export interface ISupportedPaymentNetworkByCurrency {
@@ -44,11 +45,9 @@ export interface IAnyToErc20CreationParameters extends IFeeReferenceBasedCreatio
 }
 
 /** Interface of the class to manage a payment network  */
-export interface IPaymentNetwork<TEventParameters = any> {
-  createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
-  createExtensionsDataForAddRefundInformation: (parameters: any) => any;
-  createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
+export interface IPaymentNetworkDetection<TEventParameters = any> {
   getBalance(request: RequestLogic.IRequest): Promise<IBalanceWithEvents<TEventParameters>>;
+  extension: ExtensionTypes.IExtension;
 }
 
 /** Interface of the class to manage the bitcoin provider API */
@@ -116,59 +115,28 @@ export interface IPaymentNetworkInfoRetriever<
   getTransferEvents(): Promise<TPaymentNetworkEvent[]>;
 }
 
-/** Parameters for events of ERC20 payments */
-export interface IERC20PaymentEventParameters {
+/** Parameters for events of payments */
+export interface IPaymentEventParameters {
   from?: string;
-  to: string;
+  to?: string;
   block?: number;
   txHash?: string;
+  confirmations?: number;
 }
 
-/** Parameters for events of ERC20 payments with fees */
-export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParameters {
+export interface IFeePaymentEventParameters extends IPaymentEventParameters {
   feeAddress?: string;
   feeAmount?: string;
-  feeAmountInCrypto?: string;
-  amountInCrypto?: string;
   tokenAddress?: string;
 }
 
-/** ERC20 Payment Network Event */
-export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
-  IERC20PaymentEventParameters | IERC20FeePaymentEventParameters
->;
-/** ERC20 BalanceWithEvents */
-export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
-
-export type ConversionPaymentNetworkEvent = IPaymentNetworkEvent<
-  | IERC20PaymentEventParameters
-  | IERC20FeePaymentEventParameters
-  | IETHPaymentEventParameters
-  | IETHFeePaymentEventParameters
->;
-
-/** Parameters for events of ETH payments */
-export interface IETHPaymentEventParameters {
-  block?: number;
-  confirmations?: number;
-  txHash?: string;
-}
-/** Parameters for events of ERC20 payments with fees */
-export interface IETHFeePaymentEventParameters extends IETHPaymentEventParameters {
-  feeAddress?: string;
-  feeAmount?: string;
+export interface IConversionPaymentEventParameters extends IFeePaymentEventParameters {
   feeAmountInCrypto?: string;
   amountInCrypto?: string;
 }
-
-/** ETH Payment Network Event */
-export type ETHPaymentNetworkEvent = IPaymentNetworkEvent<
-  IETHPaymentEventParameters | IETHFeePaymentEventParameters
->;
-/** ETH BalanceWithEvents */
-export type ETHBalanceWithEvents = IBalanceWithEvents<
-  IETHPaymentEventParameters | IETHFeePaymentEventParameters
->;
+////////////////////////////////////////////////////////////////////////////////////////
+//// TODO to remove ?!
+////////////////////////////////////////////////////////////////////////////////////////
 
 /** Parameters for events of BTC payments */
 export interface IBTCPaymentEventParameters {

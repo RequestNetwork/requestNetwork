@@ -1,5 +1,5 @@
 import { utils as ethersUtils } from 'ethers';
-import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { AdvancedLogic, ReferenceBasedPaymentNetwork } from '@requestnetwork/advanced-logic';
 import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
@@ -8,6 +8,7 @@ import {
   DataAccessTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  // ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -187,7 +188,7 @@ export default class RequestNetwork {
     const requestState: RequestLogicTypes.IRequest = requestAndMeta.result.request
       ? requestAndMeta.result.request
       : (requestAndMeta.result.pending as RequestLogicTypes.IRequest);
-    const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+    const paymentNetwork: PaymentTypes.IPaymentNetworkDetection | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
       {
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
@@ -283,7 +284,7 @@ export default class RequestNetwork {
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
 
-        const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+        const paymentNetwork: PaymentTypes.IPaymentNetworkDetection | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
@@ -345,7 +346,7 @@ export default class RequestNetwork {
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
 
-        const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
+        const paymentNetwork: PaymentTypes.IPaymentNetworkDetection | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
           {
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
@@ -401,7 +402,7 @@ export default class RequestNetwork {
   ): Promise<{
     requestParameters: RequestLogicTypes.ICreateParameters;
     topics: any[];
-    paymentNetwork: PaymentTypes.IPaymentNetwork | null;
+    paymentNetwork: PaymentTypes.IPaymentNetworkDetection | null;
   }> {
     const currency = this.getCurrency(parameters.requestInfo.currency);
 
@@ -428,7 +429,7 @@ export default class RequestNetwork {
     const copiedRequestParameters = Utils.deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
 
-    let paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
+    let paymentNetwork: PaymentTypes.IPaymentNetworkDetection | null = null;
     if (paymentNetworkCreationParameters) {
       paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
         advancedLogic: this.advancedLogic,
@@ -439,9 +440,15 @@ export default class RequestNetwork {
       });
 
       if (paymentNetwork) {
+        if (paymentNetwork.extension instanceof ReferenceBasedPaymentNetwork) {
+          paymentNetworkCreationParameters.parameters.salt =
+            paymentNetworkCreationParameters.parameters.salt ||
+            (await Utils.crypto.generate8randomBytes());
+        }
+
         // create the extensions data for the payment network
         copiedRequestParameters.extensionsData.push(
-          await paymentNetwork.createExtensionsDataForCreation(
+          await paymentNetwork.extension.createCreationAction(
             paymentNetworkCreationParameters.parameters,
           ),
         );

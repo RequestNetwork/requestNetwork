@@ -5,7 +5,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import getBalanceErrorObject from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
@@ -22,62 +21,16 @@ class VersionNotSupported extends Error {}
 /**
  * Handle payment networks with ERC20 proxy contract extension
  */
-export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IPaymentNetwork {
-  private extension: ExtensionTypes.PnReferenceBased.IReferenceBased;
+export default class PaymentNetworkERC20ProxyContract
+  implements PaymentTypes.IPaymentNetworkDetection {
+  public extension: ExtensionTypes.PnReferenceBased.IReferenceBased;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.proxyContractErc20;
-  }
-
-  /**
-   * Creates the extensions data for the creation of this extension.
-   * Will set a salt if none is already given
-   *
-   * @param paymentNetworkCreationParameters Parameters to create the extension
-   * @returns The extensionData object
-   */
-  public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: PaymentTypes.IReferenceBasedCreationParameters,
-  ): Promise<ExtensionTypes.IAction> {
-    // If no salt is given, generate one
-    const salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
-
-    return this.extension.createCreationAction({
-      paymentAddress: paymentNetworkCreationParameters.paymentAddress,
-      refundAddress: paymentNetworkCreationParameters.refundAddress,
-      salt,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add payment address
-   *
-   * @param parameters to add payment information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddPaymentAddressAction({
-      paymentAddress: parameters.paymentAddress,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add refund address
-   *
-   * @param Parameters to add refund information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddRefundAddressAction({
-      refundAddress: parameters.refundAddress,
-    });
+    this.extension = advancedLogic.extensions
+      .proxyContractErc20 as ExtensionTypes.PnReferenceBased.IReferenceBased;
   }
 
   /**
@@ -131,7 +84,7 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
         .sub(BigNumber.from(refunds.balance || 0))
         .toString();
 
-      const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
+      const events: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IPaymentEventParameters>[] = [
         ...payments.events,
         ...refunds.events,
       ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));

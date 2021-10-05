@@ -27,7 +27,9 @@ export class NearInfoRetriever {
     this.nearWebSocketUrl = NEAR_WEB_SOCKET_URL;
   }
 
-  public async getTransferEvents(): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<
+    PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IPaymentEventParameters>[]
+  > {
     const events = await this.getTransactionsFromNearIndexerDatabase();
     return events.map((transaction) => ({
       amount: transaction.deposit,

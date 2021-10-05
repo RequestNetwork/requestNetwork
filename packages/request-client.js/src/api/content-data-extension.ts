@@ -15,7 +15,7 @@ export default class ContentDataExtension {
    * @param advancedLogic Instance of the advanced logic layer
    */
   public constructor(advancedLogic: AdvancedLogicTypes.IAdvancedLogic) {
-    this.extension = advancedLogic.extensions.contentData;
+    this.extension = advancedLogic.extensions.contentData as ExtensionTypes.IExtension;
   }
 
   /**

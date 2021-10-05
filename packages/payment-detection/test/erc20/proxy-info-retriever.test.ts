@@ -127,7 +127,7 @@ describe('api/erc20/proxy-info-retriever', () => {
       expect(event.amount).toBe('10');
       expect(typeof event.timestamp).toBe('number');
 
-      const parameters: PaymentTypes.IERC20FeePaymentEventParameters = event.parameters!;
+      const parameters: PaymentTypes.IFeePaymentEventParameters = event.parameters!;
 
       expect(parameters.to).toBe('0x627306090abab3a6e1400e9345bc60c78a8bef57');
       expect(typeof parameters.block).toBe('number');

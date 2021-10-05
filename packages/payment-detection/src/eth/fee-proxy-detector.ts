@@ -21,13 +21,14 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<PaymentTypes.IFeePaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     super(
-      advancedLogic.extensions.feeProxyContractEth,
+      advancedLogic.extensions
+        .feeProxyContractEth as ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
       ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
     );
   }
@@ -48,7 +49,7 @@ export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<Payme
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentReference: string,
     paymentNetwork: ExtensionTypes.IState<any>,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IFeePaymentEventParameters>[]> {
     const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
     const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetwork.version);

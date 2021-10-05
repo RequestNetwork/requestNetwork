@@ -17,8 +17,9 @@ const TESTNET_BITCOIN_NETWORK_ID = 3;
  * @class PaymentNetworkBTCAddressBased
  */
 export default class PaymentNetworkBTCAddressBased
-  implements PaymentTypes.IPaymentNetwork<PaymentTypes.IBTCPaymentEventParameters> {
+  implements PaymentTypes.IPaymentNetworkDetection<PaymentTypes.IBTCPaymentEventParameters> {
   private btcAddressBased: BTCAddressBased;
+  public extension: ExtensionTypes.PnAddressBased.IAddressBased;
 
   /**
    * @param advancedLogic Instance of Advanced Logic layer, to get the extension
@@ -30,8 +31,11 @@ export default class PaymentNetworkBTCAddressBased
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
   }) {
+    this.extension = advancedLogic.extensions
+      .addressBasedTestnetBtc as ExtensionTypes.PnAddressBased.IAddressBased;
     this.btcAddressBased = new BTCAddressBased(
-      advancedLogic.extensions.addressBasedTestnetBtc,
+      advancedLogic.extensions
+        .addressBasedTestnetBtc as ExtensionTypes.PnAddressBased.IAddressBased,
       bitcoinDetectionProvider,
     );
   }

@@ -11,8 +11,12 @@ export interface IAdvancedLogic {
     actionSigner: Identity.IIdentity,
     timestamp: number,
   ) => RequestLogic.IExtensionStates;
-  extensions: any;
+  extensions: ExtensionsMap;
 }
+
+export type ExtensionsMap = {
+  [key: string]: Extension.IExtension | Extension.IExtension[];
+};
 
 /** Creation extension parameters */
 export interface IExtensionCreation {

@@ -22,7 +22,7 @@ export default class Request {
   public readonly requestId: RequestLogicTypes.RequestId;
 
   private requestLogic: RequestLogicTypes.IRequestLogic;
-  private paymentNetwork: PaymentTypes.IPaymentNetwork | null = null;
+  private paymentNetwork: PaymentTypes.IPaymentNetworkDetection | null = null;
   private contentDataExtension: ContentDataExtension | null;
   private emitter: EventEmitter;
 
@@ -85,7 +85,7 @@ export default class Request {
     requestLogic: RequestLogicTypes.IRequestLogic,
     currencyManager: ICurrencyManager,
     options?: {
-      paymentNetwork?: PaymentTypes.IPaymentNetwork | null;
+      paymentNetwork?: PaymentTypes.IPaymentNetworkDetection | null;
       contentDataExtension?: ContentDataExtension | null;
       requestLogicCreateResult?: RequestLogicTypes.IReturnCreateRequest;
       skipPaymentDetection?: boolean;
@@ -156,8 +156,16 @@ export default class Request {
       if (!this.paymentNetwork) {
         throw new Error('Cannot add refund information without payment network');
       }
+      // We need to cast the object since IPaymentNetwork doesn't implement createAddPaymentInstructionAction
+      const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+        .paymentNetwork as PaymentNetworkDeclarative;
+
+      if (!declarativePaymentNetwork.extension.createAddRefundInstructionAction) {
+        throw new Error('Cannot declare refund instruction without declarative payment network');
+      }
+
       extensionsData.push(
-        this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
+        declarativePaymentNetwork.extension.createAddRefundInstructionAction(refundInformation),
       );
     }
     const parameters: RequestLogicTypes.IAcceptParameters = {
@@ -199,8 +207,17 @@ export default class Request {
       if (!this.paymentNetwork) {
         throw new Error('Cannot add refund information without payment network');
       }
+
+      // We need to cast the object since IPaymentNetwork doesn't implement createAddRefundInstructionAction
+      const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+        .paymentNetwork as PaymentNetworkDeclarative;
+
+      if (!declarativePaymentNetwork.extension.createAddRefundInstructionAction) {
+        throw new Error('Cannot declare refund instruction without declarative payment network');
+      }
+
       extensionsData.push(
-        this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
+        declarativePaymentNetwork.extension.createAddRefundInstructionAction(refundInformation),
       );
     }
 
@@ -245,8 +262,17 @@ export default class Request {
       if (!this.paymentNetwork) {
         throw new Error('Cannot add refund information without payment network');
       }
+
+      // We need to cast the object since IPaymentNetwork doesn't implement createAddRefundInstructionAction
+      const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+        .paymentNetwork as PaymentNetworkDeclarative;
+
+      if (!declarativePaymentNetwork.extension.createAddRefundInstructionAction) {
+        throw new Error('Cannot declare refund instruction without declarative payment network');
+      }
+
       extensionsData.push(
-        this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
+        declarativePaymentNetwork.extension.createAddRefundInstructionAction(refundInformation),
       );
     }
     const parameters: RequestLogicTypes.IIncreaseExpectedAmountParameters = {
@@ -294,8 +320,17 @@ export default class Request {
       if (!this.paymentNetwork) {
         throw new Error('Cannot add payment information without payment network');
       }
+
+      // We need to cast the object since IPaymentNetwork doesn't implement createAddPaymentInstructionAction
+      const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+        .paymentNetwork as PaymentNetworkDeclarative;
+
+      if (!declarativePaymentNetwork.extension.createAddPaymentInstructionAction) {
+        throw new Error('Cannot declare payment instruction without declarative payment network');
+      }
+
       extensionsData.push(
-        this.paymentNetwork.createExtensionsDataForAddPaymentInformation(paymentInformation),
+        declarativePaymentNetwork.extension.createAddPaymentInstructionAction(paymentInformation),
       );
     }
 
@@ -344,8 +379,16 @@ export default class Request {
       throw new Error('Cannot add payment information without payment network');
     }
 
+    // We need to cast the object since IPaymentNetwork doesn't implement createAddPaymentInstructionAction
+    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+      .paymentNetwork as PaymentNetworkDeclarative;
+
+    if (!declarativePaymentNetwork.extension.createAddPaymentInstructionAction) {
+      throw new Error('Cannot declare payment instruction without declarative payment network');
+    }
+
     extensionsData.push(
-      this.paymentNetwork.createExtensionsDataForAddPaymentInformation(paymentInformation),
+      declarativePaymentNetwork.extension.createAddPaymentInstructionAction(paymentInformation),
     );
 
     const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
@@ -391,8 +434,16 @@ export default class Request {
       throw new Error('Cannot add refund information without payment network');
     }
 
+    // We need to cast the object since IPaymentNetwork doesn't implement createAddPaymentInstructionAction
+    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
+      .paymentNetwork as PaymentNetworkDeclarative;
+
+    if (!declarativePaymentNetwork.extension.createAddRefundInstructionAction) {
+      throw new Error('Cannot declare received refund without declarative payment network');
+    }
+
     extensionsData.push(
-      this.paymentNetwork.createExtensionsDataForAddRefundInformation(refundInformation),
+      declarativePaymentNetwork.extension.createAddRefundInstructionAction(refundInformation),
     );
 
     const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
@@ -441,16 +492,16 @@ export default class Request {
       throw new Error('Cannot declare sent payment without payment network');
     }
 
-    // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentPayment
+    // We need to cast the object since IPaymentNetwork doesn't implement createDeclareSentPaymentAction
     const declarativePaymentNetwork: PaymentNetworkDeclarative = this
       .paymentNetwork as PaymentNetworkDeclarative;
 
-    if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment) {
+    if (!declarativePaymentNetwork.extension.createDeclareSentPaymentAction) {
       throw new Error('Cannot declare sent payment without declarative payment network');
     }
 
     extensionsData.push(
-      declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment({ amount, note }),
+      declarativePaymentNetwork.extension.createDeclareSentPaymentAction({ amount, note }),
     );
 
     const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {
@@ -499,16 +550,16 @@ export default class Request {
       throw new Error('Cannot declare sent refund without payment network');
     }
 
-    // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentRefund
+    // We need to cast the object since IPaymentNetwork doesn't implement createDeclareSentRefundAction
     const declarativePaymentNetwork: PaymentNetworkDeclarative = this
       .paymentNetwork as PaymentNetworkDeclarative;
 
-    if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentRefund) {
+    if (!declarativePaymentNetwork.extension.createDeclareSentRefundAction) {
       throw new Error('Cannot declare sent refund without declarative payment network');
     }
 
     extensionsData.push(
-      declarativePaymentNetwork.createExtensionsDataForDeclareSentRefund({
+      declarativePaymentNetwork.extension.createDeclareSentRefundAction({
         amount,
         note,
       }),
@@ -560,16 +611,16 @@ export default class Request {
       throw new Error('Cannot declare received payment without payment network');
     }
 
-    // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedPayment
+    // We need to cast the object since IPaymentNetwork doesn't implement createDeclareReceivedPaymentAction
     const declarativePaymentNetwork: PaymentNetworkDeclarative = this
       .paymentNetwork as PaymentNetworkDeclarative;
 
-    if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedPayment) {
+    if (!declarativePaymentNetwork.extension.createDeclareReceivedPaymentAction) {
       throw new Error('Cannot declare received payment without declarative payment network');
     }
 
     extensionsData.push(
-      declarativePaymentNetwork.createExtensionsDataForDeclareReceivedPayment({
+      declarativePaymentNetwork.extension.createDeclareReceivedPaymentAction({
         amount,
         note,
       }),
@@ -621,16 +672,16 @@ export default class Request {
       throw new Error('Cannot declare received refund without payment network');
     }
 
-    // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedRefund
+    // We need to cast the object since IPaymentNetwork doesn't implement createDeclareReceivedRefundAction
     const declarativePaymentNetwork: PaymentNetworkDeclarative = this
       .paymentNetwork as PaymentNetworkDeclarative;
 
-    if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedRefund) {
+    if (!declarativePaymentNetwork.extension.createDeclareReceivedRefundAction) {
       throw new Error('Cannot declare received refund without declarative payment network');
     }
 
     extensionsData.push(
-      declarativePaymentNetwork.createExtensionsDataForDeclareReceivedRefund({
+      declarativePaymentNetwork.extension.createDeclareReceivedRefundAction({
         amount,
         note,
       }),
@@ -680,16 +731,16 @@ export default class Request {
       throw new Error('Cannot declare delegate without payment network');
     }
 
-    // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedRefund
+    // We need to cast the object since IPaymentNetwork doesn't implement createAddDelegateAction
     const declarativePaymentNetwork: PaymentNetworkDeclarative = this
       .paymentNetwork as PaymentNetworkDeclarative;
 
-    if (!declarativePaymentNetwork.createExtensionsDataForAddDelegate) {
+    if (!declarativePaymentNetwork.extension.createAddDelegateAction) {
       throw new Error('Cannot declare delegate without declarative payment network');
     }
 
     extensionsData.push(
-      declarativePaymentNetwork.createExtensionsDataForAddDelegate({
+      declarativePaymentNetwork.extension.createAddDelegateAction({
         delegate,
       }),
     );

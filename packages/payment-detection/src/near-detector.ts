@@ -22,12 +22,16 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment
  */
-export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(advancedLogic.extensions.nativeToken[0], ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN);
+    super(
+      (advancedLogic.extensions
+        .nativeToken as ExtensionTypes.PnReferenceBased.IReferenceBased[])[0],
+      ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    );
   }
 
   public static getNearContractName = (
@@ -78,7 +82,7 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentReference: string,
     paymentNetwork: ExtensionTypes.IState<any>,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IPaymentEventParameters>[]> {
     const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
     const infoRetriever = new NearInfoRetriever(

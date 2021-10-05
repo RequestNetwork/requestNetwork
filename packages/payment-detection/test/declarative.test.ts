@@ -14,31 +14,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
   },
-  extensions: {
-    declarative: {
-      createAddPaymentInstructionAction(): any {
-        return;
-      },
-      createAddRefundInstructionAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-      createDeclareReceivedPaymentAction(): any {
-        return;
-      },
-      createDeclareReceivedRefundAction(): any {
-        return;
-      },
-      createDeclareSentPaymentAction(): any {
-        return;
-      },
-      createDeclareSentRefundAction(): any {
-        return;
-      },
-    },
-  },
+  extensions: {},
 };
 
 const requestMock: RequestLogicTypes.IRequest = {
@@ -65,91 +41,6 @@ const requestMock: RequestLogicTypes.IRequest = {
 describe('api/declarative', () => {
   beforeEach(() => {
     declarative = new Declarative({ advancedLogic: mockAdvancedLogic });
-  });
-
-  it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.declarative, 'createCreationAction');
-
-    await declarative.createExtensionsDataForCreation({
-      paymentInfo: 'payment instruction',
-      refundInfo: 'refund instruction',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createAddPaymentInstructionAction',
-    );
-
-    declarative.createExtensionsDataForAddPaymentInformation({
-      paymentInfo: 'payment instruction',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createAddRefundInstructionAction',
-    );
-
-    declarative.createExtensionsDataForAddRefundInformation({ refundInfo: 'refund instruction' });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForDeclareSentPayment', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createDeclareSentPaymentAction',
-    );
-
-    declarative.createExtensionsDataForDeclareSentPayment({ amount: '1000', note: 'payment sent' });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForDeclareSentRefund', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createDeclareSentRefundAction',
-    );
-
-    declarative.createExtensionsDataForDeclareSentRefund({ amount: '1000', note: 'refund sent' });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForDeclareReceivedPayment', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createDeclareReceivedPaymentAction',
-    );
-
-    declarative.createExtensionsDataForDeclareReceivedPayment({
-      amount: '1000',
-      note: 'payment received',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
-  });
-
-  it('can createExtensionsDataForDeclareReceivedRefund', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createDeclareReceivedRefundAction',
-    );
-
-    declarative.createExtensionsDataForDeclareReceivedRefund({
-      amount: '1000',
-      note: 'refund received',
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
   });
 
   it('getBalance get the correct balance', async () => {

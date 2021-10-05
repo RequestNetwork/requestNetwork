@@ -72,7 +72,10 @@ export default abstract class ConversionInfoRetriever {
    * The conversion proxy's logs are used to compute the amounts in request currency (typically fiat).
    * The payment proxy's logs are used the same way as for a pn-fee-proxy request.
    */
-  public async getTransferEvents(): Promise<PaymentTypes.ConversionPaymentNetworkEvent[]> {
+  //
+  public async getTransferEvents(): Promise<
+    PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IConversionPaymentEventParameters>[]
+  > {
     // Create a filter to find all the Fee Transfer logs with the payment reference
     const conversionFilter = this.contractConversionProxy.filters.TransferWithConversionAndReference(
       null,

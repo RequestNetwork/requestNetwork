@@ -4,7 +4,8 @@ import Utils from '@requestnetwork/utils';
 /**
  * Abstract class to create extension
  */
-export default abstract class AbstractExtension<TCreationParameters> {
+export default abstract class AbstractExtension<TCreationParameters>
+  implements ExtensionTypes.IExtension {
   protected actions: ExtensionTypes.SupportedActions;
 
   public constructor(

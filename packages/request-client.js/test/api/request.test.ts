@@ -1,5 +1,6 @@
 import { CurrencyManager } from '@requestnetwork/currency';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 
 import { EventEmitter } from 'events';
 
@@ -51,47 +52,19 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   },
 };
 
-const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
-  async createExtensionsDataForCreation(): Promise<any> {
-    return;
-  },
-  async createExtensionsDataForAddPaymentInformation(): Promise<any> {
-    return { meta: {} };
-  },
-  async createExtensionsDataForAddRefundInformation(): Promise<any> {
-    return { meta: {} };
-  },
+const mockPaymentNetwork: PaymentTypes.IPaymentNetworkDetection = {
   async getBalance(): Promise<any> {
     return;
   },
+  extension: {} as any,
 };
 
-const mockDeclarativePaymentNetwork: PaymentTypes.IPaymentNetwork = {
-  async createExtensionsDataForCreation(): Promise<any> {
-    return;
-  },
-  async createExtensionsDataForAddPaymentInformation(): Promise<any> {
-    return { meta: {} };
-  },
-  async createExtensionsDataForAddRefundInformation(): Promise<any> {
-    return { meta: {} };
-  },
-  async createExtensionsDataForDeclareReceivedPayment(): Promise<any> {
-    return;
-  },
-  async createExtensionsDataForDeclareReceivedRefund(): Promise<any> {
-    return;
-  },
-  async createExtensionsDataForDeclareSentPayment(): Promise<any> {
-    return;
-  },
-  async createExtensionsDataForDeclareSentRefund(): Promise<any> {
-    return;
-  },
+const mockDeclarativePaymentNetwork: PaymentTypes.IPaymentNetworkDetection = {
   async getBalance(): Promise<any> {
     return;
   },
-} as PaymentTypes.IPaymentNetwork;
+  extension: new AdvancedLogic().extensions.declarative as ExtensionTypes.IExtension,
+};
 
 const signatureIdentity: IdentityTypes.IIdentity = {
   type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -150,17 +123,17 @@ describe('api/request', () => {
 
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'acceptRequest');
-      const spyPayNet = jest.spyOn(
-        mockPaymentNetwork,
-        'createExtensionsDataForAddRefundInformation',
-      );
+      // const spyPayNet = jest.spyOn(
+      //   mockDeclarativePaymentNetwork,
+      //   'createExtensionsDataForAddRefundInformation',
+      // );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {
-        paymentNetwork: mockPaymentNetwork,
+        paymentNetwork: mockDeclarativePaymentNetwork,
       });
       await request.accept(signatureIdentity, { refundAddress: bitcoinAddress });
 
-      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      // expect(spyPayNet).toHaveBeenCalledTimes(1);
       expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
@@ -184,17 +157,17 @@ describe('api/request', () => {
 
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'cancelRequest');
-      const spyPayNet = jest.spyOn(
-        mockPaymentNetwork,
-        'createExtensionsDataForAddRefundInformation',
-      );
+      // const spyPayNet = jest.spyOn(
+      //   mockDeclarativePaymentNetwork,
+      //   'createAddRefundInstructionAction',
+      // );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {
-        paymentNetwork: mockPaymentNetwork,
+        paymentNetwork: mockDeclarativePaymentNetwork,
       });
       await request.cancel(signatureIdentity, { refundAddress: bitcoinAddress });
 
-      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      // expect(spyPayNet).toHaveBeenCalledTimes(1);
       expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
     it('cannot call cancel and add refund address without payment network', async () => {
@@ -218,19 +191,19 @@ describe('api/request', () => {
 
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'increaseExpectedAmountRequest');
-      const spyPayNet = jest.spyOn(
-        mockPaymentNetwork,
-        'createExtensionsDataForAddRefundInformation',
-      );
+      // const spyPayNet = jest.spyOn(
+      //   mockDeclarativePaymentNetwork,
+      //   'createExtensionsDataForAddRefundInformation',
+      // );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {
-        paymentNetwork: mockPaymentNetwork,
+        paymentNetwork: mockDeclarativePaymentNetwork,
       });
       await request.increaseExpectedAmountRequest(3, signatureIdentity, {
         refundAddress: bitcoinAddress,
       });
 
-      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      // expect(spyPayNet).toHaveBeenCalledTimes(1);
       expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
@@ -256,19 +229,19 @@ describe('api/request', () => {
 
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'reduceExpectedAmountRequest');
-      const spyPayNet = jest.spyOn(
-        mockPaymentNetwork,
-        'createExtensionsDataForAddPaymentInformation',
-      );
+      // const spyPayNet = jest.spyOn(
+      //   mockDeclarativePaymentNetwork,
+      //   'createExtensionsDataForAddPaymentInformation',
+      // );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {
-        paymentNetwork: mockPaymentNetwork,
+        paymentNetwork: mockDeclarativePaymentNetwork,
       });
       await request.reduceExpectedAmountRequest(3, signatureIdentity, {
         refundAddress: bitcoinAddress,
       });
 
-      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      // expect(spyPayNet).toHaveBeenCalledTimes(1);
       expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
@@ -285,17 +258,17 @@ describe('api/request', () => {
   describe('addPaymentInformation', () => {
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
-      const spyPayNet = jest.spyOn(
-        mockPaymentNetwork,
-        'createExtensionsDataForAddPaymentInformation',
-      );
+      // const spyPayNet = jest.spyOn(
+      //   mockDeclarativePaymentNetwork,
+      //   'createExtensionsDataForAddPaymentInformation',
+      // );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {
-        paymentNetwork: mockPaymentNetwork,
+        paymentNetwork: mockDeclarativePaymentNetwork,
       });
       await request.addPaymentInformation({ paymentAddress: bitcoinAddress }, signatureIdentity);
 
-      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      // expect(spyPayNet).toHaveBeenCalledTimes(1);
       expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
@@ -310,17 +283,17 @@ describe('api/request', () => {
   describe('addRefundInformation', () => {
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
-      const spyPayNet = jest.spyOn(
-        mockPaymentNetwork,
-        'createExtensionsDataForAddRefundInformation',
-      );
+      // const spyPayNet = jest.spyOn(
+      //   mockDeclarativePaymentNetwork,
+      //   'createExtensionsDataForAddRefundInformation',
+      // );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {
-        paymentNetwork: mockPaymentNetwork,
+        paymentNetwork: mockDeclarativePaymentNetwork,
       });
       await request.addRefundInformation({ refundAddress: bitcoinAddress }, signatureIdentity);
 
-      expect(spyPayNet).toHaveBeenCalledTimes(1);
+      // expect(spyPayNet).toHaveBeenCalledTimes(1);
       expect(spyReqLog).toHaveBeenCalledTimes(1);
     });
 
@@ -336,8 +309,8 @@ describe('api/request', () => {
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
       const spyPayNet = jest.spyOn(
-        mockDeclarativePaymentNetwork as any,
-        'createExtensionsDataForDeclareSentPayment',
+        mockDeclarativePaymentNetwork.extension as any,
+        'createDeclareSentPaymentAction',
       );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {
@@ -370,8 +343,8 @@ describe('api/request', () => {
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
       const spyPayNet = jest.spyOn(
-        mockDeclarativePaymentNetwork as any,
-        'createExtensionsDataForDeclareSentRefund',
+        mockDeclarativePaymentNetwork.extension as any,
+        'createDeclareSentRefundAction',
       );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {
@@ -404,8 +377,8 @@ describe('api/request', () => {
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
       const spyPayNet = jest.spyOn(
-        mockDeclarativePaymentNetwork as any,
-        'createExtensionsDataForDeclareReceivedPayment',
+        mockDeclarativePaymentNetwork.extension as any,
+        'createDeclareReceivedPaymentAction',
       );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {
@@ -438,8 +411,8 @@ describe('api/request', () => {
     it('calls request-logic and payment network', async () => {
       const spyReqLog = jest.spyOn(mockRequestLogic, 'addExtensionsDataRequest');
       const spyPayNet = jest.spyOn(
-        mockDeclarativePaymentNetwork as any,
-        'createExtensionsDataForDeclareReceivedRefund',
+        mockDeclarativePaymentNetwork.extension as any,
+        'createDeclareReceivedRefundAction',
       );
 
       const request = new Request('1', mockRequestLogic, currencyManager, {

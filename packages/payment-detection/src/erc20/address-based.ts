@@ -14,56 +14,15 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
  * Handle payment networks with ERC20 based address extension
  */
 export default class PaymentNetworkERC20AddressBased
-  implements PaymentTypes.IPaymentNetwork<PaymentTypes.IERC20PaymentEventParameters> {
-  private extension: ExtensionTypes.PnAddressBased.IAddressBased;
+  implements PaymentTypes.IPaymentNetworkDetection<PaymentTypes.IPaymentEventParameters> {
+  public extension: ExtensionTypes.IExtension;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.addressBasedErc20;
-  }
-
-  /**
-   * Creates the extensions data for the creation of this extension
-   *
-   * @param paymentNetworkCreationParameters Parameters to create the extension
-   * @returns The extensionData object
-   */
-  public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnAddressBased.ICreationParameters,
-  ): Promise<ExtensionTypes.IAction> {
-    return this.extension.createCreationAction({
-      paymentAddress: paymentNetworkCreationParameters.paymentAddress,
-      refundAddress: paymentNetworkCreationParameters.refundAddress,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add payment address
-   *
-   * @param parameters to add payment information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddPaymentAddressAction({
-      paymentAddress: parameters.paymentAddress,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add refund address
-   *
-   * @param Parameters to add refund information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddRefundAddressAction({
-      refundAddress: parameters.refundAddress,
-    });
+    this.extension = advancedLogic.extensions
+      .addressBasedErc20 as ExtensionTypes.PnAddressBased.IAddressBased;
   }
 
   /**
@@ -74,7 +33,7 @@ export default class PaymentNetworkERC20AddressBased
    */
   public async getBalance(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.ERC20BalanceWithEvents> {
+  ): Promise<PaymentTypes.IBalanceWithEvents<PaymentTypes.IPaymentEventParameters>> {
     if (!request.currency.network) {
       request.currency.network = 'mainnet';
     }
@@ -96,7 +55,10 @@ export default class PaymentNetworkERC20AddressBased
         request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED].values
           .refundAddress;
 
-      let payments: PaymentTypes.ERC20BalanceWithEvents = { balance: '0', events: [] };
+      let payments: PaymentTypes.IBalanceWithEvents<PaymentTypes.IPaymentEventParameters> = {
+        balance: '0',
+        events: [],
+      };
       if (paymentAddress) {
         payments = await this.extractBalanceAndEvents(
           paymentAddress,
@@ -106,7 +68,10 @@ export default class PaymentNetworkERC20AddressBased
         );
       }
 
-      let refunds: PaymentTypes.ERC20BalanceWithEvents = { balance: '0', events: [] };
+      let refunds: PaymentTypes.IBalanceWithEvents<PaymentTypes.IPaymentEventParameters> = {
+        balance: '0',
+        events: [],
+      };
       if (refundAddress) {
         refunds = await this.extractBalanceAndEvents(
           refundAddress,
@@ -120,7 +85,7 @@ export default class PaymentNetworkERC20AddressBased
         .sub(BigNumber.from(refunds.balance || 0))
         .toString();
 
-      const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
+      const events: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IPaymentEventParameters>[] = [
         ...payments.events,
         ...refunds.events,
       ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
@@ -149,7 +114,7 @@ export default class PaymentNetworkERC20AddressBased
     eventName: PaymentTypes.EVENTS_NAMES,
     network: string,
     tokenContractAddress: string,
-  ): Promise<PaymentTypes.ERC20BalanceWithEvents> {
+  ): Promise<PaymentTypes.IBalanceWithEvents<PaymentTypes.IPaymentEventParameters>> {
     const infoRetriever = new Erc20InfoRetriever(tokenContractAddress, address, eventName, network);
     const events = await infoRetriever.getTransferEvents();
 

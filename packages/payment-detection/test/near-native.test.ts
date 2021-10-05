@@ -11,7 +11,7 @@ import NearNativeTokenPaymentDetector from '../src/near-detector';
 import { NearInfoRetriever } from '../src/near-info-retriever';
 import { deepCopy } from 'ethers/lib/utils';
 
-const mockNearPaymentNetwork = {
+const mockNearPaymentNetwork: any = {
   supportedNetworks: ['aurora', 'aurora-testnet'],
 };
 const currencyManager = CurrencyManager.getDefault();

@@ -1,5 +1,4 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import getBalanceErrorObject from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
@@ -9,64 +8,15 @@ import { BigNumber } from 'ethers';
  * Abstract class to extend to get the payment balance of reference based requests
  */
 export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
-  implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters> {
+  implements PaymentTypes.IPaymentNetworkDetection<TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension, reference based
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
   public constructor(
-    protected extension: ExtensionTypes.PnReferenceBased.IReferenceBased,
+    public extension: ExtensionTypes.PnReferenceBased.IReferenceBased,
     protected extensionType: ExtensionTypes.ID,
   ) {}
-
-  /**
-   * Creates the extensions data for the creation of this extension.
-   * Will set a salt if none is already given
-   *
-   * @param paymentNetworkCreationParameters Parameters to create the extension
-   * @returns The extensionData object
-   */
-  public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
-  ): Promise<ExtensionTypes.IAction> {
-    // If no salt is given, generate one
-    paymentNetworkCreationParameters.salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
-
-    return this.extension.createCreationAction({
-      paymentAddress: paymentNetworkCreationParameters.paymentAddress,
-      refundAddress: paymentNetworkCreationParameters.refundAddress,
-      ...paymentNetworkCreationParameters,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add payment address
-   *
-   * @param parameters to add payment information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddPaymentInformation(
-    parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddPaymentAddressAction({
-      paymentAddress: parameters.paymentAddress,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add refund address
-   *
-   * @param Parameters to add refund information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddRefundInformation(
-    parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddRefundAddressAction({
-      refundAddress: parameters.refundAddress,
-    });
-  }
 
   /**
    * Gets the balance and the payment/refund events

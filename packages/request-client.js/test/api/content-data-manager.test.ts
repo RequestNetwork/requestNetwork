@@ -1,4 +1,4 @@
-import { AdvancedLogicTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import ContentDataExtension from '../../src/api/content-data-extension';
 
@@ -13,7 +13,10 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createCreationAction(): any {
         return;
       },
-    },
+      applyActionToExtension(): any {
+        return;
+      },
+    } as ExtensionTypes.IExtension,
   },
 };
 
@@ -29,7 +32,7 @@ describe('api/content-data-extension', () => {
   describe('createExtensionsDataForCreation', () => {
     it('can createExtensionsDataForCreation', async () => {
       const content = { what: 'ever', content: 'it', is: true };
-      const spy = jest.spyOn(mockAdvancedLogic.extensions.contentData, 'createCreationAction');
+      const spy = jest.spyOn(mockAdvancedLogic.extensions.contentData as any, 'createCreationAction');
 
       contentDataExtension.createExtensionsDataForCreation(content);
 
@@ -37,7 +40,7 @@ describe('api/content-data-extension', () => {
     });
     it('can createExtensionsDataForCreation with data format', async () => {
       const content = TestData;
-      const spy = jest.spyOn(mockAdvancedLogic.extensions.contentData, 'createCreationAction');
+      const spy = jest.spyOn(mockAdvancedLogic.extensions.contentData as any, 'createCreationAction');
 
       contentDataExtension.createExtensionsDataForCreation(content);
 

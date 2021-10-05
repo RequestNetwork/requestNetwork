@@ -21,7 +21,8 @@ export {
 };
 
 /** Extension interface is extended by the extensions implementation */
-export interface IExtension<T = any> {
+export interface IExtension<TCreationParameters = any, T = any> {
+  createCreationAction: (creationParameters: TCreationParameters) => IAction<TCreationParameters>;
   applyActionToExtension: (
     extensionsState: RequestLogic.IExtensionStates,
     extensionAction: IAction<T>,
