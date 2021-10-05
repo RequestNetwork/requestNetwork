@@ -150,7 +150,7 @@ contract ERC20EscrowToPayV2 {
      */
     function withdrawFrozenFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
         require(requestMapping[_paymentRef].isFrozen, "Not frozen!");
-        require(requestMapping[_paymentRef].unlockDate >= block.timestamp, "Not Yet!");
+        require(requestMapping[_paymentRef].unlockDate <= block.timestamp, "Not Yet!");
 
         requestMapping[_paymentRef].isFrozen = false;
         

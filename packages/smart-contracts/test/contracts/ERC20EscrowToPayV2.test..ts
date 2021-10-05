@@ -109,8 +109,7 @@ describe("Contract: ERC20EscrowToPayV2", () => {
 
         });
         it("Should revert payer tries to withdraw before unlockDate", async () => {
-            expect(await erc20EscrowToPayV2.connect(payer).withdrawFrozenFunds(referenceExample2))
-                .to.be.reverted;
+            expect(await erc20EscrowToPayV2.connect(payer).withdrawFrozenFunds(referenceExample2)).to.throw;
         });
     });
 
