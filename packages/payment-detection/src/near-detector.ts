@@ -69,7 +69,7 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
    * @param eventName Indicate if it is an address for payment or refund
    * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
-   * @param paymentNetwork the payment network
+   * @param paymentNetwork the payment network state
    * @returns The balance
    */
   protected async extractEvents(
