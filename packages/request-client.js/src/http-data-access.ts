@@ -93,34 +93,38 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // Try to get the confirmation
-    Utils.retry(
-      async () => {
-        return axios.get(
-          '/getConfirmedTransaction',
-          Object.assign(this.axiosConfig, {
-            params: { transactionHash },
+    setTimeout(
+      () =>
+        Utils.retry(
+          async () => {
+            return axios.get(
+              '/getConfirmedTransaction',
+              Object.assign(this.axiosConfig, {
+                params: { transactionHash },
+              }),
+            );
+          },
+          {
+            maxRetries: GET_CONFIRMATION_MAX_RETRY,
+            retryDelay: GET_CONFIRMATION_RETRY_DELAY,
+          },
+        )()
+          .then((resultConfirmed: any) => {
+            // when found, emit the event 'confirmed'
+            result.emit('confirmed', resultConfirmed.data);
+          })
+          .catch((e: any) => {
+            // eslint-disable-next-line no-magic-numbers
+            if (e.response.status === 404) {
+              throw new Error(
+                `Transaction confirmation not receive after ${GET_CONFIRMATION_MAX_RETRY} retries`,
+              );
+            } else {
+              throw new Error(e.message);
+            }
           }),
-        );
-      },
-      {
-        maxRetries: GET_CONFIRMATION_MAX_RETRY,
-        retryDelay: GET_CONFIRMATION_RETRY_DELAY,
-      },
-    )()
-      .then((resultConfirmed: any) => {
-        // when found, emit the event 'confirmed'
-        result.emit('confirmed', resultConfirmed.data);
-      })
-      .catch((e: any) => {
-        // eslint-disable-next-line no-magic-numbers
-        if (e.response.status === 404) {
-          throw new Error(
-            `Transaction confirmation not receive after ${GET_CONFIRMATION_MAX_RETRY} retries`,
-          );
-        } else {
-          throw new Error(e.message);
-        }
-      });
+      GET_CONFIRMATION_RETRY_DELAY,
+    );
 
     return result;
   }
