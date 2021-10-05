@@ -1,24 +1,22 @@
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import AbstractExtension from '../abstract-extension';
+import DeclarativePaymentNetwork from './declarative';
 
 /**
  * Core of the address based payment networks
  * This module is called by the address based payment networks to avoid code redundancy
  */
 export default abstract class AddressBasedPaymentNetwork<
-    TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
-  >
-  extends AbstractExtension<TCreationParameters>
-  implements ExtensionTypes.PnAddressBased.IAddressBased<TCreationParameters> {
+  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
+> extends DeclarativePaymentNetwork<TCreationParameters> {
   public constructor(
     public extensionId: ExtensionTypes.ID,
     public currentVersion: string,
     public supportedNetworks: string[],
     public supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
-    super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);
+    super(extensionId, currentVersion);
     this.actions = {
       ...this.actions,
       [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]: this.applyAddPaymentAddress.bind(
@@ -54,7 +52,9 @@ export default abstract class AddressBasedPaymentNetwork<
       throw new InvalidPaymentAddressError(creationParameters.refundAddress, 'refundAddress');
     }
 
-    return super.createCreationAction(creationParameters);
+    return super.createCreationAction(
+      creationParameters,
+    ) as ExtensionTypes.IAction<TCreationParameters>;
   }
 
   /**
