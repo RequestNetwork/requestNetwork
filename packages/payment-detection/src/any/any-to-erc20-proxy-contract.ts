@@ -12,7 +12,7 @@ import PaymentNetworkERC20FeeProxyContract, {
   DeploymentInformationGetter,
 } from '../erc20/fee-proxy-contract';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
-import ProxyInfoRetriever from './any-to-any-proxy-info-retriever';
+import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
 import TheGraphAnyToErc20Retriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
 

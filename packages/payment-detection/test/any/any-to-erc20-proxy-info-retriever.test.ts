@@ -2,7 +2,7 @@
 /* eslint-disable no-magic-numbers */
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import AnyToAnyProxyInfoRetriever from '../../src/any/any-to-any-proxy-info-retriever';
+import AnyToErc20ProxyInfoRetriever from '../../src/any/any-to-erc20-proxy-info-retriever';
 import { ethers } from 'ethers';
 
 const erc20LocalhostContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -97,7 +97,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
   describe('on mocked logs', () => {
     let proxyPaymentLog: ethers.providers.Log;
     let proxyConversionLog: ethers.providers.Log;
-    let infoRetriever: AnyToAnyProxyInfoRetriever;
+    let infoRetriever: AnyToErc20ProxyInfoRetriever;
 
     const mockedGetLogs = (filter: ethers.EventFilter) => {
       if (
@@ -153,7 +153,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         logIndex: 5,
         removed: false,
       };
-      infoRetriever = new AnyToAnyProxyInfoRetriever(
+      infoRetriever = new AnyToErc20ProxyInfoRetriever(
         USDCurrency,
         paymentReferenceMock,
         conversionProxyContractAddress,
@@ -202,7 +202,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
     });
 
     it('skips the payment with a rate too old', async () => {
-      const infoRetriever = new AnyToAnyProxyInfoRetriever(
+      const infoRetriever = new AnyToErc20ProxyInfoRetriever(
         USDCurrency,
         paymentReferenceMock,
         conversionProxyContractAddress,

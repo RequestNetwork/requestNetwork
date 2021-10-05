@@ -27,7 +27,7 @@ type TransferWithReferenceAndFeeArgs = {
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
-export default class ConversionInfoRetriever {
+export default abstract class ConversionInfoRetriever {
   public contractConversionProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
@@ -156,16 +156,5 @@ export default class ConversionInfoRetriever {
     return Promise.all(eventPromises);
   }
 
-  protected getFeeFilter(): ethers.providers.Filter {
-    // Create a filter to find all the Fee Transfer logs with the payment reference
-    const feeFilter = this.contractConversionProxy.filters.TransferWithReferenceAndFee(
-      null,
-      null,
-      null,
-      '0x' + this.paymentReference,
-    ) as ethers.providers.Filter;
-    feeFilter.fromBlock = this.conversionProxyCreationBlockNumber;
-    feeFilter.toBlock = 'latest';
-    return feeFilter;
-  }
+  protected abstract getFeeFilter(): ethers.providers.Filter;
 }
