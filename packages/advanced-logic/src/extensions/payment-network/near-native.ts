@@ -1,6 +1,5 @@
 import { ExtensionTypes } from '@requestnetwork/types';
 import { UnsupportedNetworkError } from './address-based';
-
 import NativeTokenPaymentNetwork from './native-token';
 
 const CURRENT_VERSION = '0.2.0';
@@ -26,25 +25,21 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
   protected isValidAddress(address: string, networkName?: string): boolean {
     switch (networkName) {
       case 'aurora':
-        return this.isValidMainnet(address);
+        return this.isValidMainnetAddress(address);
       case 'aurora-testnet':
-        return this.isValidTestnet(address);
+        return this.isValidTestnetAddress(address);
       case undefined:
-        return this.isValidMainnet(address) || this.isValidTestnet(address);
+        return this.isValidMainnetAddress(address) || this.isValidTestnetAddress(address);
       default:
         throw new UnsupportedNetworkError(networkName, this.supportedNetworks);
     }
   }
 
-  private isValidNear(address: string): boolean {
-    return !!address.match(/^(([a-z\d]+[\-_])*[a-z\d]+\.)*([a-z\d]+[\-_])*[a-z\d]+$/);
+  private isValidMainnetAddress(address: string): boolean {
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'aurora');
   }
 
-  private isValidTestnet(address: string): boolean {
-    return this.isValidNear(address) && !address.match(/\.near$/);
-  }
-
-  private isValidMainnet(address: string): boolean {
-    return this.isValidNear(address) && !address.match(/\.testnet$/);
+  private isValidTestnetAddress(address: string): boolean {
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'aurora-testnet');
   }
 }

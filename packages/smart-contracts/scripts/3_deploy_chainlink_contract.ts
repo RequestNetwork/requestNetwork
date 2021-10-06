@@ -2,6 +2,7 @@ import '@nomiclabs/hardhat-ethers';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import deployERC20ConversionProxy from './erc20-conversion-proxy';
+import deployEthConversionProxy from './eth-conversion-proxy';
 import deploySwapConversion from './erc20-swap-to-conversion';
 import { deployOne } from './deploy-one';
 
@@ -15,9 +16,9 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
 
   const currencyManager = CurrencyManager.getDefault();
   // all these addresses are for test purposes
-  const ETH_address = currencyManager.fromSymbol('ETH')!.hash;
-  const USD_address = currencyManager.fromSymbol('USD')!.hash;
-  const EUR_address = currencyManager.fromSymbol('EUR')!.hash;
+  const ETH_hash = currencyManager.fromSymbol('ETH')!.hash;
+  const USD_hash = currencyManager.fromSymbol('USD')!.hash;
+  const EUR_hash = currencyManager.fromSymbol('EUR')!.hash;
   // Cf. ERC20Alpha in TestERC20.sol
   const DAI_address = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
@@ -31,8 +32,8 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
 
   // all these aggregators are for test purposes
   await conversionPathInstance.updateAggregatorsList(
-    [DAI_address, EUR_address, ETH_address, USDT_address],
-    [USD_address, USD_address, USD_address, ETH_address],
+    [DAI_address, EUR_hash, ETH_hash, USDT_address],
+    [USD_hash, USD_hash, USD_hash, ETH_hash],
     [AggDAI_USD_address, AggEUR_USD_address, AggETH_USD_address, AggUSDT_ETH_address],
   );
   console.log('AggregatorsList updated.');
@@ -65,6 +66,16 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
   // FIXME: should try to retrieve information from artifacts instead
   await erc20SwapConversion.approveRouterToSpend('0x9FBDa871d559710256a2502A2517b794B482Db40');
 
+  // EthConversion
+  const ethConversionProxyAddress = await deployEthConversionProxy(
+    {
+      ...args,
+      chainlinkConversionPathAddress: conversionPathInstance.address,
+      ethFeeProxyAddress: '0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241',
+      nativeTokenHash: ETH_hash,
+    },
+    hre,
+  );
   // ----------------------------------
   console.log('Contracts deployed');
   console.log(`
@@ -73,5 +84,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     ChainlinkConversionPath:  ${conversionPathInstance.address}
     Erc20ConversionProxy:     ${erc20ConversionAddress}
     Erc20SwapConversionProxy: ${erc20SwapConversionAddress}
+    EthConversionProxy:       ${ethConversionProxyAddress}
     `);
 }

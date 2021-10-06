@@ -1,21 +1,23 @@
 import { DataAccess, TransactionIndex } from '@requestnetwork/data-access';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 
 import cors from 'cors';
-import express from 'express';
-import * as httpStatus from 'http-status-codes';
+import { Server } from 'http';
+import express, { NextFunction, Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import KeyvFile from 'keyv-file';
 
-import Utils from '@requestnetwork/utils';
 import { getCustomHeaders, getInitializationStorageFilePath, getMnemonic } from './config';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
-import getChannelsByTopic from './request/getChannelsByTopic';
-import getStatus from './request/getStatus';
-import getTransactionsByChannelId from './request/getTransactionsByChannelId';
-import ipfsAdd from './request/ipfsAdd';
-import PersistTransaction from './request/persistTransaction';
 import { getEthereumStorage } from './storageUtils';
-import { Server } from 'http';
+
+import GetConfirmedTransactionHandler from './request/getConfirmedTransactionHandler';
+import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId';
+import PersistTransactionHandler from './request/persistTransaction';
+import GetChannelsByTopicHandler from './request/getChannelsByTopic';
+import GetStatusHandler from './request/getStatus';
+import IpfsAddHandler from './request/ipfsAdd';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -39,12 +41,18 @@ class RequestNode {
   public dataAccess: DataAccess;
   public ethereumStorage: StorageTypes.IStorage;
 
-  private express: express.Express;
+  private express: express.Application;
   private initialized: boolean;
   private logger: LogTypes.ILogger;
-  private persistTransaction: PersistTransaction;
+  private persistTransactionHandler: PersistTransactionHandler;
   private confirmedTransactionStore: ConfirmedTransactionStore;
   private requestNodeVersion: string;
+
+  private getTransactionsByChannelIdHandler: GetTransactionsByChannelIdHandler;
+  private getConfirmedTransactionHandler: GetConfirmedTransactionHandler;
+  private getChannelByTopicHandler: GetChannelsByTopicHandler;
+  private getStatusHandler: GetStatusHandler;
+  private ipfsAddHandler: IpfsAddHandler;
   /**
    * Request Node constructor
    *
@@ -77,7 +85,22 @@ class RequestNode {
     });
 
     this.confirmedTransactionStore = new ConfirmedTransactionStore(store);
-    this.persistTransaction = new PersistTransaction(this.confirmedTransactionStore);
+    this.getConfirmedTransactionHandler = new GetConfirmedTransactionHandler(
+      this.logger,
+      this.confirmedTransactionStore,
+    );
+    this.getTransactionsByChannelIdHandler = new GetTransactionsByChannelIdHandler(
+      this.logger,
+      this.dataAccess,
+    );
+    this.getChannelByTopicHandler = new GetChannelsByTopicHandler(this.logger, this.dataAccess);
+    this.getStatusHandler = new GetStatusHandler(this.logger, this.dataAccess);
+    this.ipfsAddHandler = new IpfsAddHandler(this.logger, this.ethereumStorage);
+    this.persistTransactionHandler = new PersistTransactionHandler(
+      this.confirmedTransactionStore,
+      this.dataAccess,
+      this.logger,
+    );
 
     this.express = express();
     this.mountRoutes();
@@ -141,19 +164,13 @@ class RequestNode {
     // Enable all CORS requests
     this.express.use(cors());
 
-    // Middleware to send custom header on every response
     const customHeaders = getCustomHeaders();
     if (customHeaders) {
-      this.express.use((_: any, res: any, next: any) => {
-        Object.entries(customHeaders).forEach(([key, value]: [string, string]) =>
-          res.header(key, value),
-        );
-        next();
-      });
+      this.express.use(this.customHeadersMiddelware(customHeaders));
     }
 
     // Set the Request Node version to the header
-    this.express.use((_: any, res: any, next: any) => {
+    this.express.use((_, res, next) => {
       res.header(REQUEST_NODE_VERSION_HEADER, this.requestNodeVersion);
       next();
     });
@@ -162,93 +179,46 @@ class RequestNode {
     this.express.use(express.json());
     this.express.use(express.urlencoded({ extended: true }));
 
-    // Route for health check
-    router.get('/healthz', (_, serverResponse: any) => {
-      return serverResponse.status(httpStatus.OK).send('OK');
-    });
-
-    // Route for readiness check
-    router.get('/readyz', (_, serverResponse: any) => {
-      if (this.initialized) {
-        return serverResponse.status(httpStatus.OK).send('OK');
-      }
-      return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
-    });
-
-    // Route for status check
-    router.get('/status', (clientRequest: any, serverResponse: any) => {
-      if (this.initialized) {
-        return getStatus(clientRequest, serverResponse, this.dataAccess, this.logger);
-      } else {
-        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
-      }
-    });
-
-    // Route for ipfs-add request
-    router.post('/ipfsAdd', (clientRequest: any, serverResponse: any) => {
-      if (this.initialized) {
-        return ipfsAdd(clientRequest, serverResponse, this.ethereumStorage, this.logger);
-      } else {
-        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
-      }
-    });
-
-    // Route for persistTransaction request
-    router.post('/persistTransaction', (clientRequest: any, serverResponse: any) => {
-      if (this.initialized) {
-        return this.persistTransaction.persistTransaction(
-          clientRequest,
-          serverResponse,
-          this.dataAccess,
-          this.logger,
-        );
-      } else {
-        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
-      }
-    });
-
-    // Route for getConfirmedTransaction request
-    router.get('/getConfirmedTransaction', (clientRequest: any, serverResponse: any) => {
-      if (this.initialized) {
-        return this.confirmedTransactionStore.getConfirmedTransaction(
-          clientRequest,
-          serverResponse,
-          this.logger,
-        );
-      } else {
-        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
-      }
-    });
-
-    // Route for getTransactionsByChannelId request
-    router.get('/getTransactionsByChannelId', (clientRequest: any, serverResponse: any) => {
-      if (this.initialized) {
-        return getTransactionsByChannelId(
-          clientRequest,
-          serverResponse,
-          this.dataAccess,
-          this.logger,
-        );
-      } else {
-        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
-      }
-    });
-
-    // Route for getChannelsByTopic request
-    router.get('/getChannelsByTopic', (clientRequest: any, serverResponse: any) => {
-      if (this.initialized) {
-        return getChannelsByTopic(clientRequest, serverResponse, this.dataAccess, this.logger);
-      } else {
-        return serverResponse.status(httpStatus.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
-      }
-    });
-
+    router.get('/healthz', (_, res) => res.status(StatusCodes.OK).send('OK'));
+    router.use(this.initializedMiddelware());
+    router.get('/readyz', (_, res) => res.status(StatusCodes.OK).send('OK'));
+    router.get('/status', this.getStatusHandler.handler);
+    router.post('/ipfsAdd', this.ipfsAddHandler.handler);
+    router.post('/persistTransaction', this.persistTransactionHandler.handler);
+    router.get('/getConfirmedTransaction', this.getConfirmedTransactionHandler.handler);
+    router.get('/getTransactionsByChannelId', this.getTransactionsByChannelIdHandler.handler);
+    router.get('/getChannelsByTopic', this.getChannelByTopicHandler.handler);
     this.express.use('/', router);
 
     // Any other route returns error 404
-    this.express.use((_clientRequest: any, serverResponse: any) => {
-      serverResponse.status(httpStatus.NOT_FOUND).send(NOT_FOUND_MESSAGE);
+    this.express.use((_clientRequest, serverResponse) => {
+      serverResponse.status(StatusCodes.NOT_FOUND).send(NOT_FOUND_MESSAGE);
     });
+  }
+
+  /**
+   * Middleware to send custom header on every response
+   */
+  private customHeadersMiddelware(customHeaders: Record<string, string>) {
+    return (_: Request, res: Response, next: NextFunction) => {
+      Object.entries(customHeaders).forEach(([key, value]: [string, string]) =>
+        res.header(key, value),
+      );
+      next();
+    };
+  }
+
+  /**
+   * Middleware to refuse traffic if node is not initialized yet
+   */
+  private initializedMiddelware() {
+    return (_: Request, res: Response, next: NextFunction) => {
+      if (!this.initialized) {
+        res.status(StatusCodes.SERVICE_UNAVAILABLE).send(NOT_INITIALIZED_MESSAGE);
+      } else {
+        next();
+      }
+    };
   }
 }
 

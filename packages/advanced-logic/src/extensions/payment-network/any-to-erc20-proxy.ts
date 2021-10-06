@@ -9,7 +9,12 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(extensionId, currentVersion, [], RequestLogicTypes.CURRENCY.ERC20);
+    super(
+      extensionId,
+      currentVersion,
+      Object.keys(supportedCurrencies),
+      RequestLogicTypes.CURRENCY.ERC20,
+    );
   }
 
   /**
