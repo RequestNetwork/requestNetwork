@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
-import { ERC20EscrowToPayV1 } from '@requestnetwork/smart-contracts';
-import { ERC20EscrowToPayV1__factory } from '@requestnetwork/smart-contracts/types';
+import { erc20EscrowToPayV2Artifact } from '@requestnetwork/smart-contracts';
+import { ERC20EscrowToPayV2__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
@@ -11,11 +11,13 @@ import {
   validateRequest,
 } from './utils';
 import { ITransactionOverrides } from './transaction-overrides';
+import { tokenAddress, feeAmount } from '../../../advanced-logic/test/utils/payment-network/erc20/any-to-erc20-proxy-add-data-generator';
+
 
 /**
- * Functions in ERC20EscrowToPayV1 Smart-Contract:
+ * Functions in ERC20EscrowToPayV2 Smart-Contract:
  *
- * openEscrow(`0x${paymentReference}`, tokenAddress,amountToPay,paymentAddress,feeAmount,feeAddress,)
+ * payRequestToEscrow(`0x${paymentReference}`, tokenAddress, amountToPay, paymentAddress, feeAmount,feeAddress,)
  * openDispute(`0x${paymentReference}`)
  * closeEscrow(`0x${paymentReference}`)
  * resolveDispute(`0x${paymentReference}`)
@@ -30,13 +32,13 @@ import { ITransactionOverrides } from './transaction-overrides';
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function openEscrowRequest(
+export async function payRequestToEscrow(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodeOpenEscrowRequest(request, signerOrProvider);
-  const contractAddress = ERC20EscrowToPayV1.getAddress(request.currencyInfo.network!);
+  const encodedTx = encodePayRequestToEscrow(request, signerOrProvider);
+  const contractAddress = erc20EscrowToPayV2Artifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
 
   const tx = await signer.sendTransaction({
@@ -56,13 +58,13 @@ export async function openEscrowRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function openDisputeRequest(
+export async function payRequestFromEscrow(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodeOpenDisputeRequest(request, signerOrProvider);
-  const contractAddress = ERC20EscrowToPayV1.getAddress(request.currencyInfo.network!);
+  const encodedTx = encodePayFromEscrowRequest(request, signerOrProvider);
+  const contractAddress = erc20EscrowToPayV2Artifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -82,13 +84,13 @@ export async function openDisputeRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function closeEscrowRequest(
+export async function freezeRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodeCloseEscrowRequest(request, signerOrProvider);
-  const contractAddress = ERC20EscrowToPayV1.getAddress(request.currencyInfo.network!);
+  const encodedTx = encodeFreezeRequest(request, signerOrProvider);
+  const contractAddress = erc20EscrowToPayV2Artifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -100,58 +102,6 @@ export async function closeEscrowRequest(
   console.log(tx);
   return tx;
 }
-
-/**
- * Processes a transaction to resolveDisputedfunds from the escrow's timelockcontract.
- * @param request request to pay.
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param overrides optionally, override default transaction values, like gas.
- */
-export async function resolveDisputeRequest(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
-  overrides?: ITransactionOverrides,
-): Promise<ContractTransaction> {
-  const encodedTx = encodeResolveDisputeRequest(request, signerOrProvider);
-  const contractAddress = ERC20EscrowToPayV1.getAddress(request.currencyInfo.network!);
-
-  const signer = getSigner(signerOrProvider);
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: contractAddress,
-    value: 0,
-    ...overrides,
-  });
-  console.log(tx);
-  return tx;
-}
-
-
-/**
- * Processes a transaction to lockDisputedFunds(), pay fees and create a new timelockcontract.
- * @param request request to pay.
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param overrides optionally, override default transaction values, like gas.
- */
-export async function lockDisputedFundsRequest(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
-  overrides?: ITransactionOverrides,
-): Promise<ContractTransaction> {
-  const encodedTx = encodeLockDisputedFundsRequest(request, signerOrProvider);
-  const contractAddress = ERC20EscrowToPayV1.getAddress(request.currencyInfo.network!);
-
-  const signer = getSigner(signerOrProvider);
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: contractAddress,
-    value: 0,
-    ...overrides,
-  });
-  console.log(tx);
-  return tx;
-}
-
 
 /**
  * Processes a transaction to withdrawLockedFunds() from tokentimelock contract.
@@ -165,7 +115,7 @@ export async function lockDisputedFundsRequest(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodeWithdrawLockedFundsRequest(request, signerOrProvider);
-  const contractAddress = ERC20EscrowToPayV1.getAddress(request.currencyInfo.network!);
+  const contractAddress = erc20EscrowToPayV2Artifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -185,13 +135,13 @@ export async function lockDisputedFundsRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function disputeMappingRequest(
+export async function requestMappingRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodeDisputeMappingRequest(request, signerOrProvider);
-  const contractAddress = ERC20EscrowToPayV1.getAddress(request.currencyInfo.network!);
+  const encodedTx = encodeRequestMappingRequest(request, signerOrProvider);
+  const contractAddress = erc20EscrowToPayV2Artifact.getAddress(request.currencyInfo.network!);
 
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
@@ -211,7 +161,7 @@ export async function disputeMappingRequest(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
-export function encodeOpenEscrowRequest(
+export function encodePayRequestToEscrow(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
@@ -221,24 +171,22 @@ export function encodeOpenEscrowRequest(
 
   // ERC20 token to be used
   const tokenAddress = request.currencyInfo.value;
-  const contractAddress = ERC20EscrowToPayV1.getAddress(request.currencyInfo.network!);
+  const contractAddress = erc20EscrowToPayV2Artifact.getAddress(request.currencyInfo.network!);
 
   // collects the parameters to be used, from the request
-  const { paymentReference, paymentAddress, feeAmount, feeAddress } = getRequestPaymentValues(
+  const { paymentReference, feeAmount } = getRequestPaymentValues(
     request,
   );
   const amountToPay = getAmountToPay(request, amount);
 
   // connects to ERC20EscrowToPayV1
-  const erc20EscrowToPayV1Contract = ERC20EscrowToPayV1__factory.connect(contractAddress, signer);
+  const erc20EscrowToPayV1Contract = ERC20EscrowToPayV2__factory.connect(contractAddress, signer);
 
-  return erc20EscrowToPayV1Contract.interface.encodeFunctionData('openEscrow', [
-    `0x${paymentReference}`,
+  return erc20EscrowToPayV1Contract.interface.encodeFunctionData('payRequestToEscrow', [
     tokenAddress,
     amountToPay,
-    paymentAddress,
-    feeAmount,
-    feeAddress,
+    `0x${paymentReference}`,
+    feeAmount
   ]);
 }
 
@@ -248,7 +196,7 @@ export function encodeOpenEscrowRequest(
  * @param request request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  */
-export function encodeCloseEscrowRequest(
+export function encodePayRequestFromEscrow(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
@@ -256,14 +204,18 @@ export function encodeCloseEscrowRequest(
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
-  const { paymentReference } = getRequestPaymentValues(request);
+  const { paymentReference, paymentAddress, feeAmount} = getRequestPaymentValues(request);
 
   // connections to the escrow contract
-  const contractAddress = ERC20EscrowToPayV1.getAddress(request.currencyInfo.network!);
-  const erc20EscrowToPayV1Contract = ERC20EscrowToPayV1__factory.connect(contractAddress, signer);
+  const contractAddress = erc20EscrowToPayV2Artifact.getAddress(request.currencyInfo.network!);
+  const erc20EscrowToPayV1Contract = ERC20EscrowToPayV2__factory.connect(contractAddress, signer);
 
   // encodes the function data and returns them
-  return erc20EscrowToPayV1Contract.interface.encodeFunctionData('closeEscrow', [`0x${paymentReference}`]);
+  return erc20EscrowToPayV1Contract.interface.encodeFunctionData('payRequestFromEscrow', [
+    `0x${paymentReference}`,
+    paymentAddress,
+    feeAmount,
+  ]);
 }
 
 
