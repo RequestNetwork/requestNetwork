@@ -179,7 +179,6 @@ describe('Request client using a request node', () => {
   });
 
   it('can create requests and get them fromIdentity and with time boundaries', async () => {
-    jest.setTimeout(30000);
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // create request 1
