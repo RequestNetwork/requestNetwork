@@ -126,21 +126,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/getTransactionsByChannelId',
-          Object.assign(this.axiosConfig, {
-            params: { channelId, timestampBoundaries },
-          }),
-        ),
-      {
-        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
-        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
-      },
-    )();
-
-    return data;
+    return this.fetchAndRetry('/getTransactionsByChannelId', { channelId, timestampBoundaries });
   }
 
   /**
@@ -153,21 +139,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/getChannelsByTopic',
-          Object.assign(this.axiosConfig, {
-            params: { topic, updatedBetween },
-          }),
-        ),
-      {
-        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
-        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
-      },
-    )();
-
-    return data;
+    return this.fetchAndRetry('/getChannelsByTopic', { topic, updatedBetween });
   }
 
   /**
@@ -180,21 +152,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/getChannelsByMultipleTopics',
-          Object.assign(this.axiosConfig, {
-            params: { topics, updatedBetween },
-          }),
-        ),
-      {
-        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
-        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
-      },
-    )();
-
-    return data;
+    return this.fetchAndRetry('/getChannelsByMultipleTopics', { topics, updatedBetween });
   }
 
   /**
@@ -203,14 +161,19 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * @param detailed if true get the list of files hashes
    */
   public async _getStatus(detailed?: boolean): Promise<any> {
+    return this.fetchAndRetry('/information', { detailed });
+  }
+
+  /**
+   * Sends an HTTP GET request to the node and retries until it succeeds.
+   * Throws when the retry count reaches a maximum.
+   *
+   * @param url HTTP GET request url
+   * @param params HTTP GET request parameters
+   */
+  protected async fetchAndRetry(url: string, params: any): Promise<any> {
     const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/information',
-          Object.assign(this.axiosConfig, {
-            params: { detailed },
-          }),
-        ),
+      async () => axios.get(url, { ...this.axiosConfig, params }),
       {
         maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
         retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
