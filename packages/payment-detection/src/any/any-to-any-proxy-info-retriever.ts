@@ -84,7 +84,7 @@ export default abstract class ConversionInfoRetriever {
     conversionFilter.fromBlock = this.conversionProxyCreationBlockNumber;
     conversionFilter.toBlock = 'latest';
 
-    // Get the fee proxy contract event logs
+    // Get the conversion contract event logs
     const conversionLogs = await this.provider.getLogs(conversionFilter);
 
     // Create a filter to find all the Fee Transfer logs with the payment reference
