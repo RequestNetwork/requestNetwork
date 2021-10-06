@@ -310,6 +310,9 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       delete this.buffer[id];
     } else {
       bufferTimestamp = this.buffer[id];
+      if (!bufferTimestamp) {
+        throw Error('No content found from this id');
+      }
     }
 
     // Send ipfs request
