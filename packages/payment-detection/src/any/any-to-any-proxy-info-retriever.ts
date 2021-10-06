@@ -91,14 +91,14 @@ export default abstract class ConversionInfoRetriever {
     const feeFilter = this.getFeeFilter();
 
     // Get the fee proxy contract event logs
-    const feeLogs = await this.provider.getLogs(feeFilter);
+    const feeProxyLogs = await this.provider.getLogs(feeFilter);
 
     // Parses, filters and creates the events from the logs with the payment reference
     const eventPromises = conversionLogs
       // Parses the logs
       .map((log) => {
         const parsedConversionLog = this.contractConversionProxy.interface.parseLog(log);
-        const proxyLog = feeLogs.find((l) => l.transactionHash === log.transactionHash);
+        const proxyLog = feeProxyLogs.find((l) => l.transactionHash === log.transactionHash);
         if (!proxyLog) {
           throw new Error('proxy log not found');
         }

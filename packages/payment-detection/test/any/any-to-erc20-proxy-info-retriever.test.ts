@@ -94,7 +94,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
       infoRetriever.provider = mockedProvider as any;
 
       const events = await infoRetriever.getTransferEvents();
-      const parameters: any = events[0].parameters!;
+      const parameters = events[0].parameters! as PaymentTypes.IERC20FeePaymentEventParameters;
 
       // if this assert fails it means this address received another transaction
       expect(events).toHaveLength(1);
