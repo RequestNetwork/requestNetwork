@@ -27,7 +27,7 @@ type TransferWithReferenceAndFeeArgs = {
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
-export default class ConversionInfoRetriever {
+export default abstract class ConversionInfoRetriever {
   public contractConversionProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
@@ -84,21 +84,21 @@ export default class ConversionInfoRetriever {
     conversionFilter.fromBlock = this.conversionProxyCreationBlockNumber;
     conversionFilter.toBlock = 'latest';
 
-    // Get the fee proxy contract event logs
+    // Get the conversion contract event logs
     const conversionLogs = await this.provider.getLogs(conversionFilter);
 
     // Create a filter to find all the Fee Transfer logs with the payment reference
     const feeFilter = this.getFeeFilter();
 
     // Get the fee proxy contract event logs
-    const feeLogs = await this.provider.getLogs(feeFilter);
+    const feeProxyLogs = await this.provider.getLogs(feeFilter);
 
     // Parses, filters and creates the events from the logs with the payment reference
     const eventPromises = conversionLogs
       // Parses the logs
       .map((log) => {
         const parsedConversionLog = this.contractConversionProxy.interface.parseLog(log);
-        const proxyLog = feeLogs.find((l) => l.transactionHash === log.transactionHash);
+        const proxyLog = feeProxyLogs.find((l) => l.transactionHash === log.transactionHash);
         if (!proxyLog) {
           throw new Error('proxy log not found');
         }
@@ -156,16 +156,5 @@ export default class ConversionInfoRetriever {
     return Promise.all(eventPromises);
   }
 
-  protected getFeeFilter(): ethers.providers.Filter {
-    // Create a filter to find all the Fee Transfer logs with the payment reference
-    const feeFilter = this.contractConversionProxy.filters.TransferWithReferenceAndFee(
-      null,
-      null,
-      null,
-      '0x' + this.paymentReference,
-    ) as ethers.providers.Filter;
-    feeFilter.fromBlock = this.conversionProxyCreationBlockNumber;
-    feeFilter.toBlock = 'latest';
-    return feeFilter;
-  }
+  protected abstract getFeeFilter(): ethers.providers.Filter;
 }

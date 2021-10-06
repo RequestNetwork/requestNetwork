@@ -1,6 +1,6 @@
-import * as httpStatus from 'http-status-codes';
+import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
-import requestNode from '../src/requestNode';
+import RequestNode from '../src/requestNode';
 
 const channelId = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const anotherChannelId = '01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
@@ -19,14 +19,14 @@ const otherTransactionData = {
   data: 'this is other sample data for a transaction to test getChannelsByTopic',
 };
 
-let requestNodeInstance;
+let requestNodeInstance: RequestNode;
 let server: any;
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('getChannelsByTopic', () => {
   beforeAll(async () => {
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     await requestNodeInstance.initialize();
     server = (requestNodeInstance as any).express;
   });
@@ -44,13 +44,13 @@ describe('getChannelsByTopic', () => {
         transactionData,
       })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     let serverResponse = await request(server)
       .get('/getChannelsByTopic')
       .query({ topic: topics[0] })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     expect(Object.keys(serverResponse.body.result.transactions[channelId])).toHaveLength(1);
     expect(serverResponse.body.result.transactions[channelId][0].transaction).toEqual(
@@ -65,13 +65,13 @@ describe('getChannelsByTopic', () => {
         transactionData: otherTransactionData,
       })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     serverResponse = await request(server)
       .get('/getChannelsByTopic')
       .query({ topic: otherTopics[0] })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
     expect(Object.keys(serverResponse.body.result.transactions[anotherChannelId])).toHaveLength(1);
     expect(serverResponse.body.result.transactions[anotherChannelId][0].transaction).toEqual(
       otherTransactionData,
@@ -82,7 +82,7 @@ describe('getChannelsByTopic', () => {
       .get('/getChannelsByTopic')
       .query({ topic: commonTopic })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     expect(Object.keys(serverResponse.body.result.transactions[channelId])).toHaveLength(1);
     expect(Object.keys(serverResponse.body.result.transactions[anotherChannelId])).toHaveLength(1);
@@ -93,7 +93,7 @@ describe('getChannelsByTopic', () => {
       .get('/getChannelsByTopic')
       .query({ topic: nonExistentTopic })
       .set('Accept', 'application/json')
-      .expect(httpStatus.OK);
+      .expect(StatusCodes.OK);
 
     expect(serverResponse.body.result.transactions).toMatchObject({});
   });
@@ -102,6 +102,6 @@ describe('getChannelsByTopic', () => {
     await request(server)
       .get('/getChannelsByTopic')
       .set('Accept', 'application/json')
-      .expect(httpStatus.UNPROCESSABLE_ENTITY);
+      .expect(StatusCodes.UNPROCESSABLE_ENTITY);
   });
 });
