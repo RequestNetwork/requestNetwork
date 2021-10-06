@@ -179,6 +179,7 @@ describe('Request client using a request node', () => {
   });
 
   it('can create requests and get them fromIdentity and with time boundaries', async () => {
+    jest.setTimeout(30000);
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     // create request 1
@@ -221,10 +222,12 @@ describe('Request client using a request node', () => {
     const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
 
     // reduce request 1
-    await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
+    const reduceData =  await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
+    await new Promise(function(resolve) {reduceData.on('confirmed', resolve)});
 
     // cancel request 1
-    await request1.cancel(payeeIdentity);
+    const cancelData = await request1.cancel(payeeIdentity);
+    await new Promise(function(resolve) {cancelData.on('confirmed', resolve)});
 
     // get requests without boundaries
     let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
@@ -395,26 +398,29 @@ describe('Request client using a request node', () => {
     );
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    await request.accept(payerIdentity);
+    const acceptData = await request.accept(payerIdentity);
+    await new Promise(function(resolve) {acceptData.on('confirmed', resolve)});
 
     await fetchedRequest.refresh();
     fetchedRequestData = fetchedRequest.getData();
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.ACCEPTED);
 
-    await request.increaseExpectedAmountRequest(
+    const increaseData = await request.increaseExpectedAmountRequest(
       requestCreationHashBTC.expectedAmount,
       payerIdentity,
     );
+    await new Promise(function(resolve) {increaseData.on('confirmed', resolve)});
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toEqual(
       String(Number(requestCreationHashBTC.expectedAmount) * 2),
     );
 
-    await request.reduceExpectedAmountRequest(
+    const reduceData = await request.reduceExpectedAmountRequest(
       Number(requestCreationHashBTC.expectedAmount) * 2,
       payeeIdentity,
     );
+    await new Promise(function(resolve) {reduceData.on('confirmed', resolve)});
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toBe('0');
