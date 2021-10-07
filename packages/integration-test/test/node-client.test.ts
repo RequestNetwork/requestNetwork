@@ -68,10 +68,10 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
   method: Types.Encryption.METHOD.ECIES,
 });
 
-const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = { 
+const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   GET_CONFIRMATION_DEFER_DELAY: 1000,
   GET_CONFIRMATION_RETRY_DELAY: 500,
- };
+};
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
   method: Types.Signature.METHOD.ECDSA,

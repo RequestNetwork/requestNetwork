@@ -25,7 +25,14 @@ import httpConfigDefaults from '../src/http-config-defaults';
 
 const packageJson = require('../package.json');
 
-const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = { GET_CONFIRMATION_DEFER_DELAY: 100 };
+const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
+  GET_CONFIRMATION_DEFER_DELAY: 1000,
+  GET_CONFIRMATION_RETRY_DELAY: 500,
+};
+const httpConfigWhenAxiosMocked: Partial<ClientTypes.IHttpDataAccessConfig> = {
+  ...httpConfig,
+  GET_CONFIRMATION_DEFER_DELAY: 100,
+};
 
 const signatureParametersPayee: SignatureTypes.ISignatureParameters = {
   method: SignatureTypes.METHOD.ECDSA,
