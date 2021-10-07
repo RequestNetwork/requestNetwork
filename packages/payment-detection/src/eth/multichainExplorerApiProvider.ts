@@ -36,6 +36,8 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://api.ftmscan.com';
       case 'bsctest':
         return 'https://api-testnet.bscscan.com/';
+      case 'bsc':
+        return 'https://api.bscscan.com/';
       // Near
       case 'aurora':
         return 'https://explorer.mainnet.near.org';
