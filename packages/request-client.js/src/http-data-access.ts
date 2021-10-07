@@ -12,6 +12,10 @@ const packageJson = require('../package.json');
  * Exposes a Data-Access module over HTTP
  */
 export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
+  /**
+   * Configuration that overrides http-config-defaults,
+   * @see httpConfigDefaults for the default configuration.
+   */
   protected httpConfig: ClientTypes.IHttpDataAccessConfig;
 
   /**
@@ -22,6 +26,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
 
   /**
    * Creates an instance of HttpDataAccess.
+   * @param httpConfig @see ClientTypes.IHttpDataAccessConfig for available options.
    * @param nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    */
   constructor(

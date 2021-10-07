@@ -27,6 +27,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
 
   /**
    * Creates an instance of HttpDataAccess.
+   * @param httpConfig Http config that will be used by the underlying http-data-access. @see ClientTypes.IHttpDataAccessConfig
    * @param nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    */
   constructor(

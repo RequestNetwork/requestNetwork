@@ -55,12 +55,12 @@ export interface IRequestEvents {
   error: (error: string) => void;
 }
 
-/** Configuration variables for the http-data-access and http-metamask-data-access */
+/** Configuration variables for http-data-access and http-metamask-data-access */
 export interface IHttpDataAccessConfig {
-  REQUEST_CLIENT_VERSION_HEADER: string;
-  HTTP_REQUEST_MAX_RETRY: number;
-  HTTP_REQUEST_RETRY_DELAY: number;
-  GET_CONFIRMATION_MAX_RETRY: number;
-  GET_CONFIRMATION_RETRY_DELAY: number;
-  GET_CONFIRMATION_DEFER_DELAY: number;
+  REQUEST_CLIENT_VERSION_HEADER: string; // Name of the header containing the client version
+  HTTP_REQUEST_MAX_RETRY: number; // Maximum number of retries to attempt when http requests to the Node fail
+  HTTP_REQUEST_RETRY_DELAY: number; // Delay between retry in ms
+  GET_CONFIRMATION_MAX_RETRY: number; // Maximum number of retries to get the confirmation of a persistTransaction
+  GET_CONFIRMATION_RETRY_DELAY: number; // Delay between retry in ms to get the confirmation of a persistTransaction
+  GET_CONFIRMATION_DEFER_DELAY: number; // Delay to wait in ms before trying for the first time to get the confirmation of a persistTransaction
 }
