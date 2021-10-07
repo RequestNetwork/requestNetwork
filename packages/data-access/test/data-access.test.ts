@@ -151,17 +151,10 @@ const defaultFakeStorage: StorageTypes.IStorage = {
 describe('data-access', () => {
   let testContext: any;
 
-  beforeEach(() => {
-    testContext = {};
-  });
-
   beforeEach(async () => {
+    testContext = {};
     jest.useFakeTimers('modern');
   });
-
-  // afterEach(async () => {
-  //   sinon.restore();
-  // });
 
   describe('constructor', () => {
     it('cannot initialize with getData without result', async () => {
@@ -424,30 +417,35 @@ describe('data-access', () => {
 
   describe('persistTransaction', () => {
     it('can persistTransaction()', async () => {
-      const dataAccess = new DataAccess(defaultFakeStorage);
+      jest.useRealTimers();
+      Date.now = jest.fn(() => 1000);
+      const dataAccess = new DataAccess(defaultFakeStorage, {
+        synchronizationIntervalTime: 500
+      });
       await dataAccess.initialize();
+      await dataAccess.startAutoSynchronization();
 
       const errFunction = jest.fn();
       const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
         arbitraryTopic1,
       ]);
-      result.on('error', errFunction).on('confirmed', (resultConfirmed1) => {
-        expect(resultConfirmed1).toMatchObject({
-          meta: {
-            storageMeta: {
-              state: DataAccessTypes.TransactionState.CONFIRMED,
-              timestamp: 1,
-            },
-            topics: [arbitraryTopic1],
-            transactionStorageLocation: dataIdBlock2tx,
-          },
-          result: {},
-        });
-      });
 
-      jest.advanceTimersByTime(11);
+      // jest.advanceTimersByTime(11);
 
       expect(errFunction).not.toHaveBeenCalled();
+
+      expect(result.meta).toMatchObject({
+        storageMeta: {
+          state: DataAccessTypes.TransactionState.PENDING,
+          timestamp: 1,
+        },
+        topics: [arbitraryTopic1],
+        transactionStorageLocation: "0x57ced1c3f99d053b23fac77a5078123ec2ce64406f77fb9bf31dd22f060da0d8"
+      });
+
+      const confirmation: StorageTypes.IAppendResult = await new Promise((resolve) => {result.on('confirmed', resolve)});
+      dataAccess.stopAutoSynchronization();
+
       /* eslint-disable  */
       /* eslint-disable quote-props */
       expect(defaultFakeStorage.append).toHaveBeenCalledWith(
@@ -468,14 +466,20 @@ describe('data-access', () => {
           ],
         }),
       );
-      expect(result.meta).toMatchObject({
-        storageMeta: {
-          state: DataAccessTypes.TransactionState.PENDING,
-          timestamp: 1,
+
+      expect(confirmation).toMatchObject({
+        meta: {
+          storageMeta: {
+            state: DataAccessTypes.TransactionState.CONFIRMED,
+            timestamp: 1,
+          },
+          topics: [arbitraryTopic1],
+          transactionStorageLocation: dataIdBlock2tx,
         },
-        topics: [arbitraryTopic1],
-        transactionStorageLocation: dataIdBlock2tx,
+        result: {},
       });
+
+
     });
 
     it('cannot persistTransaction() if not initialized', async () => {
@@ -502,6 +506,7 @@ describe('data-access', () => {
     });
 
     it('cannot persistTransaction() and emit error if confirmation failed', async () => {
+      Date.now = jest.fn(() => 1000);
       const mockStorageEmittingError: StorageTypes.IStorage = {
         _getStatus: jest.fn(),
         _ipfsAdd: jest.fn(),
@@ -552,7 +557,7 @@ describe('data-access', () => {
           timestamp: 1,
         },
         topics: [arbitraryTopic1],
-        transactionStorageLocation: dataIdBlock2tx,
+        transactionStorageLocation: "0x57ced1c3f99d053b23fac77a5078123ec2ce64406f77fb9bf31dd22f060da0d8",
       });
     });
   });
@@ -850,10 +855,10 @@ describe('data-access', () => {
     Date.now = (): number => 1000000;
     lastTimestampReturnedByGetData = 800;
     jest.advanceTimersByTime(1100);
+
     await flushCallStack();
 
     expect(fakeStorageSpied.getData).toHaveBeenNthCalledWith(2, { from: 501, to: 1000 });
-
     dataAccess.stopAutoSynchronization();
   });
 });

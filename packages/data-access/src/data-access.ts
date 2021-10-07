@@ -209,16 +209,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
           resultAppendConfirmed.meta.timestamp,
         );
 
-        const resultAfterConfirmation = {
-          meta: {
-            storageMeta: resultAppendConfirmed.meta,
-            topics,
-            transactionStorageLocation: resultAppendConfirmed.id,
-          },
-          result: {},
-        };
-
-        result.emit('confirmed', resultAfterConfirmation);
+        result.emit('confirmed', resultAppendConfirmed);
       })
       .on('error', async (error) => {
         result.emit('error', error);
@@ -457,21 +448,21 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
             resultAppendConfirmed.meta.timestamp,
           );
 
-          for (const sub of txsToStore.subs) {
+          for (const subAndTopics of txsToStore.subsAndTopics) {
             const resultAfterConfirmation = {
               meta: {
                 storageMeta: resultAppendConfirmed.meta,
-                topics: [], // TODO: topics,
+                topics: subAndTopics.topics,
                 transactionStorageLocation: resultAppendConfirmed.id,
               },
               result: {},
             };
-            sub.emit('confirmed', resultAfterConfirmation);
+            subAndTopics.sub.emit('confirmed', resultAfterConfirmation);
           }
         })
         .on('error', async (error) => {
-          for (const sub of txsToStore.subs) {
-            sub.emit('error', error);
+          for (const subAndTopics of txsToStore.subsAndTopics) {
+            subAndTopics.sub.emit('error', error);
           }
         });
     }

@@ -11,7 +11,7 @@ type TransactionBuffered = {
 
 export type TypeFlushReturn = {
   block: DataAccessTypes.IBlock;
-  subs: StorageTypes.IAppendResult[];
+  subsAndTopics: Array<{ sub: StorageTypes.IAppendResult; topics: string[] }>;
 } | null;
 
 export default class TransactionsBuffer {
@@ -53,21 +53,19 @@ export default class TransactionsBuffer {
   // TODO divide this function in two
   public async flush(): Promise<TypeFlushReturn> {
     let block: DataAccessTypes.IBlock = Block.createEmptyBlock();
-    const subs: StorageTypes.IAppendResult[] = [];
+    const subsAndTopics: Array<{ sub: StorageTypes.IAppendResult; topics: string[] }> = [];
 
-    for (const key in this.transactionsBuffered) {
-      const tx = this.transactionsBuffered.get(key);
-      block = Block.pushTransaction(
-        Block.createEmptyBlock(),
-        tx!.transaction,
-        tx!.channelId,
-        tx!.topics,
-      );
+    if (this.transactionsBuffered.size === 0) {
+      return null;
+    }
+
+    for (const [key, tx] of this.transactionsBuffered) {
+      block = Block.pushTransaction(block, tx!.transaction, tx!.channelId, tx!.topics);
       const sub = await this.transactionsWaitingConfirmation.get(key);
       if (!sub) {
         throw Error('TODO');
       }
-      subs.push(sub);
+      subsAndTopics.push({ sub, topics: tx!.topics });
     }
 
     // TODO empty buffer:
@@ -76,7 +74,7 @@ export default class TransactionsBuffer {
 
     return {
       block,
-      subs,
+      subsAndTopics,
     };
   }
 }
