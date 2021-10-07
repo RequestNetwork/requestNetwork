@@ -17,8 +17,6 @@ import TheGraphAnyToErc20Retriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
 
 /* eslint-disable max-classes-per-file */
-/** Exception when network not supported */
-class NetworkNotSupported extends Error {}
 /** Exception when version not supported */
 class VersionNotSupported extends Error {}
 
@@ -98,6 +96,8 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
       paymentNetwork.version,
     );
 
+    const conversionProxyAbi = erc20ConversionProxy.getContractAbi(paymentNetwork.version);
+
     if (!conversionDeploymentInformation) {
       throw new VersionNotSupported(
         `Payment network version not supported: ${paymentNetwork.version}`,
@@ -108,27 +108,6 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
       conversionDeploymentInformation.address;
     const conversionProxyCreationBlockNumber: number =
       conversionDeploymentInformation.creationBlockNumber;
-
-    const erc20FeeDeploymentInformation = erc20ConversionProxy.getDeploymentInformation(
-      network,
-      paymentNetwork.version,
-    );
-
-    if (!erc20FeeDeploymentInformation) {
-      throw new VersionNotSupported(
-        `Payment network version not supported: ${paymentNetwork.version}`,
-      );
-    }
-
-    const erc20FeeProxyContractAddress: string | undefined = erc20FeeDeploymentInformation.address;
-    const erc20FeeProxyCreationBlockNumber: number =
-      erc20FeeDeploymentInformation.creationBlockNumber;
-
-    if (!erc20FeeProxyContractAddress || !conversionProxyContractAddress) {
-      throw new NetworkNotSupported(
-        `Network not supported for this payment network: ${request.currency.network}`,
-      );
-    }
 
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
@@ -155,10 +134,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
           paymentReference,
           conversionProxyContractAddress,
           conversionProxyCreationBlockNumber,
-
-          erc20FeeProxyContractAddress,
-          erc20FeeProxyCreationBlockNumber,
-
+          conversionProxyAbi,
           toAddress,
           eventName,
           network,
