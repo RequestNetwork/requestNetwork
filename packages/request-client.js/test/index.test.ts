@@ -29,7 +29,7 @@ const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
   GET_CONFIRMATION_DEFER_DELAY: 1000,
   GET_CONFIRMATION_RETRY_DELAY: 500,
 };
-const httpConfigWhenAxiosMocked: Partial<ClientTypes.IHttpDataAccessConfig> = {
+const httpConfigWhenAxiosIsMocked: Partial<ClientTypes.IHttpDataAccessConfig> = {
   ...httpConfig,
   GET_CONFIRMATION_DEFER_DELAY: 100,
 };
@@ -176,7 +176,7 @@ describe('index', () => {
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
 
@@ -211,7 +211,7 @@ describe('index', () => {
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
 
@@ -247,7 +247,7 @@ describe('index', () => {
     });
 
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       ethereumProviderUrl: 'http://localhost:8545',
       signatureProvider: fakeSignatureProvider,
       useLocalEthereumBroadcast: true,
@@ -287,7 +287,7 @@ describe('index', () => {
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
 
@@ -325,7 +325,7 @@ describe('index', () => {
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
 
@@ -352,7 +352,7 @@ describe('index', () => {
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       nodeConnectionConfig: { baseURL },
       signatureProvider: fakeSignatureProvider,
     });
@@ -368,7 +368,7 @@ describe('index', () => {
   it('allows to create a request', async () => {
     const mock = mockAxios();
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
 
@@ -391,7 +391,7 @@ describe('index', () => {
   it('allows to compute a request id', async () => {
     const mock = mockAxios();
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
 
@@ -413,7 +413,7 @@ describe('index', () => {
   it('allows to compute a request id, then generate the request with the same id', async () => {
     const mock = mockAxios();
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
 
@@ -441,7 +441,7 @@ describe('index', () => {
   it('allows to get a request from its ID', async () => {
     mockAxios();
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
 
@@ -500,7 +500,7 @@ describe('index', () => {
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
     const request = await requestNetwork.createRequest({
@@ -696,7 +696,7 @@ describe('index', () => {
   it('allows to accept a request', async () => {
     const mock = mockAxios();
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
     const request = await requestNetwork.createRequest({
@@ -755,7 +755,7 @@ describe('index', () => {
   it('allows to cancel a request', async () => {
     const mock = mockAxios();
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
     const request = await requestNetwork.createRequest({
@@ -776,7 +776,7 @@ describe('index', () => {
   it('allows to increase the expected amount a request', async () => {
     const mock = mockAxios();
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
     const request = await requestNetwork.createRequest({
@@ -797,7 +797,7 @@ describe('index', () => {
   it('allows to reduce the expected amount a request', async () => {
     const mock = mockAxios();
     const requestNetwork = new RequestNetwork({
-      httpConfig,
+      httpConfig: httpConfigWhenAxiosIsMocked,
       signatureProvider: fakeSignatureProvider,
     });
     const request = await requestNetwork.createRequest({
