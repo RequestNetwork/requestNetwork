@@ -425,14 +425,9 @@ describe('data-access', () => {
       await dataAccess.initialize();
       await dataAccess.startAutoSynchronization();
 
-      const errFunction = jest.fn();
       const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
         arbitraryTopic1,
       ]);
-
-      // jest.advanceTimersByTime(11);
-
-      expect(errFunction).not.toHaveBeenCalled();
 
       expect(result.meta).toMatchObject({
         storageMeta: {
@@ -482,6 +477,96 @@ describe('data-access', () => {
 
     });
 
+    it('can persist two transactions in the same block', async () => {
+      jest.setTimeout(30000)
+      jest.useRealTimers();
+      Date.now = jest.fn(() => 1000);
+      const dataAccess = new DataAccess(defaultFakeStorage, {
+        synchronizationIntervalTime: 1000
+      });
+      await dataAccess.initialize();
+      await dataAccess.startAutoSynchronization();
+
+      const result = await dataAccess.persistTransaction(transactionMock1, arbitraryId1, [
+        arbitraryTopic1,
+      ]);
+      const result2 = await dataAccess.persistTransaction(transactionMock2, arbitraryId2, [
+        arbitraryTopic2,
+      ]);
+
+      expect(result.meta).toMatchObject({
+        storageMeta: {
+          state: DataAccessTypes.TransactionState.PENDING,
+          timestamp: 1,
+        },
+        topics: [arbitraryTopic1],
+        transactionStorageLocation: "0x57ced1c3f99d053b23fac77a5078123ec2ce64406f77fb9bf31dd22f060da0d8"
+      });
+
+      expect(result2.meta).toMatchObject({
+        storageMeta: {
+          state: DataAccessTypes.TransactionState.PENDING,
+          timestamp: 1,
+        },
+        topics: [arbitraryTopic2],
+        transactionStorageLocation: "0xf57f363d81a9d58067a0fa5a81dbee2adf4143542fd5d7750fdf212eb9127127"
+      });
+
+      const confirmations: StorageTypes.IAppendResult[] = await Promise.all([new Promise((resolve) => {result.on('confirmed', resolve)}), new Promise((resolve) => {result2.on('confirmed', resolve)})]);
+
+      dataAccess.stopAutoSynchronization();
+
+      /* eslint-disable  */
+      /* eslint-disable quote-props */
+      expect(defaultFakeStorage.append).toHaveBeenCalledWith(
+        JSON.stringify({
+          header: {
+            channelIds: {
+              [arbitraryId1]: [0],
+              [arbitraryId2]: [1],
+            },
+            topics: {
+              [arbitraryId1]: [arbitraryTopic1],
+              [arbitraryId2]: [arbitraryTopic2],
+            },
+            version: '0.1.0',
+          },
+          transactions: [
+            {
+              data: '{"attribut1":"plop","attribut2":"value"}',
+            },
+            {
+              data: '{"attribut1":"foo","attribut2":"bar"}',
+            },
+          ],
+        }),
+      );
+
+      expect(confirmations[0]).toMatchObject({
+        meta: {
+          storageMeta: {
+            state: DataAccessTypes.TransactionState.CONFIRMED,
+            timestamp: 1,
+          },
+          topics: [arbitraryTopic1],
+          transactionStorageLocation: dataIdBlock2tx,
+        },
+        result: {},
+      });
+
+      expect(confirmations[1]).toMatchObject({
+        meta: {
+          storageMeta: {
+            state: DataAccessTypes.TransactionState.CONFIRMED,
+            timestamp: 1,
+          },
+          topics: [arbitraryTopic2],
+          transactionStorageLocation: dataIdBlock2tx,
+        },
+        result: {},
+      });
+    });
+    
     it('cannot persistTransaction() if not initialized', async () => {
       const dataAccess = new DataAccess(defaultFakeStorage);
 
