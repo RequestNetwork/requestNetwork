@@ -12,7 +12,7 @@ const anyToErc20Proxy = new AnyToErc20Proxy();
 describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToErc20Proxy.createCreationAction({
           feeAddress: '0x0000000000000000000000000000000000000001',
@@ -42,7 +42,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
     });
 
     it('can create a create action without fee parameters', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -222,7 +222,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
 
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToErc20Proxy.createAddPaymentAddressAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -248,7 +248,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
 
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToErc20Proxy.createAddRefundAddressAction({
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -274,7 +274,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
 
   describe('createAddFeeAction', () => {
     it('can createAddFeeAction', () => {
-      // 'extension data is wrong'
+      
       expect(
         anyToErc20Proxy.createAddFeeAction({
           feeAddress: '0x0000000000000000000000000000000000000002',
@@ -484,6 +484,28 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         }).toThrowError(
           `refundAddress '${DataConversionERC20FeeAddData.invalidAddress}' is not a valid address`,
         );
+      });
+      it('keeps the version used at creation', () => {
+        const newState = anyToErc20Proxy.applyActionToExtension(
+          {},
+          { ...DataConversionERC20FeeCreate.actionCreationFull, version: 'ABCD' },
+          DataConversionERC20FeeCreate.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+        expect(newState[anyToErc20Proxy.extensionId].version).toBe('ABCD');
+      });
+
+      it('requires a version at creation', () => {
+        expect(() => {
+          anyToErc20Proxy.applyActionToExtension(
+            {},
+            { ...DataConversionERC20FeeCreate.actionCreationFull, version: '' },
+            DataConversionERC20FeeCreate.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('version is required at creation');
       });
     });
 

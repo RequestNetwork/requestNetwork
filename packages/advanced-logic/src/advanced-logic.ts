@@ -16,6 +16,7 @@ import FeeProxyContractEth from './extensions/payment-network/ethereum/fee-proxy
 import EthereumInputData from './extensions/payment-network/ethereum/input-data';
 import NearNative from './extensions/payment-network/near-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
+import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
 
 /**
  * Module to manage Advanced logic extensions
@@ -35,6 +36,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     feeProxyContractErc20: new FeeProxyContractErc20(),
     proxyContractErc20: new ProxyContractErc20(),
     feeProxyContractEth: new FeeProxyContractEth(),
+    anyToEthProxy: new AnyToEthProxy(),
   };
 
   /**
@@ -90,6 +92,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: this.extensions.anyToErc20Proxy,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: this.extensions
         .feeProxyContractEth,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY]: this.extensions.anyToEthProxy,
     }[id];
 
     if (!extension) {

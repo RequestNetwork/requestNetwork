@@ -1,8 +1,5 @@
-import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
-import * as httpStatus from 'http-status-codes';
-
-import Keyv from 'keyv';
-import KeyvFile from 'keyv-file';
+import { DataAccessTypes } from '@requestnetwork/types';
+import Keyv, { Store } from 'keyv';
 
 /**
  * Class for storing confirmed transactions information
@@ -10,52 +7,22 @@ import KeyvFile from 'keyv-file';
  * The client can call the getConfirmed entry point, to get the confirmed event.
  */
 export default class ConfirmedTransactionStore {
-  public store: Keyv<DataAccessTypes.IReturnPersistTransaction>;
+  private store: Keyv<DataAccessTypes.IReturnPersistTransaction>;
 
   /**
    * Confirmed transactions store constructor
    */
-  constructor(store?: KeyvFile) {
+  constructor(store?: Store<DataAccessTypes.IReturnPersistTransaction>) {
     this.store = new Keyv<DataAccessTypes.IReturnPersistTransaction>({
       namespace: 'ConfirmedTransactions',
       store,
     });
   }
 
-  /**
-   * Returns the information of a confirmed transaction
-   *
-   * @param clientRequest http client request object
-   * @param serverResponse http server response object
-   * @param logger logger
-   */
   public async getConfirmedTransaction(
-    clientRequest: any,
-    serverResponse: any,
-    logger: LogTypes.ILogger,
-  ): Promise<void> {
-    if (!clientRequest.query.transactionHash) {
-      serverResponse
-        .status(httpStatus.UNPROCESSABLE_ENTITY)
-        .send('transactionHash missing in the query');
-    } else {
-      try {
-        const result: DataAccessTypes.IReturnPersistTransaction | undefined = await this.store.get(
-          clientRequest.query.transactionHash,
-        );
-
-        if (result) {
-          return serverResponse.status(httpStatus.OK).send(result);
-        }
-
-        return serverResponse.status(httpStatus.NOT_FOUND).send();
-      } catch (e) {
-        logger.error(`getConfirmedTransaction error: ${e}`);
-        logger.debug(`getConfirmedTransaction fail`, ['metric', 'successRate']);
-
-        serverResponse.status(httpStatus.INTERNAL_SERVER_ERROR).send(e);
-      }
-    }
+    transactionHash: string,
+  ): Promise<DataAccessTypes.IReturnPersistTransaction | undefined> {
+    return this.store.get(transactionHash);
   }
 
   /**

@@ -181,7 +181,10 @@ export default class DeclarativePaymentNetwork<
     extensionAction: ExtensionTypes.IAction,
     timestamp: number,
   ): ExtensionTypes.IState {
+    const genericCreationAction = super.applyCreation(extensionAction, timestamp);
+
     return {
+      ...genericCreationAction,
       events: [
         {
           name: 'create',
@@ -194,8 +197,6 @@ export default class DeclarativePaymentNetwork<
           timestamp,
         },
       ],
-      id: extensionAction.id,
-      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentInfo: extensionAction.parameters.paymentInfo,
         receivedPaymentAmount: '0',
@@ -206,7 +207,6 @@ export default class DeclarativePaymentNetwork<
         payeeDelegate: extensionAction.parameters.payeeDelegate,
         payerDelegate: extensionAction.parameters.payerDelegate,
       },
-      version: CURRENT_VERSION,
     };
   }
 

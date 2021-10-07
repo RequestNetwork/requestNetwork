@@ -80,6 +80,29 @@ describe('content-data', () => {
         );
       }).toThrowError('The extension should be created before receiving any other action');
     });
+
+    it('keeps the version used at creation', () => {
+      const newState = contentData.applyActionToExtension(
+        {},
+        { ...TestData.createContentDataExtensionData, version: 'ABCD' },
+        TestData.requestCreatedNoExtension,
+        TestData.otherIdRaw.identity,
+        TestData.arbitraryTimestamp,
+      );
+      expect(newState[contentData.extensionId].version).toBe('ABCD');
+    });
+
+    it('requires a version at creation', () => {
+      expect(() => {
+        contentData.applyActionToExtension(
+          {},
+          { ...TestData.createContentDataExtensionData, version: '' },
+          TestData.requestCreatedNoExtension,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+      }).toThrowError('version is required at creation');
+    });
   });
 
   describe('createCreationAction', () => {
