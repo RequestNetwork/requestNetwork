@@ -7,7 +7,7 @@ export const currencyManager = new CurrencyManager([
     network: 'private',
     symbol: 'ETH',
     decimals: 18,
-    type: RequestLogicTypes.CURRENCY.ETH as any,
+    type: RequestLogicTypes.CURRENCY.ETH,
   }],
   ...[
     '0x9FBDa871d559710256a2502A2517b794B482Db40',
