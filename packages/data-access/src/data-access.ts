@@ -10,6 +10,8 @@ import IgnoredLocationIndex from './ignored-location';
 import IntervalTimer from './interval-timer';
 import TransactionIndex from './transaction-index';
 
+import { default as Buffer, TypeFlushReturn } from './buffer';
+
 // Default interval time for auto synchronization
 const DEFAULT_INTERVAL_TIME = 10000;
 
@@ -79,6 +81,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    */
   private logger: LogTypes.ILogger;
 
+  private buffer: Buffer;
+
   /**
    * Constructor DataAccess interface
    *
@@ -108,6 +112,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     this.ignoredLocationIndex = ignoredLocationIndex;
 
     this.logger = logger;
+    this.buffer = new Buffer();
   }
 
   /**
@@ -174,7 +179,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       );
     }
 
-    // create a block and add the transaction in it
+    // TO DELETE? create a block and add the transaction in it
     const updatedBlock = Block.pushTransaction(
       Block.createEmptyBlock(),
       transaction,
@@ -182,8 +187,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
       topics,
     );
 
-    // get the topic of the data in storage
-    const resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
+    // // get the topic of the data in storage
+    // const resultAppend = await this.storage.append(JSON.stringify(updatedBlock));
+    const resultAppend = await this.buffer.push(transaction, channelId, topics);
 
     const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(new EventEmitter(), {
       meta: {
@@ -425,6 +431,50 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // The last synced timestamp is the latest one returned by storage
     this.lastSyncStorageTimestamp = newDataWithMeta.lastTimestamp;
+
+    // Store the buffer to the storage
+    const txsToStore: TypeFlushReturn = await this.buffer.flush();
+
+    if (txsToStore) {
+      const resultAppend = await this.storage.append(JSON.stringify(txsToStore.block));
+
+      // TODO: update this info ?
+      // const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(new EventEmitter(), {
+      //   meta: {
+      //     storageMeta: resultAppend.meta,
+      //     topics,
+      //     transactionStorageLocation: resultAppend.id,
+      //   },
+      //   result: {},
+      // });
+
+      // Store the data to the real storage
+      resultAppend
+        .on('confirmed', async (resultAppendConfirmed: StorageTypes.IAppendResult) => {
+          // update the timestamp with the confirmed one
+          await this.transactionIndex.updateTimestamp(
+            resultAppendConfirmed.id,
+            resultAppendConfirmed.meta.timestamp,
+          );
+
+          for (const sub of txsToStore.subs) {
+            const resultAfterConfirmation = {
+              meta: {
+                storageMeta: resultAppendConfirmed.meta,
+                topics: [], // TODO: topics,
+                transactionStorageLocation: resultAppendConfirmed.id,
+              },
+              result: {},
+            };
+            sub.emit('confirmed', resultAfterConfirmation);
+          }
+        })
+        .on('error', async (error) => {
+          for (const sub of txsToStore.subs) {
+            sub.emit('error', error);
+          }
+        });
+    }
   }
 
   /**
