@@ -1,20 +1,23 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import ReferenceBasedDetector from './reference-based-detector';
+import FeeReferenceBasedDetector from './fee-reference-based-detector';
+
+import { ICurrencyManager } from '@requestnetwork/currency';
 
 /**
- * Abstract class to extend to get the payment balance of reference based requests
+ * Abstract class to extend to get the payment balance of conversion requests
  */
-export default abstract class FeeReferenceBasedDetector<
+export default abstract class AnyToAnyDetector<
   TPaymentEventParameters
-> extends ReferenceBasedDetector<TPaymentEventParameters> {
+> extends FeeReferenceBasedDetector<TPaymentEventParameters> {
   /**
-   * @param extension The advanced logic payment network extension, reference based
-   * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
+   * @param extension The advanced logic payment network extension, with conversion
+   * @param extensionType Example : ExtensionTypes.ID.ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY
    */
   public constructor(
     protected extension: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
     protected extensionType: ExtensionTypes.ID,
+    protected currencyManager: ICurrencyManager,
   ) {
     super(extension, extensionType);
   }
@@ -27,7 +30,7 @@ export default abstract class FeeReferenceBasedDetector<
    * @returns The extensionData object
    */
   public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
+    paymentNetworkCreationParameters: ExtensionTypes.PnAnyToAnyConversion.ICreationParameters,
   ): Promise<ExtensionTypes.IAction> {
     // If no salt is given, generate one
     paymentNetworkCreationParameters.salt =
@@ -38,25 +41,11 @@ export default abstract class FeeReferenceBasedDetector<
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,
+      network: paymentNetworkCreationParameters.network,
+      maxRateTimespan: paymentNetworkCreationParameters.maxRateTimespan,
       ...paymentNetworkCreationParameters,
     });
   }
-
-  /**
-   * Creates the extensions data to add fee address and amount
-   *
-   * @param Parameters to add refund information
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddFeeInformation(
-    parameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddFeeAction({
-      feeAddress: parameters.feeAddress,
-      feeAmount: parameters.feeAmount,
-    });
-  }
-
   /**
    * Extracts payment events of an address matching an address and a payment reference
    *
@@ -74,4 +63,16 @@ export default abstract class FeeReferenceBasedDetector<
     paymentReference: string,
     paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+
+  /**
+   * Get the network of the payment
+   *
+   * @param requestCurrency The request currency
+   * @param paymentNetwork the payment network
+   * @returns The network of payment
+   */
+  protected abstract getPaymentChain(
+    requestCurrency: RequestLogicTypes.ICurrency,
+    paymentNetwork: ExtensionTypes.IState<any>,
+  ): string;
 }

@@ -140,6 +140,13 @@ export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
 
+export type ConversionPaymentNetworkEvent = IPaymentNetworkEvent<
+  | IERC20PaymentEventParameters
+  | IERC20FeePaymentEventParameters
+  | IETHPaymentEventParameters
+  | IETHFeePaymentEventParameters
+>;
+
 /** Parameters for events of ETH payments */
 export interface IETHPaymentEventParameters {
   block?: number;
