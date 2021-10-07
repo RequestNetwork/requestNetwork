@@ -574,7 +574,6 @@ describe('ERC20 localhost request creation and detection test', () => {
       },
     ];
     const requestNetwork = new RequestNetwork({
-      httpConfig,
       signatureProvider,
       useMockStorage: true,
       currencies,
@@ -660,7 +659,6 @@ describe('ETH localhost request creation and detection test', () => {
   it('can create ETH requests and pay with ETH Fee proxy', async () => {
     const currencies = [...CurrencyManager.getDefaultList()];
     const requestNetwork = new RequestNetwork({
-      httpConfig,
       signatureProvider,
       useMockStorage: true,
       currencies,
