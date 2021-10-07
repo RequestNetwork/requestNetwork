@@ -124,7 +124,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
               throw new Error(e.message);
             }
           }),
-      this.httpConfig.GET_CONFIRMATION_RETRY_DELAY,
+      this.httpConfig.GET_CONFIRMATION_DEFER_DELAY,
     );
 
     return result;
