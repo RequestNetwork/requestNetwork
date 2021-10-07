@@ -1,4 +1,9 @@
-import { AdvancedLogicTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
 import ReferenceBasedDetector from './reference-based-detector';
 import { NearInfoRetriever } from './near-info-retriever';
@@ -60,26 +65,27 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
   /**
    * Extracts the events for an address and a payment reference
    *
-   * @private
-   * @param address Payment address
-   * @param eventName Is it for payment or refund
-   * @param network The payment network name
+   * @param address Address to check
+   * @param eventName Indicate if it is an address for payment or refund
+   * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
-   * @param paymentNetworkVersion
+   * @param paymentNetwork the payment network state
    * @returns The balance with events
    */
   protected async extractEvents(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    network: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
     paymentReference: string,
-    paymentNetworkVersion: string,
+    paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
+
     const infoRetriever = new NearInfoRetriever(
       paymentReference,
       address,
-      NearNativeTokenPaymentDetector.getNearContractName(network, paymentNetworkVersion),
-      NearNativeTokenPaymentDetector.getProcedureName(network, paymentNetworkVersion),
+      NearNativeTokenPaymentDetector.getNearContractName(network, paymentNetwork.version),
+      NearNativeTokenPaymentDetector.getProcedureName(network, paymentNetwork.version),
       eventName,
       network,
     );

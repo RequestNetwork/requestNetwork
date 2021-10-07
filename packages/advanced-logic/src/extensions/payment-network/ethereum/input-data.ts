@@ -12,6 +12,7 @@ const supportedNetworks = [
   'celo',
   'fantom',
   'bsctest',
+  'bsc',
 ];
 
 /**
