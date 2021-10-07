@@ -47,15 +47,13 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       ...httpConfigDefaults,
       ...httpConfig,
     };
-    this.axiosConfig = Object.assign(
-      {
-        baseURL: 'http://localhost:3000',
-        headers: {
-          [this.httpConfig.REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
-        },
+    this.axiosConfig = {
+      baseURL: 'http://localhost:3000',
+      headers: {
+        [this.httpConfig.REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
       },
-      nodeConnectionConfig,
-    );
+      ...nodeConnectionConfig,
+    };
   }
 
   /**
