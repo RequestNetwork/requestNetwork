@@ -1,11 +1,10 @@
 import { Block } from '@requestnetwork/data-access';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { DataAccessTypes } from '@requestnetwork/types';
+import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
-import constants from './constants';
 import HttpDataAccess from './http-data-access';
 
 /**
@@ -32,18 +31,21 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
    */
   constructor(
     {
+      httpConfig,
       nodeConnectionConfig,
       web3,
       ethereumProviderUrl,
     }: {
+      httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: AxiosRequestConfig;
       web3?: any;
       ethereumProviderUrl?: string;
     } = {
+      httpConfig: {},
       nodeConnectionConfig: {},
     },
   ) {
-    super(nodeConnectionConfig);
+    super({ httpConfig, nodeConnectionConfig });
 
     ethereumProviderUrl = ethereumProviderUrl ? ethereumProviderUrl : 'http://localhost:8545';
 
@@ -187,8 +189,8 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
           }),
         ),
       {
-        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
-        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: this.httpConfig.HTTP_REQUEST_MAX_RETRY,
+        retryDelay: this.httpConfig.HTTP_REQUEST_RETRY_DELAY,
       },
     )();
 

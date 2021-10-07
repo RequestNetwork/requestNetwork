@@ -1,5 +1,6 @@
 import { CurrencyInput } from '@requestnetwork/currency';
 import {
+  ClientTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   SignatureProviderTypes,
@@ -31,6 +32,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
   constructor(
     {
       decryptionProvider,
+      httpConfig,
       nodeConnectionConfig,
       useLocalEthereumBroadcast,
       signatureProvider,
@@ -40,6 +42,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       currencies,
     }: {
       decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
+      httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: AxiosRequestConfig;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
@@ -48,6 +51,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       ethereumProviderUrl?: string;
       currencies?: CurrencyInput[];
     } = {
+      httpConfig: {},
       nodeConnectionConfig: {},
       useLocalEthereumBroadcast: false,
       useMockStorage: false,
@@ -63,9 +67,9 @@ export default class HttpRequestNetwork extends RequestNetwork {
       : // useMockStorage === false
       useLocalEthereumBroadcast
       ? // useLocalEthereumBroadcast === true => use http-metamask-data-access
-        new HttpMetaMaskDataAccess({ nodeConnectionConfig, web3, ethereumProviderUrl })
+        new HttpMetaMaskDataAccess({ httpConfig, nodeConnectionConfig, web3, ethereumProviderUrl })
       : // useLocalEthereumBroadcast === false => use http-data-access
-        new HttpDataAccess(nodeConnectionConfig);
+        new HttpDataAccess({ httpConfig, nodeConnectionConfig });
 
     super({ dataAccess, signatureProvider, decryptionProvider, currencies });
 

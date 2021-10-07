@@ -2,7 +2,7 @@ import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryp
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes, IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import {
   payRequest,
@@ -68,6 +68,8 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
   method: Types.Encryption.METHOD.ECIES,
 });
 
+const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = { HTTP_REQUEST_RETRY_DELAY: 1000 };
+
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
   method: Types.Signature.METHOD.ECDSA,
   privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
@@ -79,7 +81,7 @@ signatureProvider.addSignatureParameters({
 
 describe('Request client using a request node', () => {
   it('can create a request, change the amount and get data', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
+    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
 
     // Create a request
     const request = await requestNetwork.createRequest({
@@ -115,7 +117,7 @@ describe('Request client using a request node', () => {
   });
 
   it('can create a request with declarative payment network and content data', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
+    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
       id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
@@ -179,7 +181,7 @@ describe('Request client using a request node', () => {
   });
 
   it('can create requests and get them fromIdentity and with time boundaries', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
+    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
 
     // create request 1
     const requestCreationHash1: Types.IRequestInfo = {
@@ -252,7 +254,7 @@ describe('Request client using a request node', () => {
   });
 
   it('can create requests and get them fromIdentity with smart contract identity', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
+    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
 
     const payerSmartContract = {
       network: 'private',
@@ -305,7 +307,11 @@ describe('Request client using a request node', () => {
   });
 
   it('can create an encrypted request and get it back unencrypted', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider,
+      decryptionProvider,
+    });
     const timestamp = Date.now();
 
     // Create an encrypted request
@@ -348,7 +354,11 @@ describe('Request client using a request node', () => {
   });
 
   it('can create an encrypted request, modify it and get it back unencrypted', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider,
+      decryptionProvider,
+    });
     const timestamp = Date.now();
 
     // Create an encrypted request
@@ -421,7 +431,11 @@ describe('Request client using a request node', () => {
   });
 
   it('create an encrypted and unencrypted request with the same content', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider,
+      decryptionProvider,
+    });
 
     const timestamp = Date.now();
 
@@ -465,11 +479,13 @@ describe('Request client using a request node', () => {
     const timestamp = Date.now();
     const myRandomTopic = `topic ${Utils.getCurrentTimestampInSecond()}`;
     const requestNetwork = new RequestNetwork({
+      httpConfig,
       decryptionProvider,
       signatureProvider,
     });
 
     const badRequestNetwork = new RequestNetwork({
+      httpConfig,
       decryptionProvider: wrongDecryptionProvider,
       signatureProvider,
     });
@@ -516,7 +532,7 @@ describe('ERC20 localhost request creation and detection test', () => {
   };
 
   it('can create an ERC20 request on localhost and detect the payment using address based detection', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
+    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
 
     // Create a request
     const request = await requestNetwork.createRequest({
@@ -555,6 +571,7 @@ describe('ERC20 localhost request creation and detection test', () => {
       },
     ];
     const requestNetwork = new RequestNetwork({
+      httpConfig,
       signatureProvider,
       useMockStorage: true,
       currencies,
@@ -638,10 +655,9 @@ describe('ETH localhost request creation and detection test', () => {
   };
 
   it('can create ETH requests and pay with ETH Fee proxy', async () => {
-    const currencies = [
-      ...CurrencyManager.getDefaultList()
-    ];
+    const currencies = [...CurrencyManager.getDefaultList()];
     const requestNetwork = new RequestNetwork({
+      httpConfig,
       signatureProvider,
       useMockStorage: true,
       currencies,

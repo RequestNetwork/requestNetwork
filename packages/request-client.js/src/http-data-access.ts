@@ -1,9 +1,9 @@
-import { DataAccessTypes } from '@requestnetwork/types';
+import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
-import constants from './constants';
+import httpConfigDefaults from './http-config-defaults';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -12,6 +12,8 @@ const packageJson = require('../package.json');
  * Exposes a Data-Access module over HTTP
  */
 export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
+  protected httpConfig: ClientTypes.IHttpDataAccessConfig;
+
   /**
    * Configuration that will be sent to axios for each request.
    * We can also create a AxiosInstance with axios.create() but it dramatically complicates testing.
@@ -22,15 +24,29 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * Creates an instance of HttpDataAccess.
    * @param nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    */
-  constructor(nodeConnectionConfig: AxiosRequestConfig = {}) {
+  constructor(
+    {
+      httpConfig,
+      nodeConnectionConfig,
+    }: {
+      httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
+      nodeConnectionConfig?: AxiosRequestConfig;
+    } = {
+      httpConfig: {},
+      nodeConnectionConfig: {},
+    },
+  ) {
     // Get Request Client version to set it in the header
     const requestClientVersion = packageJson.version;
-
+    this.httpConfig = {
+      ...httpConfigDefaults,
+      ...httpConfig,
+    };
     this.axiosConfig = Object.assign(
       {
         baseURL: 'http://localhost:3000',
         headers: {
-          [constants.REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
+          [this.httpConfig.REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
         },
       },
       nodeConnectionConfig,
@@ -90,8 +106,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
             });
           },
           {
-            maxRetries: constants.GET_CONFIRMATION_MAX_RETRY,
-            retryDelay: constants.GET_CONFIRMATION_RETRY_DELAY,
+            maxRetries: this.httpConfig.GET_CONFIRMATION_MAX_RETRY,
+            retryDelay: this.httpConfig.GET_CONFIRMATION_RETRY_DELAY,
           },
         )()
           .then((resultConfirmed: any) => {
@@ -102,13 +118,13 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
             // eslint-disable-next-line no-magic-numbers
             if (e.response.status === 404) {
               throw new Error(
-                `Transaction confirmation not receive after ${constants.GET_CONFIRMATION_MAX_RETRY} retries`,
+                `Transaction confirmation not receive after ${this.httpConfig.GET_CONFIRMATION_MAX_RETRY} retries`,
               );
             } else {
               throw new Error(e.message);
             }
           }),
-      constants.GET_CONFIRMATION_RETRY_DELAY,
+      this.httpConfig.GET_CONFIRMATION_RETRY_DELAY,
     );
 
     return result;
@@ -173,8 +189,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     const { data } = await Utils.retry(
       async () => axios.get(url, { ...this.axiosConfig, params }),
       {
-        maxRetries: constants.HTTP_REQUEST_MAX_RETRY,
-        retryDelay: constants.HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: this.httpConfig.HTTP_REQUEST_MAX_RETRY,
+        retryDelay: this.httpConfig.HTTP_REQUEST_RETRY_DELAY,
       },
     )();
 

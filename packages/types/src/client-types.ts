@@ -54,3 +54,15 @@ export interface IRequestEvents {
   confirmed: (requestData: IRequestDataWithEvents) => void;
   error: (error: string) => void;
 }
+
+export interface IHttpDataAccessConfig {
+  REQUEST_CLIENT_VERSION_HEADER: string;
+  // Maximum number of retries to attempt when http requests to the Node fail
+  HTTP_REQUEST_MAX_RETRY: number;
+  // Delay between retry in ms
+  HTTP_REQUEST_RETRY_DELAY: number;
+  // Maximum number of retries to get the confirmation of a persistTransaction
+  GET_CONFIRMATION_MAX_RETRY: number;
+  // Delay between retry in ms to get the confirmation of a persistTransaction
+  GET_CONFIRMATION_RETRY_DELAY: number;
+}
