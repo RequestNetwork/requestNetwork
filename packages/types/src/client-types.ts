@@ -2,7 +2,7 @@ import * as Identity from './identity-types';
 import * as Payment from './payment-types';
 import * as RequestLogic from './request-logic-types';
 
-/** Restrict research to two timestamp */
+/** Restrict research between two timestamp */
 export interface ITimestampBoundaries {
   from?: number;
   to?: number;

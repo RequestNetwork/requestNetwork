@@ -204,6 +204,12 @@ describe('Request client using a request node', () => {
       topics: topicsRequest1and2,
     });
 
+    await Promise.all([
+      request1.waitForConfirmation(),
+      new Promise((r) => setTimeout(r, 1000)),
+    ]);
+    const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
+
     // create request 2
     const requestCreationHash2: Types.IRequestInfo = {
       currency: 'BTC',
@@ -219,17 +225,15 @@ describe('Request client using a request node', () => {
       topics: topicsRequest1and2,
     });
 
-    // wait 1,5 sec and store the timestamp
-    /* eslint-disable no-magic-numbers */
-    // eslint-disable-next-line
-    await new Promise((r) => setTimeout(r, 1500));
-    const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
+    await request2.waitForConfirmation();
 
     // reduce request 1
-    await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
+    const requestDataReduce = await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
+    await new Promise((r) => requestDataReduce.on('confirmed', r));
 
     // cancel request 1
-    await request1.cancel(payeeIdentity);
+    const requestDataCancel = await request1.cancel(payeeIdentity);
+    await new Promise((r) => requestDataCancel.on('confirmed', r));
 
     // get requests without boundaries
     let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
@@ -246,7 +250,7 @@ describe('Request client using a request node', () => {
 
     // get requests with boundaries
     requests = await requestNetwork.fromTopic(topicsRequest1and2[0], {
-      from: timestampBeforeReduce,
+      to: timestampBeforeReduce,
     });
     expect(requests.length).toBe(1);
     expect(requests[0].requestId).toBe(request1.requestId);
