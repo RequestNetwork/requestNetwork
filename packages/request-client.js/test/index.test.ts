@@ -1873,9 +1873,7 @@ describe('index', () => {
         requestInfo,
         signer: payeeIdentity,
       });
-      // await request.waitForConfirmation();
-      await new Promise((resolve): any => setTimeout(resolve, 150));
-      const data = await request.refresh();
+      const data = await request.waitForConfirmation();
 
       expect(data).toBeDefined();
       expect(data.balance?.balance).toBe('90');

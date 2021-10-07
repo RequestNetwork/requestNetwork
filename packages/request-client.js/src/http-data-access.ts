@@ -84,12 +84,10 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
       () =>
         Utils.retry(
           async () => {
-            return axios.get(
-              '/getConfirmedTransaction',
-              Object.assign(this.axiosConfig, {
-                params: { transactionHash },
-              }),
-            );
+            return axios.get('/getConfirmedTransaction', {
+              ...this.axiosConfig,
+              params: { transactionHash },
+            });
           },
           {
             maxRetries: constants.GET_CONFIRMATION_MAX_RETRY,
