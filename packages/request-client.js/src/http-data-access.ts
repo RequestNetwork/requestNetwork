@@ -131,26 +131,26 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * Gets all the transactions of channel indexed by topic from the node through HTTP.
    *
    * @param topic topic to search for
-   * @param updatedBetween filter timestamp boundaries
+   * @param timestampBoundaries filter timestamp boundaries
    */
   public async getChannelsByTopic(
     topic: string,
-    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.fetchAndRetry('/getChannelsByTopic', { topic, updatedBetween });
+    return this.fetchAndRetry('/getChannelsByTopic', { topic, timestampBoundaries });
   }
 
   /**
    * Gets all the transactions of channel indexed by multiple topics from the node through HTTP.
    *
    * @param topics topics to search for
-   * @param updatedBetween filter timestamp boundaries
+   * @param timestampBoundaries filter timestamp boundaries
    */
   public async getChannelsByMultipleTopics(
     topics: string[],
-    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.fetchAndRetry('/getChannelsByMultipleTopics', { topics, updatedBetween });
+    return this.fetchAndRetry('/getChannelsByMultipleTopics', { topics, timestampBoundaries });
   }
 
   /**
