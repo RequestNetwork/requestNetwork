@@ -37,12 +37,14 @@ export interface ICreationParameters {
 export interface ISentParameters {
   amount: RequestLogicTypes.Amount;
   note: any;
+  txHash?: string;
 }
 
 /** Parameters of declareReceivedPayment and declareReceivedRefund action */
 export interface IReceivedParameters {
   amount: RequestLogicTypes.Amount;
   note: any;
+  txHash?: string;
 }
 
 /** Parameters of addPaymentInstruction action */

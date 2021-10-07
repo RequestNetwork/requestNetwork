@@ -49,6 +49,7 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
       },
     };
   }
@@ -69,6 +70,7 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
       },
     };
   }
@@ -89,6 +91,7 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
       },
     };
   }
@@ -109,6 +112,7 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
       },
     };
   }
@@ -206,6 +210,7 @@ export default class DeclarativePaymentNetwork<
         sentRefundAmount: '0',
         payeeDelegate: extensionAction.parameters.payeeDelegate,
         payerDelegate: extensionAction.parameters.payerDelegate,
+        txHash: '',
       },
     };
   }
@@ -239,6 +244,7 @@ export default class DeclarativePaymentNetwork<
       copiedExtensionState.values.sentPaymentAmount,
       extensionAction.parameters.amount,
     );
+    copiedExtensionState.values.txHash = extensionAction.parameters.txHash;
 
     // update events
     copiedExtensionState.events.push({
@@ -246,6 +252,7 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
       },
       timestamp,
       from: actionSigner,
@@ -283,6 +290,7 @@ export default class DeclarativePaymentNetwork<
       copiedExtensionState.values.sentRefundAmount,
       extensionAction.parameters.amount,
     );
+    copiedExtensionState.values.txHash = extensionAction.parameters.txHash;
 
     // update events
     copiedExtensionState.events.push({
@@ -290,6 +298,7 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
       },
       timestamp,
       from: actionSigner,
@@ -327,6 +336,7 @@ export default class DeclarativePaymentNetwork<
       copiedExtensionState.values.receivedPaymentAmount,
       extensionAction.parameters.amount,
     );
+    copiedExtensionState.values.txHash = extensionAction.parameters.txHash;
 
     // update events
     copiedExtensionState.events.push({
@@ -334,6 +344,7 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
       },
       timestamp,
       from: actionSigner,
@@ -371,6 +382,7 @@ export default class DeclarativePaymentNetwork<
       copiedExtensionState.values.receivedRefundAmount,
       extensionAction.parameters.amount,
     );
+    copiedExtensionState.values.txHash = extensionAction.parameters.txHash;
 
     // update events
     copiedExtensionState.events.push({
@@ -378,6 +390,7 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
       },
       timestamp,
       from: actionSigner,
