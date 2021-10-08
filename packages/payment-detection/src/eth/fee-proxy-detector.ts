@@ -1,5 +1,10 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import { AdvancedLogicTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
 import ProxyEthereumInfoRetriever from './proxy-info-retriever';
 import FeeReferenceBasedDetector from '../fee-reference-based-detector';
@@ -28,24 +33,25 @@ export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<Payme
   }
 
   /**
-   * Extracts the balance and events of an address
+   * Extracts payment events of an address matching an address and a payment reference
    *
-   * @private
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param network The id of network we want to check
+   * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
-   * @param paymentNetworkVersion the version of the payment network
+   * @param paymentNetwork the payment network
    * @returns The balance
    */
   protected async extractEvents(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    network: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
     paymentReference: string,
-    paymentNetworkVersion: string,
+    paymentNetwork: ExtensionTypes.IState<any>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetworkVersion);
+    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
+
+    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetwork.version);
 
     if (!proxyContractArtifact) {
       throw Error('ETH fee proxy contract not found');
