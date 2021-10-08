@@ -1,14 +1,12 @@
 import * as Extension from '../extension-types';
-import * as PnAnyFees from './pn-any-fee-reference-based-types';
+import * as PnAnyToAnyConversion from './pn-any-to-any-conversion-types';
 
 /** Any to ERC20 reference-based payment network extension interface */
-export type IAnyToERC20<
-  TCreationParameters = ICreationParameters
-> = PnAnyFees.IFeeReferenceBased<TCreationParameters>;
+export interface IAnyToERC20 extends PnAnyToAnyConversion.IConversionReferenceBased {
+  createCreationAction: (parameters?: ICreationParameters) => Extension.IAction;
+}
 
 /** Parameters for the creation action */
-export interface ICreationParameters extends Extension.PnFeeReferenceBased.ICreationParameters {
-  network?: string;
+export interface ICreationParameters extends PnAnyToAnyConversion.ICreationParameters {
   acceptedTokens?: string[];
-  maxRateTimespan?: number;
 }
