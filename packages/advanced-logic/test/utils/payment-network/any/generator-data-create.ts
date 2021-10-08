@@ -13,7 +13,6 @@ export const note = { transactionId: '123456789' };
 export const payeeDelegate = TestData.payeeDelegateRaw.identity;
 export const payerDelegate = TestData.payerDelegateRaw.identity;
 export const delegateToAdd = TestData.otherIdRaw.identity;
-export const txHash = 'somehash';
 
 // ---------------------------------------------------------------------
 const salt = arbitrarySalt;
@@ -104,7 +103,6 @@ export const actionDeclareSentPayment = {
   parameters: {
     amount,
     note,
-    txHash,
   },
 };
 export const actionDeclareSentRefund = {
@@ -113,7 +111,6 @@ export const actionDeclareSentRefund = {
   parameters: {
     amount,
     note,
-    txHash,
   },
 };
 
@@ -123,7 +120,6 @@ export const actionDeclareReceivedPayment = {
   parameters: {
     amount,
     note,
-    txHash,
   },
 };
 export const actionDeclareReceivedRefund = {
@@ -132,7 +128,6 @@ export const actionDeclareReceivedRefund = {
   parameters: {
     amount,
     note,
-    txHash,
   },
 };
 // ---------------------------------------------------------------------
@@ -160,7 +155,6 @@ export const extensionStateWithPaymentAndRefund = {
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
       payeeDelegate,
-      txHash: '',
     },
     version: '0.1.0',
   },
@@ -183,7 +177,6 @@ export const extensionStateCreatedEmpty = {
       sentRefundAmount: '0',
       payeeDelegate,
       payerDelegate,
-      txHash: '',
     },
     version: '0.1.0',
   },
@@ -215,7 +208,6 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
       refundInfo: undefined,
       sentPaymentAmount: "0",
       sentRefundAmount: "0",
-      txHash: "",
     },
     version: '0.2.0',
   },
@@ -251,7 +243,6 @@ export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtension
       refundInfo: undefined,
       sentPaymentAmount: "0",
       sentRefundAmount: "0",
-      txHash: "",
     },
     version: '0.2.0',
   },
@@ -304,7 +295,6 @@ export const extensionStateCreatedEmptyPaymentInstructionAdded = {
       sentRefundAmount: '0',
       payeeDelegate,
       payerDelegate,
-      txHash: '',
     },
     version: '0.1.0',
   },
@@ -336,7 +326,6 @@ export const extensionStateCreatedEmptyRefundInstructionAdded = {
       sentRefundAmount: '0',
       payeeDelegate,
       payerDelegate,
-      txHash: '',
     },
     version: '0.1.0',
   },
@@ -355,7 +344,6 @@ export const extensionStateCreatedEmptySentPayment = {
         parameters: {
           amount,
           note,
-          txHash,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payerRaw.identity,
@@ -370,7 +358,6 @@ export const extensionStateCreatedEmptySentPayment = {
       sentRefundAmount: '0',
       payeeDelegate,
       payerDelegate,
-      txHash,
     },
     version: '0.1.0',
   },
@@ -388,7 +375,6 @@ export const extensionStateCreatedEmptyReceivedRefund = {
         parameters: {
           amount,
           note,
-          txHash,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payerRaw.identity,
@@ -403,7 +389,6 @@ export const extensionStateCreatedEmptyReceivedRefund = {
       sentRefundAmount: '0',
       payeeDelegate,
       payerDelegate,
-      txHash,
     },
     version: '0.1.0',
   },
@@ -421,7 +406,6 @@ export const extensionStateCreatedEmptySentRefund = {
         parameters: {
           amount,
           note,
-          txHash,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payeeRaw.identity,
@@ -436,7 +420,6 @@ export const extensionStateCreatedEmptySentRefund = {
       sentRefundAmount: amount,
       payeeDelegate,
       payerDelegate,
-      txHash,
     },
     version: '0.1.0',
   },
@@ -512,7 +495,6 @@ export const extensionStateCreatedEmptyReceivedPayment = {
         parameters: {
           amount,
           note,
-          txHash,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payeeRaw.identity,
@@ -527,7 +509,6 @@ export const extensionStateCreatedEmptyReceivedPayment = {
       sentRefundAmount: '0',
       payeeDelegate,
       payerDelegate,
-      txHash,
     },
     version: '0.1.0',
   },

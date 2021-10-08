@@ -87,7 +87,6 @@ describe('extensions/payment-network/any/declarative', () => {
         pnAnyDeclarative.createDeclareSentPaymentAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
-          txHash: TestDataDeclarative.txHash,
         }),
       ).toEqual(TestDataDeclarative.actionDeclareSentPayment);
     });
@@ -100,7 +99,6 @@ describe('extensions/payment-network/any/declarative', () => {
         pnAnyDeclarative.createDeclareSentRefundAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
-          txHash: TestDataDeclarative.txHash,
         }),
       ).toEqual(TestDataDeclarative.actionDeclareSentRefund);
     });
@@ -113,7 +111,6 @@ describe('extensions/payment-network/any/declarative', () => {
         pnAnyDeclarative.createDeclareReceivedPaymentAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
-          txHash: TestDataDeclarative.txHash,
         }),
       ).toEqual(TestDataDeclarative.actionDeclareReceivedPayment);
     });
@@ -126,7 +123,6 @@ describe('extensions/payment-network/any/declarative', () => {
         pnAnyDeclarative.createDeclareReceivedRefundAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
-          txHash: TestDataDeclarative.txHash,
         }),
       ).toEqual(TestDataDeclarative.actionDeclareReceivedRefund);
     });

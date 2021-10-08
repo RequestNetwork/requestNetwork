@@ -72,7 +72,6 @@ export const extensionStateWithPaymentAndRefund = {
       refundInfo: undefined,
       sentPaymentAmount: "0",
       sentRefundAmount: "0",
-      txHash: "",
     },
     version: '0.1.0',
   },

@@ -70,7 +70,6 @@ export const extensionStateWithPaymentAndRefund = {
       refundInfo: undefined,
       sentPaymentAmount: "0",
       sentRefundAmount: "0",
-      txHash: "",
       paymentAddress: paymentBTCAddress,
       refundAddress: refundBTCAddress,
     },
