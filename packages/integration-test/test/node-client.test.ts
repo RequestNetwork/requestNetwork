@@ -208,7 +208,8 @@ describe('Request client using a request node', () => {
     const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
 
     // make sure that request 2 timestamp is greater than request 1 timestamp
-    await new Promise((r) => setTimeout(r, 1000));
+    const waitNextSecond = (timestampBeforeReduce + 1) * 1000 - Date.now();
+    await new Promise((r) => setTimeout(r, waitNextSecond));
 
     // create request 2
     const requestCreationHash2: Types.IRequestInfo = {
