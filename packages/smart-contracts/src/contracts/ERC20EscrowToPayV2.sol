@@ -15,12 +15,10 @@ contract ERC20EscrowToPayV2 {
     IERC20FeeProxy paymentProxy;
     address private owner;
 
-    address public feeAddress;
-
     struct Request {
         IERC20 tokenAddress;
         address _from;
-        uint256 amount;
+        uint amount;
         bool isFrozen;
         uint unlockDate;
     }
@@ -59,7 +57,7 @@ contract ERC20EscrowToPayV2 {
      * @notice Emitted when a request has been frozen.
      * @param paymentReference Reference of the payment related.
      */
-    event RequestFreezed(bytes indexed paymentReference);
+    event RequestFrozen(bytes indexed paymentReference);
     
     /**
      * @notice Emitted when a frozen request has been withdrawn successfully.
@@ -73,9 +71,8 @@ contract ERC20EscrowToPayV2 {
      */
     event ContractRemoved();
     
-    constructor(address _paymentProxyAddress, address _feeAddress) {
+    constructor(address _paymentProxyAddress) {
         owner = msg.sender;
-        feeAddress = _feeAddress;
         paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     }
 
@@ -89,13 +86,16 @@ contract ERC20EscrowToPayV2 {
     * @param _tokenAddress Address of the ERC20 token smart contract.
     * @param _amount Amount to transfer.
     * @param _paymentRef Reference of the payment related.
+    * @param _feeAmount Amount of fee to be paid.
+    * @param _feeAddress Address to where the fees will be paid.
     * @dev Uses transferFromWithReferenceAndFee() to pay to escrow and fees.
     */
     function payRequestToEscrow(
         address _tokenAddress,
         uint256 _amount,
         bytes memory _paymentRef,
-        uint256 _feeAmount
+        uint256 _feeAmount,
+        address _feeAddress
     ) external {
 
         requestMapping[_paymentRef] = Request(
@@ -115,7 +115,7 @@ contract ERC20EscrowToPayV2 {
         _amount,
         _paymentRef,
         _feeAmount,
-        feeAddress
+        _feeAddress
       )
     );
     require(status, "transferFromWithReferenceAndFee failed");
@@ -188,8 +188,8 @@ contract ERC20EscrowToPayV2 {
         requestMapping[_paymentRef].tokenAddress.safeTransfer(
             _receiver,
             _amount
-            );
-            
+        );
+
         return true;
     } 
 

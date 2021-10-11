@@ -6,7 +6,6 @@ import { deployOne } from '../scripts/deploy-one';
 export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
   try {
     const [deployer] = await hre.ethers.getSigners();
-    const [feeAddress] = await hre.ethers.getSigners();
 
     console.log(
       `Deploying with the account:            ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId})`,
@@ -51,7 +50,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     console.log(`ERC20EscrowToPayV1 Contract deployed:  ${ERC20EscrowToPayV1Address}`);
 
     // Deploy ERC20 EscrowToPay contract
-    const ERC20EscrowToPayV2Address = await deployOne(args, hre, 'ERC20EscrowToPayV2', [ERC20FeeProxyAddress, feeAddress.address]);
+    const ERC20EscrowToPayV2Address = await deployOne(args, hre, 'ERC20EscrowToPayV2', [ERC20FeeProxyAddress]);
     console.log(`ERC20EscrowToPayV2 Contract deployed:  ${ERC20EscrowToPayV2Address}`);
 
     // Deploy the BadERC20 contract
