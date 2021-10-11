@@ -1,28 +1,22 @@
-import * as Extension from '../extension-types';
+// import * as Extension from '../extension-types';
+import { PnAnyDeclarative, IAction } from '../extension-types';
 
 /** Manager of the extension */
-export interface IAddressBased<TCreationParameters = ICreationParameters>
-  extends Extension.IExtension {
-  createAddPaymentAddressAction: (
-    creationParameters: IAddPaymentAddressParameters,
-  ) => Extension.IAction;
-  createAddRefundAddressAction: (
-    creationParameters: IAddRefundAddressParameters,
-  ) => Extension.IAction;
-  createCreationAction: (
-    creationParameters: TCreationParameters,
-  ) => Extension.IAction<TCreationParameters>;
+export interface IAddressBased<ICreationParameters>
+  extends PnAnyDeclarative.IAnyDeclarative<ICreationParameters> {
+  createAddPaymentAddressAction: (creationParameters: IAddPaymentAddressParameters) => IAction;
+  createAddRefundAddressAction: (creationParameters: IAddRefundAddressParameters) => IAction;
   supportedNetworks: string[];
 }
 
 /** Extension values of the extension */
-export interface IValues {
+export interface IValues extends PnAnyDeclarative.IValues {
   paymentAddress?: string;
   refundAddress?: string;
 }
 
 /** Parameters of creation action */
-export interface ICreationParameters {
+export interface ICreationParameters extends PnAnyDeclarative.ICreationParameters {
   paymentAddress?: string;
   refundAddress?: string;
 }
