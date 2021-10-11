@@ -99,36 +99,23 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // Try to get the confirmation
-    setTimeout(
-      () =>
-        Utils.retry(
-          async () => {
-            return axios.get('/getConfirmedTransaction', {
-              ...this.axiosConfig,
-              params: { transactionHash },
-            });
-          },
-          {
-            maxRetries: this.httpConfig.getConfirmationMaxRetry,
-            retryDelay: this.httpConfig.getConfirmationRetryDelay,
-          },
-        )()
-          .then((resultConfirmed: any) => {
-            // when found, emit the event 'confirmed'
-            result.emit('confirmed', resultConfirmed.data);
-          })
-          .catch((e: any) => {
-            // eslint-disable-next-line no-magic-numbers
-            if (e.response.status === 404) {
-              throw new Error(
-                `Transaction confirmation not receive after ${this.httpConfig.getConfirmationMaxRetry} retries`,
-              );
-            } else {
-              throw new Error(e.message);
-            }
-          }),
-      this.httpConfig.getConfirmationDeferDelay,
-    );
+    setTimeout(async () => {
+      try {
+        const confirmedData = await this.fetchAndRetry('/getConfirmedTransaction', {
+          transactionHash,
+        });
+        // when found, emit the event 'confirmed'
+        result.emit('confirmed', confirmedData);
+      } catch (e) {
+        if (e.response.status === 404) {
+          throw new Error(
+            `Transaction confirmation not receive after ${this.httpConfig.getConfirmationMaxRetry} retries`,
+          );
+        } else {
+          throw new Error(e.message);
+        }
+      }
+    }, this.httpConfig.getConfirmationDeferDelay);
 
     return result;
   }
