@@ -69,8 +69,8 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
 });
 
 const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
-  GET_CONFIRMATION_DEFER_DELAY: 1000,
-  GET_CONFIRMATION_RETRY_DELAY: 500,
+  getConfirmationDeferDelay: 1000,
+  getConfirmationRetryDelay: 500,
 };
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
@@ -204,10 +204,7 @@ describe('Request client using a request node', () => {
       topics: topicsRequest1and2,
     });
 
-    await Promise.all([
-      request1.waitForConfirmation(),
-      new Promise((r) => setTimeout(r, 1000)),
-    ]);
+    await Promise.all([request1.waitForConfirmation(), new Promise((r) => setTimeout(r, 1000))]);
     const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
 
     // create request 2

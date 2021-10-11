@@ -50,7 +50,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     this.axiosConfig = {
       baseURL: 'http://localhost:3000',
       headers: {
-        [this.httpConfig.REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
+        [this.httpConfig.requestClientVersionHeader]: requestClientVersion,
       },
       ...nodeConnectionConfig,
     };
@@ -109,8 +109,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
             });
           },
           {
-            maxRetries: this.httpConfig.GET_CONFIRMATION_MAX_RETRY,
-            retryDelay: this.httpConfig.GET_CONFIRMATION_RETRY_DELAY,
+            maxRetries: this.httpConfig.getConfirmationMaxRetry,
+            retryDelay: this.httpConfig.getConfirmationRetryDelay,
           },
         )()
           .then((resultConfirmed: any) => {
@@ -121,13 +121,13 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
             // eslint-disable-next-line no-magic-numbers
             if (e.response.status === 404) {
               throw new Error(
-                `Transaction confirmation not receive after ${this.httpConfig.GET_CONFIRMATION_MAX_RETRY} retries`,
+                `Transaction confirmation not receive after ${this.httpConfig.getConfirmationMaxRetry} retries`,
               );
             } else {
               throw new Error(e.message);
             }
           }),
-      this.httpConfig.GET_CONFIRMATION_DEFER_DELAY,
+      this.httpConfig.getConfirmationDeferDelay,
     );
 
     return result;
@@ -192,8 +192,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     const { data } = await Utils.retry(
       async () => axios.get(url, { ...this.axiosConfig, params }),
       {
-        maxRetries: this.httpConfig.HTTP_REQUEST_MAX_RETRY,
-        retryDelay: this.httpConfig.HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: this.httpConfig.httpRequestMaxRetry,
+        retryDelay: this.httpConfig.httpRequestRetryDelay,
       },
     )();
 

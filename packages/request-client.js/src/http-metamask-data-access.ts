@@ -190,8 +190,8 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
           }),
         ),
       {
-        maxRetries: this.httpConfig.HTTP_REQUEST_MAX_RETRY,
-        retryDelay: this.httpConfig.HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: this.httpConfig.httpRequestMaxRetry,
+        retryDelay: this.httpConfig.httpRequestRetryDelay,
       },
     )();
 
