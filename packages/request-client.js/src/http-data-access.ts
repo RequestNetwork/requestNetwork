@@ -101,9 +101,16 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     // Try to get the confirmation
     setTimeout(async () => {
       try {
-        const confirmedData = await this.fetchAndRetry('/getConfirmedTransaction', {
-          transactionHash,
-        });
+        const confirmedData = await this.fetchAndRetry(
+          '/getConfirmedTransaction',
+          {
+            transactionHash,
+          },
+          {
+            maxRetries: this.httpConfig.getConfirmationMaxRetry,
+            retryDelay: this.httpConfig.getConfirmationRetryDelay,
+          },
+        );
         // when found, emit the event 'confirmed'
         result.emit('confirmed', confirmedData);
       } catch (e) {
@@ -174,14 +181,21 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    *
    * @param url HTTP GET request url
    * @param params HTTP GET request parameters
+   * @param retryConfig Maximum retry count and delay between retries
    */
-  protected async fetchAndRetry(url: string, params: any): Promise<any> {
+  protected async fetchAndRetry(
+    url: string,
+    params: any,
+    retryConfig: {
+      maxRetries?: number;
+      retryDelay?: number;
+    } = {},
+  ): Promise<any> {
+    retryConfig.maxRetries = retryConfig.maxRetries ?? this.httpConfig.httpRequestMaxRetry;
+    retryConfig.retryDelay = retryConfig.retryDelay ?? this.httpConfig.httpRequestRetryDelay;
     const { data } = await Utils.retry(
       async () => axios.get(url, { ...this.axiosConfig, params }),
-      {
-        maxRetries: this.httpConfig.httpRequestMaxRetry,
-        retryDelay: this.httpConfig.httpRequestRetryDelay,
-      },
+      retryConfig,
     )();
 
     return data;
