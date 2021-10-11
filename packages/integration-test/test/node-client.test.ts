@@ -194,6 +194,7 @@ describe('Request client using a request node', () => {
       payer: payerIdentity,
       timestamp: Utils.getCurrentTimestampInSecond(),
     };
+
     const topicsRequest1and2: string[] = [
       MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(requestCreationHash1)),
     ];
@@ -203,9 +204,11 @@ describe('Request client using a request node', () => {
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
-
-    await Promise.all([request1.waitForConfirmation(), new Promise((r) => setTimeout(r, 1000))]);
+    await request1.waitForConfirmation();
     const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
+
+    // make sure that request 2 timestamp is greater than request 1 timestamp
+    await new Promise((r) => setTimeout(r, 1000));
 
     // create request 2
     const requestCreationHash2: Types.IRequestInfo = {
@@ -221,7 +224,6 @@ describe('Request client using a request node', () => {
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
-
     await request2.waitForConfirmation();
 
     // reduce request 1
@@ -704,12 +706,14 @@ describe('ETH localhost request creation and detection test', () => {
   it('can create & pay a request with any to eth proxy', async () => {
     const currencies = [
       ...CurrencyManager.getDefaultList(),
-      ...[{
-        network: 'private',
-        symbol: 'ETH',
-        decimals: 18,
-        type: RequestLogicTypes.CURRENCY.ETH as any,
-      }],
+      ...[
+        {
+          network: 'private',
+          symbol: 'ETH',
+          decimals: 18,
+          type: RequestLogicTypes.CURRENCY.ETH as any,
+        },
+      ],
     ];
 
     const requestNetwork = new RequestNetwork({
