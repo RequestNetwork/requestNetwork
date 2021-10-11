@@ -112,10 +112,36 @@ describe('api/eth/input-data', () => {
   });
 
   it('should not throw when getBalance fail', async () => {
+    const mockRequest = {
+      creator: { type: '', value: '0x2' },
+      currency: {
+        network: 'wrong',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
+      events: [],
+      expectedAmount: '0',
+      extensions: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: {
+          events: [],
+          id: '0',
+          type: 'none',
+          values: {
+            paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+            salt: 'ea3bc7caf64110ca',
+          },
+          version: '0',
+        },
+      },
+      extensionsData: [],
+      requestId: '0x1',
+      state: 'Good',
+      timestamp: 0,
+      version: '0.2',
+    };
+
     expect(
-      await ethInputData.getBalance({
-        currency: { network: 'wrong' },
-      } as RequestLogicTypes.IRequest),
+      await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest),
     ).toMatchObject({
       balance: null,
       error: {
