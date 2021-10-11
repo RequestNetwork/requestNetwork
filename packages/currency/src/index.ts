@@ -1,4 +1,5 @@
 export { getSupportedERC20Tokens } from './erc20';
+export { getNativeSymbol } from './native';
 export { getPath as getConversionPath } from './chainlink-path-aggregators';
 export { getHash as getCurrencyHash } from './getHash';
 export { CurrencyManager } from './currencyManager';
