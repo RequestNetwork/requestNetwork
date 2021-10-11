@@ -15,7 +15,7 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
  */
 export default class PaymentNetworkERC20AddressBased
   implements PaymentTypes.IPaymentNetwork<PaymentTypes.IERC20PaymentEventParameters> {
-  private extension: ExtensionTypes.PnAddressBased.IAddressBased;
+  private extension: ExtensionTypes.PnAddressBased.IAddressBased<ExtensionTypes.PnAddressBased.ICreationParameters>;
   /**
    * @param extension The advanced logic payment network extensions
    */
