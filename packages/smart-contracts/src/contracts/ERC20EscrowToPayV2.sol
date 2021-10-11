@@ -106,7 +106,22 @@ contract ERC20EscrowToPayV2 {
             0
         );
         
-        _deposit(_paymentRef, _feeAmount);
+        (bool status, ) = address(paymentProxy).delegatecall(
+      abi.encodeWithSignature(
+        "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
+        // payment currency
+        _tokenAddress,
+        address(this),
+        _amount,
+        _paymentRef,
+        _feeAmount,
+        feeAddress
+      )
+    );
+    require(status, "transferFromWithReferenceAndFee failed");
+    
+    emit RequestInEscrow(_paymentRef);
+        
     }
     
     /**
@@ -115,14 +130,14 @@ contract ERC20EscrowToPayV2 {
      * @param _to Address of the receiver.
      * @dev Uses transferFromWithReferenceAndFee() to pay _to without fees.
      */
-    function payRequestFromEscrow(bytes memory _paymentRef, address _to, uint256 _feeAmount) 
+    function payRequestFromEscrow(bytes memory _paymentRef, address _to) 
         external
         IsInEscrow(_paymentRef) 
         OnlyPayer(_paymentRef) 
     {
         require(!requestMapping[_paymentRef].isFrozen, "Frozen request");
 
-        _withdraw(_paymentRef, _to, _feeAmount);
+        _withdraw(_paymentRef, _to);
 
         delete requestMapping[_paymentRef];
 
@@ -148,59 +163,33 @@ contract ERC20EscrowToPayV2 {
      * @notice Withdraw the locked funds from escow contract and transfer to payer.
      * @param  _paymentRef Reference of the Invoice related.
      */
-    function withdrawFrozenFunds(bytes memory _paymentRef, uint256 _feeAmount) external OnlyPayer(_paymentRef) {
+    function withdrawFrozenFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
         require(requestMapping[_paymentRef].isFrozen, "Not frozen!");
         require(requestMapping[_paymentRef].unlockDate <= block.timestamp, "Not Yet!");
 
         requestMapping[_paymentRef].isFrozen = false;
         
-       _withdraw(_paymentRef, msg.sender, _feeAmount);
+       _withdraw(_paymentRef, msg.sender);
 
        emit FrozenRequestWithdrawn(_paymentRef);
     }
     
-    /**
-     * @notice Transfers paymentToken from payer to MyEscrow smartcontract.  
-     * @param _paymentRef Reference of the related Invoice.
-     * @dev Internal function to execute transferFrom() payer.
-     */
-    function _deposit(bytes memory _paymentRef, uint256 _feeAmount) internal returns (bool result){
-        // transfer from payer to Escrow
-        requestMapping[_paymentRef].tokenAddress.safeTransferFrom(
-            requestMapping[_paymentRef]._from,
-            address(this),
-            (requestMapping[_paymentRef].amount + _feeAmount)
-        );  
-        
-        emit RequestInEscrow(_paymentRef);
-
-        return true; 
-    }
-  
+ 
      /**
      * @notice Withdraw the funds from the escrow.  
      * @param _paymentRef Reference of the related Invoice.
      * @param _receiver Receiving address.
      * @dev Internal function to pay fees and withdraw funds to a given reciever.
      */
-    function _withdraw(bytes memory _paymentRef, address _receiver, uint256 _feeAmount) internal returns (bool result) {       
+    function _withdraw(bytes memory _paymentRef, address _receiver) internal returns (bool result) {       
         uint256 _amount = requestMapping[_paymentRef].amount;
         requestMapping[_paymentRef].amount = 0;
         
-        IERC20 erc20 = IERC20(requestMapping[_paymentRef].tokenAddress);
-        uint256 max = 2**256 - 1;
-        erc20.safeApprove(address(paymentProxy), max);
-
-        // Pay the invoice request and fees
-        paymentProxy.transferFromWithReferenceAndFee(
-            address(erc20),
+        requestMapping[_paymentRef].tokenAddress.safeTransfer(
             _receiver,
-            _amount, 
-            _paymentRef, 
-            _feeAmount, 
-            feeAddress
-        );  
-
+            _amount
+            );
+            
         return true;
     } 
 
