@@ -207,7 +207,7 @@ The 'addRefundAddress' event:
 | **id**                | String | Constant value: "pn-eth-input-data"                  | **Mandatory** |
 | **action**            | String | Constant value: "declareReceivedPayment"             | **Mandatory** |
 | **parameters**        | Object |                                                      |               |
-| **parameters.amount** | String | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
 | **parameters.note**   | String | Additional information about the payment             | Optional      |
 | **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
 
@@ -243,7 +243,7 @@ An event is added to the extension state events array:
 | **id**                | String | Constant value: "pn-eth-input-data"                  | **Mandatory** |
 | **action**            | String | Constant value: "declareReceivedRefund"              | **Mandatory** |
 | **parameters**        | Object |                                                      |               |
-| **parameters.amount** | String | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
 | **parameters.note**   | String | Additional information about the payment             | Optional      |
 | **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
 
