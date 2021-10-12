@@ -291,6 +291,7 @@ An event is added to the extension state events array:
 | **name**              | Constant value: "declareReceivedPayment" |
 | **parameters**        |                                          |
 | **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
 | **parameters.txHash** | `txHash` from parameters or undefined    |
 
 ## Action: declareReceivedRefund
@@ -326,6 +327,7 @@ An event is added to the extension state events array:
 | **name**              | Constant value: "declareReceivedRefund"  |
 | **parameters**        |                                          |
 | **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
 | **parameters.txHash** | `txHash` from parameters or undefined    |
 
 ---
