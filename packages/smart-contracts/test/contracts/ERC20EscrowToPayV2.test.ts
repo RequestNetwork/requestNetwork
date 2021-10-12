@@ -29,7 +29,7 @@ describe("Contract: ERC20EscrowToPayV2", () => {
         // Deploy the smart-contracts. 
         testERC20 = await new TestERC20__factory(owner).deploy('100000000000000000');
         erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
-        erc20EscrowToPayV2 = await new ERC20EscrowToPayV2__factory(owner).deploy(erc20FeeProxy.address, feeAddress);
+        erc20EscrowToPayV2 = await new ERC20EscrowToPayV2__factory(owner).deploy(erc20FeeProxy.address);
     
         erc20EscrowToPayAddress = erc20EscrowToPayV2.address;
         await testERC20.connect(owner).transfer(payerAddress, 100000000);
@@ -41,12 +41,16 @@ describe("Contract: ERC20EscrowToPayV2", () => {
     
             const payerOldBalance = await testERC20.balanceOf(payerAddress);
             const escrowOldBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
+            const builderOldBalance = await testERC20.balanceOf(feeAddress);
     
             expect(
                 await erc20EscrowToPayV2.connect(payer).payRequestToEscrow(
                     testERC20.address,
+                    payeeAddress,
                     1000,
-                    referenceExample1
+                    referenceExample1,
+                    1,
+                    feeAddress
                 ),
             )
                 .to.emit(erc20EscrowToPayV2, "RequestInEscrow")
@@ -54,38 +58,39 @@ describe("Contract: ERC20EscrowToPayV2", () => {
     
             const payerNewBalance = await testERC20.balanceOf(payerAddress);
             const escrowNewBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
+            const builderNewBalance = await testERC20.balanceOf(feeAddress);
     
             expect(payerNewBalance.toString()).to.equals(payerOldBalance.sub(1001).toString());
-            expect(escrowNewBalance.toString()).to.equals(escrowOldBalance.add(1001).toString());
+            expect(escrowNewBalance.toString()).to.equals(escrowOldBalance.add(1000).toString());
+            expect(builderNewBalance.toString()).to.equals(builderOldBalance.add(1).toString());
         });
-        it("Should transfer the payment and pay fees when closing the escrow", async () => {
+        it("Should transfer the payment to the payee when closing the escrow", async () => {
             const payeeOldBalance = await testERC20.balanceOf(payeeAddress);
             const escrowOldBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
-            const buidlerOldBalance = await testERC20.balanceOf(feeAddress);
 
-            expect(await erc20EscrowToPayV2.connect(payer).payRequestFromEscrow(
-                referenceExample1,
-                payeeAddress),
-            )
-                .to.emit(erc20EscrowToPayV2, "RequestWithdrawnFromEscrow")
-                .withArgs(ethers.utils.keccak256(referenceExample1));
+            expect(await erc20EscrowToPayV2.connect(payer).payRequestFromEscrow(referenceExample1))
+            .to.emit(erc20EscrowToPayV2, "RequestWithdrawnFromEscrow")
+            .withArgs(ethers.utils.keccak256(referenceExample1));
             
             const payeeNewBalance = await testERC20.balanceOf(payeeAddress);
             const escrowNewBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
-            const buidlerNewBalance = await testERC20.balanceOf(feeAddress);
 
             expect(payeeNewBalance.toString()).to.equals(payeeOldBalance.add(1000).toString());
-            expect(buidlerNewBalance.toString()).to.equals(buidlerOldBalance.add(1).toString());
-            expect(escrowNewBalance.toString()).to.equals(escrowOldBalance.sub(1001).toString());
+            expect(escrowNewBalance.toString()).to.equals(escrowOldBalance.sub(1000).toString());
         })
     });
 
     describe("Freeze Funds Flow: Open Escrow & freeze request for 12 months", () => {
         before(async () => {
+            await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 1001);
+
             await erc20EscrowToPayV2.connect(payer).payRequestToEscrow(
                 testERC20.address,
+                payeeAddress,
                 1000,
-                referenceExample2
+                referenceExample2,
+                1,
+                feeAddress
             );
         });
         it("Should revert if not payer tries to freezeRequest", async () => {
@@ -94,7 +99,7 @@ describe("Contract: ERC20EscrowToPayV2", () => {
         })
         it("Should only let the payer freeze the request for twelve months", async () => {
             expect(await erc20EscrowToPayV2.connect(payer).FreezeRequest(referenceExample2))
-                .to.emit(erc20EscrowToPayV2, "RequestFreezed")
+                .to.emit(erc20EscrowToPayV2, "RequestFrozen")
                 .withArgs(ethers.utils.keccak256(referenceExample2));
             
             expect(await
@@ -108,16 +113,7 @@ describe("Contract: ERC20EscrowToPayV2", () => {
                 .to.be.above(0);            
 
         });
-        it("Should revert payer tries to withdraw before unlockDate", async () => {
-            expect(await erc20EscrowToPayV2.connect(payer).withdrawFrozenFunds(referenceExample2)).to.throw;
-        });
     });
-
-
-
-
-
-
 
 });
         

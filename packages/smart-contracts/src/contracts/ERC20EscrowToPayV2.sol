@@ -12,32 +12,50 @@ import "./interfaces/ERC20FeeProxy.sol";
 contract ERC20EscrowToPayV2 {
     using SafeERC20 for IERC20;
 
-    IERC20FeeProxy paymentProxy;
+    IERC20FeeProxy public paymentProxy;
     address private owner;
 
     struct Request {
         IERC20 tokenAddress;
-        address _from;
+        address payee;
+        address payer;
         uint amount;
         bool isFrozen;
         uint unlockDate;
     }
 
+    /**
+    * Mapping is used to store the Requests in escrow. 
+    */
     mapping(bytes => Request) public requestMapping;
 
+    /**
+    * Modifier checks if msg.sender is the payment payer.
+    * @param _paymentRef Reference of the payment related.
+    * @dev It requires msg.sender to be equal to requesMapping[_paymentRef].payer. 
+    */
     modifier OnlyPayer(bytes memory _paymentRef) {
-        require(msg.sender == requestMapping[_paymentRef]._from, "Not Authorized.");
+        require(msg.sender == requestMapping[_paymentRef].payer, "Not Authorized.");
         _;
     }
+
+    /**
+    * Modifier checks if the request already is in escrow.
+    * @param _paymentRef Reference of the payment related.
+    * @dev It requires the requestMapping[_paymentRef].amount to be zero.
+    */
     modifier IsNotInEscrow(bytes memory _paymentRef) {
-        require(requestMapping[_paymentRef].amount == 0, "Request already in escrow.");
+        require(requestMapping[_paymentRef].amount == 0, "Request already in Escrow.");
         _;
     }
+
+    /**
+    * Modifier checks if the request already is in escrow.
+    * @param _paymentRef Reference of the payment related.
+    * @dev It requires the requestMapping[_paymentRef].amount to have a value above zero.
+    */
     modifier IsInEscrow(bytes memory _paymentRef) {
-        require(
-            requestMapping[_paymentRef].amount > 0,
-            "Not in escrow."
-        );
+        require(requestMapping[_paymentRef].amount > 0, "Not in escrow.");
         _;
     }
 
@@ -84,14 +102,17 @@ contract ERC20EscrowToPayV2 {
     /** 
     * @notice Stores the invoice details in struct, then transfers the funds to this Escrow contract.
     * @param _tokenAddress Address of the ERC20 token smart contract.
+    * @param _to Address to the payment issuer.
     * @param _amount Amount to transfer.
     * @param _paymentRef Reference of the payment related.
     * @param _feeAmount Amount of fee to be paid.
     * @param _feeAddress Address to where the fees will be paid.
-    * @dev Uses transferFromWithReferenceAndFee() to pay to escrow and fees.
+    * @dev Uses transferFromWithReferenceAndFee() to transfer funds from the msg.sender, 
+    * into the escrow and pay the fees.
     */
     function payRequestToEscrow(
         address _tokenAddress,
+        address _to,
         uint256 _amount,
         bytes memory _paymentRef,
         uint256 _feeAmount,
@@ -100,6 +121,7 @@ contract ERC20EscrowToPayV2 {
 
         requestMapping[_paymentRef] = Request(
             IERC20(_tokenAddress),
+            _to,
             msg.sender,
             _amount,
             false,
@@ -107,7 +129,7 @@ contract ERC20EscrowToPayV2 {
         );
         
         (bool status, ) = address(paymentProxy).delegatecall(
-      abi.encodeWithSignature(
+        abi.encodeWithSignature(
         "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
         // payment currency
         _tokenAddress,
@@ -116,8 +138,9 @@ contract ERC20EscrowToPayV2 {
         _paymentRef,
         _feeAmount,
         _feeAddress
-      )
+        )
     );
+
     require(status, "transferFromWithReferenceAndFee failed");
     
     emit RequestInEscrow(_paymentRef);
@@ -125,42 +148,36 @@ contract ERC20EscrowToPayV2 {
     }
     
     /**
-     * @notice Closes an open escrow and pays the invoice request to it's issuer.
-     * @param _paymentRef Reference of the related Invoice.
-     * @param _to Address of the receiver.
-     * @dev Uses transferFromWithReferenceAndFee() to pay _to without fees.
+     * @notice Locks the request funds for 12 months.
+     * @param _paymentRef Reference of the Invoice related.
      */
-    function payRequestFromEscrow(bytes memory _paymentRef, address _to) 
-        external
-        IsInEscrow(_paymentRef) 
-        OnlyPayer(_paymentRef) 
-    {
-        require(!requestMapping[_paymentRef].isFrozen, "Frozen request");
+    function FreezeRequest(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
+        require(!requestMapping[_paymentRef].isFrozen, "Request Frozen!");
 
-        _withdraw(_paymentRef, _to);
+        requestMapping[_paymentRef].isFrozen = true;
+
+        /// unlockDate is set with block.timestamp + twelve months. 
+        requestMapping[_paymentRef].unlockDate = block.timestamp + 31556926;
+
+        emit RequestFrozen(_paymentRef);
+    }
+
+    /**
+     * @notice Closes an open escrow and pays the invoice request to it's payee.
+     * @param _paymentRef Reference of the related Invoice.
+     */
+    function payRequestFromEscrow(bytes memory _paymentRef) external IsInEscrow(_paymentRef) OnlyPayer(_paymentRef) {
+        require(!requestMapping[_paymentRef].isFrozen, "Request Frozen!");
+
+        _withdraw(_paymentRef, requestMapping[_paymentRef].payee);
 
         delete requestMapping[_paymentRef];
 
         emit RequestWithdrawnFromEscrow(_paymentRef);  
     }
-   
-    /**
-     * @notice Lockes the request funds for 12 months.
-     * @param _paymentRef Reference of the Invoice related.
-     */
-    function FreezeRequest(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
-        require(!requestMapping[_paymentRef].isFrozen, "Is frozen");
-
-        requestMapping[_paymentRef].isFrozen = true;
-
-        /// unlockDate is set to block.timestamp + twelve months. 
-        requestMapping[_paymentRef].unlockDate = block.timestamp + 31556926;
-
-        emit RequestFreezed(_paymentRef);
-    }
 
     /**
-     * @notice Withdraw the locked funds from escow contract and transfer to payer.
+     * @notice Withdraw the locked funds from escow contract and transfers back to payer after 12 months.
      * @param  _paymentRef Reference of the Invoice related.
      */
     function withdrawFrozenFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
@@ -171,15 +188,16 @@ contract ERC20EscrowToPayV2 {
         
        _withdraw(_paymentRef, msg.sender);
 
+       delete requestMapping[_paymentRef];
+
        emit FrozenRequestWithdrawn(_paymentRef);
     }
     
- 
      /**
      * @notice Withdraw the funds from the escrow.  
      * @param _paymentRef Reference of the related Invoice.
      * @param _receiver Receiving address.
-     * @dev Internal function to pay fees and withdraw funds to a given reciever.
+     * @dev Internal function to withdraw funds from escrow, to a given reciever.
      */
     function _withdraw(bytes memory _paymentRef, address _receiver) internal returns (bool result) {       
         uint256 _amount = requestMapping[_paymentRef].amount;
@@ -195,11 +213,11 @@ contract ERC20EscrowToPayV2 {
 
     /**
     * @notice ONLY for testnet purposes, removes the smartcontract from the blockchain. 
-    * @dev OnlyOwner condition
+    * @dev Requires msg.sender to be owner account.
     * @dev Housekeeping. 
     */
     function removeContract() external {
-      require( msg.sender == owner, "ERC2OnlyOwner"); 
+        require( msg.sender == owner, "OnlyOwner"); 
         selfdestruct(payable(owner));
         emit ContractRemoved();
     }
