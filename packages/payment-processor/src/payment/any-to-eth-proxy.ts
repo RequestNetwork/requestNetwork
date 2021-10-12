@@ -1,26 +1,19 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
-import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
-import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
+import { CurrencyManager, getConversionPath, getNativeSymbol } from '@requestnetwork/currency';
+import { ethConversionArtifact } from '@requestnetwork/smart-contracts';
+import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
-import {
-  getAmountToPay,
-  getPaymentNetworkExtension,
-  getProvider,
-  getRequestPaymentValues,
-  getSigner,
-  validateConversionFeeProxyRequest,
-} from './utils';
+import { getAmountToPay, getProvider, getRequestPaymentValues, getSigner } from './utils';
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IConversionPaymentSettings } from './index';
 
 /**
- * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
- * The payment is made by the ERC20 fee proxy contract.
+ * Processes a transaction to pay a request with a native token when the request is denominated in another currency
+ * The payment is made by the ETH fee proxy contract.
  * @param request the request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings payment settings
@@ -28,7 +21,7 @@ import { IConversionPaymentSettings } from './index';
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function payAnyToErc20ProxyRequest(
+export async function payAnyToEthProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   paymentSettings: IConversionPaymentSettings,
@@ -36,7 +29,7 @@ export async function payAnyToErc20ProxyRequest(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = prepareAnyToErc20ProxyPaymentTransaction(
+  const { data, to, value } = prepareAnyToEthProxyPaymentTransaction(
     request,
     paymentSettings,
     amount,
@@ -47,25 +40,19 @@ export async function payAnyToErc20ProxyRequest(
 }
 
 /**
- * Encodes the call to pay a request with an ERC20 currency that is different from the request currency (eg. fiat). The payment is made by the ERC20 fee proxy contract.
+ * Encodes the call to pay a request with a native token when the request currency is different. The payment is made by the ETH fee proxy contract.
  * @param request request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings payment settings
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
-export function encodePayAnyToErc20ProxyRequest(
+export function encodePayAnyToEthProxyRequest(
   request: ClientTypes.IRequestData,
   paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
-  if (!paymentSettings.currency) {
-    throw new Error('currency must be provided in the paymentSettings');
-  }
-  if (!paymentSettings.currency.network) {
-    throw new Error('Cannot pay with a currency missing a network');
-  }
   const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
@@ -74,26 +61,6 @@ export function encodePayAnyToErc20ProxyRequest(
       `Could not find request currency ${request.currencyInfo.value}. Did you forget to specify the currencyManager?`,
     );
   }
-  const paymentCurrency = currencyManager.fromStorageCurrency(paymentSettings.currency);
-  if (!paymentCurrency) {
-    throw new Error(
-      `Could not find payment currency ${paymentSettings.currency.value}. Did you forget to specify the currencyManager?`,
-    );
-  }
-  if (paymentCurrency.type !== RequestLogicTypes.CURRENCY.ERC20) {
-    throw new Error(`Payment currency must be an ERC20`);
-  }
-
-  // Compute the path automatically
-  const path = getConversionPath(requestCurrency, paymentCurrency, paymentCurrency.network);
-  if (!path) {
-    throw new Error(
-      `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
-    );
-  }
-
-  // Check request
-  validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
   const {
     paymentReference,
@@ -101,46 +68,62 @@ export function encodePayAnyToErc20ProxyRequest(
     feeAddress,
     feeAmount,
     maxRateTimespan,
+    network,
   } = getRequestPaymentValues(request);
+
+  const symbol = getNativeSymbol(RequestLogicTypes.CURRENCY.ETH, network);
+  const paymentCurrency = currencyManager.from(symbol, network);
+  if (!paymentCurrency) {
+    throw new Error(
+      `Could not find currency for network: ${network}. Did you forget to specify the currencyManager?`,
+    );
+  }
+
+  // Compute the path automatically
+  const path = getConversionPath(requestCurrency, paymentCurrency, network);
+  if (!path) {
+    throw new Error(
+      `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
+    );
+  }
 
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
 
-  const proxyContract = Erc20ConversionProxy__factory.createInterface();
-  return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
+  const proxyContract = EthConversionProxy__factory.createInterface();
+  return proxyContract.encodeFunctionData('transferWithReferenceAndFee', [
     paymentAddress,
     amountToPay,
     path,
     `0x${paymentReference}`,
     feeToPay,
     feeAddress || constants.AddressZero,
-    BigNumber.from(paymentSettings.maxToSpend),
     maxRateTimespan || 0,
   ]);
 }
 
-export function prepareAnyToErc20ProxyPaymentTransaction(
+export function prepareAnyToEthProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
   paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
 ): IPreparedTransaction {
-  if (!paymentSettings.currency) {
-    throw new Error('currency must be provided in the paymentSettings');
-  }
-  if (!paymentSettings.currency.network) {
+  const { network, version } = getRequestPaymentValues(request);
+
+  if (!network) {
     throw new Error('Cannot pay with a currency missing a network');
   }
-  const encodedTx = encodePayAnyToErc20ProxyRequest(request, paymentSettings, amount, feeAmount);
-  const pn = getPaymentNetworkExtension(request);
+  const encodedTx = encodePayAnyToEthProxyRequest(request, paymentSettings, amount, feeAmount);
 
-  const proxyAddress = erc20ConversionProxy.getAddress(
-    paymentSettings.currency.network,
-    pn?.version,
-  );
+  const proxyAddress = ethConversionArtifact.getAddress(network, version);
+
+  if (!paymentSettings.maxToSpend) {
+    throw Error('paymentSettings.maxToSpend is required');
+  }
+
   return {
     data: encodedTx,
     to: proxyAddress,
-    value: 0,
+    value: BigNumber.from(paymentSettings.maxToSpend),
   };
 }
