@@ -924,7 +924,10 @@ describe('index', () => {
     });
 
     it('allows to declare a received payment by providing transaction hash', async () => {
-      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const requestNetwork = new RequestNetwork({
+        httpConfig,
+        signatureProvider: fakeSignatureProvider,
+      });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
@@ -940,9 +943,15 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareReceivedPayment('10', 'received payment', payeeIdentity, '0x123456789');
+      const requestDataWithEvents = await request.declareReceivedPayment(
+        '10',
+        'received payment',
+        payeeIdentity,
+        '0x123456789',
+      );
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
@@ -1035,7 +1044,10 @@ describe('index', () => {
     });
 
     it('allows to declare a received refund by providing transaction hash', async () => {
-      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const requestNetwork = new RequestNetwork({
+        httpConfig,
+        signatureProvider: fakeSignatureProvider,
+      });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
@@ -1051,9 +1063,15 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareReceivedRefund('10', 'received refund', payerIdentity, '0x123456789');
+      const requestDataWithEvents = await request.declareReceivedRefund(
+        '10',
+        'received refund',
+        payerIdentity,
+        '0x123456789',
+      );
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
