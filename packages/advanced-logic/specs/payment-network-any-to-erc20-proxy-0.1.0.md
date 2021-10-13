@@ -283,16 +283,17 @@ the 'addFee' event:
 | **parameters.feeAddress** | `feeAddress` from parameters    |
 | **parameters.feeAmount**  | `feeAmount` from parameters     |
 
-## Action: declarePayment
+## Action: declareReceivedPayment
 
 ### Parameters
 
 |                       | Type   | Description                                          | Requirement   |
 | --------------------- | ------ | ---------------------------------------------------- | ------------- |
 | **id**                | String | Constant value: "pn-any-to-erc20-proxy"              | **Mandatory** |
-| **action**            | String | Constant value: "declarePayment"                     | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedPayment"             | **Mandatory** |
 | **parameters**        | Object |                                                      |               |
-| **parameters.amount** | String | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
 | **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
 
 ### Conditions
@@ -310,12 +311,49 @@ None.
 
 An event is added to the extension state events array:
 
-|  Property             |  Value                                |
-| --------------------- | ------------------------------------- |
-| **name**              | Constant value: "declarePayment"      |
-| **parameters**        |                                       |
-| **parameters.amount** | `amount` from parameters              |
-| **parameters.txHash** | `txHash` from parameters or undefined |
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedPayment" |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
+
+## Action: declareReceivedRefund
+
+### Parameters
+
+|                       | Type   | Description                                          | Requirement   |
+| --------------------- | ------ | ---------------------------------------------------- | ------------- |
+| **id**                | String | Constant value: "pn-any-to-erc20-proxy"              | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedRefund"              | **Mandatory** |
+| **parameters**        | Object |                                                      |               |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
+| **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
+
+### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-any-to-erc20-proxy" exists
+- The signer is the `payee`
+
+### warnings
+
+None.
+
+### Results
+
+An event is added to the extension state events array:
+
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedRefund"  |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
 
 ---
 
@@ -330,7 +368,9 @@ Any `TransferWithConversionAndReference` events emitted from the proxy contract 
 - `paymentReference === last8Bytes(hash(lowercase(requestId + salt + payment address)))`
 - `maxRateTimespan === paymentNetwork.values.maxRateTimespan`
 
-Any `declarePayment` event is considered a payment.
+Any `declareReceivedPayment` event is considered a payment.
+
+Any `declareReceivedRefund` event is considered a refund.
 
 Any `TransferWithConversionAndReference` events emitted from the proxy contract with the following arguments are considered as a refund:
 

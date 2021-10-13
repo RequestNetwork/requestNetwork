@@ -251,6 +251,78 @@ the 'addFee' event:
 | **parameters.feeAddress** | `feeAddress` from parameters    |
 | **parameters.feeAmount**  | `feeAmount` from parameters     |
 
+## Action: declareReceivedPayment
+
+### Parameters
+
+|                       | Type   | Description                                          | Requirement   |
+| --------------------- | ------ | ---------------------------------------------------- | ------------- |
+| **id**                | String | Constant value: "pn-eth-fee-proxy-contract"          | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedPayment"             | **Mandatory** |
+| **parameters**        | Object |                                                      |               |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
+| **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
+
+### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-eth-fee-proxy-contract" exists
+- The signer is the `payee`
+
+### warnings
+
+None.
+
+### Results
+
+An event is added to the extension state events array:
+
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedPayment" |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
+
+## Action: declareReceivedRefund
+
+### Parameters
+
+|                       | Type   | Description                                          | Requirement   |
+| --------------------- | ------ | ---------------------------------------------------- | ------------- |
+| **id**                | String | Constant value: "pn-eth-fee-proxy-contract"          | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedRefund"              | **Mandatory** |
+| **parameters**        | Object |                                                      |               |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
+| **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
+
+### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-eth-fee-proxy-contract" exists
+- The signer is the `payee`
+
+### warnings
+
+None.
+
+### Results
+
+An event is added to the extension state events array:
+
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedRefund"  |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
+
 ---
 
 ## Interpretation
@@ -263,7 +335,9 @@ Any `TransferWithReferenceAndFee` event emitted from the proxy contract with the
 - `to === paymentAddress`
 - `paymentReference === last8Bytes(hash(lowercase(requestId + salt + payment address)))`
 
-Any `declarePayment` event is considered a payment.
+Any `declareReceivedPayment` event is considered a payment.
+
+Any `declareReceivedRefund` event is considered a refund.
 
 Any `TransferWithReferenceAndFee` evens emitted from the proxy contract with the following arguments is considered a refund:
 

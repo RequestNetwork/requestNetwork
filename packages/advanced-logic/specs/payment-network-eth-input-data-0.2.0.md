@@ -198,17 +198,18 @@ The 'addRefundAddress' event:
 | **parameters**               |                                 |
 | **parameters.refundAddress** | `refundAddress` from parameters |
 
-## Action: declarePayment
+## Action: declareReceivedPayment
 
 ### Parameters
 
-|                       | Type   | Description                                         | Requirement   |
-| --------------------- | ------ | --------------------------------------------------- | ------------- |
-| **id**                | String | Constant value: "pn-eth-input-data"                 | **Mandatory** |
-| **action**            | String | Constant value: "declarePayment"                    | **Mandatory** |
-| **parameters**        | Object |                                                     |               |
-| **parameters.amount** | String | The amount declared as received                     | **Mandatory** |
-| **parameters.txHash** | String | The transaction hash for documentation and metadata | Optional      |
+|                       | Type   | Description                                          | Requirement   |
+| --------------------- | ------ | ---------------------------------------------------- | ------------- |
+| **id**                | String | Constant value: "pn-eth-input-data"                  | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedPayment"             | **Mandatory** |
+| **parameters**        | Object |                                                      |               |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
+| **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
 
 ### Conditions
 
@@ -225,12 +226,49 @@ None.
 
 An event is added to the extension state events array:
 
-|  Property             |  Value                                |
-| --------------------- | ------------------------------------- |
-| **name**              | Constant value: "declarePayment"      |
-| **parameters**        |                                       |
-| **parameters.amount** | `amount` from parameters              |
-| **parameters.txHash** | `txHash` from parameters or undefined |
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedPayment" |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
+
+## Action: declareReceivedRefund
+
+### Parameters
+
+|                       | Type   | Description                                          | Requirement   |
+| --------------------- | ------ | ---------------------------------------------------- | ------------- |
+| **id**                | String | Constant value: "pn-eth-input-data"                  | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedRefund"              | **Mandatory** |
+| **parameters**        | Object |                                                      |               |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
+| **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
+
+### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-eth-input-data" exists
+- The signer is the `payee`
+
+### warnings
+
+None.
+
+### Results
+
+An event is added to the extension state events array:
+
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedRefund"  |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
 
 ---
 
@@ -244,7 +282,7 @@ The sum of payment amounts minus the sum of refund amounts is considered the bal
 
 Any ETH transaction to `paymentAddress` with exactly `last8Bytes(hash(requestId + salt + payment address))` in input data is considered a payment.
 
-Any `declarePayment` event is considered a payment.
+Any `declareReceivedPayment` event is considered a payment.
 
 Any `TransferWithReference` events emitted from the proxy contract with the following arguments is considered a payment:
 
@@ -254,6 +292,8 @@ Any `TransferWithReference` events emitted from the proxy contract with the foll
 ### Refunds
 
 Any ETH transaction to `refundAddress` with exactly `last8Bytes(hash(requestId + salt + refund address))` in input data is considered a refund.
+
+Any `declareReceivedRefund` event is considered a refund.
 
 Any `TransferWithReference` event emitted from the proxy contract with the following arguments is considered a refund:
 
