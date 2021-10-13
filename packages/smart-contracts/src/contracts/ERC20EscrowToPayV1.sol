@@ -112,7 +112,7 @@ contract ERC20EscrowToPay {
         bytes memory _paymentRef,
         uint _feeAmount,
         address _feeAddress
-    ) external isNotInEscrow(_paymentRef) {
+    ) external IsNotInEscrow(_paymentRef) {
 
         requestMapping[_paymentRef] = Request(
             IERC20(_tokenAddress),
