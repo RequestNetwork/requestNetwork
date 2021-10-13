@@ -78,16 +78,11 @@ contract ERC20EscrowToPay {
     event RequestFrozen(bytes indexed paymentReference);
     
     /**
-     * @notice Emitted when a frozen request has been withdrawn successfully.
+     * @notice Emitted when a frozen request has been refunded.
      * @param paymentReference Reference of the payment related.
      */
-    event FrozenRequestWithdrawn(bytes indexed paymentReference);
+    event RefundFrozenFunds(bytes indexed paymentReference);
     
-    /**
-     * @notice Emitted when selfDestruct() is called on this contract.
-     * @dev OnlyOwner autorization needed. Removes the contract functionality from the blockchain.
-     */
-    event ContractRemoved();
     
     constructor(address _paymentProxyAddress) {
         owner = msg.sender;
@@ -117,7 +112,7 @@ contract ERC20EscrowToPay {
         bytes memory _paymentRef,
         uint _feeAmount,
         address _feeAddress
-    ) external {
+    ) external isNotInEscrow(_paymentRef) {
 
         requestMapping[_paymentRef] = Request(
             IERC20(_tokenAddress),
@@ -131,20 +126,16 @@ contract ERC20EscrowToPay {
         (bool status, ) = address(paymentProxy).delegatecall(
         abi.encodeWithSignature(
         "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
-        // payment currency
-        _tokenAddress,
-        address(this),
-        _amount,
-        _paymentRef,
-        _feeAmount,
-        _feeAddress
-        )
-    );
-
-    require(status, "transferFromWithReferenceAndFee failed");
-    
-    emit RequestInEscrow(_paymentRef);
-        
+            _tokenAddress,
+            address(this),
+            _amount,
+            _paymentRef,
+            _feeAmount,
+            _feeAddress
+            )
+        );
+        require(status, "transferFromWithReferenceAndFee failed");
+        emit RequestInEscrow(_paymentRef);
     }
     
     /**
@@ -171,8 +162,6 @@ contract ERC20EscrowToPay {
 
         _withdraw(_paymentRef, requestMapping[_paymentRef].payee);
 
-        delete requestMapping[_paymentRef];
-
         emit RequestWithdrawnFromEscrow(_paymentRef);  
     }
 
@@ -180,7 +169,7 @@ contract ERC20EscrowToPay {
      * @notice Withdraw the locked funds from escow contract and transfers back to payer after 12 months.
      * @param  _paymentRef Reference of the Invoice related.
      */
-    function withdrawFrozenFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
+    function refundFrozenFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
         require(requestMapping[_paymentRef].isFrozen, "Not frozen!");
         require(requestMapping[_paymentRef].unlockDate <= block.timestamp, "Not Yet!");
 
@@ -188,9 +177,7 @@ contract ERC20EscrowToPay {
         
        _withdraw(_paymentRef, msg.sender);
 
-       delete requestMapping[_paymentRef];
-
-       emit FrozenRequestWithdrawn(_paymentRef);
+       emit RefundFrozenFunds(_paymentRef);
     }
     
      /**
@@ -207,19 +194,10 @@ contract ERC20EscrowToPay {
             _receiver,
             _amount
         );
-
+        
+        delete requestMapping[_paymentRef];
+        
         return true;
     } 
-
-    /**
-    * @notice ONLY for testnet purposes, removes the smartcontract from the blockchain. 
-    * @dev Requires msg.sender to be owner account.
-    * @dev Housekeeping. 
-    */
-    function removeContract() external {
-        require( msg.sender == owner, "OnlyOwner"); 
-        selfdestruct(payable(owner));
-        emit ContractRemoved();
-    }
 
 }
