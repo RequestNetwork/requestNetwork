@@ -923,6 +923,29 @@ describe('index', () => {
       expect(requestData.balance!.balance).toEqual('10');
     });
 
+    it('allows to declare a received payment by providing transaction hash', async () => {
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {},
+      };
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      await request.waitForConfirmation();
+
+      mock.resetHistory();
+
+      await request.declareReceivedPayment('10', 'received payment', payeeIdentity, '0x123456789');
+
+      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.post).toHaveLength(1);
+    });
+
     it('allows to declare a sent refund', async () => {
       const requestNetwork = new RequestNetwork({
         httpConfig,
@@ -1009,6 +1032,29 @@ describe('index', () => {
       requestData = await request.declareReceivedRefund('11', 'received refund', delegateIdentity);
       requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
       expect(requestData.balance!.balance).toEqual('-11');
+    });
+
+    it('allows to declare a received refund by providing transaction hash', async () => {
+      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {},
+      };
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      await request.waitForConfirmation();
+
+      mock.resetHistory();
+
+      await request.declareReceivedRefund('10', 'received refund', payerIdentity, '0x123456789');
+
+      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.post).toHaveLength(1);
     });
 
     it('allows to get the right balance', async () => {
