@@ -13,7 +13,7 @@ export const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURREN
   rinkeby: {
     [RequestLogicTypes.CURRENCY.ISO4217]: ['EUR', 'GBP', 'USD'],
     [RequestLogicTypes.CURRENCY.ERC20]: ['0xfab46e002bbf0b4509813474841e0716e6730136'],
-    [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
+    [RequestLogicTypes.CURRENCY.ETH]: ['ETH-rinkeby'],
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },
   mainnet: {
