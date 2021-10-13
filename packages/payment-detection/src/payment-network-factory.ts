@@ -77,7 +77,7 @@ export default class PaymentNetworkFactory {
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
     currencyManager: ICurrencyManager;
   }): PaymentTypes.IPaymentNetwork {
-    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+    const paymentNetworkForCurrency = this.supportedPaymentNetworksForCurrency(currency);
 
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
@@ -129,7 +129,7 @@ export default class PaymentNetworkFactory {
     }
 
     const paymentNetworkId = extensionPaymentNetwork.id;
-    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+    const paymentNetworkForCurrency = this.supportedPaymentNetworksForCurrency(currency);
 
     if (!paymentNetworkForCurrency[paymentNetworkId]) {
       throw new Error(
@@ -146,23 +146,24 @@ export default class PaymentNetworkFactory {
       currencyManager,
     });
   }
-}
 
-/**
- * Gets the payment networks supported for a Currency object
- *
- * @param currency The currency to get the supported networks for
- */
-function supportedPaymentNetworksForCurrency(
-  currency: RequestLogicTypes.ICurrency,
-): PaymentTypes.IPaymentNetworkModuleByType {
-  if (!supportedPaymentNetwork[currency.type]) {
-    return anyCurrencyPaymentNetwork;
+  /**
+   * Gets the payment networks supported for a Currency object
+   *
+   * @param currency The currency to get the supported networks for
+   */
+  public static supportedPaymentNetworksForCurrency(
+    currency: RequestLogicTypes.ICurrency,
+  ): PaymentTypes.IPaymentNetworkModuleByType {
+    if (!supportedPaymentNetwork[currency.type]) {
+      return anyCurrencyPaymentNetwork;
+    }
+
+    const paymentNetwork =
+      supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] ||
+      supportedPaymentNetwork[currency.type]['*'];
+
+    return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
   }
 
-  const paymentNetwork =
-    supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] ||
-    supportedPaymentNetwork[currency.type]['*'];
-
-  return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
 }
