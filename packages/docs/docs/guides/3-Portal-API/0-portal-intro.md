@@ -20,7 +20,7 @@ All API endpoints are authenticated.
 Two mechanisms are currently allowed:
 
 - API Key, explained below, to be used for scripting and test purposes
-- OAuth, explained in the [Apps](./3-api-apps.md) section
+- OAuth, explained in the [Apps](./4-api-apps.md) section
 
 ## Portal outlook
 
