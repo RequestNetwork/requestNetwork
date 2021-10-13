@@ -1,30 +1,23 @@
-import { DataAccessTypes } from '@requestnetwork/types';
+import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 
 import { EventEmitter } from 'events';
+import httpConfigDefaults from './http-config-defaults';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
-
-const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
-
-// Maximum number of retries to attempt when http requests to the Node fail
-const HTTP_REQUEST_MAX_RETRY = 3;
-
-// Delay between retry in ms
-const HTTP_REQUEST_RETRY_DELAY = 100;
-
-// Maximum number of retries to get the confirmation of a persistTransaction
-const GET_CONFIRMATION_MAX_RETRY = 500;
-
-// Delay between retry in ms to get the confirmation of a persistTransaction
-const GET_CONFIRMATION_RETRY_DELAY = 3000;
 
 /**
  * Exposes a Data-Access module over HTTP
  */
 export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
+  /**
+   * Configuration that overrides http-config-defaults,
+   * @see httpConfigDefaults for the default configuration.
+   */
+  protected httpConfig: ClientTypes.IHttpDataAccessConfig;
+
   /**
    * Configuration that will be sent to axios for each request.
    * We can also create a AxiosInstance with axios.create() but it dramatically complicates testing.
@@ -33,21 +26,34 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
 
   /**
    * Creates an instance of HttpDataAccess.
+   * @param httpConfig @see ClientTypes.IHttpDataAccessConfig for available options.
    * @param nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    */
-  constructor(nodeConnectionConfig: AxiosRequestConfig = {}) {
+  constructor(
+    {
+      httpConfig,
+      nodeConnectionConfig,
+    }: {
+      httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
+      nodeConnectionConfig?: AxiosRequestConfig;
+    } = {
+      httpConfig: {},
+      nodeConnectionConfig: {},
+    },
+  ) {
     // Get Request Client version to set it in the header
     const requestClientVersion = packageJson.version;
-
-    this.axiosConfig = Object.assign(
-      {
-        baseURL: 'http://localhost:3000',
-        headers: {
-          [REQUEST_CLIENT_VERSION_HEADER]: requestClientVersion,
-        },
+    this.httpConfig = {
+      ...httpConfigDefaults,
+      ...httpConfig,
+    };
+    this.axiosConfig = {
+      baseURL: 'http://localhost:3000',
+      headers: {
+        [this.httpConfig.requestClientVersionHeader]: requestClientVersion,
       },
-      nodeConnectionConfig,
-    );
+      ...nodeConnectionConfig,
+    };
   }
 
   /**
@@ -93,34 +99,30 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // Try to get the confirmation
-    Utils.retry(
-      async () => {
-        return axios.get(
+    setTimeout(async () => {
+      try {
+        const confirmedData = await this.fetchAndRetry(
           '/getConfirmedTransaction',
-          Object.assign(this.axiosConfig, {
-            params: { transactionHash },
-          }),
+          {
+            transactionHash,
+          },
+          {
+            maxRetries: this.httpConfig.getConfirmationMaxRetry,
+            retryDelay: this.httpConfig.getConfirmationRetryDelay,
+          },
         );
-      },
-      {
-        maxRetries: GET_CONFIRMATION_MAX_RETRY,
-        retryDelay: GET_CONFIRMATION_RETRY_DELAY,
-      },
-    )()
-      .then((resultConfirmed: any) => {
         // when found, emit the event 'confirmed'
-        result.emit('confirmed', resultConfirmed.data);
-      })
-      .catch((e: any) => {
-        // eslint-disable-next-line no-magic-numbers
+        result.emit('confirmed', confirmedData);
+      } catch (e) {
         if (e.response.status === 404) {
           throw new Error(
-            `Transaction confirmation not receive after ${GET_CONFIRMATION_MAX_RETRY} retries`,
+            `Transaction confirmation not receive after ${this.httpConfig.getConfirmationMaxRetry} retries`,
           );
         } else {
           throw new Error(e.message);
         }
-      });
+      }
+    }, this.httpConfig.getConfirmationDeferDelay);
 
     return result;
   }
@@ -135,21 +137,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     channelId: string,
     timestampBoundaries?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
-    const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/getTransactionsByChannelId',
-          Object.assign(this.axiosConfig, {
-            params: { channelId, timestampBoundaries },
-          }),
-        ),
-      {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
-      },
-    )();
-
-    return data;
+    return this.fetchAndRetry('/getTransactionsByChannelId', { channelId, timestampBoundaries });
   }
 
   /**
@@ -162,21 +150,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     topic: string,
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/getChannelsByTopic',
-          Object.assign(this.axiosConfig, {
-            params: { topic, updatedBetween },
-          }),
-        ),
-      {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
-      },
-    )();
-
-    return data;
+    return this.fetchAndRetry('/getChannelsByTopic', { topic, updatedBetween });
   }
 
   /**
@@ -189,21 +163,7 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/getChannelsByMultipleTopics',
-          Object.assign(this.axiosConfig, {
-            params: { topics, updatedBetween },
-          }),
-        ),
-      {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
-      },
-    )();
-
-    return data;
+    return this.fetchAndRetry('/getChannelsByMultipleTopics', { topics, updatedBetween });
   }
 
   /**
@@ -212,18 +172,30 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
    * @param detailed if true get the list of files hashes
    */
   public async _getStatus(detailed?: boolean): Promise<any> {
+    return this.fetchAndRetry('/information', { detailed });
+  }
+
+  /**
+   * Sends an HTTP GET request to the node and retries until it succeeds.
+   * Throws when the retry count reaches a maximum.
+   *
+   * @param url HTTP GET request url
+   * @param params HTTP GET request parameters
+   * @param retryConfig Maximum retry count and delay between retries
+   */
+  protected async fetchAndRetry(
+    url: string,
+    params: any,
+    retryConfig: {
+      maxRetries?: number;
+      retryDelay?: number;
+    } = {},
+  ): Promise<any> {
+    retryConfig.maxRetries = retryConfig.maxRetries ?? this.httpConfig.httpRequestMaxRetry;
+    retryConfig.retryDelay = retryConfig.retryDelay ?? this.httpConfig.httpRequestRetryDelay;
     const { data } = await Utils.retry(
-      async () =>
-        axios.get(
-          '/information',
-          Object.assign(this.axiosConfig, {
-            params: { detailed },
-          }),
-        ),
-      {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
-      },
+      async () => axios.get(url, { ...this.axiosConfig, params }),
+      retryConfig,
     )();
 
     return data;

@@ -1,5 +1,6 @@
 import { CurrencyInput } from '@requestnetwork/currency';
 import {
+  ClientTypes,
   DataAccessTypes,
   DecryptionProviderTypes,
   SignatureProviderTypes,
@@ -21,6 +22,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
   /**
    * Creates an instance of HttpRequestNetwork.
    *
+   * @param options.httpConfig Http config that will be used by the underlying data-access. @see ClientTypes.IHttpDataAccessConfig for available options.
    * @param options.nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    * @param options.useMockStorage When true, will use a mock storage in memory. Meant to simplify local development and should never be used in production.
    * @param options.signatureProvider Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
@@ -31,6 +33,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
   constructor(
     {
       decryptionProvider,
+      httpConfig,
       nodeConnectionConfig,
       useLocalEthereumBroadcast,
       signatureProvider,
@@ -40,6 +43,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       currencies,
     }: {
       decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
+      httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: AxiosRequestConfig;
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
@@ -48,6 +52,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       ethereumProviderUrl?: string;
       currencies?: CurrencyInput[];
     } = {
+      httpConfig: {},
       nodeConnectionConfig: {},
       useLocalEthereumBroadcast: false,
       useMockStorage: false,
@@ -63,9 +68,9 @@ export default class HttpRequestNetwork extends RequestNetwork {
       : // useMockStorage === false
       useLocalEthereumBroadcast
       ? // useLocalEthereumBroadcast === true => use http-metamask-data-access
-        new HttpMetaMaskDataAccess({ nodeConnectionConfig, web3, ethereumProviderUrl })
+        new HttpMetaMaskDataAccess({ httpConfig, nodeConnectionConfig, web3, ethereumProviderUrl })
       : // useLocalEthereumBroadcast === false => use http-data-access
-        new HttpDataAccess(nodeConnectionConfig);
+        new HttpDataAccess({ httpConfig, nodeConnectionConfig });
 
     super({ dataAccess, signatureProvider, decryptionProvider, currencies });
 
