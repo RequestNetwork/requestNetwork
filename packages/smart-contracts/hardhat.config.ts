@@ -7,12 +7,12 @@ import { task } from 'hardhat/config';
 import { config } from 'dotenv';
 import deployRequest from './scripts/1_deploy-request-storage';
 import deployPayment from './scripts/2_deploy-main-payments';
-import deployConversion from './scripts/3_deploy_chainlink_contract';
+//import deployConversion from './scripts/3_deploy_chainlink_contract';
 
 config();
 
 export default {
-  solidity: '0.8.4',
+  solidity: '0.8.7',
   paths: {
     sources: 'src/contracts',
     tests: 'test/contracts',
@@ -45,6 +45,6 @@ task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hr
   args.force = true;
   await deployRequest(args, hre);
   await deployPayment(args, hre);
-  await deployConversion(args, hre);
+  //await deployConversion(args, hre);
   console.log('All contracts (re)deployed locally');
 });
