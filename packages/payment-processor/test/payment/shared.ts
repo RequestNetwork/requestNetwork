@@ -1,8 +1,14 @@
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, CurrencyDefinition } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 export const currencyManager = new CurrencyManager([
   ...CurrencyManager.getDefaultList(),
+  ...[{
+    network: 'private',
+    symbol: 'ETH',
+    decimals: 18,
+    type: RequestLogicTypes.CURRENCY.ETH,
+  } as CurrencyDefinition],
   ...[
     '0x9FBDa871d559710256a2502A2517b794B482Db40',
     '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35',
