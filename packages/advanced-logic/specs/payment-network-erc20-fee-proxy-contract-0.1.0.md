@@ -1,20 +1,13 @@
 # Payment Network - ERC20 with Fee
 
-You may be interested in this document if:
-
-- you want to create your own implementation of the Request protocol
-- you are curious enough to dive and see what is under the hood of the Request protocol
-
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
-
 ## Description
 
-This extension allows the payments and the refunds to be made in ERC20 tokens on the Ethereum blockchain.
+This extension allows payments and refunds to be made in ERC20 tokens on Ethereum and EVM-compatible blockchains.
 This Payment Network is similar to the [ERC20 Proxy Contract](./payment-network-erc20-proxy-contract-0.1.0.md) extension, with the added feature of allowing a fee to be taken from the payment.
 
-The payment is made through a proxy contract. This proxy contract does the ERC20 token transfer on behalf of the user. The contract ensures a link between an ERC20 transfer and a request through a `paymentReference`.
+The payment is mainly expected through a proxy payment contract, but the request issuer can also declare payments manually. Fees shall not be paid for declarative payments.
 
-This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
+The proxy contract does the ERC20 token transfer on behalf of the user. The contract ensures a link between an ERC20 transfer and a request through a `paymentReference`. This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
 The contract also ensures that the `feeAmount` amount of the ERC20 transfer will be forwarded to the `feeAddress`.
 
@@ -27,10 +20,9 @@ The contract also ensures that the `feeAmount` amount of the ERC20 transfer will
 - `hash()` is a keccak256 hash function
 - `last8Bytes()` take the last 8 bytes
 
-As a payment network, this extension allows to deduce a payment `balance` for the request. (see
-[Interpretation](#Interpretation))
+As a payment network, this extension allows to deduce a payment `balance` for the request. (see [Interpretation](#Interpretation))
 
-## Contract
+## Payment Proxy Contract
 
 The contract contains one function called `transferFromWithReferenceAndFee` which takes 6 arguments:
 
@@ -45,11 +37,18 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 
 [See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC20FeeProxy.sol)
 
-| Network | Contract Address                           |
-| ------- | ------------------------------------------ |
-| Mainnet | 0x370DE27fdb7D1Ff1e1BaA7D11c5820a324Cf623C |
-| Rinkeby | 0xda46309973bffddd5a10ce12c44d2ee266f45a44 |
-| Private | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
+| Network                    | Contract Address                           |
+| -------------------------- | ------------------------------------------ |
+| Ethereum Mainnet           | 0x370DE27fdb7D1Ff1e1BaA7D11c5820a324Cf623C |
+| Matic                      | 0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9 |
+| Celo                       | 0x2171a0dc12a9E5b1659feF2BB20E54c84Fa7dB0C |
+| Ethereum Testnet - Rinkeby | 0xda46309973bffddd5a10ce12c44d2ee266f45a44 |
+| Matic Testnet - Mumbai     | 0x131eb294E3803F23dc2882AB795631A12D1d8929 |
+| Private                    | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
+
+## Manual payment declaration
+
+The issuer can declare that he received a payment and give the amount, possibly with a `txHash` for documentation.
 
 ## Properties
 
@@ -61,20 +60,16 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 | **events**                | Array  | List of the actions performed by the extension | **Mandatory** |
 | **values**                | Object |                                                |               |
 | **values.salt**           | String | Salt for the request                           | **Mandatory** |
-| **values.paymentAddress** | String | Ethereum address for the payment               | Optional      |
-| **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
-| **values.feeAddress**     | String | Ethereum address for the fee payment           | Optional      |
+| **values.paymentAddress** | String | Blockchain address for the payment             | Optional      |
+| **values.refundAddress**  | String | Blockchain address for the refund              | Optional      |
+| **values.feeAddress**     | String | Blockchain address for the fee payment         | Optional      |
 | **values.feeAmount**      | String | The fee amount in the request `currency`       | Optional      |
-
-Note: to use the Rinkeby testnet, create a request with `currency.network` as `rinkeby`.
 
 ---
 
-## Actions
+## Action: Creation
 
-### Creation
-
-#### Parameters
+### Parameters
 
 |                               | Type   | Description                                   | Requirement   |
 | ----------------------------- | ------ | --------------------------------------------- | ------------- |
@@ -83,19 +78,19 @@ Note: to use the Rinkeby testnet, create a request with `currency.network` as `r
 | **version**                   | String | Constant value: "0.1.0"                       | **Mandatory** |
 | **parameters**                | Object |                                               |               |
 | **parameters.salt**           | String | Salt for the request                          | **Mandatory** |
-| **parameters.paymentAddress** | String | Ethereum address for the payment              | Optional      |
-| **parameters.refundAddress**  | String | Ethereum address for the refund               | Optional      |
-| **parameters.feeAddress**     | String | Ethereum address for the fee payment          | Optional      |
+| **parameters.paymentAddress** | String | Blockchain address for the payment            | Optional      |
+| **parameters.refundAddress**  | String | Blockchain address for the refund             | Optional      |
+| **parameters.feeAddress**     | String | Blockchain address for the fee payment        | Optional      |
 | **parameters.feeAmount**      | String | The fee amount in the request `currency`      | Optional      |
 
-#### Conditions
+### Conditions
 
 This action is valid if:
 
 - The `salt` is not empty and long enough (8 bytes of randomness minimum).
 - The `currency.type` is ERC20.
 
-#### Warnings
+### Warnings
 
 This action must trigger the warnings:
 
@@ -106,11 +101,11 @@ This action must trigger the warnings:
 | "feeAmount is given by the payer"       | If `signer` is the payer **and** `feeAddress` is given      |
 | "refundAddress is given by the payee"   | If `signer` is the payee **and** `refundAddress` is given   |
 
-Note: These warnings are necessary to highlight to avoid attempts of fake payments and refunds. For example, a payer could create a request using as the payment address one of his own addresses. A system could interpret a transaction to this address as a payment while the payee did not receive the funds.
+Note: These warnings are necessary to highlight and avoid attempts of fake payments and refunds. For example, a payer could create a request using as the payment address one of his own addresses. A system could interpret a transaction to this address as a payment while the payee did not receive the funds.
 
-#### Results
+### Results
 
-An extension state is created with the following properties:
+The extension state is created with the following properties:
 
 |  Property                 |  Value                                                         |
 | ------------------------- | -------------------------------------------------------------- |
@@ -139,20 +134,18 @@ the 'create' event:
 
 ---
 
-### Updates
+## Action: addPaymentAddress
 
-#### addPaymentAddress
-
-##### Parameters
+### Parameters
 
 |                               | Type   | Description                                   | Requirement   |
 | ----------------------------- | ------ | --------------------------------------------- | ------------- |
 | **id**                        | String | Constant value: "pn-erc20-fee-proxy-contract" | **Mandatory** |
 | **action**                    | String | Constant value: "addPaymentAddress"           | **Mandatory** |
 | **parameters**                | Object |                                               |               |
-| **parameters.paymentAddress** | String | Ethereum address for the payment              | **Mandatory** |
+| **parameters.paymentAddress** | String | Blockchain address for the payment            | **Mandatory** |
 
-##### Conditions
+### Conditions
 
 This action is valid, if:
 
@@ -160,11 +153,11 @@ This action is valid, if:
 - The signer is the `payee`
 - The extension property `paymentAddress` is undefined
 
-##### Warnings
+### warnings
 
 None.
 
-##### Results
+### Results
 
 An extension state is updated with the following properties:
 
@@ -181,18 +174,18 @@ the 'addPaymentAddress' event:
 | **parameters**                |                                     |
 | **parameters.paymentAddress** | `paymentAddress` from parameters    |
 
-#### addRefundAddress
+## Action: addRefundAddress
 
-##### Parameters
+### Parameters
 
 |                              | Type   | Description                                   | Requirement   |
 | ---------------------------- | ------ | --------------------------------------------- | ------------- |
 | **id**                       | String | Constant value: "pn-erc20-fee-proxy-contract" | **Mandatory** |
 | **action**                   | String | Constant value: "addRefundAddress"            | **Mandatory** |
 | **parameters**               | Object |                                               |               |
-| **parameters.refundAddress** | String | Ethereum address for the refund               | **Mandatory** |
+| **parameters.refundAddress** | String | Blockchain address for the refund             | **Mandatory** |
 
-##### Conditions
+### Conditions
 
 This action is valid if:
 
@@ -200,13 +193,13 @@ This action is valid if:
 - The signer is the `payer`
 - The extension property `refundAddress` is undefined
 
-##### Warnings
+### warnings
 
 None.
 
-##### Results
+### Results
 
-An extension state is updated with the following properties:
+The extension state is updated with the following properties:
 
 |  Property                |  Value                                                 |
 | ------------------------ | ------------------------------------------------------ |
@@ -221,19 +214,19 @@ The 'addRefundAddress' event:
 | **parameters**               |                                 |
 | **parameters.refundAddress** | `refundAddress` from parameters |
 
-#### addFee
+## Action: addFee
 
-##### Parameters
+### Parameters
 
 |                           | Type   | Description                                   | Requirement   |
 | ------------------------- | ------ | --------------------------------------------- | ------------- |
 | **id**                    | String | Constant value: "pn-erc20-fee-proxy-contract" | **Mandatory** |
 | **action**                | String | Constant value: "addFeeAddress"               | **Mandatory** |
 | **parameters**            | Object |                                               |               |
-| **parameters.feeAddress** | String | Ethereum address for the fee payment          | **Mandatory** |
+| **parameters.feeAddress** | String | Blockchain address for the fee payment        | **Mandatory** |
 | **parameters.feeAmount**  | String | The fee amount                                | **Mandatory** |
 
-##### Conditions
+### Conditions
 
 This action is valid, if:
 
@@ -242,13 +235,13 @@ This action is valid, if:
 - The extension property `feeAddress` is undefined
 - The extension property `feeAmount` is undefined or represents an integer greater or equal than zero
 
-##### Warnings
+### warnings
 
 None.
 
-##### Results
+### Results
 
-An extension state is updated with the following properties:
+The extension state is updated with the following properties:
 
 |  Property             |  Value                                   |
 | --------------------- | ---------------------------------------- |
@@ -265,6 +258,78 @@ the 'addFee' event:
 | **parameters.feeAddress** | `feeAddress` from parameters    |
 | **parameters.feeAmount**  | `feeAmount` from parameters     |
 
+## Action: declareReceivedPayment
+
+### Parameters
+
+|                       | Type   | Description                                          | Requirement   |
+| --------------------- | ------ | ---------------------------------------------------- | ------------- |
+| **id**                | String | Constant value: "pn-erc20-fee-proxy-contract"        | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedPayment"             | **Mandatory** |
+| **parameters**        | Object |                                                      |               |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
+| **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
+
+### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-erc20-fee-proxy-contract" exists
+- The signer is the `payee`
+
+### warnings
+
+None.
+
+### Results
+
+An event is added to the extension state events array:
+
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedPayment" |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
+
+## Action: declareReceivedRefund
+
+### Parameters
+
+|                       | Type   | Description                                          | Requirement   |
+| --------------------- | ------ | ---------------------------------------------------- | ------------- |
+| **id**                | String | Constant value: "pn-erc20-fee-proxy-contract"        | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedRefund"              | **Mandatory** |
+| **parameters**        | Object |                                                      |               |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
+| **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
+
+### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-erc20-fee-proxy-contract" exists
+- The signer is the `payee`
+
+### warnings
+
+None.
+
+### Results
+
+An event is added to the extension state events array:
+
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedRefund"  |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
+
 ---
 
 ## Interpretation
@@ -273,15 +338,19 @@ The fee proxy contract address is determined by the `request.currency.network` (
 
 Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a payment:
 
-- `tokenAddress` `===` `request.currency.value`
-- `to` `===` `paymentAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
+- `tokenAddress === request.currency.value`
+- `to === paymentAddress`
+- `paymentReference === last8Bytes(hash(lowercase(requestId + salt + payment address)))`
+
+Any `declareReceivedPayment` event is considered a payment.
+
+Any `declareReceivedRefund` event is considered a refund.
 
 Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a refund:
 
-- `tokenAddress` `===` `request.currency.value`
-- `to` `===` `refundAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`
+- `tokenAddress === request.currency.value`
+- `to === refundAddress`
+- `paymentReference === last8Bytes(hash(lowercase(requestId + salt + refund address)))`
 
 The sum of payment amounts minus the sum of refund amounts is considered the balance.
 
