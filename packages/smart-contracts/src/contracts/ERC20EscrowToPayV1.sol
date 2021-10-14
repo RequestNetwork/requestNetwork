@@ -13,7 +13,6 @@ contract ERC20EscrowToPay {
     using SafeERC20 for IERC20;
 
     IERC20FeeProxy public paymentProxy;
-    address private owner;
 
     struct Request {
         IERC20 tokenAddress;
@@ -60,6 +59,16 @@ contract ERC20EscrowToPay {
     }
 
     /**
+    * Modifier checks that the request is not frozen.
+    * @param _paymentRef Reference of the payment related.
+    * @dev It requires the requestMapping[_paymentRef].isFrozen to be false.
+    */
+    modifier IsNotFrozen(bytes memory _paymentRef) {
+        require(!requestMapping[_paymentRef].isFrozen, "Request Frozen!");
+        _;
+    }
+
+    /**
      * @notice Emitted when an new escrow is initiated.
      * @param paymentReference Reference of the payment related.
      */
@@ -81,15 +90,14 @@ contract ERC20EscrowToPay {
      * @notice Emitted when a frozen request has been refunded.
      * @param paymentReference Reference of the payment related.
      */
-    event RefundFrozenFunds(bytes indexed paymentReference);
+    event RefundedFrozenFunds(bytes indexed paymentReference);
     
     
     constructor(address _paymentProxyAddress) {
-        owner = msg.sender;
         paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     }
 
-    /// @notice recieve function reverts and returns the funds to the sender.
+    /// @notice receive function reverts and returns the funds to the sender.
     receive() external payable {
         revert("not payable receive");
     }
@@ -102,17 +110,21 @@ contract ERC20EscrowToPay {
     * @param _paymentRef Reference of the payment related.
     * @param _feeAmount Amount of fee to be paid.
     * @param _feeAddress Address to where the fees will be paid.
+    * @dev Uses modifier IsNotInEscrow.
     * @dev Uses transferFromWithReferenceAndFee() to transfer funds from the msg.sender, 
     * into the escrow and pay the fees.
     */
-    function payRequestToEscrow(
+    function payEscrow(
         address _tokenAddress,
         address _to,
         uint _amount,
         bytes memory _paymentRef,
         uint _feeAmount,
         address _feeAddress
-    ) external IsNotInEscrow(_paymentRef) {
+    )   
+        external 
+        IsNotInEscrow(_paymentRef) 
+    {
 
         requestMapping[_paymentRef] = Request(
             IERC20(_tokenAddress),
@@ -141,12 +153,10 @@ contract ERC20EscrowToPay {
     /**
      * @notice Locks the request funds for 12 months.
      * @param _paymentRef Reference of the Invoice related.
+     * @dev Uses modifiers OnlyPayer and IsNotFrozen.
      */
-    function FreezeRequest(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
-        require(!requestMapping[_paymentRef].isFrozen, "Request Frozen!");
-
+    function FreezeRequest(bytes memory _paymentRef) external OnlyPayer(_paymentRef) IsNotFrozen(_paymentRef) {
         requestMapping[_paymentRef].isFrozen = true;
-
         /// unlockDate is set with block.timestamp + twelve months. 
         requestMapping[_paymentRef].unlockDate = block.timestamp + 31556926;
 
@@ -156,28 +166,33 @@ contract ERC20EscrowToPay {
     /**
      * @notice Closes an open escrow and pays the invoice request to it's payee.
      * @param _paymentRef Reference of the related Invoice.
+     * @dev Uses modifiers IsInEscrow, IsNotFrozen and OnlyPayer.
      */
-    function payRequestFromEscrow(bytes memory _paymentRef) external IsInEscrow(_paymentRef) OnlyPayer(_paymentRef) {
-        require(!requestMapping[_paymentRef].isFrozen, "Request Frozen!");
-
-        _withdraw(_paymentRef, requestMapping[_paymentRef].payee);
-
+    function payRequestFromEscrow(bytes memory _paymentRef) 
+        external 
+        IsInEscrow(_paymentRef) 
+        IsNotFrozen(_paymentRef) 
+        OnlyPayer(_paymentRef) 
+    {
+        require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw Failed!");
         emit RequestWithdrawnFromEscrow(_paymentRef);  
     }
 
     /**
      * @notice Withdraw the locked funds from escow contract and transfers back to payer after 12 months.
      * @param  _paymentRef Reference of the Invoice related.
+     * @dev requires that the request .isFrozen = true and .unlockDate to
+     * be lower or equal to block.timestamp.
      */
-    function refundFrozenFunds(bytes memory _paymentRef) external OnlyPayer(_paymentRef) {
+    function refundFrozenFunds(bytes memory _paymentRef) external {
         require(requestMapping[_paymentRef].isFrozen, "Not frozen!");
         require(requestMapping[_paymentRef].unlockDate <= block.timestamp, "Not Yet!");
 
         requestMapping[_paymentRef].isFrozen = false;
         
-       _withdraw(_paymentRef, msg.sender);
+        require(_withdraw(_paymentRef, requestMapping[_paymentRef].payer), "Withdraw Failed!");
 
-       emit RefundFrozenFunds(_paymentRef);
+        emit RefundedFrozenFunds(_paymentRef);
     }
     
      /**
