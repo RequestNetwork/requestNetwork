@@ -44,7 +44,7 @@ describe("Contract: ERC20EscrowToPayV2", () => {
             const builderOldBalance = await testERC20.balanceOf(feeAddress);
     
             expect(
-                await erc20EscrowToPay.connect(payer).payRequestToEscrow(
+                await erc20EscrowToPay.connect(payer).payEscrow(
                     testERC20.address,
                     payeeAddress,
                     1000,
@@ -84,7 +84,7 @@ describe("Contract: ERC20EscrowToPayV2", () => {
         before(async () => {
             await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 1001);
 
-            await erc20EscrowToPay.connect(payer).payRequestToEscrow(
+            await erc20EscrowToPay.connect(payer).payEscrow(
                 testERC20.address,
                 payeeAddress,
                 1000,
