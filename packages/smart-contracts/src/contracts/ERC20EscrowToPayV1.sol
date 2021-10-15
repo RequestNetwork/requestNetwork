@@ -2,6 +2,7 @@
 pragma solidity 0.8.7;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/context.sol";
 import "./lib/SafeERC20.sol";
 import "./interfaces/ERC20FeeProxy.sol";
 

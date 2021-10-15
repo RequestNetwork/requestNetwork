@@ -1,5 +1,5 @@
 {
-"abi": [
+  "abi": [
     {
       "inputs": [
         {
@@ -184,14 +184,19 @@
           "type": "uint256"
         },
         {
-          "internalType": "bool",
-          "name": "isFrozen",
-          "type": "bool"
-        },
-        {
           "internalType": "uint256",
           "name": "unlockDate",
           "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "emergencyClaim",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isFrozen",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
