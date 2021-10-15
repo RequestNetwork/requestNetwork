@@ -51,16 +51,17 @@ describe('getDefaultProvider', () => {
   });
 
   it('Can override the RPC configuration for a new network', async () => {
-    expect(() => getDefaultProvider('xdai')).toThrowError('unsupported getDefaultProvider network');
+    const fakenet = 'fakenet';
+    expect(() => getDefaultProvider(fakenet)).toThrowError('unsupported getDefaultProvider network');
     setProviderFactory((network, defaultFactory) => {
-      if (network === 'xdai') {
-        return 'http://xdaichain.fake';
+      if (network === fakenet) {
+        return 'http://fakenet.fake';
       }
       return defaultFactory(network);
     });
-    expect(getDefaultProvider('xdai')).toBeInstanceOf(providers.JsonRpcProvider);
-    expect((getDefaultProvider('xdai') as providers.JsonRpcProvider).connection.url).toBe(
-      'http://xdaichain.fake',
+    expect(getDefaultProvider(fakenet)).toBeInstanceOf(providers.JsonRpcProvider);
+    expect((getDefaultProvider(fakenet) as providers.JsonRpcProvider).connection.url).toBe(
+      'http://fakenet.fake',
     );
     // still works for standard providers
     expect((getDefaultProvider('rinkeby') as providers.JsonRpcProvider).connection.url).toMatch(

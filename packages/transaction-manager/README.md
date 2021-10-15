@@ -2,7 +2,7 @@
 
 `@requestnetwork/transaction-manager` is a typescript library part of the [Request Network protocol](https://github.com/RequestNetwork/requestNetwork).
 It is the default implementation of the Transaction layer. It creates transactions to be sent to Data Access.
-When privacy is implemented, this package will handle the encryption
+When privacy is implemented, this package will handle the encryption.
 
 ## Installation
 

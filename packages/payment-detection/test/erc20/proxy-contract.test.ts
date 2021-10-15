@@ -24,6 +24,14 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
         return;
       },
     },
+    declarative: {
+      createAddPaymentInstructionAction(): any {
+        return;
+      },
+      createAddRefundInstructionAction(): any {
+        return;
+      }
+    }
   },
 };
 
@@ -59,13 +67,13 @@ describe('api/erc20/proxy-contract', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it('can createExtensionsDataForAddPaymentInformation', async () => {
+  it('can createExtensionsDataForAddPaymentAddress', async () => {
     const spy = jest.spyOn(
       mockAdvancedLogic.extensions.proxyContractErc20,
       'createAddPaymentAddressAction',
     );
 
-    erc20ProxyContract.createExtensionsDataForAddPaymentInformation({
+    erc20ProxyContract.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
@@ -74,18 +82,48 @@ describe('api/erc20/proxy-contract', () => {
     });
   });
 
-  it('can createExtensionsDataForAddRefundInformation', async () => {
+  it('can createExtensionsDataForAddPaymentInformation', async () => {
+    const spy = jest.spyOn(
+      mockAdvancedLogic.extensions.declarative,
+      'createAddPaymentInstructionAction',
+    );
+
+    erc20ProxyContract.createExtensionsDataForAddPaymentInformation({
+      paymentInfo: 'ethereum address',
+    });
+
+    expect(spy).toHaveBeenCalledWith({
+      paymentInfo: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddRefundAddress', async () => {
     const spy = jest.spyOn(
       mockAdvancedLogic.extensions.proxyContractErc20,
       'createAddRefundAddressAction',
     );
 
-    erc20ProxyContract.createExtensionsDataForAddRefundInformation({
+    erc20ProxyContract.createExtensionsDataForAddRefundAddress({
       refundAddress: 'ethereum address',
     });
 
     expect(spy).toHaveBeenCalledWith({
       refundAddress: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddRefundInformation', async () => {
+    const spy = jest.spyOn(
+      mockAdvancedLogic.extensions.declarative,
+      'createAddRefundInstructionAction',
+    );
+
+    erc20ProxyContract.createExtensionsDataForAddRefundInformation({
+      refundInfo: 'ethereum address',
+    });
+
+    expect(spy).toHaveBeenCalledWith({
+      refundInfo: 'ethereum address',
     });
   });
 
