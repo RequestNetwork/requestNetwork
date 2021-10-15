@@ -206,5 +206,5 @@
       "stateMutability": "payable",
       "type": "receive"
     }
-  ],
+  ]
 }
