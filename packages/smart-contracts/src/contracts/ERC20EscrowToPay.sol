@@ -1,5 +1,5 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./lib/SafeERC20.sol";
@@ -163,7 +163,7 @@ contract ERC20EscrowToPay {
      * @param _paymentRef Reference of the Invoice related.
      * @dev Uses modifiers OnlyPayer and IsNotFrozen.
      */
-    function FreezeRequest(bytes memory _paymentRef) external OnlyPayers(_paymentRef) IsNotFrozen(_paymentRef) {
+    function freezeRequest(bytes memory _paymentRef) external OnlyPayers(_paymentRef) IsNotFrozen(_paymentRef) {
         requestMapping[_paymentRef].isFrozen = true;
         /// unlockDate is set with block.timestamp + twelve months. 
         requestMapping[_paymentRef].unlockDate = block.timestamp + 31556926;

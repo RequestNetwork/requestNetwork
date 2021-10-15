@@ -12,7 +12,7 @@ import {
 
 use(solidity);
 
-describe("Contract: ERC20EscrowToPayV2", () => {
+describe("Contract: ERC20EscrowToPay", () => {
     const referenceExample1 = '0xaaaa';
     const referenceExample2 = '0xbbbb';
     let testERC20: Contract, erc20EscrowToPay: ERC20EscrowToPay, erc20FeeProxy: ERC20FeeProxy;
@@ -94,11 +94,11 @@ describe("Contract: ERC20EscrowToPayV2", () => {
             );
         });
         it("Should revert if not payer tries to freezeRequest", async () => {
-            expect(erc20EscrowToPay.connect(payee).FreezeRequest(referenceExample2))
+            expect(erc20EscrowToPay.connect(payee).freezeRequest(referenceExample2))
                 .to.be.reverted;
         })
         it("Should only let the payer freeze the request for twelve months", async () => {
-            expect(await erc20EscrowToPay.connect(payer).FreezeRequest(referenceExample2))
+            expect(await erc20EscrowToPay.connect(payer).freezeRequest(referenceExample2))
                 .to.emit(erc20EscrowToPay, "RequestFrozen")
                 .withArgs(ethers.utils.keccak256(referenceExample2));
             

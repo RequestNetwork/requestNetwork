@@ -71,7 +71,7 @@
           "type": "bytes"
         }
       ],
-      "name": "FreezeRequest",
+      "name": "freezeRequest",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
