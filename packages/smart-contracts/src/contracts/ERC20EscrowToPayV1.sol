@@ -20,7 +20,7 @@ contract ERC20EscrowToPay {
         address payer;
         uint256 amount;
         bool isFrozen;
-        uint unlockDate;
+        uint256 unlockDate;
     }
 
     /**
@@ -117,9 +117,9 @@ contract ERC20EscrowToPay {
     function payEscrow(
         address _tokenAddress,
         address _to,
-        uint _amount,
+        uint256 _amount,
         bytes memory _paymentRef,
-        uint _feeAmount,
+        uint256 _feeAmount,
         address _feeAddress
     )   
         external 
@@ -202,7 +202,7 @@ contract ERC20EscrowToPay {
      * @dev Internal function to withdraw funds from escrow, to a given reciever.
      */
     function _withdraw(bytes memory _paymentRef, address _receiver) internal returns (bool result) {       
-        uint _amount = requestMapping[_paymentRef].amount;
+        uint256 _amount = requestMapping[_paymentRef].amount;
         requestMapping[_paymentRef].amount = 0;
         
         requestMapping[_paymentRef].tokenAddress.safeTransfer(
