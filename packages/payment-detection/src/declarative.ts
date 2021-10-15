@@ -75,6 +75,7 @@ export default class PaymentNetworkDeclarative
     return this.extension.createDeclareSentPaymentAction({
       amount: parameters.amount,
       note: parameters.note,
+      txHash: parameters.txHash,
     });
   }
 
@@ -90,6 +91,7 @@ export default class PaymentNetworkDeclarative
     return this.extension.createDeclareSentRefundAction({
       amount: parameters.amount,
       note: parameters.note,
+      txHash: parameters.txHash,
     });
   }
 
@@ -105,6 +107,7 @@ export default class PaymentNetworkDeclarative
     return this.extension.createDeclareReceivedPaymentAction({
       amount: parameters.amount,
       note: parameters.note,
+      txHash: parameters.txHash,
     });
   }
 
@@ -120,6 +123,7 @@ export default class PaymentNetworkDeclarative
     return this.extension.createDeclareReceivedRefundAction({
       amount: parameters.amount,
       note: parameters.note,
+      txHash: parameters.txHash,
     });
   }
 

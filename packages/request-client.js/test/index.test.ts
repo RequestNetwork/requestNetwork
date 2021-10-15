@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import {
+  ClientTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
   IdentityTypes,
@@ -20,9 +21,13 @@ import * as TestDataRealBTC from './data-test-real-btc';
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { BigNumber } from 'ethers';
 import EtherscanProviderMock from './etherscan-mock';
+import httpConfigDefaults from '../src/http-config-defaults';
 
 const packageJson = require('../package.json');
-const REQUEST_CLIENT_VERSION_HEADER = 'X-Request-Network-Client-Version';
+
+const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
+  getConfirmationDeferDelay: 0,
+};
 
 const signatureParametersPayee: SignatureTypes.ISignatureParameters = {
   method: SignatureTypes.METHOD.ECDSA,
@@ -153,7 +158,9 @@ describe('index', () => {
     const mock = new AxiosMockAdapter(axios);
 
     const callback = (config: any): any => {
-      expect(config.headers[REQUEST_CLIENT_VERSION_HEADER]).toBe(packageJson.version);
+      expect(config.headers[httpConfigDefaults.requestClientVersionHeader]).toBe(
+        packageJson.version,
+      );
       return [200, {}];
     };
     const spy = jest.fn(callback);
@@ -163,7 +170,10 @@ describe('index', () => {
       .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
@@ -195,7 +205,10 @@ describe('index', () => {
       .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
@@ -229,6 +242,7 @@ describe('index', () => {
     });
 
     const requestNetwork = new RequestNetwork({
+      httpConfig,
       ethereumProviderUrl: 'http://localhost:8545',
       signatureProvider: fakeSignatureProvider,
       useLocalEthereumBroadcast: true,
@@ -267,7 +281,10 @@ describe('index', () => {
     });
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
 
     requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
@@ -302,7 +319,10 @@ describe('index', () => {
     });
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
 
     await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
@@ -327,6 +347,7 @@ describe('index', () => {
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
     const requestNetwork = new RequestNetwork({
+      httpConfig,
       nodeConnectionConfig: { baseURL },
       signatureProvider: fakeSignatureProvider,
     });
@@ -341,12 +362,16 @@ describe('index', () => {
 
   it('allows to create a request', async () => {
     const mock = mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
 
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     expect(request).toBeInstanceOf(Request);
     expect(request.requestId).toBeDefined();
@@ -356,13 +381,14 @@ describe('index', () => {
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
     const requestIdLength = 66;
     expect(request.requestId.length).toBe(requestIdLength);
-
-    await request.waitForConfirmation();
   });
 
   it('allows to compute a request id', async () => {
     const mock = mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
 
     mock.resetHistory();
 
@@ -381,7 +407,10 @@ describe('index', () => {
 
   it('allows to compute a request id, then generate the request with the same id', async () => {
     const mock = mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
 
     const requestId = await requestNetwork.computeRequestId({
       requestInfo: TestData.parametersWithoutExtensionsData,
@@ -396,18 +425,20 @@ describe('index', () => {
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     expect(request).toBeInstanceOf(Request);
     expect(request.requestId).toBe(requestId);
     expect(mock.history.get).toHaveLength(3);
     expect(mock.history.post).toHaveLength(1);
-
-    await request.waitForConfirmation();
   });
 
   it('allows to get a request from its ID', async () => {
     mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
 
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
@@ -463,7 +494,10 @@ describe('index', () => {
     });
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
@@ -656,17 +690,22 @@ describe('index', () => {
 
   it('allows to accept a request', async () => {
     const mock = mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     mock.resetHistory();
 
-    await request.accept(payerIdentity);
+    const requestDataWithEvents = await request.accept(payerIdentity);
+    await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-    expect(mock.history.get).toHaveLength(4);
+    expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
   });
 
@@ -710,49 +749,64 @@ describe('index', () => {
 
   it('allows to cancel a request', async () => {
     const mock = mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     mock.resetHistory();
 
-    await request.cancel(payeeIdentity);
+    const requestData = await request.cancel(payeeIdentity);
+    await new Promise((resolve): any => requestData.on('confirmed', resolve));
 
-    expect(mock.history.get).toHaveLength(4);
+    expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
   });
 
   it('allows to increase the expected amount a request', async () => {
     const mock = mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     mock.resetHistory();
 
-    await request.increaseExpectedAmountRequest(3, payerIdentity);
+    const requestDataWithEvents = await request.increaseExpectedAmountRequest(3, payerIdentity);
+    await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-    expect(mock.history.get).toHaveLength(4);
+    expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
   });
 
   it('allows to reduce the expected amount a request', async () => {
     const mock = mockAxios();
-    const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider: fakeSignatureProvider,
+    });
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
       signer: payeeIdentity,
     });
+    await request.waitForConfirmation();
 
     mock.resetHistory();
 
-    await request.reduceExpectedAmountRequest(3, payeeIdentity);
+    const requestDataWithEvents = await request.reduceExpectedAmountRequest(3, payeeIdentity);
+    await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-    expect(mock.history.get).toHaveLength(4);
+    expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
   });
 
@@ -778,7 +832,10 @@ describe('index', () => {
     });
 
     it('allows to declare a sent payment', async () => {
-      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const requestNetwork = new RequestNetwork({
+        httpConfig,
+        signatureProvider: fakeSignatureProvider,
+      });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
@@ -794,14 +851,22 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareSentPayment('10', 'sent payment', payerIdentity);
+      const requestDataWithEvents = await request.declareSentPayment(
+        '10',
+        'sent payment',
+        payerIdentity,
+      );
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
     it('allows to declare a received payment', async () => {
-      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const requestNetwork = new RequestNetwork({
+        httpConfig,
+        signatureProvider: fakeSignatureProvider,
+      });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
@@ -817,9 +882,14 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareReceivedPayment('10', 'received payment', payeeIdentity);
+      const requestDataWithEvents = await request.declareReceivedPayment(
+        '10',
+        'received payment',
+        payeeIdentity,
+      );
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
@@ -853,8 +923,11 @@ describe('index', () => {
       expect(requestData.balance!.balance).toEqual('10');
     });
 
-    it('allows to declare a sent refund', async () => {
-      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+    it('allows to declare a received payment by providing transaction hash', async () => {
+      const requestNetwork = new RequestNetwork({
+        httpConfig,
+        signatureProvider: fakeSignatureProvider,
+      });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
@@ -870,14 +943,54 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareSentRefund('10', 'sent refund', payeeIdentity);
+      const requestDataWithEvents = await request.declareReceivedPayment(
+        '10',
+        'received payment',
+        payeeIdentity,
+        '0x123456789',
+      );
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
+      expect(mock.history.post).toHaveLength(1);
+    });
+
+    it('allows to declare a sent refund', async () => {
+      const requestNetwork = new RequestNetwork({
+        httpConfig,
+        signatureProvider: fakeSignatureProvider,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {},
+      };
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      await request.waitForConfirmation();
+
+      mock.resetHistory();
+
+      const requestDataWithEvents = await request.declareSentRefund(
+        '10',
+        'sent refund',
+        payeeIdentity,
+      );
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
+
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
     it('allows to declare a received refund', async () => {
-      const requestNetwork = new RequestNetwork({ signatureProvider: fakeSignatureProvider });
+      const requestNetwork = new RequestNetwork({
+        httpConfig,
+        signatureProvider: fakeSignatureProvider,
+      });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
@@ -893,9 +1006,14 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      await request.declareReceivedRefund('10', 'received refund', payerIdentity);
+      const requestDataWithEvents = await request.declareReceivedRefund(
+        '10',
+        'received refund',
+        payerIdentity,
+      );
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
-      expect(mock.history.get).toHaveLength(4);
+      expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
     });
 
@@ -923,6 +1041,38 @@ describe('index', () => {
       requestData = await request.declareReceivedRefund('11', 'received refund', delegateIdentity);
       requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
       expect(requestData.balance!.balance).toEqual('-11');
+    });
+
+    it('allows to declare a received refund by providing transaction hash', async () => {
+      const requestNetwork = new RequestNetwork({
+        httpConfig,
+        signatureProvider: fakeSignatureProvider,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {},
+      };
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: payeeIdentity,
+      });
+      await request.waitForConfirmation();
+
+      mock.resetHistory();
+
+      const requestDataWithEvents = await request.declareReceivedRefund(
+        '10',
+        'received refund',
+        payerIdentity,
+        '0x123456789',
+      );
+      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
+
+      expect(mock.history.get).toHaveLength(5);
+      expect(mock.history.post).toHaveLength(1);
     });
 
     it('allows to get the right balance', async () => {
@@ -1861,9 +2011,7 @@ describe('index', () => {
         requestInfo,
         signer: payeeIdentity,
       });
-
-      await new Promise((resolve): any => setTimeout(resolve, 150));
-      const data = await request.refresh();
+      const data = await request.waitForConfirmation();
 
       expect(data).toBeDefined();
       expect(data.balance?.balance).toBe('90');
