@@ -166,4 +166,17 @@ export default class PaymentNetworkFactory {
     return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
   }
 
+  /**
+   * Checks if a networkId is part of the supported networks for given currency
+   *
+   * @param paymentNetworkId The networkId to check is supported by this currency
+   * @param currency The currency to check the supported networks for
+   */
+  public static currencySupportsPaymentNetwork(
+    paymentNetworkId: string,
+    currency: RequestLogicTypes.ICurrency,
+  ): boolean {
+    const paymentNetworks = this.supportedPaymentNetworksForCurrency(currency);
+    return !!paymentNetworks[paymentNetworkId];
+  }
 }
