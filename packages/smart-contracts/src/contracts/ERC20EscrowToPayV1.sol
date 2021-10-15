@@ -19,8 +19,10 @@ contract ERC20EscrowToPay {
         address payee;
         address payer;
         uint256 amount;
-        bool isFrozen;
         uint256 unlockDate;
+        uint256 emergencyClaim;
+        bool isFrozen;
+        
     }
 
     /**
@@ -29,12 +31,15 @@ contract ERC20EscrowToPay {
     mapping(bytes => Request) public requestMapping;
 
     /**
-    * Modifier checks if msg.sender is the payment payer.
-    * @param _paymentRef Reference of the payment related.
+    * Modifier checks if msg.sender is one of the requestpayment payer or payee.
+    * @param _paymentRef Reference of the requestpayment related.
     * @dev It requires msg.sender to be equal to requestMapping[_paymentRef].payer. 
     */
-    modifier OnlyPayer(bytes memory _paymentRef) {
-        require(msg.sender == requestMapping[_paymentRef].payer, "Not Authorized.");
+    modifier OnlyPayers(bytes memory _paymentRef) {
+        require(msg.sender == requestMapping[_paymentRef].payer ||
+            msg.sender == requestMapping[_paymentRef].payee &&
+            block.timestamp >= requestMapping[_paymentRef].emergencyClaim, 
+            "Not Authorized.");
         _;
     }
 
@@ -125,14 +130,17 @@ contract ERC20EscrowToPay {
         external 
         IsNotInEscrow(_paymentRef) 
     {
-
+        /// _emergencyClaim is set with block.timestamp + six months
+        uint256 _emergencyClaim = block.timestamp + 15778458;
+        
         requestMapping[_paymentRef] = Request(
             IERC20(_tokenAddress),
             _to,
             msg.sender,
             _amount,
-            false,
-            0
+            0,
+            _emergencyClaim,
+            false
         );
         
         (bool status, ) = address(paymentProxy).delegatecall(
@@ -155,7 +163,7 @@ contract ERC20EscrowToPay {
      * @param _paymentRef Reference of the Invoice related.
      * @dev Uses modifiers OnlyPayer and IsNotFrozen.
      */
-    function FreezeRequest(bytes memory _paymentRef) external OnlyPayer(_paymentRef) IsNotFrozen(_paymentRef) {
+    function FreezeRequest(bytes memory _paymentRef) external OnlyPayers(_paymentRef) IsNotFrozen(_paymentRef) {
         requestMapping[_paymentRef].isFrozen = true;
         /// unlockDate is set with block.timestamp + twelve months. 
         requestMapping[_paymentRef].unlockDate = block.timestamp + 31556926;
@@ -172,7 +180,7 @@ contract ERC20EscrowToPay {
         external 
         IsInEscrow(_paymentRef) 
         IsNotFrozen(_paymentRef) 
-        OnlyPayer(_paymentRef) 
+        OnlyPayers(_paymentRef) 
     {
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw Failed!");
         emit RequestWithdrawnFromEscrow(_paymentRef);  
