@@ -18,7 +18,7 @@ contract ERC20EscrowToPay {
         IERC20 tokenAddress;
         address payee;
         address payer;
-        uint amount;
+        uint256 amount;
         bool isFrozen;
         uint unlockDate;
     }
