@@ -123,17 +123,20 @@ const getCurrency = (symbol: string) => {
 };
 
 // Record currency [currency hash] => {value (address or symbol), type}
-const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH'].reduce((prev, symbol) => {
-  const currency = getCurrency(symbol);
+const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH', 'ETH-rinkeby'].reduce(
+  (prev, symbol) => {
+    const currency = getCurrency(symbol);
 
-  return {
-    ...prev,
-    [currency.hash.toLowerCase()]: {
-      value: CurrencyManager.toStorageCurrency(currency).value,
-      type: currency.type,
-    },
-  };
-}, {} as Record<string, { value: string; type: RequestLogicTypes.CURRENCY }>);
+    return {
+      ...prev,
+      [currency.hash.toLowerCase()]: {
+        value: CurrencyManager.toStorageCurrency(currency).value,
+        type: currency.type,
+      },
+    };
+  },
+  {} as Record<string, { value: string; type: RequestLogicTypes.CURRENCY }>,
+);
 
 const addSupportedCurrency = (
   ccy: string,
@@ -196,7 +199,9 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
   console.log(aggregatorsNodesForDijkstra);
   console.log('#####################################################################');
   console.log('Supported currencies (advanced-logic) :');
-  console.log('../advanced-logic/src/extensions/payment-network/any-to-erc20-proxy.ts');
+  console.log(
+    '../advanced-logic/src/extensions/payment-network/conversion-supported-currencies.ts',
+  );
   console.log(supportedCurrencies);
 };
 
