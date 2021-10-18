@@ -59,6 +59,7 @@ export default class PersistTransactionHandler {
 
       this.logger.debug(
         `Persisting Transaction: ${JSON.stringify({
+          transactionHash,
           channelId: clientRequest.body.channelId,
           topics: clientRequest.body.topics,
           transactionData: clientRequest.body.transactionData,
