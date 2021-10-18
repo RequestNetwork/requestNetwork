@@ -65,19 +65,23 @@ In the body part you can use the following example and replace the data accordin
   "invoiceItems": [
     {
       "currency": "USD",
-      "name": "aaaoken name",
-      "quantity": 10,
+      "name": "Television",
+      "quantity": 2,
       "tax": {
         "type": "percentage",
         "amount": "20"
       },
-      "unitPrice": "5700"
-      // It is the price of one item, excluding taxes. Here it means the price of one aaaoken is $57.00. The total per item will be $68.40 including taxes, and the whole total will be $684.00
+      // "unitPrice" is the price of one item excluding taxes
+      // Here it means the price of one TV is $99.99
+      // The total per item will be $119.99 including taxes, and the whole total will be $239.98
+      "unitPrice": "99.99"
     }
   ],
+  // "invoiceNumber" has to be unique for each invoice created by your account.
+  // It is a string, so it can contain a number, or a more custom invoice identifier.
   "invoiceNumber": "2",
-  // This string has to be unique for each invoice created. It can be a number as well as a string.
   "buyerInfo": {
+    "businessName": "Request Network",
     "address": {
       "country-name": "France",
       "street-address": "5 Av. Anatole France",
@@ -85,35 +89,34 @@ In the body part you can use the following example and replace the data accordin
       "postal-code": "75007",
       "locality": "Paris"
     },
-    "businessName": "Request Network",
-    "email": "aaa-buyer-test@request.network",
-    "taxRegistration": "tax number",
+    "email": "buyer-test@request.network",
     "firstName": "Buyer First Name",
-    "lastName": "Buyer Last Name"
+    "lastName": "Buyer Last Name",
+    "taxRegistration": "Buyer Taxpayer Identification Number"
   },
   "sellerInfo": {
-    "businessName": "Request Network",
+    "businessName": "TV Seller Acme",
     "address": {
       "country-name": "AAA",
-      "street-address": "aaa address line 1",
+      "street-address": "3521 Park Avenue",
       "extended-address": "aaa address line 2",
-      "postal-code": "aaa postal code",
-      "region": "aaa region",
-      "locality": "aaa city"
+      "postal-code": "00501",
+      "region": "New York",
+      "locality": "HOLTSVILLE"
     },
-    "email": "admin@aaa",
-    "firstName": "Admin First Name",
-    "lastName": "Admin Last Name",
-    "taxRegistration": "tax number"
+    "email": "seller-test@acme.com",
+    "firstName": "Seller First Name",
+    "lastName": "Seller Last Name",
+    "taxRegistration": "Seller Taxpayer Identification Number"
   },
   "paymentTerms": {
-    "dueDate": "2021-10-22T21:59:59.999Z"
     // ISO-8601 date, last day the buyer can pay
+    "dueDate": "2021-10-22T21:59:59.999Z"
   },
-  "paymentAddress": "0x4886E85E192cdBC81d42D89256a81dAb990CDD74",
   // address which will receive the payment
-  "paymentCurrency": "FAU-rinkeby",
+  "paymentAddress": "0x4886E85E192cdBC81d42D89256a81dAb990CDD74",
   // FAU is a fake ERC-20 that we deployed on Rinkeby that is used when we select the DAI currency on the UI. On mainnet for your use case it will be xDAI-xdai or USDC-xdai
+  "paymentCurrency": "USDC-xdai",
   "tags": [
     "Tag1",
     // optional, you can add several tags to the invoice
