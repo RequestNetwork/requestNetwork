@@ -1,5 +1,5 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./lib/SafeERC20.sol";
@@ -118,6 +118,7 @@ contract ERC20EscrowToPay {
     * @dev Uses modifier IsNotInEscrow.
     * @dev Uses transferFromWithReferenceAndFee() to transfer funds from the msg.sender, 
     * into the escrow and pay the fees.
+    * @dev uint256 _emergencyClaim is set with block.timestamp + six months.
     */
     function payEscrow(
         address _tokenAddress,
@@ -130,7 +131,6 @@ contract ERC20EscrowToPay {
         external 
         IsNotInEscrow(_paymentRef) 
     {
-        /// _emergencyClaim is set with block.timestamp + six months
         uint256 _emergencyClaim = block.timestamp + 15778458;
         
         requestMapping[_paymentRef] = Request(

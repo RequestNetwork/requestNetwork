@@ -44,10 +44,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     // Deploy ERC20 Fee proxy contract
     const ERC20FeeProxyAddress = await deployOne(args, hre, 'ERC20FeeProxy');
     console.log('ERC20FeeProxy Contract deployed: ' + ERC20FeeProxyAddress);
-   
-    // Deploy ERC20 Escrow contract
-    const ERC20EscrowToPayAddress = await deployOne(args, hre, 'ERC20EscrowToPay', [ERC20FeeProxyAddress]);
-    console.log('ERC20EscrowToPay Contract deployed: ' + ERC20EscrowToPayAddress);
 
     // Deploy the BadERC20 contract
     const BadERC20Address = await deployOne(args, hre, 'BadERC20', [1000, 'BadERC20', 'BAD', 8]);
@@ -98,7 +94,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       EthereumProxy:            ${EthereumProxyAddress}
       EthereumFeeProxy:         ${EthereumFeeProxyAddress}
       ERC20FeeProxy:            ${ERC20FeeProxyAddress}
-      ERC20EscrowToPay:         ${ERC20EscrowToPayAddress}
       BadERC20:                 ${BadERC20Address}
       ERC20True:                ${ERC20TrueAddress}
       ERC20False:               ${ERC20FalseAddress}
