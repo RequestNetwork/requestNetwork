@@ -172,7 +172,7 @@ contract ERC20EscrowToPay {
     }
 
     /**
-     * @notice Closes an open escrow and pays the invoice request to it's payee.
+     * @notice Closes an open escrow and pays the invoice request to its payee.
      * @param _paymentRef Reference of the related Invoice.
      * @dev Uses modifiers IsInEscrow, IsNotFrozen and OnlyPayer.
      */
