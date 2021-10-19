@@ -27,7 +27,7 @@ describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
       },
       currencyManager: CurrencyManager.getDefault(),
     });
-    const action = await paymentNetwork.createExtensionsDataForCreation(createCreationActionParams);
+    const action = await paymentNetwork.extension.createCreationAction(createCreationActionParams);
     expect(action.parameters.paymentAddress).toEqual('payment.testnet');
     expect(action.parameters.paymentNetworkName).toEqual('aurora-testnet');
   });
@@ -42,7 +42,7 @@ describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
       currencyManager: CurrencyManager.getDefault(),
     });
     await expect(async () => {
-      await paymentNetwork.createExtensionsDataForCreation(createCreationActionParams);
+      await paymentNetwork.extension.createCreationAction(createCreationActionParams);
     }).rejects.toThrowError(
       'The network name is mandatory for the creation of the extension pn-native-token.',
     );

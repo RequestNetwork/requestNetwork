@@ -18,6 +18,7 @@ import {
   StorageTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { IExtension } from 'types/src/extension-types';
 
 let advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
 let requestLogic: RequestLogicTypes.IRequestLogic;
@@ -153,7 +154,7 @@ describe('Request system', () => {
   });
 
   it('can create a request', async () => {
-    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
+    const contentDataExtensionData = (advancedLogic.extensions.contentData as IExtension).createCreationAction({
       content: { this: 'could', be: 'an', invoice: true },
     });
 
@@ -193,7 +194,7 @@ describe('Request system', () => {
   });
 
   it('can create a request with smart contract as payer', async () => {
-    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
+    const contentDataExtensionData = (advancedLogic.extensions.contentData as IExtension).createCreationAction({
       content: { this: 'could', be: 'an', invoice: true },
     });
 
@@ -259,7 +260,7 @@ describe('Request system', () => {
     // Logic setup
     requestLogic = new RequestLogic(transactionManager, signatureProvider, advancedLogic);
 
-    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
+    const contentDataExtensionData = (advancedLogic.extensions.contentData as IExtension).createCreationAction({
       content: { this: 'could', be: 'an', invoice: true },
     });
 
@@ -308,11 +309,11 @@ describe('Request system', () => {
   });
 
   it('can create a request BTC with payment network', async () => {
-    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
+    const contentDataExtensionData = (advancedLogic.extensions.contentData as IExtension).createCreationAction({
       content: { this: 'could', be: 'an', invoice: true },
     });
 
-    const pnBTCExtensionData = advancedLogic.extensions.addressBasedTestnetBtc.createCreationAction(
+    const pnBTCExtensionData = (advancedLogic.extensions.addressBasedTestnetBtc as IExtension).createCreationAction(
       {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
@@ -444,7 +445,7 @@ describe('Request system', () => {
   });
 
   it('can create and update an encrypted request', async () => {
-    const contentDataExtensionData = advancedLogic.extensions.contentData.createCreationAction({
+    const contentDataExtensionData = (advancedLogic.extensions.contentData as IExtension).createCreationAction({
       content: { this: 'could', be: 'an', invoice: true },
     });
 

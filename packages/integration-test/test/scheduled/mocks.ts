@@ -1,4 +1,5 @@
 import { AdvancedLogicTypes } from '@requestnetwork/types';
+import { IExtension } from 'types/src/extension-types';
 
 export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions: jest.fn(),
@@ -7,6 +8,7 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentAddressAction: jest.fn(),
       createAddRefundAddressAction: jest.fn(),
       createCreationAction: jest.fn(),
-    },
+      applyActionToExtension: jest.fn(),
+    } as IExtension,
   },
 };

@@ -4,6 +4,7 @@ import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signatu
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
 import { IdentityTypes, RequestLogicTypes, SignatureTypes } from '@requestnetwork/types';
+import { IExtension } from 'types/src/extension-types';
 import MockStorage from './mock-storage';
 
 const signatureInfo: SignatureTypes.ISignatureParameters = {
@@ -85,7 +86,9 @@ async function getSizeOfRequest(
     if (actions.content) {
       _requestCreationHash = Object.assign({}, requestCreationHash, {
         extensionsData: [
-          advancedLogic.extensions.contentData.createCreationAction({ content: actions.content }),
+          (advancedLogic.extensions.contentData as IExtension).createCreationAction({
+            content: actions.content,
+          }),
         ],
       });
     }
