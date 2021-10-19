@@ -1,21 +1,15 @@
 # Payment Network - ETH - input data
 
-You may be interested in this document if:
-
-- you want to create your own implementation of the Request protocol
-- you are curious enough to dive and see what is under the hood of the Request protocol
-
-Prerequisite: Having read the advanced logic specification (see [here](./advanced-logic-specs-0.1.0.md)).
-
 ## Description
 
-This extension allows the payments and the refunds to be made in Ether on the Ethereum blockchain.
+This extension allows the payments and the refunds to be made in Ether on the Ethereum blockchain, or in any native token of an EVM chain.
 A payment reference has to be given when making the transfer to link the payment to the request.
 
-There are two ways to add a payment reference to a transfer:
+There are three ways to match payments for the concerned request (and payment reference):
 
-1. add the reference to the input data of the transfer
-2. call the ethereum proxy smart contract (see [Contract](#Contract))
+1. The payer transfers native tokens add the reference to the input data
+2. The payer calls the ETH proxy smart contract (see [Contract](#Contract))
+3. The issuer declares a payment manually
 
 The payment reference is the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
@@ -25,8 +19,11 @@ The payment reference is the last 8 bytes of a salted hash of the requestId: `la
 - `hash()` is a keccak256 hash function
 - `last8Bytes()` take the last 8 bytes
 
-As a payment network, this extension allows to deduce a payment `balance` for the request. (see
-[Interpretation](#Interpretation))
+As a payment network, this extension allows to deduce a payment `balance` for the request. (see [Interpretation](#Interpretation))
+
+## Manual payment declaration
+
+The issuer can declare that he received a payment and give the amount, possibly with a `txHash` for documentation.
 
 ## Contract
 
@@ -53,19 +50,15 @@ The `TransferWithReference` event is emitted when the Ether is transfered. This 
 | **version**               | String | constant value: "0.2.0"                        | **Mandatory** |
 | **events**                | Array  | List of the actions performed by the extension | **Mandatory** |
 | **values**                | Object |                                                |               |
-| **values.paymentAddress** | String | Ethereum address for the payment               | Optional      |
-| **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
+| **values.paymentAddress** | String | Blockchain address for the payment             | Optional      |
+| **values.refundAddress**  | String | Blockchain address for the refund              | Optional      |
 | **values.salt**           | String | Salt for the request                           | **Mandatory** |
-
-Note: to use the Rinkeby testnet just set the `currency.network` to "rinkeby"
 
 ---
 
-## Actions
+## Action: Creation
 
-### Creation
-
-#### Parameters
+### Parameters
 
 |                               | Type   | Description                         | Requirement   |
 | ----------------------------- | ------ | ----------------------------------- | ------------- |
@@ -73,11 +66,11 @@ Note: to use the Rinkeby testnet just set the `currency.network` to "rinkeby"
 | **type**                      | String | Constant value: "paymentNetwork"    | **Mandatory** |
 | **version**                   | String | Constant value: "0.2.0"             | **Mandatory** |
 | **parameters**                | Object |                                     |               |
-| **parameters.paymentAddress** | String | Ethereum address for the payment    | Optional      |
-| **parameters.refundAddress**  | String | Ethereum address for the refund     | Optional      |
+| **parameters.paymentAddress** | String | Blockchain address for the payment  | Optional      |
+| **parameters.refundAddress**  | String | Blockchain address for the refund   | Optional      |
 | **parameters.salt**           | String | Salt for the request                | **Mandatory** |
 
-#### Conditions
+### Conditions
 
 This action is valid if:
 
@@ -85,7 +78,7 @@ This action is valid if:
 - The request `currency.network` must be "mainnet", "rinkeby" or an EVM chain
 - The `salt` is not empty and long enough (8 bytes of randomness minimum).
 
-#### Warnings
+### Warnings
 
 This action must trigger the warnings:
 
@@ -94,11 +87,11 @@ This action must trigger the warnings:
 | "paymentAddress is given by the payer"  | If `signer` is the payer **and** `paymentAddress` is given  |
 | "refundAddress is given by the payee"   | If `signer` is the payee **and** `refundAddress` is given   |
 
-Note: These warnings are necessary to highlight to avoid attempts of fake payments and refunds. For example, a payer could create a request using as the payment address one of his own addresses. A system could interpret a transaction to this address as a payment while the payee did not receive the funds.
+Note: These warnings are necessary to highlight and avoid attempts of fake payments and refunds. For example, a payer could create a request using as the payment address one of his own addresses. A system could interpret a transaction to this address as a payment while the payee did not receive the funds.
 
-#### Results
+### Results
 
-A extension state is created with the following properties:
+An extension state is created with the following properties:
 
 |  Property                 |  Value                                                         |
 | ------------------------- | -------------------------------------------------------------- |
@@ -123,20 +116,18 @@ the 'create' event:
 
 ---
 
-### Updates
+## Action: addPaymentAddress
 
-#### addPaymentAddress
-
-##### Parameters
+### Parameters
 
 |                               | Type   | Description                         | Requirement   |
 | ----------------------------- | ------ | ----------------------------------- | ------------- |
 | **id**                        | String | Constant value: "pn-eth-input-data" | **Mandatory** |
 | **action**                    | String | Constant value: "addPaymentAddress" | **Mandatory** |
 | **parameters**                | Object |                                     |               |
-| **parameters.paymentAddress** | String | Ethereum address for the payment    | **Mandatory** |
+| **parameters.paymentAddress** | String | Blockchain address for the payment  | **Mandatory** |
 
-##### Conditions
+### Conditions
 
 This action is valid, if:
 
@@ -144,13 +135,13 @@ This action is valid, if:
 - The signer is the `payee`
 - The extension property `paymentAddress` is undefined
 
-##### Warnings
+### Warnings
 
 None.
 
-##### Results
+### Results
 
-A extension state is updated with the following properties:
+The extension state is updated with the following properties:
 
 |  Property                  |  Value                                               |
 | -------------------------- | ---------------------------------------------------- |
@@ -166,18 +157,18 @@ the 'addPaymentAddress' event:
 | **parameters**                |                                     |
 | **parameters.paymentAddress** | `paymentAddress` from parameters    |
 
-#### addRefundAddress
+## Action: addRefundAddress
 
-##### Parameters
+### Parameters
 
 |                              | Type   | Description                         | Requirement   |
 | ---------------------------- | ------ | ----------------------------------- | ------------- |
 | **id**                       | String | Constant value: "pn-eth-input-data" | **Mandatory** |
 | **action**                   | String | Constant value: "addRefundAddress"  | **Mandatory** |
 | **parameters**               | Object |                                     |               |
-| **parameters.refundAddress** | String | Ethereum address for the refund     | **Mandatory** |
+| **parameters.refundAddress** | String | Blockchain address for the refund   | **Mandatory** |
 
-##### Conditions
+### Conditions
 
 This action is valid if:
 
@@ -185,13 +176,13 @@ This action is valid if:
 - The signer is the `payer`
 - The extension property `refundAddress` is undefined
 
-##### Warnings
+### Warnings
 
 None.
 
-##### Results
+### Results
 
-A extension state is updated with the following properties:
+The extension state is updated with the following properties:
 
 |  Property                |  Value                                                 |
 | ------------------------ | ------------------------------------------------------ |
@@ -207,21 +198,104 @@ The 'addRefundAddress' event:
 | **parameters**               |                                 |
 | **parameters.refundAddress** | `refundAddress` from parameters |
 
+## Action: declareReceivedPayment
+
+### Parameters
+
+|                       | Type   | Description                                          | Requirement   |
+| --------------------- | ------ | ---------------------------------------------------- | ------------- |
+| **id**                | String | Constant value: "pn-eth-input-data"                  | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedPayment"             | **Mandatory** |
+| **parameters**        | Object |                                                      |               |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
+| **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
+
+### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-eth-input-data" exists
+- The signer is the `payee`
+
+### warnings
+
+None.
+
+### Results
+
+An event is added to the extension state events array:
+
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedPayment" |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
+
+## Action: declareReceivedRefund
+
+### Parameters
+
+|                       | Type   | Description                                          | Requirement   |
+| --------------------- | ------ | ---------------------------------------------------- | ------------- |
+| **id**                | String | Constant value: "pn-eth-input-data"                  | **Mandatory** |
+| **action**            | String | Constant value: "declareReceivedRefund"              | **Mandatory** |
+| **parameters**        | Object |                                                      |               |
+| **parameters.amount** | Amount | The amount declared as received, in request currency | **Mandatory** |
+| **parameters.note**   | String | Additional information about the payment             | Optional      |
+| **parameters.txHash** | String | The transaction hash for documentation and metadata  | Optional      |
+
+### Conditions
+
+This action is valid, if:
+
+- The extension state with the id "pn-eth-input-data" exists
+- The signer is the `payee`
+
+### warnings
+
+None.
+
+### Results
+
+An event is added to the extension state events array:
+
+|  Property             |  Value                                   |
+| --------------------- | -----------------------------------------|
+| **name**              | Constant value: "declareReceivedRefund"  |
+| **parameters**        |                                          |
+| **parameters.amount** | `amount` from parameters                 |
+| **parameters.note**   | `note` from parameters                   |
+| **parameters.txHash** | `txHash` from parameters or undefined    |
+
 ---
 
 ## Interpretation
 
-The proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
+The proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses). Only transactions on this network are valid.
 
-The `balance` starts from `0`.
-Any ETH transaction to `paymentAddress` with exactly `last8Bytes(hash(requestId + salt + payment address))` in input data is considered as a payment. The `balance` is increased by the sum of the amounts of the transactions.
-Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a payment:
+The sum of payment amounts minus the sum of refund amounts is considered the balance.
 
-- `to` `===` `paymentAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + payment address)))`
+### Payments
 
-Any ETH transaction to `refundAddress` with exactly `last8Bytes(hash(requestId + salt + refund address))` in input data is considered as a refund. The `balance` is reduced by the sum of the amounts of the transactions.
-Any `TransferWithReference` events emitted from the proxy contract with the following arguments are considered as a refund:
+Any ETH transaction to `paymentAddress` with exactly `last8Bytes(hash(requestId + salt + payment address))` in input data is considered a payment.
 
-- `to` `===` `refundAddress`
-- `paymentReference` `===` `last8Bytes(hash(lowercase(requestId + salt + refund address)))`
+Any `declareReceivedPayment` event is considered a payment.
+
+Any `TransferWithReference` events emitted from the proxy contract with the following arguments is considered a payment:
+
+- `to === paymentAddress`
+- `paymentReference === last8Bytes(hash(lowercase(requestId + salt + payment address)))`
+
+### Refunds
+
+Any ETH transaction to `refundAddress` with exactly `last8Bytes(hash(requestId + salt + refund address))` in input data is considered a refund.
+
+Any `declareReceivedRefund` event is considered a refund.
+
+Any `TransferWithReference` event emitted from the proxy contract with the following arguments is considered a refund:
+
+- `to === refundAddress`
+- `paymentReference === last8Bytes(hash(lowercase(requestId + salt + refund address)))`

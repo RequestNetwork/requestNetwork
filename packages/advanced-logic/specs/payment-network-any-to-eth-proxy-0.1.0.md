@@ -52,7 +52,7 @@ The `TransferWithConversionAndReference` event is emitted when the tokens are tr
 | Network | Contract Address                           |
 | ------- | ------------------------------------------ |
 | Mainnet | TODO                                       |
-| Rinkeby | TODO                                       |
+| Rinkeby | 0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4 |
 | Private | 0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A |
 
 ## Properties

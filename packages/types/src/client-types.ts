@@ -2,7 +2,7 @@ import * as Identity from './identity-types';
 import * as Payment from './payment-types';
 import * as RequestLogic from './request-logic-types';
 
-/** Restrict research to two timestamp */
+/** Restrict research between two timestamp */
 export interface ITimestampBoundaries {
   from?: number;
   to?: number;
@@ -53,4 +53,20 @@ export interface IRequestInfo {
 export interface IRequestEvents {
   confirmed: (requestData: IRequestDataWithEvents) => void;
   error: (error: string) => void;
+}
+
+/** Configuration variables for http-data-access and http-metamask-data-access */
+export interface IHttpDataAccessConfig {
+  /** Name of the header containing the client version */
+  requestClientVersionHeader: string;
+  /** Maximum number of retries to attempt when http requests to the Node fail */
+  httpRequestMaxRetry: number;
+  /** Delay between retry in ms */
+  httpRequestRetryDelay: number;
+  /** Maximum number of retries to get the confirmation of a persistTransaction */
+  getConfirmationMaxRetry: number;
+  /** Delay between retry in ms to get the confirmation of a persistTransaction */
+  getConfirmationRetryDelay: number;
+  /** Delay to wait in ms before trying for the first time to get the confirmation of a persistTransaction */
+  getConfirmationDeferDelay: number;
 }
