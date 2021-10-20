@@ -2,6 +2,7 @@ import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import {
   chainlinkConversionPath as chainlinkConversionPathArtifact,
+  ContractArtifact,
   erc20FeeProxyArtifact,
   erc20SwapToPayArtifact,
   ethereumFeeProxyArtifact,
@@ -11,6 +12,7 @@ import { deploySwapConversion } from './erc20-swap-to-conversion';
 import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversion-proxy';
 import { DeploymentResult, deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses } from './utils';
+import { Contract } from 'ethers';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.
@@ -53,60 +55,27 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
     );
 
     // ----------------------------------
-    // STANDARD BATCHES
+    // EASY DEPLOYMENTS UTIL
     // ----------------------------------
 
-    const standardBatches = [
-      // Batch 1
-      [
-        {
-          contractName: 'EthereumProxy',
-          constructorArguments: [],
-          artifact: ethereumProxyArtifact,
-        },
-        {
-          contractName: 'ERC20FeeProxy',
-          constructorArguments: [],
-          artifact: erc20FeeProxyArtifact,
-        },
-        {
-          contractName: 'ChainlinkConversionPath',
-          constructorArguments: [],
-          artifact: chainlinkConversionPathArtifact,
-        },
-      ],
-      // Batch 3
-      [
-        {
-          contractName: 'EthereumFeeProxy',
-          constructorArguments: [],
-          artifact: ethereumFeeProxyArtifact,
-        },
-      ],
-    ];
-    let batchResults: Record<string, DeploymentResult>;
-
-    // Utility to loop through many standard contract deployments
-    let currentStandardBatch = 0;
-    const runNextStandardBatch = async () => {
-      const deployments = standardBatches[currentStandardBatch];
-      const batchResult: Record<string, DeploymentResult> = {};
-
-      // Deploy automated contracts (1/2)
-      for (const deployment of deployments) {
-        const result = await deployOne(args, hre, deployment.contractName, {
-          ...deployment,
-        });
-        concludeDeployment(result);
-        console.log(`Contract ${deployment.contractName} ${result.type}: ${result.address}`);
-        batchResult[result.contractName] = result;
-      }
-      currentStandardBatch += 1;
-      return batchResult;
+    let easyResults: Record<string, DeploymentResult> = {};
+    // Utility to run a straight-forward deployment with deployOne()
+    const runEasyDeployment = async (deployment: {
+      contractName: string;
+      constructorArguments?: string[];
+      artifact: ContractArtifact<Contract>;
+    }) => {
+      deployment.constructorArguments = deployment.constructorArguments ?? [];
+      const result = await deployOne(args, hre, deployment.contractName, {
+        ...deployment,
+      });
+      concludeDeployment(result);
+      console.log(`Contract ${deployment.contractName} ${result.type}: ${result.address}`);
+      easyResults[result.contractName] = result;
     };
 
     // ----------------------------------
-    // NON-STANDARD BATCHES
+    // NON-EASY BATCHES DEFINITION
     // ----------------------------------
 
     /*
@@ -130,12 +99,12 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
       const erc20ConversionAddress = erc20ConversionResult?.address;
 
       // Add whitelist admin to chainlink path
-      if (batchResults['ChainlinkConversionPath']?.type === 'deployed') {
+      if (easyResults['ChainlinkConversionPath']?.type === 'deployed') {
         if (!process.env.ADMIN_WALLET_ADDRESS) {
           throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
         }
         if (args.simulate === false) {
-          await batchResults['ChainlinkConversionPath'].instance.addWhitelistAdmin(
+          await easyResults['ChainlinkConversionPath'].instance.addWhitelistAdmin(
             process.env.ADMIN_WALLET_ADDRESS,
           );
         }
@@ -186,7 +155,7 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
         {
           ...args,
           chainlinkConversionPathAddress,
-          ethFeeProxyAddress: batchResults['EthereumFeeProxy'].address,
+          ethFeeProxyAddress: easyResults['EthereumFeeProxy'].address,
         },
         hre,
       );
@@ -198,19 +167,30 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
     // ----------------------------------
 
     // Batch 1
-    batchResults = await runNextStandardBatch();
+    await runEasyDeployment({
+      contractName: 'EthereumProxy',
+      artifact: ethereumProxyArtifact,
+    });
+    await runEasyDeployment({
+      contractName: 'ERC20FeeProxy',
+      artifact: erc20FeeProxyArtifact,
+    });
+    await runEasyDeployment({
+      contractName: 'ChainlinkConversionPath',
+      artifact: chainlinkConversionPathArtifact,
+    });
 
-    chainlinkConversionPathAddress = batchResults['ChainlinkConversionPath'].address;
-    erc20FeeProxyAddress = batchResults['ERC20FeeProxy'].address;
+    chainlinkConversionPathAddress = easyResults['ChainlinkConversionPath'].address;
+    erc20FeeProxyAddress = easyResults['ERC20FeeProxy'].address;
 
     // Batch 2
     await runDeploymentBatch_2();
 
     // Batch 3
-    batchResults = {
-      ...batchResults,
-      ...(await runNextStandardBatch()),
-    };
+    await runEasyDeployment({
+      contractName: 'EthereumFeeProxy',
+      artifact: ethereumFeeProxyArtifact,
+    });
 
     // Batch 4
     await runDeploymentBatch_4();
@@ -242,6 +222,7 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
             `*          : then update the lib with chainlinkPath util in toolbox and push changes`,
             `*     OTHER: run \`yarn hardhat prepare-live-payments --network ${hre.network.name}\``,
             `*     OTHER: execute administration tasks: approveRouterToSpend(), approvePaymentProxyToSpend() on swaps`,
+            `*     OTHER: deploy subgraphes where needed`,
           ].join('\r\n'),
     );
     if (verificationPromises.length > 0) {
