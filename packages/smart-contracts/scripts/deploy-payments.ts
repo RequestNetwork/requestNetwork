@@ -33,7 +33,7 @@ export async function deployAllPaymentContracts(
   args: any,
   hre: HardhatRuntimeEnvironment,
 ): Promise<void> {
-  const deploymentResults: DeploymentResult[] = [];
+  const deploymentResults: (DeploymentResult | undefined)[] = [];
 
   try {
     const [deployer] = await hre.ethers.getSigners();
@@ -185,17 +185,19 @@ export async function deployAllPaymentContracts(
     // Add future batches above this line
 
     console.log('Done deploying. Summary:');
-    deploymentResults.forEach((res) => {
-      console.log(`      ${res.contractName.concat(':').padEnd(30, ' ')}${res.address}`);
-    });
+    deploymentResults
+      .filter((x): x is DeploymentResult => !!x)
+      .forEach((res) => {
+        console.log(`      ${res.contractName.concat(':').padEnd(30, ' ')}${res.address}`);
+      });
     // #endregion
   } catch (e) {
     console.error(e);
   }
 
-  const nbDeployments = deploymentResults.filter((val) => val.type === 'deployed').length;
+  const nbDeployments = deploymentResults.filter((val) => val?.type === 'deployed').length;
   const verificationPromises = deploymentResults
-    .map((val) => val.verificationPromise)
+    .map((val) => val?.verificationPromise)
     .filter(Boolean);
 
   // #region MAIN - Conclusion and verification
@@ -220,10 +222,12 @@ export async function deployAllPaymentContracts(
       console.log('Contracts verifications in progress...');
       await Promise.all(
         verificationPromises.map((verificationPromise) => {
-          return verificationPromise.then((success) => {
-            nbSuccessfulVerifications += success ? 1 : 0;
-            console.log(`${nbSuccessfulVerifications} / ${nbDeployments}...`);
-          });
+          return verificationPromise
+            ? verificationPromise.then((success) => {
+                nbSuccessfulVerifications += success ? 1 : 0;
+                console.log(`${nbSuccessfulVerifications} / ${nbDeployments}...`);
+              })
+            : Promise.resolve();
         }),
       );
       console.log(`${nbSuccessfulVerifications} verification successes !`);

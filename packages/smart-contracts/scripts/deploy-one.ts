@@ -3,7 +3,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { Contract } from 'ethers';
 import { ContractArtifact } from '../src/lib';
 
-export interface DeploymentResult<TContract extends Contract | null = Contract> {
+export interface DeploymentResult<TContract extends Contract | unknown = Contract> {
   address: string;
   contractName: string;
   instance: TContract;
@@ -12,13 +12,12 @@ export interface DeploymentResult<TContract extends Contract | null = Contract> 
   verificationPromise?: Promise<boolean>;
 }
 
-const SIMULATED_DEPLOYMENT: DeploymentResult<null> = {
+const SIMULATED_DEPLOYMENT: DeploymentResult<unknown> = {
   address: 'simulated',
   contractName: '',
   instance: null,
   constructorArguments: [],
   type: 'simulated',
-  verificationPromise: null,
 };
 
 /**
@@ -54,7 +53,7 @@ export async function deployOne<TContract extends Contract>(
           address,
           contractName,
           instance: factory.attach(address) as TContract,
-          constructorArguments: constructorArguments,
+          constructorArguments,
           type: 'attached',
         };
       }
@@ -62,7 +61,13 @@ export async function deployOne<TContract extends Contract>(
   }
 
   if (args.simulate) {
-    return { ...SIMULATED_DEPLOYMENT, contractName, constructorArguments: constructorArguments };
+    const result: DeploymentResult<any> = {
+      ...SIMULATED_DEPLOYMENT,
+      instance: null,
+      contractName,
+      constructorArguments: constructorArguments,
+    };
+    return result;
   }
 
   // Deployment and Verification
