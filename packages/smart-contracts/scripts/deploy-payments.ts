@@ -13,6 +13,7 @@ import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversi
 import { DeploymentResult, deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses } from './utils';
 import { Contract } from 'ethers';
+import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.
@@ -28,24 +29,11 @@ import { Contract } from 'ethers';
  * `args.simulate = true` to prevent deployments and contract verification
  *
  */
-export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEnvironment) {
-  let nbDeployments = 0;
-  let verificationPromises: Promise<boolean>[] = [];
-
-  let chainlinkConversionPathAddress: string;
-  let erc20FeeProxyAddress: string;
-
+export async function deployAllPaymentContracts(
+  args: any,
+  hre: HardhatRuntimeEnvironment,
+): Promise<void> {
   const deploymentResults: DeploymentResult[] = [];
-
-  // Count deployments and track verification promises
-  const concludeDeployment = (deploymentResult?: DeploymentResult) => {
-    if (!deploymentResult) return;
-    nbDeployments += deploymentResult?.type === 'deployed' ? 1 : 0;
-    deploymentResults.push(deploymentResult);
-    if (deploymentResult?.verificationPromise) {
-      verificationPromises.push(deploymentResult.verificationPromise);
-    }
-  };
 
   try {
     const [deployer] = await hre.ethers.getSigners();
@@ -54,29 +42,25 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
       `*** Deploying with the account: ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId}) ***`,
     );
 
-    // ----------------------------------
-    // EASY DEPLOYMENTS UTIL
-    // ----------------------------------
+    // #region EASY DEPLOYMENTS UTIL
 
-    let easyResults: Record<string, DeploymentResult> = {};
     // Utility to run a straight-forward deployment with deployOne()
-    const runEasyDeployment = async (deployment: {
+    const runEasyDeployment = async <TContract extends Contract>(deployment: {
       contractName: string;
       constructorArguments?: string[];
-      artifact: ContractArtifact<Contract>;
-    }) => {
+      artifact: ContractArtifact<TContract>;
+    }): Promise<DeploymentResult<TContract>> => {
       deployment.constructorArguments = deployment.constructorArguments ?? [];
-      const result = await deployOne(args, hre, deployment.contractName, {
+      const result = await deployOne<TContract>(args, hre, deployment.contractName, {
         ...deployment,
       });
-      concludeDeployment(result);
+      deploymentResults.push(result);
       console.log(`Contract ${deployment.contractName} ${result.type}: ${result.address}`);
-      easyResults[result.contractName] = result;
+      return result;
     };
+    // #endregion
 
-    // ----------------------------------
-    // NON-EASY BATCHES DEFINITION
-    // ----------------------------------
+    // #region NON-EASY BATCHES DEFINITION
 
     /*
      * Batch 2
@@ -85,28 +69,29 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
      *   - ERC20SwapToConversion
      */
 
-    const runDeploymentBatch_2 = async () => {
+    const runDeploymentBatch_2 = async (
+      chainlinkInstance: ChainlinkConversionPath,
+      erc20FeeProxyAddress: string,
+    ) => {
       // Deploy ERC20 Conversion
       const erc20ConversionResult = await deployERC20ConversionProxy(
         {
           ...args,
-          chainlinkConversionPathAddress,
+          chainlinkConversionPathAddress: chainlinkInstance.address,
           erc20FeeProxyAddress,
         },
         hre,
       );
-      concludeDeployment(erc20ConversionResult);
+      deploymentResults.push(erc20ConversionResult);
       const erc20ConversionAddress = erc20ConversionResult?.address;
 
       // Add whitelist admin to chainlink path
-      if (easyResults['ChainlinkConversionPath']?.type === 'deployed') {
+      if (chainlinkInstance) {
         if (!process.env.ADMIN_WALLET_ADDRESS) {
           throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
         }
         if (args.simulate === false) {
-          await easyResults['ChainlinkConversionPath'].instance.addWhitelistAdmin(
-            process.env.ADMIN_WALLET_ADDRESS,
-          );
+          await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
         }
       }
 
@@ -117,7 +102,7 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
           constructorArguments: [swapRouterAddress, erc20FeeProxyAddress],
           artifact: erc20SwapToPayArtifact,
         });
-        concludeDeployment(swapRouterAddressResult);
+        deploymentResults.push(swapRouterAddressResult);
 
         if (erc20ConversionAddress) {
           const swapConversionResult = await deploySwapConversion(
@@ -128,7 +113,7 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
             },
             hre,
           );
-          concludeDeployment(swapConversionResult);
+          deploymentResults.push(swapConversionResult);
         } else {
           console.log(
             `      ${'ERC20SwapToConversion:'.padEnd(30, ' ')}(ERC20 Conversion missing)`,
@@ -142,58 +127,59 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
         console.log('[!] Switching to simulated mode');
         args.simulate = true;
       }
+      return deploymentResults;
     };
 
     /*
      * Batch 4
      *   - ETHConversionProxy
      */
-
-    const runDeploymentBatch_4 = async () => {
+    const runDeploymentBatch_4 = async (
+      chainlinkConversionPathAddress: string,
+      ethFeeProxyAddress: string,
+    ) => {
       // Deploy ETH Conversion
       const ethConversionResult = await deployETHConversionProxy(
         {
           ...args,
           chainlinkConversionPathAddress,
-          ethFeeProxyAddress: easyResults['EthereumFeeProxy'].address,
+          ethFeeProxyAddress,
         },
         hre,
       );
-      concludeDeployment(ethConversionResult);
+      deploymentResults.push(ethConversionResult);
     };
 
-    // ----------------------------------
-    // MAIN - Deployments
-    // ----------------------------------
+    // #endregion
+
+    // #region MAIN - Deployments
 
     // Batch 1
     await runEasyDeployment({
       contractName: 'EthereumProxy',
       artifact: ethereumProxyArtifact,
     });
-    await runEasyDeployment({
+    const { address: erc20FeeProxyAddress } = await runEasyDeployment({
       contractName: 'ERC20FeeProxy',
       artifact: erc20FeeProxyArtifact,
     });
-    await runEasyDeployment({
+
+    const { instance: chainlinkInstance } = await runEasyDeployment({
       contractName: 'ChainlinkConversionPath',
       artifact: chainlinkConversionPathArtifact,
     });
 
-    chainlinkConversionPathAddress = easyResults['ChainlinkConversionPath'].address;
-    erc20FeeProxyAddress = easyResults['ERC20FeeProxy'].address;
-
     // Batch 2
-    await runDeploymentBatch_2();
+    await runDeploymentBatch_2(chainlinkInstance, erc20FeeProxyAddress);
 
     // Batch 3
-    await runEasyDeployment({
+    const { address: ethFeeProxyAddress } = await runEasyDeployment({
       contractName: 'EthereumFeeProxy',
       artifact: ethereumFeeProxyArtifact,
     });
 
     // Batch 4
-    await runDeploymentBatch_4();
+    await runDeploymentBatch_4(chainlinkInstance.address, ethFeeProxyAddress);
 
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Add future batches above this line
@@ -202,13 +188,17 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
     deploymentResults.forEach((res) => {
       console.log(`      ${res.contractName.concat(':').padEnd(30, ' ')}${res.address}`);
     });
+    // #endregion
   } catch (e) {
     console.error(e);
   }
 
-  // ----------------------------------
-  // MAIN - Conclusion and verification
-  // ----------------------------------
+  const nbDeployments = deploymentResults.filter((val) => val.type === 'deployed').length;
+  const verificationPromises = deploymentResults
+    .map((val) => val.verificationPromise)
+    .filter(Boolean);
+
+  // #region MAIN - Conclusion and verification
   if (nbDeployments > 0) {
     console.log(
       `--- ${nbDeployments} deployements were made. ---`,
@@ -244,4 +234,5 @@ export async function deployAllPaymentContracts(args: any, hre: HardhatRuntimeEn
   } else {
     console.log(`--- No deployment was made. ---`);
   }
+  // #endregion
 }

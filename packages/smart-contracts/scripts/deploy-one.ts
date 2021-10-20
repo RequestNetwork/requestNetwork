@@ -3,25 +3,16 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { Contract } from 'ethers';
 import { ContractArtifact } from '../src/lib';
 
-export type DeploymentResult =
-  | {
-      address: string;
-      contractName: string;
-      instance: Contract;
-      constructorArguments: any[];
-      type: 'deployed' | 'attached';
-      verificationPromise?: Promise<boolean>;
-    }
-  | {
-      address: 'simulated';
-      contractName: string;
-      instance: null;
-      constructorArguments: any[];
-      type: 'simulated';
-      verificationPromise: null;
-    };
+export interface DeploymentResult<TContract extends Contract | null = Contract> {
+  address: string;
+  contractName: string;
+  instance: TContract;
+  constructorArguments: any[];
+  type: 'simulated' | 'deployed' | 'attached';
+  verificationPromise?: Promise<boolean>;
+}
 
-const SIMULATED_DEPLOYMENT: DeploymentResult = {
+const SIMULATED_DEPLOYMENT: DeploymentResult<null> = {
   address: 'simulated',
   contractName: '',
   instance: null,
@@ -39,7 +30,7 @@ const SIMULATED_DEPLOYMENT: DeploymentResult = {
  *  - The address if the contract is deployed
  *  - 'simulated' if args.simulate === true (no deployment/)
  */
-export async function deployOne(
+export async function deployOne<TContract extends Contract>(
   args: any,
   hre: HardhatRuntimeEnvironment,
   contractName: string,
@@ -48,7 +39,7 @@ export async function deployOne(
     artifact?: ContractArtifact<Contract>;
     verify?: boolean;
   },
-): Promise<DeploymentResult> {
+): Promise<DeploymentResult<TContract>> {
   const [deployer] = await hre.ethers.getSigners();
   let address: string | undefined = undefined;
   const factory = await hre.ethers.getContractFactory(contractName, deployer);
@@ -62,7 +53,7 @@ export async function deployOne(
         return {
           address,
           contractName,
-          instance: factory.attach(address),
+          instance: factory.attach(address) as TContract,
           constructorArguments: constructorArguments,
           type: 'attached',
         };
@@ -77,7 +68,7 @@ export async function deployOne(
   // Deployment and Verification
   try {
     // Deployment
-    const instance = await factory.deploy(...constructorArguments);
+    const instance = (await factory.deploy(...constructorArguments)) as TContract;
     await instance.deployed();
     address = instance.address;
 
@@ -87,10 +78,10 @@ export async function deployOne(
       hre.network.name !== 'private' && !args.simulate && options?.verify !== false;
 
     if (publishSource) {
-      verificationPromise = instance.deployTransaction.wait(10).then(() => {
+      verificationPromise = instance.deployTransaction.wait(10).then(async () => {
         let verificationResult = true;
         try {
-          hre.run('verify:verify', { address, constructorArguments });
+          await hre.run('verify:verify', { address, constructorArguments });
         } catch (e) {
           console.warn(`Failed verifying contract: ${contractName}`);
           console.log(e);
