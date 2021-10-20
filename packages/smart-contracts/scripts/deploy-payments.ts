@@ -13,6 +13,8 @@ import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversi
 import { DeploymentResult, deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses } from './utils';
 import { Contract } from 'ethers';
+// eslint-disable-next-line
+// @ts-ignore Cannot find module
 import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 
 /**
