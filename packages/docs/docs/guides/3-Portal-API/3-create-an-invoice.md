@@ -1,6 +1,6 @@
 ---
 title: Invoice API - Introduction
-keywords: [ERC20, DAI, Request, Invoice, Portal, API]
+keywords: [ERC20, DAI, Request, Invoice, Portal, API, Request Invoicing]
 description: Learn how to integrate Request network and its features.
 
 ---
