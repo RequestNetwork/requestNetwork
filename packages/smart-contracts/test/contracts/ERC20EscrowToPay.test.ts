@@ -17,6 +17,7 @@ describe("Contract: ERC20EscrowToPay", () => {
     const referenceExample1 = '0xaaaa';
     const referenceExample2 = '0xbbbb';
     const referenceExample3 = '0xcccc';
+    const referenceExample4 = '0xdddd';
     let testERC20: Contract, erc20EscrowToPay: ERC20EscrowToPay, erc20FeeProxy: ERC20FeeProxy;
     let owner: Signer, payer: Signer, payee: Signer, buidler: Signer;
     let payerAddress: string, payeeAddress: string, feeAddress: string, erc20EscrowToPayAddress: string;
@@ -99,7 +100,7 @@ describe("Contract: ERC20EscrowToPay", () => {
         })
     });
 
-    describe("Emergency Claim Flow", () => {
+    describe("Emergency Claim Flow: InitiateEmergencyClaim & CompleteEmergencyClaim", () => {
         before(async () => {
             await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 1001);
             await erc20EscrowToPay.connect(payer).payEscrow(
@@ -125,8 +126,113 @@ describe("Contract: ERC20EscrowToPay", () => {
                 (await erc20EscrowToPay.connect(payee)
                     .requestMapping(referenceExample2)).emergencyClaimDate)
                 .to.be.above(100000);
-        })
+        });
+        it("Should not let the payee complete emergencyClaim before emergencyClaimDate", async () => {
+            const payerOldBalance = await testERC20.balanceOf(payerAddress);
+            const payeeOldBalance = await testERC20.balanceOf(payeeAddress);
+            const escrowOldBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
+            
+            expect(erc20EscrowToPay.connect(payee).completeEmergencyClaim(referenceExample2))
+                .to.be.reverted;
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payee)
+                    .requestMapping(referenceExample2)).amount)
+                .to.be.equal(1000);
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payee)
+                    .requestMapping(referenceExample2)).emergencyState)
+                .to.be.true;
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payee)
+                    .requestMapping(referenceExample2)).emergencyClaimDate)
+                .to.be.above(1000000);
         
+            const payerNewBalance = await testERC20.balanceOf(payerAddress);
+            const payeeNewBalance = await testERC20.balanceOf(payeeAddress);
+            const escrowNewBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
+
+            expect(payerNewBalance).to.equals(payerOldBalance);
+            expect(payeeNewBalance.toString()).to.equals(payeeOldBalance);
+            expect(escrowNewBalance.toString()).to.equals(escrowOldBalance);
+        });
+    });
+
+    describe("Revert Emergency Claim Flow: RevertEmergencyClaim", () => {
+        before(async () => {
+            await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 2002);
+            await erc20EscrowToPay.connect(payer).payEscrow(
+                testERC20.address,
+                payeeAddress,
+                2000,
+                referenceExample3,
+                2,
+                feeAddress
+            );
+        });
+        it("Should let payer revert emergencyClaim before the payee has claimed", async () => {
+            expect(await erc20EscrowToPay.connect(payee).initiateEmergencyClaim(referenceExample3))
+                .to.emit(erc20EscrowToPay, "InitiatedEmergencyClaim")
+                .withArgs(ethers.utils.keccak256(referenceExample3));
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payee)
+                    .requestMapping(referenceExample3)).emergencyState)
+                .to.be.true;
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payee)
+                    .requestMapping(referenceExample3)).emergencyClaimDate)
+                .to.be.above(100000);
+            
+            expect(
+                await erc20EscrowToPay.connect(payer).revertEmergencyClaim(referenceExample3))
+                .to.emit(erc20EscrowToPay, "RevertedEmergencyClaim")
+                .withArgs(ethers.utils.keccak256(referenceExample3));
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payee)
+                    .requestMapping(referenceExample3)).emergencyState)
+                .to.be.false;
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payee)
+                    .requestMapping(referenceExample3)).emergencyClaimDate)
+                .to.be.equal(0);
+        });
+        it("Should not let the payee emergencyClaim after it is been reverted by payer", async () => {
+            const payerOldBalance = await testERC20.balanceOf(payerAddress);
+            const payeeOldBalance = await testERC20.balanceOf(payeeAddress);
+            const escrowOldBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
+        
+            expect(erc20EscrowToPay.connect(payee).completeEmergencyClaim(referenceExample3))
+                .to.be.reverted;
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payer)
+                    .requestMapping(referenceExample3)).amount)
+                .to.be.equal(2000);
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payer)
+                    .requestMapping(referenceExample3)).emergencyState)
+                .to.be.false;
+            
+            expect(await
+                (await erc20EscrowToPay.connect(payer)
+                    .requestMapping(referenceExample3)).emergencyClaimDate)
+                .to.be.equal(0);
+            
+            const payerNewBalance = await testERC20.balanceOf(payerAddress);
+            const payeeNewBalance = await testERC20.balanceOf(payeeAddress);
+            const escrowNewBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
+
+            expect(payerNewBalance).to.equals(payerOldBalance);
+            expect(payeeNewBalance).to.equals(payeeOldBalance);
+            expect(escrowNewBalance).to.equals(escrowOldBalance);
+        });
     });
         
     describe("Freeze Funds Flow: Open Escrow & freeze request for 12 months", () => {
@@ -137,28 +243,28 @@ describe("Contract: ERC20EscrowToPay", () => {
                 testERC20.address,
                 payeeAddress,
                 1000,
-                referenceExample3,
+                referenceExample4,
                 1,
                 feeAddress
             );
         });
         it("Should revert if not payer tries to freezeRequest", async () => {
-            expect(erc20EscrowToPay.connect(payee).freezeRequest(referenceExample3))
+            expect(erc20EscrowToPay.connect(payee).freezeRequest(referenceExample4))
                 .to.be.reverted;
         })
         it("Should only let the payer freeze the request for twelve months", async () => {
-            expect(await erc20EscrowToPay.connect(payer).freezeRequest(referenceExample3))
+            expect(await erc20EscrowToPay.connect(payer).freezeRequest(referenceExample4))
                 .to.emit(erc20EscrowToPay, "RequestFrozen")
-                .withArgs(ethers.utils.keccak256(referenceExample3));
+                .withArgs(ethers.utils.keccak256(referenceExample4));
             
             expect(await
                 (await erc20EscrowToPay.connect(payer)
-                    .requestMapping(referenceExample3)).isFrozen)
+                    .requestMapping(referenceExample4)).isFrozen)
                 .to.be.true;
             
             expect(await
                 (await erc20EscrowToPay.connect(payer)
-                    .requestMapping(referenceExample3)).unlockDate)
+                    .requestMapping(referenceExample4)).unlockDate)
                 .to.be.above(1000000);            
 
         });
