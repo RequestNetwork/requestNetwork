@@ -127,7 +127,7 @@ In the body part you can use the following example and replace the data accordin
   // address which will receive the payment
   "paymentAddress": "0x4886E85E192cdBC81d42D89256a81dAb990CDD74",
   // see https://api.request.network/currency for a list of currencies
-  "paymentCurrency": "USDC-xdai",
+  "paymentCurrency": "USDC-matic",
   // optional, you can add several tags to the invoice
   "tags": [
     "project1",
