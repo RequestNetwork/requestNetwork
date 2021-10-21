@@ -15,6 +15,7 @@ import { BigNumber } from 'ethers';
 import { networkSupportsTheGraph } from '../thegraph';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { loadCurrencyFromContract } from './currency';
+import DeclarativePaymentNetwork from '../declarative';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -38,8 +39,10 @@ export type DeploymentInformationGetter = (
  * FIXME: inherit ReferenceBasedDetector
  */
 export default class PaymentNetworkERC20FeeProxyContract<
-  ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
-> implements PaymentTypes.IPaymentNetwork<ExtensionType> {
+    ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
+  >
+  extends DeclarativePaymentNetwork
+  implements PaymentTypes.IPaymentNetwork<ExtensionType> {
   protected _paymentNetworkId: ExtensionTypes.ID;
   protected _extension: ExtensionType;
   protected _currencyManager: ICurrencyManager;
@@ -54,6 +57,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     currencyManager: ICurrencyManager;
   }) {
+    super({ advancedLogic });
     this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
     this._extension = advancedLogic.extensions.feeProxyContractErc20;
     this._currencyManager = currencyManager;
@@ -88,7 +92,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
    * @param parameters to add payment information
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddPaymentInformation(
+  public createExtensionsDataForAddPaymentAddress(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this._extension.createAddPaymentAddressAction({
@@ -102,7 +106,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
    * @param Parameters to add refund information
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddRefundInformation(
+  public createExtensionsDataForAddRefundAddress(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this._extension.createAddRefundAddressAction({
@@ -197,7 +201,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
       if (error instanceof VersionNotSupported) {
         code = PaymentTypes.BALANCE_ERROR_CODE.VERSION_NOT_SUPPORTED;
       }
-      return getBalanceErrorObject(error.message, code);
+      return getBalanceErrorObject((error as Error).message, code);
     }
   }
 
