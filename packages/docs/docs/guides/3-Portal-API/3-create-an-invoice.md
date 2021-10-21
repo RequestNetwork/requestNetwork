@@ -79,7 +79,7 @@ In the body part you can use the following example and replace the data accordin
       // "unitPrice" is the price of one item excluding taxes
       // Here it means the price of one TV is $99.99
       // The total per item will be $119.99 including taxes, and the whole total will be $239.98
-      "unitPrice": "99.99"
+      "unitPrice": "9999"
     }
   ],
   // "invoiceNumber" has to be unique for each invoice created by your account.
