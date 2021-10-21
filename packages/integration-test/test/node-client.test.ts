@@ -1,8 +1,7 @@
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
-import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
-import { ClientTypes, IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import {
   payRequest,
@@ -11,6 +10,14 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 
 import { Wallet, providers, BigNumber } from 'ethers';
+import {
+  erc20requestCreationHash,
+  httpConfig,
+  payeeIdentity,
+  payerIdentity,
+  requestNetwork,
+  signatureProvider,
+} from './scheduled/fixtures';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
@@ -18,15 +25,6 @@ const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 // eslint-disable-next-line no-magic-numbers
 jest.setTimeout(10000);
-
-const payeeIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-};
-const payerIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
-};
 
 const requestCreationHashBTC: Types.IRequestInfo = {
   currency: 'BTC',
@@ -68,24 +66,8 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
   method: Types.Encryption.METHOD.ECIES,
 });
 
-const httpConfig: Partial<ClientTypes.IHttpDataAccessConfig> = {
-  getConfirmationDeferDelay: 1000,
-  getConfirmationRetryDelay: 500,
-};
-
-const signatureProvider = new EthereumPrivateKeySignatureProvider({
-  method: Types.Signature.METHOD.ECDSA,
-  privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
-});
-signatureProvider.addSignatureParameters({
-  method: Types.Signature.METHOD.ECDSA,
-  privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
-});
-
 describe('Request client using a request node', () => {
   it('can create a request, change the amount and get data', async () => {
-    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
-
     // Create a request
     const request = await requestNetwork.createRequest({
       requestInfo: requestCreationHashBTC,
@@ -120,8 +102,6 @@ describe('Request client using a request node', () => {
   });
 
   it('can create a request with declarative payment network and content data', async () => {
-    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
-
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
       id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
       parameters: {
@@ -184,8 +164,6 @@ describe('Request client using a request node', () => {
   });
 
   it('can create requests and get them fromIdentity and with time boundaries', async () => {
-    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
-
     // create request 1
     const requestCreationHash1: Types.IRequestInfo = {
       currency: 'BTC',
@@ -261,8 +239,6 @@ describe('Request client using a request node', () => {
   });
 
   it('can create requests and get them fromIdentity with smart contract identity', async () => {
-    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
-
     const payerSmartContract = {
       network: 'private',
       type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
@@ -525,22 +501,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     },
   };
 
-  const contractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
-
-  const erc20requestCreationHash: Types.IRequestInfo = {
-    currency: {
-      network: 'private',
-      type: Types.RequestLogic.CURRENCY.ERC20,
-      value: contractAddress,
-    },
-    expectedAmount: '10',
-    payee: payeeIdentity,
-    payer: payerIdentity,
-  };
-
   it('can create an ERC20 request on localhost and detect the payment using address based detection', async () => {
-    const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
-
     // Create a request
     const request = await requestNetwork.createRequest({
       paymentNetwork,

@@ -16,16 +16,16 @@ export default abstract class AnyToAnyDetector<
   TPaymentEventParameters
 > extends FeeReferenceBasedDetector<TPaymentEventParameters> {
   /**
-   * @param extension The advanced logic payment network extension, with conversion
+   * @param _extension The advanced logic payment network extension, with conversion
    * @param extensionType Example : ExtensionTypes.ID.ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY
    */
   public constructor(
     protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    protected extension: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+    protected _extension: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
     protected extensionType: ExtensionTypes.ID,
     protected currencyManager: ICurrencyManager,
   ) {
-    super(advancedLogic, extension, extensionType);
+    super(advancedLogic, _extension, extensionType);
   }
 
   /**
@@ -42,7 +42,7 @@ export default abstract class AnyToAnyDetector<
     paymentNetworkCreationParameters.salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this.extension.createCreationAction({
+    return this._extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,

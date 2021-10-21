@@ -3,6 +3,7 @@ import {
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
+  TypesUtils,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import getBalanceErrorObject from './balance-error';
@@ -10,6 +11,8 @@ import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { BigNumber } from 'ethers';
 import DeclarativePaymentNetwork from './declarative';
+import PaymentNetworkDeclarative from './declarative';
+import { IDeclarativePaymentEventParameters } from 'types/src/payment-types';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
@@ -19,7 +22,8 @@ export default abstract class ReferenceBasedDetector<
     ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
   >
   extends DeclarativePaymentNetwork<ExtensionType>
-  implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters> {
+  implements
+    PaymentTypes.IPaymentNetwork<TPaymentEventParameters | IDeclarativePaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension, reference based
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
@@ -34,6 +38,12 @@ export default abstract class ReferenceBasedDetector<
   ) {
     super({ advancedLogic });
     this._extension = extension;
+    if (!TypesUtils.isPaymentNetworkId(extensionType)) {
+      throw new Error(
+        `Cannot detect payment for extension type '${extensionType}', it is not a payment network ID.`,
+      );
+    }
+    this._paymentNetworkId = extensionType;
   }
 
   /**
@@ -93,7 +103,9 @@ export default abstract class ReferenceBasedDetector<
    */
   public async getBalance(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
+  ): Promise<
+    PaymentTypes.IBalanceWithEvents<TPaymentEventParameters | IDeclarativePaymentEventParameters>
+  > {
     const paymentNetwork = request.extensions[this.extensionType];
     const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
 
@@ -130,17 +142,26 @@ export default abstract class ReferenceBasedDetector<
         paymentNetwork,
       );
 
-      const balance: string = BigNumber.from(payments.balance || 0)
-        .sub(BigNumber.from(refunds.balance || 0))
+      const declarativeDetector = new PaymentNetworkDeclarative({
+        advancedLogic: this.advancedLogic,
+      });
+      const declaredBalance = await declarativeDetector.getBalance(request);
+
+      const balance: string = BigNumber.from(declaredBalance)
+        .add(payments.balance || 0)
+        .sub(refunds.balance || 0)
         .toString();
 
-      const events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] = [
-        ...payments.events,
-        ...refunds.events,
-      ].sort(
+      const events: PaymentTypes.IPaymentNetworkEvent<
+        TPaymentEventParameters | IDeclarativePaymentEventParameters
+      >[] = [...declaredBalance.events, ...payments.events, ...refunds.events].sort(
         (
-          a: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>,
-          b: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>,
+          a: PaymentTypes.IPaymentNetworkEvent<
+            TPaymentEventParameters | IDeclarativePaymentEventParameters
+          >,
+          b: PaymentTypes.IPaymentNetworkEvent<
+            TPaymentEventParameters | IDeclarativePaymentEventParameters
+          >,
         ) => (a.timestamp || 0) - (b.timestamp || 0),
       );
 
@@ -153,6 +174,7 @@ export default abstract class ReferenceBasedDetector<
     }
   }
 
+  // FIXME: should return declarative events and balance
   protected async extractBalanceAndEvents(
     paymentAddress: string | undefined,
     eventName: PaymentTypes.EVENTS_NAMES,
@@ -187,6 +209,7 @@ export default abstract class ReferenceBasedDetector<
    * @param paymentNetworkVersion the version of the payment network
    * @returns The balance
    */
+  // FIXME: should return declarative events and balance
   protected async extractBalanceAndEventsFromPaymentRef(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
@@ -227,6 +250,7 @@ export default abstract class ReferenceBasedDetector<
    * @param paymentNetwork the payment network
    * @returns The balance
    */
+  // FIXME: should return declarative events
   protected abstract extractEvents(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,

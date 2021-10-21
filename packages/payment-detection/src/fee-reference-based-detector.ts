@@ -18,7 +18,6 @@ export default abstract class FeeReferenceBasedDetector<
    * @param extension The advanced logic payment network extension, reference based
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
-  protected _extension: ExtensionType;
 
   public constructor(
     protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
@@ -26,7 +25,6 @@ export default abstract class FeeReferenceBasedDetector<
     protected extensionType: ExtensionTypes.ID,
   ) {
     super(advancedLogic, extension, extensionType);
-    this._extension = extension;
   }
 
   /**

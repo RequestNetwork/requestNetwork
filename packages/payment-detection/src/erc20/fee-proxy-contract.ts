@@ -43,7 +43,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
   >
   extends DeclarativePaymentNetwork
   implements PaymentTypes.IPaymentNetwork<ExtensionType> {
-  protected _paymentNetworkId: ExtensionTypes.ID;
+  protected _extensionTypeId: ExtensionTypes.ID;
   protected _extension: ExtensionType;
   protected _currencyManager: ICurrencyManager;
 
@@ -58,8 +58,9 @@ export default class PaymentNetworkERC20FeeProxyContract<
     currencyManager: ICurrencyManager;
   }) {
     super({ advancedLogic });
-    this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
+    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
     this._extension = advancedLogic.extensions.feeProxyContractErc20;
+    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT;
     this._currencyManager = currencyManager;
   }
 
@@ -138,11 +139,11 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetwork = request.extensions[this._paymentNetworkId];
+    const paymentNetwork = request.extensions[this._extensionTypeId];
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request does not have the extension : ${this._paymentNetworkId}`,
+        `The request does not have the extension : ${this._extensionTypeId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
@@ -248,6 +249,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
         `Network not supported for this payment network: ${request.currency.network}`,
       );
     }
+    const declaredEvents = (await super.getBalance(request)).events;
 
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
@@ -273,7 +275,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
           eventName,
           network,
         );
-    const events = await infoRetriever.getTransferEvents();
+    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
     const balance = events
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
@@ -333,7 +335,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
    * Get the detected payment network ID
    */
   get paymentNetworkId(): ExtensionTypes.ID {
-    return this._paymentNetworkId;
+    return this._extensionTypeId;
   }
 
   protected async getCurrency(
