@@ -15,7 +15,7 @@ as a way to practically represent general invoicing data.
 
 Invoice API also differ by the layer of automation added on top of Request API.
 Whenever an Invoice is created, it is possible to have an email sent to the designated payer.
-The Invoice creator (payee) can also get notified as soon as the corresponding Request has been paid
+The Invoice issuer (payee) can also get notified as soon as the corresponding request has been paid
 (please [contact us](https://www.request.finance/contact-us) if you need more info on this feature).
 
 Knowing if a Request has been paid [is not trivial](./2-payment-status.md).
