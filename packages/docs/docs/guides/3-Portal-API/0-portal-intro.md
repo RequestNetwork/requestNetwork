@@ -19,7 +19,7 @@ All API endpoints are authenticated.
 Two mechanisms are currently allowed:
 
 - API Key, explained below, to be used for scripting and test purposes
-- OAuth, contact us: **Join our Discord** [**here**](https://discord.gg/Q22nr6J8)
+- OAuth, contact us: **Join our Discord** [**here**](https://request.network/discord)
 
 ## Portal outlook
 
