@@ -226,7 +226,9 @@ contract ERC20EscrowToPay {
             emit InitiatedEmergencyClaim(_paymentRef);
         }
 
-        if (requestMapping[_paymentRef].emergencyState && requestMapping[_paymentRef].emergencyClaim <= block.timestamp) {
+        if (requestMapping[_paymentRef].emergencyState && 
+            requestMapping[_paymentRef].emergencyClaim <= block.timestamp
+        ) {
             require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw failed!");
 
             emit EmergencyClaimed(_paymentRef);
