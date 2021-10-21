@@ -23,7 +23,7 @@ Knowing if a Request has been paid [is not trivial](./2-payment-status.md).
 But Invoices have an additional property: a `status`
 ; so knowing if the underlying Request has been paid is as easy as reading this property.
 
-Invoices can also be scheduled to create duplicates at regular intervals.
+Invoices can also be scheduled to create occurrences at regular intervals.
 This is useful to manage collaborators salaries.
 
 Invoices can also get approved before being paid,
