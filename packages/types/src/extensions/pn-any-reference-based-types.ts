@@ -17,6 +17,6 @@ export interface IValues extends PnAddressBased.IValues {
 
 /** Parameters of creation action */
 export interface ICreationParameters extends PnAddressBased.ICreationParameters {
-  salt: string;
+  salt?: string;
   paymentNetworkName?: string;
 }

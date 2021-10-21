@@ -1,23 +1,40 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import getBalanceErrorObject from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { BigNumber } from 'ethers';
+import DeclarativePaymentNetwork from './declarative';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
  */
-export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
+export default abstract class ReferenceBasedDetector<
+    TPaymentEventParameters,
+    ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
+  >
+  extends DeclarativePaymentNetwork<ExtensionType>
   implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension, reference based
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
+
+  protected _extension: ExtensionType;
+
   public constructor(
-    protected extension: ExtensionTypes.PnReferenceBased.IReferenceBased,
+    protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
+    extension: ExtensionType,
     protected extensionType: ExtensionTypes.ID,
-  ) {}
+  ) {
+    super({ advancedLogic });
+    this._extension = extension;
+  }
 
   /**
    * Creates the extensions data for the creation of this extension.
@@ -33,7 +50,7 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
     paymentNetworkCreationParameters.salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this.extension.createCreationAction({
+    return this._extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,
       ...paymentNetworkCreationParameters,
@@ -43,13 +60,13 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   /**
    * Creates the extensions data to add payment address
    *
-   * @param parameters to add payment information
+   * @param parameters to add payment address
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddPaymentInformation(
+  public createExtensionsDataForAddPaymentAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
-    return this.extension.createAddPaymentAddressAction({
+    return this._extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
     });
   }
@@ -57,13 +74,13 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   /**
    * Creates the extensions data to add refund address
    *
-   * @param Parameters to add refund information
+   * @param Parameters to add refund address
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddRefundInformation(
+  public createExtensionsDataForAddRefundAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
-    return this.extension.createAddRefundAddressAction({
+    return this._extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
     });
   }
@@ -80,7 +97,7 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
     const paymentNetwork = request.extensions[this.extensionType];
     const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
 
-    const supportedNetworks = this.extension.supportedNetworks;
+    const supportedNetworks = this._extension.supportedNetworks;
     if (!supportedNetworks.includes(paymentChain)) {
       return getBalanceErrorObject(
         `Payment network ${paymentChain} not supported by ${
@@ -132,7 +149,7 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
         events,
       };
     } catch (error) {
-      return getBalanceErrorObject(error.message);
+      return getBalanceErrorObject((error as Error).message);
     }
   }
 

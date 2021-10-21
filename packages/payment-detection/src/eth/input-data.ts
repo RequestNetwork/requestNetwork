@@ -37,6 +37,7 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
     explorerApiKeys?: Record<string, string>;
   }) {
     super(
+      advancedLogic,
       advancedLogic.extensions.ethereumInputData,
       ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     );
