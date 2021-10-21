@@ -79,17 +79,12 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'RequestHub on Slack',
-              href:
-                'https://join.slack.com/t/requesthub/shared_invite/enQtMjkwNDQwMzUwMjI3LTc5NDRmN2YyMTVhZTBjNDE2MWU2YTBlYWIzYmJlYzNkMWQ5MzVmYzEzNGVmYjliNDQ4MjkyNTBiYjk4MDk3ZGE',
-            },
-            {
               label: 'GitHub',
               href: 'https://github.com/RequestNetwork/',
             },
             {
               label: 'Discord',
-              href: 'https://discordapp.com/invite/6aGhs6v',
+              href: 'https://request.network/discord',
             },
           ],
         },
