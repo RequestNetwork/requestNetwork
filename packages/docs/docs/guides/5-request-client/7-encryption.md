@@ -17,7 +17,7 @@ To manipulate encrypted request you need a Decryption Provider, e.g:
 - Ethereum Private Key Decryption Provider (provided by Request for illustration), using directly the private keys. _This provider manipulates private keys in clear, which is not completely secure. Please consider creating your own, see below._
 - A browser extension is under development
 
-You can also create your own decryption provider following the [specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/decryption-provider.md). Feel free to contact us for any help or any idea about it: **Join our Discord** [**here**](https://discord.gg/Q22nr6J8)
+You can also create your own decryption provider following the [specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/transaction-manager/specs/decryption-provider.md). Feel free to contact us for any help or any idea about it: **Join our Discord** [**here**](https://request.network/discord)
 
 ## Create an encrypted request
 
