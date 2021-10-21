@@ -26,10 +26,6 @@ But Invoices have an additional property: a `status`
 Invoices can also be scheduled to create occurrences at regular intervals.
 This is useful to manage collaborators salaries.
 
-Invoices can also get approved before being paid,
-notifying the payee of the payer's agreement to send funds
-once—for instance—the contract between the two parties is settled.
-
 To summarize:
 
 |                     | Request       | Invoice       |
