@@ -9,7 +9,7 @@ description: Learn how to use Request's Invoice API.
 You are now familiar with the [Request API](./1-create-and-share-request.md),
 but did you know you could also create, on Portal, Invoices which supersede Requests?
 
-Invoices are simply an implementation of Requests with a predefined schema for the `contentData` property.
+Invoices are simply an implementation of requests with a predefined schema for the `contentData` property.
 Invoices are mainly used by the [Request Invoicing](https://invoicing.request.network/) application
 as a way to practically represent general invoicing data.
 
