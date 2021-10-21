@@ -130,8 +130,8 @@ In the body part you can use the following example and replace the data accordin
   "paymentCurrency": "USDC-xdai",
   // optional, you can add several tags to the invoice
   "tags": [
-    "tag1",
-    "tag2"
+    "project1",
+    "businessUnit3"
   ]
 }
 ```
