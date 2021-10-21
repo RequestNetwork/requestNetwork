@@ -49,4 +49,4 @@ For production, you have two options, [compared in the integrations section](/in
 
 - If you want to host your own Request Node, [have a look at the next section](../6-hosting-a-node/0-intro.md)
 
-- If you prefer to use a node as a service, Request hosts one for you at this location: `https://gateway.request.network`. For the moment, it comes free of charges and fees. If you reach the limit or want to know more, [get in touch with us!](https://discord.gg/Q22nr6J8)
+- If you prefer to use a node as a service, Request hosts one for you at this location: `https://gateway.request.network`. For the moment, it comes free of charges and fees. If you reach the limit or want to know more, [get in touch with us!](https://request.network/discord)
