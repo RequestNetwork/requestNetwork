@@ -21,6 +21,7 @@ contract ERC20EscrowToPay {
         uint256 amount;
         uint256 unlockDate;
         uint256 emergencyClaim;
+        bool emergencyState;
         bool isFrozen;
         
     }
@@ -35,11 +36,8 @@ contract ERC20EscrowToPay {
     * @param _paymentRef Reference of the requestpayment related.
     * @dev It requires msg.sender to be equal to requestMapping[_paymentRef].payer. 
     */
-    modifier OnlyPayers(bytes memory _paymentRef) {
-        require(msg.sender == requestMapping[_paymentRef].payer ||
-            msg.sender == requestMapping[_paymentRef].payee &&
-            block.timestamp >= requestMapping[_paymentRef].emergencyClaim, 
-            "Not Authorized.");
+    modifier OnlyPayer(bytes memory _paymentRef) {
+        require(msg.sender == requestMapping[_paymentRef].payer, "Not Authorized.");
         _;
     }
 
@@ -49,7 +47,7 @@ contract ERC20EscrowToPay {
     * @dev It requires the requestMapping[_paymentRef].amount to be zero.
     */
     modifier IsNotInEscrow(bytes memory _paymentRef) {
-        require(requestMapping[_paymentRef].amount == 0, "Request already in Escrow.");
+        require(requestMapping[_paymentRef].amount == 0, "Already in Escrow.");
         _;
     }
 
@@ -96,8 +94,25 @@ contract ERC20EscrowToPay {
      * @param paymentReference Reference of the payment related.
      */
     event RefundedFrozenFunds(bytes indexed paymentReference);
-    
-    
+ 
+    /**
+     * @notice Emitted when a .
+     * @param paymentReference Reference of the payment related.
+     */
+    event InitiatedEmergencyClaim(bytes indexed paymentReference);
+
+    /**
+     * @notice Emitted when a .
+     * @param paymentReference Reference of the payment related.
+     */
+    event EmergencyClaim(bytes indexed paymentReference);
+
+    /**
+     * @notice Emitted when freezeRequest is executed and the emergencyState is reverted to false.
+     * @param paymentReference Reference of the payment related.
+     */
+    event RevertEmergencyState(bytes indexed paymentReference);
+
     constructor(address _paymentProxyAddress) {
         paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     }
@@ -131,7 +146,7 @@ contract ERC20EscrowToPay {
         external 
         IsNotInEscrow(_paymentRef) 
     {
-        uint256 _emergencyClaim = block.timestamp + 15778458;
+        
         
         requestMapping[_paymentRef] = Request(
             IERC20(_tokenAddress),
@@ -139,7 +154,8 @@ contract ERC20EscrowToPay {
             msg.sender,
             _amount,
             0,
-            _emergencyClaim,
+            0,
+            false,
             false
         );
         
@@ -164,6 +180,12 @@ contract ERC20EscrowToPay {
      * @dev Uses modifiers OnlyPayer and IsNotFrozen.
      */
     function freezeRequest(bytes memory _paymentRef) external OnlyPayers(_paymentRef) IsNotFrozen(_paymentRef) {
+        if (requestMapping[_paymentRef].emergencyState) {
+            requestMapping[_paymentRef].emergencyState = false;
+
+            emit RevertEmergencyState(_paymentRef);
+        }
+
         requestMapping[_paymentRef].isFrozen = true;
         /// unlockDate is set with block.timestamp + twelve months. 
         requestMapping[_paymentRef].unlockDate = block.timestamp + 31556926;
@@ -183,7 +205,32 @@ contract ERC20EscrowToPay {
         OnlyPayers(_paymentRef) 
     {
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw Failed!");
+
         emit RequestWithdrawnFromEscrow(_paymentRef);  
+    }
+
+    /**
+     * @notice Allows the payee to execute an emergency claim of funds.
+     * @param _paymentRef Reference of the related Invoice.
+     * @dev Uses modifiers IsInEscrow, IsNotFrozen.
+     */
+    function emergencyClaim(bytes memory _paymentRef) external IsInEscrow(_paymentRef) IsNotFrozen(_paymentRef) {
+        require(msg.sender == requestMapping[_paymentRef].payee, "Not Authorized!");
+
+        if (!requestMapping[_paymentRef].emergencyState) {
+            uint256 _emergencyClaim = block.timestamp + 15778458; // six months
+
+            requestMapping[_paymentRef].emergencyState = true;
+            requestMapping[_paymentRef].emergencyClaim = _emergencyClaim;
+
+            emit InitiatedEmergencyClaim(_paymentRef);
+        }
+
+        if (requestMapping[_paymentRef].emergencyState && requestMapping[_paymentRef].emergencyClaim <= block.timestamp) {
+            require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw failed!");
+
+            emit EmergencyClaim(_paymentRef);
+        }
     }
 
     /**
