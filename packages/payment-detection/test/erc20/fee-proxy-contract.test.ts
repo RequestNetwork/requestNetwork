@@ -29,6 +29,14 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
         return;
       },
     },
+    declarative: {
+      createAddPaymentInstructionAction(): any {
+        return;
+      },
+      createAddRefundInstructionAction(): any {
+        return;
+      },
+    }
   },
 };
 
@@ -101,11 +109,26 @@ describe('api/erc20/fee-proxy-contract', () => {
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
     const spy = jest.spyOn(
+      mockAdvancedLogic.extensions.declarative,
+      'createAddPaymentInstructionAction',
+    );
+
+    erc20FeeProxyContract.createExtensionsDataForAddPaymentInformation({
+      paymentInfo: 'ethereum address',
+    });
+
+    expect(spy).toHaveBeenCalledWith({
+      paymentInfo: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddPaymentAddress', async () => {
+    const spy = jest.spyOn(
       mockAdvancedLogic.extensions.feeProxyContractErc20,
       'createAddPaymentAddressAction',
     );
 
-    erc20FeeProxyContract.createExtensionsDataForAddPaymentInformation({
+    erc20FeeProxyContract.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
@@ -114,18 +137,33 @@ describe('api/erc20/fee-proxy-contract', () => {
     });
   });
 
-  it('can createExtensionsDataForAddRefundInformation', async () => {
+  it('can createExtensionsDataForAddRefundAddress', async () => {
     const spy = jest.spyOn(
       mockAdvancedLogic.extensions.feeProxyContractErc20,
       'createAddRefundAddressAction',
     );
 
-    erc20FeeProxyContract.createExtensionsDataForAddRefundInformation({
+    erc20FeeProxyContract.createExtensionsDataForAddRefundAddress({
       refundAddress: 'ethereum address',
     });
 
     expect(spy).toHaveBeenCalledWith({
       refundAddress: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddRefundInformation', async () => {
+    const spy = jest.spyOn(
+      mockAdvancedLogic.extensions.declarative,
+      'createAddRefundInstructionAction',
+    );
+
+    erc20FeeProxyContract.createExtensionsDataForAddRefundInformation({
+      refundInfo: 'ethereum address',
+    });
+
+    expect(spy).toHaveBeenCalledWith({
+      refundInfo: 'ethereum address',
     });
   });
 

@@ -27,7 +27,11 @@ export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetect
    * @param extension The advanced logic payment network extension
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(advancedLogic.extensions.nativeToken[0], ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN);
+    super(
+      advancedLogic,
+      advancedLogic.extensions.nativeToken[0],
+      ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    );
   }
 
   public static getNearContractName = (

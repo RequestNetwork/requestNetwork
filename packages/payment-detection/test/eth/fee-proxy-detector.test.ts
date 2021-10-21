@@ -27,6 +27,14 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       },
       supportedNetworks: ['private']
     },
+    declarative: {
+      createAddPaymentInstructionAction(): any {
+        return;
+      },
+      createAddRefundInstructionAction(): any {
+        return;
+      },
+    }
   },
 };
 
@@ -95,13 +103,13 @@ describe('api/eth/fee-proxy-contract', () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it('can createExtensionsDataForAddPaymentInformation', async () => {
+  it('can createExtensionsDataForAddPaymentAddress', async () => {
     const spy = jest.spyOn(
       mockAdvancedLogic.extensions.feeProxyContractEth,
       'createAddPaymentAddressAction',
     );
 
-    ethFeeProxyDetector.createExtensionsDataForAddPaymentInformation({
+    ethFeeProxyDetector.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
@@ -110,18 +118,48 @@ describe('api/eth/fee-proxy-contract', () => {
     });
   });
 
-  it('can createExtensionsDataForAddRefundInformation', async () => {
+  it('can createExtensionsDataForAddRefundAddress', async () => {
     const spy = jest.spyOn(
       mockAdvancedLogic.extensions.feeProxyContractEth,
       'createAddRefundAddressAction',
     );
 
-    ethFeeProxyDetector.createExtensionsDataForAddRefundInformation({
+    ethFeeProxyDetector.createExtensionsDataForAddRefundAddress({
       refundAddress: 'ethereum address',
     });
 
     expect(spy).toHaveBeenCalledWith({
       refundAddress: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddPaymentInformation', async () => {
+    const spy = jest.spyOn(
+      mockAdvancedLogic.extensions.declarative,
+      'createAddPaymentInstructionAction',
+    );
+
+    ethFeeProxyDetector.createExtensionsDataForAddPaymentInformation({
+      paymentInfo: 'ethereum address',
+    });
+
+    expect(spy).toHaveBeenCalledWith({
+      paymentInfo: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddRefundInformation', async () => {
+    const spy = jest.spyOn(
+      mockAdvancedLogic.extensions.declarative,
+      'createAddRefundInstructionAction',
+    );
+
+    ethFeeProxyDetector.createExtensionsDataForAddRefundInformation({
+      refundInfo: 'ethereum address',
+    });
+
+    expect(spy).toHaveBeenCalledWith({
+      refundInfo: 'ethereum address',
     });
   });
 

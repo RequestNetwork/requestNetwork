@@ -1,6 +1,7 @@
 import { IIdentity } from './identity-types';
 import * as Extension from './extension-types';
 import * as RequestLogic from './request-logic-types';
+import { ICreationParameters } from './extensions/pn-any-declarative-types';
 
 /** Object interface to list the payment network id and its module by currency */
 export interface ISupportedPaymentNetworkByCurrency {
@@ -24,7 +25,7 @@ export interface IPaymentNetworkCreateParameters {
 }
 
 /** Parameters to create a request with reference based payment network */
-export interface IReferenceBasedCreationParameters {
+export interface IReferenceBasedCreationParameters extends ICreationParameters {
   paymentAddress?: string;
   refundAddress?: string;
   salt?: string;

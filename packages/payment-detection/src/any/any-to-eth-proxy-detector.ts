@@ -35,6 +35,7 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
     currencyManager: ICurrencyManager;
   }) {
     super(
+      advancedLogic,
       advancedLogic.extensions.anyToEthProxy,
       ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
       currencyManager,

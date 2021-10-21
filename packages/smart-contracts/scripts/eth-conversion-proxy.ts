@@ -2,7 +2,11 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from './deploy-one';
 
 export default async function deploy(
-  args: { chainlinkConversionPathAddress?: string; ethFeeProxyAddress?: string, nativeTokenHash?: string },
+  args: {
+    chainlinkConversionPathAddress?: string;
+    ethFeeProxyAddress?: string;
+    nativeTokenHash?: string;
+  },
   hre: HardhatRuntimeEnvironment,
 ) {
   const contractName = 'EthConversionProxy';
@@ -16,7 +20,9 @@ export default async function deploy(
   }
   if (!args.ethFeeProxyAddress) {
     // FIXME: should try to retrieve information from artifacts instead
-    console.error(`Missing EthereumFeeProxy on ${hre.network.name}, cannot deploy ${contractName}.`);
+    console.error(
+      `Missing EthereumFeeProxy on ${hre.network.name}, cannot deploy ${contractName}.`,
+    );
     return;
   }
 
@@ -25,9 +31,11 @@ export default async function deploy(
     return;
   }
 
-  return deployOne(args, hre, contractName, [
-    args.ethFeeProxyAddress,
-    args.chainlinkConversionPathAddress,
-    args.nativeTokenHash,
-  ]);
+  return deployOne(args, hre, contractName, {
+    constructorArguments: [
+      args.ethFeeProxyAddress,
+      args.chainlinkConversionPathAddress,
+      args.nativeTokenHash,
+    ],
+  });
 }

@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+// @ts-ignore Cannot find module
 import type { ERC20SwapToPay } from '../../../types/ERC20SwapToPay';
 
 export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
