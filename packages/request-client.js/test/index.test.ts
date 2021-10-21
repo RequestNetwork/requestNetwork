@@ -1137,56 +1137,6 @@ describe('index', () => {
       expect(requestData.balance?.events[1].amount).toBe('1000');
       expect(requestData.balance?.events[1].parameters).toMatchObject({ note: 'received payment' });
     });
-
-    it('cannot use declarative function if payment network is not declarative', async () => {
-      const requestNetwork = new RequestNetwork({
-        signatureProvider: fakeSignatureProvider,
-        useMockStorage: true,
-      });
-
-      const salt = 'ea3bc7caf64110ca';
-
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
-        parameters: {
-          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
-          salt,
-        },
-      };
-
-      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
-        currency: {
-          network: 'rinkeby',
-          type: RequestLogicTypes.CURRENCY.ETH,
-          value: 'ETH',
-        },
-      });
-
-      const request = await requestNetwork.createRequest({
-        disablePaymentDetection: true,
-        paymentNetwork,
-        requestInfo,
-        signer: payeeIdentity,
-      });
-      await request.waitForConfirmation();
-
-      await expect(
-        request.declareReceivedRefund('10', 'received refund', payeeIdentity),
-      ).rejects.toThrowError('Cannot declare received refund without declarative payment network');
-
-      await expect(
-        request.declareReceivedPayment('10', 'received payment', payeeIdentity),
-      ).rejects.toThrowError('Cannot declare received payment without declarative payment network');
-
-      await expect(
-        request.declareSentRefund('10', 'sent refund', payeeIdentity),
-      ).rejects.toThrowError('Cannot declare sent refund without declarative payment network');
-
-      await expect(
-        request.declareSentPayment('10', 'sent payment', payeeIdentity),
-      ).rejects.toThrowError('Cannot declare sent payment without declarative payment network');
-    });
   });
 
   describe('tests with encryption', () => {

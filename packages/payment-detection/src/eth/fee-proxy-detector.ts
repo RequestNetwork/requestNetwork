@@ -19,7 +19,7 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 };
 
 /**
- * Handle payment networks with ETH input data extension
+ * Handle payment networks with ETH fee proxy extension
  */
 export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
   /**
@@ -27,6 +27,7 @@ export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<Payme
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     super(
+      advancedLogic,
       advancedLogic.extensions.feeProxyContractEth,
       ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
     );

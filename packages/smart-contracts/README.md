@@ -15,7 +15,8 @@ You can create a .env file at the root of this package:
 ```
 DEPLOYMENT_PRIVATE_KEY=...  # Mandatory to deploy on live blockchains
 WEB3_PROVIDER_URL=...       # Mandatory to interact with live blockchains
-ETHERSCAN_API_KEY=...       # Only used to verify smart contracts code on live blockchains
+ETHERSCAN_API_KEY=...       # Only used to verify smart contracts code on live blockchains, even for other explorers
+ADMIN_WALLET_ADDRESS=...    # Mandatory to deploy contracts with admin tasks (e.g. ChainlinkConversionPath)
 ```
 
 ## Usage
@@ -91,9 +92,37 @@ And in another terminal, deploy the smart contracts locally with:
 yarn run deploy
 ```
 
-### Live deployment
+### Live deployment (Payment only)
 
-(Not possible yet)
+The goal of this script is to let all our payment contracts be deployed with the same sequence on every chain.
+
+The script also verify deployed contracts.
+
+**Be sure that artifacts are up-to-date with most recent deployments**
+
+Environment variables needed: `ETHERSCAN_API_KEY`, `ADMIN_WALLET_ADDRESS`, `DEPLOYMENT_PRIVATE_KEY`
+
+```bash
+# First check what will be done
+yarn hardhat deploy-live-payments --network matic --dry-run
+
+# Run
+yarn hardhat deploy-live-payments --network matic
+
+# To test locally
+yarn hardhat deploy-live-payments --network private --force
+yarn hardhat deploy-live-payments --network private --force --dry-run
+```
+
+### Payment preparation (Beta)
+
+**FIXME: only configured for rinkeby and private networks.**
+
+Environment variables needed: `ADMIN_PRIVATE_KEY`
+
+```bash
+yarn hardhat prepare-live-payments --network private
+```
 
 ### Tests
 
