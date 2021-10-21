@@ -23,7 +23,7 @@ Two mechanisms are currently allowed:
 
 ## Portal outlook
 
-If you have not already done it, Head towards [Request Invoicing](https://invoicing.request.network) and create your account, you will need it to get your API keys and pursue the first steps of Request.
+If you have not already done it, head towards [Request Invoicing](https://invoicing.request.network) and create your account, you will need it to get your API keys and pursue the first steps of Request.
 
 Once your account is created, you are able to:
 
