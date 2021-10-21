@@ -20,7 +20,7 @@ contract ERC20EscrowToPay {
         address payer;
         uint256 amount;
         uint256 unlockDate;
-        uint256 emergencyClaim;
+        uint256 emergencyClaimDate;
         bool emergencyState;
         bool isFrozen;
         
@@ -32,7 +32,7 @@ contract ERC20EscrowToPay {
     mapping(bytes => Request) public requestMapping;
 
     /**
-    * Modifier checks if msg.sender is one of the requestpayment payer or payee.
+    * Modifier checks if msg.sender is the requestpayment payer.
     * @param _paymentRef Reference of the requestpayment related.
     * @dev It requires msg.sender to be equal to requestMapping[_paymentRef].payer. 
     */
@@ -40,9 +40,18 @@ contract ERC20EscrowToPay {
         require(msg.sender == requestMapping[_paymentRef].payer, "Not Authorized.");
         _;
     }
+    /**
+    * Modifier checks if msg.sender is the requestpayment payee.
+    * @param _paymentRef Reference of the requestpayment related.
+    * @dev It requires msg.sender to be equal to requestMapping[_paymentRef].payee. 
+    */
+    modifier OnlyPayee(bytes memory _paymentRef) {
+        require(msg.sender == requestMapping[_paymentRef].payee, "Not Authorized.");
+        _;
+    }
 
     /**
-    * Modifier checks if the request already is in escrow.
+    * Modifier checks that the request is not already is in escrow.
     * @param _paymentRef Reference of the payment related.
     * @dev It requires the requestMapping[_paymentRef].amount to be zero.
     */
@@ -58,6 +67,16 @@ contract ERC20EscrowToPay {
     */
     modifier IsInEscrow(bytes memory _paymentRef) {
         require(requestMapping[_paymentRef].amount > 0, "Not in escrow.");
+        _;
+    }
+
+    /**
+    * Modifier checks if the request already is in emergencyState.
+    * @param _paymentRef Reference of the payment related.
+    * @dev It requires the requestMapping[_paymentRef].emergencyState to be false.
+    */
+    modifier IsNotInEmergencyState(bytes memory _paymentRef) {
+        require(!requestMapping[_paymentRef].emergencyState, "In emergencyState");
         _;
     }
 
@@ -96,36 +115,38 @@ contract ERC20EscrowToPay {
     event RefundedFrozenFunds(bytes indexed paymentReference);
  
     /**
-     * @notice Emitted when a emergency claim is initiated.
+     * @notice Emitted when an emergency claim is initiated by payee.
      * @param paymentReference Reference of the payment related.
      */
     event InitiatedEmergencyClaim(bytes indexed paymentReference);
 
     /**
-     * @notice Emitted when a emergency claim is completed.
+     * @notice Emitted when an emergency claim is completed successfully.
      * @param paymentReference Reference of the payment related.
      */
-    event EmergencyClaimed(bytes indexed paymentReference);
+    event EmergencyClaimComplete(bytes indexed paymentReference);
 
     /**
-     * @notice Emitted when freezeRequest is executed and the emergencyState is reverted back to false.
+     * @notice Emitted when an emergency claim has been reverted by payer.
      * @param paymentReference Reference of the payment related.
      */
-    event RevertEmergencyState(bytes indexed paymentReference);
+    event RevertedEmergencyClaim(bytes indexed paymentReference);
 
     constructor(address _paymentProxyAddress) {
         paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     }
 
-    /// @notice receive function reverts and returns the funds to the sender.
+    /**
+     * @notice receive function reverts and returns the funds to the sender.
+     */ 
     receive() external payable {
         revert("not payable receive");
     }
 
     /** 
-    * @notice Stores the invoice details in struct, then transfers the funds to this Escrow contract.
+    * @notice Stores the invoice details, and transfers funds to this Escrow contract.
     * @param _tokenAddress Address of the ERC20 token smart contract.
-    * @param _to Address to the payment issuer.
+    * @param _to Address to the payment issuer, alias payer.
     * @param _amount Amount to transfer.
     * @param _paymentRef Reference of the payment related.
     * @param _feeAmount Amount of fee to be paid.
@@ -133,7 +154,7 @@ contract ERC20EscrowToPay {
     * @dev Uses modifier IsNotInEscrow.
     * @dev Uses transferFromWithReferenceAndFee() to transfer funds from the msg.sender, 
     * into the escrow and pay the fees.
-    * @dev uint256 _emergencyClaim is set with block.timestamp + six months.
+    * @dev emergencyClaimDate is set with block.timestamp + six months.
     */
     function payEscrow(
         address _tokenAddress,
@@ -144,10 +165,8 @@ contract ERC20EscrowToPay {
         address _feeAddress
     )   
         external 
-        IsNotInEscrow(_paymentRef) 
-    {
-        
-        
+        IsNotInEscrow(_paymentRef)
+    {   
         requestMapping[_paymentRef] = Request(
             IERC20(_tokenAddress),
             _to,
@@ -178,31 +197,37 @@ contract ERC20EscrowToPay {
      * @notice Locks the request funds for 12 months and cancel any emergency claim.
      * @param _paymentRef Reference of the Invoice related.
      * @dev Uses modifiers OnlyPayer and IsNotFrozen.
+     * @dev unlockDate is set with block.timestamp + twelve months..
      */
-    function freezeRequest(bytes memory _paymentRef) external OnlyPayer(_paymentRef) IsNotFrozen(_paymentRef) {
-        if (requestMapping[_paymentRef].emergencyState) {
+    function freezeRequest(bytes memory _paymentRef) 
+        external
+        OnlyPayer(_paymentRef)
+        IsInEscrow(_paymentRef)
+        IsNotFrozen(_paymentRef)
+    {
+        if (requestMapping[_paymentRef].emergencyState) 
+        {
             requestMapping[_paymentRef].emergencyState = false;
-
-            emit RevertEmergencyState(_paymentRef);
+            requestMapping[_paymentRef].emergencyClaimDate = 0;
+            emit RevertedEmergencyClaim(_paymentRef);
         }
 
-        requestMapping[_paymentRef].isFrozen = true;
-        /// unlockDate is set with block.timestamp + twelve months. 
+        requestMapping[_paymentRef].isFrozen = true; 
         requestMapping[_paymentRef].unlockDate = block.timestamp + 31556926;
-
         emit RequestFrozen(_paymentRef);
     }
 
     /**
-     * @notice Closes an open escrow and pays the invoice request to its payee.
+     * @notice Closes an open escrow and pay the invoice request to payee.
      * @param _paymentRef Reference of the related Invoice.
      * @dev Uses modifiers IsInEscrow, IsNotFrozen and OnlyPayer.
      */
     function payRequestFromEscrow(bytes memory _paymentRef) 
         external 
-        IsInEscrow(_paymentRef) 
-        IsNotFrozen(_paymentRef) 
         OnlyPayer(_paymentRef) 
+        IsInEscrow(_paymentRef)
+        IsNotInEmergencyState(_paymentRef)
+        IsNotFrozen(_paymentRef) 
     {
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw Failed!");
 
@@ -210,38 +235,77 @@ contract ERC20EscrowToPay {
     }
 
     /**
-     * @notice Allows the payee to execute an emergency claim of funds.
+     * @notice Allows the payee to initiate an emergency claim after a six months lockperiod .
      * @param _paymentRef Reference of the related Invoice.
      * @dev Uses modifiers IsInEscrow, IsNotFrozen.
      */
-    function emergencyClaim(bytes memory _paymentRef) external IsInEscrow(_paymentRef) IsNotFrozen(_paymentRef) {
+    function initiateEmergencyClaim(bytes memory _paymentRef) 
+        external
+        OnlyPayee(_paymentRef)
+        IsInEscrow(_paymentRef)
+        IsNotInEmergencyState(_paymentRef)
+        IsNotFrozen(_paymentRef)
+    {
         require(msg.sender == requestMapping[_paymentRef].payee, "Not Authorized!");
+        requestMapping[_paymentRef].emergencyState = true;
+        requestMapping[_paymentRef].emergencyClaimDate = block.timestamp + 15778458;
 
-        if (!requestMapping[_paymentRef].emergencyState) {
-            uint256 _emergencyClaim = block.timestamp + 15778458; // six months
-
-            requestMapping[_paymentRef].emergencyState = true;
-            requestMapping[_paymentRef].emergencyClaim = _emergencyClaim;
-
-            emit InitiatedEmergencyClaim(_paymentRef);
-        }
-
-        if (requestMapping[_paymentRef].emergencyState && 
-            requestMapping[_paymentRef].emergencyClaim <= block.timestamp
-        ) {
-            require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw failed!");
-
-            emit EmergencyClaimed(_paymentRef);
-        }
+        emit InitiatedEmergencyClaim(_paymentRef);
     }
 
     /**
-     * @notice Withdraw the locked funds from escow contract and transfers back to payer after 12 months.
+     * @notice Allows the payee claim funds after a six months emergency lockperiod .
+     * @param _paymentRef Reference of the related Invoice.
+     * @dev Uses modifiers IsInEscrow, IsNotFrozen.
+     */
+    function completeEmergencyClaim(bytes memory _paymentRef) 
+        external
+        OnlyPayee(_paymentRef)
+        IsInEscrow(_paymentRef)
+        IsNotFrozen(_paymentRef)
+    {
+        require(requestMapping[_paymentRef].emergencyState && 
+            requestMapping[_paymentRef].emergencyClaimDate <= block.timestamp
+        );
+
+        requestMapping[_paymentRef].emergencyState = false;
+        requestMapping[_paymentRef].emergencyClaimDate = 0;
+
+        require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw failed!");
+
+        emit EmergencyClaimComplete(_paymentRef);
+    }
+
+     /**
+     * @notice Reverts the emergencyState to false and cancels emergencyClaim.
+     * @param _paymentRef Reference of the Invoice related.
+     * @dev Uses modifiers OnlyPayer and IsNotFrozen.
+     * @dev Resets emergencyState to false and emergencyClaimDate to zero.
+     */
+    function revertEmergencyClaim(bytes memory _paymentRef) 
+        external
+        OnlyPayer(_paymentRef)
+        IsInEscrow(_paymentRef)
+        IsNotFrozen(_paymentRef)
+    {
+        require(requestMapping[_paymentRef].emergencyState, "EmergencyClaim NOT initiated"); 
+        requestMapping[_paymentRef].emergencyState = false;
+        requestMapping[_paymentRef].emergencyClaimDate = 0;
+        
+        emit RevertedEmergencyClaim(_paymentRef);
+    }
+
+    /**
+     * @notice Refunds to payer after twelve months and delete the escrow.
      * @param  _paymentRef Reference of the Invoice related.
      * @dev requires that the request .isFrozen = true and .unlockDate to
      * be lower or equal to block.timestamp.
      */
-    function refundFrozenFunds(bytes memory _paymentRef) external {
+    function refundFrozenFunds(bytes memory _paymentRef) 
+        external 
+        IsInEscrow(_paymentRef)
+        IsNotInEmergencyState(_paymentRef)
+    {
         require(requestMapping[_paymentRef].isFrozen, "Not frozen!");
         require(requestMapping[_paymentRef].unlockDate <= block.timestamp, "Not Yet!");
 
@@ -258,7 +322,15 @@ contract ERC20EscrowToPay {
      * @param _receiver Receiving address.
      * @dev Internal function to withdraw funds from escrow, to a given reciever.
      */
-    function _withdraw(bytes memory _paymentRef, address _receiver) internal returns (bool result) {       
+    function _withdraw(bytes memory _paymentRef, address _receiver)
+        internal
+        IsInEscrow(_paymentRef)
+        IsNotInEmergencyState(_paymentRef)
+        IsNotFrozen(_paymentRef)
+        returns (bool result) 
+    {
+        require(_receiver != address(0), "Transfer to ZERO adddress");
+
         uint256 _amount = requestMapping[_paymentRef].amount;
         requestMapping[_paymentRef].amount = 0;
         
