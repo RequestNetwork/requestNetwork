@@ -293,7 +293,8 @@ contract ERC20EscrowToPay {
         IsNotFrozen(_paymentRef)
     {
         require(requestMapping[_paymentRef].emergencyState && 
-            requestMapping[_paymentRef].emergencyClaimDate <= block.timestamp
+            requestMapping[_paymentRef].emergencyClaimDate <= block.timestamp, 
+            "Not yet!"
         );
 
         requestMapping[_paymentRef].emergencyState = false;
