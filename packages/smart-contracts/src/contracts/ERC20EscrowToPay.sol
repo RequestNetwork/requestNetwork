@@ -132,6 +132,24 @@ contract ERC20EscrowToPay {
      */
     event RevertedEmergencyClaim(bytes indexed paymentReference);
 
+    /**
+     * @notice Emitted when a delegatecall has been executed.
+     * @param tokenAddress Address of the ERC20 token smart contract.
+     * @param to Address to the payment issuer, alias payee.
+     * @param amount Amount to transfer.
+     * @param paymentReference Reference of the payment related.
+     * @param feeAmount Amount of fee to be paid.
+     * @param feeAddress Address to where the fees will be paid.
+     */
+    event TransferWithReferenceAndFee(
+        address tokenAddress,
+        address to,
+        uint256 amount,
+        bytes indexed paymentReference,
+        uint256 feeAmount,
+        address feeAddress
+    );
+
     constructor(address _paymentProxyAddress) {
         paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     }
@@ -146,7 +164,7 @@ contract ERC20EscrowToPay {
     /** 
     * @notice Stores the invoice details, and transfers funds to this Escrow contract.
     * @param _tokenAddress Address of the ERC20 token smart contract.
-    * @param _to Address to the payment issuer, alias payer.
+    * @param _to Address to the payment issuer, alias payee.
     * @param _amount Amount to transfer.
     * @param _paymentRef Reference of the payment related.
     * @param _feeAmount Amount of fee to be paid.
@@ -190,6 +208,16 @@ contract ERC20EscrowToPay {
             )
         );
         require(status, "transferFromWithReferenceAndFee failed");
+        
+        emit TransferWithReferenceAndFee(
+            _tokenAddress,
+            _to,
+            _amount,
+            _paymentRef,
+            _feeAmount,
+            _feeAddress
+        );
+
         emit RequestInEscrow(_paymentRef);
     }
     
