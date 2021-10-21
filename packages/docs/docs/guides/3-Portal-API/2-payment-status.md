@@ -27,9 +27,9 @@ You will receive back an object that looks like this:
 
 To get the payment status of a Request you can use the requestData object to check if the balance is greater than or equal to the expectedAmount.
 
-If the `balance.balance >= expectedAmount`: this means the request is paid (or even overpaid)
-If the `balance.balance > 0 && balance.balance < expectedAmount`: this means the request is partially paid.
-If the `balance.balance === 0`: this means the request is unpaid.
+If `balance.balance >= expectedAmount`: this means the request is paid (or even overpaid)
+If `balance.balance > 0 && balance.balance < expectedAmount`: this means the request is partially paid.
+If `balance.balance === 0`: this means the request is unpaid.
 
 You can use the following snippet to see if the request has been paid.
 
