@@ -56,9 +56,22 @@ describe("Contract: ERC20EscrowToPay", () => {
                     feeAddress
                 ),
             )
-                .to.emit(erc20EscrowToPay, "RequestInEscrow")
-                .withArgs(ethers.utils.keccak256(referenceExample1));
-    
+                .to.emit(testERC20, 'Transfer')
+                .to.emit(testERC20, 'Approval')
+                .to.emit(erc20EscrowToPay, 'TransferWithReferenceAndFee')
+                .withArgs(
+                    testERC20.address,
+                    payeeAddress,
+                    "1000",
+                    ethers.utils.keccak256(referenceExample1),
+                    '1',
+                    feeAddress
+                )
+                .to.emit(erc20EscrowToPay, 'RequestInEscrow')
+                .withArgs(
+                    ethers.utils.keccak256(referenceExample1),
+                );
+                
             const payerNewBalance = await testERC20.balanceOf(payerAddress);
             const payeeNewBalance = await testERC20.balanceOf(payeeAddress);
             const escrowNewBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
@@ -73,9 +86,10 @@ describe("Contract: ERC20EscrowToPay", () => {
             const payeeOldBalance = await testERC20.balanceOf(payeeAddress);
             const escrowOldBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
 
-            expect(await erc20EscrowToPay.connect(payer).payRequestFromEscrow(referenceExample1))
-                .to.emit(erc20EscrowToPay, "RequestWithdrawnFromEscrow")
-                .withArgs(ethers.utils.keccak256(referenceExample1));
+            expect(
+                await erc20EscrowToPay.connect(payer).payRequestFromEscrow(referenceExample1))
+                    .to.emit(erc20EscrowToPay, "RequestWithdrawnFromEscrow")
+                    .withArgs(ethers.utils.keccak256(referenceExample1));
             
             const payeeNewBalance = await testERC20.balanceOf(payeeAddress);
             const escrowNewBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
