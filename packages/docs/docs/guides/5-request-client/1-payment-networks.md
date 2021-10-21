@@ -145,7 +145,7 @@ ERC20 requests payment detection can also be address based, but using the proxy 
 If you would like to create a request with a currency we don't support, you have two options:
 
 - Create a declarative request
-- Contact us for your currency requirements: **Join our Discord** [**here**](https://discord.gg/Q22nr6J8)
+- Contact us for your currency requirements: **Join our Discord** [**here**](https://request.network/discord)
 - Contribute to the protocol creating a dedicated payment network for this currency, by:
   - Writing the specification (following the [advanced logic specification](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/advanced-logic/specs/advanced-logic-specs-0.1.0.md) and get inspired by the [others payment networks](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/specs))
   - Developing the new payment network in the [advanced-logic package](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/src/extensions/payment-network).
