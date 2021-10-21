@@ -96,19 +96,19 @@ contract ERC20EscrowToPay {
     event RefundedFrozenFunds(bytes indexed paymentReference);
  
     /**
-     * @notice Emitted when a .
+     * @notice Emitted when a emergency claim is initiated.
      * @param paymentReference Reference of the payment related.
      */
     event InitiatedEmergencyClaim(bytes indexed paymentReference);
 
     /**
-     * @notice Emitted when a .
+     * @notice Emitted when a emergency claim is completed.
      * @param paymentReference Reference of the payment related.
      */
-    event EmergencyClaim(bytes indexed paymentReference);
+    event EmergencyClaimed(bytes indexed paymentReference);
 
     /**
-     * @notice Emitted when freezeRequest is executed and the emergencyState is reverted to false.
+     * @notice Emitted when freezeRequest is executed and the emergencyState is reverted back to false.
      * @param paymentReference Reference of the payment related.
      */
     event RevertEmergencyState(bytes indexed paymentReference);
@@ -175,11 +175,11 @@ contract ERC20EscrowToPay {
     }
     
     /**
-     * @notice Locks the request funds for 12 months.
+     * @notice Locks the request funds for 12 months and cancel any emergency claim.
      * @param _paymentRef Reference of the Invoice related.
      * @dev Uses modifiers OnlyPayer and IsNotFrozen.
      */
-    function freezeRequest(bytes memory _paymentRef) external OnlyPayers(_paymentRef) IsNotFrozen(_paymentRef) {
+    function freezeRequest(bytes memory _paymentRef) external OnlyPayer(_paymentRef) IsNotFrozen(_paymentRef) {
         if (requestMapping[_paymentRef].emergencyState) {
             requestMapping[_paymentRef].emergencyState = false;
 
@@ -202,7 +202,7 @@ contract ERC20EscrowToPay {
         external 
         IsInEscrow(_paymentRef) 
         IsNotFrozen(_paymentRef) 
-        OnlyPayers(_paymentRef) 
+        OnlyPayer(_paymentRef) 
     {
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw Failed!");
 
@@ -229,7 +229,7 @@ contract ERC20EscrowToPay {
         if (requestMapping[_paymentRef].emergencyState && requestMapping[_paymentRef].emergencyClaim <= block.timestamp) {
             require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw failed!");
 
-            emit EmergencyClaim(_paymentRef);
+            emit EmergencyClaimed(_paymentRef);
         }
     }
 
