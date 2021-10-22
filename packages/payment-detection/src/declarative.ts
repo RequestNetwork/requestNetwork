@@ -22,6 +22,13 @@ export default class PaymentNetworkDeclarative<
     this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE;
   }
 
+  protected mergeExtension<T>(extension: T): void {
+    this._extension = {
+      ...this._extension,
+      ...extension,
+    };
+  }
+
   /**
    * Creates the extensions data for the creation of this extension
    *

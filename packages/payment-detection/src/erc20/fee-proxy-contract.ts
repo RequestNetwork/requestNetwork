@@ -41,10 +41,9 @@ export type DeploymentInformationGetter = (
 export default class PaymentNetworkERC20FeeProxyContract<
     ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
   >
-  extends DeclarativePaymentNetwork
+  extends DeclarativePaymentNetwork<ExtensionType>
   implements PaymentTypes.IPaymentNetwork<ExtensionType> {
   protected _extensionTypeId: ExtensionTypes.ID;
-  protected _extension: ExtensionType;
   protected _currencyManager: ICurrencyManager;
 
   /**
@@ -59,9 +58,9 @@ export default class PaymentNetworkERC20FeeProxyContract<
   }) {
     super({ advancedLogic });
     this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
-    this._extension = advancedLogic.extensions.feeProxyContractErc20;
     this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT;
     this._currencyManager = currencyManager;
+    this.mergeExtension(advancedLogic.extensions.feeProxyContractErc20);
   }
 
   /**

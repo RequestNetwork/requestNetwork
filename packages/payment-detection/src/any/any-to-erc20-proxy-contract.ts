@@ -40,7 +40,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
       currencyManager,
     });
     this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY;
-    this._extension = advancedLogic.extensions.anyToErc20Proxy;
+    this.mergeExtension(advancedLogic.extensions.anyToErc20Proxy);
   }
 
   /**

@@ -13,32 +13,27 @@ import AnyToErc20Proxy from '../../src/any/any-to-erc20-proxy-contract';
 let anyToErc20Proxy: AnyToErc20Proxy;
 const currencyManager = CurrencyManager.getDefault();
 
+const createAddPaymentAddressAction = jest.fn();
+const createAddRefundAddressAction = jest.fn();
+const createCreationAction = jest.fn();
+const createAddFeeAction = jest.fn();
+const createAddPaymentInstructionAction = jest.fn();
+const createAddRefundInstructionAction = jest.fn();
+
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
   },
   extensions: {
     anyToErc20Proxy: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-      createAddFeeAction(): any {
-        return;
-      },
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      createAddFeeAction,
     },
     declarative: {
-      createAddPaymentInstructionAction(): any {
-        return;
-      },
-      createAddRefundInstructionAction(): any {
-        return;
-      },
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
     }
   },
 };
@@ -49,9 +44,11 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     anyToErc20Proxy = new AnyToErc20Proxy({ advancedLogic: mockAdvancedLogic, currencyManager });
   });
 
-  it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.anyToErc20Proxy, 'createCreationAction');
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
+  it('can createExtensionsDataForCreation', async () => {
     await anyToErc20Proxy.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
@@ -60,7 +57,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       maxRateTimespan: 1000,
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createCreationAction).toHaveBeenCalledWith({
       feeAddress: undefined,
       feeAmount: undefined,
       paymentAddress: 'ethereum address',
@@ -73,8 +70,6 @@ describe('api/any/conversion-fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation with fee amount and address', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.anyToErc20Proxy, 'createCreationAction');
-
     await anyToErc20Proxy.createExtensionsDataForCreation({
       feeAddress: 'fee address',
       feeAmount: '2000',
@@ -84,7 +79,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       network: 'rinkeby',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createCreationAction).toHaveBeenCalledWith({
       feeAddress: 'fee address',
       feeAmount: '2000',
       paymentAddress: 'ethereum address',
@@ -96,85 +91,61 @@ describe('api/any/conversion-fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation without salt', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.anyToErc20Proxy, 'createCreationAction');
-
     await anyToErc20Proxy.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
     });
 
     // Can't check parameters since salt is generated in createExtensionsDataForCreation
-    expect(spy).toHaveBeenCalled();
+    expect(createCreationAction).toHaveBeenCalled();
   });
 
   it('can createExtensionsDataForAddPaymentAddress', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.anyToErc20Proxy,
-      'createAddPaymentAddressAction',
-    );
-
     anyToErc20Proxy.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddPaymentAddressAction).toHaveBeenCalledWith({
       paymentAddress: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createAddPaymentInstructionAction',
-    );
-
     anyToErc20Proxy.createExtensionsDataForAddPaymentInformation({
       paymentInfo: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddPaymentInstructionAction).toHaveBeenCalledWith({
       paymentInfo: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddRefundAddress', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.anyToErc20Proxy,
-      'createAddRefundAddressAction',
-    );
-
     anyToErc20Proxy.createExtensionsDataForAddRefundAddress({
       refundAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddRefundAddressAction).toHaveBeenCalledWith({
       refundAddress: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createAddRefundInstructionAction',
-    );
-
     anyToErc20Proxy.createExtensionsDataForAddRefundInformation({
       refundInfo: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddRefundInstructionAction).toHaveBeenCalledWith({
       refundInfo: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddFeeInformation', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.anyToErc20Proxy, 'createAddFeeAction');
-
     anyToErc20Proxy.createExtensionsDataForAddFeeInformation({
       feeAddress: 'ethereum address',
       feeAmount: '2000',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddFeeAction).toHaveBeenCalledWith({
       feeAddress: 'ethereum address',
       feeAmount: '2000',
     });

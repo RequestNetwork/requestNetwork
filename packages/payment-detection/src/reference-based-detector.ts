@@ -29,15 +29,13 @@ export default abstract class ReferenceBasedDetector<
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
 
-  protected _extension: ExtensionType;
-
   public constructor(
     protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
     extension: ExtensionType,
     protected extensionType: ExtensionTypes.ID,
   ) {
     super({ advancedLogic });
-    this._extension = extension;
+    this.mergeExtension(extension);
     if (!TypesUtils.isPaymentNetworkId(extensionType)) {
       throw new Error(
         `Cannot detect payment for extension type '${extensionType}', it is not a payment network ID.`,
