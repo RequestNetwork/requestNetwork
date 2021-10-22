@@ -82,6 +82,15 @@ signatureProvider.addSignatureParameters({
   privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
 });
 
+const waitForConfirmation = (
+  action: ClientTypes.IRequestDataWithEvents,
+): Promise<Types.IRequestDataWithEvents> => {
+  return new Promise((resolve, reject) => {
+    action.on('confirmed', resolve);
+    action.on('error', reject);
+  });
+};
+
 describe('Request client using a request node', () => {
   it('can create a request, change the amount and get data', async () => {
     const requestNetwork = new RequestNetwork({ httpConfig, signatureProvider });
@@ -114,7 +123,7 @@ describe('Request client using a request node', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.expectedAmount).toBe('800');
 
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    requestData = await waitForConfirmation(requestData);
     expect(requestData.expectedAmount).toBe('800');
     expect(requestData.pending).toBeNull();
   });
@@ -168,7 +177,8 @@ describe('Request client using a request node', () => {
     expect(requestData.balance).toBeDefined();
     expect(requestData.balance!.balance).toBe('0');
 
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    requestData = await waitForConfirmation(requestData);
+
     expect(requestData.balance!.balance).toBe('0');
 
     requestData = await request.declareReceivedPayment(
@@ -179,7 +189,8 @@ describe('Request client using a request node', () => {
     expect(requestData.balance).toBeDefined();
     expect(requestData.balance!.balance).toBe('0');
 
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    requestData = await waitForConfirmation(requestData);
+
     expect(requestData.balance!.balance).toBe('100');
   });
 
@@ -229,11 +240,11 @@ describe('Request client using a request node', () => {
 
     // reduce request 1
     const requestDataReduce = await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
-    await new Promise((r) => requestDataReduce.on('confirmed', r));
+    await waitForConfirmation(requestDataReduce);
 
     // cancel request 1
     const requestDataCancel = await request1.cancel(payeeIdentity);
-    await new Promise((r) => requestDataCancel.on('confirmed', r));
+    await waitForConfirmation(requestDataCancel);
 
     // get requests without boundaries
     let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
@@ -393,7 +404,7 @@ describe('Request client using a request node', () => {
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -412,7 +423,8 @@ describe('Request client using a request node', () => {
     );
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    await request.accept(payerIdentity);
+    const accept = await request.accept(payerIdentity);
+    await waitForConfirmation(accept);
 
     await fetchedRequest.refresh();
     fetchedRequestData = fetchedRequest.getData();
@@ -422,7 +434,7 @@ describe('Request client using a request node', () => {
       requestCreationHashBTC.expectedAmount,
       payerIdentity,
     );
-    await new Promise((r) => increase.on('confirmed', r));
+    await waitForConfirmation(increase);
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toEqual(
@@ -560,7 +572,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
+    requestData = await new Promise((resolve) => request.on('confirmed', resolve));
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
   });

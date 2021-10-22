@@ -134,7 +134,7 @@ export default class Request {
    * @returns the request data
    */
   public waitForConfirmation(): Promise<Types.IRequestDataWithEvents> {
-    return new Promise((resolve, reject): any => {
+    return new Promise((resolve, reject) => {
       this.on('confirmed', resolve);
       this.on('error', reject);
     });
