@@ -70,8 +70,5 @@
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
     "typescript": "4.4.3"
-  },
-  "resolutions": {
-    "**/autobahn/ws": "<8"
   }
 }
