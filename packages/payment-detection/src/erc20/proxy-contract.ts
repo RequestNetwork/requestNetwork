@@ -26,7 +26,7 @@ class VersionNotSupported extends Error {}
 export default class PaymentNetworkERC20ProxyContract<
     ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
   >
-  extends DeclarativePaymentNetwork
+  extends DeclarativePaymentNetwork<ExtensionType>
   implements PaymentTypes.IPaymentNetwork<ExtensionType> {
   protected _extension: ExtensionType;
   /**

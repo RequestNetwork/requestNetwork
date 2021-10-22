@@ -41,7 +41,7 @@ export type DeploymentInformationGetter = (
 export default class PaymentNetworkERC20FeeProxyContract<
     ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
   >
-  extends DeclarativePaymentNetwork
+  extends DeclarativePaymentNetwork<ExtensionType>
   implements PaymentTypes.IPaymentNetwork<ExtensionType> {
   protected _extensionTypeId: ExtensionTypes.ID;
   protected _extension: ExtensionType;
