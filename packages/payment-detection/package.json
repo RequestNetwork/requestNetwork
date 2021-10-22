@@ -46,7 +46,7 @@
     "@requestnetwork/utils": "0.35.0",
     "autobahn": "20.9.2",
     "axios": "0.21.1",
-    "ethers": "5.2.0",
+    "ethers": "5.5.1",
     "graphql": "15.5.1",
     "graphql-request": "3.4.0",
     "graphql-tag": "2.12.4",
