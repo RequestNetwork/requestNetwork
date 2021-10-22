@@ -99,29 +99,30 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // Try to get the confirmation
-    try {
-      await new Promise((r) => setTimeout(r, this.httpConfig.getConfirmationDeferDelay));
-      const confirmedData = await this.fetchAndRetry(
-        '/getConfirmedTransaction',
-        {
-          transactionHash,
-        },
-        {
-          maxRetries: this.httpConfig.getConfirmationMaxRetry,
-          retryDelay: this.httpConfig.getConfirmationRetryDelay,
-        },
-      );
-      // when found, emit the event 'confirmed'
-      result.emit('confirmed', confirmedData);
-    } catch (e) {
-      if (e.response.status === 404) {
-        throw new Error(
-          `Transaction confirmation not receive after ${this.httpConfig.getConfirmationMaxRetry} retries`,
+    new Promise((r) => setTimeout(r, this.httpConfig.getConfirmationDeferDelay))
+      .then(async () => {
+        const confirmedData = await this.fetchAndRetry(
+          '/getConfirmedTransaction',
+          {
+            transactionHash,
+          },
+          {
+            maxRetries: this.httpConfig.getConfirmationMaxRetry,
+            retryDelay: this.httpConfig.getConfirmationRetryDelay,
+          },
         );
-      } else {
-        throw new Error(e.message);
-      }
-    }
+        // when found, emit the event 'confirmed'
+        result.emit('confirmed', confirmedData);
+      })
+      .catch((e) => {
+        if (e.response.status === 404) {
+          throw new Error(
+            `Transaction confirmation not receive after ${this.httpConfig.getConfirmationMaxRetry} retries`,
+          );
+        } else {
+          throw new Error(e.message);
+        }
+      });
 
     return result;
   }
