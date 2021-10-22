@@ -122,10 +122,6 @@ export default class SmartContractManager {
     }
     this.provider = signer.provider;
 
-    // Set the default transaction polling timeout to the value in our config
-    // TODO
-    // this.eth.transactionPollingTimeout = config.getTransactionPollingTimeout();
-
     // Checks if networkId is defined
     // If not defined we use default value from config
     this.networkName =
