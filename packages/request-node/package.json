@@ -72,7 +72,7 @@
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
     "ts-node-dev": "1.1.8",
-    "typescript": "4.4.3"
+    "typescript": "4.4.4"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
 }
