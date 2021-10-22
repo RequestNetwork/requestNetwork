@@ -420,7 +420,8 @@ describe('Request system', () => {
     const request1CancelHash: RequestLogicTypes.ICancelParameters = {
       requestId: requestId1,
     };
-    await requestLogic.cancelRequest(request1CancelHash, payeeIdentity);
+    const cancellation = await requestLogic.cancelRequest(request1CancelHash, payeeIdentity);
+    await new Promise((r) => cancellation.on('confirmed', r));
 
     const fromTopic = await requestLogic.getRequestsByTopic(topics1[0]);
     expect(fromTopic.result.requests.length).toEqual(2);
@@ -430,7 +431,7 @@ describe('Request system', () => {
     expect(request2.request!.requestId).toEqual(requestId2);
 
     const fromTopicSecondSearch = await requestLogic.getRequestsByTopic(topics1[0], {
-      from: timestampReduce1,
+      from: timestampReduce1 + 1,
     });
     expect(fromTopicSecondSearch.result.requests.length).toEqual(1);
     request1 = fromTopicSecondSearch.result.requests[0];
