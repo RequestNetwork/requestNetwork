@@ -12,8 +12,10 @@ import ERC20AddressBased from './erc20/address-based';
 import ERC20FeeProxyContract from './erc20/fee-proxy-contract';
 import ERC20ProxyContract from './erc20/proxy-contract';
 import EthInputData from './eth/input-data';
+import ETHFeeProxyDetector from './eth/fee-proxy-detector';
 import AnyToErc20Proxy from './any/any-to-erc20-proxy-contract';
 import NearNativeTokenPaymentDetector from './near-detector';
+import AnyToEthProxy from './any/any-to-eth-proxy-detector';
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
@@ -39,6 +41,7 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
     },
     '*': {
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: ETHFeeProxyDetector,
     },
   },
 };
@@ -46,6 +49,7 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: AnyToErc20Proxy,
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY as string]: AnyToEthProxy,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */

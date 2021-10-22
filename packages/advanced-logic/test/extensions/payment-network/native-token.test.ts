@@ -398,5 +398,56 @@ describe('extensions/payment-network/native-token', () => {
         `Cannot apply action for network ${mainnetTestCase.wrongCurrency.network} on state with payment network: ${mainnetTestCase.currency.network}`,
       );
     });
+
+    it('keeps the version used at creation', () => {
+      const advancedLogic = new AdvancedLogic();
+      const requestState = {
+        ...requestStateNoExtensions,
+        currency: mainnetTestCase.currency,
+      };
+      const newState = advancedLogic.applyActionToExtensions(
+        {},
+        { ...actionCreationWithNativeTokenPayment, version: 'ABCD' },
+        requestState,
+        payeeRaw.identity,
+        arbitraryTimestamp,
+      );
+      expect(newState[mainnetTestCase.paymentNetwork.extensionId].version).toBe('ABCD');
+    });
+
+    it('requires a version at creation', () => {
+      expect(() => {
+        const advancedLogic = new AdvancedLogic();
+        const requestState = {
+          ...requestStateNoExtensions,
+          currency: mainnetTestCase.currency,
+        };
+        advancedLogic.applyActionToExtensions(
+          {},
+          { ...actionCreationWithNativeTokenPayment, version: '' },
+          requestState,
+          payeeRaw.identity,
+          arbitraryTimestamp,
+        );
+      }).toThrowError('version is required at creation');
+    });
+  });
+
+  it('should throw when isValidAddress is not overridden', () => {
+    class TestNativePaymentNetwork extends NativeTokenPaymentNetwork {
+      public testIsValidAddress() {
+        this.isValidAddress('test', 'test');
+      }
+    }
+    expect(() => {
+      const testNativePaymentNetwork = new TestNativePaymentNetwork(
+        ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+        'test',
+        [],
+      );
+      testNativePaymentNetwork.testIsValidAddress();
+    }).toThrowError(
+      'Default implementation of isValidAddress() does not support native tokens. Please override this method.',
+    );
   });
 });

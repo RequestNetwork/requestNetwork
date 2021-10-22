@@ -1,23 +1,22 @@
+import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import AbstractExtension from '../abstract-extension';
 import Utils from '@requestnetwork/utils';
+import DeclarativePaymentNetwork from './declarative';
 
 /**
  * Core of the address based payment networks
  * This module is called by the address based payment networks to avoid code redundancy
  */
 export default abstract class AddressBasedPaymentNetwork<
-    TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
-  >
-  extends AbstractExtension<TCreationParameters>
-  implements ExtensionTypes.PnAddressBased.IAddressBased<TCreationParameters> {
+  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
+> extends DeclarativePaymentNetwork<TCreationParameters> {
   public constructor(
     public extensionId: ExtensionTypes.ID,
     public currentVersion: string,
     public supportedNetworks: string[],
-    public supportedCurrencyType: string,
+    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
-    super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);
+    super(extensionId, currentVersion);
     this.actions = {
       ...this.actions,
       [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]: this.applyAddPaymentAddress.bind(
@@ -53,7 +52,9 @@ export default abstract class AddressBasedPaymentNetwork<
       throw new InvalidPaymentAddressError(creationParameters.refundAddress, 'refundAddress');
     }
 
-    return super.createCreationAction(creationParameters);
+    return super.createCreationAction(
+      creationParameters,
+    ) as ExtensionTypes.IAction<TCreationParameters>;
   }
 
   /**
@@ -138,11 +139,48 @@ export default abstract class AddressBasedPaymentNetwork<
         paymentAddress,
         refundAddress,
       },
-      version: this.currentVersion,
     };
   }
 
-  protected abstract isValidAddress(_address: string, _networkName?: string): boolean;
+  protected isValidAddress(address: string, networkName?: string): boolean {
+    if (networkName) {
+      return this.isValidAddressForNetwork(address, networkName);
+    }
+    return this.supportedNetworks.some((network) =>
+      this.isValidAddressForNetwork(address, network),
+    );
+  }
+
+  protected isValidAddressForNetwork(address: string, network: string): boolean {
+    switch (this.supportedCurrencyType) {
+      case RequestLogicTypes.CURRENCY.BTC:
+        return this.isValidAddressForSymbolAndNetwork(
+          address,
+          network === 'testnet' ? 'BTC-testnet' : 'BTC',
+          network,
+        );
+      case RequestLogicTypes.CURRENCY.ETH:
+      case RequestLogicTypes.CURRENCY.ERC20:
+        return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
+      default:
+        throw new Error(
+          `Default implementation of isValidAddressForNetwork() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
+        );
+    }
+  }
+
+  protected isValidAddressForSymbolAndNetwork(
+    address: string,
+    symbol: string,
+    network: string,
+  ): boolean {
+    const currencyManager = CurrencyManager.getDefault();
+    const currency = currencyManager.from(symbol, network);
+    if (!currency) {
+      throw new Error(`Currency not found in default manager: ${symbol} / ${network}`);
+    }
+    return CurrencyManager.validateAddress(address, currency);
+  }
 
   /**
    * Applies add payment address
@@ -253,7 +291,7 @@ export default abstract class AddressBasedPaymentNetwork<
 }
 
 export class InvalidPaymentAddressError extends Error {
-  constructor(address?: string, addressReference: string = 'paymentAddress') {
+  constructor(address?: string, addressReference = 'paymentAddress') {
     const formattedAddress = address ? ` '${address}'` : '';
     super(`${addressReference}${formattedAddress} is not a valid address`);
   }
@@ -261,7 +299,7 @@ export class InvalidPaymentAddressError extends Error {
 
 export class UnsupportedNetworkError extends Error {
   constructor(unsupportedNetworkName: string, supportedNetworks?: string[]) {
-    const supportedNetworkDetails = !!supportedNetworks
+    const supportedNetworkDetails = supportedNetworks
       ? ` (only ${supportedNetworks.join(', ')})`
       : '';
     super(

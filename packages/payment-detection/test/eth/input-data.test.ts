@@ -25,6 +25,14 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       },
       supportedNetworks: ['mainnet'],
     },
+    declarative: {
+      createAddPaymentInstructionAction(): any {
+        return;
+      },
+      createAddRefundInstructionAction(): any {
+        return;
+      },
+    }
   },
 };
 
@@ -46,30 +54,64 @@ describe('api/eth/input-data', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it('can createExtensionsDataForAddPaymentInformation', async () => {
+  it('can createExtensionsDataForAddPaymentAddress', async () => {
     const spy = jest.spyOn(
       mockAdvancedLogic.extensions.ethereumInputData,
       'createAddPaymentAddressAction',
     );
 
-    ethInputData.createExtensionsDataForAddPaymentInformation({
+    ethInputData.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith({
+      paymentAddress: 'ethereum address',
+    });
   });
 
-  it('can createExtensionsDataForAddRefundInformation', async () => {
+  it('can createExtensionsDataForAddRefundAddress', async () => {
     const spy = jest.spyOn(
       mockAdvancedLogic.extensions.ethereumInputData,
       'createAddRefundAddressAction',
     );
 
-    ethInputData.createExtensionsDataForAddRefundInformation({
+    ethInputData.createExtensionsDataForAddRefundAddress({
       refundAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenCalledWith({
+      refundAddress: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddPaymentInformation', async () => {
+    const spy = jest.spyOn(
+      mockAdvancedLogic.extensions.declarative,
+      'createAddPaymentInstructionAction',
+    );
+
+    ethInputData.createExtensionsDataForAddPaymentInformation({
+      paymentInfo: 'ethereum address',
+    });
+
+    expect(spy).toHaveBeenCalledWith({
+      paymentInfo: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddRefundInformation', async () => {
+    const spy = jest.spyOn(
+      mockAdvancedLogic.extensions.declarative,
+      'createAddRefundInstructionAction',
+    );
+
+    ethInputData.createExtensionsDataForAddRefundInformation({
+      refundInfo: 'ethereum address',
+    });
+
+    expect(spy).toHaveBeenCalledWith({
+      refundInfo: 'ethereum address',
+    });
   });
 
   // Skip because input-data cannot be used without etherscan
@@ -112,10 +154,36 @@ describe('api/eth/input-data', () => {
   });
 
   it('should not throw when getBalance fail', async () => {
+    const mockRequest = {
+      creator: { type: '', value: '0x2' },
+      currency: {
+        network: 'wrong',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
+      events: [],
+      expectedAmount: '0',
+      extensions: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: {
+          events: [],
+          id: '0',
+          type: 'none',
+          values: {
+            paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+            salt: 'ea3bc7caf64110ca',
+          },
+          version: '0',
+        },
+      },
+      extensionsData: [],
+      requestId: '0x1',
+      state: 'Good',
+      timestamp: 0,
+      version: '0.2',
+    };
+
     expect(
-      await ethInputData.getBalance({
-        currency: { network: 'wrong' },
-      } as RequestLogicTypes.IRequest),
+      await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest),
     ).toMatchObject({
       balance: null,
       error: {

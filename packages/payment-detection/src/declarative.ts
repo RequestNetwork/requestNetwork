@@ -11,9 +11,10 @@ import { BigNumber } from 'ethers';
  *
  * @class PaymentNetworkDeclarative
  */
-export default class PaymentNetworkDeclarative
-  implements PaymentTypes.IPaymentNetwork<PaymentTypes.IDeclarativePaymentEventParameters> {
-  private extension: ExtensionTypes.PnAnyDeclarative.IAnyDeclarative;
+export default class PaymentNetworkDeclarative<
+  ExtensionType extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative = ExtensionTypes.PnAnyDeclarative.IAnyDeclarative
+> implements PaymentTypes.IPaymentNetwork<PaymentTypes.IDeclarativePaymentEventParameters> {
+  protected extension: ExtensionType;
 
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     this.extension = advancedLogic.extensions.declarative;
@@ -75,6 +76,7 @@ export default class PaymentNetworkDeclarative
     return this.extension.createDeclareSentPaymentAction({
       amount: parameters.amount,
       note: parameters.note,
+      txHash: parameters.txHash,
     });
   }
 
@@ -90,6 +92,7 @@ export default class PaymentNetworkDeclarative
     return this.extension.createDeclareSentRefundAction({
       amount: parameters.amount,
       note: parameters.note,
+      txHash: parameters.txHash,
     });
   }
 
@@ -105,6 +108,7 @@ export default class PaymentNetworkDeclarative
     return this.extension.createDeclareReceivedPaymentAction({
       amount: parameters.amount,
       note: parameters.note,
+      txHash: parameters.txHash,
     });
   }
 
@@ -120,6 +124,7 @@ export default class PaymentNetworkDeclarative
     return this.extension.createDeclareReceivedRefundAction({
       amount: parameters.amount,
       note: parameters.note,
+      txHash: parameters.txHash,
     });
   }
 

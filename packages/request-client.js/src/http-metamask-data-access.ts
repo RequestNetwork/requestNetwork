@@ -1,17 +1,11 @@
 import { Block } from '@requestnetwork/data-access';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { DataAccessTypes } from '@requestnetwork/types';
+import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
 import { EventEmitter } from 'events';
 import HttpDataAccess from './http-data-access';
-
-// Maximum number of retries to attempt when http requests to the Node fail
-const HTTP_REQUEST_MAX_RETRY = 3;
-
-// Delay between retry in ms
-const HTTP_REQUEST_RETRY_DELAY = 100;
 
 /**
  * Exposes a Data-Access module over HTTP
@@ -33,22 +27,26 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
 
   /**
    * Creates an instance of HttpDataAccess.
+   * @param httpConfig Http config that will be used by the underlying http-data-access. @see ClientTypes.IHttpDataAccessConfig
    * @param nodeConnectionConfig Configuration options to connect to the node. Follows Axios configuration format.
    */
   constructor(
     {
+      httpConfig,
       nodeConnectionConfig,
       web3,
       ethereumProviderUrl,
     }: {
+      httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
       nodeConnectionConfig?: AxiosRequestConfig;
       web3?: any;
       ethereumProviderUrl?: string;
     } = {
+      httpConfig: {},
       nodeConnectionConfig: {},
     },
   ) {
-    super(nodeConnectionConfig);
+    super({ httpConfig, nodeConnectionConfig });
 
     ethereumProviderUrl = ethereumProviderUrl ? ethereumProviderUrl : 'http://localhost:8545';
 
@@ -192,8 +190,8 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
           }),
         ),
       {
-        maxRetries: HTTP_REQUEST_MAX_RETRY,
-        retryDelay: HTTP_REQUEST_RETRY_DELAY,
+        maxRetries: this.httpConfig.httpRequestMaxRetry,
+        retryDelay: this.httpConfig.httpRequestRetryDelay,
       },
     )();
 

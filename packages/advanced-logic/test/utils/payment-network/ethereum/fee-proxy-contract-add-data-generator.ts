@@ -62,7 +62,7 @@ export const extensionStateWithPaymentAfterCreation = {
     values: {
       paymentAddress,
     },
-    version: '0.2.0',
+    version: '0.1.0',
   },
 };
 
@@ -87,7 +87,7 @@ export const extensionStateWithRefundAfterCreation = {
     values: {
       refundAddress,
     },
-    version: '0.2.0',
+    version: '0.1.0',
   },
 };
 
@@ -114,7 +114,7 @@ export const extensionStateWithFeeAfterCreation = {
       feeAddress,
       feeAmount,
     },
-    version: '0.2.0',
+    version: '0.1.0',
   },
 };
 
@@ -159,7 +159,7 @@ export const requestStateCreatedEmptyThenAddPayment: RequestLogicTypes.IRequest 
   requestId: TestData.requestIdMock,
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
-  version: '0.2.0',
+  version: '0.1.0',
 };
 
 export const requestStateCreatedEmptyThenAddFee: RequestLogicTypes.IRequest = {
@@ -201,5 +201,5 @@ export const requestStateCreatedEmptyThenAddFee: RequestLogicTypes.IRequest = {
   requestId: TestData.requestIdMock,
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
-  version: '0.2.0',
+  version: '0.1.0',
 };

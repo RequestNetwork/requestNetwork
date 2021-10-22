@@ -168,11 +168,12 @@ export default class Request {
     const acceptResult = await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       acceptResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
@@ -180,7 +181,7 @@ export default class Request {
         });
     }
 
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -212,11 +213,12 @@ export default class Request {
     const cancelResult = await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       cancelResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
@@ -224,7 +226,7 @@ export default class Request {
         });
     }
 
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -262,18 +264,18 @@ export default class Request {
     );
 
     // refresh the local request data
-    const requestData = await this.refresh();
-
+    const requestDataPromise = this.refresh();
     if (!this.disableEvents) {
       increaseExpectedResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
           this.emitter.emit('error', error);
         });
     }
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -312,11 +314,12 @@ export default class Request {
     );
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       reduceExpectedResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
@@ -324,7 +327,7 @@ export default class Request {
         });
     }
 
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -360,18 +363,19 @@ export default class Request {
     );
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
           this.emitter.emit('error', error);
         });
     }
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -407,11 +411,12 @@ export default class Request {
     );
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
@@ -419,7 +424,7 @@ export default class Request {
         });
     }
 
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -465,11 +470,12 @@ export default class Request {
     );
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
@@ -477,7 +483,7 @@ export default class Request {
         });
     }
 
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -526,11 +532,12 @@ export default class Request {
     );
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
@@ -538,7 +545,7 @@ export default class Request {
         });
     }
 
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -547,12 +554,14 @@ export default class Request {
    * @param amount Amount received
    * @param note Note from payee about the received payment
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param txHash transaction hash
    * @returns The updated request
    */
   public async declareReceivedPayment(
     amount: RequestLogicTypes.Amount,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
+    txHash?: string,
   ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
@@ -572,6 +581,7 @@ export default class Request {
       declarativePaymentNetwork.createExtensionsDataForDeclareReceivedPayment({
         amount,
         note,
+        txHash,
       }),
     );
 
@@ -587,11 +597,12 @@ export default class Request {
     );
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
@@ -599,7 +610,7 @@ export default class Request {
         });
     }
 
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -608,12 +619,14 @@ export default class Request {
    * @param amount Amount received
    * @param note Note from payer about the received refund
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
+   * @param txHash transaction hash
    * @returns The updated request
    */
   public async declareReceivedRefund(
     amount: RequestLogicTypes.Amount,
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
+    txHash?: string,
   ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
@@ -633,6 +646,7 @@ export default class Request {
       declarativePaymentNetwork.createExtensionsDataForDeclareReceivedRefund({
         amount,
         note,
+        txHash,
       }),
     );
 
@@ -648,11 +662,12 @@ export default class Request {
     );
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
@@ -660,7 +675,7 @@ export default class Request {
         });
     }
 
-    return requestData;
+    return requestDataPromise;
   }
 
   /**
@@ -706,11 +721,12 @@ export default class Request {
     );
 
     // refresh the local request data
-    const requestData = await this.refresh();
+    const requestDataPromise = this.refresh();
 
     if (!this.disableEvents) {
       addExtensionResult
         .on('confirmed', async () => {
+          const requestData = await requestDataPromise;
           requestData.emit('confirmed', await this.refresh());
         })
         .on('error', (error) => {
@@ -718,7 +734,7 @@ export default class Request {
         });
     }
 
-    return requestData;
+    return requestDataPromise;
   }
 
   /**

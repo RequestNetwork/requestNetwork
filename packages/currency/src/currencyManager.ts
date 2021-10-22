@@ -1,5 +1,6 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
+import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
 import { getHash } from './getHash';
 import iso4217 from './iso4217';
@@ -12,6 +13,7 @@ import {
   ICurrencyManager,
   LegacyTokenMap,
 } from './types';
+import { isValidNearAddress } from './currency-utils';
 
 const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
@@ -19,44 +21,64 @@ const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
  * Handles a list of currencies and provide features to retrieve them, as well as convert to/from storage format
  */
 export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta> {
-  private knownCurrencies: CurrencyDefinition<TMeta>[];
-  private legacyTokens: LegacyTokenMap;
+  private readonly knownCurrencies: CurrencyDefinition<TMeta>[];
+  private readonly legacyTokens: LegacyTokenMap;
 
   /**
    *
-   * @param knownCurrencies The list of currencies known by the Manager.
+   * @param inputCurrencies The list of currencies known by the Manager.
    * @param legacyTokens A mapping of legacy currency name or network name, in the format { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
    */
   constructor(
-    knownCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
+    inputCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
     legacyTokens?: LegacyTokenMap,
   ) {
-    this.knownCurrencies = knownCurrencies.map(CurrencyManager.fromInput);
+    this.knownCurrencies = [];
+    for (const input of inputCurrencies) {
+      const currency = CurrencyManager.fromInput(input);
+      if (this.knownCurrencies.some((x) => x.id === currency.id)) {
+        throw new Error(`Duplicate found: ${currency.id}`);
+      }
+      this.knownCurrencies.push(currency);
+    }
     this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
   }
 
   /**
-   * Gets a supported currency from a symbol, symbol-network or address.
+   * Gets a supported currency from a symbol, symbol-network, currency definition id or address.
    *
-   * @param symbolOrAddress e.g. 'DAI', 'FAU', 'FAU-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
+   * @param currencyIdentifier e.g. 'DAI', 'FAU', 'FAU-rinkeby', 'ETH-rinkeby-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
    * @param network e.g. rinkeby, mainnet
    */
   from(
-    symbolOrAddress: string | undefined,
+    currencyIdentifier: string | undefined,
     network?: string,
   ): CurrencyDefinition<TMeta> | undefined {
-    if (!symbolOrAddress) {
+    if (!currencyIdentifier) {
       return;
     }
-    if (utils.isAddress(symbolOrAddress)) {
-      return this.fromAddress(symbolOrAddress, network);
+    if (utils.isAddress(currencyIdentifier)) {
+      return this.fromAddress(currencyIdentifier, network);
     }
-    const parts = symbolOrAddress.split('-');
-    return (
+
+    const parts = currencyIdentifier.split('-');
+    const curerncyFromSymbol =
       this.fromSymbol(parts[0], network || parts[1]) ||
       // try without splitting the symbol to support currencies like ETH-rinkeby
-      this.fromSymbol(symbolOrAddress, network)
-    );
+      this.fromSymbol(currencyIdentifier, network);
+
+    if (curerncyFromSymbol) {
+      return curerncyFromSymbol;
+    }
+
+    return this.fromId(currencyIdentifier);
+  }
+
+  /**
+   * Gets a supported currency from its CurrencyDefinition id
+   */
+  fromId(id: string): CurrencyDefinition<TMeta> | undefined {
+    return this.knownCurrencies.find((knownCurrency) => knownCurrency.id === id);
   }
 
   /**
@@ -150,6 +172,38 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       value: currency.type === ERC20 ? currency.address : currency.symbol,
       network: currency.type === ISO4217 ? undefined : currency.network,
     };
+  }
+
+  /**
+   * Validates an address for a given currency.
+   * Throws if the currency is an ISO4217 currency.
+   */
+  static validateAddress(address: string, currency: CurrencyInput): boolean {
+    switch (currency.type) {
+      case RequestLogicTypes.CURRENCY.ISO4217:
+        throw new Error(`Could not validate an address for an ISO4217 currency`);
+      case RequestLogicTypes.CURRENCY.ETH:
+      case RequestLogicTypes.CURRENCY.ERC20:
+        switch (currency.symbol) {
+          case 'NEAR':
+          case 'NEAR-testnet':
+            return isValidNearAddress(address, currency.network);
+          default:
+            // we don't pass a third argument to the validate method here
+            // because there is no difference between testnet and prod
+            // for the ethereum validator, see:
+            // https://github.com/christsim/multicoin-address-validator/blob/f8f3626f441c0d53fdc3b89678629dc1d33c0546/src/ethereum_validator.js
+            return addressValidator.validate(address, 'ETH');
+        }
+      case RequestLogicTypes.CURRENCY.BTC:
+        return addressValidator.validate(
+          address,
+          'BTC',
+          currency.network === 'testnet' ? 'testnet' : 'prod',
+        );
+      default:
+        throw new Error(`Could not validate an address for an unknown currency type`);
+    }
   }
 
   /**

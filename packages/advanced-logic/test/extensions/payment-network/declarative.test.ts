@@ -184,6 +184,29 @@ describe('extensions/payment-network/any/declarative', () => {
       });
     });
 
+    it('keeps the version used at creation', () => {
+      const newState = pnAnyDeclarative.applyActionToExtension(
+        {},
+        { ...TestDataDeclarative.actionCreationWithPaymentAndRefund, version: 'ABCD' },
+        TestDataDeclarative.requestStateNoExtensions,
+        TestData.otherIdRaw.identity,
+        TestData.arbitraryTimestamp,
+      );
+      expect(newState[pnAnyDeclarative.extensionId].version).toBe('ABCD');
+    });
+
+    it('requires a version at creation', () => {
+      expect(() => {
+        pnAnyDeclarative.applyActionToExtension(
+          {},
+          { ...TestDataDeclarative.actionCreationWithPaymentAndRefund, version: '' },
+          TestDataDeclarative.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+      }).toThrowError('version is required at creation');
+    });
+
     describe('applyActionToExtension/addPaymentInstruction', () => {
       it('can applyActionToExtensions of addPaymentInstruction', () => {
         // 'new extension state wrong'

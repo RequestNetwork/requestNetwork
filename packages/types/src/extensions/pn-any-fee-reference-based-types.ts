@@ -5,7 +5,8 @@ export {
 } from './pn-any-reference-based-types';
 
 /** Fee reference-based payment network extension interface */
-export interface IFeeReferenceBased extends PnReferenceBased.IReferenceBased<ICreationParameters> {
+export interface IFeeReferenceBased<TCreationParameters = ICreationParameters>
+  extends PnReferenceBased.IReferenceBased<TCreationParameters> {
   createAddFeeAction: (creationParameters: IAddFeeParameters) => IAction<IAddFeeParameters>;
 }
 

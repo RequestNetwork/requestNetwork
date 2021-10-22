@@ -8,14 +8,14 @@ import { BigNumber } from 'ethers';
  * Handle payment networks with BTC based address extension
  */
 export default class PaymentNetworkBTCAddressBased {
-  private extension: ExtensionTypes.PnAddressBased.IAddressBased;
+  private extension: ExtensionTypes.PnAddressBased.IAddressBased<ExtensionTypes.PnAddressBased.ICreationParameters>;
   private bitcoinDetectionProvider: PaymentTypes.IBitcoinDetectionProvider;
 
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor(
-    extension: ExtensionTypes.PnAddressBased.IAddressBased,
+    extension: ExtensionTypes.PnAddressBased.IAddressBased<ExtensionTypes.PnAddressBased.ICreationParameters>,
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider,
   ) {
     this.extension = extension;

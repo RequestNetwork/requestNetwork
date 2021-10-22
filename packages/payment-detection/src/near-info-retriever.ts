@@ -55,14 +55,14 @@ export class NearInfoRetriever {
         COALESCE(a.args::json->>'deposit', '') as deposit,
         COALESCE(a.args::json->>'method_name', '') as method_name,
         COALESCE((a.args::json->'args_json')::json->>'to', '') as "to",
-        (a.args::json->'args_json')::json->>'payment_reference' as paymentReference,
+        (a.args::json->'args_json')::json->>'payment_reference' as "paymentReference",
         (select MAX(block_height) from blocks) - b.block_height as confirmations
       FROM transactions t
       INNER JOIN transaction_actions a ON (a.transaction_hash = t.transaction_hash)
       INNER JOIN receipts r ON (r.originated_from_transaction_hash = t.transaction_hash)
       INNER JOIN blocks b ON (b.block_timestamp = r.included_in_block_timestamp)
       INNER JOIN execution_outcomes e ON (e.receipt_id = r.receipt_id)
-      INNER JOIN action_receipt_actions ra ON (ra.receipt_id = r.receipt_id)
+      INNER JOIN action_receipt_actions ra ON (ra.receipt_id = r.receipt_id)    
       WHERE r.receiver_account_id = :paymentAddress
       AND r.predecessor_account_id != 'system'
       AND a.action_kind = 'FUNCTION_CALL'
@@ -71,10 +71,24 @@ export class NearInfoRetriever {
       AND b.block_height >= (select MAX(block_height) from blocks) - 1e8
       AND (a.args::json->'args_json')::json->>'payment_reference' = :paymentReference
       AND ra.action_kind = 'TRANSFER'
+      -- Check that the transaction did not revert:
+      AND EXISTS(
+        SELECT 1
+        FROM execution_outcome_receipts eor,
+             action_receipt_actions ara,
+             execution_outcomes eo
+        WHERE eor.executed_receipt_id = t.converted_into_receipt_id
+          AND ara.receipt_id = eor.produced_receipt_id
+          AND eo.receipt_id = eor.produced_receipt_id
+          AND ara.action_kind = 'FUNCTION_CALL'
+          AND COALESCE(ara.args::json->>'method_name', '') = 'on_transfer_with_reference'
+          AND eo.status = 'SUCCESS_VALUE')
       ORDER BY b.block_height DESC
       LIMIT 100`;
+
     return new Promise((resolve, reject) => {
       try {
+        // eslint-disable-next-line
         const autobahn = require('autobahn');
         const connection: any = new autobahn.Connection({
           url: this.nearWebSocketUrl,
@@ -90,9 +104,9 @@ export class NearInfoRetriever {
                 paymentReference: this.paymentReference,
               },
             ])
-            .then((data: any) => {
+            .then((data: NearIndexerTransaction[]) => {
               connection.close();
-              resolve(data as NearIndexerTransaction[]);
+              resolve(data);
             })
             .catch((err: Error) => {
               reject(`Could not connect to Near indexer web socket: ${err.message}.\n${err.stack}`);

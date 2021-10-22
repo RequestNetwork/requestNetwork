@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+// @ts-ignore Cannot find module
 import type { ChainlinkConversionPath } from '../../../types/ChainlinkConversionPath';
 
 export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionPath>(
@@ -23,6 +24,18 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
         matic: {
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 17427745,
+        },
+        xdai: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 18326897,
+        },
+        bsctest: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 12759694,
+        },
+        bsc: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 11540176,
         },
       },
     },
