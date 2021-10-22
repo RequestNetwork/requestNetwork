@@ -418,10 +418,11 @@ describe('Request client using a request node', () => {
     fetchedRequestData = fetchedRequest.getData();
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.ACCEPTED);
 
-    await request.increaseExpectedAmountRequest(
+    const increase = await request.increaseExpectedAmountRequest(
       requestCreationHashBTC.expectedAmount,
       payerIdentity,
     );
+    await new Promise((r) => increase.on('confirmed', r));
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toEqual(
