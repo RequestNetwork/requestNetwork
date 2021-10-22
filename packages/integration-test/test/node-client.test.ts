@@ -82,12 +82,13 @@ signatureProvider.addSignatureParameters({
   privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
 });
 
-const waitForConfirmation = (
-  action: ClientTypes.IRequestDataWithEvents,
+const waitForConfirmation = async (
+  action: ClientTypes.IRequestDataWithEvents | Promise<ClientTypes.IRequestDataWithEvents>,
 ): Promise<Types.IRequestDataWithEvents> => {
+  const awaited = await action;
   return new Promise((resolve, reject) => {
-    action.on('confirmed', resolve);
-    action.on('error', reject);
+    awaited.on('confirmed', resolve);
+    awaited.on('error', reject);
   });
 };
 
@@ -239,12 +240,10 @@ describe('Request client using a request node', () => {
     await request2.waitForConfirmation();
 
     // reduce request 1
-    const requestDataReduce = await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
-    await waitForConfirmation(requestDataReduce);
+    await waitForConfirmation(request1.reduceExpectedAmountRequest('10000000', payeeIdentity));
 
     // cancel request 1
-    const requestDataCancel = await request1.cancel(payeeIdentity);
-    await waitForConfirmation(requestDataCancel);
+    await waitForConfirmation(request1.cancel(payeeIdentity));
 
     // get requests without boundaries
     let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
@@ -423,31 +422,24 @@ describe('Request client using a request node', () => {
     );
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    const accept = await request.accept(payerIdentity);
-    await waitForConfirmation(accept);
+    const acceptedRequest = await waitForConfirmation(request.accept(payerIdentity));
+    expect(acceptedRequest.state).toBe(Types.RequestLogic.STATE.ACCEPTED);
 
-    await fetchedRequest.refresh();
-    fetchedRequestData = fetchedRequest.getData();
-    expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.ACCEPTED);
-
-    const increase = await request.increaseExpectedAmountRequest(
-      requestCreationHashBTC.expectedAmount,
-      payerIdentity,
+    const increasedRequest = await waitForConfirmation(
+      request.increaseExpectedAmountRequest(requestCreationHashBTC.expectedAmount, payerIdentity),
     );
-    await waitForConfirmation(increase);
 
-    await fetchedRequest.refresh();
-    expect(fetchedRequest.getData().expectedAmount).toEqual(
+    expect(increasedRequest.expectedAmount).toEqual(
       String(Number(requestCreationHashBTC.expectedAmount) * 2),
     );
 
-    await request.reduceExpectedAmountRequest(
-      Number(requestCreationHashBTC.expectedAmount) * 2,
-      payeeIdentity,
+    const reducedRequest = await waitForConfirmation(
+      request.reduceExpectedAmountRequest(
+        Number(requestCreationHashBTC.expectedAmount) * 2,
+        payeeIdentity,
+      ),
     );
-
-    await fetchedRequest.refresh();
-    expect(fetchedRequest.getData().expectedAmount).toBe('0');
+    expect(reducedRequest.expectedAmount).toEqual('0');
   });
 
   it('create an encrypted and unencrypted request with the same content', async () => {
