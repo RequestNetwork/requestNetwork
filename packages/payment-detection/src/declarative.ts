@@ -14,11 +14,11 @@ import { BigNumber } from 'ethers';
 export default class PaymentNetworkDeclarative<
   TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative = ExtensionTypes.PnAnyDeclarative.IAnyDeclarative
 > implements PaymentTypes.IPaymentNetwork<PaymentTypes.IDeclarativePaymentEventParameters> {
-  protected _extension: TExtension;
+  protected extension: TExtension;
   protected _paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID;
 
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this._extension = advancedLogic.extensions.declarative;
+    this.extension = advancedLogic.extensions.declarative;
     this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE;
   }
 
@@ -32,7 +32,7 @@ export default class PaymentNetworkDeclarative<
   public async createExtensionsDataForCreation(
     paymentNetworkCreationParameters: ExtensionTypes.PnAnyDeclarative.ICreationParameters,
   ): Promise<ExtensionTypes.IAction> {
-    return this._extension.createCreationAction({
+    return this.extension.createCreationAction({
       paymentInfo: paymentNetworkCreationParameters.paymentInfo,
       refundInfo: paymentNetworkCreationParameters.refundInfo,
     });
@@ -47,7 +47,7 @@ export default class PaymentNetworkDeclarative<
   public createExtensionsDataForAddPaymentInformation(
     parameters: ExtensionTypes.PnAnyDeclarative.IAddPaymentInstructionParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddPaymentInstructionAction({
+    return this.extension.createAddPaymentInstructionAction({
       paymentInfo: parameters.paymentInfo,
     });
   }
@@ -61,7 +61,7 @@ export default class PaymentNetworkDeclarative<
   public createExtensionsDataForAddRefundInformation(
     parameters: ExtensionTypes.PnAnyDeclarative.IAddRefundInstructionParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddRefundInstructionAction({
+    return this.extension.createAddRefundInstructionAction({
       refundInfo: parameters.refundInfo,
     });
   }
@@ -75,7 +75,7 @@ export default class PaymentNetworkDeclarative<
   public createExtensionsDataForDeclareSentPayment(
     parameters: ExtensionTypes.PnAnyDeclarative.ISentParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createDeclareSentPaymentAction({
+    return this.extension.createDeclareSentPaymentAction({
       amount: parameters.amount,
       note: parameters.note,
       txHash: parameters.txHash,
@@ -91,7 +91,7 @@ export default class PaymentNetworkDeclarative<
   public createExtensionsDataForDeclareSentRefund(
     parameters: ExtensionTypes.PnAnyDeclarative.ISentParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createDeclareSentRefundAction({
+    return this.extension.createDeclareSentRefundAction({
       amount: parameters.amount,
       note: parameters.note,
       txHash: parameters.txHash,
@@ -107,7 +107,7 @@ export default class PaymentNetworkDeclarative<
   public createExtensionsDataForDeclareReceivedPayment(
     parameters: ExtensionTypes.PnAnyDeclarative.IReceivedParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createDeclareReceivedPaymentAction({
+    return this.extension.createDeclareReceivedPaymentAction({
       amount: parameters.amount,
       note: parameters.note,
       txHash: parameters.txHash,
@@ -123,7 +123,7 @@ export default class PaymentNetworkDeclarative<
   public createExtensionsDataForDeclareReceivedRefund(
     parameters: ExtensionTypes.PnAnyDeclarative.IReceivedParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createDeclareReceivedRefundAction({
+    return this.extension.createDeclareReceivedRefundAction({
       amount: parameters.amount,
       note: parameters.note,
       txHash: parameters.txHash,
@@ -139,7 +139,7 @@ export default class PaymentNetworkDeclarative<
   public createExtensionsDataForAddDelegate(
     parameters: ExtensionTypes.PnAnyDeclarative.IAddDelegateParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddDelegateAction({
+    return this.extension.createAddDelegateAction({
       delegate: parameters.delegate,
     });
   }

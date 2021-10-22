@@ -41,7 +41,7 @@ export default abstract class FeeReferenceBasedDetector<
     paymentNetworkCreationParameters.salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this._extension.createCreationAction({
+    return this.extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -59,7 +59,7 @@ export default abstract class FeeReferenceBasedDetector<
   public createExtensionsDataForAddFeeInformation(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddFeeAction({
+    return this.extension.createAddFeeAction({
       feeAddress: parameters.feeAddress,
       feeAmount: parameters.feeAmount,
     });

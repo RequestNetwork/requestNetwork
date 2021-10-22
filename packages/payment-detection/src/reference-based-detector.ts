@@ -60,7 +60,7 @@ export default abstract class ReferenceBasedDetector<
     paymentNetworkCreationParameters.salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this._extension.createCreationAction({
+    return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,
       ...paymentNetworkCreationParameters,
@@ -76,7 +76,7 @@ export default abstract class ReferenceBasedDetector<
   public createExtensionsDataForAddPaymentAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddPaymentAddressAction({
+    return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
     });
   }
@@ -90,7 +90,7 @@ export default abstract class ReferenceBasedDetector<
   public createExtensionsDataForAddRefundAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddRefundAddressAction({
+    return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
     });
   }
@@ -109,7 +109,7 @@ export default abstract class ReferenceBasedDetector<
     const paymentNetwork = request.extensions[this.extensionType];
     const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
 
-    const supportedNetworks = this._extension.supportedNetworks;
+    const supportedNetworks = this.extension.supportedNetworks;
     if (!supportedNetworks.includes(paymentChain)) {
       return getBalanceErrorObject(
         `Payment network ${paymentChain} not supported by ${
