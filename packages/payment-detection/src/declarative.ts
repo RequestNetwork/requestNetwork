@@ -161,7 +161,7 @@ export default class PaymentNetworkDeclarative<
     // For each extension data related to the declarative payment network,
     // we check if the data is a declared received payment or refund and we modify the balance
     // Received payment increase the balance and received refund decrease the balance
-    request.extensions[this._paymentNetworkId].events.forEach((data) => {
+    (request.extensions[this._paymentNetworkId].events ?? []).forEach((data) => {
       const parameters = data.parameters;
       if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
         // Declared received payments from payee is added to the balance

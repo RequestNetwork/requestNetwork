@@ -11,7 +11,6 @@ import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { BigNumber } from 'ethers';
 import DeclarativePaymentNetwork from './declarative';
-import PaymentNetworkDeclarative from './declarative';
 import { IDeclarativePaymentEventParameters } from 'types/src/payment-types';
 
 /**
@@ -31,11 +30,10 @@ export default abstract class ReferenceBasedDetector<
 
   public constructor(
     protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    extension: ExtensionType,
+    protected extension: ExtensionType,
     protected extensionType: ExtensionTypes.ID,
   ) {
     super({ advancedLogic });
-    this.extension = extension;
     if (!TypesUtils.isPaymentNetworkId(extensionType)) {
       throw new Error(
         `Cannot detect payment for extension type '${extensionType}', it is not a payment network ID.`,
@@ -140,12 +138,9 @@ export default abstract class ReferenceBasedDetector<
         paymentNetwork,
       );
 
-      const declarativeDetector = new PaymentNetworkDeclarative({
-        advancedLogic: this.advancedLogic,
-      });
-      const declaredBalance = await declarativeDetector.getBalance(request);
+      const declaredBalance = await super.getBalance(request);
 
-      const balance: string = BigNumber.from(declaredBalance)
+      const balance: string = BigNumber.from(declaredBalance.balance)
         .add(payments.balance || 0)
         .sub(refunds.balance || 0)
         .toString();
