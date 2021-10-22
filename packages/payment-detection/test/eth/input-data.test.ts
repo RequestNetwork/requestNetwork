@@ -24,11 +24,10 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddRefundAddressAction,
       createCreationAction,
       supportedNetworks: ['mainnet'],
-    },
-    declarative: {
+      // inherited from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
-    }
+    },
   },
 };
 
@@ -156,9 +155,7 @@ describe('api/eth/input-data', () => {
       version: '0.2',
     };
 
-    expect(
-      await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest),
-    ).toMatchObject({
+    expect(await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest)).toMatchObject({
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,

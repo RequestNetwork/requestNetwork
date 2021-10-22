@@ -28,13 +28,12 @@ export default class PaymentNetworkERC20ProxyContract<
   >
   extends DeclarativePaymentNetwork<ExtensionType>
   implements PaymentTypes.IPaymentNetwork<ExtensionType> {
-  protected _extension: ExtensionType;
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     super({ advancedLogic });
-    this._extension = advancedLogic.extensions.proxyContractErc20;
+    this.extension = advancedLogic.extensions.proxyContractErc20;
   }
 
   /**

@@ -1,8 +1,4 @@
-import {
-  AdvancedLogicTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ETHFeeProxyDetector from '../../src/eth/fee-proxy-detector';
 
 let ethFeeProxyDetector: ETHFeeProxyDetector;
@@ -24,12 +20,11 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddRefundAddressAction,
       createCreationAction,
       createAddFeeAction,
-      supportedNetworks: ['private']
-    },
-    declarative: {
+      supportedNetworks: ['private'],
+      // inherited from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
-    }
+    },
   },
 };
 
@@ -137,7 +132,10 @@ describe('api/eth/fee-proxy-contract', () => {
 
   it('should not throw when getBalance fail', async () => {
     expect(
-      await ethFeeProxyDetector.getBalance({ currency: {network: 'private'}, extensions: {} } as RequestLogicTypes.IRequest),
+      await ethFeeProxyDetector.getBalance({
+        currency: { network: 'private' },
+        extensions: {},
+      } as RequestLogicTypes.IRequest),
     ).toEqual({
       balance: null,
       error: {

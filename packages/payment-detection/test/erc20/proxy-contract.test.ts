@@ -23,11 +23,10 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
-    },
-    declarative: {
+      // inheritance from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
-    }
+    },
   },
 };
 
