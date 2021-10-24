@@ -202,7 +202,7 @@ describe("Contract: ERC20EscrowToPay", () => {
                     .requestMapping(referenceExample3)).emergencyClaimDate)
                 .to.be.equal(0);
         });
-        it("Should not let the payee emergencyClaim after it is been reverted by payer", async () => {
+        it("Should not let the payee complete the emergencyClaim after it is been reverted by payer", async () => {
             const payerOldBalance = await testERC20.balanceOf(payerAddress);
             const payeeOldBalance = await testERC20.balanceOf(payeeAddress);
             const escrowOldBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
