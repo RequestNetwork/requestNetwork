@@ -23,7 +23,6 @@ contract ERC20EscrowToPay {
         uint256 emergencyClaimDate;
         bool emergencyState;
         bool isFrozen;
-        
     }
 
     /**
@@ -46,7 +45,7 @@ contract ERC20EscrowToPay {
     * @dev It requires msg.sender to be equal to requestMapping[_paymentRef].payee. 
     */
     modifier OnlyPayee(bytes memory _paymentRef) {
-        require(msg.sender == requestMapping[_paymentRef].payee, "Not Authorized.");
+        require(msg.sender == requestMapping[_paymentRef].payee, "Not Authorized."); 
         _;
     }
 
@@ -185,6 +184,8 @@ contract ERC20EscrowToPay {
         external 
         IsNotInEscrow(_paymentRef)
     {   
+        if (_amount == 0 || _feeAmount == 0) revert("Zero Value");
+
         requestMapping[_paymentRef] = Request(
             IERC20(_tokenAddress),
             _to,
@@ -208,15 +209,6 @@ contract ERC20EscrowToPay {
             )
         );
         require(status, "transferFromWithReferenceAndFee failed");
-        
-        emit TransferWithReferenceAndFee(
-            _tokenAddress,
-            _to,
-            _amount,
-            _paymentRef,
-            _feeAmount,
-            _feeAddress
-        );
 
         emit RequestInEscrow(_paymentRef);
     }
@@ -241,7 +233,8 @@ contract ERC20EscrowToPay {
         }
 
         requestMapping[_paymentRef].isFrozen = true; 
-        requestMapping[_paymentRef].unlockDate = block.timestamp + 31556926;
+        requestMapping[_paymentRef].unlockDate = block.timestamp + 52 weeks;
+
         emit RequestFrozen(_paymentRef);
     }
 
@@ -274,9 +267,8 @@ contract ERC20EscrowToPay {
         IsNotInEmergencyState(_paymentRef)
         IsNotFrozen(_paymentRef)
     {
-        require(msg.sender == requestMapping[_paymentRef].payee, "Not Authorized!");
+        requestMapping[_paymentRef].emergencyClaimDate = block.timestamp + 24 weeks;
         requestMapping[_paymentRef].emergencyState = true;
-        requestMapping[_paymentRef].emergencyClaimDate = block.timestamp + 15778458;
 
         emit InitiatedEmergencyClaim(_paymentRef);
     }

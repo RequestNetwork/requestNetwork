@@ -62,7 +62,7 @@ describe("Contract: ERC20EscrowToPay", () => {
                 .to.emit(erc20EscrowToPay, 'TransferWithReferenceAndFee')
                 .withArgs(
                     testERC20.address,
-                    payeeAddress,
+                    erc20EscrowToPayAddress,
                     "1000",
                     ethers.utils.keccak256(referenceExample1),
                     '1',
