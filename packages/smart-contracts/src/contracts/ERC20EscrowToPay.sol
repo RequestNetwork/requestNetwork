@@ -26,12 +26,12 @@ contract ERC20EscrowToPay {
     }
 
     /**
-    * Mapping is used to store the Requests in escrow. 
+    * @notice Mapping is used to store the Requests in escrow. 
     */
     mapping(bytes => Request) public requestMapping;
 
     /**
-    * Modifier checks if msg.sender is the requestpayment payer.
+    * @notice Modifier checks if msg.sender is the requestpayment payer.
     * @param _paymentRef Reference of the requestpayment related.
     * @dev It requires msg.sender to be equal to requestMapping[_paymentRef].payer. 
     */
@@ -40,7 +40,7 @@ contract ERC20EscrowToPay {
         _;
     }
     /**
-    * Modifier checks if msg.sender is the requestpayment payee.
+    * @notice Modifier checks if msg.sender is the requestpayment payee.
     * @param _paymentRef Reference of the requestpayment related.
     * @dev It requires msg.sender to be equal to requestMapping[_paymentRef].payee. 
     */
@@ -50,7 +50,7 @@ contract ERC20EscrowToPay {
     }
 
     /**
-    * Modifier checks that the request is not already is in escrow.
+    * @notice Modifier checks that the request is not already is in escrow.
     * @param _paymentRef Reference of the payment related.
     * @dev It requires the requestMapping[_paymentRef].amount to be zero.
     */
@@ -60,7 +60,7 @@ contract ERC20EscrowToPay {
     }
 
     /**
-    * Modifier checks if the request already is in escrow.
+    * @notice Modifier checks if the request already is in escrow.
     * @param _paymentRef Reference of the payment related.
     * @dev It requires the requestMapping[_paymentRef].amount to have a value above zero.
     */
@@ -70,7 +70,7 @@ contract ERC20EscrowToPay {
     }
 
     /**
-    * Modifier checks if the request already is in emergencyState.
+    * @notice Modifier checks if the request already is in emergencyState.
     * @param _paymentRef Reference of the payment related.
     * @dev It requires the requestMapping[_paymentRef].emergencyState to be false.
     */
@@ -80,7 +80,7 @@ contract ERC20EscrowToPay {
     }
 
     /**
-    * Modifier checks that the request is not frozen.
+    * @notice Modifier checks that the request is not frozen.
     * @param _paymentRef Reference of the payment related.
     * @dev It requires the requestMapping[_paymentRef].isFrozen to be false.
     */
@@ -132,13 +132,13 @@ contract ERC20EscrowToPay {
     event RevertedEmergencyClaim(bytes indexed paymentReference);
 
     /**
-     * @notice Emitted when a delegatecall has been executed.
+     * @notice Emitted when _withdraw "to payee" has been executed.
      * @param tokenAddress Address of the ERC20 token smart contract.
      * @param to Address to the payment issuer, alias payee.
-     * @param amount Amount to transfer.
+     * @param amount Amount transfered.
      * @param paymentReference Reference of the payment related.
-     * @param feeAmount Amount of fee to be paid.
-     * @param feeAddress Address to where the fees will be paid.
+     * @param feeAmount Set to zero when emited by _withdraw function.
+     * @param feeAddress Set to address(0) when emited by _withdraw function. 
      */
     event TransferWithReferenceAndFee(
         address tokenAddress,
@@ -170,8 +170,8 @@ contract ERC20EscrowToPay {
     * @param _feeAddress Address to where the fees will be paid.
     * @dev Uses modifier IsNotInEscrow.
     * @dev Uses transferFromWithReferenceAndFee() to transfer funds from the msg.sender, 
-    * into the escrow and pay the fees.
-    * @dev emergencyClaimDate is set with block.timestamp + six months.
+    * into the escrowcontract and pays the _fees to the _feeAdress.
+    * @dev Emits RequestInEscrow(_paymentRef) when the funds are in escrow.
     */
     function payEscrow(
         address _tokenAddress,
@@ -239,9 +239,9 @@ contract ERC20EscrowToPay {
     }
 
     /**
-     * @notice Closes an open escrow and pay the invoice request to payee.
+     * @notice Closes an open escrow and pays the request to payee.
      * @param _paymentRef Reference of the related Invoice.
-     * @dev Uses modifiers IsInEscrow, IsNotFrozen and OnlyPayer.
+     * @dev Uses OnlyPayer, modifiers IsInEscrow, IsNOtInEmergencyState and IsNotFrozen.
      */
     function payRequestFromEscrow(bytes memory _paymentRef) 
         external 
@@ -342,6 +342,8 @@ contract ERC20EscrowToPay {
      * @param _paymentRef Reference of the related Invoice.
      * @param _receiver Receiving address.
      * @dev Internal function to withdraw funds from escrow, to a given reciever.
+     * @dev Emits TransferWithReferenceAndFee() when payee is the _receiver.
+     * @dev Asserts .amount, .isFrozen and .emergencyState are reset before deleted.   
      */
     function _withdraw(bytes memory _paymentRef, address _receiver)
         internal
@@ -350,8 +352,9 @@ contract ERC20EscrowToPay {
         IsNotFrozen(_paymentRef)
         returns (bool result) 
     {
-        require(_receiver != address(0), "Transfer to ZERO adddress");
-
+        require(_receiver != address(0), "ZERO adddress");
+        require(requestMapping[_paymentRef].amount > 0, "ZERO Amount");
+        
         uint256 _amount = requestMapping[_paymentRef].amount;
         requestMapping[_paymentRef].amount = 0;
         
@@ -359,7 +362,22 @@ contract ERC20EscrowToPay {
             _receiver,
             _amount
         );
-        
+
+        if (requestMapping[_paymentRef].payee == _receiver) {
+            emit TransferWithReferenceAndFee(
+                address(requestMapping[_paymentRef].tokenAddress),
+                _receiver,
+                _amount,
+                _paymentRef,
+                0,
+                address(0)
+            );
+        }
+
+        assert(requestMapping[_paymentRef].amount == 0);
+        assert(!requestMapping[_paymentRef].isFrozen);
+        assert(!requestMapping[_paymentRef].emergencyState);
+
         delete requestMapping[_paymentRef];
         
         return true;

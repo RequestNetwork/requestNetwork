@@ -59,15 +59,6 @@ describe("Contract: ERC20EscrowToPay", () => {
             )
                 .to.emit(testERC20, 'Transfer')
                 .to.emit(testERC20, 'Approval')
-                .to.emit(erc20EscrowToPay, 'TransferWithReferenceAndFee')
-                .withArgs(
-                    testERC20.address,
-                    erc20EscrowToPayAddress,
-                    "1000",
-                    ethers.utils.keccak256(referenceExample1),
-                    '1',
-                    feeAddress
-                )
                 .to.emit(erc20EscrowToPay, 'RequestInEscrow')
                 .withArgs(
                     ethers.utils.keccak256(referenceExample1),
@@ -89,6 +80,15 @@ describe("Contract: ERC20EscrowToPay", () => {
 
             expect(
                 await erc20EscrowToPay.connect(payer).payRequestFromEscrow(referenceExample1))
+                .to.emit(erc20EscrowToPay, 'TransferWithReferenceAndFee')
+                .withArgs(
+                    testERC20.address,
+                    payeeAddress,
+                    "1000",
+                    ethers.utils.keccak256(referenceExample1),
+                    '0',
+                    '0x0000000000000000000000000000000000000000'
+                )
                     .to.emit(erc20EscrowToPay, "RequestWithdrawnFromEscrow")
                     .withArgs(ethers.utils.keccak256(referenceExample1));
             
