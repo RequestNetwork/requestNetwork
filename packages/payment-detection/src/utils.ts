@@ -57,15 +57,18 @@ export type DeploymentInformationWithVersion = DeploymentInformation & { contrac
 export type GetDeploymentInformation = (
   network: string,
   paymentNetworkVersion: string,
-) => DeploymentInformationWithVersion | null;
+) => DeploymentInformationWithVersion;
 
+/*
+ * Returns deployment information for the underlying smart contract for a given payment network version
+ */
 export const getDeploymentInformation = (
   artifact: ContractArtifact<Contract>,
   map: Record<string, string>,
 ): GetDeploymentInformation => {
   return (network, paymentNetworkVersion) => {
     const contractVersion = map[paymentNetworkVersion];
-    const info = artifact.getOptionalDeploymentInformation(network, contractVersion);
-    return info ? { ...info, contractVersion } : null;
+    const info = artifact.getDeploymentInformation(network, contractVersion);
+    return { ...info, contractVersion };
   };
 };

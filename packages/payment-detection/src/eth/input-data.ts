@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { ETHInfoRetriever } from './info-retriever';
+import { EthInputDataInfoRetriever } from './info-retriever';
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { getDeploymentInformation } from '../utils';
@@ -64,7 +64,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
     const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
-    const infoRetriever = new ETHInfoRetriever(
+    const infoRetriever = new EthInputDataInfoRetriever(
       address,
       eventName,
       network,

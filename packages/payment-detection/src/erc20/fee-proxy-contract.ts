@@ -353,6 +353,9 @@ export class ERC20FeeProxyPaymentDetector<
     return contractCurrency;
   }
 
+  /*
+   * Returns deployment information for the underlying smart contract for a given payment network version
+   */
   public static getDeploymentInformation = getDeploymentInformation(
     erc20FeeProxyArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,

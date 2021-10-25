@@ -94,7 +94,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<Exte
     const acceptedTokens = paymentNetwork.values.acceptedTokens;
     const maxRateTimespan = paymentNetwork.values.maxRateTimespan || 0;
 
-    const conversionDeploymentInformation = erc20ConversionProxy.getDeploymentInformation(
+    const conversionDeploymentInformation = AnyToERC20PaymentDetector.getDeploymentInformation(
       network,
       paymentNetwork.version,
     );

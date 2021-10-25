@@ -192,7 +192,10 @@ export class ERC20ProxyPaymentDetector<
     let proxyContractAddress: string;
     let proxyCreationBlockNumber: number;
     try {
-      const info = erc20ProxyArtifact.getDeploymentInformation(network, paymentNetworkVersion);
+      const info = ERC20ProxyPaymentDetector.getDeploymentInformation(
+        network,
+        paymentNetworkVersion,
+      );
       proxyContractAddress = info.address;
       proxyCreationBlockNumber = info.creationBlockNumber;
     } catch (e) {
@@ -243,7 +246,9 @@ export class ERC20ProxyPaymentDetector<
       events,
     };
   }
-
+  /*
+   * Returns deployment information for the underlying smart contract for a given payment network version
+   */
   public static getDeploymentInformation = getDeploymentInformation(
     erc20ProxyArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,
