@@ -131,12 +131,7 @@ export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): s
 
 export const getProxyAddress = (
   request: ClientTypes.IRequestData,
-  getDeploymentInformation: (
-    network: string,
-    version: string,
-  ) => {
-    address: string;
-  } | null,
+  getDeploymentInformation: (network: string, version: string) => { address: string },
 ): string => {
   const pn = getPaymentNetworkExtension(request);
   if (!pn) {
