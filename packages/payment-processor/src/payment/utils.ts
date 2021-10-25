@@ -129,7 +129,10 @@ export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): s
   return extension.version;
 }
 
-const getNetwork = (pn: ExtensionTypes.IState, currency: RequestLogicTypes.ICurrency): string => {
+const getProxyNetwork = (
+  pn: ExtensionTypes.IState,
+  currency: RequestLogicTypes.ICurrency,
+): string => {
   if (pn.values.network) {
     return pn.values.network;
   }
@@ -147,7 +150,7 @@ export const getProxyAddress = (
   if (!pn) {
     throw new Error('PaymentNetwork not found');
   }
-  const network = getNetwork(pn, request.currencyInfo);
+  const network = getProxyNetwork(pn, request.currencyInfo);
   const deploymentInfo = getDeploymentInformation(network, pn.version);
   if (!deploymentInfo) {
     throw new Error(`No deployment found for network ${network}, version ${pn.version}`);
