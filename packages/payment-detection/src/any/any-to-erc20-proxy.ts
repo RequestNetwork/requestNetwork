@@ -8,22 +8,25 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import PaymentNetworkERC20FeeProxyContract, {
-  DeploymentInformationGetter,
-} from '../erc20/fee-proxy-contract';
+import { ERC20FeeProxyPaymentDetector } from '../erc20/fee-proxy-contract';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
-import ProxyInfoRetriever from './any-to-erc20-proxy-info-retriever';
-import TheGraphAnyToErc20Retriever from './thegraph-info-retriever';
+import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
+import { TheGraphAnyToErc20Retriever } from './retrievers/thegraph';
 import { networkSupportsTheGraph } from '../thegraph';
+import { getDeploymentInformation } from '../utils';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when version not supported */
 class VersionNotSupported extends Error {}
 
+const PROXY_CONTRACT_ADDRESS_MAP = {
+  ['0.1.0']: '0.1.0',
+};
+
 /**
  * Handle payment networks with conversion proxy contract extension
  */
-export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProxyContract<ExtensionTypes.PnAnyToErc20.IAnyToERC20> {
+export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<ExtensionTypes.PnAnyToErc20.IAnyToERC20> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -129,7 +132,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
           acceptedTokens,
           maxRateTimespan,
         )
-      : new ProxyInfoRetriever(
+      : new AnyToErc20InfoRetriever(
           currency,
           paymentReference,
           conversionProxyContractAddress,
@@ -154,6 +157,8 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
     };
   }
 
-  protected getDeploymentInformation: DeploymentInformationGetter =
-    erc20ConversionProxy.getDeploymentInformation;
+  protected getDeploymentInformation = getDeploymentInformation(
+    erc20ConversionProxy,
+    PROXY_CONTRACT_ADDRESS_MAP,
+  );
 }

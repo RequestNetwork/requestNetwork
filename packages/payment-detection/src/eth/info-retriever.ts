@@ -4,7 +4,7 @@ import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider';
 /**
  * Gets a list of transfer events for an address and payment reference
  */
-export default class ETHInfoRetriever
+export class EthInputDataInfoRetriever
   implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
   /**
    * @param toAddress Address to check

@@ -1,7 +1,7 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
 import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
-import { ethConversionArtifact } from '@requestnetwork/smart-contracts';
+import { EthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
@@ -10,6 +10,7 @@ import { getAmountToPay, getProvider, getRequestPaymentValues, getSigner } from 
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IConversionPaymentSettings } from './index';
+import { getProxyAddress } from './utils';
 
 /**
  * Processes a transaction to pay a request with a native token when the request is denominated in another currency
@@ -110,18 +111,15 @@ export function prepareAnyToEthProxyPaymentTransaction(
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
 ): IPreparedTransaction {
-  const { network, version } = getRequestPaymentValues(request);
-
-  if (!network) {
-    throw new Error('Cannot pay with a currency missing a network');
-  }
-  const encodedTx = encodePayAnyToEthProxyRequest(request, paymentSettings, amount, feeAmount);
-
-  const proxyAddress = ethConversionArtifact.getAddress(network, version);
-
   if (!paymentSettings.maxToSpend) {
     throw Error('paymentSettings.maxToSpend is required');
   }
+
+  const encodedTx = encodePayAnyToEthProxyRequest(request, paymentSettings, amount, feeAmount);
+  const proxyAddress = getProxyAddress(
+    request,
+    EthFeeProxyPaymentDetector.getDeploymentInformation,
+  );
 
   return {
     data: encodedTx,

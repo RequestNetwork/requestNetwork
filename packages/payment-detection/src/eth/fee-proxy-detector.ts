@@ -6,8 +6,9 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import ProxyEthereumInfoRetriever from './proxy-info-retriever';
-import FeeReferenceBasedDetector from '../fee-reference-based-detector';
+import { EthProxyInfoRetriever } from './proxy-info-retriever';
+import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
+import { getDeploymentInformation } from '../utils';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -21,7 +22,7 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH fee proxy extension
  */
-export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -52,13 +53,16 @@ export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<Payme
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
     const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
-    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetwork.version);
+    const proxyContractArtifact = EthFeeProxyPaymentDetector.getDeploymentInformation(
+      network,
+      paymentNetwork.version,
+    );
 
     if (!proxyContractArtifact) {
       throw Error('ETH fee proxy contract not found');
     }
 
-    const proxyInfoRetriever = new ProxyEthereumInfoRetriever(
+    const proxyInfoRetriever = new EthProxyInfoRetriever(
       paymentReference,
       proxyContractArtifact.address,
       proxyContractArtifact.creationBlockNumber,
@@ -71,18 +75,10 @@ export default class ETHFeeProxyDetector extends FeeReferenceBasedDetector<Payme
   }
 
   /*
-   * Fetches events from the Ethereum Proxy, or returns null
+   * Returns deployment information for the underlying smart contract for a given payment network version
    */
-  private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
-    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
-    try {
-      return SmartContracts.ethereumFeeProxyArtifact.getDeploymentInformation(
-        network,
-        contractVersion,
-      );
-    } catch (error) {
-      console.warn(error);
-    }
-    return null;
-  }
+  public static getDeploymentInformation = getDeploymentInformation(
+    SmartContracts.ethereumFeeProxyArtifact,
+    PROXY_CONTRACT_ADDRESS_MAP,
+  );
 }

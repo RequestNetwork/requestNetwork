@@ -8,8 +8,9 @@ import {
 
 import { ICurrencyManager } from '@requestnetwork/currency';
 
-import ProxyInfoRetriever from './any-to-eth-proxy-info-retriever';
-import AnyToAnyDetector from '../any-to-any-detector';
+import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
+import { AnyToAnyDetector } from '../any-to-any-detector';
+import { getDeploymentInformation } from '../utils';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -23,7 +24,7 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<PaymentTypes.IETHPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -61,27 +62,26 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
     const network = this.getPaymentChain(requestCurrency, paymentNetwork);
 
-    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetwork.version];
-    const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractVersion);
-    const contractInfos = SmartContracts.ethConversionArtifact.getOptionalDeploymentInformation(
+    const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
       network,
-      contractVersion,
+      paymentNetwork.version,
     );
 
-    if (!contractInfos) {
+    if (!contractInfo) {
       throw Error('ETH conversion proxy contract not found');
     }
+    const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
     if (!currency) {
       throw Error('requestCurrency not found in currency manager');
     }
 
-    const proxyInfoRetriever = new ProxyInfoRetriever(
+    const proxyInfoRetriever = new AnyToEthInfoRetriever(
       currency,
       paymentReference,
-      contractInfos.address,
-      contractInfos.creationBlockNumber,
+      contractInfo.address,
+      contractInfo.creationBlockNumber,
       abi,
       address,
       eventName,
@@ -110,4 +110,12 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
     }
     return network;
   }
+
+  /*
+   * Returns deployment information for the underlying smart contract for a given payment network version
+   */
+  public static getDeploymentInformation = getDeploymentInformation(
+    SmartContracts.ethConversionArtifact,
+    PROXY_CONTRACT_ADDRESS_MAP,
+  );
 }

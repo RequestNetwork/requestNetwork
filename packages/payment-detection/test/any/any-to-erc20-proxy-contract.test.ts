@@ -8,9 +8,9 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import AnyToErc20Proxy from '../../src/any/any-to-erc20-proxy-contract';
+import { AnyToERC20PaymentDetector } from '../../src/any/any-to-erc20-proxy';
 
-let anyToErc20Proxy: AnyToErc20Proxy;
+let anyToErc20Proxy: AnyToERC20PaymentDetector;
 const currencyManager = CurrencyManager.getDefault();
 
 const createAddPaymentAddressAction = jest.fn();
@@ -34,13 +34,24 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
+    declarative: {
+      createAddPaymentInstructionAction(): any {
+        return;
+      },
+      createAddRefundInstructionAction(): any {
+        return;
+      },
+    },
   },
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/any/conversion-fee-proxy-contract', () => {
   beforeEach(() => {
-    anyToErc20Proxy = new AnyToErc20Proxy({ advancedLogic: mockAdvancedLogic, currencyManager });
+    anyToErc20Proxy = new AnyToERC20PaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+    });
   });
 
   afterEach(() => {
@@ -308,7 +319,10 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       });
       //}
     };
-    anyToErc20Proxy = new AnyToErc20Proxy({ advancedLogic: mockAdvancedLogic, currencyManager });
+    anyToErc20Proxy = new AnyToERC20PaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+    });
     anyToErc20Proxy.extractBalanceAndEvents = mockExtractBalanceAndEvents;
 
     const balance = await anyToErc20Proxy.getBalance(mockRequest);
@@ -320,7 +334,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
   });
 
   it('can retrieve the decimals from a contract if unknown', async () => {
-    const anyToErc20Proxy = new AnyToErc20Proxy({
+    const anyToErc20Proxy = new AnyToERC20PaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
     }) as any;

@@ -13,6 +13,7 @@ import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
 import DeclarativePaymentNetwork from '../declarative';
+import { getDeploymentInformation } from '../utils';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -20,10 +21,14 @@ class NetworkNotSupported extends Error {}
 /** Exception when version not supported */
 class VersionNotSupported extends Error {}
 
+const PROXY_CONTRACT_ADDRESS_MAP = {
+  ['0.1.0']: '0.1.0',
+};
+
 /**
  * Handle payment networks with ERC20 proxy contract extension
  */
-export default class PaymentNetworkERC20ProxyContract<
+export class ERC20ProxyPaymentDetector<
     ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
   >
   extends DeclarativePaymentNetwork<ExtensionType>
@@ -238,4 +243,9 @@ export default class PaymentNetworkERC20ProxyContract<
       events,
     };
   }
+
+  public static getDeploymentInformation = getDeploymentInformation(
+    erc20ProxyArtifact,
+    PROXY_CONTRACT_ADDRESS_MAP,
+  );
 }

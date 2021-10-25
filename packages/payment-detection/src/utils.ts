@@ -1,7 +1,8 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { BigNumber, BigNumberish } from 'ethers';
+import { BigNumber, BigNumberish, Contract } from 'ethers';
 import { LogDescription } from 'ethers/lib/utils';
+import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 /**
  * Converts the Log's args from array to an object with keys being the name of the arguments
@@ -50,4 +51,21 @@ const getChainlinkPaddingSize = ({
         'Unsupported request currency for conversion with Chainlink. The request currency has to be fiat, ETH or ERC20.',
       );
   }
+};
+
+export type DeploymentInformationWithVersion = DeploymentInformation & { contractVersion: string };
+export type GetDeploymentInformation = (
+  network: string,
+  paymentNetworkVersion: string,
+) => DeploymentInformationWithVersion | null;
+
+export const getDeploymentInformation = (
+  artifact: ContractArtifact<Contract>,
+  map: Record<string, string>,
+): GetDeploymentInformation => {
+  return (network, paymentNetworkVersion) => {
+    const contractVersion = map[paymentNetworkVersion];
+    const info = artifact.getOptionalDeploymentInformation(network, contractVersion);
+    return info ? { ...info, contractVersion } : null;
+  };
 };

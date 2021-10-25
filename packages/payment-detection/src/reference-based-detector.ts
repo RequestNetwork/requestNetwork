@@ -16,7 +16,7 @@ import { IDeclarativePaymentEventParameters } from 'types/src/payment-types';
 /**
  * Abstract class to extend to get the payment balance of reference based requests
  */
-export default abstract class ReferenceBasedDetector<
+export abstract class ReferenceBasedDetector<
     TPaymentEventParameters,
     ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
   >

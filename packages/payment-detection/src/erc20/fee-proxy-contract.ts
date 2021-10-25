@@ -16,6 +16,7 @@ import { networkSupportsTheGraph } from '../thegraph';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { loadCurrencyFromContract } from './currency';
 import DeclarativePaymentNetwork from '../declarative';
+import { getDeploymentInformation } from '../utils';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -23,22 +24,16 @@ class NetworkNotSupported extends Error {}
 /** Exception when version not supported */
 class VersionNotSupported extends Error {}
 
-/**
- * Gets the payment proxy deployment information
- */
-export type DeploymentInformationGetter = (
-  networkName: string,
-  artifactsVersion?: string,
-) => {
-  address: string;
-  creationBlockNumber: number;
+const PROXY_CONTRACT_ADDRESS_MAP = {
+  ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.2.0',
 };
 
 /**
  * Handle payment networks with ERC20 fee proxy contract extension
  * FIXME: inherit ReferenceBasedDetector
  */
-export default class PaymentNetworkERC20FeeProxyContract<
+export class ERC20FeeProxyPaymentDetector<
     ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
   >
   extends DeclarativePaymentNetwork<ExtensionType>
@@ -229,7 +224,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
       throw new NetworkNotSupported(`Payment network not supported by ERC20 payment detection`);
     }
 
-    const deploymentInformation = erc20FeeProxyArtifact.getDeploymentInformation(
+    const deploymentInformation = ERC20FeeProxyPaymentDetector.getDeploymentInformation(
       network,
       paymentNetwork.version,
     );
@@ -357,4 +352,9 @@ export default class PaymentNetworkERC20FeeProxyContract<
     }
     return contractCurrency;
   }
+
+  public static getDeploymentInformation = getDeploymentInformation(
+    erc20FeeProxyArtifact,
+    PROXY_CONTRACT_ADDRESS_MAP,
+  );
 }

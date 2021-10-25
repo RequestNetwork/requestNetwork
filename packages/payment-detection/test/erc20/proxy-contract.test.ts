@@ -4,9 +4,9 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import ERC20ProxyContract from '../../src/erc20/proxy-contract';
+import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
 
-let erc20ProxyContract: ERC20ProxyContract;
+let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();
@@ -27,13 +27,21 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
+    declarative: {
+      createAddPaymentInstructionAction(): any {
+        return;
+      },
+      createAddRefundInstructionAction(): any {
+        return;
+      },
+    },
   },
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
-    erc20ProxyContract = new ERC20ProxyContract({ advancedLogic: mockAdvancedLogic });
+    erc20ProxyContract = new ERC20ProxyPaymentDetector({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
