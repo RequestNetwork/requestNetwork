@@ -221,7 +221,9 @@ export default class PaymentNetworkERC20ProxyContract<
           eventName,
           network,
         );
-    const events = await infoRetriever.getTransferEvents();
+
+    const declaredEvents = (await super.getBalance(request)).events;
+    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
     const balance = events
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
