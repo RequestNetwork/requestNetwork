@@ -13,7 +13,7 @@ import PaymentReferenceCalculator from '../payment-reference-calculator';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphAnyToErc20Retriever } from './retrievers/thegraph';
 import { networkSupportsTheGraph } from '../thegraph';
-import { getDeploymentInformation } from '../utils';
+import { makeGetDeploymentInformation } from '../utils';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when version not supported */
@@ -157,7 +157,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<Exte
     };
   }
 
-  public static getDeploymentInformation = getDeploymentInformation(
+  public static getDeploymentInformation = makeGetDeploymentInformation(
     erc20ConversionProxy,
     PROXY_CONTRACT_ADDRESS_MAP,
   );

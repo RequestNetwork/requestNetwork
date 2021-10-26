@@ -10,7 +10,7 @@ import { ICurrencyManager } from '@requestnetwork/currency';
 
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
-import { getDeploymentInformation } from '../utils';
+import { makeGetDeploymentInformation } from '../utils';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -114,7 +114,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<PaymentTyp
   /*
    * Returns deployment information for the underlying smart contract for a given payment network version
    */
-  public static getDeploymentInformation = getDeploymentInformation(
+  public static getDeploymentInformation = makeGetDeploymentInformation(
     SmartContracts.ethConversionArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,
   );

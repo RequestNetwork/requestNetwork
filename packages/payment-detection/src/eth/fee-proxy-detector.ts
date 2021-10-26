@@ -8,7 +8,7 @@ import {
 
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
-import { getDeploymentInformation } from '../utils';
+import { makeGetDeploymentInformation } from '../utils';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -77,7 +77,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<Paymen
   /*
    * Returns deployment information for the underlying smart contract for a given payment network version
    */
-  public static getDeploymentInformation = getDeploymentInformation(
+  public static getDeploymentInformation = makeGetDeploymentInformation(
     SmartContracts.ethereumFeeProxyArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,
   );

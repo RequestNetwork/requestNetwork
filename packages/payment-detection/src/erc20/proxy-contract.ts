@@ -13,7 +13,7 @@ import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
 import DeclarativePaymentNetwork from '../declarative';
-import { getDeploymentInformation } from '../utils';
+import { makeGetDeploymentInformation } from '../utils';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -254,7 +254,7 @@ export class ERC20ProxyPaymentDetector<
   /*
    * Returns deployment information for the underlying smart contract for a given payment network version
    */
-  public static getDeploymentInformation = getDeploymentInformation(
+  public static getDeploymentInformation = makeGetDeploymentInformation(
     erc20ProxyArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,
   );

@@ -9,7 +9,7 @@ import {
 import { EthInputDataInfoRetriever } from './info-retriever';
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
-import { getDeploymentInformation } from '../utils';
+import { makeGetDeploymentInformation } from '../utils';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -97,7 +97,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
   /*
    * Returns deployment information for the underlying smart contract for a given payment network version
    */
-  public static getDeploymentInformation = getDeploymentInformation(
+  public static getDeploymentInformation = makeGetDeploymentInformation(
     SmartContracts.ethereumProxyArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,
   );

@@ -60,9 +60,10 @@ export type GetDeploymentInformation = (
 ) => DeploymentInformationWithVersion;
 
 /*
- * Returns deployment information for the underlying smart contract for a given payment network version
+ * Returns the method to get deployment information for the underlying smart contract (based on a payment network version)
+ * for given artifact and version mapping.
  */
-export const getDeploymentInformation = <TVersion extends string = string>(
+export const makeGetDeploymentInformation = <TVersion extends string = string>(
   artifact: ContractArtifact<Contract>,
   map: Record<string, TVersion>,
 ): GetDeploymentInformation => {
