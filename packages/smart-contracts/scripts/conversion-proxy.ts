@@ -4,7 +4,7 @@ import {
   ethConversionArtifact,
 } from '../src/lib';
 import { DeploymentResult, deployOne } from './deploy-one';
-import { CurrencyManager, getNativeSymbol } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 export async function deployERC20ConversionProxy(
   args: { chainlinkConversionPathAddress?: string; erc20FeeProxyAddress?: string },
@@ -55,10 +55,8 @@ export async function deployETHConversionProxy(
 
   // The private native token hash is the same as on mainnet
   const nativeTokenNetwork = hre.network.name === 'private' ? 'mainnet' : hre.network.name;
-  const nativeTokenHash = CurrencyManager.getDefault().from(
-    getNativeSymbol('ETH', nativeTokenNetwork),
-    nativeTokenNetwork,
-  )?.hash;
+  const nativeTokenHash = CurrencyManager.getDefault().getNativeCurrency('ETH', nativeTokenNetwork)
+    ?.hash;
   if (!nativeTokenHash) {
     console.error(
       `Cannot guess native token hash on ${hre.network.name}, cannot deploy ${contractName}.`,
