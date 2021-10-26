@@ -196,7 +196,6 @@ export class ERC20ProxyPaymentDetector<
         network,
         paymentNetworkVersion,
       );
-      console.log({ info, paymentNetworkVersion });
       proxyContractAddress = info.address;
       proxyCreationBlockNumber = info.creationBlockNumber;
     } catch (e) {
