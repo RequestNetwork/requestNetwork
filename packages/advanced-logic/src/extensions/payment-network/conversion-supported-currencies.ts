@@ -46,4 +46,10 @@ export const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURREN
     [RequestLogicTypes.CURRENCY.ETH]: ['ETH'],
     [RequestLogicTypes.CURRENCY.BTC]: [],
   },
+  fantom: {
+    ISO4217: ['CHF', 'USD'],
+    ERC20: ['0x10bf4137b0558c33c2dc9f71c3bb81c2865fa2fb'],
+    ETH: [],
+    BTC: [],
+  },
 };
