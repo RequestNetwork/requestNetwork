@@ -81,7 +81,7 @@ export class ContractArtifact<
    * @param networkName the name of the network where the contract is deployed
    * @returns the address of the deployed contract
    */
-  getAddress(networkName: TNetwork, version = this.lastVersion): string {
+  getAddress(networkName: TNetwork, version: TVersion = this.lastVersion): string {
     return this.getDeploymentInformation(networkName, version).address;
   }
 
@@ -105,7 +105,7 @@ export class ContractArtifact<
    * @param networkName the name of the network where the contract is deployed
    * @returns the number of the block where the contract was deployed
    */
-  getCreationBlockNumber(networkName: TNetwork, version = this.lastVersion): number {
+  getCreationBlockNumber(networkName: TNetwork, version: TVersion = this.lastVersion): number {
     return this.getDeploymentInformation(networkName, version).creationBlockNumber;
   }
 

@@ -135,7 +135,7 @@ describe('api/erc20/proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.VERSION_NOT_SUPPORTED,
-        message: 'Payment network version not supported: WRONG',
+        message: 'No contract matches payment network version: WRONG.',
       },
       events: [],
     });

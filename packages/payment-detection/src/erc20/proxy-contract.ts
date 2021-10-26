@@ -196,17 +196,23 @@ export class ERC20ProxyPaymentDetector<
         network,
         paymentNetworkVersion,
       );
+      console.log({ info, paymentNetworkVersion });
       proxyContractAddress = info.address;
       proxyCreationBlockNumber = info.creationBlockNumber;
     } catch (e) {
-      if ((e as Error).message?.startsWith('No deployment for network')) {
+      const errMessage = (e as Error)?.message || '';
+      if (errMessage.startsWith('No deployment for network')) {
         throw new NetworkNotSupported(
           `Network not supported for this payment network: ${request.currency.network}`,
         );
       }
-      throw new VersionNotSupported(
-        `Payment network version not supported: ${paymentNetworkVersion}`,
-      );
+      if (
+        errMessage.startsWith('No contract matches payment network version') ||
+        errMessage.startsWith('No deployment for version')
+      ) {
+        throw new VersionNotSupported(errMessage);
+      }
+      throw e;
     }
 
     const paymentReference = PaymentReferenceCalculator.calculate(

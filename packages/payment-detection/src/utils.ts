@@ -68,6 +68,9 @@ export const getDeploymentInformation = <TVersion extends string>(
 ): GetDeploymentInformation => {
   return (network, paymentNetworkVersion) => {
     const contractVersion = map[paymentNetworkVersion];
+    if (!contractVersion) {
+      throw Error(`No contract matches payment network version: ${paymentNetworkVersion}.`);
+    }
     const info = artifact.getDeploymentInformation(network, contractVersion);
     return { ...info, contractVersion };
   };
