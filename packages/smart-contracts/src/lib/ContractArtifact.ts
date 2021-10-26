@@ -32,12 +32,8 @@ export type DeploymentInformation = {
  * Provides information on a deployed smart-contract,
  * and utilities to connect to it
  **/
-export class ContractArtifact<
-  TContract extends Contract,
-  TVersion extends string = string,
-  TNetwork extends string = string
-> {
-  constructor(private info: ArtifactInfo<TVersion, TNetwork>, private lastVersion: TVersion) {
+export class ContractArtifact<TContract extends Contract> {
+  constructor(private info: ArtifactInfo<string, string>, private lastVersion: string) {
     this.connect = this.connect.bind(this);
     this.getInterface = this.getInterface.bind(this);
     this.getContractAbi = this.getContractAbi.bind(this);
@@ -52,9 +48,9 @@ export class ContractArtifact<
    * Returns an ethers contract instance for the given `networkName`
    */
   connect(
-    networkName: TNetwork,
+    networkName: string,
     signerOrProvider: Signer | providers.Provider,
-    version: TVersion = this.lastVersion,
+    version: string = this.lastVersion,
   ): TContract {
     return new Contract(
       this.getAddress(networkName, version),
@@ -81,7 +77,7 @@ export class ContractArtifact<
    * @param networkName the name of the network where the contract is deployed
    * @returns the address of the deployed contract
    */
-  getAddress(networkName: TNetwork, version: TVersion = this.lastVersion): string {
+  getAddress(networkName: string, version = this.lastVersion): string {
     return this.getDeploymentInformation(networkName, version).address;
   }
 
@@ -90,12 +86,11 @@ export class ContractArtifact<
    * @param networkName the name of the network where the contract is deployed
    * @returns the addresses of the deployed contract and the associated version.
    */
-  getAllAddresses(networkName: TNetwork): { version: TVersion; address: string }[] {
-    const entries = Object.entries(this.info) as [TVersion, ArtifactDeploymentInfo<TNetwork>][];
-
+  getAllAddresses(networkName: string): { version: string; address: string }[] {
+    const entries = Object.entries(this.info);
     return entries.map(([version, { deployment }]) => ({
       version,
-      address: deployment[networkName].address,
+      address: deployment[networkName]?.address,
     }));
   }
 
@@ -105,7 +100,7 @@ export class ContractArtifact<
    * @param networkName the name of the network where the contract is deployed
    * @returns the number of the block where the contract was deployed
    */
-  getCreationBlockNumber(networkName: TNetwork, version: TVersion = this.lastVersion): number {
+  getCreationBlockNumber(networkName: string, version = this.lastVersion): number {
     return this.getDeploymentInformation(networkName, version).creationBlockNumber;
   }
 
@@ -115,10 +110,7 @@ export class ContractArtifact<
    * @param networkName the name of the network where the contract is deployed
    * @returns The address and the number of the creation block
    */
-  getDeploymentInformation(
-    networkName: TNetwork,
-    version: TVersion = this.lastVersion,
-  ): DeploymentInformation {
+  getDeploymentInformation(networkName: string, version = this.lastVersion): DeploymentInformation {
     const versionInfo = this.info[version];
     if (!versionInfo) {
       throw Error(`No deployment for version: ${version}.`);
@@ -138,7 +130,7 @@ export class ContractArtifact<
    * @returns The address and the number of the creation block, or null if not found
    */
   getOptionalDeploymentInformation(
-    networkName: TNetwork,
+    networkName: string,
     version = this.lastVersion,
   ): DeploymentInformation | null {
     return this.info[version]?.deployment[networkName] || null;
