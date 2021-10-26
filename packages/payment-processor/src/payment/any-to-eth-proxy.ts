@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { CurrencyManager, getConversionPath, getNativeSymbol } from '@requestnetwork/currency';
+import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
 import { ethConversionArtifact } from '@requestnetwork/smart-contracts';
 import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -71,8 +71,10 @@ export function encodePayAnyToEthProxyRequest(
     network,
   } = getRequestPaymentValues(request);
 
-  const symbol = getNativeSymbol(RequestLogicTypes.CURRENCY.ETH, network);
-  const paymentCurrency = currencyManager.from(symbol, network);
+  const paymentCurrency = currencyManager.getNativeCurrency(
+    RequestLogicTypes.CURRENCY.ETH,
+    network || 'mainnet',
+  );
   if (!paymentCurrency) {
     throw new Error(
       `Could not find currency for network: ${network}. Did you forget to specify the currencyManager?`,
