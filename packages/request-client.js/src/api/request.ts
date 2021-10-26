@@ -591,9 +591,9 @@ export default class Request {
     return this.handleRequestDataEvents(addExtensionResult);
   }
 
-  protected handleRequestDataEvents = (
+  protected handleRequestDataEvents(
     eventEmitter: EventEmitter,
-  ): Promise<Types.IRequestDataWithEvents> => {
+  ): Promise<Types.IRequestDataWithEvents> {
     // refresh the local request data
     const requestDataPromise = this.refresh();
     if (!this.disableEvents) {
@@ -611,7 +611,7 @@ export default class Request {
         });
     }
     return requestDataPromise;
-  };
+  }
 
   /**
    * Gets the request data
