@@ -1,4 +1,4 @@
-import { EthPaymentNetwork } from '@requestnetwork/payment-detection';
+import { EthInputDataPaymentDetector } from '@requestnetwork/payment-detection';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 import { mockAdvancedLogic } from './mocks';
@@ -12,7 +12,7 @@ import {
   requestNetwork,
 } from './fixtures';
 
-const ethInputContract = new EthPaymentNetwork({
+const ethInputContract = new EthInputDataPaymentDetector({
   advancedLogic: mockAdvancedLogic,
 });
 
@@ -24,7 +24,11 @@ describe('ETH Fee proxy detection test-suite', () => {
       signer: payeeIdentity,
     });
 
-    let requestData = await request.declareReceivedPayment('50000000000000000', 'OK', payeeIdentity);
+    let requestData = await request.declareReceivedPayment(
+      '50000000000000000',
+      'OK',
+      payeeIdentity,
+    );
     const declarationTimestamp = Utils.getCurrentTimestampInSecond();
     requestData = await new Promise((resolve): unknown => requestData.on('confirmed', resolve));
 

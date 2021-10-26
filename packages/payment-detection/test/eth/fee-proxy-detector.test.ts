@@ -16,27 +16,14 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     feeProxyContractEth: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-      createAddFeeAction(): any {
-        return;
-      },
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      createAddFeeAction,
       supportedNetworks: ['private'],
-    },
-    declarative: {
-      createAddPaymentInstructionAction(): any {
-        return;
-      },
-      createAddRefundInstructionAction(): any {
-        return;
-      },
+      // inherited from declarative
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
     },
   },
 };
