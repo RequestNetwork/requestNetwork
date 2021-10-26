@@ -1,4 +1,4 @@
-import { Wallet, providers, constants } from 'ethers';
+import { Wallet, providers } from 'ethers';
 
 import {
   ClientTypes,
@@ -8,12 +8,8 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { ethConversionArtifact } from '@requestnetwork/smart-contracts';
 import Utils from '@requestnetwork/utils';
-import {
-  payAnyToEthProxyRequest,
-  prepareAnyToEthProxyPaymentTransaction,
-} from '../../src/payment/any-to-eth-proxy';
+import { payAnyToEthProxyRequest } from '../../src/payment/any-to-eth-proxy';
 import { currencyManager } from './shared';
 
 import { IConversionPaymentSettings } from '../../src/index';
@@ -129,40 +125,6 @@ describe('any-to-eth-proxy', () => {
         //   AggETHUsd.sol       /   500
         //                       =  0.000048 (over 18 decimals for this ETH)
       ).toEqual('48000000000000');
-    });
-
-    it('should consider the version mapping', () => {
-      expect(
-        prepareAnyToEthProxyPaymentTransaction(
-          {
-            currencyInfo: validEuroRequest.currencyInfo,
-            extensions: {
-              [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
-                id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
-                type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-                version: '0.1.0',
-                events: [],
-                values: {},
-              },
-            },
-          } as any,
-          { maxToSpend: constants.Zero },
-        ).to,
-      ).toBe(ethConversionArtifact.getAddress('private', '0.1.0'));
-
-      expect(
-        prepareAnyToEthProxyPaymentTransaction(
-          {
-            extensions: {
-              [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
-                version: '0.2.0',
-              },
-            },
-          } as any,
-          { maxToSpend: constants.Zero },
-        ).to,
-        // the 0.2.0 pn uses the 0.1.0 mapping
-      ).toBe(ethConversionArtifact.getAddress('private', '0.1.0'));
     });
   });
 });

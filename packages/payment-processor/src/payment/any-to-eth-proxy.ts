@@ -1,7 +1,7 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
 import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
-import { EthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
+import { AnyToEthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
@@ -122,7 +122,7 @@ export function prepareAnyToEthProxyPaymentTransaction(
   const encodedTx = encodePayAnyToEthProxyRequest(request, paymentSettings, amount, feeAmount);
   const proxyAddress = getProxyAddress(
     request,
-    EthFeeProxyPaymentDetector.getDeploymentInformation,
+    AnyToEthFeeProxyPaymentDetector.getDeploymentInformation,
   );
 
   return {
