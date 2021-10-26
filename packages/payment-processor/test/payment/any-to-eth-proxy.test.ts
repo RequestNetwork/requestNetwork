@@ -135,9 +135,14 @@ describe('any-to-eth-proxy', () => {
       expect(
         prepareAnyToEthProxyPaymentTransaction(
           {
+            currencyInfo: validEuroRequest.currencyInfo,
             extensions: {
               [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
+                id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+                type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
                 version: '0.1.0',
+                events: [],
+                values: {},
               },
             },
           } as any,

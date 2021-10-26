@@ -56,6 +56,10 @@ export function encodePayAnyToEthProxyRequest(
 ): string {
   const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
 
+  if (!request.currencyInfo) {
+    throw new Error(`currency not specified`);
+  }
+
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {
     throw new Error(

@@ -157,7 +157,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<Exte
     };
   }
 
-  protected getDeploymentInformation = getDeploymentInformation(
+  public static getDeploymentInformation = getDeploymentInformation(
     erc20ConversionProxy,
     PROXY_CONTRACT_ADDRESS_MAP,
   );
