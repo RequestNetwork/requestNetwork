@@ -30,17 +30,17 @@ You are ready to run the local test Node. You will need three different consoles
 
 First, make sure you [installed IPFS](https://docs.ipfs.io/guides/guides/install/) locally.
 
+Run IPFS with:
+
+```bash
+ipfs daemon
+```
+
 Now you need to configure your IPFS to connect to our [dedicated network](../7-protocol/6-request-ipfs-network.md). We have a script to make it easy for you:
 
 ```bash
 cd packages/request-node
 yarn init-ipfs
-```
-
-Now you can run IPFS with:
-
-```bash
-ipfs daemon
 ```
 
 ## Running an Ethereum node

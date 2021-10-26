@@ -41,10 +41,9 @@ export type DeploymentInformationGetter = (
 export default class PaymentNetworkERC20FeeProxyContract<
     ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
   >
-  extends DeclarativePaymentNetwork
+  extends DeclarativePaymentNetwork<ExtensionType>
   implements PaymentTypes.IPaymentNetwork<ExtensionType> {
-  protected _paymentNetworkId: ExtensionTypes.ID;
-  protected _extension: ExtensionType;
+  protected _extensionTypeId: ExtensionTypes.ID;
   protected _currencyManager: ICurrencyManager;
 
   /**
@@ -58,8 +57,9 @@ export default class PaymentNetworkERC20FeeProxyContract<
     currencyManager: ICurrencyManager;
   }) {
     super({ advancedLogic });
-    this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
-    this._extension = advancedLogic.extensions.feeProxyContractErc20;
+    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
+    this.extension = advancedLogic.extensions.feeProxyContractErc20;
+    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT;
     this._currencyManager = currencyManager;
   }
 
@@ -77,7 +77,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
     const salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this._extension.createCreationAction({
+    return this.extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -95,7 +95,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public createExtensionsDataForAddPaymentAddress(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddPaymentAddressAction({
+    return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
     });
   }
@@ -109,7 +109,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public createExtensionsDataForAddRefundAddress(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddRefundAddressAction({
+    return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
     });
   }
@@ -123,7 +123,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public createExtensionsDataForAddFeeInformation(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddFeeAction({
+    return this.extension.createAddFeeAction({
       feeAddress: parameters.feeAddress,
       feeAmount: parameters.feeAmount,
     });
@@ -138,11 +138,11 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetwork = request.extensions[this._paymentNetworkId];
+    const paymentNetwork = request.extensions[this._extensionTypeId];
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request does not have the extension : ${this._paymentNetworkId}`,
+        `The request does not have the extension : ${this._extensionTypeId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
@@ -248,6 +248,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
         `Network not supported for this payment network: ${request.currency.network}`,
       );
     }
+    const declaredEvents = (await super.getBalance(request)).events;
 
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
@@ -273,7 +274,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
           eventName,
           network,
         );
-    const events = await infoRetriever.getTransferEvents();
+    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
     const balance = events
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
@@ -333,7 +334,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
    * Get the detected payment network ID
    */
   get paymentNetworkId(): ExtensionTypes.ID {
-    return this._paymentNetworkId;
+    return this._extensionTypeId;
   }
 
   protected async getCurrency(
