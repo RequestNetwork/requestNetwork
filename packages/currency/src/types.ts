@@ -9,6 +9,9 @@ export type NativeCurrency = {
   network: string;
 };
 
+/** Native Currency types */
+export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
+
 /**
  * A Fiat currency (EUR, USD...)
  */
@@ -58,6 +61,10 @@ export interface ICurrencyManager<TMeta = unknown> {
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromStorageCurrency(currency: StorageCurrency): CurrencyDefinition<TMeta> | undefined;
+  getNativeCurrency(
+    type: NativeCurrencyType,
+    network: string,
+  ): CurrencyDefinition<TMeta> | undefined;
 }
 
 /**
