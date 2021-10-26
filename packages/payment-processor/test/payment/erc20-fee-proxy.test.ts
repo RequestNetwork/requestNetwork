@@ -184,7 +184,7 @@ describe('erc20-fee-proxy', () => {
   });
 
   describe('prepareErc20FeeProxyPaymentTransaction', () => {
-    fit('should consider the version mapping', () => {
+    it('should consider the version mapping', () => {
       expect(
         prepareErc20FeeProxyPaymentTransaction({
           ...validRequest,
