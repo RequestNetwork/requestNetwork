@@ -1240,8 +1240,6 @@ describe('index', () => {
         [encryptionData.encryptionParams],
       );
 
-      // await Promise.all([request.waitForConfirmation(), request2.waitForConfirmation()]);
-
       const requestsFromTopic = await requestNetwork.fromMultipleTopics([
         'my amazing test topic',
         'my second best test topic',
