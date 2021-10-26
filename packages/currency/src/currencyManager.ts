@@ -12,6 +12,7 @@ import {
   ERC20Currency,
   ICurrencyManager,
   LegacyTokenMap,
+  NativeCurrencyType,
 } from './types';
 import { isValidNearAddress } from './currency-utils';
 
@@ -137,6 +138,16 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
           ((x.type === ETH || x.type === BTC) && x.network === networkOrDefault) ||
           (x.symbol === currency.value && !currency.network)),
     );
+  }
+
+  /**
+   * Retrieves a Native currency for a type and network
+   */
+  getNativeCurrency(
+    type: NativeCurrencyType,
+    network: string,
+  ): CurrencyDefinition<TMeta> | undefined {
+    return this.knownCurrencies.find((x) => x.type === type && x.network === network);
   }
 
   /**
