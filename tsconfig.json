@@ -13,6 +13,7 @@
     "noUnusedParameters": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "useUnknownInCatchVariables": false,
     "lib": ["es2018"]
   }
 }
