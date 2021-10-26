@@ -222,7 +222,7 @@ export default class PaymentNetworkERC20ProxyContract<
           network,
         );
 
-    const declaredEvents = (await super.getBalance(request)).events;
+    const declaredEvents = (await super.getBalance(request))?.events || [];
     const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
     const balance = events
