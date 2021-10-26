@@ -31,17 +31,6 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-<<<<<<< HEAD
-=======
-    declarative: {
-      createAddPaymentInstructionAction(): any {
-        return;
-      },
-      createAddRefundInstructionAction(): any {
-        return;
-      },
-    },
->>>>>>> a179f6f3 (feat: pn to smart-contract version mapping)
   },
 };
 
