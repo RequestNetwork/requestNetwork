@@ -1,10 +1,7 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthInputData from '../../src/eth/input-data';
+import TheGraphInfoRetriever from '../../dist/erc20/thegraph-info-retriever';
+import { EVENTS_NAMES } from '@requestnetwork/types/dist/payment-types';
 
 let ethInputData: EthInputData;
 
@@ -23,7 +20,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createCreationAction(): any {
         return;
       },
-      supportedNetworks: ['mainnet'],
+      supportedNetworks: ['mainnet', 'rinkeby'],
     },
     declarative: {
       createAddPaymentInstructionAction(): any {
@@ -192,5 +189,28 @@ describe('api/eth/input-data', () => {
       },
       events: [],
     });
+  });
+
+  it('can extract events from theGraph', async () => {
+    const graphData = {
+      "amount": "1000000000000000",
+      "contractAddress": "0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff",
+      "from": "0xd8a4fb78214297c3044d344808bfb0e217ed27eb",
+      "id": "0x17f896e375793d956f2b6ebfb13231f1ef6c0f275e0479ed16eef57c37f76066",
+      "reference": "0x800d501693feda2226878e1ec7869eef8919dbc5bd10c2bcd031b94d73492860",
+      "to": "0x6076677a8a163b7308896ad24ac4fd1987985c05",
+      "tokenAddress": null,
+      "txHash": "0x6eb0739fe71f376c90b2f26865c957d024a421f27a4c2cc2daad8f50b9d76a17"
+    };
+    const infoRetriever = new TheGraphInfoRetriever(
+        graphData.reference,
+        graphData.contractAddress,
+        'ETH',
+        graphData.to,
+        EVENTS_NAMES.PAYMENT,
+        'rinkeby',
+      );
+    const events = await infoRetriever.getTransferEvents();
+    expect(events.length).toBeGreaterThan(0);
   });
 });
