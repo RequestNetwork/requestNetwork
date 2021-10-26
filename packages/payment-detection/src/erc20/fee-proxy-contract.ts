@@ -248,7 +248,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
         `Network not supported for this payment network: ${request.currency.network}`,
       );
     }
-    const declaredEvents = (await super.getBalance(request))?.events || [];
+    const declaredEvents = (await super.getBalance(request)).events;
 
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,

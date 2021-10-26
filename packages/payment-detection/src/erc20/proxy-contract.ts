@@ -28,12 +28,16 @@ export default class PaymentNetworkERC20ProxyContract<
   >
   extends DeclarativePaymentNetwork<ExtensionType>
   implements PaymentTypes.IPaymentNetwork<ExtensionType> {
+  protected _extensionTypeId: ExtensionTypes.ID;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     super({ advancedLogic });
+    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
     this.extension = advancedLogic.extensions.proxyContractErc20;
+    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT;
   }
 
   /**
@@ -222,7 +226,7 @@ export default class PaymentNetworkERC20ProxyContract<
           network,
         );
 
-    const declaredEvents = (await super.getBalance(request))?.events || [];
+    const declaredEvents = (await super.getBalance(request)).events;
     const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
     const balance = events
