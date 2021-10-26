@@ -66,6 +66,11 @@ export default {
       chainId: 100,
       accounts,
     },
+    fantom: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://rpcapi.fantom.network',
+      chainId: 250,
+      accounts,
+    },
   },
   etherscan: {
     // Can be overridden according to the network (set-explorer-api-key)
@@ -89,6 +94,10 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
     case 'matic':
     case 'mumbai': {
       hre.config.etherscan.apiKey = process.env.POLYGONSCAN_API_KEY;
+      return;
+    }
+    case 'fantom': {
+      hre.config.etherscan.apiKey = process.env.FTMSCAN_API_KEY;
       return;
     }
   }

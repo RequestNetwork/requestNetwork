@@ -15,7 +15,10 @@ You can create a .env file at the root of this package:
 ```
 DEPLOYMENT_PRIVATE_KEY=...  # Mandatory to deploy on live blockchains
 WEB3_PROVIDER_URL=...       # Mandatory to interact with live blockchains
-ETHERSCAN_API_KEY=...       # Only used to verify smart contracts code on live blockchains, even for other explorers
+ETHERSCAN_API_KEY=...       # Only used to verify smart contracts code on live blockchains, even for other explorers, except:
+BSCSCAN_API_KEY=...         # ... for BSCScan
+POLYGONSCAN_API_KEY=...     # ... for PolygonScan
+FTMSCAN_API_KEY=...         # .j. for FTMScan
 ADMIN_WALLET_ADDRESS=...    # Mandatory to deploy contracts with admin tasks (e.g. ChainlinkConversionPath)
 ```
 

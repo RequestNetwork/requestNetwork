@@ -17,6 +17,10 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
           address: '0xC6E23a20C0a1933ACC8E30247B5D1e2215796C1F',
           creationBlockNumber: 9447193,
         },
+        fantom: {
+          address: '0xC6E23a20C0a1933ACC8E30247B5D1e2215796C1F',
+          creationBlockNumber: 20066431,
+        },
       },
     },
   },

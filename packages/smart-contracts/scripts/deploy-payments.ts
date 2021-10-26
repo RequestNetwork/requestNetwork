@@ -64,6 +64,13 @@ export async function deployAllPaymentContracts(
 
     // #region NON-EASY BATCHES DEFINITION
 
+    const switchToSimulation = () => {
+      if (!args.simulate) {
+        console.log('[!] Switching to simulated mode');
+        args.simulate = true;
+      }
+    };
+
     /*
      * Batch 2
      *   - ERC20ConversionProxy
@@ -75,11 +82,17 @@ export async function deployAllPaymentContracts(
       chainlinkInstance: ChainlinkConversionPath,
       erc20FeeProxyAddress: string,
     ) => {
+      let chainlinkConversionPathAddress = chainlinkInstance?.address;
+      if (!chainlinkConversionPathAddress) {
+        switchToSimulation();
+        chainlinkConversionPathAddress = 'simulated';
+      }
+
       // Deploy ERC20 Conversion
       const erc20ConversionResult = await deployERC20ConversionProxy(
         {
           ...args,
-          chainlinkConversionPathAddress: chainlinkInstance.address,
+          chainlinkConversionPathAddress,
           erc20FeeProxyAddress,
         },
         hre,
@@ -88,12 +101,15 @@ export async function deployAllPaymentContracts(
       const erc20ConversionAddress = erc20ConversionResult?.address;
 
       // Add whitelist admin to chainlink path
-      if (chainlinkInstance) {
+      const currentNonce = await deployer.getTransactionCount();
+      if (chainlinkInstance && currentNonce === 4) {
         if (!process.env.ADMIN_WALLET_ADDRESS) {
           throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
         }
         if (args.simulate === false) {
           await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
+        } else {
+          console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
         }
       }
 
@@ -120,8 +136,7 @@ export async function deployAllPaymentContracts(
           console.log(
             `      ${'ERC20SwapToConversion:'.padEnd(30, ' ')}(ERC20 Conversion missing)`,
           );
-          console.log('[!] Switching to simulated mode');
-          args.simulate = true;
+          switchToSimulation();
         }
       } else {
         console.log(`      ${'ERC20SwapToPay:'.padEnd(30, ' ')}(swap router missing)`);
@@ -150,6 +165,29 @@ export async function deployAllPaymentContracts(
         hre,
       );
       deploymentResults.push(ethConversionResult);
+
+      // Administrate again whitelist admins for nonce consistency (due to 1 failing tx on Fantom)
+
+      const currentNonce = await deployer.getTransactionCount();
+      if (currentNonce === 9) {
+        if (hre.network.name === 'fantom') {
+          if (chainlinkInstance) {
+            if (!process.env.ADMIN_WALLET_ADDRESS) {
+              throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
+            }
+            if (args.simulate === false) {
+              await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
+            } else {
+              console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
+            }
+          }
+        } else {
+          // Increase nonce for every other network
+          await deployer.sendTransaction({ to: deployer.address });
+        }
+      } else if (currentNonce < 9) {
+        switchToSimulation();
+      }
     };
 
     // #endregion
@@ -166,7 +204,10 @@ export async function deployAllPaymentContracts(
       artifact: erc20FeeProxyArtifact,
     });
 
-    const { instance: chainlinkInstance } = await runEasyDeployment({
+    const {
+      instance: chainlinkInstance,
+      address: chainlinkInstanceAddress,
+    } = await runEasyDeployment({
       contractName: 'ChainlinkConversionPath',
       artifact: chainlinkConversionPathArtifact,
     });
@@ -181,7 +222,7 @@ export async function deployAllPaymentContracts(
     });
 
     // Batch 4
-    await runDeploymentBatch_4(chainlinkInstance.address, ethFeeProxyAddress);
+    await runDeploymentBatch_4(chainlinkInstanceAddress, ethFeeProxyAddress);
 
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Add future batches above this line
