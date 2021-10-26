@@ -1,11 +1,14 @@
-import {
-  AdvancedLogicTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ETHFeeProxyDetector from '../../src/eth/fee-proxy-detector';
 
 let ethFeeProxyDetector: ETHFeeProxyDetector;
+
+const createAddPaymentAddressAction = jest.fn();
+const createAddRefundAddressAction = jest.fn();
+const createCreationAction = jest.fn();
+const createAddFeeAction = jest.fn();
+const createAddPaymentInstructionAction = jest.fn();
+const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -13,28 +16,15 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     feeProxyContractEth: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-      createAddFeeAction(): any {
-        return;
-      },
-      supportedNetworks: ['private']
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      createAddFeeAction,
+      supportedNetworks: ['private'],
+      // inherited from declarative
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
     },
-    declarative: {
-      createAddPaymentInstructionAction(): any {
-        return;
-      },
-      createAddRefundInstructionAction(): any {
-        return;
-      },
-    }
   },
 };
 
@@ -47,17 +37,12 @@ describe('api/eth/fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractEth,
-      'createCreationAction',
-    );
-
     await ethFeeProxyDetector.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createCreationAction).toHaveBeenCalledWith({
       feeAddress: undefined,
       feeAmount: undefined,
       paymentAddress: 'ethereum address',
@@ -67,11 +52,6 @@ describe('api/eth/fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation with fee amount and address', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractEth,
-      'createCreationAction',
-    );
-
     await ethFeeProxyDetector.createExtensionsDataForCreation({
       feeAddress: 'fee address',
       feeAmount: '2000',
@@ -79,7 +59,7 @@ describe('api/eth/fee-proxy-contract', () => {
       salt: 'ea3bc7caf64110ca',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createCreationAction).toHaveBeenCalledWith({
       feeAddress: 'fee address',
       feeAmount: '2000',
       paymentAddress: 'ethereum address',
@@ -89,92 +69,62 @@ describe('api/eth/fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation without salt', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractEth,
-      'createCreationAction',
-    );
-
     await ethFeeProxyDetector.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
     });
 
     // Can't check parameters since salt is generated in createExtensionsDataForCreation
-    expect(spy).toHaveBeenCalled();
+    expect(createCreationAction).toHaveBeenCalled();
   });
 
   it('can createExtensionsDataForAddPaymentAddress', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractEth,
-      'createAddPaymentAddressAction',
-    );
-
     ethFeeProxyDetector.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddPaymentAddressAction).toHaveBeenCalledWith({
       paymentAddress: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddRefundAddress', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractEth,
-      'createAddRefundAddressAction',
-    );
-
     ethFeeProxyDetector.createExtensionsDataForAddRefundAddress({
       refundAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddRefundAddressAction).toHaveBeenCalledWith({
       refundAddress: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createAddPaymentInstructionAction',
-    );
-
     ethFeeProxyDetector.createExtensionsDataForAddPaymentInformation({
       paymentInfo: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddPaymentInstructionAction).toHaveBeenCalledWith({
       paymentInfo: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createAddRefundInstructionAction',
-    );
-
     ethFeeProxyDetector.createExtensionsDataForAddRefundInformation({
       refundInfo: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddRefundInstructionAction).toHaveBeenCalledWith({
       refundInfo: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddFeeInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractEth,
-      'createAddFeeAction',
-    );
-
     ethFeeProxyDetector.createExtensionsDataForAddFeeInformation({
       feeAddress: 'ethereum address',
       feeAmount: '2000',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddFeeAction).toHaveBeenCalledWith({
       feeAddress: 'ethereum address',
       feeAmount: '2000',
     });
@@ -182,7 +132,10 @@ describe('api/eth/fee-proxy-contract', () => {
 
   it('should not throw when getBalance fail', async () => {
     expect(
-      await ethFeeProxyDetector.getBalance({ currency: {network: 'private'}, extensions: {} } as RequestLogicTypes.IRequest),
+      await ethFeeProxyDetector.getBalance({
+        currency: { network: 'private' },
+        extensions: {},
+      } as RequestLogicTypes.IRequest),
     ).toEqual({
       balance: null,
       error: {

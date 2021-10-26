@@ -12,12 +12,14 @@ import { BigNumber } from 'ethers';
  * @class PaymentNetworkDeclarative
  */
 export default class PaymentNetworkDeclarative<
-  ExtensionType extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative = ExtensionTypes.PnAnyDeclarative.IAnyDeclarative
+  TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative = ExtensionTypes.PnAnyDeclarative.IAnyDeclarative
 > implements PaymentTypes.IPaymentNetwork<PaymentTypes.IDeclarativePaymentEventParameters> {
-  protected extension: ExtensionType;
+  protected extension: TExtension;
+  protected _paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID;
 
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     this.extension = advancedLogic.extensions.declarative;
+    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE;
   }
 
   /**
@@ -159,7 +161,7 @@ export default class PaymentNetworkDeclarative<
     // For each extension data related to the declarative payment network,
     // we check if the data is a declared received payment or refund and we modify the balance
     // Received payment increase the balance and received refund decrease the balance
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE].events.forEach((data) => {
+    (request.extensions[this._paymentNetworkId].events ?? []).forEach((data) => {
       const parameters = data.parameters;
       if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
         // Declared received payments from payee is added to the balance

@@ -39,8 +39,8 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
       advancedLogic,
       currencyManager,
     });
-    this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY;
-    this._extension = advancedLogic.extensions.anyToErc20Proxy;
+    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY;
+    this.extension = advancedLogic.extensions.anyToErc20Proxy;
   }
 
   /**
@@ -57,7 +57,7 @@ export default class PaymentNetworkAnyToERC20 extends PaymentNetworkERC20FeeProx
     const salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this._extension.createCreationAction({
+    return this.extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
