@@ -102,9 +102,14 @@ export default class Request {
     this.currencyManager = currencyManager;
 
     if (options && options.requestLogicCreateResult && !this.disableEvents) {
-      options.requestLogicCreateResult
+      const originalEmitter = options.requestLogicCreateResult;
+      originalEmitter
         .on('confirmed', async () => {
-          this.emitter.emit('confirmed', await this.refresh());
+          try {
+            this.emitter.emit('confirmed', await this.refresh());
+          } catch (error) {
+            originalEmitter.emit('error', error);
+          }
         })
         .on('error', (error) => {
           this.confirmationErrorOccurredAtCreation = true;
@@ -167,21 +172,7 @@ export default class Request {
 
     const acceptResult = await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      acceptResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(acceptResult);
   }
 
   /**
@@ -212,21 +203,7 @@ export default class Request {
 
     const cancelResult = await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      cancelResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(cancelResult);
   }
 
   /**
@@ -263,19 +240,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-    if (!this.disableEvents) {
-      increaseExpectedResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-    return requestDataPromise;
+    return this.handleRequestDataEvents(increaseExpectedResult);
   }
 
   /**
@@ -313,21 +278,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      reduceExpectedResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(reduceExpectedResult);
   }
 
   /**
@@ -362,20 +313,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -410,21 +348,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -469,21 +393,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -531,21 +441,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -596,21 +492,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -661,21 +543,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -720,20 +588,28 @@ export default class Request {
       true,
     );
 
+    return this.handleRequestDataEvents(addExtensionResult);
+  }
+
+  protected handleRequestDataEvents(
+    eventEmitter: EventEmitter,
+  ): Promise<Types.IRequestDataWithEvents> {
     // refresh the local request data
     const requestDataPromise = this.refresh();
-
     if (!this.disableEvents) {
-      addExtensionResult
+      eventEmitter
         .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
+          try {
+            const requestData = await requestDataPromise;
+            requestData.emit('confirmed', await this.refresh());
+          } catch (error) {
+            eventEmitter.emit('error', error);
+          }
         })
         .on('error', (error) => {
           this.emitter.emit('error', error);
         });
     }
-
     return requestDataPromise;
   }
 
