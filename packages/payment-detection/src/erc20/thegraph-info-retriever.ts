@@ -11,7 +11,7 @@ export type GraphPaymentQueryParams = {
 };
 
 export class TheGraphInfoRetriever {
-  public client: TheGraphClient;
+  private client: TheGraphClient;
 
   /**
    * @param paymentReference The reference to identify the payment
