@@ -26,15 +26,18 @@ class VersionNotSupported extends Error {}
 export default class PaymentNetworkERC20ProxyContract<
     ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
   >
-  extends DeclarativePaymentNetwork
+  extends DeclarativePaymentNetwork<ExtensionType>
   implements PaymentTypes.IPaymentNetwork<ExtensionType> {
-  protected _extension: ExtensionType;
+  protected _extensionTypeId: ExtensionTypes.ID;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     super({ advancedLogic });
-    this._extension = advancedLogic.extensions.proxyContractErc20;
+    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
+    this.extension = advancedLogic.extensions.proxyContractErc20;
+    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT;
   }
 
   /**
@@ -51,7 +54,7 @@ export default class PaymentNetworkERC20ProxyContract<
     const salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this._extension.createCreationAction({
+    return this.extension.createCreationAction({
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
       refundAddress: paymentNetworkCreationParameters.refundAddress,
       salt,
@@ -67,7 +70,7 @@ export default class PaymentNetworkERC20ProxyContract<
   public createExtensionsDataForAddPaymentAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddPaymentAddressAction({
+    return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
     });
   }
@@ -81,7 +84,7 @@ export default class PaymentNetworkERC20ProxyContract<
   public createExtensionsDataForAddRefundAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddRefundAddressAction({
+    return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
     });
   }
@@ -222,7 +225,9 @@ export default class PaymentNetworkERC20ProxyContract<
           eventName,
           network,
         );
-    const events = await infoRetriever.getTransferEvents();
+
+    const declaredEvents = (await super.getBalance(request)).events;
+    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
     const balance = events
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))

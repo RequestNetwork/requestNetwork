@@ -45,10 +45,11 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
       },
     };
   }
@@ -65,10 +66,11 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
       },
     };
   }
@@ -85,10 +87,11 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
       },
     };
   }
@@ -105,10 +108,11 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
       },
     };
   }
@@ -125,7 +129,7 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         paymentInfo: parameters.paymentInfo,
       },
@@ -144,7 +148,7 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         refundInfo: parameters.refundInfo,
       },
@@ -163,7 +167,7 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         delegate: parameters.delegate,
       },
