@@ -1,14 +1,11 @@
 import HttpDataAccess from '../src/http-data-access';
-import AxiosMockAdapter from 'axios-mock-adapter';
-import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import * as TestData from './data-test';
 
 let mockAxios: MockAdapter;
 
 beforeAll(() => {
-  mockAxios = new AxiosMockAdapter(axios);
-  mockAxios.onPost('/persistTransaction').reply(200, { result: {} });
-  mockAxios.onGet('/getConfirmedTransaction').reply(200, { result: {} });
+  mockAxios = TestData.mockAxiosRequestNode();
 });
 
 afterAll(() => {
