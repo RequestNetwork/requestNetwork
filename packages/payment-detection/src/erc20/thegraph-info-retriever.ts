@@ -2,6 +2,14 @@ import { PaymentTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import { getTheGraphClient, TheGraphClient } from '../thegraph';
 
+/** Parameters for getting payment events from theGraph */
+export type GraphPaymentQueryParams = {
+  contractAddress: string;
+  reference: string;
+  to: string;
+  tokenAddress: string | null;
+};
+
 export class TheGraphInfoRetriever {
   public client: TheGraphClient;
 
@@ -14,34 +22,27 @@ export class TheGraphInfoRetriever {
    * @param network The Ethereum network to use
    */
   constructor(
-    private paymentReference: string,
-    private proxyContractAddress: string,
-    private tokenContractAddress: string,
-    private toAddress: string,
-    private eventName: PaymentTypes.EVENTS_NAMES,
-    private network: string,
+    protected paymentReference: string,
+    protected proxyContractAddress: string,
+    protected tokenContractAddress: string,
+    protected toAddress: string,
+    protected eventName: PaymentTypes.EVENTS_NAMES,
+    protected network: string,
   ) {
     this.client = getTheGraphClient(this.network);
   }
 
-  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
-    let variables;
-    if (this.tokenContractAddress) {
-      variables = {
-        contractAddress: this.proxyContractAddress,
-        reference: utils.keccak256(`0x${this.paymentReference}`),
-        to: this.toAddress,
-        tokenAddress: this.tokenContractAddress,
-      };
-    } else {
-      variables = {
-        contractAddress: this.proxyContractAddress,
-        reference: this.paymentReference,
-        to: this.toAddress,
-        tokenAddress: null,
-      };
-    }
+  protected getGraphVariables(): GraphPaymentQueryParams {
+    return {
+      contractAddress: this.proxyContractAddress,
+      reference: utils.keccak256(`0x${this.paymentReference}`),
+      to: this.toAddress,
+      tokenAddress: this.tokenContractAddress,
+    };
+  }
 
+  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+    const variables = this.getGraphVariables();
     const payments = await this.client.GetPayments(variables);
     return payments.payments.map((p) => ({
       amount: p.amount,

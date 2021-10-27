@@ -182,9 +182,9 @@ export default abstract class ReferenceBasedDetector<
    *
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param network The id of network we want to check
+   * @param requestCurrency The currency that payment was made with
    * @param paymentReference The reference to identify the payment
-   * @param paymentNetworkVersion the version of the payment network
+   * @param paymentNetwork the id of the payment network
    * @returns The balance
    */
   protected async extractBalanceAndEventsFromPaymentRef(

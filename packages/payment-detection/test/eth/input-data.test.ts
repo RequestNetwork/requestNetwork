@@ -220,4 +220,43 @@ describe('api/eth/input-data', () => {
     expect(balance).toBe('1000000000000000');
     expect(events).toHaveLength(1);
   });
+
+  it('can get balance from rinkeby subgraph', async () => {
+    const rinkebyRequest = {
+      creator: { type: '', value: '0x2' },
+      currency: {
+        network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
+      events: [],
+      expectedAmount: '1000000000000000',
+      extensions: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: {
+          events: [],
+          id: '0',
+          type: 'none',
+          values: {
+            paymentAddress: '0xd8a4fb78214297c3044d344808bfb0e217ed27eb',
+            salt: 'ea3bc7caf64110ca',
+          },
+          version: '0',
+        },
+      },
+      extensionsData: [],
+      requestId: '0x17f896e375793d956f2b6ebfb13231f1ef6c0f275e0479ed16eef57c37f76066',
+      state: 'Good',
+      timestamp: 0,
+      version: '0.2',
+    };
+
+    const balance = await ethInputData.getBalance(rinkebyRequest as RequestLogicTypes.IRequest);
+
+    expect(balance.balance).toBe('10');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
+    expect(balance.events[0].amount).toBe('10');
+    expect(typeof balance.events[0].timestamp).toBe('number');
+  })
+
 });

@@ -9,6 +9,8 @@ import {
 import EthInputDataInfoRetriever from './info-retriever';
 import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
 import ReferenceBasedDetector from '../reference-based-detector';
+import { networkSupportsTheGraph } from '../thegraph';
+import NativeGraphInfoRetriever from '../erc20/native-graph-info-retriever';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -74,14 +76,26 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
     const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetwork.version);
 
     if (proxyContractArtifact) {
-      const proxyInfoRetriever = new EthProxyInputDataInfoRetriever(
-        paymentReference,
-        proxyContractArtifact.address,
-        proxyContractArtifact.creationBlockNumber,
-        address,
-        eventName,
-        network,
-      );
+      let proxyInfoRetriever;
+      if (networkSupportsTheGraph(network)) {
+        proxyInfoRetriever = new NativeGraphInfoRetriever(
+          paymentReference,
+          proxyContractArtifact.address,
+          address,
+          eventName,
+          network,
+        );
+      } else {
+        proxyInfoRetriever = new EthProxyInputDataInfoRetriever(
+          paymentReference,
+          proxyContractArtifact.address,
+          proxyContractArtifact.creationBlockNumber,
+          address,
+          eventName,
+          network,
+        );
+      }
+
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
       for (const event of proxyEvents) {
         events.push(event);
