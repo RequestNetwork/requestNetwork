@@ -18,7 +18,6 @@ export default abstract class FeeReferenceBasedDetector<
    * @param extension The advanced logic payment network extension, reference based
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
-  protected _extension: ExtensionType;
 
   public constructor(
     protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
@@ -26,7 +25,6 @@ export default abstract class FeeReferenceBasedDetector<
     protected extensionType: ExtensionTypes.ID,
   ) {
     super(advancedLogic, extension, extensionType);
-    this._extension = extension;
   }
 
   /**
@@ -43,7 +41,7 @@ export default abstract class FeeReferenceBasedDetector<
     paymentNetworkCreationParameters.salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this._extension.createCreationAction({
+    return this.extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -61,7 +59,7 @@ export default abstract class FeeReferenceBasedDetector<
   public createExtensionsDataForAddFeeInformation(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddFeeAction({
+    return this.extension.createAddFeeAction({
       feeAddress: parameters.feeAddress,
       feeAmount: parameters.feeAmount,
     });

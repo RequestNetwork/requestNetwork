@@ -10,4 +10,6 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
   private: '0x4E72770760c011647D4873f60A3CF6cDeA896CD8',
   bsctest: '0x10ED43C718714eb63d5aA57B78B54704E256024E',
   xdai: '0x1C232F01118CB8B424793ae03F870aa7D0ac7f77',
+  // https://layer3.gitbook.io/spirit-swap/contracts
+  fantom: '0x16327e3fbdaca3bcf7e38f5af2599d2ddc33ae52',
 };
