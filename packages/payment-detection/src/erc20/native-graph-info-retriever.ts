@@ -1,5 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import TheGraphInfoRetriever, { GraphPaymentQueryParams } from './thegraph-info-retriever';
+import { utils } from 'ethers';
 
 export class NativeGraphInfoRetriever extends TheGraphInfoRetriever {
   /**
@@ -22,7 +23,7 @@ export class NativeGraphInfoRetriever extends TheGraphInfoRetriever {
   protected getGraphVariables(): GraphPaymentQueryParams {
     return {
       contractAddress: this.proxyContractAddress,
-      reference: this.paymentReference,
+      reference: utils.keccak256(`0x${this.paymentReference}`),
       to: this.toAddress,
       tokenAddress: null,
     };
