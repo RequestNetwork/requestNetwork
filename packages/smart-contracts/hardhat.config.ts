@@ -10,7 +10,7 @@ import deployPayment from './scripts/2_deploy-main-payments';
 import deployConversion from './scripts/3_deploy_chainlink_contract';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
-import { deployEscrow } from './scripts/Escrow-deployment';
+import { deployEscrow } from './scripts/escrow-deployment';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
