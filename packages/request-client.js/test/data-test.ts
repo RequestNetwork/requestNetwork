@@ -8,10 +8,9 @@ import {
   TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { Types } from '../src';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import { Types } from '../src';
 
 export const arbitraryTimestamp = 1549953337;
 
@@ -234,7 +233,7 @@ export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = 
   supportedMethods: [SignatureTypes.METHOD.ECDSA],
 };
 
-export const mockAxiosRequestNode = (): MockAdapter => {
+export const mockAxiosRequestNode = (): AxiosMockAdapter => {
   const mockAxios = new AxiosMockAdapter(axios);
   mockAxios.onPost('/persistTransaction').reply(200, { result: {} });
   mockAxios.onGet('/getTransactionsByChannelId').reply(200, {
