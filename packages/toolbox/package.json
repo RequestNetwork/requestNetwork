@@ -36,7 +36,8 @@
     "lint": "eslint \"src/**/*.ts\"",
     "prepare": "yarn run build",
     "cli": "cross-env NODE_ENV=development ts-node src/cli.ts",
-    "chainlinkPath": "yarn cli listAggregators"
+    "chainlinkPath": "yarn cli listAggregators",
+    "currencyHash": "yarn cli currencyHash"
   },
   "dependencies": {
     "@requestnetwork/currency": "0.8.0",
