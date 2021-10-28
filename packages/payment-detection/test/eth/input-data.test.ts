@@ -5,9 +5,6 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import EthInputData from '../../src/eth/input-data';
-import TheGraphInfoRetriever from '../../src/erc20/thegraph-info-retriever';
-import { EVENTS_NAMES } from '@requestnetwork/types/dist/payment-types';
-import { BigNumber } from 'ethers';
 
 let ethInputData: EthInputData;
 
@@ -168,35 +165,6 @@ describe('api/eth/input-data', () => {
     });
   });
 
-  it('can extract native payment events from rinkeby subgraph', async () => {
-    const graphData = {
-      'amount': '1000000000000000',
-      'contractAddress': '0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff',
-      'from': '0xd8a4fb78214297c3044d344808bfb0e217ed27eb',
-      'id': '0x17f896e375793d956f2b6ebfb13231f1ef6c0f275e0479ed16eef57c37f76066',
-      'reference': '800d501693feda2226878e1ec7869eef8919dbc5bd10c2bcd031b94d73492860',
-      'to': '0x6076677a8a163b7308896ad24ac4fd1987985c05',
-      'tokenAddress': null,
-      'txHash': '0x6eb0739fe71f376c90b2f26865c957d024a421f27a4c2cc2daad8f50b9d76a17',
-    };
-    const infoRetriever = new TheGraphInfoRetriever(
-      graphData.reference,
-      graphData.contractAddress,
-      '',
-      graphData.to,
-      EVENTS_NAMES.PAYMENT,
-      'rinkeby',
-    );
-
-    const events = await infoRetriever.getTransferEvents();
-    const balance = events
-      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
-      .toString();
-
-    expect(balance).toBe('1000000000000000');
-    expect(events).toHaveLength(1);
-  });
-
   it('can get balance from rinkeby subgraph', async () => {
     const rinkebyRequest = {
       'currency': {
@@ -223,64 +191,6 @@ describe('api/eth/input-data', () => {
             'salt': '2334c5f6691a9131',
           },
           'version': '0.2.0',
-        },
-        {
-          'action': 'create',
-          'id': 'content-data',
-          'parameters': {
-            'content': {
-              'meta': {
-                'format': 'rnf_invoice',
-                'version': '0.0.3',
-              },
-              'creationDate': '2021-05-05T09:30:22.613Z',
-              'invoiceItems': [
-                {
-                  'currency': 'ETH',
-                  'name': 'Paid on MM',
-                  'quantity': 1,
-                  'tax': {
-                    'type': 'percentage',
-                    'amount': '0',
-                  },
-                  'unitPrice': '80000000000000000',
-                },
-              ],
-              'invoiceNumber': '18',
-              'buyerInfo': {
-                'address': {
-                  'country-name': 'France',
-                  'street-address': 'Nobel Prize street',
-                  'locality': '',
-                },
-                'businessName': 'CRISPR Charpentier',
-                'email': 'yoann.marion+payer@request.network',
-              },
-              'miscellaneous': {
-                'builderId': 'request-team',
-                'createdWith': 'baguette-invoicing.request.network',
-              },
-              'paymentTerms': {
-                'dueDate': '2021-06-04T21:59:59.999Z',
-              },
-              'sellerInfo': {
-                'businessName': 'Planet Earth ltd.',
-                'address': {
-                  'country-name': 'France',
-                  'street-address': '13, rue Louise Michel',
-                  'extended-address': '',
-                  'postal-code': '38000',
-                  'region': '',
-                  'locality': 'Grenoble',
-                },
-                'email': 'yoann.marion+issuer@request.network',
-                'firstName': 'Iss',
-                'lastName': 'Uer',
-                'taxRegistration': 'TX-31415',
-              },
-            },
-          },
-          'version': '0.1.0',
         },
       ],
       'extensions': {
@@ -327,9 +237,7 @@ describe('api/eth/input-data', () => {
         'value': '0x1D274D164937465B7A7259347AD3f1aaEEEaC8e1',
       },
     };
-
     const balance = await ethInputData.getBalance(rinkebyRequest as RequestLogicTypes.IRequest);
-
     expect(balance.balance).toBe('80000000000000000');
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
