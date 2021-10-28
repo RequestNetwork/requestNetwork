@@ -24,7 +24,7 @@ export class TheGraphInfoRetriever {
   constructor(
     protected paymentReference: string,
     protected proxyContractAddress: string,
-    protected tokenContractAddress: string,
+    protected tokenContractAddress: string | null,
     protected toAddress: string,
     protected eventName: PaymentTypes.EVENTS_NAMES,
     protected network: string,
