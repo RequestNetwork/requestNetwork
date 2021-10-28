@@ -3,7 +3,7 @@ import { utils } from 'ethers';
 import { getTheGraphClient, TheGraphClient } from '../thegraph';
 
 /** Parameters for getting payment events from theGraph */
-export type GraphPaymentQueryParams = {
+type GraphPaymentQueryParams = {
   contractAddress: string;
   reference: string;
   to: string;
@@ -22,17 +22,17 @@ export class TheGraphInfoRetriever {
    * @param network The Ethereum network to use
    */
   constructor(
-    protected paymentReference: string,
-    protected proxyContractAddress: string,
-    protected tokenContractAddress: string | null,
-    protected toAddress: string,
-    protected eventName: PaymentTypes.EVENTS_NAMES,
-    protected network: string,
+    private paymentReference: string,
+    private proxyContractAddress: string,
+    private tokenContractAddress: string | null,
+    private toAddress: string,
+    private eventName: PaymentTypes.EVENTS_NAMES,
+    private network: string,
   ) {
     this.client = getTheGraphClient(this.network);
   }
 
-  protected getGraphVariables(): GraphPaymentQueryParams {
+  private getGraphVariables(): GraphPaymentQueryParams {
     return {
       contractAddress: this.proxyContractAddress,
       reference: utils.keccak256(`0x${this.paymentReference}`),
