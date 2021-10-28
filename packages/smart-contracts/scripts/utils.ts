@@ -12,4 +12,6 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
   xdai: '0x1C232F01118CB8B424793ae03F870aa7D0ac7f77',
   // https://layer3.gitbook.io/spirit-swap/contracts
   fantom: '0x16327e3fbdaca3bcf7e38f5af2599d2ddc33ae52',
+  // https://github.com/QuickSwap/quickswap-core
+  matic: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
 };

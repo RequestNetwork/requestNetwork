@@ -3,10 +3,14 @@ import {
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
+  SignatureProviderTypes,
   SignatureTypes,
   TransactionTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import AxiosMockAdapter from 'axios-mock-adapter';
+import axios from 'axios';
+import { Types } from '../src';
 
 export const arbitraryTimestamp = 1549953337;
 
@@ -29,6 +33,13 @@ export const payer = {
   signatureParams: {
     method: SignatureTypes.METHOD.ECDSA,
     privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
+  },
+};
+
+export const delegate = {
+  identity: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
   },
 };
 
@@ -193,4 +204,41 @@ export const declarativePaymentNetwork: PaymentTypes.IPaymentNetworkCreateParame
       IBAN: 'FR89370400440532013000',
     },
   },
+};
+
+export const signatureParametersPayee: SignatureTypes.ISignatureParameters = {
+  method: SignatureTypes.METHOD.ECDSA,
+  privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
+};
+export const signatureParametersPayer: SignatureTypes.ISignatureParameters = {
+  method: SignatureTypes.METHOD.ECDSA,
+  privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
+};
+export const signatureParametersDelegate: SignatureTypes.ISignatureParameters = {
+  method: Types.Signature.METHOD.ECDSA,
+  privateKey: '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5',
+};
+
+export const fakeSignatureProvider: SignatureProviderTypes.ISignatureProvider = {
+  sign: (data: any, signer: IdentityTypes.IIdentity): any => {
+    if (signer.value === payee.identity.value) {
+      return Utils.signature.sign(data, signatureParametersPayee);
+    } else if (signer.value === payer.identity.value) {
+      return Utils.signature.sign(data, signatureParametersPayer);
+    } else {
+      return Utils.signature.sign(data, signatureParametersDelegate);
+    }
+  },
+  supportedIdentityTypes: [IdentityTypes.TYPE.ETHEREUM_ADDRESS],
+  supportedMethods: [SignatureTypes.METHOD.ECDSA],
+};
+
+export const mockAxiosRequestNode = (): AxiosMockAdapter => {
+  const mockAxios = new AxiosMockAdapter(axios);
+  mockAxios.onPost('/persistTransaction').reply(200, { result: {} });
+  mockAxios.onGet('/getTransactionsByChannelId').reply(200, {
+    result: { transactions: [timestampedTransactionWithoutExtensionsData] },
+  });
+  mockAxios.onGet('/getConfirmedTransaction').reply(200, { result: {} });
+  return mockAxios;
 };

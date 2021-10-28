@@ -153,6 +153,7 @@ const currencyPairs: any = {
       '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 1,
       '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 1,
       '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 1,
+      '0x831753dd7087cac61ab5644b308642cc1c33dc13': 1,
     },
     '0xce80759e72fe1d3c07be79ffecc76a7a9b46c641': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -177,6 +178,7 @@ const currencyPairs: any = {
       '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 1,
       '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 1,
       '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 1,
+      '0x831753dd7087cac61ab5644b308642cc1c33dc13': 1,
     },
     '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -185,6 +187,22 @@ const currencyPairs: any = {
     '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
       '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
+    },
+    '0x831753dd7087cac61ab5644b308642cc1c33dc13': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+      '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
+    },
+  },
+  fantom: {
+    '0xfac26e3fd40adcdc6652f705d983b4830c00716c': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x775eb53d00dd0acd3ec1696472105d579b9b386b': {
+      '0xfac26e3fd40adcdc6652f705d983b4830c00716c': 1,
+      '0x10bf4137b0558c33c2dc9f71c3bb81c2865fa2fb': 1,
+    },
+    '0x10bf4137b0558c33c2dc9f71c3bb81c2865fa2fb': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
   },
 };
