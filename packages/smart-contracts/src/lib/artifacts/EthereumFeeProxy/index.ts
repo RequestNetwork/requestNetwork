@@ -25,6 +25,10 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
           address: '0xC6E23a20C0a1933ACC8E30247B5D1e2215796C1F',
           creationBlockNumber: 20670475,
         },
+        velas: {
+          address: '0xc42b664Ef122E8880F89c6D7C5A234BEd0c6C2d0',
+          creationBlockNumber: 175947,
+        },
       },
     },
   },
