@@ -105,10 +105,6 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
       hre.config.etherscan.apiKey = process.env.FTMSCAN_API_KEY;
       return;
     }
-    case 'velas': {
-      hre.config.etherscan.apiKey = process.env.VELAS_EVM_EXPLORER_API_KEY;
-      return;
-    }
   }
 };
 
