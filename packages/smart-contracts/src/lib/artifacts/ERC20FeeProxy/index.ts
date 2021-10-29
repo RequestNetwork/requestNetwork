@@ -100,6 +100,10 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 20060722,
         },
+        velas: {
+          address: '0x976837eA70b96C458b30dC7DF783667cef580696',
+          creationBlockNumber: 175934,
+        },
       },
     },
   },
