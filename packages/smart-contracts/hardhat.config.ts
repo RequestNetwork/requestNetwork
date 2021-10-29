@@ -71,6 +71,11 @@ export default {
       chainId: 250,
       accounts,
     },
+    velas: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://evmexplorer.velas.com/rpc',
+      chainId: 106,
+      accounts,
+    },
   },
   etherscan: {
     // Can be overridden according to the network (set-explorer-api-key)
