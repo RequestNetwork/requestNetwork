@@ -115,9 +115,12 @@ class ChainlinkConversionPathTools {
 
 const getCurrency = (symbol: string) => {
   const currencyManager = CurrencyManager.getDefault();
-  const currency = currencyManager.fromSymbol(symbol);
+  let currency = currencyManager.fromSymbol(symbol);
   if (!currency) {
-    throw new Error(`Currency ${symbol} not found`);
+    currency = currencyManager.from(symbol);
+    if (!currency) {
+      throw new Error(`Currency ${symbol} not found`);
+    }
   }
   return currency;
 };
@@ -209,9 +212,15 @@ export const showCurrencyHash = async (options?: IOptions): Promise<void> => {
   if (!options?.currencyCode) {
     throw new Error('currencyCode missing');
   }
-  const currency = getCurrency(options.currencyCode);
-  console.log('#####################################################################');
-  console.log(`Currency hash of: ${options.currencyCode}`);
-  console.log(currency.hash);
-  console.log('#####################################################################');
+  try {
+    const currency = getCurrency(options.currencyCode);
+    console.log('#####################################################################');
+    console.log(`Currency hash of: ${options.currencyCode}`);
+    console.log(currency.hash);
+    console.log('#####################################################################');
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error(`Error ! ${e.message}`);
+    }
+  }
 };

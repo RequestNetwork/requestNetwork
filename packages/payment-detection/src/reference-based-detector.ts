@@ -1,23 +1,46 @@
-import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+  TypesUtils,
+} from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import getBalanceErrorObject from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { BigNumber } from 'ethers';
+import DeclarativePaymentNetwork from './declarative';
+import { IDeclarativePaymentEventParameters } from 'types/src/payment-types';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
  */
-export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
-  implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters> {
+export default abstract class ReferenceBasedDetector<
+    TPaymentEventParameters,
+    ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
+  >
+  extends DeclarativePaymentNetwork<ExtensionType>
+  implements
+    PaymentTypes.IPaymentNetwork<TPaymentEventParameters | IDeclarativePaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension, reference based
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
+
   public constructor(
-    protected extension: ExtensionTypes.PnReferenceBased.IReferenceBased,
+    protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
+    protected extension: ExtensionType,
     protected extensionType: ExtensionTypes.ID,
-  ) {}
+  ) {
+    super({ advancedLogic });
+    if (!TypesUtils.isPaymentNetworkId(extensionType)) {
+      throw new Error(
+        `Cannot detect payment for extension type '${extensionType}', it is not a payment network ID.`,
+      );
+    }
+    this._paymentNetworkId = extensionType;
+  }
 
   /**
    * Creates the extensions data for the creation of this extension.
@@ -43,10 +66,10 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   /**
    * Creates the extensions data to add payment address
    *
-   * @param parameters to add payment information
+   * @param parameters to add payment address
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddPaymentInformation(
+  public createExtensionsDataForAddPaymentAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddPaymentAddressAction({
@@ -57,10 +80,10 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
   /**
    * Creates the extensions data to add refund address
    *
-   * @param Parameters to add refund information
+   * @param Parameters to add refund address
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddRefundInformation(
+  public createExtensionsDataForAddRefundAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddRefundAddressAction({
@@ -76,7 +99,9 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
    */
   public async getBalance(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
+  ): Promise<
+    PaymentTypes.IBalanceWithEvents<TPaymentEventParameters | IDeclarativePaymentEventParameters>
+  > {
     const paymentNetwork = request.extensions[this.extensionType];
     const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
 
@@ -113,17 +138,23 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
         paymentNetwork,
       );
 
-      const balance: string = BigNumber.from(payments.balance || 0)
-        .sub(BigNumber.from(refunds.balance || 0))
+      const declaredBalance = await super.getBalance(request);
+
+      const balance: string = BigNumber.from(declaredBalance.balance)
+        .add(payments.balance || 0)
+        .sub(refunds.balance || 0)
         .toString();
 
-      const events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] = [
-        ...payments.events,
-        ...refunds.events,
-      ].sort(
+      const events: PaymentTypes.IPaymentNetworkEvent<
+        TPaymentEventParameters | IDeclarativePaymentEventParameters
+      >[] = [...declaredBalance.events, ...payments.events, ...refunds.events].sort(
         (
-          a: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>,
-          b: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>,
+          a: PaymentTypes.IPaymentNetworkEvent<
+            TPaymentEventParameters | IDeclarativePaymentEventParameters
+          >,
+          b: PaymentTypes.IPaymentNetworkEvent<
+            TPaymentEventParameters | IDeclarativePaymentEventParameters
+          >,
         ) => (a.timestamp || 0) - (b.timestamp || 0),
       );
 
@@ -132,10 +163,11 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
         events,
       };
     } catch (error) {
-      return getBalanceErrorObject(error.message);
+      return getBalanceErrorObject((error as Error).message);
     }
   }
 
+  // FIXME: should return declarative events and balance
   protected async extractBalanceAndEvents(
     paymentAddress: string | undefined,
     eventName: PaymentTypes.EVENTS_NAMES,
@@ -170,6 +202,7 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
    * @param paymentNetworkVersion the version of the payment network
    * @returns The balance
    */
+  // FIXME: should return declarative events and balance
   protected async extractBalanceAndEventsFromPaymentRef(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
@@ -210,6 +243,7 @@ export default abstract class ReferenceBasedDetector<TPaymentEventParameters>
    * @param paymentNetwork the payment network
    * @returns The balance
    */
+  // FIXME: should return declarative events
   protected abstract extractEvents(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,

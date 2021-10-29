@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+// @ts-ignore Cannot find module
 import type { EthConversionProxy } from '../../../types/EthConversionProxy';
 
 export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
@@ -15,6 +16,14 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
         rinkeby: {
           address: '0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4',
           creationBlockNumber: 9447194,
+        },
+        fantom: {
+          address: '0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4',
+          creationBlockNumber: 20066436,
+        },
+        matic: {
+          address: '0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4',
+          creationBlockNumber: 20670503,
         },
       },
     },

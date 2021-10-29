@@ -15,6 +15,7 @@ import { BigNumber } from 'ethers';
 import { networkSupportsTheGraph } from '../thegraph';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { loadCurrencyFromContract } from './currency';
+import DeclarativePaymentNetwork from '../declarative';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -38,10 +39,11 @@ export type DeploymentInformationGetter = (
  * FIXME: inherit ReferenceBasedDetector
  */
 export default class PaymentNetworkERC20FeeProxyContract<
-  ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
-> implements PaymentTypes.IPaymentNetwork<ExtensionType> {
-  protected _paymentNetworkId: ExtensionTypes.ID;
-  protected _extension: ExtensionType;
+    ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
+  >
+  extends DeclarativePaymentNetwork<ExtensionType>
+  implements PaymentTypes.IPaymentNetwork<ExtensionType> {
+  protected _extensionTypeId: ExtensionTypes.ID;
   protected _currencyManager: ICurrencyManager;
 
   /**
@@ -54,8 +56,10 @@ export default class PaymentNetworkERC20FeeProxyContract<
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     currencyManager: ICurrencyManager;
   }) {
-    this._paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
-    this._extension = advancedLogic.extensions.feeProxyContractErc20;
+    super({ advancedLogic });
+    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
+    this.extension = advancedLogic.extensions.feeProxyContractErc20;
+    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT;
     this._currencyManager = currencyManager;
   }
 
@@ -73,7 +77,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
     const salt =
       paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
 
-    return this._extension.createCreationAction({
+    return this.extension.createCreationAction({
       feeAddress: paymentNetworkCreationParameters.feeAddress,
       feeAmount: paymentNetworkCreationParameters.feeAmount,
       paymentAddress: paymentNetworkCreationParameters.paymentAddress,
@@ -88,10 +92,10 @@ export default class PaymentNetworkERC20FeeProxyContract<
    * @param parameters to add payment information
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddPaymentInformation(
+  public createExtensionsDataForAddPaymentAddress(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddPaymentAddressAction({
+    return this.extension.createAddPaymentAddressAction({
       paymentAddress: parameters.paymentAddress,
     });
   }
@@ -102,10 +106,10 @@ export default class PaymentNetworkERC20FeeProxyContract<
    * @param Parameters to add refund information
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddRefundInformation(
+  public createExtensionsDataForAddRefundAddress(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddRefundAddressAction({
+    return this.extension.createAddRefundAddressAction({
       refundAddress: parameters.refundAddress,
     });
   }
@@ -119,7 +123,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public createExtensionsDataForAddFeeInformation(
     parameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
   ): ExtensionTypes.IAction {
-    return this._extension.createAddFeeAction({
+    return this.extension.createAddFeeAction({
       feeAddress: parameters.feeAddress,
       feeAmount: parameters.feeAmount,
     });
@@ -134,11 +138,11 @@ export default class PaymentNetworkERC20FeeProxyContract<
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetwork = request.extensions[this._paymentNetworkId];
+    const paymentNetwork = request.extensions[this._extensionTypeId];
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request does not have the extension : ${this._paymentNetworkId}`,
+        `The request does not have the extension : ${this._extensionTypeId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
@@ -197,7 +201,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
       if (error instanceof VersionNotSupported) {
         code = PaymentTypes.BALANCE_ERROR_CODE.VERSION_NOT_SUPPORTED;
       }
-      return getBalanceErrorObject(error.message, code);
+      return getBalanceErrorObject((error as Error).message, code);
     }
   }
 
@@ -244,6 +248,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
         `Network not supported for this payment network: ${request.currency.network}`,
       );
     }
+    const declaredEvents = (await super.getBalance(request)).events;
 
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
@@ -269,7 +274,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
           eventName,
           network,
         );
-    const events = await infoRetriever.getTransferEvents();
+    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
     const balance = events
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
@@ -329,7 +334,7 @@ export default class PaymentNetworkERC20FeeProxyContract<
    * Get the detected payment network ID
    */
   get paymentNetworkId(): ExtensionTypes.ID {
-    return this._paymentNetworkId;
+    return this._extensionTypeId;
   }
 
   protected async getCurrency(

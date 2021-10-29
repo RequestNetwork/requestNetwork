@@ -88,11 +88,17 @@ yarn chainlinkPath --network=matic --firstBlock=$MASS_UPDATE_BLOCK --lastBlock=$
 To get a currency hash:
 
 ```bash
-yarn request-toolbox currencyHash ETH
+yarn currencyHash ETH
 # #####################################################################
 # Currency hash of: ETH
 # 0xf5af88e117747e87fc5929f2ff87221b1447652e
 # #####################################################################
+
+yarn currencyHash FTM-fantom
+#####################################################################
+Currency hash of: FTM-fantom
+0x10bf4137b0558c33c2dc9f71c3bb81c2865fa2fb
+#####################################################################
 ```
 
 ## Contributing

@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+// @ts-ignore Cannot find module
 import type { Erc20ConversionProxy } from '../../../types/Erc20ConversionProxy';
 
 export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
@@ -35,6 +36,10 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
         bsc: {
           address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
           creationBlockNumber: 11540180,
+        },
+        fantom: {
+          address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
+          creationBlockNumber: 20061367,
         },
       },
     },

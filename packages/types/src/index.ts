@@ -13,6 +13,7 @@ import * as SignatureProviderTypes from './signature-provider-types';
 import * as SignatureTypes from './signature-types';
 import * as StorageTypes from './storage-types';
 import * as TransactionTypes from './transaction-types';
+import * as TypesUtils from './utils';
 
 export {
   AdvancedLogicTypes,
@@ -30,4 +31,5 @@ export {
   SignatureTypes,
   StorageTypes,
   TransactionTypes,
+  TypesUtils,
 };

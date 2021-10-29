@@ -99,8 +99,8 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
     );
 
     // Try to get the confirmation
-    setTimeout(async () => {
-      try {
+    new Promise((r) => setTimeout(r, this.httpConfig.getConfirmationDeferDelay))
+      .then(async () => {
         const confirmedData = await this.fetchAndRetry(
           '/getConfirmedTransaction',
           {
@@ -113,16 +113,16 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
         );
         // when found, emit the event 'confirmed'
         result.emit('confirmed', confirmedData);
-      } catch (e) {
+      })
+      .catch((e) => {
+        let error: Error = e;
         if (e.response.status === 404) {
-          throw new Error(
+          error = new Error(
             `Transaction confirmation not receive after ${this.httpConfig.getConfirmationMaxRetry} retries`,
           );
-        } else {
-          throw new Error(e.message);
         }
-      }
-    }, this.httpConfig.getConfirmationDeferDelay);
+        result.emit('error', error);
+      });
 
     return result;
   }

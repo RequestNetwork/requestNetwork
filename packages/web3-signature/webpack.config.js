@@ -32,15 +32,7 @@ module.exports = {
         test: /\.ts$/,
         use: [
           {
-            loader: 'awesome-typescript-loader',
-            // tsconfig.json contains some options required for
-            // project references which do not work with webpack.
-            // We override those options here.
-            query: {
-              declaration: false,
-              declarationMap: false,
-              composite: false,
-            },
+            loader: 'ts-loader',
           },
         ],
         exclude: /node_modules/,

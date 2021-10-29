@@ -19,7 +19,7 @@ const options = [
           Easiest way to integrate Request without having to manage cryptographic keys or infrastructure, and with a fast data access.
 				</p>
 				<p>
-					Go to <Link to="https://dashboard.request.network">the Request Portal</Link> in order to get your API keys, and your are good to go. This is the fastest option to integrate, and also the most performant to fetch requests because the Portal caches them for you. More details in the <Link to="/portal">Portal API Documentation</Link> or <Link to="/docs/guides/3-Portal-API/0-portal-intro">follow the guide</Link>.
+					Go to <Link to="https://invoicing.request.network/account/api-keys">your Request Invoicing account</Link> in order to get your API keys, and your are good to go. This is the fastest option to integrate, and also the most performant to fetch requests because the Portal caches them for you. More details in the <Link to="/portal">Portal API Documentation</Link> or <Link to="/docs/guides/3-Portal-API/0-portal-intro">follow the guide</Link>.
 				</p>
 
 				<p>

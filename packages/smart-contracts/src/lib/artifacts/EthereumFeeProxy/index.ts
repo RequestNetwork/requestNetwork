@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+// @ts-ignore Cannot find module
 import type { EthereumFeeProxy } from '../../../types/EthereumFeeProxy';
 
 export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
@@ -15,6 +16,14 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
         rinkeby: {
           address: '0xC6E23a20C0a1933ACC8E30247B5D1e2215796C1F',
           creationBlockNumber: 9447193,
+        },
+        fantom: {
+          address: '0xC6E23a20C0a1933ACC8E30247B5D1e2215796C1F',
+          creationBlockNumber: 20066431,
+        },
+        matic: {
+          address: '0xC6E23a20C0a1933ACC8E30247B5D1e2215796C1F',
+          creationBlockNumber: 20670475,
         },
       },
     },

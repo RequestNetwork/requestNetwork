@@ -12,6 +12,7 @@ import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
+import DeclarativePaymentNetwork from '../declarative';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -22,13 +23,21 @@ class VersionNotSupported extends Error {}
 /**
  * Handle payment networks with ERC20 proxy contract extension
  */
-export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IPaymentNetwork {
-  private extension: ExtensionTypes.PnReferenceBased.IReferenceBased;
+export default class PaymentNetworkERC20ProxyContract<
+    ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
+  >
+  extends DeclarativePaymentNetwork<ExtensionType>
+  implements PaymentTypes.IPaymentNetwork<ExtensionType> {
+  protected _extensionTypeId: ExtensionTypes.ID;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+    super({ advancedLogic });
+    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
     this.extension = advancedLogic.extensions.proxyContractErc20;
+    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT;
   }
 
   /**
@@ -55,10 +64,10 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
   /**
    * Creates the extensions data to add payment address
    *
-   * @param parameters to add payment information
+   * @param parameters to add payment address
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddPaymentInformation(
+  public createExtensionsDataForAddPaymentAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddPaymentAddressAction({
@@ -69,10 +78,10 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
   /**
    * Creates the extensions data to add refund address
    *
-   * @param Parameters to add refund information
+   * @param Parameters to add refund address
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddRefundInformation(
+  public createExtensionsDataForAddRefundAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddRefundAddressAction({
@@ -148,7 +157,7 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
       if (error instanceof VersionNotSupported) {
         code = PaymentTypes.BALANCE_ERROR_CODE.VERSION_NOT_SUPPORTED;
       }
-      return getBalanceErrorObject(error.message, code);
+      return getBalanceErrorObject((error as Error).message, code);
     }
   }
 
@@ -182,7 +191,7 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
       proxyContractAddress = info.address;
       proxyCreationBlockNumber = info.creationBlockNumber;
     } catch (e) {
-      if (e.message?.startsWith('No deployment for network')) {
+      if ((e as Error).message?.startsWith('No deployment for network')) {
         throw new NetworkNotSupported(
           `Network not supported for this payment network: ${request.currency.network}`,
         );
@@ -216,7 +225,9 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
           eventName,
           network,
         );
-    const events = await infoRetriever.getTransferEvents();
+
+    const declaredEvents = (await super.getBalance(request)).events;
+    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
     const balance = events
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
