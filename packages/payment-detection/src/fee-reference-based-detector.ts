@@ -5,12 +5,12 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import ReferenceBasedDetector from './reference-based-detector';
+import { ReferenceBasedDetector } from './reference-based-detector';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
  */
-export default abstract class FeeReferenceBasedDetector<
+export abstract class FeeReferenceBasedDetector<
   TPaymentEventParameters,
   ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
 > extends ReferenceBasedDetector<TPaymentEventParameters, ExtensionType> {

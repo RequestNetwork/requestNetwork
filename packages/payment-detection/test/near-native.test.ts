@@ -7,7 +7,7 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 import PaymentNetworkFactory from '../src/payment-network-factory';
 import PaymentReferenceCalculator from '../src/payment-reference-calculator';
-import NearNativeTokenPaymentDetector from '../src/near-detector';
+import { NearNativeTokenPaymentDetector } from '../src/near-detector';
 import { NearInfoRetriever } from '../src/near-info-retriever';
 import { deepCopy } from 'ethers/lib/utils';
 

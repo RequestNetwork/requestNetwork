@@ -8,11 +8,13 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 
 import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import {
   _getErc20FeeProxyPaymentUrl,
   payErc20FeeProxyRequest,
+  prepareErc20FeeProxyPaymentTransaction,
 } from '../../src/payment/erc20-fee-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 
@@ -178,6 +180,35 @@ describe('erc20-fee-proxy', () => {
       expect(_getErc20FeeProxyPaymentUrl(validRequest)).toBe(
         'ethereum:0x75c35C980C0d37ef46DF04d31A140b65503c0eEd/transferFromWithReferenceAndFee?address=0x9FBDa871d559710256a2502A2517b794B482Db40&address=0xf17f52151EbEF6C7334FAD080c5704D77216b732&uint256=100&bytes=86dfbccad783599a&uint256=2&address=0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
       );
+    });
+  });
+
+  describe('prepareErc20FeeProxyPaymentTransaction', () => {
+    it('should consider the version mapping', () => {
+      expect(
+        prepareErc20FeeProxyPaymentTransaction({
+          ...validRequest,
+          extensions: {
+            [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+              ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT],
+              version: '0.1.0',
+            },
+          },
+        } as any).to,
+      ).toBe(erc20FeeProxyArtifact.getAddress('private', '0.1.0'));
+
+      expect(
+        prepareErc20FeeProxyPaymentTransaction({
+          ...validRequest,
+          extensions: {
+            [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+              ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT],
+              version: '0.2.0',
+            },
+          },
+        } as any).to,
+        // the 0.2.0 pn uses the 0.1.0 mapping
+      ).toBe(erc20FeeProxyArtifact.getAddress('private', '0.1.0'));
     });
   });
 });

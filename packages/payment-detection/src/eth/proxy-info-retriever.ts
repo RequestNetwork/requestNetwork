@@ -25,7 +25,7 @@ type TransferWithReferenceAndFeeArgs = TransferWithReferenceArgs & {
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
-export default class ProxyEthereumInfoRetriever
+export class EthProxyInfoRetriever
   implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
   public contractProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
