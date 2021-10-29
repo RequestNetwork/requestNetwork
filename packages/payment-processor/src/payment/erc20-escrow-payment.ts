@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
-//import { erc20EscrowToPayArtifact } from 'smart-contracts/src/lib/artifacts/ERC20EscrowToPay'
-import { ERC20EscrowToPay__factory } from '@requestnetwork/smart-contracts/types';
+import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts'
+import { ERC20EscrowToPay__factory } from '@requestnetwork/smart-contracts/types/';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
@@ -11,7 +11,7 @@ import {
   validateRequest,
 } from './utils';
 import { ITransactionOverrides } from './transaction-overrides';
-import { erc20EscrowToPayArtifact } from '../../../smart-contracts/src/lib/artifacts/ERC20EscrowToPay/index';
+
 
 
 
@@ -136,7 +136,7 @@ export async function completeEmergencyClaim(
 }
 
 /**
- * Processes a transaction to refundFrozenFunds().
+ * Processes a transaction to revertEmergencyClaim().
  * @param request request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
@@ -202,17 +202,13 @@ export function encodePayEscrow(
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   // collects the parameters to be used, from the request
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAmount,
-    feeAddress,
-    } = getRequestPaymentValues(request,);
+  const { paymentReference, paymentAddress, feeAmount, feeAddress} = getRequestPaymentValues(request,);
   
   const amountToPay = getAmountToPay(request, amount);
-  const erc20EscrowToPayContract = ERC20EscrowToPay__factory.connect(contractAddress, signer);
 
-  return erc20EscrowToPayContract.interface.encodeFunctionData('payEscrow', [
+  const erc20EscrowContract = ERC20EscrowToPay__factory.connect(contractAddress, signer);
+
+  return erc20EscrowContract.interface.encodeFunctionData("payEscrow", [
     tokenAddress,
     paymentAddress,
     amountToPay,
