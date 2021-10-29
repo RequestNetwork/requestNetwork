@@ -62,6 +62,7 @@ export default class PaymentNetworkFactory {
    * @param currency the currency of the request
    * @param paymentNetworkCreationParameters creation parameters of payment network
    * @param bitcoinDetectionProvider bitcoin detection provider
+   * @param currencyManager the currency manager handling supported currencies
    * @returns the module to handle the payment network
    */
   public static createPaymentNetwork({
@@ -104,6 +105,7 @@ export default class PaymentNetworkFactory {
    * @param request the request
    * @param bitcoinDetectionProvider bitcoin detection provider
    * @param explorerApiKeys the explorer API (eg Etherscan) api keys, for PNs that rely on it. Record by network name.
+   * @param currencyManager the currency manager handling supported currencies
    * @returns the module to handle the payment network or null if no payment network found
    */
   public static getPaymentNetworkFromRequest({
@@ -173,7 +175,7 @@ export default class PaymentNetworkFactory {
    * @param currency The currency to check the supported networks for
    */
   public static currencySupportsPaymentNetwork(
-    paymentNetworkId: string,
+    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
     currency: RequestLogicTypes.ICurrency,
   ): boolean {
     const paymentNetworks = this.supportedPaymentNetworksForCurrency(currency);
