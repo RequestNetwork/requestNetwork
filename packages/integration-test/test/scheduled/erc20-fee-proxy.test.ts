@@ -50,7 +50,7 @@ const createMockRequest = ({
   version: '0.2',
 });
 
-const erc20AddressedBased = new Erc20PaymentNetwork.FeeProxyContract({
+const erc20AddressedBased = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
 });

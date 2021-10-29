@@ -74,9 +74,9 @@ describe('any-to-eth-proxy', () => {
       const request = Utils.deepCopy(validEuroRequest);
       request.extensions = [] as any;
 
-      await expect(
-        payAnyToEthProxyRequest(request, wallet, paymentSettings),
-      ).rejects.toThrowError('no payment network found');
+      await expect(payAnyToEthProxyRequest(request, wallet, paymentSettings)).rejects.toThrowError(
+        'no payment network found',
+      );
     });
   });
 
@@ -88,11 +88,7 @@ describe('any-to-eth-proxy', () => {
       const feeOldBalance = await provider.getBalance(feeAddress);
 
       // convert and pay
-      const tx = await payAnyToEthProxyRequest(
-        validEuroRequest,
-        wallet,
-        paymentSettings
-      );
+      const tx = await payAnyToEthProxyRequest(validEuroRequest, wallet, paymentSettings);
 
       const confirmedTx = await tx.wait(1);
 
@@ -107,7 +103,7 @@ describe('any-to-eth-proxy', () => {
 
       // Check each balance
       expect(
-        fromOldBalance.sub(fromNewBalance).sub(confirmedTx.gasUsed.mul(gasPrice)).toString()
+        fromOldBalance.sub(fromNewBalance).sub(confirmedTx.gasUsed.mul(gasPrice)).toString(),
         //   expectedAmount:        1.00
         //   feeAmount:          +   .02
         //                       =  1.02
@@ -116,18 +112,18 @@ describe('any-to-eth-proxy', () => {
         //                       =  0.002448 (over 18 decimals for this ETH)
       ).toEqual('2448000000000000');
       expect(
-        toNewBalance.sub(toOldBalance).toString()
+        toNewBalance.sub(toOldBalance).toString(),
         //   expectedAmount:        1.00
         //   AggEurUsd.sol       x  1.20
         //   AggETHUsd.sol       /   500
-        //                       =  0.0024 (over 18 decimals for this ETH)        
+        //                       =  0.0024 (over 18 decimals for this ETH)
       ).toEqual('2400000000000000');
       expect(
-        feeNewBalance.sub(feeOldBalance).toString()
+        feeNewBalance.sub(feeOldBalance).toString(),
         //   feeAmount:              .02
         //   AggEurUsd.sol       x  1.20
         //   AggETHUsd.sol       /   500
-        //                       =  0.000048 (over 18 decimals for this ETH)        
+        //                       =  0.000048 (over 18 decimals for this ETH)
       ).toEqual('48000000000000');
     });
   });

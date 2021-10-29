@@ -34,7 +34,7 @@ describe('ERC20 Address Based detection test-suite', () => {
   });
 
   it('can getBalance on a mainnet request', async () => {
-    const erc20AddressedBased = new Erc20PaymentNetwork.AddressBased({
+    const erc20AddressedBased = new Erc20PaymentNetwork.ERC20AddressBasedPaymentDetector({
       advancedLogic: mockAdvancedLogic,
     });
     const mockRequest = {

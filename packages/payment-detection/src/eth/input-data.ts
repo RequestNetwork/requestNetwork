@@ -6,9 +6,11 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import EthInputDataInfoRetriever from './info-retriever';
-import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
-import ReferenceBasedDetector from '../reference-based-detector';
+import { EthInputDataInfoRetriever } from './info-retriever';
+import { EthProxyInfoRetriever } from './proxy-info-retriever';
+import { ReferenceBasedDetector } from '../reference-based-detector';
+import { makeGetDeploymentInformation } from '../utils';
+
 import { networkSupportsTheGraphForNativePayments } from '../thegraph';
 import TheGraphInfoRetriever from '../erc20/thegraph-info-retriever';
 
@@ -26,7 +28,7 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
   private explorerApiKeys: Record<string, string>;
   /**
    * @param extension The advanced logic payment network extensions
@@ -73,7 +75,10 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
       this.explorerApiKeys[network],
     );
     const events = await infoRetriever.getTransferEvents();
-    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetwork.version);
+    const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(
+      network,
+      paymentNetwork.version,
+    );
 
     if (proxyContractArtifact) {
       let proxyInfoRetriever;
@@ -87,7 +92,7 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
           network,
         );
       } else {
-        proxyInfoRetriever = new EthProxyInputDataInfoRetriever(
+        proxyInfoRetriever = new EthProxyInfoRetriever(
           paymentReference,
           proxyContractArtifact.address,
           proxyContractArtifact.creationBlockNumber,
@@ -96,7 +101,6 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
           network,
         );
       }
-
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
       for (const event of proxyEvents) {
         events.push(event);
@@ -106,18 +110,10 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
   }
 
   /*
-   * Fetches events from the Ethereum Proxy, or returns null
+   * Returns deployment information for the underlying smart contract for a given payment network version
    */
-  private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
-    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
-    try {
-      return SmartContracts.ethereumProxyArtifact.getDeploymentInformation(
-        network,
-        contractVersion,
-      );
-    } catch (error) {
-      console.warn(error);
-    }
-    return null;
-  }
+  public static getDeploymentInformation = makeGetDeploymentInformation(
+    SmartContracts.ethereumProxyArtifact,
+    PROXY_CONTRACT_ADDRESS_MAP,
+  );
 }

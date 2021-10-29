@@ -1,13 +1,13 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
-import { ethereumFeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { EthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthereumFeeProxy__factory } from '@requestnetwork/smart-contracts/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
-  getPaymentNetworkExtension,
+  getProxyAddress,
   getProvider,
   getRequestPaymentValues,
   getSigner,
@@ -81,10 +81,9 @@ export function prepareEthFeeProxyPaymentTransaction(
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = feeAmountOverride || BigNumber.from(feeAmount || 0);
   const encodedTx = encodePayEthFeeProxyRequest(request, amount, feeAmountOverride);
-  const pn = getPaymentNetworkExtension(request);
-  const proxyAddress = ethereumFeeProxyArtifact.getAddress(
-    request.currencyInfo.network!,
-    pn?.version,
+  const proxyAddress = getProxyAddress(
+    request,
+    EthFeeProxyPaymentDetector.getDeploymentInformation,
   );
 
   return {
