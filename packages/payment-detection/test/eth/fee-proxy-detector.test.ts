@@ -1,7 +1,7 @@
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import ETHFeeProxyDetector from '../../src/eth/fee-proxy-detector';
+import { EthFeeProxyPaymentDetector } from '../../src/eth/fee-proxy-detector';
 
-let ethFeeProxyDetector: ETHFeeProxyDetector;
+let ethFeeProxyDetector: EthFeeProxyPaymentDetector;
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();
@@ -31,7 +31,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/fee-proxy-contract', () => {
   beforeEach(() => {
-    ethFeeProxyDetector = new ETHFeeProxyDetector({
+    ethFeeProxyDetector = new EthFeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
     });
   });

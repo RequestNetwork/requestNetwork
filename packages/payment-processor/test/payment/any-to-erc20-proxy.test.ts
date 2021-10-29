@@ -197,6 +197,7 @@ describe('conversion-erc20-fee-proxy', () => {
       validEthRequest.currencyInfo = {
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH',
+        network: 'mainnet',
       };
       validEthRequest.expectedAmount = '1000000000000000000'; // 1 ETH
       validEthRequest.extensions[

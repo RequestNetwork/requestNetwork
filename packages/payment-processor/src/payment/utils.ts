@@ -129,6 +129,35 @@ export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): s
   return extension.version;
 }
 
+const getProxyNetwork = (
+  pn: ExtensionTypes.IState,
+  currency: RequestLogicTypes.ICurrency,
+): string => {
+  if (pn.values.network) {
+    return pn.values.network;
+  }
+  if (currency.network) {
+    return currency.network;
+  }
+  throw new Error('Payment currency must have a network');
+};
+
+export const getProxyAddress = (
+  request: ClientTypes.IRequestData,
+  getDeploymentInformation: (network: string, version: string) => { address: string },
+): string => {
+  const pn = getPaymentNetworkExtension(request);
+  if (!pn) {
+    throw new Error('PaymentNetwork not found');
+  }
+  const network = getProxyNetwork(pn, request.currencyInfo);
+  const deploymentInfo = getDeploymentInformation(network, pn.version);
+  if (!deploymentInfo) {
+    throw new Error(`No deployment found for network ${network}, version ${pn.version}`);
+  }
+  return deploymentInfo.address;
+};
+
 const {
   ERC20_PROXY_CONTRACT,
   ETH_INPUT_DATA,

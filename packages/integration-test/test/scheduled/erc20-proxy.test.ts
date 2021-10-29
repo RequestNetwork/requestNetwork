@@ -12,7 +12,7 @@ import {
   requestNetwork,
 } from './fixtures';
 
-const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ProxyContract({
+const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ERC20ProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,
 });
 
@@ -76,4 +76,4 @@ describe('ERC20 Proxy detection test-suite', () => {
     expect(balance.balance).toBe('0');
     expect(balance.events).toHaveLength(0);
   });
-})
+});

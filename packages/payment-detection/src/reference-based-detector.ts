@@ -11,18 +11,19 @@ import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { BigNumber } from 'ethers';
 import DeclarativePaymentNetwork from './declarative';
-import { IDeclarativePaymentEventParameters } from 'types/src/payment-types';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
  */
-export default abstract class ReferenceBasedDetector<
+export abstract class ReferenceBasedDetector<
     TPaymentEventParameters,
     ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
   >
   extends DeclarativePaymentNetwork<ExtensionType>
   implements
-    PaymentTypes.IPaymentNetwork<TPaymentEventParameters | IDeclarativePaymentEventParameters> {
+    PaymentTypes.IPaymentNetwork<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    > {
   /**
    * @param extension The advanced logic payment network extension, reference based
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
@@ -100,7 +101,9 @@ export default abstract class ReferenceBasedDetector<
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<
-    PaymentTypes.IBalanceWithEvents<TPaymentEventParameters | IDeclarativePaymentEventParameters>
+    PaymentTypes.IBalanceWithEvents<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >
   > {
     const paymentNetwork = request.extensions[this.extensionType];
     const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
@@ -146,14 +149,14 @@ export default abstract class ReferenceBasedDetector<
         .toString();
 
       const events: PaymentTypes.IPaymentNetworkEvent<
-        TPaymentEventParameters | IDeclarativePaymentEventParameters
+        TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
       >[] = [...declaredBalance.events, ...payments.events, ...refunds.events].sort(
         (
           a: PaymentTypes.IPaymentNetworkEvent<
-            TPaymentEventParameters | IDeclarativePaymentEventParameters
+            TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
           >,
           b: PaymentTypes.IPaymentNetworkEvent<
-            TPaymentEventParameters | IDeclarativePaymentEventParameters
+            TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
           >,
         ) => (a.timestamp || 0) - (b.timestamp || 0),
       );

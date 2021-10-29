@@ -13,7 +13,7 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 /**
  * Handle payment networks with ERC20 based address extension
  */
-export default class PaymentNetworkERC20AddressBased
+export class ERC20AddressBasedPaymentDetector
   implements PaymentTypes.IPaymentNetwork<PaymentTypes.IERC20PaymentEventParameters> {
   private extension: ExtensionTypes.PnAddressBased.IAddressBased<ExtensionTypes.PnAddressBased.ICreationParameters>;
   /**
