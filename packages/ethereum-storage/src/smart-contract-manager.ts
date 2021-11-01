@@ -364,6 +364,10 @@ export default class SmartContractManager {
         })
         .on('confirmation', (confirmationNumber: number, receiptAfterConfirmation: any) => {
           if (!ethereumMetadataCreated) {
+            this.logger.debug(
+              `Confirmation nb ${confirmationNumber} for transaction: ${receiptAfterConfirmation.transactionHash}`,
+            );
+
             const gasFee = BigNumber.from(receiptAfterConfirmation.gasUsed).mul(gasPriceToUse);
             const cost = gasFee.add(BigNumber.from(fee));
 
@@ -376,12 +380,18 @@ export default class SmartContractManager {
               cost.toString(),
               fee,
               gasFee.toString(),
+              confirmationNumber,
             )
               .then((ethereumMetadata: StorageTypes.IEthereumMetadata) => {
                 ethereumMetadataCreated = true;
                 resolve(ethereumMetadata);
               })
               .catch((e) => {
+                this.logger.debug(
+                  `Could not create ethereum metadata for transaction ${
+                    receiptAfterConfirmation.transactionHash
+                  }: ${e.message || e}`,
+                );
                 if (confirmationNumber >= CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS) {
                   reject(Error(`Maximum number of confirmation reached: ${e}`));
                 }
@@ -620,13 +630,15 @@ export default class SmartContractManager {
     cost?: string,
     fee?: string,
     gasFee?: string,
+    blockConfirmation?: number,
   ): Promise<StorageTypes.IEthereumMetadata> {
-    // Get the number confirmations of the block hosting the transaction
-    let blockConfirmation;
-    try {
-      blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
-    } catch (error) {
-      throw Error(`Error getting block confirmation number: ${error}`);
+    if (!blockConfirmation) {
+      // Get the number confirmations of the block hosting the transaction
+      try {
+        blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
+      } catch (error) {
+        throw Error(`Error getting block confirmation number: ${error}`);
+      }
     }
 
     // Get timestamp of the block hosting the transaction

@@ -1,11 +1,11 @@
 import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
-import { ethereumProxyArtifact } from '@requestnetwork/smart-contracts';
+import { EthInputDataPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthereumProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
-  getPaymentNetworkExtension,
+  getProxyAddress,
   getProvider,
   getRequestPaymentValues,
   getSigner,
@@ -56,8 +56,10 @@ export function prepareEthProxyPaymentTransaction(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
 
   const encodedTx = encodePayEthProxyRequest(request);
-  const pn = getPaymentNetworkExtension(request);
-  const proxyAddress = ethereumProxyArtifact.getAddress(request.currencyInfo.network!, pn?.version);
+  const proxyAddress = getProxyAddress(
+    request,
+    EthInputDataPaymentDetector.getDeploymentInformation,
+  );
   const amountToPay = getAmountToPay(request, amount);
 
   return {

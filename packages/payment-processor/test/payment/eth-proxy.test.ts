@@ -9,8 +9,13 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import { encodePayEthProxyRequest, payEthProxyRequest } from '../../src/payment/eth-proxy';
+import {
+  encodePayEthProxyRequest,
+  payEthProxyRequest,
+  prepareEthProxyPaymentTransaction,
+} from '../../src/payment/eth-proxy';
 import { getRequestPaymentValues } from '../../src/payment/utils';
+import { ethereumProxyArtifact } from '@requestnetwork/smart-contracts';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -141,6 +146,36 @@ describe('encodePayEthProxyRequest', () => {
   it('should encode pay for an ETH request', () => {
     expect(encodePayEthProxyRequest(validRequest)).toBe(
       '0xeb7d8df3000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
+    );
+  });
+});
+
+describe('prepareEthProxyPaymentTransaction', () => {
+  it('should consider the version mapping', () => {
+    const valid010Request = {
+      ...validRequest,
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
+          version: '0.1.0',
+        },
+      },
+    };
+    const valid020Request = {
+      ...validRequest,
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
+          version: '0.2.0',
+        },
+      },
+    };
+    expect(prepareEthProxyPaymentTransaction(valid010Request).to).toBe(
+      ethereumProxyArtifact.getAddress('private', '0.1.0'),
+    );
+    expect(prepareEthProxyPaymentTransaction(valid020Request).to).toBe(
+      // because of the mapping, the 0.2.0 PN should resolve the 0.1.0 contract address
+      ethereumProxyArtifact.getAddress('private', '0.1.0'),
     );
   });
 });

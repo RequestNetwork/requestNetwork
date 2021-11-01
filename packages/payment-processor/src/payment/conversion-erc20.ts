@@ -1,10 +1,10 @@
 import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
 
-import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
-import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
+import { ClientTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
-import { getProvider, getSigner } from './utils';
+import { getProvider, getSigner, getProxyAddress } from './utils';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 
 /**
@@ -25,16 +25,11 @@ export async function approveErc20ForProxyConversionIfNeeded(
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  const pn = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY];
-  const network = pn.values.network;
-  if (!network) {
-    throw new Error(`Payment network currency must have a network`);
-  }
-
+  const proxyAddress = getProxyAddress(request, AnyToERC20PaymentDetector.getDeploymentInformation);
   if (
     !(await checkErc20Allowance(
       ownerAddress,
-      erc20ConversionProxy.getAddress(network, pn.version),
+      proxyAddress,
       signerOrProvider,
       paymentTokenAddress,
       minAmount,
@@ -63,14 +58,8 @@ export async function approveErc20ForProxyConversion(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const pn = request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY];
-  const network = pn.values.network;
-
-  const encodedTx = encodeApproveAnyErc20(
-    paymentTokenAddress,
-    erc20ConversionProxy.getAddress(network, pn.version),
-    signerOrProvider,
-  );
+  const proxyAddress = getProxyAddress(request, AnyToERC20PaymentDetector.getDeploymentInformation);
+  const encodedTx = encodeApproveAnyErc20(paymentTokenAddress, proxyAddress, signerOrProvider);
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction({
     data: encodedTx,

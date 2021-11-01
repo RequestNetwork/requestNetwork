@@ -4,9 +4,9 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import ERC20ProxyContract from '../../src/erc20/proxy-contract';
+import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
 
-let erc20ProxyContract: ERC20ProxyContract;
+let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();
@@ -33,7 +33,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
-    erc20ProxyContract = new ERC20ProxyContract({ advancedLogic: mockAdvancedLogic });
+    erc20ProxyContract = new ERC20ProxyPaymentDetector({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -127,7 +127,7 @@ describe('api/erc20/proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.VERSION_NOT_SUPPORTED,
-        message: 'Payment network version not supported: WRONG',
+        message: 'No contract matches payment network version: WRONG.',
       },
       events: [],
     });

@@ -4,9 +4,9 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import EthInputData from '../../src/eth/input-data';
+import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
 
-let ethInputData: EthInputData;
+let ethInputData: EthInputDataPaymentDetector;
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();
@@ -35,7 +35,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/input-data', () => {
   beforeEach(() => {
-    ethInputData = new EthInputData({ advancedLogic: mockAdvancedLogic });
+    ethInputData = new EthInputDataPaymentDetector({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
