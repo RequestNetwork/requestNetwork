@@ -170,6 +170,7 @@ export default class PaymentNetworkDeclarative<
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
+            txHash: parameters.txHash,
             note: parameters.note,
             from: data.from,
           },
@@ -184,6 +185,7 @@ export default class PaymentNetworkDeclarative<
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
+            txHash: parameters.txHash,
             note: parameters.note,
             from: data.from,
           },
