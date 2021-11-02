@@ -13,7 +13,7 @@ jobs:
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.19.0
+          node-version: v14.18.1
       - name: yarn install & build
         run: |
           yarn

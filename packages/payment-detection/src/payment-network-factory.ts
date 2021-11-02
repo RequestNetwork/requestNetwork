@@ -62,6 +62,7 @@ export default class PaymentNetworkFactory {
    * @param currency the currency of the request
    * @param paymentNetworkCreationParameters creation parameters of payment network
    * @param bitcoinDetectionProvider bitcoin detection provider
+   * @param currencyManager the currency manager handling supported currencies
    * @returns the module to handle the payment network
    */
   public static createPaymentNetwork({
@@ -77,7 +78,7 @@ export default class PaymentNetworkFactory {
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
     currencyManager: ICurrencyManager;
   }): PaymentTypes.IPaymentNetwork {
-    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+    const paymentNetworkForCurrency = this.supportedPaymentNetworksForCurrency(currency);
 
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
@@ -104,6 +105,7 @@ export default class PaymentNetworkFactory {
    * @param request the request
    * @param bitcoinDetectionProvider bitcoin detection provider
    * @param explorerApiKeys the explorer API (eg Etherscan) api keys, for PNs that rely on it. Record by network name.
+   * @param currencyManager the currency manager handling supported currencies
    * @returns the module to handle the payment network or null if no payment network found
    */
   public static getPaymentNetworkFromRequest({
@@ -129,7 +131,7 @@ export default class PaymentNetworkFactory {
     }
 
     const paymentNetworkId = extensionPaymentNetwork.id;
-    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+    const paymentNetworkForCurrency = this.supportedPaymentNetworksForCurrency(currency);
 
     if (!paymentNetworkForCurrency[paymentNetworkId]) {
       throw new Error(
@@ -146,23 +148,37 @@ export default class PaymentNetworkFactory {
       currencyManager,
     });
   }
-}
 
-/**
- * Gets the payment networks supported for a Currency object
- *
- * @param currency The currency to get the supported networks for
- */
-function supportedPaymentNetworksForCurrency(
-  currency: RequestLogicTypes.ICurrency,
-): PaymentTypes.IPaymentNetworkModuleByType {
-  if (!supportedPaymentNetwork[currency.type]) {
-    return anyCurrencyPaymentNetwork;
+  /**
+   * Gets the payment networks supported for a Currency object
+   *
+   * @param currency The currency to get the supported networks for
+   */
+  public static supportedPaymentNetworksForCurrency(
+    currency: RequestLogicTypes.ICurrency,
+  ): PaymentTypes.IPaymentNetworkModuleByType {
+    if (!supportedPaymentNetwork[currency.type]) {
+      return anyCurrencyPaymentNetwork;
+    }
+
+    const paymentNetwork =
+      supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] ||
+      supportedPaymentNetwork[currency.type]['*'];
+
+    return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
   }
 
-  const paymentNetwork =
-    supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] ||
-    supportedPaymentNetwork[currency.type]['*'];
-
-  return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
+  /**
+   * Checks if a networkId is part of the supported networks for given currency
+   *
+   * @param paymentNetworkId The networkId to check is supported by this currency
+   * @param currency The currency to check the supported networks for
+   */
+  public static currencySupportsPaymentNetwork(
+    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    currency: RequestLogicTypes.ICurrency,
+  ): boolean {
+    const paymentNetworks = this.supportedPaymentNetworksForCurrency(currency);
+    return !!paymentNetworks[paymentNetworkId];
+  }
 }
