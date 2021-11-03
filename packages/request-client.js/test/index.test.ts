@@ -880,7 +880,7 @@ describe('index', () => {
       expect(requestData.balance!.balance).toEqual('10');
     });
 
-    it('allows to declare a received payment by providing transaction hash', async () => {
+    it('allows to declare a received payment by providing transaction hash and network', async () => {
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -905,6 +905,7 @@ describe('index', () => {
         'received payment',
         TestData.payee.identity,
         '0x123456789',
+        'mainnet'
       );
       await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 

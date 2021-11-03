@@ -170,6 +170,8 @@ describe('api/declarative', () => {
           parameters: {
             amount: '1000',
             note: 'first payment',
+            txHash: 'the-first-hash',
+            network: 'mainnet'
           },
           timestamp: 10,
         },
@@ -178,6 +180,8 @@ describe('api/declarative', () => {
           parameters: {
             amount: '500',
             note: 'second payment',
+            txHash: 'the-second-hash',
+            network: 'matic'
           },
           timestamp: 15,
         },
@@ -186,6 +190,8 @@ describe('api/declarative', () => {
           parameters: {
             amount: '100',
             note: 'first refund',
+            txHash: 'the-first-refund-hash',
+            network: 'mainnet'
           },
           timestamp: 20,
         },
@@ -194,6 +200,8 @@ describe('api/declarative', () => {
           parameters: {
             amount: '200',
             note: 'second refund',
+            txHash: 'the-second-refund-hash',
+            network: 'matic'
           },
           timestamp: 25,
         },
@@ -210,6 +218,8 @@ describe('api/declarative', () => {
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             note: 'first payment',
+            txHash: 'the-first-hash',
+            network: 'mainnet'
           },
           timestamp: 10,
         },
@@ -218,6 +228,8 @@ describe('api/declarative', () => {
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             note: 'second payment',
+            txHash: 'the-second-hash',
+            network: 'matic'
           },
           timestamp: 15,
         },
@@ -226,6 +238,8 @@ describe('api/declarative', () => {
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             note: 'first refund',
+            txHash: 'the-first-refund-hash',
+            network: 'mainnet'
           },
           timestamp: 20,
         },
@@ -234,6 +248,8 @@ describe('api/declarative', () => {
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             note: 'second refund',
+            txHash: 'the-second-refund-hash',
+            network: 'matic'
           },
           timestamp: 25,
         },
