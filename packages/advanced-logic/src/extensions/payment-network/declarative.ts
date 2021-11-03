@@ -50,6 +50,7 @@ export default class DeclarativePaymentNetwork<
         amount: parameters.amount.toString(),
         note: parameters.note,
         txHash: parameters.txHash,
+        network: parameters.network,
       },
     };
   }
@@ -71,6 +72,7 @@ export default class DeclarativePaymentNetwork<
         amount: parameters.amount.toString(),
         note: parameters.note,
         txHash: parameters.txHash,
+        network: parameters.network,
       },
     };
   }
@@ -92,6 +94,7 @@ export default class DeclarativePaymentNetwork<
         amount: parameters.amount.toString(),
         note: parameters.note,
         txHash: parameters.txHash,
+        network: parameters.network,
       },
     };
   }
@@ -113,6 +116,7 @@ export default class DeclarativePaymentNetwork<
         amount: parameters.amount.toString(),
         note: parameters.note,
         txHash: parameters.txHash,
+        network: parameters.network,
       },
     };
   }
