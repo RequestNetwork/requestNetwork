@@ -880,7 +880,7 @@ describe('index', () => {
       expect(requestData.balance!.balance).toEqual('10');
     });
 
-    it('allows to declare a received payment by providing transaction hash', async () => {
+    it('allows to declare a received payment by providing transaction hash and network', async () => {
       const requestNetwork = new RequestNetwork({
         httpConfig,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -905,6 +905,7 @@ describe('index', () => {
         'received payment',
         TestData.payee.identity,
         '0x123456789',
+        'mainnet'
       );
       await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
@@ -1232,7 +1233,7 @@ describe('index', () => {
         expect(requestData.meta).not.toBeNull();
         expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
       });
-    });
+    }, 10000);
 
     it('creates an encrypted request and recovers it by identity', async () => {
       const requestNetwork = new RequestNetwork({

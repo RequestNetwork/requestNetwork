@@ -451,6 +451,7 @@ export default class Request {
    * @param note Note from payee about the received payment
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param txHash transaction hash
+   * @param network network of the transaction
    * @returns The updated request
    */
   public async declareReceivedPayment(
@@ -458,6 +459,7 @@ export default class Request {
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
     txHash?: string,
+    network?: string,
   ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
@@ -478,6 +480,7 @@ export default class Request {
         amount,
         note,
         txHash,
+        network,
       }),
     );
 
@@ -502,6 +505,7 @@ export default class Request {
    * @param note Note from payer about the received refund
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param txHash transaction hash
+   * @param network network of the transaction
    * @returns The updated request
    */
   public async declareReceivedRefund(
@@ -509,6 +513,7 @@ export default class Request {
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
     txHash?: string,
+    network?: string,
   ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
@@ -529,6 +534,7 @@ export default class Request {
         amount,
         note,
         txHash,
+        network,
       }),
     );
 

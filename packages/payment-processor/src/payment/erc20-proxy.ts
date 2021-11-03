@@ -1,13 +1,13 @@
 import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
 
-import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
+import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { ERC20Proxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
-  getPaymentNetworkExtension,
+  getProxyAddress,
   getProvider,
   getRequestPaymentValues,
   getSigner,
@@ -70,17 +70,14 @@ export function _getErc20ProxyPaymentUrl(
   amount?: BigNumberish,
 ): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
-  const { paymentAddress, paymentReference, version } = getRequestPaymentValues(request);
-  const contractAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!, version);
+  const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
+  const contractAddress = getProxyAddress(
+    request,
+    Erc20PaymentNetwork.ERC20ProxyPaymentDetector.getDeploymentInformation,
+  );
   const amountToPay = getAmountToPay(request, amount);
   const parameters = `transferFromWithReference?address=${request.currencyInfo.value}&address=${paymentAddress}&uint256=${amountToPay}&bytes=${paymentReference}`;
   return `ethereum:${contractAddress}/${parameters}`;
-}
-
-export function getProxyAddress(request: ClientTypes.IRequestData): string {
-  const pn = getPaymentNetworkExtension(request);
-  const proxyAddress = erc20ProxyArtifact.getAddress(request.currencyInfo.network!, pn?.version);
-  return proxyAddress;
 }
 
 /**
@@ -97,7 +94,10 @@ export function prepareErc20ProxyPaymentTransaction(
 
   return {
     data: encodePayErc20Request(request, amount),
-    to: getProxyAddress(request),
+    to: getProxyAddress(
+      request,
+      Erc20PaymentNetwork.ERC20ProxyPaymentDetector.getDeploymentInformation,
+    ),
     value: 0,
   };
 }

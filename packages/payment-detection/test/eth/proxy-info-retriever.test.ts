@@ -1,7 +1,7 @@
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-magic-numbers */
 import { PaymentTypes } from '@requestnetwork/types';
-import ProxyETHInfoRetriever from '../../src/eth/proxy-info-retriever';
+import { EthProxyInfoRetriever } from '../../src/eth/proxy-info-retriever';
 
 const proxyContractAddress = '0xf204a4ef082f5c04bb89f7d5e6568b796096735a';
 const paymentReferenceMock = '01111111111111111111111111111111111111111111111111';
@@ -12,7 +12,7 @@ describe('api/eth/proxy-info-retriever', () => {
     const paymentAddress = '0xf17f52151ebef6c7334fad080c5704d77216b732';
 
     it('can get the localhost balance of an address', async () => {
-      const infoRetriever = new ProxyETHInfoRetriever(
+      const infoRetriever = new EthProxyInfoRetriever(
         paymentReferenceMock,
         proxyContractAddress,
         0,
@@ -24,8 +24,11 @@ describe('api/eth/proxy-info-retriever', () => {
       // inject mock provider.getLogs()
       infoRetriever.provider.getLogs = (filter): any => {
         // return nothing when it's from the "eth-fee-proxy" event (as we use the same getLogs for both contracts)
-        if(filter.topics && filter.topics[0] === '0xa1c241e337c4610a9d0f881111e977e9dc8690c85fe2108897bb1483c66e6a96') {
-          return []
+        if (
+          filter.topics &&
+          filter.topics[0] === '0xa1c241e337c4610a9d0f881111e977e9dc8690c85fe2108897bb1483c66e6a96'
+        ) {
+          return [];
         }
         return [
           {
@@ -63,7 +66,7 @@ describe('api/eth/proxy-info-retriever', () => {
     });
 
     it('gets an empty list of events for an address without ETH on localhost', async () => {
-      const infoRetriever = new ProxyETHInfoRetriever(
+      const infoRetriever = new EthProxyInfoRetriever(
         paymentReferenceMock,
         proxyContractAddress,
         0,

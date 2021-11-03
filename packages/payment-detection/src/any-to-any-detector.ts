@@ -5,14 +5,14 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import FeeReferenceBasedDetector from './fee-reference-based-detector';
+import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 
 import { ICurrencyManager } from '@requestnetwork/currency';
 
 /**
  * Abstract class to extend to get the payment balance of conversion requests
  */
-export default abstract class AnyToAnyDetector<
+export abstract class AnyToAnyDetector<
   TPaymentEventParameters
 > extends FeeReferenceBasedDetector<TPaymentEventParameters> {
   /**

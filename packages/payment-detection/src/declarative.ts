@@ -79,6 +79,7 @@ export default class PaymentNetworkDeclarative<
       amount: parameters.amount,
       note: parameters.note,
       txHash: parameters.txHash,
+      network: parameters.network,
     });
   }
 
@@ -95,6 +96,7 @@ export default class PaymentNetworkDeclarative<
       amount: parameters.amount,
       note: parameters.note,
       txHash: parameters.txHash,
+      network: parameters.network,
     });
   }
 
@@ -111,6 +113,7 @@ export default class PaymentNetworkDeclarative<
       amount: parameters.amount,
       note: parameters.note,
       txHash: parameters.txHash,
+      network: parameters.network,
     });
   }
 
@@ -127,6 +130,7 @@ export default class PaymentNetworkDeclarative<
       amount: parameters.amount,
       note: parameters.note,
       txHash: parameters.txHash,
+      network: parameters.network,
     });
   }
 
@@ -170,6 +174,8 @@ export default class PaymentNetworkDeclarative<
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
+            txHash: parameters.txHash,
+            network: parameters.network,
             note: parameters.note,
             from: data.from,
           },
@@ -184,6 +190,8 @@ export default class PaymentNetworkDeclarative<
           amount: parameters.amount,
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
+            txHash: parameters.txHash,
+            network: parameters.network,
             note: parameters.note,
             from: data.from,
           },
