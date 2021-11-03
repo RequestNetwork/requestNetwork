@@ -90,18 +90,6 @@ contract ERC20EscrowToPay {
     }
 
     /**
-     * @notice Emitted when an new escrow is initiated.
-     * @param paymentReference Reference of the payment related.
-     */
-    event RequestInEscrow(bytes indexed paymentReference);
-
-    /**
-     * @notice Emitted when a request has been withdraw.
-     * @param paymentReference Reference of the payment related.
-     */
-    event RequestWithdrawnFromEscrow(bytes indexed paymentReference);
-
-    /**
      * @notice Emitted when a request has been frozen.
      * @param paymentReference Reference of the payment related.
      */
@@ -118,12 +106,6 @@ contract ERC20EscrowToPay {
      * @param paymentReference Reference of the payment related.
      */
     event InitiatedEmergencyClaim(bytes indexed paymentReference);
-
-    /**
-     * @notice Emitted when an emergency claim is completed successfully.
-     * @param paymentReference Reference of the payment related.
-     */
-    event EmergencyClaimComplete(bytes indexed paymentReference);
 
     /**
      * @notice Emitted when an emergency claim has been reverted by payer.
@@ -209,7 +191,6 @@ contract ERC20EscrowToPay {
             )
         );
         require(status, "transferFromWithReferenceAndFee failed");
-
     }
     
     /**
@@ -250,8 +231,6 @@ contract ERC20EscrowToPay {
         IsNotFrozen(_paymentRef) 
     {
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw Failed!");
-
-        emit RequestWithdrawnFromEscrow(_paymentRef);  
     }
 
     /**
@@ -292,7 +271,6 @@ contract ERC20EscrowToPay {
         requestMapping[_paymentRef].emergencyClaimDate = 0;
 
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw failed!");
-
     }
 
      /**
