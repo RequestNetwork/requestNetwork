@@ -293,7 +293,6 @@ contract ERC20EscrowToPay {
 
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw failed!");
 
-        emit EmergencyClaimComplete(_paymentRef);
     }
 
      /**
