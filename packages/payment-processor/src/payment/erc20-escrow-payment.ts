@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { BigNumberish, ContractTransaction, providers, Signer } from 'ethers';
+import { BigNumber, BigNumberish, constants, ContractTransaction, providers, Signer } from 'ethers';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts'
 import { ERC20EscrowToPay__factory } from '@requestnetwork/smart-contracts/types/';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
@@ -24,9 +24,11 @@ import { ITransactionOverrides } from './transaction-overrides';
 export async function payEscrow(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  amount?: BigNumberish,
+  feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodePayEscrow(request, signerOrProvider);
+  const encodedTx = encodePayEscrow(request, signerOrProvider, amount, feeAmount);
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
 
@@ -193,28 +195,30 @@ export function encodePayEscrow(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish
 ): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
-  // ERC20 token to be used
   const tokenAddress = request.currencyInfo.value;
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
-
+  
   // collects the parameters to be used, from the request
-  const { paymentReference, paymentAddress, feeAmount, feeAddress} = getRequestPaymentValues(request,);
+  const { paymentReference, paymentAddress, feeAmount, feeAddress } = getRequestPaymentValues(request,);
   
   const amountToPay = getAmountToPay(request, amount);
+  const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
 
   const erc20EscrowContract = ERC20EscrowToPay__factory.connect(contractAddress, signer);
 
-  return erc20EscrowContract.interface.encodeFunctionData("payEscrow", [
+  return erc20EscrowContract.interface.encodeFunctionData("payEscrow", 
+  [
     tokenAddress,
     paymentAddress,
     amountToPay,
     `0x${paymentReference}`,
-    feeAmount,
-    feeAddress,
+    feeToPay,
+    feeAddress || constants.AddressZero,
   ]);
 }
 
