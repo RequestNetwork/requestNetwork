@@ -210,7 +210,6 @@ contract ERC20EscrowToPay {
         );
         require(status, "transferFromWithReferenceAndFee failed");
 
-        emit RequestInEscrow(_paymentRef);
     }
     
     /**
