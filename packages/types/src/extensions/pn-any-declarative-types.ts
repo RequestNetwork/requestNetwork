@@ -38,6 +38,7 @@ export interface ISentParameters {
   amount: RequestLogicTypes.Amount;
   note: string;
   txHash?: string;
+  network?: string;
 }
 
 /** Parameters of declareReceivedPayment and declareReceivedRefund action */
@@ -45,6 +46,7 @@ export interface IReceivedParameters {
   amount: RequestLogicTypes.Amount;
   note: string;
   txHash?: string;
+  network?: string;
 }
 
 /** Parameters of addPaymentInstruction action */

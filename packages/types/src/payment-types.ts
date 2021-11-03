@@ -185,6 +185,7 @@ export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters
 /** Parameters for events of Declarative payments */
 export interface IDeclarativePaymentEventParameters {
   txHash?: string;
+  network?: string;
   note?: string;
   from?: IIdentity;
 }
