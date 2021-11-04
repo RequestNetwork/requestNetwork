@@ -54,18 +54,15 @@ describe("Contract: ERC20EscrowToPay", () => {
                 await erc20EscrowToPay.connect(payer).payEscrow(
                     testERC20.address,
                     payeeAddress,
-                    1000,
+                    '1000',
                     referenceExample1,
-                    1,
+                    '1',
                     feeAddress
                 ),
             )
                 .to.emit(testERC20, 'Transfer')
                 .to.emit(testERC20, 'Approval')
-                .to.emit(erc20EscrowToPay, 'RequestInEscrow')
-                .withArgs(
-                    ethers.utils.keccak256(referenceExample1),
-                );
+                .to.emit(erc20EscrowToPay, 'TransferWithReferenceAndFee');
                 
             const payerNewBalance = await testERC20.balanceOf(payerAddress);
             const payeeNewBalance = await testERC20.balanceOf(payeeAddress);
@@ -87,17 +84,7 @@ describe("Contract: ERC20EscrowToPay", () => {
             
             expect(
                 await erc20EscrowToPay.connect(payer).payRequestFromEscrow(referenceExample2))
-                .to.emit(erc20EscrowToPay, 'TransferWithReferenceAndFee')
-                .withArgs(
-                    testERC20.address,
-                    payeeAddress,
-                    "2000",
-                    ethers.utils.keccak256(referenceExample2),
-                    '0',
-                    '0x0000000000000000000000000000000000000000'
-                )
-                    .to.emit(erc20EscrowToPay, "RequestWithdrawnFromEscrow")
-                    .withArgs(ethers.utils.keccak256(referenceExample2));
+                .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee');
             
             const escrowNewBalance = await testERC20.balanceOf(erc20EscrowToPayAddress);
             const payeeNewBalance = await testERC20.balanceOf(payeeAddress);

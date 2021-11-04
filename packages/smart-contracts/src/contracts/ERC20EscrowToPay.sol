@@ -95,12 +95,6 @@ contract ERC20EscrowToPay {
      * @param paymentReference Reference of the payment related.
      */
     event RequestFrozen(bytes indexed paymentReference);
-    
-    /**
-     * @notice Emitted when a frozen request has been refunded.
-     * @param paymentReference Reference of the payment related.
-     */
-    event RefundedFrozenFunds(bytes indexed paymentReference);
  
     /**
      * @notice Emitted when an emergency claim is initiated by payee.
