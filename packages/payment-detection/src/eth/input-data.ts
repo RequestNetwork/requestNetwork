@@ -11,7 +11,6 @@ import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 
-import { networkSupportsTheGraphForNativePayments } from '../thegraph';
 import TheGraphInfoRetriever from '../erc20/thegraph-info-retriever';
 
 // interface of the object indexing the proxy contract version
@@ -82,7 +81,9 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
 
     if (proxyContractArtifact) {
       let proxyInfoRetriever;
-      if (networkSupportsTheGraphForNativePayments(network)) {
+
+      // Every network except mainnet gets events from The Graph, mainnet coming soon
+      if (network !== 'mainnet') {
         proxyInfoRetriever = new TheGraphInfoRetriever(
           paymentReference,
           proxyContractArtifact.address,
