@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { BigNumber, BigNumberish, constants, ContractTransaction, providers, Signer } from 'ethers';
-import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts'
+import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20EscrowToPay__factory } from '@requestnetwork/smart-contracts/types/';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import {
@@ -11,9 +11,6 @@ import {
   validateRequest,
 } from './utils';
 import { ITransactionOverrides } from './transaction-overrides';
-
-
-
 
 /**
  * Processes a transaction to payEscrow().
@@ -47,7 +44,7 @@ export async function payEscrow(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
- export async function freezeRequest(
+export async function freezeRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
@@ -143,7 +140,7 @@ export async function completeEmergencyClaim(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
- export async function revertEmergencyClaim(
+export async function revertEmergencyClaim(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
@@ -159,7 +156,7 @@ export async function completeEmergencyClaim(
     ...overrides,
   });
   return tx;
- }
+}
 
 /**
  * Processes a transaction to refundFrozenFunds().
@@ -167,7 +164,7 @@ export async function completeEmergencyClaim(
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
- export async function refundFrozenFunds(
+export async function refundFrozenFunds(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
@@ -195,24 +192,25 @@ export function encodePayEscrow(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
-  feeAmountOverride?: BigNumberish
+  feeAmountOverride?: BigNumberish,
 ): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
   const signer = getSigner(signerOrProvider);
 
   const tokenAddress = request.currencyInfo.value;
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
-  
+
   // collects the parameters to be used, from the request
-  const { paymentReference, paymentAddress, feeAmount, feeAddress } = getRequestPaymentValues(request,);
-  
+  const { paymentReference, paymentAddress, feeAmount, feeAddress } = getRequestPaymentValues(
+    request,
+  );
+
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
 
   const erc20EscrowContract = ERC20EscrowToPay__factory.connect(contractAddress, signer);
 
-  return erc20EscrowContract.interface.encodeFunctionData("payEscrow", 
-  [
+  return erc20EscrowContract.interface.encodeFunctionData('payEscrow', [
     tokenAddress,
     paymentAddress,
     amountToPay,
@@ -227,7 +225,7 @@ export function encodePayEscrow(
  * @param request request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  */
- export function encodeFreezeRequest(
+export function encodeFreezeRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
 ): string {
@@ -245,7 +243,7 @@ export function encodePayEscrow(
   return erc20EscrowToPayContract.interface.encodeFunctionData('freezeRequest', [
     `0x${paymentReference}`,
   ]);
- }
+}
 
 /**
  * Returns the encoded data to payRequestFromEscrow().
@@ -268,7 +266,7 @@ export function encodePayRequestFromEscrow(
 
   // encodes the function data and returns them
   return erc20EscrowToPayContract.interface.encodeFunctionData('payRequestFromEscrow', [
-    `0x${paymentReference}`
+    `0x${paymentReference}`,
   ]);
 }
 
