@@ -183,6 +183,32 @@ export async function refundFrozenFunds(
 }
 
 /**
+ * Processes a transaction to refundFrozenFunds().
+ * @param request request to pay.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export async function requestMapping(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  overrides?: ITransactionOverrides,
+): Promise<ContractTransaction> {
+  const encodedTx = encodeRequestMapping(request, signerOrProvider);
+  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
+
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction({
+    data: encodedTx,
+    to: contractAddress,
+    value: 0,
+    ...overrides,
+  });
+  return tx;
+}
+
+
+
+/**
  * Encodes the call to payEscrow().
  * @param request request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
@@ -247,7 +273,7 @@ export function encodeFreezeRequest(
 
 /**
  * Returns the encoded data to payRequestFromEscrow().
- * @param request request to pay
+ * @param request request for pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  */
 export function encodePayRequestFromEscrow(
@@ -366,6 +392,29 @@ export function encodeRefundFrozenFunds(
 
   // encodes the function data and returns them
   return erc20EscrowToPayContract.interface.encodeFunctionData('refundFrozenFunds', [
+    `0x${paymentReference}`,
+  ]);
+}
+
+/**
+ * Returns the encoded data to requestMapping().
+ * @param request request to pay.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ */
+export function encodeRequestMapping(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+): string {
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+  const signer = getSigner(signerOrProvider);
+
+  // collects the parameters to be used from the request
+  const { paymentReference } = getRequestPaymentValues(request);
+  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
+  const erc20EscrowToPayContract = ERC20EscrowToPay__factory.connect(contractAddress, signer);
+ 
+  // encodes the function data and returns them
+  return erc20EscrowToPayContract.interface.encodeFunctionData('requestMapping', [
     `0x${paymentReference}`,
   ]);
 }

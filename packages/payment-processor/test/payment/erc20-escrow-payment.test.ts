@@ -6,11 +6,22 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-//import Utils from '@requestnetwork/utils';
-import { encodePayEscrow } from '../../src/payment/erc20-escrow-payment';
-import { getAmountToPay, getRequestPaymentValues, } from '../../src/payment/utils';
+import Utils from '@requestnetwork/utils';
+import {
+  encodeCompleteEmergencyClaim,
+  encodeFreezeRequest,
+  encodeInitiateEmergencyClaim,
+  encodePayEscrow,
+  encodePayRequestFromEscrow,
+  encodeRefundFrozenFunds,
+  encodeRevertEmergencyClaim,
+  encodeRequestMapping,
+  payEscrow,
+} from '../../src/payment/erc20-escrow-payment';
+import { getRequestPaymentValues } from '../../src/payment/utils';
 //import { approveErc20, getErc20Balance } from '../../src/payment/erc20';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
+
 
 
 /* eslint-disable no-magic-numbers */ 
@@ -65,64 +76,28 @@ const validRequest: ClientTypes.IRequestData = {
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: 0,  version: '1.0',
 };
+let escrowAddress: string;
 
-const escrowAddress = erc20EscrowToPayArtifact.getAddress(validRequest.currencyInfo.network!); 
+escrowAddress = erc20EscrowToPayArtifact.getAddress(validRequest.currencyInfo.network!); 
 
 const { paymentReference } = getRequestPaymentValues(validRequest);
-describe('*CONTRACT: MyEscrow.sol', () => {
+
+describe('erc20-escrow-payment tests:', () => {
   beforeEach( () => {
     jest.restoreAllMocks();
-
   });
 
-  describe('*TEST REQUESTED PAYMENT VALUES:', () => {
-    it('- Should return the correct payment values:', async () => {
+  
+  describe('Test request payment values:', () => {
+    it('Should pass with correct values.', () => {
       const values = getRequestPaymentValues(validRequest);
       expect(values.feeAddress).toBe(feeAddress);
       expect(values.feeAmount).toBe('2');
       expect(values.paymentAddress).toBe(paymentAddress);
       expect(values.paymentReference).toBe(paymentReference);
- 
-      console.log(`
-      ---MyEscrow-payments:---
-          RequestPaymentValues:
-            * PaymentReference         :               0x${values.paymentReference}
-            *
-            * ERC20 PaymentToken       :               ${erc20ContractAddress},
-            * Escrow Address           :               ${escrowAddress},
-            * Payer Address            :               ${wallet.address},
-            * Payee Address            :               ${values.paymentAddress},
-            * Fee Address              :               ${values.feeAddress}
-            * 
-            * AmountToPay              :               ${getAmountToPay(validRequest)},
-            * FeeAmount                :               ${values.feeAmount}
-            * 
-            * Network                  :               ${validRequest.currencyInfo.network}
-          `);
+      console.log(escrowAddress)
     });
-  });
-
-  describe('*ENCODE REQUESTED PAYMENT VALUES:', () => {
-    it('Should return encoded data payEscrow', async () => {
-        expect(encodePayEscrow(validRequest, wallet))
-        .toBe(
-          `0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${paymentReference}000000000000000000000000000000000000000000000000`
-        );
-    })
-  });
-/*
-    it('Should return encoded data withdrawFunds', async () => {
-      expect(encodePayRequestFromEscrow(validRequest, wallet))
-        .toBe(
-          `0x3b56da6900000000000000000000000000000000000000000000000000000000000000200000000000000000
-          000000000000000000000000000000000000000000000008${paymentReference}000000000000000000000000
-          000000000000000000000000`
-        );
-    });
-  });
-
-  describe('*EXECUTE: PayEscrow()', () => {
-    it('Should throw an error if the request is not erc20', async () => {
+    it('Should throw if the request is not erc20', async () => {
       const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
   
@@ -130,21 +105,21 @@ describe('*CONTRACT: MyEscrow.sol', () => {
         "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request"
       );
     });
-    it('Should throw an error if the currencyInfo has no value', async () => {
+    it('Should throw if the currencyInfo has no value', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(payEscrow(request, wallet)).rejects.toThrowError(
         "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request"
       );
     });
-    it('Should throw an error if currencyInfo has no network', async () => {
+    it('Should throw if currencyInfo has no network', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.network = '';
       await expect(payEscrow(request, wallet)).rejects.toThrowError(
         "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
       );
     });
-    it('Should throw an error if request has no extension', async () => {
+    it('Should throw if request has no extension', async () => {
       const request = Utils.deepCopy(validRequest);
       request.extensions = [] as any;
   
@@ -152,6 +127,72 @@ describe('*CONTRACT: MyEscrow.sol', () => {
         'no payment network found',
       );
     });
+  });
+  describe('Test encoded function data:', () => {
+    it('Should encode data to execute payEscrow().', () => {
+      const values = getRequestPaymentValues(validRequest);
+      expect(encodePayEscrow(validRequest, wallet))
+        .toBe(
+          `0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`
+        );
+    });
+    it('Should encode data to execute payRequestFromEscrow().', () => {
+      const values = getRequestPaymentValues(validRequest);
+      expect(encodePayRequestFromEscrow(validRequest, wallet))
+        .toBe(
+          `0x2a16f4c300000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`
+        );
+    });
+    it('Should encode data to execute freezeRequest().', () => {
+      const values = getRequestPaymentValues(validRequest);
+      expect(encodeFreezeRequest(validRequest, wallet))
+        .toBe(
+          `0x82865e9d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`
+        );
+    });
+    it('Should encode data to execute initiateEmergencyClaim().', () => {
+      const values = getRequestPaymentValues(validRequest);
+      expect(encodeInitiateEmergencyClaim(validRequest, wallet))
+        .toBe(
+          `0x3a322d4500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`
+        );
+    });
+    it('Should encode data to execute completeEmergencyClaim().', async () => {
+      const values = getRequestPaymentValues(validRequest);
+      expect(encodeCompleteEmergencyClaim(validRequest, wallet))
+        .toBe(
+          `0x6662e1e000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`
+        );
+    });
+    it('Should encode data to execute revertEmergencyClaim().', () => {
+      const values = getRequestPaymentValues(validRequest);
+      expect(encodeRevertEmergencyClaim(validRequest, wallet))
+        .toBe(
+          `0x0797560800000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`
+        );
+    });
+    it('Should encode data to execute refundFrozenFunds().', () => {
+      const values = getRequestPaymentValues(validRequest);
+      expect(encodeRefundFrozenFunds(validRequest, wallet))
+        .toBe(
+          `0x1a77f53a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`
+        );
+    });
+    it('should encode data to execute disputeMapping().', () => {
+      const values = getRequestPaymentValues(validRequest);
+      expect(encodeRequestMapping(validRequest, wallet))
+        .toBe(
+          `0xa58ad6bc00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`
+        );
+    });
+  });
+
+/*
+
+
+    
+    
+
     it('Should consider override parameters', async () => {
       const spy = jest.fn();
       const originalSendTransaction = wallet.sendTransaction.bind(wallet);
@@ -174,47 +215,7 @@ describe('*CONTRACT: MyEscrow.sol', () => {
       });
       wallet.sendTransaction = originalSendTransaction;
     });
-    it('Should let the payer to initAndDeposit an new MyEscrow', async () => {
-      const values = getRequestPaymentValues(validRequest);
     
-      // first approve the contract
-      const approvalTx = await approveErc20(validRequest, wallet);
-      if(approvalTx) {
-        await approvalTx.wait(1);
-      };
-      
-      // Get the balance to compare after payment
-      const payerBalanceErc20Before = await getErc20Balance(validRequest, wallet.address, provider);
-      const payeeBalanceErc20Before = await getErc20Balance(validRequest, values.paymentAddress, provider);
-      const EscrowBalanceErc20Before = await getErc20Balance(validRequest, escrowAddress, provider);
-      
-      // Execute the initAndDeposit function call
-      expect(await payEscrow(validRequest, wallet));
-      
-      // Get the balance to compare after payment
-      const payerBalanceErc20After = await getErc20Balance(validRequest, wallet.address, provider);
-      const payeeBalanceErc20After = await getErc20Balance(validRequest, values.paymentAddress, provider);
-      const EscrowBalanceErc20After = await getErc20Balance(validRequest, escrowAddress, provider);
-
-      console.log(`
-      --------   Ref: 0x${values.paymentReference} : InitAndDepositRequest ---------
-      
-      Escrow Address            :                ${escrowAddress},
-      Payer Address             :                ${wallet.address},
-      Payee Address             :                ${values.paymentAddress},
-      AmountToPay               :                ${getAmountToPay(validRequest)}  
-
-      Payer  Balance Before     :                ${payerBalanceErc20Before},
-      Payee  Balance Before     :                ${payeeBalanceErc20Before},
-      Escrow Balance Before     :                ${EscrowBalanceErc20Before}
-
-      Payer  Balance After      :                ${payerBalanceErc20After},
-      Payee  Balance After      :                ${payeeBalanceErc20After},
-      Escrow Balance After      :                ${EscrowBalanceErc20After}
-
-      `);
-    });
-  });
   
   describe('*EXECUTE: WithdrawFundsRequest: ', () => {
     it('should Withdraw funds from the MyEscrow: ', async () => {
