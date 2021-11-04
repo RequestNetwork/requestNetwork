@@ -1,119 +1,67 @@
 {
 "abi": [
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_paymentProxyAddress",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes",
-          "name": "paymentReference",
-          "type": "bytes"
-        }
-      ],
-      "name": "EmergencyClaimComplete",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes",
-          "name": "paymentReference",
-          "type": "bytes"
-        }
-      ],
-      "name": "InitiatedEmergencyClaim",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes",
-          "name": "paymentReference",
-          "type": "bytes"
-        }
-      ],
-      "name": "RefundedFrozenFunds",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes",
-          "name": "paymentReference",
-          "type": "bytes"
-        }
-      ],
-      "name": "RequestFrozen",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes",
-          "name": "paymentReference",
-          "type": "bytes"
-        }
-      ],
-      "name": "RequestInEscrow",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes",
-          "name": "paymentReference",
-          "type": "bytes"
-        }
-      ],
-      "name": "RequestWithdrawnFromEscrow",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "bytes",
-          "name": "paymentReference",
-          "type": "bytes"
-        }
-      ],
-      "name": "RevertedEmergencyClaim",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "tokenAddress",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_paymentProxyAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes",
+        "name": "paymentReference",
+        "type": "bytes"
+      }
+    ],
+    "name": "InitiatedEmergencyClaim",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes",
+        "name": "paymentReference",
+        "type": "bytes"
+      }
+    ],
+    "name": "RequestFrozen",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes",
+        "name": "paymentReference",
+        "type": "bytes"
+      }
+    ],
+    "name": "RevertedEmergencyClaim",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "tokenAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
         "name": "to",
         "type": "address"
       },
@@ -272,7 +220,7 @@
     "name": "requestMapping",
     "outputs": [
       {
-        "internalType": "contract IERC20",
+        "internalType": "address",
         "name": "tokenAddress",
         "type": "address"
       },
