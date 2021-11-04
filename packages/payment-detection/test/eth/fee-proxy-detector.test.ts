@@ -1,5 +1,7 @@
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { EthFeeProxyPaymentDetector } from '../../src/eth/fee-proxy-detector';
+import TheGraphInfoRetriever from '../../src/erc20/thegraph-info-retriever';
+import { EVENTS_NAMES } from '@requestnetwork/types/dist/payment-types';
 
 let ethFeeProxyDetector: EthFeeProxyPaymentDetector;
 
@@ -145,4 +147,30 @@ describe('api/eth/fee-proxy-contract', () => {
       events: [],
     });
   });
+
+  it('should get subgraph payment by reference from ethFeeProxy contract', async () => {
+    const paymentData = {
+      reference: "0x25aea246d7890367ae577e1857c36ec2ad4673bab27bcd04a3c87c716a8cdd14",
+      txHash: "0xcd67341254e105b80cbb6e53e4a767f9ae81f25c7bd9611f9837266a1c4b63cd",
+      from: "0xb9e27497ba98c31af7620cbb1d964644838a6353",
+      to: "0xb052f92efba37206f51548d9e8a1ecdb1bc05dea",
+      network: "rinkeby"
+    }
+    const graphRetriever = new TheGraphInfoRetriever(
+      paymentData.reference,
+      "0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f",
+      null,
+      paymentData.from,
+      EVENTS_NAMES.PAYMENT,
+      paymentData.network
+    )
+
+    const transferEvents = await graphRetriever.getTransferEvents();
+
+    expect(transferEvents).toHaveLength(1);
+
+  })
+
+  // it('should get balance from subgraph for ethFeeProxy', async () => {
+  // });
 });

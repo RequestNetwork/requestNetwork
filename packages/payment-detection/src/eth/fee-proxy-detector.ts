@@ -8,6 +8,7 @@ import {
 
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
+import TheGraphInfoRetriever from '../erc20/thegraph-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
 
 // interface of the object indexing the proxy contract version
@@ -62,14 +63,24 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<Paymen
       throw Error('ETH fee proxy contract not found');
     }
 
-    const proxyInfoRetriever = new EthProxyInfoRetriever(
-      paymentReference,
-      proxyContractArtifact.address,
-      proxyContractArtifact.creationBlockNumber,
-      address,
-      eventName,
-      network,
-    );
+    const proxyInfoRetriever =
+      network !== 'mainnet'
+        ? new TheGraphInfoRetriever(
+            paymentReference,
+            proxyContractArtifact.address,
+            null,
+            address,
+            eventName,
+            network,
+          )
+        : new EthProxyInfoRetriever(
+            paymentReference,
+            proxyContractArtifact.address,
+            proxyContractArtifact.creationBlockNumber,
+            address,
+            eventName,
+            network,
+          );
 
     return await proxyInfoRetriever.getTransferEvents();
   }
