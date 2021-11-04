@@ -27,20 +27,22 @@ function makeSidebar(dir) {
     } else if (file.name.endsWith('.js') || file.name.endsWith('.md')) {
       sidebar.push({
         type: 'doc',
-        id: path.join(dir, file.name.slice(0, -3)).split('/').map(dirOrFile => {
-          const splittedDirOrFile = dirOrFile.split('-');
-          if (splittedDirOrFile.length === 1) {
-            return splittedDirOrFile.join('');
-          }
-          
-          const [, ...name] = splittedDirOrFile;
-          return name.join('-');
-        }).join('/'),
+        id: path.join(dir, file.name.slice(0, -3)).split('/').map(cleanNumberPrefix).join('/'),
         label: toTitleCase(file.name.slice(0, -3))
       });
     }
     return sidebar;
   }, []);
+}
+
+function cleanNumberPrefix(directoryOrFile) {
+  const splittedDirOrFile = directoryOrFile.split('-');
+  if (splittedDirOrFile.length === 1) {
+    return splittedDirOrFile.join('');
+  }
+  
+  const [, ...name] = splittedDirOrFile;
+  return name.join('-');
 }
 
 function toTitleCase(string) {
