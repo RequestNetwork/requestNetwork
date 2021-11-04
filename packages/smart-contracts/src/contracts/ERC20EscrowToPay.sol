@@ -1,5 +1,5 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./lib/SafeERC20.sol";
@@ -15,7 +15,7 @@ contract ERC20EscrowToPay {
     IERC20FeeProxy public paymentProxy;
 
     struct Request {
-        IERC20 tokenAddress;
+        address tokenAddress;
         address payee;
         address payer;
         uint256 amount;
@@ -39,6 +39,7 @@ contract ERC20EscrowToPay {
         require(msg.sender == requestMapping[_paymentRef].payer, "Not Authorized.");
         _;
     }
+    
     /**
     * @notice Modifier checks if msg.sender is the requestpayment payee.
     * @param _paymentRef Reference of the requestpayment related.
@@ -90,40 +91,16 @@ contract ERC20EscrowToPay {
     }
 
     /**
-     * @notice Emitted when an new escrow is initiated.
-     * @param paymentReference Reference of the payment related.
-     */
-    event RequestInEscrow(bytes indexed paymentReference);
-
-    /**
-     * @notice Emitted when a request has been withdraw.
-     * @param paymentReference Reference of the payment related.
-     */
-    event RequestWithdrawnFromEscrow(bytes indexed paymentReference);
-
-    /**
      * @notice Emitted when a request has been frozen.
      * @param paymentReference Reference of the payment related.
      */
     event RequestFrozen(bytes indexed paymentReference);
-    
-    /**
-     * @notice Emitted when a frozen request has been refunded.
-     * @param paymentReference Reference of the payment related.
-     */
-    event RefundedFrozenFunds(bytes indexed paymentReference);
  
     /**
      * @notice Emitted when an emergency claim is initiated by payee.
      * @param paymentReference Reference of the payment related.
      */
     event InitiatedEmergencyClaim(bytes indexed paymentReference);
-
-    /**
-     * @notice Emitted when an emergency claim is completed successfully.
-     * @param paymentReference Reference of the payment related.
-     */
-    event EmergencyClaimComplete(bytes indexed paymentReference);
 
     /**
      * @notice Emitted when an emergency claim has been reverted by payer.
@@ -187,7 +164,7 @@ contract ERC20EscrowToPay {
         if (_amount == 0 || _feeAmount == 0) revert("Zero Value");
 
         requestMapping[_paymentRef] = Request(
-            IERC20(_tokenAddress),
+            _tokenAddress,
             _to,
             msg.sender,
             _amount,
@@ -209,8 +186,6 @@ contract ERC20EscrowToPay {
             )
         );
         require(status, "transferFromWithReferenceAndFee failed");
-
-        emit RequestInEscrow(_paymentRef);
     }
     
     /**
@@ -251,8 +226,6 @@ contract ERC20EscrowToPay {
         IsNotFrozen(_paymentRef) 
     {
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw Failed!");
-
-        emit RequestWithdrawnFromEscrow(_paymentRef);  
     }
 
     /**
@@ -293,8 +266,6 @@ contract ERC20EscrowToPay {
         requestMapping[_paymentRef].emergencyClaimDate = 0;
 
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw failed!");
-
-        emit EmergencyClaimComplete(_paymentRef);
     }
 
      /**
@@ -333,8 +304,6 @@ contract ERC20EscrowToPay {
         requestMapping[_paymentRef].isFrozen = false;
         
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payer), "Withdraw Failed!");
-
-        emit RefundedFrozenFunds(_paymentRef);
     }
     
      /**
@@ -358,22 +327,17 @@ contract ERC20EscrowToPay {
         uint256 _amount = requestMapping[_paymentRef].amount;
         requestMapping[_paymentRef].amount = 0;
         
-        requestMapping[_paymentRef].tokenAddress.safeTransfer(
+        IERC20(requestMapping[_paymentRef].tokenAddress).approve(address(paymentProxy), _amount);
+        
+        paymentProxy.transferFromWithReferenceAndFee(
+            requestMapping[_paymentRef].tokenAddress,
             _receiver,
-            _amount
+            _amount,
+            _paymentRef,
+            0,
+            address(0)
         );
-
-        if (requestMapping[_paymentRef].payee == _receiver) {
-            emit TransferWithReferenceAndFee(
-                address(requestMapping[_paymentRef].tokenAddress),
-                _receiver,
-                _amount,
-                _paymentRef,
-                0,
-                address(0)
-            );
-        }
-
+        
         assert(requestMapping[_paymentRef].amount == 0);
         assert(!requestMapping[_paymentRef].isFrozen);
         assert(!requestMapping[_paymentRef].emergencyState);
@@ -381,6 +345,6 @@ contract ERC20EscrowToPay {
         delete requestMapping[_paymentRef];
         
         return true;
-    } 
+    }
 
 }

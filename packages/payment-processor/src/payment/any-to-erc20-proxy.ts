@@ -1,14 +1,14 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
 import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
-import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
+import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
-  getPaymentNetworkExtension,
+  getProxyAddress,
   getProvider,
   getRequestPaymentValues,
   getSigner,
@@ -132,12 +132,8 @@ export function prepareAnyToErc20ProxyPaymentTransaction(
     throw new Error('Cannot pay with a currency missing a network');
   }
   const encodedTx = encodePayAnyToErc20ProxyRequest(request, paymentSettings, amount, feeAmount);
-  const pn = getPaymentNetworkExtension(request);
 
-  const proxyAddress = erc20ConversionProxy.getAddress(
-    paymentSettings.currency.network,
-    pn?.version,
-  );
+  const proxyAddress = getProxyAddress(request, AnyToERC20PaymentDetector.getDeploymentInformation);
   return {
     data: encodedTx,
     to: proxyAddress,

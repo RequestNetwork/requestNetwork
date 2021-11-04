@@ -25,7 +25,6 @@ export async function deployEscrow(hre: HardhatRuntimeEnvironment) {
     // ----------------------------------
     console.log(`
     Contracts deployed'
-        ERC20FeeProxy             ${erc20FeeProxyAddress}
         ERC20EscrowToPay          ${erc20EscrowToPayAddress}
     `);
     

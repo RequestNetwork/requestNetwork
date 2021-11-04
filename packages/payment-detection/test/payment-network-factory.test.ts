@@ -7,7 +7,7 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 import BTCAddressedBased from '../src/btc/mainnet-address-based';
 import Declarative from '../src/declarative';
-import PaymentNetworkETHInputData from '../src/eth/input-data';
+import { EthInputDataPaymentDetector } from '../src/eth/input-data';
 
 import PaymentNetworkFactory from '../src/payment-network-factory';
 
@@ -212,7 +212,7 @@ describe('api/payment-network/payment-network-factory', () => {
           homestead: 'abcd',
         },
       });
-      expect(pn).toBeInstanceOf(PaymentNetworkETHInputData);
+      expect(pn).toBeInstanceOf(EthInputDataPaymentDetector);
       expect((pn as any).explorerApiKeys).toMatchObject({
         homestead: 'abcd',
       });

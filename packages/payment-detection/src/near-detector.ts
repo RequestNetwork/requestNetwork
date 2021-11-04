@@ -5,7 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import ReferenceBasedDetector from './reference-based-detector';
+import { ReferenceBasedDetector } from './reference-based-detector';
 import { NearInfoRetriever } from './near-info-retriever';
 
 // interface of the object indexing the proxy contract version
@@ -22,7 +22,7 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment
  */
-export default class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension
    */

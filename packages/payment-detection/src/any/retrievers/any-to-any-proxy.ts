@@ -1,8 +1,8 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
-import { getDefaultProvider } from '../provider';
-import { parseLogArgs, unpadAmountFromChainlink } from '../utils';
+import { getDefaultProvider } from '../../provider';
+import { parseLogArgs, unpadAmountFromChainlink } from '../../utils';
 import type { JsonFragment } from '@ethersproject/abi';
 
 /** TransferWithConversionAndReference event */
@@ -27,7 +27,7 @@ type TransferWithReferenceAndFeeArgs = {
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
-export default abstract class ConversionInfoRetriever {
+export abstract class ConversionInfoRetriever {
   public contractConversionProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
