@@ -12,7 +12,6 @@ const docsPath = 'docs';
 
 module.exports = {
   introSideBar: makeSidebar('guides'),
-  clientAPI: makeSidebar('client'),
 };
 
 function makeSidebar(dir) {
@@ -26,7 +25,19 @@ function makeSidebar(dir) {
         items: makeSidebar(path.join(dir, file.name)),
       });
     } else if (file.name.endsWith('.js') || file.name.endsWith('.md')) {
-      sidebar.push(path.join(dir, file.name.slice(0, -3)));
+      sidebar.push({
+        type: 'doc',
+        id: path.join(dir, file.name.slice(0, -3)).split('/').map(dirOrFile => {
+          const splittedDirOrFile = dirOrFile.split('-');
+          if (splittedDirOrFile.length === 1) {
+            return splittedDirOrFile.join('');
+          }
+          
+          const [, ...name] = splittedDirOrFile;
+          return name.join('-');
+        }).join('/'),
+        label: toTitleCase(file.name.slice(0, -3))
+      });
     }
     return sidebar;
   }, []);

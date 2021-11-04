@@ -37,9 +37,13 @@ module.exports = {
         src: 'img/logo.svg',
       },
       items: [
-        { to: 'docs/guides/0-getting-started', label: 'Get started', position: 'left' },
+        { to: 'docs/guides/getting-started', label: 'Get started', position: 'left' },
         { to: 'integration-options', label: 'Integration', position: 'left' },
-        { to: 'docs/client', label: 'Request-client.js', position: 'left' },
+        {
+          href: 'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-client.js/README.md',
+          label: 'Request-client.js',
+          position: 'left'
+        },
         { to: 'portal', label: 'Portal REST API', position: 'left' },
         {
           href:
@@ -114,9 +118,9 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/docs',
         },
-        introSideBar: {
-          sidebarPath: require.resolve('./sidebars.js'),
-        },
+        // introSideBar: {
+        //   sidebarPath: require.resolve('./sidebars.js'),
+        // },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
