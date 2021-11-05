@@ -5,7 +5,7 @@
 This extension allows payments and refunds to be made in ERC777 Super tokens by SuperFluid protocol on fast EVM-compatible blockchains.
 This Payment Network is similar to the [ERC20 Fee Proxy Contract](./payment-network-erc20-proxy-contract-0.1.0.md) extension, with the added feature of allowing streaming of the payment.
 
-The payment is mainly expected through a proxy payment contract, but the request issuer can also declare payments manually. Fees shall not be paid for declarative payments.
+The payment is mainly expected through a SuperApp payment contract, but the request issuer can also declare payments manually. Fees shall not be paid for declarative payments.
 
 The SuperApp contract does the ERC777 token transfer on behalf of the user. The contract ensures a link between an ERC777 transfer and a request through a `paymentReference`. This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
