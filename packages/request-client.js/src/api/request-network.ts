@@ -85,7 +85,7 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    const request = new Request(
+    return new Request(
       requestLogicCreateResult.result.requestId,
       this.requestLogic,
       this.currencyManager,
@@ -97,11 +97,6 @@ export default class RequestNetwork {
         disableEvents: parameters.disableEvents,
       },
     );
-
-    // refresh the local request data
-    await request.refresh();
-
-    return request;
   }
 
   /**
