@@ -412,7 +412,7 @@ export function encodeRequestMapping(
   const { paymentReference } = getRequestPaymentValues(request);
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
   const erc20EscrowToPayContract = ERC20EscrowToPay__factory.connect(contractAddress, signer);
- 
+
   // encodes the function data and returns them
   return erc20EscrowToPayContract.interface.encodeFunctionData('requestMapping', [
     `0x${paymentReference}`,
