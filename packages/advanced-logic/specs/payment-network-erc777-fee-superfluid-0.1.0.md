@@ -7,14 +7,14 @@ This Payment Network is similar to the [ERC20 Fee Proxy Contract](./payment-netw
 
 The payment is mainly expected through a SuperApp payment contract, but the request issuer can also declare payments manually. Fees shall not be paid for declarative payments.
 
-The SuperApp contract does the ERC777 token transfer on behalf of the user. The contract ensures a link between an ERC777 transfer and a request through a `paymentReference`. This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
+The SuperApp contract does the ERC777 token stream on behalf of the user. The contract ensures a link between an ERC777 SuperFluid stream and a request through a `paymentReference`. This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
-The contract also ensures that the `feeAmount` amount of the ERC777 transfer will be forwarded to the `feeAddress`.
+The contract also ensures that the `feeAmount` amount of the ERC777 stream will be streamed to the `feeAddress`.
 
 - `requestId` is the id of the request
 - `salt` is a random number with at least 8 bytes of randomness. It must be unique to each request
 - `address` is the payment address for payments, the refund address for refunds
-- `feeAmount` is the amount of the transfer that should be paid in fees
+- `feeAmount` is the amount of the stream that should be paid in fees
 - `feeAddress` is the address where the fee will be sent to
 - `lowercase()` transforms all characters to lowercase
 - `hash()` is a keccak256 hash function
@@ -24,16 +24,16 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 
 ## Payment Proxy Contract
 
-The contract contains one function called `transferFromWithReferenceAndFee` which takes 6 arguments:
+The contract contains one function called `streamFromWithReferenceAndFee` which takes 6 arguments:
 
 - `tokenAddress` is the address of the ERC777 contract
 - `to` is the destination address for the tokens
-- `amount` is the amount of tokens to transfer to the destination address
-- `paymentReference` is the reference data used to track the transfer (see `paymentReference`)
-- `feeAmount` is the amount of tokens to transfer to the fee destination address
+- `amount` is the amount of tokens to stream to the destination address
+- `paymentReference` is the reference data used to track the stream (see `paymentReference`)
+- `feeAmount` is the amount of tokens to stream to the fee destination address
 - `feeAddress` is the destination address for the fee
 
-The `TransferWithReferenceAndFee` event is emitted when the tokens are transfered. This event contains the same 6 arguments as the `transferFromWithReferenceAndFee` function.
+The `StreamWithReferenceAndFee` event is emitted when the tokens are streamed. This event contains the same 6 arguments as the `streamFromWithReferenceAndFee` function.
 
 [See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC777FeeProxy.sol)
 
@@ -339,7 +339,7 @@ An event is added to the extension state events array:
 
 The fee proxy contract address is determined by the `request.currency.network` (see (table)[#Contract] with proxy contract addresses).
 
-Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a payment:
+Any `StreamWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a payment:
 
 - `tokenAddress === request.currency.value`
 - `to === paymentAddress`
@@ -349,7 +349,7 @@ Any `declareReceivedPayment` event is considered a payment.
 
 Any `declareReceivedRefund` event is considered a refund.
 
-Any `TransferWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a refund:
+Any `StreamWithReferenceAndFee` events emitted from the proxy contract with the following arguments are considered as a refund:
 
 - `tokenAddress === request.currency.value`
 - `to === refundAddress`
@@ -357,4 +357,4 @@ Any `TransferWithReferenceAndFee` events emitted from the proxy contract with th
 
 The sum of payment amounts minus the sum of refund amounts is considered the balance.
 
-The fees amount can be be infered from the `TransferWithReferenceAndFee` events emitted from the proxy contract.
+The fees amount can be be infered from the `StreamWithReferenceAndFee` events emitted from the proxy contract.
