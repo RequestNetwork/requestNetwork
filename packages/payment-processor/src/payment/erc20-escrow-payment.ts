@@ -206,8 +206,6 @@ export async function requestMapping(
   return tx;
 }
 
-
-
 /**
  * Encodes the call to payEscrow().
  * @param request request to pay.
