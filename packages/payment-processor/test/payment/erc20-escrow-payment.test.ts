@@ -16,13 +16,17 @@ import {
   encodeRefundFrozenFunds,
   encodeRevertEmergencyClaim,
   encodeRequestMapping,
-  payEscrow,
 } from '../../src/payment/erc20-escrow-payment';
 import { getAmountToPay, getRequestPaymentValues } from '../../src/payment/utils';
 import { 
-  getErc20Balance,
-} from '../../src/payment/erc20';
+  approveErc20,
+  //getErc20Balance, 
+  hasErc20Approval,
+  hasSufficientFunds,
+  payEscrow,
+} from '../../src/';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
+
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -185,13 +189,35 @@ describe('erc20-escrow-payment tests:', () => {
   describe('Execute function calls:', () => {
     it('Should pay the request payment with correct amount and fee.', async () => {
 
-      // Get values from the requestPayment.
-      //const values = getRequestPaymentValues(validRequest);
-      
-      const amountToPay = getAmountToPay(validRequest);
-     
+      /* // Get values from the requestPayment.
+      const values = getRequestPaymentValues(validRequest);
+    
+      const account = wallet.address;
+  
+
+
+      if (!(await hasSufficientFunds(validRequest, account))) {
+        throw new Error('You do not have enough funds to pay this request');
+      }
+      if (!(await hasErc20Approval(validRequest, account))) {
+        const approvalTx = await approveErc20(validRequest, wallet);
+        await approvalTx.wait(1);
+      }
+
+      const tx = await payEscrow(validRequest, wallet);
+      await tx.wait(1);
+ */
+      });
+
       
 
+
+
+    });
+  });
+
+
+      /*
       const payerOldBalance = await getErc20Balance(validRequest, wallet.address, provider);
       //const payeeOldBalance = await getErc20Balance(validRequest, values.paymentAddress, provider);
       const escrowOldBalance = await getErc20Balance(validRequest, escrowAddress, provider);
@@ -200,12 +226,6 @@ describe('erc20-escrow-payment tests:', () => {
       //const payTx = await payEscrow(validRequest, wallet);
       //await payEscrow(validRequest, wallet);
       console.log(amountToPay.toString());
-
-    });
-  });
-});
-      /*
-
       const payerNewBalance = await getErc20Balance(validRequest, wallet.address, provider);
       //const payeeNewBalance = await getErc20Balance(validRequest, paymentAddress, provider);
       const escrowNewBalance = await getErc20Balance(validRequest, escrowAddress, provider);
