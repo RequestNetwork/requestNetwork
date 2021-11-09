@@ -25,6 +25,7 @@ export async function payEscrow(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  
   const encodedTx = encodePayEscrow(request, signerOrProvider, amount, feeAmount);
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
