@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
-import { getTheGraphClient, TheGraphClient } from '../thegraph';
+import { getTheGraphClient, TheGraphClient, TheGraphClientOptions } from '../thegraph';
 
 /** Parameters for getting payment events from theGraph */
 type GraphPaymentQueryParams = {
@@ -20,6 +20,7 @@ export class TheGraphInfoRetriever {
    * @param toAddress Address of the balance we want to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The Ethereum network to use
+   * @param options Extra options to GraphQL client
    */
   constructor(
     private paymentReference: string,
@@ -28,8 +29,9 @@ export class TheGraphInfoRetriever {
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
+    private options?: TheGraphClientOptions,
   ) {
-    this.client = getTheGraphClient(this.network);
+    this.client = getTheGraphClient(this.network, this.options);
   }
 
   private getGraphVariables(): GraphPaymentQueryParams {
