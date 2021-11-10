@@ -1,4 +1,4 @@
-import { Wallet, providers, BigNumber } from 'ethers';
+import { Wallet, providers } from 'ethers';
 import {
   ClientTypes,
   ExtensionTypes,
@@ -19,7 +19,7 @@ import {
   encodeRefundFrozenFunds,
 } from '../../src/payment/erc20-escrow-payment';
 import { getAmountToPay, getRequestPaymentValues } from '../../src/payment/utils';
-import { getErc20Balance, hasErc20Approval } from '../../src/';
+import { hasErc20Approval } from '../../src/';
 import { erc20EscrowToPayArtifact, erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 
 /* eslint-disable no-magic-numbers */
