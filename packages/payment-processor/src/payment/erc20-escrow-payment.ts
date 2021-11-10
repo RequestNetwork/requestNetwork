@@ -1,22 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  BigNumber,
-  BigNumberish,
-  constants,
-  ContractTransaction,
-  providers,
-  Signer
-} from 'ethers';
-import {
-  erc20EscrowToPayArtifact
-} from '@requestnetwork/smart-contracts';
-import {
-  ERC20EscrowToPay__factory
-} from '@requestnetwork/smart-contracts/types/';
-import {
-  ClientTypes,
-  PaymentTypes
-} from '@requestnetwork/types';
+import { BigNumber, BigNumberish, constants, ContractTransaction, providers, Signer } from 'ethers';
+import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
+import { ERC20EscrowToPay__factory } from '@requestnetwork/smart-contracts/types/';
+import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
   getProvider,
@@ -24,9 +10,7 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
-import {
-  ITransactionOverrides
-} from './transaction-overrides';
+import { ITransactionOverrides } from './transaction-overrides';
 
 /**
  * Processes a transaction to payEscrow().
@@ -41,7 +25,6 @@ export async function payEscrow(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-
   const encodedTx = encodePayEscrow(request, signerOrProvider, amount, feeAmount);
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
@@ -242,12 +225,7 @@ export function encodePayEscrow(
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   // collects the parameters to be used, from the request
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAmount,
-    feeAddress
-  } = getRequestPaymentValues(
+  const { paymentReference, paymentAddress, feeAmount, feeAddress } = getRequestPaymentValues(
     request,
   );
 
@@ -279,9 +257,7 @@ export function encodeFreezeRequest(
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
-  const {
-    paymentReference
-  } = getRequestPaymentValues(request);
+  const { paymentReference } = getRequestPaymentValues(request);
 
   // connections to the escrow contract
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
@@ -306,9 +282,7 @@ export function encodePayRequestFromEscrow(
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
-  const {
-    paymentReference
-  } = getRequestPaymentValues(request);
+  const { paymentReference } = getRequestPaymentValues(request);
 
   // connections to the escrow contract
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
@@ -333,9 +307,7 @@ export function encodeInitiateEmergencyClaim(
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
-  const {
-    paymentReference
-  } = getRequestPaymentValues(request);
+  const { paymentReference } = getRequestPaymentValues(request);
 
   // connections to the escrow contract
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
@@ -360,9 +332,7 @@ export function encodeCompleteEmergencyClaim(
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
-  const {
-    paymentReference
-  } = getRequestPaymentValues(request);
+  const { paymentReference } = getRequestPaymentValues(request);
 
   // connections to the escrow contract
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
@@ -387,9 +357,7 @@ export function encodeRevertEmergencyClaim(
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
-  const {
-    paymentReference
-  } = getRequestPaymentValues(request);
+  const { paymentReference } = getRequestPaymentValues(request);
 
   // connections to the escrow contract
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
@@ -414,9 +382,7 @@ export function encodeRefundFrozenFunds(
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
-  const {
-    paymentReference
-  } = getRequestPaymentValues(request);
+  const { paymentReference } = getRequestPaymentValues(request);
 
   // connections to the escrow contract
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
@@ -441,9 +407,7 @@ export function encodeRequestMapping(
   const signer = getSigner(signerOrProvider);
 
   // collects the parameters to be used from the request
-  const {
-    paymentReference
-  } = getRequestPaymentValues(request);
+  const { paymentReference } = getRequestPaymentValues(request);
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
   const erc20EscrowToPayContract = ERC20EscrowToPay__factory.connect(contractAddress, signer);
 
