@@ -426,7 +426,7 @@ export function encodeRequestMapping(
  * @param signerOrProvider the web3 provider. Defaults to Etherscan.
  * @param overrides optionally, override default transaction values, like gas.
  */
- export async function approveErc20ForEscrow(
+export async function approveErc20ForEscrow(
   request: ClientTypes.IRequestData,
   paymentTokenAddress: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
@@ -443,4 +443,3 @@ export function encodeRequestMapping(
   });
   return tx;
 }
-
