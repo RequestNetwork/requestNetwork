@@ -6,6 +6,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import Utils from '@requestnetwork/utils';
 import {
   approveErc20ForEscrow,
   payRequestFromEscrow,
@@ -163,53 +164,62 @@ describe('erc20-escrow-payment tests:', () => {
   });
 
   describe('test function calls:', () => {
-    it('Should check if escrow is approved to spend funds', async () => {
-      const approveTx = await approveErc20ForEscrow(validRequest, erc20ContractAddress, wallet);
-      await approveTx.wait(1);
+    beforeEach(async () => {
+      await approveErc20ForEscrow(validRequest, erc20ContractAddress, wallet);
     });
-    it('Should pay the amount and fee from payer', async () => {
-      const payerBeforeBalance = await getErc20Balance(validRequest, payerAddress);
-      const escrowBeforeBalance = await getErc20Balance(validRequest, escrowAddress);
-      const feeBeforeBalance = await getErc20Balance(validRequest, feeAddress);
+    it('Should pay the amount and fee from payers account', async () => {
+      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
 
-      const payTx = await payEscrow(validRequest, wallet, undefined, undefined);
-      await payTx.wait(1);
+      const payerBeforeBalance = await getErc20Balance(request, payerAddress);
+      const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
+      const feeBeforeBalance = await getErc20Balance(request, feeAddress);
 
-      const payerAfterBalance = await getErc20Balance(validRequest, payerAddress);
-      const escrowAfterBalance = await getErc20Balance(validRequest, escrowAddress);
-      const feeAfterBalance = await getErc20Balance(validRequest, feeAddress);
+      await payEscrow(request, wallet, undefined, undefined);
 
-      // payer ERC20 balance should be lower.
+      const payerAfterBalance = await getErc20Balance(request, payerAddress);
+      const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
+      const feeAfterBalance = await getErc20Balance(request, feeAddress);
+
+      // Expect payer ERC20 balance should be lower.
       expect(
         BigNumber.from(payerAfterBalance).eq(BigNumber.from(payerBeforeBalance).sub(102)),
       ).toBeTruthy();
-      // fee ERC20 balance should be higher.
+      // Expect fee ERC20 balance should be higher.
       expect(
         BigNumber.from(feeAfterBalance).eq(BigNumber.from(feeBeforeBalance).add(2)),
       ).toBeTruthy();
-      // escrow Erc20 balance should be higher.
+      // Expect escrow Erc20 balance should be higher.
       expect(
         BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).add(100)),
       ).toBeTruthy();
     });
-    it('Should pay the amount to payee', async () => {
-      const payeeBeforeBalance = await getErc20Balance(validRequest, paymentAddress);
-      const escrowBeforeBalance = await getErc20Balance(validRequest, escrowAddress);
+    it('Should withdraw funds and pay funds from escrow to payee', async () => {
+      // Set a new requestID to test independent unit-tests.
+      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+      request.requestId = "aabb";
 
-      const payTx = await payRequestFromEscrow(validRequest, wallet);
-      await payTx.wait(1);
+      // Execute payEscrow
+      await payEscrow(request, wallet, undefined, undefined);
 
-      const payeeAfterBalance = await getErc20Balance(validRequest, paymentAddress);
-      const escrowAfterBalance = await getErc20Balance(validRequest, escrowAddress);
+      // Stores balance after payEscrow(), and before withdraws.
+      const payeeBeforeBalance = await getErc20Balance(request, paymentAddress);
+      const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
 
-      // escrow Erc20 balance should be lower.
+      await payRequestFromEscrow(request, wallet);
+      
+      // Stores balances after withdraws to compare before balance with after balance.
+      const payeeAfterBalance = await getErc20Balance(request, paymentAddress);
+      const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
+
+      // Expect escrow Erc20 balance should be lower.
       expect(
         BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).sub(100)),
       ).toBeTruthy();
-      // payee ERC20 balance should be higher.
+      // Expect payee ERC20 balance should be higher.
       expect(
         BigNumber.from(payeeAfterBalance).eq(BigNumber.from(payeeBeforeBalance).add(100)),
       ).toBeTruthy();
     });
+
   });
 });
