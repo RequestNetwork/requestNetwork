@@ -9,8 +9,10 @@ import {
 import Utils from '@requestnetwork/utils';
 import {
   approveErc20ForEscrow,
-  payRequestFromEscrow,
   payEscrow,
+  payRequestFromEscrow,
+  initiateEmergencyClaim,
+  requestMapping,
   encodeRequestMapping,
   encodePayEscrow,
   encodePayRequestFromEscrow,
@@ -20,7 +22,7 @@ import {
   encodeFreezeRequest,
   encodeRefundFrozenFunds,
 } from '../../src/payment/erc20-escrow-payment';
-import { getRequestPaymentValues } from '../../src/payment/utils';
+import { getRequestPaymentValues, getSigner } from '../../src/payment/utils';
 
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { getErc20Balance } from '../../src/payment/erc20';
@@ -196,7 +198,7 @@ describe('erc20-escrow-payment tests:', () => {
     it('Should withdraw funds and pay funds from escrow to payee', async () => {
       // Set a new requestID to test independent unit-tests.
       const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = "aabb";
+      request.requestId = 'aabb';
 
       // Execute payEscrow
       await payEscrow(request, wallet, undefined, undefined);
@@ -206,7 +208,7 @@ describe('erc20-escrow-payment tests:', () => {
       const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
 
       await payRequestFromEscrow(request, wallet);
-      
+
       // Stores balances after withdraws to compare before balance with after balance.
       const payeeAfterBalance = await getErc20Balance(request, paymentAddress);
       const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
@@ -220,6 +222,28 @@ describe('erc20-escrow-payment tests:', () => {
         BigNumber.from(payeeAfterBalance).eq(BigNumber.from(payeeBeforeBalance).add(100)),
       ).toBeTruthy();
     });
+    it('Should set funds in emergency state', async () => {
+      // Set a new requestID to test independent unit-tests.
+      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+      request.requestId = 'aacc';
 
+      // Assign the paymentAddress as the payee.
+      const payee = getSigner(provider, paymentAddress);
+
+      // Execute payEscrow.
+      expect(
+        await (await payEscrow(request, wallet, undefined, undefined)).wait(1),
+      ).toBeTruthy();
+
+      // Initiate emergency claim.
+      expect(
+        await (await initiateEmergencyClaim(request, payee)).wait(1),
+      ).toBeTruthy();
+      
+      const tx = await requestMapping(request, wallet);
+      const confirmedTx = await tx.wait(1);
+      expect(confirmedTx).toBeTruthy();
+
+    });
   });
 });

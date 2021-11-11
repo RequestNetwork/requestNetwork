@@ -14,6 +14,32 @@ import { ITransactionOverrides } from './transaction-overrides';
 import { encodeApproveAnyErc20 } from './erc20';
 
 /**
+ * Processes the approval transaction of the payment ERC20 to be spent by the erc20EscrowToPay contract,
+ * during the fee proxy delegate call.
+ * @param request request to pay, used to know the network
+ * @param paymentTokenAddress picked currency to pay
+ * @param signerOrProvider the web3 provider. Defaults to Etherscan.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export async function approveErc20ForEscrow(
+  request: ClientTypes.IRequestData,
+  paymentTokenAddress: string,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  overrides?: ITransactionOverrides,
+): Promise<ContractTransaction> {
+  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
+  const encodedTx = encodeApproveAnyErc20(paymentTokenAddress, contractAddress, signerOrProvider);
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction({
+    data: encodedTx,
+    to: paymentTokenAddress,
+    value: 0,
+    ...overrides,
+  });
+  return tx;
+}
+
+/**
  * Processes a transaction to payEscrow().
  * @param request request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
@@ -416,30 +442,4 @@ export function encodeRequestMapping(
   return erc20EscrowToPayContract.interface.encodeFunctionData('requestMapping', [
     `0x${paymentReference}`,
   ]);
-}
-
-/**
- * Processes the approval transaction of the payment ERC20 to be spent by the erc20EscrowToPay contract,
- * during the fee proxy delegate call.
- * @param request request to pay, used to know the network
- * @param paymentTokenAddress picked currency to pay
- * @param signerOrProvider the web3 provider. Defaults to Etherscan.
- * @param overrides optionally, override default transaction values, like gas.
- */
-export async function approveErc20ForEscrow(
-  request: ClientTypes.IRequestData,
-  paymentTokenAddress: string,
-  signerOrProvider: providers.Provider | Signer = getProvider(),
-  overrides?: ITransactionOverrides,
-): Promise<ContractTransaction> {
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
-  const encodedTx = encodeApproveAnyErc20(paymentTokenAddress, contractAddress, signerOrProvider);
-  const signer = getSigner(signerOrProvider);
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: paymentTokenAddress,
-    value: 0,
-    ...overrides,
-  });
-  return tx;
 }
