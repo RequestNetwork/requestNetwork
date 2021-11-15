@@ -1,6 +1,6 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import getBalanceErrorObject from './balance-error';
+import { getBalanceErrorObject, BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { BigNumber } from 'ethers';
@@ -94,35 +94,35 @@ export abstract class ReferenceBasedDetector<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
     >
   > {
-    const paymentNetwork = request.extensions[this._paymentNetworkId];
-    const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
-
-    const supportedNetworks = this.extension.supportedNetworks;
-    if (!supportedNetworks.includes(paymentChain)) {
-      return getBalanceErrorObject(
-        `Payment network ${paymentChain} not supported by ${
-          this._paymentNetworkId
-        } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
-        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-      );
-    }
-
-    if (!paymentNetwork) {
-      return getBalanceErrorObject(
-        `The request does not have the extension: ${this._paymentNetworkId}`,
-        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-      );
-    }
-
     try {
-      const payments = await this.extractBalanceAndEvents(
+      const paymentNetwork = request.extensions[this._paymentNetworkId];
+      const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
+
+      const supportedNetworks = this.extension.supportedNetworks;
+      if (!supportedNetworks.includes(paymentChain)) {
+        throw new BalanceError(
+          `Payment network ${paymentChain} not supported by ${
+            this._paymentNetworkId
+          } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
+          PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
+        );
+      }
+
+      if (!paymentNetwork) {
+        throw new BalanceError(
+          `The request does not have the extension: ${this._paymentNetworkId}`,
+          PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+        );
+      }
+
+      const paymentEvents = await this.extractEvents(
         paymentNetwork.values.paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         request.currency,
         request.requestId,
         paymentNetwork,
       );
-      const refunds = await this.extractBalanceAndEvents(
+      const refundEvents = await this.extractEvents(
         paymentNetwork.values.refundAddress,
         PaymentTypes.EVENTS_NAMES.REFUND,
         request.currency,
@@ -130,32 +130,18 @@ export abstract class ReferenceBasedDetector<
         paymentNetwork,
       );
 
-      const declaredBalance = await super.getBalance(request);
-
-      const balance: string = BigNumber.from(declaredBalance.balance)
-        .add(payments.balance || 0)
-        .sub(refunds.balance || 0)
-        .toString();
-
-      const events: PaymentTypes.IPaymentNetworkEvent<
-        TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-      >[] = [...declaredBalance.events, ...payments.events, ...refunds.events].sort(
-        (
-          a: PaymentTypes.IPaymentNetworkEvent<
-            TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-          >,
-          b: PaymentTypes.IPaymentNetworkEvent<
-            TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-          >,
-        ) => (a.timestamp || 0) - (b.timestamp || 0),
+      const declaredEvents = this.getDeclarativeEvents(request);
+      const events = [...declaredEvents, ...paymentEvents, ...refundEvents].sort(
+        (a, b) => (a.timestamp || 0) - (b.timestamp || 0),
       );
+      const balance: string = this.computeBalance(events).toString();
 
       return {
         balance,
         events,
       };
     } catch (error) {
-      return getBalanceErrorObject((error as Error).message);
+      return getBalanceErrorObject(error);
     }
   }
 
@@ -173,7 +159,7 @@ export abstract class ReferenceBasedDetector<
         paymentNetwork.values.salt,
         paymentAddress,
       );
-      return await this.extractBalanceAndEventsFromPaymentRef(
+      return this.extractBalanceAndEventsFromPaymentRef(
         paymentAddress,
         eventName,
         requestCurrency,

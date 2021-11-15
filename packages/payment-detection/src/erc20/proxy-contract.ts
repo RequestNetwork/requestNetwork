@@ -7,19 +7,18 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
-import getBalanceErrorObject from '../balance-error';
+import {
+  BalanceError,
+  getBalanceErrorObject,
+  NetworkNotSupported,
+  VersionNotSupported,
+} from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
 import { DeclarativePaymentDetectorBase } from '../declarative';
 import { makeGetDeploymentInformation } from '../utils';
-
-/* eslint-disable max-classes-per-file */
-/** Exception when network not supported */
-class NetworkNotSupported extends Error {}
-/** Exception when version not supported */
-class VersionNotSupported extends Error {}
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -103,16 +102,16 @@ export class ERC20ProxyPaymentDetector<
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
-    const paymentNetwork = request.extensions[paymentNetworkId];
-
-    if (!paymentNetwork) {
-      return getBalanceErrorObject(
-        `The request does not have the extension : ${paymentNetworkId}`,
-        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-      );
-    }
     try {
+      const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
+      const paymentNetwork = request.extensions[paymentNetworkId];
+
+      if (!paymentNetwork) {
+        throw new BalanceError(
+          `The request does not have the extension : ${paymentNetworkId}`,
+          PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+        );
+      }
       const paymentAddress = paymentNetwork.values.paymentAddress;
       const refundAddress = paymentNetwork.values.refundAddress;
       const salt = paymentNetwork.values.salt;
@@ -153,14 +152,7 @@ export class ERC20ProxyPaymentDetector<
         events,
       };
     } catch (error) {
-      let code: PaymentTypes.BALANCE_ERROR_CODE | undefined;
-      if (error instanceof NetworkNotSupported) {
-        code = PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED;
-      }
-      if (error instanceof VersionNotSupported) {
-        code = PaymentTypes.BALANCE_ERROR_CODE.VERSION_NOT_SUPPORTED;
-      }
-      return getBalanceErrorObject((error as Error).message, code);
+      return getBalanceErrorObject(error as Error);
     }
   }
 
@@ -237,8 +229,9 @@ export class ERC20ProxyPaymentDetector<
           network,
         );
 
-    const declaredEvents = (await super.getBalance(request)).events;
-    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
+    const declaredEvents = this.getDeclarativeEvents(request);
+    const transferEvents = await infoRetriever.getTransferEvents();
+    const events = [...declaredEvents, ...transferEvents];
 
     const balance = events
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
