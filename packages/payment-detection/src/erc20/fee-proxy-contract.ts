@@ -124,8 +124,55 @@ export class ERC20FeeProxyPaymentDetectorBase<
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
     try {
-      const events = this.sortEvents(await this.getEvents(request));
-      const balance = this.computeBalance(events).toString();
+      const paymentNetwork = request.extensions[this._paymentNetworkId];
+
+      if (!paymentNetwork) {
+        throw new BalanceError(
+          `The request does not have the extension : ${this._paymentNetworkId}`,
+          PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+        );
+      }
+      const paymentAddress = paymentNetwork.values.paymentAddress;
+      const refundAddress = paymentNetwork.values.refundAddress;
+      const feeAddress = paymentNetwork.values.feeAddress;
+      const salt = paymentNetwork.values.salt;
+
+      let payments: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
+      if (paymentAddress) {
+        payments = await this.extractBalanceAndEvents(
+          request,
+          salt,
+          paymentAddress,
+          PaymentTypes.EVENTS_NAMES.PAYMENT,
+          paymentNetwork,
+        );
+      }
+
+      let refunds: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
+      if (refundAddress) {
+        refunds = await this.extractBalanceAndEvents(
+          request,
+          salt,
+          refundAddress,
+          PaymentTypes.EVENTS_NAMES.REFUND,
+          paymentNetwork,
+        );
+      }
+
+      const fees = this.extractFeeAndEvents(feeAddress, [...payments.events, ...refunds.events]);
+      // TODO (PROT-1219): this is not ideal, since we're directly changing the request extension
+      // once the fees feature and similar payment extensions are more well established, we should define
+      // a better place to retrieve them from the request object them.
+      paymentNetwork.values.feeBalance = fees;
+
+      const balance: string = BigNumber.from(payments.balance || 0)
+        .sub(BigNumber.from(refunds.balance || 0))
+        .toString();
+
+      const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
+        ...payments.events,
+        ...refunds.events,
+      ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
       return {
         balance,
@@ -134,53 +181,6 @@ export class ERC20FeeProxyPaymentDetectorBase<
     } catch (error) {
       return getBalanceErrorObject(error);
     }
-  }
-
-  public async getEvents(
-    request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
-    const paymentNetwork = request.extensions[this._paymentNetworkId];
-
-    if (!paymentNetwork) {
-      throw new BalanceError(
-        `The request does not have the extension : ${this._paymentNetworkId}`,
-        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-      );
-    }
-    const paymentAddress = paymentNetwork.values.paymentAddress;
-    const refundAddress = paymentNetwork.values.refundAddress;
-    const feeAddress = paymentNetwork.values.feeAddress;
-    const salt = paymentNetwork.values.salt;
-
-    let payments: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
-    if (paymentAddress) {
-      payments = await this.extractBalanceAndEvents(
-        request,
-        salt,
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        paymentNetwork,
-      );
-    }
-
-    let refunds: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
-    if (refundAddress) {
-      refunds = await this.extractBalanceAndEvents(
-        request,
-        salt,
-        refundAddress,
-        PaymentTypes.EVENTS_NAMES.REFUND,
-        paymentNetwork,
-      );
-    }
-
-    const fees = this.extractFeeAndEvents(feeAddress, [...payments.events, ...refunds.events]);
-    // TODO (PROT-1219): this is not ideal, since we're directly changing the request extension
-    // once the fees feature and similar payment extensions are more well established, we should define
-    // a better place to retrieve them from the request object them.
-    paymentNetwork.values.feeBalance = fees;
-
-    return [...payments.events, ...refunds.events];
   }
 
   /**
@@ -226,7 +226,7 @@ export class ERC20FeeProxyPaymentDetectorBase<
         `Network not supported for this payment network: ${request.currency.network}`,
       );
     }
-    const declaredEvents = this.getDeclarativeEvents(request);
+    const declaredEvents = (await super.getBalance(request)).events;
 
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
