@@ -6,7 +6,7 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import BTCAddressedBased from '../src/btc/mainnet-address-based';
-import Declarative from '../src/declarative';
+import { DeclarativePaymentDetector } from '../src/declarative';
 import { EthInputDataPaymentDetector } from '../src/eth/input-data';
 
 import PaymentNetworkFactory from '../src/payment-network-factory';
@@ -65,7 +65,7 @@ describe('api/payment-network/payment-network-factory', () => {
           paymentNetworkCreationParameters,
           currencyManager,
         }),
-      ).toBeInstanceOf(Declarative);
+      ).toBeInstanceOf(DeclarativePaymentDetector);
     });
 
     it('cannot createPaymentNetwork with extension id not handled', async () => {
@@ -187,7 +187,7 @@ describe('api/payment-network/payment-network-factory', () => {
           request,
           currencyManager,
         }),
-      ).toBeInstanceOf(Declarative);
+      ).toBeInstanceOf(DeclarativePaymentDetector);
     });
 
     it('can pass options down to the paymentNetwork', async () => {

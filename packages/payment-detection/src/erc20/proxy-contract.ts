@@ -12,7 +12,7 @@ import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
-import DeclarativePaymentNetwork from '../declarative';
+import { DeclarativePaymentDetectorBase } from '../declarative';
 import { makeGetDeploymentInformation } from '../utils';
 
 /* eslint-disable max-classes-per-file */
@@ -31,18 +31,16 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
 export class ERC20ProxyPaymentDetector<
     ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
   >
-  extends DeclarativePaymentNetwork<ExtensionType>
+  extends DeclarativePaymentDetectorBase<ExtensionType>
   implements PaymentTypes.IPaymentNetwork<ExtensionType> {
-  protected _extensionTypeId: ExtensionTypes.ID;
-
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super({ advancedLogic });
-    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
-    this.extension = advancedLogic.extensions.proxyContractErc20;
-    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT;
+    super(
+      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      advancedLogic.extensions.proxyContractErc20,
+    );
   }
 
   /**

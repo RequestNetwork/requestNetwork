@@ -15,7 +15,7 @@ import { BigNumber } from 'ethers';
 import { networkSupportsTheGraph } from '../thegraph';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { loadCurrencyFromContract } from './currency';
-import DeclarativePaymentNetwork from '../declarative';
+import { DeclarativePaymentDetectorBase } from '../declarative';
 import { makeGetDeploymentInformation } from '../utils';
 
 /* eslint-disable max-classes-per-file */
@@ -30,32 +30,23 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
 };
 
 /**
- * Handle payment networks with ERC20 fee proxy contract extension
+ * Handle payment networks with ERC20 fee proxy contract extension, or derived
  * FIXME: inherit ReferenceBasedDetector
  */
-export class ERC20FeeProxyPaymentDetector<
-    ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
+export class ERC20FeeProxyPaymentDetectorBase<
+    TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
   >
-  extends DeclarativePaymentNetwork<ExtensionType>
-  implements PaymentTypes.IPaymentNetwork<ExtensionType> {
-  protected _extensionTypeId: ExtensionTypes.ID;
-  protected _currencyManager: ICurrencyManager;
-
+  extends DeclarativePaymentDetectorBase<TExtension>
+  implements PaymentTypes.IPaymentNetwork<TExtension> {
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor({
-    advancedLogic,
-    currencyManager,
-  }: {
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    currencyManager: ICurrencyManager;
-  }) {
-    super({ advancedLogic });
-    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
-    this.extension = advancedLogic.extensions.feeProxyContractErc20;
-    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT;
-    this._currencyManager = currencyManager;
+  public constructor(
+    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
+    protected _currencyManager: ICurrencyManager,
+  ) {
+    super(paymentNetworkId, extension);
   }
 
   /**
@@ -133,11 +124,11 @@ export class ERC20FeeProxyPaymentDetector<
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetwork = request.extensions[this._extensionTypeId];
+    const paymentNetwork = request.extensions[this._paymentNetworkId];
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request does not have the extension : ${this._extensionTypeId}`,
+        `The request does not have the extension : ${this._paymentNetworkId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
@@ -224,7 +215,7 @@ export class ERC20FeeProxyPaymentDetector<
       throw new NetworkNotSupported(`Payment network not supported by ERC20 payment detection`);
     }
 
-    const deploymentInformation = ERC20FeeProxyPaymentDetector.getDeploymentInformation(
+    const deploymentInformation = ERC20FeeProxyPaymentDetectorBase.getDeploymentInformation(
       network,
       paymentNetwork.version,
     );
@@ -328,8 +319,8 @@ export class ERC20FeeProxyPaymentDetector<
   /**
    * Get the detected payment network ID
    */
-  get paymentNetworkId(): ExtensionTypes.ID {
-    return this._extensionTypeId;
+  get paymentNetworkId(): PaymentTypes.PAYMENT_NETWORK_ID {
+    return this._paymentNetworkId;
   }
 
   protected async getCurrency(
@@ -360,4 +351,25 @@ export class ERC20FeeProxyPaymentDetector<
     erc20FeeProxyArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,
   );
+}
+
+/**
+ * Handle payment networks with ERC20 fee proxy contract extension
+ */
+export class ERC20FeeProxyPaymentDetector<
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
+> extends ERC20FeeProxyPaymentDetectorBase<TExtension> {
+  constructor({
+    advancedLogic,
+    currencyManager,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    currencyManager: ICurrencyManager;
+  }) {
+    super(
+      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+      advancedLogic.extensions.feeProxyContractErc20,
+      currencyManager,
+    );
+  }
 }
