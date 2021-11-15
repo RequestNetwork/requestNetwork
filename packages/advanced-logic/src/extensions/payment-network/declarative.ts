@@ -254,6 +254,8 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
+        network: extensionAction.parameters.network,
       },
       timestamp,
       from: actionSigner,
@@ -298,6 +300,8 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
+        network: extensionAction.parameters.network,
       },
       timestamp,
       from: actionSigner,
@@ -342,6 +346,8 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
+        network: extensionAction.parameters.network,
       },
       timestamp,
       from: actionSigner,
@@ -386,6 +392,8 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
+        network: extensionAction.parameters.network,
       },
       timestamp,
       from: actionSigner,
