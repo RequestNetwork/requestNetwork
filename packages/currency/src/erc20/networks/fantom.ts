@@ -13,7 +13,7 @@ export const supportedFantomTokens: TokenMap = {
   },
   '0xe1146b9ac456fcbb60644c36fd3f868a9072fc6e': {
     name: 'fBTC Token',
-    symbol: 'BTC',
+    symbol: 'BTC-fantom',
     decimals: 18,
   },
   '0x657A1861c15A3deD9AF0B6799a195a249ebdCbc6': {
@@ -28,7 +28,7 @@ export const supportedFantomTokens: TokenMap = {
   },
   '0x658b0c7613e890ee50b8c4bc6a3f41ef411208ad': {
     name: 'fETH token',
-    symbol: 'ETH',
+    symbol: 'ETH-fantom',
     decimals: 18,
   },
   '0xb3654dc3d10ea7645f8319668e8f54d2574fbdc8': {
@@ -54,6 +54,11 @@ export const supportedFantomTokens: TokenMap = {
   '0x04068da6c83afcfa0e13ba15a6696662335d5b75': {
     name: 'USDC token',
     symbol: 'USDC',
+    decimals: 18,
+  },
+  '0x511a986E427FFa281ACfCf07AAd70d03040DbEc0': {
+    name: 'MPH token',
+    symbol: 'MPH',
     decimals: 18,
   },
 };
