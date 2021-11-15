@@ -155,7 +155,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     });
   });
 
-  fit('can get the fees out of payment events', async () => {
+  it('can get the fees out of payment events', async () => {
     const mockRequest: RequestLogicTypes.IRequest = {
       creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
       currency: {
@@ -174,7 +174,6 @@ describe('api/erc20/fee-proxy-contract', () => {
             feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
             feeAmount: '5',
             paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-            refundAddress: '0xrefundAddress',
           },
           version: '0',
         },
@@ -186,10 +185,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       version: '0.2',
     };
 
-    const mockExtractBalanceAndEvents = (_a: any, _b: any, _c: any, eventName: string, _d: any) => {
-      if (eventName === 'refund') {
-        return Promise.resolve({});
-      }
+    const mockExtractBalanceAndEvents = () => {
       return Promise.resolve({
         balance: '1000',
         events: [
@@ -232,17 +228,6 @@ describe('api/erc20/fee-proxy-contract', () => {
             },
             timestamp: 12,
           },
-          // Refund
-          // {
-          //   amount: '10',
-          //   name: PaymentTypes.EVENTS_NAMES.REFUND,
-          //   parameters: {
-          //     block: 1,
-          //     feeAddress: '',
-          //     feeAmount: '0',
-          //     to: '0xrefundAddress',
-          //   },
-          // },
         ],
       });
     };
@@ -254,7 +239,7 @@ describe('api/erc20/fee-proxy-contract', () => {
 
     const balance = await erc20FeeProxyContract.getBalance(mockRequest);
 
-    expect(balance.balance).toBe('990');
+    expect(balance.balance).toBe('1000');
     expect(
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values
         .feeBalance.balance,
