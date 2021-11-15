@@ -13,7 +13,7 @@ const erc20FeeProxyContract = new Erc20FeeProxyContract();
 describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
-      // 'extension data is wrong'
+      
       expect(
         erc20FeeProxyContract.createCreationAction({
           feeAddress: '0x0000000000000000000000000000000000000001',
@@ -37,7 +37,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
 
     it('can create a create action without fee parameters', () => {
-      // 'extension data is wrong'
+      
       expect(
         erc20FeeProxyContract.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -57,7 +57,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
     });
 
     it('can create a create action with only salt', () => {
-      // 'extension data is wrong'
+      
       expect(
         erc20FeeProxyContract.createCreationAction({
           salt: 'ea3bc7caf64110ca',
@@ -80,7 +80,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
     });
 
     it('cannot createCreationAction with refund address not an ethereum address', () => {
@@ -91,7 +91,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
     });
 
     it('cannot createCreationAction with fee address not an ethereum address', () => {
@@ -119,7 +119,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
 
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
-      // 'extension data is wrong'
+      
       expect(
         erc20FeeProxyContract.createAddPaymentAddressAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -139,13 +139,13 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         erc20FeeProxyContract.createAddPaymentAddressAction({
           paymentAddress: 'not an ethereum address',
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
     });
   });
 
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
-      // 'extension data is wrong'
+      
       expect(
         erc20FeeProxyContract.createAddRefundAddressAction({
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -165,13 +165,13 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         erc20FeeProxyContract.createAddRefundAddressAction({
           refundAddress: 'not an ethereum address',
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
     });
   });
 
   describe('createAddFeeAction', () => {
     it('can createAddFeeAction', () => {
-      // 'extension data is wrong'
+      
       expect(
         erc20FeeProxyContract.createAddFeeAction({
           feeAddress: '0x0000000000000000000000000000000000000002',
@@ -285,9 +285,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(
-          'This extension can be used only on ERC20 requests and on supported networks mainnet, rinkeby, private',
-        );
+        }).toThrowError('This extension can be used only on ERC20 requests');
       });
 
       it('cannot applyActionToExtensions of creation with payment address not valid', () => {
@@ -302,7 +300,9 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataERC20FeeAddData.invalidAddress}' is not a valid address`,
+        );
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
@@ -317,7 +317,32 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('refundAddress is not a valid address');
+        }).toThrowError(
+          `refundAddress '${DataERC20FeeAddData.invalidAddress}' is not a valid address`,
+        );
+      });
+
+      it('keeps the version used at creation', () => {
+        const newState = erc20FeeProxyContract.applyActionToExtension(
+          {},
+          { ...DataERC20FeeCreate.actionCreationFull, version: 'ABCD' },
+          DataERC20FeeCreate.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+        expect(newState[erc20FeeProxyContract.extensionId].version).toBe('ABCD');
+      });
+
+      it('requires a version at creation', () => {
+        expect(() => {
+          erc20FeeProxyContract.applyActionToExtension(
+            {},
+            { ...DataERC20FeeCreate.actionCreationFull, version: '' },
+            DataERC20FeeCreate.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('version is required at creation');
       });
     });
 
@@ -402,7 +427,9 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataERC20FeeAddData.invalidAddress}' is not a valid address`,
+        );
       });
     });
 
@@ -490,105 +517,105 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         }).toThrowError('refundAddress is not a valid address');
       });
     });
-  });
 
-  describe('applyActionToExtension/addFee', () => {
-    it('can applyActionToExtensions of addFee', () => {
-      // 'new extension state wrong'
-      expect(
-        erc20FeeProxyContract.applyActionToExtension(
-          DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
-          DataERC20FeeAddData.actionAddFee,
-          DataERC20FeeCreate.requestStateCreatedEmpty,
-          TestData.payeeRaw.identity,
-          TestData.arbitraryTimestamp,
-        ),
-      ).toEqual(DataERC20FeeAddData.extensionStateWithFeeAfterCreation);
-    });
+    describe('applyActionToExtension/addFee', () => {
+      it('can applyActionToExtensions of addFee', () => {
+        // 'new extension state wrong'
+        expect(
+          erc20FeeProxyContract.applyActionToExtension(
+            DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+            DataERC20FeeAddData.actionAddFee,
+            DataERC20FeeCreate.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(DataERC20FeeAddData.extensionStateWithFeeAfterCreation);
+      });
 
-    it('cannot applyActionToExtensions of addFee without a previous state', () => {
-      // 'must throw'
-      expect(() => {
-        erc20FeeProxyContract.applyActionToExtension(
-          DataERC20FeeCreate.requestStateNoExtensions.extensions,
-          DataERC20FeeAddData.actionAddFee,
-          DataERC20FeeCreate.requestStateNoExtensions,
-          TestData.payeeRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError(`The extension should be created before receiving any other action`);
-    });
+      it('cannot applyActionToExtensions of addFee without a previous state', () => {
+        // 'must throw'
+        expect(() => {
+          erc20FeeProxyContract.applyActionToExtension(
+            DataERC20FeeCreate.requestStateNoExtensions.extensions,
+            DataERC20FeeAddData.actionAddFee,
+            DataERC20FeeCreate.requestStateNoExtensions,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`The extension should be created before receiving any other action`);
+      });
 
-    it('cannot applyActionToExtensions of addFee without a payee', () => {
-      const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
-      previousState.payee = undefined;
-      // 'must throw'
-      expect(() => {
-        erc20FeeProxyContract.applyActionToExtension(
-          previousState.extensions,
-          DataERC20FeeAddData.actionAddFee,
-          previousState,
-          TestData.payeeRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError(`The request must have a payee`);
-    });
+      it('cannot applyActionToExtensions of addFee without a payee', () => {
+        const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+        previousState.payee = undefined;
+        // 'must throw'
+        expect(() => {
+          erc20FeeProxyContract.applyActionToExtension(
+            previousState.extensions,
+            DataERC20FeeAddData.actionAddFee,
+            previousState,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`The request must have a payee`);
+      });
 
-    it('cannot applyActionToExtensions of addFee signed by someone else than the payee', () => {
-      const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
-      // 'must throw'
-      expect(() => {
-        erc20FeeProxyContract.applyActionToExtension(
-          previousState.extensions,
-          DataERC20FeeAddData.actionAddFee,
-          previousState,
-          TestData.payerRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError(`The signer must be the payee`);
-    });
+      it('cannot applyActionToExtensions of addFee signed by someone else than the payee', () => {
+        const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+        // 'must throw'
+        expect(() => {
+          erc20FeeProxyContract.applyActionToExtension(
+            previousState.extensions,
+            DataERC20FeeAddData.actionAddFee,
+            previousState,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`The signer must be the payee`);
+      });
 
-    it('cannot applyActionToExtensions of addFee with fee data already given', () => {
-      // 'must throw'
-      expect(() => {
-        erc20FeeProxyContract.applyActionToExtension(
-          DataERC20FeeCreate.requestFullStateCreated.extensions,
-          DataERC20FeeAddData.actionAddFee,
-          DataERC20FeeCreate.requestFullStateCreated,
-          TestData.payeeRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError(`Fee address already given`);
-    });
+      it('cannot applyActionToExtensions of addFee with fee data already given', () => {
+        // 'must throw'
+        expect(() => {
+          erc20FeeProxyContract.applyActionToExtension(
+            DataERC20FeeCreate.requestFullStateCreated.extensions,
+            DataERC20FeeAddData.actionAddFee,
+            DataERC20FeeCreate.requestFullStateCreated,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError(`Fee address already given`);
+      });
 
-    it('cannot applyActionToExtensions of addFee with fee address not valid', () => {
-      const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddFee);
-      testnetPaymentAddress.parameters.feeAddress = DataERC20FeeAddData.invalidAddress;
-      // 'must throw'
-      expect(() => {
-        erc20FeeProxyContract.applyActionToExtension(
-          DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
-          testnetPaymentAddress,
-          DataERC20FeeCreate.requestStateCreatedEmpty,
-          TestData.payerRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError('feeAddress is not a valid address');
-    });
+      it('cannot applyActionToExtensions of addFee with fee address not valid', () => {
+        const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddFee);
+        testnetPaymentAddress.parameters.feeAddress = DataERC20FeeAddData.invalidAddress;
+        // 'must throw'
+        expect(() => {
+          erc20FeeProxyContract.applyActionToExtension(
+            DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+            testnetPaymentAddress,
+            DataERC20FeeCreate.requestStateCreatedEmpty,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('feeAddress is not a valid address');
+      });
 
-    it('cannot applyActionToExtensions of addFee with fee amount not valid', () => {
-      const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddFee);
-      testnetPaymentAddress.parameters.feeAmount = DataERC20FeeAddData.invalidAddress;
-      // 'must throw'
-      expect(() => {
-        erc20FeeProxyContract.applyActionToExtension(
-          DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
-          testnetPaymentAddress,
-          DataERC20FeeCreate.requestStateCreatedEmpty,
-          TestData.payerRaw.identity,
-          TestData.arbitraryTimestamp,
-        );
-      }).toThrowError('feeAmount is not a valid amount');
+      it('cannot applyActionToExtensions of addFee with fee amount not valid', () => {
+        const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddFee);
+        testnetPaymentAddress.parameters.feeAmount = DataERC20FeeAddData.invalidAddress;
+        // 'must throw'
+        expect(() => {
+          erc20FeeProxyContract.applyActionToExtension(
+            DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+            testnetPaymentAddress,
+            DataERC20FeeCreate.requestStateCreatedEmpty,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('feeAmount is not a valid amount');
+      });
     });
   });
 });

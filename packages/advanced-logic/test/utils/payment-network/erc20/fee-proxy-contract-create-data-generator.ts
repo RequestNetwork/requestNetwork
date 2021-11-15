@@ -83,8 +83,16 @@ export const extensionFullState = {
       paymentAddress,
       refundAddress,
       salt,
+      payeeDelegate: undefined,
+      payerDelegate: undefined,
+      paymentInfo: undefined,
+      receivedPaymentAmount: "0",
+      receivedRefundAmount: "0",
+      refundInfo: undefined,
+      sentPaymentAmount: "0",
+      sentRefundAmount: "0",
     },
-    version: '0.2.0',
+    version: '0.1.0',
   },
 };
 export const extensionStateCreatedEmpty = {

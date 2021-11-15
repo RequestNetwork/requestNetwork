@@ -3,17 +3,22 @@ import * as TestData from '../../test-data-generator';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 export const arbitraryTimestamp = 1544426030;
+export const arbitrarySalt = 'ea3bc7caf64110ca';
 
 // ---------------------------------------------------------------------
 export const paymentInfo = { IBAN: 'FR123456789123456789', BIC: 'CE123456789' };
 export const refundInfo = { IBAN: 'FR987654321987654321', BIC: 'CE987654321' };
 export const amount = '12345';
-export const note = { transactionId: '123456789' };
+export const note = '123456789';
+export const txHash = '0x123456789';
+export const network = 'matic';
 export const payeeDelegate = TestData.payeeDelegateRaw.identity;
 export const payerDelegate = TestData.payerDelegateRaw.identity;
 export const delegateToAdd = TestData.otherIdRaw.identity;
 
 // ---------------------------------------------------------------------
+const salt = arbitrarySalt;
+
 // actions
 export const actionCreationWithPaymentAndRefund = {
   action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
@@ -61,6 +66,16 @@ export const actionCreationPayeeDelegate = {
   parameters: { payeeDelegate },
   version: '0.1.0',
 };
+export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+  parameters: {
+    paymentAddress: 'pay.near',
+    refundAddress: 'refund.near',
+    salt,
+  },
+  version: '0.2.0',
+};
 
 export const actionAddDelegate = {
   action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
@@ -90,6 +105,8 @@ export const actionDeclareSentPayment = {
   parameters: {
     amount,
     note,
+    txHash,
+    network,
   },
 };
 export const actionDeclareSentRefund = {
@@ -98,6 +115,8 @@ export const actionDeclareSentRefund = {
   parameters: {
     amount,
     note,
+    txHash,
+    network,
   },
 };
 
@@ -107,6 +126,8 @@ export const actionDeclareReceivedPayment = {
   parameters: {
     amount,
     note,
+    txHash,
+    network,
   },
 };
 export const actionDeclareReceivedRefund = {
@@ -115,6 +136,8 @@ export const actionDeclareReceivedRefund = {
   parameters: {
     amount,
     note,
+    txHash,
+    network,
   },
 };
 // ---------------------------------------------------------------------
@@ -168,6 +191,72 @@ export const extensionStateCreatedEmpty = {
     version: '0.1.0',
   },
 };
+export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {
+          paymentAddress: 'pay.near',
+          refundAddress: 'refund.near',
+          salt,
+        },
+        timestamp: arbitraryTimestamp,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      paymentAddress: 'pay.near',
+      refundAddress: 'refund.near',
+      salt,
+      payeeDelegate: undefined,
+      payerDelegate: undefined,
+      paymentInfo: undefined,
+      receivedPaymentAmount: "0",
+      receivedRefundAmount: "0",
+      refundInfo: undefined,
+      sentPaymentAmount: "0",
+      sentRefundAmount: "0",
+    },
+    version: '0.2.0',
+  },
+};
+export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {
+          salt,
+        },
+        timestamp: arbitraryTimestamp,
+      },
+      {
+        name: 'addPaymentAddress',
+        parameters: {
+          paymentAddress: 'pay.near',
+        },
+        timestamp: arbitraryTimestamp,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      paymentAddress: 'pay.near',
+      salt,
+      payeeDelegate: undefined,
+      payerDelegate: undefined,
+      paymentInfo: undefined,
+      receivedPaymentAmount: "0",
+      receivedRefundAmount: "0",
+      refundInfo: undefined,
+      sentPaymentAmount: "0",
+      sentRefundAmount: "0",
+    },
+    version: '0.2.0',
+  },
+};
 
 export const extensionStateCreatedEmptyNoDelegate = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
@@ -194,7 +283,7 @@ export const extensionStateCreatedEmptyPaymentInstructionAdded = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -225,7 +314,7 @@ export const extensionStateCreatedEmptyRefundInstructionAdded = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -257,7 +346,7 @@ export const extensionStateCreatedEmptySentPayment = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -265,6 +354,8 @@ export const extensionStateCreatedEmptySentPayment = {
         parameters: {
           amount,
           note,
+          txHash,
+          network,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payerRaw.identity,
@@ -288,7 +379,7 @@ export const extensionStateCreatedEmptyReceivedRefund = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -296,6 +387,8 @@ export const extensionStateCreatedEmptyReceivedRefund = {
         parameters: {
           amount,
           note,
+          txHash,
+          network,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payerRaw.identity,
@@ -319,7 +412,7 @@ export const extensionStateCreatedEmptySentRefund = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -327,6 +420,8 @@ export const extensionStateCreatedEmptySentRefund = {
         parameters: {
           amount,
           note,
+          txHash,
+          network,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payeeRaw.identity,
@@ -408,7 +503,7 @@ export const extensionStateCreatedEmptyReceivedPayment = {
     events: [
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: {payeeDelegate},
+        parameters: { payeeDelegate },
         timestamp: arbitraryTimestamp,
       },
       {
@@ -416,6 +511,8 @@ export const extensionStateCreatedEmptyReceivedPayment = {
         parameters: {
           amount,
           note,
+          txHash,
+          network,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payeeRaw.identity,

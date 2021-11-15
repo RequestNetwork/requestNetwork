@@ -11,7 +11,7 @@ import {
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { Currency } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { localERC20AlphaArtifact } from './localArtifacts';
 
@@ -22,15 +22,17 @@ describe('contract: Erc20ConversionProxy', () => {
   let to: string;
   let feeAddress: string;
   let signer: Signer;
-  const smallAmountInFIAT = '100000000'; // 1 with 8 decimal
-  const smallerAmountInFIAT = '10000000'; // 0.1 with 8 decimal
+  const amountInFiat = '100000000'; // 1 with 8 decimal
+  const feesAmountInFiat = '10000000'; // 0.1 with 8 decimal
   const thousandWith18Decimal = '1000000000000000000000';
   const hundredWith18Decimal = '100000000000000000000';
   const referenceExample = '0xaaaa';
 
-  const ETH_address = Currency.fromSymbol('ETH').getHash();
-  const USD_address = Currency.fromSymbol('USD').getHash();
-  const EUR_address = Currency.fromSymbol('EUR').getHash();
+  const currencyManager = CurrencyManager.getDefault();
+
+  const ETH_hash = currencyManager.fromSymbol('ETH')!.hash;
+  const USD_hash = currencyManager.fromSymbol('USD')!.hash;
+  const EUR_hash = currencyManager.fromSymbol('EUR')!.hash;
   let DAI_address: string;
 
   let testErc20ConversionProxy: Erc20ConversionProxy;
@@ -56,7 +58,7 @@ describe('contract: Erc20ConversionProxy', () => {
   describe('transferFromWithReferenceAndFee', () => {
     describe('transferFromWithReferenceAndFee with DAI', () => {
       it('allows to transfer DAI tokens for USD payment', async function () {
-        const path = [USD_address, DAI_address];
+        const path = [USD_hash, DAI_address];
         await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
         });
@@ -64,16 +66,16 @@ describe('contract: Erc20ConversionProxy', () => {
         const fromOldBalance = await testERC20.balanceOf(from);
         const toOldBalance = await testERC20.balanceOf(to);
         const feeOldBalance = await testERC20.balanceOf(feeAddress);
-        const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
-        const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
+        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
+        const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
 
         await expect(
           testErc20ConversionProxy.transferFromWithReferenceAndFee(
             to,
-            smallAmountInFIAT,
+            amountInFiat,
             path,
             referenceExample,
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             feeAddress,
             hundredWith18Decimal,
             0,
@@ -81,10 +83,10 @@ describe('contract: Erc20ConversionProxy', () => {
         )
           .to.emit(testErc20ConversionProxy, 'TransferWithConversionAndReference')
           .withArgs(
-            smallAmountInFIAT,
+            amountInFiat,
             ethers.utils.getAddress(path[0]),
             ethers.utils.keccak256(referenceExample),
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             '0',
           );
 
@@ -112,22 +114,22 @@ describe('contract: Erc20ConversionProxy', () => {
       });
 
       it('allows to transfer DAI tokens for EUR payment', async function () {
-        const path = [EUR_address, USD_address, DAI_address];
+        const path = [EUR_hash, USD_hash, DAI_address];
         await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, { from });
 
         const fromOldBalance = await testERC20.balanceOf(from);
         const toOldBalance = await testERC20.balanceOf(to);
         const feeOldBalance = await testERC20.balanceOf(feeAddress);
-        const conversionToPay = await chainlinkPath.getConversion(smallAmountInFIAT, path);
-        const conversionFees = await chainlinkPath.getConversion(smallerAmountInFIAT, path);
+        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
+        const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
 
         await expect(
           testErc20ConversionProxy.transferFromWithReferenceAndFee(
             to,
-            smallAmountInFIAT,
+            amountInFiat,
             path,
             referenceExample,
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             feeAddress,
             hundredWith18Decimal,
             0,
@@ -136,10 +138,10 @@ describe('contract: Erc20ConversionProxy', () => {
           .to.emit(testERC20, 'Transfer')
           .to.emit(testErc20ConversionProxy, 'TransferWithConversionAndReference')
           .withArgs(
-            smallAmountInFIAT,
+            amountInFiat,
             ethers.utils.getAddress(path[0]),
             ethers.utils.keccak256(referenceExample),
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             '0',
           )
           .to.emit(testErc20ConversionProxy, 'TransferWithReferenceAndFee')
@@ -171,7 +173,7 @@ describe('contract: Erc20ConversionProxy', () => {
 
     describe('transferFromWithReferenceAndFee with errors', () => {
       it('cannot transfer with invalid path', async function () {
-        const path = [EUR_address, ETH_address, DAI_address];
+        const path = [EUR_hash, ETH_hash, DAI_address];
         await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
         });
@@ -179,10 +181,10 @@ describe('contract: Erc20ConversionProxy', () => {
         await expect(
           testErc20ConversionProxy.transferFromWithReferenceAndFee(
             to,
-            smallAmountInFIAT,
+            amountInFiat,
             path,
             referenceExample,
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             feeAddress,
             hundredWith18Decimal,
             0,
@@ -192,7 +194,7 @@ describe('contract: Erc20ConversionProxy', () => {
       });
 
       it('cannot transfer if max to spend too low', async function () {
-        const path = [USD_address, DAI_address];
+        const path = [USD_hash, DAI_address];
         await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
         });
@@ -200,10 +202,10 @@ describe('contract: Erc20ConversionProxy', () => {
         await expect(
           testErc20ConversionProxy.transferFromWithReferenceAndFee(
             to,
-            smallAmountInFIAT,
+            amountInFiat,
             path,
             referenceExample,
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             feeAddress,
             100,
             0,
@@ -213,7 +215,7 @@ describe('contract: Erc20ConversionProxy', () => {
       });
 
       it('cannot transfer if rate is too old', async function () {
-        const path = [USD_address, DAI_address];
+        const path = [USD_hash, DAI_address];
         await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
           from,
         });
@@ -221,10 +223,10 @@ describe('contract: Erc20ConversionProxy', () => {
         await expect(
           testErc20ConversionProxy.transferFromWithReferenceAndFee(
             to,
-            smallAmountInFIAT,
+            amountInFiat,
             path,
             referenceExample,
-            smallerAmountInFIAT,
+            feesAmountInFiat,
             feeAddress,
             hundredWith18Decimal,
             10, // ten secondes

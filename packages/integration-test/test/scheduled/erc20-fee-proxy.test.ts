@@ -1,7 +1,17 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks';
+import { Types, Utils } from '@requestnetwork/request-client.js';
+import {
+  erc20requestCreationHash,
+  localErc20PaymentNetworkParams,
+  payeeIdentity,
+  payerIdentity,
+  privateErc20Address,
+  requestNetwork,
+} from './fixtures';
 
 const createMockRequest = ({
   network,
@@ -40,8 +50,9 @@ const createMockRequest = ({
   version: '0.2',
 });
 
-const erc20AddressedBased = new Erc20PaymentNetwork.FeeProxyContract({
+const erc20AddressedBased = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,
+  currencyManager: CurrencyManager.getDefault(),
 });
 
 describe('ERC20 Fee Proxy detection test-suite', () => {
@@ -101,4 +112,60 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events[0].amount).toBe('1000000000000000000');
     expect(balance.events[0].timestamp).toBe(1621953168);
   }, 15000);
+
+  it('can getBalance for a payment declared by the payee', async () => {
+    // Create a request
+    const request = await requestNetwork.createRequest({
+      paymentNetwork: localErc20PaymentNetworkParams,
+      requestInfo: erc20requestCreationHash,
+      signer: payeeIdentity,
+    });
+
+    // The payee declares the payment
+    let requestData = await request.declareReceivedPayment('1', 'OK', payeeIdentity, '0x1234');
+    const declarationTimestamp = Utils.getCurrentTimestampInSecond();
+    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+
+    const balance = await erc20AddressedBased.getBalance({
+      ...requestData,
+      currency: {
+        network: 'private',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: privateErc20Address,
+      },
+    });
+
+    expect(balance.balance).toBe('1');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe('payment');
+    expect(balance.events[0].amount).toBe('1');
+    expect(Math.abs(declarationTimestamp - (balance.events[0].timestamp ?? 0))).toBeLessThan(5);
+  });
+
+  it('getBalance = 0 if the payer declared the payment', async () => {
+    // Create a request
+    const request = await requestNetwork.createRequest({
+      paymentNetwork: localErc20PaymentNetworkParams,
+      requestInfo: erc20requestCreationHash,
+      signer: payeeIdentity,
+    });
+
+    // The payer declares a payment
+    let requestData: Types.IRequestDataWithEvents = await request.declareSentPayment(
+      '1',
+      'OK',
+      payerIdentity,
+    );
+    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    const balance = await erc20AddressedBased.getBalance({
+      ...requestData,
+      currency: {
+        network: 'private',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: privateErc20Address,
+      },
+    });
+    expect(balance.balance).toBe('0');
+    expect(balance.events).toHaveLength(0);
+  });
 });

@@ -3,7 +3,8 @@ import * as Extension from '../extension-types';
 import * as RequestLogicTypes from '../request-logic-types';
 
 /** Manager of the extension */
-export interface IAnyDeclarative extends Extension.IExtension {
+export interface IAnyDeclarative<TCreationParameters = ICreationParameters>
+  extends Extension.IExtension {
   createDeclareSentPaymentAction: (parameters: ISentParameters) => Extension.IAction;
   createDeclareSentRefundAction: (parameters: ISentParameters) => Extension.IAction;
   createDeclareReceivedPaymentAction: (parameters: IReceivedParameters) => Extension.IAction;
@@ -14,7 +15,7 @@ export interface IAnyDeclarative extends Extension.IExtension {
   createAddRefundInstructionAction: (
     parameters: IAddRefundInstructionParameters,
   ) => Extension.IAction;
-  createCreationAction: (parameters?: ICreationParameters) => Extension.IAction;
+  createCreationAction: (parameters?: TCreationParameters) => Extension.IAction;
   createAddDelegateAction: (parameters: IAddDelegateParameters) => Extension.IAction;
 }
 
@@ -35,13 +36,17 @@ export interface ICreationParameters {
 /** Parameters of declareSentPayment and declareSentRefund action */
 export interface ISentParameters {
   amount: RequestLogicTypes.Amount;
-  note: any;
+  note: string;
+  txHash?: string;
+  network?: string;
 }
 
 /** Parameters of declareReceivedPayment and declareReceivedRefund action */
 export interface IReceivedParameters {
   amount: RequestLogicTypes.Amount;
-  note: any;
+  note: string;
+  txHash?: string;
+  network?: string;
 }
 
 /** Parameters of addPaymentInstruction action */

@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+// @ts-ignore Cannot find module
 import type { ChainlinkConversionPath } from '../../../types/ChainlinkConversionPath';
 
 export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionPath>(
@@ -9,7 +10,7 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0xF328c11c4dF88d18FcBd30ad38d8B4714F4b33bF',
+          address: '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c',
           creationBlockNumber: 0,
         },
         mainnet: {
@@ -23,6 +24,22 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
         matic: {
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 17427745,
+        },
+        xdai: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 18326897,
+        },
+        bsctest: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 12759694,
+        },
+        bsc: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 11540176,
+        },
+        fantom: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 20061324,
         },
       },
     },

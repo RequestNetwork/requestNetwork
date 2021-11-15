@@ -87,6 +87,8 @@ describe('extensions/payment-network/any/declarative', () => {
         pnAnyDeclarative.createDeclareSentPaymentAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
+          txHash: TestDataDeclarative.txHash,
+          network: TestDataDeclarative.network
         }),
       ).toEqual(TestDataDeclarative.actionDeclareSentPayment);
     });
@@ -99,6 +101,8 @@ describe('extensions/payment-network/any/declarative', () => {
         pnAnyDeclarative.createDeclareSentRefundAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
+          txHash: TestDataDeclarative.txHash,
+          network: TestDataDeclarative.network
         }),
       ).toEqual(TestDataDeclarative.actionDeclareSentRefund);
     });
@@ -111,6 +115,8 @@ describe('extensions/payment-network/any/declarative', () => {
         pnAnyDeclarative.createDeclareReceivedPaymentAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
+          txHash: TestDataDeclarative.txHash,
+          network: TestDataDeclarative.network
         }),
       ).toEqual(TestDataDeclarative.actionDeclareReceivedPayment);
     });
@@ -123,6 +129,8 @@ describe('extensions/payment-network/any/declarative', () => {
         pnAnyDeclarative.createDeclareReceivedRefundAction({
           amount: TestDataDeclarative.amount,
           note: TestDataDeclarative.note,
+          txHash: TestDataDeclarative.txHash,
+          network: TestDataDeclarative.network
         }),
       ).toEqual(TestDataDeclarative.actionDeclareReceivedRefund);
     });
@@ -182,6 +190,29 @@ describe('extensions/payment-network/any/declarative', () => {
           );
         }).toThrowError('This extension has already been created');
       });
+    });
+
+    it('keeps the version used at creation', () => {
+      const newState = pnAnyDeclarative.applyActionToExtension(
+        {},
+        { ...TestDataDeclarative.actionCreationWithPaymentAndRefund, version: 'ABCD' },
+        TestDataDeclarative.requestStateNoExtensions,
+        TestData.otherIdRaw.identity,
+        TestData.arbitraryTimestamp,
+      );
+      expect(newState[pnAnyDeclarative.extensionId].version).toBe('ABCD');
+    });
+
+    it('requires a version at creation', () => {
+      expect(() => {
+        pnAnyDeclarative.applyActionToExtension(
+          {},
+          { ...TestDataDeclarative.actionCreationWithPaymentAndRefund, version: '' },
+          TestDataDeclarative.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+      }).toThrowError('version is required at creation');
     });
 
     describe('applyActionToExtension/addPaymentInstruction', () => {

@@ -12,6 +12,8 @@ import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
+import DeclarativePaymentNetwork from '../declarative';
+import { makeGetDeploymentInformation } from '../utils';
 
 /* eslint-disable max-classes-per-file */
 /** Exception when network not supported */
@@ -19,16 +21,28 @@ class NetworkNotSupported extends Error {}
 /** Exception when version not supported */
 class VersionNotSupported extends Error {}
 
+const PROXY_CONTRACT_ADDRESS_MAP = {
+  ['0.1.0']: '0.1.0',
+};
+
 /**
  * Handle payment networks with ERC20 proxy contract extension
  */
-export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IPaymentNetwork {
-  private extension: ExtensionTypes.PnReferenceBased.IReferenceBased;
+export class ERC20ProxyPaymentDetector<
+    ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
+  >
+  extends DeclarativePaymentNetwork<ExtensionType>
+  implements PaymentTypes.IPaymentNetwork<ExtensionType> {
+  protected _extensionTypeId: ExtensionTypes.ID;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+    super({ advancedLogic });
+    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
     this.extension = advancedLogic.extensions.proxyContractErc20;
+    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT;
   }
 
   /**
@@ -55,10 +69,10 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
   /**
    * Creates the extensions data to add payment address
    *
-   * @param parameters to add payment information
+   * @param parameters to add payment address
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddPaymentInformation(
+  public createExtensionsDataForAddPaymentAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddPaymentAddressAction({
@@ -69,10 +83,10 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
   /**
    * Creates the extensions data to add refund address
    *
-   * @param Parameters to add refund information
+   * @param Parameters to add refund address
    * @returns The extensionData object
    */
-  public createExtensionsDataForAddRefundInformation(
+  public createExtensionsDataForAddRefundAddress(
     parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
     return this.extension.createAddRefundAddressAction({
@@ -148,7 +162,7 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
       if (error instanceof VersionNotSupported) {
         code = PaymentTypes.BALANCE_ERROR_CODE.VERSION_NOT_SUPPORTED;
       }
-      return getBalanceErrorObject(error.message, code);
+      return getBalanceErrorObject((error as Error).message, code);
     }
   }
 
@@ -178,18 +192,26 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
     let proxyContractAddress: string;
     let proxyCreationBlockNumber: number;
     try {
-      const info = erc20ProxyArtifact.getDeploymentInformation(network, paymentNetworkVersion);
+      const info = ERC20ProxyPaymentDetector.getDeploymentInformation(
+        network,
+        paymentNetworkVersion,
+      );
       proxyContractAddress = info.address;
       proxyCreationBlockNumber = info.creationBlockNumber;
     } catch (e) {
-      if (e.message?.startsWith('No deployment for network')) {
+      const errMessage = (e as Error)?.message || '';
+      if (errMessage.startsWith('No deployment for network')) {
         throw new NetworkNotSupported(
           `Network not supported for this payment network: ${request.currency.network}`,
         );
       }
-      throw new VersionNotSupported(
-        `Payment network version not supported: ${paymentNetworkVersion}`,
-      );
+      if (
+        errMessage.startsWith('No contract matches payment network version') ||
+        errMessage.startsWith('No deployment for version')
+      ) {
+        throw new VersionNotSupported(errMessage);
+      }
+      throw e;
     }
 
     const paymentReference = PaymentReferenceCalculator.calculate(
@@ -216,7 +238,9 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
           eventName,
           network,
         );
-    const events = await infoRetriever.getTransferEvents();
+
+    const declaredEvents = (await super.getBalance(request)).events;
+    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
     const balance = events
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
@@ -227,4 +251,11 @@ export default class PaymentNetworkERC20ProxyContract implements PaymentTypes.IP
       events,
     };
   }
+  /*
+   * Returns deployment information for the underlying smart contract for a given payment network version
+   */
+  public static getDeploymentInformation = makeGetDeploymentInformation(
+    erc20ProxyArtifact,
+    PROXY_CONTRACT_ADDRESS_MAP,
+  );
 }

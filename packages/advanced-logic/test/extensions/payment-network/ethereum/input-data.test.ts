@@ -7,7 +7,6 @@ import * as DataEthAddPaymentAddress from '../../../utils/payment-network/ethere
 import * as DataEthCreate from '../../../utils/payment-network/ethereum/create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
 
-
 const ethereumInputDataPaymentNetwork = new EthereumInputDataPaymentNetwork();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -57,7 +56,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
     });
 
     it('cannot createCreationAction with refund address not an ethereum address', () => {
@@ -68,7 +67,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
     });
   });
 
@@ -94,7 +93,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         ethereumInputDataPaymentNetwork.createAddPaymentAddressAction({
           paymentAddress: 'not an ethereum address',
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
     });
   });
 
@@ -119,7 +118,7 @@ describe('extensions/payment-network/ethereum/input-data', () => {
         ethereumInputDataPaymentNetwork.createAddRefundAddressAction({
           refundAddress: 'not an ethereum address',
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
     });
   });
 
@@ -217,7 +216,9 @@ describe('extensions/payment-network/ethereum/input-data', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataEthAddPaymentAddress.invalidAddress}' is not a valid address`,
+        );
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
@@ -234,7 +235,32 @@ describe('extensions/payment-network/ethereum/input-data', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('refundAddress is not a valid address');
+        }).toThrowError(
+          `refundAddress '${DataEthAddPaymentAddress.invalidAddress}' is not a valid address`,
+        );
+      });
+
+      it('keeps the version used at creation', () => {
+        const newState = ethereumInputDataPaymentNetwork.applyActionToExtension(
+          {},
+          { ...DataEthCreate.actionCreationWithPaymentAndRefund, version: 'ABCD' },
+          DataEthCreate.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+        expect(newState[ethereumInputDataPaymentNetwork.extensionId].version).toBe('ABCD');
+      });
+
+      it('requires a version at creation', () => {
+        expect(() => {
+          ethereumInputDataPaymentNetwork.applyActionToExtension(
+            {},
+            { ...DataEthCreate.actionCreationWithPaymentAndRefund, version: '' },
+            DataEthCreate.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('version is required at creation');
       });
     });
 
@@ -316,7 +342,9 @@ describe('extensions/payment-network/ethereum/input-data', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataEthAddPaymentAddress.invalidAddress}' is not a valid address`,
+        );
       });
     });
 

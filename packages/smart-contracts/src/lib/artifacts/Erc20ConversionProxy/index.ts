@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+// @ts-ignore Cannot find module
 import type { Erc20ConversionProxy } from '../../../types/Erc20ConversionProxy';
 
 export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
@@ -9,7 +10,7 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a',
+          address: '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E',
           creationBlockNumber: 0,
         },
         mainnet: {
@@ -23,6 +24,22 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
         matic: {
           address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
           creationBlockNumber: 17427747,
+        },
+        xdai: {
+          address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
+          creationBlockNumber: 18326898,
+        },
+        bsctest: {
+          address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
+          creationBlockNumber: 12759699,
+        },
+        bsc: {
+          address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
+          creationBlockNumber: 11540180,
+        },
+        fantom: {
+          address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
+          creationBlockNumber: 20061367,
         },
       },
     },

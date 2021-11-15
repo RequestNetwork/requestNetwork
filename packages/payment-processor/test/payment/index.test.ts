@@ -127,11 +127,52 @@ describe('payRequest', () => {
       'Payment currency network aurora is not supported',
     );
   });
+});
 
-  it('pays a NEAR request with NEAR payment method', async () => {
-    const addressValiditySpy = jest
-      .spyOn(nearUtils, 'isValidNearAddress')
-      .mockReturnValue(Promise.resolve(true));
+describe('payNearInputDataRequest', () => {
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+  it('pays a NEAR request with NEAR payment method (with mock)', async () => {
+    // A mock is used to bypass Near wallet connection for address validation and contract interaction
+    const paymentSpy = jest
+      .spyOn(nearUtils, 'processNearPayment')
+      .mockReturnValue(Promise.resolve());
+    const mockedNearWalletConnection = {
+      account: () => ({
+        functionCall: () => true,
+        state: () => Promise.resolve({ amount: 100 }),
+      }),
+    } as any;
+    const request: any = {
+      requestId: '0x123',
+      currencyInfo: nearCurrency,
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            salt: '0x456',
+            paymentAddress: '0x789',
+          },
+          version: '0.2.0',
+        },
+      },
+    };
+
+    await payNearInputDataRequest(request, mockedNearWalletConnection, '1');
+    expect(paymentSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      'aurora',
+      '1',
+      '0x789',
+      '700912030bd973e3',
+      '0.2.0',
+    );
+  });
+  it('throws when tyring to pay another payment extension', async () => {
+    // A mock is used to bypass Near wallet connection for address validation and contract interaction
     const paymentSpy = jest
       .spyOn(nearUtils, 'processNearPayment')
       .mockReturnValue(Promise.resolve());
@@ -153,20 +194,15 @@ describe('payRequest', () => {
             salt: '0x456',
             paymentAddress: '0x789',
           },
-          version: '1.0',
+          version: '0.2.0',
         },
       },
     };
 
-    await payNearInputDataRequest(request, mockedNearWalletConnection, '1');
-    expect(addressValiditySpy).toHaveBeenCalledTimes(1);
-    expect(paymentSpy).toHaveBeenCalledWith(
-      expect.anything(),
-      'aurora',
-      '1',
-      '0x789',
-      '700912030bd973e3',
-    );
+    await expect(
+      payNearInputDataRequest(request, mockedNearWalletConnection, '1'),
+    ).rejects.toThrowError('request cannot be processed, or is not an pn-native-token request');
+    expect(paymentSpy).toHaveBeenCalledTimes(0);
   });
 });
 

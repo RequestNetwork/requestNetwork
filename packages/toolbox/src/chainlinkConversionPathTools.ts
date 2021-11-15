@@ -5,7 +5,7 @@ import {
   ChainlinkConversionPath__factory,
   ChainlinkConversionPath,
 } from '@requestnetwork/smart-contracts/types';
-import { Currency } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import iso4217 from '@requestnetwork/currency/dist/iso4217';
 
@@ -113,17 +113,33 @@ class ChainlinkConversionPathTools {
   }
 }
 
+const getCurrency = (symbol: string) => {
+  const currencyManager = CurrencyManager.getDefault();
+  let currency = currencyManager.fromSymbol(symbol);
+  if (!currency) {
+    currency = currencyManager.from(symbol);
+    if (!currency) {
+      throw new Error(`Currency ${symbol} not found`);
+    }
+  }
+  return currency;
+};
+
 // Record currency [currency hash] => {value (address or symbol), type}
-const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH'].reduce((prev, symbol) => {
-  const currency = Currency.fromSymbol(symbol);
-  return {
-    ...prev,
-    [currency.getHash().toLowerCase()]: {
-      value: currency.value,
-      type: currency.type,
-    },
-  };
-}, {} as Record<string, { value: string; type: RequestLogicTypes.CURRENCY }>);
+const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH', 'ETH-rinkeby'].reduce(
+  (prev, symbol) => {
+    const currency = getCurrency(symbol);
+
+    return {
+      ...prev,
+      [currency.hash.toLowerCase()]: {
+        value: CurrencyManager.toStorageCurrency(currency).value,
+        type: currency.type,
+      },
+    };
+  },
+  {} as Record<string, { value: string; type: RequestLogicTypes.CURRENCY }>,
+);
 
 const addSupportedCurrency = (
   ccy: string,
@@ -186,7 +202,9 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
   console.log(aggregatorsNodesForDijkstra);
   console.log('#####################################################################');
   console.log('Supported currencies (advanced-logic) :');
-  console.log('../advanced-logic/src/extensions/payment-network/any-to-erc20-proxy.ts');
+  console.log(
+    '../advanced-logic/src/extensions/payment-network/conversion-supported-currencies.ts',
+  );
   console.log(supportedCurrencies);
 };
 
@@ -194,8 +212,15 @@ export const showCurrencyHash = async (options?: IOptions): Promise<void> => {
   if (!options?.currencyCode) {
     throw new Error('currencyCode missing');
   }
-  console.log('#####################################################################');
-  console.log(`Currency hash of: ${options.currencyCode}`);
-  console.log(Currency.fromSymbol(options.currencyCode).getHash());
-  console.log('#####################################################################');
+  try {
+    const currency = getCurrency(options.currencyCode);
+    console.log('#####################################################################');
+    console.log(`Currency hash of: ${options.currencyCode}`);
+    console.log(currency.hash);
+    console.log('#####################################################################');
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error(`Error ! ${e.message}`);
+    }
+  }
 };

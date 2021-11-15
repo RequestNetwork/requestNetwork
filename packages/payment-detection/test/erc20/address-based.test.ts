@@ -4,11 +4,11 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import ERC20AddressedBased from '../../src/erc20/address-based';
+import { ERC20AddressBasedPaymentDetector } from '../../src/erc20/address-based';
 
 jest.setTimeout(10000);
 
-let erc20AddressedBased: ERC20AddressedBased;
+let erc20AddressedBased: ERC20AddressBasedPaymentDetector;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -33,7 +33,9 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/address-based', () => {
   beforeEach(() => {
-    erc20AddressedBased = new ERC20AddressedBased({ advancedLogic: mockAdvancedLogic });
+    erc20AddressedBased = new ERC20AddressBasedPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+    });
   });
 
   it('can createExtensionsDataForCreation', async () => {

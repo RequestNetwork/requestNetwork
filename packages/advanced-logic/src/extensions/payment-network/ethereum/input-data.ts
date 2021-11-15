@@ -1,8 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-
 import ReferenceBasedPaymentNetwork from '../reference-based';
-
-import * as walletAddressValidator from 'wallet-address-validator';
 
 const CURRENT_VERSION = '0.2.0';
 const supportedNetworks = [
@@ -14,10 +11,13 @@ const supportedNetworks = [
   'matic',
   'celo',
   'fantom',
+  'bsctest',
+  'bsc',
 ];
 
 /**
- * Implementation of the payment network to pay in ETH based on input data.
+ * Implementation of the payment network to pay in native token
+ * FIXME: rename into EVMNativePaymentNetwork
  */
 export default class EthInputPaymentNetwork extends ReferenceBasedPaymentNetwork {
   public constructor(
@@ -25,32 +25,5 @@ export default class EthInputPaymentNetwork extends ReferenceBasedPaymentNetwork
     currentVersion: string = CURRENT_VERSION,
   ) {
     super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
-  }
-
-  /**
-   * Check if an ethereum address is valid
-   *
-   * @param {string} address address to check
-   * @returns {boolean} true if address is valid
-   */
-  protected isValidAddress(address: string): boolean {
-    return walletAddressValidator.validate(address, 'ethereum');
-  }
-
-  protected validate(
-    request: RequestLogicTypes.IRequest,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _extensionAction: ExtensionTypes.IAction,
-  ): void {
-    if (
-      request.currency.type !== RequestLogicTypes.CURRENCY.ETH ||
-      (request.currency.network && !supportedNetworks.includes(request.currency.network))
-    ) {
-      throw Error(
-        `This extension can be used only on ETH requests and on supported networks ${supportedNetworks.join(
-          ', ',
-        )}`,
-      );
-    }
   }
 }

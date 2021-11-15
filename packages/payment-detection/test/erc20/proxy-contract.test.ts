@@ -4,9 +4,15 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import ERC20ProxyContract from '../../src/erc20/proxy-contract';
+import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
 
-let erc20ProxyContract: ERC20ProxyContract;
+let erc20ProxyContract: ERC20ProxyPaymentDetector;
+
+const createAddPaymentAddressAction = jest.fn();
+const createAddRefundAddressAction = jest.fn();
+const createCreationAction = jest.fn();
+const createAddPaymentInstructionAction = jest.fn();
+const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -14,15 +20,12 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     proxyContractErc20: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      // inheritance from declarative
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
     },
   },
 };
@@ -30,18 +33,16 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
-    erc20ProxyContract = new ERC20ProxyContract({ advancedLogic: mockAdvancedLogic });
+    erc20ProxyContract = new ERC20ProxyPaymentDetector({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.proxyContractErc20, 'createCreationAction');
-
     await erc20ProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createCreationAction).toHaveBeenCalledWith({
       paymentAddress: 'ethereum address',
       refundAddress: undefined,
       salt: 'ea3bc7caf64110ca',
@@ -49,43 +50,51 @@ describe('api/erc20/proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation without salt', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.proxyContractErc20, 'createCreationAction');
-
     await erc20ProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
     });
 
     // Can't check parameters since salt is generated in createExtensionsDataForCreation
-    expect(spy).toHaveBeenCalled();
+    expect(createCreationAction).toHaveBeenCalled();
   });
 
-  it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.proxyContractErc20,
-      'createAddPaymentAddressAction',
-    );
-
-    erc20ProxyContract.createExtensionsDataForAddPaymentInformation({
+  it('can createExtensionsDataForAddPaymentAddress', async () => {
+    erc20ProxyContract.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddPaymentAddressAction).toHaveBeenCalledWith({
       paymentAddress: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddPaymentInformation', async () => {
+    erc20ProxyContract.createExtensionsDataForAddPaymentInformation({
+      paymentInfo: 'ethereum address',
+    });
+
+    expect(createAddPaymentInstructionAction).toHaveBeenCalledWith({
+      paymentInfo: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddRefundAddress', async () => {
+    erc20ProxyContract.createExtensionsDataForAddRefundAddress({
+      refundAddress: 'ethereum address',
+    });
+
+    expect(createAddRefundAddressAction).toHaveBeenCalledWith({
+      refundAddress: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.proxyContractErc20,
-      'createAddRefundAddressAction',
-    );
-
     erc20ProxyContract.createExtensionsDataForAddRefundInformation({
-      refundAddress: 'ethereum address',
+      refundInfo: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
-      refundAddress: 'ethereum address',
+    expect(createAddRefundInstructionAction).toHaveBeenCalledWith({
+      refundInfo: 'ethereum address',
     });
   });
 
@@ -118,7 +127,7 @@ describe('api/erc20/proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.VERSION_NOT_SUPPORTED,
-        message: 'Payment network version not supported: WRONG',
+        message: 'No contract matches payment network version: WRONG.',
       },
       events: [],
     });

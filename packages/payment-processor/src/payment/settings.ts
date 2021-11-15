@@ -1,3 +1,4 @@
+import { ICurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumberish } from 'ethers';
 import { ITransactionOverrides } from './transaction-overrides';
@@ -22,6 +23,8 @@ export interface IConversionSettings {
   currency: RequestLogicTypes.ICurrency;
   /** maximum number of tokens to be spent when the conversion is made */
   maxToSpend?: BigNumberish;
+  /** a currency manager to access currencies property, like decimals */
+  currencyManager?: ICurrencyManager;
 }
 
 /**

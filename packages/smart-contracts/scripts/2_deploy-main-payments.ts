@@ -37,26 +37,28 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       '0xdeea051f2e9120e0',
     );
 
-    // Deploy Ethereym proxy contract
-    const EthereumProxyAddress = await deployOne(args, hre, 'EthereumProxy');
+    // Deploy ETH proxy contract
+    const { address: EthereumProxyAddress } = await deployOne(args, hre, 'EthereumProxy');
     console.log('EthereumProxy Contract deployed: ' + EthereumProxyAddress);
 
     // Deploy ERC20 Fee proxy contract
-    const ERC20FeeProxyAddress = await deployOne(args, hre, 'ERC20FeeProxy');
+    const { address: ERC20FeeProxyAddress } = await deployOne(args, hre, 'ERC20FeeProxy');
     console.log('ERC20FeeProxy Contract deployed: ' + ERC20FeeProxyAddress);
 
     // Deploy the BadERC20 contract
-    const BadERC20Address = await deployOne(args, hre, 'BadERC20', [1000, 'BadERC20', 'BAD', 8]);
+    const { address: BadERC20Address } = await deployOne(args, hre, 'BadERC20', {
+      constructorArguments: [1000, 'BadERC20', 'BAD', 8],
+    });
     console.log('BadERC20 Contract deployed: ' + BadERC20Address);
 
     // Deploy test ERC20 contracts
-    const ERC20TrueAddress = await deployOne(args, hre, 'ERC20True');
+    const { address: ERC20TrueAddress } = await deployOne(args, hre, 'ERC20True');
     console.log('ERC20True Contract deployed: ' + ERC20TrueAddress);
 
-    const ERC20FalseAddress = await deployOne(args, hre, 'ERC20False');
+    const { address: ERC20FalseAddress } = await deployOne(args, hre, 'ERC20False');
     console.log('ERC20False Contract deployed: ' + ERC20FalseAddress);
 
-    const ERC20NoReturnAddress = await deployOne(args, hre, 'ERC20NoReturn');
+    const { address: ERC20NoReturnAddress } = await deployOne(args, hre, 'ERC20NoReturn');
     console.log('ERC20NoReturn Contract deployed: ' + ERC20NoReturnAddress);
 
     const ERC20Revert = await (
@@ -68,19 +70,22 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     // Payment erc20: ALPHA
     const erc20AlphaInstance = await erc20Factory.deploy('1000000000000000000000000000000');
     // Mock a swap router
-    const FakeSwapRouterAddress = await deployOne(args, hre, 'FakeSwapRouter');
+    const { address: FakeSwapRouterAddress } = await deployOne(args, hre, 'FakeSwapRouter');
     // 1 ERC20 = 2 ALPHA
     await erc20AlphaInstance.transfer(FakeSwapRouterAddress, '20000000000000000000000000000');
     await testERC20Instance.transfer(FakeSwapRouterAddress, '10000000000000000000000000000');
     // SwapToPay
-    const ERC20SwapToPayAddress = await deployOne(args, hre, 'ERC20SwapToPay', [
-      FakeSwapRouterAddress,
-      ERC20FeeProxyAddress,
-    ]);
+    const { address: ERC20SwapToPayAddress } = await deployOne(args, hre, 'ERC20SwapToPay', {
+      constructorArguments: [FakeSwapRouterAddress, ERC20FeeProxyAddress],
+    });
     // FIXME SwapToPay deployed without approbation for router and proxy
     console.log('SwapToPay Contract deployed: ' + ERC20SwapToPayAddress);
     // FIXME useless transaction to keep the same contract addresses
     await testERC20Instance.transfer(deployer.address, '1');
+
+    // Deploy ETH fee proxy contract
+    const { address: EthereumFeeProxyAddress } = await deployOne(args, hre, 'EthereumFeeProxy');
+    console.log('EthereumFeeProxy Contract deployed: ' + EthereumFeeProxyAddress);
 
     // ----------------------------------
     console.log('Contracts deployed');
@@ -88,6 +93,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       TestERC20:                ${testERC20Instance.address}
       ERC20Proxy:               ${instanceRequestERC20Proxy.address}
       EthereumProxy:            ${EthereumProxyAddress}
+      EthereumFeeProxy:         ${EthereumFeeProxyAddress}
       ERC20FeeProxy:            ${ERC20FeeProxyAddress}
       BadERC20:                 ${BadERC20Address}
       ERC20True:                ${ERC20TrueAddress}
@@ -95,7 +101,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       ERC20NoReturn:            ${ERC20NoReturnAddress}
       ERC20Revert:              ${ERC20Revert.address}
       ERC20Alpha:               ${erc20AlphaInstance.address}
-      TestERC20:                ${testERC20Instance.address}
       FakeSwapRouter:           ${FakeSwapRouterAddress}
       SwapToPay:                ${ERC20SwapToPayAddress}
       `);

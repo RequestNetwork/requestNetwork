@@ -1,4 +1,4 @@
-  import Erc20AddressBasedPaymentNetwork from '../../../../src/extensions/payment-network/erc20/address-based';
+import Erc20AddressBasedPaymentNetwork from '../../../../src/extensions/payment-network/erc20/address-based';
 
 import Utils from '@requestnetwork/utils';
 
@@ -56,7 +56,7 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
         erc20AddressBasedPaymentNetwork.createCreationAction({
           paymentAddress: DataERC20Create.invalidAddress,
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError(`paymentAddress '${DataERC20Create.invalidAddress}' is not a valid address`);
     });
     it('cannot createCreationAction with refund address not an address', () => {
       // 'must throw'
@@ -64,7 +64,7 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
         erc20AddressBasedPaymentNetwork.createCreationAction({
           refundAddress: DataERC20Create.invalidAddress,
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError(`refundAddress '${DataERC20Create.invalidAddress}' is not a valid address`);
     });
   });
 
@@ -84,7 +84,7 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
         erc20AddressBasedPaymentNetwork.createAddPaymentAddressAction({
           paymentAddress: DataERC20Create.invalidAddress,
         });
-      }).toThrowError('paymentAddress is not a valid address');
+      }).toThrowError(`paymentAddress '${DataERC20Create.invalidAddress}' is not a valid address`);
     });
   });
 
@@ -103,7 +103,7 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
         erc20AddressBasedPaymentNetwork.createAddRefundAddressAction({
           refundAddress: DataERC20Create.invalidAddress,
         });
-      }).toThrowError('refundAddress is not a valid address');
+      }).toThrowError(`refundAddress '${DataERC20Create.invalidAddress}' is not a valid address`);
     });
   });
 
@@ -191,7 +191,9 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataERC20AddPaymentAddress.invalidAddress}' is not a valid address`,
+        );
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
@@ -208,7 +210,32 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('refundAddress is not a valid address');
+        }).toThrowError(
+          `refundAddress '${DataERC20AddPaymentAddress.invalidAddress}' is not a valid address`,
+        );
+      });
+
+      it('keeps the version used at creation', () => {
+        const newState = erc20AddressBasedPaymentNetwork.applyActionToExtension(
+          {},
+          { ...DataERC20Create.actionCreationWithPaymentAndRefund, version: 'ABCD' },
+          DataERC20Create.requestStateNoExtensions,
+          TestData.otherIdRaw.identity,
+          TestData.arbitraryTimestamp,
+        );
+        expect(newState[erc20AddressBasedPaymentNetwork.extensionId].version).toBe('ABCD');
+      });
+
+      it('requires a version at creation', () => {
+        expect(() => {
+          erc20AddressBasedPaymentNetwork.applyActionToExtension(
+            {},
+            { ...DataERC20Create.actionCreationWithPaymentAndRefund, version: '' },
+            DataERC20Create.requestStateNoExtensions,
+            TestData.otherIdRaw.identity,
+            TestData.arbitraryTimestamp,
+          );
+        }).toThrowError('version is required at creation');
       });
     });
 
@@ -290,7 +317,9 @@ describe('extensions/payment-network/erc20/mainnet-address-based', () => {
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError('paymentAddress is not a valid address');
+        }).toThrowError(
+          `paymentAddress '${DataERC20AddPaymentAddress.invalidAddress}' is not a valid address`,
+        );
       });
     });
 

@@ -102,12 +102,16 @@ export default abstract class AbstractExtension<TCreationParameters> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _timestamp: number,
   ): ExtensionTypes.IState {
+    if (!extensionAction.version) {
+      throw Error('version is required at creation');
+    }
+
     return {
       events: [],
       id: extensionAction.id,
       type: this.extensionType,
       values: {},
-      version: this.currentVersion,
+      version: extensionAction.version,
     };
   }
 

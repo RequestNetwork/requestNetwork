@@ -7,7 +7,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { Currency } from '@requestnetwork/currency';
+import { getCurrencyHash } from '@requestnetwork/currency';
 
 /**
  * Thrown when the library does not support a payment blockchain network.
@@ -89,6 +89,7 @@ export function getRequestPaymentValues(
   tokensAccepted?: string[];
   maxRateTimespan?: string;
   network?: string;
+  version: string;
 } {
   const extension = getPaymentNetworkExtension(request);
   if (!extension) {
@@ -116,19 +117,61 @@ export function getRequestPaymentValues(
     tokensAccepted,
     maxRateTimespan,
     network,
+    version: extension.version,
   };
 }
+
+export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): string {
+  const extension = getPaymentNetworkExtension(request);
+  if (!extension) {
+    throw new Error('no payment network found');
+  }
+  return extension.version;
+}
+
+const getProxyNetwork = (
+  pn: ExtensionTypes.IState,
+  currency: RequestLogicTypes.ICurrency,
+): string => {
+  if (pn.values.network) {
+    return pn.values.network;
+  }
+  if (currency.network) {
+    return currency.network;
+  }
+  throw new Error('Payment currency must have a network');
+};
+
+export const getProxyAddress = (
+  request: ClientTypes.IRequestData,
+  getDeploymentInformation: (network: string, version: string) => { address: string },
+): string => {
+  const pn = getPaymentNetworkExtension(request);
+  if (!pn) {
+    throw new Error('PaymentNetwork not found');
+  }
+  const network = getProxyNetwork(pn, request.currencyInfo);
+  const deploymentInfo = getDeploymentInformation(network, pn.version);
+  if (!deploymentInfo) {
+    throw new Error(`No deployment found for network ${network}, version ${pn.version}`);
+  }
+  return deploymentInfo.address;
+};
 
 const {
   ERC20_PROXY_CONTRACT,
   ETH_INPUT_DATA,
+  ETH_FEE_PROXY_CONTRACT,
   ERC20_FEE_PROXY_CONTRACT,
   ANY_TO_ERC20_PROXY,
+  NATIVE_TOKEN,
 } = PaymentTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ERC20_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ETH_INPUT_DATA]: RequestLogicTypes.CURRENCY.ETH,
+  [ETH_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ETH,
+  [NATIVE_TOKEN]: RequestLogicTypes.CURRENCY.ETH,
 };
 
 /**
@@ -224,9 +267,7 @@ export function validateConversionFeeProxyRequest(
   const { tokensAccepted } = getRequestPaymentValues(request);
 
   const requestCurrencyHash = path[0];
-  if (
-    requestCurrencyHash.toLowerCase() !== new Currency(request.currencyInfo).getHash().toLowerCase()
-  ) {
+  if (requestCurrencyHash.toLowerCase() !== getCurrencyHash(request.currencyInfo).toLowerCase()) {
     throw new Error(`The first entry of the path does not match the request currency`);
   }
 

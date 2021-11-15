@@ -3,7 +3,9 @@ import * as PnAddressBased from './extensions/pn-any-address-based-types';
 import * as PnAnyDeclarative from './extensions/pn-any-declarative-types';
 import * as PnFeeReferenceBased from './extensions/pn-any-fee-reference-based-types';
 import * as PnReferenceBased from './extensions/pn-any-reference-based-types';
-import * as PnAnyToErc20 from './extensions/pn-any-to-er20-types';
+import * as PnAnyToErc20 from './extensions/pn-any-to-erc20-types';
+import * as PnAnyToEth from './extensions/pn-any-to-eth-types';
+import * as PnAnyToAnyConversion from './extensions/pn-any-to-any-conversion-types';
 import * as Identity from './identity-types';
 import * as RequestLogic from './request-logic-types';
 
@@ -14,6 +16,8 @@ export {
   PnFeeReferenceBased,
   PnReferenceBased,
   PnAnyToErc20,
+  PnAnyToEth,
+  PnAnyToAnyConversion,
 };
 
 /** Extension interface is extended by the extensions implementation */
@@ -68,9 +72,12 @@ export enum ID {
   PAYMENT_NETWORK_ERC20_ADDRESS_BASED = 'pn-erc20-address-based',
   PAYMENT_NETWORK_ERC20_PROXY_CONTRACT = 'pn-erc20-proxy-contract',
   PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT = 'pn-erc20-fee-proxy-contract',
+  PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT = 'pn-eth-fee-proxy-contract',
   PAYMENT_NETWORK_ETH_INPUT_DATA = 'pn-eth-input-data',
+  PAYMENT_NETWORK_NATIVE_TOKEN = 'pn-native-token',
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
   PAYMENT_NETWORK_ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
+  PAYMENT_NETWORK_ANY_TO_ETH_PROXY = 'pn-any-to-eth-proxy',
 }
 
 /** Type of extensions */

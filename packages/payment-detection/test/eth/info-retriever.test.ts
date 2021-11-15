@@ -1,6 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import EthInfoRetriever from '../../src/eth/info-retriever';
-import { NearInfoRetriever } from '../../src/eth/near-info-retriever';
+import { EthInputDataInfoRetriever } from '../../src/eth/info-retriever';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 
 describe('api/eth/info-retriever', () => {
@@ -14,7 +13,7 @@ describe('api/eth/info-retriever', () => {
       paymentAddress,
     ); // 9649a1a4dd5854ed
 
-    const infoRetriever = new EthInfoRetriever(
+    const infoRetriever = new EthInputDataInfoRetriever(
       paymentAddress,
       PaymentTypes.EVENTS_NAMES.PAYMENT,
       'mainnet',
@@ -37,7 +36,7 @@ describe('api/eth/info-retriever', () => {
   });
 
   it('throws when trying to use it in local', async () => {
-    const infoRetreiver = new EthInfoRetriever(
+    const infoRetreiver = new EthInputDataInfoRetriever(
       '0x01',
       PaymentTypes.EVENTS_NAMES.PAYMENT,
       'private',
@@ -50,7 +49,7 @@ describe('api/eth/info-retriever', () => {
     ['mainnet', 'rinkeby', 'xdai', 'sokol', 'fuse', 'celo', 'matic', 'fantom'].forEach(
       (network) => {
         it(`Can get the balance on ${network}`, async () => {
-          const retriever = new EthInfoRetriever(
+          const retriever = new EthInputDataInfoRetriever(
             '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
             PaymentTypes.EVENTS_NAMES.PAYMENT,
             network,
@@ -71,7 +70,7 @@ describe('api/eth/info-retriever', () => {
         paymentAddress,
       );
 
-      const infoRetriever = new EthInfoRetriever(
+      const infoRetriever = new EthInputDataInfoRetriever(
         paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'matic',
@@ -82,26 +81,6 @@ describe('api/eth/info-retriever', () => {
       expect(events).toHaveLength(1);
 
       expect(events[0].amount).toBe('1000000000000000');
-    });
-
-    it('can detect a NEAR payment', async () => {
-      const paymentAddress = 'benji.testnet';
-      const paymentReference = PaymentReferenceCalculator.calculate(
-        '0124dc29327931e5d7631c2d866ee62d79a3b38e2b9976e4e218ebd1ece83c9d5d',
-        'a1a2a3a4a5a6a7a8',
-        paymentAddress,
-      );
-
-      const infoRetriever = new NearInfoRetriever(
-        paymentAddress,
-        PaymentTypes.EVENTS_NAMES.PAYMENT,
-        'aurora-testnet',
-        paymentReference,
-      );
-      const events = await infoRetriever.getTransferEvents();
-      expect(events).toHaveLength(2);
-
-      expect(events[0].amount).toBe('3141593000000000000000000');
     });
   });
 });

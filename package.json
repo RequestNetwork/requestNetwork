@@ -16,7 +16,7 @@
   "scripts": {
     "build": "lerna run build",
     "clean": "lerna run clean",
-    "build:tsc": "tsc -b packages/advanced-logic packages/data-access packages/data-format packages/epk-decryption packages/epk-signature packages/ethereum-storage packages/integration-test packages/multi-format packages/payment-detection packages/prototype-estimator packages/request-client.js packages/request-logic packages/request-node packages/smart-contracts packages/toolbox packages/transaction-manager packages/types packages/usage-examples packages/utils packages/web3-signature packages/currency",
+    "build:tsc": "tsc -b packages/advanced-logic packages/currency packages/data-access packages/data-format packages/epk-decryption packages/epk-signature packages/ethereum-storage packages/integration-test packages/multi-format packages/payment-detection packages/prototype-estimator packages/request-client.js packages/request-logic packages/request-node packages/smart-contracts packages/toolbox packages/transaction-manager packages/types packages/usage-examples packages/utils packages/web3-signature",
     "lint": "eslint packages/**/src/**/*.ts --quiet",
     "lint-staged": "lint-staged",
     "lerna": "lerna",
@@ -27,7 +27,9 @@
     "publish-prerelease": "yarn lerna publish --preid development --skip-git --yes --canary",
     "test": "lerna run test",
     "format": "prettier packages/**/src/**/*.ts -w",
-    "format:check": "prettier packages/**/src/**/*.ts -c"
+    "format:check": "prettier packages/**/src/**/*.ts -c",
+    "link:all": "for d in packages/*; do pushd $d; yarn link; popd; done",
+    "unlink:all": "for d in packages/*; do pushd $d; yarn unlink; popd; done"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "4.18.0",
@@ -46,6 +48,6 @@
     "nyc": "15.1.0",
     "prettier": "2.2.1",
     "remap-istanbul": "0.13.0",
-    "typescript": "4.1.3"
+    "typescript": "4.4.4"
   }
 }

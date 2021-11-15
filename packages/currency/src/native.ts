@@ -1,6 +1,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { NativeCurrency, NativeCurrencyType } from './types';
 
-export const nativeCurrencies = {
+export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { name: string })[]> = {
   [RequestLogicTypes.CURRENCY.ETH]: [
     {
       symbol: 'ETH',
@@ -51,6 +52,18 @@ export const nativeCurrencies = {
       network: 'fantom',
     },
     {
+      symbol: 'BNB',
+      decimals: 18,
+      name: 'BNB',
+      network: 'bsctest',
+    },
+    {
+      symbol: 'BNB',
+      decimals: 18,
+      name: 'BNB',
+      network: 'bsc',
+    },
+    {
       symbol: 'NEAR',
       decimals: 24,
       name: 'Near',
@@ -77,15 +90,4 @@ export const nativeCurrencies = {
       network: 'testnet',
     },
   ],
-};
-
-export const getNativeSymbol = (type: keyof typeof nativeCurrencies, network?: string): string => {
-  const currency = nativeCurrencies[type]?.find((x) => x.network === (network || 'mainnet'));
-  if (currency) {
-    return currency.symbol;
-  }
-  if (network !== 'mainnet') {
-    return `${type}-${network}`;
-  }
-  return type;
 };

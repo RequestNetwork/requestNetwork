@@ -1,4 +1,4 @@
-import { ExtensionTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AddressBasedPaymentNetwork from './address-based';
 
 // Regex for "at least 16 hexadecimal numbers". Used to validate the salt
@@ -15,13 +15,13 @@ export default abstract class ReferenceBasedPaymentNetwork<
     public extensionId: ExtensionTypes.ID,
     public currentVersion: string,
     public supportedNetworks: string[],
-    public supportedCurrencyType: string,
+    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);
   }
 
   /**
-   * Creates the extensionsData to create the ETH payment detection extension
+   * Creates the extensionsData to create the payment detection extension
    *
    * @param creationParameters extensions parameters to create
    *
@@ -82,13 +82,10 @@ export default abstract class ReferenceBasedPaymentNetwork<
           timestamp,
         },
       ],
-      id: this.extensionId,
-      type: this.extensionType,
       values: {
         ...basicCreationAction.values,
         salt: extensionAction.parameters.salt,
       },
-      version: this.currentVersion,
     };
   }
 }

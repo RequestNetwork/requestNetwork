@@ -52,7 +52,7 @@ describe('advanced-logic.ts', () => {
       );
 
       // 'newExtensionState wrong'
-      expect(newExtensionState).toEqual(DataBTCCreate.extensionStateWithPaymentAndRefund);
+      expect(newExtensionState).toStrictEqual(DataBTCCreate.extensionStateWithPaymentAndRefund);
       // 'previous extension state must not change'
       expect(requestCreatedNoExtensionBefore).toEqual(DataBTCCreate.requestStateNoExtensions);
     });

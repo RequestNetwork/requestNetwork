@@ -5,5 +5,10 @@
     "rootDir": "src"
   },
   "include": ["./src/**/*"],
-  "references": [{ "path": "../currency" }, { "path": "../types" }, { "path": "../utils" }, { "path": "../smart-contracts" }]
+  "references": [
+    { "path": "../currency" },
+    { "path": "../types" },
+    { "path": "../utils" },
+    { "path": "../smart-contracts" }
+  ]
 }

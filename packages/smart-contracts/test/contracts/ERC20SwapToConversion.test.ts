@@ -2,7 +2,7 @@ import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { Currency } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import {
   TestERC20__factory,
   TestERC20,
@@ -28,7 +28,8 @@ describe('contract: ERC20SwapToConversion', () => {
   let adminSigner: Signer;
   let signer: Signer;
 
-  const USDhash = Currency.fromSymbol('USD').getHash();
+  const currencyManager = CurrencyManager.getDefault();
+  const USDhash = currencyManager.fromSymbol('USD')!.hash;
   const exchangeRateOrigin = Math.floor(Date.now() / 1000);
   const referenceExample = '0xaaaa';
 

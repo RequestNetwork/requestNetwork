@@ -1,6 +1,7 @@
+import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import AbstractExtension from '../abstract-extension';
 import Utils from '@requestnetwork/utils';
+import DeclarativePaymentNetwork from './declarative';
 
 /**
  * Core of the address based payment networks
@@ -8,14 +9,14 @@ import Utils from '@requestnetwork/utils';
  */
 export default abstract class AddressBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
-> extends AbstractExtension<TCreationParameters> {
+> extends DeclarativePaymentNetwork<TCreationParameters> {
   public constructor(
     public extensionId: ExtensionTypes.ID,
     public currentVersion: string,
     public supportedNetworks: string[],
-    public supportedCurrencyType: string,
+    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
-    super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);
+    super(extensionId, currentVersion);
     this.actions = {
       ...this.actions,
       [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]: this.applyAddPaymentAddress.bind(
@@ -41,17 +42,19 @@ export default abstract class AddressBasedPaymentNetwork<
       creationParameters.paymentAddress &&
       !this.isValidAddress(creationParameters.paymentAddress)
     ) {
-      throw Error('paymentAddress is not a valid address');
+      throw new InvalidPaymentAddressError(creationParameters.paymentAddress);
     }
 
     if (
       creationParameters.refundAddress &&
       !this.isValidAddress(creationParameters.refundAddress)
     ) {
-      throw Error('refundAddress is not a valid address');
+      throw new InvalidPaymentAddressError(creationParameters.refundAddress, 'refundAddress');
     }
 
-    return super.createCreationAction(creationParameters);
+    return super.createCreationAction(
+      creationParameters,
+    ) as ExtensionTypes.IAction<TCreationParameters>;
   }
 
   /**
@@ -64,18 +67,16 @@ export default abstract class AddressBasedPaymentNetwork<
   public createAddPaymentAddressAction(
     addPaymentAddressParameters: ExtensionTypes.PnAddressBased.IAddPaymentAddressParameters,
   ): ExtensionTypes.IAction {
-    if (
-      addPaymentAddressParameters.paymentAddress &&
-      !this.isValidAddress(addPaymentAddressParameters.paymentAddress)
-    ) {
-      throw Error('paymentAddress is not a valid address');
+    const paymentAddress = addPaymentAddressParameters.paymentAddress;
+    if (paymentAddress && !this.isValidAddress(paymentAddress)) {
+      throw new InvalidPaymentAddressError(paymentAddress);
     }
 
     return {
       action: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
       id: this.extensionId,
       parameters: {
-        paymentAddress: addPaymentAddressParameters.paymentAddress,
+        paymentAddress,
       },
     };
   }
@@ -90,18 +91,16 @@ export default abstract class AddressBasedPaymentNetwork<
   public createAddRefundAddressAction(
     addRefundAddressParameters: ExtensionTypes.PnAddressBased.IAddRefundAddressParameters,
   ): ExtensionTypes.IAction {
-    if (
-      addRefundAddressParameters.refundAddress &&
-      !this.isValidAddress(addRefundAddressParameters.refundAddress)
-    ) {
-      throw Error('refundAddress is not a valid address');
+    const refundAddress = addRefundAddressParameters.refundAddress;
+    if (refundAddress && !this.isValidAddress(refundAddress)) {
+      throw new InvalidPaymentAddressError(refundAddress, 'refundAddress');
     }
 
     return {
       action: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
       id: this.extensionId,
       parameters: {
-        refundAddress: addRefundAddressParameters.refundAddress,
+        refundAddress,
       },
     };
   }
@@ -110,17 +109,13 @@ export default abstract class AddressBasedPaymentNetwork<
     extensionAction: ExtensionTypes.IAction,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (
-      extensionAction.parameters.paymentAddress &&
-      !this.isValidAddress(extensionAction.parameters.paymentAddress)
-    ) {
-      throw Error('paymentAddress is not a valid address');
+    const paymentAddress = extensionAction.parameters.paymentAddress;
+    const refundAddress = extensionAction.parameters.refundAddress;
+    if (paymentAddress && !this.isValidAddress(paymentAddress)) {
+      throw new InvalidPaymentAddressError(paymentAddress);
     }
-    if (
-      extensionAction.parameters.refundAddress &&
-      !this.isValidAddress(extensionAction.parameters.refundAddress)
-    ) {
-      throw Error('refundAddress is not a valid address');
+    if (refundAddress && !this.isValidAddress(refundAddress)) {
+      throw new InvalidPaymentAddressError(refundAddress, 'refundAddress');
     }
 
     const genericCreationAction = super.applyCreation(extensionAction, timestamp);
@@ -131,8 +126,8 @@ export default abstract class AddressBasedPaymentNetwork<
         {
           name: 'create',
           parameters: {
-            paymentAddress: extensionAction.parameters.paymentAddress,
-            refundAddress: extensionAction.parameters.refundAddress,
+            paymentAddress,
+            refundAddress,
           },
           timestamp,
         },
@@ -141,14 +136,51 @@ export default abstract class AddressBasedPaymentNetwork<
       type: this.extensionType,
       values: {
         ...genericCreationAction.values,
-        paymentAddress: extensionAction.parameters.paymentAddress,
-        refundAddress: extensionAction.parameters.refundAddress,
+        paymentAddress,
+        refundAddress,
       },
-      version: this.currentVersion,
     };
   }
 
-  protected abstract isValidAddress(_address: string): boolean;
+  protected isValidAddress(address: string, networkName?: string): boolean {
+    if (networkName) {
+      return this.isValidAddressForNetwork(address, networkName);
+    }
+    return this.supportedNetworks.some((network) =>
+      this.isValidAddressForNetwork(address, network),
+    );
+  }
+
+  protected isValidAddressForNetwork(address: string, network: string): boolean {
+    switch (this.supportedCurrencyType) {
+      case RequestLogicTypes.CURRENCY.BTC:
+        return this.isValidAddressForSymbolAndNetwork(
+          address,
+          network === 'testnet' ? 'BTC-testnet' : 'BTC',
+          network,
+        );
+      case RequestLogicTypes.CURRENCY.ETH:
+      case RequestLogicTypes.CURRENCY.ERC20:
+        return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
+      default:
+        throw new Error(
+          `Default implementation of isValidAddressForNetwork() does not support currency type ${this.supportedCurrencyType}. Please override this method if needed.`,
+        );
+    }
+  }
+
+  protected isValidAddressForSymbolAndNetwork(
+    address: string,
+    symbol: string,
+    network: string,
+  ): boolean {
+    const currencyManager = CurrencyManager.getDefault();
+    const currency = currencyManager.from(symbol, network);
+    if (!currency) {
+      throw new Error(`Currency not found in default manager: ${symbol} / ${network}`);
+    }
+    return CurrencyManager.validateAddress(address, currency);
+  }
 
   /**
    * Applies add payment address
@@ -169,9 +201,9 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.paymentAddress &&
-      !this.isValidAddress(extensionAction.parameters.paymentAddress)
+      !this.isValidAddress(extensionAction.parameters.paymentAddress, requestState.currency.network)
     ) {
-      throw Error('paymentAddress is not a valid address');
+      throw new InvalidPaymentAddressError(extensionAction.parameters.paymentAddress);
     }
     if (extensionState.values.paymentAddress) {
       throw Error(`Payment address already given`);
@@ -216,7 +248,7 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.refundAddress &&
-      !this.isValidAddress(extensionAction.parameters.refundAddress)
+      !this.isValidAddress(extensionAction.parameters.refundAddress, requestState.currency.network)
     ) {
       throw Error('refundAddress is not a valid address');
     }
@@ -249,15 +281,29 @@ export default abstract class AddressBasedPaymentNetwork<
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _extensionAction: ExtensionTypes.IAction,
   ): void {
-    if (
-      request.currency.type !== this.supportedCurrencyType ||
-      (request.currency.network && !this.supportedNetworks.includes(request.currency.network))
-    ) {
-      throw Error(
-        `This extension can be used only on ${
-          this.supportedCurrencyType
-        } requests and on supported networks ${this.supportedNetworks.join(', ')}`,
-      );
+    if (request.currency.type !== this.supportedCurrencyType) {
+      throw Error(`This extension can be used only on ${this.supportedCurrencyType} requests`);
     }
+    if (request.currency.network && !this.supportedNetworks.includes(request.currency.network)) {
+      throw new UnsupportedNetworkError(request.currency.network, this.supportedNetworks);
+    }
+  }
+}
+
+export class InvalidPaymentAddressError extends Error {
+  constructor(address?: string, addressReference = 'paymentAddress') {
+    const formattedAddress = address ? ` '${address}'` : '';
+    super(`${addressReference}${formattedAddress} is not a valid address`);
+  }
+}
+
+export class UnsupportedNetworkError extends Error {
+  constructor(unsupportedNetworkName: string, supportedNetworks?: string[]) {
+    const supportedNetworkDetails = supportedNetworks
+      ? ` (only ${supportedNetworks.join(', ')})`
+      : '';
+    super(
+      `Payment network '${unsupportedNetworkName}' is not supported by this extension${supportedNetworkDetails}`,
+    );
   }
 }

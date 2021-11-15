@@ -5,9 +5,17 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import ERC20FeeProxyContract from '../../src/erc20/fee-proxy-contract';
+import { CurrencyManager } from '@requestnetwork/currency';
+import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
 
-let erc20FeeProxyContract: ERC20FeeProxyContract;
+let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector;
+
+const createAddPaymentAddressAction = jest.fn();
+const createAddRefundAddressAction = jest.fn();
+const createCreationAction = jest.fn();
+const createAddFeeAction = jest.fn();
+const createAddPaymentInstructionAction = jest.fn();
+const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -15,40 +23,39 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     feeProxyContractErc20: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-      createAddFeeAction(): any {
-        return;
-      },
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      createAddFeeAction,
+      // inherited from declarative
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
     },
   },
 };
 
+const currencyManager = CurrencyManager.getDefault();
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/fee-proxy-contract', () => {
   beforeEach(() => {
-    erc20FeeProxyContract = new ERC20FeeProxyContract({ advancedLogic: mockAdvancedLogic });
+    erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractErc20,
-      'createCreationAction',
-    );
-
     await erc20FeeProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createCreationAction).toHaveBeenCalledWith({
       feeAddress: undefined,
       feeAmount: undefined,
       paymentAddress: 'ethereum address',
@@ -58,11 +65,6 @@ describe('api/erc20/fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation with fee amount and address', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractErc20,
-      'createCreationAction',
-    );
-
     await erc20FeeProxyContract.createExtensionsDataForCreation({
       feeAddress: 'fee address',
       feeAmount: '2000',
@@ -70,7 +72,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       salt: 'ea3bc7caf64110ca',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createCreationAction).toHaveBeenCalledWith({
       feeAddress: 'fee address',
       feeAmount: '2000',
       paymentAddress: 'ethereum address',
@@ -80,61 +82,61 @@ describe('api/erc20/fee-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation without salt', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractErc20,
-      'createCreationAction',
-    );
-
     await erc20FeeProxyContract.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
     });
 
     // Can't check parameters since salt is generated in createExtensionsDataForCreation
-    expect(spy).toHaveBeenCalled();
+    expect(createCreationAction).toHaveBeenCalled();
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractErc20,
-      'createAddPaymentAddressAction',
-    );
-
     erc20FeeProxyContract.createExtensionsDataForAddPaymentInformation({
+      paymentInfo: 'ethereum address',
+    });
+
+    expect(createAddPaymentInstructionAction).toHaveBeenCalledWith({
+      paymentInfo: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddPaymentAddress', async () => {
+    erc20FeeProxyContract.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddPaymentAddressAction).toHaveBeenCalledWith({
       paymentAddress: 'ethereum address',
+    });
+  });
+
+  it('can createExtensionsDataForAddRefundAddress', async () => {
+    erc20FeeProxyContract.createExtensionsDataForAddRefundAddress({
+      refundAddress: 'ethereum address',
+    });
+
+    expect(createAddRefundAddressAction).toHaveBeenCalledWith({
+      refundAddress: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractErc20,
-      'createAddRefundAddressAction',
-    );
-
     erc20FeeProxyContract.createExtensionsDataForAddRefundInformation({
-      refundAddress: 'ethereum address',
+      refundInfo: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
-      refundAddress: 'ethereum address',
+    expect(createAddRefundInstructionAction).toHaveBeenCalledWith({
+      refundInfo: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddFeeInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.feeProxyContractErc20,
-      'createAddFeeAction',
-    );
-
     erc20FeeProxyContract.createExtensionsDataForAddFeeInformation({
       feeAddress: 'ethereum address',
       feeAmount: '2000',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddFeeAction).toHaveBeenCalledWith({
       feeAddress: 'ethereum address',
       feeAmount: '2000',
     });
@@ -229,7 +231,10 @@ describe('api/erc20/fee-proxy-contract', () => {
         ],
       });
     };
-    erc20FeeProxyContract = new ERC20FeeProxyContract({ advancedLogic: mockAdvancedLogic });
+    erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+    });
     erc20FeeProxyContract.extractBalanceAndEvents = mockExtractBalanceAndEvents;
 
     const balance = await erc20FeeProxyContract.getBalance(mockRequest);
