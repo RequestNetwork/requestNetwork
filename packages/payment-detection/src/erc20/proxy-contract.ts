@@ -229,10 +229,8 @@ export class ERC20ProxyPaymentDetector<
           network,
         );
 
-    const declaredEvents = this.getDeclarativeEvents(request);
-    const transferEvents = await infoRetriever.getTransferEvents();
-    const events = [...declaredEvents, ...transferEvents];
-
+    const declaredEvents = (await super.getBalance(request)).events;
+    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
     const balance = events
       .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
       .toString();
