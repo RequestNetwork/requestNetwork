@@ -1,25 +1,19 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-  TypesUtils,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import getBalanceErrorObject from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { BigNumber } from 'ethers';
-import DeclarativePaymentNetwork from './declarative';
+import { DeclarativePaymentDetectorBase } from './declarative';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
  */
 export abstract class ReferenceBasedDetector<
     TPaymentEventParameters,
-    ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
+    TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
   >
-  extends DeclarativePaymentNetwork<ExtensionType>
+  extends DeclarativePaymentDetectorBase<TExtension>
   implements
     PaymentTypes.IPaymentNetwork<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
@@ -29,18 +23,13 @@ export abstract class ReferenceBasedDetector<
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
 
-  public constructor(
-    protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    protected extension: ExtensionType,
-    protected extensionType: ExtensionTypes.ID,
-  ) {
-    super({ advancedLogic });
-    if (!TypesUtils.isPaymentNetworkId(extensionType)) {
+  public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+    super(paymentNetworkId, extension);
+    if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {
       throw new Error(
-        `Cannot detect payment for extension type '${extensionType}', it is not a payment network ID.`,
+        `Cannot detect payment for extension type '${paymentNetworkId}', it is not a payment network ID.`,
       );
     }
-    this._paymentNetworkId = extensionType;
   }
 
   /**
@@ -105,14 +94,14 @@ export abstract class ReferenceBasedDetector<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
     >
   > {
-    const paymentNetwork = request.extensions[this.extensionType];
+    const paymentNetwork = request.extensions[this._paymentNetworkId];
     const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
 
     const supportedNetworks = this.extension.supportedNetworks;
     if (!supportedNetworks.includes(paymentChain)) {
       return getBalanceErrorObject(
         `Payment network ${paymentChain} not supported by ${
-          this.extensionType
+          this._paymentNetworkId
         } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
         PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
       );
@@ -120,7 +109,7 @@ export abstract class ReferenceBasedDetector<
 
     if (!paymentNetwork) {
       return getBalanceErrorObject(
-        `The request does not have the extension: ${this.extensionType}`,
+        `The request does not have the extension: ${this._paymentNetworkId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }

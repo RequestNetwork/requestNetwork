@@ -7,20 +7,15 @@ import {
 import { BigNumber } from 'ethers';
 
 /**
- * Handle payment networks with declarative requests extension
- *
- * @class PaymentNetworkDeclarative
+ * Handles payment detection for a declarative request, or derived.
  */
-export default class PaymentNetworkDeclarative<
+export abstract class DeclarativePaymentDetectorBase<
   TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative = ExtensionTypes.PnAnyDeclarative.IAnyDeclarative
 > implements PaymentTypes.IPaymentNetwork<PaymentTypes.IDeclarativePaymentEventParameters> {
-  protected extension: TExtension;
-  protected _paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID;
-
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.declarative;
-    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE;
-  }
+  public constructor(
+    protected readonly _paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    protected readonly extension: TExtension,
+  ) {}
 
   /**
    * Creates the extensions data for the creation of this extension
@@ -204,5 +199,16 @@ export default class PaymentNetworkDeclarative<
       balance: balance.toString(),
       events,
     };
+  }
+}
+
+/**
+ * Handles payment detection for a declarative request
+ */
+export class DeclarativePaymentDetector<
+  TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative = ExtensionTypes.PnAnyDeclarative.IAnyDeclarative
+> extends DeclarativePaymentDetectorBase<TExtension> {
+  constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+    super(PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE, advancedLogic.extensions.declarative);
   }
 }

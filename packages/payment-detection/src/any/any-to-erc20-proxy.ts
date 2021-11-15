@@ -8,7 +8,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import { ERC20FeeProxyPaymentDetector } from '../erc20/fee-proxy-contract';
+import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphAnyToErc20Retriever } from './retrievers/thegraph';
@@ -26,7 +26,7 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
 /**
  * Handle payment networks with conversion proxy contract extension
  */
-export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<ExtensionTypes.PnAnyToErc20.IAnyToERC20> {
+export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<ExtensionTypes.PnAnyToErc20.IAnyToERC20> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -38,12 +38,11 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<Exte
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     currencyManager: ICurrencyManager;
   }) {
-    super({
-      advancedLogic,
+    super(
+      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+      advancedLogic.extensions.anyToErc20Proxy,
       currencyManager,
-    });
-    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY;
-    this.extension = advancedLogic.extensions.anyToErc20Proxy;
+    );
   }
 
   /**
