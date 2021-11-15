@@ -4,7 +4,6 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { BigNumber } from 'ethers';
 
 /**
@@ -155,66 +154,51 @@ export abstract class DeclarativePaymentDetectorBase<
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.DeclarativeBalanceWithEvents> {
-    const events = this.getDeclarativeEvents(request);
-    const balance = this.computeBalance(events);
+    let balance = BigNumber.from(0);
+    const events: PaymentTypes.DeclarativePaymentNetworkEvent[] = [];
+
+    // For each extension data related to the declarative payment network,
+    // we check if the data is a declared received payment or refund and we modify the balance
+    // Received payment increase the balance and received refund decrease the balance
+    (request.extensions[this._paymentNetworkId].events ?? []).forEach((data) => {
+      const parameters = data.parameters;
+      if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
+        // Declared received payments from payee is added to the balance
+        balance = balance.add(BigNumber.from(parameters.amount));
+        events.push({
+          amount: parameters.amount,
+          name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+          parameters: {
+            txHash: parameters.txHash,
+            network: parameters.network,
+            note: parameters.note,
+            from: data.from,
+          },
+          timestamp: data.timestamp,
+        });
+      } else if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND) {
+        parameters.timestamp = data.timestamp;
+
+        // The balance is subtracted from declared received refunds from payer
+        balance = balance.sub(BigNumber.from(parameters.amount));
+        events.push({
+          amount: parameters.amount,
+          name: PaymentTypes.EVENTS_NAMES.REFUND,
+          parameters: {
+            txHash: parameters.txHash,
+            network: parameters.network,
+            note: parameters.note,
+            from: data.from,
+          },
+          timestamp: data.timestamp,
+        });
+      }
+    });
 
     return {
       balance: balance.toString(),
       events,
     };
-  }
-
-  protected getDeclarativeEvents(
-    request: RequestLogicTypes.IRequest,
-  ): PaymentTypes.DeclarativePaymentNetworkEvent[] {
-    const events = request.extensions[this._paymentNetworkId].events ?? [];
-    // For each extension data related to the declarative payment network,
-    // Received payment increase the balance and received refund decrease the balance
-    return events
-      .map((data) => {
-        const { amount, txHash, network, note } = data.parameters;
-        const nameMap: Partial<Record<string, PaymentTypes.EVENTS_NAMES>> = {
-          [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT]:
-            PaymentTypes.EVENTS_NAMES.PAYMENT,
-          [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND]:
-            PaymentTypes.EVENTS_NAMES.REFUND,
-        };
-
-        const name = nameMap[data.name];
-        if (name) {
-          return {
-            amount,
-            name,
-            parameters: {
-              txHash,
-              network,
-              note,
-              from: data.from,
-            },
-            timestamp: data.timestamp,
-          };
-        }
-        return null;
-      })
-      .filter(Utils.notNull);
-  }
-
-  protected computeBalance(events: PaymentTypes.IPaymentNetworkEvent<unknown>[]): BigNumber {
-    return events.reduce(
-      (sum, curr) =>
-        curr.name === PaymentTypes.EVENTS_NAMES.PAYMENT
-          ? sum.add(curr.amount)
-          : curr.name === PaymentTypes.EVENTS_NAMES.REFUND
-          ? sum.sub(curr.amount)
-          : sum,
-      BigNumber.from(0),
-    );
-  }
-
-  protected sortEvents<T>(
-    events: PaymentTypes.IPaymentNetworkEvent<T>[],
-  ): PaymentTypes.IPaymentNetworkEvent<T>[] {
-    return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
   }
 }
 
