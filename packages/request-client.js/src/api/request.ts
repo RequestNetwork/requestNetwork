@@ -371,8 +371,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentPayment
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment) {
       throw new Error('Cannot declare sent payment without declarative payment network');
@@ -416,8 +415,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentRefund
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentRefund) {
       throw new Error('Cannot declare sent refund without declarative payment network');
@@ -468,8 +466,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedPayment
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedPayment) {
       throw new Error('Cannot declare received payment without declarative payment network');
@@ -522,8 +519,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedRefund
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedRefund) {
       throw new Error('Cannot declare received refund without declarative payment network');
