@@ -115,14 +115,15 @@ export abstract class ReferenceBasedDetector<
         );
       }
 
-      const paymentEvents = await this.extractEvents(
+      const payments = await this.extractBalanceAndEvents(
         paymentNetwork.values.paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         request.currency,
         request.requestId,
         paymentNetwork,
       );
-      const refundEvents = await this.extractEvents(
+
+      const refunds = await this.extractBalanceAndEvents(
         paymentNetwork.values.refundAddress,
         PaymentTypes.EVENTS_NAMES.REFUND,
         request.currency,
@@ -130,11 +131,25 @@ export abstract class ReferenceBasedDetector<
         paymentNetwork,
       );
 
-      const declaredEvents = this.getDeclarativeEvents(request);
-      const events = [...declaredEvents, ...paymentEvents, ...refundEvents].sort(
-        (a, b) => (a.timestamp || 0) - (b.timestamp || 0),
+      const declaredBalance = await super.getBalance(request);
+
+      const balance: string = BigNumber.from(declaredBalance.balance)
+        .add(payments.balance || 0)
+        .sub(refunds.balance || 0)
+        .toString();
+
+      const events: PaymentTypes.IPaymentNetworkEvent<
+        TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+      >[] = [...declaredBalance.events, ...payments.events, ...refunds.events].sort(
+        (
+          a: PaymentTypes.IPaymentNetworkEvent<
+            TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+          >,
+          b: PaymentTypes.IPaymentNetworkEvent<
+            TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+          >,
+        ) => (a.timestamp || 0) - (b.timestamp || 0),
       );
-      const balance: string = this.computeBalance(events).toString();
 
       return {
         balance,
