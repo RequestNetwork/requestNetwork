@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-import { DeclarativePaymentNetwork as PaymentNetworkDeclarative } from '@requestnetwork/payment-detection';
+import { DeclarativePaymentDetector } from '@requestnetwork/payment-detection';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
@@ -563,15 +563,14 @@ export default class Request {
     delegate: IdentityTypes.IIdentity,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: Types.Extension.IAction[] = [];
 
     if (!this.paymentNetwork) {
       throw new Error('Cannot declare delegate without payment network');
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedRefund
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForAddDelegate) {
       throw new Error('Cannot declare delegate without declarative payment network');
