@@ -1,6 +1,6 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import getBalanceErrorObject from './balance-error';
+import { getBalanceErrorObject, BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { BigNumber } from 'ethers';
@@ -94,27 +94,27 @@ export abstract class ReferenceBasedDetector<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
     >
   > {
-    const paymentNetwork = request.extensions[this._paymentNetworkId];
-    const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
-
-    const supportedNetworks = this.extension.supportedNetworks;
-    if (!supportedNetworks.includes(paymentChain)) {
-      return getBalanceErrorObject(
-        `Payment network ${paymentChain} not supported by ${
-          this._paymentNetworkId
-        } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
-        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-      );
-    }
-
-    if (!paymentNetwork) {
-      return getBalanceErrorObject(
-        `The request does not have the extension: ${this._paymentNetworkId}`,
-        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-      );
-    }
-
     try {
+      const paymentNetwork = request.extensions[this._paymentNetworkId];
+      const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
+
+      const supportedNetworks = this.extension.supportedNetworks;
+      if (!supportedNetworks.includes(paymentChain)) {
+        throw new BalanceError(
+          `Payment network ${paymentChain} not supported by ${
+            this._paymentNetworkId
+          } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
+          PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
+        );
+      }
+
+      if (!paymentNetwork) {
+        throw new BalanceError(
+          `The request does not have the extension: ${this._paymentNetworkId}`,
+          PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+        );
+      }
+
       const payments = await this.extractBalanceAndEvents(
         paymentNetwork.values.paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
@@ -122,6 +122,7 @@ export abstract class ReferenceBasedDetector<
         request.requestId,
         paymentNetwork,
       );
+
       const refunds = await this.extractBalanceAndEvents(
         paymentNetwork.values.refundAddress,
         PaymentTypes.EVENTS_NAMES.REFUND,
@@ -155,7 +156,7 @@ export abstract class ReferenceBasedDetector<
         events,
       };
     } catch (error) {
-      return getBalanceErrorObject((error as Error).message);
+      return getBalanceErrorObject(error);
     }
   }
 
@@ -173,7 +174,7 @@ export abstract class ReferenceBasedDetector<
         paymentNetwork.values.salt,
         paymentAddress,
       );
-      return await this.extractBalanceAndEventsFromPaymentRef(
+      return this.extractBalanceAndEventsFromPaymentRef(
         paymentAddress,
         eventName,
         requestCurrency,

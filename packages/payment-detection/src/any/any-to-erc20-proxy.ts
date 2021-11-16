@@ -14,10 +14,7 @@ import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphAnyToErc20Retriever } from './retrievers/thegraph';
 import { networkSupportsTheGraph } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
-
-/* eslint-disable max-classes-per-file */
-/** Exception when version not supported */
-class VersionNotSupported extends Error {}
+import { VersionNotSupported } from '../balance-error';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',

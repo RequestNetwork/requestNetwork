@@ -7,7 +7,12 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
-import getBalanceErrorObject from '../balance-error';
+import {
+  BalanceError,
+  getBalanceErrorObject,
+  NetworkNotSupported,
+  VersionNotSupported,
+} from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
@@ -17,12 +22,6 @@ import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { loadCurrencyFromContract } from './currency';
 import { DeclarativePaymentDetectorBase } from '../declarative';
 import { makeGetDeploymentInformation } from '../utils';
-
-/* eslint-disable max-classes-per-file */
-/** Exception when network not supported */
-class NetworkNotSupported extends Error {}
-/** Exception when version not supported */
-class VersionNotSupported extends Error {}
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -124,15 +123,15 @@ export class ERC20FeeProxyPaymentDetectorBase<
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const paymentNetwork = request.extensions[this._paymentNetworkId];
-
-    if (!paymentNetwork) {
-      return getBalanceErrorObject(
-        `The request does not have the extension : ${this._paymentNetworkId}`,
-        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-      );
-    }
     try {
+      const paymentNetwork = request.extensions[this._paymentNetworkId];
+
+      if (!paymentNetwork) {
+        throw new BalanceError(
+          `The request does not have the extension : ${this._paymentNetworkId}`,
+          PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+        );
+      }
       const paymentAddress = paymentNetwork.values.paymentAddress;
       const refundAddress = paymentNetwork.values.refundAddress;
       const feeAddress = paymentNetwork.values.feeAddress;
@@ -180,14 +179,7 @@ export class ERC20FeeProxyPaymentDetectorBase<
         events,
       };
     } catch (error) {
-      let code: PaymentTypes.BALANCE_ERROR_CODE | undefined;
-      if (error instanceof NetworkNotSupported) {
-        code = PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED;
-      }
-      if (error instanceof VersionNotSupported) {
-        code = PaymentTypes.BALANCE_ERROR_CODE.VERSION_NOT_SUPPORTED;
-      }
-      return getBalanceErrorObject((error as Error).message, code);
+      return getBalanceErrorObject(error);
     }
   }
 
