@@ -36,9 +36,8 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<PaymentTyp
     currencyManager: ICurrencyManager;
   }) {
     super(
-      advancedLogic,
+      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
       currencyManager,
     );
   }

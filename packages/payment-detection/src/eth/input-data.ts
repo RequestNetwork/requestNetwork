@@ -40,9 +40,8 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
     explorerApiKeys?: Record<string, string>;
   }) {
     super(
-      advancedLogic,
+      PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     );
     this.explorerApiKeys = explorerApiKeys || {};
   }

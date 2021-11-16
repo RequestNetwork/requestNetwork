@@ -1,9 +1,4 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 
@@ -20,12 +15,11 @@ export abstract class AnyToAnyDetector<
    * @param extensionType Example : ExtensionTypes.ID.ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY
    */
   public constructor(
-    protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    protected extension: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-    protected extensionType: ExtensionTypes.ID,
+    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    extension: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
     protected currencyManager: ICurrencyManager,
   ) {
-    super(advancedLogic, extension, extensionType);
+    super(paymentNetworkId, extension);
   }
 
   /**

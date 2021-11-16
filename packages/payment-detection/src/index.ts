@@ -2,7 +2,7 @@ import PaymentNetworkFactory from './payment-network-factory';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import * as BtcPaymentNetwork from './btc';
-import DeclarativePaymentNetwork from './declarative';
+import { DeclarativePaymentDetector } from './declarative';
 import * as Erc20PaymentNetwork from './erc20';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
@@ -23,7 +23,7 @@ export {
   PaymentNetworkFactory,
   PaymentReferenceCalculator,
   BtcPaymentNetwork,
-  DeclarativePaymentNetwork,
+  DeclarativePaymentDetector,
   Erc20PaymentNetwork,
   EthInputDataPaymentDetector,
   EthFeeProxyPaymentDetector,
