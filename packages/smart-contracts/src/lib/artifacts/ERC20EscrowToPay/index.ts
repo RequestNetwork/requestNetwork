@@ -18,7 +18,7 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
                 creationBlockNumber: 0,
             },
             rinkeby: {
-                address: '',
+                address: '0xC34C8a06D1ffC645b01cda45886A46a5b188ba29',
                 creationBlockNumber: 0,
             },
         },
