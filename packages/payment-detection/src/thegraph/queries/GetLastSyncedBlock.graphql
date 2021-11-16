@@ -2,6 +2,7 @@ query GetLastSyncedBlock {
   _meta {
     block {
       number
+      hash
     }
   }
 }
