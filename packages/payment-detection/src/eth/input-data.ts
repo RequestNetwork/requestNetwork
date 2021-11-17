@@ -11,8 +11,6 @@ import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 
-import TheGraphInfoRetriever from '../erc20/thegraph-info-retriever';
-
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
   [version: string]: string;
@@ -29,13 +27,14 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
  */
 export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
   private explorerApiKeys: Record<string, string>;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({
-    advancedLogic,
-    explorerApiKeys,
-  }: {
+                       advancedLogic,
+                       explorerApiKeys,
+                     }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     explorerApiKeys?: Record<string, string>;
   }) {
@@ -79,28 +78,14 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
     );
 
     if (proxyContractArtifact) {
-      let proxyInfoRetriever;
-
-      // FIXME Every network except mainnet gets events from The Graph, mainnet coming soon
-      if (network !== 'mainnet') {
-        proxyInfoRetriever = new TheGraphInfoRetriever(
-          paymentReference,
-          proxyContractArtifact.address,
-          null,
-          address,
-          eventName,
-          network,
-        );
-      } else {
-        proxyInfoRetriever = new EthProxyInfoRetriever(
-          paymentReference,
-          proxyContractArtifact.address,
-          proxyContractArtifact.creationBlockNumber,
-          address,
-          eventName,
-          network,
-        );
-      }
+      const proxyInfoRetriever = new EthProxyInfoRetriever(
+        paymentReference,
+        proxyContractArtifact.address,
+        proxyContractArtifact.creationBlockNumber,
+        address,
+        eventName,
+        network,
+      );
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
       for (const event of proxyEvents) {
         events.push(event);
