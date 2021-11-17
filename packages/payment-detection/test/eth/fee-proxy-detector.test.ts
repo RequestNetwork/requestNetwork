@@ -176,7 +176,6 @@ describe('api/eth/fee-proxy-contract', () => {
       paymentData.to,
       EVENTS_NAMES.PAYMENT,
       paymentData.network,
-      {baseUrl: 'http://localhost:8000'}
     )
     const transferEvents = await graphRetriever.getTransferEvents();
     expect(transferEvents).toHaveLength(1);
@@ -210,8 +209,7 @@ describe('api/eth/fee-proxy-contract', () => {
       null,
       paymentData.to,
       EVENTS_NAMES.PAYMENT,
-      paymentData.network,
-      {baseUrl: 'http://localhost:8000'}
+      paymentData.network
     );
     const transferEvents = await graphRetriever.getTransferEvents();
     expect(transferEvents).toHaveLength(1);

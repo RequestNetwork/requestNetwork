@@ -81,7 +81,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
     if (proxyContractArtifact) {
       let proxyInfoRetriever;
 
-      // Every network except mainnet gets events from The Graph, mainnet coming soon
+      // FIXME Every network except mainnet gets events from The Graph, mainnet coming soon
       if (network !== 'mainnet') {
         proxyInfoRetriever = new TheGraphInfoRetriever(
           paymentReference,
