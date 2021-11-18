@@ -2,7 +2,7 @@ import EthereumUtils from '../ethereum-utils';
 
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import fetch from 'node-fetch';
+import Axios from 'axios';
 
 import { BigNumber } from 'ethers';
 
@@ -25,19 +25,13 @@ export default class EthGasStationProvider implements StorageTypes.IGasPriceProv
   public providerUrl = 'https://ethgasstation.info/json/ethgasAPI.json';
 
   /**
-   * Fetch library to send http requests
-   * This value is left public for mocking purpose
-   */
-  public fetch = fetch;
-
-  /**
    * Gets gas price from ethgasstation.org API
    *
    * @param type Type of the gas price (fast, standard or safe low)
    * @returns Requested gas price
    */
   public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber | null> {
-    const res = await Utils.retry(async () => this.fetch(this.providerUrl), {
+    const res = await Utils.retry(async () => Axios.get(this.providerUrl), {
       maxRetries: ETHGASSTATION_REQUEST_MAX_RETRY,
       retryDelay: ETHGASSTATION_RETRY_DELAY,
     })();
@@ -48,7 +42,7 @@ export default class EthGasStationProvider implements StorageTypes.IGasPriceProv
         `EthGasStation error ${res.status}. Bad response from server ${this.providerUrl}`,
       );
     }
-    const apiResponse = await res.json();
+    const apiResponse = res.data;
 
     // Check if the API response has the correct format
     if (
