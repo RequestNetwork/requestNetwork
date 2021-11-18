@@ -1,6 +1,6 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import getBalanceErrorObject from '../balance-error';
+import { BalanceError, getBalanceErrorObject } from '../balance-error';
 import DefaultBitcoinDetectionProvider from './default-bitcoin-detection-provider';
 import { BigNumber } from 'ethers';
 
@@ -79,16 +79,16 @@ export default class PaymentNetworkBTCAddressBased {
     paymentNetworkId: ExtensionTypes.ID,
     networkId: number,
   ): Promise<PaymentTypes.BTCBalanceWithEvents> {
-    if (!request.extensions[paymentNetworkId]) {
-      return getBalanceErrorObject(
-        `The request does not have the extension: ${paymentNetworkId}`,
-        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-      );
-    }
-    const paymentAddress = request.extensions[paymentNetworkId].values.paymentAddress;
-    const refundAddress = request.extensions[paymentNetworkId].values.refundAddress;
-
     try {
+      if (!request.extensions[paymentNetworkId]) {
+        throw new BalanceError(
+          `The request does not have the extension: ${paymentNetworkId}`,
+          PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+        );
+      }
+      const paymentAddress = request.extensions[paymentNetworkId].values.paymentAddress;
+      const refundAddress = request.extensions[paymentNetworkId].values.refundAddress;
+
       let payments: PaymentTypes.BTCBalanceWithEvents = { balance: '0', events: [] };
       if (paymentAddress) {
         payments = await this.extractBalanceAndEvents(
@@ -121,7 +121,7 @@ export default class PaymentNetworkBTCAddressBased {
         events,
       };
     } catch (error) {
-      return getBalanceErrorObject(error.message);
+      return getBalanceErrorObject(error);
     }
   }
 

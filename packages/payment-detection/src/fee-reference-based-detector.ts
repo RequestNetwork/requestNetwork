@@ -1,9 +1,4 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { ReferenceBasedDetector } from './reference-based-detector';
 
@@ -12,19 +7,15 @@ import { ReferenceBasedDetector } from './reference-based-detector';
  */
 export abstract class FeeReferenceBasedDetector<
   TPaymentEventParameters,
-  ExtensionType extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
-> extends ReferenceBasedDetector<TPaymentEventParameters, ExtensionType> {
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
+> extends ReferenceBasedDetector<TPaymentEventParameters, TExtension> {
   /**
    * @param extension The advanced logic payment network extension, reference based
    * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
 
-  public constructor(
-    protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    extension: ExtensionType,
-    protected extensionType: ExtensionTypes.ID,
-  ) {
-    super(advancedLogic, extension, extensionType);
+  public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+    super(paymentNetworkId, extension);
   }
 
   /**
