@@ -98,18 +98,15 @@ export class ERC20ProxyPaymentDetector extends DeclarativePaymentDetectorBase<
   ): Promise<
     (PaymentTypes.ERC20PaymentNetworkEvent | PaymentTypes.DeclarativePaymentNetworkEvent)[]
   > {
-    const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
-    const paymentNetwork = request.extensions[paymentNetworkId];
+    const paymentNetwork = request.extensions[this._paymentNetworkId];
 
     if (!paymentNetwork) {
       throw new BalanceError(
-        `The request does not have the extension : ${paymentNetworkId}`,
+        `The request does not have the extension : ${this._paymentNetworkId}`,
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
-    const paymentAddress = paymentNetwork.values.paymentAddress;
-    const refundAddress = paymentNetwork.values.refundAddress;
-    const salt = paymentNetwork.values.salt;
+    const { paymentAddress, refundAddress, salt } = paymentNetwork.values;
 
     const paymentEvents = await this.extractTransferEvents(
       request,

@@ -13,7 +13,7 @@ export abstract class AnyToAnyDetector<
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension, with conversion
-   * @param extensionType Example : ExtensionTypes.ID.ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY
+   * @param extensionType Example : PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY
    */
   public constructor(
     paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,

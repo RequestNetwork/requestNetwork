@@ -22,7 +22,7 @@ export abstract class ReferenceBasedDetector<
     > {
   /**
    * @param extension The advanced logic payment network extension, reference based
-   * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
+   * @param extensionType Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    */
 
   public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {

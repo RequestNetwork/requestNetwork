@@ -21,35 +21,35 @@ import { AnyToEthFeeProxyPaymentDetector } from './any/any-to-eth-proxy';
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
   BTC: {
     mainnet: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: BTCAddressedBased,
+      [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: BTCAddressedBased,
     },
     testnet: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: TestnetBTCAddressedBased,
+      [PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED]: TestnetBTCAddressedBased,
     },
   },
   ERC20: {
     '*': {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector,
+      [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
+      [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
+      [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector,
     },
   },
   ETH: {
-    aurora: { [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
+    aurora: { [PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
     'aurora-testnet': {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
+      [PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
     },
     '*': {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputDataPaymentDetector,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: EthFeeProxyPaymentDetector,
+      [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: EthInputDataPaymentDetector,
+      [PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: EthFeeProxyPaymentDetector,
     },
   },
 };
 
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: AnyToERC20PaymentDetector,
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: DeclarativePaymentDetector,
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY as string]: AnyToEthFeeProxyPaymentDetector,
+  [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: AnyToERC20PaymentDetector,
+  [PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE]: DeclarativePaymentDetector,
+  [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */

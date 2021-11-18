@@ -10,8 +10,8 @@ export abstract class FeeReferenceBasedDetector<
   TPaymentEventParameters
 > extends ReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
+   * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
-   * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
 
   public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {

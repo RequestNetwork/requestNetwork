@@ -186,12 +186,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       version: '0.2',
     };
 
-    const mockExtractBalanceAndEvents = (
-      _a: unknown,
-      _b: unknown,
-      _c: unknown,
-      eventName: string,
-    ) => {
+    const mockExtractTransferEvents = (_a: any, _b: any, _c: any, eventName: any) => {
       if (eventName === 'refund') {
         return Promise.resolve([
           {
@@ -252,9 +247,10 @@ describe('api/erc20/fee-proxy-contract', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager,
     });
+
     jest
-      .spyOn(erc20FeeProxyContract, 'extractTransferEvents')
-      .mockImplementation(mockExtractBalanceAndEvents);
+      .spyOn(erc20FeeProxyContract as any, 'extractTransferEvents')
+      .mockImplementation(mockExtractTransferEvents);
 
     const balance = await erc20FeeProxyContract.getBalance(mockRequest);
 

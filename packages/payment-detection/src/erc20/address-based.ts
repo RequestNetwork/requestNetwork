@@ -94,12 +94,7 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
         PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
       );
     }
-    const paymentAddress =
-      request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED].values
-        .paymentAddress;
-    const refundAddress =
-      request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED].values
-        .refundAddress;
+    const { paymentAddress, refundAddress } = request.extensions[this._paymentNetworkId].values;
 
     const paymentEvents = await this.extractTransferEvents(
       paymentAddress,
@@ -134,6 +129,9 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
     network: string,
     tokenContractAddress: string,
   ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
+    if (!address) {
+      return [];
+    }
     const infoRetriever = new Erc20InfoRetriever(tokenContractAddress, address, eventName, network);
     return infoRetriever.getTransferEvents();
   }

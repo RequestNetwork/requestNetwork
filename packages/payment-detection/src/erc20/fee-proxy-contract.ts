@@ -129,10 +129,7 @@ export class ERC20FeeProxyPaymentDetectorBase<
         PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
       );
     }
-    const paymentAddress = paymentNetwork.values.paymentAddress;
-    const refundAddress = paymentNetwork.values.refundAddress;
-    const feeAddress = paymentNetwork.values.feeAddress;
-    const salt = paymentNetwork.values.salt;
+    const { paymentAddress, refundAddress, feeAddress, salt } = paymentNetwork.values;
 
     const paymentEvents = await this.extractTransferEvents(
       request,
@@ -237,7 +234,7 @@ export class ERC20FeeProxyPaymentDetectorBase<
           network,
         );
 
-    // TODO
+    // TODO type
     return (await infoRetriever.getTransferEvents()) as PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[];
   }
 
