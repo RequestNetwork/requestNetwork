@@ -1,7 +1,6 @@
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { EthFeeProxyPaymentDetector } from '../../src/eth/fee-proxy-detector';
 import TheGraphInfoRetriever from '../../src/erc20/thegraph-info-retriever';
-import { EVENTS_NAMES } from '@requestnetwork/types/dist/payment-types';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { utils } from 'ethers';
 
@@ -174,7 +173,7 @@ describe('api/eth/fee-proxy-contract', () => {
       ETH_FEE_PROXY_CONTRACT,
       null,
       paymentData.to,
-      EVENTS_NAMES.PAYMENT,
+      PaymentTypes.EVENTS_NAMES.PAYMENT,
       paymentData.network,
     )
     const transferEvents = await graphRetriever.getTransferEvents();
@@ -208,7 +207,7 @@ describe('api/eth/fee-proxy-contract', () => {
       ETH_CONVERSION_PROXY_CONTRACT,
       null,
       paymentData.to,
-      EVENTS_NAMES.PAYMENT,
+      PaymentTypes.EVENTS_NAMES.PAYMENT,
       paymentData.network
     );
     const transferEvents = await graphRetriever.getTransferEvents();
