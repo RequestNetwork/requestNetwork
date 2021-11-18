@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -7,12 +6,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
-import {
-  BalanceError,
-  getBalanceErrorObject,
-  NetworkNotSupported,
-  VersionNotSupported,
-} from '../balance-error';
+import { BalanceError, NetworkNotSupported, VersionNotSupported } from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
@@ -27,11 +21,10 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
 /**
  * Handle payment networks with ERC20 proxy contract extension
  */
-export class ERC20ProxyPaymentDetector<
-    ExtensionType extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
-  >
-  extends DeclarativePaymentDetectorBase<ExtensionType>
-  implements PaymentTypes.IPaymentNetwork<ExtensionType> {
+export class ERC20ProxyPaymentDetector extends DeclarativePaymentDetectorBase<
+  ExtensionTypes.PnReferenceBased.IReferenceBased,
+  PaymentTypes.IERC20PaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -39,6 +32,7 @@ export class ERC20ProxyPaymentDetector<
     super(
       PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       advancedLogic.extensions.proxyContractErc20,
+      (request) => this.getEvents(request),
     );
   }
 
@@ -99,61 +93,42 @@ export class ERC20ProxyPaymentDetector<
    * @param tokenContractAddress the address of the token contract
    * @returns the balance and the payment/refund events
    */
-  public async getBalance(
+  private async getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IBalanceWithEvents> {
-    try {
-      const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
-      const paymentNetwork = request.extensions[paymentNetworkId];
+  ): Promise<
+    (PaymentTypes.ERC20PaymentNetworkEvent | PaymentTypes.DeclarativePaymentNetworkEvent)[]
+  > {
+    const paymentNetworkId = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT;
+    const paymentNetwork = request.extensions[paymentNetworkId];
 
-      if (!paymentNetwork) {
-        throw new BalanceError(
-          `The request does not have the extension : ${paymentNetworkId}`,
-          PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-        );
-      }
-      const paymentAddress = paymentNetwork.values.paymentAddress;
-      const refundAddress = paymentNetwork.values.refundAddress;
-      const salt = paymentNetwork.values.salt;
-
-      let payments: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
-      if (paymentAddress) {
-        payments = await this.extractBalanceAndEvents(
-          request,
-          salt,
-          paymentAddress,
-          PaymentTypes.EVENTS_NAMES.PAYMENT,
-          paymentNetwork.version,
-        );
-      }
-
-      let refunds: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
-      if (refundAddress) {
-        refunds = await this.extractBalanceAndEvents(
-          request,
-          salt,
-          refundAddress,
-          PaymentTypes.EVENTS_NAMES.REFUND,
-          paymentNetwork.version,
-        );
-      }
-
-      const balance: string = BigNumber.from(payments.balance || 0)
-        .sub(BigNumber.from(refunds.balance || 0))
-        .toString();
-
-      const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
-        ...payments.events,
-        ...refunds.events,
-      ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-      return {
-        balance,
-        events,
-      };
-    } catch (error) {
-      return getBalanceErrorObject(error as Error);
+    if (!paymentNetwork) {
+      throw new BalanceError(
+        `The request does not have the extension : ${paymentNetworkId}`,
+        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+      );
     }
+    const paymentAddress = paymentNetwork.values.paymentAddress;
+    const refundAddress = paymentNetwork.values.refundAddress;
+    const salt = paymentNetwork.values.salt;
+
+    const paymentEvents = await this.extractTransferEvents(
+      request,
+      salt,
+      paymentAddress,
+      PaymentTypes.EVENTS_NAMES.PAYMENT,
+      paymentNetwork.version,
+    );
+
+    const refundEvents = await this.extractTransferEvents(
+      request,
+      salt,
+      refundAddress,
+      PaymentTypes.EVENTS_NAMES.REFUND,
+      paymentNetwork.version,
+    );
+
+    const declaredEvents = this.getDeclarativeEvents(request);
+    return [...declaredEvents, ...paymentEvents, ...refundEvents];
   }
 
   /**
@@ -166,13 +141,16 @@ export class ERC20ProxyPaymentDetector<
    * @param tokenContractAddress the address of the token contract
    * @returns The balance and events
    */
-  private async extractBalanceAndEvents(
+  private async extractTransferEvents(
     request: RequestLogicTypes.IRequest,
     salt: string,
     toAddress: string,
     eventName: PaymentTypes.EVENTS_NAMES,
     paymentNetworkVersion: string,
-  ): Promise<PaymentTypes.IBalanceWithEvents> {
+  ): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+    if (!toAddress) {
+      return [];
+    }
     const network = request.currency.network;
 
     if (!network) {
@@ -229,16 +207,7 @@ export class ERC20ProxyPaymentDetector<
           network,
         );
 
-    const declaredEvents = (await super.getBalance(request)).events;
-    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
-    const balance = events
-      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
-      .toString();
-
-    return {
-      balance,
-      events,
-    };
+    return infoRetriever.getTransferEvents();
   }
   /*
    * Returns deployment information for the underlying smart contract for a given payment network version

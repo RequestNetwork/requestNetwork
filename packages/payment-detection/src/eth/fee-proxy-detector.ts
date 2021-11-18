@@ -22,7 +22,10 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH fee proxy extension
  */
-export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
+  ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -70,7 +73,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<Paymen
       network,
     );
 
-    return await proxyInfoRetriever.getTransferEvents();
+    return proxyInfoRetriever.getTransferEvents();
   }
 
   /*

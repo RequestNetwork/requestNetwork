@@ -22,7 +22,10 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment
  */
-export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
+  ExtensionTypes.PnReferenceBased.IReferenceBased,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extension
    */

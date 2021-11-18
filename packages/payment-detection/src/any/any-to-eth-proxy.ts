@@ -24,7 +24,10 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
+  ExtensionTypes.PnAnyToEth.IAnyToEth,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */

@@ -1,19 +1,21 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { getBalanceErrorObject, BalanceError } from './balance-error';
+import { BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
-import { BigNumber } from 'ethers';
 import { DeclarativePaymentDetectorBase } from './declarative';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
  */
 export abstract class ReferenceBasedDetector<
-    TPaymentEventParameters,
-    TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased = ExtensionTypes.PnReferenceBased.IReferenceBased
+    TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased,
+    TPaymentEventParameters
   >
-  extends DeclarativePaymentDetectorBase<TExtension>
+  extends DeclarativePaymentDetectorBase<
+    TExtension,
+    TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+  >
   implements
     PaymentTypes.IPaymentNetwork<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
@@ -24,7 +26,7 @@ export abstract class ReferenceBasedDetector<
    */
 
   public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
-    super(paymentNetworkId, extension);
+    super(paymentNetworkId, extension, (request) => this.getEvents(request));
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {
       throw new Error(
         `Cannot detect payment for extension type '${paymentNetworkId}', it is not a payment network ID.`,
@@ -81,149 +83,77 @@ export abstract class ReferenceBasedDetector<
     });
   }
 
-  /**
-   * Gets the balance and the payment/refund events
-   *
-   * @param request the request to check
-   * @returns the balance and the payment/refund events
-   */
-  public async getBalance(
+  protected async getEvents(
     request: RequestLogicTypes.IRequest,
   ): Promise<
-    PaymentTypes.IBalanceWithEvents<
+    PaymentTypes.IPaymentNetworkEvent<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-    >
+    >[]
   > {
-    try {
-      const paymentNetwork = request.extensions[this._paymentNetworkId];
-      const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
+    const paymentNetwork = request.extensions[this._paymentNetworkId];
+    const paymentChain = this.getPaymentChain(request.currency, paymentNetwork);
 
-      const supportedNetworks = this.extension.supportedNetworks;
-      if (!supportedNetworks.includes(paymentChain)) {
-        throw new BalanceError(
-          `Payment network ${paymentChain} not supported by ${
-            this._paymentNetworkId
-          } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
-          PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        );
-      }
+    const supportedNetworks = this.extension.supportedNetworks;
+    if (!supportedNetworks.includes(paymentChain)) {
+      throw new BalanceError(
+        `Payment network ${paymentChain} not supported by ${
+          this._paymentNetworkId
+        } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
+        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
+      );
+    }
 
-      if (!paymentNetwork) {
-        throw new BalanceError(
-          `The request does not have the extension: ${this._paymentNetworkId}`,
-          PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-        );
-      }
+    if (!paymentNetwork) {
+      throw new BalanceError(
+        `The request does not have the extension: ${this._paymentNetworkId}`,
+        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+      );
+    }
 
-      const payments = await this.extractBalanceAndEvents(
+    const [paymentEvents, refundEvents] = await Promise.all([
+      this.extractTransferEvents(
         paymentNetwork.values.paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         request.currency,
         request.requestId,
         paymentNetwork,
-      );
-
-      const refunds = await this.extractBalanceAndEvents(
+      ),
+      this.extractTransferEvents(
         paymentNetwork.values.refundAddress,
         PaymentTypes.EVENTS_NAMES.REFUND,
         request.currency,
         request.requestId,
         paymentNetwork,
-      );
+      ),
+    ]);
 
-      const declaredBalance = await super.getBalance(request);
-
-      const balance: string = BigNumber.from(declaredBalance.balance)
-        .add(payments.balance || 0)
-        .sub(refunds.balance || 0)
-        .toString();
-
-      const events: PaymentTypes.IPaymentNetworkEvent<
-        TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-      >[] = [...declaredBalance.events, ...payments.events, ...refunds.events].sort(
-        (
-          a: PaymentTypes.IPaymentNetworkEvent<
-            TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-          >,
-          b: PaymentTypes.IPaymentNetworkEvent<
-            TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-          >,
-        ) => (a.timestamp || 0) - (b.timestamp || 0),
-      );
-
-      return {
-        balance,
-        events,
-      };
-    } catch (error) {
-      return getBalanceErrorObject(error);
-    }
+    const declaredEvents = this.getDeclarativeEvents(request);
+    return [...declaredEvents, ...paymentEvents, ...refundEvents];
   }
 
-  // FIXME: should return declarative events and balance
-  protected async extractBalanceAndEvents(
+  private async extractTransferEvents(
     paymentAddress: string | undefined,
     eventName: PaymentTypes.EVENTS_NAMES,
     requestCurrency: RequestLogicTypes.ICurrency,
     requestId: string,
     paymentNetwork: ExtensionTypes.IState<any>,
-  ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
-    if (paymentAddress) {
-      const paymentReference = PaymentReferenceCalculator.calculate(
-        requestId,
-        paymentNetwork.values.salt,
-        paymentAddress,
-      );
-      return this.extractBalanceAndEventsFromPaymentRef(
-        paymentAddress,
-        eventName,
-        requestCurrency,
-        paymentReference,
-        paymentNetwork,
-      );
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]> {
+    if (!paymentAddress) {
+      return [];
     }
-    return { balance: '0', events: [] };
-  }
+    const paymentReference = PaymentReferenceCalculator.calculate(
+      requestId,
+      paymentNetwork.values.salt,
+      paymentAddress,
+    );
 
-  /**
-   * Extracts the balance and events matching an address and a payment reference
-   *
-   * @param address Address to check
-   * @param eventName Indicate if it is an address for payment or refund
-   * @param network The id of network we want to check
-   * @param paymentReference The reference to identify the payment
-   * @param paymentNetworkVersion the version of the payment network
-   * @returns The balance
-   */
-  // FIXME: should return declarative events and balance
-  protected async extractBalanceAndEventsFromPaymentRef(
-    address: string,
-    eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
-    paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
-  ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
-    const events = await this.extractEvents(
-      address,
+    return this.extractEvents(
+      paymentAddress,
       eventName,
       requestCurrency,
       paymentReference,
       paymentNetwork,
     );
-    const balance = events
-      .sort(
-        (
-          a: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>,
-          b: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>,
-        ) => (a.timestamp || 0) - (b.timestamp || 0),
-      )
-      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
-      .toString();
-
-    return {
-      balance,
-      events,
-    };
   }
 
   /**
@@ -236,7 +166,6 @@ export abstract class ReferenceBasedDetector<
    * @param paymentNetwork the payment network
    * @returns The balance
    */
-  // FIXME: should return declarative events
   protected abstract extractEvents(
     address: string,
     eventName: PaymentTypes.EVENTS_NAMES,

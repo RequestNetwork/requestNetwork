@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
@@ -20,10 +19,17 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
 };
 
+type PaymentEventParameters =
+  | PaymentTypes.ConversionPaymentNetworkEventParameters
+  | PaymentTypes.IDeclarativePaymentEventParameters;
+
 /**
  * Handle payment networks with conversion proxy contract extension
  */
-export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<ExtensionTypes.PnAnyToErc20.IAnyToERC20> {
+export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
+  ExtensionTypes.PnAnyToErc20.IAnyToERC20,
+  PaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -79,13 +85,13 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
    * @param paymentNetwork Payment network state
    * @returns The balance and events
    */
-  public async extractBalanceAndEvents(
+  public async extractEvents(
     request: RequestLogicTypes.IRequest,
     salt: string,
     toAddress: string,
     eventName: PaymentTypes.EVENTS_NAMES,
     paymentNetwork: ExtensionTypes.IState,
-  ): Promise<PaymentTypes.IBalanceWithEvents> {
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentEventParameters>[]> {
     const network = paymentNetwork.values.network;
     const acceptedTokens = paymentNetwork.values.acceptedTokens;
     const maxRateTimespan = paymentNetwork.values.maxRateTimespan || 0;
@@ -141,16 +147,9 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
           maxRateTimespan,
         );
 
-    const events = await infoRetriever.getTransferEvents();
-
-    const balance = events
-      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
-      .toString();
-
-    return {
-      balance,
-      events,
-    };
+    const declaredEvents = this.getDeclarativeEvents(request);
+    const transferEvents = await infoRetriever.getTransferEvents();
+    return this.sortEvents<PaymentEventParameters>([...declaredEvents, ...transferEvents]);
   }
 
   public static getDeploymentInformation = makeGetDeploymentInformation(

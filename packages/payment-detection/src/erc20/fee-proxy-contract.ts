@@ -7,12 +7,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
-import {
-  BalanceError,
-  getBalanceErrorObject,
-  NetworkNotSupported,
-  VersionNotSupported,
-} from '../balance-error';
+import { BalanceError, NetworkNotSupported, VersionNotSupported } from '../balance-error';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
@@ -32,11 +27,16 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
  * Handle payment networks with ERC20 fee proxy contract extension, or derived
  * FIXME: inherit ReferenceBasedDetector
  */
+
 export class ERC20FeeProxyPaymentDetectorBase<
-    TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
-  >
-  extends DeclarativePaymentDetectorBase<TExtension>
-  implements PaymentTypes.IPaymentNetwork<TExtension> {
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  TPaymentEventParameters extends
+    | PaymentTypes.IERC20FeePaymentEventParameters
+    | PaymentTypes.IDeclarativePaymentEventParameters
+> extends DeclarativePaymentDetectorBase<
+  TExtension,
+  TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -45,7 +45,7 @@ export class ERC20FeeProxyPaymentDetectorBase<
     extension: TExtension,
     protected _currencyManager: ICurrencyManager,
   ) {
-    super(paymentNetworkId, extension);
+    super(paymentNetworkId, extension, (request) => this.getEvents(request));
   }
 
   /**
@@ -114,73 +114,56 @@ export class ERC20FeeProxyPaymentDetectorBase<
     });
   }
 
-  /**
-   * Gets the balance and the payment/refund events
-   *
-   * @param request the request to check
-   * @returns A promise resulting to the balance and the payment/refund events
-   */
-  public async getBalance(
+  private async getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IBalanceWithEvents> {
-    try {
-      const paymentNetwork = request.extensions[this._paymentNetworkId];
+  ): Promise<
+    PaymentTypes.IPaymentNetworkEvent<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >[]
+  > {
+    const paymentNetwork = request.extensions[this._paymentNetworkId];
 
-      if (!paymentNetwork) {
-        throw new BalanceError(
-          `The request does not have the extension : ${this._paymentNetworkId}`,
-          PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-        );
-      }
-      const paymentAddress = paymentNetwork.values.paymentAddress;
-      const refundAddress = paymentNetwork.values.refundAddress;
-      const feeAddress = paymentNetwork.values.feeAddress;
-      const salt = paymentNetwork.values.salt;
-
-      let payments: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
-      if (paymentAddress) {
-        payments = await this.extractBalanceAndEvents(
-          request,
-          salt,
-          paymentAddress,
-          PaymentTypes.EVENTS_NAMES.PAYMENT,
-          paymentNetwork,
-        );
-      }
-
-      let refunds: PaymentTypes.IBalanceWithEvents = { balance: '0', events: [] };
-      if (refundAddress) {
-        refunds = await this.extractBalanceAndEvents(
-          request,
-          salt,
-          refundAddress,
-          PaymentTypes.EVENTS_NAMES.REFUND,
-          paymentNetwork,
-        );
-      }
-
-      const fees = this.extractFeeAndEvents(feeAddress, [...payments.events, ...refunds.events]);
-      // TODO (PROT-1219): this is not ideal, since we're directly changing the request extension
-      // once the fees feature and similar payment extensions are more well established, we should define
-      // a better place to retrieve them from the request object them.
-      paymentNetwork.values.feeBalance = fees;
-
-      const balance: string = BigNumber.from(payments.balance || 0)
-        .sub(BigNumber.from(refunds.balance || 0))
-        .toString();
-
-      const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
-        ...payments.events,
-        ...refunds.events,
-      ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-      return {
-        balance,
-        events,
-      };
-    } catch (error) {
-      return getBalanceErrorObject(error);
+    if (!paymentNetwork) {
+      throw new BalanceError(
+        `The request does not have the extension : ${this._paymentNetworkId}`,
+        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+      );
     }
+    const paymentAddress = paymentNetwork.values.paymentAddress;
+    const refundAddress = paymentNetwork.values.refundAddress;
+    const feeAddress = paymentNetwork.values.feeAddress;
+    const salt = paymentNetwork.values.salt;
+
+    const paymentEvents = await this.extractTransferEvents(
+      request,
+      salt,
+      paymentAddress,
+      PaymentTypes.EVENTS_NAMES.PAYMENT,
+      paymentNetwork,
+    );
+
+    const refundEvents = await this.extractTransferEvents(
+      request,
+      salt,
+      refundAddress,
+      PaymentTypes.EVENTS_NAMES.REFUND,
+      paymentNetwork,
+    );
+
+    const events = [...paymentEvents, ...refundEvents];
+
+    const feeEvents = this.getFeeEvents(feeAddress, events);
+    const feeBalance = this.computeFeeBalance(feeEvents).toString();
+
+    // TODO (PROT-1219): this is not ideal, since we're directly changing the request extension
+    // once the fees feature and similar payment extensions are more well established, we should define
+    // a better place to retrieve them from the request object them.
+    paymentNetwork.values.feeBalance = {
+      events: feeEvents,
+      balance: feeBalance,
+    };
+
+    return events;
   }
 
   /**
@@ -194,13 +177,16 @@ export class ERC20FeeProxyPaymentDetectorBase<
    * @param paymentNetwork Payment network state
    * @returns The balance and events
    */
-  public async extractBalanceAndEvents(
+  private async extractTransferEvents(
     request: RequestLogicTypes.IRequest,
     salt: string,
     toAddress: string,
     eventName: PaymentTypes.EVENTS_NAMES,
     paymentNetwork: ExtensionTypes.IState,
-  ): Promise<PaymentTypes.IBalanceWithEvents> {
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]> {
+    if (!toAddress) {
+      return [];
+    }
     const network = request.currency.network;
 
     if (!network) {
@@ -226,8 +212,6 @@ export class ERC20FeeProxyPaymentDetectorBase<
         `Network not supported for this payment network: ${request.currency.network}`,
       );
     }
-    const declaredEvents = (await super.getBalance(request)).events;
-
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
       salt,
@@ -252,16 +236,9 @@ export class ERC20FeeProxyPaymentDetectorBase<
           eventName,
           network,
         );
-    const events = [...declaredEvents, ...(await infoRetriever.getTransferEvents())];
 
-    const balance = events
-      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
-      .toString();
-
-    return {
-      balance,
-      events,
-    };
+    // TODO
+    return (await infoRetriever.getTransferEvents()) as PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[];
   }
 
   /**
@@ -270,49 +247,42 @@ export class ERC20FeeProxyPaymentDetectorBase<
    * @param feeAddress The fee address the extracted fees will be paid to
    * @param paymentEvents The payment events to extract fees from
    */
-  public extractFeeAndEvents(
+  protected getFeeEvents(
     feeAddress: string,
-    paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[],
-  ): PaymentTypes.IBalanceWithEvents {
+    paymentEvents: PaymentTypes.IPaymentNetworkEvent<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >[],
+  ): PaymentTypes.IPaymentNetworkEvent<
+    TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+  >[] {
     if (!feeAddress) {
-      return {
-        balance: '0',
-        events: [],
-      };
+      return [];
     }
 
-    return paymentEvents.reduce(
-      (
-        feeBalance: PaymentTypes.IBalanceWithEvents,
-        event: PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>,
-      ): PaymentTypes.IBalanceWithEvents => {
-        // Skip if feeAddress or feeAmount are not set, or if feeAddress doesn't match the PN one
-        if (
-          !event.parameters?.feeAddress ||
-          !event.parameters?.feeAmount ||
-          event.parameters.feeAddress !== feeAddress
-        ) {
-          return feeBalance;
-        }
-
-        feeBalance = {
-          balance: BigNumber.from(feeBalance.balance)
-            .add(BigNumber.from(event.parameters.feeAmount))
-            .toString(),
-          events: [...feeBalance.events, event],
-        };
-
-        return feeBalance;
-      },
-      { balance: '0', events: [] },
+    return paymentEvents.filter((event) =>
+      // Skip if feeAddress or feeAmount are not set, or if feeAddress doesn't match the PN one
+      Boolean(
+        event.parameters &&
+          'feeAddress' in event.parameters &&
+          event.parameters.feeAddress &&
+          event.parameters.feeAmount &&
+          event.parameters.feeAddress === feeAddress,
+      ),
     );
   }
 
-  /**
-   * Get the detected payment network ID
-   */
-  get paymentNetworkId(): PaymentTypes.PAYMENT_NETWORK_ID {
-    return this._paymentNetworkId;
+  protected computeFeeBalance(
+    feeEvents: PaymentTypes.IPaymentNetworkEvent<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >[],
+  ): BigNumber {
+    return feeEvents.reduce(
+      (sum, curr) =>
+        curr.parameters && 'feeAmount' in curr.parameters && curr.parameters.feeAmount
+          ? sum.add(curr.parameters.feeAmount)
+          : sum,
+      BigNumber.from(0),
+    );
   }
 
   protected async getCurrency(
@@ -348,9 +318,10 @@ export class ERC20FeeProxyPaymentDetectorBase<
 /**
  * Handle payment networks with ERC20 fee proxy contract extension
  */
-export class ERC20FeeProxyPaymentDetector<
-  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
-> extends ERC20FeeProxyPaymentDetectorBase<TExtension> {
+export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
+  ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  PaymentTypes.IERC20FeePaymentEventParameters
+> {
   constructor({
     advancedLogic,
     currencyManager,

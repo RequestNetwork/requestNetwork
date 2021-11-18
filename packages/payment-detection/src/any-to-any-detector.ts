@@ -8,15 +8,16 @@ import { ICurrencyManager } from '@requestnetwork/currency';
  * Abstract class to extend to get the payment balance of conversion requests
  */
 export abstract class AnyToAnyDetector<
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   TPaymentEventParameters
-> extends FeeReferenceBasedDetector<TPaymentEventParameters> {
+> extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension, with conversion
    * @param extensionType Example : ExtensionTypes.ID.ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY
    */
   public constructor(
     paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
-    extension: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+    extension: TExtension,
     protected currencyManager: ICurrencyManager,
   ) {
     super(paymentNetworkId, extension);

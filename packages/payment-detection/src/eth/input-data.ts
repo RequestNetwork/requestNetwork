@@ -25,7 +25,10 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
+  ExtensionTypes.PnReferenceBased.IReferenceBased,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   private explorerApiKeys: Record<string, string>;
   /**
    * @param extension The advanced logic payment network extensions
@@ -86,9 +89,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
         network,
       );
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
-      for (const event of proxyEvents) {
-        events.push(event);
-      }
+      events.push(...proxyEvents);
     }
     return events;
   }
