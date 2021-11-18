@@ -22,6 +22,8 @@ describe("Contract: ERC20EscrowToPay", () => {
     const referenceExample6 = '0xffff';
     const referenceExample7 = '0xaabb';
     const referenceExample8 = '0xaacc';
+    const referenceExample9 = '0xaadd';
+    
     let testERC20: Contract, erc20EscrowToPay: ERC20EscrowToPay, erc20FeeProxy: ERC20FeeProxy;
     let owner: Signer, payer: Signer, payee: Signer, buidler: Signer;
     let payerAddress: string, payeeAddress: string, feeAddress: string, erc20EscrowToPayAddress: string;
@@ -151,7 +153,7 @@ describe("Contract: ERC20EscrowToPay", () => {
         it("Should set to frozen w/ lockperiod, cancel emergency claim and emit event.", async () => {
             await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 2002);
             await erc20EscrowToPay.connect(payer).payEscrow(testERC20.address, payeeAddress, 2000, referenceExample7, 2, feeAddress);
-            await erc20EscrowToPay.connect(payee).initiateEmergencyClaim(referenceExample7)
+            await erc20EscrowToPay.connect(payee).initiateEmergencyClaim(referenceExample7);
 
             expect(await erc20EscrowToPay.connect(payer).freezeRequest(referenceExample7))
             .to.emit(erc20EscrowToPay, "RequestFrozen")
@@ -167,6 +169,18 @@ describe("Contract: ERC20EscrowToPay", () => {
             await erc20EscrowToPay.connect(payer).freezeRequest(referenceExample8);
 
             expect(erc20EscrowToPay.connect(payer).refundFrozenFunds(referenceExample8)).to.be.reverted;
+        });
+        it("Should revert if try to execute EmergencyClaim while request is frozen", async () => {
+            await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 2002);
+            await erc20EscrowToPay.connect(payer).payEscrow(testERC20.address, payeeAddress, 2000, referenceExample9, 2, feeAddress);
+            await erc20EscrowToPay.connect(payer).freezeRequest(referenceExample9);
+            
+            const requestMapping = await erc20EscrowToPay.connect(payer).requestMapping(referenceExample9);
+            
+            // Make sure the request to be frozen.
+            expect(requestMapping.isFrozen).to.be.true;
+            // Expect the call to be reverted.
+            expect(erc20EscrowToPay.connect(payee).initiateEmergencyClaim(referenceExample9)).to.be.reverted;
         });
     });
 });

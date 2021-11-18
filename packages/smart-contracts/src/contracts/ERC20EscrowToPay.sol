@@ -109,7 +109,7 @@ contract ERC20EscrowToPay {
     event RevertedEmergencyClaim(bytes indexed paymentReference);
 
     /**
-     * @notice Emitted when _withdraw "to payee" has been executed.
+     * @notice Emitted when transaction to and from the escrow has been executed.
      * @param tokenAddress Address of the ERC20 token smart contract.
      * @param to Address to the payment issuer, alias payee.
      * @param amount Amount transfered.
@@ -189,9 +189,10 @@ contract ERC20EscrowToPay {
     }
     
     /**
-     * @notice Locks the request funds for 12 months and cancel any emergency claim.
+     * @notice Locks the request funds for the payer to recover them
+     *         after 12 months and cancel any emergency claim.
      * @param _paymentRef Reference of the Invoice related.
-     * @dev Uses modifiers OnlyPayer and IsNotFrozen.
+     * @dev Uses modifiers OnlyPayer, IsInEscrow and IsNotFrozen.
      * @dev unlockDate is set with block.timestamp + twelve months..
      */
     function freezeRequest(bytes memory _paymentRef) 
@@ -216,7 +217,7 @@ contract ERC20EscrowToPay {
     /**
      * @notice Closes an open escrow and pays the request to payee.
      * @param _paymentRef Reference of the related Invoice.
-     * @dev Uses OnlyPayer, modifiers IsInEscrow, IsNOtInEmergencyState and IsNotFrozen.
+     * @dev Uses OnlyPayer, IsInEscrow, IsNotInEmergencyState and IsNotFrozen.
      */
     function payRequestFromEscrow(bytes memory _paymentRef) 
         external 
@@ -231,7 +232,7 @@ contract ERC20EscrowToPay {
     /**
      * @notice Allows the payee to initiate an emergency claim after a six months lockperiod .
      * @param _paymentRef Reference of the related Invoice.
-     * @dev Uses modifiers IsInEscrow, IsNotFrozen.
+     * @dev Uses modifiers OnlyPayee, IsInEscrow, IsNotInEmergencyState and IsNotFrozen.
      */
     function initiateEmergencyClaim(bytes memory _paymentRef) 
         external
@@ -249,7 +250,7 @@ contract ERC20EscrowToPay {
     /**
      * @notice Allows the payee claim funds after a six months emergency lockperiod .
      * @param _paymentRef Reference of the related Invoice.
-     * @dev Uses modifiers IsInEscrow, IsNotFrozen.
+     * @dev Uses modifiers OnlyPayee, IsInEscrow and IsNotFrozen.
      */
     function completeEmergencyClaim(bytes memory _paymentRef) 
         external
@@ -268,10 +269,10 @@ contract ERC20EscrowToPay {
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payee), "Withdraw failed!");
     }
 
-     /**
+    /**
      * @notice Reverts the emergencyState to false and cancels emergencyClaim.
      * @param _paymentRef Reference of the Invoice related.
-     * @dev Uses modifiers OnlyPayer and IsNotFrozen.
+     * @dev Uses modifiers OnlyPayer, IsInEscrow and IsNotFrozen.
      * @dev Resets emergencyState to false and emergencyClaimDate to zero.
      */
     function revertEmergencyClaim(bytes memory _paymentRef) 
@@ -291,7 +292,7 @@ contract ERC20EscrowToPay {
      * @notice Refunds to payer after twelve months and delete the escrow.
      * @param  _paymentRef Reference of the Invoice related.
      * @dev requires that the request .isFrozen = true and .unlockDate to
-     * be lower or equal to block.timestamp.
+     *      be lower or equal to block.timestamp.
      */
     function refundFrozenFunds(bytes memory _paymentRef) 
         external 
@@ -306,7 +307,7 @@ contract ERC20EscrowToPay {
         require(_withdraw(_paymentRef, requestMapping[_paymentRef].payer), "Withdraw Failed!");
     }
     
-     /**
+    /**
      * @notice Withdraw the funds from the escrow.  
      * @param _paymentRef Reference of the related Invoice.
      * @param _receiver Receiving address.
@@ -324,13 +325,18 @@ contract ERC20EscrowToPay {
         require(_receiver != address(0), "ZERO adddress");
         require(requestMapping[_paymentRef].amount > 0, "ZERO Amount");
         
+        IERC20 requestedToken = IERC20(requestMapping[_paymentRef].tokenAddress);
+
         uint256 _amount = requestMapping[_paymentRef].amount;
         requestMapping[_paymentRef].amount = 0;
-        
-        IERC20(requestMapping[_paymentRef].tokenAddress).approve(address(paymentProxy), _amount);
-        
+
+        // Checks if the requestedToken is allowed to spend.
+        if (requestedToken.allowance(address(this),address(paymentProxy)) < _amount) {
+            approvePaymentProxyToSpend(address(requestedToken));
+        }
+
         paymentProxy.transferFromWithReferenceAndFee(
-            requestMapping[_paymentRef].tokenAddress,
+            address(requestedToken),
             _receiver,
             _amount,
             _paymentRef,
@@ -343,8 +349,18 @@ contract ERC20EscrowToPay {
         assert(!requestMapping[_paymentRef].emergencyState);
 
         delete requestMapping[_paymentRef];
-        
+
         return true;
+    }
+
+    /**
+    * @notice Authorizes the proxy to spend a new request currency (ERC20).
+    * @param _erc20Address Address of an ERC20 used as the request currency.
+    */
+    function approvePaymentProxyToSpend(address _erc20Address) public {
+        IERC20 erc20 = IERC20(_erc20Address);
+        uint256 max = 2**256 - 1;
+        erc20.safeApprove(address(paymentProxy), max);
     }
 
 }
