@@ -7,7 +7,7 @@ import {
 import { ICurrencyManager } from '@requestnetwork/currency';
 import BTCAddressedBased from './btc/mainnet-address-based';
 import TestnetBTCAddressedBased from './btc/testnet-address-based';
-import Declarative from './declarative';
+import { DeclarativePaymentDetector } from './declarative';
 import { ERC20AddressBasedPaymentDetector } from './erc20/address-based';
 import { ERC20FeeProxyPaymentDetector } from './erc20/fee-proxy-contract';
 import { ERC20ProxyPaymentDetector } from './erc20/proxy-contract';
@@ -48,7 +48,7 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
 
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: AnyToERC20PaymentDetector,
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: DeclarativePaymentDetector,
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY as string]: AnyToEthFeeProxyPaymentDetector,
 };
 

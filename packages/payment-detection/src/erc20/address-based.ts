@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import getBalanceErrorObject from '../balance-error';
+import { BalanceError, getBalanceErrorObject } from '../balance-error';
 import Erc20InfoRetriever from './address-based-info-retriever';
 
 import { BigNumber } from 'ethers';
@@ -75,20 +75,21 @@ export class ERC20AddressBasedPaymentDetector
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.ERC20BalanceWithEvents> {
-    if (!request.currency.network) {
-      request.currency.network = 'mainnet';
-    }
-    if (!supportedNetworks.includes(request.currency.network)) {
-      return getBalanceErrorObject(
-        `Payment network ${
-          request.currency.network
-        } not supported by ERC20 payment detection. Supported networks: ${supportedNetworks.join(
-          ', ',
-        )}`,
-        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-      );
-    }
     try {
+      if (!request.currency.network) {
+        request.currency.network = 'mainnet';
+      }
+
+      if (!supportedNetworks.includes(request.currency.network)) {
+        throw new BalanceError(
+          `Payment network ${
+            request.currency.network
+          } not supported by ERC20 payment detection. Supported networks: ${supportedNetworks.join(
+            ', ',
+          )}`,
+          PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
+        );
+      }
       const paymentAddress =
         request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED].values
           .paymentAddress;
@@ -130,7 +131,7 @@ export class ERC20AddressBasedPaymentDetector
         events,
       };
     } catch (error) {
-      return getBalanceErrorObject(error.message);
+      return getBalanceErrorObject(error);
     }
   }
 

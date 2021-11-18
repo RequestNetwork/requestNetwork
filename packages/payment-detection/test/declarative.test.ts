@@ -6,9 +6,9 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import Declarative from '../src/declarative';
+import { DeclarativePaymentDetector } from '../src/declarative';
 
-let declarative: Declarative;
+let declarative: DeclarativePaymentDetector;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -64,7 +64,7 @@ const requestMock: RequestLogicTypes.IRequest = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/declarative', () => {
   beforeEach(() => {
-    declarative = new Declarative({ advancedLogic: mockAdvancedLogic });
+    declarative = new DeclarativePaymentDetector({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -171,7 +171,7 @@ describe('api/declarative', () => {
             amount: '1000',
             note: 'first payment',
             txHash: 'the-first-hash',
-            network: 'mainnet'
+            network: 'mainnet',
           },
           timestamp: 10,
         },
@@ -181,7 +181,7 @@ describe('api/declarative', () => {
             amount: '500',
             note: 'second payment',
             txHash: 'the-second-hash',
-            network: 'matic'
+            network: 'matic',
           },
           timestamp: 15,
         },
@@ -191,7 +191,7 @@ describe('api/declarative', () => {
             amount: '100',
             note: 'first refund',
             txHash: 'the-first-refund-hash',
-            network: 'mainnet'
+            network: 'mainnet',
           },
           timestamp: 20,
         },
@@ -201,7 +201,7 @@ describe('api/declarative', () => {
             amount: '200',
             note: 'second refund',
             txHash: 'the-second-refund-hash',
-            network: 'matic'
+            network: 'matic',
           },
           timestamp: 25,
         },
@@ -219,7 +219,7 @@ describe('api/declarative', () => {
           parameters: {
             note: 'first payment',
             txHash: 'the-first-hash',
-            network: 'mainnet'
+            network: 'mainnet',
           },
           timestamp: 10,
         },
@@ -229,7 +229,7 @@ describe('api/declarative', () => {
           parameters: {
             note: 'second payment',
             txHash: 'the-second-hash',
-            network: 'matic'
+            network: 'matic',
           },
           timestamp: 15,
         },
@@ -239,7 +239,7 @@ describe('api/declarative', () => {
           parameters: {
             note: 'first refund',
             txHash: 'the-first-refund-hash',
-            network: 'mainnet'
+            network: 'mainnet',
           },
           timestamp: 20,
         },
@@ -249,7 +249,7 @@ describe('api/declarative', () => {
           parameters: {
             note: 'second refund',
             txHash: 'the-second-refund-hash',
-            network: 'matic'
+            network: 'matic',
           },
           timestamp: 25,
         },
