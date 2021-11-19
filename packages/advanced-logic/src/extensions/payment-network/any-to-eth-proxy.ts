@@ -1,6 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
-import { supportedCurrencies } from './conversion-supported-currencies';
+import { supportedCurrencies } from '@requestnetwork/currency';
 
 const CURRENT_VERSION = '0.1.0';
 
