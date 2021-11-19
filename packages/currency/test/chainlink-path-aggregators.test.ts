@@ -13,6 +13,20 @@ describe('chainlink-path-aggregators', () => {
         address: '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35',
         decimals: 18,
       },
+      {
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        symbol: 'LINK',
+        network: 'fantom',
+        address: '0xb3654dc3D10Ea7645f8319668E8F54d2574FBdC8',
+        decimals: 18,
+      },
+      {
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        symbol: 'USDT',
+        network: 'fantom',
+        address: '0x940F41F0ec9ba1A34CF001cc03347ac092F5F6B5',
+        decimals: 6,
+      },
     ]);
     const BTC = currencyManager.from('BTC')!;
     const USD = currencyManager.from('USD')!;
@@ -22,6 +36,8 @@ describe('chainlink-path-aggregators', () => {
     const DAI = currencyManager.from('DAI')!;
     const DAImatic = currencyManager.from('DAI-matic')!;
     const MKR = currencyManager.from('MKR')!;
+    const LINKfantom = currencyManager.from('LINK-fantom')!;
+    const USDTfantom = currencyManager.from('USDT-fantom')!;
 
     describe('private network', () => {
       it('can get path from EUR to DAI', () => {
@@ -89,5 +105,23 @@ describe('chainlink-path-aggregators', () => {
         ]);
       });
     });
+
+    describe('fantom', () => {
+      it('can get path from USD to Link-fantom on fantom', () => {
+        expect(getPath(USD, LINKfantom, 'fantom')).toEqual([
+          '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
+          '0xb3654dc3d10ea7645f8319668e8f54d2574fbdc8'
+        ])
+      })
+      it('can get path from USD to USDT-fantom on fantom', () => {
+        expect(getPath(USD, USDTfantom, 'fantom')).toEqual([
+          '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
+          '0x940f41f0ec9ba1a34cf001cc03347ac092f5f6b5'
+        ])
+      })
+      it('cannot get path from USD to DAI on fantom', () => {
+        expect(getPath(USD, DAI, 'fantom')).toBeNull();
+      })
+    })
   });
 });
