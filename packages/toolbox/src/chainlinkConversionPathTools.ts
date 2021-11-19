@@ -154,7 +154,7 @@ const addSupportedCurrency = (
   record[type] = record[type].sort();
 };
 
-export const listAggregators = async (options?: IOptions): Promise<void> => {
+export const listAggregators = async (options?: IOptions): Promise<any> => {
   const networks = options?.network ? [options.network] : ['private', 'rinkeby', 'mainnet'];
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
@@ -206,6 +206,7 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
     '../advanced-logic/src/extensions/payment-network/conversion-supported-currencies.ts',
   );
   console.log(supportedCurrencies);
+  return supportedCurrencies;
 };
 
 export const showCurrencyHash = async (options?: IOptions): Promise<void> => {
