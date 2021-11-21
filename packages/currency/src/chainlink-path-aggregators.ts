@@ -1,13 +1,11 @@
 import GRAPH from 'node-dijkstra';
 import { CurrencyDefinition } from './types';
-import { RequestLogicTypes } from '@requestnetwork/types';
-import iso4217 from '../dist/iso4217';
-import { CurrencyManager } from '../dist';
+
 
 // List of currencies supported by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
 // Network => currencyFrom => currencyTo => cost
 // Must be updated every time an aggregator is added
-const chainlinkCurrencyPairs: any = {
+export const chainlinkCurrencyPairs: any = {
   private: {
     '0x38cf23c52bb4b13f051aec09580a2de845a7fa35': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -276,64 +274,3 @@ export function getPath(
   return route.path(currencyFrom.hash.toLowerCase(), currencyTo.hash.toLowerCase());
 }
 
-const supportedNetworks = ['private', 'rinkeby', 'mainnet', 'matic', 'fantom'];
-
-const getCurrency = (symbol: string) => {
-  const currencyManager = CurrencyManager.getDefault();
-  let currency = currencyManager.fromSymbol(symbol);
-  if (!currency) {
-    currency = currencyManager.from(symbol);
-    if (!currency) {
-      throw new Error(`Currency ${symbol} not found`);
-    }
-  }
-  return currency;
-};
-const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH', 'ETH-rinkeby'].reduce(
-  (prev, symbol) => {
-    const currency = getCurrency(symbol);
-
-    return {
-      ...prev,
-      [currency.hash.toLowerCase()]: {
-        value: CurrencyManager.toStorageCurrency(currency).value,
-        type: currency.type,
-      },
-    };
-  },
-  {} as Record<string, { value: string; type: RequestLogicTypes.CURRENCY }>,
-);
-const addSupportedCurrency = (
-  ccy: string,
-  record: Record<RequestLogicTypes.CURRENCY, string[]>,
-) => {
-  const wellKnown = knownCurrencies[ccy];
-  const address = wellKnown ? wellKnown.value : ccy;
-  const type = wellKnown ? wellKnown.type : RequestLogicTypes.CURRENCY.ERC20;
-  if (!record[type].includes(address)) {
-    record[type].push(address);
-  }
-  record[type] = record[type].sort();
-};
-
-const generateSupportedCurrenciesFromAggregators = (allChainlinkPairs: any, supportedNetworks: string[]): Record<string, Record<RequestLogicTypes.CURRENCY, string[]>> => {
-  const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, string[]>> = {};
-  for (const network of supportedNetworks) {
-    supportedCurrencies[network] = {
-      [RequestLogicTypes.CURRENCY.ISO4217]: [],
-      [RequestLogicTypes.CURRENCY.ERC20]: [],
-      [RequestLogicTypes.CURRENCY.ETH]: [],
-      [RequestLogicTypes.CURRENCY.BTC]: [],
-    };
-    for (let ccyIn in allChainlinkPairs[network]) {
-      ccyIn = ccyIn.toLowerCase();
-      addSupportedCurrency(ccyIn, supportedCurrencies[network]);
-      for (let ccyOut in allChainlinkPairs[network][ccyIn]) {
-        ccyOut = ccyOut.toLowerCase();
-        addSupportedCurrency(ccyOut, supportedCurrencies[network]);
-      }
-    }
-  }
-  return supportedCurrencies;
-};
-export const supportedCurrencies = generateSupportedCurrenciesFromAggregators(chainlinkCurrencyPairs, supportedNetworks);

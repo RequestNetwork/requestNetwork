@@ -1,6 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
-import { supportedCurrencies } from '@requestnetwork/currency';
+import { currenciesWithConversionOracles } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
 
@@ -12,7 +12,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     super(
       extensionId,
       currentVersion,
-      Object.keys(supportedCurrencies),
+      Object.keys(currenciesWithConversionOracles),
       RequestLogicTypes.CURRENCY.ERC20,
     );
   }
@@ -38,10 +38,10 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (!network) {
       throw Error('network is required');
     }
-    if (!supportedCurrencies[network]) {
+    if (!currenciesWithConversionOracles[network]) {
       throw Error(`network ${network} not supported`);
     }
-    const supportedErc20: string[] = supportedCurrencies[network][RequestLogicTypes.CURRENCY.ERC20];
+    const supportedErc20: string[] = currenciesWithConversionOracles[network][RequestLogicTypes.CURRENCY.ERC20];
 
     for (const address of creationParameters.acceptedTokens) {
       if (!supportedErc20.includes(address.toLowerCase())) {
@@ -131,11 +131,11 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       return;
     }
 
-    if (!supportedCurrencies[network]) {
+    if (!currenciesWithConversionOracles[network]) {
       throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
-    if (!supportedCurrencies[network][request.currency.type]) {
+    if (!currenciesWithConversionOracles[network][request.currency.type]) {
       throw new Error(
         `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
       );
@@ -146,7 +146,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
         ? request.currency.value.toLowerCase()
         : request.currency.value;
 
-    if (!supportedCurrencies[network][request.currency.type].includes(currency)) {
+    if (!currenciesWithConversionOracles[network][request.currency.type].includes(currency)) {
       throw new Error(
         `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
       );
