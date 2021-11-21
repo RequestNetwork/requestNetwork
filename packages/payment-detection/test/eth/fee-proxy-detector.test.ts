@@ -21,7 +21,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddRefundAddressAction,
       createCreationAction,
       createAddFeeAction,
-      supportedNetworks: ['private', 'rinkeby'],
+      supportedNetworks: ['private'],
       // inherited from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
