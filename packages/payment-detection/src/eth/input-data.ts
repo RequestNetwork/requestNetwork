@@ -32,9 +32,9 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
    * @param extension The advanced logic payment network extensions
    */
   public constructor({
-                       advancedLogic,
-                       explorerApiKeys,
-                     }: {
+    advancedLogic,
+    explorerApiKeys,
+  }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     explorerApiKeys?: Record<string, string>;
   }) {
