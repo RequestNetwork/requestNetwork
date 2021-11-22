@@ -50,7 +50,8 @@
     "graphql": "15.5.1",
     "graphql-request": "3.4.0",
     "graphql-tag": "2.12.4",
-    "satoshi-bitcoin": "1.0.4"
+    "satoshi-bitcoin": "1.0.4",
+    "tslib": "2.3.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "1.21.5",
