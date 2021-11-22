@@ -50,7 +50,6 @@
     "graphql": "15.5.1",
     "graphql-request": "3.4.0",
     "graphql-tag": "2.12.4",
-    "node-fetch": "2.6.1",
     "satoshi-bitcoin": "1.0.4"
   },
   "devDependencies": {
