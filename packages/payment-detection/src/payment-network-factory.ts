@@ -5,8 +5,8 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import BTCAddressedBased from './btc/mainnet-address-based';
-import TestnetBTCAddressedBased from './btc/testnet-address-based';
+import { BtcMainnetAddressBasedDetector } from './btc/mainnet-address-based';
+import { BtcTestnetAddressBasedDetector } from './btc/testnet-address-based';
 import { DeclarativePaymentDetector } from './declarative';
 import { ERC20AddressBasedPaymentDetector } from './erc20/address-based';
 import { ERC20FeeProxyPaymentDetector } from './erc20/fee-proxy-contract';
@@ -17,39 +17,41 @@ import { AnyToERC20PaymentDetector } from './any/any-to-erc20-proxy';
 import { NearNativeTokenPaymentDetector } from './near-detector';
 import { AnyToEthFeeProxyPaymentDetector } from './any/any-to-eth-proxy';
 
+const PN_ID = PaymentTypes.PAYMENT_NETWORK_ID;
+
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
   BTC: {
     mainnet: {
-      [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: BTCAddressedBased,
+      [PN_ID.BITCOIN_ADDRESS_BASED]: BtcMainnetAddressBasedDetector,
     },
     testnet: {
-      [PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED]: TestnetBTCAddressedBased,
+      [PN_ID.TESTNET_BITCOIN_ADDRESS_BASED]: BtcTestnetAddressBasedDetector,
     },
   },
   ERC20: {
     '*': {
-      [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
-      [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
-      [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector,
+      [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
+      [PN_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector,
     },
   },
   ETH: {
-    aurora: { [PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
+    aurora: { [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
     'aurora-testnet': {
-      [PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
+      [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
     },
     '*': {
-      [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: EthInputDataPaymentDetector,
-      [PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: EthFeeProxyPaymentDetector,
+      [PN_ID.ETH_INPUT_DATA]: EthInputDataPaymentDetector,
+      [PN_ID.ETH_FEE_PROXY_CONTRACT]: EthFeeProxyPaymentDetector,
     },
   },
 };
 
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
-  [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: AnyToERC20PaymentDetector,
-  [PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE]: DeclarativePaymentDetector,
-  [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
+  [PN_ID.ANY_TO_ERC20_PROXY]: AnyToERC20PaymentDetector,
+  [PN_ID.DECLARATIVE]: DeclarativePaymentDetector,
+  [PN_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */

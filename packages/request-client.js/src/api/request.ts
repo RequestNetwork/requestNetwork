@@ -695,10 +695,9 @@ export default class Request {
    */
   public async refreshBalance(): Promise<Types.Payment.IBalanceWithEvents<any> | null> {
     // TODO: PROT-1131 - add a pending balance
-    this.balance =
-      this.paymentNetwork && this.requestData
-        ? await this.paymentNetwork.getBalance(this.requestData)
-        : this.balance;
+    if (this.paymentNetwork && this.requestData) {
+      this.balance = await this.paymentNetwork.getBalance(this.requestData);
+    }
 
     return this.balance;
   }

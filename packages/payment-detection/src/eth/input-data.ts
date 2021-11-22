@@ -58,24 +58,26 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
    * @returns The balance
    */
   protected async extractEvents(
-    address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
+    address: string | undefined,
     paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
+    _requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
-
+    if (!address) {
+      return [];
+    }
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
       eventName,
-      network,
+      paymentChain,
       paymentReference,
-      this.explorerApiKeys[network],
+      this.explorerApiKeys[paymentChain],
     );
     const events = await infoRetriever.getTransferEvents();
     const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(
-      network,
+      paymentChain,
       paymentNetwork.version,
     );
 
@@ -86,7 +88,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
         proxyContractArtifact.creationBlockNumber,
         address,
         eventName,
-        network,
+        paymentChain,
       );
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
       events.push(...proxyEvents);

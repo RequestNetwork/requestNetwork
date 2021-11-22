@@ -12,16 +12,10 @@ import { PaymentDetectorBase } from './payment-detector-base';
  */
 export abstract class DeclarativePaymentDetectorBase<
   TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative,
-  TPaymentEventParameters
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters
 > extends PaymentDetectorBase<TExtension, TPaymentEventParameters> {
-  public constructor(
-    _paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
-    extension: TExtension,
-    fetchEvents: (
-      request: RequestLogicTypes.IRequest,
-    ) => Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>,
-  ) {
-    super(_paymentNetworkId, extension, fetchEvents);
+  public constructor(_paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+    super(_paymentNetworkId, extension);
   }
 
   /**
@@ -157,7 +151,7 @@ export abstract class DeclarativePaymentDetectorBase<
   protected getDeclarativeEvents(
     request: RequestLogicTypes.IRequest,
   ): PaymentTypes.DeclarativePaymentNetworkEvent[] {
-    const events = request.extensions[this._paymentNetworkId].events ?? [];
+    const events = this.getPaymentExtension(request).events ?? [];
     // For each extension data related to the declarative payment network,
     // Received payment increase the balance and received refund decrease the balance
     return events
@@ -198,10 +192,12 @@ export class DeclarativePaymentDetector extends DeclarativePaymentDetectorBase<
   PaymentTypes.IDeclarativePaymentEventParameters
 > {
   constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(
-      PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
-      advancedLogic.extensions.declarative,
-      (request) => Promise.resolve(this.getDeclarativeEvents(request)),
-    );
+    super(PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE, advancedLogic.extensions.declarative);
+  }
+
+  protected async getEvents(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IDeclarativePaymentEventParameters>[]> {
+    return this.getDeclarativeEvents(request);
   }
 }

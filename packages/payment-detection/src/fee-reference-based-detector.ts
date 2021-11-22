@@ -1,4 +1,5 @@
-import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { BigNumber } from 'ethers';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { ReferenceBasedDetector } from './reference-based-detector';
 
@@ -7,7 +8,7 @@ import { ReferenceBasedDetector } from './reference-based-detector';
  */
 export abstract class FeeReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  TPaymentEventParameters
+  TPaymentEventParameters extends { feeAmount?: string; feeAddress?: string }
 > extends ReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
@@ -54,5 +55,89 @@ export abstract class FeeReferenceBasedDetector<
       feeAddress: parameters.feeAddress,
       feeAmount: parameters.feeAmount,
     });
+  }
+
+  public async getBalance(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<
+    PaymentTypes.IBalanceWithEvents<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >
+  > {
+    const balance = await super.getBalance(request);
+    if (balance.error) {
+      return balance;
+    }
+    // for retro compatibility, the feeBalance is stored in the payment extension
+    const values: any = this.getPaymentExtension(request).values;
+    values.feeBalance = await this.getFeeBalance(request, balance);
+
+    return balance;
+  }
+
+  public async getFeeBalance(
+    request: RequestLogicTypes.IRequest,
+    balance: PaymentTypes.IBalanceWithEvents<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >,
+  ): Promise<
+    PaymentTypes.IBalanceWithEvents<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >
+  > {
+    const { feeAddress } = this.getPaymentExtension(request).values;
+    if (!this.checkRequiredParameter(feeAddress, 'feeAddress')) {
+      throw new Error('unreachable');
+    }
+    const feeEvents = this.extractFeeEvents(feeAddress, balance.events);
+    const feeBalance = this.computeFeeBalance(feeEvents).toString();
+
+    return {
+      events: feeEvents,
+      balance: feeBalance,
+    };
+  }
+
+  protected computeFeeBalance(
+    feeEvents: PaymentTypes.IPaymentNetworkEvent<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >[],
+  ): BigNumber {
+    return feeEvents.reduce(
+      (sum, curr) =>
+        curr.parameters && 'feeAmount' in curr.parameters && curr.parameters.feeAmount
+          ? sum.add(curr.parameters.feeAmount)
+          : sum,
+      BigNumber.from(0),
+    );
+  }
+
+  /**
+   * Extract the fee balance from a list of payment events
+   *
+   * @param feeAddress The fee address the extracted fees will be paid to
+   * @param paymentEvents The payment events to extract fees from
+   */
+  protected extractFeeEvents(
+    feeAddress: string,
+    paymentEvents: PaymentTypes.IPaymentNetworkEvent<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >[],
+  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
+    if (!feeAddress) {
+      return [];
+    }
+
+    return paymentEvents
+      .filter((event): event is PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters> =>
+        Boolean(
+          event.parameters && 'feeAmount' in event.parameters && 'feeAddress' in event.parameters,
+        ),
+      )
+      .filter(
+        (event) =>
+          // Skip if feeAddress or feeAmount are not set, or if feeAddress doesn't match the PN one
+          event.parameters?.feeAmount && event.parameters.feeAddress === feeAddress,
+      );
   }
 }

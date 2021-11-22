@@ -4,15 +4,13 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import Utils from '@requestnetwork/utils';
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
-import { BalanceError, NetworkNotSupported, VersionNotSupported } from '../balance-error';
-import PaymentReferenceCalculator from '../payment-reference-calculator';
+import { NetworkNotSupported, VersionNotSupported } from '../balance-error';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
-import { DeclarativePaymentDetectorBase } from '../declarative';
 import { makeGetDeploymentInformation } from '../utils';
+import { ReferenceBasedDetector } from '../reference-based-detector';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -21,9 +19,9 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
 /**
  * Handle payment networks with ERC20 proxy contract extension
  */
-export class ERC20ProxyPaymentDetector extends DeclarativePaymentDetectorBase<
+export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IERC20PaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+  PaymentTypes.IERC20PaymentEventParameters
 > {
   /**
    * @param extension The advanced logic payment network extensions
@@ -32,100 +30,7 @@ export class ERC20ProxyPaymentDetector extends DeclarativePaymentDetectorBase<
     super(
       PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       advancedLogic.extensions.proxyContractErc20,
-      (request) => this.getEvents(request),
     );
-  }
-
-  /**
-   * Creates the extensions data for the creation of this extension.
-   * Will set a salt if none is already given
-   *
-   * @param paymentNetworkCreationParameters Parameters to create the extension
-   * @returns The extensionData object
-   */
-  public async createExtensionsDataForCreation(
-    paymentNetworkCreationParameters: PaymentTypes.IReferenceBasedCreationParameters,
-  ): Promise<ExtensionTypes.IAction> {
-    // If no salt is given, generate one
-    const salt =
-      paymentNetworkCreationParameters.salt || (await Utils.crypto.generate8randomBytes());
-
-    return this.extension.createCreationAction({
-      paymentAddress: paymentNetworkCreationParameters.paymentAddress,
-      refundAddress: paymentNetworkCreationParameters.refundAddress,
-      salt,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add payment address
-   *
-   * @param parameters to add payment address
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddPaymentAddress(
-    parameters: ExtensionTypes.PnReferenceBased.IAddPaymentAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddPaymentAddressAction({
-      paymentAddress: parameters.paymentAddress,
-    });
-  }
-
-  /**
-   * Creates the extensions data to add refund address
-   *
-   * @param Parameters to add refund address
-   * @returns The extensionData object
-   */
-  public createExtensionsDataForAddRefundAddress(
-    parameters: ExtensionTypes.PnReferenceBased.IAddRefundAddressParameters,
-  ): ExtensionTypes.IAction {
-    return this.extension.createAddRefundAddressAction({
-      refundAddress: parameters.refundAddress,
-    });
-  }
-
-  /**
-   * Gets the balance and the payment/refund events
-   *
-   * @param request the request to check
-   * @param paymentNetworkId payment network id
-   * @param tokenContractAddress the address of the token contract
-   * @returns the balance and the payment/refund events
-   */
-  private async getEvents(
-    request: RequestLogicTypes.IRequest,
-  ): Promise<
-    (PaymentTypes.ERC20PaymentNetworkEvent | PaymentTypes.DeclarativePaymentNetworkEvent)[]
-  > {
-    const paymentNetwork = request.extensions[this._paymentNetworkId];
-
-    if (!paymentNetwork) {
-      throw new BalanceError(
-        `The request does not have the extension : ${this._paymentNetworkId}`,
-        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-      );
-    }
-    const { paymentAddress, refundAddress, salt } = paymentNetwork.values;
-
-    const paymentEvents = await this.extractTransferEvents(
-      request,
-      salt,
-      paymentAddress,
-      PaymentTypes.EVENTS_NAMES.PAYMENT,
-      paymentNetwork.version,
-    );
-
-    const refundEvents = await this.extractTransferEvents(
-      request,
-      salt,
-      refundAddress,
-      PaymentTypes.EVENTS_NAMES.REFUND,
-      paymentNetwork.version,
-    );
-
-    const declaredEvents = this.getDeclarativeEvents(request);
-    return [...declaredEvents, ...paymentEvents, ...refundEvents];
   }
 
   /**
@@ -138,28 +43,24 @@ export class ERC20ProxyPaymentDetector extends DeclarativePaymentDetectorBase<
    * @param tokenContractAddress the address of the token contract
    * @returns The balance and events
    */
-  private async extractTransferEvents(
-    request: RequestLogicTypes.IRequest,
-    salt: string,
-    toAddress: string,
+  protected async extractEvents(
     eventName: PaymentTypes.EVENTS_NAMES,
-    paymentNetworkVersion: string,
-  ): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
-    if (!toAddress) {
+    address: string | undefined,
+    paymentReference: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
+    if (!address) {
       return [];
-    }
-    const network = request.currency.network;
-
-    if (!network) {
-      throw new NetworkNotSupported(`Payment network not supported by ERC20 payment detection`);
     }
 
     let proxyContractAddress: string;
     let proxyCreationBlockNumber: number;
     try {
       const info = ERC20ProxyPaymentDetector.getDeploymentInformation(
-        network,
-        paymentNetworkVersion,
+        paymentChain,
+        paymentNetwork.version,
       );
       proxyContractAddress = info.address;
       proxyCreationBlockNumber = info.creationBlockNumber;
@@ -167,7 +68,7 @@ export class ERC20ProxyPaymentDetector extends DeclarativePaymentDetectorBase<
       const errMessage = (e as Error)?.message || '';
       if (errMessage.startsWith('No deployment for network')) {
         throw new NetworkNotSupported(
-          `Network not supported for this payment network: ${request.currency.network}`,
+          `Network not supported for this payment network: ${paymentChain}`,
         );
       }
       if (
@@ -179,33 +80,28 @@ export class ERC20ProxyPaymentDetector extends DeclarativePaymentDetectorBase<
       throw e;
     }
 
-    const paymentReference = PaymentReferenceCalculator.calculate(
-      request.requestId,
-      salt,
-      toAddress,
-    );
-
-    const infoRetriever = networkSupportsTheGraph(network)
+    const infoRetriever = networkSupportsTheGraph(paymentChain)
       ? new TheGraphInfoRetriever(
           paymentReference,
           proxyContractAddress,
-          request.currency.value,
-          toAddress,
+          requestCurrency.value,
+          address,
           eventName,
-          network,
+          paymentChain,
         )
       : new ProxyInfoRetriever(
           paymentReference,
           proxyContractAddress,
           proxyCreationBlockNumber,
-          request.currency.value,
-          toAddress,
+          requestCurrency.value,
+          address,
           eventName,
-          network,
+          paymentChain,
         );
 
     return infoRetriever.getTransferEvents();
   }
+
   /*
    * Returns deployment information for the underlying smart contract for a given payment network version
    */

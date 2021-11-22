@@ -160,7 +160,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-        message: 'The request does not have the extension : pn-any-to-erc20-proxy',
+        message: 'The request does not have the extension: pn-any-to-erc20-proxy',
       },
       events: [],
     });

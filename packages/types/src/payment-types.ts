@@ -46,6 +46,7 @@ export interface IAnyToErc20CreationParameters extends IFeeReferenceBasedCreatio
 
 /** Interface of the class to manage a payment network  */
 export interface IPaymentNetwork<TEventParameters = any> {
+  paymentNetworkId: PAYMENT_NETWORK_ID;
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;

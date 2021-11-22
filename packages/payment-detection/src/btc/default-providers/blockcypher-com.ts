@@ -12,7 +12,7 @@ const BLOCKCYPHER_REQUEST_RETRY_DELAY = 100;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockcypher.com
  */
-export default class BlockcypherCom implements PaymentTypes.IBitcoinDetectionProvider {
+export class BlockcypherComProvider implements PaymentTypes.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using blockcypher.com public API
    *

@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 
-import ChainSo from '../../../src/btc/default-providers/chain-so';
+import { ChainSoProvider } from '../../../src/btc/default-providers/chain-so';
 
 import * as ChainSoData from './chain-so-data';
 
@@ -9,7 +9,7 @@ import * as ChainSoData from './chain-so-data';
 describe('api/btc/providers/chainSo', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {
-      const chainSo = new ChainSo();
+      const chainSo = new ChainSoProvider();
       await expect(
         chainSo.getAddressBalanceWithEvents(1, 'address', PaymentTypes.EVENTS_NAMES.PAYMENT),
       ).rejects.toThrowError(
@@ -20,7 +20,7 @@ describe('api/btc/providers/chainSo', () => {
 
   describe('parse', () => {
     it('can parse data', () => {
-      const chainSo = new ChainSo();
+      const chainSo = new ChainSoProvider();
       const parsedData = chainSo.parse(
         ChainSoData.exampleAddressInfo,
         PaymentTypes.EVENTS_NAMES.PAYMENT,

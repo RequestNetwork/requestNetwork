@@ -8,7 +8,6 @@ import {
 import Utils from '@requestnetwork/utils';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
-import PaymentReferenceCalculator from '../payment-reference-calculator';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphAnyToErc20Retriever } from './retrievers/thegraph';
 import { networkSupportsTheGraph } from '../thegraph';
@@ -19,16 +18,12 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
 };
 
-type PaymentEventParameters =
-  | PaymentTypes.ConversionPaymentNetworkEventParameters
-  | PaymentTypes.IDeclarativePaymentEventParameters;
-
 /**
  * Handle payment networks with conversion proxy contract extension
  */
 export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
   ExtensionTypes.PnAnyToErc20.IAnyToERC20,
-  PaymentEventParameters
+  PaymentTypes.IERC20FeePaymentEventParameters
 > {
   /**
    * @param extension The advanced logic payment network extensions
@@ -85,19 +80,21 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
    * @param paymentNetwork Payment network state
    * @returns The balance and events
    */
-  public async extractEvents(
-    request: RequestLogicTypes.IRequest,
-    salt: string,
-    toAddress: string,
+  protected async extractEvents(
     eventName: PaymentTypes.EVENTS_NAMES,
-    paymentNetwork: ExtensionTypes.IState,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentEventParameters>[]> {
-    const network = paymentNetwork.values.network;
-    const acceptedTokens = paymentNetwork.values.acceptedTokens;
-    const maxRateTimespan = paymentNetwork.values.maxRateTimespan || 0;
+    address: string | undefined,
+    paymentReference: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToErc20.ICreationParameters>,
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]> {
+    if (!address) {
+      return [];
+    }
+    const { acceptedTokens, maxRateTimespan = 0 } = paymentNetwork.values;
 
     const conversionDeploymentInformation = AnyToERC20PaymentDetector.getDeploymentInformation(
-      network,
+      paymentChain,
       paymentNetwork.version,
     );
 
@@ -113,24 +110,16 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
       conversionDeploymentInformation.address;
     const conversionProxyCreationBlockNumber: number =
       conversionDeploymentInformation.creationBlockNumber;
+    const currency = await this.getCurrency(requestCurrency);
 
-    const paymentReference = PaymentReferenceCalculator.calculate(
-      request.requestId,
-      salt,
-      toAddress,
-    );
-
-    const currency = await this.getCurrency(request.currency);
-
-    const infoRetriever = networkSupportsTheGraph(network)
+    const infoRetriever = networkSupportsTheGraph(paymentChain)
       ? new TheGraphAnyToErc20Retriever(
           currency,
           paymentReference,
           conversionProxyContractAddress,
-
-          toAddress,
+          address,
           eventName,
-          network,
+          paymentChain,
           acceptedTokens,
           maxRateTimespan,
         )
@@ -140,16 +129,24 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
           conversionProxyContractAddress,
           conversionProxyCreationBlockNumber,
           conversionProxyAbi,
-          toAddress,
+          address,
           eventName,
-          network,
+          paymentChain,
           acceptedTokens,
           maxRateTimespan,
         );
 
-    const declaredEvents = this.getDeclarativeEvents(request);
-    const transferEvents = await infoRetriever.getTransferEvents();
-    return this.sortEvents<PaymentEventParameters>([...declaredEvents, ...transferEvents]);
+    return infoRetriever.getTransferEvents() as Promise<
+      PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]
+    >;
+  }
+
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+    const network = this.getPaymentExtension(request).values.network;
+    if (!network) {
+      throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
+    }
+    return network;
   }
 
   public static getDeploymentInformation = makeGetDeploymentInformation(

@@ -24,7 +24,6 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
     super(
       PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
       advancedLogic.extensions.addressBasedErc20,
-      (request) => this.getEvents(request),
     );
   }
 
@@ -77,7 +76,7 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
    * @param request the request to check
    * @returns the balance and the payment/refund events
    */
-  private async getEvents(
+  protected async getEvents(
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
     if (!request.currency.network) {
@@ -94,7 +93,10 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
         PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
       );
     }
-    const { paymentAddress, refundAddress } = request.extensions[this._paymentNetworkId].values;
+    const { paymentAddress, refundAddress } = this.getPaymentExtension(request).values;
+    if (!this.checkRequiredParameter(paymentAddress, 'paymentAddress')) {
+      return [];
+    }
 
     const paymentEvents = await this.extractTransferEvents(
       paymentAddress,
@@ -124,7 +126,7 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
    * @returns The balance
    */
   private async extractTransferEvents(
-    address: string,
+    address: string | undefined,
     eventName: PaymentTypes.EVENTS_NAMES,
     network: string,
     tokenContractAddress: string,

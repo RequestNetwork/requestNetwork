@@ -1,0 +1,42 @@
+// {type:class}
+// {direction:topDown}
+// {generate:true}
+
+[note: Abstract {bg:green}]
+
+// classes
+[PaymentDetectorBase{bg:green}|paymentNetworkId|getBalance(request)]
+[DeclarativePaymentDetectorBase{bg:green}||getDeclarativeEvents(request)]
+[ReferenceBasedDetector{bg:green}||extractEvents(request);getPaymentChain(request);getPaymentReference(request)]
+[ERC20FeeProxyPaymentDetectorBase{bg:green}]
+[BtcAddressBasedDetector{bg:green}]
+[FeeReferenceBasedDetector{bg:green}||getFeeBalance(request)]
+[AnyToAnyDetector{bg:green}]
+
+
+// inheritance
+[PaymentDetectorBase]^[DeclarativePaymentDetectorBase]
+[DeclarativePaymentDetectorBase]^[DeclarativePaymentDetector]
+[DeclarativePaymentDetectorBase]^[ReferenceBasedDetector]
+[ReferenceBasedDetector]^[FeeReferenceBasedDetector]
+[FeeReferenceBasedDetector]^[AnyToAnyDetector]
+
+// BTC
+[PaymentDetectorBase]^[BtcAddressBasedDetector]
+[BtcAddressBasedDetector]^[BtcMainnetAddressBasedDetector]
+[BtcAddressBasedDetector]^[BtcTestnetAddressBasedDetector]
+
+// ERC20
+[PaymentDetectorBase]^[ERC20AddressBasedPaymentDetector]
+[ERC20FeeProxyPaymentDetectorBase]^[AnyToERC20PaymentDetector]
+[FeeReferenceBasedDetector]^[ERC20FeeProxyPaymentDetectorBase]
+[ERC20FeeProxyPaymentDetectorBase]^[ERC20FeeProxyPaymentDetector]
+[ReferenceBasedDetector]^[ERC20ProxyPaymentDetector]
+
+
+// ETH
+
+[AnyToAnyDetector]^[AnyToEthFeeProxyPaymentDetector]
+[ReferenceBasedDetector]^[EthInputDataPaymentDetector]
+[FeeReferenceBasedDetector]^[EthFeeProxyPaymentDetector]
+

@@ -1,17 +1,18 @@
 import { BigNumber } from 'ethers';
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { getBalanceErrorObject } from './balance-error';
+import {
+  BalanceError,
+  ExtensionMissingRequiredValue,
+  getBalanceErrorObject,
+} from './balance-error';
 
 export abstract class PaymentDetectorBase<
   TExtension extends ExtensionTypes.IExtension,
-  TEventParameters
-> implements PaymentTypes.IPaymentNetwork<TEventParameters> {
+  TPaymentEventParameters
+> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters> {
   public constructor(
-    protected readonly _paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    readonly paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
     protected readonly extension: TExtension,
-    protected readonly fetchEvents: (
-      request: RequestLogicTypes.IRequest,
-    ) => Promise<PaymentTypes.IPaymentNetworkEvent<TEventParameters>[]>,
   ) {}
   abstract createExtensionsDataForCreation(paymentNetworkCreationParameters: any): Promise<any>;
   abstract createExtensionsDataForAddRefundInformation(parameters: any): any;
@@ -25,9 +26,9 @@ export abstract class PaymentDetectorBase<
    */
   public async getBalance(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IBalanceWithEvents<TEventParameters>> {
+  ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
     try {
-      const events = await this.fetchEvents(request);
+      const events = await this.getEvents(request);
       const balance = this.computeBalance(events).toString();
 
       return {
@@ -37,6 +38,26 @@ export abstract class PaymentDetectorBase<
     } catch (error) {
       return getBalanceErrorObject(error);
     }
+  }
+
+  /**
+   * Gets all paymnent events for a given Request
+   */
+  protected abstract getEvents(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+
+  protected getPaymentExtension(
+    request: RequestLogicTypes.IRequest,
+  ): TExtension extends ExtensionTypes.IExtension<infer X> ? ExtensionTypes.IState<X> : never {
+    const extension = request.extensions[this.paymentNetworkId];
+    if (!extension) {
+      throw new BalanceError(
+        `The request does not have the extension: ${this.paymentNetworkId}`,
+        PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
+      );
+    }
+    return extension as any;
   }
 
   protected computeBalance(events: PaymentTypes.IPaymentNetworkEvent<unknown>[]): BigNumber {
@@ -55,5 +76,12 @@ export abstract class PaymentDetectorBase<
     events: PaymentTypes.IPaymentNetworkEvent<T>[],
   ): PaymentTypes.IPaymentNetworkEvent<T>[] {
     return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+  }
+
+  protected checkRequiredParameter<T>(value: T | undefined, name: string): value is T {
+    if (!value) {
+      throw new ExtensionMissingRequiredValue(this.paymentNetworkId, name);
+    }
+    return true;
   }
 }

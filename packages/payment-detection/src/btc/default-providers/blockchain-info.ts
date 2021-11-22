@@ -16,7 +16,7 @@ const TXS_PER_PAGE = 50;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockchain.info
  */
-export default class BlockchainInfo implements PaymentTypes.IBitcoinDetectionProvider {
+export class BlockchainInfoProvider implements PaymentTypes.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using blockchain.info public API
    *

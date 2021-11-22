@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 
-import Blockstream from '../../../src/btc/default-providers/blockstream-info';
+import { BlockStreamInfoProvider } from '../../../src/btc/default-providers/blockstream-info';
 
 import * as BlockstreamData from './blockstream-info-data';
 
@@ -9,7 +9,7 @@ import * as BlockstreamData from './blockstream-info-data';
 describe('api/btc/providers/blockstream', () => {
   describe('getAddressInfo', () => {
     it('must throw if bitcoinNetworkId is not 0 or 3', async () => {
-      const blockstreamData = new Blockstream();
+      const blockstreamData = new BlockStreamInfoProvider();
       await expect(
         blockstreamData.getAddressBalanceWithEvents(
           1,
@@ -24,7 +24,7 @@ describe('api/btc/providers/blockstream', () => {
 
   describe('parse', () => {
     it('can parse data', () => {
-      const blockstreamData = new Blockstream();
+      const blockstreamData = new BlockStreamInfoProvider();
       const parsedData = blockstreamData.parse(
         { txs: BlockstreamData.exampleAddressInfo, address: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v' },
         PaymentTypes.EVENTS_NAMES.PAYMENT,

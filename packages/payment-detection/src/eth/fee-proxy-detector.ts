@@ -24,7 +24,7 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
  */
 export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
   ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  PaymentTypes.IETHPaymentEventParameters
+  PaymentTypes.IETHFeePaymentEventParameters
 > {
   /**
    * @param extension The advanced logic payment network extensions
@@ -47,16 +47,23 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
    * @returns The balance
    */
   protected async extractEvents(
-    address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
+    address: string | undefined,
     paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
+    _requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased extends ExtensionTypes.IExtension<
+      infer X
+    >
+      ? ExtensionTypes.IState<X>
+      : never,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
+    if (!address) {
+      return [];
+    }
 
     const proxyContractArtifact = EthFeeProxyPaymentDetector.getDeploymentInformation(
-      network,
+      paymentReference,
       paymentNetwork.version,
     );
 
@@ -70,7 +77,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
       proxyContractArtifact.creationBlockNumber,
       address,
       eventName,
-      network,
+      paymentChain,
     );
 
     return proxyInfoRetriever.getTransferEvents();

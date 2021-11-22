@@ -23,6 +23,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     feeProxyContractErc20: {
+      supportedNetworks: ['mainnet', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -149,13 +150,13 @@ describe('api/erc20/fee-proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-        message: 'The request does not have the extension : pn-erc20-fee-proxy-contract',
+        message: 'The request does not have the extension: pn-erc20-fee-proxy-contract',
       },
       events: [],
     });
   });
 
-  it('can get the fees out of payment events', async () => {
+  fit('can get the fees out of payment events', async () => {
     const mockRequest: RequestLogicTypes.IRequest = {
       creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
       currency: {
@@ -175,6 +176,7 @@ describe('api/erc20/fee-proxy-contract', () => {
             feeAmount: '5',
             paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
             refundAddress: '0xrefundAddress',
+            salt: 'abcd',
           },
           version: '0',
         },
@@ -186,7 +188,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       version: '0.2',
     };
 
-    const mockExtractTransferEvents = (_a: any, _b: any, _c: any, eventName: any) => {
+    const mockExtractTransferEvents = (eventName: any) => {
       if (eventName === 'refund') {
         return Promise.resolve([
           {
@@ -249,11 +251,12 @@ describe('api/erc20/fee-proxy-contract', () => {
     });
 
     jest
-      .spyOn(erc20FeeProxyContract as any, 'extractTransferEvents')
+      .spyOn(erc20FeeProxyContract as any, 'extractEvents')
       .mockImplementation(mockExtractTransferEvents);
 
     const balance = await erc20FeeProxyContract.getBalance(mockRequest);
 
+    expect(balance.error).toBeUndefined();
     expect(balance.balance).toBe('990');
     expect(
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values
