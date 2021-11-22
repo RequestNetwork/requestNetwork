@@ -89,13 +89,23 @@ export abstract class FeeReferenceBasedDetector<
     if (!this.checkRequiredParameter(feeAddress, 'feeAddress')) {
       throw new Error('unreachable');
     }
-    const feeEvents = this.extractFeeEvents(feeAddress, balance.events);
-    const feeBalance = this.computeFeeBalance(feeEvents).toString();
+    const feeBalance = this.computeFeeBalance(balance.events).toString();
 
     return {
-      events: feeEvents,
+      events: balance.events,
       balance: feeBalance,
     };
+  }
+
+  protected filterEvents(
+    request: RequestLogicTypes.IRequest,
+    events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
+  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
+    // for a PN with fees, we ignore events with wrong fees.
+    const { feeAddress } = this.getPaymentExtension(request).values;
+    return events.filter(
+      (x) => !x.parameters?.feeAddress || x.parameters.feeAddress === feeAddress,
+    );
   }
 
   protected computeFeeBalance(
@@ -110,34 +120,5 @@ export abstract class FeeReferenceBasedDetector<
           : sum,
       BigNumber.from(0),
     );
-  }
-
-  /**
-   * Extract the fee balance from a list of payment events
-   *
-   * @param feeAddress The fee address the extracted fees will be paid to
-   * @param paymentEvents The payment events to extract fees from
-   */
-  protected extractFeeEvents(
-    feeAddress: string,
-    paymentEvents: PaymentTypes.IPaymentNetworkEvent<
-      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-    >[],
-  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
-    if (!feeAddress) {
-      return [];
-    }
-
-    return paymentEvents
-      .filter((event): event is PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters> =>
-        Boolean(
-          event.parameters && 'feeAmount' in event.parameters && 'feeAddress' in event.parameters,
-        ),
-      )
-      .filter(
-        (event) =>
-          // Skip if feeAddress or feeAmount are not set, or if feeAddress doesn't match the PN one
-          event.parameters?.feeAmount && event.parameters.feeAddress === feeAddress,
-      );
   }
 }

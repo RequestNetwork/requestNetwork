@@ -83,15 +83,7 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
   }
 
   /**
-   * Extracts the balance and events of a request
-   *
-   * @private
-   * @param request Address to check
-   * @param salt Payment reference salt
-   * @param toAddress Payee address
-   * @param eventName Indicate if it is an address for payment or refund
-   * @param paymentNetwork Payment network state
-   * @returns The balance and events
+   * Extracts the payment events of a request
    */
   protected extractEvents(
     eventName: PaymentTypes.EVENTS_NAMES,

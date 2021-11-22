@@ -191,12 +191,24 @@ describe('api/erc20/fee-proxy-contract', () => {
     const mockExtractTransferEvents = (eventName: any) => {
       if (eventName === 'refund') {
         return Promise.resolve([
+          // wrong fee address, ignore
           {
             amount: '10',
             name: PaymentTypes.EVENTS_NAMES.REFUND,
             parameters: {
               block: 1,
               feeAddress: 'fee address',
+              feeAmount: '0',
+              to: '0xrefundAddress',
+            },
+          },
+          // valid refund
+          {
+            amount: '10',
+            name: PaymentTypes.EVENTS_NAMES.REFUND,
+            parameters: {
+              block: 1,
+              feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
               feeAmount: '0',
               to: '0xrefundAddress',
             },

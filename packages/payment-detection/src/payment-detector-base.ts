@@ -28,7 +28,8 @@ export abstract class PaymentDetectorBase<
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
     try {
-      const events = await this.getEvents(request);
+      const rawEvents = await this.getEvents(request);
+      const events = this.sortEvents(this.filterEvents(request, rawEvents));
       const balance = this.computeBalance(events).toString();
 
       return {
@@ -72,10 +73,17 @@ export abstract class PaymentDetectorBase<
     );
   }
 
-  protected sortEvents<T>(
-    events: PaymentTypes.IPaymentNetworkEvent<T>[],
-  ): PaymentTypes.IPaymentNetworkEvent<T>[] {
+  protected sortEvents(
+    events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
+  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
     return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+  }
+
+  protected filterEvents(
+    _request: RequestLogicTypes.IRequest,
+    events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
+  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
+    return events;
   }
 
   protected checkRequiredParameter<T>(value: T | undefined, name: string): value is T {
