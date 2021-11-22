@@ -42,7 +42,7 @@
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "axios": "0.24.0",
+    "axios": "0.21.1",
     "bluebird": "3.7.2",
     "ethers": "5.5.1",
     "form-data": "3.0.0",
