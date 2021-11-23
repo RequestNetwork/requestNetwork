@@ -14,7 +14,7 @@ import { ITransactionOverrides } from './transaction-overrides';
 import { encodeApproveAnyErc20 } from './erc20';
 
 /**
- * Processes the approval transaction of the payment ERC20 to be spent by the erc20EscrowToPay 
+ * Processes the approval transaction of the payment ERC20 to be spent by the erc20EscrowToPay
  * contract during the fee proxy delegate call.
  * @param request request to pay, used to know the network
  * @param paymentTokenAddress picked currency to pay
