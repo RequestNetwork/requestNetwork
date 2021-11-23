@@ -94,9 +94,7 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
       );
     }
     const { paymentAddress, refundAddress } = this.getPaymentExtension(request).values;
-    if (!this.checkRequiredParameter(paymentAddress, 'paymentAddress')) {
-      return [];
-    }
+    this.checkRequiredParameter(paymentAddress, 'paymentAddress');
 
     const paymentEvents = await this.extractTransferEvents(
       paymentAddress,

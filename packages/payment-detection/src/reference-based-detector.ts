@@ -97,14 +97,8 @@ export abstract class ReferenceBasedDetector<
         PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
       );
     }
-    if (!this.checkRequiredParameter(paymentExtension.values.salt, 'salt')) {
-      // never reached
-      return [];
-    }
-    if (!this.checkRequiredParameter(paymentExtension.values.paymentAddress, 'paymentAddress')) {
-      // never reached
-      return [];
-    }
+    this.checkRequiredParameter(paymentExtension.values.salt, 'salt');
+    this.checkRequiredParameter(paymentExtension.values.paymentAddress, 'paymentAddress');
 
     const [paymentEvents, refundEvents] = await Promise.all([
       this.extractEvents(

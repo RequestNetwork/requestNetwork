@@ -86,9 +86,7 @@ export abstract class FeeReferenceBasedDetector<
     >
   > {
     const { feeAddress } = this.getPaymentExtension(request).values;
-    if (!this.checkRequiredParameter(feeAddress, 'feeAddress')) {
-      throw new Error('unreachable');
-    }
+    this.checkRequiredParameter(feeAddress, 'feeAddress');
     const feeBalance = this.computeFeeBalance(balance.events).toString();
 
     return {
