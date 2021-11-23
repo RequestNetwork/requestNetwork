@@ -86,10 +86,9 @@ export abstract class PaymentDetectorBase<
     return events;
   }
 
-  protected checkRequiredParameter<T>(value: T | undefined, name: string): value is T {
+  protected checkRequiredParameter<T>(value: T | undefined, name: string): asserts value is T {
     if (!value) {
       throw new ExtensionMissingRequiredValue(this.paymentNetworkId, name);
     }
-    return true;
   }
 }

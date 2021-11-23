@@ -77,9 +77,7 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
   ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IBTCPaymentEventParameters>[]> {
     const { paymentAddress, refundAddress } = this.getPaymentExtension(request).values;
 
-    if (!this.checkRequiredParameter(paymentAddress, 'paymentAddress')) {
-      return [];
-    }
+    this.checkRequiredParameter(paymentAddress, 'paymentAddress');
 
     const [payments, refunds] = await Promise.all([
       await this.bitcoinDetectionProvider.getAddressBalanceWithEvents(

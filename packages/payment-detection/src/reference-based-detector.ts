@@ -159,14 +159,8 @@ export abstract class ReferenceBasedDetector<
 
   protected getPaymentReference(request: RequestLogicTypes.IRequest): string {
     const { paymentAddress, salt } = this.getPaymentExtension(request).values;
-    if (!this.checkRequiredParameter(paymentAddress, 'paymentAddress')) {
-      // never reached
-      return '';
-    }
-    if (!this.checkRequiredParameter(salt, 'salt')) {
-      // never reached
-      return '';
-    }
+    this.checkRequiredParameter(paymentAddress, 'paymentAddress');
+    this.checkRequiredParameter(salt, 'salt');
     return PaymentReferenceCalculator.calculate(request.requestId, salt, paymentAddress);
   }
 }
