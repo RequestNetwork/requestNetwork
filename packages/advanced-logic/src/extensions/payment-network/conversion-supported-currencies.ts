@@ -41,11 +41,11 @@ const addSupportedCurrency = (
   record[type] = record[type].sort();
 };
 
-const generateCurrenciesWithOraclesFromAggregators = (allChainlinkPairs: Record<string, Record<string, Record<string, number>>>):
-  Record<string, Record<RequestLogicTypes.CURRENCY, string[]>> => {
+const generateCurrenciesWithOraclesFromAggregators = (
+  allChainlinkPairs: Record<string, Record<string, Record<string, number>>>,
+): Record<string, Record<RequestLogicTypes.CURRENCY, string[]>> => {
   const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, string[]>> = {};
   const supportedNetworks = Object.keys(chainlinkCurrencyPairs);
-  // const supportedNetworks = ['private', 'rinkeby', 'mainnet', 'matic', 'fantom'];
 
   for (const network of supportedNetworks) {
     supportedCurrencies[network] = {
@@ -66,4 +66,6 @@ const generateCurrenciesWithOraclesFromAggregators = (allChainlinkPairs: Record<
   return supportedCurrencies;
 };
 
-export const currenciesWithConversionOracles = generateCurrenciesWithOraclesFromAggregators(chainlinkCurrencyPairs);
+export const currenciesWithConversionOracles = generateCurrenciesWithOraclesFromAggregators(
+  chainlinkCurrencyPairs,
+);
