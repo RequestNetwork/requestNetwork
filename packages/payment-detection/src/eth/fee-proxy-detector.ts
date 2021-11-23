@@ -63,7 +63,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     }
 
     const proxyContractArtifact = EthFeeProxyPaymentDetector.getDeploymentInformation(
-      paymentReference,
+      paymentChain,
       paymentNetwork.version,
     );
 
