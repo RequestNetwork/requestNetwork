@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import fetch from 'node-fetch';
+import Axios from 'axios';
 import { BigNumber } from 'ethers';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
@@ -29,7 +29,7 @@ export class BlockcypherComProvider implements PaymentTypes.IBitcoinDetectionPro
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
     const queryUrl = `${baseUrl}/addrs/${address}`;
     try {
-      const res = await Utils.retry(async () => fetch(queryUrl), {
+      const res = await Utils.retry(async () => Axios.get(queryUrl), {
         maxRetries: BLOCKCYPHER_REQUEST_MAX_RETRY,
         retryDelay: BLOCKCYPHER_REQUEST_RETRY_DELAY,
       })();
@@ -38,7 +38,7 @@ export class BlockcypherComProvider implements PaymentTypes.IBitcoinDetectionPro
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
-      const addressInfo = await res.json();
+      const addressInfo = await res.data;
 
       return this.parse(addressInfo, eventName);
     } catch (err) {
