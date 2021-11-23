@@ -324,8 +324,8 @@ describe('erc20-escrow-payment tests:', () => {
       // Payer executes a freeze of escrow funds.
       await (await freezeRequest(request, wallet)).wait(1);
       
-      // Expects the transaction to revert.
-      await expect(refundFrozenFunds(request, wallet)).rejects.toThrowError();
+      // Payer tries to withdraw frozen funds before unlock date.
+      await expect(refundFrozenFunds(request, wallet)).rejects.toThrowError('Not Yet!',);
     });
   });
 });
