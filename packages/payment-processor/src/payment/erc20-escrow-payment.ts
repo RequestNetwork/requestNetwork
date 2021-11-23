@@ -14,8 +14,8 @@ import { ITransactionOverrides } from './transaction-overrides';
 import { encodeApproveAnyErc20 } from './erc20';
 
 /**
- * Processes the approval transaction of the payment ERC20 to be spent by the erc20EscrowToPay contract,
- * during the fee proxy delegate call.
+ * Processes the approval transaction of the payment ERC20 to be spent by the erc20EscrowToPay 
+ * contract during the fee proxy delegate call.
  * @param request request to pay, used to know the network
  * @param paymentTokenAddress picked currency to pay
  * @param signerOrProvider the web3 provider. Defaults to Etherscan.
@@ -50,7 +50,6 @@ export async function payEscrow(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
-  overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodePayEscrow(request, signerOrProvider, amount, feeAmount);
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
@@ -60,7 +59,6 @@ export async function payEscrow(
     data: encodedTx,
     to: contractAddress,
     value: 0,
-    ...overrides,
   });
   return tx;
 }
