@@ -1369,7 +1369,7 @@ describe('index', () => {
       jest.useRealTimers();
     });
 
-    fit('creates an encrypted declarative request, accepts it and declares a payment on it', async () => {
+    it('creates an encrypted declarative request, accepts it and declares a payment on it', async () => {
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,

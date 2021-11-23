@@ -156,7 +156,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     });
   });
 
-  fit('can get the fees out of payment events', async () => {
+  it('can get the fees out of payment events', async () => {
     const mockRequest: RequestLogicTypes.IRequest = {
       creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
       currency: {
