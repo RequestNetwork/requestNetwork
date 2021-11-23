@@ -54,6 +54,7 @@
     "keyv": "4.0.3",
     "keyv-file": "0.2.0",
     "shelljs": "0.8.4",
+    "tslib": "2.3.1",
     "yargs": "16.2.0"
   },
   "devDependencies": {
