@@ -394,26 +394,3 @@ export function encodeRefundFrozenFunds(
     `0x${paymentReference}`,
   ]);
 }
-
-/**
- * Returns the encoded data to requestMapping().
- * @param request request to pay.
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- */
-export function encodeRequestMapping(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
-): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-  const signer = getSigner(signerOrProvider);
-
-  // collects the parameters to be used from the request
-  const { paymentReference } = getRequestPaymentValues(request);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
-  const erc20EscrowToPayContract = ERC20EscrowToPay__factory.connect(contractAddress, signer);
-
-  // encodes the function data and returns them
-  return erc20EscrowToPayContract.interface.encodeFunctionData('requestMapping', [
-    `0x${paymentReference}`,
-  ]);
-}
