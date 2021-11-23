@@ -210,30 +210,6 @@ export async function refundFrozenFunds(
 }
 
 /**
- * Processes a transaction to refundFrozenFunds().
- * @param request request to pay.
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param overrides optionally, override default transaction values, like gas.
- */
-export async function requestMapping(
-  request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
-  overrides?: ITransactionOverrides,
-): Promise<ContractTransaction> {
-  const encodedTx = encodeRequestMapping(request, signerOrProvider);
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
-
-  const signer = getSigner(signerOrProvider);
-  const tx = await signer.sendTransaction({
-    data: encodedTx,
-    to: contractAddress,
-    value: 0,
-    ...overrides,
-  });
-  return tx;
-}
-
-/**
  * Encodes the call to payEscrow().
  * @param request request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.

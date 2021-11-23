@@ -12,7 +12,6 @@ import {
   payEscrow,
   payRequestFromEscrow,
   initiateEmergencyClaim,
-  encodeRequestMapping,
   encodePayEscrow,
   encodePayRequestFromEscrow,
   encodeInitiateEmergencyClaim,
@@ -190,11 +189,6 @@ describe('erc20-escrow-payment tests:', () => {
         `0x1a77f53a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
-    it('should encode data to execute disputeMapping().', () => {
-      expect(encodeRequestMapping(validRequest, wallet)).toBe(
-        `0xa58ad6bc00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
-      );
-    });
   });
 
   describe('Main use cases:', () => {
@@ -273,7 +267,7 @@ describe('erc20-escrow-payment tests:', () => {
       
       // Checks the status and tx.hash.
       expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
+      expect(tx.hash).toBeDefined();
     });
     it('Should revert emergency claim', async () => {
       // Set a new requestID to test independent unit-tests.
@@ -311,7 +305,7 @@ describe('erc20-escrow-payment tests:', () => {
 
       // Checks the status and tx.hash.
       expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
+      expect(tx.hash).toBeDefined();
     });
     it('Should revert if tried to withdraw to early:', async () => {
       // Set a new requestID to test independent unit-tests.
@@ -324,8 +318,8 @@ describe('erc20-escrow-payment tests:', () => {
       // Payer executes a freeze of escrow funds.
       await (await freezeRequest(request, wallet)).wait(1);
       
-      // Expects the transaction to revert.
-      await expect(refundFrozenFunds(request, wallet)).rejects.toThrowError();
+      // Payer tries to withdraw frozen funds before unlock date.
+      await expect(refundFrozenFunds(request, wallet)).rejects.toThrowError('Not Yet!',);
     });
   });
-});
+}); 
