@@ -90,7 +90,7 @@ describe('erc20-escrow-payment tests:', () => {
     jest.restoreAllMocks();
   });
 
-  describe('Test request payment values:', () => {
+  describe('Test sanity checks:', () => {
     const { paymentReference } = getRequestPaymentValues(validRequest);
 
     it('Should pass with correct values.', () => {
@@ -197,7 +197,7 @@ describe('erc20-escrow-payment tests:', () => {
     });
   });
 
-  describe('Test function calls:', () => {
+  describe('Main use cases:', () => {
     beforeEach(async () => {
       await approveErc20ForEscrow(validRequest, erc20ContractAddress, wallet);
     });
@@ -295,7 +295,7 @@ describe('erc20-escrow-payment tests:', () => {
 
       // Checks the status and tx.hash.
       expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
+      expect(tx.hash).toBeDefined();
     });
     it('Should freeze funds:', async () => {
       // Set a new requestID to test independent unit-tests.
