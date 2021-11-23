@@ -1,6 +1,8 @@
 // {type:class}
 // {direction:topDown}
-// {generate:true}
+// {generate:false}
+
+// README: view diagram on https://yuml.me/diagram/scruffy/class/draw
 
 [note: Abstract {bg:green}]
 

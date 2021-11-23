@@ -20,6 +20,7 @@ import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { BigNumber } from 'ethers';
 import EtherscanProviderMock from './etherscan-mock';
 import httpConfigDefaults from '../src/http-config-defaults';
+import { IRequestDataWithEvents } from '../src/types';
 
 const packageJson = require('../package.json');
 
@@ -93,6 +94,16 @@ const mockBTCProvider = {
       ],
     });
   },
+};
+
+const waitForConfirmation = async (
+  dataOrPromise: IRequestDataWithEvents | Promise<IRequestDataWithEvents>,
+) => {
+  const data = await dataOrPromise;
+  return new Promise((resolve, reject) => {
+    data.on('confirmed', resolve);
+    data.on('error', reject);
+  });
 };
 
 // Integration tests
@@ -1117,6 +1128,67 @@ describe('index', () => {
       expect(requestData.balance?.events[1].amount).toBe('1000');
       expect(requestData.balance?.events[1].parameters).toMatchObject({ note: 'received payment' });
     });
+  });
+
+  it('can declare payments and refunds on an ANY_TO_ERC20_PROXY request', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: TestData.fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    const salt = 'ea3bc7caf64110ca';
+
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+      parameters: {
+        paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
+        salt,
+        feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+        feeAmount: '200',
+        network: 'private',
+        acceptedTokens: ['0x38cf23c52bb4b13f051aec09580a2de845a7fa35'],
+        maxRateTimespan: 1000000,
+      },
+    };
+
+    const requestInfo = {
+      expectedAmount: '100', // not used
+      payee: TestData.payee.identity,
+      payer: TestData.payer.identity,
+      currency: 'USD',
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo,
+      signer: TestData.payee.identity,
+    });
+    await request.waitForConfirmation();
+
+    await waitForConfirmation(
+      request.declareSentPayment('10', 'sent payment', TestData.payer.identity),
+    );
+
+    await waitForConfirmation(
+      request.declareSentRefund('2', 'sent refund', TestData.payee.identity),
+    );
+
+    await request.refresh();
+    expect(request.getData().balance?.balance).toBe('0');
+
+    await waitForConfirmation(
+      request.declareReceivedPayment('10', 'received payment', TestData.payee.identity),
+    );
+
+    await waitForConfirmation(
+      request.declareReceivedRefund('2', 'received refund', TestData.payer.identity),
+    );
+
+    await request.refresh();
+    expect(request.getData().balance?.error).toBeUndefined();
+    expect(request.getData().balance?.balance).toBe('8');
+    expect(request.getData().balance?.events?.length).toBe(2);
   });
 
   describe('tests with encryption', () => {
