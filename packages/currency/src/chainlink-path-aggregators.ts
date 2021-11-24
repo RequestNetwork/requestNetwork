@@ -1,10 +1,11 @@
 import GRAPH from 'node-dijkstra';
 import { CurrencyDefinition } from './types';
 
+
 // List of currencies supported by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
 // Network => currencyFrom => currencyTo => cost
 // Must be updated every time an aggregator is added
-const currencyPairs: any = {
+export const chainlinkCurrencyPairs: any = {
   private: {
     '0x38cf23c52bb4b13f051aec09580a2de845a7fa35': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -200,27 +201,27 @@ const currencyPairs: any = {
     '0x775eb53d00dd0acd3ec1696472105d579b9b386b': {
       '0xfac26e3fd40adcdc6652f705d983b4830c00716c': 1,
       '0x10bf4137b0558c33c2dc9f71c3bb81c2865fa2fb': 1,
-      '0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B': 1,
+      '0x6a07a792ab2965c72a5b8088d3a069a7ac3a993b': 1,
       '0xe1146b9ac456fcbb60644c36fd3f868a9072fc6e': 1,
-      '0x657A1861c15A3deD9AF0B6799a195a249ebdCbc6': 1,
+      '0x657a1861c15a3ded9af0b6799a195a249ebdcbc6': 1,
       '0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e': 1,
       '0x658b0c7613e890ee50b8c4bc6a3f41ef411208ad': 1,
       '0xb3654dc3d10ea7645f8319668e8f54d2574fbdc8': 1,
-      '0x56ee926bD8c72B2d5fa1aF4d9E4Cbb515a1E3Adc': 1,
-      '0xae75A438b2E0cB8Bb01Ec1E1e376De11D44477CC': 1,
+      '0x56ee926bd8c72b2d5fa1af4d9e4cbb515a1e3adc': 1,
+      '0xae75a438b2e0cb8bb01ec1e1e376de11d44477cc': 1,
       '0x940f41f0ec9ba1a34cf001cc03347ac092f5f6b5': 1,
       '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 1,
     },
     '0x10bf4137b0558c33c2dc9f71c3bb81c2865fa2fb': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
-    '0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B': {
+    '0x6a07a792ab2965c72a5b8088d3a069a7ac3a993b': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
     '0xe1146b9ac456fcbb60644c36fd3f868a9072fc6e': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
-    '0x657A1861c15A3deD9AF0B6799a195a249ebdCbc6': {
+    '0x657a1861c15a3ded9af0b6799a195a249ebdcbc6': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
     '0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e': {
@@ -232,10 +233,10 @@ const currencyPairs: any = {
     '0xb3654dc3d10ea7645f8319668e8f54d2574fbdc8': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
-    '0x56ee926bD8c72B2d5fa1aF4d9E4Cbb515a1E3Adc': {
+    '0x56ee926bd8c72b2d5fa1af4d9e4cbb515a1e3adc': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
-    '0xae75A438b2E0cB8Bb01Ec1E1e376De11D44477CC': {
+    '0xae75a438b2e0cb8bb01ec1e1e376de11d44477cc': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
     '0x940f41f0ec9ba1a34cf001cc03347ac092f5f6b5': {
@@ -262,13 +263,14 @@ export function getPath(
   currencyTo: Pick<CurrencyDefinition, 'hash'>,
   network = 'mainnet',
 ): string[] | null {
-  if (!currencyPairs[network]) {
+  if (!chainlinkCurrencyPairs[network]) {
     throw Error(`network ${network} not supported`);
   }
 
   // load the Graph
-  const route = new GRAPH(currencyPairs[network]);
+  const route = new GRAPH(chainlinkCurrencyPairs[network]);
 
   // Get the path
   return route.path(currencyFrom.hash.toLowerCase(), currencyTo.hash.toLowerCase());
 }
+
