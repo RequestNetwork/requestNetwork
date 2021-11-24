@@ -10,6 +10,8 @@ import deployPayment from './scripts/2_deploy-main-payments';
 import deployConversion from './scripts/3_deploy_chainlink_contract';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
+import { deployEscrow } from './scripts/4_deploy-escrow-deployment';
+
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 config();
@@ -109,6 +111,7 @@ task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hr
   await deployRequest(args, hre);
   await deployPayment(args, hre);
   await deployConversion(args, hre);
+  await deployEscrow(hre);
   console.log('All contracts (re)deployed locally');
 });
 
