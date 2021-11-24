@@ -40,7 +40,8 @@
   },
   "dependencies": {
     "ajv": "6.12.4",
-    "ethers": "5.5.1"
+    "ethers": "5.5.1",
+    "tslib": "2.3.1"
   },
   "devDependencies": {
     "@types/node": "14.14.16",
