@@ -5,7 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import BTCAddressedBased from '../src/btc/mainnet-address-based';
+import { BtcMainnetAddressBasedDetector } from '../src/btc/mainnet-address-based';
 import { DeclarativePaymentDetector } from '../src/declarative';
 import { EthInputDataPaymentDetector } from '../src/eth/input-data';
 
@@ -43,7 +43,7 @@ describe('api/payment-network/payment-network-factory', () => {
           paymentNetworkCreationParameters,
           currencyManager,
         }),
-      ).toBeInstanceOf(BTCAddressedBased);
+      ).toBeInstanceOf(BtcMainnetAddressBasedDetector);
     });
 
     it('can createPaymentNetwork with any currency', async () => {
@@ -116,7 +116,7 @@ describe('api/payment-network/payment-network-factory', () => {
           request,
           currencyManager,
         }),
-      ).toBeInstanceOf(BTCAddressedBased);
+      ).toBeInstanceOf(BtcMainnetAddressBasedDetector);
     });
     it('can getPaymentNetworkFromRequest with a request without payment network', async () => {
       const request: any = {

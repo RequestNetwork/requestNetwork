@@ -653,9 +653,7 @@ describe('ETH localhost request creation and detection test', () => {
     await paymentTx.wait();
 
     data = await request.refresh();
-    if (data.balance?.error) {
-      console.error('Eth fee proxy data error: ', data.balance?.error);
-    }
+    expect(data.balance?.error).toBeUndefined();
     expect(data.balance?.balance).toBe('1000');
     expect(data.balance?.events.length).toBe(1);
     const event = data.balance?.events[0];
