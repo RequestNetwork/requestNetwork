@@ -79,6 +79,9 @@ export abstract class PaymentDetectorBase<
     return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
   }
 
+  /**
+   * Override to ignore invalid events in `getBalance()`
+   */
   protected filterEvents(
     _request: RequestLogicTypes.IRequest,
     events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
