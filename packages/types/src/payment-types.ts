@@ -46,6 +46,7 @@ export interface IAnyToErc20CreationParameters extends IFeeReferenceBasedCreatio
 
 /** Interface of the class to manage a payment network  */
 export interface IPaymentNetwork<TEventParameters = any> {
+  paymentNetworkId: PAYMENT_NETWORK_ID;
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
@@ -142,12 +143,12 @@ export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
 
-export type ConversionPaymentNetworkEvent = IPaymentNetworkEvent<
+export type ConversionPaymentNetworkEventParameters =
   | IERC20PaymentEventParameters
   | IERC20FeePaymentEventParameters
   | IETHPaymentEventParameters
-  | IETHFeePaymentEventParameters
->;
+  | IETHFeePaymentEventParameters;
+export type ConversionPaymentNetworkEvent = IPaymentNetworkEvent<ConversionPaymentNetworkEventParameters>;
 
 /** Parameters for events of ETH payments */
 export interface IETHPaymentEventParameters {

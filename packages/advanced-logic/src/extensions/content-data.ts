@@ -1,5 +1,5 @@
 import { ExtensionTypes } from '@requestnetwork/types';
-import AbstractExtension from './abstract-extension';
+import { AbstractExtension } from './abstract-extension';
 
 const CURRENT_VERSION = '0.1.0';
 

@@ -22,7 +22,10 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment
  */
-export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
+  ExtensionTypes.PnReferenceBased.IReferenceBased,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extension
    */
@@ -73,21 +76,23 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<Payme
    * @returns The balance with events
    */
   protected async extractEvents(
-    address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
+    address: string | undefined,
     paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
+    _requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
-
+    if (!address) {
+      return [];
+    }
     const infoRetriever = new NearInfoRetriever(
       paymentReference,
       address,
-      NearNativeTokenPaymentDetector.getNearContractName(network, paymentNetwork.version),
-      NearNativeTokenPaymentDetector.getProcedureName(network, paymentNetwork.version),
+      NearNativeTokenPaymentDetector.getNearContractName(paymentChain, paymentNetwork.version),
+      NearNativeTokenPaymentDetector.getProcedureName(paymentChain, paymentNetwork.version),
       eventName,
-      network,
+      paymentChain,
     );
     const events = await infoRetriever.getTransferEvents();
     return events;
