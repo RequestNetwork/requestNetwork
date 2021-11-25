@@ -1509,7 +1509,7 @@ describe('index', () => {
         useMockStorage: true,
       });
 
-      const salt = 'ea3bc7caf64110ca';
+      const salt = 'ea3bc7caf64110cc';
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
@@ -1539,7 +1539,8 @@ describe('index', () => {
       const data = await request.refresh();
 
       expect(data).toBeDefined();
-      expect(data.balance).toBeDefined();
+      expect(data.balance?.error).toBeUndefined();
+      expect(data.balance?.balance).toBe('0');
       expect(data.meta).toBeDefined();
       expect(data.currency).toBe('ETH-rinkeby-rinkeby');
       expect(data.extensionsData[0].parameters.salt).toBe(salt);
@@ -1983,12 +1984,12 @@ describe('index', () => {
   });
 
   describe('ERC20 proxy contract requests', () => {
-    it('can create ERC20 requests with given salt', async () => {
+    fit('can create ERC20 requests with given salt', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
       });
-      const salt = 'ea3bc7caf64110ca';
+      const salt = 'ea3bc7caf64110cb';
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
@@ -2015,7 +2016,8 @@ describe('index', () => {
       const data = await request.waitForConfirmation();
 
       expect(data).toBeDefined();
-      expect(data.balance?.balance).toBe('90');
+      expect(data.balance?.error).toBeUndefined();
+      expect(data.balance?.balance).toBe('0');
       expect(data.balance?.events.length).toBe(2);
       expect(data.meta).toBeDefined();
       expect(data.currency).toBe('unknown');
