@@ -218,7 +218,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       return Promise.resolve([
         // Wrong fee address
         {
-          amount: '0',
+          amount: '100',
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             block: 1,
