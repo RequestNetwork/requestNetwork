@@ -1509,7 +1509,7 @@ describe('index', () => {
         useMockStorage: true,
       });
 
-      const salt = 'ea3bc7caf64110cc';
+      const salt = 'ea3bc7caf64110ca';
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
@@ -1988,7 +1988,7 @@ describe('index', () => {
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
       });
-      const salt = 'ea3bc7caf64110cb';
+      const salt = 'ea3bc7caf64110ca';
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
         id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
@@ -2011,13 +2011,13 @@ describe('index', () => {
         paymentNetwork,
         requestInfo,
         signer: TestData.payee.identity,
+        disablePaymentDetection: true,
       });
       const data = await request.waitForConfirmation();
 
       expect(data).toBeDefined();
       expect(data.balance?.error).toBeUndefined();
-      expect(data.balance?.balance).toBe('0');
-      expect(data.balance?.events.length).toBe(0);
+      expect(data.balance?.balance).toBeUndefined();
       expect(data.meta).toBeDefined();
       expect(data.currency).toBe('unknown');
       expect(data.extensionsData[0].parameters.salt).toBe(salt);
