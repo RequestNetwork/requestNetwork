@@ -1984,7 +1984,7 @@ describe('index', () => {
   });
 
   describe('ERC20 proxy contract requests', () => {
-    fit('can create ERC20 requests with given salt', async () => {
+    it('can create ERC20 requests with given salt', async () => {
       const requestNetwork = new RequestNetwork({
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
