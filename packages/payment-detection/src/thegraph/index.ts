@@ -35,5 +35,5 @@ export const networkSupportsTheGraph = (network: string): boolean => {
 };
 
 export const networkSupportsTheGraphForNativePayments = (network: string): boolean => {
-  return network !== 'mainnet';
+  return !['mainnet', 'private'].includes(network);
 };
