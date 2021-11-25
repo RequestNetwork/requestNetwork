@@ -1539,8 +1539,7 @@ describe('index', () => {
       const data = await request.refresh();
 
       expect(data).toBeDefined();
-      expect(data.balance?.error).toBeUndefined();
-      expect(data.balance?.balance).toBe('0');
+      expect(data.balance).toBeDefined();
       expect(data.meta).toBeDefined();
       expect(data.currency).toBe('ETH-rinkeby-rinkeby');
       expect(data.extensionsData[0].parameters.salt).toBe(salt);
@@ -2018,7 +2017,7 @@ describe('index', () => {
       expect(data).toBeDefined();
       expect(data.balance?.error).toBeUndefined();
       expect(data.balance?.balance).toBe('0');
-      expect(data.balance?.events.length).toBe(2);
+      expect(data.balance?.events.length).toBe(0);
       expect(data.meta).toBeDefined();
       expect(data.currency).toBe('unknown');
       expect(data.extensionsData[0].parameters.salt).toBe(salt);

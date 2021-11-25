@@ -68,7 +68,7 @@ export abstract class FeeReferenceBasedDetector<
     if (balance.error) {
       return balance;
     }
-    // for retro compatibility, the feeBalance is stored in the payment extension
+    // FIXME: should be at the same level as balance
     const values: any = this.getPaymentExtension(request).values;
     values.feeBalance = await this.getFeeBalance(request, balance);
 
