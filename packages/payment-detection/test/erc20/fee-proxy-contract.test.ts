@@ -269,6 +269,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     const balance = await erc20FeeProxyContract.getBalance(mockRequest);
 
     expect(balance.error).toBeUndefined();
+    // 500 + 500 (2 payments) - 10 (1 refund) = 990
     expect(balance.balance).toBe('990');
     expect(
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values
