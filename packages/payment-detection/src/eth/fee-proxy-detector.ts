@@ -8,7 +8,9 @@ import {
 
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
+import TheGraphInfoRetriever from '../erc20/thegraph-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
+import { networkSupportsTheGraphForNativePayments } from '../thegraph';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -39,10 +41,11 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
   /**
    * Extracts payment events of an address matching an address and a payment reference
    *
-   * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param requestCurrency The request currency
+   * @param address Address to check
    * @param paymentReference The reference to identify the payment
+   * @param _requestCurrency The request currency
+   * @param paymentChain the name of the payment (block)chain
    * @param paymentNetwork the payment network
    * @returns The balance
    */
@@ -71,14 +74,23 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
       throw Error('ETH fee proxy contract not found');
     }
 
-    const proxyInfoRetriever = new EthProxyInfoRetriever(
-      paymentReference,
-      proxyContractArtifact.address,
-      proxyContractArtifact.creationBlockNumber,
-      address,
-      eventName,
-      paymentChain,
-    );
+    const proxyInfoRetriever = networkSupportsTheGraphForNativePayments(paymentChain)
+      ? new TheGraphInfoRetriever(
+          paymentReference,
+          proxyContractArtifact.address,
+          null,
+          address,
+          eventName,
+          paymentChain,
+        )
+      : new EthProxyInfoRetriever(
+          paymentReference,
+          proxyContractArtifact.address,
+          proxyContractArtifact.creationBlockNumber,
+          address,
+          eventName,
+          paymentChain,
+        );
 
     return proxyInfoRetriever.getTransferEvents();
   }

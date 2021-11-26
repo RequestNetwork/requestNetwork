@@ -30,6 +30,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   PaymentTypes.IETHPaymentEventParameters
 > {
   private explorerApiKeys: Record<string, string>;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
