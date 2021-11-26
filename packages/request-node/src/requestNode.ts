@@ -6,7 +6,7 @@ import cors from 'cors';
 import { Server } from 'http';
 import express, { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import KeyvFile from 'keyv-file';
+import KeyvRedis from '@keyv/redis';
 
 import { getCustomHeaders, getInitializationStorageFilePath, getMnemonic } from './config';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
@@ -18,6 +18,7 @@ import PersistTransactionHandler from './request/persistTransaction';
 import GetChannelsByTopicHandler from './request/getChannelsByTopic';
 import GetStatusHandler from './request/getStatus';
 import IpfsAddHandler from './request/ipfsAdd';
+import Keyv from '@keyv/redis/node_modules/@types/keyv';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -53,6 +54,7 @@ class RequestNode {
   private getChannelByTopicHandler: GetChannelsByTopicHandler;
   private getStatusHandler: GetStatusHandler;
   private ipfsAddHandler: IpfsAddHandler;
+  store: Keyv.Store<any> | undefined;
   /**
    * Request Node constructor
    *
@@ -65,17 +67,13 @@ class RequestNode {
 
     const initializationStoragePath = getInitializationStorageFilePath();
 
-    const store = initializationStoragePath
-      ? new KeyvFile({
-          filename: initializationStoragePath,
-        })
-      : undefined;
+    this.store = initializationStoragePath ? new KeyvRedis(initializationStoragePath) : undefined;
 
     // Use ethereum storage for the storage layer
-    const ethereumStorage = getEthereumStorage(getMnemonic(), this.logger, store);
+    const ethereumStorage = getEthereumStorage(getMnemonic(), this.logger, this.store);
 
     // Use an in-file Transaction index if a path is specified, an in-memory otherwise
-    const transactionIndex = new TransactionIndex(store);
+    const transactionIndex = new TransactionIndex(this.store);
 
     this.ethereumStorage = ethereumStorage;
 
@@ -84,7 +82,7 @@ class RequestNode {
       transactionIndex,
     });
 
-    this.confirmedTransactionStore = new ConfirmedTransactionStore(store);
+    this.confirmedTransactionStore = new ConfirmedTransactionStore(this.store);
     this.getConfirmedTransactionHandler = new GetConfirmedTransactionHandler(
       this.logger,
       this.confirmedTransactionStore,
@@ -117,12 +115,15 @@ class RequestNode {
    */
   public async initialize(): Promise<void> {
     this.logger.info('Node initialization');
+    // await this.store?.set('hello', 'world');
+
+    console.log(await this.store?.get('hello'));
     const initializationStartTime: number = Date.now();
 
     try {
       await this.dataAccess.initialize();
     } catch (error) {
-      this.logger.error(`Node failed to initialize`);
+      this.logger.error(`Node failed to initialize: ${error.message}`);
       throw error;
     }
 

@@ -3,7 +3,6 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
 import Keyv from 'keyv';
-import KeyvFile from 'keyv-file';
 
 import hdWalletProvider from '@truffle/hdwallet-provider';
 
@@ -17,7 +16,7 @@ import hdWalletProvider from '@truffle/hdwallet-provider';
 export function getEthereumStorage(
   mnemonic: string,
   logger: LogTypes.ILogger,
-  metadataStore?: KeyvFile,
+  metadataStore?: Keyv.Store<string[]>,
 ): EthereumStorage {
   // Initializes IPFS gateway connection object
   const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
