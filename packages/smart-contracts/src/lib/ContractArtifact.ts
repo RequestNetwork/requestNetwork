@@ -23,6 +23,11 @@ export type ArtifactInfo<
   TNetwork extends string = string
 > = Record<TVersion, ArtifactDeploymentInfo<TNetwork>>;
 
+export type DeploymentInformation = {
+  address: string;
+  creationBlockNumber: number;
+};
+
 /**
  * Provides information on a deployed smart-contract,
  * and utilities to connect to it
@@ -105,10 +110,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @param networkName the name of the network where the contract is deployed
    * @returns The address and the number of the creation block
    */
-  getDeploymentInformation(
-    networkName: string,
-    version = this.lastVersion,
-  ): { address: string; creationBlockNumber: number } {
+  getDeploymentInformation(networkName: string, version = this.lastVersion): DeploymentInformation {
     const versionInfo = this.info[version];
     if (!versionInfo) {
       throw Error(`No deployment for version: ${version}.`);
@@ -130,7 +132,7 @@ export class ContractArtifact<TContract extends Contract> {
   getOptionalDeploymentInformation(
     networkName: string,
     version = this.lastVersion,
-  ): { address: string; creationBlockNumber: number } | null {
+  ): DeploymentInformation | null {
     return this.info[version]?.deployment[networkName] || null;
   }
 }

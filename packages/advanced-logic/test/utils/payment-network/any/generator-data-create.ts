@@ -9,7 +9,9 @@ export const arbitrarySalt = 'ea3bc7caf64110ca';
 export const paymentInfo = { IBAN: 'FR123456789123456789', BIC: 'CE123456789' };
 export const refundInfo = { IBAN: 'FR987654321987654321', BIC: 'CE987654321' };
 export const amount = '12345';
-export const note = { transactionId: '123456789' };
+export const note = '123456789';
+export const txHash = '0x123456789';
+export const network = 'matic';
 export const payeeDelegate = TestData.payeeDelegateRaw.identity;
 export const payerDelegate = TestData.payerDelegateRaw.identity;
 export const delegateToAdd = TestData.otherIdRaw.identity;
@@ -103,6 +105,8 @@ export const actionDeclareSentPayment = {
   parameters: {
     amount,
     note,
+    txHash,
+    network,
   },
 };
 export const actionDeclareSentRefund = {
@@ -111,6 +115,8 @@ export const actionDeclareSentRefund = {
   parameters: {
     amount,
     note,
+    txHash,
+    network,
   },
 };
 
@@ -120,6 +126,8 @@ export const actionDeclareReceivedPayment = {
   parameters: {
     amount,
     note,
+    txHash,
+    network,
   },
 };
 export const actionDeclareReceivedRefund = {
@@ -128,6 +136,8 @@ export const actionDeclareReceivedRefund = {
   parameters: {
     amount,
     note,
+    txHash,
+    network,
   },
 };
 // ---------------------------------------------------------------------
@@ -200,6 +210,14 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
       paymentAddress: 'pay.near',
       refundAddress: 'refund.near',
       salt,
+      payeeDelegate: undefined,
+      payerDelegate: undefined,
+      paymentInfo: undefined,
+      receivedPaymentAmount: "0",
+      receivedRefundAmount: "0",
+      refundInfo: undefined,
+      sentPaymentAmount: "0",
+      sentRefundAmount: "0",
     },
     version: '0.2.0',
   },
@@ -227,6 +245,14 @@ export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtension
     values: {
       paymentAddress: 'pay.near',
       salt,
+      payeeDelegate: undefined,
+      payerDelegate: undefined,
+      paymentInfo: undefined,
+      receivedPaymentAmount: "0",
+      receivedRefundAmount: "0",
+      refundInfo: undefined,
+      sentPaymentAmount: "0",
+      sentRefundAmount: "0",
     },
     version: '0.2.0',
   },
@@ -328,6 +354,8 @@ export const extensionStateCreatedEmptySentPayment = {
         parameters: {
           amount,
           note,
+          txHash,
+          network,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payerRaw.identity,
@@ -359,6 +387,8 @@ export const extensionStateCreatedEmptyReceivedRefund = {
         parameters: {
           amount,
           note,
+          txHash,
+          network,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payerRaw.identity,
@@ -390,6 +420,8 @@ export const extensionStateCreatedEmptySentRefund = {
         parameters: {
           amount,
           note,
+          txHash,
+          network,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payeeRaw.identity,
@@ -479,6 +511,8 @@ export const extensionStateCreatedEmptyReceivedPayment = {
         parameters: {
           amount,
           note,
+          txHash,
+          network,
         },
         timestamp: arbitraryTimestamp,
         from: TestData.payeeRaw.identity,

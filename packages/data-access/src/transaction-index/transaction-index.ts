@@ -25,7 +25,7 @@ export default class TransactionIndex implements DataAccessTypes.ITransactionInd
    * Constructor of TransactionIndex
    * @param store a Keyv store to persist the index
    */
-  constructor(store?: Keyv.Store<any>) {
+  constructor(store?: Keyv.Store<string[]>) {
     this.timestampByLocation = new TimestampByLocation(store);
     this.locationByTopic = new LocationByTopic(store);
 

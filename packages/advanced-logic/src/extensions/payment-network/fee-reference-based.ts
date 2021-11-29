@@ -6,14 +6,14 @@ import Utils from '@requestnetwork/utils';
  * Core of the reference based with fee payment networks
  * This module is called by the fee reference based (ethereum & erc20) payment networks to avoid code redundancy
  */
-export default abstract class ReferenceBasedWithFeePaymentNetwork<
+export abstract class FeeReferenceBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
   public constructor(
     public extensionId: ExtensionTypes.ID,
     public currentVersion: string,
     public supportedNetworks: string[],
-    public supportedCurrencyType: string,
+    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);
     this.actions = {

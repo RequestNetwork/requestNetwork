@@ -1,6 +1,6 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import AbstractExtension from '../abstract-extension';
+import { AbstractExtension } from '../abstract-extension';
 
 const CURRENT_VERSION = '0.1.0';
 
@@ -45,10 +45,12 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
+        network: parameters.network,
       },
     };
   }
@@ -65,10 +67,12 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
+        network: parameters.network,
       },
     };
   }
@@ -85,10 +89,12 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
+        network: parameters.network,
       },
     };
   }
@@ -105,10 +111,12 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         amount: parameters.amount.toString(),
         note: parameters.note,
+        txHash: parameters.txHash,
+        network: parameters.network,
       },
     };
   }
@@ -125,7 +133,7 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         paymentInfo: parameters.paymentInfo,
       },
@@ -144,7 +152,7 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         refundInfo: parameters.refundInfo,
       },
@@ -163,7 +171,7 @@ export default class DeclarativePaymentNetwork<
   ): ExtensionTypes.IAction {
     return {
       action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+      id: this.extensionId,
       parameters: {
         delegate: parameters.delegate,
       },
@@ -246,6 +254,8 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
+        network: extensionAction.parameters.network,
       },
       timestamp,
       from: actionSigner,
@@ -290,6 +300,8 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
+        network: extensionAction.parameters.network,
       },
       timestamp,
       from: actionSigner,
@@ -334,6 +346,8 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
+        network: extensionAction.parameters.network,
       },
       timestamp,
       from: actionSigner,
@@ -378,6 +392,8 @@ export default class DeclarativePaymentNetwork<
       parameters: {
         amount: extensionAction.parameters.amount,
         note: extensionAction.parameters.note,
+        txHash: extensionAction.parameters.txHash,
+        network: extensionAction.parameters.network,
       },
       timestamp,
       from: actionSigner,

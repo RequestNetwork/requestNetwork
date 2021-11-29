@@ -38,4 +38,11 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
     }
     return super.createCreationAction(creationParameters);
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected isValidAddress(_address: string, _networkName?: string): boolean {
+    throw new Error(
+      `Default implementation of isValidAddress() does not support native tokens. Please override this method.`,
+    );
+  }
 }

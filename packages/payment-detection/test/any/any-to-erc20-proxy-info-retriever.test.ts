@@ -2,12 +2,14 @@
 /* eslint-disable no-magic-numbers */
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import AnyToErc20ProxyInfoRetriever from '../../src/any/any-to-erc20-proxy-info-retriever';
+import { AnyToErc20InfoRetriever } from '../../src/any/retrievers/any-to-erc20-proxy';
 import { ethers } from 'ethers';
+import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 
+const conversionDeploymentInformation = erc20ConversionProxy.getDeploymentInformation('private');
+const conversionProxyAbi = erc20ConversionProxy.getContractAbi();
 const erc20LocalhostContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
-const conversionProxyContractAddress = '0x2C2B9C9a4a25e24B174f26114e8926a9f2128FE4';
-const erc20FeeProxyContractAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
+const conversionProxyContractAddress = conversionDeploymentInformation.address;
 const paymentReferenceMock = '01111111111111111111111111111111111111111111111111';
 const acceptedTokens = [erc20LocalhostContractAddress];
 const USDCurrency = CurrencyManager.getDefault().from('USD')!;
@@ -17,7 +19,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
   describe('on mocked logs', () => {
     let proxyPaymentLog: ethers.providers.Log;
     let proxyConversionLog: ethers.providers.Log;
-    let infoRetriever: AnyToErc20ProxyInfoRetriever;
+    let infoRetriever: AnyToErc20InfoRetriever;
 
     const mockedGetLogs = (filter: ethers.EventFilter) => {
       if (
@@ -73,13 +75,12 @@ describe('api/any/conversion-proxy-info-retriever', () => {
         logIndex: 5,
         removed: false,
       };
-      infoRetriever = new AnyToErc20ProxyInfoRetriever(
+      infoRetriever = new AnyToErc20InfoRetriever(
         USDCurrency,
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,
-        erc20FeeProxyContractAddress,
-        0,
+        conversionProxyAbi,
         paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',
@@ -92,7 +93,7 @@ describe('api/any/conversion-proxy-info-retriever', () => {
       infoRetriever.provider = mockedProvider as any;
 
       const events = await infoRetriever.getTransferEvents();
-      const parameters: PaymentTypes.IERC20FeePaymentEventParameters = events[0].parameters!;
+      const parameters = events[0].parameters! as PaymentTypes.IERC20FeePaymentEventParameters;
 
       // if this assert fails it means this address received another transaction
       expect(events).toHaveLength(1);
@@ -123,13 +124,12 @@ describe('api/any/conversion-proxy-info-retriever', () => {
     });
 
     it('skips the payment with a rate too old', async () => {
-      const infoRetriever = new AnyToErc20ProxyInfoRetriever(
+      const infoRetriever = new AnyToErc20InfoRetriever(
         USDCurrency,
         paymentReferenceMock,
         conversionProxyContractAddress,
         0,
-        erc20FeeProxyContractAddress,
-        0,
+        conversionProxyAbi,
         paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'private',

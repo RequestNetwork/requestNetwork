@@ -6,5 +6,9 @@
     "types": ["node", "jest"]
   },
   "include": ["./src/**/*"],
-  "references": [{ "path": "../types" }, { "path": "../utils" }]
+  "references": [
+    { "path": "../currency" },
+    { "path": "../types" },
+    { "path": "../utils" }
+  ]
 }

@@ -1,7 +1,7 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { BigNumber, utils } from 'ethers';
-import { getTheGraphClient, TheGraphClient } from '../thegraph';
+import { getTheGraphClient, TheGraphClient } from '../../thegraph';
 
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
@@ -85,5 +85,3 @@ export class TheGraphAnyToErc20Retriever
     });
   }
 }
-
-export default TheGraphAnyToErc20Retriever;

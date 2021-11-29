@@ -1,7 +1,6 @@
 ---
 title: Payment status with the Portal API
 sidebar_label: Payment status
-keywords:
 description: Learn how to integrate Request network and its features.
 ---
 
@@ -27,15 +26,14 @@ You will receive back an object that looks like this:
 
 To get the payment status of a Request you can use the requestData object to check if the balance is greater than or equal to the expectedAmount.
 
-If the balance >= expectedAmount - this means the request is paid.
-If the balance > 0 but < expectedAmount - this means the request is partially paid.
-If the balance == 0 - this means the request is unpaid.
+If `balance.balance >= expectedAmount`: this means the request is paid (or even overpaid)
+If `balance.balance > 0 && balance.balance < expectedAmount`: this means the request is partially paid.
+If `balance.balance === 0`: this means the request is unpaid.
 
 You can use the following snippet to see if the request has been paid.
 
 ```jsx
-// Import Big Number package
-const BN = require('bn.js');
+import { BigNumber } from 'ethers';
 (async () => {
   // Check the balance of the request
   const result = await axios.get(`https://api.request.network/requests/${requestId}`);
@@ -56,8 +54,8 @@ const BN = require('bn.js');
 
   // Check if the request has been paid
   // Convert the balance to big number type for comparison
-  const expectedAmount = new BN(requestData.expectedAmount);
-  const balanceBigNumber = new BN(balanceObject.balance);
+  const expectedAmount = BigNumber.from(requestData.expectedAmount);
+  const balanceBigNumber = BigNumber.from(balanceObject.balance);
 
   // Check if balanceBigNumber is greater or equal to expectedAmount
   const paid = balanceBigNumber.gte(expectedAmount);

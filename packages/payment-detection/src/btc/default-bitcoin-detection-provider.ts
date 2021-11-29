@@ -1,15 +1,16 @@
 import { PaymentTypes } from '@requestnetwork/types';
 
-import BlockchainInfo from './default-providers/blockchain-info';
-import BlockcypherCom from './default-providers/blockcypher-com';
-import BlockstreamInfo from './default-providers/blockstream-info';
-import ChainSo from './default-providers/chain-so';
+import {
+  BlockchainInfoProvider,
+  BlockStreamInfoProvider,
+  BlockcypherComProvider,
+  ChainSoProvider,
+} from './default-providers';
 
 /**
  * The default Bitcoin detection provider give access to the bitcoin blockchain through several external API's
  */
-export default class DefaultBitcoinDetectionProvider
-  implements PaymentTypes.IBitcoinDetectionProvider {
+export class DefaultBitcoinDetectionProvider implements PaymentTypes.IBitcoinDetectionProvider {
   public providers: PaymentTypes.IBitcoinDetectionProvider[];
 
   /**
@@ -17,10 +18,10 @@ export default class DefaultBitcoinDetectionProvider
    */
   constructor() {
     this.providers = [
-      new BlockchainInfo(),
-      new BlockstreamInfo(),
-      new ChainSo(),
-      new BlockcypherCom(),
+      new BlockchainInfoProvider(),
+      new BlockStreamInfoProvider(),
+      new ChainSoProvider(),
+      new BlockcypherComProvider(),
     ];
   }
 

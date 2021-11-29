@@ -1,14 +1,14 @@
-import { constants, ContractTransaction, Signer, providers, BigNumberish } from 'ethers';
+import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { CurrencyManager, getConversionPath, ICurrencyManager } from '@requestnetwork/currency';
-import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
+import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
+import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
-  getPaymentNetworkExtension,
+  getProxyAddress,
   getProvider,
   getRequestPaymentValues,
   getSigner,
@@ -16,17 +16,7 @@ import {
 } from './utils';
 import { padAmountForChainlink } from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
-
-/**
- * Details required to pay a request with on-chain conversion:
- * - currency: should be a valid currency type and accepted token value
- * - maxToSpend: maximum number of tokens to be spent when the conversion is made
- */
-export interface IPaymentSettings {
-  currency: RequestLogicTypes.ICurrency;
-  maxToSpend: BigNumberish;
-  currencyManager?: ICurrencyManager;
-}
+import { IConversionPaymentSettings } from './index';
 
 /**
  * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
@@ -41,7 +31,7 @@ export interface IPaymentSettings {
 export async function payAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
-  paymentSettings: IPaymentSettings,
+  paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -66,10 +56,13 @@ export async function payAnyToErc20ProxyRequest(
  */
 export function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  paymentSettings: IPaymentSettings,
+  paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
+  if (!paymentSettings.currency) {
+    throw new Error('currency must be provided in the paymentSettings');
+  }
   if (!paymentSettings.currency.network) {
     throw new Error('Cannot pay with a currency missing a network');
   }
@@ -121,27 +114,26 @@ export function encodePayAnyToErc20ProxyRequest(
     `0x${paymentReference}`,
     feeToPay,
     feeAddress || constants.AddressZero,
-    paymentSettings.maxToSpend,
+    BigNumber.from(paymentSettings.maxToSpend),
     maxRateTimespan || 0,
   ]);
 }
 
 export function prepareAnyToErc20ProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
-  paymentSettings: IPaymentSettings,
+  paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
 ): IPreparedTransaction {
+  if (!paymentSettings.currency) {
+    throw new Error('currency must be provided in the paymentSettings');
+  }
   if (!paymentSettings.currency.network) {
     throw new Error('Cannot pay with a currency missing a network');
   }
   const encodedTx = encodePayAnyToErc20ProxyRequest(request, paymentSettings, amount, feeAmount);
-  const pn = getPaymentNetworkExtension(request);
 
-  const proxyAddress = erc20ConversionProxy.getAddress(
-    paymentSettings.currency.network,
-    pn?.version,
-  );
+  const proxyAddress = getProxyAddress(request, AnyToERC20PaymentDetector.getDeploymentInformation);
   return {
     data: encodedTx,
     to: proxyAddress,

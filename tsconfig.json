@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es2015",
     "module": "commonjs",
+    "importHelpers": true,
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -13,6 +14,7 @@
     "noUnusedParameters": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "useUnknownInCatchVariables": false,
     "lib": ["es2018"]
   }
 }

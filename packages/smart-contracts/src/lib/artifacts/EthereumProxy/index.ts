@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+// @ts-ignore Cannot find module
 import type { EthereumProxy } from '../../../types/EthereumProxy';
 
 export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
@@ -22,11 +23,19 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
         },
         xdai: {
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
-          creationBlockNumber: 18326895
+          creationBlockNumber: 18326895,
         },
         bsctest: {
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
-          creationBlockNumber: 12759688
+          creationBlockNumber: 11540170,
+        },
+        fantom: {
+          address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
+          creationBlockNumber: 20060175,
+        },
+        matic: {
+          address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
+          creationBlockNumber: 17427737,
         },
         // FIXME: Temporarily disable this artifact to fix ETH payment detection
         //  because Matic doesn't support eth_getLogs for many blocks.

@@ -1,5 +1,4 @@
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
-import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -11,6 +10,14 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 
 import { Wallet, providers, BigNumber } from 'ethers';
+import {
+  erc20requestCreationHash,
+  httpConfig,
+  payeeIdentity,
+  payerIdentity,
+  requestNetwork,
+  signatureProvider,
+} from './scheduled/fixtures';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
@@ -18,15 +25,6 @@ const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
 // eslint-disable-next-line no-magic-numbers
 jest.setTimeout(10000);
-
-const payeeIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  value: '0x627306090abab3a6e1400e9345bc60c78a8bef57',
-};
-const payerIdentity: IdentityTypes.IIdentity = {
-  type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-  value: '0xf17f52151ebef6c7334fad080c5704d77216b732',
-};
 
 const requestCreationHashBTC: Types.IRequestInfo = {
   currency: 'BTC',
@@ -68,19 +66,8 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
   method: Types.Encryption.METHOD.ECIES,
 });
 
-const signatureProvider = new EthereumPrivateKeySignatureProvider({
-  method: Types.Signature.METHOD.ECDSA,
-  privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
-});
-signatureProvider.addSignatureParameters({
-  method: Types.Signature.METHOD.ECDSA,
-  privateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f',
-});
-
 describe('Request client using a request node', () => {
   it('can create a request, change the amount and get data', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
-
     // Create a request
     const request = await requestNetwork.createRequest({
       requestInfo: requestCreationHashBTC,
@@ -115,8 +102,6 @@ describe('Request client using a request node', () => {
   });
 
   it('can create a request with declarative payment network and content data', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
-
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
       id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
       parameters: {
@@ -179,8 +164,6 @@ describe('Request client using a request node', () => {
   });
 
   it('can create requests and get them fromIdentity and with time boundaries', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
-
     // create request 1
     const requestCreationHash1: Types.IRequestInfo = {
       currency: 'BTC',
@@ -189,6 +172,7 @@ describe('Request client using a request node', () => {
       payer: payerIdentity,
       timestamp: Utils.getCurrentTimestampInSecond(),
     };
+
     const topicsRequest1and2: string[] = [
       MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(requestCreationHash1)),
     ];
@@ -198,6 +182,12 @@ describe('Request client using a request node', () => {
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
+    await request1.waitForConfirmation();
+    const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
+
+    // make sure that request 2 timestamp is greater than request 1 timestamp
+    const waitNextSecond = (timestampBeforeReduce + 1) * 1000 - Date.now();
+    await new Promise((r) => setTimeout(r, waitNextSecond));
 
     // create request 2
     const requestCreationHash2: Types.IRequestInfo = {
@@ -213,20 +203,15 @@ describe('Request client using a request node', () => {
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
-
-    // wait 1,5 sec and store the timestamp
-    /* eslint-disable no-magic-numbers */
-    // eslint-disable-next-line
-    await new Promise((r) => setTimeout(r, 1500));
-    const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
+    await request2.waitForConfirmation();
 
     // reduce request 1
-    const reduceData =  await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
-    await new Promise(function(resolve) {reduceData.on('confirmed', resolve)});
+    const requestDataReduce = await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
+    await new Promise((r) => requestDataReduce.on('confirmed', r));
 
     // cancel request 1
-    const cancelData = await request1.cancel(payeeIdentity);
-    await new Promise(function(resolve) {cancelData.on('confirmed', resolve)});
+    const requestDataCancel = await request1.cancel(payeeIdentity);
+    await new Promise((r) => requestDataCancel.on('confirmed', r));
 
     // get requests without boundaries
     let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
@@ -243,7 +228,7 @@ describe('Request client using a request node', () => {
 
     // get requests with boundaries
     requests = await requestNetwork.fromTopic(topicsRequest1and2[0], {
-      from: timestampBeforeReduce,
+      to: timestampBeforeReduce,
     });
     expect(requests.length).toBe(1);
     expect(requests[0].requestId).toBe(request1.requestId);
@@ -254,8 +239,6 @@ describe('Request client using a request node', () => {
   });
 
   it('can create requests and get them fromIdentity with smart contract identity', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
-
     const payerSmartContract = {
       network: 'private',
       type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
@@ -307,7 +290,11 @@ describe('Request client using a request node', () => {
   });
 
   it('can create an encrypted request and get it back unencrypted', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider,
+      decryptionProvider,
+    });
     const timestamp = Date.now();
 
     // Create an encrypted request
@@ -350,7 +337,11 @@ describe('Request client using a request node', () => {
   });
 
   it('can create an encrypted request, modify it and get it back unencrypted', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider,
+      decryptionProvider,
+    });
     const timestamp = Date.now();
 
     // Create an encrypted request
@@ -398,7 +389,9 @@ describe('Request client using a request node', () => {
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.CREATED);
 
     const acceptData = await request.accept(payerIdentity);
-    await new Promise(function(resolve) {acceptData.on('confirmed', resolve)});
+    await new Promise(function (resolve) {
+      acceptData.on('confirmed', resolve);
+    });
 
     await fetchedRequest.refresh();
     fetchedRequestData = fetchedRequest.getData();
@@ -408,7 +401,9 @@ describe('Request client using a request node', () => {
       requestCreationHashBTC.expectedAmount,
       payerIdentity,
     );
-    await new Promise(function(resolve) {increaseData.on('confirmed', resolve)});
+    await new Promise(function (resolve) {
+      increaseData.on('confirmed', resolve);
+    });
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toEqual(
@@ -419,14 +414,20 @@ describe('Request client using a request node', () => {
       Number(requestCreationHashBTC.expectedAmount) * 2,
       payeeIdentity,
     );
-    await new Promise(function(resolve) {reduceData.on('confirmed', resolve)});
+    await new Promise(function (resolve) {
+      reduceData.on('confirmed', resolve);
+    });
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toBe('0');
   });
 
   it('create an encrypted and unencrypted request with the same content', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider, decryptionProvider });
+    const requestNetwork = new RequestNetwork({
+      httpConfig,
+      signatureProvider,
+      decryptionProvider,
+    });
 
     const timestamp = Date.now();
 
@@ -470,11 +471,13 @@ describe('Request client using a request node', () => {
     const timestamp = Date.now();
     const myRandomTopic = `topic ${Utils.getCurrentTimestampInSecond()}`;
     const requestNetwork = new RequestNetwork({
+      httpConfig,
       decryptionProvider,
       signatureProvider,
     });
 
     const badRequestNetwork = new RequestNetwork({
+      httpConfig,
       decryptionProvider: wrongDecryptionProvider,
       signatureProvider,
     });
@@ -507,22 +510,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     },
   };
 
-  const contractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
-
-  const erc20requestCreationHash: Types.IRequestInfo = {
-    currency: {
-      network: 'private',
-      type: Types.RequestLogic.CURRENCY.ERC20,
-      value: contractAddress,
-    },
-    expectedAmount: '10',
-    payee: payeeIdentity,
-    payer: payerIdentity,
-  };
-
-  it('can create an ERC20 request on localhost and detect the payment using address based detection', async () => {
-    const requestNetwork = new RequestNetwork({ signatureProvider });
-
+  it('can create an ERC20 request on localhost', async () => {
     // Create a request
     const request = await requestNetwork.createRequest({
       paymentNetwork,
@@ -643,9 +631,7 @@ describe('ETH localhost request creation and detection test', () => {
   };
 
   it('can create ETH requests and pay with ETH Fee proxy', async () => {
-    const currencies = [
-      ...CurrencyManager.getDefaultList()
-    ];
+    const currencies = [...CurrencyManager.getDefaultList()];
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
@@ -676,6 +662,7 @@ describe('ETH localhost request creation and detection test', () => {
     await paymentTx.wait();
 
     data = await request.refresh();
+    expect(data.balance?.error).toBeUndefined();
     expect(data.balance?.balance).toBe('1000');
     expect(data.balance?.events.length).toBe(1);
     const event = data.balance?.events[0];
@@ -686,5 +673,78 @@ describe('ETH localhost request creation and detection test', () => {
     expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
     // amount in crypto after apply the rates of the fake aggregators
     expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
+  });
+
+  it('can create & pay a request with any to eth proxy', async () => {
+    const currencies = [
+      ...CurrencyManager.getDefaultList(),
+      ...[
+        {
+          network: 'private',
+          symbol: 'ETH',
+          decimals: 18,
+          type: RequestLogicTypes.CURRENCY.ETH as any,
+        },
+      ],
+    ];
+
+    const requestNetwork = new RequestNetwork({
+      signatureProvider,
+      useMockStorage: true,
+      currencies,
+    });
+
+    const paymentNetworkAnyToETH: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+      parameters: {
+        paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
+        feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+        feeAmount: '200',
+        network: 'private',
+        maxRateTimespan: 1000000,
+      },
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork: paymentNetworkAnyToETH,
+      requestInfo: requestCreationHashUSD,
+      signer: payeeIdentity,
+    });
+
+    let data = await request.refresh();
+
+    // USD => ETH
+    const maxToSpend = '30000000000000000';
+    const paymentTx = await payRequest(data, wallet, undefined, undefined, {
+      maxToSpend,
+      currencyManager: new CurrencyManager(currencies),
+    });
+
+    await paymentTx.wait();
+
+    data = await request.refresh();
+
+    expect(data.balance?.balance).toBe('1000');
+    expect(data.balance?.events.length).toBe(1);
+    const event = data.balance?.events[0];
+    expect(event?.amount).toBe('1000');
+    expect(event?.name).toBe('payment');
+
+    expect(event?.parameters?.feeAmount).toBe('200');
+    expect(event?.parameters?.feeAddress).toBe('0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2');
+    // amount in crypto after apply the rates of the fake aggregators
+    //   expectedAmount:       10.00
+    //   AggETHUsd.sol       /   500
+    //                       =  0.02 (over 18 decimals for this ETH)
+    expect(event?.parameters?.amountInCrypto).toBe('20000000000000000');
+    // amount in crypto after apply the rates of the fake aggregators
+    //   feesAmount:            2.00
+    //   AggETHUsd.sol       /   500
+    //                       =  0.004 (over 18 decimals for this ETH)
+    expect(event?.parameters?.feeAmountInCrypto).toBe('4000000000000000');
+    expect(event?.parameters?.to).toBe('0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB');
+    // amount in crypto after apply the rates of the fake aggregators
+    expect(event?.parameters?.maxRateTimespan).toBe('1000000');
   });
 });

@@ -1,18 +1,9 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
-import { getDefaultProvider } from '../provider';
-import { parseLogArgs, unpadAmountFromChainlink } from '../utils';
-
-// The conversion proxy smart contract ABI fragment containing TransferWithConversionAndReference event
-const erc20ConversionProxyContractAbiFragment = [
-  'event TransferWithConversionAndReference(uint256 amount, address currency, bytes indexed paymentReference, uint256 feeAmount, uint256 maxRateTimespan)',
-];
-
-// The ERC20 proxy smart contract ABI fragment containing TransferWithReference event
-const erc20FeeProxyContractAbiFragment = [
-  'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
-];
+import { getDefaultProvider } from '../../provider';
+import { parseLogArgs, unpadAmountFromChainlink } from '../../utils';
+import type { JsonFragment } from '@ethersproject/abi';
 
 /** TransferWithConversionAndReference event */
 type TransferWithConversionAndReferenceArgs = {
@@ -25,43 +16,41 @@ type TransferWithConversionAndReferenceArgs = {
 
 /** TransferWithReferenceAndFee event */
 type TransferWithReferenceAndFeeArgs = {
-  tokenAddress: string;
+  tokenAddress?: string;
   to: string;
   amount: BigNumber;
   paymentReference: string;
   feeAmount: BigNumber;
   feeAddress: string;
 };
+
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
-export default class ProxyERC20InfoRetriever
-  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
+export abstract class ConversionInfoRetriever {
   public contractConversionProxy: ethers.Contract;
-  public contractERC20FeeProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
   /**
    * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
-   * @param conversionProxyContractAddress The address of the proxy contract
-   * @param conversionProxyCreationBlockNumber The block that created the proxy contract
+   * @param conversionProxyContractAddress The address of the conversion proxy contract
+   * @param conversionProxyCreationBlockNumber The block that created the conversion proxy contract
    * @param toAddress Address of the balance we want to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The Ethereum network to use
    */
   constructor(
-    private requestCurrency: CurrencyDefinition,
-    private paymentReference: string,
-    private conversionProxyContractAddress: string,
-    private conversionProxyCreationBlockNumber: number,
-    private erc20FeeProxyContractAddress: string,
-    private erc20FeeProxyCreationBlockNumber: number,
-    private toAddress: string,
-    private eventName: PaymentTypes.EVENTS_NAMES,
-    private network: string,
-    private acceptedTokens?: string[],
-    private maxRateTimespan: number = 0,
+    protected requestCurrency: CurrencyDefinition,
+    protected paymentReference: string,
+    protected conversionProxyContractAddress: string,
+    protected conversionProxyCreationBlockNumber: number,
+    protected conversionProxyContractAbiFragment: JsonFragment[],
+    protected toAddress: string,
+    protected eventName: PaymentTypes.EVENTS_NAMES,
+    protected network: string,
+    protected acceptedTokens?: string[],
+    protected maxRateTimespan: number = 0,
   ) {
     // Creates a local or default provider
     this.provider = getDefaultProvider(this.network);
@@ -69,16 +58,9 @@ export default class ProxyERC20InfoRetriever
     // Setup the conversion proxy contract interface
     this.contractConversionProxy = new ethers.Contract(
       this.conversionProxyContractAddress,
-      erc20ConversionProxyContractAbiFragment,
+      this.conversionProxyContractAbiFragment,
       this.provider,
     );
-
-    this.contractERC20FeeProxy = new ethers.Contract(
-      this.erc20FeeProxyContractAddress,
-      erc20FeeProxyContractAbiFragment,
-      this.provider,
-    );
-
     this.acceptedTokens = acceptedTokens?.map((token) => token.toLowerCase());
   }
 
@@ -90,44 +72,37 @@ export default class ProxyERC20InfoRetriever
    * The conversion proxy's logs are used to compute the amounts in request currency (typically fiat).
    * The payment proxy's logs are used the same way as for a pn-fee-proxy request.
    */
-  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<PaymentTypes.ConversionPaymentNetworkEvent[]> {
     // Create a filter to find all the Fee Transfer logs with the payment reference
     const conversionFilter = this.contractConversionProxy.filters.TransferWithConversionAndReference(
       null,
       null,
       '0x' + this.paymentReference,
+      null,
+      null,
     ) as ethers.providers.Filter;
     conversionFilter.fromBlock = this.conversionProxyCreationBlockNumber;
     conversionFilter.toBlock = 'latest';
 
-    // Get the fee proxy contract event logs
+    // Get the conversion contract event logs
     const conversionLogs = await this.provider.getLogs(conversionFilter);
 
     // Create a filter to find all the Fee Transfer logs with the payment reference
-    const feeFilter = this.contractERC20FeeProxy.filters.TransferWithReferenceAndFee(
-      null,
-      null,
-      null,
-      '0x' + this.paymentReference,
-      null,
-      null,
-    ) as ethers.providers.Filter;
-    feeFilter.fromBlock = this.erc20FeeProxyCreationBlockNumber;
-    feeFilter.toBlock = 'latest';
+    const feeFilter = this.getFeeFilter();
 
     // Get the fee proxy contract event logs
-    const feeLogs = await this.provider.getLogs(feeFilter);
+    const feeProxyLogs = await this.provider.getLogs(feeFilter);
 
     // Parses, filters and creates the events from the logs with the payment reference
     const eventPromises = conversionLogs
       // Parses the logs
       .map((log) => {
         const parsedConversionLog = this.contractConversionProxy.interface.parseLog(log);
-        const proxyLog = feeLogs.find((l) => l.transactionHash === log.transactionHash);
+        const proxyLog = feeProxyLogs.find((l) => l.transactionHash === log.transactionHash);
         if (!proxyLog) {
           throw new Error('proxy log not found');
         }
-        const parsedProxyLog = this.contractERC20FeeProxy.interface.parseLog(proxyLog);
+        const parsedProxyLog = this.contractConversionProxy.interface.parseLog(proxyLog);
         return {
           transactionHash: log.transactionHash,
           blockNumber: log.blockNumber,
@@ -141,6 +116,7 @@ export default class ProxyERC20InfoRetriever
         ({ conversionLog, proxyLog }) =>
           // filter the token allowed
           (!this.acceptedTokens ||
+            !proxyLog.tokenAddress ||
             this.acceptedTokens.includes(proxyLog.tokenAddress.toLowerCase())) &&
           // check the rate timespan
           this.maxRateTimespan >= conversionLog.maxRateTimespan.toNumber() &&
@@ -179,4 +155,6 @@ export default class ProxyERC20InfoRetriever
 
     return Promise.all(eventPromises);
   }
+
+  protected abstract getFeeFilter(): ethers.providers.Filter;
 }

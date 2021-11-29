@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import fetch from 'node-fetch';
+import Axios from 'axios';
 import { BigNumber } from 'ethers';
 
 // Maximum number of api requests to retry when an error is encountered (ECONNRESET, EPIPE, ENOTFOUND)
@@ -15,7 +15,7 @@ const TXS_PER_PAGE = 25;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockstream.info
  */
-export default class BlockstreamInfo implements PaymentTypes.IBitcoinDetectionProvider {
+export class BlockStreamInfoProvider implements PaymentTypes.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using blockstream.info public API
    *
@@ -32,7 +32,7 @@ export default class BlockstreamInfo implements PaymentTypes.IBitcoinDetectionPr
     const baseUrl = this.getBaseUrl(bitcoinNetworkId);
     const queryUrl = `${baseUrl}/address/${address}/txs`;
     try {
-      const res = await Utils.retry(async () => fetch(queryUrl), {
+      const res = await Utils.retry(async () => Axios.get(queryUrl), {
         maxRetries: BLOCKSTREAMINFO_REQUEST_MAX_RETRY,
         retryDelay: BLOCKSTREAMINFO_REQUEST_RETRY_DELAY,
       })();
@@ -41,7 +41,7 @@ export default class BlockstreamInfo implements PaymentTypes.IBitcoinDetectionPr
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
-      let txs: any[] = await res.json();
+      let txs: any[] = res.data;
 
       let checkForMoreTransactions = txs.length === TXS_PER_PAGE;
       // if there are 'TXS_PER_PAGE' transactions, need to check the pagination

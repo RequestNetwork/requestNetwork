@@ -10,20 +10,30 @@ const BASE_URL = `https://api.thegraph.com`;
  * A GraphQL client to query Request's subgraph.
  */
 export type TheGraphClient = ReturnType<typeof getSdk>;
-export const getTheGraphClient = (network: string, baseUrl = BASE_URL): TheGraphClient => {
-  if (network === 'private') {
-    baseUrl = 'http://localhost:8000';
-  }
+export type TheGraphClientOptions = {
+  baseUrl?: string;
+  timeout?: number;
+};
+
+export const getTheGraphClient = (
+  network: string,
+  options?: TheGraphClientOptions,
+): TheGraphClient => {
+  const baseUrl = options?.baseUrl || network === 'private' ? 'http://localhost:8000' : BASE_URL;
   // Note: it is also possible to use the IPFS hash of the subgraph
   //  eg. /subgraphs/id/QmcCaSkefrmhe4xQj6Y6BBbHiFkbrn6UGDEBUWER7nt399
   //  which is a better security but would require an update of the
   //  library each time the subgraph is updated, which isn't ideal
   //  for early testing.
   const url = `${baseUrl}/subgraphs/name/requestnetwork/request-payments-${network}`;
-  return getSdk(new GraphQLClient(url, {}));
+  return getSdk(new GraphQLClient(url, options));
 };
 
 // Note: temporary until TheGraph has been thoroughly tested
 export const networkSupportsTheGraph = (network: string): boolean => {
   return !['mainnet', 'rinkeby', 'private'].includes(network);
+};
+
+export const networkSupportsTheGraphForNativePayments = (network: string): boolean => {
+  return !['mainnet', 'private'].includes(network);
 };

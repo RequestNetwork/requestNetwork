@@ -52,6 +52,8 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
 };
 
 const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
+  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+
   async createExtensionsDataForCreation(): Promise<any> {
     return;
   },
@@ -67,6 +69,7 @@ const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
 };
 
 const mockDeclarativePaymentNetwork: PaymentTypes.IPaymentNetwork = {
+  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
   async createExtensionsDataForCreation(): Promise<any> {
     return;
   },

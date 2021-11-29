@@ -5,49 +5,53 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import BTCAddressedBased from './btc/mainnet-address-based';
-import TestnetBTCAddressedBased from './btc/testnet-address-based';
-import Declarative from './declarative';
-import ERC20AddressBased from './erc20/address-based';
-import ERC20FeeProxyContract from './erc20/fee-proxy-contract';
-import ERC20ProxyContract from './erc20/proxy-contract';
-import EthInputData from './eth/input-data';
-import ETHFeeProxyDetector from './eth/fee-proxy-detector';
-import AnyToErc20Proxy from './any/any-to-erc20-proxy-contract';
-import NearNativeTokenPaymentDetector from './near-detector';
+import { BtcMainnetAddressBasedDetector } from './btc/mainnet-address-based';
+import { BtcTestnetAddressBasedDetector } from './btc/testnet-address-based';
+import { DeclarativePaymentDetector } from './declarative';
+import { ERC20AddressBasedPaymentDetector } from './erc20/address-based';
+import { ERC20FeeProxyPaymentDetector } from './erc20/fee-proxy-contract';
+import { ERC20ProxyPaymentDetector } from './erc20/proxy-contract';
+import { EthInputDataPaymentDetector } from './eth/input-data';
+import { EthFeeProxyPaymentDetector } from './eth/fee-proxy-detector';
+import { AnyToERC20PaymentDetector } from './any/any-to-erc20-proxy';
+import { NearNativeTokenPaymentDetector } from './near-detector';
+import { AnyToEthFeeProxyPaymentDetector } from './any/any-to-eth-proxy';
+
+const PN_ID = PaymentTypes.PAYMENT_NETWORK_ID;
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
   BTC: {
     mainnet: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: BTCAddressedBased,
+      [PN_ID.BITCOIN_ADDRESS_BASED]: BtcMainnetAddressBasedDetector,
     },
     testnet: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: TestnetBTCAddressedBased,
+      [PN_ID.TESTNET_BITCOIN_ADDRESS_BASED]: BtcTestnetAddressBasedDetector,
     },
   },
   ERC20: {
     '*': {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: ERC20AddressBased,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: ERC20ProxyContract,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyContract,
+      [PN_ID.ERC20_ADDRESS_BASED]: ERC20AddressBasedPaymentDetector,
+      [PN_ID.ERC20_PROXY_CONTRACT]: ERC20ProxyPaymentDetector,
+      [PN_ID.ERC20_FEE_PROXY_CONTRACT]: ERC20FeeProxyPaymentDetector,
     },
   },
   ETH: {
-    aurora: { [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
+    aurora: { [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
     'aurora-testnet': {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
+      [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
     },
     '*': {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: EthInputData,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: ETHFeeProxyDetector,
+      [PN_ID.ETH_INPUT_DATA]: EthInputDataPaymentDetector,
+      [PN_ID.ETH_FEE_PROXY_CONTRACT]: EthFeeProxyPaymentDetector,
     },
   },
 };
 
 const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY as string]: AnyToErc20Proxy,
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: Declarative,
+  [PN_ID.ANY_TO_ERC20_PROXY]: AnyToERC20PaymentDetector,
+  [PN_ID.DECLARATIVE]: DeclarativePaymentDetector,
+  [PN_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */
@@ -60,6 +64,7 @@ export default class PaymentNetworkFactory {
    * @param currency the currency of the request
    * @param paymentNetworkCreationParameters creation parameters of payment network
    * @param bitcoinDetectionProvider bitcoin detection provider
+   * @param currencyManager the currency manager handling supported currencies
    * @returns the module to handle the payment network
    */
   public static createPaymentNetwork({
@@ -75,7 +80,7 @@ export default class PaymentNetworkFactory {
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
     currencyManager: ICurrencyManager;
   }): PaymentTypes.IPaymentNetwork {
-    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+    const paymentNetworkForCurrency = this.supportedPaymentNetworksForCurrency(currency);
 
     if (!paymentNetworkForCurrency[paymentNetworkCreationParameters.id]) {
       throw new Error(
@@ -102,6 +107,7 @@ export default class PaymentNetworkFactory {
    * @param request the request
    * @param bitcoinDetectionProvider bitcoin detection provider
    * @param explorerApiKeys the explorer API (eg Etherscan) api keys, for PNs that rely on it. Record by network name.
+   * @param currencyManager the currency manager handling supported currencies
    * @returns the module to handle the payment network or null if no payment network found
    */
   public static getPaymentNetworkFromRequest({
@@ -127,7 +133,7 @@ export default class PaymentNetworkFactory {
     }
 
     const paymentNetworkId = extensionPaymentNetwork.id;
-    const paymentNetworkForCurrency = supportedPaymentNetworksForCurrency(currency);
+    const paymentNetworkForCurrency = this.supportedPaymentNetworksForCurrency(currency);
 
     if (!paymentNetworkForCurrency[paymentNetworkId]) {
       throw new Error(
@@ -144,23 +150,37 @@ export default class PaymentNetworkFactory {
       currencyManager,
     });
   }
-}
 
-/**
- * Gets the payment networks supported for a Currency object
- *
- * @param currency The currency to get the supported networks for
- */
-function supportedPaymentNetworksForCurrency(
-  currency: RequestLogicTypes.ICurrency,
-): PaymentTypes.IPaymentNetworkModuleByType {
-  if (!supportedPaymentNetwork[currency.type]) {
-    return anyCurrencyPaymentNetwork;
+  /**
+   * Gets the payment networks supported for a Currency object
+   *
+   * @param currency The currency to get the supported networks for
+   */
+  public static supportedPaymentNetworksForCurrency(
+    currency: RequestLogicTypes.ICurrency,
+  ): PaymentTypes.IPaymentNetworkModuleByType {
+    if (!supportedPaymentNetwork[currency.type]) {
+      return anyCurrencyPaymentNetwork;
+    }
+
+    const paymentNetwork =
+      supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] ||
+      supportedPaymentNetwork[currency.type]['*'];
+
+    return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
   }
 
-  const paymentNetwork =
-    supportedPaymentNetwork[currency.type][currency.network || 'mainnet'] ||
-    supportedPaymentNetwork[currency.type]['*'];
-
-  return { ...paymentNetwork, ...anyCurrencyPaymentNetwork };
+  /**
+   * Checks if a networkId is part of the supported networks for given currency
+   *
+   * @param paymentNetworkId The networkId to check is supported by this currency
+   * @param currency The currency to check the supported networks for
+   */
+  public static currencySupportsPaymentNetwork(
+    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    currency: RequestLogicTypes.ICurrency,
+  ): boolean {
+    const paymentNetworks = this.supportedPaymentNetworksForCurrency(currency);
+    return !!paymentNetworks[paymentNetworkId];
+  }
 }

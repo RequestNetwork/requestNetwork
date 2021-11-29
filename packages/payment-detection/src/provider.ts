@@ -37,6 +37,8 @@ const networkRpcs: Record<string, string> = {
   fantom: 'https://rpcapi.fantom.network',
   fuse: 'https://rpc.fuse.io',
   bsctest: 'https://data-seed-prebsc-1-s1.binance.org:8545',
+  bsc: 'https://bsc-dataseed1.binance.org/',
+  xdai: 'https://rpc.xdaichain.com/',
 };
 
 /**

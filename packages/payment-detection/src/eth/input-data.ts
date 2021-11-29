@@ -1,9 +1,15 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import { AdvancedLogicTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
-import EthInputDataInfoRetriever from './info-retriever';
-import EthProxyInputDataInfoRetriever from './proxy-info-retriever';
-import ReferenceBasedDetector from '../reference-based-detector';
+import { EthInputDataInfoRetriever } from './info-retriever';
+import { EthProxyInfoRetriever } from './proxy-info-retriever';
+import { ReferenceBasedDetector } from '../reference-based-detector';
+import { makeGetDeploymentInformation } from '../utils';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -19,8 +25,12 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
+  ExtensionTypes.PnReferenceBased.IReferenceBased,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   private explorerApiKeys: Record<string, string>;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -32,70 +42,66 @@ export default class PaymentNetworkETHInputData extends ReferenceBasedDetector<P
     explorerApiKeys?: Record<string, string>;
   }) {
     super(
+      PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     );
     this.explorerApiKeys = explorerApiKeys || {};
   }
 
   /**
-   * Extracts the balance and events of an address
+   * Extracts payment events of an address matching an address and a payment reference
    *
-   * @private
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param network The id of network we want to check
+   * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
-   * @param paymentNetworkVersion the version of the payment network
+   * @param paymentNetwork the payment network
    * @returns The balance
    */
   protected async extractEvents(
-    address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    network: string,
+    address: string | undefined,
     paymentReference: string,
-    paymentNetworkVersion: string,
+    _requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+    if (!address) {
+      return [];
+    }
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
       eventName,
-      network,
+      paymentChain,
       paymentReference,
-      this.explorerApiKeys[network],
+      this.explorerApiKeys[paymentChain],
     );
     const events = await infoRetriever.getTransferEvents();
-    const proxyContractArtifact = await this.safeGetProxyArtifact(network, paymentNetworkVersion);
+    const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(
+      paymentChain,
+      paymentNetwork.version,
+    );
 
     if (proxyContractArtifact) {
-      const proxyInfoRetriever = new EthProxyInputDataInfoRetriever(
+      const proxyInfoRetriever = new EthProxyInfoRetriever(
         paymentReference,
         proxyContractArtifact.address,
         proxyContractArtifact.creationBlockNumber,
         address,
         eventName,
-        network,
+        paymentChain,
       );
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
-      for (const event of proxyEvents) {
-        events.push(event);
-      }
+      events.push(...proxyEvents);
     }
     return events;
   }
 
   /*
-   * Fetches events from the Ethereum Proxy, or returns null
+   * Returns deployment information for the underlying smart contract for a given payment network version
    */
-  private async safeGetProxyArtifact(network: string, paymentNetworkVersion: string) {
-    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetworkVersion];
-    try {
-      return SmartContracts.ethereumProxyArtifact.getDeploymentInformation(
-        network,
-        contractVersion,
-      );
-    } catch (error) {
-      console.warn(error);
-    }
-    return null;
-  }
+  public static getDeploymentInformation = makeGetDeploymentInformation(
+    SmartContracts.ethereumProxyArtifact,
+    PROXY_CONTRACT_ADDRESS_MAP,
+  );
 }

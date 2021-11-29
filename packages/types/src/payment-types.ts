@@ -1,6 +1,7 @@
 import { IIdentity } from './identity-types';
 import * as Extension from './extension-types';
 import * as RequestLogic from './request-logic-types';
+import { ICreationParameters } from './extensions/pn-any-declarative-types';
 
 /** Object interface to list the payment network id and its module by currency */
 export interface ISupportedPaymentNetworkByCurrency {
@@ -24,7 +25,7 @@ export interface IPaymentNetworkCreateParameters {
 }
 
 /** Parameters to create a request with reference based payment network */
-export interface IReferenceBasedCreationParameters {
+export interface IReferenceBasedCreationParameters extends ICreationParameters {
   paymentAddress?: string;
   refundAddress?: string;
   salt?: string;
@@ -45,6 +46,7 @@ export interface IAnyToErc20CreationParameters extends IFeeReferenceBasedCreatio
 
 /** Interface of the class to manage a payment network  */
 export interface IPaymentNetwork<TEventParameters = any> {
+  paymentNetworkId: PAYMENT_NETWORK_ID;
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
@@ -107,6 +109,7 @@ export enum PAYMENT_NETWORK_ID {
   NATIVE_TOKEN = Extension.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
   DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  ANY_TO_ETH_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
 }
 
 /** Generic info retriever interface */
@@ -139,6 +142,13 @@ export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
 >;
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
+
+export type ConversionPaymentNetworkEventParameters =
+  | IERC20PaymentEventParameters
+  | IERC20FeePaymentEventParameters
+  | IETHPaymentEventParameters
+  | IETHFeePaymentEventParameters;
+export type ConversionPaymentNetworkEvent = IPaymentNetworkEvent<ConversionPaymentNetworkEventParameters>;
 
 /** Parameters for events of ETH payments */
 export interface IETHPaymentEventParameters {
@@ -175,6 +185,8 @@ export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters
 
 /** Parameters for events of Declarative payments */
 export interface IDeclarativePaymentEventParameters {
+  txHash?: string;
+  network?: string;
   note?: string;
   from?: IIdentity;
 }

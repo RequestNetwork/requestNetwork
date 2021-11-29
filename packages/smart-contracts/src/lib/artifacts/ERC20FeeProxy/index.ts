@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+// @ts-ignore Cannot find module
 import type { ERC20FeeProxy } from '../../../types/ERC20FeeProxy';
 
 export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
@@ -43,7 +44,7 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
         },
         xdai: {
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
-          creationBlockNumber: 18326896
+          creationBlockNumber: 18326896,
         },
       },
     },
@@ -85,11 +86,19 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
         },
         xdai: {
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
-          creationBlockNumber: 18326896
+          creationBlockNumber: 18326896,
         },
         bsctest: {
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
-          creationBlockNumber: 12759691
+          creationBlockNumber: 12759691,
+        },
+        bsc: {
+          address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+          creationBlockNumber: 11540173,
+        },
+        fantom: {
+          address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+          creationBlockNumber: 20060722,
         },
       },
     },
