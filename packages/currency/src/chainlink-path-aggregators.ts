@@ -1,7 +1,6 @@
 import GRAPH from 'node-dijkstra';
 import { CurrencyDefinition } from './types';
 
-
 // List of currencies supported by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
 // Network => currencyFrom => currencyTo => cost
 // Must be updated every time an aggregator is added
@@ -82,6 +81,7 @@ export const chainlinkCurrencyPairs: any = {
       '0x6b175474e89094c44da98b954eedeac495271d0f': 1,
       '0xc944e90c64b2c07662a292be6244bdf05cda44a7': 1,
       '0x967da4048cd07ab37855c090aaf366e4ce1b9f48': 1,
+      '0x0f5d2fb29fb7d3cfee444a200298f468908cc942': 1,
     },
     '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -138,6 +138,9 @@ export const chainlinkCurrencyPairs: any = {
     },
     '0x8ab7404063ec4dbcfd4598215992dc3f8ec853d7': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x0f5d2fb29fb7d3cfee444a200298f468908cc942': {
+      '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
     },
   },
   matic: {
@@ -273,4 +276,3 @@ export function getPath(
   // Get the path
   return route.path(currencyFrom.hash.toLowerCase(), currencyTo.hash.toLowerCase());
 }
-
