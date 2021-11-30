@@ -38,12 +38,12 @@ export function getEthereumStorage(
       providerOrUrl: new Web3WsProvider(config.getStorageWeb3ProviderUrl(), {
         clientConfig: {
           keepalive: true,
-          keepaliveInterval: 60000, // ms
+          keepaliveInterval: 10000, // ms
         },
         // Enable auto reconnection
         reconnect: {
           auto: true,
-          delay: 5000, // ms
+          delay: 3000, // ms
           maxAttempts: 5,
           onTimeout: false,
         },
