@@ -8,7 +8,9 @@ import {
 
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
+import TheGraphInfoRetriever from '../erc20/thegraph-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
+import { networkSupportsTheGraphForNativePayments } from '../thegraph';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -22,7 +24,10 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH fee proxy extension
  */
-export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
+  ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  PaymentTypes.IETHFeePaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -36,24 +41,32 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<Paymen
   /**
    * Extracts payment events of an address matching an address and a payment reference
    *
-   * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param requestCurrency The request currency
+   * @param address Address to check
    * @param paymentReference The reference to identify the payment
+   * @param _requestCurrency The request currency
+   * @param paymentChain the name of the payment (block)chain
    * @param paymentNetwork the payment network
    * @returns The balance
    */
   protected async extractEvents(
-    address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
+    address: string | undefined,
     paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
+    _requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased extends ExtensionTypes.IExtension<
+      infer X
+    >
+      ? ExtensionTypes.IState<X>
+      : never,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
+    if (!address) {
+      return [];
+    }
 
     const proxyContractArtifact = EthFeeProxyPaymentDetector.getDeploymentInformation(
-      network,
+      paymentChain,
       paymentNetwork.version,
     );
 
@@ -61,16 +74,25 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<Paymen
       throw Error('ETH fee proxy contract not found');
     }
 
-    const proxyInfoRetriever = new EthProxyInfoRetriever(
-      paymentReference,
-      proxyContractArtifact.address,
-      proxyContractArtifact.creationBlockNumber,
-      address,
-      eventName,
-      network,
-    );
+    const proxyInfoRetriever = networkSupportsTheGraphForNativePayments(paymentChain)
+      ? new TheGraphInfoRetriever(
+          paymentReference,
+          proxyContractArtifact.address,
+          null,
+          address,
+          eventName,
+          paymentChain,
+        )
+      : new EthProxyInfoRetriever(
+          paymentReference,
+          proxyContractArtifact.address,
+          proxyContractArtifact.creationBlockNumber,
+          address,
+          eventName,
+          paymentChain,
+        );
 
-    return await proxyInfoRetriever.getTransferEvents();
+    return proxyInfoRetriever.getTransferEvents();
   }
 
   /*

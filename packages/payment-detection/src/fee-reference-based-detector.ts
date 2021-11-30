@@ -1,3 +1,4 @@
+import { BigNumber } from 'ethers';
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { ReferenceBasedDetector } from './reference-based-detector';
@@ -6,12 +7,12 @@ import { ReferenceBasedDetector } from './reference-based-detector';
  * Abstract class to extend to get the payment balance of reference based requests
  */
 export abstract class FeeReferenceBasedDetector<
-  TPaymentEventParameters,
-  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased = ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased
-> extends ReferenceBasedDetector<TPaymentEventParameters, TExtension> {
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  TPaymentEventParameters extends { feeAmount?: string; feeAddress?: string }
+> extends ReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
+   * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
-   * @param extensionType Example : ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA
    */
 
   public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
@@ -56,21 +57,66 @@ export abstract class FeeReferenceBasedDetector<
     });
   }
 
-  /**
-   * Extracts payment events of an address matching an address and a payment reference
-   *
-   * @param address Address to check
-   * @param eventName Indicate if it is an address for payment or refund
-   * @param requestCurrency The request currency
-   * @param paymentReference The reference to identify the payment
-   * @param paymentNetwork the payment network
-   * @returns The balance
-   */
-  protected abstract extractEvents(
-    address: string,
-    eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
-    paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+  public async getBalance(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<
+    PaymentTypes.IBalanceWithEvents<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >
+  > {
+    const balance = await super.getBalance(request);
+    if (balance.error) {
+      return balance;
+    }
+    // FIXME: should be at the same level as balance
+    const values: any = this.getPaymentExtension(request).values;
+    values.feeBalance = await this.getFeeBalance(request, balance);
+
+    return balance;
+  }
+
+  public async getFeeBalance(
+    request: RequestLogicTypes.IRequest,
+    balance: PaymentTypes.IBalanceWithEvents<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >,
+  ): Promise<
+    PaymentTypes.IBalanceWithEvents<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >
+  > {
+    const { feeAddress } = this.getPaymentExtension(request).values;
+    this.checkRequiredParameter(feeAddress, 'feeAddress');
+    const feeBalance = this.computeFeeBalance(balance.events).toString();
+
+    return {
+      events: balance.events,
+      balance: feeBalance,
+    };
+  }
+
+  protected filterEvents(
+    request: RequestLogicTypes.IRequest,
+    events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
+  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
+    // for a PN with fees, we ignore events with wrong fees.
+    const { feeAddress } = this.getPaymentExtension(request).values;
+    return events.filter(
+      (x) => !x.parameters?.feeAddress || x.parameters.feeAddress === feeAddress,
+    );
+  }
+
+  protected computeFeeBalance(
+    feeEvents: PaymentTypes.IPaymentNetworkEvent<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >[],
+  ): BigNumber {
+    return feeEvents.reduce(
+      (sum, curr) =>
+        curr.parameters && 'feeAmount' in curr.parameters && curr.parameters.feeAmount
+          ? sum.add(curr.parameters.feeAmount)
+          : sum,
+      BigNumber.from(0),
+    );
+  }
 }

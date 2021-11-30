@@ -20,6 +20,12 @@ export class VersionNotSupported extends BalanceError {
   }
 }
 
+export class ExtensionMissingRequiredValue extends BalanceError {
+  constructor(extension: PaymentTypes.PAYMENT_NETWORK_ID, name: string) {
+    super(`${extension} misses required value ${name}`, PaymentTypes.BALANCE_ERROR_CODE.UNKNOWN);
+  }
+}
+
 /**
  * Creates the object IBalanceWithEvents from the error code and error message
  *

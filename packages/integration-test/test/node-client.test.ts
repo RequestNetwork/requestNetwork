@@ -501,7 +501,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     },
   };
 
-  it('can create an ERC20 request on localhost and detect the payment using address based detection', async () => {
+  it('can create an ERC20 request on localhost', async () => {
     // Create a request
     const request = await requestNetwork.createRequest({
       paymentNetwork,
@@ -653,6 +653,7 @@ describe('ETH localhost request creation and detection test', () => {
     await paymentTx.wait();
 
     data = await request.refresh();
+    expect(data.balance?.error).toBeUndefined();
     expect(data.balance?.balance).toBe('1000');
     expect(data.balance?.events.length).toBe(1);
     const event = data.balance?.events[0];

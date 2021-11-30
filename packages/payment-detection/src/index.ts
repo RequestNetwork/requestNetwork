@@ -11,6 +11,7 @@ import { getTheGraphClient, networkSupportsTheGraph } from './thegraph';
 import { parseLogArgs, padAmountForChainlink, unpadAmountFromChainlink } from './utils';
 import { NearInfoRetriever } from './near-info-retriever';
 import { NearNativeTokenPaymentDetector } from './near-detector';
+import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 
 export type { TheGraphClient } from './thegraph';
 
@@ -29,6 +30,7 @@ export {
   EthFeeProxyPaymentDetector,
   AnyToERC20PaymentDetector,
   AnyToEthFeeProxyPaymentDetector,
+  FeeReferenceBasedDetector,
   Near,
   setProviderFactory,
   initPaymentDetectionApiKeys,
