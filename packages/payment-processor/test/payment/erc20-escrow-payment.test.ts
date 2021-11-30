@@ -192,131 +192,140 @@ describe('erc20-escrow-payment tests:', () => {
     beforeEach(async () => {
       await approveErc20ForEscrow(validRequest, erc20ContractAddress, wallet);
     });
-    it('Should pay the amount and fee from payers account', async () => {
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
 
-      const payerBeforeBalance = await getErc20Balance(request, payerAddress);
-      const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
-      const feeBeforeBalance = await getErc20Balance(request, feeAddress);
+    describe('Normal Flow:', () => {
+      it('Should pay the amount and fee from payers account', async () => {
+        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
 
-      await payEscrow(request, wallet, undefined, undefined);
+        const payerBeforeBalance = await getErc20Balance(request, payerAddress);
+        const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
+        const feeBeforeBalance = await getErc20Balance(request, feeAddress);
 
-      const payerAfterBalance = await getErc20Balance(request, payerAddress);
-      const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
-      const feeAfterBalance = await getErc20Balance(request, feeAddress);
+        await payEscrow(request, wallet, undefined, undefined);
 
-      // Expect payer ERC20 balance should be lower.
-      expect(
-        BigNumber.from(payerAfterBalance).eq(BigNumber.from(payerBeforeBalance).sub(102)),
-      ).toBeTruthy();
-      // Expect fee ERC20 balance should be higher.
-      expect(
-        BigNumber.from(feeAfterBalance).eq(BigNumber.from(feeBeforeBalance).add(2)),
-      ).toBeTruthy();
-      // Expect escrow Erc20 balance should be higher.
-      expect(
-        BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).add(100)),
-      ).toBeTruthy();
+        const payerAfterBalance = await getErc20Balance(request, payerAddress);
+        const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
+        const feeAfterBalance = await getErc20Balance(request, feeAddress);
+
+        // Expect payer ERC20 balance should be lower.
+        expect(
+          BigNumber.from(payerAfterBalance).eq(BigNumber.from(payerBeforeBalance).sub(102)),
+        ).toBeTruthy();
+        // Expect fee ERC20 balance should be higher.
+        expect(
+          BigNumber.from(feeAfterBalance).eq(BigNumber.from(feeBeforeBalance).add(2)),
+        ).toBeTruthy();
+        // Expect escrow Erc20 balance should be higher.
+        expect(
+          BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).add(100)),
+        ).toBeTruthy();
+      });
+      it('Should withdraw funds and pay funds from escrow to payee', async () => {
+        // Set a new requestID to test independent unit-tests.
+        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        request.requestId = 'aabb';
+
+        // Execute payEscrow
+        await payEscrow(request, wallet, undefined, undefined);
+
+        // Stores balance after payEscrow(), and before withdraws.
+        const payeeBeforeBalance = await getErc20Balance(request, paymentAddress);
+        const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
+
+        await payRequestFromEscrow(request, wallet);
+
+        // Stores balances after withdraws to compare before balance with after balance.
+        const payeeAfterBalance = await getErc20Balance(request, paymentAddress);
+        const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
+
+        // Expect escrow Erc20 balance should be lower.
+        expect(
+          BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).sub(100)),
+        ).toBeTruthy();
+        // Expect payee ERC20 balance should be higher.
+        expect(
+          BigNumber.from(payeeAfterBalance).eq(BigNumber.from(payeeBeforeBalance).add(100)),
+        ).toBeTruthy();
+      });
     });
-    it('Should withdraw funds and pay funds from escrow to payee', async () => {
-      // Set a new requestID to test independent unit-tests.
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = 'aabb';
 
-      // Execute payEscrow
-      await payEscrow(request, wallet, undefined, undefined);
+    describe('Emergency Flow:', () => {
+      it('Should initiate emergency claim', async () => {
+        // Set a new requestID to test independent unit-tests.
+        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        request.requestId = 'aacc';
 
-      // Stores balance after payEscrow(), and before withdraws.
-      const payeeBeforeBalance = await getErc20Balance(request, paymentAddress);
-      const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
+        // Assign the paymentAddress as the payee.
+        const payee = getSigner(provider, paymentAddress);
 
-      await payRequestFromEscrow(request, wallet);
+        // Execute payEscrow.
+        expect(
+          await (await payEscrow(request, wallet, undefined, undefined)).wait(1),
+        ).toBeTruthy();
 
-      // Stores balances after withdraws to compare before balance with after balance.
-      const payeeAfterBalance = await getErc20Balance(request, paymentAddress);
-      const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
+        // Payer initiate emergency claim.
+        const tx = await initiateEmergencyClaim(request, payee);
+        const confirmedTx = await tx.wait(1);
+        
+        // Checks the status and tx.hash.
+        expect(confirmedTx.status).toBe(1);
+        expect(tx.hash).toBeDefined();
+      });
+      it('Should revert emergency claim', async () => {
+        // Set a new requestID to test independent unit-tests.
+        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        request.requestId = 'aadd';
 
-      // Expect escrow Erc20 balance should be lower.
-      expect(
-        BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).sub(100)),
-      ).toBeTruthy();
-      // Expect payee ERC20 balance should be higher.
-      expect(
-        BigNumber.from(payeeAfterBalance).eq(BigNumber.from(payeeBeforeBalance).add(100)),
-      ).toBeTruthy();
+        // Assign the paymentAddress as the payee.
+        const payee = getSigner(provider, paymentAddress);
+
+        // Execute payEscrow.
+        await (await payEscrow(request, wallet, undefined, undefined)).wait(1);
+
+        // Payer initiate emergency claim.
+        await (await initiateEmergencyClaim(request, payee)).wait(1);
+        
+        // Payer reverts the emergency claim.
+        const tx = await revertEmergencyClaim(request, wallet);
+        const confirmedTx = await tx.wait(1);
+
+        // Checks the status and tx.hash.
+        expect(confirmedTx.status).toBe(1);
+        expect(tx.hash).toBeDefined();
+      });
     });
-    it('Should initiate emergency claim', async () => {
-      // Set a new requestID to test independent unit-tests.
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = 'aacc';
+    
+    describe('Freeze Request Flow:', () => {
+      it('Should freeze funds:', async () => {
+        // Set a new requestID to test independent unit-tests.
+        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        request.requestId = 'aaee';
 
-      // Assign the paymentAddress as the payee.
-      const payee = getSigner(provider, paymentAddress);
+        // Execute payEscrow.
+        await (await payEscrow(request, wallet, undefined, undefined)).wait(1);
 
-      // Execute payEscrow.
-      expect(
-        await (await payEscrow(request, wallet, undefined, undefined)).wait(1),
-      ).toBeTruthy();
+        // Payer freeze escrow funds.
+        const tx = await freezeRequest(request, wallet);
+        const confirmedTx = await tx.wait(1);
 
-      // Payer initiate emergency claim.
-      const tx = await initiateEmergencyClaim(request, payee);
-      const confirmedTx = await tx.wait(1);
-      
-      // Checks the status and tx.hash.
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).toBeDefined();
-    });
-    it('Should revert emergency claim', async () => {
-      // Set a new requestID to test independent unit-tests.
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = 'aadd';
+        // Checks the status and tx.hash.
+        expect(confirmedTx.status).toBe(1);
+        expect(tx.hash).toBeDefined();
+      });
+      it('Should revert if tried to withdraw to early:', async () => {
+        // Set a new requestID to test independent unit-tests.
+        const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+        request.requestId = 'aaff';
 
-      // Assign the paymentAddress as the payee.
-      const payee = getSigner(provider, paymentAddress);
+        // Execute payEscrow.
+        await (await payEscrow(request, wallet, undefined, undefined)).wait(1);
 
-      // Execute payEscrow.
-      await (await payEscrow(request, wallet, undefined, undefined)).wait(1);
-
-      // Payer initiate emergency claim.
-      await (await initiateEmergencyClaim(request, payee)).wait(1);
-      
-      // Payer reverts the emergency claim.
-      const tx = await revertEmergencyClaim(request, wallet);
-      const confirmedTx = await tx.wait(1);
-
-      // Checks the status and tx.hash.
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).toBeDefined();
-    });
-    it('Should freeze funds:', async () => {
-      // Set a new requestID to test independent unit-tests.
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = 'aaee';
-
-      // Execute payEscrow.
-      await (await payEscrow(request, wallet, undefined, undefined)).wait(1);
-
-      // Payer freeze escrow funds.
-      const tx = await freezeRequest(request, wallet);
-      const confirmedTx = await tx.wait(1);
-
-      // Checks the status and tx.hash.
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).toBeDefined();
-    });
-    it('Should revert if tried to withdraw to early:', async () => {
-      // Set a new requestID to test independent unit-tests.
-      const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      request.requestId = 'aaff';
-
-      // Execute payEscrow.
-      await (await payEscrow(request, wallet, undefined, undefined)).wait(1);
-
-      // Payer executes a freeze of escrow funds.
-      await (await freezeRequest(request, wallet)).wait(1);
-      
-      // Payer tries to withdraw frozen funds before unlock date.
-      await expect(refundFrozenFunds(request, wallet)).rejects.toThrowError('Not Yet!',);
+        // Payer executes a freeze of escrow funds.
+        await (await freezeRequest(request, wallet)).wait(1);
+        
+        // Payer tries to withdraw frozen funds before unlock date.
+        await expect(refundFrozenFunds(request, wallet)).rejects.toThrowError('Not Yet!',);
+      });
     });
   });
 }); 
