@@ -14,4 +14,6 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
   fantom: '0x16327e3fbdaca3bcf7e38f5af2599d2ddc33ae52',
   // https://github.com/QuickSwap/quickswap-core
   matic: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
+  // https://app.ubeswap.org/#/swap
+  celo: '0x7D28570135A2B1930F331c507F65039D4937f66c',
 };
