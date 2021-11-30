@@ -5,7 +5,8 @@ import * as config from './config';
 import Keyv from 'keyv';
 import KeyvFile from 'keyv-file';
 
-import hdWalletProvider from '@truffle/hdwallet-provider';
+import Web3WsProvider from 'web3-providers-ws';
+import HDWalletProvider from '@truffle/hdwallet-provider';
 
 /**
  * Get the ethereum storage with values from config
@@ -28,7 +29,29 @@ export function getEthereumStorage(
   };
 
   // Initializes web3 connection object
-  const provider = new hdWalletProvider(mnemonic, config.getStorageWeb3ProviderUrl());
+  let provider: HDWalletProvider;
+  if (config.getStorageWeb3ProviderUrl().match('^wss?://.+')) {
+    provider = new HDWalletProvider({
+      mnemonic,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      providerOrUrl: new Web3WsProvider(config.getStorageWeb3ProviderUrl(), {
+        clientConfig: {
+          keepalive: true,
+          keepaliveInterval: 60000, // ms
+        },
+        // Enable auto reconnection
+        reconnect: {
+          auto: true,
+          delay: 5000, // ms
+          maxAttempts: 5,
+          onTimeout: false,
+        },
+      }),
+    });
+  } else {
+    provider = new HDWalletProvider(mnemonic, config.getStorageWeb3ProviderUrl());
+  }
 
   const web3Connection: StorageTypes.IWeb3Connection = {
     networkId: config.getStorageNetworkId(),
