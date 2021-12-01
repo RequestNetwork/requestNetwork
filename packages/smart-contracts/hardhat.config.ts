@@ -53,6 +53,11 @@ export default {
       chainId: 137,
       accounts,
     },
+    celo: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://forno.celo.org',
+      chainId: 42220,
+      accounts,
+    },
     bsctest: {
       url: process.env.WEB3_PROVIDER_URL || 'https://data-seed-prebsc-1-s1.binance.org:8545',
       chainId: 97,
