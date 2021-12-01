@@ -369,7 +369,7 @@ describe('Request client using a request node', () => {
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await new Promise((resolve) => request.on('confirmed', resolve));
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -389,9 +389,7 @@ describe('Request client using a request node', () => {
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.CREATED);
 
     const acceptData = await request.accept(payerIdentity);
-    await new Promise(function (resolve) {
-      acceptData.on('confirmed', resolve);
-    });
+    await new Promise((resolve) => acceptData.on('confirmed', resolve));
 
     await fetchedRequest.refresh();
     fetchedRequestData = fetchedRequest.getData();
@@ -401,9 +399,7 @@ describe('Request client using a request node', () => {
       requestCreationHashBTC.expectedAmount,
       payerIdentity,
     );
-    await new Promise(function (resolve) {
-      increaseData.on('confirmed', resolve);
-    });
+    await new Promise((resolve) => increaseData.on('confirmed', resolve));
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toEqual(
@@ -414,9 +410,7 @@ describe('Request client using a request node', () => {
       Number(requestCreationHashBTC.expectedAmount) * 2,
       payeeIdentity,
     );
-    await new Promise(function (resolve) {
-      reduceData.on('confirmed', resolve);
-    });
+    await new Promise((resolve) => reduceData.on('confirmed', resolve));
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toBe('0');
