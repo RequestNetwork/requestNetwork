@@ -371,15 +371,6 @@ describe('EthereumStorage', () => {
       );
     });
 
-    it('cannot read if ethereumMetadataCache.getDataIdMeta fail', async () => {
-      ethereumStorage.ethereumMetadataCache.getDataIdMeta = async () => {
-        throw Error('expected error');
-      };
-      await expect(ethereumStorage.read(content1)).rejects.toThrowError(
-        `No content found from this id`,
-      );
-    });
-
     it('allows to retrieve all data id (even if pin fail)', async () => {
       ethereumStorage.ipfsManager.pin = () => {
         throw Error('expected error');
