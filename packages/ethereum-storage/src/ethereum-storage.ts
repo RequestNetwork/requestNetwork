@@ -306,13 +306,13 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     const ethereumMetadata = await this.ethereumMetadataCache.getDataIdMeta(id);
 
     // Clear buffer if needed
-    if (ethereumMetadata && this.buffer[id]) {
-      delete this.buffer[id];
-    } else {
+    if (!ethereumMetadata) {
       bufferTimestamp = this.buffer[id];
       if (!bufferTimestamp) {
         throw Error('No content found from this id');
       }
+    } else {
+      delete this.buffer[id];
     }
 
     // Send ipfs request
