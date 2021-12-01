@@ -486,6 +486,8 @@ export default class SmartContractManager {
       },
     );
 
+    console.log('metadata done');
+
     return eventsWithMetaData;
   }
 
@@ -520,6 +522,7 @@ export default class SmartContractManager {
     fromBlock: number,
     toBlock: number | string,
   ): Promise<any[]> {
+    this.logger.debug(`recursive from ${fromBlock} to ${toBlock}`);
     const toBlockNumber: number = await this.getBlockNumberFromNumberOrString(toBlock);
 
     // Reading event logs
@@ -589,6 +592,8 @@ export default class SmartContractManager {
     const contentSize = web3Utils.hexToNumber(event.returnValues.feesParameters);
     const meta = await this.createEthereumMetaData(event.blockNumber, event.transactionHash);
 
+    console.log('metadata done for event.returnValues.hash');
+
     return {
       feesParameters: { contentSize },
       hash: event.returnValues.hash,
@@ -611,29 +616,29 @@ export default class SmartContractManager {
     cost?: string,
     fee?: string,
     gasFee?: string,
-    blockConfirmation?: number,
+    _blockConfirmation?: number,
   ): Promise<StorageTypes.IEthereumMetadata> {
-    if (!blockConfirmation) {
-      // Get the number confirmations of the block hosting the transaction
-      try {
-        blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
-      } catch (error) {
-        throw Error(`Error getting block confirmation number: ${error}`);
-      }
-    }
+    // if (!blockConfirmation) {
+    //   // Get the number confirmations of the block hosting the transaction
+    //   try {
+    //     blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
+    //   } catch (error) {
+    //     throw Error(`Error getting block confirmation number: ${error}`);
+    //   }
+    // }
 
     // Get timestamp of the block hosting the transaction
-    let blockTimestamp;
-    try {
-      blockTimestamp = await this.ethereumBlocks.getBlockTimestamp(blockNumber);
-    } catch (error) {
-      throw Error(`Error getting block ${blockNumber} timestamp: ${error}`);
-    }
+    // let blockTimestamp;
+    // try {
+    //   blockTimestamp = await this.ethereumBlocks.getBlockTimestamp(blockNumber);
+    // } catch (error) {
+    //   throw Error(`Error getting block ${blockNumber} timestamp: ${error}`);
+    // }
 
     return {
-      blockConfirmation,
+      blockConfirmation: 0,
       blockNumber,
-      blockTimestamp,
+      blockTimestamp: 0,
       cost,
       fee,
       gasFee,
