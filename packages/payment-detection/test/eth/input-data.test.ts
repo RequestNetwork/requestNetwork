@@ -4,9 +4,15 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import EthInputData from '../../src/eth/input-data';
+import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
 
-let ethInputData: EthInputData;
+let ethInputData: EthInputDataPaymentDetector;
+
+const createAddPaymentAddressAction = jest.fn();
+const createAddRefundAddressAction = jest.fn();
+const createCreationAction = jest.fn();
+const createAddPaymentInstructionAction = jest.fn();
+const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -14,25 +20,14 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     ethereumInputData: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-      supportedNetworks: ['mainnet'],
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      supportedNetworks: ['mainnet', 'rinkeby'],
+      // inherited from declarative
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
     },
-    declarative: {
-      createAddPaymentInstructionAction(): any {
-        return;
-      },
-      createAddRefundInstructionAction(): any {
-        return;
-      },
-    }
   },
 };
 
@@ -40,76 +35,54 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/input-data', () => {
   beforeEach(() => {
-    ethInputData = new EthInputData({ advancedLogic: mockAdvancedLogic });
+    ethInputData = new EthInputDataPaymentDetector({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    const spy = jest.spyOn(mockAdvancedLogic.extensions.ethereumInputData, 'createCreationAction');
-
     await ethInputData.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
     });
 
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(createCreationAction).toHaveBeenCalledTimes(1);
   });
 
   it('can createExtensionsDataForAddPaymentAddress', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.ethereumInputData,
-      'createAddPaymentAddressAction',
-    );
-
     ethInputData.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddPaymentAddressAction).toHaveBeenCalledWith({
       paymentAddress: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddRefundAddress', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.ethereumInputData,
-      'createAddRefundAddressAction',
-    );
-
     ethInputData.createExtensionsDataForAddRefundAddress({
       refundAddress: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddRefundAddressAction).toHaveBeenCalledWith({
       refundAddress: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createAddPaymentInstructionAction',
-    );
-
     ethInputData.createExtensionsDataForAddPaymentInformation({
       paymentInfo: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddPaymentInstructionAction).toHaveBeenCalledWith({
       paymentInfo: 'ethereum address',
     });
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    const spy = jest.spyOn(
-      mockAdvancedLogic.extensions.declarative,
-      'createAddRefundInstructionAction',
-    );
-
     ethInputData.createExtensionsDataForAddRefundInformation({
       refundInfo: 'ethereum address',
     });
 
-    expect(spy).toHaveBeenCalledWith({
+    expect(createAddRefundInstructionAction).toHaveBeenCalledWith({
       refundInfo: 'ethereum address',
     });
   });
@@ -182,9 +155,7 @@ describe('api/eth/input-data', () => {
       version: '0.2',
     };
 
-    expect(
-      await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest),
-    ).toMatchObject({
+    expect(await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest)).toMatchObject({
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
@@ -193,4 +164,85 @@ describe('api/eth/input-data', () => {
       events: [],
     });
   });
+
+  it('can get balance from rinkeby subgraph', async () => {
+    const rinkebyRequest = {
+      'currency': {
+        network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
+      'expectedAmount': '80000000000000000',
+      'payee': {
+        'type': 'ethereumAddress',
+        'value': '0x1D274D164937465B7A7259347AD3f1aaEEEaC8e1',
+      },
+      'payer': {
+        'type': 'ethereumAddress',
+        'value': '0x5e7D193321A4CCB091038d01755a10d143cb2Dc8',
+      },
+      'timestamp': 1620207049,
+      'extensionsData': [
+        {
+          'action': 'create',
+          'id': 'pn-eth-input-data',
+          'parameters': {
+            'paymentAddress': '0x8400b234e7B113686bD584af9b1041E5a233E754',
+            'salt': '2334c5f6691a9131',
+          },
+          'version': '0.2.0',
+        },
+      ],
+      'extensions': {
+        'pn-eth-input-data': {
+          'events': [
+            {
+              'name': 'create',
+              'parameters': {
+                'paymentAddress': '0x8400b234e7B113686bD584af9b1041E5a233E754',
+                'salt': '2334c5f6691a9131',
+              },
+              'timestamp': 1620207051,
+            },
+          ],
+          'id': 'pn-eth-input-data',
+          'type': 'payment-network',
+          'values': {
+            'paymentAddress': '0x8400b234e7B113686bD584af9b1041E5a233E754',
+            'salt': '2334c5f6691a9131',
+          },
+          'version': '0.2.0',
+        },
+      },
+      'requestId': '0110e7eaba7a3ff2e2239081497308db70e4c66362100d747903ffa5c83d290d5d',
+      'version': '2.0.3',
+      'events': [
+        {
+          'actionSigner': {
+            'type': 'ethereumAddress',
+            'value': '0x1D274D164937465B7A7259347AD3f1aaEEEaC8e1',
+          },
+          'name': 'create',
+          'parameters': {
+            'expectedAmount': '80000000000000000',
+            'extensionsDataLength': 2,
+            'isSignedRequest': false,
+          },
+          'timestamp': 1620207051,
+        },
+      ],
+      'state': 'created',
+      'creator': {
+        'type': 'ethereumAddress',
+        'value': '0x1D274D164937465B7A7259347AD3f1aaEEEaC8e1',
+      },
+    };
+    const balance = await ethInputData.getBalance(rinkebyRequest as RequestLogicTypes.IRequest);
+    expect(balance.balance).toBe('80000000000000000');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
+    expect(balance.events[0].amount).toBe('80000000000000000');
+    expect(typeof balance.events[0].timestamp).toBe('number');
+  });
+
 });

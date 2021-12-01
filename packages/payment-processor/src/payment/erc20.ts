@@ -1,7 +1,6 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
-import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
-import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
@@ -14,6 +13,7 @@ import {
   getNetworkProvider,
   getPaymentNetworkExtension,
   getProvider,
+  getProxyAddress as genericGetProxyAddress,
   getSigner,
   validateRequest,
 } from './utils';
@@ -239,16 +239,22 @@ export function _getErc20PaymentUrl(
 function getProxyAddress(request: ClientTypes.IRequestData): string {
   const pn = getPaymentNetworkExtension(request);
   const id = pn?.id;
-  const version = pn?.version;
-
-  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
-    return erc20ProxyArtifact.getAddress(request.currencyInfo.network!, version);
-  }
-  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
-    return erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!, version);
-  }
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
     throw new Error(`ERC20 address based payment network doesn't need approval`);
   }
+
+  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT) {
+    return genericGetProxyAddress(
+      request,
+      Erc20PaymentNetwork.ERC20ProxyPaymentDetector.getDeploymentInformation,
+    );
+  }
+  if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT) {
+    return genericGetProxyAddress(
+      request,
+      Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getDeploymentInformation,
+    );
+  }
+
   throw new Error(`Unsupported payment network: ${id}`);
 }

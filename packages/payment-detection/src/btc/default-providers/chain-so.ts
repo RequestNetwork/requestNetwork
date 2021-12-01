@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import fetch from 'node-fetch';
+import Axios from 'axios';
 import * as converterBTC from 'satoshi-bitcoin';
 import { BigNumber } from 'ethers';
 
@@ -13,7 +13,7 @@ const CHAINSO_REQUEST_RETRY_DELAY = 100;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of chain.so
  */
-export default class ChainSo implements PaymentTypes.IBitcoinDetectionProvider {
+export class ChainSoProvider implements PaymentTypes.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using chain.so public API
    *
@@ -31,7 +31,7 @@ export default class ChainSo implements PaymentTypes.IBitcoinDetectionProvider {
     const queryUrl = `${baseUrl}${address}`;
 
     try {
-      const res = await Utils.retry(async () => fetch(queryUrl), {
+      const res = await Utils.retry(async () => Axios.get(queryUrl), {
         maxRetries: CHAINSO_REQUEST_MAX_RETRY,
         retryDelay: CHAINSO_REQUEST_RETRY_DELAY,
       })();
@@ -40,7 +40,7 @@ export default class ChainSo implements PaymentTypes.IBitcoinDetectionProvider {
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
-      const data = await res.json();
+      const data = res.data;
 
       if (data.status === 'fail') {
         throw new Error(`Error bad response from ${baseUrl}: ${data.message}`);

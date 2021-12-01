@@ -55,14 +55,13 @@
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
     "axios": "0.21.1",
-    "ethers": "5.5.1"
+    "ethers": "5.5.1",
+    "tslib": "2.3.1"
   },
   "devDependencies": {
     "@compodoc/compodoc": "1.1.11",
     "@types/jest": "26.0.13",
-    "@types/node-fetch": "2.5.7",
     "amd-loader": "0.0.8",
-    "awesome-typescript-loader": "5.2.1",
     "axios-mock-adapter": "1.19.0",
     "duplicate-package-checker-webpack-plugin": "3.0.0",
     "jest": "26.4.2",
@@ -73,6 +72,7 @@
     "source-map-support": "0.5.19",
     "terser-webpack-plugin": "4.2.3",
     "ts-jest": "26.3.0",
+    "ts-loader": "8.3.0",
     "ts-node": "9.0.0",
     "typescript": "4.4.4",
     "webpack": "4.44.2",

@@ -555,13 +555,15 @@ export default class SmartContractManager {
     cost?: string,
     fee?: string,
     gasFee?: string,
+    blockConfirmation?: number,
   ): Promise<StorageTypes.IEthereumMetadata> {
-    // Get the number confirmations of the block hosting the transaction
-    let blockConfirmation;
-    try {
-      blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
-    } catch (error) {
-      throw Error(`Error getting block confirmation number: ${error}`);
+    if (!blockConfirmation) {
+      // Get the number confirmations of the block hosting the transaction
+      try {
+        blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
+      } catch (error) {
+        throw Error(`Error getting block confirmation number: ${error}`);
+      }
     }
     // Get timestamp of the block hosting the transaction
     let blockTimestamp;

@@ -28,7 +28,28 @@ export function getEthereumStorage(
   };
 
   // Initializes web3 connection object
-  const provider = new providers.JsonRpcProvider(config.getStorageWeb3ProviderUrl());
+
+  let provider: providers.Provider;
+  const url = config.getStorageWeb3ProviderUrl();
+  if (url.match('^wss?://.+')) {
+    provider = new providers.WebSocketProvider(url);
+    // TODO previous WS config
+    // {
+    //   clientConfig: {
+    //     keepalive: true,
+    //     keepaliveInterval: 10000, // ms
+    //   },
+    //   // Enable auto reconnection
+    //   reconnect: {
+    //     auto: true,
+    //     delay: 3000, // ms
+    //     maxAttempts: 5,
+    //     onTimeout: false,
+    //   },
+    // }
+  } else {
+    provider = new providers.JsonRpcProvider(url);
+  }
   const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
   const web3Connection: StorageTypes.IWeb3Connection = {

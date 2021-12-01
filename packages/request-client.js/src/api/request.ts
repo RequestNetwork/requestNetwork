@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-import { DeclarativePaymentNetwork as PaymentNetworkDeclarative } from '@requestnetwork/payment-detection';
+import { DeclarativePaymentDetector } from '@requestnetwork/payment-detection';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
@@ -102,9 +102,14 @@ export default class Request {
     this.currencyManager = currencyManager;
 
     if (options && options.requestLogicCreateResult && !this.disableEvents) {
-      options.requestLogicCreateResult
+      const originalEmitter = options.requestLogicCreateResult;
+      originalEmitter
         .on('confirmed', async () => {
-          this.emitter.emit('confirmed', await this.refresh());
+          try {
+            this.emitter.emit('confirmed', await this.refresh());
+          } catch (error) {
+            originalEmitter.emit('error', error);
+          }
         })
         .on('error', (error) => {
           this.confirmationErrorOccurredAtCreation = true;
@@ -167,21 +172,7 @@ export default class Request {
 
     const acceptResult = await this.requestLogic.acceptRequest(parameters, signerIdentity, true);
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      acceptResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(acceptResult);
   }
 
   /**
@@ -212,21 +203,7 @@ export default class Request {
 
     const cancelResult = await this.requestLogic.cancelRequest(parameters, signerIdentity, true);
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      cancelResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(cancelResult);
   }
 
   /**
@@ -263,19 +240,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-    if (!this.disableEvents) {
-      increaseExpectedResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-    return requestDataPromise;
+    return this.handleRequestDataEvents(increaseExpectedResult);
   }
 
   /**
@@ -313,21 +278,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      reduceExpectedResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(reduceExpectedResult);
   }
 
   /**
@@ -362,20 +313,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -410,21 +348,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -447,8 +371,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentPayment
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment) {
       throw new Error('Cannot declare sent payment without declarative payment network');
@@ -469,21 +392,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -506,8 +415,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareSentRefund
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareSentRefund) {
       throw new Error('Cannot declare sent refund without declarative payment network');
@@ -531,21 +439,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -555,6 +449,7 @@ export default class Request {
    * @param note Note from payee about the received payment
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param txHash transaction hash
+   * @param network network of the transaction
    * @returns The updated request
    */
   public async declareReceivedPayment(
@@ -562,6 +457,7 @@ export default class Request {
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
     txHash?: string,
+    network?: string,
   ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
@@ -570,8 +466,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedPayment
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedPayment) {
       throw new Error('Cannot declare received payment without declarative payment network');
@@ -582,6 +477,7 @@ export default class Request {
         amount,
         note,
         txHash,
+        network,
       }),
     );
 
@@ -596,21 +492,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -620,6 +502,7 @@ export default class Request {
    * @param note Note from payer about the received refund
    * @param signerIdentity Identity of the signer. The identity type must be supported by the signature provider.
    * @param txHash transaction hash
+   * @param network network of the transaction
    * @returns The updated request
    */
   public async declareReceivedRefund(
@@ -627,6 +510,7 @@ export default class Request {
     note: string,
     signerIdentity: IdentityTypes.IIdentity,
     txHash?: string,
+    network?: string,
   ): Promise<Types.IRequestDataWithEvents> {
     const extensionsData: any[] = [];
 
@@ -635,8 +519,7 @@ export default class Request {
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedRefund
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForDeclareReceivedRefund) {
       throw new Error('Cannot declare received refund without declarative payment network');
@@ -647,6 +530,7 @@ export default class Request {
         amount,
         note,
         txHash,
+        network,
       }),
     );
 
@@ -661,21 +545,7 @@ export default class Request {
       true,
     );
 
-    // refresh the local request data
-    const requestDataPromise = this.refresh();
-
-    if (!this.disableEvents) {
-      addExtensionResult
-        .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
-        })
-        .on('error', (error) => {
-          this.emitter.emit('error', error);
-        });
-    }
-
-    return requestDataPromise;
+    return this.handleRequestDataEvents(addExtensionResult);
   }
 
   /**
@@ -689,15 +559,14 @@ export default class Request {
     delegate: IdentityTypes.IIdentity,
     signerIdentity: IdentityTypes.IIdentity,
   ): Promise<Types.IRequestDataWithEvents> {
-    const extensionsData: any[] = [];
+    const extensionsData: Types.Extension.IAction[] = [];
 
     if (!this.paymentNetwork) {
       throw new Error('Cannot declare delegate without payment network');
     }
 
     // We need to cast the object since IPaymentNetwork doesn't implement createExtensionsDataForDeclareReceivedRefund
-    const declarativePaymentNetwork: PaymentNetworkDeclarative = this
-      .paymentNetwork as PaymentNetworkDeclarative;
+    const declarativePaymentNetwork = this.paymentNetwork as DeclarativePaymentDetector;
 
     if (!declarativePaymentNetwork.createExtensionsDataForAddDelegate) {
       throw new Error('Cannot declare delegate without declarative payment network');
@@ -720,20 +589,28 @@ export default class Request {
       true,
     );
 
+    return this.handleRequestDataEvents(addExtensionResult);
+  }
+
+  protected handleRequestDataEvents(
+    eventEmitter: EventEmitter,
+  ): Promise<Types.IRequestDataWithEvents> {
     // refresh the local request data
     const requestDataPromise = this.refresh();
-
     if (!this.disableEvents) {
-      addExtensionResult
+      eventEmitter
         .on('confirmed', async () => {
-          const requestData = await requestDataPromise;
-          requestData.emit('confirmed', await this.refresh());
+          try {
+            const requestData = await requestDataPromise;
+            requestData.emit('confirmed', await this.refresh());
+          } catch (error) {
+            eventEmitter.emit('error', error);
+          }
         })
         .on('error', (error) => {
           this.emitter.emit('error', error);
         });
     }
-
     return requestDataPromise;
   }
 
@@ -818,10 +695,9 @@ export default class Request {
    */
   public async refreshBalance(): Promise<Types.Payment.IBalanceWithEvents<any> | null> {
     // TODO: PROT-1131 - add a pending balance
-    this.balance =
-      this.paymentNetwork && this.requestData
-        ? await this.paymentNetwork.getBalance(this.requestData)
-        : this.balance;
+    if (this.paymentNetwork && this.requestData) {
+      this.balance = await this.paymentNetwork.getBalance(this.requestData);
+    }
 
     return this.balance;
   }

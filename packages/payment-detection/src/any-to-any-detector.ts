@@ -1,31 +1,26 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import FeeReferenceBasedDetector from './fee-reference-based-detector';
+import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 
 import { ICurrencyManager } from '@requestnetwork/currency';
 
 /**
  * Abstract class to extend to get the payment balance of conversion requests
  */
-export default abstract class AnyToAnyDetector<
+export abstract class AnyToAnyDetector<
+  TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
   TPaymentEventParameters
-> extends FeeReferenceBasedDetector<TPaymentEventParameters> {
+> extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension, with conversion
-   * @param extensionType Example : ExtensionTypes.ID.ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY
+   * @param extensionType Example : PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY
    */
   public constructor(
-    protected advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
-    protected extension: ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-    protected extensionType: ExtensionTypes.ID,
+    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
     protected currencyManager: ICurrencyManager,
   ) {
-    super(advancedLogic, extension, extensionType);
+    super(paymentNetworkId, extension);
   }
 
   /**
@@ -52,33 +47,4 @@ export default abstract class AnyToAnyDetector<
       ...paymentNetworkCreationParameters,
     });
   }
-  /**
-   * Extracts payment events of an address matching an address and a payment reference
-   *
-   * @param address Address to check
-   * @param eventName Indicate if it is an address for payment or refund
-   * @param requestCurrency The request currency
-   * @param paymentReference The reference to identify the payment
-   * @param paymentNetwork the payment network
-   * @returns The balance
-   */
-  protected abstract extractEvents(
-    address: string,
-    eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
-    paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
-
-  /**
-   * Get the network of the payment
-   *
-   * @param requestCurrency The request currency
-   * @param paymentNetwork the payment network
-   * @returns The network of payment
-   */
-  protected abstract getPaymentChain(
-    requestCurrency: RequestLogicTypes.ICurrency,
-    paymentNetwork: ExtensionTypes.IState<any>,
-  ): string;
 }

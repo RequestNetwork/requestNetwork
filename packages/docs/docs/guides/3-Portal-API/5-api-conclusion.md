@@ -1,7 +1,6 @@
 ---
 title: Request through the REST API - wrap-up
 sidebar_label: REST API wrap-up
-keywords:
 description: Learn how to integrate Request network and its features.
 ---
 

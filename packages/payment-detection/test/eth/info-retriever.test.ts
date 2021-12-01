@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import EthInfoRetriever from '../../src/eth/info-retriever';
+import { EthInputDataInfoRetriever } from '../../src/eth/info-retriever';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 
 describe('api/eth/info-retriever', () => {
@@ -13,7 +13,7 @@ describe('api/eth/info-retriever', () => {
       paymentAddress,
     ); // 9649a1a4dd5854ed
 
-    const infoRetriever = new EthInfoRetriever(
+    const infoRetriever = new EthInputDataInfoRetriever(
       paymentAddress,
       PaymentTypes.EVENTS_NAMES.PAYMENT,
       'mainnet',
@@ -36,7 +36,7 @@ describe('api/eth/info-retriever', () => {
   });
 
   it('throws when trying to use it in local', async () => {
-    const infoRetreiver = new EthInfoRetriever(
+    const infoRetreiver = new EthInputDataInfoRetriever(
       '0x01',
       PaymentTypes.EVENTS_NAMES.PAYMENT,
       'private',
@@ -49,7 +49,7 @@ describe('api/eth/info-retriever', () => {
     ['mainnet', 'rinkeby', 'xdai', 'sokol', 'fuse', 'celo', 'matic', 'fantom'].forEach(
       (network) => {
         it(`Can get the balance on ${network}`, async () => {
-          const retriever = new EthInfoRetriever(
+          const retriever = new EthInputDataInfoRetriever(
             '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
             PaymentTypes.EVENTS_NAMES.PAYMENT,
             network,
@@ -70,7 +70,7 @@ describe('api/eth/info-retriever', () => {
         paymentAddress,
       );
 
-      const infoRetriever = new EthInfoRetriever(
+      const infoRetriever = new EthInputDataInfoRetriever(
         paymentAddress,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'matic',

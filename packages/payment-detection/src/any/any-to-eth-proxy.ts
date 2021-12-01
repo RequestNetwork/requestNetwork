@@ -8,8 +8,9 @@ import {
 
 import { ICurrencyManager } from '@requestnetwork/currency';
 
-import ProxyInfoRetriever from './any-to-eth-proxy-info-retriever';
-import AnyToAnyDetector from '../any-to-any-detector';
+import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
+import { AnyToAnyDetector } from '../any-to-any-detector';
+import { makeGetDeploymentInformation } from '../utils';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -23,7 +24,10 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
+  ExtensionTypes.PnAnyToEth.IAnyToEth,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -35,9 +39,8 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
     currencyManager: ICurrencyManager;
   }) {
     super(
-      advancedLogic,
+      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
       currencyManager,
     );
   }
@@ -53,39 +56,40 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
    * @returns The balance
    */
   protected async extractEvents(
-    address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
+    address: string | undefined,
     paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
-
-    const contractVersion = PROXY_CONTRACT_ADDRESS_MAP[paymentNetwork.version];
-    const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractVersion);
-    const contractInfos = SmartContracts.ethConversionArtifact.getOptionalDeploymentInformation(
-      network,
-      contractVersion,
+    requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IETHPaymentEventParameters>[]> {
+    if (!address) {
+      return [];
+    }
+    const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
+      paymentChain,
+      paymentNetwork.version,
     );
 
-    if (!contractInfos) {
+    if (!contractInfo) {
       throw Error('ETH conversion proxy contract not found');
     }
+    const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
     if (!currency) {
       throw Error('requestCurrency not found in currency manager');
     }
 
-    const proxyInfoRetriever = new ProxyInfoRetriever(
+    const proxyInfoRetriever = new AnyToEthInfoRetriever(
       currency,
       paymentReference,
-      contractInfos.address,
-      contractInfos.creationBlockNumber,
+      contractInfo.address,
+      contractInfo.creationBlockNumber,
       abi,
       address,
       eventName,
-      network,
+      paymentChain,
       undefined,
       paymentNetwork.values?.maxRateTimespan,
     );
@@ -100,14 +104,19 @@ export default class AnyToEthFeeProxyDetector extends AnyToAnyDetector<PaymentTy
    * @param paymentNetwork the payment network
    * @returns The network of payment
    */
-  protected getPaymentChain(
-    _requestCurrency: RequestLogicTypes.ICurrency,
-    paymentNetwork: ExtensionTypes.IState<any>,
-  ): string {
-    const network = paymentNetwork.values.network;
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+    const network = this.getPaymentExtension(request).values.network;
     if (!network) {
-      throw Error('paymentNetwork.values.network must be defined');
+      throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
     return network;
   }
+
+  /*
+   * Returns deployment information for the underlying smart contract for a given payment network version
+   */
+  public static getDeploymentInformation = makeGetDeploymentInformation(
+    SmartContracts.ethConversionArtifact,
+    PROXY_CONTRACT_ADDRESS_MAP,
+  );
 }

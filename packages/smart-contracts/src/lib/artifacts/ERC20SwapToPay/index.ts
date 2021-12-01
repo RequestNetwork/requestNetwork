@@ -42,6 +42,18 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
           address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
           creationBlockNumber: 12759707,
         },
+        fantom: {
+          address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
+          creationBlockNumber: 20066418,
+        },
+        matic: {
+          address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
+          creationBlockNumber: 20670324,
+        },
+        celo: {
+          address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
+          creationBlockNumber: 10141034,
+        },
       },
     },
   },

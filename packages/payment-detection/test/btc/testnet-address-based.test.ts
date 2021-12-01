@@ -1,8 +1,8 @@
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
-import AddressBasedTestnetBtc from '../../src/btc/testnet-address-based';
+import { BtcTestnetAddressBasedDetector } from '../../src/btc/testnet-address-based';
 
-let btcAddressedBased: AddressBasedTestnetBtc;
+let btcAddressedBased: BtcTestnetAddressBasedDetector;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
@@ -27,7 +27,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/btc/testnet-address-based', () => {
   beforeEach(() => {
-    btcAddressedBased = new AddressBasedTestnetBtc({ advancedLogic: mockAdvancedLogic });
+    btcAddressedBased = new BtcTestnetAddressBasedDetector({ advancedLogic: mockAdvancedLogic });
   });
 
   it('can createExtensionsDataForCreation', async () => {

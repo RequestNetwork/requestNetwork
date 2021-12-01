@@ -4,7 +4,7 @@ import { CurrencyDefinition } from './types';
 // List of currencies supported by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
 // Network => currencyFrom => currencyTo => cost
 // Must be updated every time an aggregator is added
-const currencyPairs: any = {
+export const chainlinkCurrencyPairs: any = {
   private: {
     '0x38cf23c52bb4b13f051aec09580a2de845a7fa35': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -81,6 +81,7 @@ const currencyPairs: any = {
       '0x6b175474e89094c44da98b954eedeac495271d0f': 1,
       '0xc944e90c64b2c07662a292be6244bdf05cda44a7': 1,
       '0x967da4048cd07ab37855c090aaf366e4ce1b9f48': 1,
+      '0x0f5d2fb29fb7d3cfee444a200298f468908cc942': 1,
     },
     '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -138,6 +139,9 @@ const currencyPairs: any = {
     '0x8ab7404063ec4dbcfd4598215992dc3f8ec853d7': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
+    '0x0f5d2fb29fb7d3cfee444a200298f468908cc942': {
+      '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
+    },
   },
   matic: {
     '0xfa6faefc053e6c8e393a73dcc12b09fcde019d25': {
@@ -153,6 +157,7 @@ const currencyPairs: any = {
       '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 1,
       '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 1,
       '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 1,
+      '0x831753dd7087cac61ab5644b308642cc1c33dc13': 1,
     },
     '0xce80759e72fe1d3c07be79ffecc76a7a9b46c641': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -177,6 +182,7 @@ const currencyPairs: any = {
       '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 1,
       '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': 1,
       '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 1,
+      '0x831753dd7087cac61ab5644b308642cc1c33dc13': 1,
     },
     '0x2791bca1f2de4661ed88a30c99a7a9449aa84174': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -185,6 +191,62 @@ const currencyPairs: any = {
     '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
       '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
+    },
+    '0x831753dd7087cac61ab5644b308642cc1c33dc13': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+      '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
+    },
+  },
+  fantom: {
+    '0xfac26e3fd40adcdc6652f705d983b4830c00716c': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x775eb53d00dd0acd3ec1696472105d579b9b386b': {
+      '0xfac26e3fd40adcdc6652f705d983b4830c00716c': 1,
+      '0x10bf4137b0558c33c2dc9f71c3bb81c2865fa2fb': 1,
+      '0x6a07a792ab2965c72a5b8088d3a069a7ac3a993b': 1,
+      '0xe1146b9ac456fcbb60644c36fd3f868a9072fc6e': 1,
+      '0x657a1861c15a3ded9af0b6799a195a249ebdcbc6': 1,
+      '0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e': 1,
+      '0x658b0c7613e890ee50b8c4bc6a3f41ef411208ad': 1,
+      '0xb3654dc3d10ea7645f8319668e8f54d2574fbdc8': 1,
+      '0x56ee926bd8c72b2d5fa1af4d9e4cbb515a1e3adc': 1,
+      '0xae75a438b2e0cb8bb01ec1e1e376de11d44477cc': 1,
+      '0x940f41f0ec9ba1a34cf001cc03347ac092f5f6b5': 1,
+      '0x04068da6c83afcfa0e13ba15a6696662335d5b75': 1,
+    },
+    '0x10bf4137b0558c33c2dc9f71c3bb81c2865fa2fb': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x6a07a792ab2965c72a5b8088d3a069a7ac3a993b': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0xe1146b9ac456fcbb60644c36fd3f868a9072fc6e': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x657a1861c15a3ded9af0b6799a195a249ebdcbc6': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x658b0c7613e890ee50b8c4bc6a3f41ef411208ad': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0xb3654dc3d10ea7645f8319668e8f54d2574fbdc8': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x56ee926bd8c72b2d5fa1af4d9e4cbb515a1e3adc': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0xae75a438b2e0cb8bb01ec1e1e376de11d44477cc': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x940f41f0ec9ba1a34cf001cc03347ac092f5f6b5': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
+    },
+    '0x04068da6c83afcfa0e13ba15a6696662335d5b75': {
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
   },
 };
@@ -204,12 +266,12 @@ export function getPath(
   currencyTo: Pick<CurrencyDefinition, 'hash'>,
   network = 'mainnet',
 ): string[] | null {
-  if (!currencyPairs[network]) {
+  if (!chainlinkCurrencyPairs[network]) {
     throw Error(`network ${network} not supported`);
   }
 
   // load the Graph
-  const route = new GRAPH(currencyPairs[network]);
+  const route = new GRAPH(chainlinkCurrencyPairs[network]);
 
   // Get the path
   return route.path(currencyFrom.hash.toLowerCase(), currencyTo.hash.toLowerCase());

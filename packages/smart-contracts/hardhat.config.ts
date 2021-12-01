@@ -10,6 +10,8 @@ import deployPayment from './scripts/2_deploy-main-payments';
 import deployConversion from './scripts/3_deploy_chainlink_contract';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
+import { deployEscrow } from './scripts/4_deploy-escrow-deployment';
+
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 config();
@@ -51,6 +53,11 @@ export default {
       chainId: 137,
       accounts,
     },
+    celo: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://forno.celo.org',
+      chainId: 42220,
+      accounts,
+    },
     bsctest: {
       url: process.env.WEB3_PROVIDER_URL || 'https://data-seed-prebsc-1-s1.binance.org:8545',
       chainId: 97,
@@ -64,6 +71,11 @@ export default {
     xdai: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rpc.xdaichain.com/',
       chainId: 100,
+      accounts,
+    },
+    fantom: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://rpcapi.fantom.network',
+      chainId: 250,
       accounts,
     },
   },
@@ -91,6 +103,10 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
       hre.config.etherscan.apiKey = process.env.POLYGONSCAN_API_KEY;
       return;
     }
+    case 'fantom': {
+      hre.config.etherscan.apiKey = process.env.FTMSCAN_API_KEY;
+      return;
+    }
   }
 };
 
@@ -100,6 +116,7 @@ task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hr
   await deployRequest(args, hre);
   await deployPayment(args, hre);
   await deployConversion(args, hre);
+  await deployEscrow(hre);
   console.log('All contracts (re)deployed locally');
 });
 
