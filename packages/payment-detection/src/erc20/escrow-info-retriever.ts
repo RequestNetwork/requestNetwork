@@ -23,6 +23,7 @@ export default class escrowERC20InfoRetriever
   implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
+  
 
   /**
    * @param paymentReference The reference to identify the payment
