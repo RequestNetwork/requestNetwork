@@ -3,7 +3,6 @@ import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import { ethers, providers } from 'ethers';
 import SmartContractManager from '../src/smart-contract-manager';
-import * as web3Utils from 'web3-utils';
 import { RequestHashStorage__factory } from '@requestnetwork/smart-contracts/types';
 
 /* eslint-disable no-magic-numbers */
@@ -39,13 +38,13 @@ let smartContractManager: SmartContractManager;
 
 const hashStr = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const realSize = 29;
-const realSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize), 64);
+const realSizeBytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(realSize), 32);
 const fakeSize = 50;
-const fakeSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize), 64);
+const fakeSizeBytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(fakeSize), 32);
 const otherContent =
   'This is not a hash but but we should be able to add any content into Ethereum, the gas cost for the transaction will be higher';
 const otherSize = 100000;
-const otherSizeBytes32Hex = web3Utils.padLeft(web3Utils.toHex(otherSize), 64);
+const otherSizeBytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(otherSize), 32);
 
 const contractHashStorage = RequestHashStorage__factory.connect(
   SmartContracts.requestHashStorageArtifact.getAddress('private'),
@@ -209,7 +208,7 @@ describe('SmartContractManager', () => {
     expect(mainAccount).toEqual(accounts[0]);
   });
 
-  it('allows to add hashes to contractHashStorage', async () => {
+  fit('allows to add hashes to contractHashStorage', async () => {
     const blockNumber = await provider.getBlockNumber();
 
     await smartContractManager.addHashAndSizeToEthereum(hashStr, { contentSize: realSize });

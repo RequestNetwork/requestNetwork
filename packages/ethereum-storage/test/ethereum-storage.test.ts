@@ -1,7 +1,7 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { Wallet, providers } from 'ethers';
+import { Wallet, providers, ethers } from 'ethers';
 import { EventEmitter } from 'events';
 
 import EthereumStorage from '../src/ethereum-storage';
@@ -9,7 +9,6 @@ import IpfsConnectionError from '../src/ipfs-connection-error';
 
 /* eslint-disable no-magic-numbers */
 
-import * as web3Utils from 'web3-utils';
 import {
   RequestHashStorage__factory,
   RequestOpenHashSubmitter__factory,
@@ -55,16 +54,17 @@ let ethereumStorage: EthereumStorage;
 const content1 = 'this is a little test !';
 const hash1 = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const realSize1 = 29;
-const realSize1Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize1), 64);
+const realSize1Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(realSize1), 32);
+console.log({ realSize1Bytes32Hex });
 const fakeSize1 = 50;
-const fakeSize1Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize1), 64);
+const fakeSize1Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(fakeSize1), 32);
 
 const content2 = 'content\nwith\nspecial\ncharacters\n';
 const hash2 = 'QmQj8fQ9T16Ddrxfij5eyRnxXKTVxRXyQuazYnezt9iZpy';
 const realSize2 = 38;
-const realSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize2), 64);
+const realSize2Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(realSize2), 32);
 const fakeSize2 = 0;
-const fakeSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize2), 64);
+const fakeSize2Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(fakeSize2), 32);
 
 // Define a mock for getPastEvents to be independent of the state of ganache instance
 

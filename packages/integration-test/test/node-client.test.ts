@@ -528,7 +528,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    requestData = await new Promise((resolve) => request.on('confirmed', resolve));
+    requestData = await request.waitForConfirmation();
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
   });
