@@ -9,7 +9,7 @@ references:
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs
   ganache_image: &ganache_image
-    image: trufflesuite/ganache-cli:v6.12.2
+    image: trufflesuite/ganache-cli:v6.8.2
     command:
       - '-l'
       - '90000000'
