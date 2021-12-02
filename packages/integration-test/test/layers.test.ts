@@ -420,8 +420,8 @@ describe('Request system', () => {
     const request1CancelHash: RequestLogicTypes.ICancelParameters = {
       requestId: requestId1,
     };
-    const cancellation = await requestLogic.cancelRequest(request1CancelHash, payeeIdentity);
-    await new Promise((r) => cancellation.on('confirmed', r));
+    const cancel = await requestLogic.cancelRequest(request1CancelHash, payeeIdentity);
+    await new Promise((resolve) => cancel.on('confirmed', resolve));
 
     const fromTopic = await requestLogic.getRequestsByTopic(topics1[0]);
     expect(fromTopic.result.requests.length).toEqual(2);
@@ -486,6 +486,8 @@ describe('Request system', () => {
       payeeIdentity,
     );
 
+    await new Promise((resolve) => resultCreation.on('confirmed', resolve));
+
     expect(resultReduce.meta.transactionManagerMeta.encryptionMethod).toEqual('ecies-aes256-gcm');
     expect(resultReduce.result).not.toBeDefined();
 
@@ -495,11 +497,12 @@ describe('Request system', () => {
     expect(requestAfterReduce.meta.transactionManagerMeta.encryptionMethod).toEqual(
       'ecies-aes256-gcm',
     );
-    expect(requestAfterReduce.result.request).toBeDefined();
+
+    expect(requestAfterReduce.result.request).not.toBeNull();
     expect(requestAfterReduce.result.request!.expectedAmount).toEqual('12345678987654321');
     expect(requestAfterReduce.result.request!.state).toEqual('created');
 
-    expect(requestAfterReduce.result.pending).toBeDefined();
+    expect(requestAfterReduce.result.pending).not.toBeNull();
     expect(requestAfterReduce.result.pending!.expectedAmount).toEqual('12345678000000000');
 
     // accept the request by payer
@@ -522,6 +525,8 @@ describe('Request system', () => {
 
     expect(requestAfterAccept.result.pending).toBeDefined();
     expect(requestAfterAccept.result.pending!.state).toEqual(RequestLogicTypes.STATE.ACCEPTED);
+
+    await new Promise((resolve) => resultAccept.on('confirmed', resolve));
 
     // increase amount of the request by payer
     const resultIncrease = await requestLogic.increaseExpectedAmountRequest(

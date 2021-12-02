@@ -394,27 +394,6 @@ describe('SmartContractManager', () => {
     expect(SmartContracts.requestHashSubmitterArtifact.getCreationBlockNumber('private')).toBe(1);
   });
 
-  fit('allows to getMetaFromEthereum() a hash', async () => {
-    // Inside getBlockNumberFromNumberOrString, this function will be only called with parameter 'latest'
-    // For getPastEventsMock the number of the latest block is 3
-    jest
-      .spyOn(smartContractManager.provider, 'getBlock')
-      .mockImplementation(() => Promise.resolve({ number: 3 } as any));
-    const meta = await smartContractManager.getMetaFromEthereum(hashStr);
-
-    expect(meta.blockNumber).toBe(pastEventsMock[0].blockNumber);
-    expect(meta.networkName).toBe('private');
-    expect(meta.smartContractAddress).toBe('0x345ca3e014aaf5dca488057592ee47305d9b3e10');
-    expect(meta.transactionHash).toBe('0xa');
-    expect(meta.blockConfirmation).toBeGreaterThanOrEqual(0);
-  }, 15000);
-
-  it('allows to getMetaFromEthereum() a hash not indexed', async () => {
-    await expect(smartContractManager.getMetaFromEthereum('empty')).rejects.toThrowError(
-      'contentHash not indexed on ethereum',
-    );
-  }, 10000);
-
   it('badly formatted events from web3 should throw an error', async () => {
     jest
       .spyOn(smartContractManager.requestHashStorage, 'queryFilter')

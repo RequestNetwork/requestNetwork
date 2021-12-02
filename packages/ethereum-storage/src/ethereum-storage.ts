@@ -98,10 +98,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       maxRetries,
       retryDelay,
     });
-    this.ethereumMetadataCache = new EthereumMetadataCache(
-      this.smartContractManager,
-      metadataStore,
-    );
+    this.ethereumMetadataCache = new EthereumMetadataCache(metadataStore);
     this.ignoredDataIds = new IgnoredDataIds(metadataStore);
     this.buffer = {};
     this.externalBufferUrl = externalBufferUrl;
@@ -302,23 +299,20 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     }
 
     // Get Ethereum metadata
-    let ethereumMetadata;
     let bufferTimestamp: number | undefined;
     let ipfsObject;
-    try {
-      // Check if the data as been added on ethereum
-      ethereumMetadata = await this.ethereumMetadataCache.getDataIdMeta(id);
 
-      // Clear buffer if needed
-      if (this.buffer[id]) {
-        this.buffer[id] = undefined;
-      }
-    } catch (error) {
-      // if not found, check the buffer
+    // Check if the data as been added on ethereum
+    const ethereumMetadata = await this.ethereumMetadataCache.getDataIdMeta(id);
+
+    // Clear buffer if needed
+    if (!ethereumMetadata) {
       bufferTimestamp = this.buffer[id];
       if (!bufferTimestamp) {
         throw Error('No content found from this id');
       }
+    } else {
+      delete this.buffer[id];
     }
 
     // Send ipfs request

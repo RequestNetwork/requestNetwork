@@ -416,6 +416,9 @@ describe('Request client using a request node', () => {
       ),
     );
     expect(reducedRequest.expectedAmount).toEqual('0');
+
+    await fetchedRequest.refresh();
+    expect(fetchedRequest.getData().expectedAmount).toBe('0');
   });
 
   it('create an encrypted and unencrypted request with the same content', async () => {
