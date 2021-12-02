@@ -1,7 +1,7 @@
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import ethereumEntriesToIpfsContent from '../src/ethereum-entries-to-ipfs-content';
+import { ethereumEntriesToIpfsContent } from '../src/ethereum-entries-to-ipfs-content';
 import IgnoredDataIndex from '../src/ignored-dataIds';
 import IpfsConnectionError from '../src/ipfs-connection-error';
 

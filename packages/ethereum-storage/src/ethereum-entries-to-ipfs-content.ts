@@ -19,7 +19,7 @@ const SAFE_MAX_HEADER_SIZE = 500;
  * @param ethereumEntries Ethereum entries from the smart contract
  * @returns Filtered list of dataId with metadata
  */
-export default async function EthereumEntriesToIpfsContent(
+export async function ethereumEntriesToIpfsContent(
   ethereumEntries: StorageTypes.IEthereumEntry[],
   ipfsManager: IpfsManager,
   ignoredDataIdsIndex: IgnoredDataIds,
@@ -138,7 +138,7 @@ export default async function EthereumEntriesToIpfsContent(
  */
 async function getIpfsContent(
   ethereumEntry: StorageTypes.IEthereumEntry,
-  tryIndex: number,
+  _tryIndex: number,
   ipfsManager: IpfsManager,
   logger: LogTypes.ILogger,
 ): Promise<{
@@ -166,16 +166,16 @@ async function getIpfsContent(
   );
 
   try {
-    const startTime = Date.now();
+    // const startTime = Date.now();
     // Send ipfs request
     ipfsObject = await ipfsManager.read(
       ethereumEntry.hash,
       Number(ethereumEntry.feesParameters.contentSize) + ipfsHeaderMargin,
     );
-    logger.debug(
-      `read ${ethereumEntry.hash}, try; ${tryIndex}. Took ${Date.now() - startTime} ms`,
-      ['ipfs'],
-    );
+    // logger.debug(
+    //   `read ${ethereumEntry.hash}, try; ${tryIndex}. Took ${Date.now() - startTime} ms`,
+    //   ['ipfs'],
+    // );
   } catch (error) {
     const errorMessage = error.message || error;
 

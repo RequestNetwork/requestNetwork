@@ -1,7 +1,6 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import * as Bluebird from 'bluebird';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
 import EthereumUtils from './ethereum-utils';
@@ -13,19 +12,25 @@ const web3Eth = require('web3-eth');
 const web3Utils = require('web3-utils');
 
 import { BigNumber } from 'ethers';
+import EthereumMetadataCache from './ethereum-metadata-cache';
+import Bluebird = require('bluebird');
 
 // Maximum number of attempt to create ethereum metadata when transaction to add hash and size to Ethereum is confirmed
 // 23 is the number of call of the transaction's confirmation event function
 // if higher the promise may block since the confirmation event function will not be called anymore
 const CREATING_ETHEREUM_METADATA_MAX_ATTEMPTS = 23;
 
-// Regular expression to detect if the Web3 API returns "query returned more than XXX results" error
-const MORE_THAN_XXX_RESULTS_REGEX = new RegExp('query returned more than [1-9][0-9]* results');
-
 // String to match if the Web3 API throws "Transaction was not mined within XXX seconds" error
 const TRANSACTION_POLLING_TIMEOUT = 'Transaction was not mined within';
 
 const LENGTH_BYTES32_STRING = 64;
+
+type HashStorageEvent = {
+  blockNumber: number;
+  transactionHash: string;
+  event: 'NewHash';
+  returnValues?: { hash: string; feesParameters: string };
+};
 
 /**
  * Manages the smart contract used by the storage layer
@@ -73,6 +78,8 @@ export default class SmartContractManager {
    */
   private retryDelay: number | undefined;
 
+  private ethereumMetadataCache: EthereumMetadataCache;
+
   /**
    * Constructor
    * @param web3Connection Object to connect to the Ethereum network
@@ -80,7 +87,8 @@ export default class SmartContractManager {
    * If values are missing, private network is used as http://localhost:8545
    */
   public constructor(
-    web3Connection?: StorageTypes.IWeb3Connection,
+    web3Connection: StorageTypes.IWeb3Connection | undefined,
+    ethereumMetadataCache: EthereumMetadataCache,
     {
       maxConcurrency,
       getLastBlockNumberDelay,
@@ -104,6 +112,8 @@ export default class SmartContractManager {
     this.retryDelay = retryDelay;
 
     web3Connection = web3Connection || {};
+
+    this.ethereumMetadataCache = ethereumMetadataCache;
 
     try {
       this.eth = new web3Eth(
@@ -383,8 +393,12 @@ export default class SmartContractManager {
               confirmationNumber,
             )
               .then((ethereumMetadata: StorageTypes.IEthereumMetadata) => {
-                ethereumMetadataCreated = true;
-                resolve(ethereumMetadata);
+                return this.ethereumMetadataCache
+                  .saveDataIdMeta(contentHash, ethereumMetadata)
+                  .then(() => {
+                    ethereumMetadataCreated = true;
+                    resolve(ethereumMetadata);
+                  });
               })
               .catch((e) => {
                 this.logger.debug(
@@ -468,25 +482,22 @@ export default class SmartContractManager {
         : fromBlock;
     toBlock = toBlock || 'latest';
 
+    let now = Date.now();
     // Read all event logs
-    let events = await this.recursiveGetPastEvents(fromBlock, toBlock);
+    const events = await this.getPastEvents(fromBlock, toBlock);
 
-    this.logger.debug(`${events.length} events fetched in getEthereumEntriesFromEvents`, [
-      'ethereum',
-    ]);
-
-    // TODO PROT-235: getPastEvents returns all events, not just NewHash
-    events = events.filter((eventItem: any) => eventItem.event === 'NewHash');
-
-    const eventsWithMetaData = await Bluebird.map(
-      events,
-      (eventItem: any) => this.checkAndAddMetaDataToEvent(eventItem),
-      {
-        concurrency: this.maxConcurrency,
-      },
+    this.logger.debug(
+      `${events.length} events fetched in getEthereumEntriesFromEvents (${Date.now() - now}ms)`,
+      ['ethereum', 'metrics'],
     );
 
-    console.log('metadata done');
+    now = Date.now();
+    const eventsWithMetaData = await Bluebird.map(
+      events,
+      this.checkAndAddMetaDataToEvent.bind(this),
+      { concurrency: this.maxConcurrency },
+    );
+    this.logger.debug(`metadata fetched in ${Date.now() - now}ms`);
 
     return eventsWithMetaData;
   }
@@ -518,18 +529,19 @@ export default class SmartContractManager {
    * @param toBlock number of the block to stop to get events
    * @return Past events of requestHashStorage of the specified range
    */
-  private async recursiveGetPastEvents(
-    fromBlock: number,
-    toBlock: number | string,
-  ): Promise<any[]> {
-    this.logger.debug(`recursive from ${fromBlock} to ${toBlock}`);
-    const toBlockNumber: number = await this.getBlockNumberFromNumberOrString(toBlock);
+  private async getPastEvents(fromBlock: number, toBlock: number | string): Promise<any[]> {
+    this.logger.debug(`getPastEvents from ${fromBlock} to ${toBlock}`);
+    toBlock = await this.getBlockNumberFromNumberOrString(toBlock);
 
-    // Reading event logs
-    // If getPastEvents doesn't throw, we can return the returned events from the function
-    let events: any;
-    try {
-      events = await Utils.retry(
+    const blockChunks = Utils.arrayToChunks(Utils.generateRange(fromBlock, toBlock), 5000).map(
+      (blocks) => [blocks[0], blocks[blocks.length - 1]] as const,
+    );
+
+    const readBlockRange = async (
+      fromBlock: number,
+      toBlock: number,
+    ): Promise<HashStorageEvent[]> => {
+      const result = await Utils.retry(
         (args) =>
           Utils.timeoutPromise(
             this.requestHashStorage.getPastEvents(args),
@@ -543,32 +555,17 @@ export default class SmartContractManager {
       )({
         event: 'NewHash',
         fromBlock,
-        toBlock: toBlockNumber,
+        toBlock,
       });
+      return result as HashStorageEvent[];
+    };
 
-      this.logger.debug(`Events from ${fromBlock} to ${toBlock} fetched`, ['ethereum']);
+    // Reading event logs
+    // If getPastEvents doesn't throw, we can return the returned events from the function
+    const events = await Bluebird.map(blockChunks, ([from, to]) => readBlockRange(from, to));
+    this.logger.debug(`Events from ${fromBlock} to ${toBlock} fetched`, ['ethereum']);
 
-      return events;
-    } catch (e) {
-      // Checks if the API returns "query returned more than XXX results" error
-      // In this case we perform a dichotomy in order to fetch past events with a smaller range
-      if (e.toString().match(MORE_THAN_XXX_RESULTS_REGEX)) {
-        const intervalHalf = Math.floor((fromBlock + toBlockNumber) / 2);
-        const eventsFirstHalfPromise = this.recursiveGetPastEvents(fromBlock, intervalHalf);
-        const eventsSecondHalfPromise = this.recursiveGetPastEvents(
-          intervalHalf + 1,
-          toBlockNumber,
-        );
-
-        return Promise.all([eventsFirstHalfPromise, eventsSecondHalfPromise])
-          .then((halves) => Utils.flatten2DimensionsArray(halves))
-          .catch((err) => {
-            throw err;
-          });
-      } else {
-        throw e;
-      }
-    }
+    return events.flat().filter((eventItem) => eventItem.event === 'NewHash');
   }
 
   /**
@@ -577,7 +574,9 @@ export default class SmartContractManager {
    * @param event event of type NewHash
    * @returns processed event
    */
-  private async checkAndAddMetaDataToEvent(event: any): Promise<StorageTypes.IEthereumEntry> {
+  private async checkAndAddMetaDataToEvent(
+    event: HashStorageEvent,
+  ): Promise<StorageTypes.IEthereumEntry> {
     // Check if the event object is correct
     // We check "typeof field === 'undefined'"" instead of "!field"
     // because you can add empty string as hash or 0 as size in the storage smart contract
@@ -591,8 +590,6 @@ export default class SmartContractManager {
 
     const contentSize = web3Utils.hexToNumber(event.returnValues.feesParameters);
     const meta = await this.createEthereumMetaData(event.blockNumber, event.transactionHash);
-
-    console.log('metadata done for event.returnValues.hash');
 
     return {
       feesParameters: { contentSize },
@@ -616,29 +613,29 @@ export default class SmartContractManager {
     cost?: string,
     fee?: string,
     gasFee?: string,
-    _blockConfirmation?: number,
+    blockConfirmation?: number,
   ): Promise<StorageTypes.IEthereumMetadata> {
-    // if (!blockConfirmation) {
-    //   // Get the number confirmations of the block hosting the transaction
-    //   try {
-    //     blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
-    //   } catch (error) {
-    //     throw Error(`Error getting block confirmation number: ${error}`);
-    //   }
-    // }
+    if (!blockConfirmation) {
+      // Get the number confirmations of the block hosting the transaction
+      try {
+        blockConfirmation = await this.ethereumBlocks.getConfirmationNumber(blockNumber);
+      } catch (error) {
+        throw Error(`Error getting block confirmation number: ${error}`);
+      }
+    }
 
     // Get timestamp of the block hosting the transaction
-    // let blockTimestamp;
-    // try {
-    //   blockTimestamp = await this.ethereumBlocks.getBlockTimestamp(blockNumber);
-    // } catch (error) {
-    //   throw Error(`Error getting block ${blockNumber} timestamp: ${error}`);
-    // }
+    let blockTimestamp;
+    try {
+      blockTimestamp = await this.ethereumBlocks.getBlockTimestamp(blockNumber);
+    } catch (error) {
+      throw Error(`Error getting block ${blockNumber} timestamp: ${error}`);
+    }
 
     return {
       blockConfirmation: 0,
       blockNumber,
-      blockTimestamp: 0,
+      blockTimestamp,
       cost,
       fee,
       gasFee,

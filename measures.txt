@@ -1,0 +1,19 @@
+
+storage.getData in          339 741ms
+pushLocationsWithTopics in  155 030ms
+total:                      496 345ms
+
+
+reading ethereum optimized:
+  read eth:     26 475ms
+  read ipfs:    13 541ms
+  save index: ~130 000ms
+  total :      169 268ms (#metric)
+
+
+
+redis
+  read eth:   ~25 475ms
+  read ipfs:   32 336ms
+  save index: 
+  total:      422 165ms 

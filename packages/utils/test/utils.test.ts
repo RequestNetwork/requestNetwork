@@ -270,4 +270,42 @@ describe('Utils', () => {
       jest.advanceTimersByTime(1);
     });
   });
+
+  describe('arrayToChunks', () => {
+    it('can split an array to chunks', () => {
+      const array = Array(100)
+        .fill(0)
+        .map((_, i) => i);
+
+      const chunks = Utils.arrayToChunks(array, 8);
+
+      expect(array).toHaveLength(100);
+      expect(chunks).toHaveLength(13);
+
+      expect(chunks[0]).toMatchObject([0, 1, 2, 3, 4, 5, 6, 7]);
+      expect(chunks[1]).toMatchObject([8, 9, 10, 11, 12, 13, 14, 15]);
+
+      expect(chunks.reduce((acc, curVal) => acc.concat(curVal), [])).toMatchObject(array);
+
+      // all chunks have a length of 8 except the last one
+      expect(chunks.pop()).toHaveLength(4);
+      chunks.forEach((subArray) => expect(subArray).toHaveLength(8));
+    });
+  });
+  fdescribe('generateRange', () => {
+    it('throw if the values are invalid', () => {
+      expect(() => Utils.generateRange(10, 9)).toThrowError('to must be greator or equal to from');
+    });
+
+    it('generates an array with a single item if to==from', () => {
+      expect(Utils.generateRange(9, 9)).toMatchObject([9]);
+    });
+
+    it('generates an array with the range', () => {
+      const items = Utils.generateRange(9, 129);
+      expect(items).toHaveLength(121);
+      expect(items[0]).toBe(9);
+      expect(items[items.length - 1]).toBe(129);
+    });
+  });
 });

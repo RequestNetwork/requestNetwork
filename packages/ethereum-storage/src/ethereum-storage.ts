@@ -4,7 +4,7 @@ import * as Bluebird from 'bluebird';
 import { EventEmitter } from 'events';
 import { getIpfsExpectedBootstrapNodes, getMaxConcurrency, getPinRequestConfig } from './config';
 
-import ethereumEntriesToIpfsContent from './ethereum-entries-to-ipfs-content';
+import { ethereumEntriesToIpfsContent } from './ethereum-entries-to-ipfs-content';
 import EthereumMetadataCache from './ethereum-metadata-cache';
 import IgnoredDataIds from './ignored-dataIds';
 import IpfsManager from './ipfs-manager';
@@ -91,14 +91,19 @@ export default class EthereumStorage implements StorageTypes.IStorage {
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
     this.logger = logger || new Utils.SimpleLogger();
     this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
-    this.smartContractManager = new SmartContractManager(web3Connection, {
-      getLastBlockNumberDelay,
-      logger: this.logger,
-      maxConcurrency: this.maxConcurrency,
-      maxRetries,
-      retryDelay,
-    });
     this.ethereumMetadataCache = new EthereumMetadataCache(metadataStore);
+
+    this.smartContractManager = new SmartContractManager(
+      web3Connection,
+      this.ethereumMetadataCache,
+      {
+        getLastBlockNumberDelay,
+        logger: this.logger,
+        maxConcurrency: this.maxConcurrency,
+        maxRetries,
+        retryDelay,
+      },
+    );
     this.ignoredDataIds = new IgnoredDataIds(metadataStore);
     this.buffer = {};
     this.externalBufferUrl = externalBufferUrl;
@@ -157,7 +162,10 @@ export default class EthereumStorage implements StorageTypes.IStorage {
    * @param web3Connection Information structure to connect to the Ethereum network
    */
   public async updateEthereumNetwork(web3Connection: StorageTypes.IWeb3Connection): Promise<void> {
-    this.smartContractManager = new SmartContractManager(web3Connection);
+    this.smartContractManager = new SmartContractManager(
+      web3Connection,
+      this.ethereumMetadataCache,
+    );
     // check ethereum node connection - will throw if the ethereum node is not reachable
 
     try {
@@ -380,9 +388,44 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   public async getData(
     options?: StorageTypes.ITimestampBoundaries,
   ): Promise<StorageTypes.IEntriesWithLastTimestamp> {
-    const contentDataIdAndMeta = await this.getContentAndDataId(options);
+    if (!this.isInitialized) {
+      throw new Error('Ethereum storage must be initialized');
+    }
+    this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
+    const {
+      ethereumEntries,
+      lastTimestamp,
+    } = await this.smartContractManager.getEntriesFromEthereum(options);
 
-    return contentDataIdAndMeta;
+    // If no hash was found on ethereum, we return an empty list
+    if (!ethereumEntries.length) {
+      this.logger.info('No new data found.', ['ethereum']);
+      return {
+        entries: [],
+        lastTimestamp,
+      };
+    }
+
+    this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
+
+    const now = Date.now();
+    const entries = await ethereumEntriesToIpfsContent(
+      ethereumEntries,
+      this.ipfsManager,
+      this.ignoredDataIds,
+      this.logger,
+      this.maxConcurrency,
+    );
+    this.logger.debug(`Data fetched from IPFS in ${Date.now() - now}ms`, ['metric']);
+
+    const ids = entries.map((entry) => entry.id) || [];
+    // Pin data asynchronously
+    void this.pinDataToIPFS(ids);
+
+    return {
+      entries,
+      lastTimestamp,
+    };
   }
 
   /**
@@ -405,8 +448,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       return [];
     }
 
-    this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
-
+    this.logger.debug('Fetching ignoredData from IPFS and checking correctness', ['ipfs']);
+    const now = Date.now();
     const entries = await ethereumEntriesToIpfsContent(
       ethereumEntries,
       this.ipfsManager,
@@ -414,6 +457,7 @@ export default class EthereumStorage implements StorageTypes.IStorage {
       this.logger,
       this.maxConcurrency,
     );
+    this.logger.debug(`IgnoredData fetched from IPFS in ${Date.now() - now}ms`, ['metric']);
 
     const ids = entries.map((entry) => entry.id) || [];
     // Pin data asynchronously
@@ -485,63 +529,6 @@ export default class EthereumStorage implements StorageTypes.IStorage {
         values: detailed ? dataIdsWithReason : undefined,
       },
       ipfs,
-    };
-  }
-
-  /**
-   * Get all dataId and the contents stored on the storage
-   *
-   * @param options timestamp boundaries for the data id retrieval
-   * @returns Promise resolving object with content and dataId of stored data
-   */
-  private async getContentAndDataId(
-    options?: StorageTypes.ITimestampBoundaries,
-  ): Promise<StorageTypes.IEntriesWithLastTimestamp> {
-    if (!this.isInitialized) {
-      throw new Error('Ethereum storage must be initialized');
-    }
-    this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
-    const {
-      ethereumEntries,
-      lastTimestamp,
-    } = await this.smartContractManager.getEntriesFromEthereum(options);
-
-    // If no hash was found on ethereum, we return an empty list
-    if (!ethereumEntries.length) {
-      this.logger.info('No new data found.', ['ethereum']);
-      return {
-        entries: [],
-        lastTimestamp,
-      };
-    }
-
-    this.logger.debug('Fetching data from IPFS and checking correctness', ['ipfs']);
-
-    const entries = await ethereumEntriesToIpfsContent(
-      ethereumEntries,
-      this.ipfsManager,
-      this.ignoredDataIds,
-      this.logger,
-      this.maxConcurrency,
-    );
-
-    const ids = entries.map((entry) => entry.id) || [];
-    // Pin data asynchronously
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.pinDataToIPFS(ids);
-
-    // Save existing ethereum metadata to the ethereum metadata cache
-    for (const entry of entries) {
-      const ethereumMetadata = entry.meta.ethereum;
-      if (ethereumMetadata) {
-        // PROT-504: The saving of dataId's metadata should be encapsulated when retrieving dataId inside smart contract (getPastEvents)
-        await this.ethereumMetadataCache.saveDataIdMeta(entry.id, ethereumMetadata);
-      }
-    }
-
-    return {
-      entries,
-      lastTimestamp,
     };
   }
 

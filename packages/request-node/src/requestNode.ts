@@ -6,6 +6,7 @@ import cors from 'cors';
 import { Server } from 'http';
 import express, { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import Keyv from 'keyv';
 import KeyvRedis from '@keyv/redis';
 
 import { getCustomHeaders, getInitializationStorageFilePath, getMnemonic } from './config';
@@ -18,7 +19,7 @@ import PersistTransactionHandler from './request/persistTransaction';
 import GetChannelsByTopicHandler from './request/getChannelsByTopic';
 import GetStatusHandler from './request/getStatus';
 import IpfsAddHandler from './request/ipfsAdd';
-import Keyv from '@keyv/redis/node_modules/@types/keyv';
+import KeyvFile from 'keyv-file';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -67,7 +68,11 @@ class RequestNode {
 
     const initializationStoragePath = getInitializationStorageFilePath();
 
-    this.store = initializationStoragePath ? new KeyvRedis(initializationStoragePath) : undefined;
+    this.store = initializationStoragePath
+      ? initializationStoragePath.match(/^redis:\/\//)
+        ? new KeyvRedis(initializationStoragePath, {})
+        : new KeyvFile({ filename: initializationStoragePath })
+      : undefined;
 
     // Use ethereum storage for the storage layer
     const ethereumStorage = getEthereumStorage(getMnemonic(), this.logger, this.store);
@@ -115,9 +120,7 @@ class RequestNode {
    */
   public async initialize(): Promise<void> {
     this.logger.info('Node initialization');
-    // await this.store?.set('hello', 'world');
 
-    console.log(await this.store?.get('hello'));
     const initializationStartTime: number = Date.now();
 
     try {

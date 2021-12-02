@@ -13,6 +13,8 @@ export default {
   unique,
   uniqueByProperty,
   notNull,
+  arrayToChunks,
+  generateRange,
 };
 
 const MILLISECOND_IN_SECOND = 1000;
@@ -159,4 +161,33 @@ function timeoutPromise<T>(promise: Promise<T>, timeout: number, message: string
 
 function notNull<T>(x: T | null | undefined): x is T {
   return x !== null && x !== undefined;
+}
+
+/**
+ * Function that splits an array into multiple sub arrays, or chunks
+ * https://stackoverflow.com/questions/8495687/split-array-into-chunks#comment84212474_8495740
+ * @param array the original array
+ * @param chunk_size the size of each sub array
+ * @returns an array of arrays of length chunk_size
+ */
+function arrayToChunks<T>(array: T[], chunk_size: number): T[][] {
+  return Array(Math.ceil(array.length / chunk_size))
+    .fill(0)
+    .map((_, index) => index * chunk_size)
+    .map((begin) => array.slice(begin, begin + chunk_size));
+}
+
+/**
+ *
+ * @param from the first item of the range
+ * @param to the last item of the range, including this value
+ * @returns an array of number from `from` to `to`
+ */
+function generateRange(from: number, to: number): number[] {
+  if (to < from) {
+    throw new Error('to must be greator or equal to from');
+  }
+  return Array(to - from + 1)
+    .fill(0)
+    .map((_, i) => from + i);
 }

@@ -117,23 +117,32 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     if (this.isInitialized) {
       throw new Error('already initialized');
     }
-    await this.transactionIndex.initialize();
+    const measure = async <T>(promise: Promise<T>, text: string): Promise<T> => {
+      const now = Date.now();
+      const result = await promise;
+      this.logger.debug(`[DataAccess] ${text} in ${Date.now() - now}ms`, ['metric']);
+      return result;
+    };
+    await measure(this.transactionIndex.initialize(), 'transactionIndex initialized');
 
     // initialize storage
-    await this.storage.initialize();
+    await measure(this.storage.initialize(), 'storage initialized');
 
     // if transaction index already has data, then sync from the last available timestamp
     const lastSynced = await this.transactionIndex.getLastTransactionTimestamp();
-    const now = Utils.getCurrentTimestampInSecond();
+    console.log({ lastSynced });
 
     // initialize the dataId topic with the previous block
-    const allDataWithMeta = await this.storage.getData(
-      lastSynced
-        ? {
-            from: lastSynced,
-            to: now,
-          }
-        : undefined,
+    const allDataWithMeta = await measure(
+      this.storage.getData(
+        lastSynced
+          ? {
+              from: lastSynced,
+              to: Utils.getCurrentTimestampInSecond(),
+            }
+          : undefined,
+      ),
+      'getData completed',
     );
 
     // The last synced timestamp is the latest one returned by storage
@@ -141,8 +150,15 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
 
     // check if the data returned by getData are correct
     // if yes, the dataIds are indexed with LocationByTopic
-    await this.pushLocationsWithTopics(allDataWithMeta.entries);
+    await measure(
+      this.pushLocationsWithTopics(allDataWithMeta.entries),
+      'pushLocationsWithTopics completed',
+    );
 
+    const last = allDataWithMeta.entries[allDataWithMeta.entries.length - 1];
+    if (last) {
+      await this.transactionIndex.updateTimestamp(last.id, this.lastSyncStorageTimestamp);
+    }
     this.isInitialized = true;
   }
 
@@ -487,28 +503,30 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     }
     let parsingErrorCount = 0;
     let proceedCount = 0;
-    await Bluebird.each(entries, async (entry) => {
-      if (!entry.content || !entry.id) {
-        throw Error(`data from storage do not follow the standard`);
-      }
+    await Promise.all(
+      entries.map(async (entry) => {
+        if (!entry.content || !entry.id) {
+          throw Error(`data from storage do not follow the standard`);
+        }
 
-      let block;
-      const blockString = entry.content;
+        let block;
+        const blockString = entry.content;
 
-      try {
-        block = Block.parseBlock(blockString);
-        proceedCount++;
-        // adds this transaction to the index, to enable retrieving it later.
-        await this.transactionIndex.addTransaction(entry.id, block.header, entry.meta.timestamp);
-      } catch (e) {
-        parsingErrorCount++;
-        // Index ignored Location
-        await this.ignoredLocationIndex.pushReasonByLocation(entry.id, e.message);
-        this.logger.debug(`Error: can't parse content of the dataId (${entry.id}): ${e}`, [
-          'synchronization',
-        ]);
-      }
-    });
+        try {
+          block = Block.parseBlock(blockString);
+          proceedCount++;
+          // adds this transaction to the index, to enable retrieving it later.
+          await this.transactionIndex.addTransaction(entry.id, block.header, entry.meta.timestamp);
+        } catch (e) {
+          parsingErrorCount++;
+          // Index ignored Location
+          await this.ignoredLocationIndex.pushReasonByLocation(entry.id, e.message);
+          this.logger.debug(`Error: can't parse content of the dataId (${entry.id}): ${e}`, [
+            'synchronization',
+          ]);
+        }
+      }),
+    );
 
     this.logger.info(
       `Synchronization: ${proceedCount} blocks synchronized, ${parsingErrorCount} ignored from parsing error`,
