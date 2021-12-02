@@ -292,9 +292,7 @@ describe('Request system', () => {
     const requestIdLength = 66;
     expect(resultCreation.result.requestId.length).toEqual(requestIdLength);
 
-    // wait a bit
-    // eslint-disable-next-line no-magic-numbers
-    await new Promise((r: any): any => setTimeout(r, 2000));
+    await new Promise((r) => resultCreation.on('confirmed', r));
 
     const request = await requestLogic.getRequestFromId(resultCreation.result.requestId);
     expect(request).toBeDefined();
@@ -374,6 +372,8 @@ describe('Request system', () => {
     );
     const requestId1 = resultCreation1.result.requestId;
 
+    await new Promise((r) => resultCreation1.on('confirmed', r));
+
     // create request 2 must be ignored
     const request2CreationHash: RequestLogicTypes.ICreateParameters = {
       currency: {
@@ -395,15 +395,13 @@ describe('Request system', () => {
     );
     const requestId2 = resultCreation2.result.requestId;
 
+    await new Promise((r) => resultCreation2.on('confirmed', r));
+
     // reduce request
     const request1ReduceHash: RequestLogicTypes.IReduceExpectedAmountParameters = {
       deltaAmount: '10000000000',
       requestId: requestId1,
     };
-
-    // wait a bit
-    // eslint-disable-next-line no-magic-numbers
-    await new Promise((r: any): any => setTimeout(r, 1000));
 
     const resultReduce1 = await requestLogic.reduceExpectedAmountRequest(
       request1ReduceHash,
@@ -412,9 +410,7 @@ describe('Request system', () => {
     const timestampReduce1 =
       resultReduce1.meta.transactionManagerMeta.dataAccessMeta.storageMeta.timestamp;
 
-    // wait a bit
-    // eslint-disable-next-line no-magic-numbers
-    await new Promise((r: any): any => setTimeout(r, 1100));
+    await new Promise((r) => resultReduce1.on('confirmed', r));
 
     // cancel request
     const request1CancelHash: RequestLogicTypes.ICancelParameters = {
