@@ -260,7 +260,7 @@ export default class SmartContractManager {
     // Otherwise, we use default value from config
     const gasPriceToUse =
       gasPrice ||
-      (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.STANDARD, this.networkName));
+      (await gasPriceDefiner.getGasPrice(StorageTypes.GasPriceType.FAST, this.networkName));
 
     // parse the fees parameters to hex bytes
     const feesParametersAsBytes = utils.hexZeroPad(
