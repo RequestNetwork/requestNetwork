@@ -24,22 +24,10 @@ export default class escrowERC20InfoRetriever
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
 
-  /**
-   * @param paymentReference The reference to identify the payment
-   * @param escrowContractAddress The address of the escrow contract
-   * @param escrowCreationBlockNumber The block that created the escrow contract
-   * @param amount The amount
-   * @param toAddress Address of the balance we want to check
-   * @param eventName Indicate if it is an address for payment or refund
-   * @param network The Ethereum network to use
-   */
   constructor(
     private paymentReference: string,
     private escrowContractAddress: string,
     private escrowCreationBlockNumber: number,
-    private amount: string,
-    private toAddress: string,
-    private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
   ) {
     // Creates a local or default provider
@@ -56,7 +44,7 @@ export default class escrowERC20InfoRetriever
   /**
    * Retrieves events for the current contract, address and network.
    */
-  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+  public async getEscrowEvents(): Promise<PaymentTypes.IPaymentNetworkBaseEvent[]> {
     // Create a filter to find all the RequestFrozen logs with the payment reference
     const freezeFilter = this.contractEscrow.filters.RequestFrozen(
       '0x' + this.paymentReference,
@@ -87,8 +75,17 @@ export default class escrowERC20InfoRetriever
     // Get the RequestFrozen event logs
     const revertEmergencyLogs = await this.provider.getLogs(revertEmergencyFilter);
 
+    interface EthersLogsWithEventName extends ethers.providers.Log {
+      eventName: PaymentTypes.EVENTS_NAMES;
+    }
+
     // Merge events if multiple logs
-    const logs = [...freezeLogs, ...initEmergencyLogs, ...revertEmergencyLogs];
+    // TODO: give one event name per type of log
+    const logs: EthersLogsWithEventName = [
+      ...freezeLogs.map((i) => ({ ...i, eventName: PaymentTypes.EVENTS_NAMES.FROZEN_ESCROW })),
+      ...initEmergencyLogs,
+      ...revertEmergencyLogs,
+    ];
 
     // Parses, filters and creates the events from the logs with the payment reference
     const eventPromises = logs
@@ -107,15 +104,8 @@ export default class escrowERC20InfoRetriever
           parsedLog.paymentReference.toLowerCase() === this.paymentReference.toLowerCase(),
       )
       // Creates the escrow events
-      .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
-        amount: this.amount,
-        name: this.eventName,
-        parameters: {
-          block: blockNumber,
-          paymentRefrence: parsedLog.paymentReference,
-          to: this.toAddress,
-          txHash: transactionHash,
-        },
+      .map(async ({ parsedLog, blockNumber, transactionHash, eventName }) => ({
+        name: eventName,
         timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
       }));
 
