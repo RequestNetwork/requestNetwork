@@ -24,7 +24,6 @@ export default class escrowERC20InfoRetriever
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
   
-
   /**
    * @param paymentReference The reference to identify the payment
    * @param escrowContractAddress The address of the escrow contract
