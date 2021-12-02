@@ -81,18 +81,24 @@ export enum BALANCE_ERROR_CODE {
   VERSION_NOT_SUPPORTED,
 }
 
-/** payment network event */
-export interface IPaymentNetworkEvent<TEventParameters> {
-  amount: string;
+export interface IPaymentNetworkBaseEvent {
   name: EVENTS_NAMES;
-  parameters?: TEventParameters;
   timestamp?: number;
+}
+
+/** payment network event */
+export interface IPaymentNetworkEvent<TEventParameters> extends IPaymentNetworkBaseEvent {
+  amount: string;
+  parameters?: TEventParameters;
 }
 
 /** payment network event names */
 export enum EVENTS_NAMES {
   PAYMENT = 'payment',
   REFUND = 'refund',
+  REQUEST_FROZEN = 'RequestFrozen',
+  INITIATED_EMERGENCY_CLAIM = 'InitiatedEmergencyClaim',
+  REVERTED_EMERGENCY_CLAIM = 'RevertedEmergencyClaim',
 }
 
 /** List of payment networks available (abstract the extensions type) */
