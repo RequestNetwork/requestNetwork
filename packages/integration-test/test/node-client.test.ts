@@ -274,7 +274,7 @@ describe('Request client using a request node', () => {
     });
 
     // create request 2 to be sure it is not found when search with smart contract identity
-    await requestNetwork.createRequest({
+    const request2 = await requestNetwork.createRequest({
       requestInfo: {
         currency: 'BTC',
         expectedAmount: '1000',
@@ -285,11 +285,7 @@ describe('Request client using a request node', () => {
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
-
-    // wait 1,5 sec and store the timestamp
-    /* eslint-disable no-magic-numbers */
-    // eslint-disable-next-line
-    await new Promise((r) => setTimeout(r, 1500));
+    await request2.waitForConfirmation();
 
     // get requests with boundaries
     const requests = await requestNetwork.fromIdentity(payerSmartContract, {
@@ -499,6 +495,31 @@ describe('Request client using a request node', () => {
     const requests = await badRequestNetwork.fromTopic(myRandomTopic);
     expect(requests).toHaveLength(0);
   });
+
+  it('can create multiple requests in parallel', async () => {
+    const nbRequests = 10;
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+    const requests = await Promise.all(
+      Array(nbRequests)
+        .fill(0)
+        .map(() =>
+          requestNetwork
+            .createRequest({
+              paymentNetwork,
+              requestInfo: requestCreationHashUSD,
+              signer: payeeIdentity,
+            })
+            .then((req) => req.waitForConfirmation()),
+        ),
+    );
+    expect(requests).toHaveLength(nbRequests);
+    requests.forEach((req) => {
+      req.state === RequestLogicTypes.STATE.CREATED;
+    });
+  });
 });
 
 describe('ERC20 localhost request creation and detection test', () => {
@@ -630,7 +651,7 @@ describe('ETH localhost request creation and detection test', () => {
   };
 
   it('can create ETH requests and pay with ETH Fee proxy', async () => {
-    const currencies = [...CurrencyManager.getDefaultList()];
+    const currencies = CurrencyManager.getDefaultList();
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
@@ -654,8 +675,9 @@ describe('ETH localhost request creation and detection test', () => {
       signer: payeeIdentity,
     });
 
-    let data = await request.refresh();
-    expect(data.balance).toBeNull();
+    let data = await request.waitForConfirmation();
+
+    expect(data.balance?.balance).toBe('0');
 
     const paymentTx = await payRequest(data, wallet);
     await paymentTx.wait();

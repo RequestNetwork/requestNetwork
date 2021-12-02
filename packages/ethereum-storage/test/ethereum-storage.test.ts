@@ -55,7 +55,6 @@ const content1 = 'this is a little test !';
 const hash1 = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const realSize1 = 29;
 const realSize1Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(realSize1), 32);
-console.log({ realSize1Bytes32Hex });
 const fakeSize1 = 50;
 const fakeSize1Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(fakeSize1), 32);
 

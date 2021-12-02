@@ -33,7 +33,7 @@ export function getEthereumStorage(
   const url = config.getStorageWeb3ProviderUrl();
   if (url.match('^wss?://.+')) {
     provider = new providers.WebSocketProvider(url);
-    // TODO previous WS config
+    // FIXME previous WS config
     // {
     //   clientConfig: {
     //     keepalive: true,
@@ -48,7 +48,7 @@ export function getEthereumStorage(
     //   },
     // }
   } else {
-    provider = new providers.JsonRpcProvider(url);
+    provider = new providers.StaticJsonRpcProvider(url);
   }
   const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
