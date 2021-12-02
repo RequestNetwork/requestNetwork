@@ -1,7 +1,7 @@
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes, IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import {
   payRequest,
@@ -66,6 +66,16 @@ const wrongDecryptionProvider = new EthereumPrivateKeyDecryptionProvider({
   method: Types.Encryption.METHOD.ECIES,
 });
 
+const waitForConfirmation = async (
+  action: ClientTypes.IRequestDataWithEvents | Promise<ClientTypes.IRequestDataWithEvents>,
+): Promise<Types.IRequestDataWithEvents> => {
+  const awaited = await action;
+  return new Promise((resolve, reject) => {
+    awaited.on('confirmed', resolve);
+    awaited.on('error', reject);
+  });
+};
+
 describe('Request client using a request node', () => {
   it('can create a request, change the amount and get data', async () => {
     // Create a request
@@ -96,7 +106,7 @@ describe('Request client using a request node', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.expectedAmount).toBe('800');
 
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    requestData = await waitForConfirmation(requestData);
     expect(requestData.expectedAmount).toBe('800');
     expect(requestData.pending).toBeNull();
   });
@@ -148,7 +158,8 @@ describe('Request client using a request node', () => {
     expect(requestData.balance).toBeDefined();
     expect(requestData.balance!.balance).toBe('0');
 
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    requestData = await waitForConfirmation(requestData);
+
     expect(requestData.balance!.balance).toBe('0');
 
     requestData = await request.declareReceivedPayment(
@@ -159,7 +170,8 @@ describe('Request client using a request node', () => {
     expect(requestData.balance).toBeDefined();
     expect(requestData.balance!.balance).toBe('0');
 
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    requestData = await waitForConfirmation(requestData);
+
     expect(requestData.balance!.balance).toBe('100');
   });
 
@@ -206,12 +218,10 @@ describe('Request client using a request node', () => {
     await request2.waitForConfirmation();
 
     // reduce request 1
-    const requestDataReduce = await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
-    await new Promise((r) => requestDataReduce.on('confirmed', r));
+    await waitForConfirmation(request1.reduceExpectedAmountRequest('10000000', payeeIdentity));
 
     // cancel request 1
-    const requestDataCancel = await request1.cancel(payeeIdentity);
-    await new Promise((r) => requestDataCancel.on('confirmed', r));
+    await waitForConfirmation(request1.cancel(payeeIdentity));
 
     // get requests without boundaries
     let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
@@ -264,7 +274,7 @@ describe('Request client using a request node', () => {
     });
 
     // create request 2 to be sure it is not found when search with smart contract identity
-    await requestNetwork.createRequest({
+    const request2 = await requestNetwork.createRequest({
       requestInfo: {
         currency: 'BTC',
         expectedAmount: '1000',
@@ -275,11 +285,7 @@ describe('Request client using a request node', () => {
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
-
-    // wait 1,5 sec and store the timestamp
-    /* eslint-disable no-magic-numbers */
-    // eslint-disable-next-line
-    await new Promise((r) => setTimeout(r, 1500));
+    await request2.waitForConfirmation();
 
     // get requests with boundaries
     const requests = await requestNetwork.fromIdentity(payerSmartContract, {
@@ -369,7 +375,7 @@ describe('Request client using a request node', () => {
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-    await new Promise((resolve) => request.on('confirmed', resolve));
+    await request.waitForConfirmation();
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -388,29 +394,24 @@ describe('Request client using a request node', () => {
     );
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    const acceptData = await request.accept(payerIdentity);
-    await new Promise((resolve) => acceptData.on('confirmed', resolve));
+    const acceptedRequest = await waitForConfirmation(request.accept(payerIdentity));
+    expect(acceptedRequest.state).toBe(Types.RequestLogic.STATE.ACCEPTED);
 
-    await fetchedRequest.refresh();
-    fetchedRequestData = fetchedRequest.getData();
-    expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.ACCEPTED);
-
-    const increaseData = await request.increaseExpectedAmountRequest(
-      requestCreationHashBTC.expectedAmount,
-      payerIdentity,
+    const increasedRequest = await waitForConfirmation(
+      request.increaseExpectedAmountRequest(requestCreationHashBTC.expectedAmount, payerIdentity),
     );
-    await new Promise((resolve) => increaseData.on('confirmed', resolve));
 
-    await fetchedRequest.refresh();
-    expect(fetchedRequest.getData().expectedAmount).toEqual(
+    expect(increasedRequest.expectedAmount).toEqual(
       String(Number(requestCreationHashBTC.expectedAmount) * 2),
     );
 
-    const reduceData = await request.reduceExpectedAmountRequest(
-      Number(requestCreationHashBTC.expectedAmount) * 2,
-      payeeIdentity,
+    const reducedRequest = await waitForConfirmation(
+      request.reduceExpectedAmountRequest(
+        Number(requestCreationHashBTC.expectedAmount) * 2,
+        payeeIdentity,
+      ),
     );
-    await new Promise((resolve) => reduceData.on('confirmed', resolve));
+    expect(reducedRequest.expectedAmount).toEqual('0');
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toBe('0');
@@ -494,6 +495,31 @@ describe('Request client using a request node', () => {
     const requests = await badRequestNetwork.fromTopic(myRandomTopic);
     expect(requests).toHaveLength(0);
   });
+
+  it('can create multiple requests in parallel', async () => {
+    const nbRequests = 10;
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      parameters: {},
+    };
+    const requests = await Promise.all(
+      Array(nbRequests)
+        .fill(0)
+        .map(() =>
+          requestNetwork
+            .createRequest({
+              paymentNetwork,
+              requestInfo: requestCreationHashUSD,
+              signer: payeeIdentity,
+            })
+            .then((req) => req.waitForConfirmation()),
+        ),
+    );
+    expect(requests).toHaveLength(nbRequests);
+    requests.forEach((req) => {
+      req.state === RequestLogicTypes.STATE.CREATED;
+    });
+  });
 });
 
 describe('ERC20 localhost request creation and detection test', () => {
@@ -523,7 +549,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
+    requestData = await request.waitForConfirmation();
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
   });
@@ -625,7 +651,7 @@ describe('ETH localhost request creation and detection test', () => {
   };
 
   it('can create ETH requests and pay with ETH Fee proxy', async () => {
-    const currencies = [...CurrencyManager.getDefaultList()];
+    const currencies = CurrencyManager.getDefaultList();
     const requestNetwork = new RequestNetwork({
       signatureProvider,
       useMockStorage: true,
@@ -649,8 +675,9 @@ describe('ETH localhost request creation and detection test', () => {
       signer: payeeIdentity,
     });
 
-    let data = await request.refresh();
-    expect(data.balance).toBeNull();
+    let data = await request.waitForConfirmation();
+
+    expect(data.balance?.balance).toBe('0');
 
     const paymentTx = await payRequest(data, wallet);
     await paymentTx.wait();

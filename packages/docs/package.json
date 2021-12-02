@@ -32,10 +32,10 @@
     "gen:code2md": "aurelius 'docs/**/*'"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.72",
-    "@docusaurus/preset-classic": "2.0.0-alpha.72",
-    "@docusaurus/theme-live-codeblock": "2.0.0-alpha.72",
-    "@docusaurus/utils": "2.0.0-alpha.72",
+    "@docusaurus/core": "2.0.0-beta.3",
+    "@docusaurus/preset-classic": "2.0.0-beta.3",
+    "@docusaurus/theme-live-codeblock": "2.0.0-beta.3",
+    "@docusaurus/utils": "2.0.0-beta.3",
     "@metamask/contract-metadata": "1.25.0",
     "@requestnetwork/payment-processor": "0.37.0",
     "@requestnetwork/request-client.js": "0.39.0",

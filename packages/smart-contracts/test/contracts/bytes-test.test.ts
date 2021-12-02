@@ -1,17 +1,17 @@
+import '@nomiclabs/hardhat-ethers';
 import { ethers } from 'hardhat';
-import { BytesUtilsMock__factory } from '../../src/types';
+import { BytesUtilsMock, BytesUtilsMock__factory } from '../../src/types';
 import { expect, use } from 'chai';
-import { Contract } from 'ethers';
 import { solidity } from 'ethereum-waffle';
 
 use(solidity);
 
 describe('contract: Bytes Utils', async () => {
-  let bytesUtils: Contract;
+  let bytesUtils: BytesUtilsMock;
 
   before(async () => {
     const [signer] = await ethers.getSigners();
-    const factory = await new BytesUtilsMock__factory(signer);
+    const factory = new BytesUtilsMock__factory(signer);
     bytesUtils = await factory.deploy();
   });
 

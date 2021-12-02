@@ -3,7 +3,13 @@ import { BigNumber } from 'ethers';
 
 // This contains default values used to use Ethereum Network and IPFS
 // if information are not provided by the user
-const config: any = {
+const defaultNode: StorageTypes.IIpfsGatewayConnection = {
+  host: 'localhost',
+  port: 5001,
+  protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
+  timeout: 30000,
+};
+const config = {
   ethereum: {
     default: 'private',
     gasPriceDefault: '100000000000',
@@ -16,26 +22,17 @@ const config: any = {
     },
     retryDelay: 0,
     safeGasPriceLimit: '500000000000',
-    transactionPollingTimeout: 300,
   },
   ipfs: {
-    defaultNode: {
-      host: 'localhost',
-      port: 5001,
-      protocol: 'http',
-      timeout: 30000,
-    },
+    defaultNode,
     errorHandling: {
       delayBetweenRetries: 500,
       maxRetries: 3,
     },
     expectedBootstrapNodes: [
       '/dns4/ipfs-bootstrap.request.network/tcp/4001/ipfs/QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967Fdxx',
-
       '/dns4/ipfs-bootstrap-2.request.network/tcp/4001/ipfs/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj',
-
       '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
-
       '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
     ],
     maxIpfsReadRetry: 1,
@@ -61,7 +58,7 @@ export function getDefaultIpfs(): StorageTypes.IIpfsGatewayConnection {
  * @returns the url to connect to the network
  */
 export function getDefaultEthereumProvider(): string {
-  return config.ethereum.nodeUrlDefault[config.ethereum.default].url;
+  return config.ethereum.nodeUrlDefault.private.url;
 }
 
 /**
@@ -69,7 +66,7 @@ export function getDefaultEthereumProvider(): string {
  * @returns the url to connect to the network
  */
 export function getDefaultEthereumProviderTimeout(): number {
-  return config.ethereum.nodeUrlDefault[config.ethereum.default].timeout;
+  return config.ethereum.nodeUrlDefault.private.timeout;
 }
 
 /**
@@ -159,11 +156,4 @@ export function getIpfsExpectedBootstrapNodes(): string[] {
  */
 export function getMaxIpfsReadRetry(): number {
   return config.ipfs.maxIpfsReadRetry;
-}
-
-/**
- * Retrieve from config the amount of time to wait before a transaction is considered failed
- */
-export function getTransactionPollingTimeout(): number {
-  return config.ethereum.transactionPollingTimeout;
 }

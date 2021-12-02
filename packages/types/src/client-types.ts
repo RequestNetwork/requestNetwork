@@ -29,7 +29,7 @@ export interface IRequestDataWithEvents extends IRequestData {
 
 /** Create request parameters */
 export interface ICreateRequestParameters {
-  requestInfo: RequestLogic.ICreateParameters | IRequestInfo;
+  requestInfo: IRequestInfo;
   signer: Identity.IIdentity;
   paymentNetwork?: Payment.IPaymentNetworkCreateParameters;
   topics?: any[];
@@ -39,14 +39,8 @@ export interface ICreateRequestParameters {
 }
 
 /** Parameters to create a request. ICreateParameters with a more flexible currency */
-export interface IRequestInfo {
+export interface IRequestInfo extends Omit<RequestLogic.ICreateParameters, 'currency'> {
   currency: string | RequestLogic.ICurrency;
-  expectedAmount: RequestLogic.Amount;
-  payee?: Identity.IIdentity;
-  payer?: Identity.IIdentity;
-  extensionsData?: any[];
-  timestamp?: number;
-  nonce?: number;
 }
 
 /** Events types risen by a request */

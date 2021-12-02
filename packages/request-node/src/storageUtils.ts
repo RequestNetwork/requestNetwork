@@ -4,8 +4,7 @@ import * as config from './config';
 
 import Keyv from 'keyv';
 
-import Web3WsProvider from 'web3-providers-ws';
-import HDWalletProvider from '@truffle/hdwallet-provider';
+import { Wallet, providers } from 'ethers';
 
 /**
  * Get the ethereum storage with values from config
@@ -28,33 +27,33 @@ export function getEthereumStorage(
   };
 
   // Initializes web3 connection object
-  let provider: HDWalletProvider;
-  if (config.getStorageWeb3ProviderUrl().match('^wss?://.+')) {
-    provider = new HDWalletProvider({
-      mnemonic,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      providerOrUrl: new Web3WsProvider(config.getStorageWeb3ProviderUrl(), {
-        clientConfig: {
-          keepalive: true,
-          keepaliveInterval: 10000, // ms
-        },
-        // Enable auto reconnection
-        reconnect: {
-          auto: true,
-          delay: 3000, // ms
-          maxAttempts: 5,
-          onTimeout: false,
-        },
-      }),
-    });
+
+  let provider: providers.Provider;
+  const url = config.getStorageWeb3ProviderUrl();
+  if (url.match('^wss?://.+')) {
+    provider = new providers.WebSocketProvider(url);
+    // FIXME previous WS config
+    // {
+    //   clientConfig: {
+    //     keepalive: true,
+    //     keepaliveInterval: 10000, // ms
+    //   },
+    //   // Enable auto reconnection
+    //   reconnect: {
+    //     auto: true,
+    //     delay: 3000, // ms
+    //     maxAttempts: 5,
+    //     onTimeout: false,
+    //   },
+    // }
   } else {
-    provider = new HDWalletProvider(mnemonic, config.getStorageWeb3ProviderUrl());
+    provider = new providers.StaticJsonRpcProvider(url);
   }
+  const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
   const web3Connection: StorageTypes.IWeb3Connection = {
     networkId: config.getStorageNetworkId(),
-    web3Provider: provider,
+    signer: wallet,
   };
 
   const store = new Keyv<string[]>({

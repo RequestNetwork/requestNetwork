@@ -45,10 +45,10 @@
     "@requestnetwork/ethereum-storage": "0.26.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "@truffle/hdwallet-provider": "1.2.3",
     "chalk": "4.1.0",
     "cors": "2.8.5",
     "dotenv": "8.2.0",
+    "ethers": "5.5.1",
     "express": "4.17.1",
     "http-shutdown": "1.2.2",
     "http-status-codes": "2.1.4",
@@ -75,7 +75,7 @@
     "supertest": "5.0.0",
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
-    "ts-node-dev": "1.0.0-pre.62",
+    "ts-node-dev": "1.1.8",
     "typescript": "4.4.4"
   },
   "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"

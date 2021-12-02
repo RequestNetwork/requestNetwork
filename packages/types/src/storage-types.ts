@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
-
-import { BigNumber } from 'ethers';
+import { BigNumber, Signer } from 'ethers';
 
 /** Interface of the storage */
 export interface IStorage {
@@ -131,7 +130,7 @@ export enum EthereumNetwork {
 
 /** Information to connect to a web3 provider */
 export interface IWeb3Connection {
-  web3Provider?: any;
+  signer: Signer;
   networkId?: EthereumNetwork;
   timeout?: number;
 }

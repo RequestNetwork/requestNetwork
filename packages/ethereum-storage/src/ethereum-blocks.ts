@@ -1,12 +1,12 @@
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { providers } from 'ethers';
 
 /**
  * Manages every info linked to the ethereum blocks (blockNumber, blockTimestamp, confirmations ... )
  */
 export default class EthereumBlocks {
-  // 'web3-eth' object
-  public eth: any;
+  public provider: providers.Provider;
 
   /**
    * Gets last block number
@@ -43,26 +43,22 @@ export default class EthereumBlocks {
 
   /**
    * Constructor
-   * @param eth eth object from web3
+   * @param provider eth object from web3
    * @param firstSignificantBlockNumber all the block before this one will be ignored
    * @param getLastBlockNumberMinDelay the minimum delay to wait between fetches of lastBlockNumber
    */
   public constructor(
-    eth: any,
+    provider: providers.Provider,
     firstSignificantBlockNumber: number,
     retryDelay: number,
     maxRetries: number,
     getLastBlockNumberMinDelay = 0,
     logger?: LogTypes.ILogger,
   ) {
-    this.eth = eth;
-
+    this.provider = provider;
     this.firstSignificantBlockNumber = firstSignificantBlockNumber;
-
     this.getLastBlockNumberMinDelay = getLastBlockNumberMinDelay;
-
     this.logger = logger || new Utils.SimpleLogger();
-
     // Get retry parameter values from config
     this.retryDelay = retryDelay;
     this.maxRetries = maxRetries;
@@ -73,7 +69,7 @@ export default class EthereumBlocks {
         Utils.retry(
           () => {
             this.logger.debug(`Getting last block number`, ['ethereum', 'ethereum-blocks']);
-            return this.eth.getBlockNumber();
+            return this.provider.getBlockNumber();
           },
           {
             maxRetries: this.maxRetries,
@@ -97,7 +93,7 @@ export default class EthereumBlocks {
 
     // if we don't know the information, let's get it
     // Use Utils.retry to rerun if getBlock fails
-    const block = await Utils.retry((bn: number) => this.eth.getBlock(bn), {
+    const block = await Utils.retry((bn: number) => this.provider.getBlock(bn), {
       maxRetries: this.maxRetries,
       retryDelay: this.retryDelay,
     })(blockNumber);
@@ -193,9 +189,9 @@ export default class EthereumBlocks {
    * @param blockNumber The block number
    * @returns An Ethereum block
    */
-  public async getBlock(blockNumber: number | string): Promise<any> {
-    return Utils.retry(this.eth.getBlock, {
-      context: this.eth,
+  public async getBlock(blockNumber: number | string): Promise<providers.Block> {
+    return Utils.retry(this.provider.getBlock, {
+      context: this.provider,
       maxRetries: this.maxRetries,
       retryDelay: this.retryDelay,
     })(blockNumber);

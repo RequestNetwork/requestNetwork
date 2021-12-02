@@ -41,7 +41,8 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (!currenciesWithConversionOracles[network]) {
       throw Error(`network ${network} not supported`);
     }
-    const supportedErc20: string[] = currenciesWithConversionOracles[network][RequestLogicTypes.CURRENCY.ERC20];
+    const supportedErc20: string[] =
+      currenciesWithConversionOracles[network][RequestLogicTypes.CURRENCY.ERC20];
 
     for (const address of creationParameters.acceptedTokens) {
       if (!supportedErc20.includes(address.toLowerCase())) {

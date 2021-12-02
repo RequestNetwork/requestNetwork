@@ -1,6 +1,7 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { Wallet, providers, ethers } from 'ethers';
 import { EventEmitter } from 'events';
 
 import EthereumStorage from '../src/ethereum-storage';
@@ -8,8 +9,10 @@ import IpfsConnectionError from '../src/ipfs-connection-error';
 
 /* eslint-disable no-magic-numbers */
 
-const web3HttpProvider = require('web3-providers-http');
-const web3Utils = require('web3-utils');
+import {
+  RequestHashStorage__factory,
+  RequestOpenHashSubmitter__factory,
+} from '@requestnetwork/smart-contracts/types';
 
 const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'localhost',
@@ -25,51 +28,50 @@ const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   timeout: 1000,
 };
 
-const provider = new web3HttpProvider('http://localhost:8545');
+const provider = new providers.JsonRpcProvider('http://localhost:8545');
+const wallet = Wallet.fromMnemonic(
+  'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat',
+);
 const web3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
-  web3Provider: provider,
+  signer: wallet.connect(provider),
 };
 
-const invalidHostNetworkProvider = new web3HttpProvider('http://nonexistentnetwork:8545');
+const invalidHostNetworkProvider = new providers.JsonRpcProvider('http://nonexistentnetwork:8545');
 const invalidHostWeb3Connection: StorageTypes.IWeb3Connection = {
   networkId: StorageTypes.EthereumNetwork.PRIVATE,
   timeout: 1000,
-  web3Provider: invalidHostNetworkProvider,
+  signer: wallet.connect(invalidHostNetworkProvider),
 };
 
-const web3Eth = require('web3-eth');
-const eth = new web3Eth(provider);
-
-const contractHashSubmitter = new eth.Contract(
-  SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
-  SmartContracts.requestHashSubmitterArtifact.getAddress('private'),
+const addressRequestHashSubmitter = SmartContracts.requestHashSubmitterArtifact.getAddress(
+  'private',
 );
-const addressRequestHashSubmitter = contractHashSubmitter._address;
 
 let ethereumStorage: EthereumStorage;
 
 const content1 = 'this is a little test !';
 const hash1 = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
 const realSize1 = 29;
-const realSize1Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize1), 64);
+const realSize1Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(realSize1), 32);
 const fakeSize1 = 50;
-const fakeSize1Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize1), 64);
+const fakeSize1Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(fakeSize1), 32);
 
 const content2 = 'content\nwith\nspecial\ncharacters\n';
 const hash2 = 'QmQj8fQ9T16Ddrxfij5eyRnxXKTVxRXyQuazYnezt9iZpy';
 const realSize2 = 38;
-const realSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(realSize2), 64);
+const realSize2Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(realSize2), 32);
 const fakeSize2 = 0;
-const fakeSize2Bytes32Hex = web3Utils.padLeft(web3Utils.toHex(fakeSize2), 64);
+const fakeSize2Bytes32Hex = ethers.utils.hexZeroPad(ethers.utils.hexlify(fakeSize2), 32);
 
 // Define a mock for getPastEvents to be independent of the state of ganache instance
+
 const pastEventsMock = [
   {
     blockNumber: 1,
     event: 'NewHash',
-    returnValues: {
+    args: {
       feesParameters: realSize1Bytes32Hex,
       hash: hash1,
       hashSubmitter: addressRequestHashSubmitter,
@@ -79,7 +81,7 @@ const pastEventsMock = [
   {
     blockNumber: 1,
     event: 'NewHash',
-    returnValues: {
+    args: {
       feesParameters: fakeSize1Bytes32Hex,
       hash: hash1,
       hashSubmitter: addressRequestHashSubmitter,
@@ -89,7 +91,7 @@ const pastEventsMock = [
   {
     blockNumber: 2,
     event: 'NewHash',
-    returnValues: {
+    args: {
       feesParameters: realSize2Bytes32Hex,
       hash: hash2,
       hashSubmitter: addressRequestHashSubmitter,
@@ -99,7 +101,7 @@ const pastEventsMock = [
   {
     blockNumber: 3,
     event: 'NewHash',
-    returnValues: {
+    args: {
       feesParameters: fakeSize2Bytes32Hex,
       hash: hash2,
       hashSubmitter: addressRequestHashSubmitter,
@@ -109,7 +111,7 @@ const pastEventsMock = [
   {
     blockNumber: 3,
     event: 'NewHash',
-    returnValues: {
+    args: {
       feesParameters: fakeSize2Bytes32Hex,
       hash: 'notAHash',
       hashSubmitter: addressRequestHashSubmitter,
@@ -118,10 +120,13 @@ const pastEventsMock = [
   },
 ];
 /* eslint-disable  */
-const getPastEventsMock = () => pastEventsMock;
+const getPastEventsMock = (): any => Promise.resolve(pastEventsMock);
 
 describe('EthereumStorage', () => {
   describe('initialize', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
     it('cannot use functions when not initialized', async () => {
       const ethereumStorageNotInitialized: EthereumStorage = new EthereumStorage(
         'localhost',
@@ -170,7 +175,7 @@ describe('EthereumStorage', () => {
         invalidHostWeb3Connection,
       );
       await expect(ethereumStorageNotInitialized.initialize()).rejects.toThrowError(
-        'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider: Error: Invalid JSON RPC response: ""',
+        'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider',
       );
     });
 
@@ -180,8 +185,12 @@ describe('EthereumStorage', () => {
         ipfsGatewayConnection,
         web3Connection,
       );
-
-      ethereumStorageNotInitialized.smartContractManager.eth.net.isListening = async () => false;
+      jest
+        .spyOn(
+          ethereumStorageNotInitialized.smartContractManager.provider as providers.JsonRpcProvider,
+          'send',
+        )
+        .mockImplementation(() => Promise.resolve(false));
 
       await expect(ethereumStorageNotInitialized.initialize()).rejects.toThrowError(
         'Ethereum node is not accessible: Error: The Web3 provider is not listening',
@@ -198,13 +207,13 @@ describe('EthereumStorage', () => {
       const invalidHashSubmitterAddress = '0x0000000000000000000000000000000000000000';
 
       // Initialize smart contract instance
-      ethereumStorageNotInitialized.smartContractManager.requestHashStorage = new eth.Contract(
-        SmartContracts.requestHashStorageArtifact.getContractAbi(),
+      ethereumStorageNotInitialized.smartContractManager.requestHashStorage = RequestHashStorage__factory.connect(
         invalidHashStorageAddress,
+        ethereumStorageNotInitialized.smartContractManager.signer,
       );
-      ethereumStorageNotInitialized.smartContractManager.requestHashSubmitter = new eth.Contract(
-        SmartContracts.requestHashSubmitterArtifact.getContractAbi(),
+      ethereumStorageNotInitialized.smartContractManager.requestHashSubmitter = RequestOpenHashSubmitter__factory.connect(
         invalidHashSubmitterAddress,
+        ethereumStorageNotInitialized.smartContractManager.signer,
       );
 
       await expect(ethereumStorageNotInitialized.initialize()).rejects.toThrowError(
@@ -218,20 +227,30 @@ describe('EthereumStorage', () => {
       ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
       await ethereumStorage.initialize();
 
-      ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
-        return {
-          blockConfirmation: 10,
-          blockNumber: 10,
-          blockTimestamp: 1545816416,
-          cost: '110',
-          fee: '100',
-          gasFee: '10',
-          networkName: 'private',
-          smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-          transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
-        };
-      };
+      jest
+        .spyOn(ethereumStorage.smartContractManager.requestHashStorage, 'queryFilter')
+        .mockImplementation(getPastEventsMock);
+      jest
+        .spyOn(ethereumStorage.smartContractManager, 'addHashAndSizeToEthereum')
+        .mockImplementation(
+          async (): Promise<StorageTypes.IEthereumMetadata> => {
+            return {
+              blockConfirmation: 10,
+              blockNumber: 10,
+              blockTimestamp: 1545816416,
+              cost: '110',
+              fee: '100',
+              gasFee: '10',
+              networkName: 'private',
+              smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+              transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+            };
+          },
+        );
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
     });
 
     it('cannot be initialized twice', async () => {
@@ -550,7 +569,7 @@ describe('EthereumStorage', () => {
       await expect(
         ethereumStorage.updateEthereumNetwork(invalidHostWeb3Connection),
       ).rejects.toThrowError(
-        'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider: Error: Invalid JSON RPC response: ""',
+        'Ethereum node is not accessible: Error: Error when trying to reach Web3 provider',
       );
     });
 
@@ -751,7 +770,9 @@ describe('EthereumStorage', () => {
     });
 
     it('getData returns an empty array if no hash was found', async () => {
-      ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = () => [];
+      jest
+        .spyOn(ethereumStorage.smartContractManager.requestHashStorage, 'queryFilter')
+        .mockImplementation(() => Promise.resolve([]));
       const result = await ethereumStorage.getData({ from: 10000, to: 10001 });
       expect(result.entries).toMatchObject([]);
       expect(typeof result.lastTimestamp).toBe('number');

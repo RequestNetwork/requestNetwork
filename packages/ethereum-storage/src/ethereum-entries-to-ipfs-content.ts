@@ -209,7 +209,11 @@ async function getIpfsContent(
 
   // Check if the declared size is higher or equal to the size of the actual file
   // If the declared size is higher, it's not considered as a problem since it means the hash submitter has paid a bigger fee than he had to
-  if (!ipfsObject || ipfsObject.ipfsSize > contentSizeDeclared) {
+  if (
+    !ipfsObject ||
+    Number.isNaN(contentSizeDeclared) ||
+    ipfsObject.ipfsSize > contentSizeDeclared
+  ) {
     logger.info(`Incorrect declared size for hash: ${ethereumEntry.hash}`, ['ipfs']);
 
     // No need to retry to find this hash
