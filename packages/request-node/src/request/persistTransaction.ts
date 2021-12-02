@@ -1,5 +1,5 @@
 import { DataAccess } from '@requestnetwork/data-access';
-import { LogTypes, MultiFormatTypes } from '@requestnetwork/types';
+import { LogTypes, MultiFormatTypes, DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
@@ -31,7 +31,7 @@ export default class PersistTransactionHandler {
    */
   public async handler(clientRequest: Request, serverResponse: Response): Promise<void> {
     // Retrieves data access layer
-    let dataAccessResponse;
+    let dataAccessResponse: DataAccessTypes.IReturnPersistTransaction;
 
     // Used to compute request time
     const requestStartTime = Date.now();
