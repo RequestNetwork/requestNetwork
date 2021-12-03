@@ -122,6 +122,13 @@ export interface IPaymentNetworkInfoRetriever<
   getTransferEvents(): Promise<TPaymentNetworkEvent[]>;
 }
 
+/** Generic info retriever interface */
+export interface IPaymentNetworkBaseInfoRetriever<
+  TPaymentNetworkEvent extends IPaymentNetworkBaseEvent
+> {
+  getContractEvents(): Promise<TPaymentNetworkEvent[]>;
+}
+
 /** Parameters for events of ERC20 payments */
 export interface IERC20PaymentEventParameters {
   from?: string;
