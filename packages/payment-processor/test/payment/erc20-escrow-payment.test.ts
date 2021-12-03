@@ -7,22 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import {
-  approveErc20ForEscrow,
-  payEscrow,
-  payRequestFromEscrow,
-  initiateEmergencyClaim,
-  encodePayEscrow,
-  encodePayRequestFromEscrow,
-  encodeInitiateEmergencyClaim,
-  encodeCompleteEmergencyClaim,
-  encodeRevertEmergencyClaim,
-  encodeFreezeRequest,
-  encodeRefundFrozenFunds,
-  revertEmergencyClaim,
-  freezeRequest,
-  refundFrozenFunds,
-} from '../../src/payment/erc20-escrow-payment';
+import { Escrow } from '@requestnetwork/payment-processor';
 import { getRequestPaymentValues, getSigner } from '../../src/payment/utils';
 
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
@@ -104,21 +89,21 @@ describe('erc20-escrow-payment tests:', () => {
       const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
   
-      await expect(payEscrow(request, wallet)).rejects.toThrowError(
+      await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
         "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
       );
     });
     it('Should throw an error if the currencyInfo has no value', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = '';
-      await expect(payEscrow(request, wallet)).rejects.toThrowError(
+      await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
         "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
       );
     });
     it('Should throw an error if currencyInfo has no network', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.network = '';
-      await expect(payEscrow(request, wallet)).rejects.toThrowError(
+      await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
         "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
       );
     });
@@ -126,7 +111,7 @@ describe('erc20-escrow-payment tests:', () => {
       const request = Utils.deepCopy(validRequest);
       request.extensions = [] as any;
   
-      await expect(payEscrow(request, wallet)).rejects.toThrowError(
+      await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
         'no payment network found',
       );
     });
@@ -137,7 +122,7 @@ describe('erc20-escrow-payment tests:', () => {
 
       const values = getRequestPaymentValues(validRequest);
 
-      await payEscrow(validRequest, wallet, undefined);
+      await Escrow.payEscrow(validRequest, wallet, undefined);
 
       expect(spy).toHaveBeenCalledWith({
         data: `0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
@@ -152,37 +137,37 @@ describe('erc20-escrow-payment tests:', () => {
     const values = getRequestPaymentValues(validRequest);
 
     it('Should encode data to execute payEscrow().', () => {
-      expect(encodePayEscrow(validRequest, wallet)).toBe(
+      expect(Escrow.encodePayEscrow(validRequest, wallet)).toBe(
         `0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute payRequestFromEscrow().', () => {
-      expect(encodePayRequestFromEscrow(validRequest, wallet)).toBe(
+      expect(Escrow.encodePayRequestFromEscrow(validRequest, wallet)).toBe(
         `0x2a16f4c300000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute freezeRequest().', () => {
-      expect(encodeFreezeRequest(validRequest, wallet)).toBe(
+      expect(Escrow.encodeFreezeRequest(validRequest, wallet)).toBe(
         `0x82865e9d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute initiateEmergencyClaim().', () => {
-      expect(encodeInitiateEmergencyClaim(validRequest, wallet)).toBe(
+      expect(Escrow.encodeInitiateEmergencyClaim(validRequest, wallet)).toBe(
         `0x3a322d4500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute completeEmergencyClaim().', () => {
-      expect(encodeCompleteEmergencyClaim(validRequest, wallet)).toBe(
+      expect(Escrow.encodeCompleteEmergencyClaim(validRequest, wallet)).toBe(
         `0x6662e1e000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute revertEmergencyClaim().', () => {
-      expect(encodeRevertEmergencyClaim(validRequest, wallet)).toBe(
+      expect(Escrow.encodeRevertEmergencyClaim(validRequest, wallet)).toBe(
         `0x0797560800000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute refundFrozenFunds().', () => {
-      expect(encodeRefundFrozenFunds(validRequest, wallet)).toBe(
+      expect(Escrow.encodeRefundFrozenFunds(validRequest, wallet)).toBe(
         `0x1a77f53a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
@@ -190,7 +175,7 @@ describe('erc20-escrow-payment tests:', () => {
 
   describe('Main use cases:', () => {
     beforeEach(async () => {
-      await approveErc20ForEscrow(validRequest, erc20ContractAddress, wallet);
+      await Escrow.Escrow.approveErc20ForEscrow(validRequest, erc20ContractAddress, wallet);
     });
 
     describe('Normal Flow:', () => {
@@ -201,7 +186,7 @@ describe('erc20-escrow-payment tests:', () => {
         const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
         const feeBeforeBalance = await getErc20Balance(request, feeAddress);
 
-        await payEscrow(request, wallet, undefined, undefined);
+        await Escrow.payEscrow(request, wallet, undefined, undefined);
 
         const payerAfterBalance = await getErc20Balance(request, payerAddress);
         const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
@@ -226,13 +211,13 @@ describe('erc20-escrow-payment tests:', () => {
         request.requestId = 'aabb';
 
         // Execute payEscrow
-        await payEscrow(request, wallet, undefined, undefined);
+        await Escrow.payEscrow(request, wallet, undefined, undefined);
 
         // Stores balance after payEscrow(), and before withdraws.
         const payeeBeforeBalance = await getErc20Balance(request, paymentAddress);
         const escrowBeforeBalance = await getErc20Balance(request, escrowAddress);
 
-        await payRequestFromEscrow(request, wallet);
+        await Escrow.payRequestFromEscrow(request, wallet);
 
         // Stores balances after withdraws to compare before balance with after balance.
         const payeeAfterBalance = await getErc20Balance(request, paymentAddress);
@@ -260,11 +245,11 @@ describe('erc20-escrow-payment tests:', () => {
 
         // Execute payEscrow.
         expect(
-          await (await payEscrow(request, wallet, undefined, undefined)).wait(1),
+          await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1),
         ).toBeTruthy();
 
         // Payer initiate emergency claim.
-        const tx = await initiateEmergencyClaim(request, payee);
+        const tx = await Escrow.initiateEmergencyClaim(request, payee);
         const confirmedTx = await tx.wait(1);
         
         // Checks the status and tx.hash.
@@ -280,13 +265,13 @@ describe('erc20-escrow-payment tests:', () => {
         const payee = getSigner(provider, paymentAddress);
 
         // Execute payEscrow.
-        await (await payEscrow(request, wallet, undefined, undefined)).wait(1);
+        await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1);
 
         // Payer initiate emergency claim.
-        await (await initiateEmergencyClaim(request, payee)).wait(1);
+        await (await Escrow.initiateEmergencyClaim(request, payee)).wait(1);
         
         // Payer reverts the emergency claim.
-        const tx = await revertEmergencyClaim(request, wallet);
+        const tx = await Escrow.revertEmergencyClaim(request, wallet);
         const confirmedTx = await tx.wait(1);
 
         // Checks the status and tx.hash.
@@ -302,10 +287,10 @@ describe('erc20-escrow-payment tests:', () => {
         request.requestId = 'aaee';
 
         // Execute payEscrow.
-        await (await payEscrow(request, wallet, undefined, undefined)).wait(1);
+        await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1);
 
         // Payer freeze escrow funds.
-        const tx = await freezeRequest(request, wallet);
+        const tx = await Escrow.freezeRequest(request, wallet);
         const confirmedTx = await tx.wait(1);
 
         // Checks the status and tx.hash.
@@ -318,13 +303,13 @@ describe('erc20-escrow-payment tests:', () => {
         request.requestId = 'aaff';
 
         // Execute payEscrow.
-        await (await payEscrow(request, wallet, undefined, undefined)).wait(1);
+        await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1);
 
         // Payer executes a freeze of escrow funds.
-        await (await freezeRequest(request, wallet)).wait(1);
+        await (await Escrow.freezeRequest(request, wallet)).wait(1);
         
         // Payer tries to withdraw frozen funds before unlock date.
-        await expect(refundFrozenFunds(request, wallet)).rejects.toThrowError('Not Yet!',);
+        await expect(Escrow.refundFrozenFunds(request, wallet)).rejects.toThrowError('Not Yet!',);
       });
     });
   });
