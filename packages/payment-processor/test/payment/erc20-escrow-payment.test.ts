@@ -175,7 +175,7 @@ describe('erc20-escrow-payment tests:', () => {
 
   describe('Main use cases:', () => {
     beforeEach(async () => {
-      await Escrow.Escrow.approveErc20ForEscrow(validRequest, erc20ContractAddress, wallet);
+      await Escrow.approveErc20ForEscrow(validRequest, erc20ContractAddress, wallet);
     });
 
     describe('Normal Flow:', () => {
