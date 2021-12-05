@@ -286,7 +286,7 @@ describe('erc20-escrow-payment tests:', () => {
         const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
         request.requestId = 'aaee';
 
-        // Execute payEscrow.
+        // Execute payEscrow function on smart contract.
         await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1);
 
         // Payer freeze escrow funds.
