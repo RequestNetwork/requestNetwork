@@ -18,7 +18,7 @@ type EscrowArgs = {
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a escrow contract.
  */
-export default class escrowERC20InfoRetriever
+export default class EscrowERC20InfoRetriever
   implements PaymentTypes.IPaymentNetworkBaseInfoRetriever<PaymentTypes.IPaymentNetworkBaseEvent> {
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
@@ -65,7 +65,7 @@ export default class escrowERC20InfoRetriever
     freezeFilter.toBlock = 'latest';
 
     // Create a filter to find all the Fee Transfer logs with the payment reference
-    const revertEmergencyFilter = this.contractEscrow.filters.EmergencyClaimReverted(
+    const revertEmergencyFilter = this.contractEscrow.filters.RevertedEmergencyClaim(
       '0x' + this.paymentReference,
     ) as ethers.providers.Filter;
     freezeFilter.fromBlock = this.escrowCreationBlockNumber;
@@ -110,14 +110,14 @@ export default class escrowERC20InfoRetriever
       // Keeps only the log with the right paymentReference.
       .filter(
         ({ parsedLog }) =>
-          parsedLog.paymentReference.toLowerCase() === this.paymentReference.toLowerCase(),
+        parsedLog.paymentReference === this.paymentReference,
       )
       // Creates the escrow events
       .map(async ({ parsedLog, blockNumber, transactionHash, eventName }) => ({
         name: eventName,
         parameters: {
           block: blockNumber,
-          paymentRefrence: parsedLog.paymentReference,
+          paymentReference: parsedLog.paymentReference,
           txHash: transactionHash,
         },
         timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
