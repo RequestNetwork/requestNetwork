@@ -22,7 +22,7 @@ export default class escrowERC20InfoRetriever
   implements PaymentTypes.IPaymentNetworkBaseInfoRetriever<PaymentTypes.IPaymentNetworkBaseEvent> {
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
-  
+
   /**
    * @param paymentReference The reference to identify the payment.
    * @param escrowContractAddress The address of the escrow contract.
@@ -81,23 +81,29 @@ export default class escrowERC20InfoRetriever
     const revertEmergencyLogs = await this.provider.getLogs(revertEmergencyFilter);
 
     interface EthersLogsWithEventName extends ethers.providers.Log {
-        eventName: PaymentTypes.EVENTS_NAMES;
+      eventName: PaymentTypes.EVENTS_NAMES;
     }
-      
+
     // Merge events if multiple logs
-    const logs: EthersLogsWithEventName[] = ([
-        ...freezeLogs.map((i) => ({ ...i, eventName: PaymentTypes.EVENTS_NAMES.REQUEST_FROZEN })),
-        ...initEmergencyLogs.map((i) => ({ ...i, eventName: PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM })),
-        ...revertEmergencyLogs.map((i) => ({ ...i, eventName: PaymentTypes.EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM })),
-      ]);
+    const logs: EthersLogsWithEventName[] = [
+      ...freezeLogs.map((i) => ({ ...i, eventName: PaymentTypes.EVENTS_NAMES.REQUEST_FROZEN })),
+      ...initEmergencyLogs.map((i) => ({
+        ...i,
+        eventName: PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
+      })),
+      ...revertEmergencyLogs.map((i) => ({
+        ...i,
+        eventName: PaymentTypes.EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+      })),
+    ];
 
     // Parses, filters and creates the events from the logs with the payment reference
     const eventPromises = logs
       // Parses the logs
-        .map((log) => {
+      .map((log) => {
         const parsedLog = this.contractEscrow.interface.parseLog(log);
-          return {
-            ...log,
+        return {
+          ...log,
           parsedLog: parseLogArgs<EscrowArgs>(parsedLog),
         };
       })
@@ -107,13 +113,13 @@ export default class escrowERC20InfoRetriever
           parsedLog.paymentReference.toLowerCase() === this.paymentReference.toLowerCase(),
       )
       // Creates the escrow events
-      .map(async ({ parsedLog, blockNumber, transactionHash, eventName, }) => ({
+      .map(async ({ parsedLog, blockNumber, transactionHash, eventName }) => ({
         name: eventName,
         parameters: {
-            block: blockNumber,
-            paymentRefrence: parsedLog.paymentReference,
-            txHash: transactionHash,
-          },  
+          block: blockNumber,
+          paymentRefrence: parsedLog.paymentReference,
+          txHash: transactionHash,
+        },
         timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
       }));
 
