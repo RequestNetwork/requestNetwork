@@ -11,18 +11,16 @@ const proxyContractAddress = '0x2C2B9C9a4a25e24B174f26114e8926a9f2128FE4';
 const feeProxyContractAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
 const paymentReferenceMock = 'aaaa';
 
-
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/escrow-info-retriever', () => {
   describe('on localhost', () => {
     //const paymentAddress = '0xf17f52151ebef6c7334fad080c5704d77216b732';
 
     it('can get the localhost balance of an address', async () => {
-      
       const infoRetriever = new EscrowERC20InfoRetriever(
         paymentReferenceMock,
         escrowContractAddress,
-        0, 
+        0,
         'private',
       );
 
@@ -32,7 +30,7 @@ describe('api/erc20/escrow-info-retriever', () => {
           !filter.topics?.includes(
             // InitiatedEmergencyClaim
             '0x37b4fae7fd90ce3674204f79d686d40c4069a66c402976717d4f30817c0c0939',
-          )  
+          )
         ) {
           return [];
         }
@@ -67,7 +65,6 @@ describe('api/erc20/escrow-info-retriever', () => {
       expect(events).toHaveLength(0);
       //expect(events[0].name).toBe(PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM);
       //expect(typeof events[0].timestamp).toBe('number');
-    
     });
     it('can get the localhost fees of an address', async () => {
       const infoRetriever = new ProxyERC20InfoRetriever(
@@ -151,6 +148,6 @@ describe('api/erc20/escrow-info-retriever', () => {
 
       const events = await infoRetriever.getTransferEvents();
       expect(Object.keys(events)).toHaveLength(0);
-    }); 
+    });
   });
 });
