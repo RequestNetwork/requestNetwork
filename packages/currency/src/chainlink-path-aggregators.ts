@@ -65,6 +65,7 @@ export const chainlinkCurrencyPairs: any = {
       '0x6b175474e89094c44da98b954eedeac495271d0f': 1,
       '0x3845badade8e6dff049820680d1f14bd3903a5d0': 1,
       '0x8ab7404063ec4dbcfd4598215992dc3f8ec853d7': 1,
+      '0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202': 1,
     },
     '0xfa6faefc053e6c8e393a73dcc12b09fcde019d25': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -82,6 +83,7 @@ export const chainlinkCurrencyPairs: any = {
       '0xc944e90c64b2c07662a292be6244bdf05cda44a7': 1,
       '0x967da4048cd07ab37855c090aaf366e4ce1b9f48': 1,
       '0x0f5d2fb29fb7d3cfee444a200298f468908cc942': 1,
+      '0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202': 1,
     },
     '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c': {
       '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
@@ -141,6 +143,10 @@ export const chainlinkCurrencyPairs: any = {
     },
     '0x0f5d2fb29fb7d3cfee444a200298f468908cc942': {
       '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
+    },
+    '0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202': {
+      '0xf5af88e117747e87fc5929f2ff87221b1447652e': 1,
+      '0x775eb53d00dd0acd3ec1696472105d579b9b386b': 1,
     },
   },
   matic: {
