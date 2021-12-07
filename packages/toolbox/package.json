@@ -36,7 +36,7 @@
     "lint": "eslint \"src/**/*.ts\"",
     "prepare": "yarn run build",
     "cli": "cross-env NODE_ENV=development ts-node src/cli.ts",
-    "chainlinkPath": "yarn cli listAggregators",
+    "chainlinkPath": "yarn -s cli listAggregators",
     "currencyHash": "yarn cli currencyHash"
   },
   "dependencies": {
@@ -46,8 +46,11 @@
     "@requestnetwork/request-client.js": "0.39.0",
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
+    "@requestnetwork/utils": "0.35.0",
     "axios": "0.21.1",
+    "bluebird": "3.7.2",
     "ethers": "5.5.1",
+    "lodash": "4.17.21",
     "tslib": "2.3.1",
     "yargs": "16.2.0"
   },

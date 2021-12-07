@@ -31,7 +31,19 @@ yarn run:create
 yarn run:create 12
 ```
 
-### Get conversion paths
+### Conversion paths
+
+#### Updating conversion paths
+_requires [jq](https://stedolan.github.io/jq/)_
+```bash
+./updateAggregators.sh mainnet
+# or, depending on the network, you can specify the URL
+WEB3_URL=https://polygon-mainnet.infura.io/v3/xxx ./updateAggregators.sh matic
+git add ../currency
+git commit ...
+```
+
+#### Getting conversion paths
 
 Returns all the aggregators used for the any-to-erc20 proxy.
 It can be used to populate the [currency pair](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/currency/src/chainlink-path-aggregators.ts#L9) (in @requestnetwork/currency) when we add a new aggregator to [ChainlinkConversionPath.sol](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ChainlinkConversionPath.sol) on any network.
@@ -71,18 +83,9 @@ To get only aggregators of one network:
 yarn chainlinkPath mainnet
 ```
 
-To get aggregators of a network with a lot of blocks, you have to gather most updates with updateAggregatorsList.
-
-Case 1: you only use updateAggregatorsList, and update every pair each time, take this block of its last execution.
-
+You can change the default blockRange (some networks allow a very large range, some don't) with `maxRange`
 ```bash
-yarn chainlinkPath --network=matic --firstBlock=$LAST_EXECUTION_BLOCK
-```
-
-Case 2: you used updateAggregator a few times after a full updateAggregatorsList (mass update), all within a blockspan of less than 100'000.
-
-```bash
-yarn chainlinkPath --network=matic --firstBlock=$MASS_UPDATE_BLOCK --lastBlock=$LAST_SINGLE_UPDATE_BLOCK
+yarn chainlinkPath mainnet --maxRange 1000000
 ```
 
 To get a currency hash:
