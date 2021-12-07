@@ -5,7 +5,7 @@ description: Technical specifications for a payment proxy developments
 ---
 
 :::info
-EVM blockchains with web3 support are not concerned by this documentation, reach out to us.
+EVM blockchains with web3 support are not concerned by this documentation, [reach out to us](https://discord.gg/q7cRv4hT).
 :::
 
 # How to invoice with tokens on a new blockchain?
