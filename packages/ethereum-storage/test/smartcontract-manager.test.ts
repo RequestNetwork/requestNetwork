@@ -228,7 +228,6 @@ describe('SmartContractManager', () => {
     expect(events[0].args.feesParameters).toEqual(realSizeBytes32Hex);
   });
 
-  // TODO since the migration to jest, this test fails.
   it('allows to add other content than hash to contractHashStorage', async () => {
     await smartContractManager.addHashAndSizeToEthereum(otherContent, { contentSize: otherSize });
     const lastBlock = await provider.getBlockNumber();
@@ -281,7 +280,6 @@ describe('SmartContractManager', () => {
     jest
       .spyOn(smartContractManager.ethereumBlocks.provider, 'getBlockNumber')
       .mockImplementation(() => Promise.resolve(9));
-    // TODO ? smartContractManager.ethereumBlocks = new EthereumBlocks(mockEth, 1, 0, 0);
 
     const { ethereumEntries } = await smartContractManager.getEntriesFromEthereum({
       from: 299,
