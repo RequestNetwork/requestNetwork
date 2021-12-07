@@ -90,8 +90,8 @@ export default class EthereumStorage implements StorageTypes.IStorage {
   ) {
     this.maxConcurrency = maxConcurrency || getMaxConcurrency();
     this.logger = logger || new Utils.SimpleLogger();
+    this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
     this.ethereumMetadataCache = new EthereumMetadataCache(metadataStore);
-
     this.smartContractManager = new SmartContractManager(
       web3Connection,
       this.ethereumMetadataCache,

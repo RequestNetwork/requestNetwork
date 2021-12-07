@@ -58,7 +58,7 @@ type SmartContractManagerConfig = SmartContractManagerOptions & {
  * to store the hashes of the data on Ethereum
  */
 export default class SmartContractManager {
-  public provider: providers.Provider;
+  public provider: providers.JsonRpcProvider;
   public signer: Signer;
   public requestHashStorage: RequestHashStorage;
   public requestHashSubmitter: RequestOpenHashSubmitter;
@@ -122,6 +122,9 @@ export default class SmartContractManager {
     if (!signer.provider) {
       throw new Error('Signer has no provider');
     }
+    if (!(signer.provider instanceof providers.JsonRpcProvider)) {
+      throw new Error("Signer's provider is not a JsonRpcProvider");
+    }
     this.signer = signer;
     this.provider = signer.provider;
 
@@ -179,7 +182,7 @@ export default class SmartContractManager {
     const check = async () => {
       let listening;
       try {
-        listening = await (this.provider as providers.JsonRpcProvider).send('net_listening', []);
+        listening = await this.provider.send('net_listening', []);
       } catch (e) {
         throw new Error('Error when trying to reach Web3 provider');
       }
@@ -422,10 +425,8 @@ export default class SmartContractManager {
     now = Date.now();
     const eventsWithMetaData = await Bluebird.map(
       events,
-      (eventItem) => this.checkAndAddMetaDataToEvent(eventItem),
-      {
-        concurrency: this.options.maxConcurrency,
-      },
+      this.checkAndAddMetaDataToEvent.bind(this),
+      { concurrency: this.options.maxConcurrency },
     );
     this.logger.debug(`metadata fetched in ${Date.now() - now}ms`);
 
@@ -440,7 +441,7 @@ export default class SmartContractManager {
   public getConfig(): SmartContractManagerConfig {
     return {
       creationBlockNumberHashStorage: this.creationBlockNumberHashStorage,
-      currentProvider: (this.provider as providers.JsonRpcProvider).connection?.url,
+      currentProvider: this.provider.connection?.url,
       hashStorageAddress: this.hashStorageAddress,
       hashSubmitterAddress: this.hashSubmitterAddress,
       networkName: this.networkName,
@@ -555,7 +556,7 @@ export default class SmartContractManager {
     }
 
     return {
-      blockConfirmation: 0,
+      blockConfirmation,
       blockNumber,
       blockTimestamp,
       cost,
