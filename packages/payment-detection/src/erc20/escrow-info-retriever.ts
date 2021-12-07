@@ -108,10 +108,7 @@ export default class EscrowERC20InfoRetriever
         };
       })
       // Keeps only the log with the right paymentReference.
-      .filter(
-        ({ parsedLog }) =>
-        parsedLog.paymentReference === this.paymentReference,
-      )
+      .filter(({ parsedLog }) => parsedLog.paymentReference === this.paymentReference)
       // Creates the escrow events
       .map(async ({ parsedLog, blockNumber, transactionHash, eventName }) => ({
         name: eventName,
