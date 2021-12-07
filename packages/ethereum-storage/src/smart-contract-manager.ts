@@ -268,13 +268,6 @@ export default class SmartContractManager {
       LENGTH_BYTES32_STRING / 2,
     );
 
-    // Send transaction to contract
-    // TODO(PROT-181): Implement a log manager for the library
-    // use it for the different events (error, transactionHash, receipt and confirmation)
-    // This boolean is set to true once the ethereum metadata has been created and the promise has been resolved
-    // When set to true, we use it to ignore next confirmation event function call
-
-    // Keep the transaction hash for future needs
     const transactionParameters: CallOverrides = {
       from: account,
       gasLimit: '100000',
