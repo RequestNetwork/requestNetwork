@@ -103,15 +103,25 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
       },
     },
     // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions
-    // '0.2.0-next': {
-    //   abi: ABI_0_1_0,
-    //   deployment: {
-    //     celo: {
-    //       address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
-    //       creationBlockNumber: 10141030,
-    //     },
-    //   },
-    // },
+    /*
+    '0.2.0-next': {
+      abi: ABI_0_1_0,
+      deployment: {
+        mainnet: {
+          address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+          creationBlockNumber: 13764025,
+        },
+        rinkeby: {
+          address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+          creationBlockNumber: 	9447187,
+        },
+        celo: {
+          address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+          creationBlockNumber: 10141030,
+        },
+      },
+    },
+    */
   },
   '0.2.0',
 );
