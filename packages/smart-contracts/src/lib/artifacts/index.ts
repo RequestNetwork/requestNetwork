@@ -10,7 +10,7 @@ export * from './Erc20SwapConversion';
 export * from './EthereumProxy';
 export * from './EthereumFeeProxy';
 export * from './EthConversionProxy';
-
+export * from './ERC20EscrowToPay';
 /**
  * Request Storage
  */

@@ -43,7 +43,8 @@
     "@requestnetwork/multi-format": "0.15.9",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "semver": "5.6.0"
+    "semver": "5.6.0",
+    "tslib": "2.3.1"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",

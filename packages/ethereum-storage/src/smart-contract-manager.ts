@@ -402,25 +402,6 @@ export default class SmartContractManager {
   }
 
   /**
-   * Get Ethereum metadata from the content hash
-   * @param contentHash Hash of the content to store, this hash should be used to retrieve the content
-   * @returns Promise resolved when transaction is confirmed on Ethereum
-   */
-  public async getMetaFromEthereum(contentHash: string): Promise<StorageTypes.IEthereumMetadata> {
-    // Read all event logs
-    const events = await this.recursiveGetPastEvents(this.creationBlockNumberHashStorage, 'latest');
-
-    this.logger.debug(`${events.length} events fetched in getMetaFromEthereum`, ['ethereum']);
-
-    const event = events.find((element: any) => element.returnValues.hash === contentHash);
-    if (!event) {
-      throw Error(`contentHash not indexed on ethereum`);
-    }
-
-    return this.createEthereumMetaData(event.blockNumber, event.transactionHash);
-  }
-
-  /**
    * Get all entries from storage smart contract past events
    *
    * @param options timestamp boundaries for the hash retrieval

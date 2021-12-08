@@ -369,7 +369,7 @@ describe('Request client using a request node', () => {
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-    await new Promise((resolve): any => request.on('confirmed', resolve));
+    await new Promise((resolve) => request.on('confirmed', resolve));
 
     // Fetch the created request by its id
     const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
@@ -388,26 +388,29 @@ describe('Request client using a request node', () => {
     );
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    await request.accept(payerIdentity);
+    const acceptData = await request.accept(payerIdentity);
+    await new Promise((resolve) => acceptData.on('confirmed', resolve));
 
     await fetchedRequest.refresh();
     fetchedRequestData = fetchedRequest.getData();
     expect(fetchedRequestData.state).toBe(Types.RequestLogic.STATE.ACCEPTED);
 
-    await request.increaseExpectedAmountRequest(
+    const increaseData = await request.increaseExpectedAmountRequest(
       requestCreationHashBTC.expectedAmount,
       payerIdentity,
     );
+    await new Promise((resolve) => increaseData.on('confirmed', resolve));
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toEqual(
       String(Number(requestCreationHashBTC.expectedAmount) * 2),
     );
 
-    await request.reduceExpectedAmountRequest(
+    const reduceData = await request.reduceExpectedAmountRequest(
       Number(requestCreationHashBTC.expectedAmount) * 2,
       payeeIdentity,
     );
+    await new Promise((resolve) => reduceData.on('confirmed', resolve));
 
     await fetchedRequest.refresh();
     expect(fetchedRequest.getData().expectedAmount).toBe('0');
@@ -501,7 +504,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     },
   };
 
-  it('can create an ERC20 request on localhost and detect the payment using address based detection', async () => {
+  it('can create an ERC20 request on localhost', async () => {
     // Create a request
     const request = await requestNetwork.createRequest({
       paymentNetwork,
@@ -653,6 +656,7 @@ describe('ETH localhost request creation and detection test', () => {
     await paymentTx.wait();
 
     data = await request.refresh();
+    expect(data.balance?.error).toBeUndefined();
     expect(data.balance?.balance).toBe('1000');
     expect(data.balance?.events.length).toBe(1);
     const event = data.balance?.events[0];

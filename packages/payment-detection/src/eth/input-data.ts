@@ -25,8 +25,12 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
+  ExtensionTypes.PnReferenceBased.IReferenceBased,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   private explorerApiKeys: Record<string, string>;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -38,9 +42,8 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
     explorerApiKeys?: Record<string, string>;
   }) {
     super(
-      advancedLogic,
+      PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     );
     this.explorerApiKeys = explorerApiKeys || {};
   }
@@ -56,24 +59,26 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
    * @returns The balance
    */
   protected async extractEvents(
-    address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
+    address: string | undefined,
     paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
+    _requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
-
+    if (!address) {
+      return [];
+    }
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
       eventName,
-      network,
+      paymentChain,
       paymentReference,
-      this.explorerApiKeys[network],
+      this.explorerApiKeys[paymentChain],
     );
     const events = await infoRetriever.getTransferEvents();
     const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(
-      network,
+      paymentChain,
       paymentNetwork.version,
     );
 
@@ -84,12 +89,10 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
         proxyContractArtifact.creationBlockNumber,
         address,
         eventName,
-        network,
+        paymentChain,
       );
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
-      for (const event of proxyEvents) {
-        events.push(event);
-      }
+      events.push(...proxyEvents);
     }
     return events;
   }
