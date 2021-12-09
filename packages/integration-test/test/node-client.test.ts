@@ -519,7 +519,7 @@ describe('Request client using a request node', () => {
     requests.forEach((req) => {
       req.state === RequestLogicTypes.STATE.CREATED;
     });
-  });
+  }, 20000);
 });
 
 describe('ERC20 localhost request creation and detection test', () => {
