@@ -1,12 +1,14 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import { CurrencyManager } from '@requestnetwork/currency';
+
 
 import AnyToEthProxy from '../../../src/extensions/payment-network/any-to-eth-proxy';
 import * as DataConversionETHFeeAddData from '../../utils/payment-network/ethereum/any-to-eth-proxy-add-data-generator';
 import * as DataConversionETHFeeCreate from '../../utils/payment-network/ethereum/any-to-eth-proxy-create-data-generator';
 import * as TestData from '../../utils/test-data-generator';
 
-const anyToEthProxy = new AnyToEthProxy();
+const anyToEthProxy = new AnyToEthProxy(CurrencyManager.getDefault());
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', () => {
