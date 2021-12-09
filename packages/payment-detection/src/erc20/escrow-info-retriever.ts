@@ -16,7 +16,7 @@ type EscrowArgs = {
 };
 
 /**
- * Retrieves a list of payment events from a payment reference, a destination address, a token address and a escrow contract.
+ * Retrieves a list of payment events from a escrow contract.
  */
 export default class EscrowERC20InfoRetriever
   implements PaymentTypes.IPaymentNetworkBaseInfoRetriever<PaymentTypes.IPaymentNetworkBaseEvent> {
@@ -72,13 +72,13 @@ export default class EscrowERC20InfoRetriever
     freezeFilter.toBlock = 'latest';
 
     // Get the RequestFrozen event logs
-    const freezeLogs = await this.provider.getLogs(freezeFilter);
+    const freezeLog = await this.provider.getLogs(freezeFilter);
 
     // Get the InitiateEmergencyClaim event logs
-    const initEmergencyLogs = await this.provider.getLogs(initEmergencyFilter);
+    const initEmergencyLog = await this.provider.getLogs(initEmergencyFilter);
 
     // Get the RequestFrozen event logs
-    const revertEmergencyLogs = await this.provider.getLogs(revertEmergencyFilter);
+    const revertEmergencyLog = await this.provider.getLogs(revertEmergencyFilter);
 
     interface EthersLogWithEventName extends ethers.providers.Log {
       eventName: PaymentTypes.EVENTS_NAMES;
@@ -86,15 +86,15 @@ export default class EscrowERC20InfoRetriever
 
     // Merge events if multiple logs
     const logs: EthersLogWithEventName[] = [
-      ...freezeLogs.map((i) => ({
+      ...freezeLog.map((i) => ({
         ...i,
         eventName: PaymentTypes.EVENTS_NAMES.FROZEN_PAYMENT,
       })),
-      ...initEmergencyLogs.map((i) => ({
+      ...initEmergencyLog.map((i) => ({
         ...i,
         eventName: PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
       })),
-      ...revertEmergencyLogs.map((i) => ({
+      ...revertEmergencyLog.map((i) => ({
         ...i,
         eventName: PaymentTypes.EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
       })),
