@@ -125,7 +125,7 @@ export interface IPaymentNetworkInfoRetriever<
   getTransferEvents(): Promise<TPaymentNetworkEvent[]>;
 }
 
-/** Generic info retriever interface */
+/** Generic info retriever interface without transfers */
 export interface IPaymentNetworkBaseInfoRetriever<
   TPaymentNetworkEvent extends IPaymentNetworkBaseEvent
 > {
