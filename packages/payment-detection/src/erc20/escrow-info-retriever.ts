@@ -85,8 +85,11 @@ export default class EscrowERC20InfoRetriever
     }
 
     // Merge events if multiple logs
-    const logs: EthersLogsWithEventName[] = [
-      ...freezeLogs.map((i) => ({ ...i, eventName: PaymentTypes.EVENTS_NAMES.REQUEST_FROZEN })),
+    const logs: EthersLogWithEventName[] = [
+      ...freezeLogs.map((i) => ({
+        ...i,
+        eventName: PaymentTypes.EVENTS_NAMES.FROZEN_PAYMENT,
+      })),
       ...initEmergencyLogs.map((i) => ({
         ...i,
         eventName: PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
