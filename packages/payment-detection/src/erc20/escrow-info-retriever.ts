@@ -80,7 +80,7 @@ export default class EscrowERC20InfoRetriever
     // Get the RequestFrozen event logs
     const revertEmergencyLogs = await this.provider.getLogs(revertEmergencyFilter);
 
-    interface EthersLogsWithEventName extends ethers.providers.Log {
+    interface EthersLogWithEventName extends ethers.providers.Log {
       eventName: PaymentTypes.EVENTS_NAMES;
     }
 
