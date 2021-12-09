@@ -1,18 +1,19 @@
+import { conversionSupportedNetworks, ICurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
-import { currenciesWithConversionOracles } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
 
 export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentNetwork {
   public constructor(
+    private currencyManager: ICurrencyManager,
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     currentVersion: string = CURRENT_VERSION,
   ) {
     super(
       extensionId,
       currentVersion,
-      Object.keys(currenciesWithConversionOracles),
+      conversionSupportedNetworks,
       RequestLogicTypes.CURRENCY.ERC20,
     );
   }
@@ -38,14 +39,16 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (!network) {
       throw Error('network is required');
     }
-    if (!currenciesWithConversionOracles[network]) {
+    if (!conversionSupportedNetworks.includes(network)) {
       throw Error(`network ${network} not supported`);
     }
-    const supportedErc20: string[] =
-      currenciesWithConversionOracles[network][RequestLogicTypes.CURRENCY.ERC20];
 
     for (const address of creationParameters.acceptedTokens) {
-      if (!supportedErc20.includes(address.toLowerCase())) {
+      const acceptedCurrency = this.currencyManager.fromAddress(address, network);
+      if (!acceptedCurrency) {
+        throw new Error(`acceptedToken ${address} is not known`);
+      }
+      if (!this.currencyManager.supportsConversion(acceptedCurrency, network)) {
         throw Error(
           `acceptedTokens must contain only supported token addresses (ERC20 only). ${address} is not supported for ${network}.`,
         );
@@ -137,22 +140,22 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       return;
     }
 
-    if (!currenciesWithConversionOracles[network]) {
+    if (!conversionSupportedNetworks.includes(network)) {
       throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
-    if (!currenciesWithConversionOracles[network][request.currency.type]) {
-      throw new Error(
-        `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
-      );
+    // TODO?
+    // if (!currenciesWithConversionOracles[network][request.currency.type]) {
+    //   throw new Error(
+    //     `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
+    //   );
+    // }
+
+    const currency = this.currencyManager.fromStorageCurrency(request.currency);
+    if (!currency) {
+      throw new Error(`The currency (${request.currency.value}) of the request is unknown`);
     }
-
-    const currency =
-      request.currency.type === RequestLogicTypes.CURRENCY.ERC20
-        ? request.currency.value.toLowerCase()
-        : request.currency.value;
-
-    if (!currenciesWithConversionOracles[network][request.currency.type].includes(currency)) {
+    if (!this.currencyManager.supportsConversion(currency, network)) {
       throw new Error(
         `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
       );

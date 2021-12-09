@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -85,7 +85,11 @@ export function encodePayAnyToErc20ProxyRequest(
   }
 
   // Compute the path automatically
-  const path = getConversionPath(requestCurrency, paymentCurrency, paymentCurrency.network);
+  const path = currencyManager.getConversionPath(
+    requestCurrency,
+    paymentCurrency,
+    paymentCurrency.network,
+  );
   if (!path) {
     throw new Error(
       `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,

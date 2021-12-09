@@ -11,7 +11,7 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { CurrencyManager, getConversionPath } from '@requestnetwork/currency';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
@@ -101,7 +101,7 @@ export function encodeSwapToPayAnyToErc20Request(
   }
 
   // Compute the path automatically
-  const path = getConversionPath(requestCurrency, paymentCurrency, network);
+  const path = currencyManager.getConversionPath(requestCurrency, paymentCurrency, network);
   if (!path) {
     throw new Error(
       `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,

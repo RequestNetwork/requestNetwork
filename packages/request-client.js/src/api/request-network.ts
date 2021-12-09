@@ -59,12 +59,12 @@ export default class RequestNetwork {
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
     currencies?: CurrencyInput[];
   }) {
-    this.advancedLogic = new AdvancedLogic();
+    this.currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());
+    this.advancedLogic = new AdvancedLogic(this.currencyManager);
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
     this.contentData = new ContentDataExtension(this.advancedLogic);
     this.bitcoinDetectionProvider = bitcoinDetectionProvider;
-    this.currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());
   }
 
   /**

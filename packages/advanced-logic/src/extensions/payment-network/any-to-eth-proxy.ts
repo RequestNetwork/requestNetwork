@@ -1,15 +1,16 @@
+import { conversionSupportedNetworks, ICurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
-import { currenciesWithConversionOracles } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
 
 export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPaymentNetwork {
   public constructor(
+    private currencyManager: ICurrencyManager,
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(extensionId, currentVersion, Object.keys(currenciesWithConversionOracles));
+    super(extensionId, currentVersion, conversionSupportedNetworks);
   }
 
   /**
@@ -26,7 +27,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
     if (!network) {
       throw Error('network is required');
     }
-    if (!currenciesWithConversionOracles[network]) {
+    if (!conversionSupportedNetworks.includes(network)) {
       throw Error(`network ${network} not supported`);
     }
     return super.createCreationAction(creationParameters);
@@ -96,22 +97,26 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
       );
     }
 
-    if (!currenciesWithConversionOracles[network]) {
+    if (!conversionSupportedNetworks.includes(network)) {
       throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
-    if (!currenciesWithConversionOracles[network][request.currency.type]) {
-      throw new Error(
-        `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
-      );
+    // if (!conversionSupportedNetworks.includes(network)[request.currency.type]) {
+    //   throw new Error(
+    //     `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
+    //   );
+    // }
+
+    // const currency =
+    //   request.currency.type === RequestLogicTypes.CURRENCY.ERC20
+    //     ? request.currency.value.toLowerCase()
+    //     : request.currency.value;
+
+    const currency = this.currencyManager.fromStorageCurrency(request.currency);
+    if (!currency) {
+      throw new Error(`The currency ${request.currency.value} is not known`);
     }
-
-    const currency =
-      request.currency.type === RequestLogicTypes.CURRENCY.ERC20
-        ? request.currency.value.toLowerCase()
-        : request.currency.value;
-
-    if (!currenciesWithConversionOracles[network][request.currency.type].includes(currency)) {
+    if (!this.currencyManager.supportsConversion(currency, network)) {
       throw new Error(
         `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
       );
