@@ -98,9 +98,9 @@ export interface IPaymentNetworkEvent<TEventParameters> extends IPaymentNetworkB
 export enum EVENTS_NAMES {
   PAYMENT = 'payment',
   REFUND = 'refund',
-  REQUEST_FROZEN = 'RequestFrozen',
-  INITIATED_EMERGENCY_CLAIM = 'InitiatedEmergencyClaim',
-  REVERTED_EMERGENCY_CLAIM = 'RevertedEmergencyClaim',
+  FROZEN_PAYMENT = 'frozenPayment",
+  INITIATED_EMERGENCY_CLAIM = 'initiatedEmergencyClaim',
+  REVERTED_EMERGENCY_CLAIM = 'revertedEmergencyClaim',
 }
 
 /** List of payment networks available (abstract the extensions type) */
