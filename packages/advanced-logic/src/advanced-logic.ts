@@ -4,6 +4,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { ICurrencyManager, CurrencyManager } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -17,9 +18,7 @@ import EthereumInputData from './extensions/payment-network/ethereum/input-data'
 import NearNative from './extensions/payment-network/near-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
-import { ICurrencyManager } from 'currency/src/types';
 import NativeTokenPaymentNetwork from './extensions/payment-network/native-token';
-import { CurrencyManager } from 'currency/src/currencyManager';
 
 /**
  * Module to manage Advanced logic extensions
