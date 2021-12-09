@@ -29,6 +29,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4',
           creationBlockNumber: 10141038,
         },
+        mainnet: {
+          address: '0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4',
+          creationBlockNumber: 13765042,
+        },
       },
     },
   },
