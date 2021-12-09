@@ -11,7 +11,7 @@ const defaultNode: StorageTypes.IIpfsGatewayConnection = {
 };
 const config = {
   ethereum: {
-    default: 'private',
+    default: 'private' as const,
     gasPriceDefault: '100000000000',
     maxRetries: 5,
     nodeUrlDefault: {
@@ -58,7 +58,7 @@ export function getDefaultIpfs(): StorageTypes.IIpfsGatewayConnection {
  * @returns the url to connect to the network
  */
 export function getDefaultEthereumProvider(): string {
-  return config.ethereum.nodeUrlDefault.private.url;
+  return config.ethereum.nodeUrlDefault[config.ethereum.default].url;
 }
 
 /**
