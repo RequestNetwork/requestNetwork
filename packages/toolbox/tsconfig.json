@@ -2,13 +2,27 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "lib": [
+      "ES2019"
+    ]
   },
-  "include": ["./src/**/*"],
+  "include": [
+    "./src/**/*"
+  ],
   "references": [
-    { "path": "../epk-signature" },
-    { "path": "../request-client.js" },
-    { "path": "../smart-contracts" },
-    { "path": "../types" }
+    {
+      "path": "../epk-signature"
+    },
+    {
+      "path": "../request-client.js"
+    },
+    {
+      "path": "../smart-contracts"
+    },
+    {
+      "path": "../types"
+    }
   ]
 }
