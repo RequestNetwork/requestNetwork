@@ -3,7 +3,6 @@
 import EscrowERC20InfoRetriever from '../../src/erc20/escrow-info-retriever';
 import { ethers } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
-import { EVENTS_NAMES } from '@requestnetwork/types/dist/payment-types';
 //import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 
 // erc20EscrowToPay deployment info.
@@ -26,19 +25,22 @@ describe('api/erc20/escrow-info-retriever', () => {
     let infoRetriever: EscrowERC20InfoRetriever;
 
     const mockedGetLogs = (filter: ethers.EventFilter) => {
-      if (
-        !filter.topics?.includes([
-          // InitiatedEmergencyClaim event.
-          '0x37b4fae7fd90ce3674204f79d686d40c4069a66c402976717d4f30817c0c0939',
-          // FrozenRequest event.
-          //'0x5e14b9b7c3d9675ce5ecb24ee8181d371561709a08aa9c412acb36627386dba8',
-          // RevertedEmergencyClaim
-          //'0xcc401323a0bd24a2e6e1564e168c52332731fff1a2937d998ee25462588ba0fa',
-        ])
-      ) {
-        return [];
+      const emergencyClaimTopic =
+        '0x37b4fae7fd90ce3674204f79d686d40c4069a66c402976717d4f30817c0c0939';
+      const frozenRequestTopic =
+        '0x5e14b9b7c3d9675ce5ecb24ee8181d371561709a08aa9c412acb36627386dba8';
+      const revertedEmergencyTopic =
+        '0xcc401323a0bd24a2e6e1564e168c52332731fff1a2937d998ee25462588ba0fa';
+      if (filter.topics?.includes(emergencyClaimTopic)) {
+        return Promise.resolve([initEmergencyLog]);
       }
-      return Promise.resolve([initEmergencyLog, revertEmergencyLog, freezeLog]);
+      if (filter.topics?.includes(frozenRequestTopic)) {
+        return Promise.resolve([freezeLog]);
+      }
+      if (filter.topics?.includes(revertedEmergencyTopic)) {
+        return Promise.resolve([revertEmergencyLog]);
+      }
+      return Promise.resolve([]);
     };
 
     const mockedProvider = {
@@ -108,16 +110,22 @@ describe('api/erc20/escrow-info-retriever', () => {
         0,
         'private',
       );
-
+      infoRetriever.provider.getLogs = mockedProvider.getLogs;
+      infoRetriever.provider.getBlock = (): any => {
+        return {
+          timestamp: 69,
+        };
+      };
       console.log('Step one done');
     });
 
     it('can get the events of an address out of mocked logs', async () => {
       const events = await infoRetriever.getContractEvents();
-      const event = events[0];
+      expect(events).toHaveLength(3);
       // if this assert fails it means this address received another transaction
-      expect(events).toHaveLength(1);
-      expect(event.name).toBe(PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM);
+      expect(events[0].name).toEqual(PaymentTypes.EVENTS_NAMES.FROZEN_PAYMENT);
+      expect(events[1].name).toEqual(PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM);
+      expect(events[2].name).toEqual(PaymentTypes.EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM);
     });
   });
 });
