@@ -11,7 +11,7 @@ import {
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
@@ -78,15 +78,11 @@ export function encodeSwapToPayAnyToErc20Request(
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {
-    throw new Error(
-      `Could not find request currency ${request.currencyInfo.value}. Did you forget to specify the currencyManager?`,
-    );
+    throw new UnsupportedCurrencyError(request.currencyInfo);
   }
   const paymentCurrency = currencyManager.fromStorageCurrency(conversionSettings.currency);
   if (!paymentCurrency) {
-    throw new Error(
-      `Could not find payment currency ${conversionSettings.currency.value}. Did you forget to specify the currencyManager?`,
-    );
+    throw new UnsupportedCurrencyError(conversionSettings.currency);
   }
 
   /** On Chain conversion preparation */

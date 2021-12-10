@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToEthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -62,9 +62,7 @@ export function encodePayAnyToEthProxyRequest(
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {
-    throw new Error(
-      `Could not find request currency ${request.currencyInfo.value}. Did you forget to specify the currencyManager?`,
-    );
+    throw new UnsupportedCurrencyError(request.currencyInfo);
   }
 
   const {
@@ -85,9 +83,7 @@ export function encodePayAnyToEthProxyRequest(
     network,
   );
   if (!paymentCurrency) {
-    throw new Error(
-      `Could not find currency for network: ${network}. Did you forget to specify the currencyManager?`,
-    );
+    throw new UnsupportedCurrencyError({ value: 'ETH', network });
   }
 
   // Compute the path automatically
