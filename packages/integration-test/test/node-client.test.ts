@@ -564,6 +564,7 @@ describe('ERC20 localhost request creation and detection test', () => {
       paymentNetwork: paymentNetworkAnyToERC20,
       requestInfo: requestCreationHashUSD,
       signer: payeeIdentity,
+      disablePaymentDetection: true,
     });
 
     let data = await request.refresh();
@@ -647,6 +648,7 @@ describe('ETH localhost request creation and detection test', () => {
       paymentNetwork: paymentNetworkETHFeeProxy,
       requestInfo: ethRequestCreationHash,
       signer: payeeIdentity,
+      disablePaymentDetection: true,
     });
 
     let data = await request.refresh();

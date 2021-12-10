@@ -177,7 +177,7 @@ export default abstract class AddressBasedPaymentNetwork<
     const currencyManager = CurrencyManager.getDefault();
     const currency = currencyManager.from(symbol, network);
     if (!currency) {
-      throw new UnsupportedCurrencyError([symbol, network].join('-'));
+      throw new UnsupportedCurrencyError({ value: symbol, network });
     }
     return CurrencyManager.validateAddress(address, currency);
   }
