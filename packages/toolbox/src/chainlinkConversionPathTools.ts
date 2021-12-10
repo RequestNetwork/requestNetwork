@@ -5,7 +5,7 @@ import {
   ChainlinkConversionPath__factory,
   ChainlinkConversionPath,
 } from '@requestnetwork/smart-contracts/types';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import Bluebird from 'bluebird';
 import chunk from 'lodash/chunk';
 import Utils from '@requestnetwork/utils';
@@ -138,7 +138,7 @@ const getCurrency = (symbol: string) => {
   if (!currency) {
     currency = currencyManager.from(symbol);
     if (!currency) {
-      throw new Error(`Currency ${symbol} not found`);
+      throw new UnsupportedCurrencyError(symbol);
     }
   }
   return currency;

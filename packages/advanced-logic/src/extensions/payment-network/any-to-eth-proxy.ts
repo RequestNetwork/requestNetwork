@@ -1,4 +1,8 @@
-import { conversionSupportedNetworks, ICurrencyManager } from '@requestnetwork/currency';
+import {
+  conversionSupportedNetworks,
+  ICurrencyManager,
+  UnsupportedCurrencyError,
+} from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
 
@@ -101,20 +105,9 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
       throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
-    // if (!conversionSupportedNetworks.includes(network)[request.currency.type]) {
-    //   throw new Error(
-    //     `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
-    //   );
-    // }
-
-    // const currency =
-    //   request.currency.type === RequestLogicTypes.CURRENCY.ERC20
-    //     ? request.currency.value.toLowerCase()
-    //     : request.currency.value;
-
     const currency = this.currencyManager.fromStorageCurrency(request.currency);
     if (!currency) {
-      throw new Error(`The currency ${request.currency.value} is not known`);
+      throw new UnsupportedCurrencyError(request.currency);
     }
     if (!this.currencyManager.supportsConversion(currency, network)) {
       throw new Error(

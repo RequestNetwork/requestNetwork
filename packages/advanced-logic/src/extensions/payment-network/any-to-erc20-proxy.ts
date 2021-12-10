@@ -1,4 +1,8 @@
-import { conversionSupportedNetworks, ICurrencyManager } from '@requestnetwork/currency';
+import {
+  conversionSupportedNetworks,
+  ICurrencyManager,
+  UnsupportedCurrencyError,
+} from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Erc20FeeProxyPaymentNetwork from './erc20/fee-proxy-contract';
 
@@ -46,7 +50,10 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     for (const address of creationParameters.acceptedTokens) {
       const acceptedCurrency = this.currencyManager.fromAddress(address, network);
       if (!acceptedCurrency) {
-        throw new Error(`acceptedToken ${address} is not known`);
+        throw new UnsupportedCurrencyError({
+          value: address,
+          network,
+        });
       }
       if (!this.currencyManager.supportsConversion(acceptedCurrency, network)) {
         throw Error(
@@ -144,16 +151,9 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
       throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
-    // TODO?
-    // if (!currenciesWithConversionOracles[network][request.currency.type]) {
-    //   throw new Error(
-    //     `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
-    //   );
-    // }
-
     const currency = this.currencyManager.fromStorageCurrency(request.currency);
     if (!currency) {
-      throw new Error(`The currency (${request.currency.value}) of the request is unknown`);
+      throw new UnsupportedCurrencyError(request.currency);
     }
     if (!this.currencyManager.supportsConversion(currency, network)) {
       throw new Error(

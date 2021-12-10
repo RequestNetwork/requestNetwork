@@ -1,4 +1,4 @@
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import DeclarativePaymentNetwork from './declarative';
@@ -177,7 +177,7 @@ export default abstract class AddressBasedPaymentNetwork<
     const currencyManager = CurrencyManager.getDefault();
     const currency = currencyManager.from(symbol, network);
     if (!currency) {
-      throw new Error(`Currency not found in default manager: ${symbol} / ${network}`);
+      throw new UnsupportedCurrencyError([symbol, network].join('-'));
     }
     return CurrencyManager.validateAddress(address, currency);
   }

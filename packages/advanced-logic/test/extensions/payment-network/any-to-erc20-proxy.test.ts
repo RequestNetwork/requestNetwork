@@ -1,6 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import AnyToErc20Proxy from '../../../src/extensions/payment-network/any-to-erc20-proxy';
 import * as DataConversionERC20FeeAddData from '../../utils/payment-network/erc20/any-to-erc20-proxy-add-data-generator';
@@ -161,7 +161,10 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           network: 'mainnet',
         });
       }).toThrowError(
-        'acceptedTokens must contain only supported token addresses (ERC20 only). 0x0000000000000000000000000000000000000003 is not supported for mainnet.',
+        new UnsupportedCurrencyError({
+          value: '0x0000000000000000000000000000000000000003',
+          network: 'mainnet',
+        }),
       );
     });
 
@@ -196,7 +199,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         TestData.requestCreatedNoExtension,
       );
       requestCreatedNoExtension.currency = {
-        type: RequestLogicTypes.CURRENCY.ETH,
+        type: RequestLogicTypes.CURRENCY.ERC20,
         value: 'invalid value',
       };
 
@@ -204,7 +207,6 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         DataConversionERC20FeeCreate.actionCreationFull,
       );
 
-      // 'must throw'
       expect(() => {
         anyToErc20Proxy.applyActionToExtension(
           TestData.requestCreatedNoExtension.extensions,
@@ -213,9 +215,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         );
-      }).toThrowError(
-        `The currency (invalid value) of the request is not supported for this payment network.`,
-      );
+      }).toThrowError(new UnsupportedCurrencyError('invalid value'));
     });
   });
 

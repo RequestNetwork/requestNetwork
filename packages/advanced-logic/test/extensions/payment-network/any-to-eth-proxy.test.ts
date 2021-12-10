@@ -2,7 +2,6 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { CurrencyManager } from '@requestnetwork/currency';
 
-
 import AnyToEthProxy from '../../../src/extensions/payment-network/any-to-eth-proxy';
 import * as DataConversionETHFeeAddData from '../../utils/payment-network/ethereum/any-to-eth-proxy-add-data-generator';
 import * as DataConversionETHFeeCreate from '../../utils/payment-network/ethereum/any-to-eth-proxy-create-data-generator';
@@ -10,11 +9,9 @@ import * as TestData from '../../utils/test-data-generator';
 
 const anyToEthProxy = new AnyToEthProxy(CurrencyManager.getDefault());
 
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', () => {
+describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
-      
       expect(
         anyToEthProxy.createCreationAction({
           feeAddress: '0x0000000000000000000000000000000000000001',
@@ -42,14 +39,12 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
     });
 
     it('can create a create action without fee parameters', () => {
-      
       expect(
         anyToEthProxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
-          
         }),
       ).toEqual({
         action: 'create',
@@ -59,7 +54,6 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
           refundAddress: '0x0000000000000000000000000000000000000002',
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
-          
         },
         version: '0.1.0',
       });
@@ -71,7 +65,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
         anyToEthProxy.createCreationAction({
           paymentAddress: 'not an ethereum address',
           refundAddress: '0x0000000000000000000000000000000000000002',
-          
+
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
         });
@@ -83,7 +77,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       expect(() => {
         anyToEthProxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
-          
+
           network: 'rinkeby',
           refundAddress: 'not an ethereum address',
           salt: 'ea3bc7caf64110ca',
@@ -97,7 +91,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
         anyToEthProxy.createCreationAction({
           feeAddress: 'not an ethereum address',
           paymentAddress: '0x0000000000000000000000000000000000000001',
-          
+
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
         });
@@ -110,7 +104,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
         anyToEthProxy.createCreationAction({
           feeAmount: '-20000',
           paymentAddress: '0x0000000000000000000000000000000000000001',
-          
+
           network: 'rinkeby',
           salt: 'ea3bc7caf64110ca',
         });
@@ -161,13 +155,13 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       requestCreatedNoExtension.currency = {
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'invalid value',
+        network: 'invalid network',
       };
 
       const action: ExtensionTypes.IAction = Utils.deepCopy(
         DataConversionETHFeeCreate.actionCreationFull,
       );
 
-      // 'must throw'
       expect(() => {
         anyToEthProxy.applyActionToExtension(
           TestData.requestCreatedNoExtension.extensions,
@@ -176,15 +170,12 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         );
-      }).toThrowError(
-        `The currency (invalid value) of the request is not supported for this payment network.`,
-      );
+      }).toThrowError(`The currency invalid value is not known`);
     });
   });
 
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
-      
       expect(
         anyToEthProxy.createAddPaymentAddressAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -210,7 +201,6 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
 
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
-      
       expect(
         anyToEthProxy.createAddRefundAddressAction({
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -236,7 +226,6 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
 
   describe('createAddFeeAction', () => {
     it('can createAddFeeAction', () => {
-      
       expect(
         anyToEthProxy.createAddFeeAction({
           feeAddress: '0x0000000000000000000000000000000000000002',
@@ -361,7 +350,6 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
           type: RequestLogicTypes.CURRENCY.BTC,
           value: 'BTC',
         };
-        // 'must throw'
         expect(() => {
           anyToEthProxy.applyActionToExtension(
             TestData.requestCreatedNoExtension.extensions,
@@ -376,9 +364,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       });
 
       it('cannot applyActionToExtensions of creation with payment address not valid', () => {
-        const testnetPaymentAddress = Utils.deepCopy(
-          DataConversionETHFeeCreate.actionCreationFull,
-        );
+        const testnetPaymentAddress = Utils.deepCopy(DataConversionETHFeeCreate.actionCreationFull);
         testnetPaymentAddress.parameters.paymentAddress =
           DataConversionETHFeeAddData.invalidAddress;
         // 'must throw'
@@ -396,11 +382,8 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
       });
 
       it('cannot applyActionToExtensions of creation with refund address not valid', () => {
-        const testnetRefundAddress = Utils.deepCopy(
-          DataConversionETHFeeCreate.actionCreationFull,
-        );
-        testnetRefundAddress.parameters.refundAddress =
-          DataConversionETHFeeAddData.invalidAddress;
+        const testnetRefundAddress = Utils.deepCopy(DataConversionETHFeeCreate.actionCreationFull);
+        testnetRefundAddress.parameters.refundAddress = DataConversionETHFeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
           anyToEthProxy.applyActionToExtension(
@@ -462,7 +445,9 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The network must be provided from the creation action or from the extension state`);
+        }).toThrowError(
+          `The network must be provided from the creation action or from the extension state`,
+        );
       });
 
       it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
@@ -552,7 +537,9 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The network must be provided from the creation action or from the extension state`);
+        }).toThrowError(
+          `The network must be provided from the creation action or from the extension state`,
+        );
       });
 
       it('cannot applyActionToExtensions of addRefundAddress without a payer', () => {
@@ -601,8 +588,7 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
         const testnetPaymentAddress = Utils.deepCopy(
           DataConversionETHFeeAddData.actionAddRefundAddress,
         );
-        testnetPaymentAddress.parameters.refundAddress =
-          DataConversionETHFeeAddData.invalidAddress;
+        testnetPaymentAddress.parameters.refundAddress = DataConversionETHFeeAddData.invalidAddress;
         // 'must throw'
         expect(() => {
           anyToEthProxy.applyActionToExtension(
@@ -639,7 +625,9 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
-        }).toThrowError(`The network must be provided from the creation action or from the extension state`);
+        }).toThrowError(
+          `The network must be provided from the creation action or from the extension state`,
+        );
       });
 
       it('cannot applyActionToExtensions of addFee without a payee', () => {
