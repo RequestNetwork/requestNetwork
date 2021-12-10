@@ -1,6 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import AnyToEthProxy from '../../../src/extensions/payment-network/any-to-eth-proxy';
 import * as DataConversionETHFeeAddData from '../../utils/payment-network/ethereum/any-to-eth-proxy-add-data-generator';
@@ -170,7 +170,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         );
-      }).toThrowError(`The currency invalid value is not known`);
+      }).toThrowError(new UnsupportedCurrencyError(requestCreatedNoExtension.currency));
     });
   });
 

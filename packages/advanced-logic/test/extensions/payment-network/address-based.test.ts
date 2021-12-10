@@ -1,3 +1,4 @@
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AddressBasedPaymentNetwork from '../../../src/extensions/payment-network/address-based';
 
@@ -34,6 +35,6 @@ describe('extensions/payment-network/address-based', () => {
         RequestLogicTypes.CURRENCY.ERC20,
       );
       testAddressBasedPaymentNetwork.testIsValidAddress();
-    }).toThrowError('Currency not found in default manager: test / test');
+    }).toThrowError(new UnsupportedCurrencyError({ value: 'test', network: 'test' }));
   });
 });
