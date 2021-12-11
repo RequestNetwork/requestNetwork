@@ -1,5 +1,4 @@
-import { DataAccess, TransactionIndex } from '@requestnetwork/data-access';
-import { LogTypes, StorageTypes } from '@requestnetwork/types';
+import { LogTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import cors from 'cors';
@@ -8,16 +7,18 @@ import express, { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import KeyvFile from 'keyv-file';
 
-import { getCustomHeaders, getInitializationStorageFilePath, getMnemonic } from './config';
+import { getCustomHeaders, getInitializationStorageFilePath } from './config';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
-import { getEthereumStorage } from './storageUtils';
+// import { getEthereumStorage } from './storageUtils';
 
 import GetConfirmedTransactionHandler from './request/getConfirmedTransactionHandler';
 import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId';
 import PersistTransactionHandler from './request/persistTransaction';
 import GetChannelsByTopicHandler from './request/getChannelsByTopic';
 import GetStatusHandler from './request/getStatus';
-import IpfsAddHandler from './request/ipfsAdd';
+import { getRelayerSigner, TheGraphDataAccess } from '@requestnetwork/thegraph-client';
+import * as config from './config';
+import { getNetwork } from '@ethersproject/networks';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -38,8 +39,7 @@ class RequestNode {
    * DataAccess layer of the protocol
    * This attribute is left public for mocking purpose
    */
-  public dataAccess: DataAccess;
-  public ethereumStorage: StorageTypes.IStorage;
+  public dataAccess: TheGraphDataAccess;
 
   private express: express.Application;
   private initialized: boolean;
@@ -52,7 +52,6 @@ class RequestNode {
   private getConfirmedTransactionHandler: GetConfirmedTransactionHandler;
   private getChannelByTopicHandler: GetChannelsByTopicHandler;
   private getStatusHandler: GetStatusHandler;
-  private ipfsAddHandler: IpfsAddHandler;
   /**
    * Request Node constructor
    *
@@ -72,16 +71,27 @@ class RequestNode {
       : undefined;
 
     // Use ethereum storage for the storage layer
-    const ethereumStorage = getEthereumStorage(getMnemonic(), this.logger, store);
+    // const ethereumStorage = getEthereumStorage(getMnemonic(), this.logger, store);
 
     // Use an in-file Transaction index if a path is specified, an in-memory otherwise
-    const transactionIndex = new TransactionIndex(store);
+    // const transactionIndex = new TransactionIndex(store);
 
-    this.ethereumStorage = ethereumStorage;
+    // this.ethereumStorage = ethereumStorage;
 
-    this.dataAccess = new DataAccess(ethereumStorage, {
-      logger: this.logger,
-      transactionIndex,
+    // this.dataAccess = new DataAccess(ethereumStorage, {
+    //   logger: this.logger,
+    //   transactionIndex,
+    // });
+
+    const network = getNetwork(config.getStorageNetworkId()).name;
+    this.dataAccess = new TheGraphDataAccess({
+      graphql: { url: config.getGraphNodeUrl() },
+      ipfs: { host: config.getIpfsHost() },
+      network,
+      signer: getRelayerSigner({
+        apiKey: process.env.API_KEY!,
+        apiSecret: process.env.SECRET_KEY!,
+      }),
     });
 
     this.confirmedTransactionStore = new ConfirmedTransactionStore(store);
@@ -95,7 +105,7 @@ class RequestNode {
     );
     this.getChannelByTopicHandler = new GetChannelsByTopicHandler(this.logger, this.dataAccess);
     this.getStatusHandler = new GetStatusHandler(this.logger, this.dataAccess);
-    this.ipfsAddHandler = new IpfsAddHandler(this.logger, this.ethereumStorage);
+    // this.ipfsAddHandler = new IpfsAddHandler(this.logger, this.ethereumStorage);
     this.persistTransactionHandler = new PersistTransactionHandler(
       this.confirmedTransactionStore,
       this.dataAccess,
@@ -126,12 +136,12 @@ class RequestNode {
       throw error;
     }
 
-    try {
-      this.dataAccess.startAutoSynchronization();
-    } catch (error) {
-      this.logger.error(`Node failed to start auto synchronization`);
-      throw error;
-    }
+    // try {
+    //   this.dataAccess.startAutoSynchronization();
+    // } catch (error) {
+    //   this.logger.error(`Node failed to start auto synchronization`);
+    //   throw error;
+    // }
 
     this.initialized = true;
 
@@ -183,7 +193,7 @@ class RequestNode {
     router.use(this.initializedMiddelware());
     router.get('/readyz', (_, res) => res.status(StatusCodes.OK).send('OK'));
     router.get('/status', this.getStatusHandler.handler);
-    router.post('/ipfsAdd', this.ipfsAddHandler.handler);
+    // router.post('/ipfsAdd', this.ipfsAddHandler.handler);
     router.post('/persistTransaction', this.persistTransactionHandler.handler);
     router.get('/getConfirmedTransaction', this.getConfirmedTransactionHandler.handler);
     router.get('/getTransactionsByChannelId', this.getTransactionsByChannelIdHandler.handler);

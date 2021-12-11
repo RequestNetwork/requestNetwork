@@ -5,10 +5,21 @@
     "rootDir": "src",
     "esModuleInterop": true
   },
-  "include": ["./src/**/*"],
+  "include": [
+    "./src/**/*"
+  ],
   "references": [
-    { "path": "../data-access" },
-    { "path": "../ethereum-storage" },
-    { "path": "../types" }
+    {
+      "path": "../data-access"
+    },
+    {
+      "path": "../ethereum-storage"
+    },
+    {
+      "path": "../types"
+    },
+    {
+      "path": "../thegraph-client"
+    }
   ]
 }

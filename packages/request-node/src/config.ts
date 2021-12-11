@@ -15,6 +15,7 @@ const defaultValues: any = {
     ethereum: {
       networkId: 0,
       web3ProviderUrl: 'http://localhost:8545',
+      graphNodeUrl: 'http://localhost:8000/subgraphs/name/benjlevesque/rn-graph',
     },
     ipfs: {
       host: 'localhost',
@@ -96,6 +97,14 @@ export function getStorageWeb3ProviderUrl(): string {
     argv.providerUrl ||
     process.env.WEB3_PROVIDER_URL ||
     defaultValues.ethereumStorage.ethereum.web3ProviderUrl
+  );
+}
+
+export function getGraphNodeUrl(): string {
+  return (
+    argv.graphNodeUrl ||
+    process.env.GRAPH_NODE_URL ||
+    defaultValues.ethereumStorage.ethereum.graphNodeUrl
   );
 }
 

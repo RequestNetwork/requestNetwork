@@ -1,11 +1,10 @@
-import { DataAccess } from '@requestnetwork/data-access';
-import { LogTypes } from '@requestnetwork/types';
+import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 const GET_CHANNELS_TIMEOUT = 600000;
 export default class GetChannelHandler {
-  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccess) {
+  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccessTypes.IDataAccess) {
     this.handler = this.handler.bind(this);
   }
 

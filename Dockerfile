@@ -1,16 +1,9 @@
-FROM node:14-alpine
+FROM node:14-alpine as installer
 
 WORKDIR /app
 
-RUN apk add --virtual .build-deps git python g++ bash make
-
 COPY package.json .
-COPY yarn.lock .
+COPY node_modules .
+COPY packages/request-node/dist dist .
 
-RUN yarn
-
-COPY . .
-RUN yarn
-RUN yarn build
-
-RUN apk del .build-deps
+RUN ["node","dist"]

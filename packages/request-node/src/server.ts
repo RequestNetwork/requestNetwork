@@ -36,7 +36,7 @@ const startNode = async (): Promise<void> => {
   );
 
   process.on('SIGTERM', async () => {
-    requestNode.dataAccess.stopAutoSynchronization();
+    // requestNode.dataAccess.stop();
     logger.info('Synchronization stopped');
     await new Promise((r) => server.shutdown(r));
     logger.info('Server stopped');

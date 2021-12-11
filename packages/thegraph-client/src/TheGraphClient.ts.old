@@ -1,0 +1,79 @@
+import { CurrencyInput } from "@requestnetwork/currency";
+import RequestNetwork from "@requestnetwork/request-client.js/dist/api/request-network";
+import {
+  DecryptionProviderTypes,
+  SignatureProviderTypes,
+} from "@requestnetwork/types";
+import { TheGraphBatchedDataAccess } from "./TheGraphBatchedDataAccess";
+import {
+  TheGraphDataAccess,
+  TheGraphDataAccessOptions,
+} from "./TheGraphDataAccess";
+
+type TheGraphRequestClientOptions = {
+  signatureProvider?: SignatureProviderTypes.ISignatureProvider;
+  decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
+  currencies?: CurrencyInput[];
+} & Partial<TheGraphDataAccessOptions> &
+  Pick<TheGraphDataAccessOptions, "signer" | "network">;
+
+const supportedNetworks = {
+  xdai: "http://localhost:8000/subgraphs/name/benjlevesque/rn-graph",
+  rinkeby: "http://localhost:8000/subgraphs/name/benjlevesque/rn-graph",
+};
+
+const getTheGraphOptions = (
+  network: string,
+  graphql: TheGraphDataAccessOptions["graphql"]
+) => {
+  if (!graphql?.url && !supportedNetworks[network]) {
+    throw new Error(`Unsupported network ${network}`);
+  }
+  return {
+    url: supportedNetworks[network],
+    ...graphql,
+  };
+};
+
+export class TheGraphRequestClient extends RequestNetwork {
+  constructor(options: TheGraphRequestClientOptions) {
+    let { network, signer, graphql, ipfs, ...props } = options;
+
+    ipfs = { url: "http://localhost:5001", ...ipfs };
+    graphql = getTheGraphOptions(network, graphql);
+
+    const dataAccess = new TheGraphDataAccess({
+      graphql,
+      ipfs,
+      signer,
+      network,
+    });
+
+    super({ dataAccess, ...props });
+  }
+}
+
+export class BatchedTheGraphRequestClient extends RequestNetwork {
+  private dataAccess: TheGraphBatchedDataAccess;
+  constructor(options: TheGraphRequestClientOptions) {
+    let { network, signer, graphql, ipfs, ...props } = options;
+
+    ipfs = { url: "http://localhost:5001", ...ipfs };
+    graphql = getTheGraphOptions(network, graphql);
+
+    const dataAccess = new TheGraphBatchedDataAccess({
+      network,
+      signer,
+      graphql,
+      ipfs,
+    });
+    super({ dataAccess, ...props });
+    this.dataAccess = dataAccess;
+  }
+  async initialize() {
+    await this.dataAccess.initialize();
+  }
+  stop() {
+    this.dataAccess.stop();
+  }
+}

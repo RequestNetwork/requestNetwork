@@ -1,0 +1,66 @@
+{
+  "name": "@requestnetwork/thegraph-client",
+  "version": "0.35.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "",
+  "keywords": [
+    "requestnetwork",
+    "transaction"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RequestNetwork/requestNetwork.git"
+  },
+  "homepage": "https://github.com/RequestNetwork/requestNetwork/tree/master/packages/thegraph-client#readme",
+  "bugs": {
+    "url": "https://github.com/RequestNetwork/requestNetwork/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "lib": "src",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "jest",
+    "test:watch": "yarn test --watch"
+  },
+  "dependencies": {
+    "@requestnetwork/data-access": "0.26.0",
+    "@requestnetwork/request-logic": "0.26.9",
+    "@requestnetwork/transaction-manager": "0.26.9",
+    "@requestnetwork/types": "0.35.0",
+    "@requestnetwork/utils": "0.35.0",
+    "defender-relay-client": "^1.12.1",
+    "ethers": "5.5.1",
+    "graphql": "^15.5.0",
+    "graphql-request": "^3.4.0",
+    "ipfs-http-client": "^54.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "26.0.13",
+    "jest": "26.4.2",
+    "nyc": "15.1.0",
+    "prettier": "2.2.1",
+    "shx": "0.3.2",
+    "source-map-support": "0.5.19",
+    "ts-jest": "26.3.0",
+    "ts-node": "9.0.0",
+    "tslib": "2.3.1",
+    "typed-emitter": "^1.4.0",
+    "typescript": "4.4.4"
+  },
+  "gitHead": "6155223cfce769e48ccae480c510b35b4f54b4d0"
+}
