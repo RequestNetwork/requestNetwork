@@ -3,29 +3,19 @@
 import EscrowERC20InfoRetriever from '../../src/erc20/escrow-info-retriever';
 import { ethers } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
-//import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 
-// erc20EscrowToPay deployment info.
-//const escrowDeploymentInformation = erc20EscrowToPayArtifact.getDeploymentInformation('private');
-//const escrowToPayAbi = erc20EscrowToPayArtifact.getContractAbi();
-// Escrow contract address.
 const escrowContractAddress = '0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154';
-// ERC20 token address.
-//const erc20LocalhostContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
-// Payment reference to be used in tests.
 const paymentReferenceMock = 'aaaa';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/escrow-info-retriever', () => {
   describe('on mocked logs', () => {
-    // init event logs.
     let initEmergencyLog: ethers.providers.Log;
     let freezeLog: ethers.providers.Log;
     let revertEmergencyLog: ethers.providers.Log;
     let infoRetriever: EscrowERC20InfoRetriever;
 
     const mockedGetLogs = (filter: ethers.EventFilter) => {
-      // Assigns the correct topic for initEmergencyClaim.
       const initEmergencyClaimTopic =
         '0x37b4fae7fd90ce3674204f79d686d40c4069a66c402976717d4f30817c0c0939';
       const frozenRequestTopic =
@@ -53,10 +43,7 @@ describe('api/erc20/escrow-info-retriever', () => {
       },
     };
 
-    // const paymentAddress = '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB';
-
     beforeEach(() => {
-      // Creates mock log with InitiatedEmergencyClaim as topic[0].
       initEmergencyLog = {
         blockNumber: 38,
         blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
@@ -72,7 +59,6 @@ describe('api/erc20/escrow-info-retriever', () => {
         logIndex: 1,
         removed: false,
       };
-      // Creates mock log with RequestFrozen as topic[0].
       freezeLog = {
         blockNumber: 38,
         blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
@@ -88,7 +74,6 @@ describe('api/erc20/escrow-info-retriever', () => {
         logIndex: 2,
         removed: false,
       };
-      // Creates mock log with RevertedEmergencyClaim as topic[0].
       revertEmergencyLog = {
         blockNumber: 38,
         blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
