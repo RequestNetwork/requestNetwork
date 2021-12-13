@@ -41,7 +41,8 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (!currenciesWithConversionOracles[network]) {
       throw Error(`network ${network} not supported`);
     }
-    const supportedErc20: string[] = currenciesWithConversionOracles[network][RequestLogicTypes.CURRENCY.ERC20];
+    const supportedErc20: string[] =
+      currenciesWithConversionOracles[network][RequestLogicTypes.CURRENCY.ERC20];
 
     for (const address of creationParameters.acceptedTokens) {
       if (!supportedErc20.includes(address.toLowerCase())) {
@@ -123,6 +124,16 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     request: RequestLogicTypes.IRequest,
     extensionAction: ExtensionTypes.IAction,
   ): void {
+    const whitelistedActionsForValidation = [
+      ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT.toString(),
+      ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND.toString(),
+      ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT.toString(),
+      ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND.toString(),
+    ];
+    if (whitelistedActionsForValidation.includes(extensionAction.action.toString())) {
+      return;
+    }
+
     const network =
       extensionAction.parameters.network || request.extensions[this.extensionId]?.values.network;
 

@@ -85,6 +85,16 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
     request: RequestLogicTypes.IRequest,
     extensionAction: ExtensionTypes.IAction,
   ): void {
+    const whitelistedActionsForValidation = [
+      ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT.toString(),
+      ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND.toString(),
+      ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT.toString(),
+      ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND.toString(),
+    ];
+    if (whitelistedActionsForValidation.includes(extensionAction.action.toString())) {
+      return;
+    }
+
     const network =
       extensionAction.parameters.network || request.extensions[this.extensionId]?.values.network;
 
