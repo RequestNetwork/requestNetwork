@@ -56,7 +56,7 @@ describe('api/erc20/escrow-info-retriever', () => {
     // const paymentAddress = '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB';
 
     beforeEach(() => {
-      // mock log with InitiatedEmergencyClaim as topic[0].
+      // Creates mock log with InitiatedEmergencyClaim as topic[0].
       initEmergencyLog = {
         blockNumber: 38,
         blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
@@ -72,7 +72,7 @@ describe('api/erc20/escrow-info-retriever', () => {
         logIndex: 1,
         removed: false,
       };
-      // mock log with RequestFrozen as topic[0].
+      // Creates mock log with RequestFrozen as topic[0].
       freezeLog = {
         blockNumber: 38,
         blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
@@ -88,7 +88,7 @@ describe('api/erc20/escrow-info-retriever', () => {
         logIndex: 2,
         removed: false,
       };
-      // mock log with RevertedEmergencyClaim as topic[0].
+      // Creates mock log with RevertedEmergencyClaim as topic[0].
       revertEmergencyLog = {
         blockNumber: 38,
         blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
@@ -119,12 +119,19 @@ describe('api/erc20/escrow-info-retriever', () => {
       };
     });
 
-    it('can get the events of an address out of mocked logs', async () => {
+    it('can get the FROZEN_PAYMENT event of an address out of mocked logs', async () => {
       const events = await infoRetriever.getContractEvents();
       expect(events).toHaveLength(3);
-      // if this assert fails it means this address received another transaction
       expect(events[0].name).toEqual(PaymentTypes.EVENTS_NAMES.FROZEN_PAYMENT);
+    });
+    it('can get the INITIATED_EMERGENCY_CLAIM event of an address out of mocked logs', async () => {
+      const events = await infoRetriever.getContractEvents();
+      expect(events).toHaveLength(3);
       expect(events[1].name).toEqual(PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM);
+    });
+    it('can get the REVERTED_EMERGENCY_CLAIM event of an address out of mocked logs', async () => {
+      const events = await infoRetriever.getContractEvents();
+      expect(events).toHaveLength(3);
       expect(events[2].name).toEqual(PaymentTypes.EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM);
     });
   });
