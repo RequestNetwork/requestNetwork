@@ -113,7 +113,7 @@ export default class EscrowERC20InfoRetriever
     
       // Creates the escrow events.
       .map(async ({ parsedLog, blockNumber, transactionHash, eventName }) => ({
-        name: eventName,
+        contractEvents: eventName,
         parameters: {
           block: blockNumber,
           paymentReference: parsedLog.paymentReference,
