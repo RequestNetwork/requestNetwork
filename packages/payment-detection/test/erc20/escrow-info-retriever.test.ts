@@ -112,7 +112,7 @@ describe('api/erc20/escrow-info-retriever', () => {
     it('can get the INITIATED_EMERGENCY_CLAIM event of an address out of mocked logs', async () => {
       const events = await infoRetriever.getContractEvents();
       expect(events).toHaveLength(3);
-      expect(events[1].name).toEqual(PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM);
+      expect(events[1].name).toEqual(PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM);
     });
     it('can get the REVERTED_EMERGENCY_CLAIM event of an address out of mocked logs', async () => {
       const events = await infoRetriever.getContractEvents();
