@@ -43,13 +43,6 @@ export default class IpfsAddHandler {
         return;
       }
 
-      if (!this.ipfsStorage.ipfsAdd) {
-        serverResponse
-          .status(StatusCodes.INTERNAL_SERVER_ERROR)
-          .send('The node do not support this feature');
-        return;
-      }
-
       try {
         dataAccessResponse = await this.ipfsStorage.ipfsAdd(
           JSON.stringify(clientRequest.body.data),
