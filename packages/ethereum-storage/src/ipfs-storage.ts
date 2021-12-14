@@ -31,14 +31,7 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
    */
   public async ipfsAdd(data: string): Promise<StorageTypes.IIpfsMeta> {
     if (!data) {
-      throw Error('No data provided');
-    }
-
-    // Add a small check to at least having JSON data added
-    try {
-      JSON.parse(data);
-    } catch (error) {
-      throw Error(`data not JSON parsable: ${error}`);
+      throw Error('No content provided');
     }
 
     // Add content to IPFS and get the hash back

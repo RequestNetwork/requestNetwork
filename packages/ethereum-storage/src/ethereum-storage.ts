@@ -18,7 +18,7 @@ const WEB3_PROVIDER_TIMEOUT = 10000;
  * EthereumStorage
  * @notice Manages storage layer of the Request Network Protocol v2
  */
-export default class EthereumStorage implements StorageTypes.IStorage {
+export class EthereumStorage implements StorageTypes.IStorage {
   /**
    * Manager for the storage smart contract
    * This attribute is left public for mocking purpose to facilitate tests on the module
