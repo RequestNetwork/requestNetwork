@@ -88,7 +88,7 @@ export default class EscrowERC20InfoRetriever
     const logs: EthersLogWithEventName[] = [
       ...freezeLog.map((i) => ({
         ...i,
-        eventName: PaymentTypes.EVENTS_NAMES.FROZEN_PAYMENT,
+        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
       })),
       ...initEmergencyLog.map((i) => ({
         ...i,
