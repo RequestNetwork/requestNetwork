@@ -8,6 +8,15 @@ import KeyvFile from 'keyv-file';
 import Web3WsProvider from 'web3-providers-ws';
 import HDWalletProvider from '@truffle/hdwallet-provider';
 
+export function getIpfsConfiguration(): StorageTypes.IIpfsGatewayConnection {
+  return {
+    host: config.getIpfsHost(),
+    port: config.getIpfsPort(),
+    protocol: config.getIpfsProtocol(),
+    timeout: config.getIpfsTimeout(),
+  };
+}
+
 /**
  * Get the ethereum storage with values from config
  * @param mnemonic: mnemonic for the web3 wallet
@@ -17,16 +26,11 @@ import HDWalletProvider from '@truffle/hdwallet-provider';
  */
 export function getEthereumStorage(
   mnemonic: string,
-  logger: LogTypes.ILogger,
+  logger?: LogTypes.ILogger,
   metadataStore?: KeyvFile,
 ): EthereumStorage {
   // Initializes IPFS gateway connection object
-  const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-    host: config.getIpfsHost(),
-    port: config.getIpfsPort(),
-    protocol: config.getIpfsProtocol(),
-    timeout: config.getIpfsTimeout(),
-  };
+  const ipfsGatewayConnection = getIpfsConfiguration();
 
   // Initializes web3 connection object
   let provider: HDWalletProvider;

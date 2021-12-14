@@ -145,7 +145,7 @@ In order to speed up recovery of transactions, data-access has a local cache of 
 
 ### Synchronization
 
-Blocks can be added into the storage by other peers running their own data-access instance. Therefore, to remain consistent with the global state of the network, this package need to synchronize with these new blocks.`dataAccess.synchronizeNewDataIds()` allows to synchronize manually with all unsynchronized blocks. The synchronization can also be done automatically, `dataAccess.startAutoSynchronization()` allows to automatically synchronize with new blocks, the interval time between each synchronization can be defined in data-access constructor. `dataAccess.stopAutoSynchronization()` allows to stop automatic synchronization.
+Blocks can be added into the storage by other peers running their own data-access instance. Therefore, to remain consistent with the global state of the network, this package need to synchronize with these new blocks.`dataAccess.synchronizeNewDataIds()` allows to synchronize manually with all unsynchronized blocks. The synchronization can also be done automatically, `dataAccess.startAutoSynchronization()` allows to automatically synchronize with new blocks, the interval time between each synchronization can be defined in data-access constructor. `dataAccess.close()` allows to stop automatic synchronization.
 
 ## Architecture
 

@@ -813,11 +813,11 @@ describe('data-access', () => {
     // Should have been called once after 2100ms
     expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(2);
 
-    dataAccess.stopAutoSynchronization();
+    await dataAccess.close();
     jest.advanceTimersByTime(1000);
     await flushCallStack();
 
-    // Not called anymore after stopAutoSynchronization()
+    // Not called anymore after stop()
     expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(2);
   });
 
@@ -854,6 +854,6 @@ describe('data-access', () => {
 
     expect(fakeStorageSpied.getData).toHaveBeenNthCalledWith(2, { from: 501, to: 1000 });
 
-    dataAccess.stopAutoSynchronization();
+    await dataAccess.close();
   });
 });

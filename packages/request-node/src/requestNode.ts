@@ -1,4 +1,4 @@
-import { LogTypes } from '@requestnetwork/types';
+import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import cors from 'cors';
@@ -9,16 +9,18 @@ import KeyvFile from 'keyv-file';
 
 import { getCustomHeaders, getInitializationStorageFilePath } from './config';
 import ConfirmedTransactionStore from './request/confirmedTransactionStore';
-// import { getEthereumStorage } from './storageUtils';
+import { getEthereumStorage, getIpfsConfiguration } from './storageUtils';
 
 import GetConfirmedTransactionHandler from './request/getConfirmedTransactionHandler';
 import GetTransactionsByChannelIdHandler from './request/getTransactionsByChannelId';
 import PersistTransactionHandler from './request/persistTransaction';
 import GetChannelsByTopicHandler from './request/getChannelsByTopic';
 import GetStatusHandler from './request/getStatus';
-import { getRelayerSigner, TheGraphDataAccess } from '@requestnetwork/thegraph-client';
+import { TheGraphDataAccess } from '@requestnetwork/thegraph-client';
 import * as config from './config';
-import { getNetwork } from '@ethersproject/networks';
+import { providers, Wallet } from 'ethers';
+import { DataAccess, TransactionIndex } from '@requestnetwork/data-access';
+import { Store } from 'keyv';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');
@@ -34,12 +36,12 @@ const REQUEST_NODE_VERSION_HEADER = 'X-Request-Network-Node-Version';
  * Main class for request node express server
  * This class defines routes to handle requests from client
  */
-class RequestNode {
+export class RequestNodeBase {
   /**
    * DataAccess layer of the protocol
    * This attribute is left public for mocking purpose
    */
-  public dataAccess: TheGraphDataAccess;
+  protected dataAccess: DataAccessTypes.IDataAccess;
 
   private express: express.Application;
   private initialized: boolean;
@@ -57,42 +59,15 @@ class RequestNode {
    *
    * @param [logger] The logger instance
    */
-  constructor(logger?: LogTypes.ILogger) {
+  constructor(
+    dataAccess: DataAccessTypes.IDataAccess,
+    store?: Store<DataAccessTypes.IReturnPersistTransaction>,
+    logger?: LogTypes.ILogger,
+  ) {
     this.initialized = false;
 
     this.logger = logger || new Utils.SimpleLogger();
-
-    const initializationStoragePath = getInitializationStorageFilePath();
-
-    const store = initializationStoragePath
-      ? new KeyvFile({
-          filename: initializationStoragePath,
-        })
-      : undefined;
-
-    // Use ethereum storage for the storage layer
-    // const ethereumStorage = getEthereumStorage(getMnemonic(), this.logger, store);
-
-    // Use an in-file Transaction index if a path is specified, an in-memory otherwise
-    // const transactionIndex = new TransactionIndex(store);
-
-    // this.ethereumStorage = ethereumStorage;
-
-    // this.dataAccess = new DataAccess(ethereumStorage, {
-    //   logger: this.logger,
-    //   transactionIndex,
-    // });
-
-    const network = getNetwork(config.getStorageNetworkId()).name;
-    this.dataAccess = new TheGraphDataAccess({
-      graphql: { url: config.getGraphNodeUrl() },
-      ipfs: { host: config.getIpfsHost() },
-      network,
-      signer: getRelayerSigner({
-        apiKey: process.env.API_KEY!,
-        apiSecret: process.env.SECRET_KEY!,
-      }),
-    });
+    this.dataAccess = dataAccess;
 
     this.confirmedTransactionStore = new ConfirmedTransactionStore(store);
     this.getConfirmedTransactionHandler = new GetConfirmedTransactionHandler(
@@ -136,13 +111,6 @@ class RequestNode {
       throw error;
     }
 
-    // try {
-    //   this.dataAccess.startAutoSynchronization();
-    // } catch (error) {
-    //   this.logger.error(`Node failed to start auto synchronization`);
-    //   throw error;
-    // }
-
     this.initialized = true;
 
     this.logger.info('Node initialized');
@@ -154,6 +122,10 @@ class RequestNode {
       `Time to initialize: ${(initializationEndTime - initializationStartTime) / 1000}s`,
       ['metric', 'initialization'],
     );
+  }
+
+  async close(): Promise<void> {
+    await this.dataAccess.close();
   }
 
   /**
@@ -232,4 +204,52 @@ class RequestNode {
   }
 }
 
-export default RequestNode;
+export class TheGraphRequestNode extends RequestNodeBase {
+  constructor(logger?: LogTypes.ILogger) {
+    const initializationStoragePath = getInitializationStorageFilePath();
+
+    const store = initializationStoragePath
+      ? new KeyvFile({
+          filename: initializationStoragePath,
+        })
+      : undefined;
+
+    const networkId = config.getStorageNetworkId();
+    const network = networkId === 0 ? 'private' : providers.getNetwork(networkId).name;
+    const signer = Wallet.fromMnemonic(config.getMnemonic()).connect(
+      new providers.StaticJsonRpcProvider(config.getStorageWeb3ProviderUrl()),
+    );
+    const dataAccess = new TheGraphDataAccess({
+      graphql: { url: config.getGraphNodeUrl() },
+      ipfs: getIpfsConfiguration(),
+      network,
+      signer,
+      logger: logger,
+    });
+    super(dataAccess, store, logger);
+  }
+}
+
+export class RequestNode extends RequestNodeBase {
+  constructor(logger?: LogTypes.ILogger) {
+    const initializationStoragePath = getInitializationStorageFilePath();
+
+    const store = initializationStoragePath
+      ? new KeyvFile({
+          filename: initializationStoragePath,
+        })
+      : undefined;
+    // Use ethereum storage for the storage layer
+    const ethereumStorage = getEthereumStorage(config.getMnemonic(), logger, store);
+
+    // Use an in-file Transaction index if a path is specified, an in-memory otherwise
+    const transactionIndex = new TransactionIndex(store);
+
+    const dataAccess = new DataAccess(ethereumStorage, {
+      logger,
+      transactionIndex,
+      autoStartSynchronization: true,
+    });
+    super(dataAccess, store, logger);
+  }
+}

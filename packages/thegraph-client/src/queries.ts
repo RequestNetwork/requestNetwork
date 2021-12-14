@@ -1,4 +1,8 @@
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
+
+export type Meta = {
+  _meta: { block: { number: number } };
+};
 
 export type Transaction = {
   hash: string;
@@ -8,14 +12,15 @@ export type Transaction = {
   encryptionMethod?: string;
   publicKeys?: string[];
   encryptedKeys?: string[];
-  blockNumber: string;
-  blockTimestamp: string;
+  blockNumber: number;
+  blockTimestamp: number;
   transactionHash: string;
   smartContractAddress: string;
   topics: string[];
+  size: string;
 };
 
-export type TransactionsBody = {
+export type TransactionsBody = Meta & {
   transactions: Transaction[];
 };
 
@@ -33,17 +38,19 @@ const TransactionsBodyFragment = gql`
     transactionHash
     smartContractAddress
     topics
+    size
   }
 `;
 
 export const GetTransactionsByChannelIdQuery = gql`
   ${TransactionsBodyFragment}
   query GetTransactionsByChannelId($channelId: String!) {
-    transactions(
-      where: { channelId: $channelId }
-      orderBy: blockTimestamp
-      orderDirection: asc
-    ) {
+    _meta {
+      block {
+        number
+      }
+    }
+    transactions(where: { channelId: $channelId }, orderBy: blockTimestamp, orderDirection: asc) {
       ...TransactionsBody
     }
   }
@@ -52,11 +59,12 @@ export const GetTransactionsByChannelIdQuery = gql`
 export const GetTransactionsByHashQuery = gql`
   ${TransactionsBodyFragment}
   query GetTransactionsByHash($hash: String!) {
-    transactions(
-      where: { hash: $hash }
-      orderBy: blockTimestamp
-      orderDirection: asc
-    ) {
+    _meta {
+      block {
+        number
+      }
+    }
+    transactions(where: { hash: $hash }, orderBy: blockTimestamp, orderDirection: asc) {
       ...TransactionsBody
     }
   }
@@ -65,6 +73,11 @@ export const GetTransactionsByHashQuery = gql`
 export const GetChannelsByTopicsQuery = gql`
   ${TransactionsBodyFragment}
   query GetChannelsByTopics($topics: [String!]!) {
+    _meta {
+      block {
+        number
+      }
+    }
     transactions(
       where: { topics_contains: $topics }
       orderBy: blockTimestamp

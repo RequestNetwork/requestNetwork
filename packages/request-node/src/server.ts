@@ -3,7 +3,7 @@ import { LogTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
 import * as config from './config';
 import Logger from './logger';
-import RequestNode from './requestNode';
+import { RequestNode } from './requestNode';
 import withShutdown from 'http-shutdown';
 
 // Initialize the node logger
@@ -36,7 +36,7 @@ const startNode = async (): Promise<void> => {
   );
 
   process.on('SIGTERM', async () => {
-    // requestNode.dataAccess.stop();
+    await requestNode.close();
     logger.info('Synchronization stopped');
     await new Promise((r) => server.shutdown(r));
     logger.info('Server stopped');

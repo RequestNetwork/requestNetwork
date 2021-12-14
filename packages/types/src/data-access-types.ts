@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 /** Data Access Layer */
 export interface IDataAccess {
   initialize: () => Promise<void>;
+  close: () => Promise<void>;
   persistTransaction: (
     transactionData: ITransaction,
     channelId: string,

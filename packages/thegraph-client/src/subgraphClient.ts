@@ -4,6 +4,7 @@ import {
   GetChannelsByTopicsQuery,
   GetTransactionsByChannelIdQuery,
   GetTransactionsByHashQuery,
+  Meta,
   TransactionsBody,
 } from './queries';
 
@@ -13,20 +14,24 @@ export class SubgraphClient {
     this.graphql = new GraphQLClient(endpoint, options);
   }
 
-  public getBlockNumber() {
-    return this.graphql.request(GetBlock);
+  public async getBlockNumber(): Promise<number> {
+    const { _meta } = await this.graphql.request<Meta>(GetBlock);
+    return _meta.block.number;
   }
-  public getTransactionsByHash(hash: string) {
+
+  public getTransactionsByHash(hash: string): Promise<TransactionsBody> {
     return this.graphql.request<TransactionsBody>(GetTransactionsByHashQuery, {
       hash,
     });
   }
 
-  public getTransactionsByChannelId(channelId: string) {
-    return this.graphql.request<TransactionsBody>(GetTransactionsByChannelIdQuery, { channelId });
+  public getTransactionsByChannelId(channelId: string): Promise<TransactionsBody> {
+    return this.graphql.request<TransactionsBody>(GetTransactionsByChannelIdQuery, {
+      channelId,
+    });
   }
 
-  public getChannelsByTopics(topics: string[]) {
+  public getChannelsByTopics(topics: string[]): Promise<TransactionsBody> {
     return this.graphql.request<TransactionsBody>(GetChannelsByTopicsQuery, {
       topics,
     });

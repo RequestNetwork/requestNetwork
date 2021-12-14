@@ -43,6 +43,7 @@
     "@requestnetwork/transaction-manager": "0.26.9",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/smart-contracts": "0.28.0",
     "defender-relay-client": "^1.12.1",
     "ethers": "5.5.1",
     "graphql": "^15.5.0",

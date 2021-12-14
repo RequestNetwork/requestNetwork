@@ -90,6 +90,10 @@ export default class IntervalTimer {
     this.timeoutObject = null;
   }
 
+  public get isStarted(): boolean {
+    return Boolean(this.timeoutObject);
+  }
+
   /**
    * Gets current configuration
    *
