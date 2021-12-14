@@ -96,7 +96,7 @@ export default class EscrowERC20InfoRetriever
       })),
       ...revertEmergencyLog.map((i) => ({
         ...i,
-        eventName: PaymentTypes.EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
       })),
     ];
 
