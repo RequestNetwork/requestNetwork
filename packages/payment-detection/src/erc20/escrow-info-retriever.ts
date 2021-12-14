@@ -88,15 +88,15 @@ export default class EscrowERC20InfoRetriever
     const logs: EthersLogWithEventName[] = [
       ...freezeLog.map((i) => ({
         ...i,
-        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
+        eventName: PaymentTypes.EVENTS_NAMES.FROZEN_PAYMENT,
       })),
       ...initEmergencyLog.map((i) => ({
         ...i,
-        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
+        eventName: PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
       })),
       ...revertEmergencyLog.map((i) => ({
         ...i,
-        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+        eventName: PaymentTypes.EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
       })),
     ];
 
@@ -110,10 +110,10 @@ export default class EscrowERC20InfoRetriever
           parsedLog: parseLogArgs<EscrowArgs>(parsedLog),
         };
       })
-    
+
       // Creates the escrow events.
       .map(async ({ parsedLog, blockNumber, transactionHash, eventName }) => ({
-        contractEvents: eventName,
+        name: eventName,
         parameters: {
           block: blockNumber,
           paymentReference: parsedLog.paymentReference,
