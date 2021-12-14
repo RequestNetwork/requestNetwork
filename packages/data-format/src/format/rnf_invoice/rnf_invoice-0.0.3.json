@@ -67,6 +67,9 @@
         },
         "miscellaneous": {
           "type": "object"
+        },
+        "userId": {
+          "type": "object"
         }
       }
     },
@@ -101,6 +104,9 @@
           "type": "string"
         },
         "miscellaneous": {
+          "type": "object"
+        },
+        "userId": {
           "type": "object"
         }
       }
