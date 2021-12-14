@@ -15,10 +15,6 @@ export default class MockStorage implements StorageTypes.IStorage {
     return;
   }
 
-  public async _ipfsAdd(): Promise<never> {
-    throw Error('will never be used');
-  }
-
   public async _getStatus(): Promise<never> {
     throw Error('will never be used');
   }

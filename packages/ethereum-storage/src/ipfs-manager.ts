@@ -529,7 +529,7 @@ export default class IpfsManager {
    *
    * @return the current configuration attributes
    */
-  public async getConfig(): Promise<any> {
+  public async getConfig(): Promise<StorageTypes.IIpfsConfig> {
     return {
       delayBetweenRetries: this.errorHandlingConfig.delayBetweenRetries,
       host: this.ipfsConnection.host,

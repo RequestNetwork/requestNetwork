@@ -528,14 +528,6 @@ describe('EthereumStorage', () => {
       await expect(ethereumStorage.read('')).rejects.toThrowError('No id provided');
     });
 
-    it('append and read on an invalid ipfs gateway should throw an error', async () => {
-      await expect(
-        ethereumStorage.updateIpfsGateway(invalidHostIpfsGatewayConnection),
-      ).rejects.toThrowError(
-        'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent',
-      );
-    });
-
     it('failed getContentLength from ipfs-manager in append and read functions should throw an error', async () => {
       // To test this case, we create a mock for getContentLength of the ipfs manager that always throws an error
       ethereumStorage.ipfsManager.getContentLength = async (_hash) => {

@@ -10,8 +10,25 @@ export interface IStorage {
   readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
   getIgnoredData: () => Promise<IEntry[]>;
-  _ipfsAdd?: (data: string) => Promise<IIpfsMeta>;
   _getStatus: (detailed?: boolean) => Promise<any>;
+}
+
+export type IIpfsConfig = {
+  delayBetweenRetries?: number;
+  host: string;
+  id: string;
+  maxRetries?: number;
+  port: number;
+  protocol: string;
+  timeout?: number;
+};
+
+export interface IIpfsStorage {
+  initialize: () => Promise<void>;
+  ipfsAdd: (data: string) => Promise<IIpfsMeta>;
+  read(hash: string, maxSize?: number, retries?: number): Promise<IIpfsObject>;
+  pinDataToIPFS(hashes: string[], config?: IPinRequestConfiguration): Promise<void>;
+  getConfig(): Promise<IIpfsConfig>;
 }
 
 /** An extensible template that declares a generic meta */

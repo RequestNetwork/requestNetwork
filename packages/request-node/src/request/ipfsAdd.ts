@@ -13,7 +13,7 @@ import { getPersistTransactionTimeout } from '../config';
  * @param dataAccess data access layer
  */
 export default class IpfsAddHandler {
-  constructor(private logger: LogTypes.ILogger, private ethereumStorage: StorageTypes.IStorage) {
+  constructor(private logger: LogTypes.ILogger, private ipfsStorage: StorageTypes.IIpfsStorage) {
     this.handler = this.handler.bind(this);
   }
 
@@ -43,7 +43,7 @@ export default class IpfsAddHandler {
         return;
       }
 
-      if (!this.ethereumStorage._ipfsAdd) {
+      if (!this.ipfsStorage.ipfsAdd) {
         serverResponse
           .status(StatusCodes.INTERNAL_SERVER_ERROR)
           .send('The node do not support this feature');
@@ -51,7 +51,7 @@ export default class IpfsAddHandler {
       }
 
       try {
-        dataAccessResponse = await this.ethereumStorage._ipfsAdd(
+        dataAccessResponse = await this.ipfsStorage.ipfsAdd(
           JSON.stringify(clientRequest.body.data),
         );
 

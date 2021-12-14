@@ -117,7 +117,6 @@ const defaultFakeStorage: StorageTypes.IStorage = {
   _getStatus: jest.fn((): any => ({
     fake: 'status',
   })),
-  _ipfsAdd: jest.fn(),
   append: jest.fn((): any => {
     const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
     setTimeout(
@@ -504,7 +503,6 @@ describe('data-access', () => {
     it('cannot persistTransaction() and emit error if confirmation failed', async () => {
       const mockStorageEmittingError: StorageTypes.IStorage = {
         _getStatus: jest.fn(),
-        _ipfsAdd: jest.fn(),
         append: jest.fn((): any => {
           const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
           setTimeout(
@@ -631,7 +629,6 @@ describe('data-access', () => {
     });
 
     const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
-      _ipfsAdd: jest.fn(),
       append: jest.fn(),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
       getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
@@ -760,7 +757,6 @@ describe('data-access', () => {
 
   it('startSynchronizationTimer() should throw an error if not initialized', async () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
-      _ipfsAdd: jest.fn(),
       append: jest.fn().mockReturnValue(appendResult),
       getData: jest.fn(() => Promise.resolve({} as any)),
       getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
@@ -813,11 +809,11 @@ describe('data-access', () => {
     // Should have been called once after 2100ms
     expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(2);
 
-    dataAccess.stopAutoSynchronization();
+    await dataAccess.close();
     jest.advanceTimersByTime(1000);
     await flushCallStack();
 
-    // Not called anymore after stopAutoSynchronization()
+    // Not called anymore after stop()
     expect(dataAccess.synchronizeNewDataIds).toHaveBeenCalledTimes(2);
   });
 
@@ -854,6 +850,6 @@ describe('data-access', () => {
 
     expect(fakeStorageSpied.getData).toHaveBeenNthCalledWith(2, { from: 501, to: 1000 });
 
-    dataAccess.stopAutoSynchronization();
+    await dataAccess.close();
   });
 });
