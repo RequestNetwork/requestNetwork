@@ -59,6 +59,7 @@
     "@typechain/hardhat": "2.1.2",
     "@types/chai": "4.2.21",
     "@types/node": "14.14.16",
+    "@types/mocha": "8.2.3",
     "chai": "4.3.4",
     "dotenv": "10.0.0",
     "ethereum-waffle": "3.4.0",
