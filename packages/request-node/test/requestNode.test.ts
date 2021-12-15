@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
-import RequestNode from '../src/requestNode';
+import { RequestNode } from '../src/requestNode';
 
 const packageJson = require('../package.json');
 const requestNodeVersion = packageJson.version;
