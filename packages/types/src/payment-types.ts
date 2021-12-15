@@ -83,13 +83,14 @@ export enum BALANCE_ERROR_CODE {
   VERSION_NOT_SUPPORTED,
 }
 
-export interface IPaymentNetworkBaseEvent<TEventNames =  EVENTS_NAMES> {
+export interface IPaymentNetworkBaseEvent<TEventNames = EVENTS_NAMES> {
   name: TEventNames;
   timestamp?: number;
 }
 
 /** payment network event */
-export interface IPaymentNetworkEvent<TEventParameters> extends IPaymentNetworkBaseEvent {
+export interface IPaymentNetworkEvent<TEventParameters, TEventNames = EVENTS_NAMES>
+  extends IPaymentNetworkBaseEvent<TEventNames> {
   amount: string;
   parameters?: TEventParameters;
 }
@@ -100,7 +101,7 @@ export enum EVENTS_NAMES {
   REFUND = 'refund',
 }
 
-export enum EVENTS_NAMES {
+export enum ESCROW_EVENTS_NAMES {
   FROZEN_PAYMENT = 'frozenPayment',
   INITIATED_EMERGENCY_CLAIM = 'initiatedEmergencyClaim',
   REVERTED_EMERGENCY_CLAIM = 'revertedEmergencyClaim',
@@ -123,14 +124,16 @@ export enum PAYMENT_NETWORK_ID {
 
 /** Generic info retriever interface */
 export interface IPaymentNetworkInfoRetriever<
-  TPaymentNetworkEvent extends IPaymentNetworkEvent<unknown>
+  TPaymentNetworkEvent extends IPaymentNetworkEvent<unknown, TEventNames>,
+  TEventNames = EVENTS_NAMES
 > {
   getTransferEvents(): Promise<TPaymentNetworkEvent[]>;
 }
 
 /** Generic info retriever interface without transfers */
 export interface IPaymentNetworkBaseInfoRetriever<
-  TPaymentNetworkEvent extends IPaymentNetworkBaseEvent
+  TPaymentNetworkEvent extends IPaymentNetworkBaseEvent<TEventNames>,
+  TEventNames = EVENTS_NAMES
 > {
   getContractEvents(): Promise<TPaymentNetworkEvent[]>;
 }

@@ -19,7 +19,11 @@ type EscrowArgs = {
  * Retrieves a list of payment events from a escrow contract.
  */
 export default class EscrowERC20InfoRetriever
-  implements PaymentTypes.IPaymentNetworkBaseInfoRetriever<PaymentTypes.IPaymentNetworkBaseEvent> {
+  implements
+    PaymentTypes.IPaymentNetworkBaseInfoRetriever<
+      PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>,
+      PaymentTypes.ESCROW_EVENTS_NAMES
+    > {
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
 
@@ -49,7 +53,9 @@ export default class EscrowERC20InfoRetriever
   /**
    * Retrieves events for the current contract, address and network.
    */
-  public async getContractEvents(): Promise<PaymentTypes.IPaymentNetworkBaseEvent[]> {
+  public async getContractEvents(): Promise<
+    PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>[]
+  > {
     // Create a filter to find all the RequestFrozen logs with the payment reference
     const freezeFilter = this.contractEscrow.filters.RequestFrozen(
       '0x' + this.paymentReference,
@@ -81,22 +87,22 @@ export default class EscrowERC20InfoRetriever
     const revertEmergencyLog = await this.provider.getLogs(revertEmergencyFilter);
 
     interface EthersLogWithEventName extends ethers.providers.Log {
-      eventName: PaymentTypes.EVENTS_NAMES;
+      eventName: PaymentTypes.ESCROW_EVENTS_NAMES;
     }
 
     // Merge events if multiple logs.
     const logs: EthersLogWithEventName[] = [
       ...freezeLog.map((i) => ({
         ...i,
-        eventName: PaymentTypes.EVENTS_NAMES.FROZEN_PAYMENT,
+        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
       })),
       ...initEmergencyLog.map((i) => ({
         ...i,
-        eventName: PaymentTypes.EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
+        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
       })),
       ...revertEmergencyLog.map((i) => ({
         ...i,
-        eventName: PaymentTypes.EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
       })),
     ];
 
