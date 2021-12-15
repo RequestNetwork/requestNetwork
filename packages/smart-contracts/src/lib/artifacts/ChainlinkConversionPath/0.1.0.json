@@ -22,7 +22,7 @@
           "type": "address"
         }
       ],
-      "name": "UpdateAggregator",
+      "name": "AggregatorUpdated",
       "type": "event"
     },
     {
@@ -71,12 +71,12 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "inputAddress",
+          "name": "",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "outputAddress",
+          "name": "",
           "type": "address"
         }
       ],
@@ -107,21 +107,6 @@
           "internalType": "bool",
           "name": "",
           "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "maxTimestampDeltaAcceptable",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
         }
       ],
       "payable": false,
