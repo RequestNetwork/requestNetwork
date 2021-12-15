@@ -7,10 +7,12 @@ import { getInitializationStorageFilePath, getMnemonic } from './config';
 import { getEthereumStorage, getIpfsStorage } from './storageUtils';
 
 import { RequestNodeBase } from './requestNodeBase';
+import Utils from '@requestnetwork/utils';
 
 export class RequestNode extends RequestNodeBase {
   constructor(logger?: LogTypes.ILogger) {
     const initializationStoragePath = getInitializationStorageFilePath();
+    logger = logger || new Utils.SimpleLogger();
 
     const store = initializationStoragePath
       ? new KeyvFile({
