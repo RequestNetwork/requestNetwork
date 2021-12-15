@@ -9,27 +9,19 @@ import Request from '../../src/api/request';
 import * as TestData from '../data-test';
 
 const mockDataAccess: DataAccessTypes.IDataAccess = {
-  async _getStatus(): Promise<any> {
-    return;
-  },
-  async getChannelsByTopic(): Promise<any> {
-    return;
-  },
-  async getTransactionsByChannelId(): Promise<any> {
-    return;
-  },
-  async initialize(): Promise<any> {
-    return;
-  },
-  async persistTransaction(): Promise<any> {
-    return;
-  },
-  async getChannelsByMultipleTopics(): Promise<any> {
-    return;
-  },
+  _getStatus: jest.fn(),
+  getChannelsByTopic: jest.fn(),
+  getTransactionsByChannelId: jest.fn(),
+  initialize: jest.fn(),
+  close: jest.fn(),
+  persistTransaction: jest.fn(),
+  getChannelsByMultipleTopics: jest.fn(),
 };
 
 describe('api/request-network', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
   // Most of the tests are done as integration tests in ../index.test.ts
   it('exists', async () => {
     expect(RequestNetwork).toBeDefined();
@@ -43,28 +35,7 @@ describe('api/request-network', () => {
 
   describe('createRequest', () => {
     it('cannot createRequest() with extensionsData', async () => {
-      const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async _getStatus(): Promise<any> {
-          return;
-        },
-        async getChannelsByTopic(): Promise<any> {
-          return;
-        },
-        async getTransactionsByChannelId(): Promise<any> {
-          return;
-        },
-        async initialize(): Promise<any> {
-          return;
-        },
-        async persistTransaction(): Promise<any> {
-          return;
-        },
-        async getChannelsByMultipleTopics(): Promise<any> {
-          return;
-        },
-      };
-
-      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
+      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccess });
 
       await expect(
         requestnetwork.createRequest({
@@ -78,27 +49,13 @@ describe('api/request-network', () => {
   describe('fromRequestId', () => {
     it('can get request with payment network fromRequestId', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async _getStatus(): Promise<any> {
-          return;
-        },
-        async getChannelsByTopic(): Promise<any> {
-          return;
-        },
+        ...mockDataAccess,
         async getTransactionsByChannelId(): Promise<any> {
           return {
             result: {
               transactions: [TestData.timestampedTransaction],
             },
           };
-        },
-        async initialize(): Promise<any> {
-          return;
-        },
-        async persistTransaction(): Promise<any> {
-          return;
-        },
-        async getChannelsByMultipleTopics(): Promise<any> {
-          return;
         },
       };
 
@@ -132,27 +89,13 @@ describe('api/request-network', () => {
       );
 
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async _getStatus(): Promise<any> {
-          return;
-        },
-        async getChannelsByTopic(): Promise<any> {
-          return;
-        },
+        ...mockDataAccess,
         async getTransactionsByChannelId(): Promise<any> {
           return {
             result: {
               transactions: [txIgnoredByTransactionManager, txIgnoredByRequestLogic],
             },
           };
-        },
-        async initialize(): Promise<any> {
-          return;
-        },
-        async persistTransaction(): Promise<any> {
-          return;
-        },
-        async getChannelsByMultipleTopics(): Promise<any> {
-          return;
         },
       };
 
@@ -166,9 +109,7 @@ describe('api/request-network', () => {
   describe('fromIdentity', () => {
     it('can get requests with payment network fromIdentity', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async _getStatus(): Promise<any> {
-          return;
-        },
+        ...mockDataAccess,
         async getChannelsByTopic(topic: string): Promise<any> {
           expect(topic).toBe('01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76');
           return {
@@ -208,15 +149,6 @@ describe('api/request-network', () => {
             },
           };
         },
-        async initialize(): Promise<any> {
-          return;
-        },
-        async persistTransaction(): Promise<any> {
-          return;
-        },
-        async getChannelsByMultipleTopics(): Promise<any> {
-          return;
-        },
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
@@ -238,9 +170,7 @@ describe('api/request-network', () => {
   describe('fromTopic', () => {
     it('can get requests with payment network fromTopic', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async _getStatus(): Promise<any> {
-          return;
-        },
+        ...mockDataAccess,
         async getChannelsByTopic(): Promise<any> {
           return {
             meta: {
@@ -271,15 +201,6 @@ describe('api/request-network', () => {
             },
           };
         },
-        async initialize(): Promise<any> {
-          return;
-        },
-        async persistTransaction(): Promise<any> {
-          return;
-        },
-        async getChannelsByMultipleTopics(): Promise<any> {
-          return;
-        },
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
@@ -294,9 +215,7 @@ describe('api/request-network', () => {
   describe('fromMultipleIdentities', () => {
     it('can get requests with payment network from multiple Identities', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async _getStatus(): Promise<any> {
-          return;
-        },
+        ...mockDataAccess,
         async getChannelsByMultipleTopics(topics: [string]): Promise<any> {
           expect(topics).toEqual([
             '01f1a21ab419611dbf492b3136ac231c8773dc897ee0eb5167ef2051a39e685e76',
@@ -338,15 +257,6 @@ describe('api/request-network', () => {
             },
           };
         },
-        async initialize(): Promise<any> {
-          return;
-        },
-        async persistTransaction(): Promise<any> {
-          return;
-        },
-        async getChannelsByTopic(): Promise<any> {
-          return;
-        },
       };
 
       const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccessWithTxs });
@@ -372,9 +282,7 @@ describe('api/request-network', () => {
   describe('fromMultipleTopics', () => {
     it('can get requests with payment network fromMultipleTopics', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
-        async _getStatus(): Promise<any> {
-          return;
-        },
+        ...mockDataAccess,
         async getChannelsByMultipleTopics(): Promise<any> {
           return {
             meta: {
@@ -404,15 +312,6 @@ describe('api/request-network', () => {
               transactions,
             },
           };
-        },
-        async initialize(): Promise<any> {
-          return;
-        },
-        async persistTransaction(): Promise<any> {
-          return;
-        },
-        async getChannelsByTopic(): Promise<any> {
-          return;
         },
       };
 
