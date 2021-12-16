@@ -34,7 +34,7 @@ export const initPaymentDetectionApiKeys = (
 const networkRpcs: Record<string, string> = {
   private: providers.JsonRpcProvider.defaultUrl(),
   matic: 'https://rpc-mainnet.matic.network/',
-  fantom: 'https://rpcapi.fantom.network',
+  fantom: 'https://rpc.ftm.tools',
   fuse: 'https://rpc.fuse.io',
   bsctest: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   bsc: 'https://bsc-dataseed1.binance.org/',
