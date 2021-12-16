@@ -311,6 +311,9 @@ docker-compose up
 
 The environment variables must be defined in the `docker-compose.yml` file in the `environment` section. `$ETHEREUM_NETWORK_ID` and `$WEB3_PROVIDER_URL` must be defined.
 
+#### Docker for unpublished version
+See instructions in [Dockerfile.dev](./Dockerfile.dev)
+
 ### Running fully locally
 
 To run a Request Node locally for tests, make sure you have the necessary IPFS and Ethereum nodes available.

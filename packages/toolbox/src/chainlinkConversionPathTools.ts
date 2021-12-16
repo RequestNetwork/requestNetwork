@@ -6,15 +6,15 @@ import {
   ChainlinkConversionPath,
 } from '@requestnetwork/smart-contracts/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
-import iso4217 from '@requestnetwork/currency/dist/iso4217';
+import Bluebird from 'bluebird';
+import chunk from 'lodash/chunk';
+import Utils from '@requestnetwork/utils';
 
 export interface IOptions {
   network?: string;
   currencyCode?: string;
   web3Url?: string;
-  lastBlock?: number;
-  startBlock?: number;
+  maxRange?: number;
 }
 
 /** TransferWithReference event */
@@ -28,54 +28,73 @@ type AggregatorUpdatedArgs = {
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 class ChainlinkConversionPathTools {
-  public contractChainlinkConversionPath: ChainlinkConversionPath;
-  public chainlinkConversionPathCreationBlockNumber: number;
+  public chainLinkConversionPath: ChainlinkConversionPath;
+  public creationBlockNumber: number;
   public provider: ethers.providers.Provider;
-  private lastBlock?: number;
-  private firstBlock?: number;
+  private maxRange?: number;
 
   /**
    * @param network The Ethereum network to use
    */
   constructor(
     private network: string,
-    options?: { web3Url?: string; lastBlock?: number; firstBlock?: number },
+    options?: { web3Url?: string; lastBlock?: number; maxRange?: number },
   ) {
+    const web3Url =
+      options?.web3Url ||
+      (getDefaultProvider(this.network) as providers.JsonRpcProvider).connection.url;
+
     // Creates a local or default provider
-    this.provider = options?.web3Url
-      ? new providers.JsonRpcProvider(options?.web3Url)
-      : getDefaultProvider(this.network);
+    this.provider = new providers.StaticJsonRpcProvider(web3Url);
 
     // Setup the conversion proxy contract interface
-    this.contractChainlinkConversionPath = ChainlinkConversionPath__factory.connect(
+    this.chainLinkConversionPath = ChainlinkConversionPath__factory.connect(
       chainlinkConversionPath.getAddress(network),
       this.provider,
     );
 
-    this.chainlinkConversionPathCreationBlockNumber = chainlinkConversionPath.getCreationBlockNumber(
-      this.network,
-    );
+    this.creationBlockNumber = chainlinkConversionPath.getCreationBlockNumber(this.network);
 
-    this.lastBlock = options?.lastBlock;
-    this.firstBlock = options?.firstBlock;
+    this.maxRange = options?.maxRange || 5000;
   }
 
   /**
    * Retrieves all the aggregators
    */
   public async getAggregators(): Promise<Record<string, Record<string, string>>> {
-    // Get the fee proxy contract event logs
-    const logs = await this.contractChainlinkConversionPath.queryFilter(
-      this.contractChainlinkConversionPath.filters.AggregatorUpdated(),
-      this.firstBlock ?? this.chainlinkConversionPathCreationBlockNumber,
-      this.lastBlock ?? 'latest',
+    const lastBlock = await this.provider.getBlockNumber();
+    const chunks = chunk(
+      Array(lastBlock - this.creationBlockNumber)
+        .fill(0)
+        .map((_, i) => this.creationBlockNumber + i),
+      this.maxRange,
     );
+
+    // Get the fee proxy contract event logs
+    const logs = await Bluebird.map(
+      chunks,
+      (blocks) => {
+        console.error(`Fetching logs from ${blocks[0]} to ${blocks[blocks.length - 1]}`);
+        return Utils.retry(
+          this.chainLinkConversionPath.queryFilter.bind(this.chainLinkConversionPath),
+          {
+            maxRetries: 3,
+            retryDelay: 2000,
+          },
+        )(
+          this.chainLinkConversionPath.filters.AggregatorUpdated(),
+          blocks[0],
+          blocks[blocks.length - 1],
+        );
+      },
+      { concurrency: 20 },
+    ).then((r) => r.flat());
 
     // Parses, filters and creates the events from the logs with the payment reference
     const aggregatorsMaps = logs.reduce(
       // Map: Input currency => Output currency => aggregator address
       (aggregators, log) => {
-        const parsedLog = this.contractChainlinkConversionPath.interface.parseLog(log);
+        const parsedLog = this.chainLinkConversionPath.interface.parseLog(log);
         const args = parseLogArgs<AggregatorUpdatedArgs>(parsedLog);
 
         // if the aggregator in 0x00 it means, it has been deleted
@@ -125,49 +144,13 @@ const getCurrency = (symbol: string) => {
   return currency;
 };
 
-// Record currency [currency hash] => {value (address or symbol), type}
-const knownCurrencies = [...iso4217.map((x) => x.code), 'ETH', 'ETH-rinkeby'].reduce(
-  (prev, symbol) => {
-    const currency = getCurrency(symbol);
-
-    return {
-      ...prev,
-      [currency.hash.toLowerCase()]: {
-        value: CurrencyManager.toStorageCurrency(currency).value,
-        type: currency.type,
-      },
-    };
-  },
-  {} as Record<string, { value: string; type: RequestLogicTypes.CURRENCY }>,
-);
-
-const addSupportedCurrency = (
-  ccy: string,
-  record: Record<RequestLogicTypes.CURRENCY, string[]>,
-) => {
-  const wellKnown = knownCurrencies[ccy];
-  const address = wellKnown ? wellKnown.value : ccy;
-  const type = wellKnown ? wellKnown.type : RequestLogicTypes.CURRENCY.ERC20;
-  if (!record[type].includes(address)) {
-    record[type].push(address);
-  }
-  record[type] = record[type].sort();
-};
-
 export const listAggregators = async (options?: IOptions): Promise<void> => {
   const networks = options?.network ? [options.network] : ['private', 'rinkeby', 'mainnet'];
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
   const allAggregators: Record<string, Record<string, Record<string, string>>> = {};
   const aggregatorsNodesForDijkstra: Record<string, Record<string, Record<string, number>>> = {};
-  const supportedCurrencies: Record<string, Record<RequestLogicTypes.CURRENCY, string[]>> = {};
   for (const network of networks) {
-    supportedCurrencies[network] = {
-      [RequestLogicTypes.CURRENCY.ISO4217]: [],
-      [RequestLogicTypes.CURRENCY.ERC20]: [],
-      [RequestLogicTypes.CURRENCY.ETH]: [],
-      [RequestLogicTypes.CURRENCY.BTC]: [],
-    };
     allAggregators[network] = {};
     const chainlinkConversionPathTools = new ChainlinkConversionPathTools(network, options);
     allAggregators[network] = await chainlinkConversionPathTools.getAggregators();
@@ -176,13 +159,11 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
     aggregatorsNodesForDijkstra[network] = {};
     for (let ccyIn in allAggregators[network]) {
       ccyIn = ccyIn.toLowerCase();
-      addSupportedCurrency(ccyIn, supportedCurrencies[network]);
       if (!aggregatorsNodesForDijkstra[network][ccyIn]) {
         aggregatorsNodesForDijkstra[network][ccyIn] = {};
       }
       for (let ccyOut in allAggregators[network][ccyIn]) {
         ccyOut = ccyOut.toLowerCase();
-        addSupportedCurrency(ccyOut, supportedCurrencies[network]);
 
         if (!aggregatorsNodesForDijkstra[network][ccyOut]) {
           aggregatorsNodesForDijkstra[network][ccyOut] = {};
@@ -193,19 +174,12 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
     }
   }
 
-  console.log('#####################################################################');
-  console.log('All aggregators:');
-  console.log(allAggregators);
-  console.log('#####################################################################');
-  console.log('All aggregators nodes (currency) :');
-  console.log('../currency/src/chainlink-path-aggregators.ts');
-  console.log(aggregatorsNodesForDijkstra);
-  console.log('#####################################################################');
-  console.log('Supported currencies (advanced-logic) :');
-  console.log(
-    '../advanced-logic/src/extensions/payment-network/conversion-supported-currencies.ts',
-  );
-  console.log(supportedCurrencies);
+  // logging to error so that the useful piece is written to stdout
+  // enables this usage:  yarn -s chainlinkPath mainnet  | clip
+  console.error('#####################################################################');
+  console.error('All aggregators nodes (currency) :');
+  console.error('../currency/src/chainlink-path-aggregators.ts');
+  console.log(JSON.stringify(aggregatorsNodesForDijkstra, null, 2));
 };
 
 export const showCurrencyHash = async (options?: IOptions): Promise<void> => {
