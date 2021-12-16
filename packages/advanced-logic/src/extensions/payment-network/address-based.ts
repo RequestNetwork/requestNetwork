@@ -276,7 +276,11 @@ export default abstract class AddressBasedPaymentNetwork<
     return copiedExtensionState;
   }
 
-  protected validate(request: RequestLogicTypes.IRequest): void {
+  protected validate(
+    request: RequestLogicTypes.IRequest,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _extensionAction: ExtensionTypes.IAction,
+  ): void {
     if (request.currency.type !== this.supportedCurrencyType) {
       throw Error(`This extension can be used only on ${this.supportedCurrencyType} requests`);
     }

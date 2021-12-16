@@ -120,8 +120,17 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
    *
    * @param request
    */
-  protected validate(request: RequestLogicTypes.IRequest): void {
-    const network = request.extensions[this.extensionId]?.values.network;
+  protected validate(
+    request: RequestLogicTypes.IRequest,
+    extensionAction: ExtensionTypes.IAction,
+  ): void {
+    const network =
+      extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE
+        ? extensionAction.parameters.network
+        : request.extensions[this.extensionId]?.values.network;
+    if (!network) {
+      return;
+    }
 
     // Nothing can be validated if the network has not been given yet
     if (!network) {

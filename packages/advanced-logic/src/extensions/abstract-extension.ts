@@ -51,7 +51,7 @@ export abstract class AbstractExtension<TCreationParameters> {
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): RequestLogicTypes.IExtensionStates {
-    this.validate(requestState);
+    this.validate(requestState, extensionAction);
 
     const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(
       extensionsState,
@@ -126,6 +126,8 @@ export abstract class AbstractExtension<TCreationParameters> {
   protected validate(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _request: RequestLogicTypes.IRequest,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _extensionAction: ExtensionTypes.IAction,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
   ): void {}
 }
