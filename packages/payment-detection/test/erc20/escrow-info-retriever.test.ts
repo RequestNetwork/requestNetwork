@@ -73,7 +73,7 @@ describe('api/erc20/escrow-info-retriever', () => {
       } as any);
       getLogsSpy = jest
         .spyOn(infoRetriever.provider, 'getLogs')
-        .mockImplementation((filter: ethers.EventFilter) => {
+        .mockImplementation((filter: ethers.providers.Filter) => {
           const initEmergencyClaimTopic =
             '0x37b4fae7fd90ce3674204f79d686d40c4069a66c402976717d4f30817c0c0939';
           const frozenRequestTopic =
