@@ -76,6 +76,7 @@ export const extensionStateWithPaymentAfterCreation = {
     values: {
       paymentAddress,
       network,
+      receivedPaymentAmount: '0'
     },
     version,
   },
@@ -104,6 +105,7 @@ export const extensionStateWithRefundAfterCreation = {
     values: {
       refundAddress,
       network,
+      receivedPaymentAmount: '0'
     },
     version,
   },
@@ -134,6 +136,7 @@ export const extensionStateWithFeeAfterCreation = {
       feeAddress,
       feeAmount,
       network,
+      receivedPaymentAmount: '0'
     },
     version,
   },
