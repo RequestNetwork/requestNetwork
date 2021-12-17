@@ -10,6 +10,7 @@ const paymentReferenceMock = 'aaaa';
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/escrow-info-retriever', () => {
   describe('on mocked logs', () => {
+    // Initiate mockedlogs.
     const initEmergencyLog = {
       blockNumber: 38,
       blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
