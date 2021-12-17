@@ -39,6 +39,16 @@ export const actionAddFee = {
     feeAmount,
   },
 };
+export const declareReceivedPayment = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  parameters: {
+    amount: '123400000000000000',
+    note: 'this is your payment',
+    txHash: 'somehash',
+    network: 'matic'
+  }
+}
 
 // ---------------------------------------------------------------------
 // extensions states
