@@ -1,4 +1,3 @@
-import { DataAccess } from '@requestnetwork/data-access';
 import { LogTypes, MultiFormatTypes, DataAccessTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { Request, Response } from 'express';
@@ -16,7 +15,7 @@ export default class PersistTransactionHandler {
    */
   constructor(
     private confirmedTransactionStore: ConfirmedTransactionStore,
-    private dataAccess: DataAccess,
+    private dataAccess: DataAccessTypes.IDataAccess,
     private logger: LogTypes.ILogger,
   ) {
     this.handler = this.handler.bind(this);

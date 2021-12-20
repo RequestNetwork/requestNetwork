@@ -119,10 +119,45 @@ export const extensionStateCreatedEmpty = {
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       network: 'mainnet',
+      receivedPaymentAmount: '0',
     },
     version: '0.1.0',
   },
 };
+export const extensionStateDeclareReceivedPayment = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {
+          network: 'mainnet'
+        },
+        timestamp: arbitraryTimestamp,
+      },
+      {
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+        from: {
+          type: 'ethereumAddress',
+          value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce'
+        },
+        parameters: {
+          amount: '123400000000000000',
+          txHash: 'somehash',
+          note: 'this is your payment',
+          network: 'matic'
+        },
+        timestamp: arbitraryTimestamp,
+      }
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      network: 'mainnet',
+      receivedPaymentAmount: '123400000000000000',
+    },
+    version: '0.1.0',
+  }
+}
 
 // ---------------------------------------------------------------------
 // request states

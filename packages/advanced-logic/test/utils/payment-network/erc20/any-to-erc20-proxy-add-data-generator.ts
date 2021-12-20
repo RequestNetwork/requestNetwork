@@ -39,6 +39,16 @@ export const actionAddFee = {
     feeAmount,
   },
 };
+export const declareReceivedPayment = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  parameters: {
+    amount: '123400000000000000',
+    note: 'this is your payment',
+    txHash: 'somehash',
+    network: 'matic'
+  }
+}
 
 // ---------------------------------------------------------------------
 // extensions states
@@ -62,6 +72,7 @@ export const extensionStateWithPaymentAfterCreation = {
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress,
+      receivedPaymentAmount: '0'
     },
     version: '0.1.0',
   },
@@ -87,6 +98,7 @@ export const extensionStateWithRefundAfterCreation = {
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       refundAddress,
+      receivedPaymentAmount: '0'
     },
     version: '0.1.0',
   },
@@ -114,6 +126,7 @@ export const extensionStateWithFeeAfterCreation = {
     values: {
       feeAddress,
       feeAmount,
+      receivedPaymentAmount: '0'
     },
     version: '0.1.0',
   },

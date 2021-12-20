@@ -60,6 +60,7 @@ describe('index', () => {
       getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetChannelsReturn),
       getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturn),
       initialize: jest.fn(),
+      close: jest.fn(),
       // persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
       persistTransaction: jest.fn((): any => {
         setTimeout(() => {
@@ -217,6 +218,7 @@ describe('index', () => {
             .fn()
             .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
           initialize: jest.fn(),
+          close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
@@ -260,6 +262,7 @@ describe('index', () => {
           getChannelsByTopic: jest.fn(),
           getTransactionsByChannelId: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturnEmpty),
           initialize: jest.fn(),
+          close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
@@ -300,6 +303,7 @@ describe('index', () => {
             .fn()
             .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
           initialize: jest.fn(),
+          close: jest.fn(),
           persistTransaction: jest.fn().mockReturnValue(fakeMetaDataAccessPersistReturn),
         };
 
@@ -352,6 +356,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -399,6 +404,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -453,6 +459,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -508,6 +515,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -569,6 +577,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -649,6 +658,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -724,6 +734,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -800,6 +811,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -875,6 +887,7 @@ describe('index', () => {
           .fn()
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -967,6 +980,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -1026,6 +1040,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -1096,6 +1111,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -1157,6 +1173,7 @@ describe('index', () => {
         getChannelsByTopic: jest.fn().mockReturnValue(fakeMetaDataAccessGetReturnFirstHashWrong),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
@@ -1227,6 +1244,7 @@ describe('index', () => {
           .mockReturnValue(fakeMetaDataAccessGetReturnWithEncryptedTransaction),
         getTransactionsByChannelId: jest.fn(),
         initialize: jest.fn(),
+        close: jest.fn(),
         persistTransaction: jest.fn(),
       };
 
