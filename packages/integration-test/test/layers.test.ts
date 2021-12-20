@@ -4,7 +4,7 @@ import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { DataAccess } from '@requestnetwork/data-access';
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
-import { EthereumStorage } from '@requestnetwork/ethereum-storage';
+import { EthereumStorage, IpfsStorage } from '@requestnetwork/ethereum-storage';
 import MultiFormat from '@requestnetwork/multi-format';
 import { RequestLogic } from '@requestnetwork/request-logic';
 import { TransactionManager } from '@requestnetwork/transaction-manager';
@@ -67,7 +67,8 @@ describe('Request system', () => {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
       web3Provider: provider,
     };
-    const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+    const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
+    const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
 
     // Data access setup
     dataAccess = new DataAccess(ethereumStorage);
@@ -244,7 +245,8 @@ describe('Request system', () => {
       networkId: StorageTypes.EthereumNetwork.PRIVATE,
       web3Provider: provider,
     };
-    const ethereumStorage = new EthereumStorage('localhost', ipfsGatewayConnection, web3Connection);
+    const ipfsStorage = new IpfsStorage({ ipfsGatewayConnection });
+    const ethereumStorage = new EthereumStorage('localhost', ipfsStorage, web3Connection);
 
     // Data access setup
     dataAccess = new DataAccess(ethereumStorage);

@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
-import RequestNode from '../src/requestNode';
+import { RequestNode } from '../src/requestNode';
 
 const packageJson = require('../package.json');
 const requestNodeVersion = packageJson.version;
@@ -62,7 +62,9 @@ describe('requestNode server', () => {
 
   it('initialization failure should throw an error', async () => {
     requestNodeInstance = new RequestNode();
-    requestNodeInstance.dataAccess.initialize = dataAccessInitializeFailureMock;
+    jest
+      .spyOn((requestNodeInstance as any).dataAccess, 'initialize')
+      .mockImplementation(dataAccessInitializeFailureMock);
 
     await expect(requestNodeInstance.initialize()).rejects.toThrowError(Error);
   });

@@ -1,4 +1,4 @@
-import { EthereumStorage } from '@requestnetwork/ethereum-storage';
+import { EthereumStorage, IpfsStorage } from '@requestnetwork/ethereum-storage';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import * as config from './config';
 
@@ -7,6 +7,19 @@ import KeyvFile from 'keyv-file';
 
 import Web3WsProvider from 'web3-providers-ws';
 import HDWalletProvider from '@truffle/hdwallet-provider';
+
+export function getIpfsConfiguration(): StorageTypes.IIpfsGatewayConnection {
+  return {
+    host: config.getIpfsHost(),
+    port: config.getIpfsPort(),
+    protocol: config.getIpfsProtocol(),
+    timeout: config.getIpfsTimeout(),
+  };
+}
+
+export function getIpfsStorage(logger?: LogTypes.ILogger): StorageTypes.IIpfsStorage {
+  return new IpfsStorage({ ipfsGatewayConnection: getIpfsConfiguration(), logger });
+}
 
 /**
  * Get the ethereum storage with values from config
@@ -17,17 +30,10 @@ import HDWalletProvider from '@truffle/hdwallet-provider';
  */
 export function getEthereumStorage(
   mnemonic: string,
-  logger: LogTypes.ILogger,
+  ipfsStorage: StorageTypes.IIpfsStorage,
+  logger?: LogTypes.ILogger,
   metadataStore?: KeyvFile,
 ): EthereumStorage {
-  // Initializes IPFS gateway connection object
-  const ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
-    host: config.getIpfsHost(),
-    port: config.getIpfsPort(),
-    protocol: config.getIpfsProtocol(),
-    timeout: config.getIpfsTimeout(),
-  };
-
   // Initializes web3 connection object
   let provider: HDWalletProvider;
   if (config.getStorageWeb3ProviderUrl().match('^wss?://.+')) {
@@ -65,7 +71,7 @@ export function getEthereumStorage(
 
   return new EthereumStorage(
     config.getServerExternalUrl(),
-    ipfsGatewayConnection,
+    ipfsStorage,
     web3Connection,
     {
       getLastBlockNumberDelay: config.getLastBlockNumberDelay(),
