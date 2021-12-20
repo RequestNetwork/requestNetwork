@@ -123,7 +123,7 @@ export const setProviderFactory = (providerFactory?: CurrentProviderFactory): vo
 export const getDefaultProvider = (network?: string): providers.Provider => {
   const provider = currentProviderFactory(network, defaultProviderFactory);
   if (typeof provider === 'string') {
-    return new providers.JsonRpcProvider(provider);
+    return new providers.StaticJsonRpcProvider(provider);
   }
   return provider;
 };
