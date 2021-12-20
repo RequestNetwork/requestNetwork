@@ -1,0 +1,13 @@
+query GetEscrowEvents($contractAddress: Bytes!, $reference: Bytes!) {
+  escrowEvents(
+    where: { contractAddress: $contractAddress, reference: $reference }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    block
+    txHash
+    eventType
+    from
+    timestamp
+  }
+}

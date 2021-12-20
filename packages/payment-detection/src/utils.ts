@@ -1,7 +1,7 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish, Contract } from 'ethers';
-import { LogDescription } from 'ethers/lib/utils';
+import { keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 /**
@@ -75,4 +75,8 @@ export const makeGetDeploymentInformation = <TVersion extends string = string>(
     const info = artifact.getDeploymentInformation(network, contractVersion);
     return { ...info, contractVersion };
   };
+};
+
+export const hashReference = (paymentReference: string): string => {
+  return keccak256(`0x${paymentReference}`);
 };
