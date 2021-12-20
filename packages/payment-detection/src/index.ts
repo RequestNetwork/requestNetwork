@@ -14,17 +14,11 @@ import {
   unpadAmountFromChainlink,
   calculateEscrowState,
 } from './utils';
-import { NearInfoRetriever } from './near-info-retriever';
 import { NearNativeTokenPaymentDetector } from './near-detector';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 
 export type { TheGraphClient } from './thegraph';
-
-const Near = {
-  InfoRetriever: NearInfoRetriever,
-  getContractName: NearNativeTokenPaymentDetector.getNearContractName,
-};
 
 export {
   PaymentNetworkFactory,
@@ -38,7 +32,7 @@ export {
   AnyToEthFeeProxyPaymentDetector,
   FeeReferenceBasedDetector,
   SuperFluidPaymentDetector,
-  Near,
+  NearNativeTokenPaymentDetector,
   setProviderFactory,
   initPaymentDetectionApiKeys,
   getDefaultProvider,

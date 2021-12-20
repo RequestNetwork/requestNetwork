@@ -22,14 +22,14 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: { nativeToken: [mockNearPaymentNetwork] },
 };
-const salt = '360ab22e5fb6c41c';
-const paymentAddress = 'pay.testnet';
+const salt = '9c08824125b870eb';
+const paymentAddress = 'gus.near';
 const request: any = {
-  requestId: '017a738821782329122ffb1b944dc2bbcecc56fdc8d95b050fe49a1fc04349a9c4',
+  requestId: '01cc915b9b2cde7f97be812679f6212d3d464965cc27d423d55e37962b06937a7f',
   currency: {
-    network: 'aurora-testnet',
+    network: 'aurora',
     type: RequestLogicTypes.CURRENCY.ETH,
-    value: 'NEAR-testnet',
+    value: 'NEAR',
   },
   extensions: {
     [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
@@ -46,7 +46,7 @@ const request: any = {
 
 describe('Near payments detection', () => {
   // TODO Near tests failing. Asked NEAR team about this.
-  it.skip('NearInfoRetriever can detect a NEAR payment', async () => {
+  it('NearInfoRetriever can retrieve a NEAR payment', async () => {
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
       salt,
@@ -55,16 +55,15 @@ describe('Near payments detection', () => {
 
     const infoRetriever = new NearInfoRetriever(
       paymentReference,
-      paymentAddress,
-      'dev-1631521265288-35171138540673',
-      'com.nearprotocol.testnet.explorer.select:INDEXER_BACKEND',
+      'gus.near',
+      'requestnetwork.near',
       PaymentTypes.EVENTS_NAMES.PAYMENT,
-      'aurora-testnet',
+      'aurora',
     );
     const events = await infoRetriever.getTransferEvents();
     expect(events).toHaveLength(1);
 
-    expect(events[0].amount).toBe('2000000000000000000000000');
+    expect(events[0].amount).toBe('1000000000000000000000000');
   });
 
   it('PaymentNetworkFactory can get the detector (testnet)', async () => {
@@ -87,15 +86,14 @@ describe('Near payments detection', () => {
     ).toBeInstanceOf(NearNativeTokenPaymentDetector);
   });
 
-  // TODO Near tests failing. Asked NEAR team about this.
-  it.skip('NearNativeTokenPaymentDetector can detect a payment on aurora-testnet', async () => {
+  it('NearNativeTokenPaymentDetector can detect a payment on aurora', async () => {
     const paymentDetector = new NearNativeTokenPaymentDetector({
       advancedLogic: mockAdvancedLogic,
     });
     const balance = await paymentDetector.getBalance(request);
 
     expect(balance.events).toHaveLength(1);
-    expect(balance.balance).toBe('2000000000000000000000000');
+    expect(balance.balance).toBe('1000000000000000000000000');
   });
 
   describe('Edge cases for NearNativeTokenPaymentDetector', () => {

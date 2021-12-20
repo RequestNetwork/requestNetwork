@@ -1,0 +1,11 @@
+query GetNearPayments($reference: String!, $to: String!) {
+  payments(where: { reference: $reference, to: $to }, orderBy: timestamp, orderDirection: asc) {
+    amount
+    block
+    receiptId
+    feeAmount
+    feeAddress
+    from
+    timestamp
+  }
+}
