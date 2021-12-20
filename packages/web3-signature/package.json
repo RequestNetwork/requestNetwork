@@ -42,7 +42,7 @@
   "dependencies": {
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "ethers": "5.5.1",
+    "ethers": "5.5.2",
     "tslib": "2.3.1"
   },
   "devDependencies": {
