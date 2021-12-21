@@ -243,7 +243,14 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
 
   private getStorageMeta(result: TransactionsBody): StorageTypes.IEntryMetadata[] {
     return result.transactions.map((x) => ({
-      ethereum: this.getEthereumMeta(result, x),
+      ethereum: {
+        blockConfirmation: result._meta.block.number - x.blockNumber,
+        blockNumber: x.blockNumber,
+        blockTimestamp: x.blockTimestamp,
+        networkName: this.network,
+        smartContractAddress: x.smartContractAddress,
+        transactionHash: x.transactionHash,
+      },
       ipfs: {
         size: BigNumber.from(x.size).toNumber(),
       },
@@ -251,20 +258,6 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
       storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
       timestamp: x.blockTimestamp,
     }));
-  }
-
-  private getEthereumMeta(
-    result: TransactionsBody,
-    x: Transaction,
-  ): StorageTypes.IEthereumMetadata {
-    return {
-      blockConfirmation: result._meta.block.number - x.blockNumber,
-      blockNumber: x.blockNumber,
-      blockTimestamp: x.blockTimestamp,
-      networkName: this.network,
-      smartContractAddress: x.smartContractAddress,
-      transactionHash: x.transactionHash,
-    };
   }
 
   private getTimestampedTransaction(
