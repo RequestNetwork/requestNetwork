@@ -229,7 +229,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
           resultAppendConfirmed.meta.timestamp,
         );
 
-        const resultAfterConfirmation = {
+        const resultAfterConfirmation: DataAccessTypes.IReturnPersistTransactionRaw = {
           meta: {
             storageMeta: resultAppendConfirmed.meta,
             topics,
