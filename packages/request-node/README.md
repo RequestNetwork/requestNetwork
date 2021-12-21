@@ -105,6 +105,8 @@ Since the Node doesn't implement a cache yet, all transactions have to be retrie
 As a consequence, this request can take a long time if the topic requested indexes many transactions.
 This delay will be optimized with the implementation of a cache.
 
+If you experience issues, look into the [Graph mode](#thegraph-mode).
+
 #### getChannelsByTopic
 
 Get transactions from channels indexed by a specified topic.
@@ -183,6 +185,12 @@ To setup your IPFS node to the private network, you can run the following utilit
 yarn init-ipfs
 ```
 
+#### TheGraph mode
+An alternative data access relies on a [Graph](https://thegraph.com/) node, for better indexing & performance.
+
+
+To enable it, set the `GRAPH_NODE_URL` environment variable to a Graph node with the [Request Storage Subgraph](https://github.com/RequestNetwork/storage-subgraph) deployed and synced.
+
 ### Launch
 
 #### Command line
@@ -256,6 +264,8 @@ Default values correspond to the basic configuration used to run a server in a t
   - Environment variable name: `$PERSIST_TRANSACTION_TIMEOUT`
 - `--externalUrl` External url of the node (used to identified where the buffer data are stored before being broadcasted on ethereum)
   - Environment variable name: `$EXTERNAL_URL`
+- `--graphNodeUrl` External url of the Graph node, if any. If specified, this will replace the traditional data access with the Graph implementation. Default is undefined. See [TheGraph mode](#thegraph-mode).
+  - Environment variable name: `$GRAPH_NODE_URL`
 
 #### Mnemonic
 
