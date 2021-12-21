@@ -1,8 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { RequestNode } from '../src/requestNode';
+import { RequestNodeBase } from '../src/requestNodeBase';
 
-let requestNodeInstance;
+let requestNodeInstance: RequestNodeBase;
 let server: any;
 
 /* eslint-disable no-magic-numbers */
@@ -15,7 +16,8 @@ describe('ipfsAdd', () => {
     server = (requestNodeInstance as any).express;
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    await requestNodeInstance.close();
     server.close();
   });
 
