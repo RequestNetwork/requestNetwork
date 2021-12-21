@@ -71,12 +71,11 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
 
   async getTransactionsByChannelId(
     channelId: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetTransactions> {
     const pending = await this.getPending(channelId);
 
-    const result = await this.graphql.getTransactionsByChannelId(channelId);
+    const result = await this.graphql.getTransactionsByChannelId(channelId, updatedBetween);
 
     return {
       meta: {
@@ -97,18 +96,16 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
 
   async getChannelsByTopic(
     topic: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries | undefined,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    return this.getChannelsByMultipleTopics([topic]);
+    return this.getChannelsByMultipleTopics([topic], updatedBetween);
   }
 
   async getChannelsByMultipleTopics(
     topics: string[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _updatedBetween?: DataAccessTypes.ITimestampBoundaries,
+    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const result = await this.graphql.getChannelsByTopics(topics);
+    const result = await this.graphql.getChannelsByTopics(topics, updatedBetween);
 
     return {
       meta: {
@@ -139,6 +136,7 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
   async _getStatus(): Promise<any> {
     return {
       lastBlock: await this.graphql.getBlockNumber(),
+      endpoint: this.graphql.endpoint,
       storage: await this.storage._getStatus(),
     };
   }

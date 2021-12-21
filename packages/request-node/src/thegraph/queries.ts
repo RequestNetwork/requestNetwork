@@ -44,13 +44,17 @@ const TransactionsBodyFragment = gql`
 
 export const GetTransactionsByChannelIdQuery = gql`
   ${TransactionsBodyFragment}
-  query GetTransactionsByChannelId($channelId: String!) {
+  query GetTransactionsByChannelId($channelId: String!, $from: Int, $to: Int) {
     _meta {
       block {
         number
       }
     }
-    transactions(where: { channelId: $channelId }, orderBy: blockTimestamp, orderDirection: asc) {
+    transactions(
+      where: { channelId: $channelId, blockTimestamp_gte: $from, blockTimestamp_lt: $to }
+      orderBy: blockTimestamp
+      orderDirection: asc
+    ) {
       ...TransactionsBody
     }
   }
