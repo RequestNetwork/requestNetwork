@@ -283,7 +283,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const transactionsAndMetaPerBlocks: Array<{
       transactions: DataAccessTypes.ITimestampedTransaction[];
       transactionsStorageLocation: string[];
-      storageMeta: string[];
+      storageMeta: StorageTypes.IEntryMetadata[];
     }> =
       // for all the blocks found
       blockWithMetaList.map((blockAndMeta) => {
@@ -305,7 +305,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     return transactionsAndMetaPerBlocks.reduce(
       (accumulator: DataAccessTypes.IReturnGetTransactions, elem) => ({
         meta: {
-          storageMeta: accumulator.meta.storageMeta.concat(elem.storageMeta),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          storageMeta: accumulator.meta.storageMeta!.concat(elem.storageMeta),
           transactionsStorageLocation: accumulator.meta.transactionsStorageLocation.concat(
             elem.transactionsStorageLocation,
           ),
@@ -360,7 +361,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
 
       // Adds the meta of the channel
-      finalResult.meta.storageMeta[id] =
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      finalResult.meta.storageMeta![id] =
         channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
 
       // Adds the transaction of the channel
@@ -411,7 +413,8 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
         channelIdAndTransactions.transactionsWithMeta.meta.transactionsStorageLocation;
 
       // Adds the meta of the channel
-      finalResult.meta.storageMeta[id] =
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      finalResult.meta.storageMeta![id] =
         channelIdAndTransactions.transactionsWithMeta.meta.storageMeta;
 
       // Adds the transaction of the channel
@@ -586,7 +589,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   ): {
     transactions: DataAccessTypes.ITimestampedTransaction[];
     transactionsStorageLocation: string[];
-    storageMeta: string[];
+    storageMeta: StorageTypes.IEntryMetadata[];
   } {
     // Gets the transaction from the positions
     const transactions: DataAccessTypes.ITimestampedTransaction[] =
@@ -607,7 +610,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
     const transactionsStorageLocation = Array(transactions.length).fill(location);
 
     // Gets the list of storage meta of the transactions found
-    const storageMeta = Array(transactions.length).fill(meta);
+    const storageMeta = transactions.map(() => meta);
 
     return { transactions, transactionsStorageLocation, storageMeta };
   }

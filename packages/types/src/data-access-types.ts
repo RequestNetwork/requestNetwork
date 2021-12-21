@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import * as StorageTypes from './storage-types';
 
 /** Data Access Layer */
 export interface IDataAccess {
@@ -63,7 +64,7 @@ export interface IReturnPersistTransaction extends EventEmitter {
     /** topics used to index the persisted transaction */
     topics: string[];
     /** meta-data from the layer below */
-    storageMeta?: any;
+    storageMeta?: StorageTypes.IEntryMetadata;
   };
   /** result of the execution */
   result: Record<string, never>;
@@ -76,7 +77,7 @@ export interface IReturnGetTransactions {
     /** location of the transactions (follow the position of the result.transactions) */
     transactionsStorageLocation: string[];
     /** meta-data from the layer below */
-    storageMeta?: any;
+    storageMeta?: StorageTypes.IEntryMetadata[];
   };
   /** result of the execution */
   result: { transactions: ITimestampedTransaction[] };
@@ -91,7 +92,7 @@ export interface IReturnGetChannelsByTopic {
       [key: string]: string[];
     };
     /** meta-data from the layer below */
-    storageMeta?: any;
+    storageMeta?: Record<string, StorageTypes.IEntryMetadata[] | undefined>;
   };
   /** result of the execution: the transactions grouped by channel id */
   result: { transactions: ITransactionsByChannelIds };
