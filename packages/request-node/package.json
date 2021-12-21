@@ -40,7 +40,7 @@
     "init-ipfs": "node init-ipfs.js"
   },
   "dependencies": {
-    "@ethersproject/experimental": "^5.5.0",
+    "@ethersproject/experimental": "5.5.0",
     "@requestnetwork/data-access": "0.26.0",
     "@requestnetwork/ethereum-storage": "0.26.0",
     "@requestnetwork/smart-contracts": "0.28.0",
