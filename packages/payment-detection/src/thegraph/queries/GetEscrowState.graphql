@@ -1,0 +1,13 @@
+query GetEscrowState($contractAddress: Bytes!, $reference: Bytes!) {
+  escrow(where: { contractAddress: $contractAddress, reference: $reference }) {
+    creationBlock
+    creationTimestamp
+    escrowState
+    tokenAddress
+    amount
+    payer
+    payee
+    feeAmount
+    feeAddress
+  }
+}

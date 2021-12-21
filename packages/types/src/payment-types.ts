@@ -222,4 +222,20 @@ export interface IEscrowEventParameters {
   from?: string;
   timestamp?: number;
 }
+/** Escrow events that change the state of the Escrow */
 export type EscrowEvents = IEscrowEventParameters;
+
+/** Parameters that describe the current escrow state */
+export interface IEscrowStateParameters {
+  creationBlock: number;
+  creationTimestamp: number;
+  escrowState: string;
+  tokenAddress: string;
+  amount: string;
+  payer: string;
+  payee: string;
+  feeAmount: string;
+  feeAddress: string;
+}
+/** Represents the current state of an escrow instance */
+export type EscrowState = IEscrowStateParameters;
