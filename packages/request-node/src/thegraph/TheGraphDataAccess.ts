@@ -7,7 +7,7 @@ import Utils from '@requestnetwork/utils';
 import { Block } from '@requestnetwork/data-access';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
-import { TransactionsBody, Transaction } from './queries';
+import { Transaction } from './queries';
 import { SubgraphClient } from './subgraphClient';
 import { TheGraphStorage } from './TheGraphStorage';
 
@@ -83,7 +83,9 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
         transactionsStorageLocation: result.transactions
           .map((x) => x.hash)
           .concat(pending.meta.transactionsStorageLocation),
-        storageMeta: this.getStorageMeta(result),
+        storageMeta: result.transactions.map((tx) =>
+          this.getStorageMeta(tx, result._meta.block.number),
+        ),
       },
       result: {
         transactions: result.transactions
@@ -110,7 +112,10 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
 
     return {
       meta: {
-        storageMeta: this.getStorageMeta(result),
+        storageMeta: result.transactions.reduce((acc, tx) => {
+          acc[tx.channelId] = [this.getStorageMeta(tx, result._meta.block.number)];
+          return acc;
+        }, {} as Record<string, StorageTypes.IEntryMetadata[]>),
         transactionsStorageLocation: result.transactions.reduce((prev, curr) => {
           if (!prev[curr.channelId]) {
             prev[curr.channelId] = [];
@@ -138,7 +143,7 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     };
   }
 
-  private setPending(
+  private addPending(
     channelId: string,
     transaction: DataAccessTypes.ITransaction,
     storageResult: StorageTypes.IAppendResult,
@@ -146,11 +151,15 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     this.pending[channelId] = { transaction, storageResult };
   }
 
+  private deletePending(channelId: string) {
+    delete this.pending[channelId];
+  }
+
   private async getPending(channelId: string): Promise<DataAccessTypes.IReturnGetTransactions> {
     const emptyResult = {
       meta: {
         transactionsStorageLocation: [],
-        storageMeta: {},
+        storageMeta: [],
       },
       result: {
         transactions: [],
@@ -174,7 +183,7 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     return {
       meta: {
         transactionsStorageLocation: [storageResult.id],
-        storageMeta: [{ meta: storageResult.meta }],
+        storageMeta: [storageResult.meta],
       },
       result: {
         transactions: [
@@ -188,10 +197,6 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     };
   }
 
-  private deletePending(channelId: string) {
-    delete this.pending[channelId];
-  }
-
   protected createPersistTransactionResult(
     channelId: string,
     transaction: DataAccessTypes.ITransaction,
@@ -199,7 +204,7 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     topics: string[],
   ): DataAccessTypes.IReturnPersistTransaction {
     const eventEmitter = new EventEmitter() as DataAccessEventEmitter;
-    this.setPending(channelId, transaction, storageResult);
+    this.addPending(channelId, transaction, storageResult);
 
     const result: DataAccessTypes.IReturnPersistTransactionRaw = {
       meta: {
@@ -228,7 +233,10 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
             ...result,
             meta: {
               ...result.meta,
-              storageMeta: this.getStorageMeta(response),
+              storageMeta: this.getStorageMeta(
+                response.transactions[0],
+                response._meta.block.number,
+              ),
             },
           });
         })
@@ -241,23 +249,26 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     return Object.assign(eventEmitter, result);
   }
 
-  private getStorageMeta(result: TransactionsBody): StorageTypes.IEntryMetadata[] {
-    return result.transactions.map((x) => ({
+  private getStorageMeta(
+    result: Transaction,
+    lastBlockNumber: number,
+  ): StorageTypes.IEntryMetadata {
+    return {
       ethereum: {
-        blockConfirmation: result._meta.block.number - x.blockNumber,
-        blockNumber: x.blockNumber,
-        blockTimestamp: x.blockTimestamp,
+        blockConfirmation: lastBlockNumber - result.blockNumber,
+        blockNumber: result.blockNumber,
+        blockTimestamp: result.blockTimestamp,
         networkName: this.network,
-        smartContractAddress: x.smartContractAddress,
-        transactionHash: x.transactionHash,
+        smartContractAddress: result.smartContractAddress,
+        transactionHash: result.transactionHash,
       },
       ipfs: {
-        size: BigNumber.from(x.size).toNumber(),
+        size: BigNumber.from(result.size).toNumber(),
       },
       state: StorageTypes.ContentState.CONFIRMED,
       storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-      timestamp: x.blockTimestamp,
-    }));
+      timestamp: result.blockTimestamp,
+    };
   }
 
   private getTimestampedTransaction(
