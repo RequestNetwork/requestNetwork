@@ -1,5 +1,6 @@
 import KeyvFile from 'keyv-file';
 import { providers, Wallet } from 'ethers';
+import { NonceManager } from '@ethersproject/experimental';
 import { LogTypes } from '@requestnetwork/types';
 
 import { TheGraphDataAccess } from './TheGraphDataAccess';
@@ -19,9 +20,10 @@ export class TheGraphRequestNode extends RequestNodeBase {
 
     const networkId = config.getStorageNetworkId();
     const network = networkId === 0 ? 'private' : providers.getNetwork(networkId).name;
-    const signer = Wallet.fromMnemonic(config.getMnemonic()).connect(
+    const wallet = Wallet.fromMnemonic(config.getMnemonic()).connect(
       new providers.StaticJsonRpcProvider(config.getStorageWeb3ProviderUrl()),
     );
+    const signer = new NonceManager(wallet);
     const ipfsStorage = getIpfsStorage(logger);
     const dataAccess = new TheGraphDataAccess({
       graphql: { url },
