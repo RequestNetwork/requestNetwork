@@ -18,14 +18,14 @@ references:
   graph_image: &graph_image
     image: graphprotocol/graph-node:v0.25.0
     # wait for ganache, then start
-    command: sh -c 'wait_for ganache:8545 -t 30 -- start'
+    command: sh -c 'wait_for localhost:8545 -t 30 -- start'
     environment:
       postgres_host: localhost
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: "localhost:5001"
-      ethereum: 'private:http://ganache:8545'
+      ethereum: 'private:http://localhost:8545'
       GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 1
   postgres_image: &postgres_image
     image: postgres
