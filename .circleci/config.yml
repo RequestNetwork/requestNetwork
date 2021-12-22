@@ -18,7 +18,7 @@ references:
   graph_image: &graph_image
     image: graphprotocol/graph-node:v0.25.0
     # wait for ganache, then start
-    command: sh -c 'wait_for ganache:8545 -- start'
+    command: sh -c 'wait_for ganache:8545 -t 30 -- start'
     environment:
       postgres_host: localhost
       postgres_user: graph-node
