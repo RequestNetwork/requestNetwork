@@ -657,9 +657,9 @@ workflows:
       - test-integration-test:
           requires:
             - build
-      - test-graph-node
-          # requires:
-          #   - build
+      - test-graph-node:
+          requires:
+            - build
       - test-prototype-estimator:
           requires:
             - build
