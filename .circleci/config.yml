@@ -17,6 +17,8 @@ references:
       - 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
   graph_image: &graph_image
     image: graphprotocol/graph-node:v0.25.0
+    # wait for ganache, then start
+    command: sh -c './wait_for ganache:8545 -- start'
     environment:
       postgres_host: localhost
       postgres_user: graph-node
@@ -387,8 +389,9 @@ jobs:
             git clone https://github.com/RequestNetwork/storage-subgraph
             cd storage-subgraph
             yarn
+            yarn codegen  ./subgraph-private.yaml
             yarn create-local ./subgraph-private.yaml
-            yarn deploy-local ./subgraph-private.yaml
+            yarn deploy-local --version-label v0.0.1 ./subgraph-private.yaml
             sleep 5
       - run:
           name: 'Start request-node'
