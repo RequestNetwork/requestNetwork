@@ -386,7 +386,7 @@ jobs:
       - run:
           name: 'Subgraph deployment and configuration'
           command: |
-            cd /
+            cd ~
             git clone https://github.com/RequestNetwork/storage-subgraph
             cd storage-subgraph
             yarn
