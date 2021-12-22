@@ -15,7 +15,22 @@ references:
       - '90000000'
       - '-m'
       - 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
-
+  graph_image: &graph_image
+    image: graphprotocol/graph-node:v0.25.0
+    environment:
+      postgres_host: localhost
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: "localhost:5001"
+      ethereum: 'private:http://ganache:8545'
+      GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 1
+  postgres_image: &postgres_image
+    image: postgres
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
 jobs:
   build:
     docker:
@@ -351,6 +366,59 @@ jobs:
       - run:
           name: 'Test integration-test'
           command: 'yarn workspace @requestnetwork/integration-test run test'
+  # This test runs the node-client tests against a node backed by TheGraph data access
+  test-graph-node:
+    docker:
+      - *node_image
+      - *ipfs_image
+      - *ganache_image
+      - *postgres_image
+      - *graph_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Deploy test contract from smart-contracts'
+          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run:
+          name: 'Subgraph deployment and configuration'
+          command: |
+            git clone https://github.com/RequestNetwork/storage-subgraph
+            cd storage-subgraph
+            yarn
+            yarn create-local ./subgraph-private.yaml
+            yarn deploy-local ./subgraph-private.yaml
+            sleep 5
+      - run:
+          name: 'Start request-node'
+          command: 'yarn workspace @requestnetwork/request-node run start'
+          background: true
+          environment:
+            GRAPH_NODE_URL: http://localhost:8000/subgraphs/name/RequestNetwork/request-storage
+      - run:
+          name: 'Waiting for Request Node to be ready'
+          command: |
+            for i in `seq 1 10`;
+            do
+              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Node initialization && exit 1
+      - run:
+          name: "Confirm TheGraph mode"
+          command: |
+            NODE_ENDPOINT=$(http :3000/status | jq .dataAccess.endpoint -r)
+            if [  "$NODE_ENDPOINT" = "http://localhost:8000/subgraphs/name/RequestNetwork/request-storage" ] ; then;
+            else
+              print "Graph node URL mismatch"
+              print $NODE_ENDPOINT
+              exit 1
+            fi
+      - run:
+          name: 'Test integration-test'
+          command: 'yarn workspace @requestnetwork/integration-test run test:node'
   test-usage-examples:
     docker:
       - *node_image
@@ -586,6 +654,9 @@ workflows:
       - test-integration-test:
           requires:
             - build
+      - test-graph-node:
+          requires:
+            - build
       - test-prototype-estimator:
           requires:
             - build
@@ -626,6 +697,7 @@ workflows:
             - test-epk-signature
             - test-ethereum-storage
             - test-integration-test
+            - test-graph-node
             - test-smart-contracts
             - test-multi-format
             - test-request-client
