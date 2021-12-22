@@ -1,0 +1,10 @@
+query GetSyncedBlock(
+  $blockHash: Bytes!
+) {
+  _meta(block: { hash: $blockHash }) {
+    block {
+      number
+      hash
+    }
+  }
+}

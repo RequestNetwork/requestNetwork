@@ -780,5 +780,19 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
         }).toThrowError('feeAmount is not a valid amount');
       });
     });
+
+    describe('applyActionToExtension/declareReceivedPayment', () => {
+      it('can applyActionToExtensions of declareReceivedPayment', () => {
+        expect(
+          anyToErc20Proxy.applyActionToExtension(
+            DataConversionERC20FeeCreate.requestStateCreatedEmpty.extensions,
+            DataConversionERC20FeeAddData.declareReceivedPayment,
+            DataConversionERC20FeeCreate.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(DataConversionERC20FeeCreate.extensionStateDeclareReceivedPayment);
+      });
+    });
   });
 });

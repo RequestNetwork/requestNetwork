@@ -1,6 +1,6 @@
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import AbstractExtension from '../abstract-extension';
+import { AbstractExtension } from '../abstract-extension';
 
 const CURRENT_VERSION = '0.1.0';
 

@@ -4,22 +4,18 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { BigNumber } from 'ethers';
+import Utils from '@requestnetwork/utils';
+import { PaymentDetectorBase } from './payment-detector-base';
 
 /**
- * Handle payment networks with declarative requests extension
- *
- * @class PaymentNetworkDeclarative
+ * Handles payment detection for a declarative request, or derived.
  */
-export default class PaymentNetworkDeclarative<
-  TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative = ExtensionTypes.PnAnyDeclarative.IAnyDeclarative
-> implements PaymentTypes.IPaymentNetwork<PaymentTypes.IDeclarativePaymentEventParameters> {
-  protected extension: TExtension;
-  protected _paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID;
-
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.declarative;
-    this._paymentNetworkId = PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE;
+export abstract class DeclarativePaymentDetectorBase<
+  TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative,
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters
+> extends PaymentDetectorBase<TExtension, TPaymentEventParameters> {
+  public constructor(_paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+    super(_paymentNetworkId, extension);
   }
 
   /**
@@ -149,60 +145,59 @@ export default class PaymentNetworkDeclarative<
   }
 
   /**
-   * Gets the balance and the payment/refund events
    * The balance of a request using declarative payment network is the sum of declared received payments
    * subtracted by the sum of the declared received refund
-   *
-   * @param request the request to check
-   * @returns the balance and the payment/refund events
    */
-  public async getBalance(
+  protected getDeclarativeEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.DeclarativeBalanceWithEvents> {
-    let balance = BigNumber.from(0);
-    const events: PaymentTypes.DeclarativePaymentNetworkEvent[] = [];
-
+  ): PaymentTypes.DeclarativePaymentNetworkEvent[] {
+    const events = this.getPaymentExtension(request).events ?? [];
     // For each extension data related to the declarative payment network,
-    // we check if the data is a declared received payment or refund and we modify the balance
     // Received payment increase the balance and received refund decrease the balance
-    (request.extensions[this._paymentNetworkId].events ?? []).forEach((data) => {
-      const parameters = data.parameters;
-      if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT) {
-        // Declared received payments from payee is added to the balance
-        balance = balance.add(BigNumber.from(parameters.amount));
-        events.push({
-          amount: parameters.amount,
-          name: PaymentTypes.EVENTS_NAMES.PAYMENT,
-          parameters: {
-            txHash: parameters.txHash,
-            network: parameters.network,
-            note: parameters.note,
-            from: data.from,
-          },
-          timestamp: data.timestamp,
-        });
-      } else if (data.name === ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND) {
-        parameters.timestamp = data.timestamp;
+    return events
+      .map((data) => {
+        const { amount, txHash, network, note } = data.parameters;
+        const nameMap: Partial<Record<string, PaymentTypes.EVENTS_NAMES>> = {
+          [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT]:
+            PaymentTypes.EVENTS_NAMES.PAYMENT,
+          [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND]:
+            PaymentTypes.EVENTS_NAMES.REFUND,
+        };
 
-        // The balance is subtracted from declared received refunds from payer
-        balance = balance.sub(BigNumber.from(parameters.amount));
-        events.push({
-          amount: parameters.amount,
-          name: PaymentTypes.EVENTS_NAMES.REFUND,
-          parameters: {
-            txHash: parameters.txHash,
-            network: parameters.network,
-            note: parameters.note,
-            from: data.from,
-          },
-          timestamp: data.timestamp,
-        });
-      }
-    });
+        const name = nameMap[data.name];
+        if (name) {
+          return {
+            amount,
+            name,
+            parameters: {
+              txHash,
+              network,
+              note,
+              from: data.from,
+            },
+            timestamp: data.timestamp,
+          };
+        }
+        return null;
+      })
+      .filter(Utils.notNull);
+  }
+}
 
-    return {
-      balance: balance.toString(),
-      events,
-    };
+/**
+ * Handles payment detection for a declarative request
+ */
+export class DeclarativePaymentDetector extends DeclarativePaymentDetectorBase<
+  ExtensionTypes.PnAnyDeclarative.IAnyDeclarative,
+  PaymentTypes.IDeclarativePaymentEventParameters
+> {
+  constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
+    super(PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE, advancedLogic.extensions.declarative);
+  }
+
+  protected async getEvents(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IDeclarativePaymentEventParameters>[]> {
+    return this.getDeclarativeEvents(request);
   }
 }

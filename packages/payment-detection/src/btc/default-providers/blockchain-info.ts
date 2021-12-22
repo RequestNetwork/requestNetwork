@@ -1,6 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import fetch from 'node-fetch';
+import Axios from 'axios';
 
 import { BigNumber } from 'ethers';
 
@@ -16,7 +16,7 @@ const TXS_PER_PAGE = 50;
 /**
  * The Bitcoin Info retriever give access to the bitcoin blockchain through the api of blockchain.info
  */
-export default class BlockchainInfo implements PaymentTypes.IBitcoinDetectionProvider {
+export class BlockchainInfoProvider implements PaymentTypes.IBitcoinDetectionProvider {
   /**
    * Gets BTC address info using blockchain.info public API
    *
@@ -34,7 +34,7 @@ export default class BlockchainInfo implements PaymentTypes.IBitcoinDetectionPro
 
     const queryUrl = `${blockchainInfoUrl}/rawaddr/${address}?cors=true`;
     try {
-      const res = await Utils.retry(async () => fetch(queryUrl), {
+      const res = await Utils.retry(async () => Axios.get(queryUrl), {
         maxRetries: BLOCKCHAININFO_REQUEST_MAX_RETRY,
         retryDelay: BLOCKCHAININFO_REQUEST_RETRY_DELAY,
       })();
@@ -43,7 +43,7 @@ export default class BlockchainInfo implements PaymentTypes.IBitcoinDetectionPro
       if (res.status >= 400) {
         throw new Error(`Error ${res.status}. Bad response from server ${queryUrl}`);
       }
-      const addressInfo = await res.json();
+      const addressInfo = res.data;
 
       // count the number of extra pages to retrieve
       const numberOfExtraPages = Math.floor(addressInfo.n_tx / (TXS_PER_PAGE + 1));

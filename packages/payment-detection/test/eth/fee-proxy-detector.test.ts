@@ -1,5 +1,5 @@
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { EthFeeProxyPaymentDetector } from '../../src/eth/fee-proxy-detector';
+import { EthFeeProxyPaymentDetector } from '../../src';
 
 let ethFeeProxyDetector: EthFeeProxyPaymentDetector;
 
@@ -9,6 +9,7 @@ const createCreationAction = jest.fn();
 const createAddFeeAction = jest.fn();
 const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
+
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {

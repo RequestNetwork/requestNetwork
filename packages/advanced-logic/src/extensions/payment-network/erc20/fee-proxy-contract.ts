@@ -1,5 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import FeeReferenceBasedPaymentNetwork from '../fee-reference-based';
+import { FeeReferenceBasedPaymentNetwork } from '../fee-reference-based';
 
 const CURRENT_VERSION = '0.2.0';
 
@@ -24,6 +24,7 @@ export default class Erc20FeeProxyPaymentNetwork<
       'bsctest',
       'bsc',
       'xdai',
+      'fantom',
     ],
     public supportedCurrencyType: RequestLogicTypes.CURRENCY = RequestLogicTypes.CURRENCY.ERC20,
   ) {

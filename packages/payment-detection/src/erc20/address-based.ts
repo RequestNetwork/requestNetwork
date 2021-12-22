@@ -4,23 +4,27 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import getBalanceErrorObject from '../balance-error';
+import { BalanceError } from '../balance-error';
 import Erc20InfoRetriever from './address-based-info-retriever';
 
-import { BigNumber } from 'ethers';
+import { PaymentDetectorBase } from '../payment-detector-base';
 const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
 
 /**
  * Handle payment networks with ERC20 based address extension
  */
-export class ERC20AddressBasedPaymentDetector
-  implements PaymentTypes.IPaymentNetwork<PaymentTypes.IERC20PaymentEventParameters> {
-  private extension: ExtensionTypes.PnAddressBased.IAddressBased<ExtensionTypes.PnAddressBased.ICreationParameters>;
+export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
+  ExtensionTypes.PnAddressBased.IAddressBased<ExtensionTypes.PnAddressBased.ICreationParameters>,
+  PaymentTypes.IERC20PaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    this.extension = advancedLogic.extensions.addressBasedErc20;
+    super(
+      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+      advancedLogic.extensions.addressBasedErc20,
+    );
   }
 
   /**
@@ -72,14 +76,15 @@ export class ERC20AddressBasedPaymentDetector
    * @param request the request to check
    * @returns the balance and the payment/refund events
    */
-  public async getBalance(
+  protected async getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.ERC20BalanceWithEvents> {
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
     if (!request.currency.network) {
       request.currency.network = 'mainnet';
     }
+
     if (!supportedNetworks.includes(request.currency.network)) {
-      return getBalanceErrorObject(
+      throw new BalanceError(
         `Payment network ${
           request.currency.network
         } not supported by ERC20 payment detection. Supported networks: ${supportedNetworks.join(
@@ -88,50 +93,24 @@ export class ERC20AddressBasedPaymentDetector
         PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
       );
     }
-    try {
-      const paymentAddress =
-        request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED].values
-          .paymentAddress;
-      const refundAddress =
-        request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED].values
-          .refundAddress;
+    const { paymentAddress, refundAddress } = this.getPaymentExtension(request).values;
+    this.checkRequiredParameter(paymentAddress, 'paymentAddress');
 
-      let payments: PaymentTypes.ERC20BalanceWithEvents = { balance: '0', events: [] };
-      if (paymentAddress) {
-        payments = await this.extractBalanceAndEvents(
-          paymentAddress,
-          PaymentTypes.EVENTS_NAMES.PAYMENT,
-          request.currency.network,
-          request.currency.value,
-        );
-      }
+    const paymentEvents = await this.extractTransferEvents(
+      paymentAddress,
+      PaymentTypes.EVENTS_NAMES.PAYMENT,
+      request.currency.network,
+      request.currency.value,
+    );
 
-      let refunds: PaymentTypes.ERC20BalanceWithEvents = { balance: '0', events: [] };
-      if (refundAddress) {
-        refunds = await this.extractBalanceAndEvents(
-          refundAddress,
-          PaymentTypes.EVENTS_NAMES.REFUND,
-          request.currency.network,
-          request.currency.value,
-        );
-      }
+    const refundEvents = await this.extractTransferEvents(
+      refundAddress,
+      PaymentTypes.EVENTS_NAMES.REFUND,
+      request.currency.network,
+      request.currency.value,
+    );
 
-      const balance: string = BigNumber.from(payments.balance || 0)
-        .sub(BigNumber.from(refunds.balance || 0))
-        .toString();
-
-      const events: PaymentTypes.ERC20PaymentNetworkEvent[] = [
-        ...payments.events,
-        ...refunds.events,
-      ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-      return {
-        balance,
-        events,
-      };
-    } catch (error) {
-      return getBalanceErrorObject(error.message);
-    }
+    return [...paymentEvents, ...refundEvents];
   }
 
   /**
@@ -144,22 +123,16 @@ export class ERC20AddressBasedPaymentDetector
    * @param tokenContractAddress the address of the token contract
    * @returns The balance
    */
-  private async extractBalanceAndEvents(
-    address: string,
+  private async extractTransferEvents(
+    address: string | undefined,
     eventName: PaymentTypes.EVENTS_NAMES,
     network: string,
     tokenContractAddress: string,
-  ): Promise<PaymentTypes.ERC20BalanceWithEvents> {
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
+    if (!address) {
+      return [];
+    }
     const infoRetriever = new Erc20InfoRetriever(tokenContractAddress, address, eventName, network);
-    const events = await infoRetriever.getTransferEvents();
-
-    const balance = events
-      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
-      .toString();
-
-    return {
-      balance,
-      events,
-    };
+    return infoRetriever.getTransferEvents();
   }
 }

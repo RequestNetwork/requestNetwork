@@ -67,6 +67,16 @@ export default class HttpDataAccess implements DataAccessTypes.IDataAccess {
   }
 
   /**
+   * Closes the module. Does nothing, exists only to implement IDataAccess
+   *
+   * @returns nothing
+   */
+  public async close(): Promise<void> {
+    // no-op, nothing to do
+    return;
+  }
+
+  /**
    * Persists a new transaction on a node through HTTP.
    *
    * @param transactionData The transaction data

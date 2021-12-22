@@ -707,5 +707,19 @@ describe.only('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract
         }).toThrowError('feeAmount is not a valid amount');
       });
     });
+
+    describe('applyActionToExtension/declareReceivedPayment', () => {
+      it('can applyActionToExtensions of declareReceivedPayment', () => {
+        expect(
+          anyToEthProxy.applyActionToExtension(
+            DataConversionETHFeeCreate.requestStateCreatedEmpty.extensions,
+            DataConversionETHFeeAddData.declareReceivedPayment,
+            DataConversionETHFeeCreate.requestStateCreatedEmpty,
+            TestData.payeeRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(DataConversionETHFeeCreate.extensionStateDeclareReceivedPayment);
+      });
+    });
   });
 });

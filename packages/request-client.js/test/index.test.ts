@@ -12,7 +12,7 @@ import Utils from '@requestnetwork/utils';
 import { ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
-import { Request, RequestNetwork, Types } from '../src/index';
+import { Request, RequestNetwork } from '../src/index';
 import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
@@ -20,6 +20,7 @@ import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import { BigNumber } from 'ethers';
 import EtherscanProviderMock from './etherscan-mock';
 import httpConfigDefaults from '../src/http-config-defaults';
+import { IRequestDataWithEvents } from '../src/types';
 
 const packageJson = require('../package.json');
 
@@ -93,6 +94,16 @@ const mockBTCProvider = {
       ],
     });
   },
+};
+
+const waitForConfirmation = async (
+  dataOrPromise: IRequestDataWithEvents | Promise<IRequestDataWithEvents>,
+): Promise<ClientTypes.IRequestDataWithEvents> => {
+  const data = await dataOrPromise;
+  return new Promise((resolve, reject) => {
+    data.on('confirmed', resolve);
+    data.on('error', reject);
+  });
 };
 
 // Integration tests
@@ -481,9 +492,7 @@ describe('index', () => {
     expect(data.state).toBe(RequestLogicTypes.STATE.PENDING);
     expect(data.pending?.state).toBe(RequestLogicTypes.STATE.CREATED);
 
-    const dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
-      request.on('confirmed', resolve),
-    );
+    const dataConfirmed = await request.waitForConfirmation();
     expect(dataConfirmed.state).toBe(RequestLogicTypes.STATE.CREATED);
     expect(dataConfirmed.pending).toBeNull();
   });
@@ -566,9 +575,7 @@ describe('index', () => {
     expect(data.state).toBe(RequestLogicTypes.STATE.PENDING);
     expect(data.pending?.state).toBe(RequestLogicTypes.STATE.CREATED);
 
-    const dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
-      request.on('confirmed', resolve),
-    );
+    const dataConfirmed = await request.waitForConfirmation();
     expect(dataConfirmed.state).toBe(RequestLogicTypes.STATE.CREATED);
     expect(dataConfirmed.pending).toBeNull();
   });
@@ -602,9 +609,7 @@ describe('index', () => {
     expect(data.state).toBe(RequestLogicTypes.STATE.PENDING);
     expect(data.pending?.state).toBe(RequestLogicTypes.STATE.CREATED);
 
-    const dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
-      request.on('confirmed', resolve),
-    );
+    const dataConfirmed = await request.waitForConfirmation();
     expect(dataConfirmed.state).toBe(RequestLogicTypes.STATE.CREATED);
     expect(dataConfirmed.pending).toBeNull();
     expect(dataConfirmed.balance?.balance).toBe('666743');
@@ -651,7 +656,7 @@ describe('index', () => {
     mock.resetHistory();
 
     const requestDataWithEvents = await request.accept(TestData.payer.identity);
-    await new Promise((r) => requestDataWithEvents.on('confirmed', r));
+    await waitForConfirmation(requestDataWithEvents);
 
     expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
@@ -709,8 +714,7 @@ describe('index', () => {
 
     mock.resetHistory();
 
-    const requestData = await request.cancel(TestData.payee.identity);
-    await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    await waitForConfirmation(request.cancel(TestData.payee.identity));
 
     expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
@@ -730,11 +734,7 @@ describe('index', () => {
 
     mock.resetHistory();
 
-    const requestDataWithEvents = await request.increaseExpectedAmountRequest(
-      3,
-      TestData.payer.identity,
-    );
-    await new Promise((r) => requestDataWithEvents.on('confirmed', r));
+    await waitForConfirmation(request.increaseExpectedAmountRequest(3, TestData.payer.identity));
 
     expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
@@ -754,11 +754,7 @@ describe('index', () => {
 
     mock.resetHistory();
 
-    const requestDataWithEvents = await request.reduceExpectedAmountRequest(
-      3,
-      TestData.payee.identity,
-    );
-    await new Promise((r) => requestDataWithEvents.on('confirmed', r));
+    await waitForConfirmation(request.reduceExpectedAmountRequest(3, TestData.payee.identity));
 
     expect(mock.history.get).toHaveLength(5);
     expect(mock.history.post).toHaveLength(1);
@@ -805,12 +801,9 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      const requestDataWithEvents = await request.declareSentPayment(
-        '10',
-        'sent payment',
-        TestData.payer.identity,
+      await waitForConfirmation(
+        request.declareSentPayment('10', 'sent payment', TestData.payer.identity),
       );
-      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
       expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
@@ -836,12 +829,9 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      const requestDataWithEvents = await request.declareReceivedPayment(
-        '10',
-        'received payment',
-        TestData.payee.identity,
+      await waitForConfirmation(
+        request.declareReceivedPayment('10', 'received payment', TestData.payee.identity),
       );
-      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
       expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
@@ -865,18 +855,13 @@ describe('index', () => {
       });
       await request.waitForConfirmation();
 
-      let requestData = await request.addDeclarativeDelegate(
-        TestData.delegate.identity,
-        TestData.payee.identity,
+      await waitForConfirmation(
+        request.addDeclarativeDelegate(TestData.delegate.identity, TestData.payee.identity),
       );
-      await new Promise((resolve): any => requestData.on('confirmed', resolve));
 
-      requestData = await request.declareReceivedPayment(
-        '10',
-        'received payment',
-        TestData.delegate.identity,
+      const requestData = await waitForConfirmation(
+        request.declareReceivedPayment('10', 'received payment', TestData.delegate.identity),
       );
-      requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
       expect(requestData.balance!.balance).toEqual('10');
     });
 
@@ -900,14 +885,15 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      const requestDataWithEvents = await request.declareReceivedPayment(
-        '10',
-        'received payment',
-        TestData.payee.identity,
-        '0x123456789',
-        'mainnet'
+      await waitForConfirmation(
+        request.declareReceivedPayment(
+          '10',
+          'received payment',
+          TestData.payee.identity,
+          '0x123456789',
+          'mainnet',
+        ),
       );
-      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
       expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
@@ -933,12 +919,9 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      const requestDataWithEvents = await request.declareSentRefund(
-        '10',
-        'sent refund',
-        TestData.payee.identity,
+      await waitForConfirmation(
+        request.declareSentRefund('10', 'sent refund', TestData.payee.identity),
       );
-      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
       expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
@@ -964,12 +947,9 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      const requestDataWithEvents = await request.declareReceivedRefund(
-        '10',
-        'received refund',
-        TestData.payer.identity,
+      await waitForConfirmation(
+        request.declareReceivedRefund('10', 'received refund', TestData.payer.identity),
       );
-      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
       expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
@@ -993,18 +973,13 @@ describe('index', () => {
       });
       await request.waitForConfirmation();
 
-      let requestData = await request.addDeclarativeDelegate(
-        TestData.delegate.identity,
-        TestData.payer.identity,
+      await waitForConfirmation(
+        request.addDeclarativeDelegate(TestData.delegate.identity, TestData.payer.identity),
       );
-      await new Promise((resolve): any => requestData.on('confirmed', resolve));
 
-      requestData = await request.declareReceivedRefund(
-        '11',
-        'received refund',
-        TestData.delegate.identity,
+      const requestData = await waitForConfirmation(
+        request.declareReceivedRefund('11', 'received refund', TestData.delegate.identity),
       );
-      requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
       expect(requestData.balance!.balance).toEqual('-11');
     });
 
@@ -1028,13 +1003,14 @@ describe('index', () => {
 
       mock.resetHistory();
 
-      const requestDataWithEvents = await request.declareReceivedRefund(
-        '10',
-        'received refund',
-        TestData.payer.identity,
-        '0x123456789',
+      await waitForConfirmation(
+        request.declareReceivedRefund(
+          '10',
+          'received refund',
+          TestData.payer.identity,
+          '0x123456789',
+        ),
       );
-      await new Promise((r) => requestDataWithEvents.on('confirmed', r));
 
       expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
@@ -1067,44 +1043,28 @@ describe('index', () => {
       });
       await request.waitForConfirmation();
 
-      let declareResult = await request.declareSentPayment(
-        '1',
-        'sent payment',
-        TestData.payer.identity,
+      await waitForConfirmation(
+        request.declareSentPayment('1', 'sent payment', TestData.payer.identity),
       );
-      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
 
-      declareResult = await request.declareReceivedRefund(
-        '10',
-        'received refund',
-        TestData.payer.identity,
+      await waitForConfirmation(
+        request.declareReceivedRefund('10', 'received refund', TestData.payer.identity),
       );
-      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
 
-      declareResult = await request.declareSentRefund(
-        '100',
-        'sent refund',
-        TestData.payee.identity,
+      await waitForConfirmation(
+        request.declareSentRefund('100', 'sent refund', TestData.payee.identity),
       );
-      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
 
-      declareResult = await request.declareReceivedPayment(
-        '1000',
-        'received payment',
-        TestData.payee.identity,
+      await waitForConfirmation(
+        request.declareReceivedPayment('1000', 'received payment', TestData.payee.identity),
       );
-      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
 
-      declareResult = await request.addPaymentInformation(
-        'payment info added',
-        TestData.payee.identity,
+      await waitForConfirmation(
+        request.addPaymentInformation('payment info added', TestData.payee.identity),
       );
-      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
-      declareResult = await request.addRefundInformation(
-        'refund info added',
-        TestData.payer.identity,
+      await waitForConfirmation(
+        request.addRefundInformation('refund info added', TestData.payer.identity),
       );
-      await new Promise((resolve): any => declareResult.on('confirmed', resolve));
 
       const requestData = await request.refresh();
 
@@ -1117,6 +1077,70 @@ describe('index', () => {
       expect(requestData.balance?.events[1].amount).toBe('1000');
       expect(requestData.balance?.events[1].parameters).toMatchObject({ note: 'received payment' });
     });
+  });
+
+  it('can declare payments and refunds on an ANY_TO_ERC20_PROXY request', async () => {
+    const requestNetwork = new RequestNetwork({
+      signatureProvider: TestData.fakeSignatureProvider,
+      useMockStorage: true,
+    });
+
+    // provider data is irrelevant in this test
+    jest.spyOn(ethers.providers.BaseProvider.prototype, 'getLogs').mockResolvedValue([]);
+
+    const salt = 'ea3bc7caf64110ca';
+
+    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+      parameters: {
+        paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
+        salt,
+        feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+        feeAmount: '200',
+        network: 'private',
+        acceptedTokens: ['0x38cf23c52bb4b13f051aec09580a2de845a7fa35'],
+        maxRateTimespan: 1000000,
+      },
+    };
+
+    const requestInfo = {
+      expectedAmount: '100', // not used
+      payee: TestData.payee.identity,
+      payer: TestData.payer.identity,
+      currency: 'USD',
+    };
+
+    const request = await requestNetwork.createRequest({
+      paymentNetwork,
+      requestInfo,
+      signer: TestData.payee.identity,
+    });
+    await request.waitForConfirmation();
+
+    await waitForConfirmation(
+      request.declareSentPayment('10', 'sent payment', TestData.payer.identity),
+    );
+
+    await waitForConfirmation(
+      request.declareSentRefund('2', 'sent refund', TestData.payee.identity),
+    );
+
+    await request.refresh();
+    expect(request.getData().balance?.balance).toBe('0');
+
+    await waitForConfirmation(
+      request.declareReceivedPayment('10', 'received payment', TestData.payee.identity),
+    );
+
+    await waitForConfirmation(
+      request.declareReceivedRefund('2', 'received refund', TestData.payer.identity),
+    );
+
+    await request.refresh();
+    expect(request.getData().balance?.error).toBeUndefined();
+    expect(request.getData().balance?.balance).toBe('8');
+    expect(request.getData().balance?.events?.length).toBe(2);
   });
 
   describe('tests with encryption', () => {
@@ -1274,22 +1298,20 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
-      expect(fetchedRequest).toMatchObject(request);
 
       const requestData = fetchedRequest.getData();
+      expect(requestData).toMatchObject(request.getData());
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-      await new Promise((resolve): any => setTimeout(resolve, 150));
       const acceptResult = await fetchedRequest.accept(TestData.payer.identity);
       expect(acceptResult.state).toBe(RequestLogicTypes.STATE.CREATED);
       expect(acceptResult.pending?.state).toBe(RequestLogicTypes.STATE.ACCEPTED);
 
-      const dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
-        acceptResult.on('confirmed', resolve),
-      );
+      const dataConfirmed = await waitForConfirmation(acceptResult);
       expect(dataConfirmed.state).toBe(RequestLogicTypes.STATE.ACCEPTED);
       expect(dataConfirmed.pending).toBeNull();
     });
@@ -1386,39 +1408,36 @@ describe('index', () => {
       );
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
-      expect(fetchedRequest).toMatchObject(request);
-
       const requestData = fetchedRequest.getData();
+      expect(requestData).toMatchObject(request.getData());
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-      const acceptResult = await fetchedRequest.accept(TestData.payer.identity);
-
-      let dataConfirmed: Types.IRequestDataWithEvents = await new Promise((resolve): any =>
-        acceptResult.on('confirmed', resolve),
+      const dataConfirmed = await waitForConfirmation(
+        fetchedRequest.accept(TestData.payer.identity),
       );
+
       expect(dataConfirmed.state).toBe(RequestLogicTypes.STATE.ACCEPTED);
 
-      const declareSentPaymentResult = await fetchedRequest.declareSentPayment(
-        TestData.parametersWithoutExtensionsData.expectedAmount,
-        'PAID',
-        TestData.payer.identity,
-      );
-      dataConfirmed = await new Promise((resolve): any =>
-        declareSentPaymentResult.on('confirmed', resolve),
-      );
-      expect(dataConfirmed.balance!.balance).toBe('0');
-
-      const declareReceivedPaymentResult = await fetchedRequest.declareReceivedPayment(
-        TestData.parametersWithoutExtensionsData.expectedAmount as string,
-        'payment received',
-        TestData.payee.identity,
+      const declareSentPaymentResult = await waitForConfirmation(
+        fetchedRequest.declareSentPayment(
+          TestData.parametersWithoutExtensionsData.expectedAmount,
+          'PAID',
+          TestData.payer.identity,
+        ),
       );
 
-      dataConfirmed = await new Promise((resolve): any =>
-        declareReceivedPaymentResult.on('confirmed', resolve),
+      expect(declareSentPaymentResult.balance!.balance).toBe('0');
+
+      const declareReceivedPaymentResult = await waitForConfirmation(
+        fetchedRequest.declareReceivedPayment(
+          TestData.parametersWithoutExtensionsData.expectedAmount as string,
+          'payment received',
+          TestData.payee.identity,
+        ),
       );
-      expect(dataConfirmed.balance!.balance).toBe(
+
+      expect(declareReceivedPaymentResult.balance!.balance).toBe(
         TestData.parametersWithoutExtensionsData.expectedAmount,
       );
     });
@@ -1940,12 +1959,13 @@ describe('index', () => {
         paymentNetwork,
         requestInfo,
         signer: TestData.payee.identity,
+        disablePaymentDetection: true,
       });
       const data = await request.waitForConfirmation();
 
       expect(data).toBeDefined();
-      expect(data.balance?.balance).toBe('90');
-      expect(data.balance?.events.length).toBe(2);
+      expect(data.balance?.error).toBeUndefined();
+      expect(data.balance?.balance).toBeUndefined();
       expect(data.meta).toBeDefined();
       expect(data.currency).toBe('unknown');
       expect(data.extensionsData[0].parameters.salt).toBe(salt);

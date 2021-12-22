@@ -1,5 +1,4 @@
-import { DataAccess } from '@requestnetwork/data-access';
-import { LogTypes } from '@requestnetwork/types';
+import { DataAccessTypes, LogTypes } from '@requestnetwork/types';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as config from '../config';
@@ -17,7 +16,7 @@ const GET_CHANNELS_TIMEOUT = 600000;
  * @param dataAccess data access layer
  */
 export default class GetStatusHandler {
-  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccess) {
+  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccessTypes.IDataAccess) {
     this.handler = this.handler.bind(this);
   }
   async handler(clientRequest: Request, serverResponse: Response): Promise<void> {

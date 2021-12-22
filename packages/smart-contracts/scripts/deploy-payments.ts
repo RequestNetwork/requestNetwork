@@ -36,6 +36,7 @@ export async function deployAllPaymentContracts(
   hre: HardhatRuntimeEnvironment,
 ): Promise<void> {
   const deploymentResults: (DeploymentResult | undefined)[] = [];
+  let simulationSuccess: boolean | undefined = args.simulate ? true : undefined;
 
   try {
     const [deployer] = await hre.ethers.getSigners();
@@ -51,6 +52,7 @@ export async function deployAllPaymentContracts(
       contractName: string;
       constructorArguments?: string[];
       artifact: ContractArtifact<TContract>;
+      nonceCondition?: number;
     }): Promise<DeploymentResult<TContract>> => {
       deployment.constructorArguments = deployment.constructorArguments ?? [];
       const result = await deployOne<TContract>(args, hre, deployment.contractName, {
@@ -58,6 +60,9 @@ export async function deployAllPaymentContracts(
       });
       deploymentResults.push(result);
       console.log(`Contract ${deployment.contractName} ${result.type}: ${result.address}`);
+      if (result.type === 'skipped') {
+        switchToSimulation();
+      }
       return result;
     };
     // #endregion
@@ -68,6 +73,7 @@ export async function deployAllPaymentContracts(
       if (!args.simulate) {
         console.log('[!] Switching to simulated mode');
         args.simulate = true;
+        simulationSuccess = simulationSuccess ?? true;
       }
     };
 
@@ -119,6 +125,7 @@ export async function deployAllPaymentContracts(
         const swapRouterAddressResult = await deployOne(args, hre, 'ERC20SwapToPay', {
           constructorArguments: [swapRouterAddress, erc20FeeProxyAddress],
           artifact: erc20SwapToPayArtifact,
+          nonceCondition: 5,
         });
         deploymentResults.push(swapRouterAddressResult);
 
@@ -141,8 +148,8 @@ export async function deployAllPaymentContracts(
       } else {
         console.log(`      ${'ERC20SwapToPay:'.padEnd(30, ' ')}(swap router missing)`);
         console.log(`      ${'ERC20SwapToConversion:'.padEnd(30, ' ')}(swap router missing)`);
-        console.log('[!] Switching to simulated mode');
-        args.simulate = true;
+        switchToSimulation();
+        simulationSuccess = false;
       }
       return deploymentResults;
     };
@@ -182,10 +189,11 @@ export async function deployAllPaymentContracts(
             }
           }
         } else {
-          // Increase nonce for every other network
+          // Atificially increase nonce for every other network
           await deployer.sendTransaction({ to: deployer.address });
         }
       } else if (currentNonce < 9) {
+        console.warn(`Warning: got nonce ${currentNonce} instead of 9`);
         switchToSimulation();
       }
     };
@@ -198,10 +206,12 @@ export async function deployAllPaymentContracts(
     await runEasyDeployment({
       contractName: 'EthereumProxy',
       artifact: ethereumProxyArtifact,
+      nonceCondition: 0,
     });
     const { address: erc20FeeProxyAddress } = await runEasyDeployment({
       contractName: 'ERC20FeeProxy',
       artifact: erc20FeeProxyArtifact,
+      nonceCondition: 1,
     });
 
     const {
@@ -210,6 +220,7 @@ export async function deployAllPaymentContracts(
     } = await runEasyDeployment({
       contractName: 'ChainlinkConversionPath',
       artifact: chainlinkConversionPathArtifact,
+      nonceCondition: 2,
     });
 
     // Batch 2
@@ -219,6 +230,7 @@ export async function deployAllPaymentContracts(
     const { address: ethFeeProxyAddress } = await runEasyDeployment({
       contractName: 'EthereumFeeProxy',
       artifact: ethereumFeeProxyArtifact,
+      nonceCondition: 7,
     });
 
     // Batch 4
@@ -280,6 +292,10 @@ export async function deployAllPaymentContracts(
     }
   } else {
     console.log(`--- No deployment was made. ---`);
+  }
+  // @ts-ignore
+  if (simulationSuccess === false) {
+    console.log('--- DO NOT PROCEED ---');
   }
   // #endregion
 }

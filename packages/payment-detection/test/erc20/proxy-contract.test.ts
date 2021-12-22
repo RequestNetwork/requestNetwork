@@ -20,6 +20,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     proxyContractErc20: {
+      supportedNetworks: ['mainnet'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -105,7 +106,7 @@ describe('api/erc20/proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.WRONG_EXTENSION,
-        message: 'The request does not have the extension : pn-erc20-proxy-contract',
+        message: 'The request does not have the extension: pn-erc20-proxy-contract',
       },
       events: [],
     });
@@ -113,11 +114,13 @@ describe('api/erc20/proxy-contract', () => {
 
   it('should handle not supported version error', async () => {
     const request: any = {
+      requestId: 'abcd',
       currency: { network: 'mainnet' },
       extensions: {
         [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
           values: {
             paymentAddress: '0xabcd',
+            salt: 'ea3bc7caf64110ca',
           },
           version: 'WRONG',
         },
@@ -135,11 +138,13 @@ describe('api/erc20/proxy-contract', () => {
 
   it('should handle not supported network error', async () => {
     const request: any = {
+      requestId: 'abcd',
       currency: { network: 'WRONG' },
       extensions: {
         [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
           values: {
             paymentAddress: '0xabcd',
+            salt: 'ea3bc7caf64110ca',
           },
           version: '0.1.0',
         },
@@ -149,7 +154,8 @@ describe('api/erc20/proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        message: 'Network not supported for this payment network: WRONG',
+        message:
+          'Payment network WRONG not supported by pn-erc20-proxy-contract payment detection. Supported networks: mainnet',
       },
       events: [],
     });

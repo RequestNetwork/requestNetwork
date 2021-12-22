@@ -10,6 +10,8 @@ import { EthInputDataInfoRetriever } from './info-retriever';
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
+import { networkSupportsTheGraphForNativePayments } from '../thegraph';
+import { TheGraphInfoRetriever } from '../erc20/thegraph-info-retriever';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -25,8 +27,12 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
+  ExtensionTypes.PnReferenceBased.IReferenceBased,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   private explorerApiKeys: Record<string, string>;
+
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -38,9 +44,8 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
     explorerApiKeys?: Record<string, string>;
   }) {
     super(
-      advancedLogic,
+      PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     );
     this.explorerApiKeys = explorerApiKeys || {};
   }
@@ -56,40 +61,50 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<PaymentT
    * @returns The balance
    */
   protected async extractEvents(
-    address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
+    address: string | undefined,
     paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
+    _requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
-
+    if (!address) {
+      return [];
+    }
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
       eventName,
-      network,
+      paymentChain,
       paymentReference,
-      this.explorerApiKeys[network],
+      this.explorerApiKeys[paymentChain],
     );
     const events = await infoRetriever.getTransferEvents();
     const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(
-      network,
+      paymentChain,
       paymentNetwork.version,
     );
 
     if (proxyContractArtifact) {
-      const proxyInfoRetriever = new EthProxyInfoRetriever(
-        paymentReference,
-        proxyContractArtifact.address,
-        proxyContractArtifact.creationBlockNumber,
-        address,
-        eventName,
-        network,
-      );
+      const proxyInfoRetriever = networkSupportsTheGraphForNativePayments(paymentChain)
+        ? new TheGraphInfoRetriever(
+            paymentReference,
+            proxyContractArtifact.address,
+            null,
+            address,
+            eventName,
+            paymentChain,
+          )
+        : new EthProxyInfoRetriever(
+            paymentReference,
+            proxyContractArtifact.address,
+            proxyContractArtifact.creationBlockNumber,
+            address,
+            eventName,
+            paymentChain,
+          );
+
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
-      for (const event of proxyEvents) {
-        events.push(event);
-      }
+      events.push(...proxyEvents);
     }
     return events;
   }

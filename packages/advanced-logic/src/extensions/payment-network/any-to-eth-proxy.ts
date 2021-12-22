@@ -1,6 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import EthereumFeeProxyPaymentNetwork from './ethereum/fee-proxy-contract';
-import { supportedCurrencies } from './conversion-supported-currencies';
+import { currenciesWithConversionOracles } from './conversion-supported-currencies';
 
 const CURRENT_VERSION = '0.1.0';
 
@@ -9,7 +9,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(extensionId, currentVersion, Object.keys(supportedCurrencies));
+    super(extensionId, currentVersion, Object.keys(currenciesWithConversionOracles));
   }
 
   /**
@@ -26,7 +26,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
     if (!network) {
       throw Error('network is required');
     }
-    if (!supportedCurrencies[network]) {
+    if (!currenciesWithConversionOracles[network]) {
       throw Error(`network ${network} not supported`);
     }
     return super.createCreationAction(creationParameters);
@@ -86,7 +86,9 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
     extensionAction: ExtensionTypes.IAction,
   ): void {
     const network =
-      extensionAction.parameters.network || request.extensions[this.extensionId]?.values.network;
+      extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE
+        ? extensionAction.parameters.network
+        : request.extensions[this.extensionId]?.values.network;
 
     if (!network) {
       throw new Error(
@@ -94,11 +96,11 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
       );
     }
 
-    if (!supportedCurrencies[network]) {
+    if (!currenciesWithConversionOracles[network]) {
       throw new Error(`The network (${network}) is not supported for this payment network.`);
     }
 
-    if (!supportedCurrencies[network][request.currency.type]) {
+    if (!currenciesWithConversionOracles[network][request.currency.type]) {
       throw new Error(
         `The currency type (${request.currency.type}) of the request is not supported for this payment network.`,
       );
@@ -109,7 +111,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
         ? request.currency.value.toLowerCase()
         : request.currency.value;
 
-    if (!supportedCurrencies[network][request.currency.type].includes(currency)) {
+    if (!currenciesWithConversionOracles[network][request.currency.type].includes(currency)) {
       throw new Error(
         `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
       );
