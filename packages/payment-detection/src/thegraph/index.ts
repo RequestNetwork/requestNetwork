@@ -9,6 +9,8 @@ const BASE_URL = `https://api.thegraph.com`;
 // To generate types, run `yarn codegen`, then open the generated files so that the code editor picks up the changes.
 /**
  * A GraphQL client to query Request's subgraph.
+ *
+ * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near
  */
 export type TheGraphClient<
   TGraphClientVariant extends 'near' | null = null
