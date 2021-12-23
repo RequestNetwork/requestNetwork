@@ -2,7 +2,7 @@
 
 ## Description
 
-This extension allows payments to be made with streams of ERC777 Super tokens (cf. Superfluid Finance).
+This extension allows payments to be made with streams of ERC777 Super tokens (cf. Superfluid Finance). Payments may include fees.
 This payment network inherits from the [ERC20 Fee Proxy Contract](./payment-network-erc20-proxy-contract-0.1.0.md) extension.
 
 Many requests can be paid with the same stream, typically recurring requests of fix amount paid continuously. A group of requests payable with the same stream are called a request series, they must all have the same currency. It is possible to pay one series of requests with many streams, but it is not the purpose.
@@ -21,30 +21,9 @@ This version 0.1.0 does not allow refunds to be streamed. Refunds have to be mad
 
 As for [ERC20 Fee Proxy Contract](./payment-network-erc20-proxy-contract-0.1.0.md) requests, the request issuer can also declare payments manually. Fees shall not be paid for declarative payments.
 
-The SuperApp contract does the ERC777 token stream on behalf of the user. The contract ensures a link between an ERC777 SuperFluid stream and a request through a `paymentReference` stored in the userdata of the incoming stream. This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
+The main payment and the fees payment are made within two different streams, both identified by the same `paymentReference` and stream recipient (`toAddress` for the main payment and `feeAddress` for fees). This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + address)))`:
 
 As a payment network, this extension describes how to deduce a payment `balance` for the request. (see [Interpretation](#Interpretation))
-
-## Payment SuperApp Contract
-
-The contract contains one function called `streamFromWithReferenceAndFee` which takes 6 arguments:
-
-- `tokenAddress` is the address of the ERC777 contract
-- `to` is the destination address for the tokens
-- `amount` is the amount of tokens to stream to the destination address
-- `paymentReference` is the reference data used to track the stream (see `paymentReference`)
-- `feeAmount` is the amount of tokens to stream to the fee destination address
-- `feeAddress` is the destination address for the fee
-
-The `StreamWithReferenceAndFee` event is emitted when the tokens are streamed. This event contains the same 6 arguments as the `streamFromWithReferenceAndFee` function.
-
-[See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/ERC777FeeSuperApp.sol)
-
-| Network | Superhost Address                          |
-| ------- | ------------------------------------------ |
-| Private | FIXME                                      |
-| matic   | 0x1EB3FAA360bF1f093F5A18d21f21f13D769d044A |
-| xDai    | 0x8e8F05f1aD16D20e66Bd0922b510332104ddAc7B |
 
 ## Manual payment declaration
 
@@ -54,24 +33,33 @@ Manual payment declarations follow the same specifications as [payment-network-e
 
 ### First request of a series
 
-| Property                  | Type   | Description                                    | Requirement   |
-| ------------------------- | ------ | ---------------------------------------------- | ------------- |
-| **id**                    | String | constant value: "pn-erc777-fee-superfluid"     | **Mandatory** |
-| **type**                  | String | constant value: "paymentNetwork"               | **Mandatory** |
-| **version**               | String | constant value: "0.1.0"                        | **Mandatory** |
-| **events**                | Array  | List of the actions performed by the extension | **Mandatory** |
-| **values**                | Object |                                                |               |
-| **values.salt**           | String | Salt for the request                           | **Mandatory** |
-| **values.paymentAddress** | String | Blockchain address for the payment             | Optional      |
-| **values.refundAddress**  | String | Blockchain address for the refund              | Optional      |
-| **values.feeAddress**     | String | Blockchain address for the fee payment         | Optional      |
-| **values.feeAmount**      | String | The fee amount in the request `currency`       | Optional      |
+| Property                    | Type      | Description                                      | Requirement   |
+| --------------------------- | --------- | ------------------------------------------------ | ------------- |
+| **id**                      | String    | constant value: "pn-erc777-stream"               | **Mandatory** |
+| **type**                    | String    | constant value: "paymentNetwork"                 | **Mandatory** |
+| **version**                 | String    | constant value: "0.1.0"                          | **Mandatory** |
+| **events**                  | Array     | List of the actions performed by the extension   | **Mandatory** |
+| **values**                  | Object    |                                                  |               |
+| **values.salt**             | String    | Salt for the request                             | **Mandatory** |
+| **values.expectedFlowRate** | Number    | Expected amount of request `currency` per second | Optional      |
+| **values.startDate**        | Timestamp | Expected start of payment                        | Optional      |
+| **values.paymentAddress**   | String    | Blockchain address for the payment               | Optional      |
+| **values.refundAddress**    | String    | Blockchain address for the refund                | Optional      |
+| **values.feeAddress**       | String    | Blockchain address for the fee payment           | Optional      |
+| **values.feeAmount**        | String    | The fee amount in the request `currency`         | Optional      |
+
+The `startDate` and `expectedFlowRate` describe the expected payment conditions, which in combination with the request `expectedAmount` fixes the expected payment end date for the give first request of the series.
+
+Two equivalent ways to read the 3 parameters (`startDate`, `expectedFlowRate` and `expectedAmount`) + 1 fixed paramater (`expectedEndDate`):
+
+- The stream is expected to start in between the `startDate` and `expectedEndDate`, with a flow equal to `expectedFlowRate`. A (one-shot) transfer is expected to compensate for the period between the `startDate` and the actual flow start.
+- The later the stream starts after the `startDate`, the worse the payer. The later the balance equals the `expectedAmount` after the `expectedEndDate`, considering one-shot transfers and flows, the worse the payer.
 
 ### Following requests of a series
 
 | Property                     | Type   | Description                                     | Requirement   |
 | ---------------------------- | ------ | ----------------------------------------------- | ------------- |
-| **id**                       | String | constant value: "pn-erc777-fee-superfluid"      | **Mandatory** |
+| **id**                       | String | constant value: "pn-erc777-stream"              | **Mandatory** |
 | **type**                     | String | constant value: "paymentNetwork"                | **Mandatory** |
 | **version**                  | String | constant value: "0.1.0"                         | **Mandatory** |
 | **events**                   | Array  | List of the actions performed by the extension  | **Mandatory** |
@@ -84,17 +72,18 @@ Manual payment declarations follow the same specifications as [payment-network-e
 
 ### Parameters
 
-|                               | Type   | Description                                | Requirement   |
-| ----------------------------- | ------ | ------------------------------------------ | ------------- |
-| **id**                        | String | Constant value: "pn-erc777-fee-superfluid" | **Mandatory** |
-| **type**                      | String | Constant value: "paymentNetwork"           | **Mandatory** |
-| **version**                   | String | Constant value: "0.1.0"                    | **Mandatory** |
-| **parameters**                | Object |                                            |               |
-| **parameters.salt**           | String | Salt for the request                       | **Mandatory** |
-| **parameters.paymentAddress** | String | Blockchain address for the payment         | Optional      |
-| **parameters.refundAddress**  | String | Blockchain address for the refund          | Optional      |
-| **parameters.feeAddress**     | String | Blockchain address for the fee payment     | Optional      |
-| **parameters.feeAmount**      | String | The fee amount in the request `currency`   | Optional      |
+|                                 | Type & Description | Requirement   |
+| ------------------------------- | ------------------ | ------------- |
+| **id**                          | cf. Properties     | **Mandatory** |
+| **type**                        | \*                 | **Mandatory** |
+| **version**                     | \*                 | **Mandatory** |
+| **parameters**                  | Object             |               |
+| **parameters.salt**             | \*                 | **Mandatory** |
+| **parameters.expectedFlowRate** | \*                 | Optional      |
+| **parameters.paymentAddress**   | \*                 | Optional      |
+| **parameters.refundAddress**    | \*                 | Optional      |
+| **parameters.feeAddress**       | \*                 | Optional      |
+| **parameters.feeAmount**        | \*                 | Optional      |
 
 ### Conditions
 
@@ -111,18 +100,19 @@ This action must trigger the same warnings as a normal ERC20 Fee Proxy extension
 
 The extension state is created with the following properties:
 
-|  Property                 |  Value                                                         |
-| ------------------------- | -------------------------------------------------------------- |
-| **id**                    | "pn-erc777-fee-superfluid"                                     |
-| **type**                  | "paymentNetwork"                                               |
-| **version**               | "0.1.0"                                                        |
-| **values**                |                                                                |
-| **values.paymentAddress** | `paymentAddress` from parameters if given, undefined otherwise |
-| **values.refundAddress**  | `refundAddress` from parameters if given, undefined otherwise  |
-| **values.feeAddress**     | `feeAddress` from parameters if given, undefined otherwise     |
-| **values.feeAmount**      | `feeAmount` from parameters if given, undefined otherwise      |
-| **values.salt**           | Salt for the request                                           |
-| **events**                | Array with one 'create' event (see below)                      |
+|  Property                   |  Value                                                         |
+| --------------------------- | -------------------------------------------------------------- |
+| **id**                      | cf. Properties                                                 |
+| **type**                    | \*                                                             |
+| **version**                 | \*                                                             |
+| **values**                  |                                                                |
+| **values.paymentAddress**   | `paymentAddress` from parameters if given, undefined otherwise |
+| **values.refundAddress**    | `refundAddress` from parameters if given, undefined otherwise  |
+| **values.feeAddress**       | `feeAddress` from parameters if given, undefined otherwise     |
+| **values.feeAmount**        | `feeAmount` from parameters if given, undefined otherwise      |
+| **values.salt**             | cf. Properties                                                 |
+| **values.expectedFlowRate** | \*                                                             |
+| **events**                  | Array with one 'create' event (see below)                      |
 
 The 'create' event in the extension state **events**:
 
@@ -135,13 +125,13 @@ The 'create' event in the extension state **events**:
 
 ### Parameters
 
-|                                  | Type   | Description                                          | Requirement   |
-| -------------------------------- | ------ | ---------------------------------------------------- | ------------- |
-| **id**                           | String | Constant value: "pn-erc777-fee-superfluid"           | **Mandatory** |
-| **type**                         | String | Constant value: "paymentNetwork"                     | **Mandatory** |
-| **version**                      | String | Constant value: "0.1.0"                              | **Mandatory** |
-| **parameters**                   | Object |                                                      |               |
-| **parameters.previousRequestid** | String | RequestId of the previous request in the same series | **Mandatory** |
+|                                  | Type & Description | Requirement   |
+| -------------------------------- | ------------------ | ------------- |
+| **id**                           | cf. Properties     | **Mandatory** |
+| **type**                         | \*                 | **Mandatory** |
+| **version**                      | \*                 | **Mandatory** |
+| **parameters**                   | Object             |               |
+| **parameters.previousRequestid** | \*                 | **Mandatory** |
 
 ### Conditions
 
@@ -154,14 +144,14 @@ This action is valid if:
 
 The extension state is created with the following properties:
 
-|  Property                    |  Value                                               |
-| ---------------------------- | ---------------------------------------------------- | ------------- |
-| **id**                       | "pn-erc777-fee-superfluid"                           |
-| **type**                     | "paymentNetwork"                                     |
-| **version**                  | "0.1.0"                                              |
-| **values**                   |                                                      |
-| **values.previousRequestid** | RequestId of the previous request in the same series | **Mandatory** |
-| **events**                   | Array with one 'create' event (see below)            |
+|  Property                    |  Value                                    |
+| ---------------------------- | ----------------------------------------- |
+| **id**                       | cf. Properties                            |
+| **type**                     | \*                                        |
+| **version**                  | \*                                        |
+| **values**                   |                                           |
+| **values.previousRequestid** | \*                                        |
+| **events**                   | Array with one 'create' event (see below) |
 
 The 'create' event in the extension state **events**:
 
@@ -176,18 +166,18 @@ The 'create' event in the extension state **events**:
 
 ### Parameters
 
-|                               | Type   | Description                                | Requirement   |
-| ----------------------------- | ------ | ------------------------------------------ | ------------- |
-| **id**                        | String | Constant value: "pn-erc777-fee-superfluid" | **Mandatory** |
-| **action**                    | String | Constant value: "addPaymentAddress"        | **Mandatory** |
-| **parameters**                | Object |                                            |               |
-| **parameters.paymentAddress** | String | Blockchain address for the payment         | **Mandatory** |
+|                               | Type   | Description                         | Requirement   |
+| ----------------------------- | ------ | ----------------------------------- | ------------- |
+| **id**                        | String | cf. Properties                      | **Mandatory** |
+| **action**                    | String | Constant value: "addPaymentAddress" | **Mandatory** |
+| **parameters**                | Object |                                     |               |
+| **parameters.paymentAddress** | String | Blockchain address for the payment  | **Mandatory** |
 
 ### Conditions
 
 This action is valid, if:
 
-- The extension state with the id "pn-erc777-fee-superfluid" exists
+- The extension state with the id "pn-erc777-fee-stream" exists
 - The signer is the `payee`
 - The extension value `previousRequestId` does not exist
 - The extension value `paymentAddress` is undefined
@@ -217,18 +207,18 @@ the 'addPaymentAddress' event:
 
 ### Parameters
 
-|                              | Type   | Description                                | Requirement   |
-| ---------------------------- | ------ | ------------------------------------------ | ------------- |
-| **id**                       | String | Constant value: "pn-erc777-fee-superfluid" | **Mandatory** |
-| **action**                   | String | Constant value: "addRefundAddress"         | **Mandatory** |
-| **parameters**               | Object |                                            |               |
-| **parameters.refundAddress** | String | Blockchain address for the refund          | **Mandatory** |
+|                              | Type   | Description                        | Requirement   |
+| ---------------------------- | ------ | ---------------------------------- | ------------- |
+| **id**                       | String | cf. Properties                     | **Mandatory** |
+| **action**                   | String | Constant value: "addRefundAddress" | **Mandatory** |
+| **parameters**               | Object |                                    |               |
+| **parameters.refundAddress** | String | Blockchain address for the refund  | **Mandatory** |
 
 ### Conditions
 
 This action is valid if:
 
-- The extension state with the id "pn-erc777-fee-superfluid" exists
+- The extension state with the id "pn-erc777-fee-stream" exists
 - The signer is the `payer`
 - The extension value `previousRequestId` does not exist
 - The extension value `refundAddress` is undefined
@@ -258,19 +248,19 @@ The 'addRefundAddress' event:
 
 ### Parameters
 
-|                           | Type   | Description                                | Requirement   |
-| ------------------------- | ------ | ------------------------------------------ | ------------- |
-| **id**                    | String | Constant value: "pn-erc777-fee-superfluid" | **Mandatory** |
-| **action**                | String | Constant value: "addFeeAddress"            | **Mandatory** |
-| **parameters**            | Object |                                            |               |
-| **parameters.feeAddress** | String | Blockchain address for the fee payment     | **Mandatory** |
-| **parameters.feeAmount**  | String | The fee amount                             | **Mandatory** |
+|                           | Type   | Description                            | Requirement   |
+| ------------------------- | ------ | -------------------------------------- | ------------- |
+| **id**                    | String | cf. Properties                         | **Mandatory** |
+| **action**                | String | Constant value: "addFeeAddress"        | **Mandatory** |
+| **parameters**            | Object |                                        |               |
+| **parameters.feeAddress** | String | Blockchain address for the fee payment | **Mandatory** |
+| **parameters.feeAmount**  | String | The fee amount                         | **Mandatory** |
 
 ### Conditions
 
 This action is valid, if:
 
-- The extension state with the id "pn-erc777-fee-superfluid" exists
+- The extension state with the id "pn-erc777-fee-stream" exists
 - The signer is the `payee`
 - The extension value `previousRequestId` does not exist
 - The extension value `feeAddress` is undefined
@@ -305,7 +295,7 @@ the 'addFee' event:
 
 |                        | Type   | Description                                                   | Requirement   |
 | ---------------------- | ------ | ------------------------------------------------------------- | ------------- |
-| **id**                 | String | Constant value: "pn-erc777-fee-superfluid"                    | **Mandatory** |
+| **id**                 | String | cf. Properties                                                | **Mandatory** |
 | **action**             | String | Constant value: "declareReceivedPayment"                      | **Mandatory** |
 | **parameters**         | Object |                                                               |               |
 | **parameters.amount**  | Amount | The amount declared as received, in request currency          | **Mandatory** |
@@ -317,7 +307,7 @@ the 'addFee' event:
 
 This action is valid, if:
 
-- The extension state with the id "pn-erc777-fee-superfluid" exists
+- The extension state with the id "pn-erc777-fee-stream" exists
 - The signer is the `payee`
 
 ### warnings
@@ -342,7 +332,7 @@ An event is added to the extension state events array:
 
 |                        | Type   | Description                                                   | Requirement   |
 | ---------------------- | ------ | ------------------------------------------------------------- | ------------- |
-| **id**                 | String | Constant value: "pn-erc777-fee-superfluid"                    | **Mandatory** |
+| **id**                 | String | cf. Properties                                                | **Mandatory** |
 | **action**             | String | Constant value: "declareReceivedRefund"                       | **Mandatory** |
 | **parameters**         | Object |                                                               |               |
 | **parameters.amount**  | Amount | The amount declared as received, in request currency          | **Mandatory** |
@@ -354,7 +344,7 @@ An event is added to the extension state events array:
 
 This action is valid, if:
 
-- The extension state with the id "pn-erc777-fee-superfluid" exists
+- The extension state with the id "pn-erc777-fee-stream" exists
 - The signer is the `payee`
 
 ### warnings
@@ -380,7 +370,7 @@ An event is added to the extension state events array:
 
 ### Fluctuating balance
 
-The balance of an ongoing payment flow changes every second. Hence, to compute a balance that keeps in sync, the advanced-logic returns:
+The balance of an ongoing payment flow changes every second. Hence, to compute a balance that keeps being in sync, the interpretation returns:
 
 - `lastUpdatedBalance`
 - `lastUpdateTimestamp`
