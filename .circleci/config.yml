@@ -416,7 +416,7 @@ jobs:
       - run:
           name: "Confirm TheGraph mode"
           command: |
-            NODE_ENDPOINT=$(http :3000/status | jq .dataAccess.endpoint -r)
+            NODE_ENDPOINT=$(wget -O- http://localhost:3000/status | jq .dataAccess.endpoint -r)
             if [  "$NODE_ENDPOINT" = "http://localhost:8000/subgraphs/name/RequestNetwork/request-storage" ] ; then;
             else
               print "Graph node URL mismatch"
