@@ -381,12 +381,15 @@ jobs:
       - attach_workspace:
           at: *working_directory
       - run:
+          name: 'Build integration-test'
+          command: 'yarn workspace @requestnetwork/integration-test run build'
+      - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Subgraph deployment and configuration'
+          working_directory: ~/
           command: |
-            cd ~
             git clone https://github.com/RequestNetwork/storage-subgraph
             cd storage-subgraph
             yarn
