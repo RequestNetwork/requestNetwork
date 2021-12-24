@@ -376,7 +376,9 @@ The balance of an ongoing payment flow changes every second. Hence, to compute a
 - `lastUpdateTimestamp`
 - `currentFlowRate`
 
-We can only use the suite balance as a fixed number if the flow rate is zero.
+When the current flow rate is zero (e.g. the payment is finished or not started), the suite balance is a fixed number: `lastUpdatedBalance`. Otherwise, when the payment is in progress, the balance is a function of time:
+
+`balance(t) = lastUpdatedBalance + (t - lastUpdateTimestamp) * currentFlowRate`
 
 Similarly, a request balance is a fixed number if it is paid or if the flow rate is zero.
 
