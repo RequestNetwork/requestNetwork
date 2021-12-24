@@ -396,7 +396,7 @@ Three types of events have to be interpreted for the suite balance update:
   - Case A (**main updates**): payment initiated or updated by the payer, must contain a `paymentReference`
   - Case B (**untagged updates**): the flow is updated by third-party (e.g. the flow is interrupted due to a lack of funds), does not contain the `paymentReference`
   - Assumption: only flow interruptions (`flowRate = 0`) are interpreted as **untagged updates**
-- ERC20 payments and refunds: inheriting from (payment-network-erc20-fee-proxy)[(./payment-network-erc20-fee-proxy-contract-0.1.0.md)]
+- ERC20 payments and refunds: inheriting from [payment-network-erc20-fee-proxy](./payment-network-erc20-fee-proxy-contract-0.1.0.md)
 - Manual payment and refund declarations
 
 #### Getting flow update events
