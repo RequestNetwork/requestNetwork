@@ -1,5 +1,4 @@
 import { StorageTypes } from '@requestnetwork/types';
-import SmartContractManager from './smart-contract-manager';
 
 import * as Keyv from 'keyv';
 
@@ -19,19 +18,11 @@ export default class EthereumMetadataCache {
   public listDataIds: Keyv<string[]>;
 
   /**
-   * Manager for the storage smart contract
-   * This attribute  is used to get metadata in case they're not registered yet
-   */
-  private smartContractManager: SmartContractManager;
-
-  /**
    * Constructor
    * @param smartContractManager Instance of SmartContractManager used to get metadata in case they're not registered yet
    * @param store a Keyv store to persist the metadata
    */
-  public constructor(smartContractManager: SmartContractManager, store?: Keyv.Store<any>) {
-    this.smartContractManager = smartContractManager;
-
+  public constructor(store?: Keyv.Store<any>) {
     this.metadataCache = new Keyv<StorageTypes.IEthereumMetadata>({
       namespace: 'ethereumMetadata',
       store,
@@ -67,20 +58,9 @@ export default class EthereumMetadataCache {
    * @param dataId dataId to get Ethereum metadata from
    * @returns Ethereum metadata of the dataId
    */
-  public async getDataIdMeta(dataId: string): Promise<StorageTypes.IEthereumMetadata> {
-    // If the metadata has not been saved in the cache yet
-    // we get them with smartContractManager and save them
-    let metadata: StorageTypes.IEthereumMetadata | undefined = await this.metadataCache.get(dataId);
-
-    if (!metadata) {
-      metadata = await this.smartContractManager.getMetaFromEthereum(dataId);
-      await this.metadataCache.set(dataId, metadata);
-      await this.updateDataId(dataId);
-    }
-
-    return metadata;
+  public async getDataIdMeta(dataId: string): Promise<StorageTypes.IEthereumMetadata | undefined> {
+    return this.metadataCache.get(dataId);
   }
-
   /**
    * Get the list of data ids stored
    *

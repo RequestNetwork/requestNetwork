@@ -19,7 +19,7 @@ export default class MockStorage implements StorageTypes.IStorage {
     return;
   }
 
-  public async _ipfsAdd(content: string): Promise<StorageTypes.IIpfsMeta> {
+  public async ipfsAdd(content: string): Promise<StorageTypes.IIpfsMeta> {
     if (!content) {
       throw Error('Error: no content provided');
     }

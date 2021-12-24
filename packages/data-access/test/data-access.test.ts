@@ -117,7 +117,6 @@ const defaultFakeStorage: StorageTypes.IStorage = {
   _getStatus: jest.fn((): any => ({
     fake: 'status',
   })),
-  _ipfsAdd: jest.fn(),
   append: jest.fn((): any => {
     const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
     setTimeout(
@@ -504,7 +503,6 @@ describe('data-access', () => {
     it('cannot persistTransaction() and emit error if confirmation failed', async () => {
       const mockStorageEmittingError: StorageTypes.IStorage = {
         _getStatus: jest.fn(),
-        _ipfsAdd: jest.fn(),
         append: jest.fn((): any => {
           const appendResultWithEvent = Object.assign(new EventEmitter(), appendResult);
           setTimeout(
@@ -631,7 +629,6 @@ describe('data-access', () => {
     });
 
     const fakeStorageWithNotJsonData: StorageTypes.IStorage = {
-      _ipfsAdd: jest.fn(),
       append: jest.fn(),
       getData: (): Promise<StorageTypes.IEntriesWithLastTimestamp> => testDataNotJsonData,
       getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],
@@ -760,7 +757,6 @@ describe('data-access', () => {
 
   it('startSynchronizationTimer() should throw an error if not initialized', async () => {
     const fakeStorageSpied: StorageTypes.IStorage = {
-      _ipfsAdd: jest.fn(),
       append: jest.fn().mockReturnValue(appendResult),
       getData: jest.fn(() => Promise.resolve({} as any)),
       getIgnoredData: async (): Promise<StorageTypes.IEntry[]> => [],

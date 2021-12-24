@@ -3,7 +3,7 @@
 import { StorageTypes } from '@requestnetwork/types';
 import EtherchainProvider from '../../src/gas-price-providers/etherchain-provider';
 
-import * as fetchMock from 'fetch-mock';
+import axios from 'axios';
 
 import { BigNumber } from 'ethers';
 
@@ -39,12 +39,12 @@ const apiNotSafeGasPriceResponse = {
 describe('EtherchainProvider', () => {
   beforeEach(() => {
     etherchainProvider = new EtherchainProvider();
+    jest.clearAllMocks();
   });
 
   describe('getGasPrice', () => {
     it('allows to get the requested gas price', async () => {
-      const mock = fetchMock.sandbox().mock(etherchainProvider.providerUrl, apiCorrectResponse);
-      etherchainProvider.fetch = mock as any;
+      jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: apiCorrectResponse });
 
       // Test with each gas price type
       await expect(
@@ -61,8 +61,7 @@ describe('EtherchainProvider', () => {
     });
 
     it('throws when API is not available', async () => {
-      const mock = fetchMock.sandbox().mock(etherchainProvider.providerUrl, 400);
-      etherchainProvider.fetch = mock as any;
+      jest.spyOn(axios, 'get').mockResolvedValue({ status: 400 });
 
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
@@ -72,24 +71,21 @@ describe('EtherchainProvider', () => {
     });
 
     it('throws when API returns a response with the incorrect format', async () => {
-      let mock = fetchMock.sandbox().mock(etherchainProvider.providerUrl, apiIncorrectResponse);
-      etherchainProvider.fetch = mock as any;
+      jest
+        .spyOn(axios, 'get')
+        .mockResolvedValueOnce({ status: 200, data: apiIncorrectResponse })
+        .mockResolvedValueOnce({ status: 200, data: apiUncompleteResponse })
+        .mockResolvedValueOnce({ status: 200, data: apiNotANumber });
 
       // When format is incorrect
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
       ).rejects.toThrowError(`Etherchain API response doesn't contain the correct format`);
 
-      mock = fetchMock.sandbox().mock(etherchainProvider.providerUrl, apiUncompleteResponse);
-      etherchainProvider.fetch = mock as any;
-
       // When a field is missing
       await expect(
         etherchainProvider.getGasPrice(StorageTypes.GasPriceType.STANDARD),
       ).rejects.toThrowError(`Etherchain API response doesn't contain the correct format`);
-
-      mock = fetchMock.sandbox().mock(etherchainProvider.providerUrl, apiNotANumber);
-      etherchainProvider.fetch = mock as any;
 
       // When a field is not a number
       await expect(
@@ -98,10 +94,7 @@ describe('EtherchainProvider', () => {
     });
 
     it('throws when API returns a response with a gas price not safe to use', async () => {
-      const mock = fetchMock
-        .sandbox()
-        .mock(etherchainProvider.providerUrl, apiNotSafeGasPriceResponse);
-      etherchainProvider.fetch = mock as any;
+      jest.spyOn(axios, 'get').mockResolvedValue({ status: 200, data: apiNotSafeGasPriceResponse });
 
       // When over the limit
       await expect(

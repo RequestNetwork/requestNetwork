@@ -2,6 +2,7 @@ import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from '../scripts/deploy-one';
 
+
 // Deploys, set up the contracts
 export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
   try {
@@ -86,6 +87,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     // Deploy ETH fee proxy contract
     const { address: EthereumFeeProxyAddress } = await deployOne(args, hre, 'EthereumFeeProxy');
     console.log('EthereumFeeProxy Contract deployed: ' + EthereumFeeProxyAddress);
+
 
     // ----------------------------------
     console.log('Contracts deployed');

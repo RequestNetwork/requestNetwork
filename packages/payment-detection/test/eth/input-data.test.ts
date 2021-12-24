@@ -23,7 +23,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
-      supportedNetworks: ['mainnet'],
+      supportedNetworks: ['mainnet', 'rinkeby'],
       // inherited from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
@@ -164,4 +164,85 @@ describe('api/eth/input-data', () => {
       events: [],
     });
   });
+
+  it('can get balance from rinkeby subgraph', async () => {
+    const rinkebyRequest = {
+      'currency': {
+        network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: 'ETH',
+      },
+      'expectedAmount': '80000000000000000',
+      'payee': {
+        'type': 'ethereumAddress',
+        'value': '0x1D274D164937465B7A7259347AD3f1aaEEEaC8e1',
+      },
+      'payer': {
+        'type': 'ethereumAddress',
+        'value': '0x5e7D193321A4CCB091038d01755a10d143cb2Dc8',
+      },
+      'timestamp': 1620207049,
+      'extensionsData': [
+        {
+          'action': 'create',
+          'id': 'pn-eth-input-data',
+          'parameters': {
+            'paymentAddress': '0x8400b234e7B113686bD584af9b1041E5a233E754',
+            'salt': '2334c5f6691a9131',
+          },
+          'version': '0.2.0',
+        },
+      ],
+      'extensions': {
+        'pn-eth-input-data': {
+          'events': [
+            {
+              'name': 'create',
+              'parameters': {
+                'paymentAddress': '0x8400b234e7B113686bD584af9b1041E5a233E754',
+                'salt': '2334c5f6691a9131',
+              },
+              'timestamp': 1620207051,
+            },
+          ],
+          'id': 'pn-eth-input-data',
+          'type': 'payment-network',
+          'values': {
+            'paymentAddress': '0x8400b234e7B113686bD584af9b1041E5a233E754',
+            'salt': '2334c5f6691a9131',
+          },
+          'version': '0.2.0',
+        },
+      },
+      'requestId': '0110e7eaba7a3ff2e2239081497308db70e4c66362100d747903ffa5c83d290d5d',
+      'version': '2.0.3',
+      'events': [
+        {
+          'actionSigner': {
+            'type': 'ethereumAddress',
+            'value': '0x1D274D164937465B7A7259347AD3f1aaEEEaC8e1',
+          },
+          'name': 'create',
+          'parameters': {
+            'expectedAmount': '80000000000000000',
+            'extensionsDataLength': 2,
+            'isSignedRequest': false,
+          },
+          'timestamp': 1620207051,
+        },
+      ],
+      'state': 'created',
+      'creator': {
+        'type': 'ethereumAddress',
+        'value': '0x1D274D164937465B7A7259347AD3f1aaEEEaC8e1',
+      },
+    };
+    const balance = await ethInputData.getBalance(rinkebyRequest as RequestLogicTypes.IRequest);
+    expect(balance.balance).toBe('80000000000000000');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
+    expect(balance.events[0].amount).toBe('80000000000000000');
+    expect(typeof balance.events[0].timestamp).toBe('number');
+  });
+
 });

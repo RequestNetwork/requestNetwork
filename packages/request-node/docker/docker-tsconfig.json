@@ -4,6 +4,7 @@
     "rootDir": "src",
     "target": "es2015",
     "module": "commonjs",
+    "importHelpers": true,
     "composite": true,
     "declaration": true,
     "declarationMap": true,
