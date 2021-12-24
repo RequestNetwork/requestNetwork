@@ -25,6 +25,7 @@ import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import Request from './request';
 import localUtils from './utils';
+import { IReturnCreateRequest } from '@requestnetwork/types/dist/request-logic-types';
 
 /**
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
@@ -84,32 +85,12 @@ export default class RequestNetwork {
       topics,
     );
 
-    // create the request object
-    const request = new Request(
-      requestLogicCreateResult.result.requestId,
-      this.requestLogic,
-      this.currencyManager,
-      {
-        contentDataExtension: this.contentData,
-        paymentNetwork,
-        requestLogicCreateResult,
-        skipPaymentDetection: parameters.disablePaymentDetection,
-        disableEvents: parameters.disableEvents,
-      },
+    return await this._createRequest(
+      requestLogicCreateResult,
+      paymentNetwork,
+      parameters,
+      requestParameters,
     );
-
-    await request.refresh({
-      result: {
-        request: null,
-        pending: {
-          ...requestParameters,
-          state: Types.RequestLogic.STATE.CREATED,
-        },
-      },
-      meta: requestLogicCreateResult.meta,
-    });
-
-    return request;
   }
 
   /**
@@ -134,7 +115,20 @@ export default class RequestNetwork {
       topics,
     );
 
-    // create the request object
+    return await this._createRequest(
+      requestLogicCreateResult,
+      paymentNetwork,
+      parameters,
+      requestParameters,
+    );
+  }
+
+  private async _createRequest(
+    requestLogicCreateResult: IReturnCreateRequest,
+    paymentNetwork: PaymentTypes.IPaymentNetwork | null,
+    parameters: Types.ICreateRequestParameters,
+    requestParameters: RequestLogicTypes.ICreateParameters,
+  ) {
     const request = new Request(
       requestLogicCreateResult.result.requestId,
       this.requestLogic,
