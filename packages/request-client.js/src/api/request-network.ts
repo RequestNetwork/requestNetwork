@@ -25,7 +25,6 @@ import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import Request from './request';
 import localUtils from './utils';
-import { IReturnCreateRequest } from '@requestnetwork/types/dist/request-logic-types';
 
 /**
  * Entry point of the request-client.js library. Create requests, get requests, manipulate requests.
@@ -124,7 +123,7 @@ export default class RequestNetwork {
   }
 
   private async _createRequest(
-    requestLogicCreateResult: IReturnCreateRequest,
+    requestLogicCreateResult: RequestLogicTypes.IReturnCreateRequest,
     paymentNetwork: PaymentTypes.IPaymentNetwork | null,
     parameters: Types.ICreateRequestParameters,
     requestParameters: RequestLogicTypes.ICreateParameters,
