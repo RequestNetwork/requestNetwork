@@ -85,7 +85,7 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    return new Request(
+    const request = new Request(
       requestLogicCreateResult.result.requestId,
       this.requestLogic,
       this.currencyManager,
@@ -97,6 +97,19 @@ export default class RequestNetwork {
         disableEvents: parameters.disableEvents,
       },
     );
+
+    await request.refresh({
+      result: {
+        request: null,
+        pending: {
+          ...requestParameters,
+          state: Types.RequestLogic.STATE.CREATED,
+        },
+      },
+      meta: requestLogicCreateResult.meta,
+    });
+
+    return request;
   }
 
   /**
@@ -122,7 +135,7 @@ export default class RequestNetwork {
     );
 
     // create the request object
-    return new Request(
+    const request = new Request(
       requestLogicCreateResult.result.requestId,
       this.requestLogic,
       this.currencyManager,
@@ -134,6 +147,20 @@ export default class RequestNetwork {
         disableEvents: parameters.disableEvents,
       },
     );
+
+    // refresh the local request data
+    await request.refresh({
+      result: {
+        request: null,
+        pending: {
+          ...requestParameters,
+          state: Types.RequestLogic.STATE.CREATED,
+        },
+      },
+      meta: requestLogicCreateResult.meta,
+    });
+
+    return request;
   }
 
   /**
