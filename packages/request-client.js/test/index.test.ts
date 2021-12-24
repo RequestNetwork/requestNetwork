@@ -334,7 +334,7 @@ describe('index', () => {
 
     expect(request).toBeInstanceOf(Request);
     expect(request.requestId).toBeDefined();
-    expect(mock.history.get).toHaveLength(3);
+    expect(mock.history.get).toHaveLength(2);
     expect(mock.history.post).toHaveLength(1);
 
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
@@ -388,7 +388,7 @@ describe('index', () => {
 
     expect(request).toBeInstanceOf(Request);
     expect(request.requestId).toBe(requestId);
-    expect(mock.history.get).toHaveLength(3);
+    expect(mock.history.get).toHaveLength(2);
     expect(mock.history.post).toHaveLength(1);
   });
 
@@ -1161,14 +1161,17 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
-
+      await request.waitForConfirmation();
       const requestFromId = await requestNetwork.fromRequestId(request.requestId);
 
-      expect(requestFromId).toMatchObject(request);
+      const requestData = request.getData();
+      const requestFromIdData = requestFromId.getData();
 
-      const requestData = requestFromId.getData();
-      expect(requestData.meta).not.toBeNull();
-      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
+      expect(requestFromIdData).toMatchObject(requestData);
+      expect(requestFromIdData.meta).not.toBeNull();
+      expect(requestFromIdData.meta!.transactionManagerMeta.encryptionMethod).toBe(
+        'ecies-aes256-gcm',
+      );
     });
 
     it('cannot create an encrypted request without encryption parameters', async () => {
@@ -1206,14 +1209,19 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const requestsFromTopic = await requestNetwork.fromTopic('my amazing test topic');
       expect(requestsFromTopic).not.toHaveLength(0);
-      expect(requestsFromTopic[0]).toMatchObject(request);
 
-      const requestData = requestsFromTopic[0].getData();
-      expect(requestData.meta).not.toBeNull();
-      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
+      const requestFromTopicData = requestsFromTopic[0].getData();
+      expect(requestFromTopicData.meta).not.toBeNull();
+      expect(requestFromTopicData.meta!.transactionManagerMeta.encryptionMethod).toBe(
+        'ecies-aes256-gcm',
+      );
+
+      const requestData = request.getData();
+      expect(requestFromTopicData).toMatchObject(requestData);
     });
 
     it('creates multiple encrypted requests and recovers it by multiple topic', async () => {
@@ -1244,13 +1252,15 @@ describe('index', () => {
         [encryptionData.encryptionParams],
       );
 
+      await Promise.all([request.waitForConfirmation(), request2.waitForConfirmation()]);
+
       const requestsFromTopic = await requestNetwork.fromMultipleTopics([
         'my amazing test topic',
         'my second best test topic',
       ]);
       expect(requestsFromTopic).toHaveLength(2);
-      expect(requestsFromTopic[0]).toMatchObject(request);
-      expect(requestsFromTopic[1]).toMatchObject(request2);
+      expect(requestsFromTopic[0].getData()).toMatchObject(request.getData());
+      expect(requestsFromTopic[1].getData()).toMatchObject(request2.getData());
 
       requestsFromTopic.forEach((req) => {
         const requestData = req.getData();
@@ -1274,14 +1284,18 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const requestFromIdentity = await requestNetwork.fromIdentity(TestData.payee.identity);
       expect(requestFromIdentity).not.toBe('');
-      expect(requestFromIdentity[0]).toMatchObject(request);
 
-      const requestData = requestFromIdentity[0].getData();
-      expect(requestData.meta).not.toBeNull();
-      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
+      const requestData = request.getData();
+      const requestFromIdentityData = requestFromIdentity[0].getData();
+      expect(requestData).toMatchObject(requestFromIdentityData);
+      expect(requestFromIdentityData.meta).not.toBeNull();
+      expect(requestFromIdentityData.meta!.transactionManagerMeta.encryptionMethod).toBe(
+        'ecies-aes256-gcm',
+      );
     });
 
     it('creates an encrypted request and accept it', async () => {
@@ -1317,7 +1331,6 @@ describe('index', () => {
     });
 
     it('creates an encrypted request and cancel it', async () => {
-      jest.useFakeTimers('modern');
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1331,20 +1344,22 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
 
-      expect(fetchedRequest).toMatchObject(request);
+      const requestData = request.getData();
+      const fetchedRequestData = fetchedRequest.getData();
+      expect(fetchedRequestData.meta).not.toBeNull();
+      expect(fetchedRequestData.meta!.transactionManagerMeta.encryptionMethod).toBe(
+        'ecies-aes256-gcm',
+      );
+      expect(fetchedRequestData).toMatchObject(requestData);
 
-      const requestData = fetchedRequest.getData();
-      expect(requestData.meta).not.toBeNull();
-      expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
-
-      jest.advanceTimersByTime(150);
-      await fetchedRequest.cancel(TestData.payee.identity);
-      jest.advanceTimersByTime(150);
-      expect((await fetchedRequest.refresh()).state).toBe(RequestLogicTypes.STATE.CANCELED);
-      jest.useRealTimers();
+      const canceledRequestData = await waitForConfirmation(
+        fetchedRequest.cancel(TestData.payee.identity),
+      );
+      expect(canceledRequestData.state).toBe(RequestLogicTypes.STATE.CANCELED);
     });
 
     it('creates an encrypted request, increase and decrease the amount', async () => {
@@ -1406,6 +1421,7 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
       const requestData = fetchedRequest.getData();

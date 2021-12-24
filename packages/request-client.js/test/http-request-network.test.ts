@@ -49,13 +49,13 @@ describe('HttpRequestNetwork', () => {
     };
 
     it('create', async () => {
-      failAtCall(2);
+      failAtCall(1);
       const request = await createRequest();
       await checkForError(request);
     });
 
     it('accept', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.accept(TestData.payer.identity);
@@ -63,7 +63,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('cancel', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.cancel(TestData.payee.identity);
@@ -71,7 +71,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('increase the expected amount', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.increaseExpectedAmountRequest(3, TestData.payer.identity);
@@ -79,7 +79,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('reduce the expected amount', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.reduceExpectedAmountRequest(3, TestData.payee.identity);
@@ -87,7 +87,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('add payment information', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.addPaymentInformation('payment info added', TestData.payee.identity);
@@ -95,7 +95,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('add refund information', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.addRefundInformation('refund info added', TestData.payer.identity);
@@ -103,7 +103,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('declare sent payment', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.declareSentPayment('10', 'sent payment', TestData.payer.identity);
@@ -111,7 +111,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('declare sent refund', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.declareSentRefund('10', 'sent refund', TestData.payee.identity);
@@ -119,7 +119,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('declare received payment', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.declareReceivedPayment('10', 'received payment', TestData.payee.identity);
@@ -127,7 +127,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('declare received refund', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.declareReceivedRefund('10', 'received refund', TestData.payer.identity);
@@ -135,7 +135,7 @@ describe('HttpRequestNetwork', () => {
     }, 10000);
 
     it('add declarative delegate', async () => {
-      failAtCall(6);
+      failAtCall(5);
       const request = await createRequest();
       await request.waitForConfirmation();
       await request.addDeclarativeDelegate(TestData.delegate.identity, TestData.payer.identity);

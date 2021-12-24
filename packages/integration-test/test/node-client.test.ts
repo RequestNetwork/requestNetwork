@@ -135,12 +135,11 @@ describe('Request client using a request node', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
 
+    requestData = await request.waitForConfirmation();
     const extension = requestData.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE];
     expect(extension).toBeDefined();
     expect(extension.events[0].name).toBe('create');
     expect(extension.events[0].parameters).toEqual(paymentNetwork.parameters);
-
-    requestData = await request.waitForConfirmation();
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
 
@@ -447,10 +446,12 @@ describe('Request client using a request node', () => {
     });
     expect(encryptedRequest.requestId).toBe(plainRequest.requestId);
 
+    await Promise.all([encryptedRequest.waitForConfirmation(), plainRequest.waitForConfirmation()]);
+
     const encryptedRequestData = encryptedRequest.getData();
     const plainRequestData = plainRequest.getData();
 
-    expect(encryptedRequestData).not.toEqual(plainRequestData);
+    expect(encryptedRequestData).toEqual(plainRequestData);
 
     expect(plainRequestData.meta!.transactionManagerMeta!.encryptionMethod).toBe(
       'ecies-aes256-gcm',
