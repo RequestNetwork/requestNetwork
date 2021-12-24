@@ -33,27 +33,27 @@ Manual payment declarations follow the same specifications as [payment-network-e
 
 ### First request of a series
 
-| Property                    | Type      | Description                                      | Requirement   |
-| --------------------------- | --------- | ------------------------------------------------ | ------------- |
-| **id**                      | String    | constant value: "pn-erc777-stream"               | **Mandatory** |
-| **type**                    | String    | constant value: "paymentNetwork"                 | **Mandatory** |
-| **version**                 | String    | constant value: "0.1.0"                          | **Mandatory** |
-| **events**                  | Array     | List of the actions performed by the extension   | **Mandatory** |
-| **values**                  | Object    |                                                  |               |
-| **values.salt**             | String    | Salt for the request                             | **Mandatory** |
-| **values.expectedFlowRate** | Number    | Expected amount of request `currency` per second | Optional      |
-| **values.startDate**        | Timestamp | Expected start of payment                        | Optional      |
-| **values.paymentAddress**   | String    | Blockchain address for the payment               | Optional      |
-| **values.refundAddress**    | String    | Blockchain address for the refund                | Optional      |
-| **values.feeAddress**       | String    | Blockchain address for the fee payment           | Optional      |
-| **values.feeAmount**        | String    | The fee amount in the request `currency`         | Optional      |
+| Property                     | Type      | Description                                      | Requirement   |
+| ---------------------------- | --------- | ------------------------------------------------ | ------------- |
+| **id**                       | String    | constant value: "pn-erc777-stream"               | **Mandatory** |
+| **type**                     | String    | constant value: "paymentNetwork"                 | **Mandatory** |
+| **version**                  | String    | constant value: "0.1.0"                          | **Mandatory** |
+| **events**                   | Array     | List of the actions performed by the extension   | **Mandatory** |
+| **values**                   | Object    |                                                  |               |
+| **values.salt**              | String    | Salt for the request                             | **Mandatory** |
+| **values.expectedFlowRate**  | Number    | Expected amount of request `currency` per second | Optional      |
+| **values.expectedStartDate** | Timestamp | Expected start of stream                         | Optional      |
+| **values.paymentAddress**    | String    | Blockchain address for the payment               | Optional      |
+| **values.refundAddress**     | String    | Blockchain address for the refund                | Optional      |
+| **values.feeAddress**        | String    | Blockchain address for the fee payment           | Optional      |
+| **values.feeAmount**         | String    | The fee amount in the request `currency`         | Optional      |
 
-The `startDate` and `expectedFlowRate` describe the expected payment conditions, which in combination with the request `expectedAmount` fixes the expected payment end date for the give first request of the series.
+The `expectedStartDate` and `expectedFlowRate` describe the expected payment conditions, which in combination with the request `expectedAmount` fixes the expected payment end date for the give first request of the series.
 
-Two equivalent ways to read the 3 parameters (`startDate`, `expectedFlowRate` and `expectedAmount`) + 1 fixed paramater (`expectedEndDate`):
+Two equivalent ways to read the 3 parameters (`expectedStartDate`, `expectedFlowRate` and `expectedAmount`) + 1 fixed paramater (`expectedEndDate`):
 
-- The stream is expected to start in between the `startDate` and `expectedEndDate`, with a flow equal to `expectedFlowRate`. A (one-shot) transfer is expected to compensate for the period between the `startDate` and the actual flow start.
-- The later the stream starts after the `startDate`, the worse the payer. The later the balance equals the `expectedAmount` after the `expectedEndDate`, considering one-shot transfers and flows, the worse the payer.
+- The stream is expected to start in between the `expectedStartDate` and `expectedEndDate`, with a flow equal to `expectedFlowRate`. A (one-shot) transfer is expected to compensate for the period between the `expectedStartDate` and the actual flow start.
+- The later the stream starts after the `expectedStartDate`, the worse the payer. The later the balance equals the `expectedAmount` after the `expectedEndDate`, considering one-shot transfers and flows, the worse the payer.
 
 ### Following requests of a series
 
@@ -382,7 +382,7 @@ Similarly, a request balance is a fixed number if it is paid or if the flow rate
 
 ### Suite balance and request balance
 
-All the requests within the same suite use the same `paymentReference` for balance updates. In order to compute a request balance, we need to know all the preceeding requests it in the series. The serie balance is allocated to requests one by one, starting by the first, and up to each `expectedAmount`. We repeat that process up to the current request if possible. If the suite balance is high enough to allocate funds up to the current request, the balance is strictly positive. If the remaining allocated balance falls down to zero before the allocation process reached current request, its balance is zero.
+All the requests within the same suite use the same `paymentReference` for balance updates. In order to compute a request balance, we need to know all the preceeding requests in the series. The serie balance is allocated to requests one by one, starting by the first, and up to each `expectedAmount`. We repeat that process up to the current request if possible. If the suite balance is high enough to allocate funds up to the current request, the balance is strictly positive. If the remaining allocated balance falls down to zero before the allocation process reached current request, its balance is zero.
 
 The balance of one request cannot be greater than its expected amount except if we know that there is no more subsequent request in the series. Said another way: only the last request of the series can be overpaid.
 
@@ -393,28 +393,48 @@ In edge case scenarios, a new request is added to the end of the suite after an 
 Three types of events have to be interpreted for the suite balance update:
 
 - `FlowUpdated` when payment flows are created, updated or stopped, with agreements "Instant Distribution Agreement" or "Constant Flow Agreement"
+  - Case A (**main updates**): payment initiated or updated by the payer, must contain a `paymentReference`
+  - Case B (**untagged updates**): the flow is updated by third-party (e.g. the flow is interrupted due to a lack of funds), does not contain the `paymentReference`
+  - Assumption: only flow interruptions (`flowRate = 0`) are interpreted as **untagged updates**
 - ERC20 payments and refunds: inheriting from (payment-network-erc20-fee-proxy)[(./payment-network-erc20-fee-proxy-contract-0.1.0.md)]
 - Manual payment and refund declarations
 
-The SuperApp contract address is determined by the `request.currency.network` (see (table)[#Contract] with SuperApp contract addresses.
+#### Getting flow update events
 
-#### Main payment flows
+We gather events by receiving address (`values.paymentAddress` for the request balance or `values.feeAddress` for the fee balance), with this script:
 
-`FlowUpdated` events emmitted by the SuperHost with the userData object matching following conditions must be interpreted as payments:
+1. Gather **main updates**: `FlowUpdated` events with the criteria below, sorted by date. Criteria:
 
-- `callData.address === values.paymentAddress`
-- `userData.paymentReference === last8Bytes(hash(lowercase(requestId + salt + values.paymentAddress)))`
+   - `recipient === values.paymentAddress` or `recipient === values.feeAddress` (whether we compute the main balance or fee balance)
+   - `token === request.currency`
+   - `userData === last8Bytes(hash(lowercase(requestId + salt + values.paymentAddress)))`
 
-#### Fee payment flows
+2. Edge case: if events matching the criteria are sent by more than one payer, group them by payer and treat the rest of this script idependently for each group. At the end, add everything up.
 
-`FlowUpdated` events emmitted by the SuperHost with the userData object matching following conditions must be interpreted as fee payments:
+3. To account for a specific `paymentReference`'s flow rate, we look for the **_difference between the previous flow rate and the new one_**. This way, one payer can pay many requests to the same payee, simultaneously within the same stream. This value is called `referencedRate`
+4. If the last flow update has `referencedRate = 0`, we will look in 5. for the **untagged updates** in between the first and the last updates
+5. If the last flow update has `referencedRate > 0`, we will look in 5. for all the **untagged updates** since the first update
+6. Given the time constraints of 4. or 5., **untagged updates** are flow updates where all these conditions are met:
 
-- `callData.address === values.feeAddress`
-- `userData.paymentReference === last8Bytes(hash(lowercase(requestId + salt + values.paymentAddress)))`
+   - `userData !== paymentReference`
+   - `flowRate === 0` (cf. below for **untagged flow decreases**)
+   - `receiver === values.paymentAddress`
+   - `sender === [same sender]`
+   - `token === request.currency`
+
+#### Untagged flow increases
+
+**Untagged updates** leading to an increase of the total `flowRate` between the payer and receiver, are ignored.
+
+#### Untagged flow decreases
+
+**Untagged decreasing flow rates**, leading to `flowRate > 0`, are difficult to support, especially when many `paymentReferences` are paid simultaneously between the same payer and receiver. They should be avoided within a standard flow. Users should use a different wallet if they want to stream money aside Request. When they happen, and to not leave requests stuck with unclear balances, **untagged decreases** should be arbitrarily tagged to the most recent **main updates**, starting with the most recent one and continuing further back in history in order to "consume" the whole decrease.
+
+? What if a sentinel kills a flow after the request is paid, should it loop indefinetly?
 
 ### A - Computing the suite balance
 
-1. Gather `FlowUpdated` events with the criteria **Main payment flows**, sort them by date. => These are `paymentFlows`
+1. Gather all flow update events, sort them by date. => These are `paymentFlows`
 2. Compute the sum up to the most recent payment flow (flow rate \* flow timespan for finished timespans) => This is the `lastUpdatedFlowBalance`
 3. Substract from the `lastUpdatedFlowBalance` the sum of detected refunds and the sum of declared received refunds, add the sum of declared received payments => This is the `lastUpdatedBalance`
 4. The most recent flow update transaction timestamp is the `lastUpdateTimestamp`
@@ -427,9 +447,9 @@ The SuperApp contract address is determined by the `request.currency.network` (s
 3. If `currentFlowRate == 0`, we can compute a request balance with `lastUpdatedBalance - sumOfPreviousExpectedAmount` if it is positive, `zero` otherwise, and capping this value to `expectedAmount` if the request is not the last one of its series
 4. If `currentFlowRate > 0`, we cannot compute a fix request balance. Each second, we need to apply the logic above replacing `lastUpdatedBalance` with `lastUpdatedBalance + currentFlowRate \* (current timestamp - lastUpdateTimestamp)`
 
-### C - Computing fee balances
+### C - Adaptation for fee balances
 
 Apply exactly the same steps from A and B but:
 
-- adapting the flow filter to fetch fee flows (cf. Fee payment flows)
+- adapting the flow filter to fetch flow update events matching `values.feeAddress`
 - and replacing `expectedAmount` with `values.feeAmount` coming from the first request of the suite
