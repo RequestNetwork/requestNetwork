@@ -41,13 +41,9 @@ export class SubgraphClient {
     });
   }
 
-  public getChannelsByTopics(
-    topics: string[],
-    updatedBetween?: DataAccessTypes.ITimestampBoundaries,
-  ): Promise<TransactionsBody> {
+  public getChannelsByTopics(topics: string[]): Promise<TransactionsBody> {
     return this.graphql.request<TransactionsBody>(GetChannelsByTopicsQuery, {
       topics,
-      ...this.getTimeVariables(updatedBetween),
     });
   }
 

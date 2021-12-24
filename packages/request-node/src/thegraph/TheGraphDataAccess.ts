@@ -105,15 +105,25 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     topics: string[],
     updatedBetween?: DataAccessTypes.ITimestampBoundaries,
   ): Promise<DataAccessTypes.IReturnGetChannelsByTopic> {
-    const result = await this.graphql.getChannelsByTopics(topics, updatedBetween);
+    const result = await this.graphql.getChannelsByTopics(topics);
 
+    // list of channels having at least one tx updated during the updatedBetween boundaries
+    const channels = result.transactions
+      .filter(
+        (tx) =>
+          tx.blockTimestamp >= (updatedBetween?.from || 0) &&
+          tx.blockTimestamp <= (updatedBetween?.to || Number.MAX_SAFE_INTEGER),
+      )
+      .map((x) => x.channelId);
+
+    const filteredTxs = result.transactions.filter((tx) => channels.includes(tx.channelId));
     return {
       meta: {
-        storageMeta: result.transactions.reduce((acc, tx) => {
+        storageMeta: filteredTxs.reduce((acc, tx) => {
           acc[tx.channelId] = [this.getStorageMeta(tx, result._meta.block.number)];
           return acc;
         }, {} as Record<string, StorageTypes.IEntryMetadata[]>),
-        transactionsStorageLocation: result.transactions.reduce((prev, curr) => {
+        transactionsStorageLocation: filteredTxs.reduce((prev, curr) => {
           if (!prev[curr.channelId]) {
             prev[curr.channelId] = [];
           }
@@ -122,7 +132,7 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
         }, {} as Record<string, string[]>),
       },
       result: {
-        transactions: result.transactions.reduce((prev, curr) => {
+        transactions: filteredTxs.reduce((prev, curr) => {
           if (!prev[curr.channelId]) {
             prev[curr.channelId] = [];
           }
