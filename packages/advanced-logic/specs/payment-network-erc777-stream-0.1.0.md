@@ -453,3 +453,23 @@ Apply exactly the same steps from A and B but:
 
 - adapting the flow filter to fetch flow update events matching `values.feeAddress`
 - and replacing `expectedAmount` with `values.feeAmount` coming from the first request of the suite
+
+## Visual interpretation
+
+We can represent a request flow payment with the area of a rectangle in between two events emitted with the correct userData:
+![](./figures/erc777-stream/erc777_one_request.png)
+
+When we interpret the balance while the stream is in progress:
+![](./figures/erc777-stream/erc777_one_request_in_progress.png)
+
+Let's consider two requests with the same payer and issuer.
+![](./figures/erc777-stream/two_erc777_requests.png)
+
+In the ideal flow, we have 4 events. Notice that the 2nd event's `flowRate` is the sum of both payment rates.
+![](./figures/erc777-stream/two_erc777_requests_ideal_flow.png)
+
+The balance interpretation should take untagged events into account, for example when the payer runs out of funds.
+![](./figures/erc777-stream/two_erc777_requests_untagged_update.png)
+
+Interpreting a partial untagged decrease is not ideal and should be avoided. The decrease is associated with the history of tagged updates in reverse order of detection.
+![](./figures/erc777-stream/two_erc777_requests_untagged_decrease.png)
