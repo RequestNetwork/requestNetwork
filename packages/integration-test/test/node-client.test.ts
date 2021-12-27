@@ -184,7 +184,6 @@ describe('Request client using a request node', () => {
       topics: topicsRequest1and2,
     });
     await request1.waitForConfirmation();
-    console.log('request confirmed');
     const timestampBeforeReduce = Utils.getCurrentTimestampInSecond();
 
     // make sure that request 2 timestamp is greater than request 1 timestamp
@@ -207,17 +206,14 @@ describe('Request client using a request node', () => {
     });
 
     await request2.waitForConfirmation();
-    console.log('request 2 confirmed');
 
     // reduce request 1
     const requestDataReduce = await request1.reduceExpectedAmountRequest('10000000', payeeIdentity);
     await new Promise((r) => requestDataReduce.on('confirmed', r));
-    console.log('reduce confirmed');
 
     // cancel request 1
     const requestDataCancel = await request1.cancel(payeeIdentity);
     await new Promise((r) => requestDataCancel.on('confirmed', r));
-    console.log('cancel confirmed');
 
     // get requests without boundaries
     let requests = await requestNetwork.fromTopic(topicsRequest1and2[0]);
