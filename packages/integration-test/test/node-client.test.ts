@@ -650,7 +650,7 @@ describe('ETH localhost request creation and detection test', () => {
     });
 
     let data = await request.refresh();
-    expect(data.balance).toBeNull();
+    expect(data.balance?.balance).toBe('0');
 
     const paymentTx = await payRequest(data, wallet);
     await paymentTx.wait();
