@@ -51,7 +51,7 @@
   "devDependencies": {
     "@types/jest": "26.0.13",
     "@types/multicoin-address-validator": "0.5.0",
-    "@types/node-dijkstra": "2.5.1",
+    "@types/node-dijkstra": "2.5.2",
     "ethers": "5.5.1",
     "jest": "26.4.2",
     "prettier": "2.1.1",

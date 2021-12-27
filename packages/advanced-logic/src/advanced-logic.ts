@@ -4,6 +4,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { ICurrencyManager, CurrencyManager } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';
@@ -17,6 +18,7 @@ import EthereumInputData from './extensions/payment-network/ethereum/input-data'
 import NearNative from './extensions/payment-network/near-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
+import NativeTokenPaymentNetwork from './extensions/payment-network/native-token';
 
 /**
  * Module to manage Advanced logic extensions
@@ -24,20 +26,40 @@ import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
  */
 export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic {
   /** Give access to the functions specific of the extensions supported */
-  public extensions = {
-    addressBasedBtc: new AddressBasedBtc(),
-    addressBasedErc20: new AddressBasedErc20(),
-    addressBasedTestnetBtc: new AddressBasedTestnetBtc(),
-    contentData: new ContentData(),
-    anyToErc20Proxy: new AnyToErc20Proxy(),
-    declarative: new Declarative(),
-    ethereumInputData: new EthereumInputData(),
-    nativeToken: [new NearNative()],
-    feeProxyContractErc20: new FeeProxyContractErc20(),
-    proxyContractErc20: new ProxyContractErc20(),
-    feeProxyContractEth: new FeeProxyContractEth(),
-    anyToEthProxy: new AnyToEthProxy(),
+  public extensions: {
+    addressBasedBtc: AddressBasedBtc;
+    addressBasedErc20: AddressBasedErc20;
+    addressBasedTestnetBtc: AddressBasedTestnetBtc;
+    contentData: ContentData;
+    anyToErc20Proxy: AnyToErc20Proxy;
+    declarative: Declarative;
+    ethereumInputData: EthereumInputData;
+    nativeToken: NativeTokenPaymentNetwork[];
+    feeProxyContractErc20: FeeProxyContractErc20;
+    proxyContractErc20: ProxyContractErc20;
+    feeProxyContractEth: FeeProxyContractEth;
+    anyToEthProxy: AnyToEthProxy;
   };
+
+  constructor(currencyManager?: ICurrencyManager) {
+    if (!currencyManager) {
+      currencyManager = CurrencyManager.getDefault();
+    }
+    this.extensions = {
+      addressBasedBtc: new AddressBasedBtc(),
+      addressBasedErc20: new AddressBasedErc20(),
+      addressBasedTestnetBtc: new AddressBasedTestnetBtc(),
+      contentData: new ContentData(),
+      anyToErc20Proxy: new AnyToErc20Proxy(currencyManager),
+      declarative: new Declarative(),
+      ethereumInputData: new EthereumInputData(),
+      feeProxyContractErc20: new FeeProxyContractErc20(),
+      proxyContractErc20: new ProxyContractErc20(),
+      feeProxyContractEth: new FeeProxyContractEth(),
+      anyToEthProxy: new AnyToEthProxy(currencyManager),
+      nativeToken: [new NearNative()],
+    };
+  }
 
   /**
    * Applies the extension action to the request extensions state

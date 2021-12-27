@@ -5436,10 +5436,10 @@
   resolved "https://registry.yarnpkg.com/@types/multicoin-address-validator/-/multicoin-address-validator-0.5.0.tgz#3888ec229c799652972849ae3456de7958f1424f"
   integrity sha512-I0D2PiV0r5u9pmnFqx5F5tbI4v1Xek+KDMCiTIZMyXO3UM6VoFYt9Tpqk7jfOEXBMVjmkX7anYy6E6KZfnAihg==
 
-"@types/node-dijkstra@2.5.1":
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/@types/node-dijkstra/-/node-dijkstra-2.5.1.tgz#5ae70de488904c1f6a83f1e548206b0f7f39ac31"
-  integrity sha512-ukO32XUpVZL+xiSEtXCqPW6oNOaSFlRCb6vcl+VSkm1Ou7I9fA9PoYMynMfyt9oCtx3dVCcAmLhCf4zcAXgcCw==
+"@types/node-dijkstra@2.5.2":
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/@types/node-dijkstra/-/node-dijkstra-2.5.2.tgz#f0a6d4f1d77ab85d68ba941c38ccc86176db4526"
+  integrity sha512-PiHNOWnj+IoTz9nN1tWw8OmEMUk+8W9QVbma11osBMZbkI5xVXrJbgkRk4c5yWfEiOO3kKkLGnV8OBZ41jNKJw==
 
 "@types/node-fetch@^2.5.5":
   version "2.5.11"

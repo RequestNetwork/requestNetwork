@@ -529,7 +529,7 @@ describe('ERC20 localhost request creation and detection test', () => {
   });
 
   it('can create ERC20 requests with any to erc20 proxy', async () => {
-    const tokenContractAddress = '0x38cf23c52bb4b13f051aec09580a2de845a7fa35';
+    const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
     const currencies = [
       ...CurrencyManager.getDefaultList(),
@@ -567,7 +567,6 @@ describe('ERC20 localhost request creation and detection test', () => {
     });
 
     let data = await request.refresh();
-    expect(data.balance).toBeNull();
     const approval = await approveErc20ForProxyConversionIfNeeded(
       data,
       payeeIdentity.value,
@@ -650,7 +649,6 @@ describe('ETH localhost request creation and detection test', () => {
     });
 
     let data = await request.refresh();
-    expect(data.balance).toBeNull();
 
     const paymentTx = await payRequest(data, wallet);
     await paymentTx.wait();

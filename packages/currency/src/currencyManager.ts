@@ -14,6 +14,7 @@ import {
   LegacyTokenMap,
   NativeCurrencyType,
 } from './types';
+import { chainlinkCurrencyPairs, CurrencyPairs, getPath } from './chainlink-path-aggregators';
 import { isValidNearAddress } from './currency-utils';
 
 const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
@@ -24,6 +25,7 @@ const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta> {
   private readonly knownCurrencies: CurrencyDefinition<TMeta>[];
   private readonly legacyTokens: LegacyTokenMap;
+  private readonly conversionPairs: Record<string, CurrencyPairs>;
 
   /**
    *
@@ -33,6 +35,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   constructor(
     inputCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
     legacyTokens?: LegacyTokenMap,
+    conversionPairs?: Record<string, CurrencyPairs>,
   ) {
     this.knownCurrencies = [];
     for (const input of inputCurrencies) {
@@ -43,6 +46,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       this.knownCurrencies.push(currency);
     }
     this.legacyTokens = legacyTokens || CurrencyManager.getDefaultLegacyTokens();
+    this.conversionPairs = conversionPairs || CurrencyManager.getDefaultConversionPairs();
   }
 
   /**
@@ -150,6 +154,22 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return this.knownCurrencies.find((x) => x.type === type && x.network === network);
   }
 
+  getConversionPath(
+    from: Pick<CurrencyDefinition, 'hash'>,
+    to: Pick<CurrencyDefinition, 'hash'>,
+    network: string,
+  ): string[] | null {
+    try {
+      return getPath(from, to, network, this.conversionPairs);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  supportsConversion(currency: Pick<CurrencyDefinition, 'hash'>, network: string): boolean {
+    return !!this.conversionPairs[network]?.[currency.hash.toLowerCase()];
+  }
+
   /**
    * Adds computed parameters to a CurrencyInput
    */
@@ -159,6 +179,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     meta,
     ...input
   }: CurrencyInput & { id?: string; hash?: string; meta?: TMeta }): CurrencyDefinition<TMeta> {
+    if ('address' in input) {
+      input.address = utils.getAddress(input.address);
+    }
     return {
       id: id || CurrencyManager.currencyId(input),
       hash: hash || getHash(CurrencyManager.toStorageCurrency(input)),
@@ -256,6 +279,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
         NEAR: ['NEAR', 'aurora'],
       },
     };
+  }
+
+  static getDefaultConversionPairs(): Record<string, CurrencyPairs> {
+    return chainlinkCurrencyPairs;
   }
 
   /**

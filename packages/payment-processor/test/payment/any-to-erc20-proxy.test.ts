@@ -15,6 +15,7 @@ import { payAnyToErc20ProxyRequest } from '../../src/payment/any-to-erc20-proxy'
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { currencyManager } from './shared';
 import { IConversionPaymentSettings } from '../../src/index';
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -97,7 +98,10 @@ describe('conversion-erc20-fee-proxy', () => {
           undefined,
         ),
       ).rejects.toThrowError(
-        'The token 0x775eb53d00dd0acd3ec1696472105d579b9b386b is not accepted to pay this request',
+        new UnsupportedCurrencyError({
+          value: '0x775eb53d00dd0acd3ec1696472105d579b9b386b',
+          network: 'private',
+        }),
       );
     });
 

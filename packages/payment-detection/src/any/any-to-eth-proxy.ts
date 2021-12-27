@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
@@ -78,7 +78,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
     if (!currency) {
-      throw Error('requestCurrency not found in currency manager');
+      throw new UnsupportedCurrencyError(requestCurrency.value);
     }
 
     const proxyInfoRetriever = new AnyToEthInfoRetriever(

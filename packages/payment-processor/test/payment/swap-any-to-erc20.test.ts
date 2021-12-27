@@ -15,6 +15,7 @@ import { swapToPayAnyToErc20Request } from '../../src/payment/swap-any-to-erc20'
 import { IConversionSettings } from '../../src/payment/settings';
 
 import { currencyManager } from './shared';
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -156,7 +157,7 @@ describe('swap-any-to-erc20', () => {
             path: [paymentTokenAddress, wrongCurrency.value],
           },
         }),
-      ).rejects.toThrowError(`The conversion currency is not an accepted token`);
+      ).rejects.toThrowError(new UnsupportedCurrencyError(wrongCurrency));
     });
 
     it('should swap and pay with an ERC20 request with fees', async () => {
