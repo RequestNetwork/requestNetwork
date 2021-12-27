@@ -567,7 +567,6 @@ describe('ERC20 localhost request creation and detection test', () => {
     });
 
     let data = await request.refresh();
-    expect(data.balance?.balance).toBe('0');
     const approval = await approveErc20ForProxyConversionIfNeeded(
       data,
       payeeIdentity.value,
@@ -650,7 +649,6 @@ describe('ETH localhost request creation and detection test', () => {
     });
 
     let data = await request.refresh();
-    expect(data.balance?.balance).toBe('0');
 
     const paymentTx = await payRequest(data, wallet);
     await paymentTx.wait();
