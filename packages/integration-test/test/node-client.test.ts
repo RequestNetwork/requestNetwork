@@ -9,7 +9,7 @@ import {
 } from '@requestnetwork/payment-processor';
 import { CurrencyManager } from '@requestnetwork/currency';
 
-import { Wallet, providers, BigNumber, ethers } from 'ethers';
+import { Wallet, providers, BigNumber } from 'ethers';
 import {
   erc20requestCreationHash,
   httpConfig,
