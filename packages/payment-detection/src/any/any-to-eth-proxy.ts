@@ -24,7 +24,10 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment networks with ETH input data extension
  */
-export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<PaymentTypes.IETHPaymentEventParameters> {
+export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
+  ExtensionTypes.PnAnyToEth.IAnyToEth,
+  PaymentTypes.IETHPaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -36,9 +39,8 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<PaymentTyp
     currencyManager: ICurrencyManager;
   }) {
     super(
-      advancedLogic,
+      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
-      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
       currencyManager,
     );
   }
@@ -54,16 +56,18 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<PaymentTyp
    * @returns The balance
    */
   protected async extractEvents(
-    address: string,
     eventName: PaymentTypes.EVENTS_NAMES,
-    requestCurrency: RequestLogicTypes.ICurrency,
+    address: string | undefined,
     paymentReference: string,
-    paymentNetwork: ExtensionTypes.IState<any>,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
-    const network = this.getPaymentChain(requestCurrency, paymentNetwork);
-
+    requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IETHPaymentEventParameters>[]> {
+    if (!address) {
+      return [];
+    }
     const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
-      network,
+      paymentChain,
       paymentNetwork.version,
     );
 
@@ -85,7 +89,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<PaymentTyp
       abi,
       address,
       eventName,
-      network,
+      paymentChain,
       undefined,
       paymentNetwork.values?.maxRateTimespan,
     );
@@ -100,13 +104,10 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<PaymentTyp
    * @param paymentNetwork the payment network
    * @returns The network of payment
    */
-  protected getPaymentChain(
-    _requestCurrency: RequestLogicTypes.ICurrency,
-    paymentNetwork: ExtensionTypes.IState<any>,
-  ): string {
-    const network = paymentNetwork.values.network;
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+    const network = this.getPaymentExtension(request).values.network;
     if (!network) {
-      throw Error('paymentNetwork.values.network must be defined');
+      throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
     return network;
   }

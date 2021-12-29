@@ -55,12 +55,12 @@
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
     "axios": "0.21.1",
-    "ethers": "5.5.1"
+    "ethers": "5.5.1",
+    "tslib": "2.3.1"
   },
   "devDependencies": {
     "@compodoc/compodoc": "1.1.11",
     "@types/jest": "26.0.13",
-    "@types/node-fetch": "2.5.7",
     "amd-loader": "0.0.8",
     "axios-mock-adapter": "1.19.0",
     "duplicate-package-checker-webpack-plugin": "3.0.0",

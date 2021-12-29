@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
@@ -8,16 +7,12 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import { ERC20FeeProxyPaymentDetector } from '../erc20/fee-proxy-contract';
-import PaymentReferenceCalculator from '../payment-reference-calculator';
+import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphAnyToErc20Retriever } from './retrievers/thegraph';
 import { networkSupportsTheGraph } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
-
-/* eslint-disable max-classes-per-file */
-/** Exception when version not supported */
-class VersionNotSupported extends Error {}
+import { VersionNotSupported } from '../balance-error';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -26,7 +21,10 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
 /**
  * Handle payment networks with conversion proxy contract extension
  */
-export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<ExtensionTypes.PnAnyToErc20.IAnyToERC20> {
+export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
+  ExtensionTypes.PnAnyToErc20.IAnyToERC20,
+  PaymentTypes.IERC20FeePaymentEventParameters
+> {
   /**
    * @param extension The advanced logic payment network extensions
    */
@@ -38,12 +36,11 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<Exte
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     currencyManager: ICurrencyManager;
   }) {
-    super({
-      advancedLogic,
+    super(
+      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+      advancedLogic.extensions.anyToErc20Proxy,
       currencyManager,
-    });
-    this._extensionTypeId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY;
-    this.extension = advancedLogic.extensions.anyToErc20Proxy;
+    );
   }
 
   /**
@@ -83,19 +80,21 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<Exte
    * @param paymentNetwork Payment network state
    * @returns The balance and events
    */
-  public async extractBalanceAndEvents(
-    request: RequestLogicTypes.IRequest,
-    salt: string,
-    toAddress: string,
+  protected async extractEvents(
     eventName: PaymentTypes.EVENTS_NAMES,
-    paymentNetwork: ExtensionTypes.IState,
-  ): Promise<PaymentTypes.IBalanceWithEvents> {
-    const network = paymentNetwork.values.network;
-    const acceptedTokens = paymentNetwork.values.acceptedTokens;
-    const maxRateTimespan = paymentNetwork.values.maxRateTimespan || 0;
+    address: string | undefined,
+    paymentReference: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToErc20.ICreationParameters>,
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]> {
+    if (!address) {
+      return [];
+    }
+    const { acceptedTokens, maxRateTimespan = 0 } = paymentNetwork.values;
 
     const conversionDeploymentInformation = AnyToERC20PaymentDetector.getDeploymentInformation(
-      network,
+      paymentChain,
       paymentNetwork.version,
     );
 
@@ -111,24 +110,16 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<Exte
       conversionDeploymentInformation.address;
     const conversionProxyCreationBlockNumber: number =
       conversionDeploymentInformation.creationBlockNumber;
+    const currency = await this.getCurrency(requestCurrency);
 
-    const paymentReference = PaymentReferenceCalculator.calculate(
-      request.requestId,
-      salt,
-      toAddress,
-    );
-
-    const currency = await this.getCurrency(request.currency);
-
-    const infoRetriever = networkSupportsTheGraph(network)
+    const infoRetriever = networkSupportsTheGraph(paymentChain)
       ? new TheGraphAnyToErc20Retriever(
           currency,
           paymentReference,
           conversionProxyContractAddress,
-
-          toAddress,
+          address,
           eventName,
-          network,
+          paymentChain,
           acceptedTokens,
           maxRateTimespan,
         )
@@ -138,23 +129,24 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetector<Exte
           conversionProxyContractAddress,
           conversionProxyCreationBlockNumber,
           conversionProxyAbi,
-          toAddress,
+          address,
           eventName,
-          network,
+          paymentChain,
           acceptedTokens,
           maxRateTimespan,
         );
 
-    const events = await infoRetriever.getTransferEvents();
+    return infoRetriever.getTransferEvents() as Promise<
+      PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]
+    >;
+  }
 
-    const balance = events
-      .reduce((acc, event) => acc.add(BigNumber.from(event.amount)), BigNumber.from(0))
-      .toString();
-
-    return {
-      balance,
-      events,
-    };
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+    const network = this.getPaymentExtension(request).values.network;
+    if (!network) {
+      throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
+    }
+    return network;
   }
 
   public static getDeploymentInformation = makeGetDeploymentInformation(

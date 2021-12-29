@@ -3,7 +3,7 @@ import EthereumUtils from '../ethereum-utils';
 import { StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import fetch from 'node-fetch';
+import Axios from 'axios';
 
 import { BigNumber } from 'ethers';
 
@@ -26,19 +26,13 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
   public providerUrl = 'https://api.etherscan.io/api?module=gastracker&action=gasoracle';
 
   /**
-   * Fetch library to send http requests
-   * This value is left public for mocking purpose
-   */
-  public fetch = fetch;
-
-  /**
    * Gets gas price from etherscan.io API
    *
    * @param type Type of the gas price (fast, standard or safe low)
    * @returns Requested gas price
    */
   public async getGasPrice(type: StorageTypes.GasPriceType): Promise<BigNumber | null> {
-    const res = await Utils.retry(async () => this.fetch(this.providerUrl), {
+    const res = await Utils.retry(async () => Axios.get(this.providerUrl), {
       maxRetries: ETHERSCAN_REQUEST_MAX_RETRY,
       retryDelay: ETHERSCAN_REQUEST_RETRY_DELAY,
     })();
@@ -49,7 +43,7 @@ export default class EtherscanProvider implements StorageTypes.IGasPriceProvider
         `Etherscan error ${res.status}. Bad response from server ${this.providerUrl}`,
       );
     }
-    const apiResponse = await res.json();
+    const apiResponse = res.data;
 
     if (apiResponse.status && apiResponse.status !== '1') {
       throw new Error(`Etherscan error: ${apiResponse.message} ${apiResponse.result}`);

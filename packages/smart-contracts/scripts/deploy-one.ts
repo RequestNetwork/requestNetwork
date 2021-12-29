@@ -8,7 +8,7 @@ export interface DeploymentResult<TContract extends Contract | unknown = Contrac
   contractName: string;
   instance: TContract;
   constructorArguments: any[];
-  type: 'simulated' | 'deployed' | 'attached';
+  type: 'simulated' | 'deployed' | 'attached' | 'skipped';
   verificationPromise?: Promise<boolean>;
 }
 
@@ -20,14 +20,24 @@ const SIMULATED_DEPLOYMENT: DeploymentResult<unknown> = {
   type: 'simulated',
 };
 
+const SKIPPED_DEPLOYMENT: DeploymentResult<unknown> = {
+  address: 'skipped',
+  contractName: '',
+  instance: null,
+  constructorArguments: [],
+  type: 'skipped',
+};
+
 /**
  * Deploys contracts if they are not known by artifacts on the network.
  * Publishes the source when the deployment is made.
  * @options
  *  - options.verify: set false to prevent verification on live networks
- * @returns
- *  - The address if the contract is deployed
+ *  - options.nonceCondition: only proceeds with the deployment if the nonce matches
+ * @returns a deployment result with address =
+ *  - The address if the contract is deployed or attached
  *  - 'simulated' if args.simulate === true (no deployment/)
+ *  - 'skipped' if the nonce condition is not met
  */
 export async function deployOne<TContract extends Contract>(
   args: any,
@@ -37,6 +47,7 @@ export async function deployOne<TContract extends Contract>(
     constructorArguments?: any[];
     artifact?: ContractArtifact<Contract>;
     verify?: boolean;
+    nonceCondition?: number;
   },
 ): Promise<DeploymentResult<TContract>> {
   const [deployer] = await hre.ethers.getSigners();
@@ -60,6 +71,23 @@ export async function deployOne<TContract extends Contract>(
     } catch (e) {}
   }
 
+  if (options?.nonceCondition) {
+    const currentNonce = await deployer.getTransactionCount();
+    if (options.nonceCondition !== currentNonce) {
+      console.warn(
+        `Warning: trying to deploy ${contractName} with nonce ${options.nonceCondition}, but nonce = ${currentNonce}`,
+      );
+      if (!args.simulate) {
+        const result: DeploymentResult<any> = {
+          ...SKIPPED_DEPLOYMENT,
+          instance: null,
+          contractName,
+          constructorArguments: constructorArguments,
+        };
+        return result;
+      }
+    }
+  }
   if (args.simulate) {
     const result: DeploymentResult<any> = {
       ...SIMULATED_DEPLOYMENT,

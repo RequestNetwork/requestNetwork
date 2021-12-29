@@ -41,8 +41,24 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 20061324,
         },
+        celo: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 10141032,
+        },
       },
     },
   },
+  // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions
+  /*
+  '0.1.0-next': {
+    abi: ABI_0_1_0,
+    deployment: {
+      mainnet: {
+        address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+        creationBlockNumber: 13764027,
+      },
+    },
+  },
+  */
   '0.1.0',
 );

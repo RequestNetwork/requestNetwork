@@ -1,7 +1,7 @@
 query GetPayments(
   $contractAddress: Bytes!
   $reference: Bytes!
-  $tokenAddress: Bytes!
+  $tokenAddress: Bytes
   $to: Bytes!
 ) {
   payments(

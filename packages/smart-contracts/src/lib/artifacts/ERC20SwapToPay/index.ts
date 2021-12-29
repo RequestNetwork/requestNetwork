@@ -50,8 +50,24 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
           address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
           creationBlockNumber: 20670324,
         },
+        celo: {
+          address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
+          creationBlockNumber: 10141034,
+        },
       },
     },
   },
+  // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions
+  /*
+  '0.3.0-next': {
+    abi: ABI_0_1_0,
+    deployment: {
+      mainnet: {
+        address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
+        creationBlockNumber: 13764133,
+      },
+    },
+  },
+  */
   '0.3.0',
 );

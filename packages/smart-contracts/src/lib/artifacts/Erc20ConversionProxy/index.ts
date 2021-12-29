@@ -41,8 +41,24 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
           creationBlockNumber: 20061367,
         },
+        celo: {
+          address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
+          creationBlockNumber: 10141033,
+        },
       },
     },
   },
+  // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions
+  /*
+  '0.1.0-next': {
+    abi: ABI_0_1_0,
+    deployment: {
+      mainnet: {
+        address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
+        creationBlockNumber: 13764028,
+      },
+    },
+  },
+  */
   '0.1.0',
 );

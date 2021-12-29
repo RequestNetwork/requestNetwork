@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
-import requestNode from '../src/requestNode';
+import { RequestNode } from '../src/requestNode';
 
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const anotherChannelId = '010bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
@@ -19,7 +19,7 @@ let server: any;
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('persistTransaction', () => {
   beforeAll(async () => {
-    requestNodeInstance = new requestNode();
+    requestNodeInstance = new RequestNode();
     await requestNodeInstance.initialize();
 
     server = (requestNodeInstance as any).express;

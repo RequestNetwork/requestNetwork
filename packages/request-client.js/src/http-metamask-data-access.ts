@@ -1,6 +1,6 @@
 import { Block } from '@requestnetwork/data-access';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes, DataAccessTypes } from '@requestnetwork/types';
+import { ClientTypes, DataAccessTypes, StorageTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import axios, { AxiosRequestConfig } from 'axios';
 import { ethers } from 'ethers';
@@ -119,7 +119,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     const ethBlock = await this.provider.getBlock(tx.blockNumber);
 
     // create the storage meta from the transaction receipt
-    const storageMeta = {
+    const storageMeta: StorageTypes.IEthereumMetadata = {
       blockConfirmation: tx.confirmations,
       blockNumber: tx.blockNumber,
       blockTimestamp: ethBlock.timestamp,
@@ -135,14 +135,20 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     }
     this.cache[channelId][ipfsHash] = { block, storageMeta };
 
-    const result: DataAccessTypes.IReturnPersistTransaction = Object.assign(new EventEmitter(), {
+    const eventEmitter = new EventEmitter();
+    const result: DataAccessTypes.IReturnPersistTransactionRaw = {
       meta: {
-        storageMeta,
+        storageMeta: {
+          ethereum: storageMeta,
+          ipfs: { size: ipfsSize },
+          state: StorageTypes.ContentState.PENDING,
+          timestamp: storageMeta.blockTimestamp,
+        },
         topics: topics || [],
         transactionStorageLocation: ipfsHash,
       },
       result: {},
-    });
+    };
 
     // When the ethereum transaction is mined, emit an event 'confirmed'
     tx.wait().then((txConfirmed: any) => {
@@ -158,7 +164,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       };
 
       // emit the event to tell the request transaction is confirmed
-      result.emit('confirmed', {
+      eventEmitter.emit('confirmed', {
         meta: {
           storageMeta: storageMetaConfirmed,
           topics: topics || [],
@@ -168,7 +174,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       });
     });
 
-    return result;
+    return Object.assign(eventEmitter, result);
   }
 
   /**
@@ -248,7 +254,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
               (timestampBoundaries.to === undefined ||
                 timestampBoundaries.to >= cache?.storageMeta.blockTimestamp)))
         ) {
-          accumulator.meta.storageMeta.push(cache?.storageMeta);
+          accumulator.meta.storageMeta?.push(cache?.storageMeta);
           accumulator.meta.transactionsStorageLocation.push(location);
           // cache?.block.transactions will always contain one transaction
           accumulator.result.transactions.push({
