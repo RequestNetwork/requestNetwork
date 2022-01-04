@@ -37,6 +37,7 @@ export default class EscrowERC20InfoRetriever
     private paymentReference: string,
     private escrowContractAddress: string,
     private escrowCreationBlockNumber: number,
+    private eventName: PaymentTypes.ESCROW_EVENTS_NAMES | undefined,
     private network: string,
   ) {
     // Creates a local or default provider.
@@ -53,58 +54,55 @@ export default class EscrowERC20InfoRetriever
   /**
    * Retrieves events for the current contract, address and network.
    */
+  public async getAllContractEvents(): Promise<
+    PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>[]
+  > {
+    const freezeEvents = await this.getContractEventsForEventName(
+      PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
+    );
+    const initEmergencyEvents = await this.getContractEventsForEventName(
+      PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
+    );
+    const revertEmergencyEvents = await this.getContractEventsForEventName(
+      PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+    );
+
+    return [...freezeEvents, ...initEmergencyEvents, ...revertEmergencyEvents];
+  }
+
   public async getContractEvents(): Promise<
     PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>[]
   > {
-    // Create a filter to find all the RequestFrozen logs with the payment reference
-    const freezeFilter = this.contractEscrow.filters.RequestFrozen(
-      '0x' + this.paymentReference,
-    ) as ethers.providers.Filter;
-    freezeFilter.fromBlock = this.escrowCreationBlockNumber;
-    freezeFilter.toBlock = 'latest';
+    if (!this.eventName) {
+      throw new Error('Missing event name in EscrowInfoRetriever for getContractEvents()');
+    }
+    return this.getContractEventsForEventName(this.eventName);
+  }
 
-    // Create a filter to find all the Init Emergency logs with the payment reference.
-    const initEmergencyFilter = this.contractEscrow.filters.InitiatedEmergencyClaim(
-      '0x' + this.paymentReference,
-    ) as ethers.providers.Filter;
-    freezeFilter.fromBlock = this.escrowCreationBlockNumber;
-    freezeFilter.toBlock = 'latest';
+  /**
+   * Retrieves events for the current contract, address and network.
+   */
+  protected async getContractEventsForEventName(
+    eventName: PaymentTypes.ESCROW_EVENTS_NAMES,
+  ): Promise<PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>[]> {
+    const filter: ethers.providers.Filter | undefined =
+      eventName === PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT
+        ? // Create a filter to find all the RequestFrozen logs with the payment reference
+          this.contractEscrow.filters.RequestFrozen('0x' + this.paymentReference)
+        : eventName === PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM
+        ? this.contractEscrow.filters.InitiatedEmergencyClaim('0x' + this.paymentReference)
+        : eventName === PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM
+        ? this.contractEscrow.filters.RevertedEmergencyClaim('0x' + this.paymentReference)
+        : undefined;
 
-    // Create a filter to find all the Fee Transfer logs with the payment reference.
-    const revertEmergencyFilter = this.contractEscrow.filters.RevertedEmergencyClaim(
-      '0x' + this.paymentReference,
-    ) as ethers.providers.Filter;
-    freezeFilter.fromBlock = this.escrowCreationBlockNumber;
-    freezeFilter.toBlock = 'latest';
-
-    // Get the RequestFrozen event logs.
-    const freezeLog = await this.provider.getLogs(freezeFilter);
-
-    // Get the InitiateEmergencyClaim event logs.
-    const initEmergencyLog = await this.provider.getLogs(initEmergencyFilter);
-
-    // Get the RequestFrozen event logs.
-    const revertEmergencyLog = await this.provider.getLogs(revertEmergencyFilter);
-
-    interface EthersLogWithEventName extends ethers.providers.Log {
-      eventName: PaymentTypes.ESCROW_EVENTS_NAMES;
+    if (!filter) {
+      throw new Error('Wrong eventName for Escrow event retriever');
     }
 
-    // Merge events if multiple logs.
-    const logs: EthersLogWithEventName[] = [
-      ...freezeLog.map((i) => ({
-        ...i,
-        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
-      })),
-      ...initEmergencyLog.map((i) => ({
-        ...i,
-        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
-      })),
-      ...revertEmergencyLog.map((i) => ({
-        ...i,
-        eventName: PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
-      })),
-    ];
+    filter.fromBlock = this.escrowCreationBlockNumber;
+    filter.toBlock = 'latest';
+
+    const logs = await this.provider.getLogs(filter);
 
     // Parses, filters and creates the events from the logs with the payment reference.
     const eventPromises = logs
@@ -118,7 +116,7 @@ export default class EscrowERC20InfoRetriever
       })
 
       // Creates the escrow events.
-      .map(async ({ parsedLog, blockNumber, transactionHash, eventName }) => ({
+      .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
         name: eventName,
         parameters: {
           block: blockNumber,

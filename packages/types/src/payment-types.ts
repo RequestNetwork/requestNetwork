@@ -135,7 +135,7 @@ export interface IPaymentNetworkBaseInfoRetriever<
   TPaymentNetworkEvent extends IPaymentNetworkBaseEvent<TEventNames>,
   TEventNames = EVENTS_NAMES
 > {
-  getContractEvents(): Promise<TPaymentNetworkEvent[]>;
+  getAllContractEvents(): Promise<TPaymentNetworkEvent[]>;
 }
 
 /** Parameters for events of ERC20 payments */
