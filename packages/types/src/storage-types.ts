@@ -42,18 +42,13 @@ export interface ITimestampBoundaries {
   to?: number;
 }
 
-/** Result of the append (IEntry + EventEmitter) */
-export interface IAppendResult extends EventEmitter {
-  id: string;
-  content: string;
-  meta: IEntryMetadata;
-}
-
 /** One entry on the storage layer */
 export interface IEntry extends IWithMeta<IEntryMetadata> {
   id: string;
   content: string;
 }
+
+export type IAppendResult = EventEmitter & IEntry;
 
 /** A list of entries with the last timestamp these entries were fetched from */
 export interface IEntriesWithLastTimestamp {
