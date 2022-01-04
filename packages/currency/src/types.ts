@@ -65,6 +65,12 @@ export interface ICurrencyManager<TMeta = unknown> {
     type: NativeCurrencyType,
     network: string,
   ): CurrencyDefinition<TMeta> | undefined;
+  getConversionPath(
+    from: Pick<CurrencyDefinition, 'hash'>,
+    to: Pick<CurrencyDefinition, 'hash'>,
+    network: string,
+  ): string[] | null;
+  supportsConversion(currency: Pick<CurrencyDefinition, 'hash'>, network: string): boolean;
 }
 
 /**

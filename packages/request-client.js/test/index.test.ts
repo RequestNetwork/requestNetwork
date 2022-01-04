@@ -21,6 +21,7 @@ import { BigNumber } from 'ethers';
 import EtherscanProviderMock from './etherscan-mock';
 import httpConfigDefaults from '../src/http-config-defaults';
 import { IRequestDataWithEvents } from '../src/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 const packageJson = require('../package.json');
 
@@ -1083,6 +1084,16 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider: TestData.fakeSignatureProvider,
       useMockStorage: true,
+      currencies: [
+        ...CurrencyManager.getDefaultList(),
+        {
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa35',
+          decimals: 18,
+          network: 'private',
+          symbol: 'FAKE',
+        },
+      ],
     });
 
     // provider data is irrelevant in this test

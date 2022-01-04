@@ -1,5 +1,5 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { CurrencyInput, CurrencyDefinition, CurrencyManager } from '../src';
+import { CurrencyInput, CurrencyDefinition, CurrencyManager, ERC20Currency } from '../src';
 
 const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinition>>> = {
   mainnet: {
@@ -102,6 +102,30 @@ describe('CurrencyManager', () => {
       const dai = CurrencyManager.getDefaultList().find((x) => x.id === 'DAI-mainnet')!;
       const list: CurrencyInput[] = [dai, dai, dai, dai];
       expect(() => new CurrencyManager(list)).toThrowError('Duplicate found: DAI-mainnet');
+    });
+
+    it('fixes wrong ERC20 address case', () => {
+      const currencyManager = new CurrencyManager([
+        {
+          type: RequestLogicTypes.CURRENCY.ERC20,
+          symbol: 'FAKE',
+          address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa35',
+          decimals: 18,
+          network: 'private',
+        },
+      ]);
+      const fake = currencyManager.from('FAKE') as ERC20Currency;
+      // right case
+      expect(fake.address).toBe('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
+
+      // it can match it from right case or wrong
+
+      expect(currencyManager.fromAddress('0x38cf23c52bb4b13f051aec09580a2de845a7fa35')?.id).toBe(
+        'FAKE-private',
+      );
+      expect(currencyManager.fromAddress('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35')?.id).toBe(
+        'FAKE-private',
+      );
     });
   });
 
@@ -525,6 +549,28 @@ describe('CurrencyManager', () => {
           });
         });
       });
+    });
+  });
+
+  describe('Conversion paths', () => {
+    let eur: CurrencyDefinition, usd: CurrencyDefinition, dai: CurrencyDefinition;
+    beforeEach(() => {
+      eur = currencyManager.from('EUR')!;
+      usd = currencyManager.from('USD')!;
+      dai = currencyManager.from('DAI')!;
+    });
+
+    it('has a default conversion path', () => {
+      const path = currencyManager.getConversionPath(eur, dai, 'mainnet');
+      expect(path).toMatchObject([eur.hash, usd.hash, dai.hash.toLowerCase()]);
+    });
+
+    it('can override the default conversion path', () => {
+      const manager = new CurrencyManager(CurrencyManager.getDefaultList(), undefined, {
+        mainnet: { [eur.hash]: { [dai.hash.toLocaleLowerCase()]: 1 } },
+      });
+      const path = manager.getConversionPath(eur, dai, 'mainnet');
+      expect(path).toMatchObject([eur.hash, dai.hash.toLowerCase()]);
     });
   });
 });
