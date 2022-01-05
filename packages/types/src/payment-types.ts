@@ -95,6 +95,12 @@ export interface IPaymentNetworkEvent<TEventParameters, TEventNames = EVENTS_NAM
   parameters?: TEventParameters;
 }
 
+/** payment network event */
+export interface ICustomNetworkEvent<TEventParameters, TEventNames = ESCROW_EVENTS_NAMES>
+  extends IPaymentNetworkBaseEvent<TEventNames> {
+  parameters?: TEventParameters;
+}
+
 /** payment network event names */
 export enum EVENTS_NAMES {
   PAYMENT = 'payment',
@@ -102,7 +108,7 @@ export enum EVENTS_NAMES {
 }
 
 export enum ESCROW_EVENTS_NAMES {
-  INIT_ESCROW = "initEscrow",
+  INIT_ESCROW = 'initEscrow',
   FROZEN_PAYMENT = 'frozenPayment',
   INITIATED_EMERGENCY_CLAIM = 'initiatedEmergencyClaim',
   REVERTED_EMERGENCY_CLAIM = 'revertedEmergencyClaim',
@@ -140,11 +146,15 @@ export interface IPaymentNetworkBaseInfoRetriever<
 }
 
 /** Parameters for events of ERC20 payments */
-export interface IERC20PaymentEventParameters {
-  from?: string;
-  to: string;
+export interface GenericEventParameters {
   block?: number;
   txHash?: string;
+}
+
+/** Parameters for events of ERC20 payments */
+export interface IERC20PaymentEventParameters extends GenericEventParameters {
+  from?: string;
+  to: string;
 }
 
 /** Parameters for events of ERC20 payments with fees */
@@ -156,15 +166,10 @@ export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParam
   tokenAddress?: string;
 }
 
-/** Parameters for custom Escrow events */
-export interface EscrowCustomEventParameters {
-  paymentReference: string;
-}
-
 /** ERC20 Payment Network Event */
 export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
   IERC20PaymentEventParameters | IERC20FeePaymentEventParameters
-  >;
+>;
 
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
