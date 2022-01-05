@@ -39,12 +39,13 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
   ): Promise<
     PaymentTypes.IPaymentNetworkEvent<
       // TODO missing the custom event parameters
-      PaymentTypes.EscrowEventParameters, PaymentTypes.IERC20FeePaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+      PaymentTypes.EscrowCustomEventParameters,
+      PaymentTypes.IERC20FeePaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
     >[]
   > {
     const paymentEvents = await super.getEvents(request);
     // TODO, should get custom events here
-    const customEvents = await super.getContractEvents(request); // replace this with getContractEvents(request))
+    const customEvents = await this.getContractEvents(request); // replace this with getContractEvents(request))
     return [...paymentEvents, ...customEvents];
   }
 
@@ -58,7 +59,7 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
     // TODO: " | PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>" is wrong, should get event parameters like in IERC20FeePaymentEventParameters
   ): Promise<
     | PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]
-    | PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>[]
+    | PaymentTypes.IPaymentNetworkEvent<PaymentTypes.EscrowCustomEventParameters>[]
   > {
     if (
       eventName === PaymentTypes.EVENTS_NAMES.PAYMENT ||

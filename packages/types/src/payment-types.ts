@@ -155,8 +155,8 @@ export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParam
   tokenAddress?: string;
 }
 
-/** Parameters for events of ERC20 Escrow payments  */
-export interface EscrowEventParameters extends IERC20PaymentEventParameters {
+/** Parameters for custom Escrow events */
+export interface EscrowCustomEventParameters {
   paymentReference: string;
 }
 
