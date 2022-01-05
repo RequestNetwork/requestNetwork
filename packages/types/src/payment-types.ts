@@ -102,6 +102,7 @@ export enum EVENTS_NAMES {
 }
 
 export enum ESCROW_EVENTS_NAMES {
+  INIT_ESCROW = "initEscrow",
   FROZEN_PAYMENT = 'frozenPayment',
   INITIATED_EMERGENCY_CLAIM = 'initiatedEmergencyClaim',
   REVERTED_EMERGENCY_CLAIM = 'revertedEmergencyClaim',
@@ -163,7 +164,8 @@ export interface EscrowCustomEventParameters {
 /** ERC20 Payment Network Event */
 export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
   IERC20PaymentEventParameters | IERC20FeePaymentEventParameters
->;
+  >;
+
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
 

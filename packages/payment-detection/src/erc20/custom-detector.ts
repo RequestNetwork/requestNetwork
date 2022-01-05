@@ -39,7 +39,7 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
   ): Promise<
     PaymentTypes.IPaymentNetworkEvent<
       // TODO missing the custom event parameters
-      PaymentTypes.EscrowCustomEventParameters,
+      PaymentTypes.EscrowCustomEventParameters |
       PaymentTypes.IERC20FeePaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
     >[]
   > {

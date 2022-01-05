@@ -10,6 +10,7 @@ const erc20EscrowContractAbiFragment = [
   'event RevertedEmergencyClaim(bytes indexed paymentReference)',
 ];
 
+
 /** Escrow contract event arguments. */
 type EscrowArgs = {
   paymentReference: string;
@@ -21,7 +22,7 @@ type EscrowArgs = {
 export default class EscrowERC20InfoRetriever
   implements
     PaymentTypes.IPaymentNetworkBaseInfoRetriever<
-      PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>,
+      PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.IERC20FeePaymentEventParameters>,
       PaymentTypes.ESCROW_EVENTS_NAMES
     > {
   public contractEscrow: ethers.Contract;
@@ -55,7 +56,7 @@ export default class EscrowERC20InfoRetriever
    * Retrieves events for the current contract, address and network.
    */
   public async getAllContractEvents(): Promise<
-    PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>[]
+    PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]
   > {
     const freezeEvents = await this.getContractEventsForEventName(
       PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
@@ -66,12 +67,15 @@ export default class EscrowERC20InfoRetriever
     const revertEmergencyEvents = await this.getContractEventsForEventName(
       PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
     );
+    const initEscrowEvents = await this.getContractEventsForEventName(
+      PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW,
+    );
 
-    return [...freezeEvents, ...initEmergencyEvents, ...revertEmergencyEvents];
+    return [...freezeEvents, ...initEmergencyEvents, ...revertEmergencyEvents, ...initEscrowEvents];
   }
 
   public async getContractEvents(): Promise<
-    PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>[]
+    PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]
   > {
     if (!this.eventName) {
       throw new Error('Missing event name in EscrowInfoRetriever for getContractEvents()');
@@ -84,7 +88,7 @@ export default class EscrowERC20InfoRetriever
    */
   protected async getContractEventsForEventName(
     eventName: PaymentTypes.ESCROW_EVENTS_NAMES,
-  ): Promise<PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>[]> {
+  ): Promise<PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]> {
     const filter: ethers.providers.Filter | undefined =
       eventName === PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT
         ? // Create a filter to find all the RequestFrozen logs with the payment reference
@@ -93,6 +97,16 @@ export default class EscrowERC20InfoRetriever
         ? this.contractEscrow.filters.InitiatedEmergencyClaim('0x' + this.paymentReference)
         : eventName === PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM
         ? this.contractEscrow.filters.RevertedEmergencyClaim('0x' + this.paymentReference)
+        : eventName === PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW
+        ? this.contractEscrow.filters.TransferWithReferenceAndFee(
+          null,
+          // TODO:
+          null,
+          null,
+          '0x' + this.paymentReference,
+          null,
+          null,
+        )
         : undefined;
 
     if (!filter) {
