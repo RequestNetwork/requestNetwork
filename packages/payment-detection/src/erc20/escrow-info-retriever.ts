@@ -55,7 +55,7 @@ export default class EscrowERC20InfoRetriever
     private escrowCreationBlockNumber: number,
     private tokenContractAddress: string,
     private toAddress: string,
-    private eventName: PaymentTypes.ESCROW_EVENTS_NAMES | undefined,
+    private eventName: PaymentTypes.ESCROW_EVENTS_NAMES,
     private network: string,
   ) {
     // Creates a local or default provider.
@@ -170,7 +170,7 @@ export default class EscrowERC20InfoRetriever
       .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
         // TODO fix me
         amount: parsedLog.amount.toString(),
-        name: eventName,
+        name: this.eventName,
         parameters: {
           block: blockNumber,
           feeAddress: parsedLog.feeAddress || undefined,
