@@ -62,12 +62,7 @@ describe('api/erc20/escrow-info-retriever', () => {
     let getLogsSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      infoRetriever = new EscrowERC20InfoRetriever(
-        paymentReferenceMock,
-        escrowContractAddress,
-        0,
-        'private',
-      );
+      
 
       getBlockSpy = jest.spyOn(infoRetriever.provider, 'getBlock').mockResolvedValue({
         timestamp: 69,
@@ -99,6 +94,15 @@ describe('api/erc20/escrow-info-retriever', () => {
     });
 
     it('can get the FROZEN_PAYMENT event of an address out of mocked logs', async () => {
+      infoRetriever = new EscrowERC20InfoRetriever(
+        paymentReferenceMock,
+        escrowContractAddress,
+        0,
+        null,
+        null,
+        PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
+        'private',
+      );
       const events = await infoRetriever.getAllContractEvents();
       expect(events).toHaveLength(3);
       expect(events).toEqual(
@@ -110,6 +114,16 @@ describe('api/erc20/escrow-info-retriever', () => {
       expect(getLogsSpy).toHaveBeenCalledTimes(3);
     });
     it('can get the INITIATED_EMERGENCY_CLAIM event of an address out of mocked logs', async () => {
+      infoRetriever = new EscrowERC20InfoRetriever(
+        paymentReferenceMock,
+        escrowContractAddress,
+        0,
+        null,
+        null,
+        PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
+        'private',
+      );
+
       const events = await infoRetriever.getAllContractEvents();
       expect(events).toHaveLength(3);
       expect(events).toEqual(
@@ -123,12 +137,45 @@ describe('api/erc20/escrow-info-retriever', () => {
       expect(getLogsSpy).toHaveBeenCalledTimes(3);
     });
     it('can get the REVERTED_EMERGENCY_CLAIM event of an address out of mocked logs', async () => {
+      infoRetriever = new EscrowERC20InfoRetriever(
+        paymentReferenceMock,
+        escrowContractAddress,
+        0,
+        null,
+        null,
+        PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+        'private',
+      );
+
       const events = await infoRetriever.getAllContractEvents();
       expect(events).toHaveLength(3);
       expect(events).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             name: PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+          }),
+        ]),
+      );
+      expect(getBlockSpy).toHaveBeenCalledTimes(3);
+      expect(getLogsSpy).toHaveBeenCalledTimes(3);
+    });
+    it('can get the REVERTED_EMERGENCY_CLAIM event of an address out of mocked logs', async () => {
+      infoRetriever = new EscrowERC20InfoRetriever(
+        paymentReferenceMock,
+        escrowContractAddress,
+        0,
+        null,
+        null,
+        PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW,
+        'private',
+      );
+
+      const events = await infoRetriever.getAllContractEvents();
+      expect(events).toHaveLength(3);
+      expect(events).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW,
           }),
         ]),
       );

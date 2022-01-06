@@ -1,7 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
+
 
 // The ERC20 escrow smart contract ABI fragment containing escrow specific events.
 const erc20EscrowContractAbiFragment = [
@@ -14,6 +15,14 @@ const erc20EscrowContractAbiFragment = [
 type EscrowArgs = {
   paymentReference: string;
 };
+
+type TransferWithreferenceAndFeeArgs = EscrowArgs & {
+  tokenAddress: string;
+  to: string;
+  amount: BigNumber;
+  feeAmount: BigNumber;
+  feeAddress: string;
+}
 
 /**
  * Retrieves a list of payment events from a escrow contract.
@@ -31,16 +40,21 @@ export default class EscrowERC20InfoRetriever
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
 
+
   /**
    * @param paymentReference The reference to identify the payment.
    * @param escrowContractAddress The address of the escrow contract.
    * @param escrowCreationBlockNumber The block that created the escrow contract.
+   * @param tokenContractAddress The address of the ERC20 contract
+   * @param toAddress Address of the balance we want to check
    * @param network The Ethereum network to use.
    */
   constructor(
     private paymentReference: string,
     private escrowContractAddress: string,
     private escrowCreationBlockNumber: number,
+    private tokenContractAddress: string,
+    private toAddress: string,
     private eventName: PaymentTypes.ESCROW_EVENTS_NAMES | undefined,
     private network: string,
   ) {
@@ -142,16 +156,26 @@ export default class EscrowERC20InfoRetriever
         const parsedLog = this.contractEscrow.interface.parseLog(log);
         return {
           ...log,
-          parsedLog: parseLogArgs<EscrowArgs>(parsedLog),
+          parsedLog: parseLogArgs<TransferWithreferenceAndFeeArgs>(parsedLog),
         };
       })
 
+      // Keeps only the log with the right token and the right destination address
+      .filter(
+        ({ parsedLog }) =>
+          parsedLog.tokenAddress.toLowerCase() === this.tokenContractAddress.toLowerCase() &&
+          parsedLog.to.toLowerCase() === this.toAddress.toLowerCase(),
+      )
       // Creates the escrow events.
       .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
         // TODO fix me
+        amount: parsedLog.amount.toString(),
         name: eventName,
         parameters: {
           block: blockNumber,
+          feeAddress: parsedLog.feeAddress || undefined,
+          feeAmount: parsedLog.feeAmount?.toString() || undefined,
+          to: this.toAddress,
           txHash: transactionHash,
         },
         timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
