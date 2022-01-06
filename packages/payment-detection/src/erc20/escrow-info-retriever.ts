@@ -47,6 +47,7 @@ export default class EscrowERC20InfoRetriever
    * @param escrowCreationBlockNumber The block that created the escrow contract.
    * @param tokenContractAddress The address of the ERC20 contract
    * @param toAddress Address of the balance we want to check
+   * @param eventName Indicate if it is an address for payment or refund
    * @param network The Ethereum network to use.
    */
   constructor(
@@ -170,7 +171,7 @@ export default class EscrowERC20InfoRetriever
       .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
         // TODO fix me
         amount: parsedLog.amount.toString(),
-        name: this.eventName,
+        name: eventName,
         parameters: {
           block: blockNumber,
           feeAddress: parsedLog.feeAddress || undefined,
