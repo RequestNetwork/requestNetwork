@@ -59,9 +59,9 @@ export default class RequestNetwork {
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
     currencies?: CurrencyInput[];
-    currencyManager: ICurrencyManager;
+    currencyManager?: ICurrencyManager;
   }) {
-    this.currencyManager = currencyManager;
+    this.currencyManager = currencyManager || CurrencyManager.getDefault();
     this.advancedLogic = new AdvancedLogic(this.currencyManager);
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
