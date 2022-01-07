@@ -1,4 +1,4 @@
-import { CurrencyInput } from '@requestnetwork/currency';
+import { CurrencyInput, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
 import {
   ClientTypes,
   DataAccessTypes,
@@ -28,7 +28,8 @@ export default class HttpRequestNetwork extends RequestNetwork {
    * @param options.signatureProvider Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
    * @param options.useLocalEthereumBroadcast When true, persisting use the node only for IPFS but persisting on ethereum through local provider (given in ethereumProviderUrl).
    * @param options.ethereumProviderUrl Url of the Ethereum provider use to persist transactions if useLocalEthereumBroadcast is true.
-   *
+   * @param options.currencies custom currency list
+   * @param options.currencyManager custom currency manager (will override `currencies`)
    */
   constructor(
     {
@@ -41,6 +42,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       web3,
       ethereumProviderUrl,
       currencies,
+      currencyManager,
     }: {
       decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
@@ -51,6 +53,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       web3?: any;
       ethereumProviderUrl?: string;
       currencies?: CurrencyInput[];
+      currencyManager?: ICurrencyManager;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},
@@ -72,7 +75,11 @@ export default class HttpRequestNetwork extends RequestNetwork {
       : // useLocalEthereumBroadcast === false => use http-data-access
         new HttpDataAccess({ httpConfig, nodeConnectionConfig });
 
-    super({ dataAccess, signatureProvider, decryptionProvider, currencies });
+    if (!currencyManager) {
+      currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());
+    }
+
+    super({ dataAccess, signatureProvider, decryptionProvider, currencyManager });
 
     // store it for test purpose
     this._mockStorage = _mockStorage;

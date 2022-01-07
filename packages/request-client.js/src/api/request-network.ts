@@ -45,21 +45,23 @@ export default class RequestNetwork {
    * @param signatureProvider module in charge of the signatures
    * @param decryptionProvider module in charge of the decryption
    * @param bitcoinDetectionProvider bitcoin detection provider
+   * @param currencyManager
    */
   public constructor({
     dataAccess,
     signatureProvider,
     decryptionProvider,
     bitcoinDetectionProvider,
-    currencies,
+    currencyManager,
   }: {
     dataAccess: DataAccessTypes.IDataAccess;
     signatureProvider?: SignatureProviderTypes.ISignatureProvider;
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
     bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
     currencies?: CurrencyInput[];
+    currencyManager?: ICurrencyManager;
   }) {
-    this.currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());
+    this.currencyManager = currencyManager || CurrencyManager.getDefault();
     this.advancedLogic = new AdvancedLogic(this.currencyManager);
     this.transaction = new TransactionManager(dataAccess, decryptionProvider);
     this.requestLogic = new RequestLogic(this.transaction, signatureProvider, this.advancedLogic);
