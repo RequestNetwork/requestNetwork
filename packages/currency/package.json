@@ -41,7 +41,7 @@
     "add-erc20": "ts-node scripts/addErc20.ts"
   },
   "dependencies": {
-    "@metamask/contract-metadata": "1.28.0",
+    "@metamask/contract-metadata": "1.31.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
     "multicoin-address-validator": "0.5.2",
