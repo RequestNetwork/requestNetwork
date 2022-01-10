@@ -9,6 +9,7 @@ const erc20EscrowContractAbiFragment = [
   'event RequestFrozen(bytes indexed paymentReference)',
   'event InitiatedEmergencyClaim(bytes indexed paymentReference)',
   'event RevertedEmergencyClaim(bytes indexed paymentReference)',
+  'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)'
 ];
 
 /** Escrow contract event arguments. */
@@ -16,7 +17,7 @@ type EscrowArgs = {
   paymentReference: string;
 };
 
-type TransferWithreferenceAndFeeArgs = EscrowArgs & {
+type TransferWithReferenceAndFeeArgs = EscrowArgs & {
   tokenAddress: string;
   to: string;
   amount: BigNumber;
@@ -30,11 +31,8 @@ type TransferWithreferenceAndFeeArgs = EscrowArgs & {
 export default class EscrowERC20InfoRetriever
   implements
     PaymentTypes.IPaymentNetworkBaseInfoRetriever<
-      | PaymentTypes.IPaymentNetworkEvent<
-          PaymentTypes.IERC20FeePaymentEventParameters,
-          PaymentTypes.ESCROW_EVENTS_NAMES
-        >
-      | PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>,
+    PaymentTypes.ICustomNetworkEvent<
+      PaymentTypes.GenericEventParameters>,
       PaymentTypes.ESCROW_EVENTS_NAMES
     > {
   public contractEscrow: ethers.Contract;
@@ -47,14 +45,13 @@ export default class EscrowERC20InfoRetriever
    * @param escrowCreationBlockNumber The block that created the escrow contract.
    * @param tokenContractAddress The address of the ERC20 contract
    * @param toAddress Address of the balance we want to check
-   * @param eventName Indicate if it is an address for payment or refund
+   * @param eventName Indicate if it is an address for payment or escrow
    * @param network The Ethereum network to use.
    */
   constructor(
     private paymentReference: string,
     private escrowContractAddress: string,
     private escrowCreationBlockNumber: number,
-    private tokenContractAddress: string,
     private toAddress: string,
     private eventName: PaymentTypes.ESCROW_EVENTS_NAMES,
     private network: string,
@@ -74,11 +71,9 @@ export default class EscrowERC20InfoRetriever
    * Retrieves events for the current contract, address and network.
    */
   public async getAllContractEvents(): Promise<
-    | PaymentTypes.IPaymentNetworkEvent<
-        PaymentTypes.IERC20FeePaymentEventParameters,
-        PaymentTypes.ESCROW_EVENTS_NAMES
-      >[]
-    | PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]
+    PaymentTypes.ICustomNetworkEvent<
+      PaymentTypes.GenericEventParameters,
+      PaymentTypes.ESCROW_EVENTS_NAMES>[]
   > {
     const freezeEvents = await this.getContractEventsForEventName(
       PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
@@ -97,11 +92,10 @@ export default class EscrowERC20InfoRetriever
   }
 
   public async getContractEvents(): Promise<
-    | PaymentTypes.IPaymentNetworkEvent<
-        PaymentTypes.IERC20FeePaymentEventParameters,
+    | PaymentTypes.ICustomNetworkEvent<
+        PaymentTypes.GenericEventParameters,
         PaymentTypes.ESCROW_EVENTS_NAMES
-      >[]
-    | PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]
+    >[]
   > {
     if (!this.eventName) {
       throw new Error('Missing event name in EscrowInfoRetriever for getContractEvents()');
@@ -115,11 +109,9 @@ export default class EscrowERC20InfoRetriever
   protected async getContractEventsForEventName(
     eventName: PaymentTypes.ESCROW_EVENTS_NAMES,
   ): Promise<
-    | PaymentTypes.IPaymentNetworkEvent<
-        PaymentTypes.IERC20FeePaymentEventParameters,
-        PaymentTypes.ESCROW_EVENTS_NAMES
-      >[]
-    | PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]
+      PaymentTypes.ICustomNetworkEvent<
+        PaymentTypes.GenericEventParameters,
+        PaymentTypes.ESCROW_EVENTS_NAMES>[]
   > {
     const filter: ethers.providers.Filter | undefined =
       eventName === PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT
@@ -157,26 +149,22 @@ export default class EscrowERC20InfoRetriever
         const parsedLog = this.contractEscrow.interface.parseLog(log);
         return {
           ...log,
-          parsedLog: parseLogArgs<TransferWithreferenceAndFeeArgs>(parsedLog),
+          parsedLog: parseLogArgs<TransferWithReferenceAndFeeArgs>(parsedLog),
         };
       })
 
-      // Keeps only the log with the right token and the right destination address
-      .filter(
-        ({ parsedLog }) =>
-          parsedLog.tokenAddress.toLowerCase() === this.tokenContractAddress.toLowerCase() &&
-          parsedLog.to.toLowerCase() === this.toAddress.toLowerCase(),
-      )
+
       // Creates the escrow events.
       .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
         // TODO fix me
-        amount: parsedLog.amount.toString(),
+        amount: parsedLog.amount.toString() || undefined,
         name: eventName,
         parameters: {
           block: blockNumber,
+          paymentReference: parsedLog.paymentReference,
           feeAddress: parsedLog.feeAddress || undefined,
           feeAmount: parsedLog.feeAmount?.toString() || undefined,
-          to: this.toAddress,
+          to: this.toAddress || undefined,
           txHash: transactionHash,
         },
         timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
