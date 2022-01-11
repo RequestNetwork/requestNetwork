@@ -52,9 +52,10 @@ export default class EscrowERC20InfoRetriever
     private paymentReference: string,
     private escrowContractAddress: string,
     private escrowCreationBlockNumber: number,
+    private tokenContractAddress: string,
     private toAddress: string,
-    private eventName: PaymentTypes.ESCROW_EVENTS_NAMES,
     private network: string,
+    private eventName?: PaymentTypes.ESCROW_EVENTS_NAMES
   ) {
     // Creates a local or default provider.
     this.provider = getDefaultProvider(this.network);
@@ -152,7 +153,13 @@ export default class EscrowERC20InfoRetriever
           parsedLog: parseLogArgs<TransferWithReferenceAndFeeArgs>(parsedLog),
         };
       })
-
+      
+      // Keeps only the log with the right token and the right destination address
+      .filter(
+        ({ parsedLog }) =>
+          parsedLog.tokenAddress.toLowerCase() === this.tokenContractAddress.toLowerCase() &&
+          parsedLog.to.toLowerCase() === this.toAddress.toLowerCase(),
+      )
 
       // Creates the escrow events.
       .map(async ({ parsedLog, blockNumber, transactionHash }) => ({

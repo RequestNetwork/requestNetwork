@@ -10,7 +10,7 @@ import { VersionNotSupported } from '../balance-error';
 
 import { makeGetDeploymentInformation } from '../utils';
 import EscrowERC20InfoRetriever from './escrow-info-retriever';
-import { ERC20FeeProxyPaymentDetector } from './fee-proxy-contract';
+import { ERC20FeeProxyPaymentDetector, ERC20FeeProxyPaymentDetectorBase } from './fee-proxy-contract';
 import { GenericEventParameters, PAYMENT_NETWORK_ID } from 'types/src/payment-types';
 
 const ESCROW_CONTRACT_ADDRESS_MAP = {
@@ -21,10 +21,10 @@ const ESCROW_CONTRACT_ADDRESS_MAP = {
  * Handle payment networks with ERC20 fee proxy contract extension, or derived
  */
 
-export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
-  /**
-   * TODO
-   */
+export class CustomProxyDetector extends ERC20FeeProxyPaymentDetectorBase<
+  ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
+  PaymentTypes.IERC20FeePaymentEventParameters
+> {
   constructor({
     advancedLogic,
     currencyManager,
@@ -32,7 +32,10 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     currencyManager: ICurrencyManager;
   }) {
-    super({ advancedLogic, currencyManager });
+    super(
+      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+      advancedLogic.extensions.feeProxyContractErc20,
+      currencyManager);
   }
 
   protected async getEvents(
@@ -40,17 +43,54 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
   ): Promise<
     PaymentTypes.ICustomNetworkEvent<
       PaymentTypes.GenericEventParameters,
-      PaymentTypes.ESCROW_EVENTS_NAMES
+      PaymentTypes.ESCROW_EVENTS_NAMES | PaymentTypes.EVENTS_NAMES
     >[] 
-  > {
+    > {
+    
     const paymentEvents = await super.getEvents(request);
+
     // TODO, should get custom events here
-    const customEvents = await this.getEvents(request); 
+    const customEvents = await this.extractAllCustomEvents(address, to); 
     return [...paymentEvents, ...customEvents];
   }
 
+  protected async extractAllCustomEvents(
+    address: string,
+    to: string,
+    paymentReference: string,
+    requestCurrency: RequestLogicTypes.ICurrency,
+    paymentChain: string,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnFeeReferenceBased.ICreationParameters>
+  ): Promise<
+    PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]
+    | PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]
+    > {
+      const infoRetriever = new EscrowERC20InfoRetriever( 
+        to,
+    paymentReference,
+    customContractAddress,
+    customCreationBlockNumber,
+    requestCurrency.value,
+    paymentChain,
+    paymentNetwork
+  );
+    }// should return the getacontractevents from escrow retriever
+
+  
+
+
+
+   /*
+   * Returns deployment information for the underlying smart contract for a given payment network version
+   */
+   public static getDeploymentInformation = makeGetDeploymentInformation(
+    erc20EscrowToPayArtifact,
+    ESCROW_CONTRACT_ADDRESS_MAP,
+  );
+}
+/** 
   protected async extractEvents(
-    eventName: PaymentTypes.EVENTS_NAMES | PaymentTypes.ESCROW_EVENTS_NAMES,
+    eventName?: PaymentTypes.EVENTS_NAMES | PaymentTypes.ESCROW_EVENTS_NAMES,
     address: string,
     to: string,
     paymentReference: string,
@@ -59,8 +99,8 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnFeeReferenceBased.ICreationParameters>,
     // TODO: " | PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>" is wrong, should get event parameters like in IERC20FeePaymentEventParameters
   ): Promise<
-    PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>
-    | PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>
+    PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]
+    | PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]
     > {
     if ( // ERC20feeProxy related requests
       eventName === PaymentTypes.EVENTS_NAMES.PAYMENT ||
@@ -107,34 +147,11 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
     const customContractAddress: string | undefined = deploymentInformation.address;
     const customCreationBlockNumber: number = deploymentInformation.creationBlockNumber;
 
-    const infoRetriever = /*? new TheGraphInfoRetriever(
-          paymentReference,
-          proxyContractAddress,
-          requestCurrency.value,
-          address,
-          eventName,
-          paymentChain,
-        )
-      : */ new EscrowERC20InfoRetriever( // TODO networkSupportsTheGraph(paymentChain)
-      paymentReference,
-      customContractAddress,
-      customCreationBlockNumber,
-      requestCurrency.value,
-      to,
-      eventName,
-      paymentChain,
-    );
+    
 
     return infoRetriever.getContractEvents() as Promise<
       PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]
     >;
   }
-
-  /*
-   * Returns deployment information for the underlying smart contract for a given payment network version
-   */
-  public static getDeploymentInformation = makeGetDeploymentInformation(
-    erc20EscrowToPayArtifact,
-    ESCROW_CONTRACT_ADDRESS_MAP,
-  );
-}
+*/
+ 
