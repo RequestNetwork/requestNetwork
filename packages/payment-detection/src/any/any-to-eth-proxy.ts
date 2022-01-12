@@ -66,10 +66,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     if (!address) {
       return [];
     }
-    const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
-      paymentChain,
-      paymentNetwork.version,
-    );
+    const contractInfo = this.getProxyDeploymentInformation(paymentChain, paymentNetwork.version);
 
     if (!contractInfo) {
       throw Error('ETH conversion proxy contract not found');
@@ -110,6 +107,10 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
     return network;
+  }
+
+  protected getProxyDeploymentInformation(networkName: string, version: string) {
+    return AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   /*

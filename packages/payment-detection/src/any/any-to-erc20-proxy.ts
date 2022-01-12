@@ -93,7 +93,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     }
     const { acceptedTokens, maxRateTimespan = 0 } = paymentNetwork.values;
 
-    const conversionDeploymentInformation = AnyToERC20PaymentDetector.getDeploymentInformation(
+    const conversionDeploymentInformation = this.getProxyDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
@@ -147,6 +147,10 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
     return network;
+  }
+
+  protected getProxyDeploymentInformation(networkName: string, version: string) {
+    return AnyToERC20PaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   public static getDeploymentInformation = makeGetDeploymentInformation(

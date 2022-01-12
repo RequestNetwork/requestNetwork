@@ -1,4 +1,4 @@
-import { DeploymentInformation, erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
+import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -167,10 +167,7 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
     }
   }
 
-  protected getProxyDeploymentInformation(
-    networkName: string,
-    version: string,
-  ): DeploymentInformation {
+  protected getProxyDeploymentInformation(networkName: string, version: string) {
     return CustomProxyDetector.getDeploymentInformation(networkName, version);
   }
 
