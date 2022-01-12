@@ -1,10 +1,5 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
-import {
-  ExtensionTypes,
-  IdentityTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks';
@@ -17,45 +12,12 @@ import {
   privateErc20Address,
   requestNetwork,
 } from './fixtures';
+import { createMockErc20FeeRequest } from '../utils';
 
-const createMockRequest = ({
-  network,
-  tokenAddress,
-  paymentAddress,
-  salt,
-  requestId,
-}: Record<
-  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId',
-  string
->): RequestLogicTypes.IRequest => ({
-  creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
-  currency: {
-    network,
-    type: RequestLogicTypes.CURRENCY.ERC20,
-    value: tokenAddress,
-  },
-  events: [],
-  expectedAmount: '0',
-  extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: {
-      events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-      values: {
-        paymentAddress,
-        salt,
-      },
-      version: '0.1.0',
-    },
-  },
-  extensionsData: [],
-  requestId,
-  state: RequestLogicTypes.STATE.CREATED,
-  timestamp: 0,
-  version: '0.2',
-});
+const createMockRequest = createMockErc20FeeRequest;
 
 const erc20FeeProxy = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
+  // FIXME: the mocked advanced logic is address based
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
 });
