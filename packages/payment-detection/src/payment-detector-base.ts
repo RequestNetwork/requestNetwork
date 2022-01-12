@@ -46,12 +46,7 @@ export abstract class PaymentDetectorBase<
    */
   protected abstract getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<
-    (
-      | PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>
-      | PaymentTypes.ICustomNetworkEvent<TPaymentEventParameters>
-    )[]
-  >;
+  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
 
   protected getPaymentExtension(
     request: RequestLogicTypes.IRequest,

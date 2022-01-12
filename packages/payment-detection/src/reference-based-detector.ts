@@ -82,12 +82,9 @@ export abstract class ReferenceBasedDetector<
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
   ): Promise<
-    (
-      | PaymentTypes.IPaymentNetworkEvent<
-          TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-        >
-      | PaymentTypes.ICustomNetworkEvent<TPaymentEventParameters>
-    )[]
+    PaymentTypes.IPaymentNetworkEvent<
+      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+    >[]
   > {
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
