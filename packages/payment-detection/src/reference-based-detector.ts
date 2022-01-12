@@ -4,6 +4,7 @@ import { BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
+import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
@@ -81,9 +82,12 @@ export abstract class ReferenceBasedDetector<
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
   ): Promise<
-    PaymentTypes.IPaymentNetworkEvent<
-      TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-    >[]
+    (
+      | PaymentTypes.IPaymentNetworkEvent<
+          TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
+        >
+      | PaymentTypes.ICustomNetworkEvent<TPaymentEventParameters>
+    )[]
   > {
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
@@ -163,4 +167,9 @@ export abstract class ReferenceBasedDetector<
     this.checkRequiredParameter(salt, 'salt');
     return PaymentReferenceCalculator.calculate(request.requestId, salt, paymentAddress);
   }
+
+  protected abstract getProxyDeploymentInformation(
+    networkName: string,
+    version: string,
+  ): DeploymentInformation;
 }

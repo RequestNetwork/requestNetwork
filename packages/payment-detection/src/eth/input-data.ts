@@ -12,6 +12,7 @@ import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { networkSupportsTheGraphForNativePayments } from '../thegraph';
 import { TheGraphInfoRetriever } from '../erc20/thegraph-info-retriever';
+import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -79,7 +80,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       this.explorerApiKeys[paymentChain],
     );
     const events = await infoRetriever.getTransferEvents();
-    const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(
+    const proxyContractArtifact = this.getProxyDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
@@ -107,6 +108,13 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       events.push(...proxyEvents);
     }
     return events;
+  }
+
+  protected getProxyDeploymentInformation(
+    networkName: string,
+    version: string,
+  ): DeploymentInformation {
+    return EthInputDataPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   /*

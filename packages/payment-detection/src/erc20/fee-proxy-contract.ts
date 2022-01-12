@@ -1,4 +1,4 @@
-import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { DeploymentInformation, erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -97,7 +97,7 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
       return Promise.resolve([]);
     }
 
-    const deploymentInformation = ERC20FeeProxyPaymentDetector.getDeploymentInformation(
+    const deploymentInformation = this.getProxyDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
@@ -139,6 +139,13 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
     return infoRetriever.getTransferEvents() as Promise<
       PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]
     >;
+  }
+
+  protected getProxyDeploymentInformation(
+    networkName: string,
+    version: string,
+  ): DeploymentInformation {
+    return ERC20FeeProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   /*
