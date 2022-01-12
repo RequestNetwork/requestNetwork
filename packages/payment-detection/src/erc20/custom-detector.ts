@@ -36,7 +36,7 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
   /**
    * Returns the custom events that do not impact the balance
    */
-  protected async getCustomEvents(
+  public async getCustomEvents(
     request: RequestLogicTypes.IRequest,
   ): Promise<
     PaymentTypes.ICustomNetworkEvent<
@@ -60,7 +60,7 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
   /**
    * Returns the balance impacting and non-balance impacting events
    */
-  protected async getAllEvents(
+  public async getAllEvents(
     request: RequestLogicTypes.IRequest,
   ): Promise<
     PaymentTypes.ICustomNetworkEvent<
