@@ -75,6 +75,16 @@ export default {
       chainId: 250,
       accounts,
     },
+	arbitrum: {
+        url: process.env.WEB3_PROVIDER_URL || 'https://arb1.arbitrum.io/rpc',
+        chainId: 42161,
+        accounts,
+    },
+    arbitrumtest: {
+        url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.arbitrum.io/rpc',
+        chainId: 421611,
+        accounts
+    },
   },
   etherscan: {
     // Can be overridden according to the network (set-explorer-api-key)
