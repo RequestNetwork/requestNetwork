@@ -5,12 +5,9 @@ import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import { task } from 'hardhat/config';
 import { config } from 'dotenv';
-import deployRequest from './scripts/1_deploy-request-storage';
-import deployPayment from './scripts/2_deploy-main-payments';
-import deployConversion from './scripts/3_deploy_chainlink_contract';
+import deployAllContracts from './scripts/5_deploy-all'
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
-import { deployEscrow } from './scripts/4_deploy-escrow-deployment';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
@@ -113,10 +110,7 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
 // FIXME: use deployAllPaymentContracts instead to test with the same deployments
 task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hre) => {
   args.force = true;
-  await deployRequest(args, hre);
-  await deployPayment(args, hre);
-  await deployConversion(args, hre);
-  await deployEscrow(hre);
+  await deployAllContracts(args, hre)
   console.log('All contracts (re)deployed locally');
 });
 

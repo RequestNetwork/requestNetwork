@@ -4,7 +4,7 @@ import { deployOne } from '../scripts/deploy-one';
 
 
 // Deploys, set up the contracts
-export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
+export default async function deploy(args: any, hre: HardhatRuntimeEnvironment): Promise<any> {
   try {
     const [deployer] = await hre.ethers.getSigners();
 
@@ -105,7 +105,13 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       ERC20Alpha:               ${erc20AlphaInstance.address}
       FakeSwapRouter:           ${FakeSwapRouterAddress}
       SwapToPay:                ${ERC20SwapToPayAddress}
-      `);
+    `);
+    return { 
+        DAI_address: erc20AlphaInstance.address, 
+        ERC20FeeProxy_address: ERC20FeeProxyAddress,
+        ERC20Test_address: testERC20Instance.address,
+        ETHFeeProxy_address: EthereumFeeProxyAddress
+    }
   } catch (e) {
     console.error(e);
   }

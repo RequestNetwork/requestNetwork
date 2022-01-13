@@ -5,7 +5,7 @@ import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversi
 import { deploySwapConversion } from './erc20-swap-to-conversion';
 import { deployOne } from './deploy-one';
 
-export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
+export default async function deploy(args: any, hre: HardhatRuntimeEnvironment, mainPaymentAddresses: any) {
   const [deployer] = await hre.ethers.getSigners();
   const { address: AggDAI_USD_address } = await deployOne(args, hre, 'AggregatorMock', {
     constructorArguments: [101000000, 8, 60],
@@ -26,9 +26,9 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
   const ETH_hash = currencyManager.fromSymbol('ETH')!.hash;
   const USD_hash = currencyManager.fromSymbol('USD')!.hash;
   const EUR_hash = currencyManager.fromSymbol('EUR')!.hash;
+
   // Cf. ERC20Alpha in TestERC20.sol
-  // FIXME: should try to retrieve information from artifacts instead
-  const DAI_address = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
+  const DAI_address = mainPaymentAddresses.DAI_address;
 
   const USDT_address = USDT_fake_address;
 
@@ -52,7 +52,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       {
         ...args,
         chainlinkConversionPathAddress: conversionPathInstance.address,
-        erc20FeeProxyAddress: '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd',
+        erc20FeeProxyAddress: mainPaymentAddresses.ERC20FeeProxy_address,
       },
       hre,
     )
@@ -74,11 +74,9 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     return;
   }
   await erc20SwapConversion.approvePaymentProxyToSpend(
-    // FIXME: should try to retrieve information from artifacts instead
-    '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35',
+    mainPaymentAddresses.DAI_address
   );
-  // FIXME: should try to retrieve information from artifacts instead
-  await erc20SwapConversion.approveRouterToSpend('0x9FBDa871d559710256a2502A2517b794B482Db40');
+  await erc20SwapConversion.approveRouterToSpend(mainPaymentAddresses.ERC20Test_address);
 
   // EthConversion
   const ethConversionProxyAddress =
@@ -87,7 +85,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
         {
           ...args,
           chainlinkConversionPathAddress: conversionPathInstance.address,
-          ethFeeProxyAddress: '0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241',
+          ethFeeProxyAddress: mainPaymentAddresses.ETHFeeProxy_address,
           nativeTokenHash: ETH_hash,
         },
         hre,
