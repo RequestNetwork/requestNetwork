@@ -107,10 +107,10 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
       SwapToPay:                ${ERC20SwapToPayAddress}
     `);
     return { 
-        DAI_address: erc20AlphaInstance.address, 
-        ERC20FeeProxy_address: ERC20FeeProxyAddress,
-        ERC20Test_address: testERC20Instance.address,
-        ETHFeeProxy_address: EthereumFeeProxyAddress
+        DAIAddress: erc20AlphaInstance.address, 
+        ERC20FeeProxyAddress: ERC20FeeProxyAddress,
+        ERC20TestAddress: testERC20Instance.address,
+        ETHFeeProxyAddress: EthereumFeeProxyAddress
     }
   } catch (e) {
     console.error(e);

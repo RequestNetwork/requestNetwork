@@ -28,7 +28,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment, 
   const EUR_hash = currencyManager.fromSymbol('EUR')!.hash;
 
   // Cf. ERC20Alpha in TestERC20.sol
-  const DAI_address = mainPaymentAddresses.DAI_address;
+  const DAI_address = mainPaymentAddresses.DAIAddress;
 
   const USDT_address = USDT_fake_address;
 
@@ -52,7 +52,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment, 
       {
         ...args,
         chainlinkConversionPathAddress: conversionPathInstance.address,
-        erc20FeeProxyAddress: mainPaymentAddresses.ERC20FeeProxy_address,
+        erc20FeeProxyAddress: mainPaymentAddresses.ERC20FeeProxyAddress,
       },
       hre,
     )
@@ -74,9 +74,9 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment, 
     return;
   }
   await erc20SwapConversion.approvePaymentProxyToSpend(
-    mainPaymentAddresses.DAI_address
+    mainPaymentAddresses.DAIAddress
   );
-  await erc20SwapConversion.approveRouterToSpend(mainPaymentAddresses.ERC20Test_address);
+  await erc20SwapConversion.approveRouterToSpend(mainPaymentAddresses.ERC20TestAddress);
 
   // EthConversion
   const ethConversionProxyAddress =
@@ -85,7 +85,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment, 
         {
           ...args,
           chainlinkConversionPathAddress: conversionPathInstance.address,
-          ethFeeProxyAddress: mainPaymentAddresses.ETHFeeProxy_address,
+          ethFeeProxyAddress: mainPaymentAddresses.ETHFeeProxyAddress,
           nativeTokenHash: ETH_hash,
         },
         hre,
