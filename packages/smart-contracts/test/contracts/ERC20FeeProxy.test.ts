@@ -269,7 +269,7 @@ describe('contract: ERC20FeeProxy', () => {
             '2',
             feeAddress,
         ),
-    ).to.be.revertedWith('revert payment transferFrom() failed')
+    ).to.be.revertedWith('payment transferFrom() failed')
 
     await expect(
         erc20FeeProxy.transferFromWithReferenceAndFee(

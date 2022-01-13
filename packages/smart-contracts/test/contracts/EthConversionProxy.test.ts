@@ -97,8 +97,8 @@ describe('contract: EthConversionProxy', () => {
           .toString();
 
         // Check balance changes
-        expect(Number(fromNewBalance)).to.be.lessThan(
-            Number(fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result))
+        expect(fromNewBalance).to.be.lte(
+            fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result)
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
@@ -155,8 +155,8 @@ describe('contract: EthConversionProxy', () => {
         expect(contractFeeBalance.toString()).to.equals("0");
 
         // Check balance changes
-        expect(Number(fromNewBalance)).to.be.lessThan(
-            Number(fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result))
+        expect(fromNewBalance).to.be.lte(
+            fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result)
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
@@ -182,7 +182,7 @@ describe('contract: EthConversionProxy', () => {
                     value: conversionToPay.result, // Fees amount missing
                 }
               ),
-        ).to.be.revertedWith('revert paymentProxy transferExactEthWithReferenceAndFee failed')
+        ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed')
       });
 
       it('cannot transfer if rate is too old', async function () {
@@ -203,7 +203,7 @@ describe('contract: EthConversionProxy', () => {
                     value: conversionFees.result.add(conversionToPay.result),
                 }
               ),
-        ).to.be.revertedWith('revert aggregator rate is outdated')
+        ).to.be.revertedWith('aggregator rate is outdated')
       });
     });
   });

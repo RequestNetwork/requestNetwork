@@ -59,6 +59,6 @@ describe('contract: ERC20Proxy', () => {
           '100', 
           referenceExample
       ),
-    ).to.be.revertedWith('revert ERC20: transfer amount exceeds balance');
+    ).to.be.revertedWith('ERC20: transfer amount exceeds balance');
   });
 });

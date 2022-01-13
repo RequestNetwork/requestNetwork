@@ -116,7 +116,7 @@ describe('contract: ERC20SwapToConversion', () => {
         referenceExample,
         fiatDecimal.mul(1),
         builder,
-        exchangeRateOrigin + 100, // _uniswapDeadline
+        exchangeRateOrigin + 1000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
         0, // _chainlinkMaxRateTimespan
       ),
     )
