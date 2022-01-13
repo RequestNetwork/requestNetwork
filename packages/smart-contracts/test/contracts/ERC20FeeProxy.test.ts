@@ -38,8 +38,8 @@ describe('contract: ERC20FeeProxy', () => {
   it('stores reference and paid fee', async function () {
     await testERC20.approve(erc20FeeProxy.address, '102');
 
-    expect(
-      await erc20FeeProxy.transferFromWithReferenceAndFee(
+    await expect(
+      erc20FeeProxy.transferFromWithReferenceAndFee(
         testERC20.address,
         to,
         '100',
@@ -90,7 +90,7 @@ describe('contract: ERC20FeeProxy', () => {
     const toOldBalance = await testERC20.balanceOf(to);
     const feeOldBalance = await testERC20.balanceOf(feeAddress);
 
-    expect(
+    await expect(
       erc20FeeProxy.transferFromWithReferenceAndFee(
         testERC20.address,
         to,
@@ -99,7 +99,7 @@ describe('contract: ERC20FeeProxy', () => {
         '2',
         feeAddress,
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('revert');
 
     const fromNewBalance = await testERC20.balanceOf(from);
     const toNewBalance = await testERC20.balanceOf(to);
@@ -133,7 +133,7 @@ describe('contract: ERC20FeeProxy', () => {
           from,
         },
       ),
-    ).to.be.reverted;
+    ).to.be.reverted; // Revert from invalid argument
 
     const fromNewBalance = await testERC20.balanceOf(from);
     const toNewBalance = await testERC20.balanceOf(to);
@@ -156,7 +156,7 @@ describe('contract: ERC20FeeProxy', () => {
         '0',
         feeAddress,
       ),
-    ).to.be.reverted;
+    ).to.be.reverted; // No explicit message from contract
   });
 
   it('no fee transfer if amount is 0', async function () {
@@ -260,17 +260,26 @@ describe('contract: ERC20FeeProxy', () => {
         );
     }
 
-    for (let tokenContract of failContracts) {
-      await expect(
+    await expect(
         erc20FeeProxy.transferFromWithReferenceAndFee(
-          tokenContract.address,
-          to,
-          '100',
-          referenceExample,
-          '2',
-          feeAddress,
+            failContracts[0].address,
+            to,
+            '100',
+            referenceExample,
+            '2',
+            feeAddress,
         ),
-      ).to.be.reverted;
-    }
+    ).to.be.revertedWith('revert payment transferFrom() failed')
+
+    await expect(
+        erc20FeeProxy.transferFromWithReferenceAndFee(
+            failContracts[1].address,
+            to,
+            '100',
+            referenceExample,
+            '2',
+            feeAddress,
+        ),
+    ).to.be.revertedWith('revert')
   });
 });

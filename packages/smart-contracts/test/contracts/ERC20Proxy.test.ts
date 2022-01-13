@@ -53,7 +53,12 @@ describe('contract: ERC20Proxy', () => {
   it('should revert if no fund', async function () {
     await testERC20.transfer(to, testERC20.balanceOf(from));
     await expect(
-      erc20Proxy.transferFromWithReference(testERC20.address, to, '100', referenceExample),
-    ).to.be.reverted;
+      erc20Proxy.transferFromWithReference(
+          testERC20.address, 
+          to, 
+          '100', 
+          referenceExample
+      ),
+    ).to.be.revertedWith('revert ERC20: transfer amount exceeds balance');
   });
 });

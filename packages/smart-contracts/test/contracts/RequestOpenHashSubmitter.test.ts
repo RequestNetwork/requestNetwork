@@ -1,5 +1,5 @@
 import '@nomiclabs/hardhat-ethers';
-import { ethers } from 'hardhat';
+import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
@@ -9,6 +9,7 @@ import {
   RequestOpenHashSubmitter__factory,
   RequestOpenHashSubmitter,
 } from '../../src/types';
+import { HttpNetworkConfig } from 'hardhat/types';
 
 use(solidity);
 
@@ -66,7 +67,8 @@ describe('contract: RequestOpenHashSubmitter', () => {
 
   describe('submitHash', () => {
     it('Allows submitHash without fee', async function () {
-      const provider = new ethers.providers.JsonRpcProvider();
+      const networkConfig = network.config as HttpNetworkConfig
+      const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);  
       let oldBurnerBalance = await provider.getBalance(burner);
 
       await expect(
@@ -81,7 +83,8 @@ describe('contract: RequestOpenHashSubmitter', () => {
     });
 
     it('Allows submitHash with fees', async () => {
-      const provider = new ethers.providers.JsonRpcProvider();
+      const networkConfig = network.config as HttpNetworkConfig
+      const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
       const intialBurnerBalance = await provider.getBalance(burner);
 
       const minimumFee = BigNumber.from(100);

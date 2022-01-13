@@ -4,6 +4,7 @@ import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { EthereumFeeProxy } from '../../src/types';
 import { ethereumFeeProxyArtifact } from '../../src/lib/';
+import { HttpNetworkConfig } from 'hardhat/types';
 
 use(solidity);
 
@@ -14,7 +15,8 @@ describe('contract: EthereumFeeProxy', () => {
   const referenceExample = '0xaaaa';
   const amount = BigNumber.from('10000000000000000');
   const feeAmount = BigNumber.from('2000000000000000');
-  const provider = new ethers.providers.JsonRpcProvider();
+  const networkConfig = network.config as HttpNetworkConfig
+  const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
   const feeAddress = '0xF4255c5e53a08f72b0573D1b8905C5a50aA9c2De';
 
   before(async () => {
@@ -71,6 +73,6 @@ describe('contract: EthereumFeeProxy', () => {
         ethFeeProxy.transferWithReferenceAndFee(to, referenceExample, amount, feeAddress, {
             value: feeAmount,
           })
-        ).to.be.reverted;
+        ).to.be.revertedWith('revert');
   });
 });

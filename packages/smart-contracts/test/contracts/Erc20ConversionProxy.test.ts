@@ -188,9 +188,11 @@ describe('contract: Erc20ConversionProxy', () => {
             feeAddress,
             hundredWith18Decimal,
             0,
-            { from },
+            { 
+                from
+            },
           ),
-        ).to.be.reverted;
+        ).to.be.revertedWith('No aggregator found');
       });
 
       it('cannot transfer if max to spend too low', async function () {
@@ -209,9 +211,11 @@ describe('contract: Erc20ConversionProxy', () => {
             feeAddress,
             100,
             0,
-            { from },
+            { 
+                from,
+            },
           ),
-        ).to.be.reverted;
+        ).to.be.revertedWith('Amount to pay is over the user limit');
       });
 
       it('cannot transfer if rate is too old', async function () {
@@ -230,9 +234,11 @@ describe('contract: Erc20ConversionProxy', () => {
             feeAddress,
             hundredWith18Decimal,
             10, // ten secondes
-            { from },
+            { 
+                from,
+            },
           ),
-        ).to.be.reverted;
+        ).to.be.revertedWith('aggregator rate is outdated');
       });
     });
   });
