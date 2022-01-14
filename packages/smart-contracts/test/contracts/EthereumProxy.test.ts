@@ -51,7 +51,7 @@ describe('contract: EthereumProxy', () => {
     const toNewBalance = await provider.getBalance(to);
 
     // Check balance changes
-    expect(fromNewBalance).to.be.lte(fromOldBalance.sub(amount));
+    expect(fromNewBalance).to.be.lt(fromOldBalance.sub(amount));
     expect(toNewBalance.toString()).to.equals(toOldBalance.add(amount).toString());
   });
 });
