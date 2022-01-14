@@ -1,11 +1,18 @@
 {
   "root": true,
   "env": { "browser": true, "es6": true, "node": true },
-  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 10,
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended",
+    "prettier"
+  ],
   "plugins": [
-    "eslint-plugin-jsdoc",
-    "eslint-plugin-import",
-    "eslint-plugin-prefer-arrow"
+    "jsdoc",
+    "import",
+    "prefer-arrow"
   ],
   "rules": {
     "arrow-parens": ["off", "always"],
@@ -15,33 +22,26 @@
     "import/no-extraneous-dependencies": "error"
   },
   "ignorePatterns": [
+    "/packages/docs/",
     "/packages/*/dist/",
     // FIXME: tests should be linted
     "/packages/*/test/"
   ],
   "overrides": [
     {
-      "files": ["**/*.ts", "**/*.tsx"],
-      "env": { "browser": true, "es6": true, "node": true },
-      "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+      "files": ["*.ts"],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
-        "project": "tsconfig.json",
-        "ecmaVersion": 10,
-        "sourceType": "module"
+        "project": "tsconfig.json"
       },
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+      ],
       "plugins": [
-        "eslint-plugin-jsdoc",
-        "eslint-plugin-import",
-        "eslint-plugin-prefer-arrow",
         "@typescript-eslint"
       ],
       "rules": {
-        "arrow-parens": ["off", "always"],
-        "curly": ["error", "all"],
-        "complexity": "error",
-        "eqeqeq": ["error", "smart"],
-        "import/no-extraneous-dependencies": "error",
         "@typescript-eslint/no-floating-promises": "error",
         "@typescript-eslint/no-unused-vars": "error"
       }
