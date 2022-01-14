@@ -47,6 +47,8 @@ yarn request-toolbox addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
 
 Use `--help` for details about each command.
 
+Additionally, the command `listMissingAggregators` will display missing aggregators for all networks.
+
 #### Updating conversion paths
 
 > NB: this procedure is only used to update the standard list. 

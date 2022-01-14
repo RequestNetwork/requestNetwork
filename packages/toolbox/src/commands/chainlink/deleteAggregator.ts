@@ -1,7 +1,7 @@
 /* eslint-disable complexity */
 import * as yargs from 'yargs';
 import { ethers } from 'ethers';
-import { runUpdate } from './utils';
+import { runUpdate } from './contractUtils';
 
 type Options = {
   dryRun: boolean;

@@ -1,5 +1,5 @@
 import * as yargs from 'yargs';
-import { runUpdate } from './utils';
+import { runUpdate } from './contractUtils';
 
 type Options = {
   dryRun: boolean;
