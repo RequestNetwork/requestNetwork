@@ -57,7 +57,7 @@ jobs:
           command: yarn format:check
       - run:
           name: Verify lint
-          command: yarn lint
+          command: yarn lint:check
       - run:
           name: Build types
           command: yarn workspace @requestnetwork/types run build
