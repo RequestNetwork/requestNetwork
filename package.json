@@ -17,7 +17,7 @@
     "build": "lerna run build",
     "clean": "lerna run clean",
     "build:tsc": "tsc -b packages/advanced-logic packages/currency packages/data-access packages/data-format packages/epk-decryption packages/epk-signature packages/ethereum-storage packages/integration-test packages/multi-format packages/payment-detection packages/prototype-estimator packages/request-client.js packages/request-logic packages/request-node packages/smart-contracts packages/toolbox packages/transaction-manager packages/types packages/usage-examples packages/utils packages/web3-signature",
-    "lint": "eslint packages/**/src/**/*.ts --quiet",
+    "lint": "eslint .",
     "lint-staged": "lint-staged",
     "lerna": "lerna",
     "packageJsonLint": "npmPkgJsonLint ./packages",

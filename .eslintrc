@@ -1,25 +1,45 @@
 {
   "root": true,
-  "parser": "@typescript-eslint/parser",
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-  "parserOptions": {
-    "project": "tsconfig.json",
-    "ecmaVersion": 10,
-    "sourceType": "module"
-  },
+  "env": { "browser": true, "es6": true, "node": true },
+  "extends": ["eslint:recommended"],
   "plugins": [
     "eslint-plugin-jsdoc",
     "eslint-plugin-import",
-    "eslint-plugin-prefer-arrow",
-    "@typescript-eslint"
+    "eslint-plugin-prefer-arrow"
   ],
   "rules": {
     "arrow-parens": ["off", "always"],
     "curly": ["error", "all"],
     "complexity": "error",
     "eqeqeq": ["error", "smart"],
-    "import/no-extraneous-dependencies": "error",
-    "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/no-unused-vars": "error"
-  }
+    "import/no-extraneous-dependencies": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "env": { "browser": true, "es6": true, "node": true },
+      "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "tsconfig.json",
+        "ecmaVersion": 10,
+        "sourceType": "module"
+      },
+      "plugins": [
+        "eslint-plugin-jsdoc",
+        "eslint-plugin-import",
+        "eslint-plugin-prefer-arrow",
+        "@typescript-eslint"
+      ],
+      "rules": {
+        "arrow-parens": ["off", "always"],
+        "curly": ["error", "all"],
+        "complexity": "error",
+        "eqeqeq": ["error", "smart"],
+        "import/no-extraneous-dependencies": "error",
+        "@typescript-eslint/no-floating-promises": "error",
+        "@typescript-eslint/no-unused-vars": "error"
+      }
+    }
+  ]
 }
