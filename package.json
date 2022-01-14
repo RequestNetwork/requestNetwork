@@ -27,8 +27,8 @@
     "publish-manual-prerelease": "lerna publish prerelease --conventional-commits --exact",
     "publish-prerelease": "yarn lerna publish --preid development --skip-git --yes --canary",
     "test": "lerna run test",
-    "format": "prettier packages/**/src/**/*.ts -w",
-    "format:check": "prettier packages/**/src/**/*.ts -c",
+    "format": "prettier . -w",
+    "format:check": "prettier . -c",
     "link:all": "for d in packages/*; do pushd $d; yarn link; popd; done",
     "unlink:all": "for d in packages/*; do pushd $d; yarn unlink; popd; done"
   },
