@@ -5,7 +5,7 @@ import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import { task } from 'hardhat/config';
 import { config } from 'dotenv';
-import deployAllContracts from './scripts/5_deploy-all'
+import deployAllContracts from './scripts/5_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
 
@@ -75,15 +75,15 @@ export default {
       chainId: 250,
       accounts,
     },
-	arbitrum: {
-        url: process.env.WEB3_PROVIDER_URL || 'https://arb1.arbitrum.io/rpc',
-        chainId: 42161,
-        accounts,
+    arbitrum: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://arb1.arbitrum.io/rpc',
+      chainId: 42161,
+      accounts,
     },
     arbitrumtest: {
-        url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.arbitrum.io/rpc',
-        chainId: 421611,
-        accounts
+      url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.arbitrum.io/rpc',
+      chainId: 421611,
+      accounts,
     },
   },
   etherscan: {
@@ -96,8 +96,8 @@ export default {
     alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
   },
   mocha: {
-      timeout: 60000 // Usefull on test networks
-  }
+    timeout: 60000, // Usefull on test networks
+  },
 };
 
 // Override the default API key for non-Etherscan explorers
@@ -123,7 +123,7 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
 // FIXME: use deployAllPaymentContracts instead to test with the same deployments
 task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hre) => {
   args.force = true;
-  await deployAllContracts(args, hre)
+  await deployAllContracts(args, hre);
   console.log('All contracts (re)deployed locally');
 });
 
