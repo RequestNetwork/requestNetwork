@@ -78,6 +78,10 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 10141029,
         },
+        testnet: {
+          address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
+          creationBlockNumber: 8403917,
+        },
       },
     },
   },

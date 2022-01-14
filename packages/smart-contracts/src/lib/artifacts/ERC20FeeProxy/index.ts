@@ -100,6 +100,10 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 20060722,
         },
+        arbitrumtestnet: {
+          address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
+          creationBlockNumber: 8403921,
+        },
       },
     },
     // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions

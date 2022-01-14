@@ -75,6 +75,12 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       name: 'Near Testnet',
       network: 'aurora-testnet',
     },
+    {
+        symbol: 'ARETH',
+        decimals: 18,
+        name: 'Arbitrum Testnet',
+        network: 'arbitrumtestnet'
+    }
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {
