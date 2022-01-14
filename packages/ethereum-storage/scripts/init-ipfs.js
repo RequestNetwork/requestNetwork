@@ -107,7 +107,6 @@ function setupSwarmKey(ipfsPath, swarmKeyContent) {
     });
   } catch (err) {
     throw new Error(`Error creating swarm key file: ${err.message}`);
-    return;
   }
 
   shell.echo('Swarm key file created.');

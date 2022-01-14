@@ -194,7 +194,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Lint smart contracts smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run lint:sol'
+          command: 'yarn workspace @requestnetwork/smart-contracts run lint:sol:check'
       - run:
           name: 'Test smart contracts smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run test'

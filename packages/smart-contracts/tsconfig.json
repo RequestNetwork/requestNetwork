@@ -5,6 +5,6 @@
     "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["./src/**/*", "./src/**/*.json"],
+  "include": ["src", "scripts", "hardhat.config.ts"],
   "references": [{ "path": "../currency" }, { "path": "../utils" }]
 }
