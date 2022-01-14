@@ -14,6 +14,11 @@
     "eqeqeq": ["error", "smart"],
     "import/no-extraneous-dependencies": "error"
   },
+  "ignorePatterns": [
+    "/packages/*/dist/",
+    // FIXME: tests should be linted
+    "/packages/*/test/"
+  ],
   "overrides": [
     {
       "files": ["**/*.ts", "**/*.tsx"],

@@ -1,8 +1,0 @@
-build/
-dist/
-# FIXME: docs should be linted
-docs/
-# FIXME: tests should be linted
-test/
-# FIXME: types should be linted
-types/
