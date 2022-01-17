@@ -24,7 +24,7 @@ references:
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
-      ipfs: "localhost:5001"
+      ipfs: 'localhost:5001'
       ethereum: 'private:http://localhost:8545'
       GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 1
   postgres_image: &postgres_image
@@ -414,7 +414,7 @@ jobs:
             done
             echo Failed waiting for Node initialization && exit 1
       - run:
-          name: "Confirm TheGraph mode"
+          name: 'Confirm TheGraph mode'
           command: |
             NODE_ENDPOINT=$(wget -O- http://localhost:3000/status | jq .dataAccess.endpoint -r)
             if [  "$NODE_ENDPOINT" != "http://localhost:8000/subgraphs/name/RequestNetwork/request-storage" ] ; then

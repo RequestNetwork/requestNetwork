@@ -1,10 +1,10 @@
-version: "3.0"
+version: '3.0'
 
 services:
   request-node:
     image: request-node
     ports:
-      - "3000:3000"
+      - '3000:3000'
     links:
       - ipfs
     environment:

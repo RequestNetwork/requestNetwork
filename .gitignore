@@ -1,35 +1,44 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
-
-# compiled output
-dist
-
-# dependencies
-node_modules
-
-# Coverage
-coverage
-.nyc_output
-coverage.lcov
-
-# logs
-lerna-debug.log
-yarn-error.log
-
-# OS specific files
-.DS_Store
+# -----------------------
+# .prettierignore is a symbolic link to this files
+# do not create .gitignore files in subdirectories if you want its entries to be ignored by Prettier
+# -----------------------
 
 # local environment variables
-.env
-.env.*
+/.env*
 
-# stryker
-.stryker-tmp
+# logs
+/lerna-debug.log
+/yarn-error.log
 
-# typescript
-tsconfig.tsbuildinfo
+# dependencies
+/node_modules/
+/packages/*/node_modules/
 
-# ignore smart-contracts generated types
-packages/smart-contracts/types
-packages/smart-contracts/src/types
-# ignore thegraph generated types
-packages/payment-detection/src/thegraph/generated
+# compiled output
+/packages/*/dist/
+/packages/*/tsconfig.tsbuildinfo
+
+# coverage
+/packages/*/coverage/
+
+# docs generated files
+/packages/docs/.docusaurus/
+/packages/docs/build/
+/packages/docs/docs/client/
+/packages/docs/docs/guides/4-request-payment/1-multisig.md
+/packages/docs/docs/guides/5-request-client/2-erc20-payment-detection.md
+/packages/docs/docs/guides/5-request-client/3-eth-payment-detection.md
+/packages/docs/docs/guides/5-request-client/4-btc-payment-detection.md
+/packages/docs/docs/guides/5-request-client/5-declarative-payment-network.md
+
+# payment-detection generated files
+/packages/payment-detection/src/thegraph/generated/
+
+# request-client.js generated files
+/packages/request-client.js/docs/
+
+# smart-contracts generated files
+/packages/smart-contracts/build/
+/packages/smart-contracts/cache/
+/packages/smart-contracts/types/
+/packages/smart-contracts/src/types/

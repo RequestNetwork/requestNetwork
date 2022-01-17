@@ -19,7 +19,7 @@ describe('contract: EthConversionProxy', () => {
   let to: string;
   let feeAddress: string;
   let signer: Signer;
-  const amountInFiat = BigNumber.from('100000000'); 
+  const amountInFiat = BigNumber.from('100000000');
   const feesAmountInFiat = BigNumber.from('10000000');
   const referenceExample = '0xaaaa';
 
@@ -59,17 +59,17 @@ describe('contract: EthConversionProxy', () => {
         const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
 
         const tx = testEthConversionProxy.transferWithReferenceAndFee(
-            to,
-            amountInFiat,
-            path,
-            referenceExample,
-            feesAmountInFiat,
-            feeAddress,
-            0,
-            {
-                value: conversionFees.result.add(conversionToPay.result),
-            }
-          )
+          to,
+          amountInFiat,
+          path,
+          referenceExample,
+          feesAmountInFiat,
+          feeAddress,
+          0,
+          {
+            value: conversionFees.result.add(conversionToPay.result),
+          },
+        );
 
         await expect(tx)
           .to.emit(testEthConversionProxy, 'TransferWithConversionAndReference')
@@ -88,21 +88,21 @@ describe('contract: EthConversionProxy', () => {
         const feeNewBalance = await provider.getBalance(feeAddress);
         const contractBalance = await provider.getBalance(testEthConversionProxy.address);
 
-        const toDiffBalance = BigNumber.from(toNewBalance)
-          .sub(toOldBalance)
-          .toString();
-        const feeDiffBalance = BigNumber.from(feeNewBalance)
-          .sub(feeOldBalance)
-          .toString();
+        const toDiffBalance = BigNumber.from(toNewBalance).sub(toOldBalance).toString();
+        const feeDiffBalance = BigNumber.from(feeNewBalance).sub(feeOldBalance).toString();
 
         const gasPrice = (await provider.getFeeData()).gasPrice || 0;
         // Check balance changes
         expect(fromNewBalance.toString()).to.equals(
-            fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result).sub(receipt.gasUsed.mul(gasPrice)).toString(),
+          fromOldBalance
+            .sub(conversionToPay.result)
+            .sub(conversionFees.result)
+            .sub(receipt.gasUsed.mul(gasPrice))
+            .toString(),
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
-        expect(contractBalance.toString()).to.equals("0")
+        expect(contractBalance.toString()).to.equals('0');
       });
 
       it('allows to transfer ETH for EUR payment and extra msg.value', async function () {
@@ -115,17 +115,17 @@ describe('contract: EthConversionProxy', () => {
         const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
 
         const tx = testEthConversionProxy.transferWithReferenceAndFee(
-            to,
-            amountInFiat,
-            path,
-            referenceExample,
-            feesAmountInFiat,
-            feeAddress,
-            0,
-            {
-                value: conversionFees.result.add(conversionToPay.result)//.add("100000"),
-            }
-          )
+          to,
+          amountInFiat,
+          path,
+          referenceExample,
+          feesAmountInFiat,
+          feeAddress,
+          0,
+          {
+            value: conversionFees.result.add(conversionToPay.result), //.add("100000"),
+          },
+        );
 
         await expect(tx)
           .to.emit(testEthConversionProxy, 'TransferWithConversionAndReference')
@@ -145,20 +145,20 @@ describe('contract: EthConversionProxy', () => {
         const contractBalance = await provider.getBalance(testEthConversionProxy.address);
         const contractFeeBalance = await provider.getBalance(ethFeeProxy.address);
 
-        const toDiffBalance = BigNumber.from(toNewBalance)
-          .sub(toOldBalance)
-          .toString();
-        const feeDiffBalance = BigNumber.from(feeNewBalance)
-          .sub(feeOldBalance)
-          .toString();
+        const toDiffBalance = BigNumber.from(toNewBalance).sub(toOldBalance).toString();
+        const feeDiffBalance = BigNumber.from(feeNewBalance).sub(feeOldBalance).toString();
 
-        expect(contractBalance.toString()).to.equals("0");
-        expect(contractFeeBalance.toString()).to.equals("0");
+        expect(contractBalance.toString()).to.equals('0');
+        expect(contractFeeBalance.toString()).to.equals('0');
 
         const gasPrice = (await provider.getFeeData()).gasPrice || 0;
         // Check balance changes
         expect(fromNewBalance.toString()).to.equals(
-            fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result).sub(receipt.cumulativeGasUsed.mul(gasPrice)).toString(),
+          fromOldBalance
+            .sub(conversionToPay.result)
+            .sub(conversionFees.result)
+            .sub(receipt.cumulativeGasUsed.mul(gasPrice))
+            .toString(),
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
@@ -172,19 +172,19 @@ describe('contract: EthConversionProxy', () => {
         const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
 
         await expect(
-            testEthConversionProxy.transferWithReferenceAndFee(
-                to,
-                amountInFiat,
-                path,
-                referenceExample,
-                feesAmountInFiat,
-                feeAddress,
-                0,
-                {
-                    value: conversionToPay.result,
-                }
-              ),
-        ).to.be.revertedWith('revert paymentProxy transferExactEthWithReferenceAndFee failed')
+          testEthConversionProxy.transferWithReferenceAndFee(
+            to,
+            amountInFiat,
+            path,
+            referenceExample,
+            feesAmountInFiat,
+            feeAddress,
+            0,
+            {
+              value: conversionToPay.result,
+            },
+          ),
+        ).to.be.revertedWith('revert paymentProxy transferExactEthWithReferenceAndFee failed');
       });
 
       it('cannot transfer if rate is too old', async function () {
@@ -193,19 +193,19 @@ describe('contract: EthConversionProxy', () => {
         const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
         const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
         await expect(
-            testEthConversionProxy.transferWithReferenceAndFee(
-                to,
-                amountInFiat,
-                path,
-                referenceExample,
-                feesAmountInFiat,
-                feeAddress,
-                1, // second
-                {
-                    value: conversionFees.result.add(conversionToPay.result),
-                }
-              ),
-        ).to.be.revertedWith('revert aggregator rate is outdated')
+          testEthConversionProxy.transferWithReferenceAndFee(
+            to,
+            amountInFiat,
+            path,
+            referenceExample,
+            feesAmountInFiat,
+            feeAddress,
+            1, // second
+            {
+              value: conversionFees.result.add(conversionToPay.result),
+            },
+          ),
+        ).to.be.revertedWith('revert aggregator rate is outdated');
       });
     });
   });

@@ -186,8 +186,8 @@ yarn init-ipfs
 ```
 
 #### TheGraph mode
-An alternative data access relies on a [Graph](https://thegraph.com/) node, for better indexing & performance.
 
+An alternative data access relies on a [Graph](https://thegraph.com/) node, for better indexing & performance.
 
 To enable it, set the `GRAPH_NODE_URL` environment variable to a Graph node with the [Request Storage Subgraph](https://github.com/RequestNetwork/storage-subgraph) deployed and synced.
 
@@ -322,6 +322,7 @@ docker-compose up
 The environment variables must be defined in the `docker-compose.yml` file in the `environment` section. `$ETHEREUM_NETWORK_ID` and `$WEB3_PROVIDER_URL` must be defined.
 
 #### Docker for unpublished version
+
 See instructions in [Dockerfile.dev](./Dockerfile.dev)
 
 ### Running fully locally
@@ -345,7 +346,8 @@ yarn build
 ```
 
 #### 3. On a new terminal, launch a local IPFS node
-Note: only IPFS v0.4.* supported, from the [IPFS Installation docs](https://docs.ipfs.io/install/), replace the binary URL with the good one from the following list: https://github.com/ipfs/go-ipfs/releases/tag/v0.4.23
+
+Note: only IPFS v0.4.\* supported, from the [IPFS Installation docs](https://docs.ipfs.io/install/), replace the binary URL with the good one from the following list: https://github.com/ipfs/go-ipfs/releases/tag/v0.4.23
 
 ```bash
 ipfs daemon

@@ -5,15 +5,8 @@
     "ecmaVersion": 10,
     "sourceType": "module"
   },
-  "extends": [
-    "eslint:recommended",
-    "prettier"
-  ],
-  "plugins": [
-    "jsdoc",
-    "import",
-    "prefer-arrow"
-  ],
+  "extends": ["eslint:recommended", "prettier"],
+  "plugins": ["jsdoc", "import", "prefer-arrow"],
   "rules": {
     "arrow-parens": ["off", "always"],
     "curly": ["error", "all"],
@@ -24,8 +17,15 @@
   "ignorePatterns": [
     "/packages/docs/",
     "/packages/*/dist/",
+    "/packages/*/coverage/",
     // FIXME: tests should be linted
-    "/packages/*/test/"
+    "/packages/*/test/",
+    "/packages/payment-detection/src/thegraph/generated/",
+    "/packages/request-client.js/docs/",
+    "/packages/smart-contracts/build/",
+    "/packages/smart-contracts/cache/",
+    "/packages/smart-contracts/types/",
+    "/packages/smart-contracts/src/types/"
   ],
   "overrides": [
     {
@@ -34,13 +34,8 @@
       "parserOptions": {
         "project": "tsconfig.json"
       },
-      "extends": [
-        "plugin:@typescript-eslint/recommended",
-        "prettier"
-      ],
-      "plugins": [
-        "@typescript-eslint"
-      ],
+      "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
+      "plugins": ["@typescript-eslint"],
       "rules": {
         "@typescript-eslint/no-floating-promises": "error",
         "@typescript-eslint/no-unused-vars": "error"

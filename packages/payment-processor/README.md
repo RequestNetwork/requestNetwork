@@ -7,7 +7,9 @@ It contains client-side payment methods for:
 - ETH input data
 
 ### Test
+
 To run the payment-processor tests we need a local running ganache with all our smart contracts deployed. You can open two terminals and do:
+
 ```
 # Terminal 1
 cd ../smart-contracts/

@@ -26,7 +26,7 @@ export const actionCreationFull = {
     refundAddress,
     salt,
     acceptedTokens: [tokenAddress],
-    network
+    network,
   },
   version: '0.1.0',
 };
@@ -36,7 +36,7 @@ export const actionCreationOnlyPayment = {
   parameters: {
     paymentAddress,
     acceptedTokens: [tokenAddress],
-    network
+    network,
   },
   version: '0.1.0',
 };
@@ -46,7 +46,7 @@ export const actionCreationOnlyRefund = {
   parameters: {
     refundAddress,
     acceptedTokens: [tokenAddress],
-    network
+    network,
   },
   version: '0.1.0',
 };
@@ -57,7 +57,7 @@ export const actionCreationOnlyFee = {
     feeAddress,
     feeAmount,
     acceptedTokens: [tokenAddress],
-    network
+    network,
   },
   version: '0.1.0',
 };
@@ -102,11 +102,11 @@ export const extensionFullState = {
       payeeDelegate: undefined,
       payerDelegate: undefined,
       paymentInfo: undefined,
-      receivedPaymentAmount: "0",
-      receivedRefundAmount: "0",
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
       refundInfo: undefined,
-      sentPaymentAmount: "0",
-      sentRefundAmount: "0",
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
     },
     version: '0.1.0',
   },
@@ -133,24 +133,23 @@ export const extensionStateDeclareReceivedPayment = {
     events: [
       {
         name: 'create',
-        parameters: {
-        },
+        parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
         from: {
           type: 'ethereumAddress',
-          value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce'
+          value: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
         },
         parameters: {
           amount: '123400000000000000',
           txHash: 'somehash',
           note: 'this is your payment',
-          network: 'matic'
+          network: 'matic',
         },
         timestamp: arbitraryTimestamp,
-      }
+      },
     ],
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -158,8 +157,8 @@ export const extensionStateDeclareReceivedPayment = {
       receivedPaymentAmount: '123400000000000000',
     },
     version: '0.1.0',
-  }
-}
+  },
+};
 
 // ---------------------------------------------------------------------
 // request states

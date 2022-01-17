@@ -1,5 +1,3 @@
 {
-  "ignorePatterns": [
-    "/src/thegraph/generated/"
-  ]
+  "ignorePatterns": ["/src/thegraph/generated/"]
 }

@@ -4,13 +4,9 @@
     "outDir": "dist",
     "rootDir": "src",
     "esModuleInterop": true,
-    "lib": [
-      "ES2019"
-    ]
+    "lib": ["ES2019"]
   },
-  "include": [
-    "./src/**/*"
-  ],
+  "include": ["./src/**/*"],
   "references": [
     {
       "path": "../epk-signature"

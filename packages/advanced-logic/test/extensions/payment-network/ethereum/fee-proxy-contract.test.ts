@@ -13,7 +13,6 @@ const ethFeeProxyContract = new EthereumFeeProxyContract();
 describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
-      
       expect(
         ethFeeProxyContract.createCreationAction({
           feeAddress: '0x0000000000000000000000000000000000000001',
@@ -37,7 +36,6 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
     });
 
     it('can create a create action without fee parameters', () => {
-      
       expect(
         ethFeeProxyContract.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -57,7 +55,6 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
     });
 
     it('can create a create action with only salt', () => {
-      
       expect(
         ethFeeProxyContract.createCreationAction({
           salt: 'ea3bc7caf64110ca',
@@ -119,7 +116,6 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
 
   describe('createAddPaymentAddressAction', () => {
     it('can createAddPaymentAddressAction', () => {
-      
       expect(
         ethFeeProxyContract.createAddPaymentAddressAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -145,7 +141,6 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
 
   describe('createAddRefundAddressAction', () => {
     it('can createAddRefundAddressAction', () => {
-      
       expect(
         ethFeeProxyContract.createAddRefundAddressAction({
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -171,7 +166,6 @@ describe('extensions/payment-network/ethereum/fee-proxy-contract', () => {
 
   describe('createAddFeeAction', () => {
     it('can createAddFeeAction', () => {
-      
       expect(
         ethFeeProxyContract.createAddFeeAction({
           feeAddress: '0x0000000000000000000000000000000000000002',
