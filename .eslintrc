@@ -24,8 +24,15 @@
   "ignorePatterns": [
     "/packages/docs/",
     "/packages/*/dist/",
+    "/packages/*/coverage/",
     // FIXME: tests should be linted
-    "/packages/*/test/"
+    "/packages/*/test/",
+    "/packages/payment-detection/src/thegraph/generated/",
+    "/packages/request-client.js/docs/",
+    "/packages/smart-contracts/build/",
+    "/packages/smart-contracts/cache/",
+    "/packages/smart-contracts/types/",
+    "/packages/smart-contracts/src/types/"
   ],
   "overrides": [
     {
