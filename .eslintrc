@@ -1,25 +1,50 @@
 {
   "root": true,
-  "parser": "@typescript-eslint/parser",
-  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "env": { "browser": true, "node": true },
   "parserOptions": {
-    "project": "tsconfig.json",
     "ecmaVersion": 10,
     "sourceType": "module"
   },
+  "extends": [
+    "eslint:recommended",
+    "prettier"
+  ],
   "plugins": [
-    "eslint-plugin-jsdoc",
-    "eslint-plugin-import",
-    "eslint-plugin-prefer-arrow",
-    "@typescript-eslint"
+    "jsdoc",
+    "import",
+    "prefer-arrow"
   ],
   "rules": {
     "arrow-parens": ["off", "always"],
     "curly": ["error", "all"],
     "complexity": "error",
     "eqeqeq": ["error", "smart"],
-    "import/no-extraneous-dependencies": "error",
-    "@typescript-eslint/no-floating-promises": "error",
-    "@typescript-eslint/no-unused-vars": "error"
-  }
+    "import/no-extraneous-dependencies": "error"
+  },
+  "ignorePatterns": [
+    "/packages/docs/",
+    "/packages/*/dist/",
+    // FIXME: tests should be linted
+    "/packages/*/test/"
+  ],
+  "overrides": [
+    {
+      "files": ["*.ts"],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "project": "tsconfig.json"
+      },
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+      ],
+      "plugins": [
+        "@typescript-eslint"
+      ],
+      "rules": {
+        "@typescript-eslint/no-floating-promises": "error",
+        "@typescript-eslint/no-unused-vars": "error"
+      }
+    }
+  ]
 }

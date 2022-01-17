@@ -10,6 +10,6 @@ const output = path.join(__dirname, '../coverage/lcov.info');
 const collector = remapIstanbul.remap(remapIstanbul.loadCoverage(input), {
   warnMissingSourceMaps: false,
 });
-remapIstanbul.writeReport(collector, 'lcovonly', {}, output).then(report => {
+remapIstanbul.writeReport(collector, 'lcovonly', {}, output).then(() => {
   console.log('remapping finished.');
 });

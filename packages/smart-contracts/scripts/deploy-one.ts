@@ -68,7 +68,9 @@ export async function deployOne<TContract extends Contract>(
           type: 'attached',
         };
       }
-    } catch (e) {}
+    } catch (e) {
+      // ignore error
+    }
   }
 
   if (options?.nonceCondition) {

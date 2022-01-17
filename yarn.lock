@@ -11294,15 +11294,6 @@ eslint-plugin-prefer-arrow@1.2.3:
   resolved "https://registry.yarnpkg.com/eslint-plugin-prefer-arrow/-/eslint-plugin-prefer-arrow-1.2.3.tgz#e7fbb3fa4cd84ff1015b9c51ad86550e55041041"
   integrity sha512-J9I5PKCOJretVuiZRGvPQxCbllxGAV/viI20JO3LYblAodofBxyMnZAJ+WGeClHgANnSJberTNoFWWjrWKBuXQ==
 
-eslint-plugin-spellcheck@0.0.17:
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-spellcheck/-/eslint-plugin-spellcheck-0.0.17.tgz#ea3d27fa0fb443d3d821245d4d00137c788796ca"
-  integrity sha512-SjEPsqHgAODWgCusCXxzYqTkJHe8krun7UjekzhWkFlGM3ZTPto66ED+kQHBrOB3Mrqkx3oD0qf0sDmxyeCRCA==
-  dependencies:
-    globals "^13.0.0"
-    hunspell-spellchecker "^1.0.2"
-    lodash "^4.17.15"
-
 eslint-scope@^4.0.3:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/eslint-scope/-/eslint-scope-4.0.3.tgz#ca03833310f6889a3264781aa82e63eb9cfe7848"
@@ -13575,7 +13566,7 @@ globals@^12.1.0:
   dependencies:
     type-fest "^0.8.1"
 
-globals@^13.0.0, globals@^13.6.0:
+globals@^13.6.0:
   version "13.7.0"
   resolved "https://registry.yarnpkg.com/globals/-/globals-13.7.0.tgz#aed3bcefd80ad3ec0f0be2cf0c895110c0591795"
   integrity sha512-Aipsz6ZKRxa/xQkZhNg0qIWXT6x6rD46f6x/PCnBomlttdIyAPak4YD9jTmKpZ72uROSMU87qJtcgpgHaVchiA==
@@ -14456,11 +14447,6 @@ humanize-ms@^1.2.1:
   integrity sha1-xG4xWaKT9riW2ikxbYtv6Lt5u+0=
   dependencies:
     ms "^2.0.0"
-
-hunspell-spellchecker@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/hunspell-spellchecker/-/hunspell-spellchecker-1.0.2.tgz#a10b0bd2fa00a65ab62a4c6b734ce496d318910e"
-  integrity sha1-oQsL0voAplq2Kkxrc0zkltMYkQ4=
 
 husky@4.3.0:
   version "4.3.0"

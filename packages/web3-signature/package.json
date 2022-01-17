@@ -35,7 +35,8 @@
     "build:commonjs": "tsc -b",
     "build:umd": "webpack",
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "eslint \"src/**/*.ts\"",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "test": "jest",
     "test:watch": "yarn test --watch"
   },

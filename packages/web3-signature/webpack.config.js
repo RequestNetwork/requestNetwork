@@ -44,4 +44,3 @@ module.exports = {
     new DuplicatePackageCheckerPlugin(),
   ],
 };
-/* eslint-enable spellcheck/spell-checker */

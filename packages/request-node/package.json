@@ -36,7 +36,8 @@
     "start": "ts-node src/server.ts",
     "start:watch": "ts-node-dev src/server.ts",
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "eslint \"src/**/*.ts\"",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "init-ipfs": "node init-ipfs.js"
   },
   "dependencies": {

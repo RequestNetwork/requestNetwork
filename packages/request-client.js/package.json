@@ -36,7 +36,8 @@
     "build:umd": "webpack",
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
     "docs": "shx rm -rf ./docs && compodoc -p tsconfig.json --output docs --disablePrivate --gaID UA-105153327-8",
-    "lint": "eslint \"src/**/*.ts\"",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "prepare": "yarn run build",
     "test": "jest",
     "test:watch": "yarn test --watch"

@@ -73,7 +73,7 @@ async function foo(): Promise<void> {
     signatureProvider,
   );
   // apply creation
-  let requestState = RequestLogic.applyActionToRequest(null, actionCreation);
+  let requestState = RequestLogic.applyActionToRequest(null, actionCreation, Date.now());
   console.log('###########################################');
   console.log('Creation Action ---------------------------');
   console.log(JSON.stringify(JSON.stringify(actionCreation)));
@@ -91,7 +91,7 @@ async function foo(): Promise<void> {
     signatureProvider,
   );
   // apply discount
-  requestState = RequestLogic.applyActionToRequest(requestState, actionReduceAmount);
+  requestState = RequestLogic.applyActionToRequest(requestState, actionReduceAmount, Date.now());
   console.log('###########################################');
   console.log('Reduce Amount Action ----------------------');
   console.log(JSON.stringify(actionReduceAmount));
@@ -108,7 +108,7 @@ async function foo(): Promise<void> {
     signatureProvider,
   );
   // apply accept
-  requestState = RequestLogic.applyActionToRequest(requestState, actionAccept);
+  requestState = RequestLogic.applyActionToRequest(requestState, actionAccept, Date.now());
   console.log('###########################################');
   console.log('Accept Action -----------------------------');
   console.log(JSON.stringify(JSON.stringify(actionAccept)));
@@ -117,4 +117,4 @@ async function foo(): Promise<void> {
   console.log('###########################################');
 }
 
-foo();
+void foo();
