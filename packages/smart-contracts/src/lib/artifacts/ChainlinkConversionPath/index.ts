@@ -45,7 +45,7 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 10141032,
         },
-        arbitrumtestnet: {
+        'arbitrum-testnet': {
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 8403926,
         },

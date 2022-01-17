@@ -100,7 +100,7 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 20060722,
         },
-        arbitrumtestnet: {
+        'arbitrum-testnet': {
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 8403921,
         },
