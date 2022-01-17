@@ -2,7 +2,6 @@
 title: Transaction
 keywords: [Request protocol, Transaction, Encryption]
 description: Learn how to integrate Request network and its features.
-
 ---
 
 This layer converts actions into transactions to be sent to Data-Access. It also handles the encryption.
@@ -29,4 +28,4 @@ When the transaction is received, it will be encrypted only once with the channe
 The channel key allows encrypted data to be stored only once. For every stakeholder to be able to read the request, the channel key is encrypted with each stakeholder's public key. These encrypted channel keys are publicly available inside the transaction data.
 
 ![](/img/RequestProtocol/2-Encryption.jpg)
-*The different steps to encrypt the transaction*
+_The different steps to encrypt the transaction_

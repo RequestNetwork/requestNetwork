@@ -2,7 +2,6 @@
 title: Data-access
 keywords: [Request protocol, Data-access]
 description: Learn how to integrate Request network and its features.
-
 ---
 
 Data-Access is the layer that organizes the data in the right format before having them being stored in the storage layer. This layer is similar as the persistence layer in the classical layered architecture pattern.

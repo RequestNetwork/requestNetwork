@@ -2,7 +2,6 @@
 title: Storage
 keywords: [Request protocol, Storage, IPFS, Ethereum]
 description: Learn how to integrate Request network and its features.
-
 ---
 
 Storage defines where the data are stored. How to store these data and how to retrieve them.
@@ -32,6 +31,7 @@ The Ethereum smart contracts are also used to enforce the fee cost of storing a 
 For our solution, we use additional smart contracts for fee verification. Using external smart contracts allows us to implement different fee rules in the future. More information can be found in the ethereum-storage repository.
 
 The RequestHashStorage smart contract address can be found on [GitHub](https://github.com/RequestNetwork/requestNetwork/blob/1f24dd17353497cc6ee21abf2d7bfda9e63d2ba5/packages/smart-contracts/artifacts/RequestHashStorage/artifacts.json)
+
 ```json
  "mainnet": {
   "address": "0x24a66afda3666fb0202f439708ece45c8121a9bb"

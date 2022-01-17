@@ -27,12 +27,12 @@ This is useful to manage collaborators salaries.
 
 To summarize:
 
-|                     | Request       | Invoice       |
-|---------------------|:-------------:|:-------------:|
-| Portal API endpoint | `/requests`   | `/invoices`   |
+|                     |                Request                 |                               Invoice                               |
+| ------------------- | :------------------------------------: | :-----------------------------------------------------------------: |
+| Portal API endpoint |              `/requests`               |                             `/invoices`                             |
 | Schema              | `contentData`<br/>not validated by API | Invoices extend requests<br/> `contentData` schema validated by API |
-| Automation          | ✖️             | ✔ ️           |
-| Recurrence          | ✖️             | ✔            |
+| Automation          |                   ✖️                   |                                 ✔ ️                                 |
+| Recurrence          |                   ✖️                   |                                  ✔                                  |
 
 ## Introduction
 
@@ -124,10 +124,7 @@ In the body part you can use the following example and replace the data accordin
   // see https://api.request.network/currency for a list of currencies
   "paymentCurrency": "USDC-matic",
   // optional, you can add several tags to the invoice
-  "tags": [
-    "project1",
-    "businessUnit3"
-  ]
+  "tags": ["project1", "businessUnit3"]
 }
 ```
 
@@ -136,7 +133,7 @@ You will need it in the next section.
 
 ### Convert the Off-Chain Invoice Into an On-Chain Request
 
-Use the following endpoint to convert the  previously created off-chain invoice to an on-chain Request:
+Use the following endpoint to convert the previously created off-chain invoice to an on-chain Request:
 
 `POST https://api.request.network/invoices/[id]`
 
@@ -160,6 +157,7 @@ Replace `[id]` with the ID of the invoice, or the ID of the Request `requestId`.
 
 You can check the `status` field of the
 JSON response. The different statuses of an invoice are the following:
+
 - `draft`
 - `pending`
 - `scheduled`

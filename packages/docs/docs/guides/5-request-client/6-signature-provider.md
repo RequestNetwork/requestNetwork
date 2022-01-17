@@ -129,8 +129,7 @@ type IWalletIdDictionary = Map<string, number>;
 /**
  * Implementation of the signature provider for my wallet
  */
-export default class MySignatureProvider
-  implements SignatureProviderTypes.ISignatureProvider {
+export default class MySignatureProvider implements SignatureProviderTypes.ISignatureProvider {
   /** list of supported signing method */
   public supportedMethods: SignatureTypes.METHOD[] = [SignatureTypes.METHOD.ECDSA];
   /** list of supported identity types */
@@ -139,7 +138,7 @@ export default class MySignatureProvider
   /** Dictionary containing all the private keys indexed by address */
   private walletIdDictionary: IWalletIdDictionary;
 
-  constructor(identity?: IdentityTypes.IIdentity?, walletId?: number) {
+  constructor(identity?: ?IdentityTypes.IIdentity, walletId?: number) {
     this.walletIdDictionary = new Map<string, number>();
 
     if (identity && walletId) {
@@ -174,13 +173,13 @@ export default class MySignatureProvider
     const hashData = Utils.crypto.normalizeKeccak256Hash(data).value;
 
     // convert the hash from a string '0x...' to a Buffer
-    const hashDataBuffer = Buffer.from(hashData.slice(2), 'hex')
+    const hashDataBuffer = Buffer.from(hashData.slice(2), 'hex');
 
     // use your signature package
     const signatureValueBuffer = mySignaturePackage.sign(hashDataBuffer, walletId);
 
     // convert the signature to a string '0x...'
-    const signatureValue = `0x${signatureValueBuffer.toString('hex')}`
+    const signatureValue = `0x${signatureValueBuffer.toString('hex')}`;
 
     return {
       data,

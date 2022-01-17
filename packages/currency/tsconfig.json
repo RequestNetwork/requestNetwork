@@ -5,10 +5,7 @@
     "rootDir": "src",
     "esModuleInterop": true
   },
-  "include": [
-    "./src/**/*",
-    "./src/aggregators/*.json",
-  ],
+  "include": ["./src/**/*", "./src/aggregators/*.json"],
   "references": [
     {
       "path": "../types"

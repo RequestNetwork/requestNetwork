@@ -6,8 +6,8 @@ import { PaymentTypes } from '@requestnetwork/types';
 
 describe('api/erc20/thegraph-info-retriever', () => {
   describe('on rinkeby', () => {
-    const RINKEBY_ETH_FEE_PROXY_CONTRACT = "0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f";
-    const RINKEBY_ETH_CONVERSION_PROXY_CONTRACT = "0xca3353a15fcb5c83a1ff64bff055781ac5c4d2f4";
+    const RINKEBY_ETH_FEE_PROXY_CONTRACT = '0xc6e23a20c0a1933acc8e30247b5d1e2215796c1f';
+    const RINKEBY_ETH_CONVERSION_PROXY_CONTRACT = '0xca3353a15fcb5c83a1ff64bff055781ac5c4d2f4';
 
     it('should get payment event from ethFeeProxy via subgraph', async () => {
       const paymentData = {
@@ -21,7 +21,11 @@ describe('api/erc20/thegraph-info-retriever', () => {
         requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
         block: 9606098,
       };
-      const paymentReference = PaymentReferenceCalculator.calculate(paymentData.requestId, paymentData.salt, paymentData.to);
+      const paymentReference = PaymentReferenceCalculator.calculate(
+        paymentData.requestId,
+        paymentData.salt,
+        paymentData.to,
+      );
       const onChainReference = utils.keccak256(`0x${paymentReference}`);
       expect(onChainReference).toEqual(paymentData.reference);
 
@@ -55,7 +59,11 @@ describe('api/erc20/thegraph-info-retriever', () => {
         requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
       };
 
-      const shortReference = PaymentReferenceCalculator.calculate(paymentData.requestId, paymentData.salt, paymentData.to);
+      const shortReference = PaymentReferenceCalculator.calculate(
+        paymentData.requestId,
+        paymentData.salt,
+        paymentData.to,
+      );
       const onChainReference = utils.keccak256(`0x${shortReference}`);
       expect(onChainReference).toEqual(paymentData.reference);
 
@@ -74,7 +82,5 @@ describe('api/erc20/thegraph-info-retriever', () => {
       expect(transferEvents[0].parameters?.txHash).toEqual(paymentData.txHash);
       expect(transferEvents[0].parameters?.block).toEqual(paymentData.block);
     });
-
   });
-
 });

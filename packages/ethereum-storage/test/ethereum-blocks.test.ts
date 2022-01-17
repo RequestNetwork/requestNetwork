@@ -108,7 +108,7 @@ const mockEth = {
   getBlock: jest.fn((i: number): any => {
     return mockBlocksEthereum[i] ? { timestamp: mockBlocksEthereum[i] } : undefined;
   }),
-  // eslint-disable-next-line 
+  // eslint-disable-next-line
   getBlockNumber: jest.fn(() => Promise.resolve(99)),
 };
 

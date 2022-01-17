@@ -5,15 +5,8 @@
     "ecmaVersion": 10,
     "sourceType": "module"
   },
-  "extends": [
-    "eslint:recommended",
-    "prettier"
-  ],
-  "plugins": [
-    "jsdoc",
-    "import",
-    "prefer-arrow"
-  ],
+  "extends": ["eslint:recommended", "prettier"],
+  "plugins": ["jsdoc", "import", "prefer-arrow"],
   "rules": {
     "arrow-parens": ["off", "always"],
     "curly": ["error", "all"],
@@ -41,13 +34,8 @@
       "parserOptions": {
         "project": "tsconfig.json"
       },
-      "extends": [
-        "plugin:@typescript-eslint/recommended",
-        "prettier"
-      ],
-      "plugins": [
-        "@typescript-eslint"
-      ],
+      "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
+      "plugins": ["@typescript-eslint"],
       "rules": {
         "@typescript-eslint/no-floating-promises": "error",
         "@typescript-eslint/no-unused-vars": "error"
