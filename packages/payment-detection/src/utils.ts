@@ -3,6 +3,7 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish, Contract } from 'ethers';
 import { LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
+import { NetworkNotSupported, VersionNotSupported } from './balance-error';
 
 /**
  * Converts the Log's args from array to an object with keys being the name of the arguments
@@ -78,15 +79,17 @@ export const makeGetDeploymentInformation = <
     if (!contractVersion) {
       throw Error(`No contract matches payment network version: ${paymentNetworkVersion}.`);
     }
-    let info: DeploymentInformation;
-    if (allowUndefined === true) {
-      const tmpInfo = artifact.getOptionalDeploymentInformation(network, contractVersion);
-      if (!tmpInfo) {
-        return null as ReturnType<GetDeploymentInformation<TAllowUndefined>>;
+    const info = artifact.getOptionalDeploymentInformation(network, contractVersion);
+    if (!info) {
+      if (!allowUndefined) {
+        if (artifact.getOptionalDeploymentInformation(network)) {
+          throw new VersionNotSupported(
+            `Payment network version not supported: ${paymentNetworkVersion}`,
+          );
+        }
+        throw new NetworkNotSupported(`Network not supported for this payment network: ${network}`);
       }
-      info = tmpInfo;
-    } else {
-      info = artifact.getDeploymentInformation(network, contractVersion);
+      return null as ReturnType<GetDeploymentInformation<TAllowUndefined>>;
     }
     return { ...info, contractVersion };
   };
