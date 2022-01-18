@@ -4,11 +4,12 @@
 # -----------------------
 
 # local environment variables
-/.env*
+.env
+.env.*
 
 # logs
-/lerna-debug.log
-/yarn-error.log
+lerna-debug.log
+yarn-error.log
 
 # dependencies
 /node_modules/
