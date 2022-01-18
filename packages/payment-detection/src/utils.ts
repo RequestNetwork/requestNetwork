@@ -77,7 +77,9 @@ export const makeGetDeploymentInformation = <
   return (network, paymentNetworkVersion) => {
     const contractVersion = map[paymentNetworkVersion];
     if (!contractVersion) {
-      throw Error(`No contract matches payment network version: ${paymentNetworkVersion}.`);
+      throw new VersionNotSupported(
+        `No contract matches payment network version: ${paymentNetworkVersion}.`,
+      );
     }
     const info = artifact.getOptionalDeploymentInformation(network, contractVersion);
     if (!info) {
