@@ -54,25 +54,40 @@ const getChainlinkPaddingSize = ({
 };
 
 export type DeploymentInformationWithVersion = DeploymentInformation & { contractVersion: string };
-export type GetDeploymentInformation = (
+export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
   network: string,
   paymentNetworkVersion: string,
-) => DeploymentInformationWithVersion;
+) => TAllowUndefined extends false
+  ? DeploymentInformationWithVersion
+  : DeploymentInformationWithVersion | null;
 
 /*
  * Returns the method to get deployment information for the underlying smart contract (based on a payment network version)
  * for given artifact and version mapping.
  */
-export const makeGetDeploymentInformation = <TVersion extends string = string>(
+export const makeGetDeploymentInformation = <
+  TVersion extends string = string,
+  TAllowUndefined extends boolean = false
+>(
   artifact: ContractArtifact<Contract>,
   map: Record<string, TVersion>,
-): GetDeploymentInformation => {
+  allowUndefined?: TAllowUndefined,
+): GetDeploymentInformation<TAllowUndefined> => {
   return (network, paymentNetworkVersion) => {
     const contractVersion = map[paymentNetworkVersion];
     if (!contractVersion) {
       throw Error(`No contract matches payment network version: ${paymentNetworkVersion}.`);
     }
-    const info = artifact.getDeploymentInformation(network, contractVersion);
+    let info: DeploymentInformation;
+    if (allowUndefined === true) {
+      const tmpInfo = artifact.getOptionalDeploymentInformation(network, contractVersion);
+      if (!tmpInfo) {
+        return null as ReturnType<GetDeploymentInformation<TAllowUndefined>>;
+      }
+      info = tmpInfo;
+    } else {
+      info = artifact.getDeploymentInformation(network, contractVersion);
+    }
     return { ...info, contractVersion };
   };
 };

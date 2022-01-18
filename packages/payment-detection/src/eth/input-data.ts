@@ -115,5 +115,6 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   public static getDeploymentInformation = makeGetDeploymentInformation(
     SmartContracts.ethereumProxyArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,
+    true,
   );
 }
