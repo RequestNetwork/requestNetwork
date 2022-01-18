@@ -76,10 +76,10 @@ export async function deployOne<TContract extends Contract>(
   if (options?.nonceCondition) {
     const currentNonce = await deployer.getTransactionCount();
     if (options.nonceCondition !== currentNonce) {
-      console.warn(
-        `Warning: trying to deploy ${contractName} with nonce ${options.nonceCondition}, but nonce = ${currentNonce}`,
-      );
       if (!args.simulate) {
+        console.warn(
+          `Warning: trying to deploy ${contractName} with nonce ${options.nonceCondition}, but nonce = ${currentNonce}`,
+        );
         const result: DeploymentResult<any> = {
           ...SKIPPED_DEPLOYMENT,
           instance: null,
