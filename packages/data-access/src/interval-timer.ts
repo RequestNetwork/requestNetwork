@@ -11,6 +11,7 @@ export default class IntervalTimer {
   private intervalFunction: () => Promise<void>;
   private intervalTime: number;
   private timeoutObject: NodeJS.Timeout | null = null;
+  private lastRecursion: Promise<void> = Promise.resolve();
   private logger: LogTypes.ILogger;
   private successiveFailureThreshold: number;
 
@@ -71,23 +72,31 @@ export default class IntervalTimer {
         }
       }
 
-      this.timeoutObject = setTimeout(recursiveTimeoutFunction, this.intervalTime);
+      createRecursion();
+    };
+
+    const createRecursion = () => {
+      this.timeoutObject = setTimeout(() => {
+        const recursion = recursiveTimeoutFunction();
+        this.lastRecursion = recursion;
+      }, this.intervalTime);
     };
 
     // First call to the recursive timeout function
-    this.timeoutObject = setTimeout(recursiveTimeoutFunction, this.intervalTime);
+    createRecursion();
   }
 
   /**
    * Stop the interval timer
    */
-  public stop(): void {
+  public async stop(): Promise<void> {
     if (!this.timeoutObject) {
       throw Error(`Can't stop IntervalTimer if it has not been started`);
     }
 
     clearTimeout(this.timeoutObject);
     this.timeoutObject = null;
+    return this.lastRecursion;
   }
 
   public get isStarted(): boolean {

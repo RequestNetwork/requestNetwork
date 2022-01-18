@@ -169,7 +169,7 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   }
 
   public async close(): Promise<void> {
-    this.stopAutoSynchronization();
+    await this.stopAutoSynchronization();
   }
 
   /**
@@ -468,9 +468,9 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
   /**
    * Stop to synchronize with the storage automatically
    */
-  public stopAutoSynchronization(): void {
+  public async stopAutoSynchronization(): Promise<void> {
     if (this.synchronizationTimer.isStarted) {
-      this.synchronizationTimer.stop();
+      await this.synchronizationTimer.stop();
     }
   }
 
