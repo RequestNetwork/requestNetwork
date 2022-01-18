@@ -56,9 +56,8 @@ export function prepareEthProxyPaymentTransaction(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
 
   const encodedTx = encodePayEthProxyRequest(request);
-  const proxyAddress = getProxyAddress(
-    request,
-    EthInputDataPaymentDetector.getDeploymentInformation,
+  const proxyAddress = getProxyAddress(request, (network, version) =>
+    EthInputDataPaymentDetector.getDeploymentInformation(network, version),
   );
   const amountToPay = getAmountToPay(request, amount);
 

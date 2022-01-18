@@ -70,10 +70,6 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
       paymentChain,
       paymentNetwork.version,
     );
-
-    if (!contractInfo) {
-      throw Error('ETH conversion proxy contract not found');
-    }
     const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
