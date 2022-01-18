@@ -1,7 +1,7 @@
 version: 2.1
 
 references:
-  working_directory: &working_directory ~/repo
+  working_directory: &working_directory /mnt/ramdisk/repo
   attach_workspace: &attach_workspace
   image_name: &image_name 'circleci/python:3.7'
   node_image: &node_image
