@@ -62,13 +62,12 @@ describe('interval-timer', () => {
   it('should throw an error if started twice without stop() being called', async () => {
     intervalTimer.start();
     expect(() => intervalTimer.start()).toThrowError('IntervalTimer already started');
-
-    intervalTimer.stop();
+    await intervalTimer.stop();
   });
 
   it('should throw an error if stopped without start() being called', async () => {
-    expect(() => intervalTimer.stop()).toThrowError(
-      `Can't stop IntervalTimer if it has not been started`,
+    await expect(async () => await intervalTimer.stop()).rejects.toEqual(
+      "Can't stop IntervalTimer if it has not been started",
     );
   });
 
@@ -112,14 +111,15 @@ describe('interval-timer', () => {
 
     intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);
     intervalTimer.start();
-
     expect(callback).toHaveBeenCalledTimes(0);
-    jest.advanceTimersByTime(1100);
+
+    // for fake timers to work with native Promise, we have to wrap the timer in a Promise, see:
+    // https://github.com/facebook/jest/issues/7151#issuecomment-622134853
+    await Promise.resolve().then(() => jest.advanceTimersByTime(1100));
     expect(callback).toHaveBeenCalledTimes(1);
 
-    intervalTimer.stop();
-
-    jest.advanceTimersByTime(1000); // 2100
+    await intervalTimer.stop();
+    await Promise.resolve().then(() => jest.advanceTimersByTime(1000)); // 2100
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
@@ -128,19 +128,19 @@ describe('interval-timer', () => {
 
     intervalTimer = new IntervalTimer(callback, 1000, emptyLogger);
     intervalTimer.start();
-
     expect(callback).toHaveBeenCalledTimes(0);
-    jest.advanceTimersByTime(1100);
+
+    // for fake timers to work with native Promise, we have to wrap the timer in a Promise, see:
+    // https://github.com/facebook/jest/issues/7151#issuecomment-622134853
+    await Promise.resolve().then(() => jest.advanceTimersByTime(1100));
     expect(callback).toHaveBeenCalledTimes(1);
 
-    intervalTimer.stop();
-
-    jest.advanceTimersByTime(1000); // 2100
+    await intervalTimer.stop();
+    await Promise.resolve().then(() => jest.advanceTimersByTime(1000)); // 2100
     expect(callback).toHaveBeenCalledTimes(1);
 
     intervalTimer.start();
-
-    jest.advanceTimersByTime(1000); // 3100
+    await Promise.resolve().then(() => jest.advanceTimersByTime(1100));
     expect(callback).toHaveBeenCalledTimes(2);
   });
 
