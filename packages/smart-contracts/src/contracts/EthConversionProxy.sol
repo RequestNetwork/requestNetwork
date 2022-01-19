@@ -123,7 +123,7 @@ contract EthConversionProxy is ReentrancyGuard, WhitelistAdminRole {
     }
 
     /**
-     * @notice Update the conversion path contract address
+     * @notice Update the conversion path contract used to fetch conversions
      * @param _chainlinkConversionPathAddress address of the conversion path contract
      */
     function updateConversionPathAddress(address _chainlinkConversionPathAddress)
@@ -131,5 +131,16 @@ contract EthConversionProxy is ReentrancyGuard, WhitelistAdminRole {
         onlyWhitelistAdmin
     {
         chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+    }
+
+    /**
+     * @notice Update the conversion proxy used to process the payment
+     * @param _paymentProxyAddress address of the ETH conversion proxy
+     */
+    function updateConversionProxyAddress(address _paymentProxyAddress)
+        external
+        onlyWhitelistAdmin
+    {
+        paymentProxy = _paymentProxyAddress;
     }
 }
