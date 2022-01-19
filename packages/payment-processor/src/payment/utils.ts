@@ -144,7 +144,7 @@ const getProxyNetwork = (
 
 export const getProxyAddress = (
   request: ClientTypes.IRequestData,
-  getDeploymentInformation: (network: string, version: string) => { address: string },
+  getDeploymentInformation: (network: string, version: string) => { address: string } | null,
 ): string => {
   const pn = getPaymentNetworkExtension(request);
   if (!pn) {

@@ -24,17 +24,18 @@ A "normalized Keccak256 hash" of a JSON object is Keccak256 hash of an object wh
 In this layer, we refer to identities as the encryption key pairs, which can be different from the payer or payee identities (from the RequestLogic).
 
 Formatted identities allow typed identities such as:
+
 ```
 {
 	type: "EthereumAddress",
 	value: "0x123"
 }
 ```
+
 to be serialized. The value is prefixed with 2 digits representing the identity type. We use this to lighten the storage.
 The example above becomes: `20123`.
 
 Cf. [multi-format-types.ts](./packages/types/src/multi-format-types.ts)
-
 
 ## Requirement
 

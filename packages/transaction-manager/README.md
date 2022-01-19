@@ -50,7 +50,7 @@ const transactionManager = new TransactionManager(dataAccess);
 
 const data = '{ what: "ever", it: "is,", this: "must", work: true }';
 const channelId = 'myRequest';
-const channelTopics = ['stakeholder1','stakeholder2'];
+const channelTopics = ['stakeholder1', 'stakeholder2'];
 
 const { result } = await transactionManager.persistTransaction(data, channelId, channelTopics);
 ```
@@ -103,7 +103,9 @@ const transactionManager = new TransactionManager(dataAccess, decryptionProvider
 
 const channelId = 'myRequest';
 
-const { result: {transactions} } = await transactionManager.getTransactionsByChannelId(channelId);
+const {
+  result: { transactions },
+} = await transactionManager.getTransactionsByChannelId(channelId);
 ```
 
 ### Get Transactions from topic

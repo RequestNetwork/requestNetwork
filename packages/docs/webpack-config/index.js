@@ -5,10 +5,12 @@ module.exports = function (context, options) {
     name: 'webpack-config',
     configureWebpack(config, isServer, utils) {
       return {
-       plugins: [new webpack.ProvidePlugin({
-          Buffer: ['buffer', 'Buffer'],
-        })]
-      }
-    }
-  }
+        plugins: [
+          new webpack.ProvidePlugin({
+            Buffer: ['buffer', 'Buffer'],
+          }),
+        ],
+      };
+    },
+  };
 };

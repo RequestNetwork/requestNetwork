@@ -262,7 +262,7 @@ the 'addFee' event:
 
 ### Parameters
 
-|                        |  Type   | Description                                                  | Requirement   |
+|                        | Type   | Description                                                   | Requirement   |
 | ---------------------- | ------ | ------------------------------------------------------------- | ------------- |
 | **id**                 | String | Constant value: "pn-erc20-fee-proxy-contract"                 | **Mandatory** |
 | **action**             | String | Constant value: "declareReceivedPayment"                      | **Mandatory** |
@@ -288,7 +288,7 @@ None.
 An event is added to the extension state events array:
 
 |  Property             |  Value                                   |
-| --------------------- | -----------------------------------------|
+| --------------------- | ---------------------------------------- |
 | **name**              | Constant value: "declareReceivedPayment" |
 | **parameters**        |                                          |
 | **parameters.amount** | `amount` from parameters                 |
@@ -324,14 +324,14 @@ None.
 
 An event is added to the extension state events array:
 
-|  Property              |  Value                                   |
-| ---------------------- | -----------------------------------------|
-| **name**               | Constant value: "declareReceivedRefund"  |
-| **parameters**         |                                          |
-| **parameters.amount**  | `amount` from parameters                 |
-| **parameters.note**    | `note` from parameters                   |
-| **parameters.txHash**  | `txHash` from parameters or undefined    |
-| **parameters.network** | `network` from parameters or undefined   |
+|  Property              |  Value                                  |
+| ---------------------- | --------------------------------------- |
+| **name**               | Constant value: "declareReceivedRefund" |
+| **parameters**         |                                         |
+| **parameters.amount**  | `amount` from parameters                |
+| **parameters.note**    | `note` from parameters                  |
+| **parameters.txHash**  | `txHash` from parameters or undefined   |
+| **parameters.network** | `network` from parameters or undefined  |
 
 ---
 

@@ -12,7 +12,6 @@ import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
 import { TheGraphAnyToErc20Retriever } from './retrievers/thegraph';
 import { networkSupportsTheGraph } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
-import { VersionNotSupported } from '../balance-error';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -93,23 +92,13 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     }
     const { acceptedTokens, maxRateTimespan = 0 } = paymentNetwork.values;
 
-    const conversionDeploymentInformation = AnyToERC20PaymentDetector.getDeploymentInformation(
-      paymentChain,
-      paymentNetwork.version,
-    );
+    const {
+      address: conversionProxyContractAddress,
+      creationBlockNumber: conversionProxyCreationBlockNumber,
+    } = AnyToERC20PaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
     const conversionProxyAbi = erc20ConversionProxy.getContractAbi(paymentNetwork.version);
 
-    if (!conversionDeploymentInformation) {
-      throw new VersionNotSupported(
-        `Payment network version not supported: ${paymentNetwork.version}`,
-      );
-    }
-
-    const conversionProxyContractAddress: string | undefined =
-      conversionDeploymentInformation.address;
-    const conversionProxyCreationBlockNumber: number =
-      conversionDeploymentInformation.creationBlockNumber;
     const currency = await this.getCurrency(requestCurrency);
 
     const infoRetriever = networkSupportsTheGraph(paymentChain)

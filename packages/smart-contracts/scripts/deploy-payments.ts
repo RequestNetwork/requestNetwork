@@ -36,9 +36,10 @@ export async function deployAllPaymentContracts(
   hre: HardhatRuntimeEnvironment,
 ): Promise<void> {
   const deploymentResults: (DeploymentResult | undefined)[] = [];
-  let simulationSuccess: boolean | undefined = args.simulate ? true : undefined;
+  let simulationSuccess: boolean | undefined;
 
   try {
+    simulationSuccess = args.simulate ? true : undefined;
     const [deployer] = await hre.ethers.getSigners();
 
     console.log(
@@ -293,7 +294,6 @@ export async function deployAllPaymentContracts(
   } else {
     console.log(`--- No deployment was made. ---`);
   }
-  // @ts-ignore
   if (simulationSuccess === false) {
     console.log('--- DO NOT PROCEED ---');
   }

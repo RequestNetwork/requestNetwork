@@ -32,7 +32,8 @@
   "scripts": {
     "build": "tsc -b",
     "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
-    "lint": "eslint \"src/**/*.ts\"",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "prepare": "yarn run build",
     "test": "jest --runInBand",
     "test:watch": "yarn test --watch"

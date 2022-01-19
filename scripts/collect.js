@@ -26,6 +26,6 @@ function getDest(module) {
   'transaction-manager',
   'utils',
   'web3-signature',
-].map(m => {
+].map((m) => {
   fs.copyFileSync(getSrc(m), getDest(m));
 });
