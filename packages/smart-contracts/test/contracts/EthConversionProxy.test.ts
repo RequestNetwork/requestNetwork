@@ -5,6 +5,8 @@ import {
   EthereumFeeProxy,
   ChainlinkConversionPath,
   EthConversionProxy,
+  ChainlinkConversionPath__factory,
+  AggregatorMock__factory,
 } from '../../src/types';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
@@ -166,10 +168,10 @@ describe('contract: EthConversionProxy', () => {
     });
 
     describe('transferWithReferenceAndFee with errors', () => {
-      it('cannot transfer if msg.value too low', async function () {
+      it('cannot transfer if msg.value too low for amount', async function () {
         const path = [USD_hash, ETH_hash];
 
-        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
+        const mainEthAmount = await chainlinkPath.getConversion(amountInFiat, path);
 
         await expect(
           testEthConversionProxy.transferWithReferenceAndFee(
@@ -181,17 +183,38 @@ describe('contract: EthConversionProxy', () => {
             feeAddress,
             0,
             {
-              value: conversionToPay.result,
+              value: mainEthAmount.result.sub(1),
             },
           ),
         ).to.be.revertedWith('revert paymentProxy transferExactEthWithReferenceAndFee failed');
       });
 
+      it('cannot transfer if msg.value too low for fee', async function () {
+        const path = [USD_hash, ETH_hash];
+
+        const mainEthAmount = await chainlinkPath.getConversion(amountInFiat, path);
+        const ethFee = await chainlinkPath.getConversion(feesAmountInFiat, path);
+
+        await expect(
+          testEthConversionProxy.transferWithReferenceAndFee(
+            to,
+            amountInFiat,
+            path,
+            referenceExample,
+            feesAmountInFiat,
+            feeAddress,
+            0,
+            {
+              value: mainEthAmount.result.add(ethFee.result).sub(1),
+            },
+          ),
+        ).to.be.revertedWith('revert paymentProxy transferExactEthWithReferenceAndFee failed');
+      });
       it('cannot transfer if rate is too old', async function () {
         const path = [USD_hash, ETH_hash];
 
-        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
-        const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
+        const mainEthAmount = await chainlinkPath.getConversion(amountInFiat, path);
+        const ethFee = await chainlinkPath.getConversion(feesAmountInFiat, path);
         await expect(
           testEthConversionProxy.transferWithReferenceAndFee(
             to,
@@ -202,10 +225,46 @@ describe('contract: EthConversionProxy', () => {
             feeAddress,
             1, // second
             {
-              value: conversionFees.result.add(conversionToPay.result),
+              value: ethFee.result.add(mainEthAmount.result),
             },
           ),
         ).to.be.revertedWith('revert aggregator rate is outdated');
+      });
+
+      it('cannot transfer with another native token hash', async function () {
+        const USD_ETH_aggregator = await new AggregatorMock__factory(signer).deploy(
+          50000000000,
+          8,
+          60,
+        );
+        const MATIC_HASH = currencyManager.fromSymbol('MATIC')!.hash;
+        const maticChainlinkPath = await new ChainlinkConversionPath__factory(signer).deploy(
+          MATIC_HASH,
+        );
+        const maticEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
+          ethFeeProxy.address,
+          maticChainlinkPath.address,
+          MATIC_HASH,
+        );
+        await maticChainlinkPath.updateAggregator(ETH_hash, USD_hash, USD_ETH_aggregator.address);
+        const path = [USD_hash, ETH_hash];
+
+        const mainEthAmount = await chainlinkPath.getConversion(amountInFiat, path);
+        const ethFee = await chainlinkPath.getConversion(feesAmountInFiat, path);
+        await expect(
+          maticEthConversionProxy.transferWithReferenceAndFee(
+            to,
+            amountInFiat,
+            path,
+            referenceExample,
+            feesAmountInFiat,
+            feeAddress,
+            0,
+            {
+              value: ethFee.result.add(mainEthAmount.result),
+            },
+          ),
+        ).to.be.revertedWith('revert payment currency must be the native token');
       });
     });
   });
