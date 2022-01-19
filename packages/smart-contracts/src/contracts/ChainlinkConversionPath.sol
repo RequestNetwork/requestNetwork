@@ -21,7 +21,17 @@ interface AggregatorFraction {
  * @notice ChainlinkConversionPath is a contract computing currency conversion rates based on Chainlink aggretators
  */
 contract ChainlinkConversionPath is WhitelistAdminRole {
-    uint256 constant DECIMALS = 1e18;
+    uint256 constant PRECISION = 1e18;
+    uint256 constant NATIVE_TOKEN_DECIMALS = 18;
+    uint256 constant FIAT_DECIMALS = 8;
+    address public nativeTokenHash;
+
+    /**
+     * @param _nativeTokenHash hash of the native token
+     */
+    constructor(address _nativeTokenHash) {
+        nativeTokenHash = _nativeTokenHash;
+    }
 
     // Mapping of Chainlink aggregators (input currency => output currency => contract address)
     // input & output currencies are the addresses of the ERC20 contracts OR the sha3("currency code")
@@ -103,8 +113,8 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
         )
     {
         // initialize the result with 18 decimals (for more precision)
-        rate = DECIMALS;
-        decimals = DECIMALS;
+        rate = PRECISION;
+        decimals = PRECISION;
         oldestRateTimestamp = block.timestamp;
 
         // For every conversion of the path
@@ -194,11 +204,11 @@ contract ChainlinkConversionPath is WhitelistAdminRole {
      * @return decimals number of decimals
      */
     function getDecimals(address _addr) private view returns (uint256 decimals) {
-        // by default we assume it is FIAT so 8 decimals
-        decimals = 8;
+        // by default we assume it is fiat
+        decimals = FIAT_DECIMALS;
         // if address is the hash of the ETH currency
-        if (_addr == address(0xF5AF88e117747e87fC5929F2ff87221B1447652E)) {
-            decimals = 18;
+        if (_addr == nativeTokenHash) {
+            decimals = NATIVE_TOKEN_DECIMALS;
         } else if (isContract(_addr)) {
             // otherwise, we get the decimals from the erc20 directly
             decimals = ERC20fraction(_addr).decimals();
