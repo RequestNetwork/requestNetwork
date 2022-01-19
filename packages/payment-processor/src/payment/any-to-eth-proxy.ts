@@ -78,19 +78,20 @@ export function encodePayAnyToEthProxyRequest(
     throw new Error(`missing network`);
   }
 
+  // The same hash as ETH mainnet one is used for all native tokens
   const paymentCurrency = currencyManager.getNativeCurrency(
     RequestLogicTypes.CURRENCY.ETH,
-    network,
+    'mainnet',
   );
   if (!paymentCurrency) {
-    throw new UnsupportedCurrencyError({ value: 'ETH', network });
+    throw new UnsupportedCurrencyError({ value: 'ETH', network: 'mainnet' });
   }
 
   // Compute the path automatically
   const path = currencyManager.getConversionPath(requestCurrency, paymentCurrency, network);
   if (!path) {
     throw new Error(
-      `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to ${paymentCurrency.symbol} (${paymentCurrency.hash})`,
+      `Impossible to find a conversion path between from ${requestCurrency.symbol} (${requestCurrency.hash}) to native token (${paymentCurrency.hash})`,
     );
   }
 
