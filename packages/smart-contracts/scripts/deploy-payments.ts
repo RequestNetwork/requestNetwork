@@ -201,9 +201,14 @@ export async function deployAllPaymentContracts(
         } else {
           console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
         }
-      } else if (currentNonce < chainlinkAdminNonce) {
-        console.warn(`Warning: got nonce ${currentNonce} instead of ${chainlinkAdminNonce}`);
-        switchToSimulation();
+      } else {
+        if (currentNonce < chainlinkAdminNonce) {
+          console.warn(`Warning: got nonce ${currentNonce} instead of ${chainlinkAdminNonce}`);
+          switchToSimulation();
+        } else if (!chainlinkInstance) {
+          console.warn(`Warning: the Chainlink contract instance is not ready, consider retrying.`);
+          switchToSimulation();
+        }
       }
     };
 
