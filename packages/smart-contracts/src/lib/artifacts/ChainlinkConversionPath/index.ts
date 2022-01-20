@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+import { abi as ABI_0_2_0 } from './0.2.0.json';
 // @ts-ignore Cannot find module
 import type { ChainlinkConversionPath } from '../../../types/ChainlinkConversionPath';
 
@@ -51,6 +52,15 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
         },
       },
     },
+    '0.2.0': {
+      abi: ABI_0_2_0,
+      deployment: {
+        private: {
+          address: '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c',
+          creationBlockNumber: 0,
+        },
+      },
+    },
   },
   // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions
   /*
@@ -64,5 +74,5 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
     },
   },
   */
-  '0.1.0',
+  '0.2.0',
 );

@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import './ChainlinkConversionPath.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
+import './legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol';
 
 /**
  * @title EthConversionProxy
@@ -11,7 +12,7 @@ import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
  *         The inheritance from ReentrancyGuard is required to perform
  *         "transferExactEthWithReferenceAndFee" on the eth-fee-proxy contract
  */
-contract EthConversionProxy is ReentrancyGuard {
+contract EthConversionProxy is ReentrancyGuard, WhitelistAdminRole {
     address public paymentProxy;
     ChainlinkConversionPath public chainlinkConversionPath;
     address public nativeTokenHash;
@@ -119,5 +120,27 @@ contract EthConversionProxy is ReentrancyGuard {
         // Get the amount to pay in the native token
         amountToPay = (_requestAmount * rate) / decimals;
         amountToPayInFees = (_feeAmount * rate) / decimals;
+    }
+
+    /**
+     * @notice Update the conversion path contract used to fetch conversions
+     * @param _chainlinkConversionPathAddress address of the conversion path contract
+     */
+    function updateConversionPathAddress(address _chainlinkConversionPathAddress)
+        external
+        onlyWhitelistAdmin
+    {
+        chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+    }
+
+    /**
+     * @notice Update the conversion proxy used to process the payment
+     * @param _paymentProxyAddress address of the ETH conversion proxy
+     */
+    function updateConversionProxyAddress(address _paymentProxyAddress)
+        external
+        onlyWhitelistAdmin
+    {
+        paymentProxy = _paymentProxyAddress;
     }
 }
