@@ -43,6 +43,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A',
           creationBlockNumber: 0,
         },
+        rinkeby: {
+          address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
+          creationBlockNumber: 10023415,
+        },
       },
     },
   },
