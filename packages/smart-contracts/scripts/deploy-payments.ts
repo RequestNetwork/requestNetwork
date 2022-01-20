@@ -188,26 +188,21 @@ export async function deployAllPaymentContracts(
       deploymentResults.push(ethConversionResult);
 
       // Administrate again whitelist admins for nonce consistency (due to 1 failing tx on Fantom)
-
+      const chainlinkAdminNonce = 12;
       const currentNonce = await deployer.getTransactionCount();
-      if (currentNonce === 9) {
-        if (hre.network.name === 'fantom') {
-          if (chainlinkInstance) {
-            if (!process.env.ADMIN_WALLET_ADDRESS) {
-              throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
-            }
-            if (args.simulate === false) {
-              await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
-            } else {
-              console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
-            }
-          }
-        } else {
-          // Atificially increase nonce for every other network
-          await jumpToNonce(args, hre, 10);
+      if (currentNonce === chainlinkAdminNonce && chainlinkInstance) {
+        if (!process.env.ADMIN_WALLET_ADDRESS) {
+          throw new Error(
+            'Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided, cannot addWhitelistAdmin.',
+          );
         }
-      } else if (currentNonce < 9) {
-        console.warn(`Warning: got nonce ${currentNonce} instead of 9`);
+        if (args.simulate === false) {
+          await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
+        } else {
+          console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
+        }
+      } else if (currentNonce < chainlinkAdminNonce) {
+        console.warn(`Warning: got nonce ${currentNonce} instead of ${chainlinkAdminNonce}`);
         switchToSimulation();
       }
     };
