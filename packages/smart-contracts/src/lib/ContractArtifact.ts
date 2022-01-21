@@ -78,6 +78,7 @@ export class ContractArtifact<TContract extends Contract> {
    * @returns the address of the deployed contract
    */
   getAddress(networkName: string, version = this.lastVersion): string {
+    console.log(this.lastVersion);
     return this.getDeploymentInformation(networkName, version).address;
   }
 
