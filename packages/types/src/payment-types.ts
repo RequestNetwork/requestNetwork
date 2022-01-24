@@ -225,3 +225,29 @@ export interface IDeclarativePaymentEventParameters {
 export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;
 /** Declarative BalanceWithEvents */
 export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;
+
+/** Parameters for escrow events from EscrowERC20 contract state changes */
+export interface IEscrowEventParameters {
+  block: number;
+  txHash: string;
+  eventType: string;
+  from?: string;
+  timestamp?: number;
+}
+/** Escrow events that change the state of the Escrow */
+export type EscrowEvents = IEscrowEventParameters;
+
+/** Parameters that describe the current escrow state */
+export interface IEscrowStateParameters {
+  creationBlock: number;
+  creationTimestamp: number;
+  escrowState: string;
+  tokenAddress: string;
+  amount: string;
+  payer: string;
+  payee: string;
+  feeAmount: string;
+  feeAddress: string;
+}
+/** Represents the current state of an escrow instance */
+export type EscrowState = IEscrowStateParameters;
