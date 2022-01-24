@@ -25,6 +25,7 @@ export default class Erc20FeeProxyPaymentNetwork<
       'bsc',
       'xdai',
       'fantom',
+      'arbitrum-testnet'
     ],
     public supportedCurrencyType: RequestLogicTypes.CURRENCY = RequestLogicTypes.CURRENCY.ERC20,
   ) {

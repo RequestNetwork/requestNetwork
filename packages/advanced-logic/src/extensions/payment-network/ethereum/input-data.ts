@@ -13,6 +13,7 @@ const supportedNetworks = [
   'fantom',
   'bsctest',
   'bsc',
+  'arbitrum-testnet'
 ];
 
 /**
