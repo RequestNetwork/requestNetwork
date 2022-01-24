@@ -7,6 +7,7 @@ import { supportedFantomTokens } from './fantom';
 import { supportedBSCTestERC20 } from './bsctest';
 import { supportedBSCERC20 } from './bsc';
 import { supportedXDAIERC20 } from './xdai';
+import { supportedArbitrumTestERC20 } from './arbitrumtest'
 
 export const supportedNetworks: Record<string, TokenMap> = {
   celo: supportedCeloERC20,
@@ -17,6 +18,7 @@ export const supportedNetworks: Record<string, TokenMap> = {
   bsctest: supportedBSCTestERC20,
   bsc: supportedBSCERC20,
   xdai: supportedXDAIERC20,
+  'arbitrum-testnet': supportedArbitrumTestERC20,
 };
 
 export type { TokenMap };
