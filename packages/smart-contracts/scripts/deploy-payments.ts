@@ -40,6 +40,10 @@ export async function deployAllPaymentContracts(
   const deploymentResults: (DeploymentResult | undefined)[] = [];
   let simulationSuccess: boolean | undefined;
 
+  const logDeploymentMsg = (contractName: string, message: string) => {
+    console.log(`${`      ${contractName}:`.padEnd(36, ' ')}${message}`);
+  };
+
   try {
     simulationSuccess = args.simulate ? true : undefined;
     const [deployer] = await hre.ethers.getSigners();
@@ -94,88 +98,50 @@ export async function deployAllPaymentContracts(
 
     /*
      * Batch 2
-     *   - ERC20ConversionProxy
      *   - ERC20SwapToPay
-     *   - ERC20SwapToConversion
      */
-    const runDeploymentBatch_2 = async (
-      chainlinkInstance: ChainlinkConversionPath,
-      erc20FeeProxyAddress: string,
-    ) => {
-      let chainlinkConversionPathAddress = chainlinkInstance?.address;
-      if (!chainlinkConversionPathAddress) {
-        switchToSimulation();
-        chainlinkConversionPathAddress = 'simulated';
+    const runDeploymentBatch_2 = async (erc20FeeProxyAddress: string) => {
+      const nonceForBatch2 = 5;
+      await jumpToNonce(args, hre, nonceForBatch2);
+
+      // ERC20SwapToPay
+      let swapRouterAddress = uniswapV2RouterAddresses[hre.network.name];
+      if (!swapRouterAddress) {
+        logDeploymentMsg(
+          'ERC20SwapToPay:',
+          '(swap router missing - can be administrated by deployer)',
+        );
+        swapRouterAddress = '0x0000000000000000000000000000000000000000';
       }
-
-      // Deploy ERC20 Conversion
-      const erc20ConversionResult = await deployERC20ConversionProxy(
-        {
-          ...args,
-          chainlinkConversionPathAddress,
-          erc20FeeProxyAddress,
-        },
-        hre,
-      );
-      deploymentResults.push(erc20ConversionResult);
-      const erc20ConversionAddress = erc20ConversionResult?.address;
-
-      // Add whitelist admin to chainlink path
-      const currentNonce = await deployer.getTransactionCount();
-      if (chainlinkInstance && currentNonce === 4) {
-        if (!process.env.ADMIN_WALLET_ADDRESS) {
-          throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
-        }
-        if (args.simulate === false) {
-          await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
-        } else {
-          console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
-        }
-      }
-
-      // ERC20SwapToPay & ERC20SwapToConversion
-      const swapRouterAddress = uniswapV2RouterAddresses[hre.network.name];
-      if (swapRouterAddress) {
-        const swapRouterAddressResult = await deployOne(args, hre, 'ERC20SwapToPay', {
-          constructorArguments: [swapRouterAddress, erc20FeeProxyAddress],
-          artifact: erc20SwapToPayArtifact,
-          nonceCondition: 5,
-        });
-        deploymentResults.push(swapRouterAddressResult);
-
-        if (erc20ConversionAddress) {
-          const swapConversionResult = await deploySwapConversion(
-            {
-              ...args,
-              conversionProxyAddress: erc20ConversionAddress,
-              swapProxyAddress: swapRouterAddress,
-            },
-            hre,
-          );
-          deploymentResults.push(swapConversionResult);
-        } else {
-          console.log(
-            `      ${'ERC20SwapToConversion:'.padEnd(30, ' ')}(ERC20 Conversion missing)`,
-          );
-          switchToSimulation();
-        }
-      } else {
-        console.log(`      ${'ERC20SwapToPay:'.padEnd(30, ' ')}(swap router missing)`);
-        console.log(`      ${'ERC20SwapToConversion:'.padEnd(30, ' ')}(swap router missing)`);
-        switchToSimulation();
-        simulationSuccess = false;
-      }
+      const swapRouterAddressResult = await deployOne(args, hre, 'ERC20SwapToPay', {
+        constructorArguments: [swapRouterAddress, erc20FeeProxyAddress],
+        artifact: erc20SwapToPayArtifact,
+        nonceCondition: nonceForBatch2,
+      });
+      deploymentResults.push(swapRouterAddressResult);
       return deploymentResults;
     };
 
     /*
      * Batch 4
+     *   - ChainlinkConversionPath
      *   - ETHConversionProxy
      */
-    const runDeploymentBatch_4 = async (
-      chainlinkConversionPathAddress: string,
-      ethFeeProxyAddress: string,
-    ) => {
+    const runDeploymentBatch_4 = async (ethFeeProxyAddress: string) => {
+      const nonceForBatch4 = 10;
+      await jumpToNonce(args, hre, nonceForBatch4);
+
+      // Deploy ChainlinkConversionPath
+      const {
+        instance: chainlinkInstance,
+        address: chainlinkConversionPathAddress,
+      } = await runEasyDeployment({
+        contractName: 'ChainlinkConversionPath',
+        constructorArguments: [nativeTokenHash],
+        artifact: chainlinkConversionPathArtifact,
+        nonceCondition: nonceForBatch4,
+      });
+
       // Deploy ETH Conversion
       const ethConversionResult = await deployETHConversionProxy(
         {
@@ -210,6 +176,68 @@ export async function deployAllPaymentContracts(
           switchToSimulation();
         }
       }
+      return chainlinkInstance;
+    };
+
+    /*
+     * Batch 5
+     *   - 5.a ERC20ConversionProxy
+     *   - 5.b ChainlinkConversionPath.addWhitelistAdmin
+     *   - 5.c SwapToConversion
+     */
+    const runDeploymentBatch_5 = async (
+      chainlinkInstance: ChainlinkConversionPath,
+      erc20FeeProxyAddress: string,
+    ) => {
+      let chainlinkConversionPathAddress = chainlinkInstance?.address;
+      if (!chainlinkConversionPathAddress) {
+        switchToSimulation();
+        chainlinkConversionPathAddress = 'simulated';
+      }
+
+      // 5.a ERC20ConversionProxy
+      const erc20ConversionResult = await deployERC20ConversionProxy(
+        {
+          ...args,
+          chainlinkConversionPathAddress,
+          erc20FeeProxyAddress,
+        },
+        hre,
+      );
+      deploymentResults.push(erc20ConversionResult);
+
+      // 5.b ChainlinkConversionPath.addWhitelistAdmin
+      const currentNonce = await deployer.getTransactionCount();
+      if (chainlinkInstance && currentNonce === 12) {
+        if (!process.env.ADMIN_WALLET_ADDRESS) {
+          throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
+        }
+        if (args.simulate === false) {
+          await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
+        } else {
+          console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
+        }
+      }
+
+      // 5.c SwapToConversion
+      let swapRouterAddress = uniswapV2RouterAddresses[hre.network.name];
+      if (!swapRouterAddress) {
+        logDeploymentMsg(
+          'ERC20SwapToConversion:',
+          '(swap router missing - can be administrated by deployer)',
+        );
+        swapRouterAddress = '0x0000000000000000000000000000000000000000';
+      }
+
+      const swapConversionResult = await deploySwapConversion(
+        {
+          ...args,
+          conversionProxyAddress: erc20ConversionResult?.address,
+          swapProxyAddress: swapRouterAddress,
+        },
+        hre,
+      );
+      deploymentResults.push(swapConversionResult);
     };
 
     // #endregion
@@ -228,6 +256,9 @@ export async function deployAllPaymentContracts(
       nonceCondition: 1,
     });
 
+    // Batch 2
+    await runDeploymentBatch_2(erc20FeeProxyAddress);
+
     // Batch 3
     const nonceForBatch3 = 7;
     await jumpToNonce(args, hre, nonceForBatch3);
@@ -239,48 +270,30 @@ export async function deployAllPaymentContracts(
     });
 
     // Batch 4
-    const nonceForBatch4 = 10;
-    await jumpToNonce(args, hre, nonceForBatch4);
+    const chainlinkInstance = await runDeploymentBatch_4(ethFeeProxyAddress);
 
-    const {
-      instance: chainlinkInstance,
-      address: chainlinkInstanceAddress,
-    } = await runEasyDeployment({
-      contractName: 'ChainlinkConversionPath',
-      constructorArguments: [nativeTokenHash],
-      artifact: chainlinkConversionPathArtifact,
-      nonceCondition: nonceForBatch4,
-    });
-
-    await runDeploymentBatch_4(chainlinkInstanceAddress, ethFeeProxyAddress);
-
-    if (!args.simulate) {
-      throw new Error('Missing implementation new version of ERC20 Conversion Proxy');
-    }
-
-    // Batch 2
-    await runDeploymentBatch_2(chainlinkInstance, erc20FeeProxyAddress);
+    // Batch 5
+    await runDeploymentBatch_5(chainlinkInstance, erc20FeeProxyAddress);
 
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Add future batches above this line
-
-    console.log('Done deploying. Summary:');
-    deploymentResults
-      .filter((x): x is DeploymentResult => !!x)
-      .forEach((res) => {
-        console.log(`      ${res.contractName.concat(':').padEnd(30, ' ')}${res.address}`);
-      });
+    console.log('Done deploying.');
     // #endregion
   } catch (e) {
     console.error(e);
   }
 
+  // #region MAIN - Conclusion and verification
+
+  console.log('Summary:');
+  deploymentResults
+    .filter((x): x is DeploymentResult => !!x)
+    .forEach((res) => logDeploymentMsg(res.contractName, res.address));
   const nbDeployments = deploymentResults.filter((val) => val?.type === 'deployed').length;
   const verificationPromises = deploymentResults
     .map((val) => val?.verificationPromise)
     .filter(Boolean);
 
-  // #region MAIN - Conclusion and verification
   if (nbDeployments > 0) {
     console.log(
       `--- ${nbDeployments} deployements were made. ---`,
