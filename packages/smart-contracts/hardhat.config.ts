@@ -75,12 +75,12 @@ export default {
       chainId: 250,
       accounts,
     },
-    arbitrum: {
+    'arbitrum-one': {
       url: process.env.WEB3_PROVIDER_URL || 'https://arb1.arbitrum.io/rpc',
       chainId: 42161,
       accounts,
     },
-    arbitrumtest: {
+    'arbitrum-rinkeby': {
       url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.arbitrum.io/rpc',
       chainId: 421611,
       accounts,
