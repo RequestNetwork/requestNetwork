@@ -97,6 +97,9 @@ describe('contract: EthConversionProxy', () => {
         expect(fromNewBalance).to.be.lt(
           fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result),
         );
+        expect(fromNewBalance).to.be.gt(
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result).mul(95).div(100),
+        );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
         expect(contractBalance.toString()).to.equals('0');
@@ -149,6 +152,9 @@ describe('contract: EthConversionProxy', () => {
         // Check balance changes
         expect(fromNewBalance).to.be.lt(
           fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result),
+        );
+        expect(fromNewBalance).to.be.gt(
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result).mul(95).div(100),
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
