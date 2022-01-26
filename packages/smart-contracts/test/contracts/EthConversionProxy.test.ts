@@ -38,7 +38,6 @@ describe('contract: EthConversionProxy', () => {
   const networkConfig = network.config as HttpNetworkConfig;
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
 
-
   before(async () => {
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
@@ -96,7 +95,7 @@ describe('contract: EthConversionProxy', () => {
 
         // Check balance changes
         expect(fromNewBalance).to.be.lt(
-            fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result)
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result),
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
@@ -135,7 +134,6 @@ describe('contract: EthConversionProxy', () => {
             '0',
           );
 
-
         const fromNewBalance = await provider.getBalance(from);
         const toNewBalance = await provider.getBalance(to);
         const feeNewBalance = await provider.getBalance(feeAddress);
@@ -150,13 +148,13 @@ describe('contract: EthConversionProxy', () => {
 
         // Check balance changes
         expect(fromNewBalance).to.be.lt(
-            fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result)
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result),
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
       });
     });
-    
+
     describe('transferWithReferenceAndFee with errors', () => {
       it('cannot transfer if msg.value too low for amount', async function () {
         const path = [USD_hash, ETH_hash];
@@ -165,18 +163,18 @@ describe('contract: EthConversionProxy', () => {
 
         await expect(
           testEthConversionProxy.transferWithReferenceAndFee(
-              to,
-              amountInFiat,
-              path,
-              referenceExample,
-              feesAmountInFiat,
-              feeAddress,
-              0,
-              {
-                  value: conversionToPay.result, // Fees amount missing
-              }
-            ),
-        ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed')
+            to,
+            amountInFiat,
+            path,
+            referenceExample,
+            feesAmountInFiat,
+            feeAddress,
+            0,
+            {
+              value: mainEthAmount.result, // Fees amount missing
+            },
+          ),
+        ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed');
       });
 
       it('cannot transfer if msg.value too low for fee', async function () {
