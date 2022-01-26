@@ -230,7 +230,7 @@ export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymen
 export interface IEscrowEventParameters {
   block: number;
   txHash: string;
-  eventType: string;
+  eventName: string;
   from?: string;
   timestamp?: number;
 }
@@ -248,7 +248,7 @@ export enum ESCROW_STATE {
 export interface IEscrowParameters {
   creationBlock: number;
   creationTimestamp: number;
-  escrowState: ESCROW_STATE;
+  escrowState: string;
   tokenAddress: string;
   amount: string;
   payer: string;
