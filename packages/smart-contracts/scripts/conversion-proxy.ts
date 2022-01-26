@@ -8,7 +8,11 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 export async function deployERC20ConversionProxy(
-  args: { chainlinkConversionPathAddress?: string; erc20FeeProxyAddress?: string },
+  args: {
+    chainlinkConversionPathAddress?: string;
+    erc20FeeProxyAddress?: string;
+    nonceCondition?: number;
+  },
   hre: HardhatRuntimeEnvironment,
 ): Promise<DeploymentResult | undefined> {
   const contractName = 'Erc20ConversionProxy';
@@ -29,6 +33,8 @@ export async function deployERC20ConversionProxy(
   return deployOne(args, hre, contractName, {
     constructorArguments: [args.erc20FeeProxyAddress, args.chainlinkConversionPathAddress],
     artifact: erc20ConversionProxyArtifact,
+    nonceCondition: args.nonceCondition,
+    version: '0.1.1',
   });
 }
 

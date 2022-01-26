@@ -6,7 +6,7 @@ import { uniswapV2RouterAddresses } from './utils';
 const contractName = 'ERC20SwapToConversion';
 
 export async function deploySwapConversion(
-  args: { conversionProxyAddress?: string; swapProxyAddress?: string },
+  args: { conversionProxyAddress?: string; swapProxyAddress?: string; nonceCondition?: number },
   hre: HardhatRuntimeEnvironment,
 ) {
   if (!args.conversionProxyAddress) {
@@ -24,6 +24,7 @@ export async function deploySwapConversion(
       args.conversionProxyAddress,
     ],
     artifact: erc20SwapConversionArtifact,
+    nonceCondition: args.nonceCondition,
   });
 
   return deployment;

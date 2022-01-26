@@ -49,7 +49,9 @@ export async function deployAllPaymentContracts(
     const [deployer] = await hre.ethers.getSigners();
 
     console.log(
-      `*** Deploying with the account: ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId}) ***`,
+      `*** Deploying with: ${deployer.address} on ${hre.network.name} (${
+        hre.network.config.chainId
+      }). Nonce = ${await deployer.getTransactionCount()} ***`,
     );
 
     // #region NATIVE TOKEN
@@ -64,7 +66,7 @@ export async function deployAllPaymentContracts(
     }
     // #endregion
 
-    // #region EASY DEPLOYMENTS UTIL
+    // #region UTILS
 
     // Utility to run a straight-forward deployment with deployOne()
     const runEasyDeployment = async <TContract extends Contract>(deployment: {
@@ -84,9 +86,6 @@ export async function deployAllPaymentContracts(
       }
       return result;
     };
-    // #endregion
-
-    // #region NON-EASY BATCHES DEFINITION
 
     const switchToSimulation = () => {
       if (!args.simulate) {
@@ -95,7 +94,9 @@ export async function deployAllPaymentContracts(
         simulationSuccess = simulationSuccess ?? true;
       }
     };
+    // #endregion
 
+    // #region BATCH DEFINITIONS
     /*
      * Batch 2
      *   - ERC20SwapToPay
@@ -189,6 +190,7 @@ export async function deployAllPaymentContracts(
       chainlinkInstance: ChainlinkConversionPath,
       erc20FeeProxyAddress: string,
     ) => {
+      const NONCE_BATCH_5 = 11;
       let chainlinkConversionPathAddress = chainlinkInstance?.address;
       if (!chainlinkConversionPathAddress) {
         switchToSimulation();
@@ -201,6 +203,7 @@ export async function deployAllPaymentContracts(
           ...args,
           chainlinkConversionPathAddress,
           erc20FeeProxyAddress,
+          nonceCondition: NONCE_BATCH_5,
         },
         hre,
       );
@@ -208,7 +211,7 @@ export async function deployAllPaymentContracts(
 
       // 5.b ChainlinkConversionPath.addWhitelistAdmin
       const currentNonce = await deployer.getTransactionCount();
-      if (chainlinkInstance && currentNonce === 12) {
+      if (chainlinkInstance && currentNonce === NONCE_BATCH_5 + 1) {
         if (!process.env.ADMIN_WALLET_ADDRESS) {
           throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
         }
@@ -224,7 +227,7 @@ export async function deployAllPaymentContracts(
       if (!swapRouterAddress) {
         logDeploymentMsg(
           'ERC20SwapToConversion:',
-          '(swap router missing - can be administrated by deployer)',
+          '(swap set to 0x000..000 - can be administrated by deployer)',
         );
         swapRouterAddress = '0x0000000000000000000000000000000000000000';
       }
@@ -234,6 +237,7 @@ export async function deployAllPaymentContracts(
           ...args,
           conversionProxyAddress: erc20ConversionResult?.address,
           swapProxyAddress: swapRouterAddress,
+          nonceCondition: NONCE_BATCH_5 + 2,
         },
         hre,
       );
