@@ -39,7 +39,7 @@ contract Erc20ConversionProxy is Ownable {
     );
 
     /**
-     * @notice Performs an ERC20 token transfer with a reference computing the payment amount based on the request amount
+     * @notice Transfers ERC20 tokens with a reference with amount based on the request amount in fiat
      * @param _to Transfer recipient of the payement
      * @param _requestAmount Request amount
      * @param _path Conversion path
