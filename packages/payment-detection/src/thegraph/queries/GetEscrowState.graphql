@@ -1,5 +1,5 @@
 query GetEscrowState($contractAddress: Bytes!, $reference: Bytes!) {
-  escrow(where: { contractAddress: $contractAddress, reference: $reference }) {
+  escrows(where: { contractAddress: $contractAddress, reference: $reference }) {
     creationBlock
     creationTimestamp
     escrowState

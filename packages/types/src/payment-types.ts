@@ -237,11 +237,18 @@ export interface IEscrowEventParameters {
 /** Escrow events that change the state of the Escrow */
 export type EscrowEvents = IEscrowEventParameters;
 
+export enum ESCROW_STATE {
+  PAID_ESCROW = 'paidEscrow',
+  IN_FROZEN = 'frozen',
+  IN_EMERGENCY = 'emergency',
+  PAID_ISSUER = 'paidIssuer',
+}
+
 /** Parameters that describe the current escrow state */
-export interface IEscrowStateParameters {
+export interface IEscrowParameters {
   creationBlock: number;
   creationTimestamp: number;
-  escrowState: string;
+  escrowState: ESCROW_STATE;
   tokenAddress: string;
   amount: string;
   payer: string;
@@ -250,4 +257,4 @@ export interface IEscrowStateParameters {
   feeAddress: string;
 }
 /** Represents the current state of an escrow instance */
-export type EscrowState = IEscrowStateParameters;
+export type Escrow = IEscrowParameters;
