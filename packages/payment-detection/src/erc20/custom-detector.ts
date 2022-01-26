@@ -9,6 +9,7 @@ import { ICurrencyManager } from '@requestnetwork/currency';
 
 import { makeGetDeploymentInformation } from '../utils';
 import EscrowERC20InfoRetriever from './escrow-info-retriever';
+import EscrowERC20GraphInfoRetriever from './escrow-thegraph-info-retriever';
 import { ERC20FeeProxyPaymentDetector } from './fee-proxy-contract';
 
 const ESCROW_CONTRACT_ADDRESS_MAP = {
@@ -89,6 +90,23 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
       paymentChain,
       paymentNetwork,
     );
+  }
+
+  public async getEscrow(request: RequestLogicTypes.IRequest): Promise<PaymentTypes.Escrow | null> {
+    const paymentExtension = this.getPaymentExtension(request);
+    const paymentChain = this.getPaymentChain(request);
+    const deploymentInformation = this.getProxyDeploymentInformation(
+      paymentChain,
+      paymentExtension.version,
+    );
+    const paymentReference = this.getPaymentReference(request);
+    const infoRetriever = new EscrowERC20GraphInfoRetriever(
+      paymentReference,
+      deploymentInformation.address,
+      paymentChain,
+    );
+    const escrow = await infoRetriever.getEscrow();
+    return escrow.length ? escrow[0] : null;
   }
 
   protected async extractCustomEvents(
