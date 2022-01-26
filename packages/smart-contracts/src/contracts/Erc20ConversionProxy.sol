@@ -38,7 +38,8 @@ contract Erc20ConversionProxy {
     );
 
     /**
-     * @notice Performs an ERC20 token transfer with a reference computing the payment amount based on the request amount
+     * @notice Performs an ERC20 token transfer with a reference computing
+     *         the payment amount based on the request amount
      * @param _to Transfer recipient of the payement
      * @param _requestAmount Request amount
      * @param _path Conversion path
