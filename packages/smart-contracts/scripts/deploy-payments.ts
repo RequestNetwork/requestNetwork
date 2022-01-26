@@ -18,6 +18,7 @@ import { Contract } from 'ethers';
 import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { ERC20SwapToConversion } from 'smart-contracts/src/types';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.
@@ -125,12 +126,12 @@ export async function deployAllPaymentContracts(
 
     /*
      * Batch 4
-     *   - ChainlinkConversionPath
+     *   - ChainlinkConversionPath (+ addWhitelistAdmin())
      *   - ETHConversionProxy
      */
     const runDeploymentBatch_4 = async (ethFeeProxyAddress: string) => {
-      const nonceForBatch4 = 10;
-      await jumpToNonce(args, hre, nonceForBatch4);
+      const NONCE_BATCH_4 = 10;
+      await jumpToNonce(args, hre, NONCE_BATCH_4);
 
       // Deploy ChainlinkConversionPath
       const {
@@ -140,7 +141,7 @@ export async function deployAllPaymentContracts(
         contractName: 'ChainlinkConversionPath',
         constructorArguments: [nativeTokenHash],
         artifact: chainlinkConversionPathArtifact,
-        nonceCondition: nonceForBatch4,
+        nonceCondition: NONCE_BATCH_4,
       });
 
       // Deploy ETH Conversion
@@ -149,13 +150,14 @@ export async function deployAllPaymentContracts(
           ...args,
           chainlinkConversionPathAddress,
           ethFeeProxyAddress,
+          nonceCondition: NONCE_BATCH_4 + 1,
         },
         hre,
       );
       deploymentResults.push(ethConversionResult);
 
       // Administrate again whitelist admins for nonce consistency (due to 1 failing tx on Fantom)
-      const chainlinkAdminNonce = 12;
+      const chainlinkAdminNonce = NONCE_BATCH_4 + 2;
       const currentNonce = await deployer.getTransactionCount();
       if (currentNonce === chainlinkAdminNonce && chainlinkInstance) {
         if (!process.env.ADMIN_WALLET_ADDRESS) {
@@ -183,14 +185,15 @@ export async function deployAllPaymentContracts(
     /*
      * Batch 5
      *   - 5.a ERC20ConversionProxy
-     *   - 5.b ChainlinkConversionPath.addWhitelistAdmin
-     *   - 5.c SwapToConversion
+     *   - 5.b ERC20ConversionProxy.transferOwnership
+     *   - 5.c ERC20SwapConversion.setPaymentProxy
      */
     const runDeploymentBatch_5 = async (
       chainlinkInstance: ChainlinkConversionPath,
       erc20FeeProxyAddress: string,
+      erc20SwapConversionInstance: ERC20SwapToConversion,
     ) => {
-      const NONCE_BATCH_5 = 11;
+      const NONCE_BATCH_5 = 12;
       let chainlinkConversionPathAddress = chainlinkInstance?.address;
       if (!chainlinkConversionPathAddress) {
         switchToSimulation();
@@ -209,39 +212,57 @@ export async function deployAllPaymentContracts(
       );
       deploymentResults.push(erc20ConversionResult);
 
-      // 5.b ChainlinkConversionPath.addWhitelistAdmin
-      const currentNonce = await deployer.getTransactionCount();
-      if (chainlinkInstance && currentNonce === NONCE_BATCH_5 + 1) {
+      // 5.b ERC20ConversionProxy.transferOwnership
+
+      let currentNonce = await deployer.getTransactionCount();
+      const erc20ConversionAdminNonce = NONCE_BATCH_5 + 1;
+      if (currentNonce === erc20ConversionAdminNonce && erc20ConversionResult) {
         if (!process.env.ADMIN_WALLET_ADDRESS) {
-          throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
+          throw new Error(
+            'ADMIN_WALLET_ADDRESS missing for: ERC20ConversionProxy.transferOwnership',
+          );
         }
         if (args.simulate === false) {
-          await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
+          await erc20ConversionResult.instance.transferOwnership(process.env.ADMIN_WALLET_ADDRESS);
         } else {
-          console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
+          console.log('[i] Simulating transferOwnership to ERC20ConversionProxy');
+        }
+      } else {
+        if (currentNonce < erc20ConversionAdminNonce) {
+          console.warn(
+            `Warning: got nonce ${currentNonce} instead of ${erc20ConversionAdminNonce}`,
+          );
+          switchToSimulation();
+        } else if (!erc20ConversionResult) {
+          console.warn(
+            `Warning: the ERC20ConversionProxy contract instance is not ready, consider retrying.`,
+          );
+          switchToSimulation();
         }
       }
 
-      // 5.c SwapToConversion
-      let swapRouterAddress = uniswapV2RouterAddresses[hre.network.name];
-      if (!swapRouterAddress) {
-        logDeploymentMsg(
-          'ERC20SwapToConversion:',
-          '(swap set to 0x000..000 - can be administrated by deployer)',
-        );
-        swapRouterAddress = '0x0000000000000000000000000000000000000000';
+      // 5.c ERC20SwapConversion.setPaymentProxy
+      currentNonce = await deployer.getTransactionCount();
+      const erc20SwapConversionAdminNonce = NONCE_BATCH_5 + 2;
+      if (currentNonce === erc20SwapConversionAdminNonce && erc20ConversionResult) {
+        if (args.simulate === false) {
+          await erc20SwapConversionInstance.setPaymentProxy(erc20ConversionResult?.address);
+        } else {
+          console.log('[i] Simulating setPaymentProxy to ERC20SwapConversion');
+        }
+      } else {
+        if (currentNonce < erc20SwapConversionAdminNonce) {
+          console.warn(
+            `Warning: got nonce ${currentNonce} instead of ${erc20SwapConversionAdminNonce}`,
+          );
+          switchToSimulation();
+        } else if (!erc20ConversionResult) {
+          console.warn(
+            `Warning: the ERC20ConversionProxy contract instance is not ready for ERC20SwapConversion update, consider retrying.`,
+          );
+          switchToSimulation();
+        }
       }
-
-      const swapConversionResult = await deploySwapConversion(
-        {
-          ...args,
-          conversionProxyAddress: erc20ConversionResult?.address,
-          swapProxyAddress: swapRouterAddress,
-          nonceCondition: NONCE_BATCH_5 + 2,
-        },
-        hre,
-      );
-      deploymentResults.push(swapConversionResult);
     };
 
     // #endregion
@@ -264,20 +285,45 @@ export async function deployAllPaymentContracts(
     await runDeploymentBatch_2(erc20FeeProxyAddress);
 
     // Batch 3
-    const nonceForBatch3 = 7;
-    await jumpToNonce(args, hre, nonceForBatch3);
+    const NONCE_BATCH_3 = 6;
 
+    // SwapToConversion
+    let swapRouterAddress = uniswapV2RouterAddresses[hre.network.name];
+    if (!swapRouterAddress) {
+      logDeploymentMsg(
+        'ERC20SwapToConversion:',
+        '(swap set to 0x000..000 - can be administrated by deployer)',
+      );
+      swapRouterAddress = '0x0000000000000000000000000000000000000000';
+    }
+
+    const swapConversionResult = await deploySwapConversion(
+      {
+        ...args,
+        conversionProxyAddress: '0x0000000000000000000000000000000000000000',
+        swapProxyAddress: swapRouterAddress,
+        nonceCondition: 6,
+      },
+      hre,
+    );
+    deploymentResults.push(swapConversionResult);
+
+    // EthereumFeeProxy
     const { address: ethFeeProxyAddress } = await runEasyDeployment({
       contractName: 'EthereumFeeProxy',
       artifact: ethereumFeeProxyArtifact,
-      nonceCondition: nonceForBatch3,
+      nonceCondition: NONCE_BATCH_3 + 1,
     });
 
     // Batch 4
     const chainlinkInstance = await runDeploymentBatch_4(ethFeeProxyAddress);
 
     // Batch 5
-    await runDeploymentBatch_5(chainlinkInstance, erc20FeeProxyAddress);
+    await runDeploymentBatch_5(
+      chainlinkInstance,
+      erc20FeeProxyAddress,
+      swapConversionResult.instance,
+    );
 
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Add future batches above this line

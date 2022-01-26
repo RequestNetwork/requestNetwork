@@ -1,4 +1,5 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { ERC20SwapToConversion } from 'smart-contracts/src/types';
 import { erc20SwapConversionArtifact } from '../src/lib';
 import { deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses } from './utils';
@@ -18,7 +19,7 @@ export async function deploySwapConversion(
   if (!uniswapV2RouterAddresses[hre.network.name] && !args.swapProxyAddress) {
     console.error(`Missing swap router, cannot deploy ${contractName}.`);
   }
-  const deployment = await deployOne(args, hre, contractName, {
+  const deployment = await deployOne<ERC20SwapToConversion>(args, hre, contractName, {
     constructorArguments: [
       uniswapV2RouterAddresses[hre.network.name] ?? args.swapProxyAddress,
       args.conversionProxyAddress,

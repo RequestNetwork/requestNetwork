@@ -3,9 +3,10 @@ import {
   erc20ConversionProxy as erc20ConversionProxyArtifact,
   ethConversionArtifact,
 } from '../src/lib';
-import { DeploymentResult, deployOne } from './deploy-one';
+import { deployOne } from './deploy-one';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { Erc20ConversionProxy } from 'smart-contracts/src/types';
 
 export async function deployERC20ConversionProxy(
   args: {
@@ -14,7 +15,7 @@ export async function deployERC20ConversionProxy(
     nonceCondition?: number;
   },
   hre: HardhatRuntimeEnvironment,
-): Promise<DeploymentResult | undefined> {
+) {
   const contractName = 'Erc20ConversionProxy';
 
   if (!args.chainlinkConversionPathAddress) {
@@ -30,7 +31,7 @@ export async function deployERC20ConversionProxy(
     return undefined;
   }
 
-  return deployOne(args, hre, contractName, {
+  return deployOne<Erc20ConversionProxy>(args, hre, contractName, {
     constructorArguments: [args.erc20FeeProxyAddress, args.chainlinkConversionPathAddress],
     artifact: erc20ConversionProxyArtifact,
     nonceCondition: args.nonceCondition,
@@ -42,6 +43,7 @@ export async function deployETHConversionProxy(
   args: {
     chainlinkConversionPathAddress?: string;
     ethFeeProxyAddress?: string;
+    nonceCondition?: number;
   },
   hre: HardhatRuntimeEnvironment,
 ) {
@@ -80,5 +82,6 @@ export async function deployETHConversionProxy(
       nativeTokenHash,
     ],
     artifact: ethConversionArtifact,
+    nonceCondition: args.nonceCondition,
   });
 }
