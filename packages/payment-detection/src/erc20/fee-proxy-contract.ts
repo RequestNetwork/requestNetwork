@@ -6,7 +6,6 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
-import { NetworkNotSupported, VersionNotSupported } from '../balance-error';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
 import { networkSupportsTheGraph } from '../thegraph';
@@ -97,25 +96,10 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
       return Promise.resolve([]);
     }
 
-    const deploymentInformation = ERC20FeeProxyPaymentDetector.getDeploymentInformation(
-      paymentChain,
-      paymentNetwork.version,
-    );
-
-    if (!deploymentInformation) {
-      throw new VersionNotSupported(
-        `Payment network version not supported: ${paymentNetwork.version}`,
-      );
-    }
-
-    const proxyContractAddress: string | undefined = deploymentInformation.address;
-    const proxyCreationBlockNumber: number = deploymentInformation.creationBlockNumber;
-
-    if (!proxyContractAddress) {
-      throw new NetworkNotSupported(
-        `Network not supported for this payment network: ${requestCurrency.network}`,
-      );
-    }
+    const {
+      address: proxyContractAddress,
+      creationBlockNumber: proxyCreationBlockNumber,
+    } = ERC20FeeProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
     const infoRetriever = networkSupportsTheGraph(paymentChain)
       ? new TheGraphInfoRetriever(

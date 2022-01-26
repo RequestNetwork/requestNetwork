@@ -2,7 +2,6 @@
 title: Request Logic
 keywords: [Request protocol, Request Logic, Extension, Advanced Logic, Signature]
 description: Learn how to integrate Request network and its features.
-
 ---
 
 This layer is responsible for the business logic of Request. This is where we define the data structure of a request.
@@ -20,7 +19,7 @@ This layer has three responsibilities:
 Actions are the basic elements that compose a request. At this layer's point of view, a request is simply a list of different actions.
 
 ![](/img/RequestProtocol/2-RequestPresentation.jpg)
-*Example of a request in Request Logic represented by a list of actions*
+_Example of a request in Request Logic represented by a list of actions_
 
 - The payee creates the request requesting 1 ETH to the payer
 - The payer accepts the request
@@ -59,6 +58,6 @@ Advanced Logic is a package that allows the user to define extensions that can b
 Similar to Request Logic, a specific extension can define different actions related to it. There is the Create action of the extension and eventually different update actions. The extension is initialized at the same time as the request and any action of the Request Logic can add extension data. There is a specific action, `AddExtensionData`, in Request Logic, only intended to add extension data to the request with no other side-effect.
 
 ![](/img/RequestProtocol/2-AdvancedRequestPresentation.jpg)
-*Example of a request with extension data: the payee creates a request with content data and declarative payment information, the payer accepts the request and declares a sent payment in the same time, finally, the payee declares the received payment*
+_Example of a request with extension data: the payee creates a request with content data and declarative payment information, the payer accepts the request and declares a sent payment in the same time, finally, the payee declares the received payment_
 
 The specification for each extension can be found at this link: [https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/specs](https://github.com/RequestNetwork/requestNetwork/tree/master/packages/advanced-logic/specs)

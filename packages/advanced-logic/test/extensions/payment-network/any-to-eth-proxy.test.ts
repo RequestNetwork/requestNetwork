@@ -34,7 +34,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
           network: 'rinkeby',
           maxRateTimespan: 1000000,
         },
-        version: '0.1.0',
+        version: '0.2.0',
       });
     });
 
@@ -55,7 +55,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
           salt: 'ea3bc7caf64110ca',
           network: 'rinkeby',
         },
-        version: '0.1.0',
+        version: '0.2.0',
       });
     });
 

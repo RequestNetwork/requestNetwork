@@ -5,6 +5,8 @@ import {
   EthereumFeeProxy,
   ChainlinkConversionPath,
   EthConversionProxy,
+  ChainlinkConversionPath__factory,
+  AggregatorMock__factory,
 } from '../../src/types';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
@@ -20,7 +22,7 @@ describe('contract: EthConversionProxy', () => {
   let to: string;
   let feeAddress: string;
   let signer: Signer;
-  const amountInFiat = BigNumber.from('100000000'); 
+  const amountInFiat = BigNumber.from('100000000');
   const feesAmountInFiat = BigNumber.from('10000000');
   const referenceExample = '0xaaaa';
 
@@ -62,17 +64,17 @@ describe('contract: EthConversionProxy', () => {
         const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
 
         const tx = testEthConversionProxy.transferWithReferenceAndFee(
-            to,
-            amountInFiat,
-            path,
-            referenceExample,
-            feesAmountInFiat,
-            feeAddress,
-            0,
-            {
-                value: conversionFees.result.add(conversionToPay.result),
-            }
-          )
+          to,
+          amountInFiat,
+          path,
+          referenceExample,
+          feesAmountInFiat,
+          feeAddress,
+          0,
+          {
+            value: conversionFees.result.add(conversionToPay.result),
+          },
+        );
 
         await expect(tx)
           .to.emit(testEthConversionProxy, 'TransferWithConversionAndReference')
@@ -89,12 +91,8 @@ describe('contract: EthConversionProxy', () => {
         const feeNewBalance = await provider.getBalance(feeAddress);
         const contractBalance = await provider.getBalance(testEthConversionProxy.address);
 
-        const toDiffBalance = BigNumber.from(toNewBalance)
-          .sub(toOldBalance)
-          .toString();
-        const feeDiffBalance = BigNumber.from(feeNewBalance)
-          .sub(feeOldBalance)
-          .toString();
+        const toDiffBalance = BigNumber.from(toNewBalance).sub(toOldBalance).toString();
+        const feeDiffBalance = BigNumber.from(feeNewBalance).sub(feeOldBalance).toString();
 
         // Check balance changes
         expect(fromNewBalance).to.be.lt(
@@ -102,7 +100,7 @@ describe('contract: EthConversionProxy', () => {
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
-        expect(contractBalance.toString()).to.equals("0")
+        expect(contractBalance.toString()).to.equals('0');
       });
 
       it('allows to transfer ETH for EUR payment and extra msg.value', async function () {
@@ -115,17 +113,17 @@ describe('contract: EthConversionProxy', () => {
         const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
 
         const tx = testEthConversionProxy.transferWithReferenceAndFee(
-            to,
-            amountInFiat,
-            path,
-            referenceExample,
-            feesAmountInFiat,
-            feeAddress,
-            0,
-            {
-                value: conversionFees.result.add(conversionToPay.result)//.add("100000"),
-            }
-          )
+          to,
+          amountInFiat,
+          path,
+          referenceExample,
+          feesAmountInFiat,
+          feeAddress,
+          0,
+          {
+            value: conversionFees.result.add(conversionToPay.result), //.add("100000"),
+          },
+        );
 
         await expect(tx)
           .to.emit(testEthConversionProxy, 'TransferWithConversionAndReference')
@@ -144,15 +142,11 @@ describe('contract: EthConversionProxy', () => {
         const contractBalance = await provider.getBalance(testEthConversionProxy.address);
         const contractFeeBalance = await provider.getBalance(ethFeeProxy.address);
 
-        const toDiffBalance = BigNumber.from(toNewBalance)
-          .sub(toOldBalance)
-          .toString();
-        const feeDiffBalance = BigNumber.from(feeNewBalance)
-          .sub(feeOldBalance)
-          .toString();
+        const toDiffBalance = BigNumber.from(toNewBalance).sub(toOldBalance).toString();
+        const feeDiffBalance = BigNumber.from(feeNewBalance).sub(feeOldBalance).toString();
 
-        expect(contractBalance.toString()).to.equals("0");
-        expect(contractFeeBalance.toString()).to.equals("0");
+        expect(contractBalance.toString()).to.equals('0');
+        expect(contractFeeBalance.toString()).to.equals('0');
 
         // Check balance changes
         expect(fromNewBalance).to.be.lt(
@@ -162,48 +156,105 @@ describe('contract: EthConversionProxy', () => {
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
       });
     });
-
+    
     describe('transferWithReferenceAndFee with errors', () => {
-      it('cannot transfer if msg.value too low', async function () {
+      it('cannot transfer if msg.value too low for amount', async function () {
         const path = [USD_hash, ETH_hash];
 
-        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
+        const mainEthAmount = await chainlinkPath.getConversion(amountInFiat, path);
 
         await expect(
-            testEthConversionProxy.transferWithReferenceAndFee(
-                to,
-                amountInFiat,
-                path,
-                referenceExample,
-                feesAmountInFiat,
-                feeAddress,
-                0,
-                {
-                    value: conversionToPay.result, // Fees amount missing
-                }
-              ),
+          testEthConversionProxy.transferWithReferenceAndFee(
+              to,
+              amountInFiat,
+              path,
+              referenceExample,
+              feesAmountInFiat,
+              feeAddress,
+              0,
+              {
+                  value: conversionToPay.result, // Fees amount missing
+              }
+            ),
         ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed')
       });
 
+      it('cannot transfer if msg.value too low for fee', async function () {
+        const path = [USD_hash, ETH_hash];
+
+        const mainEthAmount = await chainlinkPath.getConversion(amountInFiat, path);
+        const ethFee = await chainlinkPath.getConversion(feesAmountInFiat, path);
+
+        await expect(
+          testEthConversionProxy.transferWithReferenceAndFee(
+            to,
+            amountInFiat,
+            path,
+            referenceExample,
+            feesAmountInFiat,
+            feeAddress,
+            0,
+            {
+              value: mainEthAmount.result.add(ethFee.result).sub(1),
+            },
+          ),
+        ).to.be.revertedWith('revert paymentProxy transferExactEthWithReferenceAndFee failed');
+      });
       it('cannot transfer if rate is too old', async function () {
         const path = [USD_hash, ETH_hash];
 
-        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
-        const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
+        const mainEthAmount = await chainlinkPath.getConversion(amountInFiat, path);
+        const ethFee = await chainlinkPath.getConversion(feesAmountInFiat, path);
         await expect(
-            testEthConversionProxy.transferWithReferenceAndFee(
-                to,
-                amountInFiat,
-                path,
-                referenceExample,
-                feesAmountInFiat,
-                feeAddress,
-                1, // second
-                {
-                    value: conversionFees.result.add(conversionToPay.result),
-                }
-              ),
-        ).to.be.revertedWith('aggregator rate is outdated')
+          testEthConversionProxy.transferWithReferenceAndFee(
+            to,
+            amountInFiat,
+            path,
+            referenceExample,
+            feesAmountInFiat,
+            feeAddress,
+            1, // second
+            {
+              value: ethFee.result.add(mainEthAmount.result),
+            },
+          ),
+        ).to.be.revertedWith('aggregator rate is outdated');
+      });
+
+      it('cannot transfer with another native token hash', async function () {
+        const USD_ETH_aggregator = await new AggregatorMock__factory(signer).deploy(
+          50000000000,
+          8,
+          60,
+        );
+        const MATIC_HASH = currencyManager.fromSymbol('MATIC')!.hash;
+        const maticChainlinkPath = await new ChainlinkConversionPath__factory(signer).deploy(
+          MATIC_HASH,
+        );
+        const maticEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
+          ethFeeProxy.address,
+          maticChainlinkPath.address,
+          MATIC_HASH,
+        );
+        await maticChainlinkPath.updateAggregator(ETH_hash, USD_hash, USD_ETH_aggregator.address);
+        const path = [USD_hash, ETH_hash];
+
+        const mainEthAmount = await chainlinkPath.getConversion(amountInFiat, path);
+        const ethFee = await chainlinkPath.getConversion(feesAmountInFiat, path);
+        await expect(
+          maticEthConversionProxy.transferWithReferenceAndFee(
+            to,
+            amountInFiat,
+            path,
+            referenceExample,
+            feesAmountInFiat,
+            feeAddress,
+            0,
+            {
+              value: ethFee.result.add(mainEthAmount.result),
+            },
+          ),
+        ).to.be.revertedWith('revert payment currency must be the native token');
       });
     });
   });

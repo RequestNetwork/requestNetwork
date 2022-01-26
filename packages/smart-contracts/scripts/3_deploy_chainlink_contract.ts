@@ -36,7 +36,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment, 
 
   const conversionPathInstance = await (
     await hre.ethers.getContractFactory('ChainlinkConversionPath', deployer)
-  ).deploy();
+  ).deploy(ETH_hash);
 
   // all these aggregators are for test purposes
   await conversionPathInstance.updateAggregatorsList(

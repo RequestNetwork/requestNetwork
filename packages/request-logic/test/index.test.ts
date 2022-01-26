@@ -185,7 +185,7 @@ describe('index', () => {
       );
       const ret = await requestLogic.createRequest(createParams, TestData.payeeRaw.identity);
 
-      // eslint-disable-next-line 
+      // eslint-disable-next-line
       const handleError = jest.fn((error: any) => {
         // 'error wrong'
         expect(error).toEqual('error for test purpose');
@@ -357,7 +357,7 @@ describe('index', () => {
         [TestData.payeeRaw.encryptionParams, TestData.payerRaw.encryptionParams],
       );
 
-      // eslint-disable-next-line 
+      // eslint-disable-next-line
       const handleError = jest.fn((error: any) => {
         // 'error wrong'
         expect(error).toEqual('error for test purpose');
@@ -2382,9 +2382,7 @@ describe('index', () => {
       );
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: (): Promise<
-          TransactionTypes.IReturnGetTransactionsByChannels
-        > => {
+        getChannelsByMultipleTopics: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
           return listAllActions;
         },
         getChannelsByTopic: jest.fn() as any,

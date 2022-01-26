@@ -88,7 +88,7 @@ const request = await requestNetwork.createRequest({
 await request.waitForConfirmation();
 
 // or wait the confirmation with an event
-request.on('confirmed', confirmedRequest => {
+request.on('confirmed', (confirmedRequest) => {
   // ...
 });
 ```
@@ -130,7 +130,7 @@ const request = await requestNetwork.createEncryptedRequest(
 await request.waitForConfirmation();
 
 // or wait the confirmation with an event
-request.on('confirmed', confirmedRequest => {
+request.on('confirmed', (confirmedRequest) => {
   // ...
 });
 ```
@@ -228,7 +228,7 @@ npm install @requestnetwork/epk-decryption
 const requestData = await request.accept(signerIdentity, refundInformation);
 
 // wait the confirmation with an event
-requestData.on('confirmed', confirmedRequestData => {
+requestData.on('confirmed', (confirmedRequestData) => {
   // ...
 });
 ```
@@ -242,7 +242,7 @@ requestData.on('confirmed', confirmedRequestData => {
 await request.cancel(signerIdentity, refundInformation);
 
 // wait the confirmation with an event
-requestData.on('confirmed', confirmedRequestData => {
+requestData.on('confirmed', (confirmedRequestData) => {
   // ...
 });
 ```
@@ -256,7 +256,7 @@ requestData.on('confirmed', confirmedRequestData => {
 await request.increaseExpectedAmountRequest(amount, signerIdentity, refundInformation);
 
 // wait the confirmation with an event
-requestData.on('confirmed', confirmedRequestData => {
+requestData.on('confirmed', (confirmedRequestData) => {
   // ...
 });
 ```
@@ -271,7 +271,7 @@ requestData.on('confirmed', confirmedRequestData => {
 await request.reduceExpectedAmountRequest(amount, signerIdentity, paymentInformation);
 
 // wait the confirmation with an event
-requestData.on('confirmed', confirmedRequestData => {
+requestData.on('confirmed', (confirmedRequestData) => {
   // ...
 });
 ```

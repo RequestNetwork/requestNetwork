@@ -50,7 +50,7 @@ export const ethInputDataCreationHash: Types.IRequestInfo = {
   expectedAmount: '100000000000000000',
   payee: payeeIdentity,
   payer: payerIdentity,
-}
+};
 
 export const localErc20PaymentNetworkParams: PaymentTypes.IPaymentNetworkCreateParameters = {
   id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
@@ -63,5 +63,5 @@ export const localEthInputDataPaymentNetworkParams: PaymentTypes.IPaymentNetwork
   id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-  }
-}
+  },
+};
