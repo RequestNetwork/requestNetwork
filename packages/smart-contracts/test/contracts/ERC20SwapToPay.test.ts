@@ -92,8 +92,6 @@ describe('contract: SwapToPay', () => {
         26,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        1,
-        builder,
         exchangeRateOrigin + 100,
       ),
     )
@@ -103,7 +101,7 @@ describe('contract: SwapToPay', () => {
         to,
         '10',
         ethers.utils.keccak256(referenceExample),
-        '1',
+        '0.005',
         ethers.utils.getAddress(builder),
       );
 
@@ -127,8 +125,6 @@ describe('contract: SwapToPay', () => {
         0,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        0,
-        builder,
         exchangeRateOrigin + 100,
       ),
     )
@@ -156,8 +152,6 @@ describe('contract: SwapToPay', () => {
         21, // Should be at least (10 + 1) * 2
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        1,
-        builder,
         exchangeRateOrigin + 15,
       ),
     ).to.be.reverted;
@@ -172,8 +166,6 @@ describe('contract: SwapToPay', () => {
         22,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        1,
-        builder,
         exchangeRateOrigin - 15, // Past deadline
       ),
     ).to.be.reverted;
@@ -197,8 +189,6 @@ describe('contract: SwapToPay', () => {
         initialFromBalance,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        1000000,
-        builder,
         exchangeRateOrigin + 15,
       ),
     ).to.be.reverted;
@@ -218,8 +208,6 @@ describe('contract: SwapToPay', () => {
         highAmount,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        10,
-        builder,
         exchangeRateOrigin + 15,
       ),
     ).to.be.reverted;
@@ -270,8 +258,6 @@ describe('contract: SwapToPay', () => {
           26,
           [badERC20.address, paymentNetworkErc20.address],
           referenceExample,
-          1,
-          builder,
           exchangeRateOrigin + 100,
         ),
       )
@@ -281,14 +267,14 @@ describe('contract: SwapToPay', () => {
           to,
           '10',
           ethers.utils.keccak256(referenceExample),
-          '1',
+          '0.005',
           builder,
         );
 
       // Test that issuer and builder (fee receiver) have been paid
       const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
       const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
-      expect(finalBuilderBalance.toNumber()).to.equals(1);
+      expect(finalBuilderBalance.toNumber()).to.equals(0.005);
       expect(finalIssuerBalance.toNumber()).to.equals(10);
 
       // Test that the contract does not hold any fund after the transaction
