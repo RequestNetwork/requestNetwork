@@ -188,8 +188,8 @@ describe('contract: Erc20ConversionProxy', () => {
             feeAddress,
             hundredWith18Decimal,
             0,
-            { 
-                from
+            {
+              from,
             },
           ),
         ).to.be.revertedWith('No aggregator found');
@@ -211,8 +211,8 @@ describe('contract: Erc20ConversionProxy', () => {
             feeAddress,
             100,
             0,
-            { 
-                from,
+            {
+              from,
             },
           ),
         ).to.be.revertedWith('Amount to pay is over the user limit');
@@ -234,8 +234,8 @@ describe('contract: Erc20ConversionProxy', () => {
             feeAddress,
             hundredWith18Decimal,
             10, // ten secondes
-            { 
-                from,
+            {
+              from,
             },
           ),
         ).to.be.revertedWith('aggregator rate is outdated');

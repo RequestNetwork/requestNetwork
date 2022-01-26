@@ -67,8 +67,8 @@ describe('contract: RequestOpenHashSubmitter', () => {
 
   describe('submitHash', () => {
     it('Allows submitHash without fee', async function () {
-      const networkConfig = network.config as HttpNetworkConfig
-      const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);  
+      const networkConfig = network.config as HttpNetworkConfig;
+      const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
       let oldBurnerBalance = await provider.getBalance(burner);
 
       await expect(
@@ -83,7 +83,7 @@ describe('contract: RequestOpenHashSubmitter', () => {
     });
 
     it('Allows submitHash with fees', async () => {
-      const networkConfig = network.config as HttpNetworkConfig
+      const networkConfig = network.config as HttpNetworkConfig;
       const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
       const intialBurnerBalance = await provider.getBalance(burner);
 

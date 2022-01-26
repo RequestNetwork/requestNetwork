@@ -16,9 +16,8 @@ describe('contract: EthereumProxy', () => {
   const referenceExample = '0xaaaa';
   const DEFAULT_GAS_PRICE = ethers.BigNumber.from('100000000000');
   const amount = ethers.BigNumber.from('10000000000000000');
-  const networkConfig = network.config as HttpNetworkConfig
+  const networkConfig = network.config as HttpNetworkConfig;
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
-
 
   before(async () => {
     [from, to] = (await ethers.getSigners()).map((s) => s.address);

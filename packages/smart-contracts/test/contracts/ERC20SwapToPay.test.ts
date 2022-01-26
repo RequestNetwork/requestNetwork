@@ -160,7 +160,7 @@ describe('contract: SwapToPay', () => {
         builder,
         exchangeRateOrigin + 10000, // 15 -> 10000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
       ),
-    ).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT')
+    ).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
     await expectFromBalanceUnchanged();
   });
 
@@ -176,7 +176,7 @@ describe('contract: SwapToPay', () => {
         builder,
         exchangeRateOrigin - 15, // Past deadline
       ),
-    ).to.be.revertedWith('UniswapV2Router: EXPIRED')
+    ).to.be.revertedWith('UniswapV2Router: EXPIRED');
     await expectFromBalanceUnchanged();
   });
 
@@ -201,7 +201,7 @@ describe('contract: SwapToPay', () => {
         builder,
         exchangeRateOrigin + 15,
       ),
-    ).to.be.revertedWith('Not sufficient allowance for swap to pay')
+    ).to.be.revertedWith('Not sufficient allowance for swap to pay');
     await expectFromBalanceUnchanged();
   });
 

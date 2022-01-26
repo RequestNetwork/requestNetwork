@@ -261,25 +261,25 @@ describe('contract: ERC20FeeProxy', () => {
     }
 
     await expect(
-        erc20FeeProxy.transferFromWithReferenceAndFee(
-            failContracts[0].address,
-            to,
-            '100',
-            referenceExample,
-            '2',
-            feeAddress,
-        ),
-    ).to.be.revertedWith('payment transferFrom() failed')
+      erc20FeeProxy.transferFromWithReferenceAndFee(
+        failContracts[0].address,
+        to,
+        '100',
+        referenceExample,
+        '2',
+        feeAddress,
+      ),
+    ).to.be.revertedWith('payment transferFrom() failed');
 
     await expect(
-        erc20FeeProxy.transferFromWithReferenceAndFee(
-            failContracts[1].address,
-            to,
-            '100',
-            referenceExample,
-            '2',
-            feeAddress,
-        ),
-    ).to.be.revertedWith('revert')
+      erc20FeeProxy.transferFromWithReferenceAndFee(
+        failContracts[1].address,
+        to,
+        '100',
+        referenceExample,
+        '2',
+        feeAddress,
+      ),
+    ).to.be.revertedWith('revert');
   });
 });

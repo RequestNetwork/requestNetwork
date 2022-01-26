@@ -15,7 +15,7 @@ describe('contract: EthereumFeeProxy', () => {
   const referenceExample = '0xaaaa';
   const amount = BigNumber.from('10000000000000000');
   const feeAmount = BigNumber.from('2000000000000000');
-  const networkConfig = network.config as HttpNetworkConfig
+  const networkConfig = network.config as HttpNetworkConfig;
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
   const feeAddress = '0xF4255c5e53a08f72b0573D1b8905C5a50aA9c2De';
 
@@ -95,8 +95,8 @@ describe('contract: EthereumFeeProxy', () => {
   it('cannot transfer if msg.value is too low', async () => {
     await expect(
       ethFeeProxy.transferWithReferenceAndFee(to, referenceExample, amount, feeAddress, {
-          value: feeAmount,
-        })
-      ).to.be.revertedWith('revert');
+        value: feeAmount,
+      }),
+    ).to.be.revertedWith('revert');
   });
 });

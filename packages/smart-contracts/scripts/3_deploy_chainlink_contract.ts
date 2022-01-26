@@ -5,7 +5,11 @@ import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversi
 import { deploySwapConversion } from './erc20-swap-to-conversion';
 import { deployOne } from './deploy-one';
 
-export default async function deploy(args: any, hre: HardhatRuntimeEnvironment, mainPaymentAddresses: any) {
+export default async function deploy(
+  args: any,
+  hre: HardhatRuntimeEnvironment,
+  mainPaymentAddresses: any,
+) {
   const [deployer] = await hre.ethers.getSigners();
   const { address: AggDAI_USD_address } = await deployOne(args, hre, 'AggregatorMock', {
     constructorArguments: [101000000, 8, 60],
@@ -73,9 +77,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment, 
     console.error('Deployment for erc20SwapConversion failed.');
     return;
   }
-  await erc20SwapConversion.approvePaymentProxyToSpend(
-    mainPaymentAddresses.DAIAddress
-  );
+  await erc20SwapConversion.approvePaymentProxyToSpend(mainPaymentAddresses.DAIAddress);
   await erc20SwapConversion.approveRouterToSpend(mainPaymentAddresses.ERC20TestAddress);
 
   // EthConversion
