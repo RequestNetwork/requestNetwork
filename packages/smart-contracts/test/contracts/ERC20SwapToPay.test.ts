@@ -101,7 +101,7 @@ describe('contract: SwapToPay', () => {
         to,
         '10',
         ethers.utils.keccak256(referenceExample),
-        '0.005',
+        '1',
         ethers.utils.getAddress(builder),
       );
 

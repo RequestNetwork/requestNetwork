@@ -7,7 +7,7 @@ import { task } from 'hardhat/config';
 import { config } from 'dotenv';
 import deployRequest from './scripts/1_deploy-request-storage';
 import deployPayment from './scripts/2_deploy-main-payments';
-import deployConversion from './scripts/3_deploy_chainlink_contract';
+// import deployConversion from './scripts/3_deploy_chainlink_contract';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
 import { deployEscrow } from './scripts/4_deploy-escrow-deployment';
@@ -27,7 +27,7 @@ if (accounts && process.env.ADMIN_PRIVATE_KEY) {
 }
 
 export default {
-  solidity: '0.8.4',
+  solidity: '0.8.11',
   paths: {
     sources: 'src/contracts',
     tests: 'test/contracts',
@@ -115,7 +115,7 @@ task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hr
   args.force = true;
   await deployRequest(args, hre);
   await deployPayment(args, hre);
-  await deployConversion(args, hre);
+  // await deployConversion(args, hre);
   await deployEscrow(hre);
   console.log('All contracts (re)deployed locally');
 });

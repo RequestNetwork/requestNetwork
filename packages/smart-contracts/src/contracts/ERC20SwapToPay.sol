@@ -35,32 +35,59 @@ contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
   uint256 public CURRENT_PERFORMANCE_FEE;
   address public PERFORMANCE_FEE_ADDRESS;
 
-  error TransferFromFailed(IERC20 spentToken);
+  error TransferFromFailed();
   error AllowanceToLow();
+  error AmountToLow();
   error NotValidFeeAmount();
 
+
+  /** 
+  * Modifier checks that new performance fee is less than max performance fee, and
+  * not equal to current performance fee. 
+  * @param _newPerformanceFee The new fee percentage.
+  * @dev Example: 5 is equal to 0.5%, 10 is equal to 1%, 100 is equal to 10%.
+  */
   modifier feeAmount(uint256 _newPerformanceFee) {
     if (
-      _newPerformanceFee > MAX_PERFORMANCE_FEE || _newPerformanceFee == CURRENT_PERFORMANCE_FEE
+      _newPerformanceFee > MAX_PERFORMANCE_FEE ||
+      _newPerformanceFee == CURRENT_PERFORMANCE_FEE
     ) {
       revert NotValidFeeAmount();
     }
     _;
   }
 
+  /** 
+  * Modifier checks that x amount is larger than 0.001 eth or 1000000000000000 Wei.
+  * @param _x The requested amount;
+  * @dev _x har to be nominated in Wei.
+  * @notice 1e15 = 1000000000000000 or 0.001 eth.
+  */
+  modifier minValue(uint256 _x) {
+    if (_x < 1e15) revert AmountToLow();
+    _;
+  }
+
+  /** 
+  * Constructor. 
+  * @param _swapRouterAddress Address to the swapRouter.
+  * @param _paymentProxyAddress Address to the paymentProxy.
+  * @param _performanceFeeAddress The address to collect fees.
+  * @param _currentPerformanceFee The fee % to pay with every transaction, example: 5 = 0.5%, 10 = 1%.
+  * @param _maxPerformanceFee The max performance fee for this contract, examlple: 150 = 15%.
+  */
   constructor(
     address _swapRouterAddress,
     address _paymentProxyAddress,
-    //address _performanceFeeAddress,
-    uint256 _currentPerformanceFee, // 50 = 0.5%
-    uint256 _maxPerformanceFee // 1500 = 15%
-
+    address _performanceFeeAddress,
+    uint256 _currentPerformanceFee,
+    uint256 _maxPerformanceFee
   ){
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
-    //PERFORMANCE_FEE_ADDRESS = _performanceFeeAddress;
-    CURRENT_PERFORMANCE_FEE = _currentPerformanceFee.div(100);
-    MAX_PERFORMANCE_FEE = _maxPerformanceFee.div(100); 
+    PERFORMANCE_FEE_ADDRESS = _performanceFeeAddress;
+    CURRENT_PERFORMANCE_FEE = _currentPerformanceFee;
+    MAX_PERFORMANCE_FEE = _maxPerformanceFee; 
   }
 
   /**
@@ -117,7 +144,7 @@ contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
     }
 
     if (!spentToken.safeTransferFrom(_msgSender(), address(this), _amountInMax)) {
-      revert TransferFromFailed(spentToken);
+      revert TransferFromFailed();
     }
 
     // Allow the router to spend all this contract's spentToken
@@ -159,11 +186,13 @@ contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
   }
 
   /**
-   * Internal function to calculate the amount of fee to pay.
-   * @param _amount The amount to calculate the fee of.
+   * Internal function to calculate the amount of fee to pay with a transaction.
+   * @param _amount The Wei amount to calculate the fee from.
+   * @dev The _amount has to be nominated in Wei.
+   * @dev returns the _feeAmount in Wei. 
    */
-  function _calculatePerformanceFee(uint256 _amount) internal view returns (uint256 _feeAmount) {
-    _feeAmount = _amount.mul(CURRENT_PERFORMANCE_FEE).div(100);
+  function _calculatePerformanceFee(uint256 _amount) internal view returns (uint256 _result) {
+    _result = (_amount.div(1000)).mul(CURRENT_PERFORMANCE_FEE);
   }
 
   /*
