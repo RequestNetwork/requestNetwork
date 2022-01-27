@@ -117,12 +117,12 @@ export async function deployAllPaymentContracts(
         );
         swapRouterAddress = '0x0000000000000000000000000000000000000000';
       }
-      const swapRouterAddressResult = await deployOne(args, hre, 'ERC20SwapToPay', {
+      const swapToPayResult = await deployOne(args, hre, 'ERC20SwapToPay', {
         constructorArguments: [swapRouterAddress, erc20FeeProxyAddress],
         artifact: erc20SwapToPayArtifact,
         nonceCondition: nonceForBatch2,
       });
-      deploymentResults.push(swapRouterAddressResult);
+      deploymentResults.push(swapToPayResult);
       return deploymentResults;
     };
 
