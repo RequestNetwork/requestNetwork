@@ -122,22 +122,6 @@ export enum PAYMENT_NETWORK_ID {
   ANY_TO_ETH_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
 }
 
-/** Generic info retriever interface */
-export interface IPaymentNetworkInfoRetriever<
-  TPaymentNetworkEvent extends IPaymentNetworkEvent<unknown, TEventNames>,
-  TEventNames = EVENTS_NAMES
-> {
-  getTransferEvents(): Promise<TPaymentNetworkEvent[]>;
-}
-
-/** Generic info retriever interface without transfers */
-export interface IPaymentNetworkBaseInfoRetriever<
-  TPaymentNetworkEvent extends IPaymentNetworkBaseEvent<TEventNames>,
-  TEventNames = EVENTS_NAMES
-> {
-  getContractEvents(): Promise<TPaymentNetworkEvent[]>;
-}
-
 /** Parameters for events of ERC20 payments */
 export interface IERC20PaymentEventParameters {
   from?: string;
