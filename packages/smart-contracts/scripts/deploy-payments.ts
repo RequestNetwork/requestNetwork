@@ -195,7 +195,7 @@ export async function deployAllPaymentContracts(
       erc20FeeProxyAddress: string,
       erc20SwapConversionInstance: ERC20SwapToConversion,
     ) => {
-      const NONCE_BATCH_5 = 12;
+      const NONCE_BATCH_5 = 13;
       let chainlinkConversionPathAddress = chainlinkInstance?.address;
       if (!chainlinkConversionPathAddress) {
         switchToSimulation();
@@ -294,7 +294,7 @@ export async function deployAllPaymentContracts(
     if (!swapRouterAddress) {
       logDeploymentMsg(
         'ERC20SwapToConversion:',
-        '(swap set to 0x000..000 - can be administrated by deployer)',
+        '(swap and chainlinkPath set to 0x000..000 - can be administrated by deployer)',
       );
       swapRouterAddress = '0x0000000000000000000000000000000000000000';
     }
@@ -303,6 +303,7 @@ export async function deployAllPaymentContracts(
       {
         ...args,
         conversionProxyAddress: '0x0000000000000000000000000000000000000000',
+        chainlinkConversionPathAddress: '0x0000000000000000000000000000000000000000',
         swapProxyAddress: swapRouterAddress,
         nonceCondition: 6,
       },
