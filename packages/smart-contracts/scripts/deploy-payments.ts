@@ -16,9 +16,11 @@ import { Contract } from 'ethers';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
 import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
+// eslint-disable-next-line
+// @ts-ignore Cannot find module
+import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { ERC20SwapToConversion } from 'smart-contracts/src/types';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.

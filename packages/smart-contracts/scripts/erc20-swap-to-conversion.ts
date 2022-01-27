@@ -1,5 +1,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { ERC20SwapToConversion } from 'smart-contracts/src/types';
+// eslint-disable-next-line
+// @ts-ignore Cannot find module
+import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
 import { erc20SwapConversionArtifact } from '../src/lib';
 import { deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses } from './utils';

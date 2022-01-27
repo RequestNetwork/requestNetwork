@@ -1,4 +1,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
+// eslint-disable-next-line
+// @ts-ignore Cannot find module
+import { Erc20ConversionProxy } from '../src/types/Erc20ConversionProxy';
 import {
   erc20ConversionProxy as erc20ConversionProxyArtifact,
   ethConversionArtifact,
@@ -6,7 +9,6 @@ import {
 import { deployOne } from './deploy-one';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { Erc20ConversionProxy } from 'smart-contracts/src/types';
 
 export async function deployERC20ConversionProxy(
   args: {
