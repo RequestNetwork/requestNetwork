@@ -57,7 +57,7 @@ export class NearInfoRetriever {
         confirmations: p.block,
         // Cf. FIXME#1 above
         // txHash: transaction.txHash,
-        receiptId: p.receiptId ?? 'FIXME String!',
+        receiptId: p.receiptId,
       },
       timestamp: Number(p.timestamp),
     }));
