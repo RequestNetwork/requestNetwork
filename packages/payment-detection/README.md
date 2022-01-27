@@ -17,7 +17,8 @@ Based on information found in the payment network state, and included manual pay
 # Design: retrievers and detectors
 
 This library relies on two concepts:
-- **Retrievers** perform RPC calls or TheGraph and fetch relevant events. Balance-impacting events are fetched with `InfoRetrievers`, implementing the  `getTransferEvents()` method (cf. [IPaymentRetriever](./src/types.ts))
+
+- **Retrievers** perform RPC calls or TheGraph and fetch relevant events. Balance-impacting events are fetched with `InfoRetrievers`, implementing the `getTransferEvents()` method (cf. [IPaymentRetriever](./src/types.ts))
 - **Payment detectors** call retrievers and interpret events according to the payment network (cf. [Abstract PaymentDetectorBase](./src/payment-detector-base.ts))
 
 ## Subgraph-based payment retrievers
@@ -27,6 +28,7 @@ For TheGraph-based information retrieval, we implement a generic method `getTheG
 The automated type generation is configured within files `./codegen.yml` (for EVM chains) and `./codegen-near.yml` (for Near) and output in `./src/thegraph/generated`. It depends on the deployed subgraphes schema and on the queries.
 
 The code generation is included in the pre-build script and can be run manually:
+
 ```
 yarn codegen
 ```
