@@ -76,7 +76,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     await testERC20Instance.transfer(FakeSwapRouterAddress, '10000000000000000000000000000');
     // SwapToPay
     const { address: ERC20SwapToPayAddress } = await deployOne(args, hre, 'ERC20SwapToPay', {
-      constructorArguments: [FakeSwapRouterAddress, ERC20FeeProxyAddress, fee.address, 50, 1500],
+      constructorArguments: [FakeSwapRouterAddress, ERC20FeeProxyAddress, fee.address, 100, 150],
     });
     // FIXME SwapToPay deployed without approbation for router and proxy
     console.log('SwapToPay Contract deployed: ' + ERC20SwapToPayAddress);

@@ -19,7 +19,7 @@ use(solidity);
 describe('contract: SwapToPay', () => {
   let from: string;
   let to: string;
-  let builder: string;
+  
   let adminSigner: Signer;
   let signer: Signer;
 
@@ -38,7 +38,7 @@ describe('contract: SwapToPay', () => {
   const erc20Liquidity = erc20Decimal.mul(100);
 
   before(async () => {
-    [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
+    [, from, to] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
 
     erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, adminSigner);
@@ -87,9 +87,9 @@ describe('contract: SwapToPay', () => {
     await expect(
       testSwapToPay.swapTransferWithReference(
         to,
-        10,
+        10e18,
         // Here we spend 26 max, for 22 used in theory, to test that 4 is given back
-        26,
+        26e18,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
         exchangeRateOrigin + 100,
@@ -101,11 +101,11 @@ describe('contract: SwapToPay', () => {
         to,
         '10',
         ethers.utils.keccak256(referenceExample),
-        '1',
-        ethers.utils.getAddress(builder),
+        '1e18',
+        "0xf17f52151EbEF6C7334FAD080c5704D77216b732",
       );
 
-    const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
+    const finalBuilderBalance = await paymentNetworkErc20.balanceOf("0xf17f52151EbEF6C7334FAD080c5704D77216b732");
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     expect(finalBuilderBalance.toNumber()).to.equals(1);
     expect(finalIssuerBalance.toNumber()).to.equals(10);
@@ -135,10 +135,10 @@ describe('contract: SwapToPay', () => {
         '0',
         ethers.utils.keccak256(referenceExample),
         '0',
-        builder,
+        "0xf17f52151EbEF6C7334FAD080c5704D77216b732",
       );
 
-    const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
+    const finalBuilderBalance = await paymentNetworkErc20.balanceOf("0xf17f52151EbEF6C7334FAD080c5704D77216b732");
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     expect(finalBuilderBalance.toNumber()).to.equals(0);
     expect(finalIssuerBalance.toNumber()).to.equals(0);
@@ -254,8 +254,8 @@ describe('contract: SwapToPay', () => {
       await expect(
         testSwapToPay.swapTransferWithReference(
           to,
-          10,
-          26,
+          Number(10e18),
+          Number(26e18),
           [badERC20.address, paymentNetworkErc20.address],
           referenceExample,
           exchangeRateOrigin + 100,
@@ -268,11 +268,11 @@ describe('contract: SwapToPay', () => {
           '10',
           ethers.utils.keccak256(referenceExample),
           '0.005',
-          builder,
+          "0xf17f52151EbEF6C7334FAD080c5704D77216b732",
         );
 
       // Test that issuer and builder (fee receiver) have been paid
-      const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
+      const finalBuilderBalance = await paymentNetworkErc20.balanceOf("0xf17f52151EbEF6C7334FAD080c5704D77216b732");
       const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
       expect(finalBuilderBalance.toNumber()).to.equals(0.005);
       expect(finalIssuerBalance.toNumber()).to.equals(10);
