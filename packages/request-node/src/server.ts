@@ -2,9 +2,10 @@
 import { LogTypes } from '@requestnetwork/types';
 import { argv } from 'yargs';
 import * as config from './config';
-import Logger from './logger';
+import { Logger } from './logger';
 import { RequestNode } from './requestNode';
 import withShutdown from 'http-shutdown';
+import { TheGraphRequestNode } from './thegraph';
 
 // Initialize the node logger
 const { logLevel, logMode } = config.getLogConfig();
@@ -16,6 +17,7 @@ const startNode = async (): Promise<void> => {
   Log Level: ${LogTypes.LogLevel[config.getLogConfig().logLevel]}
   Log Mode: ${config.getLogConfig().logMode}
   Web3 provider url: ${config.getStorageWeb3ProviderUrl()}
+  TheGraph url: ${config.getGraphNodeUrl()}
   IPFS host: ${config.getIpfsHost()}
   IPFS port: ${config.getIpfsPort()}
   IPFS protocol: ${config.getIpfsProtocol()}
@@ -27,7 +29,10 @@ const startNode = async (): Promise<void> => {
   logger.info(serverMessage);
 
   const port = config.getServerPort();
-  const requestNode = new RequestNode(logger);
+  const graphNodeUrl = config.getGraphNodeUrl();
+  const requestNode = graphNodeUrl
+    ? new TheGraphRequestNode(graphNodeUrl, logger)
+    : new RequestNode(logger);
   const server = withShutdown(
     requestNode.listen(port, () => {
       logger.info(`Listening on port ${port}`);

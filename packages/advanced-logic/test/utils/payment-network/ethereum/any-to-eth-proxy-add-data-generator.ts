@@ -47,9 +47,9 @@ export const declareReceivedPayment = {
     amount: '123400000000000000',
     note: 'this is your payment',
     txHash: 'somehash',
-    network: 'matic'
-  }
-}
+    network: 'matic',
+  },
+};
 
 // ---------------------------------------------------------------------
 // extensions states
@@ -59,7 +59,7 @@ export const extensionStateWithPaymentAfterCreation = {
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
         parameters: {
-          network
+          network,
         },
         timestamp: arbitraryTimestamp,
       },
@@ -76,7 +76,7 @@ export const extensionStateWithPaymentAfterCreation = {
     values: {
       paymentAddress,
       network,
-      receivedPaymentAmount: '0'
+      receivedPaymentAmount: '0',
     },
     version,
   },
@@ -88,7 +88,7 @@ export const extensionStateWithRefundAfterCreation = {
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
         parameters: {
-          network
+          network,
         },
         timestamp: arbitraryTimestamp,
       },
@@ -105,7 +105,7 @@ export const extensionStateWithRefundAfterCreation = {
     values: {
       refundAddress,
       network,
-      receivedPaymentAmount: '0'
+      receivedPaymentAmount: '0',
     },
     version,
   },
@@ -117,7 +117,7 @@ export const extensionStateWithFeeAfterCreation = {
       {
         name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
         parameters: {
-          network
+          network,
         },
         timestamp: arbitraryTimestamp,
       },
@@ -136,7 +136,7 @@ export const extensionStateWithFeeAfterCreation = {
       feeAddress,
       feeAmount,
       network,
-      receivedPaymentAmount: '0'
+      receivedPaymentAmount: '0',
     },
     version,
   },

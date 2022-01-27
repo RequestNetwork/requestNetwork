@@ -70,20 +70,12 @@ describe('contract: ChainlinkConversionPath', () => {
       });
 
       it('can get rate from USD to EUR to USD', async () => {
-        const conversion = await conversionPathInstance.getRate([
-          USD_hash,
-          EUR_hash,
-          USD_hash,
-        ]);
+        const conversion = await conversionPathInstance.getRate([USD_hash, EUR_hash, USD_hash]);
         expect(conversion.rate.toString(), '999999999999999999');
       });
 
       it('can get rate from ETH to USD to EUR', async () => {
-        const conversion = await conversionPathInstance.getRate([
-          ETH_hash,
-          USD_hash,
-          EUR_hash,
-        ]);
+        const conversion = await conversionPathInstance.getRate([ETH_hash, USD_hash, EUR_hash]);
         expect(conversion.rate.toString(), '41666666666');
       });
     });
@@ -101,11 +93,7 @@ describe('contract: ChainlinkConversionPath', () => {
     });
 
     it('can get rate from EUR to USD to ETH', async () => {
-      const conversion = await conversionPathInstance.getRate([
-        EUR_hash,
-        USD_hash,
-        ETH_hash,
-      ]);
+      const conversion = await conversionPathInstance.getRate([EUR_hash, USD_hash, ETH_hash]);
       expect(conversion.rate.toString(), '24000000000000000000000000');
     });
 
@@ -115,31 +103,19 @@ describe('contract: ChainlinkConversionPath', () => {
     });
 
     it('can get rate from ETH to USD to ERC20', async () => {
-      const conversion = await conversionPathInstance.getRate([
-        ETH_hash,
-        USD_hash,
-        DAI_address,
-      ]);
+      const conversion = await conversionPathInstance.getRate([ETH_hash, USD_hash, DAI_address]);
       expect(conversion.rate.toString(), '495049504950495049504');
     });
   });
 
   describe('USDT rates', async () => {
     it('can get rate from USD to ETH to USDT', async () => {
-      const conversion = await conversionPathInstance.getRate([
-        USD_hash,
-        ETH_hash,
-        USDT_address,
-      ]);
+      const conversion = await conversionPathInstance.getRate([USD_hash, ETH_hash, USDT_address]);
       expect(conversion.rate.toString(), '10000000000000000');
     });
 
     it('can get rate from USDT to ETH to USD', async () => {
-      const conversion = await conversionPathInstance.getRate([
-        USDT_address,
-        ETH_hash,
-        USD_hash,
-      ]);
+      const conversion = await conversionPathInstance.getRate([USDT_address, ETH_hash, USD_hash]);
       expect(conversion.rate.toString(), '100000000000000000000');
     });
   });

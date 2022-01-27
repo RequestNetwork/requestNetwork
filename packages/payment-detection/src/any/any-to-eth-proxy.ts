@@ -6,7 +6,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
@@ -19,6 +19,7 @@ interface IProxyContractVersion {
 
 const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
   ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.2.0',
 };
 
 /**
@@ -70,15 +71,11 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
       paymentChain,
       paymentNetwork.version,
     );
-
-    if (!contractInfo) {
-      throw Error('ETH conversion proxy contract not found');
-    }
     const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
     if (!currency) {
-      throw Error('requestCurrency not found in currency manager');
+      throw new UnsupportedCurrencyError(requestCurrency.value);
     }
 
     const proxyInfoRetriever = new AnyToEthInfoRetriever(

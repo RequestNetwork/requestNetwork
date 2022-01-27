@@ -46,6 +46,7 @@ const data = 'Some data';
 
 await ethereumStorage.append(data);
 ```
+
 ## Gas Limit
 
 The gas limit defined as `safeGasPriceLimit` in [/src/config.ts](./src/config.ts) can be overridden with the environment variable `GAS_PRICE_DEFAULT`.

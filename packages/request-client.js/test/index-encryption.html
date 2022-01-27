@@ -11,11 +11,9 @@
     <p>
       This HTML page <strong>must be served on HTTP</strong> to be able to communicate with MetaMask
     </p>
-    <p>
-      The dependencies must be built. (yarn build)
-    </p>
+    <p>The dependencies must be built. (yarn build)</p>
     <h2>Compatibility</h2>
-    <table style="text-align:center">
+    <table style="text-align: center">
       <tr>
         <th></th>
         <th>Windows</th>
@@ -24,19 +22,19 @@
       </tr>
       <tr>
         <th>Firefox</th>
-        <td style="color:green">OK</td>
-        <td style="color:green">OK</td>
-        <td style="color:green">OK</td>
+        <td style="color: green">OK</td>
+        <td style="color: green">OK</td>
+        <td style="color: green">OK</td>
       </tr>
       <tr>
         <th>Chrome</th>
-        <td style="color:green">OK</td>
-        <td style="color:green">OK</td>
-        <td style="color:red">WebCryptoAPI error</td>
+        <td style="color: green">OK</td>
+        <td style="color: green">OK</td>
+        <td style="color: red">WebCryptoAPI error</td>
       </tr>
       <tr>
         <th>Edge</th>
-        <td style="color:green">OK</td>
+        <td style="color: green">OK</td>
         <td>-</td>
         <td>-</td>
       </tr>
@@ -126,7 +124,9 @@
         } = getMockData();
 
         // Initialize the signature provider
-        const signatureProvider = new Web3SignatureProvider.Web3SignatureProvider(web3.currentProvider);
+        const signatureProvider = new Web3SignatureProvider.Web3SignatureProvider(
+          web3.currentProvider,
+        );
 
         // Initialize the decryption provider
         const decryptionProvider = new EthereumPrivateKeyDecryptionProvider.EthereumPrivateKeyDecryptionProvider(

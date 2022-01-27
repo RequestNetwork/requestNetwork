@@ -2,13 +2,14 @@ import Utils from '@requestnetwork/utils';
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { RequestNode } from '../src/requestNode';
+import { RequestNodeBase } from '../src/requestNodeBase';
 
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 const transactionData = { data: 'this is sample data for a transaction' };
 const transactionHash = Utils.crypto.normalizeKeccak256Hash(transactionData).value;
 
-let requestNodeInstance;
+let requestNodeInstance: RequestNodeBase;
 let server: any;
 
 /* eslint-disable no-magic-numbers */
@@ -21,7 +22,8 @@ describe('getConfirmedTransaction', () => {
     server = (requestNodeInstance as any).express;
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    await requestNodeInstance.close();
     server.close();
   });
 

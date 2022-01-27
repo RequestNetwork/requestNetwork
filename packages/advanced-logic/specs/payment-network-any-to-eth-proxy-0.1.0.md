@@ -82,14 +82,14 @@ The `TransferWithConversionAndReference` event is emitted when the tokens are tr
 
 |                               | Type   | Description                                                           | Requirement   |
 | ----------------------------- | ------ | --------------------------------------------------------------------- | ------------- |
-| **id**                        | String | Constant value: "pn-any-to-eth-proxy"          | **Mandatory** |
+| **id**                        | String | Constant value: "pn-any-to-eth-proxy"                                 | **Mandatory** |
 | **type**                      | String | Constant value: "paymentNetwork"                                      | **Mandatory** |
 | **version**                   | String | Constant value: "0.1.0"                                               | **Mandatory** |
 | **parameters**                | Object |                                                                       |               |
 | **parameters.salt**           | String | Salt for the request                                                  | **Mandatory** |
 | **parameters.paymentAddress** | String | Ethereum address for the payment                                      | Optional      |
 | **parameters.refundAddress**  | String | Ethereum address for the refund                                       | Optional      |
-| **parameters.feeAddress**         | String | Ethereum address for the fee payment                                  | Optional      |
+| **parameters.feeAddress**     | String | Ethereum address for the fee payment                                  | Optional      |
 | **parameters.feeAmount**      | String | The fee amount in the request `currency`                              | Optional      |
 | **parameters.network**        | String | Ethereum network for the payments                                     | Optional      |
 | **parameters.maxTimespan**    | Number | Time span maximum accepted between the payment and the rate timestamp | Optional      |
@@ -107,8 +107,8 @@ This action must trigger the warnings:
 | Warning                                 | Condition                                                   |
 | --------------------------------------- | ----------------------------------------------------------- |
 | "paymentAddress is given by the payer"  | If `signer` is the payer **and** `paymentAddress` is given  |
-| "feeAddress is given by the payer"          | If `signer` is the payer **and** `feeAddress` is given          |
-| "feeAmount is given by the payer"       | If `signer` is the payer **and** `feeAddress` is given          |
+| "feeAddress is given by the payer"      | If `signer` is the payer **and** `feeAddress` is given      |
+| "feeAmount is given by the payer"       | If `signer` is the payer **and** `feeAddress` is given      |
 | "refundAddress is given by the payee"   | If `signer` is the payee **and** `refundAddress` is given   |
 
 Note: These warnings are necessary to highlight to avoid attempts of fake payments and refunds. For example, a payer could create a request using as the payment address one of his own addresses. A system could interpret a transaction to this address as a payment while the payee did not receive the funds.
@@ -119,13 +119,13 @@ An extension state is created with the following properties:
 
 |  Property                 |  Value                                                         |
 | ------------------------- | -------------------------------------------------------------- |
-| **id**                    | "pn-any-to-eth-proxy"                   |
+| **id**                    | "pn-any-to-eth-proxy"                                          |
 | **type**                  | "paymentNetwork"                                               |
 | **version**               | "0.1.0"                                                        |
 | **values**                |                                                                |
 | **values.paymentAddress** | `paymentAddress` from parameters if given, undefined otherwise |
 | **values.refundAddress**  | `refundAddress` from parameters if given, undefined otherwise  |
-| **values.feeAddress**         | `feeAddress` from parameters if given, undefined otherwise         |
+| **values.feeAddress**     | `feeAddress` from parameters if given, undefined otherwise     |
 | **values.feeAmount**      | `feeAmount` from parameters if given, undefined otherwise      |
 | **values.salt**           | Salt for the request                                           |
 | **values.network**        | `network` from parameters if given, undefined otherwise        |
@@ -154,12 +154,12 @@ the 'create' event:
 
 ##### Parameters
 
-|                               | Type   | Description                                                  | Requirement   |
-| ----------------------------- | ------ | ------------------------------------------------------------ | ------------- |
-| **id**                        | String | Constant value: "pn-any-to-eth-proxy"                        | **Mandatory** |
-| **action**                    | String | Constant value: "addPaymentAddress"                          | **Mandatory** |
-| **parameters**                | Object |                                                              |               |
-| **parameters.paymentAddress** | String | Ethereum address for the payment                             | **Mandatory** |
+|                               | Type   | Description                           | Requirement   |
+| ----------------------------- | ------ | ------------------------------------- | ------------- |
+| **id**                        | String | Constant value: "pn-any-to-eth-proxy" | **Mandatory** |
+| **action**                    | String | Constant value: "addPaymentAddress"   | **Mandatory** |
+| **parameters**                | Object |                                       |               |
+| **parameters.paymentAddress** | String | Ethereum address for the payment      | **Mandatory** |
 
 ##### Conditions
 
@@ -194,12 +194,12 @@ the 'addPaymentAddress' event:
 
 ##### Parameters
 
-|                              | Type   | Description                                                  | Requirement   |
-| ---------------------------- | ------ | ------------------------------------------------------------ | ------------- |
-| **id**                       | String | Constant value: "pn-any-to-eth-proxy"                        | **Mandatory** |
-| **action**                   | String | Constant value: "addRefundAddress"                           | **Mandatory** |
-| **parameters**               | Object |                                                              |               |
-| **parameters.refundAddress** | String | Ethereum address for the refund                              | **Mandatory** |
+|                              | Type   | Description                           | Requirement   |
+| ---------------------------- | ------ | ------------------------------------- | ------------- |
+| **id**                       | String | Constant value: "pn-any-to-eth-proxy" | **Mandatory** |
+| **action**                   | String | Constant value: "addRefundAddress"    | **Mandatory** |
+| **parameters**               | Object |                                       |               |
+| **parameters.refundAddress** | String | Ethereum address for the refund       | **Mandatory** |
 
 ##### Conditions
 
@@ -234,13 +234,13 @@ The 'addRefundAddress' event:
 
 ##### Parameters
 
-|                          | Type   | Description                                                  | Requirement   |
-| ------------------------ | ------ | ------------------------------------------------------------ | ------------- |
-| **id**                   | String | Constant value: "pn-any-to-eth-proxy"                        | **Mandatory** |
-| **action**               | String | Constant value: "addfeeAddress"                              | **Mandatory** |
-| **parameters**           | Object |                                                              |               |
-| **parameters.feeAddress**    | String | Ethereum address for the fee payment                     | **Mandatory** |
-| **parameters.feeAmount** | String | The fee amount                                               | **Mandatory** |
+|                           | Type   | Description                           | Requirement   |
+| ------------------------- | ------ | ------------------------------------- | ------------- |
+| **id**                    | String | Constant value: "pn-any-to-eth-proxy" | **Mandatory** |
+| **action**                | String | Constant value: "addfeeAddress"       | **Mandatory** |
+| **parameters**            | Object |                                       |               |
+| **parameters.feeAddress** | String | Ethereum address for the fee payment  | **Mandatory** |
+| **parameters.feeAmount**  | String | The fee amount                        | **Mandatory** |
 
 ##### Conditions
 
@@ -259,20 +259,20 @@ None.
 
 An extension state is updated with the following properties:
 
-|  Property            |  Value                                   |
-| -------------------- | ---------------------------------------- |
-| **values.feeAddress**    | `feeAddress` from parameters                 |
-| **values.feeAmount** | `feeAmount` from parameters              |
-| **events**           | Add a 'fee' event (see below) at its end |
+|  Property             |  Value                                   |
+| --------------------- | ---------------------------------------- |
+| **values.feeAddress** | `feeAddress` from parameters             |
+| **values.feeAmount**  | `feeAmount` from parameters              |
+| **events**            | Add a 'fee' event (see below) at its end |
 
 the 'addFee' event:
 
-|  Property                |  Value                      |
-| ------------------------ | --------------------------- |
-| **name**                 | Constant value: "addfeeAddress" |
-| **parameters**           |                             |
-| **parameters.feeAddress**    | `feeAddress` from parameters    |
-| **parameters.feeAmount** | `feeAmount` from parameters |
+|  Property                 |  Value                          |
+| ------------------------- | ------------------------------- |
+| **name**                  | Constant value: "addfeeAddress" |
+| **parameters**            |                                 |
+| **parameters.feeAddress** | `feeAddress` from parameters    |
+| **parameters.feeAmount**  | `feeAmount` from parameters     |
 
 ---
 

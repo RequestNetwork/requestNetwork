@@ -11,11 +11,13 @@ import {
 import { deploySwapConversion } from './erc20-swap-to-conversion';
 import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversion-proxy';
 import { DeploymentResult, deployOne } from './deploy-one';
-import { uniswapV2RouterAddresses } from './utils';
+import { uniswapV2RouterAddresses, jumpToNonce } from './utils';
 import { Contract } from 'ethers';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
 import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
+import { CurrencyManager } from '@requestnetwork/currency';
+import { RequestLogicTypes } from '@requestnetwork/types';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.
@@ -36,14 +38,27 @@ export async function deployAllPaymentContracts(
   hre: HardhatRuntimeEnvironment,
 ): Promise<void> {
   const deploymentResults: (DeploymentResult | undefined)[] = [];
-  let simulationSuccess: boolean | undefined = args.simulate ? true : undefined;
+  let simulationSuccess: boolean | undefined;
 
   try {
+    simulationSuccess = args.simulate ? true : undefined;
     const [deployer] = await hre.ethers.getSigners();
 
     console.log(
       `*** Deploying with the account: ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId}) ***`,
     );
+
+    // #region NATIVE TOKEN
+    const nativeTokenNetwork = hre.network.name === 'private' ? 'mainnet' : hre.network.name;
+    const nativeTokenHash = CurrencyManager.getDefault().getNativeCurrency(
+      RequestLogicTypes.CURRENCY.ETH,
+      nativeTokenNetwork,
+    )?.hash;
+
+    if (!nativeTokenHash) {
+      throw new Error(`Could not guess native token hash for network ${hre.network.name}`);
+    }
+    // #endregion
 
     // #region EASY DEPLOYMENTS UTIL
 
@@ -83,7 +98,6 @@ export async function deployAllPaymentContracts(
      *   - ERC20SwapToPay
      *   - ERC20SwapToConversion
      */
-
     const runDeploymentBatch_2 = async (
       chainlinkInstance: ChainlinkConversionPath,
       erc20FeeProxyAddress: string,
@@ -174,27 +188,27 @@ export async function deployAllPaymentContracts(
       deploymentResults.push(ethConversionResult);
 
       // Administrate again whitelist admins for nonce consistency (due to 1 failing tx on Fantom)
-
+      const chainlinkAdminNonce = 12;
       const currentNonce = await deployer.getTransactionCount();
-      if (currentNonce === 9) {
-        if (hre.network.name === 'fantom') {
-          if (chainlinkInstance) {
-            if (!process.env.ADMIN_WALLET_ADDRESS) {
-              throw new Error('Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided.');
-            }
-            if (args.simulate === false) {
-              await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
-            } else {
-              console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
-            }
-          }
-        } else {
-          // Atificially increase nonce for every other network
-          await deployer.sendTransaction({ to: deployer.address });
+      if (currentNonce === chainlinkAdminNonce && chainlinkInstance) {
+        if (!process.env.ADMIN_WALLET_ADDRESS) {
+          throw new Error(
+            'Chainlink was deployed but no ADMIN_WALLET_ADDRESS was provided, cannot addWhitelistAdmin.',
+          );
         }
-      } else if (currentNonce < 9) {
-        console.warn(`Warning: got nonce ${currentNonce} instead of 9`);
-        switchToSimulation();
+        if (args.simulate === false) {
+          await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
+        } else {
+          console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
+        }
+      } else {
+        if (currentNonce < chainlinkAdminNonce) {
+          console.warn(`Warning: got nonce ${currentNonce} instead of ${chainlinkAdminNonce}`);
+          switchToSimulation();
+        } else if (!chainlinkInstance) {
+          console.warn(`Warning: the Chainlink contract instance is not ready, consider retrying.`);
+          switchToSimulation();
+        }
       }
     };
 
@@ -214,27 +228,38 @@ export async function deployAllPaymentContracts(
       nonceCondition: 1,
     });
 
+    // Batch 3
+    const nonceForBatch3 = 7;
+    await jumpToNonce(args, hre, nonceForBatch3);
+
+    const { address: ethFeeProxyAddress } = await runEasyDeployment({
+      contractName: 'EthereumFeeProxy',
+      artifact: ethereumFeeProxyArtifact,
+      nonceCondition: nonceForBatch3,
+    });
+
+    // Batch 4
+    const nonceForBatch4 = 10;
+    await jumpToNonce(args, hre, nonceForBatch4);
+
     const {
       instance: chainlinkInstance,
       address: chainlinkInstanceAddress,
     } = await runEasyDeployment({
       contractName: 'ChainlinkConversionPath',
+      constructorArguments: [nativeTokenHash],
       artifact: chainlinkConversionPathArtifact,
-      nonceCondition: 2,
+      nonceCondition: nonceForBatch4,
     });
+
+    await runDeploymentBatch_4(chainlinkInstanceAddress, ethFeeProxyAddress);
+
+    if (!args.simulate) {
+      throw new Error('Missing implementation new version of ERC20 Conversion Proxy');
+    }
 
     // Batch 2
     await runDeploymentBatch_2(chainlinkInstance, erc20FeeProxyAddress);
-
-    // Batch 3
-    const { address: ethFeeProxyAddress } = await runEasyDeployment({
-      contractName: 'EthereumFeeProxy',
-      artifact: ethereumFeeProxyArtifact,
-      nonceCondition: 7,
-    });
-
-    // Batch 4
-    await runDeploymentBatch_4(chainlinkInstanceAddress, ethFeeProxyAddress);
 
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Add future batches above this line
@@ -293,7 +318,6 @@ export async function deployAllPaymentContracts(
   } else {
     console.log(`--- No deployment was made. ---`);
   }
-  // @ts-ignore
   if (simulationSuccess === false) {
     console.log('--- DO NOT PROCEED ---');
   }
