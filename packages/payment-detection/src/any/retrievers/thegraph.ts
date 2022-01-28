@@ -1,7 +1,7 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, utils } from 'ethers';
-import { IPaymentRetriever } from '../types';
+import { IPaymentRetriever } from '../../types';
 import { getTheGraphClient, TheGraphClient } from '../../thegraph';
 
 /**
