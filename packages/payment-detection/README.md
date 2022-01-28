@@ -18,7 +18,7 @@ Based on information found in the payment network state, and included manual pay
 
 This library relies on two concepts:
 
-- **Retrievers** perform RPC calls or TheGraph and fetch relevant events. Balance-impacting events are fetched with `InfoRetrievers`, implementing the `getTransferEvents()` method (cf. [IPaymentRetriever](./src/types.ts))
+- **Retrievers** perform RPC or TheGraph calls and fetch relevant events. Balance-impacting events are fetched with `InfoRetrievers`, implementing the `getTransferEvents()` method (cf. [IPaymentRetriever](./src/types.ts))
 - **Payment detectors** call retrievers and interpret events according to the payment network (cf. [Abstract PaymentDetectorBase](./src/payment-detector-base.ts))
 
 ## Subgraph-based payment retrievers
