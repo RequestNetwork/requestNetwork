@@ -59,12 +59,12 @@ contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
 
   /** 
   * Modifier checks that x amount is larger than 0.001 eth or 1000000000000000 Wei.
-  * @param _x The requested amount;
+  * @param _amount The requested amount;
   * @dev _x har to be nominated in Wei.
   * @notice 1e15 = 1000000000000000 or 0.001 eth.
   */
-  modifier minValue(uint256 _x) {
-    if (_x < 1e15) revert AmountToLow();
+  modifier minValue(uint256 _amount) {
+    if (_amount < 1e15) revert AmountToLow();
     _;
   }
 
@@ -143,9 +143,8 @@ contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
       revert AllowanceToLow();
     }
 
-    if (!spentToken.safeTransferFrom(_msgSender(), address(this), _amountInMax)) {
-      revert TransferFromFailed();
-    }
+    require(spentToken.safeTransferFrom(_msgSender(), address(this), _amountInMax), 
+      "Could not transfer payment token from swapper-payer"); 
 
     // Allow the router to spend all this contract's spentToken
     if (spentToken.allowance(address(this), address(swapRouter)) < _amountInMax) {
@@ -191,8 +190,13 @@ contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
    * @dev The _amount has to be nominated in Wei.
    * @dev returns the _feeAmount in Wei. 
    */
-  function _calculatePerformanceFee(uint256 _amount) internal view returns (uint256 _result) {
-    _result = (_amount.div(1000)).mul(CURRENT_PERFORMANCE_FEE);
+  function _calculatePerformanceFee(uint256 _amount) 
+    internal
+    view
+    minValue(_amount)
+    returns (uint256 _feeAmount)
+  {
+    _feeAmount = (_amount.div(1000)).mul(CURRENT_PERFORMANCE_FEE);
   }
 
   /*
