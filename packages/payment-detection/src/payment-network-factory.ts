@@ -159,7 +159,7 @@ export default class PaymentNetworkFactory {
    */
   public static supportedPaymentNetworksForCurrency(
     currency: RequestLogicTypes.ICurrency,
-  ): PaymentTypes.IPaymentNetworkModuleByType {
+  ): IPaymentNetworkModuleByType {
     if (!supportedPaymentNetwork[currency.type]) {
       return anyCurrencyPaymentNetwork;
     }
