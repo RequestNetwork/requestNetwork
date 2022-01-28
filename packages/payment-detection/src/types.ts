@@ -15,3 +15,18 @@ export interface IEventRetriever<
 > {
   getContractEvents(): Promise<TPaymentNetworkEvent[]>;
 }
+
+/** Object interface to list the payment network module by id */
+export interface IPaymentNetworkModuleByType {
+  [type: string]: any;
+}
+
+/** Object interface to list the payment network module by network */
+export interface ISupportedPaymentNetworkByNetwork {
+  [network: string]: IPaymentNetworkModuleByType;
+}
+
+/** Object interface to list the payment network id and its module by currency */
+export interface ISupportedPaymentNetworkByCurrency {
+  [currency: string]: ISupportedPaymentNetworkByNetwork;
+}

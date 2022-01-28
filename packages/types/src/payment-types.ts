@@ -3,20 +3,32 @@ import * as Extension from './extension-types';
 import * as RequestLogic from './request-logic-types';
 import { ICreationParameters } from './extensions/pn-any-declarative-types';
 
-/** Object interface to list the payment network id and its module by currency */
-export interface ISupportedPaymentNetworkByCurrency {
-  [currency: string]: ISupportedPaymentNetworkByNetwork;
+/** List of payment networks available (abstract the extensions type) */
+export enum PAYMENT_NETWORK_ID {
+  BITCOIN_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+  TESTNET_BITCOIN_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+  ERC20_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+  ERC20_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+  ERC20_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+  ETH_INPUT_DATA = Extension.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+  ETH_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+  NATIVE_TOKEN = Extension.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+  DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+  ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+  ANY_TO_ETH_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+}
+/** Interface for payment network extensions state and interpretation */
+export interface IPaymentNetwork<TEventParameters = any> {
+  paymentNetworkId: PAYMENT_NETWORK_ID;
+  createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
+  createExtensionsDataForAddRefundInformation: (parameters: any) => any;
+  createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
+  getBalance(request: RequestLogic.IRequest): Promise<IBalanceWithEvents<TEventParameters>>;
 }
 
-/** Object interface to list the payment network module by network */
-export interface ISupportedPaymentNetworkByNetwork {
-  [network: string]: IPaymentNetworkModuleByType;
-}
-
-/** Object interface to list the payment network module by id */
-export interface IPaymentNetworkModuleByType {
-  [type: string]: any;
-}
+/**
+ * Interfaces for parameters to create payment extensions
+ */
 
 /** Interface to create a payment network  */
 export interface IPaymentNetworkCreateParameters {
@@ -44,23 +56,9 @@ export interface IAnyToErc20CreationParameters extends IFeeReferenceBasedCreatio
   maxRateTimespan?: number;
 }
 
-/** Interface of the class to manage a payment network  */
-export interface IPaymentNetwork<TEventParameters = any> {
-  paymentNetworkId: PAYMENT_NETWORK_ID;
-  createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
-  createExtensionsDataForAddRefundInformation: (parameters: any) => any;
-  createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
-  getBalance(request: RequestLogic.IRequest): Promise<IBalanceWithEvents<TEventParameters>>;
-}
-
-/** Interface of the class to manage the bitcoin provider API */
-export interface IBitcoinDetectionProvider {
-  getAddressBalanceWithEvents: (
-    bitcoinNetworkId: number,
-    address: string,
-    eventName: EVENTS_NAMES,
-  ) => Promise<IBalanceWithEvents<IBTCPaymentEventParameters>>;
-}
+/**
+ * Interfaces for balance and events
+ */
 
 /** Interface for balances and the events link to the payments and refund */
 export interface IBalanceWithEvents<TEventParameters = any> {
@@ -73,6 +71,18 @@ export interface IBalanceWithEvents<TEventParameters = any> {
 export interface IBalanceError {
   message: string;
   code: BALANCE_ERROR_CODE;
+}
+
+/** payment network event names */
+export enum EVENTS_NAMES {
+  PAYMENT = 'payment',
+  REFUND = 'refund',
+}
+
+export enum ESCROW_EVENTS_NAMES {
+  FROZEN_PAYMENT = 'frozenPayment',
+  INITIATED_EMERGENCY_CLAIM = 'initiatedEmergencyClaim',
+  REVERTED_EMERGENCY_CLAIM = 'revertedEmergencyClaim',
 }
 
 /** Balance error codes */
@@ -95,32 +105,25 @@ export interface IPaymentNetworkEvent<TEventParameters, TEventNames = EVENTS_NAM
   parameters?: TEventParameters;
 }
 
-/** payment network event names */
-export enum EVENTS_NAMES {
-  PAYMENT = 'payment',
-  REFUND = 'refund',
-}
+/**
+ * Declarative networks and events
+ */
 
-export enum ESCROW_EVENTS_NAMES {
-  FROZEN_PAYMENT = 'frozenPayment',
-  INITIATED_EMERGENCY_CLAIM = 'initiatedEmergencyClaim',
-  REVERTED_EMERGENCY_CLAIM = 'revertedEmergencyClaim',
+/** Parameters for events of Declarative payments */
+export interface IDeclarativePaymentEventParameters {
+  txHash?: string;
+  network?: string;
+  note?: string;
+  from?: IIdentity;
 }
+/** Declarative Payment Network Event */
+export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;
+/** Declarative BalanceWithEvents */
+export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;
 
-/** List of payment networks available (abstract the extensions type) */
-export enum PAYMENT_NETWORK_ID {
-  BITCOIN_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-  TESTNET_BITCOIN_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
-  ERC20_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
-  ERC20_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
-  ERC20_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-  ETH_INPUT_DATA = Extension.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
-  ETH_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
-  NATIVE_TOKEN = Extension.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
-  DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
-  ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
-  ANY_TO_ETH_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
-}
+/**
+ * ERC20 networks and events
+ */
 
 /** Parameters for events of ERC20 payments */
 export interface IERC20PaymentEventParameters {
@@ -146,12 +149,20 @@ export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
 
+/**
+ * Conversion-related events
+ */
+
 export type ConversionPaymentNetworkEventParameters =
   | IERC20PaymentEventParameters
   | IERC20FeePaymentEventParameters
   | IETHPaymentEventParameters
   | IETHFeePaymentEventParameters;
 export type ConversionPaymentNetworkEvent = IPaymentNetworkEvent<ConversionPaymentNetworkEventParameters>;
+
+/**
+ * ETH and native token balance and events
+ */
 
 /** Parameters for events of ETH payments */
 export interface IETHPaymentEventParameters {
@@ -176,6 +187,19 @@ export type ETHBalanceWithEvents = IBalanceWithEvents<
   IETHPaymentEventParameters | IETHFeePaymentEventParameters
 >;
 
+/**
+ * Bitcoin provider and events
+ */
+
+/** Interface of the class to manage the bitcoin provider API */
+export interface IBitcoinDetectionProvider {
+  getAddressBalanceWithEvents: (
+    bitcoinNetworkId: number,
+    address: string,
+    eventName: EVENTS_NAMES,
+  ) => Promise<IBalanceWithEvents<IBTCPaymentEventParameters>>;
+}
+
 /** Parameters for events of BTC payments */
 export interface IBTCPaymentEventParameters {
   block?: number;
@@ -185,15 +209,3 @@ export interface IBTCPaymentEventParameters {
 export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<IBTCPaymentEventParameters>;
 /** BTC BalanceWithEvents */
 export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters>;
-
-/** Parameters for events of Declarative payments */
-export interface IDeclarativePaymentEventParameters {
-  txHash?: string;
-  network?: string;
-  note?: string;
-  from?: IIdentity;
-}
-/** Declarative Payment Network Event */
-export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;
-/** Declarative BalanceWithEvents */
-export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;
