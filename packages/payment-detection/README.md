@@ -23,7 +23,7 @@ This library relies on two concepts:
 
 ## Subgraph-based payment retrievers
 
-For TheGraph-based information retrieval, we implement a generic method `getTheGraphClient()` in `./src/thegraph/index.ts`, based on the queries in `/src/thegraph/queries` and automated types.
+For TheGraph-based information retrieval, a client can be retrieved using `getTheGraphClient()` in `./src/thegraph/index.ts`. It provides a strongly typed interface, generated based on the queries in `/src/thegraph/queries`.
 
 The automated type generation is configured within files `./codegen.yml` (for EVM chains) and `./codegen-near.yml` (for Near) and output in `./src/thegraph/generated`. It depends on the deployed subgraphes schema and on the queries.
 
