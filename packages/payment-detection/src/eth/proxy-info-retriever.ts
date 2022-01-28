@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { IPaymentRetriever } from 'payment-detection/src/types';
+import { IPaymentRetriever } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';

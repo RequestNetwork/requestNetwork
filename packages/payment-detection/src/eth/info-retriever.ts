@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { IPaymentRetriever } from 'payment-detection/src/types';
+import { IPaymentRetriever } from '../types';
 import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider';
 
 /**
