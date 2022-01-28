@@ -106,7 +106,7 @@ export interface IPaymentNetworkEvent<TEventParameters, TEventNames = EVENTS_NAM
 }
 
 /**
- * Declarative networks and events
+ * Declarative balance and events for detection-based payment networks
  */
 
 /** Parameters for events of Declarative payments */
