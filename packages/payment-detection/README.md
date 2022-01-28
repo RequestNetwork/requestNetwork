@@ -14,12 +14,43 @@ Based on information found in the payment network state, and included manual pay
 - `balance`: the detected amount paid on the request, in request currency
 - `events`: all the payments, payment declarations, refunds, and other balance-related events with the amount, timestamp etc...
 
-# Design: retrievers and detectors
+# Retrievers and detectors
 
 This library relies on two concepts:
 
 - **Retrievers** perform RPC or TheGraph calls and fetch relevant events. Balance-impacting events are fetched with `InfoRetrievers`, implementing the `getTransferEvents()` method (cf. [IPaymentRetriever](./src/types.ts))
-- **Payment detectors** call retrievers and interpret events according to the payment network (cf. [Abstract PaymentDetectorBase](./src/payment-detector-base.ts))
+- **Payment detectors** implement the interface **PaymentTypes.IPaymentNetwork**, with the method `getBalance()`, which calls retrievers and interpret events according to the payment network (cf. [Abstract PaymentDetectorBase](./src/payment-detector-base.ts)). `getBalance()` returns the balance as well as events: payments, refunds, and possibly other events (declarations, escrow events...)
+
+## PaymentDetectorBase
+
+A good part of the logic is implemented in the abstract class `PaymentDetectorBase`:
+
+```typescript
+export abstract class PaymentDetectorBase<
+  TExtension extends ExtensionTypes.IExtension,
+  TPaymentEventParameters
+> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters> {
+  public async getBalance(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
+    // ...
+
+    // getEvents() should be implemented by children payment detectors, and use appropriate retrievers
+    // For example: RPC or The Graph based retriever
+    const rawEvents = await this.getEvents(request);
+    // ...
+    // computeBalance() sums up all payment events and deduces all refunds.
+    const balance = this.computeBalance(events).toString();
+
+    return {
+      balance,
+      events,
+    };
+  }
+}
+```
+
+[cf. full implementation](./src/payment-detector-base.ts)
 
 ## Subgraph-based payment retrievers
 
