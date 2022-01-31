@@ -92,17 +92,10 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     }
     const { acceptedTokens, maxRateTimespan = 0 } = paymentNetwork.values;
 
-<<<<<<< HEAD
-    const conversionDeploymentInformation = this.getProxyDeploymentInformation(
-      paymentChain,
-      paymentNetwork.version,
-    );
-=======
     const {
       address: conversionProxyContractAddress,
       creationBlockNumber: conversionProxyCreationBlockNumber,
-    } = AnyToERC20PaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
->>>>>>> fix/fixing-scheduled-tests
+    } = this.getProxyDeploymentInformation(paymentChain, paymentNetwork.version);
 
     const conversionProxyAbi = erc20ConversionProxy.getContractAbi(paymentNetwork.version);
 
