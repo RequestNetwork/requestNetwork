@@ -1,4 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
+import { IEventRetriever } from '../types';
 import { ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
@@ -20,7 +21,7 @@ type EscrowArgs = {
  */
 export default class EscrowERC20InfoRetriever
   implements
-    PaymentTypes.IPaymentNetworkBaseInfoRetriever<
+    IEventRetriever<
       PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>,
       PaymentTypes.ESCROW_EVENTS_NAMES
     > {

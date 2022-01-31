@@ -1,13 +1,14 @@
-import { PaymentTypes } from '@requestnetwork/types';
 import { CurrencyDefinition } from '@requestnetwork/currency';
+import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, utils } from 'ethers';
+import { IPaymentRetriever } from '../../types';
 import { getTheGraphClient, TheGraphClient } from '../../thegraph';
 
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 export class TheGraphAnyToErc20Retriever
-  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
+  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
   private client: TheGraphClient;
 
   /**
