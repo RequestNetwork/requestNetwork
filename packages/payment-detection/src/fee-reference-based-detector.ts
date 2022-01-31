@@ -101,21 +101,11 @@ export abstract class FeeReferenceBasedDetector<
   ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
     // for a PN with fees, we ignore events with wrong fees.
     const { feeAddress } = this.getPaymentExtension(request).values;
-    const filteredEvents = [];
-    for (const x of events) {
-      if (
+    return events.filter(
+      (x) =>
         !x.parameters?.feeAddress ||
-        x.parameters.feeAddress.toLowerCase() === feeAddress?.toLowerCase()
-      ) {
-        filteredEvents.push(x);
-      }
-    }
-    // const filteredEvents = events.filter(
-    //   (x) =>
-    //     !x.parameters?.feeAddress ||
-    //     x.parameters.feeAddress.toLowerCase() === feeAddress?.toLowerCase(),
-    // );
-    return filteredEvents;
+        x.parameters.feeAddress.toLowerCase() === feeAddress?.toLowerCase(),
+    );
   }
 
   protected computeFeeBalance(

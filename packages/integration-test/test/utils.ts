@@ -6,8 +6,10 @@ export const createMockErc20FeeRequest = ({
   paymentAddress,
   salt,
   requestId,
+  feeAddress,
+  feeAmount,
 }: Record<
-  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId',
+  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
   string
 >): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
@@ -26,6 +28,8 @@ export const createMockErc20FeeRequest = ({
       values: {
         paymentAddress,
         salt,
+        feeAddress,
+        feeAmount,
       },
       version: '0.1.0',
     },

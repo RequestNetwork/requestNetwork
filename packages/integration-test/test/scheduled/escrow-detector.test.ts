@@ -32,6 +32,8 @@ describe('ERC20 Escrow detection test-suite', () => {
       paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
       salt: '8c5ea6f8b4a14fe0',
       tokenAddress: '0x282d8efce846a88b159800bd4130ad77443fa1a1', // FAU
+      feeAddress: '0',
+      feeAmount: '0',
     });
 
     const balance = await customDetector.getBalance(mockRequest);
@@ -48,6 +50,8 @@ describe('ERC20 Escrow detection test-suite', () => {
       paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
       salt: '8097784e131ee627',
       tokenAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
+      feeAddress: '0',
+      feeAmount: '0',
     });
 
     const balance = await customDetector.getBalance(mockRequest);
