@@ -3,7 +3,6 @@ pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./legacy_openzeppelin/contracts/access/roles/WhitelistedRole.sol";
 import "./lib/SafeERC20.sol";
@@ -24,70 +23,39 @@ interface IUniswapV2Router02 {
  * @title ERC20SwapToPay
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
   */
-contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
+contract ERC20SwapToPay is Ownable, WhitelistedRole{
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
 
   IUniswapV2Router02 public swapRouter;
   IERC20FeeProxy public paymentProxy;
 
-  uint256 public immutable MAX_PERFORMANCE_FEE;
-  uint256 public CURRENT_PERFORMANCE_FEE;
-  address public PERFORMANCE_FEE_ADDRESS;
+  uint256 public CURRENT_SWAP_FEE;
+  address public SWAP_FEE_ADDRESS;
+  address public admin;
 
-  error TransferFromFailed();
   error AllowanceToLow();
-  error AmountToLow();
-  error NotValidFeeAmount();
-
-
-  /** 
-  * Modifier checks that new performance fee is less than max performance fee, and
-  * not equal to current performance fee. 
-  * @param _newPerformanceFee The new fee percentage.
-  * @dev Example: 5 is equal to 0.5%, 10 is equal to 1%, 100 is equal to 10%.
-  */
-  modifier feeAmount(uint256 _newPerformanceFee) {
-    if (
-      _newPerformanceFee > MAX_PERFORMANCE_FEE ||
-      _newPerformanceFee == CURRENT_PERFORMANCE_FEE
-    ) {
-      revert NotValidFeeAmount();
-    }
-    _;
-  }
-
-  /** 
-  * Modifier checks that x amount is larger than 0.001 eth or 1000000000000000 Wei.
-  * @param _amount The requested amount;
-  * @dev _x har to be nominated in Wei.
-  * @notice 1e15 = 1000000000000000 or 0.001 eth.
-  */
-  modifier minValue(uint256 _amount) {
-    if (_amount < 1e15) revert AmountToLow();
-    _;
-  }
 
   /** 
   * Constructor. 
+  * @param _adminAddress Address to the admin.
   * @param _swapRouterAddress Address to the swapRouter.
   * @param _paymentProxyAddress Address to the paymentProxy.
-  * @param _performanceFeeAddress The address to collect fees.
-  * @param _currentPerformanceFee The fee % to pay with every transaction, example: 5 = 0.5%, 10 = 1%.
-  * @param _maxPerformanceFee The max performance fee for this contract, examlple: 150 = 15%.
+  * @param _swapFeeAddress The address to collect fees.
+  * @param _currentSwapFee The fee % to pay with every transaction, example: 5 = 0.5%, 10 = 1%.
   */
   constructor(
+    address _adminAddress,
     address _swapRouterAddress,
     address _paymentProxyAddress,
-    address _performanceFeeAddress,
-    uint256 _currentPerformanceFee,
-    uint256 _maxPerformanceFee
+    address _swapFeeAddress,
+    uint256 _currentSwapFee
   ){
+    admin = _adminAddress;
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
-    PERFORMANCE_FEE_ADDRESS = _performanceFeeAddress;
-    CURRENT_PERFORMANCE_FEE = _currentPerformanceFee;
-    MAX_PERFORMANCE_FEE = _maxPerformanceFee; 
+    SWAP_FEE_ADDRESS = _swapFeeAddress;
+    CURRENT_SWAP_FEE = _currentSwapFee;
   }
 
   /**
@@ -129,21 +97,23 @@ contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
     uint256 _amountInMax, // spentToken
     address[] calldata _path, // from requestedToken to spentToken
     bytes calldata _paymentReference,
-    uint256 _deadline
+    uint256 _deadline,
+    uint256 _feeAmount
   )
     external
   {
     IERC20 spentToken = IERC20(_path[0]);
     IERC20 requestedToken = IERC20(_path[_path.length-1]);
 
-    uint256 _feeAmount = _calculatePerformanceFee(_amount);
+    CURRENT_SWAP_FEE = _calculateSwapFee(_amount);
+    _feeAmount = _feeAmount.add(CURRENT_SWAP_FEE);
     uint256 requestedTotalAmount = _amount + _feeAmount;
 
-    if (spentToken.allowance(_msgSender(), address(this)) < _amountInMax) {
+    if (spentToken.allowance(msg.sender, address(this)) < _amountInMax) {
       revert AllowanceToLow();
     }
 
-    require(spentToken.safeTransferFrom(_msgSender(), address(this), _amountInMax), 
+    require(spentToken.safeTransferFrom(msg.sender, address(this), _amountInMax), 
       "Could not transfer payment token from swapper-payer"); 
 
     // Allow the router to spend all this contract's spentToken
@@ -171,32 +141,31 @@ contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
       _amount,
       _paymentReference,
       _feeAmount,
-      PERFORMANCE_FEE_ADDRESS
+      SWAP_FEE_ADDRESS
     );
 
     // Give the change back to the payer, in both currencies (only spent token should remain)
     if (spentToken.balanceOf(address(this)) > 0) {
-      spentToken.safeTransfer(_msgSender(), spentToken.balanceOf(address(this)));
+      spentToken.safeTransfer(msg.sender, spentToken.balanceOf(address(this)));
     }
 
     if (requestedToken.balanceOf(address(this)) > 0) {
-      requestedToken.safeTransfer(_msgSender(), requestedToken.balanceOf(address(this)));
+      requestedToken.safeTransfer(msg.sender, requestedToken.balanceOf(address(this)));
     }
   }
 
   /**
-   * Internal function to calculate the amount of fee to pay with a transaction.
+   * Internal function to calculate the amount of request fee to pay with a transaction.
    * @param _amount The Wei amount to calculate the fee from.
    * @dev The _amount has to be nominated in Wei.
    * @dev returns the _feeAmount in Wei. 
    */
-  function _calculatePerformanceFee(uint256 _amount) 
+  function _calculateSwapFee(uint256 _amount) 
     internal
     view
-    minValue(_amount)
-    returns (uint256 _feeAmount)
+    returns (uint256 _swapFeeAmount)
   {
-    _feeAmount = (_amount.div(1000)).mul(CURRENT_PERFORMANCE_FEE);
+    _swapFeeAmount = (_amount.div(CURRENT_SWAP_FEE)).mul(1000);
   }
 
   /*
@@ -211,24 +180,23 @@ contract ERC20SwapToPay is Context, Ownable, WhitelistedRole{
   }
 
   /** 
-   * Admin function to edit the performancefee address.
-   * @param _newFeeAddress Address that receives the performance fees.
+   * Admin function to edit the swap fee address.
+   * @param _newFeeAddress Address that receives the swap fees.
    */
   function setFeeAddress(address _newFeeAddress) public onlyWhitelisted {
-    PERFORMANCE_FEE_ADDRESS = _newFeeAddress;
+    SWAP_FEE_ADDRESS = _newFeeAddress;
   }
 
   /** 
-   * Admin function to edit the performancefee in %.
-   * @param _newPerformanceFee  the value to set as new performance fee.
-   * @dev performance fee is in %. Parameter value must be below MAX_PERFORMANCE_FEE, example: 1500 will be 15% performance fee. 50 will be 0.5% performance fee. 
+   * Admin function to edit the request fee in %.
+   * @param _newSwapFee  the value to set as new request fee.
+   * @dev performance fee is in %. Example: 1500 will be 15% request fee. 50 will be 0.5% request fee. 
    */
-  function setPerformanceFee(uint256 _newPerformanceFee) 
+  function setSwapFee(uint256 _newSwapFee) 
     public
     onlyWhitelisted
-    feeAmount(_newPerformanceFee)
   {
-    CURRENT_PERFORMANCE_FEE = _newPerformanceFee;
+    CURRENT_SWAP_FEE = _newSwapFee;
   }
 
 }
