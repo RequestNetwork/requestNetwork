@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { RequestNode } from '../src/requestNode';
+import { RequestNodeBase } from '../src/requestNodeBase';
 
 const channelId = '01aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const anotherChannelId = '01bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
@@ -19,7 +20,7 @@ const otherTransactionData = {
   data: 'this is other sample data for a transaction to test getChannelsByTopic',
 };
 
-let requestNodeInstance: RequestNode;
+let requestNodeInstance: RequestNodeBase;
 let server: any;
 
 /* eslint-disable no-magic-numbers */
@@ -31,7 +32,8 @@ describe('getChannelsByTopic', () => {
     server = (requestNodeInstance as any).express;
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    await requestNodeInstance.close();
     server.close();
   });
 

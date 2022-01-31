@@ -2,9 +2,8 @@ import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from '../scripts/deploy-one';
 
-
 // Deploys, set up the contracts
-export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
+export default async function deploy(args: any, hre: HardhatRuntimeEnvironment): Promise<any> {
   try {
     const [deployer] = await hre.ethers.getSigners();
 
@@ -88,7 +87,6 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     const { address: EthereumFeeProxyAddress } = await deployOne(args, hre, 'EthereumFeeProxy');
     console.log('EthereumFeeProxy Contract deployed: ' + EthereumFeeProxyAddress);
 
-
     // ----------------------------------
     console.log('Contracts deployed');
     console.log(`
@@ -105,7 +103,13 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
       ERC20Alpha:               ${erc20AlphaInstance.address}
       FakeSwapRouter:           ${FakeSwapRouterAddress}
       SwapToPay:                ${ERC20SwapToPayAddress}
-      `);
+    `);
+    return {
+      DAIAddress: erc20AlphaInstance.address,
+      ERC20FeeProxyAddress: ERC20FeeProxyAddress,
+      ERC20TestAddress: testERC20Instance.address,
+      ETHFeeProxyAddress: EthereumFeeProxyAddress,
+    };
   } catch (e) {
     console.error(e);
   }

@@ -1,9 +1,4 @@
-query GetPayments(
-  $contractAddress: Bytes!
-  $reference: Bytes!
-  $tokenAddress: Bytes
-  $to: Bytes!
-) {
+query GetPayments($contractAddress: Bytes!, $reference: Bytes!, $tokenAddress: Bytes, $to: Bytes!) {
   payments(
     where: {
       contractAddress: $contractAddress

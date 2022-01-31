@@ -71,10 +71,6 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
       paymentNetwork.version,
     );
 
-    if (!proxyContractArtifact) {
-      throw Error('ETH fee proxy contract not found');
-    }
-
     const proxyInfoRetriever = networkSupportsTheGraphForNativePayments(paymentChain)
       ? new TheGraphInfoRetriever(
           paymentReference,

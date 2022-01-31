@@ -52,7 +52,9 @@ describe('getDefaultProvider', () => {
 
   it('Can override the RPC configuration for a new network', async () => {
     const fakenet = 'fakenet';
-    expect(() => getDefaultProvider(fakenet)).toThrowError('unsupported getDefaultProvider network');
+    expect(() => getDefaultProvider(fakenet)).toThrowError(
+      'unsupported getDefaultProvider network',
+    );
     setProviderFactory((network, defaultFactory) => {
       if (network === fakenet) {
         return 'http://fakenet.fake';

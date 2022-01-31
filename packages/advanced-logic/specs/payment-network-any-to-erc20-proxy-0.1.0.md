@@ -313,7 +313,7 @@ None.
 An event is added to the extension state events array:
 
 |  Property              |  Value                                   |
-| ---------------------- | -----------------------------------------|
+| ---------------------- | ---------------------------------------- |
 | **name**               | Constant value: "declareReceivedPayment" |
 | **parameters**         |                                          |
 | **parameters.amount**  | `amount` from parameters                 |
@@ -335,7 +335,6 @@ An event is added to the extension state events array:
 | **parameters.txHash**  | String | The transaction hash for documentation and metadata           | Optional      |
 | **parameters.network** | String | The network of the transaction for documentation and metadata | Optional      |
 
-
 ### Conditions
 
 This action is valid, if:
@@ -351,14 +350,14 @@ None.
 
 An event is added to the extension state events array:
 
-|  Property              |  Value                                   |
-| ---------------------- | -----------------------------------------|
-| **name**               | Constant value: "declareReceivedRefund"  |
-| **parameters**         |                                          |
-| **parameters.amount**  | `amount` from parameters                 |
-| **parameters.note**    | `note` from parameters                   |
-| **parameters.txHash**  | `txHash` from parameters or undefined    |
-| **parameters.network** | `network` from parameters or undefined   |
+|  Property              |  Value                                  |
+| ---------------------- | --------------------------------------- |
+| **name**               | Constant value: "declareReceivedRefund" |
+| **parameters**         |                                         |
+| **parameters.amount**  | `amount` from parameters                |
+| **parameters.note**    | `note` from parameters                  |
+| **parameters.txHash**  | `txHash` from parameters or undefined   |
+| **parameters.network** | `network` from parameters or undefined  |
 
 ---
 

@@ -20,7 +20,7 @@ const levelColor = {
 /**
  * A logger for the Request Node that extends the `SimpleLogger`
  */
-export default class Logger extends Utils.SimpleLogger {
+export class Logger extends Utils.SimpleLogger {
   // The class modeType
   private mode: modeType;
 

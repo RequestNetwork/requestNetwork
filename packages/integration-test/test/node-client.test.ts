@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { EthereumPrivateKeyDecryptionProvider } from '@requestnetwork/epk-decryption';
 import MultiFormat from '@requestnetwork/multi-format';
 import { Request, RequestNetwork, Types } from '@requestnetwork/request-client.js';
@@ -7,7 +8,7 @@ import {
   payRequest,
   approveErc20ForProxyConversionIfNeeded,
 } from '@requestnetwork/payment-processor';
-import { CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyInput, CurrencyManager } from '@requestnetwork/currency';
 
 import { Wallet, providers, BigNumber } from 'ethers';
 import {
@@ -96,7 +97,7 @@ describe('Request client using a request node', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.expectedAmount).toBe('800');
 
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    requestData = await new Promise((resolve) => requestData.on('confirmed', resolve));
     expect(requestData.expectedAmount).toBe('800');
     expect(requestData.pending).toBeNull();
   });
@@ -148,7 +149,7 @@ describe('Request client using a request node', () => {
     expect(requestData.balance).toBeDefined();
     expect(requestData.balance!.balance).toBe('0');
 
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    requestData = await new Promise((resolve) => requestData.on('confirmed', resolve));
     expect(requestData.balance!.balance).toBe('0');
 
     requestData = await request.declareReceivedPayment(
@@ -159,7 +160,7 @@ describe('Request client using a request node', () => {
     expect(requestData.balance).toBeDefined();
     expect(requestData.balance!.balance).toBe('0');
 
-    requestData = await new Promise((resolve): any => requestData.on('confirmed', resolve));
+    requestData = await new Promise((resolve) => requestData.on('confirmed', resolve));
     expect(requestData.balance!.balance).toBe('100');
   });
 
@@ -203,6 +204,7 @@ describe('Request client using a request node', () => {
       signer: payeeIdentity,
       topics: topicsRequest1and2,
     });
+
     await request2.waitForConfirmation();
 
     // reduce request 1
@@ -236,7 +238,7 @@ describe('Request client using a request node', () => {
     requestData1 = requests[0].getData();
     expect(requestData1.state).toBe(Types.RequestLogic.STATE.CANCELED);
     expect(requestData1.expectedAmount).toBe('90000000');
-  });
+  }, 20000);
 
   it('can create requests and get them fromIdentity with smart contract identity', async () => {
     const payerSmartContract = {
@@ -436,6 +438,7 @@ describe('Request client using a request node', () => {
       },
       [encryptionData.encryptionParams],
     );
+    await encryptedRequest.waitForConfirmation();
 
     // Create a plain request
     const plainRequest = await requestNetwork.createRequest({
@@ -452,6 +455,9 @@ describe('Request client using a request node', () => {
 
     expect(encryptedRequestData).not.toEqual(plainRequestData);
 
+    expect(encryptedRequestData.meta!.transactionManagerMeta!.encryptionMethod).toBe(
+      'ecies-aes256-gcm',
+    );
     expect(plainRequestData.meta!.transactionManagerMeta!.encryptionMethod).toBe(
       'ecies-aes256-gcm',
     );
@@ -523,7 +529,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(requestData.meta).toBeDefined();
     expect(requestData.pending!.state).toBe(Types.RequestLogic.STATE.CREATED);
 
-    requestData = await new Promise((resolve): any => request.on('confirmed', resolve));
+    requestData = await new Promise((resolve) => request.on('confirmed', resolve));
     expect(requestData.state).toBe(Types.RequestLogic.STATE.CREATED);
     expect(requestData.pending).toBeNull();
   });
@@ -668,16 +674,14 @@ describe('ETH localhost request creation and detection test', () => {
   });
 
   it('can create & pay a request with any to eth proxy', async () => {
-    const currencies = [
+    const currencies: CurrencyInput[] = [
       ...CurrencyManager.getDefaultList(),
-      ...[
-        {
-          network: 'private',
-          symbol: 'ETH',
-          decimals: 18,
-          type: RequestLogicTypes.CURRENCY.ETH as any,
-        },
-      ],
+      {
+        network: 'private',
+        symbol: 'ETH',
+        decimals: 18,
+        type: RequestLogicTypes.CURRENCY.ETH,
+      },
     ];
 
     const requestNetwork = new RequestNetwork({

@@ -33,8 +33,30 @@ yarn run:create 12
 
 ### Conversion paths
 
+#### Adding & removing aggregators
+
+The following commands can add and remove aggregators
+
+- `addAggregators` will fetch available aggregators from Chainlink and interactively prompt for selection
+- `addAggregator` can be used if you have all information about an aggregator you want to add
+- `removeAggregator` will set the given currency pair to the 0x00[...]00 address.
+
+Example usage:
+
+```bash
+yarn request-toolbox addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
+```
+
+Use `--help` for details about each command.
+
+Additionally, the command `listMissingAggregators` will display missing aggregators for all networks.
+
 #### Updating conversion paths
-_requires [jq](https://stedolan.github.io/jq/)_
+
+> NB: this procedure is only used to update the standard list.
+> For an always up-to-date list, use the Aggregator Subgraphs
+> _requires [jq](https://stedolan.github.io/jq/)_
+
 ```bash
 ./updateAggregators.sh mainnet
 # or, depending on the network, you can specify the URL
@@ -84,6 +106,7 @@ yarn chainlinkPath mainnet
 ```
 
 You can change the default blockRange (some networks allow a very large range, some don't) with `maxRange`
+
 ```bash
 yarn chainlinkPath mainnet --maxRange 1000000
 ```

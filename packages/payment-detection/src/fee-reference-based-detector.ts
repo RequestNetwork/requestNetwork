@@ -102,7 +102,9 @@ export abstract class FeeReferenceBasedDetector<
     // for a PN with fees, we ignore events with wrong fees.
     const { feeAddress } = this.getPaymentExtension(request).values;
     return events.filter(
-      (x) => !x.parameters?.feeAddress || x.parameters.feeAddress === feeAddress,
+      (x) =>
+        !x.parameters?.feeAddress ||
+        x.parameters.feeAddress.toLowerCase() === feeAddress?.toLowerCase(),
     );
   }
 

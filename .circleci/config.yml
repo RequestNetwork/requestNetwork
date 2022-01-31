@@ -15,7 +15,24 @@ references:
       - '90000000'
       - '-m'
       - 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat'
-
+  graph_image: &graph_image
+    image: graphprotocol/graph-node:v0.25.0
+    # wait for ganache, then start
+    command: sh -c 'wait_for localhost:8545 -t 30 -- start'
+    environment:
+      postgres_host: localhost
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: 'localhost:5001'
+      ethereum: 'private:http://localhost:8545'
+      GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 1
+  postgres_image: &postgres_image
+    image: postgres
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
 jobs:
   build:
     docker:
@@ -40,7 +57,7 @@ jobs:
           command: yarn format:check
       - run:
           name: Verify lint
-          command: yarn lint
+          command: yarn lint:check
       - run:
           name: Build types
           command: yarn workspace @requestnetwork/types run build
@@ -86,7 +103,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test request-client.js'
-          command: 'yarn workspace @requestnetwork/request-client.js run test'
+          command: 'yarn workspace @requestnetwork/request-client.js run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -103,7 +120,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/data-access run build'
       - run:
           name: 'Test data-access'
-          command: 'yarn workspace @requestnetwork/data-access run test'
+          command: 'yarn workspace @requestnetwork/data-access run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -120,7 +137,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/data-format run build'
       - run:
           name: 'Test data-format'
-          command: 'yarn workspace @requestnetwork/data-format run test'
+          command: 'yarn workspace @requestnetwork/data-format run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -137,7 +154,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/transaction-manager run build'
       - run:
           name: 'Test transaction-manager'
-          command: 'yarn workspace @requestnetwork/transaction-manager run test'
+          command: 'yarn workspace @requestnetwork/transaction-manager run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -159,7 +176,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test ethereum-storage'
-          command: 'yarn workspace @requestnetwork/ethereum-storage run test'
+          command: 'yarn workspace @requestnetwork/ethereum-storage run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -177,13 +194,13 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Lint smart contracts smart-contracts'
-          command: 'yarn workspace @requestnetwork/smart-contracts run lint:sol'
+          command: 'yarn workspace @requestnetwork/smart-contracts run lint:sol:check'
       - run:
           name: 'Test smart contracts smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run test'
       - run:
           name: 'Test smart contracts utilities'
-          command: 'yarn workspace @requestnetwork/smart-contracts run test:lib'
+          command: 'yarn workspace @requestnetwork/smart-contracts run test:lib --ci --maxWorkers=1'
   test-request-logic:
     docker:
       - *node_image
@@ -196,7 +213,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/request-logic run build'
       - run:
           name: 'Test request-logic'
-          command: 'yarn workspace @requestnetwork/request-logic run test'
+          command: 'yarn workspace @requestnetwork/request-logic run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -213,7 +230,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/advanced-logic run build'
       - run:
           name: 'Test advanced-logic'
-          command: 'yarn workspace @requestnetwork/advanced-logic run test'
+          command: 'yarn workspace @requestnetwork/advanced-logic run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -235,7 +252,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test request-node'
-          command: 'yarn workspace @requestnetwork/request-node run test'
+          command: 'yarn workspace @requestnetwork/request-node run test --ci'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -249,7 +266,7 @@ jobs:
           at: *working_directory
       - run:
           name: 'Test utils'
-          command: 'yarn workspace @requestnetwork/utils run test'
+          command: 'yarn workspace @requestnetwork/utils run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -263,7 +280,7 @@ jobs:
           at: *working_directory
       - run:
           name: 'Test currency'
-          command: 'yarn workspace @requestnetwork/currency run test'
+          command: 'yarn workspace @requestnetwork/currency run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -280,7 +297,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/epk-signature run build'
       - run:
           name: 'Test epk-signature'
-          command: 'yarn workspace @requestnetwork/epk-signature run test'
+          command: 'yarn workspace @requestnetwork/epk-signature run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -297,7 +314,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/epk-decryption run build'
       - run:
           name: 'Test epk-decryption'
-          command: 'yarn workspace @requestnetwork/epk-decryption run test'
+          command: 'yarn workspace @requestnetwork/epk-decryption run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -314,7 +331,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/web3-signature run build'
       - run:
           name: 'Test web3-signature'
-          command: 'yarn workspace @requestnetwork/web3-signature run test'
+          command: 'yarn workspace @requestnetwork/web3-signature run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -349,8 +366,68 @@ jobs:
             done
             echo Failed waiting for Node initialization && exit 1
       - run:
+          name: 'Test integration-test (node)'
+          command: 'yarn workspace @requestnetwork/integration-test run test:node --ci --maxWorkers=1'
+      - run:
+          name: 'Test integration-test (layers)'
+          command: 'yarn workspace @requestnetwork/integration-test run test:layers --ci --maxWorkers=1'
+  # This test runs the node-client tests against a node backed by TheGraph data access
+  test-graph-node:
+    docker:
+      - *node_image
+      - *ipfs_image
+      - *ganache_image
+      - *postgres_image
+      - *graph_image
+    working_directory: *working_directory
+    steps:
+      - attach_workspace:
+          at: *working_directory
+      - run:
+          name: 'Build integration-test'
+          command: 'yarn workspace @requestnetwork/integration-test run build'
+      - run:
+          name: 'Deploy test contract from smart-contracts'
+          command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run:
+          name: 'Subgraph deployment and configuration'
+          working_directory: ~/
+          command: |
+            git clone https://github.com/RequestNetwork/storage-subgraph
+            cd storage-subgraph
+            yarn
+            yarn codegen  ./subgraph-private.yaml
+            yarn create-local ./subgraph-private.yaml
+            yarn deploy-local --version-label v0.0.1 ./subgraph-private.yaml
+            sleep 5
+      - run:
+          name: 'Start request-node'
+          command: 'yarn workspace @requestnetwork/request-node run start'
+          background: true
+          environment:
+            GRAPH_NODE_URL: http://localhost:8000/subgraphs/name/RequestNetwork/request-storage
+      - run:
+          name: 'Waiting for Request Node to be ready'
+          command: |
+            for i in `seq 1 10`;
+            do
+              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Node initialization && exit 1
+      - run:
+          name: 'Confirm TheGraph mode'
+          command: |
+            NODE_ENDPOINT=$(wget -O- http://localhost:3000/status | jq .dataAccess.endpoint -r)
+            if [  "$NODE_ENDPOINT" != "http://localhost:8000/subgraphs/name/RequestNetwork/request-storage" ] ; then
+              print "Graph node URL mismatch"
+              print $NODE_ENDPOINT
+              exit 1
+            fi
+      - run:
           name: 'Test integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run test'
+          command: 'yarn workspace @requestnetwork/integration-test run test:node'
   test-usage-examples:
     docker:
       - *node_image
@@ -386,7 +463,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/multi-format run build'
       - run:
           name: 'Test multi-format'
-          command: 'yarn workspace @requestnetwork/multi-format run test'
+          command: 'yarn workspace @requestnetwork/multi-format run test --ci --maxWorkers=1'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -407,7 +484,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test payment-detection'
-          command: 'yarn workspace @requestnetwork/payment-detection run test'
+          command: 'yarn workspace @requestnetwork/payment-detection run test --ci'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -428,7 +505,7 @@ jobs:
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
       - run:
           name: 'Test payment-processor'
-          command: 'yarn workspace @requestnetwork/payment-processor run test'
+          command: 'yarn workspace @requestnetwork/payment-processor run test --ci'
       - persist_to_workspace:
           root: *working_directory
           paths:
@@ -483,8 +560,11 @@ jobs:
             done
             echo Failed waiting for Node initialization && exit 1
       - run:
-          name: 'Test integration-test'
-          command: 'yarn workspace @requestnetwork/integration-test run test:scheduled'
+          name: 'Test integration-test (erc20)'
+          command: 'yarn workspace @requestnetwork/integration-test run test:erc20 --ci --maxWorkers=1'
+      - run:
+          name: 'Test integration-test (btc)'
+          command: 'yarn workspace @requestnetwork/integration-test run test:btc --ci --maxWorkers=1'
 
   # Release a next version package everytime we merge to master
   next-release:
@@ -586,6 +666,9 @@ workflows:
       - test-integration-test:
           requires:
             - build
+      - test-graph-node:
+          requires:
+            - build
       - test-prototype-estimator:
           requires:
             - build
@@ -626,6 +709,7 @@ workflows:
             - test-epk-signature
             - test-ethereum-storage
             - test-integration-test
+            - test-graph-node
             - test-smart-contracts
             - test-multi-format
             - test-request-client

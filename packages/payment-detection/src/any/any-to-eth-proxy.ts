@@ -19,6 +19,7 @@ interface IProxyContractVersion {
 
 const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
   ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.2.0',
 };
 
 /**
@@ -66,11 +67,18 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     if (!address) {
       return [];
     }
+<<<<<<< HEAD
     const contractInfo = this.getProxyDeploymentInformation(paymentChain, paymentNetwork.version);
 
     if (!contractInfo) {
       throw Error('ETH conversion proxy contract not found');
     }
+=======
+    const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
+      paymentChain,
+      paymentNetwork.version,
+    );
+>>>>>>> fix/fixing-scheduled-tests
     const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
