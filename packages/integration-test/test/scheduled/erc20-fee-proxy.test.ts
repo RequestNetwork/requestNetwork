@@ -24,8 +24,10 @@ const createMockRequest = ({
   paymentAddress,
   salt,
   requestId,
+  feeAddress,
+  feeAmount,
 }: Record<
-  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId',
+  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
   string
 >): RequestLogicTypes.IRequest => ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
@@ -44,6 +46,8 @@ const createMockRequest = ({
       values: {
         paymentAddress,
         salt,
+        feeAddress,
+        feeAmount,
       },
       version: '0.1.0',
     },
@@ -52,7 +56,7 @@ const createMockRequest = ({
   requestId,
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: 0,
-  version: '0.2',
+  version: '0.2.0',
 });
 
 const erc20FeeProxy = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
@@ -68,6 +72,8 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
       paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
       salt: '8097784e131ee627',
       tokenAddress: '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
+      feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+      feeAmount: '10',
     });
 
     const balance = await erc20FeeProxy.getBalance(mockRequest);
@@ -81,13 +87,15 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events[0].timestamp).toBe(1599070058);
   });
 
-  it('can getBalance on a rinkeby request', async () => {
+  it.only('can getBalance on a rinkeby request', async () => {
     const mockRequest = createMockRequest({
       network: 'rinkeby',
       requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
       paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
       salt: '0ee84db293a752c6',
       tokenAddress: '0xFab46E002BbF0b4509813474841E0716E6730136', // FAU
+      feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+      feeAmount: '1000000000000000',
     });
 
     const balance = await erc20FeeProxy.getBalance(mockRequest);
@@ -96,7 +104,7 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe('payment');
     const params = balance.events[0].parameters as PaymentTypes.IERC20FeePaymentEventParameters;
-    expect(params).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
+    expect(params?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
     expect(balance.events[0].amount).toBe('1000000000000000000000');
     expect(balance.events[0].timestamp).toBe(1599013969);
   });
@@ -108,6 +116,8 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
       paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
       salt: '8c5ea6f8b4a14fe0',
       tokenAddress: '0x282d8efce846a88b159800bd4130ad77443fa1a1', // FAU
+      feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+      feeAmount: '1000000000000000',
     });
 
     const balance = await erc20FeeProxy.getBalance(mockRequest);
@@ -116,7 +126,7 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe('payment');
     const params = balance.events[0].parameters as PaymentTypes.IERC20FeePaymentEventParameters;
-    expect(params).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
+    expect(params.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
     expect(balance.events[0].amount).toBe('1000000000000000000');
     expect(balance.events[0].timestamp).toBe(1621953168);
   }, 15000);
