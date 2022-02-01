@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, constants, BigNumberish, providers, BigNumber } from 'ethers';
+import { constants, ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
 import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20SwapToPay__factory } from '@requestnetwork/smart-contracts/types';
@@ -93,7 +93,7 @@ export function encodeSwapToPayErc20FeeRequest(
 
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
-  const { paymentReference, paymentAddress, feeAmount, feeAddress } = getRequestPaymentValues(
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
     request,
   );
   const amountToPay = getAmountToPay(request, options?.amount);
