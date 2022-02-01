@@ -29,11 +29,6 @@ export const getTheGraphClient = (
   return getSdk(new GraphQLClient(url, options));
 };
 
-// Note: temporary until TheGraph has been thoroughly tested
 export const networkSupportsTheGraph = (network: string): boolean => {
-  return network !== 'private';
-};
-
-export const networkSupportsTheGraphForNativePayments = (network: string): boolean => {
   return network !== 'private';
 };
