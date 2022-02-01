@@ -41,6 +41,14 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 10141029,
         },
+        'arbitrum-rinkeby': {
+          address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
+          creationBlockNumber: 8403917,
+        },
+        'arbitrum-one': {
+          address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
+          creationBlockNumber: 5309737,
+        },
       },
     },
     '0.2.0': {
@@ -81,6 +89,10 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
         'arbitrum-rinkeby': {
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 8403917,
+        },
+        'arbitrum-one': {
+          address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
+          creationBlockNumber: 5309737,
         },
       },
     },

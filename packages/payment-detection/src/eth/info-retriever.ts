@@ -1,11 +1,12 @@
 import { PaymentTypes } from '@requestnetwork/types';
+import { IPaymentRetriever } from '../types';
 import { MultichainExplorerApiProvider } from './multichainExplorerApiProvider';
 
 /**
  * Gets a list of transfer events for an address and payment reference
  */
 export class EthInputDataInfoRetriever
-  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
+  implements IPaymentRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
   /**
    * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
