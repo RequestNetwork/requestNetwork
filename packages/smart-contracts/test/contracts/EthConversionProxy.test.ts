@@ -13,6 +13,7 @@ import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
+import { HttpNetworkConfig } from 'hardhat/types';
 
 use(solidity);
 
@@ -34,7 +35,8 @@ describe('contract: EthConversionProxy', () => {
   let testEthConversionProxy: EthConversionProxy;
   let ethFeeProxy: EthereumFeeProxy;
   let chainlinkPath: ChainlinkConversionPath;
-  const provider = new ethers.providers.JsonRpcProvider();
+  const networkConfig = network.config as HttpNetworkConfig;
+  const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
 
   before(async () => {
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
@@ -83,8 +85,6 @@ describe('contract: EthConversionProxy', () => {
             '0',
           );
 
-        const receipt = await (await tx).wait();
-
         const fromNewBalance = await provider.getBalance(from);
         const toNewBalance = await provider.getBalance(to);
         const feeNewBalance = await provider.getBalance(feeAddress);
@@ -93,14 +93,12 @@ describe('contract: EthConversionProxy', () => {
         const toDiffBalance = BigNumber.from(toNewBalance).sub(toOldBalance).toString();
         const feeDiffBalance = BigNumber.from(feeNewBalance).sub(feeOldBalance).toString();
 
-        const gasPrice = (await provider.getFeeData()).gasPrice || 0;
         // Check balance changes
-        expect(fromNewBalance.toString()).to.equals(
-          fromOldBalance
-            .sub(conversionToPay.result)
-            .sub(conversionFees.result)
-            .sub(receipt.gasUsed.mul(gasPrice))
-            .toString(),
+        expect(fromNewBalance).to.be.lt(
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result),
+        );
+        expect(fromNewBalance).to.be.gt(
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result).mul(95).div(100),
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
@@ -139,8 +137,6 @@ describe('contract: EthConversionProxy', () => {
             '0',
           );
 
-        const receipt = await (await tx).wait();
-
         const fromNewBalance = await provider.getBalance(from);
         const toNewBalance = await provider.getBalance(to);
         const feeNewBalance = await provider.getBalance(feeAddress);
@@ -153,14 +149,12 @@ describe('contract: EthConversionProxy', () => {
         expect(contractBalance.toString()).to.equals('0');
         expect(contractFeeBalance.toString()).to.equals('0');
 
-        const gasPrice = (await provider.getFeeData()).gasPrice || 0;
         // Check balance changes
-        expect(fromNewBalance.toString()).to.equals(
-          fromOldBalance
-            .sub(conversionToPay.result)
-            .sub(conversionFees.result)
-            .sub(receipt.cumulativeGasUsed.mul(gasPrice))
-            .toString(),
+        expect(fromNewBalance).to.be.lt(
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result),
+        );
+        expect(fromNewBalance).to.be.gt(
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result).mul(95).div(100),
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
         expect(feeDiffBalance).to.equals(conversionFees.result.toString());
@@ -183,10 +177,10 @@ describe('contract: EthConversionProxy', () => {
             feeAddress,
             0,
             {
-              value: mainEthAmount.result.sub(1),
+              value: mainEthAmount.result, // Fees amount missing
             },
           ),
-        ).to.be.revertedWith('revert paymentProxy transferExactEthWithReferenceAndFee failed');
+        ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed');
       });
 
       it('cannot transfer if msg.value too low for fee', async function () {
@@ -228,7 +222,7 @@ describe('contract: EthConversionProxy', () => {
               value: ethFee.result.add(mainEthAmount.result),
             },
           ),
-        ).to.be.revertedWith('revert aggregator rate is outdated');
+        ).to.be.revertedWith('aggregator rate is outdated');
       });
 
       it('cannot transfer with another native token hash', async function () {
