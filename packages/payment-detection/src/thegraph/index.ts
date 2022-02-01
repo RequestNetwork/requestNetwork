@@ -31,9 +31,9 @@ export const getTheGraphClient = (
 
 // Note: temporary until TheGraph has been thoroughly tested
 export const networkSupportsTheGraph = (network: string): boolean => {
-  return !['mainnet', 'rinkeby', 'private', 'fantom'].includes(network);
+  return network !== 'private';
 };
 
 export const networkSupportsTheGraphForNativePayments = (network: string): boolean => {
-  return !['mainnet', 'private', 'fantom'].includes(network);
+  return network !== 'private';
 };
