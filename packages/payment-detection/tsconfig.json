@@ -9,7 +9,7 @@
     { "path": "../currency" },
     { "path": "../types" },
     { "path": "../utils" },
-    { "path": "../smart-contracts" }
+    { "path": "../smart-contracts" },
     { "path": "../advanced-logic" }
   ]
 }
