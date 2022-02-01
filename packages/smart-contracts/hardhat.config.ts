@@ -117,6 +117,10 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
       hre.config.etherscan.apiKey = process.env.FTMSCAN_API_KEY;
       return;
     }
+    case 'arbitrum-one': {
+      hre.config.etherscan.apiKey = process.env.ARBISCAN_API_KEY;
+      return;
+    }
   }
 };
 

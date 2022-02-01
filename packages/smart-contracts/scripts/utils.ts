@@ -19,7 +19,8 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
   // https://app.ubeswap.org/#/swap
   celo: '0x7D28570135A2B1930F331c507F65039D4937f66c',
   // No swap v2 found
-  arbitrumtest: '0x0000000000000000000000000000000000000000',
+  'arbitrum-rinkeby': '0x0000000000000000000000000000000000000000',
+  'arbitrum-one': '0x0000000000000000000000000000000000000000',
 };
 
 /**
