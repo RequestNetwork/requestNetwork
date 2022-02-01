@@ -6,10 +6,9 @@ import { mocked } from 'ts-jest/utils';
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
 import { AnyToEthFeeProxyPaymentDetector } from '../../src/any';
 
-jest.mock('@ethersproject/providers');
 jest.mock('graphql-request');
 const graphql = mocked(GraphQLClient.prototype);
-const rpcProvider = mocked(StaticJsonRpcProvider.prototype);
+const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');
 
 describe('Any to ETH payment detection', () => {
   const mockRequest: RequestLogicTypes.IRequest = {
@@ -60,7 +59,7 @@ describe('Any to ETH payment detection', () => {
   };
 
   it('RPC Payment detection', async () => {
-    rpcProvider.getLogs
+    getLogs
       .mockResolvedValueOnce([
         {
           blockNumber: 10088347,
@@ -70,7 +69,10 @@ describe('Any to ETH payment detection', () => {
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           data:
             '0x000000000000000000000000000000000000000000000000000000012a05f20000000000000000000000000017b4158805772ced11225e77339f90beb5aae96800000000000000000000000000000000000000000000000000000000004c4b400000000000000000000000000000000000000000000000000000000000000000',
-          topics: [],
+          topics: [
+            '0x96d0d1d75923f40b50f6fe74613b2c23239149607848fbca3941fee7ac041cdc',
+            '0x01b253ade0cb0ae6ce8d28c4d74a6161059059d7cd7d073a040018b1a11390ac',
+          ],
           transactionHash: '0x7733a0fad7d7bdd0222ff1b63902aa26f1904e0fe14e03e95de73195e22a8ae6',
           logIndex: 79,
         },
@@ -84,7 +86,10 @@ describe('Any to ETH payment detection', () => {
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           data:
             '0x0000000000000000000000000e8d9cb9e11278ad6e2ba1ca90385c7295dc6532000000000000000000000000000000000000000000000000004b3b3736d318ac000000000000000000000000000000000000000000000000000013425bf5758700000000000000000000000035d0e078755cd84d3e0656caab417dee1d7939c7',
-          topics: [],
+          topics: [
+            '0xa1c241e337c4610a9d0f881111e977e9dc8690c85fe2108897bb1483c66e6a96',
+            '0x01b253ade0cb0ae6ce8d28c4d74a6161059059d7cd7d073a040018b1a11390ac',
+          ],
           transactionHash: '0x7733a0fad7d7bdd0222ff1b63902aa26f1904e0fe14e03e95de73195e22a8ae6',
           logIndex: 78,
         },
@@ -107,12 +112,12 @@ describe('Any to ETH payment detection', () => {
       payments: [
         {
           amount: '5000000000',
-          amountInCrypto: null,
+          amountInCrypto: '21175731582343340',
           block: 10088347,
           currency: '0x17b4158805772ced11225e77339f90beb5aae968',
           feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
           feeAmount: '5000000',
-          feeAmountInCrypto: null,
+          feeAmountInCrypto: '21175731582343',
           from: '0x0e8d9cb9e11278ad6e2ba1ca90385c7295dc6532',
           maxRateTimespan: 0,
           timestamp: 1643647285,
