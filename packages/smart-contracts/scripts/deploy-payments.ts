@@ -43,8 +43,21 @@ export async function deployAllPaymentContracts(
   const deploymentResults: (DeploymentResult | undefined)[] = [];
   let simulationSuccess: boolean | undefined;
 
-  const logDeploymentMsg = (contractName: string, message: string) => {
-    console.log(`${`      ${contractName}:`.padEnd(36, ' ')}${message}`);
+  const logDeploymentMsg = (contractName: string, result?: DeploymentResult, message?: string) => {
+    const resultMsg = result
+      ? result.address === result.type
+        ? result.address
+        : `${result.address} (${result.type})`
+      : '';
+    const customMsg = message ? `(${message})` : '';
+    console.log(`${`      ${contractName}:`.padEnd(36, ' ')}${resultMsg}${customMsg}`);
+  };
+
+  const addToResult = (deployment?: DeploymentResult) => {
+    if (deployment) {
+      deploymentResults.push(deployment);
+      logDeploymentMsg(deployment.contractName, deployment);
+    }
   };
 
   try {
@@ -82,8 +95,7 @@ export async function deployAllPaymentContracts(
       const result = await deployOne<TContract>(args, hre, deployment.contractName, {
         ...deployment,
       });
-      deploymentResults.push(result);
-      console.log(`Contract ${deployment.contractName} ${result.type}: ${result.address}`);
+      addToResult(result);
       if (result.type === 'skipped') {
         switchToSimulation();
       }
@@ -113,7 +125,8 @@ export async function deployAllPaymentContracts(
       if (!swapRouterAddress) {
         logDeploymentMsg(
           'ERC20SwapToPay:',
-          '(swap router missing - can be administrated by deployer)',
+          undefined,
+          'swap router missing - can be administrated by deployer',
         );
         swapRouterAddress = '0x0000000000000000000000000000000000000000';
       }
@@ -122,7 +135,7 @@ export async function deployAllPaymentContracts(
         artifact: erc20SwapToPayArtifact,
         nonceCondition: nonceForBatch2,
       });
-      deploymentResults.push(swapToPayResult);
+      addToResult(swapToPayResult);
       return deploymentResults;
     };
 
@@ -156,7 +169,7 @@ export async function deployAllPaymentContracts(
         },
         hre,
       );
-      deploymentResults.push(ethConversionResult);
+      addToResult(ethConversionResult);
 
       // Administrate again whitelist admins for nonce consistency (due to 1 failing tx on Fantom)
       const chainlinkAdminNonce = NONCE_BATCH_4 + 2;
@@ -212,7 +225,7 @@ export async function deployAllPaymentContracts(
         },
         hre,
       );
-      deploymentResults.push(erc20ConversionResult);
+      addToResult(erc20ConversionResult);
 
       // 5.b ERC20ConversionProxy.transferOwnership
 
@@ -294,7 +307,8 @@ export async function deployAllPaymentContracts(
     if (!swapRouterAddress) {
       logDeploymentMsg(
         'ERC20SwapToConversion:',
-        '(swap and chainlinkPath set to 0x000..000 - can be administrated by deployer)',
+        undefined,
+        'swap and chainlinkPath set to 0x000..000 - can be administrated by deployer',
       );
       swapRouterAddress = '0x0000000000000000000000000000000000000000';
     }
@@ -309,7 +323,7 @@ export async function deployAllPaymentContracts(
       },
       hre,
     );
-    deploymentResults.push(swapConversionResult);
+    addToResult(swapConversionResult);
 
     // EthereumFeeProxy
     const { address: ethFeeProxyAddress } = await runEasyDeployment({
@@ -341,7 +355,7 @@ export async function deployAllPaymentContracts(
   console.log('Summary:');
   deploymentResults
     .filter((x): x is DeploymentResult => !!x)
-    .forEach((res) => logDeploymentMsg(res.contractName, res.address));
+    .forEach((res) => logDeploymentMsg(res.contractName, res));
   const nbDeployments = deploymentResults.filter((val) => val?.type === 'deployed').length;
   const verificationPromises = deploymentResults
     .map((val) => val?.verificationPromise)
