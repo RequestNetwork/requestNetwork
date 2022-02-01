@@ -20,7 +20,7 @@ export type ArtifactDeploymentInfo<TNetwork extends string = string> = {
 /** Deployment information and ABI per version and network */
 export type ArtifactInfo<
   TVersion extends string = string,
-  TNetwork extends string = string,
+  TNetwork extends string = string
 > = Record<TVersion, ArtifactDeploymentInfo<TNetwork>>;
 
 export type DeploymentInformation = {

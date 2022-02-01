@@ -242,13 +242,15 @@ export async function deployAllPaymentContracts(
     const nonceForBatch4 = 10;
     await jumpToNonce(args, hre, nonceForBatch4);
 
-    const { instance: chainlinkInstance, address: chainlinkInstanceAddress } =
-      await runEasyDeployment({
-        contractName: 'ChainlinkConversionPath',
-        constructorArguments: [nativeTokenHash],
-        artifact: chainlinkConversionPathArtifact,
-        nonceCondition: nonceForBatch4,
-      });
+    const {
+      instance: chainlinkInstance,
+      address: chainlinkInstanceAddress,
+    } = await runEasyDeployment({
+      contractName: 'ChainlinkConversionPath',
+      constructorArguments: [nativeTokenHash],
+      artifact: chainlinkConversionPathArtifact,
+      nonceCondition: nonceForBatch4,
+    });
 
     await runDeploymentBatch_4(chainlinkInstanceAddress, ethFeeProxyAddress);
 
