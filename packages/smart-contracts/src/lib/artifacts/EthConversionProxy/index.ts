@@ -53,7 +53,7 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
         },
         'arbitrum-one': {
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
-          creationBlockNumber: 28552915,
+          creationBlockNumber: 5317986,
         },
         /* All the contracts below have not been updated with 0.2.0 yet */
         mainnet: {
