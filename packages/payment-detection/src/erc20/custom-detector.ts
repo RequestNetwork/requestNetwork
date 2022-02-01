@@ -11,6 +11,7 @@ import { makeGetDeploymentInformation } from '../utils';
 import EscrowERC20InfoRetriever from './escrow-info-retriever';
 import EscrowERC20GraphInfoRetriever from './escrow-thegraph-info-retriever';
 import { ERC20FeeProxyPaymentDetector } from './fee-proxy-contract';
+import { networkSupportsTheGraph } from '..';
 
 const ESCROW_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -117,24 +118,37 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnFeeReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]> {
-    const deploymentInformation = this.getProxyDeploymentInformation(
+    const deploymentInformation = CustomProxyDetector.getOptionalDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
-    const customContractAddress: string | undefined = deploymentInformation.address;
-    const customCreationBlockNumber: number = deploymentInformation.creationBlockNumber;
-    const infoRetriever = new EscrowERC20InfoRetriever(
-      paymentReference,
-      customContractAddress,
-      customCreationBlockNumber,
-      requestCurrency.value,
-      to,
-      paymentChain,
-    );
-    if (eventName) {
-      return infoRetriever.getContractEventsForEventName(eventName);
+    if (deploymentInformation) {
+      const customContractAddress: string | undefined = deploymentInformation.address;
+      const customCreationBlockNumber: number = deploymentInformation.creationBlockNumber;
+      if (networkSupportsTheGraph(paymentChain)) {
+        const infoRetriever = new EscrowERC20GraphInfoRetriever(
+          paymentReference,
+          customContractAddress,
+          paymentChain,
+        );
+        return infoRetriever.getAllContractEvents();
+      } else {
+        const infoRetriever = new EscrowERC20InfoRetriever(
+          paymentReference,
+          customContractAddress,
+          customCreationBlockNumber,
+          requestCurrency.value,
+          to,
+          paymentChain,
+        );
+        if (eventName) {
+          return infoRetriever.getContractEventsForEventName(eventName);
+        }
+        return infoRetriever.getAllContractEvents();
+      }
+    } else {
+      return [];
     }
-    return infoRetriever.getAllContractEvents();
   }
 
   /**
@@ -188,6 +202,12 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
   protected getProxyDeploymentInformation(networkName: string, version: string) {
     return CustomProxyDetector.getDeploymentInformation(networkName, version);
   }
+
+  public static getOptionalDeploymentInformation = makeGetDeploymentInformation(
+    erc20EscrowToPayArtifact,
+    ESCROW_CONTRACT_ADDRESS_MAP,
+    true,
+  );
 
   /*
    * Returns deployment information for the underlying smart contract for a given payment network version

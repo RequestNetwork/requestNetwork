@@ -38,5 +38,5 @@ export const createMockErc20FeeRequest = ({
   requestId,
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: 0,
-  version: '0.2',
+  version: '0.2.0',
 });

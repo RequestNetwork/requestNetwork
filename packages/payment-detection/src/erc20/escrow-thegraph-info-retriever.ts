@@ -6,7 +6,12 @@ import { hashReference } from '../utils';
 /**
  * Retrieves all events from the EscrowERC20 contract.
  */
-export default class EscrowERC20GraphInfoRetriever {
+export default class EscrowERC20GraphInfoRetriever
+  implements
+    PaymentTypes.IPaymentNetworkBaseInfoRetriever<
+      PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>,
+      PaymentTypes.ESCROW_EVENTS_NAMES
+    > {
   private client: TheGraphClient;
   constructor(
     private paymentReference: string,
@@ -24,14 +29,31 @@ export default class EscrowERC20GraphInfoRetriever {
     };
   }
 
-  public async getEscrowEvents(): Promise<PaymentTypes.EscrowEvents[]> {
+  protected getEscrowEventName(graphEventName: string): PaymentTypes.ESCROW_EVENTS_NAMES {
+    const eventNameMap: Record<string, PaymentTypes.ESCROW_EVENTS_NAMES> = {
+      paidEscrow: PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW,
+      initiateEmergencyClaim: PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
+      revertEmergencyClaim: PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+      freezeEscrow: PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
+    };
+    return eventNameMap[graphEventName];
+  }
+
+  public async getAllContractEvents(): Promise<
+    PaymentTypes.ICustomNetworkEvent<
+      PaymentTypes.GenericEventParameters,
+      PaymentTypes.ESCROW_EVENTS_NAMES
+    >[]
+  > {
     const variables = this.getGraphEscrowEventsVariables();
     const escrowEventList = await this.client.GetEscrowEvents(variables);
     return escrowEventList.escrowEvents.map((p) => ({
-      block: p.block,
-      txHash: p.txHash,
-      eventName: p.eventName,
-      from: p.from,
+      name: this.getEscrowEventName(p.eventName),
+      amount: 0,
+      parameters: {
+        block: p.block,
+        txHash: p.txHash,
+      },
       timestamp: p.timestamp,
     }));
   }
