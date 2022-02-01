@@ -19,7 +19,7 @@ use(solidity);
 describe('contract: SwapToPay', () => {
   let from: string;
   let to: string;
-  
+  let builder: string;
   let adminSigner: Signer;
   let signer: Signer;
 
@@ -38,7 +38,7 @@ describe('contract: SwapToPay', () => {
   const erc20Liquidity = erc20Decimal.mul(100);
 
   before(async () => {
-    [, from, to] = (await ethers.getSigners()).map((s) => s.address);
+    [, from, to, builder] = (await ethers.getSigners()).map((s) => s.address);
     [adminSigner, signer] = await ethers.getSigners();
 
     erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, adminSigner);
@@ -87,12 +87,14 @@ describe('contract: SwapToPay', () => {
     await expect(
       testSwapToPay.swapTransferWithReference(
         to,
-        10e18,
+        10,
         // Here we spend 26 max, for 22 used in theory, to test that 4 is given back
-        26e18,
+        26,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        exchangeRateOrigin + 100,
+        1,
+        builder,
+        exchangeRateOrigin + 1000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -101,11 +103,11 @@ describe('contract: SwapToPay', () => {
         to,
         '10',
         ethers.utils.keccak256(referenceExample),
-        '1e18',
-        "0xf17f52151EbEF6C7334FAD080c5704D77216b732",
+        '1',
+        ethers.utils.getAddress(builder),
       );
 
-    const finalBuilderBalance = await paymentNetworkErc20.balanceOf("0xf17f52151EbEF6C7334FAD080c5704D77216b732");
+    const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     expect(finalBuilderBalance.toNumber()).to.equals(1);
     expect(finalIssuerBalance.toNumber()).to.equals(10);
@@ -125,7 +127,9 @@ describe('contract: SwapToPay', () => {
         0,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        exchangeRateOrigin + 100,
+        0,
+        builder,
+        exchangeRateOrigin + 1000, // -> 1000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -135,10 +139,10 @@ describe('contract: SwapToPay', () => {
         '0',
         ethers.utils.keccak256(referenceExample),
         '0',
-        "0xf17f52151EbEF6C7334FAD080c5704D77216b732",
+        builder,
       );
 
-    const finalBuilderBalance = await paymentNetworkErc20.balanceOf("0xf17f52151EbEF6C7334FAD080c5704D77216b732");
+    const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     expect(finalBuilderBalance.toNumber()).to.equals(0);
     expect(finalIssuerBalance.toNumber()).to.equals(0);
@@ -152,9 +156,11 @@ describe('contract: SwapToPay', () => {
         21, // Should be at least (10 + 1) * 2
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
-        exchangeRateOrigin + 15,
+        1,
+        builder,
+        exchangeRateOrigin + 10000, // 15 -> 10000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
     await expectFromBalanceUnchanged();
   });
 
@@ -166,9 +172,11 @@ describe('contract: SwapToPay', () => {
         22,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
+        1,
+        builder,
         exchangeRateOrigin - 15, // Past deadline
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('UniswapV2Router: EXPIRED');
     await expectFromBalanceUnchanged();
   });
 
@@ -189,9 +197,11 @@ describe('contract: SwapToPay', () => {
         initialFromBalance,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
+        1000000,
+        builder,
         exchangeRateOrigin + 15,
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('Not sufficient allowance for swap to pay');
     await expectFromBalanceUnchanged();
   });
 
@@ -208,9 +218,11 @@ describe('contract: SwapToPay', () => {
         highAmount,
         [spentErc20.address, paymentNetworkErc20.address],
         referenceExample,
+        10,
+        builder,
         exchangeRateOrigin + 15,
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('Not sufficient allowance for swap to pay');
     await expectFromBalanceUnchanged();
   });
 
@@ -254,11 +266,13 @@ describe('contract: SwapToPay', () => {
       await expect(
         testSwapToPay.swapTransferWithReference(
           to,
-          Number(10e18),
-          Number(26e18),
+          10,
+          26,
           [badERC20.address, paymentNetworkErc20.address],
           referenceExample,
-          exchangeRateOrigin + 100,
+          1,
+          builder,
+          exchangeRateOrigin + 10000, // -> 10000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
         ),
       )
         .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -267,14 +281,14 @@ describe('contract: SwapToPay', () => {
           to,
           '10',
           ethers.utils.keccak256(referenceExample),
-          '0.005',
-          "0xf17f52151EbEF6C7334FAD080c5704D77216b732",
+          '1',
+          builder,
         );
 
       // Test that issuer and builder (fee receiver) have been paid
-      const finalBuilderBalance = await paymentNetworkErc20.balanceOf("0xf17f52151EbEF6C7334FAD080c5704D77216b732");
+      const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
       const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
-      expect(finalBuilderBalance.toNumber()).to.equals(0.005);
+      expect(finalBuilderBalance.toNumber()).to.equals(1);
       expect(finalIssuerBalance.toNumber()).to.equals(10);
 
       // Test that the contract does not hold any fund after the transaction

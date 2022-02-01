@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.11;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -30,11 +30,10 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
   IUniswapV2Router02 public swapRouter;
   IERC20FeeProxy public paymentProxy;
 
-  uint256 public CURRENT_SWAP_FEE;
-  address public SWAP_FEE_ADDRESS;
+  // Contract fee, and address.
+  uint256 public currentSwapFee;
+  address public swapFeeAddress;
   address public admin;
-
-  error AllowanceToLow();
 
   /** 
   * Constructor. 
@@ -54,8 +53,8 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
     admin = _adminAddress;
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
-    SWAP_FEE_ADDRESS = _swapFeeAddress;
-    CURRENT_SWAP_FEE = _currentSwapFee;
+    swapFeeAddress = _swapFeeAddress;
+    currentSwapFee = _currentSwapFee;
   }
 
   /**
@@ -78,7 +77,7 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
     erc20.safeApprove(address(swapRouter), max);
   }
 
-  /**
+    /**
   * @notice Performs a token swap between a payment currency and a request currency, and then
   *         calls a payment proxy to pay the request, including fees.
   * @param _to Transfer recipient = request issuer
@@ -89,6 +88,8 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
             address of the path should be the payment currency. The last element should be the
             request currency.
   * @param _paymentReference Reference of the payment related
+  * @param _feeAmount Amount of the fee in request currency
+  * @param _feeAddress Where to pay the fee
   * @param _deadline Deadline for the swap to be valid
   */
   function swapTransferWithReference(
@@ -97,24 +98,28 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
     uint256 _amountInMax, // spentToken
     address[] calldata _path, // from requestedToken to spentToken
     bytes calldata _paymentReference,
-    uint256 _deadline,
-    uint256 _feeAmount
+    uint256 _feeAmount,   // requestedToken
+    address _feeAddress,
+    uint256 _deadline
   )
     external
   {
     IERC20 spentToken = IERC20(_path[0]);
     IERC20 requestedToken = IERC20(_path[_path.length-1]);
 
-    CURRENT_SWAP_FEE = _calculateSwapFee(_amount);
-    _feeAmount = _feeAmount.add(CURRENT_SWAP_FEE);
+    
     uint256 requestedTotalAmount = _amount + _feeAmount;
 
-    if (spentToken.allowance(msg.sender, address(this)) < _amountInMax) {
-      revert AllowanceToLow();
-    }
+    // make sure the allowance includes the swapFee.
+    require(spentToken.allowance(msg.sender, address(this)) > (_amountInMax + _calculateSwapFee(requestedTotalAmount)),
+                                 "Not sufficient allowance for swap to pay.");
+
+    // execute a safeTransferFrom() to pay the swap_fee with spentToken.
+    require(spentToken.safeTransferFrom(msg.sender, address(swapFeeAddress), _calculateSwapFee(requestedTotalAmount)),
+      "SwapFee failed!");
 
     require(spentToken.safeTransferFrom(msg.sender, address(this), _amountInMax), 
-      "Could not transfer payment token from swapper-payer"); 
+                                        "Could not transfer payment token from swapper-payer");
 
     // Allow the router to spend all this contract's spentToken
     if (spentToken.allowance(address(this), address(swapRouter)) < _amountInMax) {
@@ -141,7 +146,7 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
       _amount,
       _paymentReference,
       _feeAmount,
-      SWAP_FEE_ADDRESS
+      _feeAddress
     );
 
     // Give the change back to the payer, in both currencies (only spent token should remain)
@@ -160,12 +165,8 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
    * @dev The _amount has to be nominated in Wei.
    * @dev returns the _feeAmount in Wei. 
    */
-  function _calculateSwapFee(uint256 _amount) 
-    internal
-    view
-    returns (uint256 _swapFeeAmount)
-  {
-    _swapFeeAmount = (_amount.div(CURRENT_SWAP_FEE)).mul(1000);
+  function _calculateSwapFee(uint256 _amount) internal view returns (uint256 _swapFeeAmount) {
+    _swapFeeAmount = (_amount.mul(currentSwapFee)).div(1000);
   }
 
   /*
@@ -184,19 +185,16 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
    * @param _newFeeAddress Address that receives the swap fees.
    */
   function setFeeAddress(address _newFeeAddress) public onlyWhitelisted {
-    SWAP_FEE_ADDRESS = _newFeeAddress;
+    swapFeeAddress = _newFeeAddress;
   }
 
   /** 
-   * Admin function to edit the request fee in %.
-   * @param _newSwapFee  the value to set as new request fee.
-   * @dev performance fee is in %. Example: 1500 will be 15% request fee. 50 will be 0.5% request fee. 
+   * Admin function to edit the swap fee in %.
+   * @param _newSwapFee  the value to set as new swap fee.
+   * @dev swapFee in %. Example: 100 = 10% swap fee, 50 = 5% swap fee, 5 = 0.5% swap fee.
    */
-  function setSwapFee(uint256 _newSwapFee) 
-    public
-    onlyWhitelisted
-  {
-    CURRENT_SWAP_FEE = _newSwapFee;
+  function setSwapFee(uint256 _newSwapFee) public onlyWhitelisted {
+    currentSwapFee = _newSwapFee;
   }
 
 }

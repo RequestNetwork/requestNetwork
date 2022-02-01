@@ -4,6 +4,11 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "_adminAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
           "name": "_swapRouterAddress",
           "type": "address"
         },
@@ -14,42 +19,17 @@
         },
         {
           "internalType": "address",
-          "name": "_performanceFeeAddress",
+          "name": "_swapFeeAddress",
           "type": "address"
         },
         {
           "internalType": "uint256",
-          "name": "_currentPerformanceFee",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_maxPerformanceFee",
+          "name": "_currentSwapFee",
           "type": "uint256"
         }
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
-    },
-    {
-      "inputs": [],
-      "name": "AllowanceToLow",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "AmountToLow",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "NotValidFeeAmount",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "TransferFromFailed",
-      "type": "error"
     },
     {
       "anonymous": false,
@@ -123,45 +103,6 @@
       "type": "event"
     },
     {
-      "inputs": [],
-      "name": "CURRENT_PERFORMANCE_FEE",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "MAX_PERFORMANCE_FEE",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "PERFORMANCE_FEE_ADDRESS",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "address",
@@ -188,6 +129,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "admin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -211,6 +165,19 @@
       "name": "approveRouterToSpend",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "currentSwapFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -340,19 +307,6 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "_newPerformanceFee",
-          "type": "uint256"
-        }
-      ],
-      "name": "setPerformanceFee",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
           "name": "_newSwapRouterAddress",
           "type": "address"
@@ -361,6 +315,32 @@
       "name": "setRouter",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_newSwapFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setSwapFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "swapFeeAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -402,6 +382,16 @@
           "internalType": "bytes",
           "name": "_paymentReference",
           "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_feeAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_feeAddress",
+          "type": "address"
         },
         {
           "internalType": "uint256",

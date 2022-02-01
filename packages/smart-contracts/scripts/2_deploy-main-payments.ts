@@ -5,7 +5,7 @@ import { deployOne } from '../scripts/deploy-one';
 // Deploys, set up the contracts
 export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) {
   try {
-    const [deployer, fee] = await hre.ethers.getSigners();
+    const [deployer] = await hre.ethers.getSigners();
 
     console.log(
       `Deploying with the account: ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId})`,
@@ -76,7 +76,13 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment) 
     await testERC20Instance.transfer(FakeSwapRouterAddress, '10000000000000000000000000000');
     // SwapToPay
     const { address: ERC20SwapToPayAddress } = await deployOne(args, hre, 'ERC20SwapToPay', {
-      constructorArguments: [FakeSwapRouterAddress, ERC20FeeProxyAddress, fee.address, 100, 150],
+      constructorArguments: [
+        '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
+        FakeSwapRouterAddress,
+        ERC20FeeProxyAddress,
+        '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
+        5,
+      ],
     });
     // FIXME SwapToPay deployed without approbation for router and proxy
     console.log('SwapToPay Contract deployed: ' + ERC20SwapToPayAddress);
