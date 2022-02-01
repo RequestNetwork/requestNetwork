@@ -37,6 +37,10 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
           address: '0x1d6B06C6f7adFd9314BD4C58a6D306261113a1D4',
           creationBlockNumber: 13764156,
         },
+        'arbitrum-one': {
+          address: '0x1d6B06C6f7adFd9314BD4C58a6D306261113a1D4',
+          creationBlockNumber: 5317947,
+        },
       },
     },
   },
