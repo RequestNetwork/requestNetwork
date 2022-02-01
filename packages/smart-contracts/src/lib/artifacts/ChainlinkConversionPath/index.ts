@@ -67,6 +67,10 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 28548259,
         },
+        'arbitrum-one': {
+          address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
+          creationBlockNumber: 5317970,
+        },
       },
     },
   },
