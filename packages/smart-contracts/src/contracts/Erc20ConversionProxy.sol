@@ -3,13 +3,14 @@ pragma solidity ^0.8.0;
 
 import './ChainlinkConversionPath.sol';
 import './interfaces/ERC20FeeProxy.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
 /**
  * @title Erc20ConversionProxy
  * @notice This contract convert from chainlink then swaps ERC20 tokens
  *         before paying a request thanks to a conversion payment proxy
  */
-contract Erc20ConversionProxy {
+contract Erc20ConversionProxy is Ownable {
     address public paymentProxy;
     ChainlinkConversionPath public chainlinkConversionPath;
 
@@ -38,8 +39,7 @@ contract Erc20ConversionProxy {
     );
 
     /**
-     * @notice Performs an ERC20 token transfer with a reference computing
-     *         the payment amount based on the request amount
+     * @notice Transfers ERC20 tokens with a reference with amount based on the request amount in fiat
      * @param _to Transfer recipient of the payement
      * @param _requestAmount Request amount
      * @param _path Conversion path
@@ -115,5 +115,24 @@ contract Erc20ConversionProxy {
         // Get the amount to pay in the crypto currency chosen
         amountToPay = (_requestAmount * rate) / decimals;
         amountToPayInFees = (_feeAmount * rate) / decimals;
+    }
+
+    /**
+     * @notice Update the conversion path contract used to fetch conversions
+     * @param _chainlinkConversionPathAddress address of the conversion path contract
+     */
+    function updateConversionPathAddress(address _chainlinkConversionPathAddress)
+        external
+        onlyOwner
+    {
+        chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+    }
+
+    /**
+     * @notice Update the conversion proxy used to process the payment
+     * @param _paymentProxyAddress address of the ETH conversion proxy
+     */
+    function updateConversionProxyAddress(address _paymentProxyAddress) external onlyOwner {
+        paymentProxy = _paymentProxyAddress;
     }
 }

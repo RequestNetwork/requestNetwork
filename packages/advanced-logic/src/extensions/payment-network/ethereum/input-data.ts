@@ -14,6 +14,7 @@ const supportedNetworks = [
   'bsctest',
   'bsc',
   'arbitrum-rinkeby',
+  'arbitrum-one',
 ];
 
 /**
