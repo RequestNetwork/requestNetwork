@@ -1,8 +1,9 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
-import { BigNumber, utils } from 'ethers';
+import { utils } from 'ethers';
 import { IPaymentRetriever } from '../../types';
 import { getTheGraphClient, TheGraphClient } from '../../thegraph';
+import { unpadAmountFromChainlink } from 'payment-detection/src';
 
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
@@ -62,19 +63,13 @@ export class TheGraphConversionRetriever
         return !payment.tokenAddress;
       })
       .map((payment) => {
-        const chainlinkDecimal = 8;
-        const decimalPadding = chainlinkDecimal - this.requestCurrency.decimals;
-        const amountWithRightDecimal = BigNumber.from(payment.amount)
-          .div(10 ** decimalPadding)
-          .toString();
-        const feeAmountWithRightDecimal = payment.feeAmount
-          ? BigNumber.from(payment.feeAmount)
-              .div(10 ** decimalPadding)
-              .toString()
-          : undefined;
+        const requestCurrency = this.requestCurrency;
+        const { amount, feeAmount } = payment;
 
+        const amountWithRightDecimal = unpadAmountFromChainlink(amount, requestCurrency);
+        const feeAmountWithRightDecimal = unpadAmountFromChainlink(feeAmount, requestCurrency);
         return {
-          amount: amountWithRightDecimal,
+          amount: amountWithRightDecimal.toString(),
           name: this.eventName,
           parameters: {
             block: payment.block,
