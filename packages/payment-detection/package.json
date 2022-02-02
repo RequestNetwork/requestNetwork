@@ -61,6 +61,7 @@
     "@graphql-codegen/typescript-graphql-request": "3.2.1",
     "@graphql-codegen/typescript-operations": "1.18.0",
     "@graphql-codegen/typescript-resolvers": "1.19.2",
+    "@requestnetwork/advanced-logic": "0.34.0",
     "@types/autobahn": "18.10.1",
     "@types/jest": "26.0.13",
     "jest": "26.4.2",

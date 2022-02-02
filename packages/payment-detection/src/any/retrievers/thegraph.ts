@@ -1,20 +1,21 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
-import { BigNumber, utils } from 'ethers';
+import { utils } from 'ethers';
 import { IPaymentRetriever } from '../../types';
 import { getTheGraphClient, TheGraphClient } from '../../thegraph';
+import { unpadAmountFromChainlink } from '../../utils';
 
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
-export class TheGraphAnyToErc20Retriever
+export class TheGraphConversionRetriever
   implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
   private client: TheGraphClient;
 
   /**
    * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
-   * @param conversionProxyContractAddress The address of the proxy contract
+   * @param contractAddress The address of the proxy contract
    * @param toAddress Address of the balance we want to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The Ethereum network to use
@@ -24,7 +25,7 @@ export class TheGraphAnyToErc20Retriever
   constructor(
     private requestCurrency: CurrencyDefinition,
     private paymentReference: string,
-    private conversionProxyContractAddress: string,
+    private contractAddress: string,
     private toAddress: string,
     private eventName: PaymentTypes.EVENTS_NAMES,
     private network: string,
@@ -46,43 +47,43 @@ export class TheGraphAnyToErc20Retriever
    */
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     const variables = {
-      contractAddress: this.conversionProxyContractAddress,
+      contractAddress: this.contractAddress,
       reference: utils.keccak256(`0x${this.paymentReference}`),
       to: this.toAddress,
-      acceptedTokens: this.acceptedTokens,
       maxRateTimespan: this.maxRateTimespan,
     };
     // Parses, filters and creates the events from the logs with the payment reference
     const events = await this.client.GetConversionPayments(variables);
     // Creates the balance events
-    return events.payments.map((payment) => {
-      const chainlinkDecimal = 8;
-      const decimalPadding = chainlinkDecimal - this.requestCurrency.decimals;
-      const amountWithRightDecimal = BigNumber.from(payment.amount)
-        .div(10 ** decimalPadding)
-        .toString();
-      const feeAmountWithRightDecimal = payment.feeAmount
-        ? BigNumber.from(payment.feeAmount)
-            .div(10 ** decimalPadding)
-            .toString()
-        : undefined;
+    return events.payments
+      .filter((payment) => {
+        if (this.acceptedTokens && this.acceptedTokens.length > 0) {
+          return this.acceptedTokens.includes(payment.tokenAddress?.toLowerCase());
+        }
+        return !payment.tokenAddress;
+      })
+      .map((payment) => {
+        const requestCurrency = this.requestCurrency;
+        const { amount, feeAmount } = payment;
 
-      return {
-        amount: amountWithRightDecimal,
-        name: this.eventName,
-        parameters: {
-          block: payment.block,
-          feeAddress: payment.feeAddress ? utils.getAddress(payment.feeAddress) : undefined,
-          feeAmount: feeAmountWithRightDecimal,
-          feeAmountInCrypto: payment.feeAmountInCrypto || undefined,
-          amountInCrypto: payment.amountInCrypto,
-          tokenAddress: utils.getAddress(payment.tokenAddress),
-          to: this.toAddress,
-          txHash: payment.txHash,
-          maxRateTimespan: payment.maxRateTimespan?.toString(),
-        },
-        timestamp: payment.timestamp,
-      };
-    });
+        const amountWithRightDecimal = unpadAmountFromChainlink(amount, requestCurrency);
+        const feeAmountWithRightDecimal = unpadAmountFromChainlink(feeAmount, requestCurrency);
+        return {
+          amount: amountWithRightDecimal.toString(),
+          name: this.eventName,
+          parameters: {
+            block: payment.block,
+            feeAddress: payment.feeAddress ? utils.getAddress(payment.feeAddress) : undefined,
+            feeAmount: feeAmountWithRightDecimal.toString(),
+            feeAmountInCrypto: payment.feeAmountInCrypto || undefined,
+            amountInCrypto: payment.amountInCrypto,
+            tokenAddress: payment.tokenAddress ? utils.getAddress(payment.tokenAddress) : undefined,
+            to: this.toAddress,
+            txHash: payment.txHash,
+            maxRateTimespan: payment.maxRateTimespan?.toString(),
+          },
+          timestamp: payment.timestamp,
+        };
+      });
   }
 }
