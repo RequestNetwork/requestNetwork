@@ -74,7 +74,7 @@ export class TheGraphConversionRetriever
           parameters: {
             block: payment.block,
             feeAddress: payment.feeAddress ? utils.getAddress(payment.feeAddress) : undefined,
-            feeAmount: feeAmountWithRightDecimal,
+            feeAmount: feeAmountWithRightDecimal.toString(),
             feeAmountInCrypto: payment.feeAmountInCrypto || undefined,
             amountInCrypto: payment.amountInCrypto,
             tokenAddress: payment.tokenAddress ? utils.getAddress(payment.tokenAddress) : undefined,
