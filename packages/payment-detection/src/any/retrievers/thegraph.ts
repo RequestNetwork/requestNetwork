@@ -3,7 +3,7 @@ import { PaymentTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import { IPaymentRetriever } from '../../types';
 import { getTheGraphClient, TheGraphClient } from '../../thegraph';
-import { unpadAmountFromChainlink } from 'payment-detection/src';
+import { unpadAmountFromChainlink } from '../../utils';
 
 /**
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
