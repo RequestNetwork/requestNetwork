@@ -284,7 +284,7 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
   ): DataAccessTypes.ITimestampedTransaction {
     return {
       state: DataAccessTypes.TransactionState.CONFIRMED,
-      timestamp: 0,
+      timestamp: transaction.blockTimestamp,
       transaction: {
         data: transaction.data || undefined,
         encryptedData: transaction.encryptedData || undefined,
