@@ -80,7 +80,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
         deployer.address,
         FakeSwapRouterAddress,
         ERC20FeeProxyAddress,
-        "0x0F4F2Ac550A1b4e2280d04c21cEa7EBD822934b5",
+        '0x0F4F2Ac550A1b4e2280d04c21cEa7EBD822934b5',
         100, // 1% swapFee
       ],
     });
