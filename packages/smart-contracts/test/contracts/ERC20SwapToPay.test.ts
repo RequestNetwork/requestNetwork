@@ -17,6 +17,7 @@ import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib';
 use(solidity);
 
 describe('contract: SwapToPay', () => {
+  let swapFeeAddress: string;
   let from: string;
   let to: string;
   let builder: string;
@@ -43,6 +44,7 @@ describe('contract: SwapToPay', () => {
 
     erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, adminSigner);
     testSwapToPay = erc20SwapToPayArtifact.connect(network.name, adminSigner);
+    swapFeeAddress = await testSwapToPay.swapFeeAddress();
   });
 
   beforeEach(async () => {
@@ -111,6 +113,47 @@ describe('contract: SwapToPay', () => {
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     expect(finalBuilderBalance.toNumber()).to.equals(1);
     expect(finalIssuerBalance.toNumber()).to.equals(10);
+
+    // Test that the contract does not hold any fund after the transaction
+    const finalContractPaymentBalance = await spentErc20.balanceOf(testSwapToPay.address);
+    const finalContractRequestBalance = await paymentNetworkErc20.balanceOf(testSwapToPay.address);
+    expect(finalContractPaymentBalance.toNumber()).to.equals(0);
+    expect(finalContractRequestBalance.toNumber()).to.equals(0);
+  });
+  it('swaps and pays the request and swapfee', async function () {
+    const initialFeeBalance = await spentErc20.balanceOf(swapFeeAddress);
+    
+    await expect(
+      testSwapToPay.swapTransferWithReference(
+        to,
+        100,
+        // Here we spend 206 max, for 202 used in theory, to test that 4 is given back
+        206,
+        [spentErc20.address, paymentNetworkErc20.address],
+        referenceExample,
+        1,
+        builder,
+        exchangeRateOrigin + 1000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
+      ),
+    )
+      .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        ethers.utils.getAddress(paymentNetworkErc20.address),
+        to,
+        '100',
+        ethers.utils.keccak256(referenceExample),
+        '1',
+        ethers.utils.getAddress(builder),
+      );
+          
+    const finalFeeBalance = await spentErc20.balanceOf(swapFeeAddress);
+    const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
+    const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
+
+    expect(initialFeeBalance.toNumber()).to.equals(0);
+    expect(finalFeeBalance.toNumber()).to.equals(1);
+    expect(finalBuilderBalance.toNumber()).to.equals(1);
+    expect(finalIssuerBalance.toNumber()).to.equals(100);
 
     // Test that the contract does not hold any fund after the transaction
     const finalContractPaymentBalance = await spentErc20.balanceOf(testSwapToPay.address);
@@ -298,6 +341,16 @@ describe('contract: SwapToPay', () => {
       );
       expect(finalContractPaymentBalance.toNumber()).to.equals(0);
       expect(finalContractRequestBalance.toNumber()).to.equals(0);
+    });
+  });
+  describe('OnlyWhitelisted admin', () => {
+    it('Should revert when `setFeeAddress` is executed by a non admin', async () => {
+      expect(testSwapToPay.connect(from).setFeeAddress("0x821aEa9a577a9b44299B9c15c88cf3087F3b5544"))
+        .to.be.reverted;
+    });
+    it('Should revert when `setSwapFee` is executed by a non admin', async () => {
+      expect(testSwapToPay.connect(from).setSwapFee(50))
+        .to.be.reverted;
     });
   });
 });

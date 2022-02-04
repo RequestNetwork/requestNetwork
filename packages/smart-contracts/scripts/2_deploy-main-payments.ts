@@ -77,11 +77,11 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
     // SwapToPay
     const { address: ERC20SwapToPayAddress } = await deployOne(args, hre, 'ERC20SwapToPay', {
       constructorArguments: [
-        '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
+        deployer.address,
         FakeSwapRouterAddress,
         ERC20FeeProxyAddress,
-        '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
-        5,
+        "0x0F4F2Ac550A1b4e2280d04c21cEa7EBD822934b5",
+        100, // 1% swapFee
       ],
     });
     // FIXME SwapToPay deployed without approbation for router and proxy

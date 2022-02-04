@@ -3,7 +3,6 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./legacy_openzeppelin/contracts/access/roles/WhitelistedRole.sol";
 import "./lib/SafeERC20.sol";
 import "./interfaces/ERC20FeeProxy.sol";
@@ -25,7 +24,6 @@ interface IUniswapV2Router02 {
   */
 contract ERC20SwapToPay is Ownable, WhitelistedRole{
   using SafeERC20 for IERC20;
-  using SafeMath for uint256;
 
   IUniswapV2Router02 public swapRouter;
   IERC20FeeProxy public paymentProxy;
@@ -41,7 +39,7 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
   * @param _swapRouterAddress Address to the swapRouter.
   * @param _paymentProxyAddress Address to the paymentProxy.
   * @param _swapFeeAddress The address to collect fees.
-  * @param _currentSwapFee The fee % to pay with every transaction, example: 5 = 0.5%, 10 = 1%.
+  * @param _currentSwapFee The fee % to pay with every transaction, example: 50 = 0.5%, 100 = 1%.
   */
   constructor(
     address _adminAddress,
@@ -55,6 +53,8 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
     paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
     swapFeeAddress = _swapFeeAddress;
     currentSwapFee = _currentSwapFee;
+
+    super.addWhitelisted(address(admin));
   }
 
   /**
@@ -111,16 +111,22 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
     uint256 requestedTotalAmount = _amount + _feeAmount;
 
     // make sure the allowance includes the swapFee.
-    require(spentToken.allowance(msg.sender, address(this)) > (_amountInMax + _calculateSwapFee(requestedTotalAmount)),
-                                 "Not sufficient allowance for swap to pay.");
+    require(
+      spentToken.allowance(msg.sender, address(this)) > (_amountInMax + _calculateSwapFee(requestedTotalAmount)), "Not sufficient allowance for swap to pay."
+    );
 
-    // execute a safeTransferFrom() to pay the swap_fee with spentToken.
-    require(spentToken.safeTransferFrom(msg.sender, address(swapFeeAddress), _calculateSwapFee(requestedTotalAmount)),
-      "SwapFee failed!");
 
     require(spentToken.safeTransferFrom(msg.sender, address(this), _amountInMax), 
                                         "Could not transfer payment token from swapper-payer");
 
+    // execute a safeTransferFrom() to pay the swap_fee with spentToken.
+    require(spentToken.safeTransferFrom(
+      msg.sender,
+      address(swapFeeAddress),
+      _calculateSwapFee(requestedTotalAmount)), 
+      "SwapFee failed!"
+    );
+    
     // Allow the router to spend all this contract's spentToken
     if (spentToken.allowance(address(this), address(swapRouter)) < _amountInMax) {
       approveRouterToSpend(address(spentToken));
@@ -166,7 +172,7 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
    * @dev returns the _feeAmount in Wei. 
    */
   function _calculateSwapFee(uint256 _amount) internal view returns (uint256 _swapFeeAmount) {
-    _swapFeeAmount = (_amount.mul(currentSwapFee)).div(1000);
+    _swapFeeAmount = (_amount * currentSwapFee) / 10000;
   }
 
   /*
@@ -184,16 +190,17 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
    * Admin function to edit the swap fee address.
    * @param _newFeeAddress Address that receives the swap fees.
    */
-  function setFeeAddress(address _newFeeAddress) public onlyWhitelisted {
+  function setFeeAddress(address _newFeeAddress) external onlyWhitelisted {
     swapFeeAddress = _newFeeAddress;
   }
 
   /** 
    * Admin function to edit the swap fee in %.
    * @param _newSwapFee  the value to set as new swap fee.
-   * @dev swapFee in %. Example: 100 = 10% swap fee, 50 = 5% swap fee, 5 = 0.5% swap fee.
+   * @dev swapFee in %. Example: 1000 = 10% swap fee, 500 = 5% swap fee, 50 = 0.5% swap fee.
+   * @dev Example: 125 = 1.25% swap fee, 175 = 1.75% swap fee, 210 = 2.10% swap fee.
    */
-  function setSwapFee(uint256 _newSwapFee) public onlyWhitelisted {
+  function setSwapFee(uint256 _newSwapFee) external onlyWhitelisted {
     currentSwapFee = _newSwapFee;
   }
 
