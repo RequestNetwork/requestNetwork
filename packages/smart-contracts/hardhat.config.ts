@@ -70,6 +70,11 @@ export default {
       chainId: 100,
       accounts,
     },
+    fuse: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://rpc.fuse.io',
+      chainId: 122,
+      accounts,
+    },
     fantom: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rpcapi.fantom.network',
       chainId: 250,
