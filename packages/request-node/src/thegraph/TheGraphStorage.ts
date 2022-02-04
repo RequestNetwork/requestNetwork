@@ -1,10 +1,11 @@
 import { EventEmitter } from 'events';
-import { utils, Signer, ContractReceipt } from 'ethers';
+import { utils, Signer, ContractReceipt, BigNumber, providers } from 'ethers';
 import TypedEmitter from 'typed-emitter';
 import Utils from '@requestnetwork/utils';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
+import { suggestFees } from 'eip1559-fee-suggestions-ethers';
 
 type TheGraphStorageProps = {
   network: string;
@@ -43,10 +44,17 @@ export class TheGraphStorage {
     const { ipfsHash, ipfsSize } = await this.ipfsStorage.ipfsAdd(content);
 
     const fee = await this.hashSubmitter.getFeesAmount(ipfsSize);
+    const suggestedFee = await suggestFees(
+      this.hashSubmitter.provider as providers.JsonRpcProvider,
+    );
     const tx = await this.hashSubmitter.submitHash(
       ipfsHash,
       utils.hexZeroPad(utils.hexlify(ipfsSize), 32),
-      { value: fee },
+      {
+        value: fee,
+        maxFeePerGas: BigNumber.from(suggestedFee.baseFeeSuggestion),
+        maxPriorityFeePerGas: BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.fast),
+      },
     );
 
     const eventEmitter = new EventEmitter() as TheGraphStorageEventEmitter;
@@ -66,13 +74,13 @@ export class TheGraphStorage {
 
     void tx
       .wait()
-      .then((receipt) => {
+      .then((receipt: providers.TransactionReceipt) => {
         this.logger.debug(
           `TX ${receipt.transactionHash} confirmed at block ${receipt.blockNumber}`,
         );
         eventEmitter.emit('confirmed', receipt);
       })
-      .catch((e) => eventEmitter.emit('error', e));
+      .catch((e: Error) => eventEmitter.emit('error', e));
 
     return Object.assign(eventEmitter, result);
   }
