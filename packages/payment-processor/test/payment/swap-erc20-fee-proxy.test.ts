@@ -195,7 +195,7 @@ describe('swap-erc20-fee-proxy', () => {
       // Check each balance
       expect(BigNumber.from(balanceEthBefore).sub(balanceEthAfter).toNumber()).toBeGreaterThan(0);
       expect(BigNumber.from(balanceAlphaAfter).toString()).toEqual(
-        BigNumber.from(balanceAlphaBefore).sub(204).toString(),
+        BigNumber.from(balanceAlphaBefore).sub(205).toString(),
       );
       expect(BigNumber.from(issuerBalanceErc20After).toString()).toEqual(
         BigNumber.from(issuerBalanceErc20Before).add(100).toString(),
