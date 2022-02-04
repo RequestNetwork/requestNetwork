@@ -112,7 +112,11 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
 
     // make sure the allowance includes the swapFee.
     require(
-      spentToken.allowance(msg.sender, address(this)) > (_amountInMax + _calculateSwapFee(requestedTotalAmount)), "Not sufficient allowance for swap to pay."
+      spentToken.allowance(
+        msg.sender, 
+        address(this)) > (_amountInMax + _calculateSwapFee(requestedTotalAmount)
+      ), 
+      "Not sufficient allowance for swap to pay."
     );
 
 
@@ -123,7 +127,8 @@ contract ERC20SwapToPay is Ownable, WhitelistedRole{
     require(spentToken.safeTransferFrom(
       msg.sender,
       address(swapFeeAddress),
-      _calculateSwapFee(requestedTotalAmount)), 
+      _calculateSwapFee(requestedTotalAmount)
+      ), 
       "SwapFee failed!"
     );
     
