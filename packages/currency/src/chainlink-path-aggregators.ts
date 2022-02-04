@@ -17,7 +17,8 @@ export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   mainnet: mainnetAggregator,
   matic: maticAggregator,
   fantom: fantomAggregator,
-  // FIX ME: This fix enables to get these networks registered in chainlinkSupportedNetwork. Could be improved.
+  // FIX ME: This fix enables to get these networks registered in chainlinkSupportedNetworks.
+  // Could be improved by removing the supported network check from the protocol
   'arbitrum-rinkeby': {},
   'arbitrum-one': {},
 };
