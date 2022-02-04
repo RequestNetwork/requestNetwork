@@ -17,6 +17,8 @@ export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   mainnet: mainnetAggregator,
   matic: maticAggregator,
   fantom: fantomAggregator,
+  'arbitrum-rinkeby': {},
+  'arbitrum-one': {},
 };
 
 export const chainlinkSupportedNetworks = Object.keys(chainlinkCurrencyPairs);
