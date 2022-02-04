@@ -122,7 +122,7 @@ describe('contract: SwapToPay', () => {
   });
   it('swaps and pays the request and swapfee', async function () {
     const initialFeeBalance = await spentErc20.balanceOf(swapFeeAddress);
-    
+
     await expect(
       testSwapToPay.swapTransferWithReference(
         to,
@@ -145,7 +145,7 @@ describe('contract: SwapToPay', () => {
         '1',
         ethers.utils.getAddress(builder),
       );
-          
+
     const finalFeeBalance = await spentErc20.balanceOf(swapFeeAddress);
     const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
@@ -345,12 +345,12 @@ describe('contract: SwapToPay', () => {
   });
   describe('OnlyWhitelisted admin', () => {
     it('Should revert when `setFeeAddress` is executed by a non admin', async () => {
-      expect(testSwapToPay.connect(from).setFeeAddress("0x821aEa9a577a9b44299B9c15c88cf3087F3b5544"))
-        .to.be.reverted;
+      expect(
+        testSwapToPay.connect(from).setFeeAddress('0x821aEa9a577a9b44299B9c15c88cf3087F3b5544'),
+      ).to.be.reverted;
     });
     it('Should revert when `setSwapFee` is executed by a non admin', async () => {
-      expect(testSwapToPay.connect(from).setSwapFee(50))
-        .to.be.reverted;
+      expect(testSwapToPay.connect(from).setSwapFee(50)).to.be.reverted;
     });
   });
 });
