@@ -41,9 +41,9 @@ Manual payment declarations follow the same specifications as [payment-network-e
 | **events**                   | Array     | List of the actions performed by the extension   | **Mandatory** |
 | **values**                   | Object    |                                                  |               |
 | **values.salt**              | String    | Salt for the request                             | **Mandatory** |
-| **values.expectedFlowRate**  | Number    | Expected amount of request `currency` per second | Optional      |
-| **values.expectedStartDate** | Timestamp | Expected start of stream                         | Optional      |
-| **values.paymentAddress**    | String    | Blockchain address for the payment               | Optional      |
+| **values.expectedFlowRate**  | Number    | Expected amount of request `currency` per second | **Mandatory** |
+| **values.expectedStartDate** | Timestamp | Expected start of stream                         | **Mandatory** |
+| **values.paymentAddress**    | String    | Blockchain address for the payment               | **Mandatory** |
 | **values.refundAddress**     | String    | Blockchain address for the refund                | Optional      |
 | **values.feeAddress**        | String    | Blockchain address for the fee payment           | Optional      |
 | **values.feeAmount**         | String    | The fee amount in the request `currency`         | Optional      |
