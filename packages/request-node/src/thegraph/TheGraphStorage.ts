@@ -1,11 +1,12 @@
 import { EventEmitter } from 'events';
-import { utils, Signer, ContractReceipt, BigNumber, providers } from 'ethers';
+import { BigNumber, ContractReceipt, PayableOverrides, providers, Signer, utils } from 'ethers';
 import TypedEmitter from 'typed-emitter';
 import Utils from '@requestnetwork/utils';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { suggestFees } from 'eip1559-fee-suggestions-ethers';
+import GasPriceDefiner from '@requestnetwork/ethereum-storage/dist/src/gas-price-definer';
 
 type TheGraphStorageProps = {
   network: string;
@@ -44,17 +45,27 @@ export class TheGraphStorage {
     const { ipfsHash, ipfsSize } = await this.ipfsStorage.ipfsAdd(content);
 
     const fee = await this.hashSubmitter.getFeesAmount(ipfsSize);
-    const suggestedFee = await suggestFees(
-      this.hashSubmitter.provider as providers.JsonRpcProvider,
-    );
+    const overrides: PayableOverrides = { value: fee };
+    try {
+      const suggestedFee = await suggestFees(
+        this.hashSubmitter.provider as providers.JsonRpcProvider,
+      );
+      overrides.maxFeePerGas = BigNumber.from(suggestedFee.baseFeeSuggestion);
+      overrides.maxPriorityFeePerGas = BigNumber.from(
+        suggestedFee.maxPriorityFeeSuggestions.urgent,
+      );
+    } catch (e) {
+      // for networks where the eth_feeHistory RPC method is not available (pre EIP-1559)
+      const gasPriceDefiner = new GasPriceDefiner();
+      overrides.gasPrice = await gasPriceDefiner.getGasPrice(
+        StorageTypes.GasPriceType.FAST,
+        this.network,
+      );
+    }
     const tx = await this.hashSubmitter.submitHash(
       ipfsHash,
       utils.hexZeroPad(utils.hexlify(ipfsSize), 32),
-      {
-        value: fee,
-        maxFeePerGas: BigNumber.from(suggestedFee.baseFeeSuggestion),
-        maxPriorityFeePerGas: BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.fast),
-      },
+      overrides,
     );
 
     const eventEmitter = new EventEmitter() as TheGraphStorageEventEmitter;
