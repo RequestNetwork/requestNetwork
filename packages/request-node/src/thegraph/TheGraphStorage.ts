@@ -7,6 +7,7 @@ import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { suggestFees } from 'eip1559-fee-suggestions-ethers';
 import { GasPriceDefiner } from '@requestnetwork/ethereum-storage';
+import assert from 'assert';
 
 type TheGraphStorageProps = {
   network: string;
@@ -21,15 +22,22 @@ export type TheGraphStorageEventEmitter = TypedEmitter<{
 }>;
 
 export class TheGraphStorage {
-  private logger: LogTypes.ILogger;
-  private ipfsStorage: StorageTypes.IIpfsStorage;
-  private hashSubmitter: RequestOpenHashSubmitter;
-  private network: string;
+  private readonly logger: LogTypes.ILogger;
+  private readonly ipfsStorage: StorageTypes.IIpfsStorage;
+  private readonly hashSubmitter: RequestOpenHashSubmitter;
+  private readonly network: string;
+  private readonly provider: providers.JsonRpcProvider;
+  private enableEip1559 = true;
 
   constructor({ network, signer, ipfsStorage, logger }: TheGraphStorageProps) {
     this.logger = logger || new Utils.SimpleLogger();
     this.ipfsStorage = ipfsStorage;
     this.network = network;
+    assert(
+      signer.provider instanceof providers.JsonRpcProvider,
+      'TheGraphStorage provider must be a JsonRpcProvider',
+    );
+    this.provider = signer.provider;
     this.hashSubmitter = requestHashSubmitterArtifact.connect(
       network,
       signer,
@@ -38,6 +46,14 @@ export class TheGraphStorage {
 
   async initialize(): Promise<void> {
     await this.ipfsStorage.initialize();
+    try {
+      await this.provider.send('eth_feeHistory', []);
+    } catch (e) {
+      this.logger.warn(
+        'This RPC provider does not support the "eth_feeHistory" method: switching to legacy gas price',
+      );
+      this.enableEip1559 = false;
+    }
     this.logger.debug('TheGraph storage initialized');
   }
 
@@ -46,7 +62,7 @@ export class TheGraphStorage {
 
     const fee = await this.hashSubmitter.getFeesAmount(ipfsSize);
     const overrides: PayableOverrides = { value: fee };
-    try {
+    if (this.enableEip1559) {
       const suggestedFee = await suggestFees(
         this.hashSubmitter.provider as providers.JsonRpcProvider,
       );
@@ -54,8 +70,8 @@ export class TheGraphStorage {
       overrides.maxPriorityFeePerGas = BigNumber.from(
         suggestedFee.maxPriorityFeeSuggestions.urgent,
       );
-    } catch (e) {
-      // for networks where the eth_feeHistory RPC method is not available (pre EIP-1559)
+    } else {
+      // retro-compatibility for networks where the eth_feeHistory RPC method is not available (pre EIP-1559)
       const gasPriceDefiner = new GasPriceDefiner();
       overrides.gasPrice = await gasPriceDefiner.getGasPrice(
         StorageTypes.GasPriceType.FAST,
