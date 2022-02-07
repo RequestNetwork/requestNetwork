@@ -6,7 +6,7 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { suggestFees } from 'eip1559-fee-suggestions-ethers';
-import GasPriceDefiner from '@requestnetwork/ethereum-storage/dist/src/gas-price-definer';
+import { GasPriceDefiner } from '@requestnetwork/ethereum-storage';
 
 type TheGraphStorageProps = {
   network: string;

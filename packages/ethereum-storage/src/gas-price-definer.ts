@@ -14,7 +14,7 @@ import XDaiFixedProvider from './gas-price-providers/xdai-fixed-provider';
  * Determines the gas price to use depending on the used network
  * Polls gas price API providers if necessary
  */
-export default class GasPriceDefiner {
+export class GasPriceDefiner {
   private defaultProviders = [
     new EtherchainProvider(),
     new EthGasStationProvider(),
