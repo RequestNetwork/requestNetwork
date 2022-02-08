@@ -47,7 +47,7 @@ export class TheGraphStorage {
   async initialize(): Promise<void> {
     await this.ipfsStorage.initialize();
     try {
-      await this.provider.send('eth_feeHistory', []);
+      await this.provider.send('eth_feeHistory', ['0x1', 'latest', []]);
     } catch (e) {
       this.logger.warn(
         'This RPC provider does not support the "eth_feeHistory" method: switching to legacy gas price',
