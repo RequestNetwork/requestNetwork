@@ -1,0 +1,18 @@
+query GetSuperFluidFlowEvents(
+  $tokenAddress: Bytes = ""
+  $to: Bytes = ""
+  $reference: Bytes = "0x"
+) {
+  flowUpdatedEvents(
+    orderBy: timestamp
+    where: { userData: $reference, token: $tokenAddress, receiver: $to }
+  ) {
+    transactionHash
+    blockNumber
+    timestamp
+    sender
+    flowRate
+    oldFlowRate
+    type
+  }
+}

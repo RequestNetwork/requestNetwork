@@ -1,0 +1,18 @@
+query GetSuperFluidUntaggedEvents(
+  $tokenAddress: Bytes = ""
+  $to: Bytes = ""
+  $reference: Bytes = "0x"
+) {
+  flowUpdatedEvents(
+    orderBy: timestamp
+    where: { flowRate: "0", userData: "0x", type: 2, token: $tokenAddress, receiver: $to }
+  ) {
+    transactionHash
+    blockNumber
+    timestamp
+    sender
+    flowRate
+    oldFlowRate
+    type
+  }
+}

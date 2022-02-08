@@ -34,6 +34,7 @@
     "test:layers": "jest test/layers.test.ts  --forceExit",
     "test:node": "jest test/node-client.test.ts --forceExit",
     "test:erc20": "jest test/scheduled/erc20*.test.ts --forceExit",
+    "test:erc777": "jest test/scheduled/erc777*.test.ts --forceExit",
     "test:btc": "jest test/scheduled/btc.test.ts --forceExit"
   },
   "devDependencies": {
