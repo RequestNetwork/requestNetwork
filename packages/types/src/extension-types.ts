@@ -78,6 +78,7 @@ export enum ID {
   PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
   PAYMENT_NETWORK_ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
   PAYMENT_NETWORK_ANY_TO_ETH_PROXY = 'pn-any-to-eth-proxy',
+  PAYMENT_NETWORK_ERC777_STREAM = 'pn-erc777-stream',
 }
 
 /** Type of extensions */

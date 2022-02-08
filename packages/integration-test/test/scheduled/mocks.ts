@@ -8,5 +8,10 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddRefundAddressAction: jest.fn(),
       createCreationAction: jest.fn(),
     },
+    streamErc777: {
+      createAddPaymentAddressAction: jest.fn(),
+      createAddRefundAddressAction: jest.fn(),
+      createCreationAction: jest.fn(),
+    },
   },
 };
