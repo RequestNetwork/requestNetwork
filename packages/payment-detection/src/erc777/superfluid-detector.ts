@@ -25,7 +25,10 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM, advancedLogic.extensions.streamErc777);
+    super(
+      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      advancedLogic.extensions.proxyContractErc20,
+    );
   }
 
   /**

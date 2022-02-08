@@ -16,7 +16,6 @@ export enum PAYMENT_NETWORK_ID {
   DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
   ANY_TO_ETH_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
-  ERC777_STREAM = Extension.ID.PAYMENT_NETWORK_ERC777_STREAM,
 }
 /** Interface for payment network extensions state and interpretation */
 export interface IPaymentNetwork<TEventParameters = any> {
