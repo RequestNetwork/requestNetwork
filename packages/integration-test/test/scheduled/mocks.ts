@@ -52,5 +52,14 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
+    streamErc777: {
+      supportedNetworks: ['rinkeby'],
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      // inheritance from declarative
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
+    },
   },
 };

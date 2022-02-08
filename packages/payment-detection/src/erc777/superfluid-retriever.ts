@@ -51,12 +51,12 @@ export class SuperFluidInfoRetriever {
    * into payment events with the parameters expected by extractEvents function
    * to compute balance from amounts in ERC20 style transactions
    */
-  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<PaymentTypes.ERC777PaymentNetworkEvent[]> {
     const variables = this.getGraphVariables();
     const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
     // Chronological sorting of events having payment reference and closing events without payment reference
     const streamEvents = flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
-    const paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[] = [];
+    const paymentEvents: PaymentTypes.ERC777PaymentNetworkEvent[] = [];
     if (streamEvents.length < 1) {
       return paymentEvents;
     }
