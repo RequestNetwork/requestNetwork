@@ -66,10 +66,10 @@ export class TheGraphStorage {
       const suggestedFee = await suggestFees(
         this.hashSubmitter.provider as providers.JsonRpcProvider,
       );
-      overrides.maxFeePerGas = BigNumber.from(suggestedFee.baseFeeSuggestion);
-      overrides.maxPriorityFeePerGas = BigNumber.from(
-        suggestedFee.maxPriorityFeeSuggestions.urgent,
-      );
+      const maxPriorityFeePerGas = BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.urgent);
+      const maxFeePerGas = maxPriorityFeePerGas.add(suggestedFee.baseFeeSuggestion);
+      overrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
+      overrides.maxFeePerGas = maxFeePerGas;
     } else {
       // retro-compatibility for networks where the eth_feeHistory RPC method is not available (pre EIP-1559)
       const gasPriceDefiner = new GasPriceDefiner();
