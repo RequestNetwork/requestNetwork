@@ -41,7 +41,7 @@ export default class EscrowERC20GraphInfoRetriever
 
   public async getAllContractEvents(): Promise<
     PaymentTypes.ICustomNetworkEvent<
-      PaymentTypes.GenericEventParameters,
+      PaymentTypes.EscrowEventParameters,
       PaymentTypes.ESCROW_EVENTS_NAMES
     >[]
   > {
@@ -50,11 +50,12 @@ export default class EscrowERC20GraphInfoRetriever
     return escrowEventList.escrowEvents.map((p) => ({
       name: this.getEscrowEventName(p.eventName),
       amount: 0,
+      timestamp: p.timestamp,
       parameters: {
         block: p.block,
         txHash: p.txHash,
+        from: p.from,
       },
-      timestamp: p.timestamp,
     }));
   }
 

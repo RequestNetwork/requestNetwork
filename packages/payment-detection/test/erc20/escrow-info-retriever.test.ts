@@ -96,10 +96,10 @@ describe('api/erc20/escrow-info-retriever', () => {
         paymentReferenceMock,
         escrowContractAddress,
         0,
-        null,
-        null,
-        PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
+        '',
+        '',
         'private',
+        PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
       );
       const events = await infoRetriever.getAllContractEvents();
       expect(events).toHaveLength(3);
@@ -116,10 +116,10 @@ describe('api/erc20/escrow-info-retriever', () => {
         paymentReferenceMock,
         escrowContractAddress,
         0,
-        null,
-        null,
-        PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
+        '',
+        '',
         'private',
+        PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
       );
 
       const events = await infoRetriever.getAllContractEvents();
@@ -139,10 +139,10 @@ describe('api/erc20/escrow-info-retriever', () => {
         paymentReferenceMock,
         escrowContractAddress,
         0,
-        null,
-        null,
-        PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+        '',
+        '',
         'private',
+        PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
       );
 
       const events = await infoRetriever.getAllContractEvents();
@@ -162,10 +162,10 @@ describe('api/erc20/escrow-info-retriever', () => {
         paymentReferenceMock,
         escrowContractAddress,
         0,
-        null,
-        null,
-        PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW,
+        '',
+        '',
         'private',
+        PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW,
       );
 
       const events = await infoRetriever.getAllContractEvents();

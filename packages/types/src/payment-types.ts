@@ -145,6 +145,10 @@ export interface GenericEventParameters {
   txHash?: string;
 }
 
+export interface EscrowEventParameters extends GenericEventParameters {
+  from?: string;
+}
+
 /** Parameters for events of ERC20 payments */
 export interface IERC20PaymentEventParameters extends GenericEventParameters {
   from?: string;

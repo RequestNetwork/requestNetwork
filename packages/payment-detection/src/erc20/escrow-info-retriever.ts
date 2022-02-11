@@ -68,7 +68,6 @@ export default class EscrowERC20InfoRetriever
       this.provider,
     );
   }
-
   /**
    * Retrieves events for the current contract, address and network.
    */
