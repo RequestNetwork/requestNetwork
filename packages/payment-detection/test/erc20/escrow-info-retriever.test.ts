@@ -62,8 +62,6 @@ describe('api/erc20/escrow-info-retriever', () => {
     let getLogsSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      
-
       getBlockSpy = jest.spyOn(infoRetriever.provider, 'getBlock').mockResolvedValue({
         timestamp: 69,
       } as any);
