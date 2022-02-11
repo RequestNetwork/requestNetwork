@@ -1,5 +1,6 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
+import { IEventRetriever } from '../types';
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
 
@@ -26,11 +27,14 @@ type TransferWithReferenceAndFeeArgs = EscrowArgs & {
 
 /**
  * Retrieves a list of payment events from a escrow contract.
+ * 
+    PaymentTypes.IPaymentNetworkBaseInfoRetriever<
+      PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>,
  */
 export default class EscrowERC20InfoRetriever
   implements
-    PaymentTypes.IPaymentNetworkBaseInfoRetriever<
-      PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>,
+    IEventRetriever<
+      PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>,
       PaymentTypes.ESCROW_EVENTS_NAMES
     > {
   public contractEscrow: ethers.Contract;

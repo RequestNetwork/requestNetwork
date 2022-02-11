@@ -9,7 +9,7 @@ import Utils from '@requestnetwork/utils';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
-import { TheGraphAnyToErc20Retriever } from './retrievers/thegraph';
+import { TheGraphConversionRetriever } from './retrievers/thegraph';
 import { networkSupportsTheGraph } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
 
@@ -102,7 +102,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     const currency = await this.getCurrency(requestCurrency);
 
     const infoRetriever = networkSupportsTheGraph(paymentChain)
-      ? new TheGraphAnyToErc20Retriever(
+      ? new TheGraphConversionRetriever(
           currency,
           paymentReference,
           conversionProxyContractAddress,

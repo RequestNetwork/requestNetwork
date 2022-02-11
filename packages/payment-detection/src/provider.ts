@@ -40,6 +40,7 @@ const networkRpcs: Record<string, string> = {
   bsc: 'https://bsc-dataseed1.binance.org/',
   xdai: 'https://rpc.xdaichain.com/',
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
+  'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
 };
 
 /**

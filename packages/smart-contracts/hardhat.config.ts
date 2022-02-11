@@ -70,6 +70,11 @@ export default {
       chainId: 100,
       accounts,
     },
+    fuse: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://rpc.fuse.io',
+      chainId: 122,
+      accounts,
+    },
     fantom: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rpcapi.fantom.network',
       chainId: 250,
@@ -115,6 +120,10 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
     }
     case 'fantom': {
       hre.config.etherscan.apiKey = process.env.FTMSCAN_API_KEY;
+      return;
+    }
+    case 'arbitrum-one': {
+      hre.config.etherscan.apiKey = process.env.ARBISCAN_API_KEY;
       return;
     }
   }

@@ -5,6 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
+import { IPaymentNetworkModuleByType, ISupportedPaymentNetworkByCurrency } from './types';
 import { BtcMainnetAddressBasedDetector } from './btc/mainnet-address-based';
 import { BtcTestnetAddressBasedDetector } from './btc/testnet-address-based';
 import { DeclarativePaymentDetector } from './declarative';
@@ -20,7 +21,7 @@ import { AnyToEthFeeProxyPaymentDetector } from './any/any-to-eth-proxy';
 const PN_ID = PaymentTypes.PAYMENT_NETWORK_ID;
 
 /** Register the payment network by currency and type */
-const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency = {
+const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
   BTC: {
     mainnet: {
       [PN_ID.BITCOIN_ADDRESS_BASED]: BtcMainnetAddressBasedDetector,
@@ -48,7 +49,7 @@ const supportedPaymentNetwork: PaymentTypes.ISupportedPaymentNetworkByCurrency =
   },
 };
 
-const anyCurrencyPaymentNetwork: PaymentTypes.IPaymentNetworkModuleByType = {
+const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
   [PN_ID.ANY_TO_ERC20_PROXY]: AnyToERC20PaymentDetector,
   [PN_ID.DECLARATIVE]: DeclarativePaymentDetector,
   [PN_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
@@ -158,7 +159,7 @@ export default class PaymentNetworkFactory {
    */
   public static supportedPaymentNetworksForCurrency(
     currency: RequestLogicTypes.ICurrency,
-  ): PaymentTypes.IPaymentNetworkModuleByType {
+  ): IPaymentNetworkModuleByType {
     if (!supportedPaymentNetwork[currency.type]) {
       return anyCurrencyPaymentNetwork;
     }

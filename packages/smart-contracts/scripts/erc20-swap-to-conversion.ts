@@ -1,4 +1,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
+// eslint-disable-next-line
+// @ts-ignore Cannot find module
+import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
 import { erc20SwapConversionArtifact } from '../src/lib';
 import { deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses } from './utils';
@@ -6,7 +9,12 @@ import { uniswapV2RouterAddresses } from './utils';
 const contractName = 'ERC20SwapToConversion';
 
 export async function deploySwapConversion(
-  args: { conversionProxyAddress?: string; swapProxyAddress?: string },
+  args: {
+    conversionProxyAddress?: string;
+    swapProxyAddress?: string;
+    chainlinkConversionPathAddress: string;
+    nonceCondition?: number;
+  },
   hre: HardhatRuntimeEnvironment,
 ) {
   if (!args.conversionProxyAddress) {
@@ -18,12 +26,14 @@ export async function deploySwapConversion(
   if (!uniswapV2RouterAddresses[hre.network.name] && !args.swapProxyAddress) {
     console.error(`Missing swap router, cannot deploy ${contractName}.`);
   }
-  const deployment = await deployOne(args, hre, contractName, {
+  const deployment = await deployOne<ERC20SwapToConversion>(args, hre, contractName, {
     constructorArguments: [
       uniswapV2RouterAddresses[hre.network.name] ?? args.swapProxyAddress,
       args.conversionProxyAddress,
+      args.chainlinkConversionPathAddress,
     ],
     artifact: erc20SwapConversionArtifact,
+    nonceCondition: args.nonceCondition,
   });
 
   return deployment;

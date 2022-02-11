@@ -10,7 +10,7 @@ import { EthInputDataInfoRetriever } from './info-retriever';
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
-import { networkSupportsTheGraphForNativePayments } from '../thegraph';
+import { networkSupportsTheGraph } from '../thegraph';
 import { TheGraphInfoRetriever } from '../erc20/thegraph-info-retriever';
 import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
@@ -87,8 +87,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
         paymentChain,
         paymentNetwork.version,
       );
-
-      const proxyInfoRetriever = networkSupportsTheGraphForNativePayments(paymentChain)
+      const proxyInfoRetriever = networkSupportsTheGraph(paymentChain)
         ? new TheGraphInfoRetriever(
             paymentReference,
             proxyContractArtifact.address,
@@ -108,6 +107,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
 
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
       events.push(...proxyEvents);
+      return events;
     } catch (e) {
       if (e instanceof MissingProxyContract) {
         console.log('Missing proxy contract for input data');

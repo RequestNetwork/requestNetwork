@@ -14,8 +14,8 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
           creationBlockNumber: 0,
         },
         rinkeby: {
-          address: '0x38443a9501F20C3bf2BDff14244665F3aEC86bA2',
-          creationBlockNumber: 8884276,
+          address: '0x1d6B06C6f7adFd9314BD4C58a6D306261113a1D4',
+          creationBlockNumber: 9447192,
         },
         bsctest: {
           address: '0x1d6B06C6f7adFd9314BD4C58a6D306261113a1D4',
@@ -36,6 +36,10 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
         mainnet: {
           address: '0x1d6B06C6f7adFd9314BD4C58a6D306261113a1D4',
           creationBlockNumber: 13764156,
+        },
+        'arbitrum-one': {
+          address: '0x1d6B06C6f7adFd9314BD4C58a6D306261113a1D4',
+          creationBlockNumber: 5317947,
         },
       },
     },
