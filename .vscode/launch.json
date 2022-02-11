@@ -8,8 +8,14 @@
       "type": "node",
       "request": "launch",
       "name": "Start Request Node",
-      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
-      "args": ["${workspaceFolder}/packages/request-node/src/server.ts"],
+      "runtimeArgs": [
+        "--nolazy",
+        "-r",
+        "ts-node/register"
+      ],
+      "args": [
+        "${workspaceFolder}/packages/request-node/src/server.ts"
+      ],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}/packages/request-node",
       "protocol": "inspector"
@@ -45,6 +51,24 @@
       "cwd": "${workspaceFolder}/packages/integration-test/",
       "protocol": "inspector",
       "sourceMaps": true
+    },
+    {
+      "type": "node",
+      "name": "vscode-jest-tests",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "program": "${workspaceFolder}/packages/integration-test/node_modules/.bin/jest",
+      "cwd": "${workspaceFolder}/packages/integration-test/",
+      "args": [
+        "--config",
+        "${workspaceFolder}/packages/integration-test/jest.config.js",
+        "--verbose",
+        "-i",
+        "--runInBand",
+        "--watchAll=false"
+      ]
     }
   ]
 }
