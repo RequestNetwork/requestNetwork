@@ -65,8 +65,8 @@ describe('ERC777 SuperFluid detection test-suite', () => {
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe('payment');
     const params = balance.events[0].parameters as PaymentTypes.IERC20FeePaymentEventParameters;
-    expect(params).toBe('0x52e5bcfa46393894afcfe6cd98a6761fa692c594');
+    expect(params.to).toBe('0x52e5bcfa46393894afcfe6cd98a6761fa692c594');
     expect(balance.events[0].amount).toBe('320833333333331260');
-    expect(balance.events[0].timestamp).toBe(1642693617);
+    expect(balance.events[0].timestamp).toBe('1642693617');
   });
 });
