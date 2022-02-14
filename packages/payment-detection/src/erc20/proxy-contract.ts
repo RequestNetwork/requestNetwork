@@ -4,8 +4,8 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+
 import { DeploymentInformation, erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
-import { NetworkNotSupported, VersionNotSupported } from '../balance-error';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
@@ -55,27 +55,10 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
       return [];
     }
 
-    let proxyContractAddress: string;
-    let proxyCreationBlockNumber: number;
-    try {
-      const info = this.getProxyDeploymentInformation(paymentChain, paymentNetwork.version);
-      proxyContractAddress = info.address;
-      proxyCreationBlockNumber = info.creationBlockNumber;
-    } catch (e) {
-      const errMessage = (e as Error)?.message || '';
-      if (errMessage.startsWith('No deployment for network')) {
-        throw new NetworkNotSupported(
-          `Network not supported for this payment network: ${paymentChain}`,
-        );
-      }
-      if (
-        errMessage.startsWith('No contract matches payment network version') ||
-        errMessage.startsWith('No deployment for version')
-      ) {
-        throw new VersionNotSupported(errMessage);
-      }
-      throw e;
-    }
+    const {
+      address: proxyContractAddress,
+      creationBlockNumber: proxyCreationBlockNumber,
+    } = ERC20ProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
     const infoRetriever = networkSupportsTheGraph(paymentChain)
       ? new TheGraphInfoRetriever(

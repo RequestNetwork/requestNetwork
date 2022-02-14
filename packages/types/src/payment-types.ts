@@ -111,7 +111,6 @@ export interface ICustomNetworkEvent<TEventParameters, TEventNames = ESCROW_EVEN
   extends IPaymentNetworkBaseEvent<TEventNames> {
   parameters?: TEventParameters;
 }
-
 /**
  * Declarative balance and events for detection-based payment networks
  */
@@ -232,14 +231,6 @@ export interface IBTCPaymentEventParameters {
 export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<IBTCPaymentEventParameters>;
 /** BTC BalanceWithEvents */
 export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters>;
-
-/** Parameters for events of Declarative payments */
-export interface IDeclarativePaymentEventParameters {
-  txHash?: string;
-  network?: string;
-  note?: string;
-  from?: IIdentity;
-}
 
 /** Parameters for escrow events from EscrowERC20 contract state changes */
 export interface IEscrowEventParameters {

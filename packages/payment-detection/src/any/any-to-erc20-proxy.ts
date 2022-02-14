@@ -1,4 +1,4 @@
-import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
+import { DeploymentInformation, erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -95,7 +95,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     const {
       address: conversionProxyContractAddress,
       creationBlockNumber: conversionProxyCreationBlockNumber,
-    } = this.getProxyDeploymentInformation(paymentChain, paymentNetwork.version);
+    } = AnyToERC20PaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
     const conversionProxyAbi = erc20ConversionProxy.getContractAbi(paymentNetwork.version);
 
@@ -138,7 +138,10 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     return network;
   }
 
-  protected getProxyDeploymentInformation(networkName: string, version: string) {
+  protected getProxyDeploymentInformation(
+    networkName: string,
+    version: string,
+  ): DeploymentInformation {
     return AnyToERC20PaymentDetector.getDeploymentInformation(networkName, version);
   }
 

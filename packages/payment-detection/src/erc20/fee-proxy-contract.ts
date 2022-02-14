@@ -1,4 +1,4 @@
-import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { DeploymentInformation, erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -13,7 +13,6 @@ import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { loadCurrencyFromContract } from './currency';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
-import { NetworkNotSupported, VersionNotSupported } from '../balance-error';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -97,25 +96,10 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
       return Promise.resolve([]);
     }
 
-    const deploymentInformation = this.getProxyDeploymentInformation(
-      paymentChain,
-      paymentNetwork.version,
-    );
-
-    if (!deploymentInformation) {
-      throw new VersionNotSupported(
-        `Payment network version not supported: ${paymentNetwork.version}`,
-      );
-    }
-
-    const proxyContractAddress: string | undefined = deploymentInformation.address;
-    const proxyCreationBlockNumber: number = deploymentInformation.creationBlockNumber;
-
-    if (!proxyContractAddress) {
-      throw new NetworkNotSupported(
-        `Network not supported for this payment network: ${requestCurrency.network}`,
-      );
-    }
+    const {
+      address: proxyContractAddress,
+      creationBlockNumber: proxyCreationBlockNumber,
+    } = ERC20FeeProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
     const infoRetriever = networkSupportsTheGraph(paymentChain)
       ? new TheGraphInfoRetriever(
@@ -141,7 +125,10 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
     >;
   }
 
-  protected getProxyDeploymentInformation(networkName: string, version: string) {
+  protected getProxyDeploymentInformation(
+    networkName: string,
+    version: string,
+  ): DeploymentInformation {
     return ERC20FeeProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 

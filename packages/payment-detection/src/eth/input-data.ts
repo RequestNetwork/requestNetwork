@@ -82,11 +82,12 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       this.explorerApiKeys[paymentChain],
     );
     const events = await infoRetriever.getTransferEvents();
-    try {
-      const proxyContractArtifact = this.getProxyDeploymentInformation(
-        paymentChain,
-        paymentNetwork.version,
-      );
+    const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(
+      paymentChain,
+      paymentNetwork.version,
+    );
+
+    if (proxyContractArtifact) {
       const proxyInfoRetriever = networkSupportsTheGraph(paymentChain)
         ? new TheGraphInfoRetriever(
             paymentReference,
@@ -107,13 +108,6 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
 
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
       events.push(...proxyEvents);
-      return events;
-    } catch (e) {
-      if (e instanceof MissingProxyContract) {
-        console.log('Missing proxy contract for input data');
-      } else {
-        throw e;
-      }
     }
     return events;
   }

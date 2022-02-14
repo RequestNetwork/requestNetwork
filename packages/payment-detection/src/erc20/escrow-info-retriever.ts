@@ -1,6 +1,8 @@
 import { PaymentTypes } from '@requestnetwork/types';
+
 import { BigNumber, ethers } from 'ethers';
 import { IEventRetriever } from '../types';
+
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
 

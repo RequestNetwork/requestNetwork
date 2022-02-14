@@ -13,6 +13,7 @@ import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { networkSupportsTheGraph } from '../thegraph';
 import { TheGraphConversionRetriever } from './retrievers/thegraph';
+import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -73,11 +74,12 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     if (!address) {
       return [];
     }
-    const contractInfo = this.getProxyDeploymentInformation(paymentChain, paymentNetwork.version);
 
-    if (!contractInfo) {
-      throw Error('ETH conversion proxy contract not found');
-    }
+    const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
+      paymentChain,
+      paymentNetwork.version,
+    );
+
     const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
@@ -127,7 +129,10 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     return network;
   }
 
-  protected getProxyDeploymentInformation(networkName: string, version: string) {
+  protected getProxyDeploymentInformation(
+    networkName: string,
+    version: string,
+  ): DeploymentInformation {
     return AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
