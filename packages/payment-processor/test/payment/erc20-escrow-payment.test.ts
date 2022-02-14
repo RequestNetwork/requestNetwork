@@ -88,29 +88,29 @@ describe('erc20-escrow-payment tests:', () => {
     it('Should throw an error if the request is not erc20', async () => {
       const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
-  
+
       await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
-        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
+        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
     it('Should throw an error if the currencyInfo has no value', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
-        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
+        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
     it('Should throw an error if currencyInfo has no network', async () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.network = '';
       await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
-        "request cannot be processed, or is not an pn-erc20-fee-proxy-contract request",
+        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
     it('Should throw an error if request has no extension', async () => {
       const request = Utils.deepCopy(validRequest);
       request.extensions = [] as any;
-  
+
       await expect(Escrow.payEscrow(request, wallet)).rejects.toThrowError(
         'no payment network found',
       );
@@ -251,7 +251,7 @@ describe('erc20-escrow-payment tests:', () => {
         // Payer initiate emergency claim.
         const tx = await Escrow.initiateEmergencyClaim(request, payee);
         const confirmedTx = await tx.wait(1);
-        
+
         // Checks the status and tx.hash.
         expect(confirmedTx.status).toBe(1);
         expect(tx.hash).toBeDefined();
@@ -269,7 +269,7 @@ describe('erc20-escrow-payment tests:', () => {
 
         // Payer initiate emergency claim.
         await (await Escrow.initiateEmergencyClaim(request, payee)).wait(1);
-        
+
         // Payer reverts the emergency claim.
         const tx = await Escrow.revertEmergencyClaim(request, wallet);
         const confirmedTx = await tx.wait(1);
@@ -279,7 +279,7 @@ describe('erc20-escrow-payment tests:', () => {
         expect(tx.hash).toBeDefined();
       });
     });
-    
+
     describe('Freeze Request Flow:', () => {
       it('Should freeze funds:', async () => {
         // Set a new requestID to test independent unit-tests.
@@ -307,10 +307,10 @@ describe('erc20-escrow-payment tests:', () => {
 
         // Payer executes a freeze of escrow funds.
         await (await Escrow.freezeRequest(request, wallet)).wait(1);
-        
+
         // Payer tries to withdraw frozen funds before unlock date.
-        await expect(Escrow.refundFrozenFunds(request, wallet)).rejects.toThrowError('Not Yet!',);
+        await expect(Escrow.refundFrozenFunds(request, wallet)).rejects.toThrowError('Not Yet!');
       });
     });
   });
-}); 
+});

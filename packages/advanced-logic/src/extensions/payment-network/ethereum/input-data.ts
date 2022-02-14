@@ -13,6 +13,8 @@ const supportedNetworks = [
   'fantom',
   'bsctest',
   'bsc',
+  'arbitrum-rinkeby',
+  'arbitrum-one',
 ];
 
 /**

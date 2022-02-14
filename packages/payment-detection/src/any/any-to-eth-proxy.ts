@@ -11,6 +11,8 @@ import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/curr
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
+import { networkSupportsTheGraph } from '../thegraph';
+import { TheGraphConversionRetriever } from './retrievers/thegraph';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -19,6 +21,7 @@ interface IProxyContractVersion {
 
 const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
   ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.2.0',
 };
 
 /**
@@ -28,21 +31,25 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
   ExtensionTypes.PnAnyToEth.IAnyToEth,
   PaymentTypes.IETHPaymentEventParameters
 > {
+  private useTheGraph: (network: string) => boolean;
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({
     advancedLogic,
     currencyManager,
+    useTheGraph = networkSupportsTheGraph,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     currencyManager: ICurrencyManager;
+    useTheGraph?: typeof networkSupportsTheGraph;
   }) {
     super(
       PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
       currencyManager,
     );
+    this.useTheGraph = useTheGraph;
   }
 
   /**
@@ -66,10 +73,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     if (!address) {
       return [];
     }
-    const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
-      paymentChain,
-      paymentNetwork.version,
-    );
+    const contractInfo = this.getProxyDeploymentInformation(paymentChain, paymentNetwork.version);
 
     if (!contractInfo) {
       throw Error('ETH conversion proxy contract not found');
@@ -81,18 +85,29 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
       throw new UnsupportedCurrencyError(requestCurrency.value);
     }
 
-    const proxyInfoRetriever = new AnyToEthInfoRetriever(
-      currency,
-      paymentReference,
-      contractInfo.address,
-      contractInfo.creationBlockNumber,
-      abi,
-      address,
-      eventName,
-      paymentChain,
-      undefined,
-      paymentNetwork.values?.maxRateTimespan,
-    );
+    const proxyInfoRetriever = this.useTheGraph(paymentChain)
+      ? new TheGraphConversionRetriever(
+          currency,
+          paymentReference,
+          contractInfo.address,
+          address,
+          eventName,
+          paymentChain,
+          undefined,
+          paymentNetwork.values?.maxRateTimespan,
+        )
+      : new AnyToEthInfoRetriever(
+          currency,
+          paymentReference,
+          contractInfo.address,
+          contractInfo.creationBlockNumber,
+          abi,
+          address,
+          eventName,
+          paymentChain,
+          undefined,
+          paymentNetwork.values?.maxRateTimespan,
+        );
 
     return await proxyInfoRetriever.getTransferEvents();
   }
@@ -110,6 +125,10 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
     return network;
+  }
+
+  protected getProxyDeploymentInformation(networkName: string, version: string) {
+    return AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   /*

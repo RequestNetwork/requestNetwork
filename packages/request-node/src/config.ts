@@ -99,6 +99,14 @@ export function getStorageWeb3ProviderUrl(): string {
   );
 }
 
+export function getGraphNodeUrl(): string | undefined {
+  return (
+    argv.graphNodeUrl ||
+    process.env.GRAPH_NODE_URL ||
+    defaultValues.ethereumStorage.ethereum.graphNodeUrl
+  );
+}
+
 /**
  * Get host from command line argument, environment variables or default values to connect to IPFS gateway
  * @returns the host of the IPFS gateway
@@ -243,6 +251,18 @@ export function getPersistTransactionTimeout(): number {
     process.env.PERSIST_TRANSACTION_TIMEOUT ||
     defaultValues.ethereumStorage.persistTransactionTimeout
   );
+}
+
+/**
+ * Get the IPFS connection configuration.
+ */
+export function getIpfsConfiguration(): StorageTypes.IIpfsGatewayConnection {
+  return {
+    host: getIpfsHost(),
+    port: getIpfsPort(),
+    protocol: getIpfsProtocol(),
+    timeout: getIpfsTimeout(),
+  };
 }
 
 /**

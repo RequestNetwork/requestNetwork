@@ -30,10 +30,10 @@ contract ERC20SwapToConversion is Ownable {
   Erc20ConversionProxy public paymentProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
-  constructor(address _swapRouterAddress, address _paymentProxyAddress) {
+  constructor(address _swapRouterAddress, address _paymentProxyAddress, address _chainlinkConversionPath) {
     swapRouter = IUniswapV2Router02(_swapRouterAddress);
     paymentProxy = Erc20ConversionProxy(_paymentProxyAddress);
-    chainlinkConversionPath = ChainlinkConversionPath(paymentProxy.chainlinkConversionPath());
+    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPath);
   }
 
   /**

@@ -8,17 +8,8 @@ import KeyvFile from 'keyv-file';
 import Web3WsProvider from 'web3-providers-ws';
 import HDWalletProvider from '@truffle/hdwallet-provider';
 
-export function getIpfsConfiguration(): StorageTypes.IIpfsGatewayConnection {
-  return {
-    host: config.getIpfsHost(),
-    port: config.getIpfsPort(),
-    protocol: config.getIpfsProtocol(),
-    timeout: config.getIpfsTimeout(),
-  };
-}
-
 export function getIpfsStorage(logger?: LogTypes.ILogger): StorageTypes.IIpfsStorage {
-  return new IpfsStorage({ ipfsGatewayConnection: getIpfsConfiguration(), logger });
+  return new IpfsStorage({ ipfsGatewayConnection: config.getIpfsConfiguration(), logger });
 }
 
 /**

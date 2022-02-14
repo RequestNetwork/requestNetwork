@@ -4,6 +4,7 @@ import { BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
+import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests
@@ -163,4 +164,9 @@ export abstract class ReferenceBasedDetector<
     this.checkRequiredParameter(salt, 'salt');
     return PaymentReferenceCalculator.calculate(request.requestId, salt, paymentAddress);
   }
+
+  protected abstract getProxyDeploymentInformation(
+    networkName: string,
+    version: string,
+  ): DeploymentInformation;
 }

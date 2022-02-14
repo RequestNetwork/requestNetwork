@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+import { abi as ABI_0_2_0 } from './0.2.0.json';
 // @ts-ignore Cannot find module
 import type { ChainlinkConversionPath } from '../../../types/ChainlinkConversionPath';
 
@@ -45,6 +46,31 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 10141032,
         },
+        'arbitrum-rinkeby': {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 8403926,
+        },
+      },
+    },
+    '0.2.0': {
+      abi: ABI_0_2_0,
+      deployment: {
+        private: {
+          address: '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c',
+          creationBlockNumber: 0,
+        },
+        rinkeby: {
+          address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
+          creationBlockNumber: 10023414,
+        },
+        fantom: {
+          address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
+          creationBlockNumber: 28548259,
+        },
+        'arbitrum-one': {
+          address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
+          creationBlockNumber: 5317970,
+        },
       },
     },
   },
@@ -60,5 +86,5 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
     },
   },
   */
-  '0.1.0',
+  '0.2.0',
 );

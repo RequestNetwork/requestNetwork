@@ -157,7 +157,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     }
     if (!this.currencyManager.supportsConversion(currency, network)) {
       throw new Error(
-        `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
+        `The currency (${currency.id}, ${currency.hash}) of the request is not supported for this payment network.`,
       );
     }
   }

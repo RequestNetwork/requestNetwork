@@ -1,6 +1,3 @@
 {
-  "packages/**/src/**/*.ts": [
-    "eslint --fix",
-    "prettier --write"
-  ]
+  "*.[jt]s": ["eslint --fix --quiet", "prettier --write"]
 }

@@ -83,7 +83,8 @@ _Payment terms_
 | miscellaneous   | object    | Optional | Miscellaneous information                                          |
 
 ## tax
+
 | Name   | Type   | Need      | Comment                                                                      |
-| ------ | -------| --------- | ---------------------------------------------------------------------------- |
+| ------ | ------ | --------- | ---------------------------------------------------------------------------- |
 | type   | string | Mandatory | tax type, can be "percentage" or "fixed"                                     |
 | amount | string | Mandatory | tax amount, either a percentage or an amount (integer in currency base unit) |

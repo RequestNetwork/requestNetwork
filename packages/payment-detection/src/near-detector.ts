@@ -7,6 +7,7 @@ import {
 
 import { ReferenceBasedDetector } from './reference-based-detector';
 import { NearInfoRetriever } from './near-info-retriever';
+import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -96,6 +97,9 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     );
     const events = await infoRetriever.getTransferEvents();
     return events;
+  }
+  protected getProxyDeploymentInformation(): DeploymentInformation {
+    throw new Error('not implemented for near');
   }
 
   protected static getVersionOrThrow = (paymentNetworkVersion: string): string => {

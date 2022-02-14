@@ -1,3 +1,5 @@
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
+
 /**
  * List of contract addresses with the same interface as Uniswap V2 Router.
  * Used for SwapToPay and SwapToConvert.
@@ -16,4 +18,26 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
   matic: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
   // https://app.ubeswap.org/#/swap
   celo: '0x7D28570135A2B1930F331c507F65039D4937f66c',
+  // No swap v2 found
+  'arbitrum-rinkeby': '0x0000000000000000000000000000000000000000',
+  'arbitrum-one': '0x0000000000000000000000000000000000000000',
+};
+
+/**
+ * Executes as many empty transactions as needed for the nonce goes up to a certain target.
+ * Assuming that the deployer is the first signer.
+ */
+export const jumpToNonce = async (args: any, hre: HardhatRuntimeEnvironment, nonce: number) => {
+  const [deployer] = await hre.ethers.getSigners();
+  if (args.simulate) {
+    const currentNonce = await deployer.getTransactionCount();
+    if (currentNonce < nonce) {
+      console.log(`Simulating a jump to nonce ${nonce} (current: ${currentNonce})`);
+    }
+    return;
+  }
+  while ((await deployer.getTransactionCount()) < nonce) {
+    // Atificially increase nonce if needed
+    await deployer.sendTransaction({ to: deployer.address });
+  }
 };

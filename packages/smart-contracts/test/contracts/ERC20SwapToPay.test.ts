@@ -94,7 +94,7 @@ describe('contract: SwapToPay', () => {
         referenceExample,
         1,
         builder,
-        exchangeRateOrigin + 100,
+        exchangeRateOrigin + 1000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -129,7 +129,7 @@ describe('contract: SwapToPay', () => {
         referenceExample,
         0,
         builder,
-        exchangeRateOrigin + 100,
+        exchangeRateOrigin + 1000, // -> 1000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
       ),
     )
       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
@@ -158,9 +158,9 @@ describe('contract: SwapToPay', () => {
         referenceExample,
         1,
         builder,
-        exchangeRateOrigin + 15,
+        exchangeRateOrigin + 10000, // 15 -> 10000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
     await expectFromBalanceUnchanged();
   });
 
@@ -176,7 +176,7 @@ describe('contract: SwapToPay', () => {
         builder,
         exchangeRateOrigin - 15, // Past deadline
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('UniswapV2Router: EXPIRED');
     await expectFromBalanceUnchanged();
   });
 
@@ -201,7 +201,7 @@ describe('contract: SwapToPay', () => {
         builder,
         exchangeRateOrigin + 15,
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('Not sufficient allowance for swap to pay');
     await expectFromBalanceUnchanged();
   });
 
@@ -222,7 +222,7 @@ describe('contract: SwapToPay', () => {
         builder,
         exchangeRateOrigin + 15,
       ),
-    ).to.be.reverted;
+    ).to.be.revertedWith('Not sufficient allowance for swap to pay');
     await expectFromBalanceUnchanged();
   });
 
@@ -272,7 +272,7 @@ describe('contract: SwapToPay', () => {
           referenceExample,
           1,
           builder,
-          exchangeRateOrigin + 100,
+          exchangeRateOrigin + 10000, // -> 10000 Or it can reverts to UniswapV2Router: EXPIRED (network dependent)
         ),
       )
         .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')

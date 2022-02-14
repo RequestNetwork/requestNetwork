@@ -8,7 +8,7 @@ const tokens = Object.entries(contractMap)
   .sort((a, b) => a.symbol > b.symbol);
 
 const CurrencyList = ({ currencies, selected, onClick }) => {
-  const currList = currencies.map(token => (
+  const currList = currencies.map((token) => (
     <li
       key={token.symbol}
       onClick={() => onClick(token)}
@@ -51,7 +51,7 @@ export default () => {
   const [currencies, setCurrencies] = React.useState(tokens);
   const [search, setSearch] = React.useState('');
   const [selectedCurrency, setSelectedCurrency] = React.useState(
-    tokens.find(r => r.symbol === 'REQ'),
+    tokens.find((r) => r.symbol === 'REQ'),
   );
 
   React.useEffect(() => {
@@ -59,7 +59,7 @@ export default () => {
       setCurrencies(tokens);
     } else {
       setCurrencies(
-        tokens.filter(token => token.symbol.toLowerCase().includes(search.toLowerCase())),
+        tokens.filter((token) => token.symbol.toLowerCase().includes(search.toLowerCase())),
       );
     }
   }, [search]);
@@ -71,11 +71,11 @@ export default () => {
         className={styles.searchBar}
         placeholder="Search token"
         value={search}
-        onChange={e => setSearch(e.target.value)}
+        onChange={(e) => setSearch(e.target.value)}
       />
       <CurrencyList
         currencies={currencies}
-        onClick={token => setSelectedCurrency(token)}
+        onClick={(token) => setSelectedCurrency(token)}
         selected={selectedCurrency}
       />
       <CurrencyDetails currency={selectedCurrency} />

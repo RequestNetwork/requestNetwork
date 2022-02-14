@@ -10,8 +10,9 @@ import { EthInputDataInfoRetriever } from './info-retriever';
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
-import { networkSupportsTheGraphForNativePayments } from '../thegraph';
+import { networkSupportsTheGraph } from '../thegraph';
 import { TheGraphInfoRetriever } from '../erc20/thegraph-info-retriever';
+import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -23,6 +24,8 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
   ['0.1.0']: '0.1.0',
   ['0.2.0']: '0.1.0',
 };
+
+class MissingProxyContract extends Error {}
 
 /**
  * Handle payment networks with ETH input data extension
@@ -79,13 +82,12 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       this.explorerApiKeys[paymentChain],
     );
     const events = await infoRetriever.getTransferEvents();
-    const proxyContractArtifact = EthInputDataPaymentDetector.getDeploymentInformation(
-      paymentChain,
-      paymentNetwork.version,
-    );
-
-    if (proxyContractArtifact) {
-      const proxyInfoRetriever = networkSupportsTheGraphForNativePayments(paymentChain)
+    try {
+      const proxyContractArtifact = this.getProxyDeploymentInformation(
+        paymentChain,
+        paymentNetwork.version,
+      );
+      const proxyInfoRetriever = networkSupportsTheGraph(paymentChain)
         ? new TheGraphInfoRetriever(
             paymentReference,
             proxyContractArtifact.address,
@@ -105,8 +107,30 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
 
       const proxyEvents = await proxyInfoRetriever.getTransferEvents();
       events.push(...proxyEvents);
+      return events;
+    } catch (e) {
+      if (e instanceof MissingProxyContract) {
+        console.log('Missing proxy contract for input data');
+      } else {
+        throw e;
+      }
     }
     return events;
+  }
+
+  protected getProxyDeploymentInformation(
+    networkName: string,
+    version: string,
+  ): DeploymentInformation {
+    const proxyContractArticlard = EthInputDataPaymentDetector.getDeploymentInformation(
+      networkName,
+      version,
+    );
+    if (proxyContractArticlard) {
+      return proxyContractArticlard;
+    } else {
+      throw new MissingProxyContract();
+    }
   }
 
   /*
@@ -115,5 +139,6 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   public static getDeploymentInformation = makeGetDeploymentInformation(
     SmartContracts.ethereumProxyArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,
+    true,
   );
 }

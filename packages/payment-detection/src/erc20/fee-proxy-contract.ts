@@ -6,7 +6,6 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
-import { NetworkNotSupported, VersionNotSupported } from '../balance-error';
 import ProxyInfoRetriever from './proxy-info-retriever';
 
 import { networkSupportsTheGraph } from '../thegraph';
@@ -14,6 +13,7 @@ import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { loadCurrencyFromContract } from './currency';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
+import { NetworkNotSupported, VersionNotSupported } from '../balance-error';
 
 const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
@@ -97,7 +97,7 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
       return Promise.resolve([]);
     }
 
-    const deploymentInformation = ERC20FeeProxyPaymentDetector.getDeploymentInformation(
+    const deploymentInformation = this.getProxyDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
@@ -139,6 +139,10 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
     return infoRetriever.getTransferEvents() as Promise<
       PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]
     >;
+  }
+
+  protected getProxyDeploymentInformation(networkName: string, version: string) {
+    return ERC20FeeProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   /*

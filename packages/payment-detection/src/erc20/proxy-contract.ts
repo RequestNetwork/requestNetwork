@@ -4,7 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
+import { DeploymentInformation, erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import { NetworkNotSupported, VersionNotSupported } from '../balance-error';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
@@ -58,10 +58,7 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
     let proxyContractAddress: string;
     let proxyCreationBlockNumber: number;
     try {
-      const info = ERC20ProxyPaymentDetector.getDeploymentInformation(
-        paymentChain,
-        paymentNetwork.version,
-      );
+      const info = this.getProxyDeploymentInformation(paymentChain, paymentNetwork.version);
       proxyContractAddress = info.address;
       proxyCreationBlockNumber = info.creationBlockNumber;
     } catch (e) {
@@ -100,6 +97,13 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
         );
 
     return infoRetriever.getTransferEvents();
+  }
+
+  protected getProxyDeploymentInformation(
+    networkName: string,
+    version: string,
+  ): DeploymentInformation {
+    return ERC20ProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   /*

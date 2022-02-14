@@ -5,12 +5,9 @@ import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import { task } from 'hardhat/config';
 import { config } from 'dotenv';
-import deployRequest from './scripts/1_deploy-request-storage';
-import deployPayment from './scripts/2_deploy-main-payments';
-import deployConversion from './scripts/3_deploy_chainlink_contract';
+import deployAllContracts from './scripts/5_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
-import { deployEscrow } from './scripts/4_deploy-escrow-deployment';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
@@ -73,9 +70,24 @@ export default {
       chainId: 100,
       accounts,
     },
+    fuse: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://rpc.fuse.io',
+      chainId: 122,
+      accounts,
+    },
     fantom: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rpcapi.fantom.network',
       chainId: 250,
+      accounts,
+    },
+    'arbitrum-one': {
+      url: process.env.WEB3_PROVIDER_URL || 'https://arb1.arbitrum.io/rpc',
+      chainId: 42161,
+      accounts,
+    },
+    'arbitrum-rinkeby': {
+      url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.arbitrum.io/rpc',
+      chainId: 421611,
       accounts,
     },
   },
@@ -87,6 +99,9 @@ export default {
     outDir: 'src/types',
     target: 'ethers-v5',
     alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
+  },
+  mocha: {
+    timeout: 60000, // Usefull on test networks
   },
 };
 
@@ -107,16 +122,17 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
       hre.config.etherscan.apiKey = process.env.FTMSCAN_API_KEY;
       return;
     }
+    case 'arbitrum-one': {
+      hre.config.etherscan.apiKey = process.env.ARBISCAN_API_KEY;
+      return;
+    }
   }
 };
 
 // FIXME: use deployAllPaymentContracts instead to test with the same deployments
 task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hre) => {
   args.force = true;
-  await deployRequest(args, hre);
-  await deployPayment(args, hre);
-  await deployConversion(args, hre);
-  await deployEscrow(hre);
+  await deployAllContracts(args, hre);
   console.log('All contracts (re)deployed locally');
 });
 

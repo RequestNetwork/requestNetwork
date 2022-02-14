@@ -5,7 +5,7 @@ import * as Bluebird from 'bluebird';
 import * as config from './config';
 import EthereumBlocks from './ethereum-blocks';
 import EthereumUtils from './ethereum-utils';
-import GasPriceDefiner from './gas-price-definer';
+import { GasPriceDefiner } from './gas-price-definer';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const web3Eth = require('web3-eth');

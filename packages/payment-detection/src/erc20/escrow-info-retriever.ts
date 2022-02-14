@@ -1,15 +1,15 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ethers } from 'ethers';
+import { IEventRetriever } from '../types';
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
-
 
 // The ERC20 escrow smart contract ABI fragment containing escrow specific events.
 const erc20EscrowContractAbiFragment = [
   'event RequestFrozen(bytes indexed paymentReference)',
   'event InitiatedEmergencyClaim(bytes indexed paymentReference)',
   'event RevertedEmergencyClaim(bytes indexed paymentReference)',
-  'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)'
+  'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
 ];
 
 /** Escrow contract event arguments. */
@@ -23,21 +23,22 @@ type TransferWithReferenceAndFeeArgs = EscrowArgs & {
   amount: BigNumber;
   feeAmount: BigNumber;
   feeAddress: string;
-}
+};
 
 /**
  * Retrieves a list of payment events from a escrow contract.
+ * 
+    PaymentTypes.IPaymentNetworkBaseInfoRetriever<
+      PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>,
  */
 export default class EscrowERC20InfoRetriever
   implements
-    PaymentTypes.IPaymentNetworkBaseInfoRetriever<
-    PaymentTypes.ICustomNetworkEvent<
-      PaymentTypes.GenericEventParameters>,
+    IEventRetriever<
+      PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>,
       PaymentTypes.ESCROW_EVENTS_NAMES
     > {
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
-
 
   /**
    * @param paymentReference The reference to identify the payment.
@@ -55,7 +56,7 @@ export default class EscrowERC20InfoRetriever
     private tokenContractAddress: string,
     private toAddress: string,
     private network: string,
-    private eventName?: PaymentTypes.ESCROW_EVENTS_NAMES
+    private eventName?: PaymentTypes.ESCROW_EVENTS_NAMES,
   ) {
     // Creates a local or default provider.
     this.provider = getDefaultProvider(this.network);
@@ -67,14 +68,14 @@ export default class EscrowERC20InfoRetriever
       this.provider,
     );
   }
-
   /**
    * Retrieves events for the current contract, address and network.
    */
   public async getAllContractEvents(): Promise<
     PaymentTypes.ICustomNetworkEvent<
       PaymentTypes.GenericEventParameters,
-      PaymentTypes.ESCROW_EVENTS_NAMES>[]
+      PaymentTypes.ESCROW_EVENTS_NAMES
+    >[]
   > {
     const freezeEvents = await this.getContractEventsForEventName(
       PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
@@ -85,17 +86,14 @@ export default class EscrowERC20InfoRetriever
     const revertEmergencyEvents = await this.getContractEventsForEventName(
       PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
     );
-    const initEscrowEvents = await this.getContractEventsForEventName(
-      PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW,
-    );
 
-    return [...freezeEvents, ...initEmergencyEvents, ...revertEmergencyEvents, ...initEscrowEvents];
+    return [...freezeEvents, ...initEmergencyEvents, ...revertEmergencyEvents];
   }
 
   public async getContractEvents(): Promise<
-    | PaymentTypes.ICustomNetworkEvent<
-        PaymentTypes.GenericEventParameters,
-        PaymentTypes.ESCROW_EVENTS_NAMES
+    PaymentTypes.ICustomNetworkEvent<
+      PaymentTypes.GenericEventParameters,
+      PaymentTypes.ESCROW_EVENTS_NAMES
     >[]
   > {
     if (!this.eventName) {
@@ -107,12 +105,13 @@ export default class EscrowERC20InfoRetriever
   /**
    * Retrieves events for the current contract, address and network.
    */
-  protected async getContractEventsForEventName(
+  public async getContractEventsForEventName(
     eventName: PaymentTypes.ESCROW_EVENTS_NAMES,
   ): Promise<
-      PaymentTypes.ICustomNetworkEvent<
-        PaymentTypes.GenericEventParameters,
-        PaymentTypes.ESCROW_EVENTS_NAMES>[]
+    PaymentTypes.ICustomNetworkEvent<
+      PaymentTypes.GenericEventParameters,
+      PaymentTypes.ESCROW_EVENTS_NAMES
+    >[]
   > {
     const filter: ethers.providers.Filter | undefined =
       eventName === PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT
@@ -153,18 +152,23 @@ export default class EscrowERC20InfoRetriever
           parsedLog: parseLogArgs<TransferWithReferenceAndFeeArgs>(parsedLog),
         };
       })
-      
+
       // Keeps only the log with the right token and the right destination address
-      .filter(
-        ({ parsedLog }) =>
-          parsedLog.tokenAddress.toLowerCase() === this.tokenContractAddress.toLowerCase() &&
-          parsedLog.to.toLowerCase() === this.toAddress.toLowerCase(),
-      )
+      .filter(({ parsedLog }) => {
+        if (parsedLog.tokenAddress) {
+          return (
+            parsedLog.tokenAddress.toLowerCase() === this.tokenContractAddress.toLowerCase() &&
+            parsedLog.to.toLowerCase() === this.toAddress.toLowerCase()
+          );
+        } else {
+          return true;
+        }
+      })
 
       // Creates the escrow events.
       .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
         // TODO fix me
-        amount: parsedLog.amount.toString() || undefined,
+        amount: parsedLog.amount?.toString() || undefined,
         name: eventName,
         parameters: {
           block: blockNumber,

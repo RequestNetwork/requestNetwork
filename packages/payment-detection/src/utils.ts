@@ -1,8 +1,9 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish, Contract } from 'ethers';
-import { LogDescription } from 'ethers/lib/utils';
+import { keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
+import { NetworkNotSupported, VersionNotSupported } from './balance-error';
 
 /**
  * Converts the Log's args from array to an object with keys being the name of the arguments
@@ -54,25 +55,48 @@ const getChainlinkPaddingSize = ({
 };
 
 export type DeploymentInformationWithVersion = DeploymentInformation & { contractVersion: string };
-export type GetDeploymentInformation = (
+export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
   network: string,
   paymentNetworkVersion: string,
-) => DeploymentInformationWithVersion;
+) => TAllowUndefined extends false
+  ? DeploymentInformationWithVersion
+  : DeploymentInformationWithVersion | null;
 
 /*
  * Returns the method to get deployment information for the underlying smart contract (based on a payment network version)
  * for given artifact and version mapping.
  */
-export const makeGetDeploymentInformation = <TVersion extends string = string>(
+export const makeGetDeploymentInformation = <
+  TVersion extends string = string,
+  TAllowUndefined extends boolean = false
+>(
   artifact: ContractArtifact<Contract>,
   map: Record<string, TVersion>,
-): GetDeploymentInformation => {
+  allowUndefined?: TAllowUndefined,
+): GetDeploymentInformation<TAllowUndefined> => {
   return (network, paymentNetworkVersion) => {
     const contractVersion = map[paymentNetworkVersion];
     if (!contractVersion) {
-      throw Error(`No contract matches payment network version: ${paymentNetworkVersion}.`);
+      throw new VersionNotSupported(
+        `No contract matches payment network version: ${paymentNetworkVersion}.`,
+      );
     }
-    const info = artifact.getDeploymentInformation(network, contractVersion);
+    const info = artifact.getOptionalDeploymentInformation(network, contractVersion);
+    if (!info) {
+      if (!allowUndefined) {
+        if (artifact.getOptionalDeploymentInformation(network)) {
+          throw new VersionNotSupported(
+            `Payment network version not supported: ${paymentNetworkVersion}`,
+          );
+        }
+        throw new NetworkNotSupported(`Network not supported for this payment network: ${network}`);
+      }
+      return null as ReturnType<GetDeploymentInformation<TAllowUndefined>>;
+    }
     return { ...info, contractVersion };
   };
+};
+
+export const hashReference = (paymentReference: string): string => {
+  return keccak256(`0x${paymentReference}`);
 };
