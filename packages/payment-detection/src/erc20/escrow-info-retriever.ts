@@ -86,11 +86,8 @@ export default class EscrowERC20InfoRetriever
     const revertEmergencyEvents = await this.getContractEventsForEventName(
       PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
     );
-    const initEscrowEvents = await this.getContractEventsForEventName(
-      PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW,
-    );
 
-    return [...freezeEvents, ...initEmergencyEvents, ...revertEmergencyEvents, ...initEscrowEvents];
+    return [...freezeEvents, ...initEmergencyEvents, ...revertEmergencyEvents];
   }
 
   public async getContractEvents(): Promise<
@@ -157,16 +154,21 @@ export default class EscrowERC20InfoRetriever
       })
 
       // Keeps only the log with the right token and the right destination address
-      .filter(
-        ({ parsedLog }) =>
-          parsedLog.tokenAddress.toLowerCase() === this.tokenContractAddress.toLowerCase() &&
-          parsedLog.to.toLowerCase() === this.toAddress.toLowerCase(),
-      )
+      .filter(({ parsedLog }) => {
+        if (parsedLog.tokenAddress) {
+          return (
+            parsedLog.tokenAddress.toLowerCase() === this.tokenContractAddress.toLowerCase() &&
+            parsedLog.to.toLowerCase() === this.toAddress.toLowerCase()
+          );
+        } else {
+          return true;
+        }
+      })
 
       // Creates the escrow events.
       .map(async ({ parsedLog, blockNumber, transactionHash }) => ({
         // TODO fix me
-        amount: parsedLog.amount.toString() || undefined,
+        amount: parsedLog.amount?.toString() || undefined,
         name: eventName,
         parameters: {
           block: blockNumber,
