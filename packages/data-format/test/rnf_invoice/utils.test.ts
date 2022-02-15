@@ -174,4 +174,22 @@ describe('getInvoiceTotal', () => {
       }).toString(),
     ).toEqual('1515165');
   });
+
+  it('rounds the total correctly', () => {
+    expect(
+      getInvoiceTotal({
+        ...baseInvoice,
+        invoiceItems: [
+          {
+            ...baseInvoiceItem,
+            unitPrice: '3333',
+            tax: {
+              type: 'percentage',
+              amount: '20',
+            },
+          },
+        ],
+      }).toString(),
+    ).toEqual('4000');
+  });
 });
