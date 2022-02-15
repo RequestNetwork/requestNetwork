@@ -9,9 +9,6 @@ export const getInvoiceTotal = (invoice: Invoice): BigNumber => {
 };
 
 export const getInvoiceLineTotal = (item: InvoiceItem): BigNumber => {
-  // Every amount in currency is a big number with the good number of decimals for this currency
-  // Tax percent is not an amount in currency. To allow a big number multiplication, we convert
-  //  it temporarily with preciselyOne (allows 6 decimals, ie 0.123456%)
 
   // Support for rnf_version < 0.0.3
   const tax = item.taxPercent
