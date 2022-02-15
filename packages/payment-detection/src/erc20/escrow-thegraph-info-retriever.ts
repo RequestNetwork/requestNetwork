@@ -59,7 +59,7 @@ export default class EscrowERC20GraphInfoRetriever
     }));
   }
 
-  public async getEscrow(): Promise<PaymentTypes.Escrow[]> {
+  public async getEscrow(): Promise<PaymentTypes.EscrowData[]> {
     const variables = this.getGraphEscrowEventsVariables();
     const queryResults = await this.client.GetEscrowState(variables);
     return queryResults.escrows.map((p) => ({

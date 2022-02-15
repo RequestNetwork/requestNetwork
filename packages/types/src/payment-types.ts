@@ -263,4 +263,4 @@ export interface IEscrowParameters {
   feeAddress: string;
 }
 /** Represents the current state of an escrow instance */
-export type Escrow = IEscrowParameters;
+export type EscrowData = IEscrowParameters;

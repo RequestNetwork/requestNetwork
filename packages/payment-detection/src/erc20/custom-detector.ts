@@ -93,7 +93,9 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
     );
   }
 
-  public async getEscrow(request: RequestLogicTypes.IRequest): Promise<PaymentTypes.Escrow | null> {
+  public async getEscrow(
+    request: RequestLogicTypes.IRequest,
+  ): Promise<PaymentTypes.EscrowData | null> {
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
     const deploymentInformation = this.getProxyDeploymentInformation(
