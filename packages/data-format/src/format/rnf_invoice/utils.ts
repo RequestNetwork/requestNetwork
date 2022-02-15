@@ -34,6 +34,8 @@ export const getInvoiceLineTotal = (item: InvoiceItem): BigNumber => {
       .mul(Number(taxPercent * preciselyOne).toFixed(0))
       // Remove the decimal offset
       .div(preciselyOne)
+      // Improve the precision
+      .add(50)
       // Remove the percentage multiplier
       .div(100)
       .add(taxFixed)
