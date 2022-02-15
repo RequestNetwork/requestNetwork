@@ -8,14 +8,8 @@
       "type": "node",
       "request": "launch",
       "name": "Start Request Node",
-      "runtimeArgs": [
-        "--nolazy",
-        "-r",
-        "ts-node/register"
-      ],
-      "args": [
-        "${workspaceFolder}/packages/request-node/src/server.ts"
-      ],
+      "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/packages/request-node/src/server.ts"],
       "sourceMaps": true,
       "cwd": "${workspaceRoot}/packages/request-node",
       "protocol": "inspector"
@@ -39,22 +33,6 @@
     {
       "name": "Integration test",
       "type": "node",
-      "request": "launch",
-      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-      "args": [
-        "--no-timeouts",
-        "--require",
-        "ts-node/register",
-        "${workspaceFolder}/packages/integration-test/test/index.test.ts",
-        "--colors"
-      ],
-      "cwd": "${workspaceFolder}/packages/integration-test/",
-      "protocol": "inspector",
-      "sourceMaps": true
-    },
-    {
-      "type": "node",
-      "name": "vscode-jest-tests",
       "request": "launch",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
