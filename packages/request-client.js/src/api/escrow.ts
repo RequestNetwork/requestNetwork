@@ -1,7 +1,6 @@
 import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-// import Utils from '@requestnetwork/utils';
-import { CustomProxyDetector } from 'payment-detection/src/erc20';
+import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 
 /**
@@ -19,7 +18,7 @@ export default class Escrow {
    */
   private escrowData: PaymentTypes.EscrowData | null = null;
 
-  private customProxyDetector: CustomProxyDetector;
+  private customProxyDetector: Erc20PaymentNetwork.CustomProxyDetector;
 
   /**
    * Creates an instance of Request
@@ -34,7 +33,10 @@ export default class Escrow {
   constructor(request: RequestLogicTypes.IRequest, currencyManager: ICurrencyManager) {
     const advancedLogic = new AdvancedLogic(currencyManager);
     this.request = request;
-    this.customProxyDetector = new CustomProxyDetector({ advancedLogic, currencyManager });
+    this.customProxyDetector = new Erc20PaymentNetwork.CustomProxyDetector({
+      advancedLogic,
+      currencyManager,
+    });
   }
 
   /**
