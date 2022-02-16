@@ -9,7 +9,6 @@ export const getInvoiceTotal = (invoice: Invoice): BigNumber => {
 };
 
 export const getInvoiceLineTotal = (item: InvoiceItem): BigNumber => {
-
   // Support for rnf_version < 0.0.3
   const tax = item.taxPercent
     ? { type: 'percentage', amount: String(item.taxPercent) }
