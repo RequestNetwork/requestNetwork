@@ -20,20 +20,19 @@ export const getInvoiceLineTotal = (item: InvoiceItem): BigNumber => {
   const discount = item.discount ? BigNumber.from(item.discount) : BigNumber.from(0);
 
   return BigNumber.from(
-    // Removes the resulting decimal (.0)
-    Number(
-      FixedNumber.from(item.unitPrice)
-        // accounts for floating quantities
-        .mulUnsafe(FixedNumber.fromString(item.quantity.toString()))
-        .subUnsafe(FixedNumber.from(discount))
-        // accounts for floating taxes
-        .mulUnsafe(FixedNumber.fromString(taxPercent.toString()))
-        // Removes the percentage multiplier
-        .divUnsafe(FixedNumber.from(100))
-        .addUnsafe(FixedNumber.from(taxFixed))
-        .round(0)
-        .toString(),
-    ),
+    FixedNumber.from(item.unitPrice)
+      // accounts for floating quantities
+      .mulUnsafe(FixedNumber.fromString(item.quantity.toString()))
+      .subUnsafe(FixedNumber.from(discount))
+      // accounts for floating taxes
+      .mulUnsafe(FixedNumber.fromString(taxPercent.toString()))
+      // Removes the percentage multiplier
+      .divUnsafe(FixedNumber.from(100))
+      .addUnsafe(FixedNumber.from(taxFixed))
+      .round(0)
+      .toString()
+      // Removes the .0
+      .split('.')[0],
   );
 };
 
@@ -48,15 +47,13 @@ export const getInvoiceLineTotalWithoutTax = (item: InvoiceItem): BigNumber => {
   const discount = item.discount ? BigNumber.from(item.discount) : BigNumber.from(0);
 
   return BigNumber.from(
-    // Removes the resulting decimal (.0)
-    Number(
-      FixedNumber.from(item.unitPrice)
-        // accounts for floating quantities
-        .mulUnsafe(FixedNumber.fromString(item.quantity.toString()))
-        .subUnsafe(FixedNumber.from(discount))
-        .round(0)
-        .toString(),
-    ),
+    FixedNumber.from(item.unitPrice)
+      // accounts for floating quantities
+      .mulUnsafe(FixedNumber.fromString(item.quantity.toString()))
+      .subUnsafe(FixedNumber.from(discount))
+      .round(0)
+      .toString()
+      .split('.')[0],
   );
 };
 
