@@ -32,9 +32,9 @@
   ],
   "scripts": {
     "build": "run-s build:commonjs build:umd",
-    "build:commonjs": "tsc -b",
+    "build:commonjs": "tsc --project tsconfig.build.json",
     "build:umd": "webpack",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "docs": "shx rm -rf ./docs && compodoc -p tsconfig.json --output docs --disablePrivate --gaID UA-105153327-8",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",

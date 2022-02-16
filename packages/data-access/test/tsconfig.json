@@ -1,0 +1,8 @@
+{
+  "extends": "../tsconfig",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "../"
+  },
+  "include": ["../src", "."]
+}

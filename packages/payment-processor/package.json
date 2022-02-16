@@ -30,8 +30,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "build": "tsc --project tsconfig.build.json",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "prepare": "yarn run build",

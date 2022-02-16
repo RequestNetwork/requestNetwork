@@ -1,10 +1,7 @@
 {
   "extends": "../../tsconfig",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
     "types": ["node", "jest"]
   },
-  "include": ["./src/**/*"],
   "references": [{ "path": "../currency" }, { "path": "../types" }, { "path": "../utils" }]
 }

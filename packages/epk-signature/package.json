@@ -32,9 +32,9 @@
   ],
   "scripts": {
     "build": "run-s build:commonjs build:umd",
-    "build:commonjs": "tsc -b",
+    "build:commonjs": "tsc --project tsconfig.build.json",
     "build:umd": "webpack",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "test": "jest",
