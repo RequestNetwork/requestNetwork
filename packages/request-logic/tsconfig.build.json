@@ -7,9 +7,9 @@
   "include": ["src/**/*"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"],
   "references": [
-    { "path": "../advanced-logic" },
-    { "path": "../multi-format" },
-    { "path": "../types" },
-    { "path": "../utils" }
+    { "path": "../advanced-logic/tsconfig.build.json" },
+    { "path": "../multi-format/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
   ]
 }

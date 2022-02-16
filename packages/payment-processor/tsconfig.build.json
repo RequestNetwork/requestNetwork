@@ -7,9 +7,9 @@
   "include": ["src/**/*"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"],
   "references": [
-    { "path": "../types" },
-    { "path": "../utils" },
-    { "path": "../payment-detection" },
-    { "path": "../smart-contracts" }
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" },
+    { "path": "../payment-detection/tsconfig.build.json" },
+    { "path": "../smart-contracts/tsconfig.build.json" }
   ]
 }

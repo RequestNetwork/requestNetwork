@@ -7,16 +7,16 @@
   "include": ["src/**/*"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"],
   "references": [
-    { "path": "../data-access" },
-    { "path": "../epk-decryption" },
-    { "path": "../epk-signature" },
-    { "path": "../multi-format" },
-    { "path": "../payment-processor" },
-    { "path": "../payment-detection" },
-    { "path": "../transaction-manager" },
-    { "path": "../request-logic" },
-    { "path": "../request-client.js" },
-    { "path": "../types" },
-    { "path": "../utils" }
+    { "path": "../data-access/tsconfig.build.json" },
+    { "path": "../epk-decryption/tsconfig.build.json" },
+    { "path": "../epk-signature/tsconfig.build.json" },
+    { "path": "../multi-format/tsconfig.build.json" },
+    { "path": "../payment-processor/tsconfig.build.json" },
+    { "path": "../payment-detection/tsconfig.build.json" },
+    { "path": "../transaction-manager/tsconfig.build.json" },
+    { "path": "../request-logic/tsconfig.build.json" },
+    { "path": "../request-client.js/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
   ]
 }

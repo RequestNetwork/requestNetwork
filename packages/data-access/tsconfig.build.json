@@ -6,5 +6,9 @@
   },
   "include": ["src/**/*", "./src/aggregators/*.json"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"],
-  "references": [{ "path": "../types" }, { "path": "../utils" }, { "path": "../multi-format" }]
+  "references": [
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" },
+    { "path": "../multi-format/tsconfig.build.json" }
+  ]
 }

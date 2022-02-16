@@ -7,9 +7,9 @@
   "include": ["src/**/*"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"],
   "references": [
-    { "path": "../epk-signature" },
-    { "path": "../request-client.js" },
-    { "path": "../smart-contracts" },
-    { "path": "../types" }
+    { "path": "../epk-signature/tsconfig.build.json" },
+    { "path": "../request-client.js/tsconfig.build.json" },
+    { "path": "../smart-contracts/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
   ]
 }

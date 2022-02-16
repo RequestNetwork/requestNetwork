@@ -7,13 +7,13 @@
   "include": ["src/**/*"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"],
   "references": [
-    { "path": "../data-access" },
-    { "path": "../epk-signature" },
-    { "path": "../ethereum-storage" },
-    { "path": "../multi-format" },
-    { "path": "../request-logic" },
-    { "path": "../request-client.js" },
-    { "path": "../transaction-manager" },
-    { "path": "../types" }
+    { "path": "../data-access/tsconfig.build.json" },
+    { "path": "../epk-signature/tsconfig.build.json" },
+    { "path": "../ethereum-storage/tsconfig.build.json" },
+    { "path": "../multi-format/tsconfig.build.json" },
+    { "path": "../request-logic/tsconfig.build.json" },
+    { "path": "../request-client.js/tsconfig.build.json" },
+    { "path": "../transaction-manager/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
   ]
 }

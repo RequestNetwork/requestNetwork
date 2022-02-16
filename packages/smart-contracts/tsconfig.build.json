@@ -6,5 +6,8 @@
   },
   "include": ["src/**/*", "src/**/*.json", "scripts", "hardhat.config.ts"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"],
-  "references": [{ "path": "../currency" }, { "path": "../utils" }]
+  "references": [
+    { "path": "../currency/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
+  ]
 }
