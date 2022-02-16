@@ -196,6 +196,20 @@ describe('getInvoiceTotal', () => {
       }).toString(),
     ).toEqual('4000');
   });
+
+  it('supports large unit price', () => {
+    expect(
+      getInvoiceTotal({
+        ...baseInvoice,
+        invoiceItems: [
+          {
+            ...baseInvoiceItem,
+            unitPrice: '1000000000000000000000000000000000000',
+          },
+        ],
+      }).toString(),
+    ).toEqual('1000000000000000000000000000000000000');
+  });
 });
 
 describe('getInvoiceTotalWithoutTax', () => {
