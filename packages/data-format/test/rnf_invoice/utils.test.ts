@@ -292,6 +292,20 @@ describe('getInvoiceTotalWithoutTax', () => {
       }).toString(),
     ).toEqual('2222');
   });
+
+  it('supports large unit price', () => {
+    expect(
+      getInvoiceTotalWithoutTax({
+        ...baseInvoice,
+        invoiceItems: [
+          {
+            ...baseInvoiceItem,
+            unitPrice: '1000000000000000000000000000000000000',
+          },
+        ],
+      }).toString(),
+    ).toEqual('1000000000000000000000000000000000000');
+  });
 });
 
 describe('getInvoiceTaxTotal', () => {
