@@ -1,16 +1,3 @@
 {
-  "extends": "../../tsconfig",
-  "references": [
-    { "path": "../data-access" },
-    { "path": "../epk-decryption" },
-    { "path": "../epk-signature" },
-    { "path": "../multi-format" },
-    { "path": "../payment-processor" },
-    { "path": "../payment-detection" },
-    { "path": "../transaction-manager" },
-    { "path": "../request-logic" },
-    { "path": "../request-client.js" },
-    { "path": "../types" },
-    { "path": "../utils" }
-  ]
+  "extends": "../../tsconfig"
 }

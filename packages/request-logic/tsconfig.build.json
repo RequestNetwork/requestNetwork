@@ -5,5 +5,11 @@
     "rootDir": "src"
   },
   "include": ["src/**/*"],
-  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"],
+  "references": [
+    { "path": "../advanced-logic" },
+    { "path": "../multi-format" },
+    { "path": "../types" },
+    { "path": "../utils" }
+  ]
 }

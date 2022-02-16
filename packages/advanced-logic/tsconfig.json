@@ -2,6 +2,5 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "types": ["node", "jest"]
-  },
-  "references": [{ "path": "../currency" }, { "path": "../types" }, { "path": "../utils" }]
+  }
 }

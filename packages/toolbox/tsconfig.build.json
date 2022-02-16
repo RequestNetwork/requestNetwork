@@ -5,5 +5,11 @@
     "rootDir": "src"
   },
   "include": ["src/**/*"],
-  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"],
+  "references": [
+    { "path": "../epk-signature" },
+    { "path": "../request-client.js" },
+    { "path": "../smart-contracts" },
+    { "path": "../types" }
+  ]
 }

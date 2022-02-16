@@ -2,10 +2,5 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "esModuleInterop": true
-  },
-  "references": [
-    { "path": "../data-access" },
-    { "path": "../ethereum-storage" },
-    { "path": "../types" }
-  ]
+  }
 }

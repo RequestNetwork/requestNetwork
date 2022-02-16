@@ -3,19 +3,5 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "lib": ["ES2019"]
-  },
-  "references": [
-    {
-      "path": "../epk-signature"
-    },
-    {
-      "path": "../request-client.js"
-    },
-    {
-      "path": "../smart-contracts"
-    },
-    {
-      "path": "../types"
-    }
-  ]
+  }
 }

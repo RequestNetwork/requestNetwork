@@ -2,13 +2,5 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "esModuleInterop": true
-  },
-  "references": [
-    {
-      "path": "../types"
-    },
-    {
-      "path": "../utils"
-    }
-  ]
+  }
 }

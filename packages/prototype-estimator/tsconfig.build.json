@@ -5,5 +5,15 @@
     "rootDir": "src"
   },
   "include": ["src/**/*"],
-  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"],
+  "references": [
+    { "path": "../data-access" },
+    { "path": "../epk-signature" },
+    { "path": "../ethereum-storage" },
+    { "path": "../multi-format" },
+    { "path": "../request-logic" },
+    { "path": "../request-client.js" },
+    { "path": "../transaction-manager" },
+    { "path": "../types" }
+  ]
 }

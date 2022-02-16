@@ -5,5 +5,12 @@
     "rootDir": "src"
   },
   "include": ["src/**/*"],
-  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"],
+  "references": [
+    { "path": "../currency" },
+    { "path": "../types" },
+    { "path": "../utils" },
+    { "path": "../smart-contracts" },
+    { "path": "../advanced-logic" }
+  ]
 }

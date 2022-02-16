@@ -1,9 +1,3 @@
 {
-  "extends": "../../tsconfig",
-  "references": [
-    { "path": "../types" },
-    { "path": "../utils" },
-    { "path": "../payment-detection" },
-    { "path": "../smart-contracts" }
-  ]
+  "extends": "../../tsconfig"
 }
