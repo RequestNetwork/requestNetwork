@@ -1,9 +1,5 @@
 {
   "extends": "../../tsconfig",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "test"
-  },
   "references": [
     { "path": "../advanced-logic" },
     { "path": "../request-client.js" },

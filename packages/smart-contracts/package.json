@@ -32,7 +32,7 @@
     "types"
   ],
   "scripts": {
-    "build:lib": "tsc --project tsconfig.build.json && cp src/types/*.d.ts dist/src/types && cp -r dist/src/types types",
+    "build:lib": "tsc -b tsconfig.build.json && cp src/types/*.d.ts dist/src/types && cp -r dist/src/types types",
     "build:sol": "yarn hardhat compile",
     "build": "yarn build:sol && yarn build:lib",
     "clean:types": "shx rm -rf types && shx rm -rf src/types",

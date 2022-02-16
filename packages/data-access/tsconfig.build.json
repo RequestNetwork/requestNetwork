@@ -2,8 +2,8 @@
   "extends": "./tsconfig",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "."
+    "rootDir": "src"
   },
-  "include": ["src/**/*", "src/**/*.json", "scripts", "hardhat.config.ts"],
+  "include": ["src/**/*", "./src/aggregators/*.json"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"]
 }

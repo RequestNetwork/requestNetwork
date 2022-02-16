@@ -17,8 +17,8 @@ yarn-error.log
 
 # compiled output
 /packages/*/dist/
-/packages/*/tsconfig.tsbuildinfo
-/packages/*/tsconfig.build.tsbuildinfo
+tsconfig.tsbuildinfo
+tsconfig.build.tsbuildinfo
 
 # coverage
 /packages/*/coverage/
