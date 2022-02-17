@@ -34,15 +34,14 @@ describe('api/erc777/superfluid-info-retriever-1request', () => {
         paymentData.network,
       );
       const transferEvents = await graphRetriever.getTransferEvents();
-      // TODO: uncomment and update after end of manual tests of payment
-      // expect(transferEvents).toHaveLength(3);
+      expect(transferEvents).toHaveLength(4);
       expect(transferEvents[0].amount).toEqual(paymentData.amount);
       expect(transferEvents[0].name).toEqual('payment');
       expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);
       expect(transferEvents[1].amount).toEqual('34722222222222000');
       expect(transferEvents[2].amount).toEqual('40509259259259000');
-      // expect(transferEvents[0].parameters?.txHash).toEqual(paymentData.txHash);
-      // expect(transferEvents[0].parameters?.block).toEqual(paymentData.block);
+      expect(transferEvents[0].parameters?.txHash).toEqual(paymentData.txHash);
+      expect(transferEvents[0].parameters?.block).toEqual(paymentData.block);
     });
   });
 });
@@ -65,10 +64,7 @@ describe('api/erc777/superfluid-info-retriever-2requests', () => {
         paymentData.salt,
         paymentData.to,
       );
-      // console.log('paymentReference:', paymentReference);
-
       const onChainReference = utils.keccak256(`0x${paymentReference}`);
-      // console.log('onChainReference:', onChainReference);
       expect(onChainReference).toEqual(paymentData.reference);
       const graphRetriever = new SuperFluidInfoRetriever(
         paymentReference,
@@ -79,7 +75,6 @@ describe('api/erc777/superfluid-info-retriever-2requests', () => {
       );
       const transferEvents = await graphRetriever.getTransferEvents();
       expect(transferEvents).toHaveLength(1);
-      // console.log('transferEvents[0].amount:', transferEvents[0].amount);
       expect(transferEvents[0].amount).toEqual(paymentData.amount);
       expect(transferEvents[0].name).toEqual('payment');
       expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);
@@ -106,10 +101,7 @@ describe('api/erc777/superfluid-info-retriever-ongoing', () => {
         paymentData.salt,
         paymentData.to,
       );
-      // console.log('paymentReference:', paymentReference);
-
       const onChainReference = utils.keccak256(`0x${paymentReference}`);
-      // console.log('onChainReference:', onChainReference);
       expect(onChainReference).toEqual(paymentData.reference);
       const graphRetriever = new SuperFluidInfoRetriever(
         paymentReference,
@@ -122,7 +114,6 @@ describe('api/erc777/superfluid-info-retriever-ongoing', () => {
       const transferEvents = await graphRetriever.getTransferEvents();
       const timestamp = Math.floor(Date.now() / 1000) - paymentData.timestamp;
       expect(transferEvents).toHaveLength(1);
-      // console.log('transferEvents[0].amount:', transferEvents[0].amount);
       expect(transferEvents[0].amount).toEqual(timestamp.toString());
       expect(transferEvents[0].name).toEqual('payment');
       expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);

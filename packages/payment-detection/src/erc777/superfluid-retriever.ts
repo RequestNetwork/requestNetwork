@@ -43,12 +43,8 @@ export class SuperFluidInfoRetriever {
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     const variables = this.getGraphVariables();
     const streamEvents = (await this.client.GetSuperFluidFlowEvents(variables)).flowUpdatedEvents;
-    // console.log('streamEvents:', streamEvents.length);
-
     const untaggedEvents = (await this.client.GetSuperFluidUntaggedEvents(variables))
       .flowUpdatedEvents;
-    // console.log('streamEvents:', streamEvents.length);
-
     streamEvents.push(...untaggedEvents);
     streamEvents.sort((a, b) => a.timestamp - b.timestamp);
     if (streamEvents[streamEvents.length - 1].flowRate > 0) {
@@ -56,23 +52,9 @@ export class SuperFluidInfoRetriever {
         flowRate: 0,
         timestamp: Math.floor(Date.now() / 1000),
       } as FlowUpdatedEvent);
-      // console.log(
-      //   'Adding flowrate 0 for timestamp:',
-      //   streamEvents[streamEvents.length - 1].timestamp,
-      // );
     }
     const paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[] = [];
     for (let index = 1; index < streamEvents.length; index++) {
-      // console.log('streamEvents[index - 1].flowRate:', streamEvents[index - 1].flowRate);
-      // console.log('streamEvents[index - 1].oldFlowRate', streamEvents[index - 1].oldFlowRate);
-      // console.log(
-      //   'difference:',
-      //   streamEvents[index - 1].flowRate - streamEvents[index - 1].oldFlowRate,
-      // );
-      // console.log('streamEvents[index].timestamp:', streamEvents[index].timestamp);
-      // console.log('streamEvents[index - 1].timestamp):', streamEvents[index - 1].timestamp);
-      // console.log('difference:', streamEvents[index].timestamp - streamEvents[index - 1].timestamp);
-
       const amount =
         (streamEvents[index - 1].flowRate - streamEvents[index - 1].oldFlowRate) *
         (streamEvents[index].timestamp - streamEvents[index - 1].timestamp);
@@ -80,7 +62,11 @@ export class SuperFluidInfoRetriever {
         paymentEvents.push({
           amount: amount.toString(),
           name: this.eventName,
-          parameters: { to: this.toAddress },
+          parameters: {
+            to: this.toAddress,
+            block: streamEvents[index].blockNumber,
+            txHash: streamEvents[index].transactionHash,
+          },
           timestamp: streamEvents[index].timestamp,
         });
       }
