@@ -1,8 +1,4 @@
-query GetSuperFluidFlowEvents(
-  $tokenAddress: Bytes!
-  $to: Bytes!
-  $reference: Bytes!
-) {
+query GetSuperFluidFlowEvents($tokenAddress: Bytes!, $to: Bytes!, $reference: Bytes!) {
   flowUpdatedEvents(
     orderBy: timestamp
     where: { userData: $reference, token: $tokenAddress, receiver: $to }

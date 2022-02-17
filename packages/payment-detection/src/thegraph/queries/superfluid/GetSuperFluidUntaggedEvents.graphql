@@ -1,8 +1,4 @@
-query GetSuperFluidUntaggedEvents(
-  $tokenAddress: Bytes = ""
-  $to: Bytes = ""
-  $reference: Bytes = "0x"
-) {
+query GetSuperFluidUntaggedEvents($tokenAddress: Bytes!, $to: Bytes!, $reference: Bytes!) {
   flowUpdatedEvents(
     orderBy: timestamp
     where: { flowRate: "0", userData: "0x", type: 2, token: $tokenAddress, receiver: $to }
