@@ -7,8 +7,9 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { CustomProxyDetector } from '../../src/erc20/custom-detector';
+import { PaymentReferenceCalculator } from '../../src';
 
-let escrowProxyContract: CustomProxyDetector;
+let escrowProxyDetector: CustomProxyDetector;
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();
@@ -40,7 +41,7 @@ const currencyManager = CurrencyManager.getDefault();
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/escrow-proxy-contract', () => {
   beforeEach(() => {
-    escrowProxyContract = new CustomProxyDetector({
+    escrowProxyDetector = new CustomProxyDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
     });
@@ -51,7 +52,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation', async () => {
-    await escrowProxyContract.createExtensionsDataForCreation({
+    await escrowProxyDetector.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
     });
@@ -66,7 +67,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation with fee amount and address', async () => {
-    await escrowProxyContract.createExtensionsDataForCreation({
+    await escrowProxyDetector.createExtensionsDataForCreation({
       feeAddress: 'fee address',
       feeAmount: '2000',
       paymentAddress: 'ethereum address',
@@ -83,7 +84,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForCreation without salt', async () => {
-    await escrowProxyContract.createExtensionsDataForCreation({
+    await escrowProxyDetector.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
     });
 
@@ -92,7 +93,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForAddPaymentInformation', async () => {
-    escrowProxyContract.createExtensionsDataForAddPaymentInformation({
+    escrowProxyDetector.createExtensionsDataForAddPaymentInformation({
       paymentInfo: 'ethereum address',
     });
 
@@ -102,7 +103,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForAddPaymentAddress', async () => {
-    escrowProxyContract.createExtensionsDataForAddPaymentAddress({
+    escrowProxyDetector.createExtensionsDataForAddPaymentAddress({
       paymentAddress: 'ethereum address',
     });
 
@@ -112,7 +113,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForAddRefundAddress', async () => {
-    escrowProxyContract.createExtensionsDataForAddRefundAddress({
+    escrowProxyDetector.createExtensionsDataForAddRefundAddress({
       refundAddress: 'ethereum address',
     });
 
@@ -122,7 +123,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForAddRefundInformation', async () => {
-    escrowProxyContract.createExtensionsDataForAddRefundInformation({
+    escrowProxyDetector.createExtensionsDataForAddRefundInformation({
       refundInfo: 'ethereum address',
     });
 
@@ -132,7 +133,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
   });
 
   it('can createExtensionsDataForAddFeeInformation', async () => {
-    escrowProxyContract.createExtensionsDataForAddFeeInformation({
+    escrowProxyDetector.createExtensionsDataForAddFeeInformation({
       feeAddress: 'ethereum address',
       feeAmount: '2000',
     });
@@ -145,7 +146,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
 
   it('should not throw when getBalance fail', async () => {
     expect(
-      await escrowProxyContract.getBalance({ extensions: {} } as RequestLogicTypes.IRequest),
+      await escrowProxyDetector.getBalance({ extensions: {} } as RequestLogicTypes.IRequest),
     ).toEqual({
       balance: null,
       error: {
@@ -257,16 +258,16 @@ describe('api/erc20/escrow-proxy-contract', () => {
         },
       ]);
     };
-    escrowProxyContract = new CustomProxyDetector({
+    escrowProxyDetector = new CustomProxyDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
     });
 
     jest
-      .spyOn(escrowProxyContract as any, 'extractEvents')
+      .spyOn(escrowProxyDetector as any, 'extractEvents')
       .mockImplementation(mockExtractTransferEvents);
 
-    const balance = await escrowProxyContract.getBalance(mockRequest);
+    const balance = await escrowProxyDetector.getBalance(mockRequest);
 
     expect(balance.error).toBeUndefined();
     // 500 + 500 (2 payments) - 10 (1 refund) = 990
@@ -275,5 +276,60 @@ describe('api/erc20/escrow-proxy-contract', () => {
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values
         .feeBalance.balance,
     ).toBe('5');
+  });
+
+  it.only('can get escrow data from escrow detector', async () => {
+    const mockRequest: RequestLogicTypes.IRequest = {
+      creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
+      currency: {
+        network: 'private',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x9FBDa871d559710256a2502A2517b794B482Db40', // local ERC20 token
+      },
+      events: [],
+      expectedAmount: '1000',
+      extensions: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
+            feeAmount: '5',
+            paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+            refundAddress: '0xrefundAddress',
+            salt: 'abcd',
+          },
+          version: '0.1.0',
+        },
+      },
+      extensionsData: [],
+      requestId: '0x1',
+      state: RequestLogicTypes.STATE.CREATED,
+      timestamp: 0,
+      version: '0.2',
+    };
+
+    const mockEscrowFromTheGraphAction = jest.fn((...args: unknown[]) => {
+      console.log(...args);
+      return Promise.resolve([]);
+    });
+
+    jest
+      .spyOn(escrowProxyDetector as any, 'getEscrowFromGraph')
+      .mockImplementation(mockEscrowFromTheGraphAction);
+
+    await escrowProxyDetector.getEscrow(mockRequest);
+    const reference = PaymentReferenceCalculator.calculate(
+      mockRequest.requestId,
+      'abcd',
+      '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+    );
+    const privateContractAddress = '0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154';
+    expect(mockEscrowFromTheGraphAction).toHaveBeenCalledWith(
+      reference,
+      privateContractAddress,
+      'private',
+    );
   });
 });

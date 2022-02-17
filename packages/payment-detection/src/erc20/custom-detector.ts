@@ -104,13 +104,25 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
       paymentExtension.version,
     );
     const paymentReference = this.getPaymentReference(request);
-    const infoRetriever = new EscrowERC20GraphInfoRetriever(
+    const escrow = await this.getEscrowFromGraph(
       paymentReference,
       deploymentInformation.address,
       paymentChain,
     );
-    const escrow = await infoRetriever.getEscrow();
     return escrow.length ? escrow[0] : null;
+  }
+
+  protected async getEscrowFromGraph(
+    paymentReference: string,
+    contractAddress: string,
+    paymentChain: string,
+  ): Promise<PaymentTypes.EscrowData[]> {
+    const infoRetriever = new EscrowERC20GraphInfoRetriever(
+      paymentReference,
+      contractAddress,
+      paymentChain,
+    );
+    return await infoRetriever.getEscrow();
   }
 
   protected async extractCustomEvents(
