@@ -2,6 +2,5 @@
   "mochaExplorer.require": "ts-node/register",
   "mochaExplorer.files": "**/test/**/*.test.ts",
   "mochaExplorer.cwd": "./",
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "jest.jestCommandLine": "packages/integration-test/node_modules/.bin/jest"
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
