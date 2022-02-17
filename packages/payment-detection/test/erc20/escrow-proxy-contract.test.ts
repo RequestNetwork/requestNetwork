@@ -278,7 +278,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
     ).toBe('5');
   });
 
-  it.only('can get escrow data from escrow detector', async () => {
+  it('can get escrow data from escrow detector', async () => {
     const mockRequest: RequestLogicTypes.IRequest = {
       creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
       currency: {
