@@ -1,21 +1,3 @@
 {
-  "extends": "../../tsconfig",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["./src/**/*"],
-  "references": [
-    { "path": "../advanced-logic" },
-    { "path": "../currency" },
-    { "path": "../data-access" },
-    { "path": "../data-format" },
-    { "path": "../epk-signature" },
-    { "path": "../multi-format" },
-    { "path": "../request-logic" },
-    { "path": "../smart-contracts" },
-    { "path": "../transaction-manager" },
-    { "path": "../payment-detection" },
-    { "path": "../types" }
-  ]
+  "extends": "../../tsconfig"
 }

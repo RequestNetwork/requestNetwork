@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"],
+  "references": [
+    { "path": "../data-access/tsconfig.build.json" },
+    { "path": "../ethereum-storage/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
+  ]
+}

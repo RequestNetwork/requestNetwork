@@ -31,8 +31,8 @@
   ],
   "scripts": {
     "prebuild": "yarn codegen",
-    "build": "tsc -b",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo **/generated",
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo **/generated",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "prepare": "yarn run build",
