@@ -29,13 +29,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b",
-    "build:watch": "tsc -b --watch",
+    "build": "tsc -b tsconfig.build.json",
+    "build:watch": "tsc -b tsconfig.build.json --watch",
     "test": "jest --runInBand --forceExit",
     "test:watch": "yarn test --watch",
     "start": "ts-node src/server.ts",
     "start:watch": "ts-node-dev src/server.ts",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "init-ipfs": "node init-ipfs.js"
