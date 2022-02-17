@@ -43,7 +43,7 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events[0].timestamp).toBe(1599070058);
   });
 
-  it.only('can getBalance on a rinkeby request', async () => {
+  it('can getBalance on a rinkeby request', async () => {
     const mockRequest = createMockErc20FeeRequest({
       network: 'rinkeby',
       requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
