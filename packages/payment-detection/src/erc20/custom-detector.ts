@@ -15,6 +15,7 @@ import { networkSupportsTheGraph } from '..';
 
 const ESCROW_CONTRACT_ADDRESS_MAP = {
   ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.1.0',
 };
 
 /**

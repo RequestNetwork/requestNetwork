@@ -645,6 +645,10 @@ export default class Request {
     });
   }
 
+  public getRequestLogicData(): RequestLogicTypes.IRequest | null {
+    return this.requestData;
+  }
+
   /**
    * Refresh the request data and balance from the network (check if new events happened - e.g: accept, payments etc..) and return these data
    *
