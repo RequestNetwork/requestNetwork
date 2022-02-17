@@ -2,8 +2,6 @@
 pragma solidity ^0.8.0;
 
 contract GnosisSafeProxy {
-    // singleton always needs to be first declared variable, to ensure that it is at the same location in the contracts to which calls are delegated.
-    // To reduce deployment costs this variable is internal and needs to be retrieved via `getStorageAt`
     address internal singleton;
 
     /// @dev Constructor function sets address of singleton contract.
