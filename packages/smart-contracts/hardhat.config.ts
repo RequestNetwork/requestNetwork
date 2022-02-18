@@ -24,7 +24,7 @@ if (accounts && process.env.ADMIN_PRIVATE_KEY) {
 }
 
 export default {
-  solidity: '0.8.4',
+  solidity: '0.8.9',
   paths: {
     sources: 'src/contracts',
     tests: 'test/contracts',
