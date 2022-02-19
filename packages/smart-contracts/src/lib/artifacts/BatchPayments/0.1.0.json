@@ -12,11 +12,6 @@
       "type": "constructor"
     },
     {
-      "inputs": [],
-      "name": "Reverted",
-      "type": "error"
-    },
-    {
       "anonymous": false,
       "inputs": [
         {
@@ -28,11 +23,42 @@
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "receivers",
+          "name": "Value",
           "type": "uint256"
         }
       ],
       "name": "EthTransfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes",
+          "name": "paymentReference",
+          "type": "bytes"
+        }
+      ],
+      "name": "TransferWithReference",
       "type": "event"
     },
     {
@@ -67,12 +93,12 @@
         },
         {
           "internalType": "address[]",
-          "name": "payees",
+          "name": "recipients",
           "type": "address[]"
         },
         {
           "internalType": "uint256[]",
-          "name": "amounts",
+          "name": "values",
           "type": "uint256[]"
         },
         {
