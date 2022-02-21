@@ -9,7 +9,7 @@ const BASE_URL = `https://api.thegraph.com`;
 /**
  * A GraphQL client to query Superfluid's subgraph.
  */
-export type TheGraphClient = ReturnType<typeof getSdk>;
+export type TheGraphSuperfluidClient = ReturnType<typeof getSdk>;
 export type TheGraphClientOptions = {
   baseUrl?: string;
   timeout?: number;
