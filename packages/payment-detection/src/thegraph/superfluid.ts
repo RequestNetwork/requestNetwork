@@ -18,7 +18,7 @@ export type TheGraphClientOptions = {
 export const getTheGraphSuperfluidClient = (
   network: string,
   options?: TheGraphClientOptions,
-): TheGraphClient => {
+): TheGraphSuperfluidClient => {
   const baseUrl = options?.baseUrl || network === 'private' ? 'http://localhost:8000' : BASE_URL;
   // Note: it is also possible to use the IPFS hash of the subgraph
   //  eg. /subgraphs/id/QmcCaSkefrmhe4xQj6Y6BBbHiFkbrn6UGDEBUWER7nt399

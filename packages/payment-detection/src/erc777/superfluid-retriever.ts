@@ -1,7 +1,11 @@
 import { PaymentTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import { FlowUpdatedEvent } from '../thegraph/generated/graphql-superfluid';
-import { getTheGraphClient, TheGraphClient, TheGraphClientOptions } from '../thegraph/superfluid';
+import {
+  getTheGraphSuperfluidClient,
+  TheGraphSuperfluidClient,
+  TheGraphClientOptions,
+} from '../thegraph/superfluid';
 
 /** Parameters for getting payment events from theGraph */
 type GraphPaymentQueryParams = {
@@ -11,7 +15,7 @@ type GraphPaymentQueryParams = {
 };
 
 export class SuperFluidInfoRetriever {
-  private client: TheGraphClient;
+  private client: TheGraphSuperfluidClient;
 
   /**
    * @param paymentReference The reference to identify the payment
@@ -29,7 +33,7 @@ export class SuperFluidInfoRetriever {
     private network: string,
     private options?: TheGraphClientOptions,
   ) {
-    this.client = getTheGraphClient(this.network, this.options);
+    this.client = getTheGraphSuperfluidClient(this.network, this.options);
   }
 
   private getGraphVariables(): GraphPaymentQueryParams {
@@ -62,8 +66,8 @@ export class SuperFluidInfoRetriever {
         oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
         flowRate: 0,
         timestamp: Math.floor(Date.now() / 1000),
-        blockNumber: 0,
-        transactionHash: '0x',
+        blockNumber: null,
+        transactionHash: null,
       } as FlowUpdatedEvent);
     }
 
