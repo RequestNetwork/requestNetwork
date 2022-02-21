@@ -42,11 +42,9 @@ export class SuperFluidInfoRetriever {
 
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     const variables = this.getGraphVariables();
-    const streamEvents = (await this.client.GetSuperFluidFlowEvents(variables)).flowUpdatedEvents;
-    const untaggedEvents = (await this.client.GetSuperFluidUntaggedEvents(variables))
-      .flowUpdatedEvents;
-    streamEvents.push(...untaggedEvents);
-    streamEvents.sort((a, b) => a.timestamp - b.timestamp);
+    const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
+
+    const streamEvents = flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
     if (streamEvents[streamEvents.length - 1].flowRate > 0) {
       streamEvents.push({
         flowRate: 0,

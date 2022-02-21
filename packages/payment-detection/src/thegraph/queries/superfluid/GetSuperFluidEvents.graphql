@@ -1,0 +1,24 @@
+fragment EventFragment on FlowUpdatedEvent {
+  transactionHash
+  blockNumber
+  timestamp
+  sender
+  flowRate
+  oldFlowRate
+  type
+}
+query GetSuperFluidEvents($tokenAddress: Bytes!, $to: Bytes!, $reference: Bytes!) {
+  untagged: flowUpdatedEvents(
+    orderBy: timestamp
+    where: { flowRate: "0", userData: "0x", type: 2, token: $tokenAddress, receiver: $to }
+  ) {
+    ...EventFragment
+  }
+
+  flow: flowUpdatedEvents(
+    orderBy: timestamp
+    where: { userData: $reference, token: $tokenAddress, receiver: $to }
+  ) {
+    ...EventFragment
+  }
+}
