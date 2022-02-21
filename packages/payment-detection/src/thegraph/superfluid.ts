@@ -7,7 +7,7 @@ const BASE_URL = `https://api.thegraph.com`;
 // using graphql-codegen.
 // To generate types, run `yarn codegen`, then open the generated files so that the code editor picks up the changes.
 /**
- * A GraphQL client to query Request's subgraph.
+ * A GraphQL client to query Superfluid's subgraph.
  */
 export type TheGraphClient = ReturnType<typeof getSdk>;
 export type TheGraphClientOptions = {
