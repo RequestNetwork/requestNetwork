@@ -34,7 +34,7 @@ describe('api/erc777/superfluid-info-retriever-1request', () => {
         paymentData.network,
       );
       const transferEvents = await graphRetriever.getTransferEvents();
-      expect(transferEvents).toHaveLength(4);
+      expect(transferEvents).toHaveLength(5);
       expect(transferEvents[0].amount).toEqual(paymentData.amount);
       expect(transferEvents[0].name).toEqual('payment');
       expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);
