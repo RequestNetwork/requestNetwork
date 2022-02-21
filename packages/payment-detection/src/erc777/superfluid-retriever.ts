@@ -40,27 +40,43 @@ export class SuperFluidInfoRetriever {
     };
   }
 
-  // First MVP version which convert :
-  // stream events queried from SuperFluid subgraph
-  // into payment events with the parameters expected by extractEvents function
-  // to compute balance from amounts in ERC20 style transactions
+  /**
+   * First MVP version which convert :
+   * stream events queried from SuperFluid subgraph
+   * into payment events with the parameters expected by extractEvents function
+   * to compute balance from amounts in ERC20 style transactions
+   */
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     const variables = this.getGraphVariables();
     const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
-
+    // Chronological sorting of events having payment reference and closing events without payment reference
     const streamEvents = flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
+    const paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[] = [];
+    if (streamEvents.length < 1) {
+      return paymentEvents;
+    }
+
+    // if last event is ongoing stream then create end of stream to help compute balance
     if (streamEvents[streamEvents.length - 1].flowRate > 0) {
       streamEvents.push({
+        oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
         flowRate: 0,
         timestamp: Math.floor(Date.now() / 1000),
         blockNumber: 0,
         transactionHash: '0x',
       } as FlowUpdatedEvent);
     }
-    const paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[] = [];
+
     for (let index = 1; index < streamEvents.length; index++) {
+      // we have to manage update of flowrate to pay different payment references with the same token
+      // so we should care only about pairs of begin or update event (type 0 or 1) followed by end or update event (type 2 or 1)
+      // for each update of static flowrate between these 2 chronological sorted events:
+      // amount paid is the difference of previous flowrate multiplied by the difference of time
+      if (streamEvents[index - 1].type === 2 || streamEvents[index].type === 0) {
+        continue;
+      }
       const amount =
-        (streamEvents[index - 1].flowRate - streamEvents[index - 1].oldFlowRate) *
+        (streamEvents[index].oldFlowRate - streamEvents[index - 1].oldFlowRate) *
         (streamEvents[index].timestamp - streamEvents[index - 1].timestamp);
       if (amount > 0) {
         paymentEvents.push({
