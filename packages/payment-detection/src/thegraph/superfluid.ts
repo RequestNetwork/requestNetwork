@@ -15,7 +15,7 @@ export type TheGraphClientOptions = {
   timeout?: number;
 };
 
-export const getTheGraphClient = (
+export const getTheGraphSuperfluidClient = (
   network: string,
   options?: TheGraphClientOptions,
 ): TheGraphClient => {
