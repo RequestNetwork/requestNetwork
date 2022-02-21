@@ -40,6 +40,10 @@ export class SuperFluidInfoRetriever {
     };
   }
 
+  // First MVP version which convert :
+  // stream events queried from SuperFluid subgraph
+  // into payment events with the parameters expected by extractEvents function
+  // to compute balance from amounts in ERC20 style transactions
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     const variables = this.getGraphVariables();
     const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
@@ -49,6 +53,8 @@ export class SuperFluidInfoRetriever {
       streamEvents.push({
         flowRate: 0,
         timestamp: Math.floor(Date.now() / 1000),
+        blockNumber: 0,
+        transactionHash: '0x',
       } as FlowUpdatedEvent);
     }
     const paymentEvents: PaymentTypes.ERC20PaymentNetworkEvent[] = [];
