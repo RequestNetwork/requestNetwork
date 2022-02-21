@@ -6,6 +6,7 @@ import { ClientTypes } from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import { getProvider, getSigner } from './utils';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
+import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes the approval transaction of a given payment ERC20 to be spent by the swap router,
@@ -54,17 +55,39 @@ export async function approveErc20ForSwapToPay(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
+  const preparedTx = prepareApprovalErc20ForSwapToPay(
+    request,
+    paymentTokenAddress,
+    signerOrProvider,
+    overrides,
+  );
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction(preparedTx);
+  return tx;
+}
+
+/**
+ * Prepare the transaction for allowing the swap router to spend ERC20 payment tokens.
+ * @param request request to pay, used to know the network
+ * @param paymentTokenAddress picked currency for the swap to pay
+ * @param signerOrProvider the web3 provider. Defaults to Etherscan.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export function prepareApprovalErc20ForSwapToPay(
+  request: ClientTypes.IRequestData,
+  paymentTokenAddress: string,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  overrides?: ITransactionOverrides,
+): IPreparedTransaction {
   const encodedTx = encodeApproveAnyErc20(
     paymentTokenAddress,
     erc20SwapToPayArtifact.getAddress(request.currencyInfo.network!),
     signerOrProvider,
   );
-  const signer = getSigner(signerOrProvider);
-  const tx = await signer.sendTransaction({
+  return {
     data: encodedTx,
     to: paymentTokenAddress,
     value: 0,
     ...overrides,
-  });
-  return tx;
+  };
 }
