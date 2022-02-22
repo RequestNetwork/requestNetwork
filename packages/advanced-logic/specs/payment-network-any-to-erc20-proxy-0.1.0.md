@@ -37,6 +37,7 @@ The contract contains one function called `transferFromWithReferenceAndFee` whic
 
 - `to` is the destination address for the tokens
 - `requestAmount` is the amount to be paid in the request currency
+- `path` is the conversion path from the request currency to the payment token, as provided by oracles
 - `paymentReference` is the reference data used to track the transfer (see `paymentReference`)
 - `feeAmount` is the amount of fees to be paid in the request currency
 - `feeAddress` is the destination address for the fee
