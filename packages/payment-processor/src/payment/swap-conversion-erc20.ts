@@ -26,17 +26,12 @@ export async function approveErc20ForSwapWithConversionIfNeeded(
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
-    throw new Error(`The request must have the payment network any-to-erc20-proxy`);
-  }
-  const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
   if (
-    !(await checkErc20Allowance(
+    !(await hasErc20ApprovalForSwapWithConversion(
+      request,
       ownerAddress,
-      erc20SwapConversionArtifact.getAddress(network),
-      signerOrProvider,
       paymentTokenAddress,
+      signerOrProvider,
       minAmount,
     ))
   ) {
@@ -47,6 +42,36 @@ export async function approveErc20ForSwapWithConversionIfNeeded(
       overrides,
     );
   }
+}
+
+/**
+ * Verify if a given payment ERC20 to be spent by the swap router
+ * @param request request to pay, used to know the network
+ * @param ownerAddress address of the payer
+ * @param paymentTokenAddress ERC20 currency used for the swap
+ * @param signerOrProvider the web3 provider. Defaults to Etherscan.
+ * @param minAmount ensures the approved amount is sufficient to pay this amount
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export async function hasErc20ApprovalForSwapWithConversion(
+  request: ClientTypes.IRequestData,
+  ownerAddress: string,
+  paymentTokenAddress: string,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  minAmount: BigNumberish,
+): Promise<boolean> {
+  if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
+    throw new Error(`The request must have the payment network any-to-erc20-proxy`);
+  }
+  const network =
+    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
+  return await checkErc20Allowance(
+    ownerAddress,
+    erc20SwapConversionArtifact.getAddress(network),
+    signerOrProvider,
+    paymentTokenAddress,
+    minAmount,
+  );
 }
 
 /**
