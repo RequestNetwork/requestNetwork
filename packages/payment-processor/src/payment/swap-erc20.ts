@@ -26,20 +26,44 @@ export async function approveErc20ForSwapToPayIfNeeded(
   minAmount: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  if (!request.currencyInfo.network) {
-    throw new Error('Request currency network is missing');
-  }
   if (
-    !(await checkErc20Allowance(
+    !(await hasApprovalErc20ForSwapToPay(
+      request,
       ownerAddress,
-      erc20SwapToPayArtifact.getAddress(request.currencyInfo.network),
-      signerOrProvider,
       paymentTokenAddress,
+      signerOrProvider,
       minAmount,
     ))
   ) {
     return approveErc20ForSwapToPay(request, paymentTokenAddress, signerOrProvider, overrides);
   }
+}
+
+/**
+ * Verify if a given payment ERC20 can be spent by the swap router,
+ * @param request request to pay, used to know the network
+ * @param ownerAddress address of the payer
+ * @param paymentCurrency ERC20 currency used for the swap
+ * @param signerOrProvider the web3 provider. Defaults to Etherscan.
+ * @param minAmount ensures the approved amount is sufficient to pay this amount
+ */
+export async function hasApprovalErc20ForSwapToPay(
+  request: ClientTypes.IRequestData,
+  ownerAddress: string,
+  paymentTokenAddress: string,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  minAmount: BigNumberish,
+): Promise<boolean> {
+  if (!request.currencyInfo.network) {
+    throw new Error('Request currency network is missing');
+  }
+  return checkErc20Allowance(
+    ownerAddress,
+    erc20SwapToPayArtifact.getAddress(request.currencyInfo.network),
+    signerOrProvider,
+    paymentTokenAddress,
+    minAmount,
+  );
 }
 
 /**
