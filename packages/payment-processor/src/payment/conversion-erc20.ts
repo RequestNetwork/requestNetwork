@@ -27,7 +27,7 @@ export async function approveErc20ForProxyConversionIfNeeded(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
   if (
-    !(await hasErc20AllowanceForProxyConversion(
+    !(await hasErc20ApprovalForProxyConversion(
       request,
       ownerAddress,
       paymentTokenAddress,
@@ -52,7 +52,7 @@ export async function approveErc20ForProxyConversionIfNeeded(
  * @param signerOrProvider the web3 provider. Defaults to Etherscan.
  * @param minAmount ensures the approved amount is sufficient to pay this amount
  */
-export async function hasErc20AllowanceForProxyConversion(
+export async function hasErc20ApprovalForProxyConversion(
   request: ClientTypes.IRequestData,
   ownerAddress: string,
   paymentTokenAddress: string,
