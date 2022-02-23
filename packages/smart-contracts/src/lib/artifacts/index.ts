@@ -11,7 +11,7 @@ export * from './EthereumProxy';
 export * from './EthereumFeeProxy';
 export * from './EthConversionProxy';
 export * from './ERC20EscrowToPay';
-export * from './BatchPayments';
+export * from './BatchErc20Payments';
 /**
  * Request Storage
  */

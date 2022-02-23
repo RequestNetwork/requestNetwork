@@ -4,31 +4,12 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_erc20Proxy",
+          "name": "_erc20FeeProxy",
           "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
       "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "Payer",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "Value",
-          "type": "uint256"
-        }
-      ],
-      "name": "EthTransfer",
-      "type": "event"
     },
     {
       "anonymous": false,
@@ -56,55 +37,54 @@
           "internalType": "bytes",
           "name": "paymentReference",
           "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "feeAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "feeAddress",
+          "type": "address"
         }
       ],
-      "name": "TransferWithReference",
+      "name": "TransferWithReferenceAndFee",
       "type": "event"
     },
     {
       "inputs": [
         {
-          "internalType": "contract IERC20",
-          "name": "token",
+          "internalType": "address",
+          "name": "_tokenAddress",
           "type": "address"
         },
         {
           "internalType": "address[]",
-          "name": "recipients",
+          "name": "_recipients",
           "type": "address[]"
         },
         {
           "internalType": "uint256[]",
-          "name": "values",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "batchERC20Payment",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "contract IERC20",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "address[]",
-          "name": "recipients",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "values",
+          "name": "_values",
           "type": "uint256[]"
         },
         {
           "internalType": "bytes[]",
-          "name": "paymentReferences",
+          "name": "_paymentReferences",
           "type": "bytes[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_feeAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_feeAddress",
+          "type": "address"
         }
       ],
       "name": "batchERC20PaymentWithReference",
@@ -115,27 +95,32 @@
     {
       "inputs": [
         {
+          "internalType": "contract IERC20",
+          "name": "_token",
+          "type": "address"
+        },
+        {
           "internalType": "address[]",
-          "name": "recipients",
+          "name": "_recipients",
           "type": "address[]"
         },
         {
           "internalType": "uint256[]",
-          "name": "amounts",
+          "name": "_values",
           "type": "uint256[]"
         }
       ],
-      "name": "batchEtherPayment",
+      "name": "batchOrphanERC20Payments",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [],
-      "name": "erc20Proxy",
+      "name": "erc20FeeProxy",
       "outputs": [
         {
-          "internalType": "contract IERC20Proxy",
+          "internalType": "contract IERC20FeeProxy",
           "name": "",
           "type": "address"
         }

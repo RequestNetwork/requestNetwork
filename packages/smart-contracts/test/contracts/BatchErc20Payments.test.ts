@@ -5,19 +5,20 @@ import { solidity } from 'ethereum-waffle';
 import {
   TestERC20__factory,
   TestERC20,
-  BatchPayments,
-  BatchPayments__factory,
-  ERC20Proxy,
+  BatchErc20Payments,
+  BatchErc20Payments__factory,
+  ERC20FeeProxy,
 } from '../../src/types';
-import { erc20ProxyArtifact } from '../../src/lib';
+import { erc20FeeProxyArtifact } from '../../src/lib';
 
 use(solidity);
 
-describe('contract: BatchPayments', () => {
+describe('contract: BatchErc20Payments', () => {
   let payeeOne: string;
   let payeeTwo: string;
   let payeeThree: string;
   let payeeFour: string;
+  let feeAddress: string;
 
   let spenderAddress: string;
   let spender1Address: string;
@@ -35,48 +36,33 @@ describe('contract: BatchPayments', () => {
   const referenceExample4 = '0xdddd';
 
   let token: TestERC20;
-  let batch: BatchPayments;
-  let erc20Proxy: ERC20Proxy;
+  let batch: BatchErc20Payments;
+  let erc20FeeProxy: ERC20FeeProxy;
 
   const erc20Decimal = BigNumber.from('1000000000000000000');
-  const etherAmount = BigNumber.from('900000000000000000');
-  const etherTransferAmount = BigNumber.from('225000000000000000');
 
   before(async () => {
-    [, payeeOne, payeeTwo, payeeThree, payeeFour] = (await ethers.getSigners()).map(
+    [, payeeOne, payeeTwo, payeeThree, payeeFour, feeAddress] = (await ethers.getSigners()).map(
       (s) => s.address,
     );
     [owner, spender, spender1] = await ethers.getSigners();
     spenderAddress = await spender.getAddress();
     spender1Address = await spender1.getAddress();
 
-    erc20Proxy = erc20ProxyArtifact.connect(network.name, owner);
+    erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, owner);
     token = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
-    batch = await new BatchPayments__factory(owner).deploy(erc20Proxy.address);
+    batch = await new BatchErc20Payments__factory(owner).deploy(erc20FeeProxy.address);
 
     await token.connect(owner).transfer(spenderAddress, 160);
     await token.connect(owner).transfer(spender1Address, 160);
-    await token.connect(spender).approve(batch.address, 160);
-  });
-  it('Should execute a batch payments of Ether to four accounts', async function () {
-    await expect(
-      batch
-        .connect(spender)
-        .batchEtherPayment(
-          [payeeOne, payeeTwo, payeeThree, payeeFour],
-          [etherTransferAmount, etherTransferAmount, etherTransferAmount, etherTransferAmount],
-          { value: etherAmount },
-        ),
-    )
-      .to.emit(batch, 'EthTransfer')
-      .withArgs(spenderAddress, etherAmount.toString());
+    await token.connect(spender).approve(batch.address, 400);
   });
   it('Should execute a batch payments of a ERC20 to four accounts', async function () {
     beforeERC20Balance = await token.connect(owner).balanceOf(payeeThree);
     await expect(
       batch
         .connect(spender)
-        .batchERC20Payment(
+        .batchOrphanERC20Payments(
           token.address,
           [payeeOne, payeeTwo, payeeThree, payeeFour],
           [20, 20, 20, 20],
@@ -91,53 +77,55 @@ describe('contract: BatchPayments', () => {
     await expect(
       batch
         .connect(spender)
-        .batchERC20PaymentWithReference(
+        .batchERC20PaymentsWithReferenceAndFee(
           token.address,
           [payeeOne, payeeTwo, payeeThree, payeeFour],
           [20, 20, 20, 20],
           [referenceExample1, referenceExample2, referenceExample3, referenceExample4],
+          1,
+          feeAddress,
         ),
     )
-      .to.emit(token, 'Transfer')
-      .to.emit(batch, 'TransferWithReference')
-      .withArgs(token.address, payeeTwo, '20', ethers.utils.keccak256(referenceExample2));
+      // .to.emit(token, 'Transfer')
+      .to.emit(batch, 'TransferWithReferenceAndFee') //ToDO check if erc20FeeProxy emits
+      .withArgs(
+        token.address,
+        payeeTwo,
+        '20',
+        ethers.utils.keccak256(referenceExample2),
+        '1',
+        feeAddress,
+      ); // ToDo check all paymentRefs
 
     afterERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
-    expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(20));
-  });
-  it('Should revert if not enough ether value', async function () {
-    expect(
-      batch
-        .connect(spender1)
-        .batchEtherPayment(
-          [payeeOne, payeeTwo, payeeThree, payeeFour],
-          [etherTransferAmount, etherTransferAmount, etherTransferAmount, etherTransferAmount],
-          { value: etherAmount.div(2) },
-        ),
-    ).to.be.reverted;
+    expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(24));
   });
   it('Should revert if not enough tokens', async function () {
     expect(
       batch
         .connect(spender)
-        .batchERC20PaymentWithReference(
+        .batchERC20PaymentsWithReferenceAndFee(
           token.address,
           [payeeOne, payeeTwo, payeeThree, payeeFour],
           [20, 20, 20, 30],
           [referenceExample1, referenceExample2, referenceExample3, referenceExample4],
+          1,
+          feeAddress,
         ),
-    ).to.be.reverted;
+    ).to.be.reverted; //ToDo
   });
   it('Should revert without approval', async function () {
     expect(
       batch
         .connect(spender1)
-        .batchERC20PaymentWithReference(
+        .batchERC20PaymentsWithReferenceAndFee(
           token.address,
           [payeeOne, payeeTwo, payeeThree, payeeFour],
           [20, 20, 20, 20],
           [referenceExample1, referenceExample2, referenceExample3, referenceExample4],
+          1,
+          feeAddress,
         ),
-    ).to.be.reverted;
+    ).to.be.reverted; //ToDo
   });
 });
