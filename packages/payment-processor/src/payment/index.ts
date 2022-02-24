@@ -16,7 +16,7 @@ import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
 import { isNearNetwork, isNearAccountSolvent } from './utils-near';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import { encodeRequestApprovalIfNeeded } from './encoder-approval';
+import { encodeRequestErc20ApprovalIfNeeded } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from './settings';
@@ -128,7 +128,7 @@ export async function payRequest(
  * @param options encoding options
  * @returns
  */
-export async function encodeRequest(
+export async function encodeRequestApprovalAndPayment(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider,
   from?: string,
@@ -137,7 +137,7 @@ export async function encodeRequest(
   const preparedTransactions: IPreparedTransaction[] = [];
 
   if (from) {
-    const approvalTx = await encodeRequestApprovalIfNeeded(
+    const approvalTx = await encodeRequestErc20ApprovalIfNeeded(
       request,
       signerOrProvider,
       from,

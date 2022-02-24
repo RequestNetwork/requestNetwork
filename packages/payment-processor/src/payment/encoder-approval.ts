@@ -14,38 +14,190 @@ import {
 } from './swap-conversion-erc20';
 import { getPaymentNetworkExtension } from './utils';
 
-export function encodeRequestApprovalIfNeeded(
+/**
+ * For a given request and user, encode an approval transaction if it is needed.
+ * @param request the request
+ * @param provider generic provider
+ * @param from the user who will pay the request
+ * @param options specific to the request payment (conversion, swapping, ...)
+ */
+export async function encodeRequestErc20ApprovalIfNeeded(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
   from: string,
   options?: IRequestPaymentOptions,
 ): Promise<IPreparedTransaction | void> {
   if (options && options.swap) {
-    return encodeRequestApprovalWithSwapIfNeeded(request, provider, from, options);
+    return encodeRequestErc20ApprovalWithSwapIfNeeded(request, provider, from, options);
   } else {
-    return encodeRequestApprovalWithoutSwapIfNeeded(request, provider, from, options);
+    return encodeRequestErc20ApprovalWithoutSwapIfNeeded(request, provider, from, options);
   }
 }
 
-export async function encodeRequestApprovalWithoutSwapIfNeeded(
+/**
+ * For a given request, encode an approval transaction.
+ * @param request the request
+ * @param provider generic provider
+ * @param options specific to the request payment (conversion, ...)
+ */
+export function encodeRequestErc20Approval(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider,
+  options?: IRequestPaymentOptions,
+): IPreparedTransaction | void {
+  if (options && options.swap) {
+    return encodeRequestErc20ApprovalWithSwap(request, provider, options);
+  } else {
+    return encodeRequestErc20ApprovalWithoutSwap(request, provider, options);
+  }
+}
+
+/**
+ * For a given request and user, encode an approval transaction if it is needed when swap is not used.
+ * @param request the request
+ * @param provider generic provider
+ * @param from user who will pay the request
+ * @param options specific to the request payment (conversion, swapping, ...)
+ */
+export async function encodeRequestErc20ApprovalWithoutSwapIfNeeded(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
   from: string,
   options?: IRequestPaymentOptions,
 ): Promise<IPreparedTransaction | void> {
+  if (await isRequestErc20ApprovalWithoutSwapNeeded(request, provider, from, options)) {
+    return encodeRequestErc20ApprovalWithoutSwap(request, provider, options);
+  }
+}
+
+/**
+ * For a given request and user, encode an approval transaction if it is needed when swap is used.
+ * @param request the request
+ * @param provider generic provider
+ * @param from user who will pay the request
+ * @param options specific to the request payment (conversion, swapping, ...)
+ */
+export async function encodeRequestErc20ApprovalWithSwapIfNeeded(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider,
+  from: string,
+  options?: IRequestPaymentOptions,
+): Promise<IPreparedTransaction | void> {
+  if (!options || !options.swap) {
+    throw new Error('No swap options');
+  }
+
+  if (await isRequestErc20ApprovalWithSwapNeeded(request, provider, from, options)) {
+    return encodeRequestErc20ApprovalWithSwap(request, provider, options);
+  }
+}
+
+/**
+ * For a given request, encode an approval transaction when swap is not used.
+ * @param request the request
+ * @param provider generic provider
+ * @param options specific to the request payment (conversion, ...)
+ */
+export function encodeRequestErc20ApprovalWithoutSwap(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider,
+  options?: IRequestPaymentOptions,
+): IPreparedTransaction | void {
+  const paymentNetwork = getPaymentNetworkExtension(request)?.id;
+
+  switch (paymentNetwork) {
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
+      return prepareApproveErc20(request, provider);
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
+      return prepareApproveErc20(request, provider);
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
+      if (
+        !options ||
+        !options.conversion ||
+        !options.conversion.currency ||
+        options.conversion.currency.type !== RequestLogicTypes.CURRENCY.ERC20
+      ) {
+        throw new Error('Conversion settings missing');
+      }
+      return prepareApproveErc20ForProxyConversion(
+        request,
+        options.conversion.currency.value,
+        provider,
+      );
+    }
+  }
+}
+
+/**
+ * For a given request, encode an approval transaction when swap is used.
+ * @param request the request
+ * @param provider generic provider
+ * @param options specific to the request payment (conversion, swapping, ...)
+ */
+export function encodeRequestErc20ApprovalWithSwap(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider,
+  options: IRequestPaymentOptions,
+): IPreparedTransaction | void {
+  const paymentNetwork = getPaymentNetworkExtension(request)?.id;
+
+  switch (paymentNetwork) {
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
+      if (options && options.swap) {
+        return prepareApprovalErc20ForSwapToPay(request, options.swap.path[0], provider);
+      } else {
+        throw new Error('No swap options');
+      }
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
+      if (
+        !options ||
+        !options.conversion ||
+        !options.conversion.currency ||
+        options.conversion.currency.type !== RequestLogicTypes.CURRENCY.ERC20
+      ) {
+        throw new Error('Conversion settings missing');
+      }
+
+      if (options.swap) {
+        return prepareApprovalErc20ForSwapWithConversionToPay(
+          request,
+          options.swap.path[0],
+          provider,
+        );
+      } else {
+        throw new Error('No swap options');
+      }
+    }
+    default:
+      return;
+  }
+}
+
+/**
+ * Check if for a given request and user, an approval transaction is needed when swap is not used.
+ * @param request the request
+ * @param provider generic provider
+ * @param from user who will make the payment
+ * @param options specific to the request payment (conversion, ...)
+ */
+export async function isRequestErc20ApprovalWithoutSwapNeeded(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider,
+  from: string,
+  options?: IRequestPaymentOptions,
+): Promise<boolean> {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
 
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
       if (!(await hasErc20Approval(request, from))) {
-        return prepareApproveErc20(request, provider);
+        return true;
       }
       break;
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
       if (!(await hasErc20Approval(request, from))) {
-        return prepareApproveErc20(request, provider);
+        return true;
       }
-
       break;
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
       if (
@@ -68,23 +220,27 @@ export async function encodeRequestApprovalWithoutSwapIfNeeded(
           amount,
         ))
       ) {
-        return prepareApproveErc20ForProxyConversion(
-          request,
-          options.conversion.currency.value,
-          provider,
-        );
+        return true;
       }
       break;
     }
   }
+  return false;
 }
 
-export async function encodeRequestApprovalWithSwapIfNeeded(
+/**
+ * Check if for a given request and user, an approval transaction is needed when swap is used.
+ * @param request the request
+ * @param provider generic provider
+ * @param from user who will make the payment
+ * @param options specific to the request payment (conversion, swapping, ...)
+ */
+export async function isRequestErc20ApprovalWithSwapNeeded(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
   from: string,
   options: IRequestPaymentOptions,
-): Promise<IPreparedTransaction | void> {
+): Promise<boolean> {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
 
   switch (paymentNetwork) {
@@ -99,7 +255,7 @@ export async function encodeRequestApprovalWithSwapIfNeeded(
             options.swap.maxInputAmount,
           ))
         ) {
-          return prepareApprovalErc20ForSwapToPay(request, options.swap.path[0], provider);
+          return true;
         }
       } else {
         throw new Error('No swap options');
@@ -123,23 +279,18 @@ export async function encodeRequestApprovalWithSwapIfNeeded(
           !(await hasErc20ApprovalForSwapWithConversion(
             request,
             from,
-            options.swap.path[options.swap.path.length - 1],
+            options.swap.path[0],
             provider,
             amount,
           ))
         ) {
-          return prepareApprovalErc20ForSwapWithConversionToPay(
-            request,
-            options.swap.path[options.swap.path.length - 1],
-            provider,
-          );
+          return true;
         }
       } else {
         throw new Error('No swap options');
       }
       break;
     }
-    default:
-      return;
   }
+  return false;
 }
