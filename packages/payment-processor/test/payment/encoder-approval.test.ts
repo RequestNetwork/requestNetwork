@@ -6,7 +6,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestApprovalIfNeeded } from '../../src';
+import { encodeRequestErc20ApprovalIfNeeded } from '../../src';
 import { getProxyAddress } from '../../src/payment/utils';
 import { AnyToERC20PaymentDetector, Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { currencyManager } from './shared';
@@ -214,7 +214,7 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
 
 describe('Approval encoder handles ERC20 Proxy', () => {
   it('Should return a valid transaction', async () => {
-    const approvalTransaction = await encodeRequestApprovalIfNeeded(
+    const approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       baseValidRequest,
       provider,
       wallet.address,
@@ -233,14 +233,14 @@ describe('Approval encoder handles ERC20 Proxy', () => {
   });
 
   it('Should not return anything', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       baseValidRequest,
       provider,
       wallet.address,
     );
     await wallet.sendTransaction(approvalTransaction as IPreparedTransaction);
 
-    approvalTransaction = await encodeRequestApprovalIfNeeded(
+    approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       baseValidRequest,
       provider,
       wallet.address,
@@ -251,7 +251,7 @@ describe('Approval encoder handles ERC20 Proxy', () => {
 
 describe('Approval encoder handles ERC20 Fee Proxy', () => {
   it('Should return a valid transaction', async () => {
-    const approvalTransaction = await encodeRequestApprovalIfNeeded(
+    const approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20FeeProxy,
       provider,
       wallet.address,
@@ -269,14 +269,14 @@ describe('Approval encoder handles ERC20 Fee Proxy', () => {
     });
   });
   it('Should not return anything', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20FeeProxy,
       provider,
       wallet.address,
     );
     await wallet.sendTransaction(approvalTransaction as IPreparedTransaction);
 
-    approvalTransaction = await encodeRequestApprovalIfNeeded(
+    approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20FeeProxy,
       provider,
       wallet.address,
@@ -287,7 +287,7 @@ describe('Approval encoder handles ERC20 Fee Proxy', () => {
 
 describe('Approval encoder handles ERC20 Conversion Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20ConversionProxy,
       provider,
       wallet.address,
@@ -309,7 +309,7 @@ describe('Approval encoder handles ERC20 Conversion Proxy', () => {
   });
 
   it('Should not return anything', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20ConversionProxy,
       provider,
       wallet.address,
@@ -319,7 +319,7 @@ describe('Approval encoder handles ERC20 Conversion Proxy', () => {
     );
     await wallet.sendTransaction(approvalTransaction as IPreparedTransaction);
 
-    approvalTransaction = await encodeRequestApprovalIfNeeded(
+    approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20ConversionProxy,
       provider,
       wallet.address,
@@ -332,14 +332,18 @@ describe('Approval encoder handles ERC20 Conversion Proxy', () => {
 
   it('Should not be possible to encode a conversion transaction without passing options', async () => {
     await expect(
-      encodeRequestApprovalIfNeeded(validRequestERC20ConversionProxy, provider, wallet.address),
+      encodeRequestErc20ApprovalIfNeeded(
+        validRequestERC20ConversionProxy,
+        provider,
+        wallet.address,
+      ),
     ).rejects.toThrowError('Conversion settings missing');
   });
 });
 
 describe('Approval encoder handles ERC20 Swap Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20FeeProxy,
       provider,
       wallet.address,
@@ -360,7 +364,7 @@ describe('Approval encoder handles ERC20 Swap Proxy', () => {
   });
 
   it('Should not return anything', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20FeeProxy,
       provider,
       wallet.address,
@@ -370,7 +374,7 @@ describe('Approval encoder handles ERC20 Swap Proxy', () => {
     );
     await wallet.sendTransaction(approvalTransaction as IPreparedTransaction);
 
-    approvalTransaction = await encodeRequestApprovalIfNeeded(
+    approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20FeeProxy,
       provider,
       wallet.address,
@@ -384,7 +388,7 @@ describe('Approval encoder handles ERC20 Swap Proxy', () => {
 
 describe('Approval encoder handles ERC20 Swap & Conversion Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20ConversionProxy,
       provider,
       wallet.address,
@@ -406,7 +410,7 @@ describe('Approval encoder handles ERC20 Swap & Conversion Proxy', () => {
   });
 
   it('Should not return anything', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20ConversionProxy,
       provider,
       wallet.address,
@@ -417,7 +421,7 @@ describe('Approval encoder handles ERC20 Swap & Conversion Proxy', () => {
     );
     await wallet.sendTransaction(approvalTransaction as IPreparedTransaction);
 
-    approvalTransaction = await encodeRequestApprovalIfNeeded(
+    approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20ConversionProxy,
       provider,
       wallet.address,
@@ -431,22 +435,31 @@ describe('Approval encoder handles ERC20 Swap & Conversion Proxy', () => {
 
   it('Should not be possible to encode a conversion transaction without passing options', async () => {
     await expect(
-      encodeRequestApprovalIfNeeded(validRequestERC20ConversionProxy, provider, wallet.address),
+      encodeRequestErc20ApprovalIfNeeded(
+        validRequestERC20ConversionProxy,
+        provider,
+        wallet.address,
+      ),
     ).rejects.toThrowError();
   });
 
   it('Should not be possible to encode a conversion transaction without passing conversion options', async () => {
     await expect(
-      encodeRequestApprovalIfNeeded(validRequestERC20ConversionProxy, provider, wallet.address, {
-        swap: alphaSwapSettings,
-      }),
+      encodeRequestErc20ApprovalIfNeeded(
+        validRequestERC20ConversionProxy,
+        provider,
+        wallet.address,
+        {
+          swap: alphaSwapSettings,
+        },
+      ),
     ).rejects.toThrowError();
   });
 });
 
 describe('Approval encoder handles Eth Requests', () => {
   it('Should not return anything for Eth Proxy', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestEthProxy,
       provider,
       wallet.address,
@@ -454,7 +467,7 @@ describe('Approval encoder handles Eth Requests', () => {
     expect(approvalTransaction).toBeUndefined();
   });
   it('Should not return anything for Eth Fee Proxy', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestEthFeeProxy,
       provider,
       wallet.address,
@@ -462,7 +475,7 @@ describe('Approval encoder handles Eth Requests', () => {
     expect(approvalTransaction).toBeUndefined();
   });
   it('Should not return anything for Eth Conversion Proxy', async () => {
-    let approvalTransaction = await encodeRequestApprovalIfNeeded(
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestEthConversionProxy,
       provider,
       wallet.address,

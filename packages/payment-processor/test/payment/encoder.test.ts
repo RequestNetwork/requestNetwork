@@ -6,7 +6,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequest } from '../../src';
+import { encodeRequestApprovalAndPayment } from '../../src';
 import { currencyManager } from './shared';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -41,7 +41,7 @@ const alphaSwapSettings = {
 };
 const alphaSwapConversionSettings = {
   deadline: 2599732187000, // This test will fail in 2052
-  maxInputAmount: 204,
+  maxInputAmount: '100000000000000000000',
   path: [erc20ContractAddress, alphaContractAddress],
 };
 
@@ -210,7 +210,11 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
 
 describe('Encoder', () => {
   it('Should handle ERC20 Proxy request', async () => {
-    const encodedTransactions = await encodeRequest(baseValidRequest, provider, wallet.address);
+    const encodedTransactions = await encodeRequestApprovalAndPayment(
+      baseValidRequest,
+      provider,
+      wallet.address,
+    );
 
     let tx = await wallet.sendTransaction(encodedTransactions[0]);
     let confirmedTx = await tx.wait(1);
@@ -224,7 +228,7 @@ describe('Encoder', () => {
   });
 
   it('Should handle ERC20 Fee Proxy request', async () => {
-    const encodedTransactions = await encodeRequest(
+    const encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestERC20FeeProxy,
       provider,
       wallet.address,
@@ -242,7 +246,7 @@ describe('Encoder', () => {
   });
 
   it('Should handle ERC20 Conversion Proxy request', async () => {
-    let encodedTransactions = await encodeRequest(
+    let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestERC20ConversionProxy,
       provider,
       wallet.address,
@@ -263,7 +267,7 @@ describe('Encoder', () => {
   });
 
   it('Should handle ERC20 Swap Proxy request', async () => {
-    let encodedTransactions = await encodeRequest(
+    let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestERC20FeeProxy,
       provider,
       wallet.address,
@@ -284,7 +288,7 @@ describe('Encoder', () => {
   });
 
   it.only('Should handle ERC20 Swap and Conversion Proxy request', async () => {
-    let encodedTransactions = await encodeRequest(
+    let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestERC20ConversionProxy,
       provider,
       wallet.address,
@@ -306,7 +310,11 @@ describe('Encoder', () => {
   });
 
   it('Should handle Eth Proxy request', async () => {
-    let encodedTransactions = await encodeRequest(validRequestEthProxy, provider, wallet.address);
+    let encodedTransactions = await encodeRequestApprovalAndPayment(
+      validRequestEthProxy,
+      provider,
+      wallet.address,
+    );
 
     let tx = await wallet.sendTransaction(encodedTransactions[0]);
     let confirmedTx = await tx.wait(1);
@@ -315,7 +323,7 @@ describe('Encoder', () => {
   });
 
   it('Should handle Eth Fee Proxy request', async () => {
-    let encodedTransactions = await encodeRequest(
+    let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestEthFeeProxy,
       provider,
       wallet.address,
@@ -328,7 +336,7 @@ describe('Encoder', () => {
   });
 
   it('Should handle Eth Conversion Proxy', async () => {
-    let encodedTransactions = await encodeRequest(
+    let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestEthConversionProxy,
       provider,
       wallet.address,
