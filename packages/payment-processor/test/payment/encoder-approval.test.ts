@@ -404,7 +404,7 @@ describe('Approval encoder handles ERC20 Swap & Conversion Proxy', () => {
 
     expect(approvalTransaction).toEqual({
       data: erc20ApprovalData(proxyAddress),
-      to: alphaContractAddress,
+      to: erc20ContractAddress,
       value: 0,
     });
   });
