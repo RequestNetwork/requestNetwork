@@ -77,9 +77,9 @@
           "type": "bytes[]"
         },
         {
-          "internalType": "uint256",
+          "internalType": "uint256[]",
           "name": "_feeAmount",
-          "type": "uint256"
+          "type": "uint256[]"
         },
         {
           "internalType": "address",
@@ -87,7 +87,7 @@
           "type": "address"
         }
       ],
-      "name": "batchERC20PaymentWithReference",
+      "name": "batchERC20PaymentsWithReferenceAndFee",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

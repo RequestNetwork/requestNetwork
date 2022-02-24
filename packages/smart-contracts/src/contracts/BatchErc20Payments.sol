@@ -6,9 +6,7 @@ import "./interfaces/ERC20FeeProxy.sol";
 
 contract BatchErc20Payments {
     
-    IERC20FeeProxy public erc20FeeProxy;
-    
-    /// @notice Event emited by batchERC20PaymentWithReferenceAndFees().
+    // Event to declare a transfer with a reference
     event TransferWithReferenceAndFee(
         address tokenAddress,
         address to,
@@ -17,6 +15,8 @@ contract BatchErc20Payments {
         uint256 feeAmount,
         address feeAddress
     );
+
+    IERC20FeeProxy public erc20FeeProxy;
     
     /// Constructor initiates the contract with the ERC20FeeProxy address.
     /// @notice This smartcontract let you pay multiple paymentrequests in one transaction.
@@ -56,9 +56,10 @@ contract BatchErc20Payments {
         address[] calldata _recipients, 
         uint256[] calldata _values,
         bytes[] calldata _paymentReferences,
-        uint256 _feeAmount,
+        uint256[] calldata _feeAmount,
         address _feeAddress 
     ) external {
+        //approvePaymentProxyToSpend(_tokenAddress);
         for (uint256 i = 0; i < _recipients.length; i++) {
            (bool status, ) = address(erc20FeeProxy).delegatecall(
             abi.encodeWithSignature(
@@ -67,20 +68,11 @@ contract BatchErc20Payments {
                 _recipients[i], 
                 _values[i],
                 _paymentReferences[i],
-                _feeAmount,
+                _feeAmount[i],
                 _feeAddress
                 )
             );
         require(status, "transferFromWithReference failed");
-
-        emit TransferWithReferenceAndFee(
-            _tokenAddress,
-            _recipients[i], 
-            _values[i],
-            _paymentReferences[i],
-            _feeAmount,
-            _feeAddress
-        );
         }
     }
 }
