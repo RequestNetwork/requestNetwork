@@ -174,6 +174,25 @@ export function encodeRequestErc20ApprovalWithSwap(
 }
 
 /**
+ * Check if for a given request and user, an approval transaction is needed.
+ * @param request the request
+ * @param provider generic provider
+ * @param from user who will make the payment
+ * @param options specific to the request payment (conversion, ...)
+ */
+export async function isRequestErc20ApprovalNeeded(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider,
+  from: string,
+  options?: IRequestPaymentOptions,
+): Promise<boolean> {
+  if (options && options.swap) {
+    return isRequestErc20ApprovalWithSwapNeeded(request, provider, from, options);
+  }
+  return isRequestErc20ApprovalWithoutSwapNeeded(request, provider, from, options);
+}
+
+/**
  * Check if for a given request and user, an approval transaction is needed when swap is not used.
  * @param request the request
  * @param provider generic provider
