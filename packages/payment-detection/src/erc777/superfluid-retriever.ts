@@ -72,23 +72,25 @@ export class SuperFluidInfoRetriever {
       } as FlowUpdatedEvent);
     }
 
+    const TYPE_BEGIN = 0;
+    // const TYPE_UPDATE = 1;
+    const TYPE_END = 2;
     for (let index = 1; index < streamEvents.length; index++) {
-      // FIXME: Handle decreasing flowrate of ongoing payment without closing it
       // we have to manage update of flowrate to pay different payment references with the same token
       // but we do not manage in the MVP updating flowrate of ongoing payment
       // so we should care only about pairs of begin or update event (type 0 or 1) followed by end or update event (type 2 or 1)
       // for each update of static flowrate between these 2 chronological sorted events:
       // amount paid is the difference of flowrates at the start multiplied by the difference of time
-      if (
-        streamEvents[index - 1].type === 2 ||
-        streamEvents[index].type === 0 ||
-        streamEvents[index - 1].flowRate < streamEvents[index - 1].oldFlowRate
-      ) {
+      if (streamEvents[index - 1].type === TYPE_END || streamEvents[index].type === TYPE_BEGIN) {
+        continue;
+      }
+      const diffFlowRate = streamEvents[index - 1].flowRate - streamEvents[index - 1].oldFlowRate;
+      if (diffFlowRate < 0) {
+        // FIXME:Handle decreasing flowrate of ongoing payment without closing it
         continue;
       }
       const amount =
-        (streamEvents[index - 1].flowRate - streamEvents[index - 1].oldFlowRate) *
-        (streamEvents[index].timestamp - streamEvents[index - 1].timestamp);
+        diffFlowRate * (streamEvents[index].timestamp - streamEvents[index - 1].timestamp);
       paymentEvents.push({
         amount: amount.toString(),
         name: this.eventName,

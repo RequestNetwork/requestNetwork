@@ -3,8 +3,8 @@ import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { utils } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 
-describe('api/erc777/superfluid-info-retriever-1request', () => {
-  describe('on rinkeby', () => {
+describe('api/erc777/superfluid-info-retriever', () => {
+  describe('on untagged requests', () => {
     it('should get payment events from SuperFluid via subgraph with 1 request', async () => {
       const paymentData = {
         reference: '0xf81e1f6b6ff7cd15ab5538b403c8fdf3fed1f254ce6abcddf18941354039c752',
@@ -44,10 +44,8 @@ describe('api/erc777/superfluid-info-retriever-1request', () => {
       expect(transferEvents[0].parameters?.block).toEqual(paymentData.block);
     });
   });
-});
 
-describe('api/erc777/superfluid-info-retriever-2requests', () => {
-  describe('on rinkeby', () => {
+  describe('on 2 nested requests', () => {
     it('should get payment event from SuperFluid via subgraph with 2 requests', async () => {
       const paymentData = {
         reference: '0x23b12cbc2c59e39389f3c7cd652c4594a3a7595d7e9af265d07878345a6fe488',
@@ -80,10 +78,8 @@ describe('api/erc777/superfluid-info-retriever-2requests', () => {
       expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);
     });
   });
-});
 
-describe('api/erc777/superfluid-info-retriever-ongoing', () => {
-  describe('on rinkeby', () => {
+  describe('on ongoing request', () => {
     it('should get payment event from SuperFluid via subgraph with ongoing request', async () => {
       const paymentData = {
         reference: '0x272b93b983e5435bdba30902066ca3a0839cdb05bd526d648f6b0db79adbd2b5',
