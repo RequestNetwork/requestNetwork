@@ -13,6 +13,7 @@ import {
 } from './utils';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
+import { IPreparedTransaction } from './prepared-transaction';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
 
@@ -24,9 +25,26 @@ export { ISwapSettings } from './swap-erc20-fee-proxy';
  */
 export async function swapToPayAnyToErc20Request(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   options: IRequestPaymentOptions,
 ): Promise<ContractTransaction> {
+  const preparedTx = prepareSwapToPayAnyToErc20Request(request, signerOrProvider, options);
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction(preparedTx);
+  return tx;
+}
+
+/**
+ * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
+ * @param request
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param options to override amount, feeAmount and transaction parameters
+ */
+export function prepareSwapToPayAnyToErc20Request(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  options: IRequestPaymentOptions,
+): IPreparedTransaction {
   if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
     throw new Error(`The request must have the payment network any-to-erc20-proxy`);
   }
@@ -39,15 +57,13 @@ export async function swapToPayAnyToErc20Request(
 
   const encodedTx = encodeSwapToPayAnyToErc20Request(request, signerOrProvider, options);
   const proxyAddress = erc20SwapConversionArtifact.getAddress(network);
-  const signer = getSigner(signerOrProvider);
 
-  const tx = await signer.sendTransaction({
+  return {
     data: encodedTx,
     to: proxyAddress,
     value: 0,
     ...options?.overrides,
-  });
-  return tx;
+  };
 }
 
 /**
@@ -58,7 +74,7 @@ export async function swapToPayAnyToErc20Request(
  */
 export function encodeSwapToPayAnyToErc20Request(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   options: IRequestPaymentOptions,
 ): string {
   const conversionSettings = options?.conversion;
