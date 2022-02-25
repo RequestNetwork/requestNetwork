@@ -30,12 +30,14 @@ export async function encodeRequestPaymentWithoutSwap(
   options?: IRequestPaymentOptions,
 ): Promise<IPreparedTransaction> {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
+  const amount = options?.amount ? options.amount : undefined;
+  const feeAmount = options?.feeAmount ? options.feeAmount : undefined;
 
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      return prepareErc20ProxyPaymentTransaction(request);
+      return prepareErc20ProxyPaymentTransaction(request, amount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return prepareErc20FeeProxyPaymentTransaction(request);
+      return prepareErc20FeeProxyPaymentTransaction(request, amount, feeAmount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
       if (
         !options ||
@@ -48,6 +50,8 @@ export async function encodeRequestPaymentWithoutSwap(
       return prepareAnyToErc20ProxyPaymentTransaction(
         request,
         options.conversion as IConversionPaymentSettings,
+        amount,
+        feeAmount,
       );
     }
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY: {
@@ -62,12 +66,14 @@ export async function encodeRequestPaymentWithoutSwap(
       return prepareAnyToEthProxyPaymentTransaction(
         request,
         options.conversion as IConversionPaymentSettings,
+        amount,
+        feeAmount,
       );
     }
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
-      return prepareEthProxyPaymentTransaction(request);
+      return prepareEthProxyPaymentTransaction(request, amount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT:
-      return prepareEthFeeProxyPaymentTransaction(request);
+      return prepareEthFeeProxyPaymentTransaction(request, amount, feeAmount);
     default:
       throw new Error('Payment network not found');
   }
@@ -79,11 +85,18 @@ export async function encodeRequestPaymentWithSwap(
   options: IRequestPaymentOptions,
 ): Promise<IPreparedTransaction> {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
+  const amount = options?.amount ? options.amount : undefined;
+  const feeAmount = options?.feeAmount ? options.feeAmount : undefined;
+  const overrides = options?.overrides ? options.overrides : undefined;
 
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
       if (options && options.swap) {
-        return prepareSwapToPayErc20FeeRequest(request, provider, options.swap);
+        return prepareSwapToPayErc20FeeRequest(request, provider, options.swap, {
+          amount,
+          feeAmount,
+          overrides,
+        });
       } else {
         throw new Error('No swap options');
       }
