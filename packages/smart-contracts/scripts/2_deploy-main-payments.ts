@@ -75,17 +75,22 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
     await erc20AlphaInstance.transfer(FakeSwapRouterAddress, '20000000000000000000000000000');
     await testERC20Instance.transfer(FakeSwapRouterAddress, '10000000000000000000000000000');
     // SwapToPay
-    const { address: ERC20SwapToPayAddress } = await deployOne(args, hre, 'ERC20SwapToPay', {
-      constructorArguments: [
-        deployer.address,
-        FakeSwapRouterAddress,
-        ERC20FeeProxyAddress,
-        '0x0F4F2Ac550A1b4e2280d04c21cEa7EBD822934b5',
-        100, // 1% swapFee
-      ],
-    });
+    const { address: ERC20SwapToPayWithFeesAddress } = await deployOne(
+      args,
+      hre,
+      'ERC20SwapToPayWithFees',
+      {
+        constructorArguments: [
+          deployer.address,
+          FakeSwapRouterAddress,
+          ERC20FeeProxyAddress,
+          '0x0F4F2Ac550A1b4e2280d04c21cEa7EBD822934b5',
+          100, // 1% swapFee
+        ],
+      },
+    );
     // FIXME SwapToPay deployed without approbation for router and proxy
-    console.log('SwapToPay Contract deployed: ' + ERC20SwapToPayAddress);
+    console.log('SwapToPay Contract deployed: ' + ERC20SwapToPayWithFeesAddress);
     // FIXME useless transaction to keep the same contract addresses
     await testERC20Instance.transfer(deployer.address, '1');
 
@@ -108,7 +113,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
       ERC20Revert:              ${ERC20Revert.address}
       ERC20Alpha:               ${erc20AlphaInstance.address}
       FakeSwapRouter:           ${FakeSwapRouterAddress}
-      SwapToPay:                ${ERC20SwapToPayAddress}
+      SwapToPay:                ${ERC20SwapToPayWithFeesAddress}
     `);
     return {
       DAIAddress: erc20AlphaInstance.address,

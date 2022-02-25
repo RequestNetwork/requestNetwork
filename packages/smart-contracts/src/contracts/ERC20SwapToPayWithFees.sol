@@ -19,10 +19,10 @@ interface IUniswapV2Router02 {
 
 
 /**
- * @title ERC20SwapToPay
+ * @title ERC20SwapToPayWithFees
  * @notice This contract swaps ERC20 tokens before paying a request thanks to a payment proxy
   */
-contract ERC20SwapToPay is Ownable, WhitelistedRole{
+contract ERC20SwapToPayWithFees is Ownable, WhitelistedRole{
   using SafeERC20 for IERC20;
 
   IUniswapV2Router02 public swapRouter;

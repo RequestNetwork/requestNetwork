@@ -9,14 +9,14 @@ import {
   FakeSwapRouter,
   BadERC20__factory,
   BadERC20,
-  ERC20SwapToPay,
+  ERC20SwapToPayWithFees,
   ERC20FeeProxy,
 } from '../../src/types';
-import { erc20FeeProxyArtifact, erc20SwapToPayArtifact } from '../../src/lib';
+import { erc20FeeProxyArtifact, erc20SwapToPayWithFeesArtifact } from '../../src/lib';
 
 use(solidity);
 
-describe('contract: SwapToPay', () => {
+describe('contract: SwapToPayWithFees', () => {
   let swapFeeAddress: string;
   let from: string;
   let to: string;
@@ -31,7 +31,7 @@ describe('contract: SwapToPay', () => {
   let spentErc20: TestERC20;
   let erc20FeeProxy: ERC20FeeProxy;
   let fakeSwapRouter: FakeSwapRouter;
-  let testSwapToPay: ERC20SwapToPay;
+  let testSwapToPay: ERC20SwapToPayWithFees;
   let initialFromBalance: BigNumber;
   let defaultSwapRouterAddress: string;
 
@@ -43,7 +43,7 @@ describe('contract: SwapToPay', () => {
     [adminSigner, signer] = await ethers.getSigners();
 
     erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, adminSigner);
-    testSwapToPay = erc20SwapToPayArtifact.connect(network.name, adminSigner);
+    testSwapToPay = erc20SwapToPayWithFeesArtifact.connect(network.name, adminSigner);
     swapFeeAddress = await testSwapToPay.swapFeeAddress();
   });
 

@@ -4,7 +4,7 @@ import {
   chainlinkConversionPath as chainlinkConversionPathArtifact,
   ContractArtifact,
   erc20FeeProxyArtifact,
-  erc20SwapToPayArtifact,
+  erc20SwapToPayWithFeesArtifact,
   ethereumFeeProxyArtifact,
   ethereumProxyArtifact,
 } from '../src/lib';
@@ -132,7 +132,7 @@ export async function deployAllPaymentContracts(
       }
       const swapToPayResult = await deployOne(args, hre, 'ERC20SwapToPay', {
         constructorArguments: [swapRouterAddress, erc20FeeProxyAddress],
-        artifact: erc20SwapToPayArtifact,
+        artifact: erc20SwapToPayWithFeesArtifact,
         nonceCondition: nonceForBatch2,
       });
       addToResult(swapToPayResult);
