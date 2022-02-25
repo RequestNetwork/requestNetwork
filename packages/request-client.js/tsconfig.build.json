@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"],
+  "references": [
+    { "path": "../advanced-logic/tsconfig.build.json" },
+    { "path": "../currency/tsconfig.build.json" },
+    { "path": "../data-access/tsconfig.build.json" },
+    { "path": "../data-format/tsconfig.build.json" },
+    { "path": "../epk-signature/tsconfig.build.json" },
+    { "path": "../multi-format/tsconfig.build.json" },
+    { "path": "../request-logic/tsconfig.build.json" },
+    { "path": "../smart-contracts/tsconfig.build.json" },
+    { "path": "../transaction-manager/tsconfig.build.json" },
+    { "path": "../payment-detection/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
+  ]
+}
