@@ -10,7 +10,7 @@ export const erc20SwapToPayWithFeesArtifact = new ContractArtifact<ERC20SwapToPa
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0xA4392264a2d8c998901D10C154C91725b1BF0158',
+          address: '0xB529f14AA8096f943177c09Ca294Ad66d2E08b1f',
           creationBlockNumber: 0,
         },
       },
