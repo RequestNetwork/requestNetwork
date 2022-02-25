@@ -32,12 +32,19 @@ export async function encodeRequestPaymentWithoutSwap(
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
   const amount = options?.amount ? options.amount : undefined;
   const feeAmount = options?.feeAmount ? options.feeAmount : undefined;
+  const overrides = options?.overrides ? options.overrides : {};
 
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      return prepareErc20ProxyPaymentTransaction(request, amount);
+      return {
+        ...prepareErc20ProxyPaymentTransaction(request, amount),
+        ...overrides,
+      };
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return prepareErc20FeeProxyPaymentTransaction(request, amount, feeAmount);
+      return {
+        ...prepareErc20FeeProxyPaymentTransaction(request, amount, feeAmount),
+        ...overrides,
+      };
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
       if (
         !options ||
@@ -47,12 +54,15 @@ export async function encodeRequestPaymentWithoutSwap(
       ) {
         throw new Error('Conversion settings missing');
       }
-      return prepareAnyToErc20ProxyPaymentTransaction(
-        request,
-        options.conversion as IConversionPaymentSettings,
-        amount,
-        feeAmount,
-      );
+      return {
+        ...prepareAnyToErc20ProxyPaymentTransaction(
+          request,
+          options.conversion as IConversionPaymentSettings,
+          amount,
+          feeAmount,
+        ),
+        ...overrides,
+      };
     }
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY: {
       if (
@@ -63,17 +73,26 @@ export async function encodeRequestPaymentWithoutSwap(
       ) {
         throw new Error('Encoding settings missing');
       }
-      return prepareAnyToEthProxyPaymentTransaction(
-        request,
-        options.conversion as IConversionPaymentSettings,
-        amount,
-        feeAmount,
-      );
+      return {
+        ...prepareAnyToEthProxyPaymentTransaction(
+          request,
+          options.conversion as IConversionPaymentSettings,
+          amount,
+          feeAmount,
+        ),
+        ...overrides,
+      };
     }
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA:
-      return prepareEthProxyPaymentTransaction(request, amount);
+      return {
+        ...prepareEthProxyPaymentTransaction(request, amount),
+        ...overrides,
+      };
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT:
-      return prepareEthFeeProxyPaymentTransaction(request, amount, feeAmount);
+      return {
+        ...prepareEthFeeProxyPaymentTransaction(request, amount, feeAmount),
+        ...overrides,
+      };
     default:
       throw new Error('Payment network not found');
   }

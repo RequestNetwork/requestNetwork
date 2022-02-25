@@ -104,12 +104,13 @@ export function encodeRequestErc20ApprovalWithoutSwap(
   options?: IRequestPaymentOptions,
 ): IPreparedTransaction | void {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
+  const overrides = options?.overrides ? options.overrides : undefined;
 
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      return prepareApproveErc20(request, provider);
+      return prepareApproveErc20(request, provider, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return prepareApproveErc20(request, provider);
+      return prepareApproveErc20(request, provider, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
       if (
         !options ||
@@ -123,6 +124,7 @@ export function encodeRequestErc20ApprovalWithoutSwap(
         request,
         options.conversion.currency.value,
         provider,
+        overrides,
       );
     }
   }
@@ -140,11 +142,12 @@ export function encodeRequestErc20ApprovalWithSwap(
   options: IRequestPaymentOptions,
 ): IPreparedTransaction | void {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
+  const overrides = options?.overrides ? options.overrides : undefined;
 
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
       if (options && options.swap) {
-        return prepareApprovalErc20ForSwapToPay(request, options.swap.path[0], provider);
+        return prepareApprovalErc20ForSwapToPay(request, options.swap.path[0], provider, overrides);
       } else {
         throw new Error('No swap options');
       }
@@ -163,6 +166,7 @@ export function encodeRequestErc20ApprovalWithSwap(
           request,
           options.swap.path[0],
           provider,
+          overrides,
         );
       } else {
         throw new Error('No swap options');
