@@ -292,8 +292,8 @@ describe('api/any/conversion-fee-proxy-contract', () => {
 
     const balance = await anyToErc20Proxy.getBalance(mockRequest);
     expect(balance.error).toBeUndefined();
-    // Payments: 500 + 500
-    // Refunds: 100 + 100
+    // Payments: 100 + 500 + 500
+    // Refunds: 100 + 100 + 100
     expect(balance.balance).toBe('800');
     // Payments: 5
     // Refunds: 5
