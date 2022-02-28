@@ -95,8 +95,7 @@ export abstract class FeeReferenceBasedDetector<
     };
   }
 
-  // only sum fee that are directed to the right address
-  // why do we accept "PaymentTypes.IDeclarativePaymentEventParameters" ??
+  // Sum fee that are directed to the right fee address
   protected computeFeeBalance(
     feeEvents: PaymentTypes.IPaymentNetworkEvent<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
