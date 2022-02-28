@@ -287,7 +287,7 @@ describe('Encoder', () => {
     expect(tx.hash).not.toBeUndefined();
   });
 
-  it.only('Should handle ERC20 Swap and Conversion Proxy request', async () => {
+  it('Should handle ERC20 Swap and Conversion Proxy request', async () => {
     let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestERC20ConversionProxy,
       provider,
