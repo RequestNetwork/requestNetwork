@@ -247,7 +247,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       return Promise.resolve([
         // Wrong fee address
         {
-          amount: '1000',
+          amount: '100', // TODO it was 1000 but with a wrong address, now it is working.
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             block: 1,
