@@ -17,7 +17,7 @@ export function encodeRequestPayment(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
   options?: IRequestPaymentOptions,
-): Promise<IPreparedTransaction> {
+): IPreparedTransaction {
   if (options && options.swap) {
     return encodeRequestPaymentWithSwap(request, provider, options);
   } else {
@@ -25,10 +25,10 @@ export function encodeRequestPayment(
   }
 }
 
-export async function encodeRequestPaymentWithoutSwap(
+export function encodeRequestPaymentWithoutSwap(
   request: ClientTypes.IRequestData,
   options?: IRequestPaymentOptions,
-): Promise<IPreparedTransaction> {
+): IPreparedTransaction {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
   const amount = options?.amount ? options.amount : undefined;
   const feeAmount = options?.feeAmount ? options.feeAmount : undefined;
@@ -98,11 +98,11 @@ export async function encodeRequestPaymentWithoutSwap(
   }
 }
 
-export async function encodeRequestPaymentWithSwap(
+export function encodeRequestPaymentWithSwap(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
   options: IRequestPaymentOptions,
-): Promise<IPreparedTransaction> {
+): IPreparedTransaction {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
   const amount = options?.amount ? options.amount : undefined;
   const feeAmount = options?.feeAmount ? options.feeAmount : undefined;

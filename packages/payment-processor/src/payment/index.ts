@@ -147,7 +147,7 @@ export async function encodeRequestApprovalAndPayment(
       preparedTransactions.push(approvalTx);
     }
   }
-  preparedTransactions.push(await encodeRequestPayment(request, signerOrProvider, options));
+  preparedTransactions.push(encodeRequestPayment(request, signerOrProvider, options));
   return preparedTransactions;
 }
 
