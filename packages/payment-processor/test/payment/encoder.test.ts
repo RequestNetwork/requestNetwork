@@ -47,7 +47,7 @@ const alphaSwapConversionSettings = {
 };
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const mnemonicPath = `m/44'/60'/0'/0/8`;
+const mnemonicPath = `m/44'/60'/0'/0/20`;
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 let wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
@@ -216,6 +216,10 @@ beforeAll(async () => {
   await alphaContract.transfer(mainAddress, BigNumber.from('500000000000000000000'));
   const erc20Contract = ERC20__factory.connect(erc20ContractAddress, wallet);
   await erc20Contract.transfer(mainAddress, BigNumber.from('500000000000000000000'));
+  wallet.sendTransaction({
+    to: mainAddress,
+    value: BigNumber.from('10000000000000000000'),
+  });
   wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
 });
 

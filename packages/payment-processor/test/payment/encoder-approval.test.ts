@@ -45,10 +45,10 @@ const alphaSwapConversionSettings = {
 };
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const mnemonicPath = `m/44'/60'/0'/0/9`;
+const mnemonicPath = `m/44'/60'/0'/0/19`;
 const paymentAddress = '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
-const wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
+let wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
 const erc20ApprovalData = (proxy: string) => {
   return `0x095ea7b3000000000000000000000000${proxy
     .slice(2)
@@ -211,6 +211,16 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
     },
   },
 };
+
+beforeAll(async () => {
+  const mainAddress = wallet.address;
+  wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
+  wallet.sendTransaction({
+    to: mainAddress,
+    value: BigNumber.from('1000000000000000000'),
+  });
+  wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
+});
 
 describe('Approval encoder handles ERC20 Proxy', () => {
   it('Should return a valid transaction', async () => {
