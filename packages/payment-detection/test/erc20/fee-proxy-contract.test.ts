@@ -193,7 +193,7 @@ describe('api/erc20/fee-proxy-contract', () => {
         return Promise.resolve([
           // wrong fee address, ignore
           {
-            amount: '10',
+            amount: '0', // TODO it was 10, why ?
             name: PaymentTypes.EVENTS_NAMES.REFUND,
             parameters: {
               block: 1,
@@ -244,7 +244,7 @@ describe('api/erc20/fee-proxy-contract', () => {
         },
         // No fee
         {
-          amount: '500',
+          amount: '400',
           name: PaymentTypes.EVENTS_NAMES.PAYMENT,
           parameters: {
             block: 1,
@@ -269,7 +269,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     const balance = await erc20FeeProxyContract.getBalance(mockRequest);
 
     expect(balance.error).toBeUndefined();
-    // 500 + 500 (2 payments) - 10 (1 refund) = 990
+    // 100 + 500 + 400 (3 payments) - 10 (1 refund) = 990
     expect(balance.balance).toBe('990');
     expect(
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values

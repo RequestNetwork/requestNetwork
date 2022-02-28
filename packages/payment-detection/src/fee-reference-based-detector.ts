@@ -87,7 +87,7 @@ export abstract class FeeReferenceBasedDetector<
   > {
     const { feeAddress } = this.getPaymentExtension(request).values;
     this.checkRequiredParameter(feeAddress, 'feeAddress');
-    const feeBalance = this.computeFeeBalance(balance.events).toString();
+    const feeBalance = this.computeFeeBalance(balance.events, feeAddress).toString();
 
     return {
       events: balance.events,
@@ -95,25 +95,20 @@ export abstract class FeeReferenceBasedDetector<
     };
   }
 
-  protected filterEvents(
-    request: RequestLogicTypes.IRequest,
-    events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
-  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
-    // for a PN with fees, we ignore events with wrong fees.
-    const { feeAddress } = this.getPaymentExtension(request).values;
-    return events.filter(
-      (x) => !x.parameters?.feeAddress || x.parameters.feeAddress === feeAddress,
-    );
-  }
-
+  // only sum fee that are directed to the right address
+  // why do we accept "PaymentTypes.IDeclarativePaymentEventParameters" ??
   protected computeFeeBalance(
     feeEvents: PaymentTypes.IPaymentNetworkEvent<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
     >[],
+    feeAddress: string,
   ): BigNumber {
     return feeEvents.reduce(
       (sum, curr) =>
-        curr.parameters && 'feeAmount' in curr.parameters && curr.parameters.feeAmount
+        curr.parameters &&
+        'feeAmount' in curr.parameters &&
+        curr.parameters.feeAmount &&
+        (!curr.parameters?.feeAddress || curr.parameters.feeAddress === feeAddress)
           ? sum.add(curr.parameters.feeAmount)
           : sum,
       BigNumber.from(0),
