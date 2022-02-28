@@ -45,7 +45,7 @@ const alphaSwapConversionSettings = {
 };
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const mnemonicPath = `m/44'/60'/0'/0/3`;
+const mnemonicPath = `m/44'/60'/0'/0/9`;
 const paymentAddress = '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);

@@ -8,6 +8,7 @@ import {
 } from '@requestnetwork/types';
 import { encodeRequestApprovalAndPayment } from '../../src';
 import { currencyManager } from './shared';
+import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -46,10 +47,10 @@ const alphaSwapConversionSettings = {
 };
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
-const mnemonicPath = `m/44'/60'/0'/0/0`;
+const mnemonicPath = `m/44'/60'/0'/0/8`;
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
-const wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
+let wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
 
 const baseValidRequest: ClientTypes.IRequestData = {
   balance: {
@@ -207,6 +208,16 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
     },
   },
 };
+
+beforeAll(async () => {
+  const mainAddress = wallet.address;
+  wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
+  const alphaContract = ERC20__factory.connect(alphaContractAddress, wallet);
+  await alphaContract.transfer(mainAddress, BigNumber.from('500000000000000000000'));
+  const erc20Contract = ERC20__factory.connect(erc20ContractAddress, wallet);
+  await erc20Contract.transfer(mainAddress, BigNumber.from('500000000000000000000'));
+  wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
+});
 
 describe('Encoder', () => {
   it('Should handle ERC20 Proxy request', async () => {
