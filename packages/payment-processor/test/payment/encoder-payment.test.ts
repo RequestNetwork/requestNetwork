@@ -278,9 +278,9 @@ describe('Payment encoder handles ERC20 Conversion Proxy', () => {
     });
   });
   it('Should not be possible to encode a conversion transaction without passing options', async () => {
-    await expect(
-      encodeRequestPayment(validRequestERC20ConversionProxy, provider),
-    ).rejects.toThrowError('Conversion settings missing');
+    expect(() => encodeRequestPayment(validRequestERC20ConversionProxy, provider)).toThrowError(
+      'Conversion settings missing',
+    );
   });
 });
 
@@ -326,18 +326,18 @@ describe('Payment encoder handles ERC20 Swap & Conversion Proxy', () => {
     });
   });
 
-  it('Should not be possible to encode a conversion transaction without passing options', async () => {
-    await expect(
-      encodeRequestPayment(validRequestERC20ConversionProxy, provider),
-    ).rejects.toThrowError();
+  it('Should not be possible to encode a conversion transaction without passing options', () => {
+    expect(() => encodeRequestPayment(validRequestERC20ConversionProxy, provider)).toThrowError(
+      'Conversion settings missing',
+    );
   });
 
-  it('Should not be possible to encode a conversion transaction without passing conversion options', async () => {
-    await expect(
+  it('Should not be possible to encode a conversion transaction without passing conversion options', () => {
+    expect(() =>
       encodeRequestPayment(validRequestERC20ConversionProxy, provider, {
         swap: alphaSwapSettings,
       }),
-    ).rejects.toThrowError();
+    ).toThrowError('Conversion settings missing');
   });
 });
 
@@ -395,9 +395,9 @@ describe('Payment encoder handles Eth Conversion Proxy', () => {
       value: BigNumber.from(ethConversionSettings.maxToSpend),
     });
   });
-  it('Should not be possible to encode a conversion transaction without passing conversion options', async () => {
-    await expect(
-      encodeRequestPayment(validRequestEthConversionProxy, provider),
-    ).rejects.toThrowError();
+  it('Should not be possible to encode a conversion transaction without passing conversion options', () => {
+    expect(() => encodeRequestPayment(validRequestEthConversionProxy, provider)).toThrowError(
+      'Conversion settings missing',
+    );
   });
 });

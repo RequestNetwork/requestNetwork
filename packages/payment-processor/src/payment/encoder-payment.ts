@@ -71,7 +71,7 @@ export function encodeRequestPaymentWithoutSwap(
         !options.conversion.currency ||
         options.conversion.currency.type !== RequestLogicTypes.CURRENCY.ETH
       ) {
-        throw new Error('Encoding settings missing');
+        throw new Error('Conversion settings missing');
       }
       return {
         ...prepareAnyToEthProxyPaymentTransaction(
