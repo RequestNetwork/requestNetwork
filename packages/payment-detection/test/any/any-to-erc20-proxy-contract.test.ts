@@ -167,7 +167,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     });
   });
 
-  it('can get the fees out of payment events', async () => {
+  it('can get the fees out of payment events, and payment & refund work even with the wrong feeAddress while feeBalance sum only if feeAddress is fine', async () => {
     const mockRequest: RequestLogicTypes.IRequest = {
       creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
       currency: {
