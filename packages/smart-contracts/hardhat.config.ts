@@ -3,12 +3,12 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-ganache';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
+import 'xdeployer';
 import { task } from 'hardhat/config';
 import { config } from 'dotenv';
 import deployAllContracts from './scripts/5_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
-
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 config();
@@ -102,6 +102,23 @@ export default {
   },
   mocha: {
     timeout: 60000, // Usefull on test networks
+  },
+  // Multichain deployment settings
+  xdeploy: {
+    // Name of the contract to deploy
+    contract: 'EthereumFeeProxy',
+    // Path of the arguments to use for deployment (optional)
+    constructorArgsPath: undefined,
+    // Request Salt used to compute the deployment address
+    salt: process.env.REQUEST_SALT,
+    signer: process.env.DEPLOYMENT_PRIVATE_KEY,
+    // List of network to deploy to - see https://github.com/pcaversaccio/xdeployer/blob/main/src/networks.ts
+    networks: ['rinkeby', 'arbitrumTestnet'],
+    rpcUrls: [
+      'https://rinkeby.infura.io/v3/9524d42a47cc4b8b86282744e20fc03b',
+      'https://rinkeby.arbitrum.io/rpc',
+    ],
+    gasLimit: undefined,
   },
 };
 
