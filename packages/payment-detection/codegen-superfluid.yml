@@ -1,0 +1,10 @@
+overwrite: true
+schema: 'https://api.thegraph.com/subgraphs/name/superfluid-finance/protocol-v1-rinkeby'
+documents: src/thegraph/queries/superfluid/*.graphql
+generates:
+  src/thegraph/generated/graphql-superfluid.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-graphql-request'
+      - 'typescript-document-nodes'

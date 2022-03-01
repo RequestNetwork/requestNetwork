@@ -38,7 +38,7 @@
     "prepare": "yarn run build",
     "test": "jest --runInBand",
     "test:watch": "yarn test --watch",
-    "codegen": "graphql-codegen --config codegen.yml"
+    "codegen": "graphql-codegen --config codegen.yml; graphql-codegen --config codegen-superfluid.yml"
   },
   "dependencies": {
     "@requestnetwork/currency": "0.8.0",
