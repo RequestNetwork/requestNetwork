@@ -247,7 +247,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       return Promise.resolve([
         // Wrong fee address
         {
-          amount: '100', // TODO it was 1000 but with a wrong address, now it is working.
+          amount: '100',
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             block: 1,
@@ -295,8 +295,8 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     // Payments: 100 + 500 + 500
     // Refunds: 100 + 100 + 100
     expect(balance.balance).toBe('800');
-    // Payments: 5
-    // Refunds: 5
+    // Payments: 5 (correct fee address)
+    // Refunds: 5 (correct fee address)
     expect(
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.feeBalance
         .balance,
