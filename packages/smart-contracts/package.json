@@ -77,6 +77,6 @@
     "shx": "0.3.2",
     "solhint": "3.3.6",
     "typechain": "5.1.1",
-    "xdeployer": "^1.1.3"
+    "xdeployer": "1.1.3"
   }
 }
