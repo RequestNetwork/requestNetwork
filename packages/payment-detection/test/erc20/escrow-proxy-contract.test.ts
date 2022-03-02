@@ -6,10 +6,10 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { CustomProxyDetector } from '../../src/erc20/custom-detector';
+import { EscrowProxyDetector } from '../../src/erc20/escrow-proxy-detector';
 import { PaymentReferenceCalculator } from '../../src';
 
-let escrowProxyDetector: CustomProxyDetector;
+let escrowProxyDetector: EscrowProxyDetector;
 
 const createAddPaymentAddressAction = jest.fn();
 const createAddRefundAddressAction = jest.fn();
@@ -41,7 +41,7 @@ const currencyManager = CurrencyManager.getDefault();
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/escrow-proxy-contract', () => {
   beforeEach(() => {
-    escrowProxyDetector = new CustomProxyDetector({
+    escrowProxyDetector = new EscrowProxyDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
     });
@@ -258,7 +258,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
         },
       ]);
     };
-    escrowProxyDetector = new CustomProxyDetector({
+    escrowProxyDetector = new EscrowProxyDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
     });

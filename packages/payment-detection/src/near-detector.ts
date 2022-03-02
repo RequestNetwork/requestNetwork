@@ -7,7 +7,6 @@ import {
 
 import { ReferenceBasedDetector } from './reference-based-detector';
 import { NearInfoRetriever } from './near-info-retriever';
-import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {

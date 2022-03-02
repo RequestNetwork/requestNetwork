@@ -1,4 +1,4 @@
-import { DeploymentInformation, erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,

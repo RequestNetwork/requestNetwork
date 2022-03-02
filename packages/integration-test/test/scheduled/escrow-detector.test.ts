@@ -3,7 +3,7 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { createMockErc20FeeRequest } from '../utils';
 import { mockAdvancedLogic } from './mocks';
 
-const customDetector = new Erc20PaymentNetwork.CustomProxyDetector({
+const customDetector = new Erc20PaymentNetwork.EscrowProxyDetector({
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
 });

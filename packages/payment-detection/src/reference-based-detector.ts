@@ -4,7 +4,6 @@ import { BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
-import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 /**
  * Abstract class to extend to get the payment balance of reference based requests

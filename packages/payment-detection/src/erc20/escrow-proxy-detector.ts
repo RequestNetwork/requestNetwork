@@ -22,7 +22,7 @@ const ESCROW_CONTRACT_ADDRESS_MAP = {
  * Handle payment networks with ERC20 fee proxy contract extension, or derived
  */
 
-export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
+export class EscrowProxyDetector extends ERC20FeeProxyPaymentDetector {
   constructor({
     advancedLogic,
     currencyManager,
@@ -99,7 +99,7 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
   ): Promise<PaymentTypes.EscrowData | null> {
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
-    const deploymentInformation = CustomProxyDetector.getDeploymentInformation(
+    const deploymentInformation = EscrowProxyDetector.getDeploymentInformation(
       paymentChain,
       paymentExtension.version,
     );
@@ -133,7 +133,7 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnFeeReferenceBased.ICreationParameters>,
   ): Promise<PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]> {
-    const deploymentInformation = CustomProxyDetector.getOptionalDeploymentInformation(
+    const deploymentInformation = EscrowProxyDetector.getOptionalDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
