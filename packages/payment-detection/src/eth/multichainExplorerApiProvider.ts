@@ -48,7 +48,7 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
       case 'arbitrum-rinkeby':
         return 'https://testnet.arbiscan.io/';
       case 'arbitrum-one':
-        return 'https://arbiscan.io/';
+        return 'https://api.arbiscan.io';
       default:
         return super.getBaseUrl();
     }
