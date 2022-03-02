@@ -12,7 +12,6 @@ import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { networkSupportsTheGraph } from '../thegraph';
 import { TheGraphInfoRetriever } from '../erc20/thegraph-info-retriever';
-import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -24,8 +23,6 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
   ['0.1.0']: '0.1.0',
   ['0.2.0']: '0.1.0',
 };
-
-class MissingProxyContract extends Error {}
 
 /**
  * Handle payment networks with ETH input data extension
@@ -110,21 +107,6 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       events.push(...proxyEvents);
     }
     return events;
-  }
-
-  protected getProxyDeploymentInformation(
-    networkName: string,
-    version: string,
-  ): DeploymentInformation {
-    const proxyContractArticlard = EthInputDataPaymentDetector.getDeploymentInformation(
-      networkName,
-      version,
-    );
-    if (proxyContractArticlard) {
-      return proxyContractArticlard;
-    } else {
-      throw new MissingProxyContract();
-    }
   }
 
   /*

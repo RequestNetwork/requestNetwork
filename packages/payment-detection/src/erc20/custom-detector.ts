@@ -99,7 +99,7 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
   ): Promise<PaymentTypes.EscrowData | null> {
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
-    const deploymentInformation = this.getProxyDeploymentInformation(
+    const deploymentInformation = CustomProxyDetector.getDeploymentInformation(
       paymentChain,
       paymentExtension.version,
     );
@@ -212,10 +212,6 @@ export class CustomProxyDetector extends ERC20FeeProxyPaymentDetector {
           paymentNetwork,
         );
     }
-  }
-
-  protected getProxyDeploymentInformation(networkName: string, version: string) {
-    return CustomProxyDetector.getDeploymentInformation(networkName, version);
   }
 
   public static getOptionalDeploymentInformation = makeGetDeploymentInformation(

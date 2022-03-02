@@ -98,9 +98,6 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     const events = await infoRetriever.getTransferEvents();
     return events;
   }
-  protected getProxyDeploymentInformation(): DeploymentInformation {
-    throw new Error('not implemented for near');
-  }
 
   protected static getVersionOrThrow = (paymentNetworkVersion: string): string => {
     if (!CONTRACT_ADDRESS_MAP[paymentNetworkVersion]) {

@@ -125,13 +125,6 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
     >;
   }
 
-  protected getProxyDeploymentInformation(
-    networkName: string,
-    version: string,
-  ): DeploymentInformation {
-    return ERC20FeeProxyPaymentDetector.getDeploymentInformation(networkName, version);
-  }
-
   /*
    * Returns deployment information for the underlying smart contract for a given payment network version
    */

@@ -10,7 +10,6 @@ import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import TheGraphInfoRetriever from '../erc20/thegraph-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
-import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 import { networkSupportsTheGraph } from '../thegraph';
 
 // interface of the object indexing the proxy contract version
@@ -66,7 +65,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
       return [];
     }
 
-    const proxyContractArtifact = this.getProxyDeploymentInformation(
+    const proxyContractArtifact = EthFeeProxyPaymentDetector.getDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
@@ -90,13 +89,6 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
         );
 
     return proxyInfoRetriever.getTransferEvents();
-  }
-
-  protected getProxyDeploymentInformation(
-    networkName: string,
-    version: string,
-  ): DeploymentInformation {
-    return EthFeeProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   /*

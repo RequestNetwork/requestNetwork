@@ -164,9 +164,4 @@ export abstract class ReferenceBasedDetector<
     this.checkRequiredParameter(salt, 'salt');
     return PaymentReferenceCalculator.calculate(request.requestId, salt, paymentAddress);
   }
-
-  protected abstract getProxyDeploymentInformation(
-    networkName: string,
-    version: string,
-  ): DeploymentInformation;
 }

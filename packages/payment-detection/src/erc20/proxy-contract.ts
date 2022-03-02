@@ -5,7 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { DeploymentInformation, erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
+import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
 import { networkSupportsTheGraph } from '../thegraph';
@@ -80,13 +80,6 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
         );
 
     return infoRetriever.getTransferEvents();
-  }
-
-  protected getProxyDeploymentInformation(
-    networkName: string,
-    version: string,
-  ): DeploymentInformation {
-    return ERC20ProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   /*
