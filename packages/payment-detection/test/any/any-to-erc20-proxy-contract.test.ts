@@ -167,7 +167,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     });
   });
 
-  it('can get the fees out of payment events', async () => {
+  it('can get the fees out of payment events, and payment & refund work even with the wrong feeAddress while feeBalance sum only if feeAddress is fine', async () => {
     const mockRequest: RequestLogicTypes.IRequest = {
       creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
       currency: {
@@ -247,7 +247,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       return Promise.resolve([
         // Wrong fee address
         {
-          amount: '1000',
+          amount: '100',
           name: PaymentTypes.EVENTS_NAMES.REFUND,
           parameters: {
             block: 1,
@@ -292,11 +292,11 @@ describe('api/any/conversion-fee-proxy-contract', () => {
 
     const balance = await anyToErc20Proxy.getBalance(mockRequest);
     expect(balance.error).toBeUndefined();
-    // Payments: 500 + 500
-    // Refunds: 100 + 100
+    // Payments: 100 + 500 + 500
+    // Refunds: 100 + 100 + 100
     expect(balance.balance).toBe('800');
-    // Payments: 5
-    // Refunds: 5
+    // Payments: 5 (correct fee address)
+    // Refunds: 5 (correct fee address)
     expect(
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.feeBalance
         .balance,
