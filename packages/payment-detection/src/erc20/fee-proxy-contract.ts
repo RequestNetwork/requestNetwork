@@ -121,7 +121,9 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
         );
 
     return infoRetriever.getTransferEvents() as Promise<
-      PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]
+      PaymentTypes.IPaymentNetworkEvent<
+        PaymentTypes.IERC20FeePaymentEventParameters | PaymentTypes.IEscrowParameters
+      >[]
     >;
   }
 

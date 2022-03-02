@@ -45,7 +45,7 @@ export class TheGraphInfoRetriever {
 
   public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
     const variables = this.getGraphVariables();
-    const payments = await this.client.GetPayments(variables);
+    const payments = await this.client.GetPaymentsAndEscrowState(variables);
     return payments.payments.map((p) => ({
       amount: p.amount,
       name: this.eventName,

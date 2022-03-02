@@ -18,7 +18,7 @@ export default class Escrow {
    */
   private escrowData: PaymentTypes.EscrowData | null = null;
 
-  private customProxyDetector: Erc20PaymentNetwork.CustomProxyDetector;
+  private escrowProxyDetector: Erc20PaymentNetwork.EscrowProxyDetector;
 
   /**
    * Creates an instance of Request
@@ -33,7 +33,7 @@ export default class Escrow {
   constructor(request: RequestLogicTypes.IRequest, currencyManager: ICurrencyManager) {
     const advancedLogic = new AdvancedLogic(currencyManager);
     this.request = request;
-    this.customProxyDetector = new Erc20PaymentNetwork.CustomProxyDetector({
+    this.escrowProxyDetector = new Erc20PaymentNetwork.EscrowProxyDetector({
       advancedLogic,
       currencyManager,
     });
@@ -45,7 +45,7 @@ export default class Escrow {
    * @returns escrow data
    */
   public async getEscrowData(): Promise<PaymentTypes.EscrowData | null> {
-    this.escrowData = await this.customProxyDetector.getEscrow(this.request);
+    this.escrowData = await this.escrowProxyDetector.getEscrow(this.request);
     return this.escrowData;
   }
 }

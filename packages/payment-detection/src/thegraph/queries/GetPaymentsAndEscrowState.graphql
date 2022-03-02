@@ -1,0 +1,36 @@
+query GetPaymentsAndEscrowState(
+  $contractAddress: Bytes!
+  $reference: Bytes!
+  $tokenAddress: Bytes
+  $to: Bytes!
+) {
+  payments(
+    where: {
+      contractAddress: $contractAddress
+      reference: $reference
+      tokenAddress: $tokenAddress
+      to: $to
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    amount
+    block
+    txHash
+    feeAmount
+    feeAddress
+    from
+    timestamp
+  }
+  escrows(where: { paymentProxyAddress: $contractAddress, reference: $reference }) {
+    creationBlock
+    creationTimestamp
+    escrowState
+    tokenAddress
+    amount
+    from
+    to
+    feeAmount
+    feeAddress
+  }
+}

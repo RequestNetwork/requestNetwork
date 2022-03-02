@@ -102,7 +102,7 @@ export interface IPaymentNetworkBaseEvent<TEventNames = EVENTS_NAMES> {
 /** payment network event */
 export interface IPaymentNetworkEvent<TEventParameters, TEventNames = EVENTS_NAMES>
   extends IPaymentNetworkBaseEvent<TEventNames> {
-  amount: string;
+  amount?: string;
   parameters?: TEventParameters;
 }
 
@@ -146,6 +146,7 @@ export interface GenericEventParameters {
 
 export interface EscrowEventParameters extends GenericEventParameters {
   from?: string;
+  to?: string;
 }
 
 /** Parameters for events of ERC20 payments */
@@ -257,8 +258,8 @@ export interface IEscrowParameters {
   escrowState: string;
   tokenAddress: string;
   amount: string;
-  payer: string;
-  payee: string;
+  from: string;
+  to: string;
   feeAmount: string;
   feeAddress: string;
 }
