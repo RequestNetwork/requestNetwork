@@ -56,13 +56,13 @@ export class TheGraphConversionRetriever
     const events = await this.client.GetConversionPayments(variables);
     // Creates the balance events
     return events.payments
-      .filter((payment) => {
+      .filter((payment: any) => {
         if (this.acceptedTokens && this.acceptedTokens.length > 0) {
           return this.acceptedTokens.includes(payment.tokenAddress?.toLowerCase());
         }
         return !payment.tokenAddress;
       })
-      .map((payment) => {
+      .map((payment: any) => {
         const requestCurrency = this.requestCurrency;
         const { amount, feeAmount } = payment;
 
