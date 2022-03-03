@@ -32,29 +32,29 @@ contract BatchErc20Payments {
     /// @notice Send a batch of erc20 payments with fees, to multiple accounts.
     /// @param _token The token to transact with. 
     /// @param _recipients Takes a list of accounts as input.
-    /// @param _values Takes a list of values, corresponding to recipients[] as input.
+    /// @param _amounts Takes a list of amounts, corresponding to recipients[] as input.
     /// @dev Remember to give approval for this contract to spend user tokens.
     function batchOrphanERC20Payments(
         IERC20 _token, 
         address[] calldata _recipients, 
-        uint256[] calldata _values
+        uint256[] calldata _amounts
     ) external {
         for (uint256 i = 0; i < _recipients.length; i++)
-            _token.transferFrom(msg.sender, _recipients[i], _values[i]);
+            _token.transferFrom(msg.sender, _recipients[i], _amounts[i]);
     }
-
+    
     /// @notice Send a batch of erc20 payments w/fees with paymentReferences to multiple accounts.
     /// @param _tokenAddress Token to transact with.
     /// @param _recipients List of recipients accounts as input.
-    /// @param _values List of values, corresponding to recipients[] as input.
-    /// @param _paymentReferences List of paymentRefs, corr. to the recipients[] and values[].
+    /// @param _amounts List of amounts, corresponding to recipients[] as input.
+    /// @param _paymentReferences List of paymentRefs, corr. to the recipients[] and amounts[].
     /// @param _feeAmount The amount of the payment fee.
     /// @param _feeAddress The fee recipient.
     /// @dev Uses ERC20FeeProxy.sol to pay an invoice and fees, with a payment reference.
     function batchERC20PaymentsWithReferenceAndFee(
         address _tokenAddress, 
         address[] calldata _recipients, 
-        uint256[] calldata _values,
+        uint256[] calldata _amounts,
         bytes[] calldata _paymentReferences,
         uint256[] calldata _feeAmount,
         address _feeAddress 
@@ -66,7 +66,7 @@ contract BatchErc20Payments {
             "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
                 _tokenAddress,
                 _recipients[i], 
-                _values[i],
+                _amounts[i],
                 _paymentReferences[i],
                 _feeAmount[i],
                 _feeAddress
