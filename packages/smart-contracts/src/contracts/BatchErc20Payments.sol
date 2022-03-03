@@ -25,8 +25,9 @@ contract BatchErc20Payments {
         erc20FeeProxy  = IERC20FeeProxy(_erc20FeeProxy);
     }
 
-    function recieve() external payable {
-        revert("Reverted");
+    // Fallback function returns funds to the sender
+    receive() external payable {
+        revert("not payable receive");
     }
 
     /// @notice Send a batch of erc20 payments with fees, to multiple accounts.
