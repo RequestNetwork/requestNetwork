@@ -90,7 +90,11 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
     {
       symbol: 'AVAX',
       decimals: 18,
+<<<<<<< HEAD
       name: 'AVAX',
+=======
+      name: 'Avalanche',
+>>>>>>> 342a724c (update currency package)
       network: 'avalanche',
     },
   ],
