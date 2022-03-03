@@ -27,6 +27,7 @@ export default class Erc20FeeProxyPaymentNetwork<
       'fantom',
       'arbitrum-rinkeby',
       'arbitrum-one',
+      'avalanche',
     ],
     public supportedCurrencyType: RequestLogicTypes.CURRENCY = RequestLogicTypes.CURRENCY.ERC20,
   ) {
