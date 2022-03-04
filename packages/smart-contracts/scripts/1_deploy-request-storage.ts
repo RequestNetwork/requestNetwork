@@ -8,8 +8,6 @@ export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment)
     const [deployer, recipient] = await hre.ethers.getSigners();
     // Not used, only useful to keep the same addresses as with Truffle
     const uselessInstance = await (await hre.ethers.getContractFactory('TestERC20')).deploy('100');
-    console.log('----------_> deployer', deployer.address);
-    console.log('recipient', recipient.address);
     await uselessInstance.transfer(recipient.address, 10);
 
     // Deploy the contract RequestHashStorage

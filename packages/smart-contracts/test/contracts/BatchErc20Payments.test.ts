@@ -45,6 +45,9 @@ describe('contract: BatchErc20Payments', () => {
     spender1Address = await spender1.getAddress();
     spender2Address = await spender2.getAddress();
 
+    // factory de erc20 feeProxi -> deploy
+    // deploy contrat de batch qui prend en arg erc20feePro
+    //
     batch = await batchErc20PaymentsArtifact.connect(network.name, owner);
     token = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
 
