@@ -76,4 +76,37 @@ contract BatchErc20Payments {
         require(status, "transferFromWithReference failed");
         }
     }
+
+    /// @notice Send a batch of erc20 payments MULTI TOKEN w/fees with paymentReferences to multiple accounts.
+    /// @param _tokenAddresses List of tokens to transact with.
+    /// @param _recipients List of recipients accounts as input.
+    /// @param _amounts List of amounts, corresponding to recipients[] as input.
+    /// @param _paymentReferences List of paymentRefs, corr. to the recipients[] and amounts[].
+    /// @param _feeAmount The amount of the payment fee.
+    /// @param _feeAddress The fee recipient.
+    /// @dev Uses ERC20FeeProxy.sol to pay an invoice and fees, with a payment reference.
+    function batchERC20PaymentsMultiTokensWithReferenceAndFee(
+        address[] calldata _tokenAddresses, 
+        address[] calldata _recipients, 
+        uint256[] calldata _amounts,
+        bytes[] calldata _paymentReferences,
+        uint256[] calldata _feeAmount,
+        address _feeAddress 
+    ) external {
+        //approvePaymentProxyToSpend(_tokenAddress);
+        for (uint256 i = 0; i < _recipients.length; i++) {
+           (bool status, ) = address(erc20FeeProxy).delegatecall(
+            abi.encodeWithSignature(
+            "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
+                _tokenAddresses[i],
+                _recipients[i], 
+                _amounts[i],
+                _paymentReferences[i],
+                _feeAmount[i],
+                _feeAddress
+                )
+            );
+        require(status, "transferFromWithReference failed");
+        }
+    }
 }

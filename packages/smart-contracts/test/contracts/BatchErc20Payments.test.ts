@@ -48,12 +48,14 @@ describe('contract: BatchErc20Payments', () => {
     batch = await batchErc20PaymentsArtifact.connect(network.name, owner);
     token = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
 
-    await token.connect(owner).transfer(spenderAddress, 150);
-    await token.connect(owner).transfer(spender1Address, 160);
-    await token.connect(owner).transfer(spender2Address, 160);
-    await token.connect(spender).approve(batch.address, 170);
-    await token.connect(spender2).approve(batch.address, 170);
+    const tmpForGasTest = 45; // default=1
+    await token.connect(owner).transfer(spenderAddress, 150 * tmpForGasTest);
+    await token.connect(owner).transfer(spender1Address, 160 * tmpForGasTest);
+    await token.connect(owner).transfer(spender2Address, 160 * tmpForGasTest);
+    await token.connect(spender).approve(batch.address, 170 * tmpForGasTest);
+    await token.connect(spender2).approve(batch.address, 170 * tmpForGasTest);
   });
+
   it('Should execute a batch payments of a ERC20 to four accounts', async function () {
     beforeERC20Balance = await token.connect(owner).balanceOf(payeeThree);
     await expect(
@@ -73,6 +75,7 @@ describe('contract: BatchErc20Payments', () => {
     afterERC20Balance = await token.connect(owner).balanceOf(payeeThree);
     expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(40));
   });
+
   it('Should pay multiple ERC20 payments with paymentRef', async function () {
     beforeERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
     await expect(
@@ -131,6 +134,121 @@ describe('contract: BatchErc20Payments', () => {
     afterERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
     expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(30));
   });
+
+  it('Should execute a batch payments of a ERC20 to four accounts', async function () {
+    beforeERC20Balance = await token.connect(owner).balanceOf(payeeThree);
+    await expect(
+      batch
+        .connect(spender)
+        .batchOrphanERC20Payments(
+          token.address,
+          [payeeOne, payeeTwo, payeeThree, payeeFour],
+          [20, 30, 40, 50],
+        ),
+    )
+      .to.emit(token, 'Transfer')
+      .to.emit(token, 'Transfer')
+      .to.emit(token, 'Transfer')
+      .to.emit(token, 'Transfer');
+
+    afterERC20Balance = await token.connect(owner).balanceOf(payeeThree);
+    expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(40));
+  });
+
+  it('GAS EVALUATION 4p: Should pay multiple ERC20 payments with paymentRef', async function () {
+    beforeERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
+    await expect(
+      batch
+        .connect(spender2)
+        .batchERC20PaymentsWithReferenceAndFee(
+          token.address,
+          [payeeOne, payeeTwo, payeeThree, payeeFour],
+          [20, 30, 40, 50],
+          [referenceExample1, referenceExample2, referenceExample3, referenceExample4],
+          [1, 2, 3, 4],
+          feeAddress,
+        ),
+    );
+
+    afterERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
+    expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(30));
+  });
+
+  it('GAS EVALUATION X p: Should pay multiple ERC20 payments with paymentRef', async function () {
+    beforeERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
+
+    let recipients: Array<string> = [];
+    let amounts: Array<number> = [];
+    let paymentReferences: Array<string> = [];
+    let feeAmounts: Array<number> = [];
+
+    let nbTxs = 4;
+    let amount = 2;
+    let feeAmount = 1;
+
+    for (let i = 0; i < nbTxs; i++) {
+      recipients.push(payeeTwo);
+      amounts.push(amount);
+      paymentReferences.push(referenceExample2);
+      feeAmounts.push(feeAmount);
+    }
+
+    await expect(
+      batch
+        .connect(spender2)
+        .batchERC20PaymentsWithReferenceAndFee(
+          token.address,
+          recipients,
+          amounts,
+          paymentReferences,
+          feeAmounts,
+          feeAddress,
+        ),
+    );
+
+    afterERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
+    expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(amount * nbTxs));
+  });
+
+  it('GAS EVALUATION X p - Multi Token: Should pay multiple ERC20 payments with paymentRef', async function () {
+    beforeERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
+
+    let tokenAddresses: Array<string> = [];
+    let recipients: Array<string> = [];
+    let amounts: Array<number> = [];
+    let paymentReferences: Array<string> = [];
+    let feeAmounts: Array<number> = [];
+
+    let nbTxs = 1;
+    let amount = 2;
+    let feeAmount = 1;
+
+    for (let i = 0; i < nbTxs; i++) {
+      tokenAddresses.push(token.address);
+      recipients.push(payeeTwo);
+      amounts.push(amount);
+      paymentReferences.push(referenceExample2);
+      feeAmounts.push(feeAmount);
+    }
+
+    await expect(
+      batch
+        .connect(spender2)
+        .batchERC20PaymentsMultiTokensWithReferenceAndFee(
+          tokenAddresses,
+          recipients,
+          amounts,
+          paymentReferences,
+          feeAmounts,
+          feeAddress,
+        ),
+    );
+
+    afterERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
+    // console.log("beforeERC20Balance.add(amount*nbTxs)", new BigNumber(beforeERC20Balance.add(amount*nbTxs), 'hex'));
+    expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(amount * nbTxs));
+  });
+
   it('Should revert if not enough funds', async function () {
     // 142 + 10 = 152 funds needed, but only 150 available funds.
     expect(

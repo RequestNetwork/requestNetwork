@@ -11,6 +11,8 @@ import { preparePayments } from './scripts/prepare-payments';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
+import 'hardhat-gas-reporter';
+
 config();
 
 const accounts = process.env.DEPLOYMENT_PRIVATE_KEY
