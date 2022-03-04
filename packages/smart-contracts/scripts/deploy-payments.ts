@@ -209,6 +209,7 @@ export async function deployAllPaymentContracts(
       erc20SwapConversionInstance: ERC20SwapToConversion,
     ) => {
       const NONCE_BATCH_5 = 13;
+      await jumpToNonce(args, hre, NONCE_BATCH_5);
       let chainlinkConversionPathAddress = chainlinkInstance?.address;
       if (!chainlinkConversionPathAddress) {
         switchToSimulation();
