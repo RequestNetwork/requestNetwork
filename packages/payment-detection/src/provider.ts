@@ -41,6 +41,7 @@ const networkRpcs: Record<string, string> = {
   xdai: 'https://rpc.xdaichain.com/',
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
   'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
+  avalanche: 'https://api.avax.network/ext/bc/C/rpc',
 };
 
 /**
