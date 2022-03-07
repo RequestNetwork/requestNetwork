@@ -60,35 +60,43 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     >
       ? ExtensionTypes.IState<X>
       : never,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IETHPaymentEventParameters>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+        escrowEvents: [],
+      };
     }
 
     const proxyContractArtifact = EthFeeProxyPaymentDetector.getDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
-
-    const proxyInfoRetriever = networkSupportsTheGraph(paymentChain)
-      ? new TheGraphInfoRetriever(
-          paymentReference,
-          proxyContractArtifact.address,
-          null,
-          address,
-          eventName,
-          paymentChain,
-        )
-      : new EthProxyInfoRetriever(
-          paymentReference,
-          proxyContractArtifact.address,
-          proxyContractArtifact.creationBlockNumber,
-          address,
-          eventName,
-          paymentChain,
-        );
-
-    return proxyInfoRetriever.getTransferEvents();
+    if (networkSupportsTheGraph(paymentChain)) {
+      const graphInfoRetriever = new TheGraphInfoRetriever(
+        paymentReference,
+        proxyContractArtifact.address,
+        null,
+        address,
+        eventName,
+        paymentChain,
+      );
+      return graphInfoRetriever.getTransferEvents();
+    } else {
+      const proxyInfoRetriever = new EthProxyInfoRetriever(
+        paymentReference,
+        proxyContractArtifact.address,
+        proxyContractArtifact.creationBlockNumber,
+        address,
+        eventName,
+        paymentChain,
+      );
+      const paymentEvents = await proxyInfoRetriever.getTransferEvents();
+      return {
+        paymentEvents,
+        escrowEvents: [],
+      };
+    }
   }
 
   /*

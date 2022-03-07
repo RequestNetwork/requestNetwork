@@ -28,13 +28,15 @@ export abstract class PaymentDetectorBase<
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
     try {
-      const rawEvents = await this.getEvents(request);
-      const events = this.sortEvents(this.filterEvents(request, rawEvents));
+      const allNetworkEvents = await this.getEvents(request);
+      const rawPaymentEvents = allNetworkEvents.paymentEvents;
+      const events = this.sortEvents(this.filterEvents(request, rawPaymentEvents));
       const balance = this.computeBalance(events).toString();
-
+      const escrowEvents = allNetworkEvents.escrowEvents;
       return {
         balance,
         events,
+        escrowEvents,
       };
     } catch (error) {
       return getBalanceErrorObject(error);
@@ -46,7 +48,7 @@ export abstract class PaymentDetectorBase<
    */
   protected abstract getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+  ): Promise<PaymentTypes.AllNetworkEvents<TPaymentEventParameters>>;
 
   protected getPaymentExtension(
     request: RequestLogicTypes.IRequest,

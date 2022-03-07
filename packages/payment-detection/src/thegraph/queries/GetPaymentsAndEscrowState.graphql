@@ -22,15 +22,11 @@ query GetPaymentsAndEscrowState(
     from
     timestamp
   }
-  escrows(where: { paymentProxyAddress: $contractAddress, reference: $reference }) {
-    creationBlock
-    creationTimestamp
-    escrowState
-    tokenAddress
-    amount
+  escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+    txHash
+    eventName
     from
-    to
-    feeAmount
-    feeAddress
+    timestamp
+    block
   }
 }

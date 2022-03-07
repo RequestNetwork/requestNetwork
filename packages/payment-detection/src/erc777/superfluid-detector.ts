@@ -40,9 +40,12 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+        escrowEvents: [],
+      };
     }
 
     const infoRetriever = new SuperFluidInfoRetriever(
@@ -53,6 +56,10 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
       paymentChain,
     );
 
-    return infoRetriever.getTransferEvents();
+    const paymentEvents = await infoRetriever.getTransferEvents();
+    return {
+      paymentEvents,
+      escrowEvents: [],
+    };
   }
 }

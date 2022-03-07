@@ -67,9 +67,16 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
     _requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  ): Promise<
+    PaymentTypes.AllNetworkEvents<
+      PaymentTypes.IETHPaymentEventParameters | PaymentTypes.IETHFeePaymentEventParameters
+    >
+  > {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+        escrowEvents: [],
+      };
     }
     const infoRetriever = new EthInputDataInfoRetriever(
       address,
@@ -83,30 +90,40 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       paymentChain,
       paymentNetwork.version,
     );
-
+    let allEvents;
+    let escrowEvents: PaymentTypes.EscrowNetworkEvent[] = [];
     if (proxyContractArtifact) {
-      const proxyInfoRetriever = networkSupportsTheGraph(paymentChain)
-        ? new TheGraphInfoRetriever(
-            paymentReference,
-            proxyContractArtifact.address,
-            null,
-            address,
-            eventName,
-            paymentChain,
-          )
-        : new EthProxyInfoRetriever(
-            paymentReference,
-            proxyContractArtifact.address,
-            proxyContractArtifact.creationBlockNumber,
-            address,
-            eventName,
-            paymentChain,
-          );
-
-      const proxyEvents = await proxyInfoRetriever.getTransferEvents();
-      events.push(...proxyEvents);
+      if (networkSupportsTheGraph(paymentChain)) {
+        const graphInfoRetriever = new TheGraphInfoRetriever(
+          paymentReference,
+          proxyContractArtifact.address,
+          null,
+          address,
+          eventName,
+          paymentChain,
+        );
+        allEvents = await graphInfoRetriever.getTransferEvents();
+      } else {
+        const ethInfoRetriever = new EthProxyInfoRetriever(
+          paymentReference,
+          proxyContractArtifact.address,
+          proxyContractArtifact.creationBlockNumber,
+          address,
+          eventName,
+          paymentChain,
+        );
+        const paymentEvents = await ethInfoRetriever.getTransferEvents();
+        allEvents = {
+          paymentEvents,
+        };
+      }
+      events.push(...allEvents.paymentEvents);
+      escrowEvents = allEvents.escrowEvents || [];
     }
-    return events;
+    return {
+      paymentEvents: events,
+      escrowEvents: escrowEvents,
+    };
   }
 
   /*

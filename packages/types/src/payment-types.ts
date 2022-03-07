@@ -65,6 +65,7 @@ export interface IBalanceWithEvents<TEventParameters = any> {
   balance: string | null;
   events: Array<IPaymentNetworkEvent<TEventParameters>>;
   error?: IBalanceError;
+  escrowEvents?: Array<EscrowNetworkEvent>;
 }
 
 /** Interface for error encounter when getting the balance */
@@ -77,13 +78,15 @@ export interface IBalanceError {
 export enum EVENTS_NAMES {
   PAYMENT = 'payment',
   REFUND = 'refund',
+  ESCROW = 'escrow',
 }
 
 export enum ESCROW_EVENTS_NAMES {
-  INIT_ESCROW = 'initEscrow',
-  FROZEN_PAYMENT = 'frozenPayment',
-  INITIATED_EMERGENCY_CLAIM = 'initiatedEmergencyClaim',
-  REVERTED_EMERGENCY_CLAIM = 'revertedEmergencyClaim',
+  PAID_ESCROW = 'paidEscrow',
+  PAID_ISSUER = 'paidIssuer',
+  INITIATED_EMERGENCY_CLAIM = 'initializeEmergencyClaim',
+  REVERTED_EMERGENCY_CLAIM = 'revertEmergencyClaim',
+  FREEZE_ESCROW = 'freezeEscrow',
 }
 
 /** Balance error codes */
@@ -102,15 +105,10 @@ export interface IPaymentNetworkBaseEvent<TEventNames = EVENTS_NAMES> {
 /** payment network event */
 export interface IPaymentNetworkEvent<TEventParameters, TEventNames = EVENTS_NAMES>
   extends IPaymentNetworkBaseEvent<TEventNames> {
-  amount?: string;
+  amount: string;
   parameters?: TEventParameters;
 }
 
-/** payment network event */
-export interface ICustomNetworkEvent<TEventParameters, TEventNames = ESCROW_EVENTS_NAMES>
-  extends IPaymentNetworkBaseEvent<TEventNames> {
-  parameters?: TEventParameters;
-}
 /**
  * Declarative balance and events for detection-based payment networks
  */
@@ -237,9 +235,9 @@ export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters
 export interface IEscrowEventParameters {
   block: number;
   txHash: string;
-  eventName: string;
   from?: string;
-  timestamp?: number;
+  to?: string;
+  eventName: string;
 }
 /** Escrow events that change the state of the Escrow */
 export type EscrowEvents = IEscrowEventParameters;
@@ -265,3 +263,21 @@ export interface IEscrowParameters {
 }
 /** Represents the current state of an escrow instance */
 export type EscrowData = IEscrowParameters;
+
+/** escrow payment network event */
+export interface IPaymentNetworkEscrowEvent<TEventParameters, TEventNames = EVENTS_NAMES>
+  extends IPaymentNetworkBaseEvent<TEventNames> {
+  parameters?: TEventParameters;
+}
+
+export type EscrowNetworkEvent = IPaymentNetworkEscrowEvent<IEscrowEventParameters, EVENTS_NAMES>;
+
+export type AllNetworkEvents<TMyEventParameters> = {
+  paymentEvents: IPaymentNetworkEvent<TMyEventParameters>[];
+  escrowEvents: EscrowNetworkEvent[];
+};
+
+export type AllNetworkRetrieverEvents<TPaymentNetworkEventType> = {
+  paymentEvents: TPaymentNetworkEventType[];
+  escrowEvents: EscrowNetworkEvent[];
+};
