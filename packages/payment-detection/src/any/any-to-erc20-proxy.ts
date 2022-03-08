@@ -143,13 +143,6 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     return network;
   }
 
-  protected getProxyDeploymentInformation(
-    networkName: string,
-    version: string,
-  ): DeploymentInformation {
-    return AnyToERC20PaymentDetector.getDeploymentInformation(networkName, version);
-  }
-
   public static getDeploymentInformation = makeGetDeploymentInformation(
     erc20ConversionProxy,
     PROXY_CONTRACT_ADDRESS_MAP,

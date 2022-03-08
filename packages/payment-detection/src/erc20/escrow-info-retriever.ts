@@ -31,7 +31,7 @@ type TransferWithReferenceAndFeeArgs = EscrowArgs & {
  * Retrieves a list of payment events from a escrow contract.
  *
  */
-export default class EscrowERC20InfoRetriever
+export class EscrowERC20InfoRetriever
   implements
     IEventRetriever<
       PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>,

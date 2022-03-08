@@ -1,6 +1,6 @@
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-magic-numbers */
-import EscrowERC20InfoRetriever from '../../src/erc20/escrow-info-retriever';
+import { EscrowERC20InfoRetriever } from '../../src/erc20/escrow-info-retriever';
 import { ethers } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 

@@ -13,7 +13,6 @@ import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
 import { networkSupportsTheGraph } from '../thegraph';
 import { TheGraphConversionRetriever } from './retrievers/thegraph';
-import { DeploymentInformation } from '@requestnetwork/smart-contracts';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -133,13 +132,6 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
       throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
     }
     return network;
-  }
-
-  protected getProxyDeploymentInformation(
-    networkName: string,
-    version: string,
-  ): DeploymentInformation {
-    return AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(networkName, version);
   }
 
   /*
