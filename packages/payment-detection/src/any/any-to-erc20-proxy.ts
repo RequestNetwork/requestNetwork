@@ -1,4 +1,4 @@
-import { DeploymentInformation, erc20ConversionProxy } from '@requestnetwork/smart-contracts';
+import { erc20ConversionProxy } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
