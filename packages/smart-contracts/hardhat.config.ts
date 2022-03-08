@@ -8,6 +8,9 @@ import { config } from 'dotenv';
 import deployAllContracts from './scripts/5_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
+import deployBatchPayments from './scripts/deploy-batch-payments';
+
+// import { deployPayment } from './2_deploy-main-payments';
 
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
@@ -32,6 +35,12 @@ export default {
     tests: 'test/contracts',
     artifacts: 'build',
   },
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+  },
   networks: {
     private: {
       url: 'http://127.0.0.1:8545',
@@ -45,7 +54,9 @@ export default {
     rinkeby: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.infura.io/v3/YOUR_API_KEY',
       chainId: 4,
-      accounts,
+      accounts: {
+        mnemonic: 'anger capable gym couch mystery notice devote cheap corn crew canoe theme',
+      },
     },
     matic: {
       url: process.env.WEB3_PROVIDER_URL || 'https://polygon-rpc.com',
@@ -103,7 +114,7 @@ export default {
     alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
   },
   mocha: {
-    timeout: 60000, // Usefull on test networks
+    timeout: 120000, // Usefull on test networks
   },
 };
 
@@ -157,4 +168,11 @@ task(
   'Run ERC20 approval transactions for Swap Conversion, with the second signer (FIXME with missing tasks).',
 ).setAction(async (_args, hre) => {
   await preparePayments(hre);
+});
+
+task('deploy-batch-payments', 'Deploy on a live network').setAction(async (args, hre) => {
+  // args.force = true;
+  args.force = true;
+  await deployBatchPayments(args, hre);
+  console.log('deployPayment contracts (re)deployed');
 });

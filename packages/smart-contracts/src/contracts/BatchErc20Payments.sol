@@ -49,7 +49,7 @@ contract BatchErc20Payments {
     /// @param _recipients List of recipients accounts as input.
     /// @param _amounts List of amounts, corresponding to recipients[] as input.
     /// @param _paymentReferences List of paymentRefs, corr. to the recipients[] and amounts[].
-    /// @param _feeAmount The amount of the payment fee.
+    /// @param _feeAmounts The amount of the payment fee.
     /// @param _feeAddress The fee recipient.
     /// @dev Uses ERC20FeeProxy.sol to pay an invoice and fees, with a payment reference.
     function batchERC20PaymentsWithReferenceAndFee(
@@ -57,7 +57,7 @@ contract BatchErc20Payments {
         address[] calldata _recipients, 
         uint256[] calldata _amounts,
         bytes[] calldata _paymentReferences,
-        uint256[] calldata _feeAmount,
+        uint256[] calldata _feeAmounts,
         address _feeAddress 
     ) external {
         //approvePaymentProxyToSpend(_tokenAddress);
@@ -69,7 +69,7 @@ contract BatchErc20Payments {
                 _recipients[i], 
                 _amounts[i],
                 _paymentReferences[i],
-                _feeAmount[i],
+                _feeAmounts[i],
                 _feeAddress
                 )
             );
@@ -82,7 +82,7 @@ contract BatchErc20Payments {
     /// @param _recipients List of recipients accounts as input.
     /// @param _amounts List of amounts, corresponding to recipients[] as input.
     /// @param _paymentReferences List of paymentRefs, corr. to the recipients[] and amounts[].
-    /// @param _feeAmount The amount of the payment fee.
+    /// @param _feeAmounts The amount of the payment fee.
     /// @param _feeAddress The fee recipient.
     /// @dev Uses ERC20FeeProxy.sol to pay an invoice and fees, with a payment reference.
     function batchERC20PaymentsMultiTokensWithReferenceAndFee(
@@ -90,7 +90,7 @@ contract BatchErc20Payments {
         address[] calldata _recipients, 
         uint256[] calldata _amounts,
         bytes[] calldata _paymentReferences,
-        uint256[] calldata _feeAmount,
+        uint256[] calldata _feeAmounts,
         address _feeAddress 
     ) external {
         //approvePaymentProxyToSpend(_tokenAddress);
@@ -102,7 +102,7 @@ contract BatchErc20Payments {
                 _recipients[i], 
                 _amounts[i],
                 _paymentReferences[i],
-                _feeAmount[i],
+                _feeAmounts[i],
                 _feeAddress
                 )
             );

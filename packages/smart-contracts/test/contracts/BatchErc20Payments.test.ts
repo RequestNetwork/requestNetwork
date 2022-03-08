@@ -41,6 +41,8 @@ describe('contract: BatchErc20Payments', () => {
       (s) => s.address,
     );
     [owner, spender, spender1, spender2] = await ethers.getSigners();
+    // [owner] = await ethers.getSigners();
+    // let [spender, spender1, spender2] = ['0x66b48fcB69997131903C13a994dD2ab87aeaFEB7', '0x66b48fcB69997131903C13a994dD2ab87aeaFEB8', '0x66b48fcB69997131903C13a994dD2ab87aeaFEB9'];
     spenderAddress = await spender.getAddress();
     spender1Address = await spender1.getAddress();
     spender2Address = await spender2.getAddress();
@@ -48,6 +50,14 @@ describe('contract: BatchErc20Payments', () => {
     // factory de erc20 feeProxi -> deploy
     // deploy contrat de batch qui prend en arg erc20feePro
     //
+    //// factory de erc20 feeProxi -> deploy
+    // deploy contrat de batch qui prend en arg erc20feePro
+    //
+    // erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
+    // batch =
+    // batch = await (
+    //   await hre.ethers.getContractFactory('BatchErc20Payments')
+    // ).deploy(erc20FeeProxy.address);
     batch = await batchErc20PaymentsArtifact.connect(network.name, owner);
     token = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
 
@@ -185,7 +195,7 @@ describe('contract: BatchErc20Payments', () => {
     let paymentReferences: Array<string> = [];
     let feeAmounts: Array<number> = [];
 
-    let nbTxs = 4;
+    let nbTxs = 8;
     let amount = 2;
     let feeAmount = 1;
 
@@ -195,7 +205,7 @@ describe('contract: BatchErc20Payments', () => {
       paymentReferences.push(referenceExample2);
       feeAmounts.push(feeAmount);
     }
-
+    console.log(token.address, recipients, amounts, paymentReferences, feeAmounts, feeAddress);
     await expect(
       batch
         .connect(spender2)
