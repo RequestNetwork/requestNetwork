@@ -21,6 +21,8 @@ export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   // Could be improved by removing the supported network check from the protocol
   'arbitrum-rinkeby': {},
   'arbitrum-one': {},
+  xdai: {},
+  avalanche: {},
 };
 
 export const chainlinkSupportedNetworks = Object.keys(chainlinkCurrencyPairs);

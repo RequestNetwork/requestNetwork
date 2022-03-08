@@ -31,6 +31,7 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   rinkeby: ['ethereum-addresses', 'Rinkeby Testnet'],
   fantom: ['fantom-price-feeds', 'Fantom Mainnet'],
   matic: ['matic-addresses', 'Polygon Mainnet'],
+  xdai: ['data-feeds-gnosis-chain', 'Gnosis Chain Mainnet'],
 };
 
 export const getAvailableAggregators = async (
@@ -46,12 +47,12 @@ export const getAvailableAggregators = async (
     'https://cl-docs-addresses.web.app/addresses.json',
   );
 
-  const mainnetProxies = data[feedName].networks.find((x) => x.name === networkName)?.proxies;
-  if (!mainnetProxies) {
+  const proxies = data[feedName].networks.find((x) => x.name === networkName)?.proxies;
+  if (!proxies) {
     throw new Error(`not proxies for feed ${feedName} > ${networkName}`);
   }
   const missingAggregators: Aggregator[] = [];
-  for (const proxy of mainnetProxies) {
+  for (const proxy of proxies) {
     const [from, to] = proxy.pair.split(' / ');
     const fromCurrency = cm.from(from);
     const toCurrency = cm.from(to);

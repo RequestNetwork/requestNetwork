@@ -34,17 +34,19 @@
       "name": "Integration test",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-      "args": [
-        "--no-timeouts",
-        "--require",
-        "ts-node/register",
-        "${workspaceFolder}/packages/integration-test/test/index.test.ts",
-        "--colors"
-      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "program": "${workspaceFolder}/packages/integration-test/node_modules/.bin/jest",
       "cwd": "${workspaceFolder}/packages/integration-test/",
-      "protocol": "inspector",
-      "sourceMaps": true
+      "args": [
+        "--config",
+        "${workspaceFolder}/packages/integration-test/jest.config.js",
+        "--verbose",
+        "-i",
+        "--runInBand",
+        "--watchAll=false"
+      ]
     }
   ]
 }

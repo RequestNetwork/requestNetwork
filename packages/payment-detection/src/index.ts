@@ -12,6 +12,7 @@ import { parseLogArgs, padAmountForChainlink, unpadAmountFromChainlink } from '.
 import { NearInfoRetriever } from './near-info-retriever';
 import { NearNativeTokenPaymentDetector } from './near-detector';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
+import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 
 export type { TheGraphClient } from './thegraph';
 
@@ -31,6 +32,7 @@ export {
   AnyToERC20PaymentDetector,
   AnyToEthFeeProxyPaymentDetector,
   FeeReferenceBasedDetector,
+  SuperFluidPaymentDetector,
   Near,
   setProviderFactory,
   initPaymentDetectionApiKeys,
