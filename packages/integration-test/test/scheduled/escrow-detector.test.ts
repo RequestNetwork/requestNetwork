@@ -3,16 +3,12 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { createMockErc20FeeRequest } from '../utils';
 import { mockAdvancedLogic } from './mocks';
 
-const customDetector = new Erc20PaymentNetwork.EscrowProxyDetector({
-  advancedLogic: mockAdvancedLogic,
-  currencyManager: CurrencyManager.getDefault(),
-});
 const feeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
 });
 
-describe('ERC20 Escrow detection test-suite', () => {
+describe('ERC20 with Escrow detection test-suite', () => {
   it('can getBalance on a matic request, with TheGraph', async () => {
     const mockRequest = createMockErc20FeeRequest({
       network: 'matic',
@@ -24,10 +20,8 @@ describe('ERC20 Escrow detection test-suite', () => {
       feeAmount: '1000000000000000',
     });
 
-    const balance = await customDetector.getBalance(mockRequest);
-    const baseBalance = await feeProxyDetector.getBalance(mockRequest);
+    const balance = await feeProxyDetector.getBalance(mockRequest);
 
-    expect(baseBalance.balance).toBe('1000000000000000000');
     expect(balance.balance).toBe('1000000000000000000');
   }, 15000);
 
@@ -42,13 +36,11 @@ describe('ERC20 Escrow detection test-suite', () => {
       feeAmount: '1000000000000000',
     });
 
-    const balance = await customDetector.getBalance(mockRequest);
-    const baseBalance = await feeProxyDetector.getBalance(mockRequest);
+    const balance = await feeProxyDetector.getBalance(mockRequest);
 
     // Sanity check
-    expect(baseBalance.balance).toBe('1000000000000000000');
     expect(balance.balance).toBe('1000000000000000000');
-    const events = await customDetector.getAllEvents(mockRequest);
-    expect(events).toHaveLength(3);
+    const paymentEvents = balance.events;
+    expect(paymentEvents).toHaveLength(3);
   });
 });
