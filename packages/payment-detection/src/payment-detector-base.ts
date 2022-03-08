@@ -30,7 +30,8 @@ export abstract class PaymentDetectorBase<
     try {
       const allNetworkEvents = await this.getEvents(request);
       const rawPaymentEvents = allNetworkEvents.paymentEvents;
-      const events = this.sortEvents(this.filterEvents(request, rawPaymentEvents));
+      const events = this.sortEvents(rawPaymentEvents);
+
       const balance = this.computeBalance(events).toString();
       const escrowEvents = allNetworkEvents.escrowEvents;
       return {
@@ -79,16 +80,6 @@ export abstract class PaymentDetectorBase<
     events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
   ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
     return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-  }
-
-  /**
-   * Override to ignore invalid events in `getBalance()`
-   */
-  protected filterEvents(
-    _request: RequestLogicTypes.IRequest,
-    events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
-  ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
-    return events;
   }
 
   protected checkRequiredParameter<T>(value: T | undefined, name: string): asserts value is T {

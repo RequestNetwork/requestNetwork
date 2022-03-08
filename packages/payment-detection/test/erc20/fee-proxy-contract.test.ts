@@ -156,7 +156,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     });
   });
 
-  it('can get the fees out of payment events', async () => {
+  it('can get the fees out of payment events, and payment & refund work even with the wrong feeAddress while feeBalance sum only if feeAddress is fine', async () => {
     const mockRequest: RequestLogicTypes.IRequest = {
       creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
       currency: {
@@ -191,35 +191,36 @@ describe('api/erc20/fee-proxy-contract', () => {
     const mockExtractTransferEvents = (eventName: any) => {
       if (eventName === 'refund') {
         return Promise.resolve({
-          escrowEvents: [],
           paymentEvents: [
-            // wrong fee address, ignore
+            // wrong fee address
             {
-              amount: '10',
+              amount: '5',
               name: PaymentTypes.EVENTS_NAMES.REFUND,
               parameters: {
                 block: 1,
                 feeAddress: 'fee address',
-                feeAmount: '0',
-                to: '0xrefundAddress',
+                feeAmount: '5',
+                to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+                txHash: '0xABC',
               },
+              timestamp: 10,
             },
-            // valid refund
+            // Correct fee address and a fee value
             {
-              amount: '10',
-              name: PaymentTypes.EVENTS_NAMES.REFUND,
+              amount: '500',
+              name: PaymentTypes.EVENTS_NAMES.PAYMENT,
               parameters: {
                 block: 1,
                 feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
-                feeAmount: '0',
+                feeAmount: '2',
                 to: '0xrefundAddress',
               },
+              timestamp: 11,
             },
           ],
         });
       }
       return Promise.resolve({
-        escrowEvents: [],
         paymentEvents: [
           // Wrong fee address
           {
@@ -249,7 +250,7 @@ describe('api/erc20/fee-proxy-contract', () => {
           },
           // No fee
           {
-            amount: '500',
+            amount: '400',
             name: PaymentTypes.EVENTS_NAMES.PAYMENT,
             parameters: {
               block: 1,
@@ -258,7 +259,6 @@ describe('api/erc20/fee-proxy-contract', () => {
               to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
               txHash: '0xABCDE',
             },
-            timestamp: 12,
           },
         ],
       });
@@ -275,11 +275,13 @@ describe('api/erc20/fee-proxy-contract', () => {
     const balance = await erc20FeeProxyContract.getBalance(mockRequest);
 
     expect(balance.error).toBeUndefined();
-    // 500 + 500 (2 payments) - 10 (1 refund) = 990
-    expect(balance.balance).toBe('990');
+    // 100 + 500 + 400 (3 payments) - 10 - 5 (2 refunds) = 985
+    expect(balance.balance).toBe('985');
+    // Payments: 5 (correct fee address)
+    // Refunds: 2 (correct fee address)
     expect(
       mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values
         .feeBalance.balance,
-    ).toBe('5');
+    ).toBe('7');
   });
 });
