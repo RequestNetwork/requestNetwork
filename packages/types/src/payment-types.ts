@@ -274,7 +274,7 @@ export type EscrowNetworkEvent = IPaymentNetworkEscrowEvent<IEscrowEventParamete
 
 export type AllNetworkEvents<TMyEventParameters> = {
   paymentEvents: IPaymentNetworkEvent<TMyEventParameters>[];
-  escrowEvents: EscrowNetworkEvent[];
+  escrowEvents?: EscrowNetworkEvent[];
 };
 
 export type AllNetworkRetrieverEvents<TPaymentNetworkEventType> = {
