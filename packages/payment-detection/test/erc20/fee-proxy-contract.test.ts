@@ -199,23 +199,20 @@ describe('api/erc20/fee-proxy-contract', () => {
               parameters: {
                 block: 1,
                 feeAddress: 'fee address',
-                feeAmount: '5',
-                to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-                txHash: '0xABC',
+                feeAmount: '0',
+                to: '0xrefundAddress',
               },
-              timestamp: 10,
             },
-            // Correct fee address and a fee value
+            // valid refund
             {
-              amount: '500',
-              name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+              amount: '10',
+              name: PaymentTypes.EVENTS_NAMES.REFUND,
               parameters: {
                 block: 1,
                 feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
                 feeAmount: '2',
                 to: '0xrefundAddress',
               },
-              timestamp: 11,
             },
           ],
         });
@@ -259,6 +256,7 @@ describe('api/erc20/fee-proxy-contract', () => {
               to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
               txHash: '0xABCDE',
             },
+            timestamp: 12,
           },
         ],
       });

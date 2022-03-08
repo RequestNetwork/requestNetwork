@@ -9,21 +9,29 @@ describe('api/erc20/escrow-thegraph-info-retriever', () => {
     it('should get escrow event list in correct order via subgraph', async () => {
       const eventList = [
         {
-          eventName: 'initEscrow',
+          eventName: 'paidEscrow',
           from: '0x9dce3840976e4254aa073d5edcf59aa4007f50ac',
           txHash: '0x93e59e2f43e2ea4e7c6f093f106e10577969122ad434821f960dd57a43e6bcde',
           block: 9669873,
           timestamp: 1637331138,
         },
         {
-          eventName: 'initEscrow',
+          eventName: 'paidIssuer',
+          from: '0x9dce3840976e4254aa073d5edcf59aa4007f50ac',
+          txHash: '0x360de11d0c69c178dc207c57d540fcb9d37b4dde6dcd3c2d7ea329ecdffa2d29',
+          block: 9669879,
+          timestamp: 1637331228,
+        },
+
+        {
+          eventName: 'paidEscrow',
           from: '0xc24cd7f1085e0424d57531a466945b7530d510f0',
           txHash: '0x94d993f967c01ff64ab6fe96e456c1e29ef38d81eb1fc84b0272ddc52723ba01',
           block: 9769660,
           timestamp: 1638828593,
         },
         {
-          eventName: 'revertedEmergencyClaim',
+          eventName: 'revertEmergencyClaim',
           from: '0xc24cd7f1085e0424d57531a466945b7530d510f0',
           txHash: '0xf36b97332e8d87da83dbf9caf0fb7ff0c52e9076a964f77155f62873cd19b027',
           block: 9769706,
@@ -41,7 +49,7 @@ describe('api/erc20/escrow-thegraph-info-retriever', () => {
         'rinkeby',
       );
       const allNetworkEvents = await graphRetriever.getTransferEvents();
-      const escrowEvents = allNetworkEvents.escrowEvents;
+      const escrowEvents = allNetworkEvents.escrowEvents || [];
       expect(escrowEvents).toHaveLength(7);
       expect(escrowEvents[0].name).toEqual('escrow');
       expect(escrowEvents[0].parameters?.block).toEqual(eventList[0].block);
