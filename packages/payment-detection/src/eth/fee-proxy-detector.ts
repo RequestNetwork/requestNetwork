@@ -64,7 +64,6 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     if (!address) {
       return {
         paymentEvents: [],
-        escrowEvents: [],
       };
     }
 
@@ -94,7 +93,6 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
       const paymentEvents = await proxyInfoRetriever.getTransferEvents();
       return {
         paymentEvents,
-        escrowEvents: [],
       };
     }
   }

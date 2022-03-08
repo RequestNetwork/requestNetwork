@@ -73,7 +73,6 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     if (!address) {
       return {
         paymentEvents: [],
-        escrowEvents: [],
       };
     }
 
@@ -114,7 +113,6 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
       const paymentEvents = await proxyInfoRetriever.getTransferEvents();
       return {
         paymentEvents,
-        escrowEvents: [],
       };
     }
   }

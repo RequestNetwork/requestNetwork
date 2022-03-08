@@ -96,7 +96,6 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
     const paymentEvents = [...payments.events, ...refunds.events];
     return {
       paymentEvents,
-      escrowEvents: [],
     };
   }
 }

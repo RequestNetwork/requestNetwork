@@ -90,7 +90,6 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     if (!address) {
       return {
         paymentEvents: [],
-        escrowEvents: [],
       };
     }
     const { acceptedTokens, maxRateTimespan = 0 } = paymentNetwork.values;
@@ -131,7 +130,6 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     const paymentEvents = (await infoRetriever.getTransferEvents()) as PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[];
     return {
       paymentEvents,
-      escrowEvents: [],
     };
   }
 

@@ -95,7 +95,6 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
     if (!address) {
       return Promise.resolve({
         paymentEvents: [],
-        escrowEvents: [],
       });
     }
 
@@ -127,7 +126,6 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
       const paymentEvents = await proxyInfoRetriever.getTransferEvents();
       return {
         paymentEvents,
-        escrowEvents: [],
       };
     }
   }

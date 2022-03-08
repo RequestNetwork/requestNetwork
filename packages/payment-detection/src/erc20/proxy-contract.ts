@@ -54,7 +54,6 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
     if (!address) {
       return {
         paymentEvents: [],
-        escrowEvents: [],
       };
     }
 
@@ -86,7 +85,6 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
       const paymentEvents = await proxyInfoRetriever.getTransferEvents();
       return {
         paymentEvents,
-        escrowEvents: [],
       };
     }
   }

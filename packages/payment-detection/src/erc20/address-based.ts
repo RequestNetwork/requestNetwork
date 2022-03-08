@@ -113,7 +113,6 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
     const allPaymentEvents = [...paymentEvents, ...refundEvents];
     return {
       paymentEvents: allPaymentEvents,
-      escrowEvents: [],
     };
   }
 

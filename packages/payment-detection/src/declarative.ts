@@ -200,7 +200,6 @@ export class DeclarativePaymentDetector extends DeclarativePaymentDetectorBase<
   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IDeclarativePaymentEventParameters>> {
     return {
       paymentEvents: this.getDeclarativeEvents(request),
-      escrowEvents: [],
     };
   }
 }

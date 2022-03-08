@@ -86,7 +86,6 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     if (!address) {
       return {
         paymentEvents: [],
-        escrowEvents: [],
       };
     }
     const infoRetriever = new NearInfoRetriever(
@@ -100,7 +99,6 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     const paymentEvents = await infoRetriever.getTransferEvents();
     return {
       paymentEvents,
-      escrowEvents: [],
     };
   }
 

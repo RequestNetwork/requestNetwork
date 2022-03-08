@@ -75,7 +75,6 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
     if (!address) {
       return {
         paymentEvents: [],
-        escrowEvents: [],
       };
     }
     const infoRetriever = new EthInputDataInfoRetriever(
@@ -91,7 +90,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       paymentNetwork.version,
     );
     let allEvents;
-    let escrowEvents: PaymentTypes.EscrowNetworkEvent[] = [];
+    let escrowEvents: PaymentTypes.EscrowNetworkEvent[] | undefined = [];
     if (proxyContractArtifact) {
       if (networkSupportsTheGraph(paymentChain)) {
         const graphInfoRetriever = new TheGraphInfoRetriever(
@@ -118,7 +117,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
         };
       }
       events.push(...allEvents.paymentEvents);
-      escrowEvents = allEvents.escrowEvents || [];
+      escrowEvents = allEvents.escrowEvents;
     }
     return {
       paymentEvents: events,

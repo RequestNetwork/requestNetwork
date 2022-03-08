@@ -44,10 +44,8 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     if (!address) {
       return {
         paymentEvents: [],
-        escrowEvents: [],
       };
     }
-
     const infoRetriever = new SuperFluidInfoRetriever(
       paymentReference,
       requestCurrency.value,
@@ -55,11 +53,9 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
       eventName,
       paymentChain,
     );
-
     const paymentEvents = await infoRetriever.getTransferEvents();
     return {
       paymentEvents,
-      escrowEvents: [],
     };
   }
 }
