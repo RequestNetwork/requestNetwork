@@ -100,14 +100,14 @@ describe('api/erc20/escrow-info-retriever', () => {
       jest.resetAllMocks();
     });
 
-    it('can get the FROZEN_PAYMENT event of an address out of mocked logs', async () => {
+    it('can get the FREEZE_ESCROW event of an address out of mocked logs', async () => {
       const events = await infoRetriever.getContractEventsForEventName(
-        PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT,
+        PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW,
       );
       expect(events).toHaveLength(1);
       expect(events).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ name: PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT }),
+          expect.objectContaining({ name: PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW }),
         ]),
       );
       expect(getBlockSpy).toHaveBeenCalledTimes(1);

@@ -132,7 +132,7 @@
 //     requestCurrency: RequestLogicTypes.ICurrency,
 //     paymentChain: string,
 //     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnFeeReferenceBased.ICreationParameters>,
-//   ): Promise<PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]> {
+//   ): Promise<PaymentTypes.EscrowNetworkEvent[]> {
 //     const deploymentInformation = EscrowProxyDetector.getOptionalDeploymentInformation(
 //       paymentChain,
 //       paymentNetwork.version,
@@ -184,10 +184,7 @@
 //     requestCurrency: RequestLogicTypes.ICurrency,
 //     paymentChain: string,
 //     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnFeeReferenceBased.ICreationParameters>,
-//   ): Promise<
-//     | PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]
-//     | PaymentTypes.ICustomNetworkEvent<PaymentTypes.GenericEventParameters>[]
-//   > {
+//   ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
 //     switch (eventName) {
 //       case PaymentTypes.EVENTS_NAMES.PAYMENT:
 //       case PaymentTypes.EVENTS_NAMES.REFUND:
@@ -199,10 +196,10 @@
 //           paymentChain,
 //           paymentNetwork,
 //         );
-//       case PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT:
+//       case PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW:
 //       case PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM:
 //       case PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM:
-//       case PaymentTypes.ESCROW_EVENTS_NAMES.INIT_ESCROW:
+//       case PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ESCROW:
 //         return this.extractCustomEvents(
 //           eventName,
 //           paymentAddress,
