@@ -72,32 +72,18 @@ contract BatchErc20Payments {
         uint256[] calldata _feeAmounts,
         address _feeAddress 
     ) external {
-        //approvePaymentProxyToSpend(_tokenAddress);
-        // for (uint256 i = 0; i < _recipients.length; i++) {
-        //    (bool status, ) = address(erc20FeeProxy).delegatecall(
-        //     abi.encodeWithSignature(
-        //     "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
-        //         _tokenAddress,
-        //         _recipients[i], 
-        //         _amounts[i],
-        //         _paymentReferences[i],
-        //         _feeAmounts[i],
-        //         _feeAddress
-        //         )
-        //     );
-        // require(status, "transferFromWithReference failed");
-        // }
-        IERC20 token = IERC20(_tokenAddress);
+
+        // IERC20 token = IERC20(_tokenAddress);
 
         // Allow the payment network to spend all this contract's requestedToken
-        if (token.allowance(address(this),address(erc20FeeProxy)) < 100) {
-            approvePaymentProxyToSpend(address(token));
-        }
+        // if (token.allowance(address(this),address(erc20FeeProxy)) < 100) {
+        //     approvePaymentProxyToSpend(address(token));
+        // }
 
         // Pay the request and fees
         for (uint256 i = 0; i < _recipients.length; i++) {
            erc20FeeProxy.transferFromWithReferenceAndFee(
-            _tokenAddress,
+                _tokenAddress,
                 _recipients[i], 
                 _amounts[i],
                 _paymentReferences[i],

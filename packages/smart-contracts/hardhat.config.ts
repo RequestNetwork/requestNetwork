@@ -114,7 +114,7 @@ export default {
     alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
   },
   mocha: {
-    timeout: 120000, // Usefull on test networks
+    timeout: 180000, // Usefull on test networks
   },
 };
 

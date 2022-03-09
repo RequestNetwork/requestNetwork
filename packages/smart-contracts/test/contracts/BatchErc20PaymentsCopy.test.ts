@@ -33,49 +33,50 @@ describe('contract: BatchErc20Payments', () => {
   let batch: BatchErc20Payments;
   let erc20FeeProxy: ERC20FeeProxy;
 
+  let approval;
+
   const erc20Decimal = BigNumber.from('1000000000000000000');
   let tx;
   before(async () => {
-    console.log('get signer 1');
     [, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
-    console.log('get signer 2');
     [owner, spender] = await ethers.getSigners();
-
-    console.log('get address spender');
     spenderAddress = await spender.getAddress();
     receiver1 = '0xA4deDD28820C2eb1Eaf7a8076fc0B179b83a28a7';
 
-    console.log('batch');
     batch = await batchErc20PaymentsArtifact.connect(network.name, owner);
-    erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, owner);
-
-    console.log('create token');
+    erc20FeeProxy = await erc20FeeProxyArtifact.connect(network.name, owner);
     token = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
+    console.log('--->batch:', batch.address);
+    console.log('--->erc20FeeProxy:', erc20FeeProxy.address);
+    console.log('--->token:', token.address);
 
-    console.log('token transfer, address: ', token.address);
-    const tmpForGasTest = 45; // default=1
+    const amountTransfered = 2000;
+    tx = await token.connect(owner).transfer(spenderAddress, amountTransfered);
+    await tx.wait();
+    tx = await token.connect(spender).approve(batch.address, amountTransfered);
+    await tx.wait();
 
-    try {
-      tx = await token.connect(owner).transfer(spenderAddress, 150 * tmpForGasTest);
-      await tx.wait();
-      console.log('token transfer tx hash: ', tx.hash);
-    } catch (e) {
-      console.log(e);
-    }
+    // APPROVALS
+    tx = await token.connect(spender).approve(batch.address, 111100000);
+    await tx.wait();
+    approval = await token.allowance(spenderAddress, batch.address);
+    console.log('allowance(spender, batch): ', approval.toString());
 
-    try {
-      tx = await token.connect(spender).approve(batch.address, 170 * tmpForGasTest);
-      await tx.wait();
-      console.log("'before' done");
-    } catch (e) {
-      console.log(e);
-    }
+    tx = await token.connect(spender).approve(erc20FeeProxy.address, 333300000);
+    await tx.wait();
+    approval = await token.allowance(spenderAddress, erc20FeeProxy.address);
+    console.log('allowance(spender, erc20FeeProxy): ', approval.toString());
+
+    tx = await batch.connect(spender).approvePaymentProxyToSpend(token.address);
+    await tx.wait();
+    approval = await token.allowance(batch.address, erc20FeeProxy.address);
+    console.log('allowance(batch, erc20FeeProxy): ', approval.toString());
   });
 
   it('GAS EVALUATION X p: Should pay multiple ERC20 payments with paymentRef', async function () {
-    beforeERC20Balance = await token.connect(owner).balanceOf(spenderAddress);
+    beforeERC20Balance = await token.balanceOf(spenderAddress);
     console.log('beforeERC20Balance spender=', beforeERC20Balance.toBigInt());
-    beforeERC20Balance = await token.connect(owner).balanceOf(receiver1);
+    beforeERC20Balance = await token.balanceOf(receiver1);
 
     let recipients: Array<string> = [];
     let amounts: Array<number> = [];
@@ -95,27 +96,7 @@ describe('contract: BatchErc20Payments', () => {
 
     console.log(token.address, recipients, amounts, paymentReferences, feeAmounts, feeAddress);
 
-    tx = await batch.connect(spender).approvePaymentProxyToSpend(token.address);
-    await tx.wait();
-    console.log(
-      'allowance(spenderAddress, batch.address): ',
-      (await token.allowance(spenderAddress, batch.address)).toBigInt(),
-    );
-    await token.connect(spender).approve(erc20FeeProxy.address, 2222200000);
-    console.log(
-      'allowance(spenderAddress, erc20fee): ',
-      (await token.allowance(spenderAddress, erc20FeeProxy.address)).toBigInt(),
-    );
-    const approval = await token.allowance(batch.address, erc20FeeProxy.address);
-    console.log('allowance(batch, erc20fee): ', approval.toBigInt());
-
-    await token.connect(owner).approve(batch.address, 111100000);
-    console.log(
-      'allowance(owner, batch): ',
-      (await token.allowance(await owner.getAddress(), batch.address)).toBigInt(),
-    );
-
-    console.log('do batch');
+    console.log('do batch', await batch.address, await erc20FeeProxy.address, await token.address);
     try {
       const tx = await batch
         .connect(spender)
@@ -127,10 +108,9 @@ describe('contract: BatchErc20Payments', () => {
           feeAmounts,
           feeAddress,
         );
-      await tx.wait();
-      console.log('before done');
+
       console.log('get receipt');
-      const receipt = tx.wait();
+      const receipt = await tx.wait();
 
       console.log((await receipt).gasUsed.toBigInt());
     } catch (e) {
@@ -139,7 +119,7 @@ describe('contract: BatchErc20Payments', () => {
 
     // console.log("gas consumption:", receipt..gasUsed);
     console.log('get balance end');
-    afterERC20Balance = await token.connect(owner).balanceOf(receiver1);
+    afterERC20Balance = await token.balanceOf(receiver1);
     console.log('check balance');
     expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(amount * nbTxs));
   });
