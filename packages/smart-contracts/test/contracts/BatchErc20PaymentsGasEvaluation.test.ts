@@ -60,7 +60,7 @@ describe('contract: BatchErc20Payments', () => {
     let paymentReferences: Array<string> = [];
     let feeAmounts: Array<number> = [];
 
-    let nbTxs = 1;
+    let nbTxs = 100;
     let amount = 2;
     let feeAmount = 1;
 
