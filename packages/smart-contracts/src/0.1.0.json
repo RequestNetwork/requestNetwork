@@ -55,21 +55,6 @@
       "type": "event"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_erc20Address",
-          "type": "address"
-        }
-      ],
-      "name": "approvePaymentProxyToSpend",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
       "inputs": [
         {
           "internalType": "address",

@@ -2,8 +2,8 @@ import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { TestERC20__factory, TestERC20, BatchErc20Payments } from '../../src/types';
-import { batchErc20PaymentsArtifact } from '../../src/lib';
+import { TestERC20__factory, TestERC20, BatchErc20Payments, ERC20FeeProxy } from '../../src/types';
+import { erc20FeeProxyArtifact, batchErc20PaymentsArtifact } from '../../src/lib';
 
 use(solidity);
 
@@ -31,6 +31,7 @@ describe('contract: BatchErc20Payments', () => {
 
   let token: TestERC20;
   let batch: BatchErc20Payments;
+  let erc20FeeProxy: ERC20FeeProxy;
 
   const erc20Decimal = BigNumber.from('1000000000000000000');
   let tx;
@@ -46,6 +47,7 @@ describe('contract: BatchErc20Payments', () => {
 
     console.log('batch');
     batch = await batchErc20PaymentsArtifact.connect(network.name, owner);
+    erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, owner);
 
     console.log('create token');
     token = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
@@ -92,6 +94,26 @@ describe('contract: BatchErc20Payments', () => {
     }
 
     console.log(token.address, recipients, amounts, paymentReferences, feeAmounts, feeAddress);
+
+    tx = await batch.connect(spender).approvePaymentProxyToSpend(token.address);
+    await tx.wait();
+    console.log(
+      'allowance(spenderAddress, batch.address): ',
+      (await token.allowance(spenderAddress, batch.address)).toBigInt(),
+    );
+    await token.connect(spender).approve(erc20FeeProxy.address, 2222200000);
+    console.log(
+      'allowance(spenderAddress, erc20fee): ',
+      (await token.allowance(spenderAddress, erc20FeeProxy.address)).toBigInt(),
+    );
+    const approval = await token.allowance(batch.address, erc20FeeProxy.address);
+    console.log('allowance(batch, erc20fee): ', approval.toBigInt());
+
+    await token.connect(owner).approve(batch.address, 111100000);
+    console.log(
+      'allowance(owner, batch): ',
+      (await token.allowance(await owner.getAddress(), batch.address)).toBigInt(),
+    );
 
     console.log('do batch');
     try {

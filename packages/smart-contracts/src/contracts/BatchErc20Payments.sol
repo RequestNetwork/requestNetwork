@@ -3,8 +3,10 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./interfaces/ERC20FeeProxy.sol";
+import "./lib/SafeERC20.sol";
 
 contract BatchErc20Payments {
+    using SafeERC20 for IERC20;
     
     // Event to declare a transfer with a reference
     event TransferWithReferenceAndFee(
@@ -43,6 +45,16 @@ contract BatchErc20Payments {
         for (uint256 i = 0; i < _recipients.length; i++)
             _token.transferFrom(msg.sender, _recipients[i], _amounts[i]);
     }
+
+    /**
+    * @notice Authorizes the proxy to spend a new request currency (ERC20).
+    * @param _erc20Address Address of an ERC20 used as a request currency
+    */
+    function approvePaymentProxyToSpend(address _erc20Address) public {
+        IERC20 token = IERC20(_erc20Address);
+        uint256 max = 2**256 - 1;
+        token.safeApprove(address(erc20FeeProxy), max);
+    }
     
     /// @notice Send a batch of erc20 payments w/fees with paymentReferences to multiple accounts.
     /// @param _tokenAddress Token to transact with.
@@ -61,20 +73,40 @@ contract BatchErc20Payments {
         address _feeAddress 
     ) external {
         //approvePaymentProxyToSpend(_tokenAddress);
+        // for (uint256 i = 0; i < _recipients.length; i++) {
+        //    (bool status, ) = address(erc20FeeProxy).delegatecall(
+        //     abi.encodeWithSignature(
+        //     "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
+        //         _tokenAddress,
+        //         _recipients[i], 
+        //         _amounts[i],
+        //         _paymentReferences[i],
+        //         _feeAmounts[i],
+        //         _feeAddress
+        //         )
+        //     );
+        // require(status, "transferFromWithReference failed");
+        // }
+        IERC20 token = IERC20(_tokenAddress);
+
+        // Allow the payment network to spend all this contract's requestedToken
+        if (token.allowance(address(this),address(erc20FeeProxy)) < 100) {
+            approvePaymentProxyToSpend(address(token));
+        }
+
+        // Pay the request and fees
         for (uint256 i = 0; i < _recipients.length; i++) {
-           (bool status, ) = address(erc20FeeProxy).delegatecall(
-            abi.encodeWithSignature(
-            "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
-                _tokenAddress,
+           erc20FeeProxy.transferFromWithReferenceAndFee(
+            _tokenAddress,
                 _recipients[i], 
                 _amounts[i],
                 _paymentReferences[i],
                 _feeAmounts[i],
                 _feeAddress
-                )
-            );
-        require(status, "transferFromWithReference failed");
+             );
         }
+        
+        
     }
 
     /// @notice Send a batch of erc20 payments MULTI TOKEN w/fees with paymentReferences to multiple accounts.
