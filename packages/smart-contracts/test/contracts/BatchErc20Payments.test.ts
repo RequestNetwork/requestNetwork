@@ -61,7 +61,7 @@ describe('contract: BatchErc20Payments', () => {
     batch = await batchErc20PaymentsArtifact.connect(network.name, owner);
     token = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
 
-    const tmpForGasTest = 45; // default=1
+    const tmpForGasTest = 1; // default=1
     await token.connect(owner).transfer(spenderAddress, 150 * tmpForGasTest);
     await token.connect(owner).transfer(spender1Address, 160 * tmpForGasTest);
     await token.connect(owner).transfer(spender2Address, 160 * tmpForGasTest);
@@ -227,7 +227,6 @@ describe('contract: BatchErc20Payments', () => {
   });
 
   it('Should revert batchERC20PaymentsWithReferenceAndFee if not enough funds', async function () {
-    // 142 + 10 = 152 funds needed, but only 150 available funds.
     expect(
       batch
         .connect(spender)
@@ -244,7 +243,6 @@ describe('contract: BatchErc20Payments', () => {
     );
   });
   it('Should revert batchERC20PaymentsMultiTokensWithReferenceAndFee if not enough funds', async function () {
-    // 142 + 10 = 152 funds needed, but only 150 available funds.
     expect(
       batch
         .connect(spender)
@@ -267,6 +265,23 @@ describe('contract: BatchErc20Payments', () => {
         .connect(spender1)
         .batchERC20PaymentsWithReferenceAndFee(
           token.address,
+          [payeeOne, payeeTwo, payeeThree, payeeFour],
+          [20, 30, 40, 50],
+          [referenceExample1, referenceExample2, referenceExample3, referenceExample4],
+          [1, 2, 3, 4],
+          feeAddress,
+        ),
+    ).to.be.revertedWith(
+      'ProviderError: VM Exception while processing transaction: revert transferFromWithReference failed',
+    );
+  });
+  it('Should revert batchERC20PaymentsMultiTokensWithReferenceAndFee without approval', async function () {
+    // await token.connect(spender1).approve(batch.address, 10);
+    expect(
+      batch
+        .connect(spender1)
+        .batchERC20PaymentsMultiTokensWithReferenceAndFee(
+          [token.address, token.address, token.address, token.address],
           [payeeOne, payeeTwo, payeeThree, payeeFour],
           [20, 30, 40, 50],
           [referenceExample1, referenceExample2, referenceExample3, referenceExample4],

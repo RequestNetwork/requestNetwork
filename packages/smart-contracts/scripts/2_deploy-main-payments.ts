@@ -88,10 +88,15 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
     console.log('EthereumFeeProxy Contract deployed: ' + EthereumFeeProxyAddress);
 
     // Deploy BatchErc20PaymentRequests contract
-    const { address: BatchErc20PaymentsAddress } = await (
-      await hre.ethers.getContractFactory('BatchErc20Payments')
-    ).deploy(ERC20FeeProxyAddress);
-    console.log(`BatchErc20Payments contract deployed to: ${BatchErc20PaymentsAddress}.`);
+    const { address: BatchErc20PaymentsAddress } = await deployOne(
+      args,
+      hre,
+      'BatchErc20Payments',
+      {
+        constructorArguments: [ERC20FeeProxyAddress],
+      },
+    );
+    console.log('BatchErc20Payments Contract deployed: ' + BatchErc20PaymentsAddress);
 
     // ----------------------------------
     console.log('Contracts deployed');
