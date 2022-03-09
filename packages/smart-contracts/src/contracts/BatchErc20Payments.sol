@@ -72,7 +72,7 @@ contract BatchErc20Payments {
                 _feeAddress
                 )
             );
-        require(status, "transferFromWithReference failed");
+            require(status, "transferFromWithReference failed");
         }
     }
 
@@ -104,7 +104,7 @@ contract BatchErc20Payments {
                 _feeAddress
                 )
             );
-        require(status, "transferFromWithReference failed");
+            require(status, "transferFromWithReference failed");
         }
     }
 }
