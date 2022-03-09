@@ -45,10 +45,15 @@ describe('contract: BatchErc20Payments', () => {
 
     batch = await batchErc20PaymentsArtifact.connect(network.name, owner);
     erc20FeeProxy = await erc20FeeProxyArtifact.connect(network.name, owner);
+
     token = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
     console.log('--->batch:', batch.address);
     console.log('--->erc20FeeProxy:', erc20FeeProxy.address);
     console.log('--->token:', token.address);
+    console.log(
+      '--->batch.erc20FeeProxy: ',
+      await batch.erc20FeeProxy.call({ from: spenderAddress }),
+    );
 
     const amountTransfered = 2000;
     tx = await token.connect(owner).transfer(spenderAddress, amountTransfered);
@@ -67,8 +72,9 @@ describe('contract: BatchErc20Payments', () => {
     approval = await token.allowance(spenderAddress, erc20FeeProxy.address);
     console.log('allowance(spender, erc20FeeProxy): ', approval.toString());
 
-    tx = await batch.connect(spender).approvePaymentProxyToSpend(token.address);
+    tx = await batch.connect(owner).approvePaymentProxyToSpend(token.address);
     await tx.wait();
+    console.log('-->');
     approval = await token.allowance(batch.address, erc20FeeProxy.address);
     console.log('allowance(batch, erc20FeeProxy): ', approval.toString());
   });
@@ -117,10 +123,8 @@ describe('contract: BatchErc20Payments', () => {
       console.log(e);
     }
 
-    // console.log("gas consumption:", receipt..gasUsed);
     console.log('get balance end');
     afterERC20Balance = await token.balanceOf(receiver1);
-    console.log('check balance');
     expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(amount * nbTxs));
   });
 });

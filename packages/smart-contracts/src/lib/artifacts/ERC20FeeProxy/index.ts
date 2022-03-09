@@ -18,8 +18,8 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           creationBlockNumber: 10774767,
         },
         rinkeby: {
-          address: '0xf0AaAE5d39Df507608709B3f5Ed3373dD22E24e6',
-          creationBlockNumber: 10292031,
+          address: '0x5526383C6F267717A01076e2822320a30EDA5a1A', //'0xf0AaAE5d39Df507608709B3f5Ed3373dD22E24e6',
+          creationBlockNumber: 10297922, //10292031,
         },
         rinkebyOld: {
           address: '0xda46309973bFfDdD5a10cE12c44d2EE266f45A44',
