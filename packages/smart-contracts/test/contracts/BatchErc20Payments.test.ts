@@ -187,43 +187,7 @@ describe('contract: BatchErc20Payments', () => {
     expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(30));
   });
 
-  it('GAS EVALUATION X p: Should pay multiple ERC20 payments with paymentRef', async function () {
-    beforeERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
-
-    let recipients: Array<string> = [];
-    let amounts: Array<number> = [];
-    let paymentReferences: Array<string> = [];
-    let feeAmounts: Array<number> = [];
-
-    let nbTxs = 8;
-    let amount = 2;
-    let feeAmount = 1;
-
-    for (let i = 0; i < nbTxs; i++) {
-      recipients.push(payeeTwo);
-      amounts.push(amount);
-      paymentReferences.push(referenceExample2);
-      feeAmounts.push(feeAmount);
-    }
-    console.log(token.address, recipients, amounts, paymentReferences, feeAmounts, feeAddress);
-    await expect(
-      batch
-        .connect(spender2)
-        .batchERC20PaymentsWithReferenceAndFee(
-          token.address,
-          recipients,
-          amounts,
-          paymentReferences,
-          feeAmounts,
-          feeAddress,
-        ),
-    );
-
-    afterERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
-    expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(amount * nbTxs));
-  });
-
-  it('GAS EVALUATION X p - Multi Token: Should pay multiple ERC20 payments with paymentRef', async function () {
+  it('Multi Token: Should pay multiple ERC20 payments with paymentRef', async function () {
     beforeERC20Balance = await token.connect(owner).balanceOf(payeeTwo);
 
     let tokenAddresses: Array<string> = [];
@@ -232,7 +196,7 @@ describe('contract: BatchErc20Payments', () => {
     let paymentReferences: Array<string> = [];
     let feeAmounts: Array<number> = [];
 
-    let nbTxs = 1;
+    let nbTxs = 4;
     let amount = 2;
     let feeAmount = 1;
 
@@ -262,7 +226,7 @@ describe('contract: BatchErc20Payments', () => {
     expect(afterERC20Balance).to.be.equal(beforeERC20Balance.add(amount * nbTxs));
   });
 
-  it('Should revert if not enough funds', async function () {
+  it('Should revert batchERC20PaymentsWithReferenceAndFee if not enough funds', async function () {
     // 142 + 10 = 152 funds needed, but only 150 available funds.
     expect(
       batch
@@ -279,7 +243,24 @@ describe('contract: BatchErc20Payments', () => {
       'ProviderError: VM Exception while processing transaction: revert transferFromWithReference failed',
     );
   });
-  it('Should revert without approval', async function () {
+  it('Should revert batchERC20PaymentsMultiTokensWithReferenceAndFee if not enough funds', async function () {
+    // 142 + 10 = 152 funds needed, but only 150 available funds.
+    expect(
+      batch
+        .connect(spender)
+        .batchERC20PaymentsMultiTokensWithReferenceAndFee(
+          [token.address, token.address, token.address, token.address],
+          [payeeOne, payeeTwo, payeeThree, payeeFour],
+          [20, 30, 40, 52],
+          [referenceExample1, referenceExample2, referenceExample3, referenceExample4],
+          [1, 2, 3, 4],
+          feeAddress,
+        ),
+    ).to.be.revertedWith(
+      'ProviderError: VM Exception while processing transaction: revert transferFromWithReference failed',
+    );
+  });
+  it('Should revert batchERC20PaymentsWithReferenceAndFee without approval', async function () {
     // 140 + 10 = 150 needed, 160 available, no approval.
     expect(
       batch
@@ -296,4 +277,22 @@ describe('contract: BatchErc20Payments', () => {
       'ProviderError: VM Exception while processing transaction: revert transferFromWithReference failed',
     );
   });
+  // TODO
+  // it('Should revert batchERC20PaymentsMultiTokensWithReferenceAndFee without approval', async function () {
+  //   // 140 + 10 = 150 needed, 160 available, no approval.
+  //   expect(
+  //     batch
+  //       .connect(spender1)
+  //       .batchERC20PaymentsMultiTokensWithReferenceAndFee(
+  //         [token.address,token.address,token.address,token.address],
+  //         [payeeOne, payeeTwo, payeeThree, payeeFour],
+  //         [20, 30, 40, 50],
+  //         [referenceExample1, referenceExample2, referenceExample3, referenceExample4],
+  //         [1, 2, 3, 4],
+  //         feeAddress,
+  //       ),
+  //   ).to.be.revertedWith(
+  //     'ProviderError: VM Exception while processing transaction: revert transferFromWithReference failed',
+  //   );
+  // });
 });
