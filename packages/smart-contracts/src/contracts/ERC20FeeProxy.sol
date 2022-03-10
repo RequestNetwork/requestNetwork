@@ -38,7 +38,7 @@ contract ERC20FeeProxy {
     bytes calldata _paymentReference,
     uint256 _feeAmount,
     address _feeAddress
-    ) external
+    ) public
     {
     require(safeTransferFrom(_tokenAddress, _to, _amount), "payment transferFrom() failed");
     if (_feeAmount > 0 && _feeAddress != address(0)) {

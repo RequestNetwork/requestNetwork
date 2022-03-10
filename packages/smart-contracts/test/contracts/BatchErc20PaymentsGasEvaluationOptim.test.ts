@@ -2,12 +2,12 @@ import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
-import { TestERC20__factory, TestERC20, BatchErc20Payments } from '../../src/types';
-import { batchErc20PaymentsArtifact } from '../../src/lib';
+import { TestERC20__factory, TestERC20, BatchErc20PaymentsOptim } from '../../src/types';
+import { batchErc20PaymentsOptimArtifact } from '../../src/lib';
 
 use(solidity);
 
-describe('contract: BatchErc20Payments', () => {
+describe('contract: BatchErc20PaymentsOptim', () => {
   let feeAddress: string;
   let spenderAddress: string;
   let receiver: string;
@@ -21,7 +21,7 @@ describe('contract: BatchErc20Payments', () => {
   const referenceExample1 = '0xaaaa';
 
   let token: TestERC20;
-  let batch: BatchErc20Payments;
+  let batch: BatchErc20PaymentsOptim;
 
   const erc20Decimal = BigNumber.from('1000000000000000000');
   let tx;
@@ -33,19 +33,18 @@ describe('contract: BatchErc20Payments', () => {
     spenderAddress = await spender.getAddress();
     receiver = '0xA4deDD28820C2eb1Eaf7a8076fc0B179b83a28a7';
 
-    batch = await batchErc20PaymentsArtifact.connect(network.name, adminSigner);
+    batch = await batchErc20PaymentsOptimArtifact.connect(network.name, adminSigner);
     token = await new TestERC20__factory(adminSigner).deploy(erc20Decimal.mul(10000));
 
     tx = await token.connect(adminSigner).transfer(spenderAddress, tokenApproved);
     await tx.wait();
-
     tx = await token.connect(spender).approve(batch.address, tokenApproved);
     await tx.wait();
   });
 
   it('GAS EVALUATION X p: Should pay multiple ERC20 payments with paymentRef', async function () {
-    let listTxs = [0, 1, 4, 8, 12, 30, 100];
-    for (let i = 0; (i += 1); i < listTxs.length - 2) {
+    let listTxs = [1, 1, 4, 8, 12, 30, 100];
+    for (let i = 0; (i += 1); i < listTxs.length - 1) {
       beforeERC20Balance = await token.balanceOf(receiver);
 
       let recipients: Array<string> = [];

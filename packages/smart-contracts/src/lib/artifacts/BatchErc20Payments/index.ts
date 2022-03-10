@@ -17,10 +17,6 @@ export const batchErc20PaymentsArtifact = new ContractArtifact<BatchErc20Payment
           address: '0xD02C5E6D86BA8D72eac9a71c9cF11263e181e6FD',
           creationBlockNumber: 10292043,
         },
-        rinkebyOld: {
-          address: '0xBA243C17D439097b08C5c2eEa36C231766AD8Fcf',
-          creationBlockNumber: 10287587,
-        },
       },
     },
   },

@@ -9,9 +9,6 @@ import deployAllContracts from './scripts/5_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
 import deployBatchPayments from './scripts/deploy-batch-payments';
-
-// import { deployPayment } from './2_deploy-main-payments';
-
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 import 'hardhat-gas-reporter';
@@ -35,12 +32,6 @@ export default {
     tests: 'test/contracts',
     artifacts: 'build',
   },
-  settings: {
-    optimizer: {
-      enabled: true,
-      runs: 200,
-    },
-  },
   networks: {
     private: {
       url: 'http://127.0.0.1:8545',
@@ -54,6 +45,7 @@ export default {
     rinkeby: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.infura.io/v3/YOUR_API_KEY',
       chainId: 4,
+      gasPrice: 3 * 10 ** 9,
       accounts: {
         mnemonic: 'anger capable gym couch mystery notice devote cheap corn crew canoe theme',
       },

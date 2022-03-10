@@ -96,7 +96,15 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
         constructorArguments: [ERC20FeeProxyAddress],
       },
     );
-    console.log('BatchErc20Payments Contract deployed: ' + BatchErc20PaymentsAddress);
+    console.log('BatchErc20PaymentsOptim Contract deployed: ' + BatchErc20PaymentsAddress);
+
+    // Deploy BatchErc20PaymentRequests contract
+    const { address: BatchErc20PaymentsOptimAddress } = await deployOne(
+      args,
+      hre,
+      'BatchErc20PaymentsOptim',
+    );
+    console.log('BatchErc20PaymentsOptim Contract deployed: ' + BatchErc20PaymentsOptimAddress);
 
     // ----------------------------------
     console.log('Contracts deployed');
@@ -115,6 +123,7 @@ export default async function deploy(args: any, hre: HardhatRuntimeEnvironment):
       FakeSwapRouter:           ${FakeSwapRouterAddress}
       SwapToPay:                ${ERC20SwapToPayAddress}
       BatchErc20Payments:       ${BatchErc20PaymentsAddress}
+      BatchErc20PaymentsOptimAddress: ${BatchErc20PaymentsOptimAddress}
     `);
     return {
       DAIAddress: erc20AlphaInstance.address,
