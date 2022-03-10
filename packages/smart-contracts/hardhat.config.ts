@@ -70,6 +70,11 @@ export default {
       chainId: 100,
       accounts,
     },
+    fuse: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://rpc.fuse.io',
+      chainId: 122,
+      accounts,
+    },
     fantom: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rpcapi.fantom.network',
       chainId: 250,
@@ -83,6 +88,11 @@ export default {
     'arbitrum-rinkeby': {
       url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.arbitrum.io/rpc',
       chainId: 421611,
+      accounts,
+    },
+    avalanche: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://api.avax.network/ext/bc/C/rpc',
+      chainId: 43114,
       accounts,
     },
   },
@@ -115,6 +125,14 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
     }
     case 'fantom': {
       hre.config.etherscan.apiKey = process.env.FTMSCAN_API_KEY;
+      return;
+    }
+    case 'arbitrum-one': {
+      hre.config.etherscan.apiKey = process.env.ARBISCAN_API_KEY;
+      return;
+    }
+    case 'avalanche': {
+      hre.config.etherscan.apiKey = process.env.SNOWTRACE_API_KEY;
       return;
     }
   }

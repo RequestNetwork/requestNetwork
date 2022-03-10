@@ -54,6 +54,14 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
           address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
           creationBlockNumber: 10141034,
         },
+        'arbitrum-one': {
+          address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
+          creationBlockNumber: 5317940,
+        },
+        avalanche: {
+          address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
+          creationBlockNumber: 11671643,
+        },
       },
     },
   },

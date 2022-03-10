@@ -81,6 +81,18 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       name: 'Arbitrum Testnet',
       network: 'arbitrum-rinkeby',
     },
+    {
+      symbol: 'AETH',
+      decimals: 18,
+      name: 'Arbitrum Ether',
+      network: 'arbitrum-one',
+    },
+    {
+      symbol: 'AVAX',
+      decimals: 18,
+      name: 'AVAX',
+      network: 'avalanche',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {

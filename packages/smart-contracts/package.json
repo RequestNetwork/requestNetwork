@@ -32,11 +32,11 @@
     "types"
   ],
   "scripts": {
-    "build:lib": "tsc -b && cp src/types/*.d.ts dist/src/types && cp -r dist/src/types types",
+    "build:lib": "tsc -b tsconfig.build.json && cp src/types/*.d.ts dist/src/types && cp -r dist/src/types types",
     "build:sol": "yarn hardhat compile",
     "build": "yarn build:sol && yarn build:lib",
     "clean:types": "shx rm -rf types && shx rm -rf src/types",
-    "clean:lib": "shx rm -rf dist",
+    "clean:lib": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "clean:hardhat": "shx rm -rf cache && shx rm -rf build",
     "clean": "yarn clean:lib && yarn clean:types && yarn clean:hardhat",
     "lint:lib": "eslint . --fix",

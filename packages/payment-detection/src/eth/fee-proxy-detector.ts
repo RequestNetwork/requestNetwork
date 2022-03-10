@@ -10,7 +10,7 @@ import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import TheGraphInfoRetriever from '../erc20/thegraph-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
-import { networkSupportsTheGraphForNativePayments } from '../thegraph';
+import { networkSupportsTheGraph } from '../thegraph';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -70,7 +70,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
       paymentNetwork.version,
     );
 
-    const proxyInfoRetriever = networkSupportsTheGraphForNativePayments(paymentChain)
+    const proxyInfoRetriever = networkSupportsTheGraph(paymentChain)
       ? new TheGraphInfoRetriever(
           paymentReference,
           proxyContractArtifact.address,

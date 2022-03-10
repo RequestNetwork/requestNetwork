@@ -12,6 +12,10 @@ export * from './payment/swap-any-to-erc20';
 export * from './payment/swap-erc20';
 export * from './payment/swap-erc20-fee-proxy';
 export * from './payment/conversion-erc20';
+export * from './payment/any-to-erc20-proxy';
+export * from './payment/any-to-eth-proxy';
+export * from './payment/encoder-payment';
+export * from './payment/encoder-approval';
 export * as Escrow from './payment/erc20-escrow-payment';
 import * as utils from './payment/utils';
 

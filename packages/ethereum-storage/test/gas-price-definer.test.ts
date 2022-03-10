@@ -4,7 +4,7 @@ import { StorageTypes } from '@requestnetwork/types';
 import EthereumUtils from '../src/ethereum-utils';
 
 import * as config from '../src/config';
-import GasPriceDefiner from '../src/gas-price-definer';
+import { GasPriceDefiner } from '../src/gas-price-definer';
 
 import { BigNumber } from 'ethers';
 

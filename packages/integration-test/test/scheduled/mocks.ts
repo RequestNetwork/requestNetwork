@@ -8,7 +8,9 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions: jest.fn(),
+  applyActionToExtensions(): any {
+    return;
+  },
   extensions: {
     addressBasedErc20: {
       createAddPaymentAddressAction,
