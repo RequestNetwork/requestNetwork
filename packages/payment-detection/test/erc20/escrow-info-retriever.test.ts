@@ -1,6 +1,6 @@
 /* eslint-disable no-invalid-this */
 /* eslint-disable no-magic-numbers */
-import EscrowERC20InfoRetriever from '../../src/erc20/escrow-info-retriever';
+import { EscrowERC20InfoRetriever } from '../../src/erc20/escrow-info-retriever';
 import { ethers } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 
@@ -66,6 +66,8 @@ describe('api/erc20/escrow-info-retriever', () => {
         paymentReferenceMock,
         escrowContractAddress,
         0,
+        '0x4c88a33fb62e2999fc365141f99d5f278eb68e8f68165be07c74839921cdb564',
+        '0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a',
         'private',
       );
 
@@ -98,19 +100,21 @@ describe('api/erc20/escrow-info-retriever', () => {
       jest.resetAllMocks();
     });
 
-    it('can get the FROZEN_PAYMENT event of an address out of mocked logs', async () => {
-      const events = await infoRetriever.getContractEvents();
-      expect(events).toHaveLength(3);
+    it('can get the FREEZE_ESCROW event of an address out of mocked logs', async () => {
+      const events = await infoRetriever.getContractEventsForEventName(
+        PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW,
+      );
+      expect(events).toHaveLength(1);
       expect(events).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ name: PaymentTypes.ESCROW_EVENTS_NAMES.FROZEN_PAYMENT }),
+          expect.objectContaining({ name: PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW }),
         ]),
       );
-      expect(getBlockSpy).toHaveBeenCalledTimes(3);
-      expect(getLogsSpy).toHaveBeenCalledTimes(3);
+      expect(getBlockSpy).toHaveBeenCalledTimes(1);
+      expect(getLogsSpy).toHaveBeenCalledTimes(1);
     });
     it('can get the INITIATED_EMERGENCY_CLAIM event of an address out of mocked logs', async () => {
-      const events = await infoRetriever.getContractEvents();
+      const events = await infoRetriever.getAllContractEvents();
       expect(events).toHaveLength(3);
       expect(events).toEqual(
         expect.arrayContaining([
@@ -123,7 +127,7 @@ describe('api/erc20/escrow-info-retriever', () => {
       expect(getLogsSpy).toHaveBeenCalledTimes(3);
     });
     it('can get the REVERTED_EMERGENCY_CLAIM event of an address out of mocked logs', async () => {
-      const events = await infoRetriever.getContractEvents();
+      const events = await infoRetriever.getAllContractEvents();
       expect(events).toHaveLength(3);
       expect(events).toEqual(
         expect.arrayContaining([

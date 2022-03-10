@@ -28,13 +28,16 @@ export abstract class PaymentDetectorBase<
     request: RequestLogicTypes.IRequest,
   ): Promise<PaymentTypes.IBalanceWithEvents<TPaymentEventParameters>> {
     try {
-      const rawEvents = await this.getEvents(request);
-      const events = this.sortEvents(rawEvents);
-      const balance = this.computeBalance(events).toString();
+      const allNetworkEvents = await this.getEvents(request);
+      const rawPaymentEvents = allNetworkEvents.paymentEvents;
+      const events = this.sortEvents(rawPaymentEvents);
 
+      const balance = this.computeBalance(events).toString();
+      const escrowEvents = this.sortEscrowEvents(allNetworkEvents.escrowEvents || []);
       return {
         balance,
         events,
+        escrowEvents,
       };
     } catch (error) {
       return getBalanceErrorObject(error);
@@ -46,7 +49,7 @@ export abstract class PaymentDetectorBase<
    */
   protected abstract getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+  ): Promise<PaymentTypes.AllNetworkEvents<TPaymentEventParameters>>;
 
   protected getPaymentExtension(
     request: RequestLogicTypes.IRequest,
@@ -76,6 +79,12 @@ export abstract class PaymentDetectorBase<
   protected sortEvents(
     events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
   ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
+    return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+  }
+
+  protected sortEscrowEvents(
+    events: PaymentTypes.EscrowNetworkEvent[],
+  ): PaymentTypes.EscrowNetworkEvent[] {
     return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
   }
 

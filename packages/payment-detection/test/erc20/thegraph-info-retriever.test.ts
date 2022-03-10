@@ -37,7 +37,8 @@ describe('api/erc20/thegraph-info-retriever', () => {
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         paymentData.network,
       );
-      const transferEvents = await graphRetriever.getTransferEvents();
+      const allNetworkEvents = await graphRetriever.getTransferEvents();
+      const transferEvents = allNetworkEvents.paymentEvents;
       expect(transferEvents).toHaveLength(1);
       expect(transferEvents[0].amount).toEqual('30000000000000');
       expect(transferEvents[0].name).toEqual('payment');
@@ -75,7 +76,8 @@ describe('api/erc20/thegraph-info-retriever', () => {
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         paymentData.network,
       );
-      const transferEvents = await graphRetriever.getTransferEvents();
+      const allNetworkEvents = await graphRetriever.getTransferEvents();
+      const transferEvents = allNetworkEvents.paymentEvents;
       expect(transferEvents).toHaveLength(1);
       expect(transferEvents[0].amount).toEqual(paymentData.amount);
       expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);

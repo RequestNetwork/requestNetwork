@@ -190,72 +190,76 @@ describe('api/erc20/fee-proxy-contract', () => {
 
     const mockExtractTransferEvents = (eventName: any) => {
       if (eventName === 'refund') {
-        return Promise.resolve([
-          // wrong fee address
+        return Promise.resolve({
+          paymentEvents: [
+            // wrong fee address
+            {
+              amount: '5',
+              name: PaymentTypes.EVENTS_NAMES.REFUND,
+              parameters: {
+                block: 1,
+                feeAddress: 'fee address',
+                feeAmount: '0',
+                to: '0xrefundAddress',
+              },
+            },
+            // valid refund
+            {
+              amount: '10',
+              name: PaymentTypes.EVENTS_NAMES.REFUND,
+              parameters: {
+                block: 1,
+                feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
+                feeAmount: '2',
+                to: '0xrefundAddress',
+              },
+            },
+          ],
+        });
+      }
+      return Promise.resolve({
+        paymentEvents: [
+          // Wrong fee address
           {
-            amount: '5',
-            name: PaymentTypes.EVENTS_NAMES.REFUND,
+            amount: '100',
+            name: PaymentTypes.EVENTS_NAMES.PAYMENT,
             parameters: {
               block: 1,
               feeAddress: 'fee address',
-              feeAmount: '0',
-              to: '0xrefundAddress',
+              feeAmount: '5',
+              to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+              txHash: '0xABC',
             },
+            timestamp: 10,
           },
-          // valid refund
+          // Correct fee address and a fee value
           {
-            amount: '10',
-            name: PaymentTypes.EVENTS_NAMES.REFUND,
+            amount: '500',
+            name: PaymentTypes.EVENTS_NAMES.PAYMENT,
             parameters: {
               block: 1,
               feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
-              feeAmount: '2',
-              to: '0xrefundAddress',
+              feeAmount: '5',
+              to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+              txHash: '0xABCD',
             },
+            timestamp: 11,
           },
-        ]);
-      }
-      return Promise.resolve([
-        // Wrong fee address
-        {
-          amount: '100',
-          name: PaymentTypes.EVENTS_NAMES.PAYMENT,
-          parameters: {
-            block: 1,
-            feeAddress: 'fee address',
-            feeAmount: '5',
-            to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-            txHash: '0xABC',
+          // No fee
+          {
+            amount: '400',
+            name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+            parameters: {
+              block: 1,
+              feeAddress: '',
+              feeAmount: '0',
+              to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+              txHash: '0xABCDE',
+            },
+            timestamp: 12,
           },
-          timestamp: 10,
-        },
-        // Correct fee address and a fee value
-        {
-          amount: '500',
-          name: PaymentTypes.EVENTS_NAMES.PAYMENT,
-          parameters: {
-            block: 1,
-            feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
-            feeAmount: '5',
-            to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-            txHash: '0xABCD',
-          },
-          timestamp: 11,
-        },
-        // No fee
-        {
-          amount: '400',
-          name: PaymentTypes.EVENTS_NAMES.PAYMENT,
-          parameters: {
-            block: 1,
-            feeAddress: '',
-            feeAmount: '0',
-            to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-            txHash: '0xABCDE',
-          },
-          timestamp: 12,
-        },
-      ]);
+        ],
+      });
     };
     erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
