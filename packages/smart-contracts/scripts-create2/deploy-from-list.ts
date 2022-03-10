@@ -1,4 +1,4 @@
-import { deployOne } from './deploy-one';
+import { deployOneWithCreate2 } from './deploy-one';
 import { create2ContractDeploymentList, HardhatRuntimeEnvironmentExtended } from './utils';
 
 export const deployFromList = async (hre: HardhatRuntimeEnvironmentExtended): Promise<void> => {
@@ -18,10 +18,8 @@ export const deployFromList = async (hre: HardhatRuntimeEnvironmentExtended): Pr
     create2ContractDeploymentList.map(async (contract) => {
       switch (contract) {
         case 'EthereumProxy':
-          await deployOne({ contract: 'EthereumProxy' }, hre);
-          break;
         case 'EthereumFeeProxy':
-          await deployOne({ contract: 'EthereumFeeProxy' }, hre);
+          await deployOneWithCreate2({ contract: contract }, hre);
           break;
         // Other cases to add when necessary
         default:

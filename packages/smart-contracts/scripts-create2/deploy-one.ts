@@ -1,10 +1,10 @@
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, isContractDeployed } from './utils';
 
 // Deploys, set up the contracts
-export async function deployOneWithCreate2(
+export const deployOneWithCreate2 = async (
   deploymentParams: IDeploymentParams,
   hre: HardhatRuntimeEnvironmentExtended,
-): Promise<string> {
+): Promise<string> => {
   try {
     if (!hre.config.xdeploy.networks || hre.config.xdeploy.networks.length === 0) {
       throw new Error('Invalid networks');
@@ -40,4 +40,4 @@ export async function deployOneWithCreate2(
   } catch (e) {
     throw new Error(e.toString());
   }
-}
+};
