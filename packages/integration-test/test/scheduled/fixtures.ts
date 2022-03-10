@@ -43,7 +43,7 @@ export const erc20requestCreationHash: Types.IRequestInfo = {
 
 export const ethInputDataCreationHash: Types.IRequestInfo = {
   currency: {
-    network: 'private',
+    network: 'rinkeby',
     type: Types.RequestLogic.CURRENCY.ETH,
     value: privateErc20Address, // TODO: Change to ETH address
   },

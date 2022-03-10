@@ -36,5 +36,21 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
+    feeProxyContractEth: {
+      supportedNetworks: ['rinkeby', 'private'],
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
+    },
+    ethereumInputData: {
+      supportedNetworks: ['rinkeby', 'private'],
+      createAddPaymentAddressAction,
+      createAddRefundAddressAction,
+      createCreationAction,
+      createAddPaymentInstructionAction,
+      createAddRefundInstructionAction,
+    },
   },
 };
