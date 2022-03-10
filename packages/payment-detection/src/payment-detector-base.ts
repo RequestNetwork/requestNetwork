@@ -33,7 +33,7 @@ export abstract class PaymentDetectorBase<
       const events = this.sortEvents(rawPaymentEvents);
 
       const balance = this.computeBalance(events).toString();
-      const escrowEvents = allNetworkEvents.escrowEvents;
+      const escrowEvents = this.sortEscrowEvents(allNetworkEvents.escrowEvents || []);
       return {
         balance,
         events,
@@ -79,6 +79,12 @@ export abstract class PaymentDetectorBase<
   protected sortEvents(
     events: PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[],
   ): PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[] {
+    return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+  }
+
+  protected sortEscrowEvents(
+    events: PaymentTypes.EscrowNetworkEvent[],
+  ): PaymentTypes.EscrowNetworkEvent[] {
     return events.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
   }
 
