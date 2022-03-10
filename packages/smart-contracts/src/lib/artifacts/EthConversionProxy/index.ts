@@ -69,7 +69,7 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           creationBlockNumber: 10141038,
         },
         avalanche: {
-          address: '0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4',
+          address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           creationBlockNumber: 11671704,
         },
       },
