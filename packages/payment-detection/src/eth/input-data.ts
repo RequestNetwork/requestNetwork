@@ -89,7 +89,9 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       paymentChain,
       paymentNetwork.version,
     );
-    let allEvents;
+    let allEvents: PaymentTypes.AllNetworkEvents<
+      PaymentTypes.IETHPaymentEventParameters | PaymentTypes.IETHFeePaymentEventParameters
+    >;
     let escrowEvents: PaymentTypes.EscrowNetworkEvent[] | undefined = [];
     if (proxyContractArtifact) {
       if (networkSupportsTheGraph(paymentChain)) {
