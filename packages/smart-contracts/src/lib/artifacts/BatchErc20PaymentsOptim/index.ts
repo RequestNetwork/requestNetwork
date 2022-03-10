@@ -10,7 +10,7 @@ export const batchErc20PaymentsOptimArtifact = new ContractArtifact<BatchErc20Pa
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0xF57f76D23568E31b12f62E7B8eB880f486369bCf',
+          address: '0xBd2c938B9F6Bfc1A66368D08CB44dC3EB2aE27bE',
           creationBlockNumber: 0,
         },
         rinkeby: {

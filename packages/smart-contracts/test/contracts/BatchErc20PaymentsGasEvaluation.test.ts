@@ -45,7 +45,7 @@ describe('contract: BatchErc20Payments', () => {
 
   it('GAS EVALUATION X p: Should pay multiple ERC20 payments with paymentRef', async function () {
     let listTxs = [0, 1, 4, 8, 12, 30, 100];
-    for (let i = 0; (i += 1); i < listTxs.length - 2) {
+    for (let i = 0; i < listTxs.length; i += 1) {
       beforeERC20Balance = await token.balanceOf(receiver);
 
       let recipients: Array<string> = [];
