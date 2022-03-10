@@ -1,6 +1,8 @@
 import { HardhatRuntimeEnvironmentExtended } from './utils';
 
-export const checkDeployer = async (hre: HardhatRuntimeEnvironmentExtended): Promise<void> => {
+export const checkCreate2Deployer = async (
+  hre: HardhatRuntimeEnvironmentExtended,
+): Promise<void> => {
   if (!hre.config.xdeploy.networks || hre.config.xdeploy.networks.length === 0) {
     throw new Error('Invalid network configuration');
   }

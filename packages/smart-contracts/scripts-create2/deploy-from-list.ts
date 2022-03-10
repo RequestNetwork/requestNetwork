@@ -1,7 +1,9 @@
 import { deployOneWithCreate2 } from './deploy-one';
 import { create2ContractDeploymentList, HardhatRuntimeEnvironmentExtended } from './utils';
 
-export const deployFromList = async (hre: HardhatRuntimeEnvironmentExtended): Promise<void> => {
+export const deployWithCreate2FromList = async (
+  hre: HardhatRuntimeEnvironmentExtended,
+): Promise<void> => {
   if (!hre.config.xdeploy.networks || !hre.config.xdeploy.rpcUrls) {
     throw new Error('Bad network configuration');
   }

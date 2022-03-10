@@ -3,7 +3,7 @@ import { CREATE2_DEPLOYER_ADDRESS as CREATE2_DEPLOYER_ADDRESS_DEFAULT } from 'xd
 import { requestDeployer } from '../src/lib';
 
 // Deploys, set up the contracts
-export async function computeOne(
+export async function computeCreate2DeploymentAddress(
   deploymentParams: IDeploymentParams,
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<string> {

@@ -1,7 +1,9 @@
-import { computeOne } from './compute-one-address';
+import { computeCreate2DeploymentAddress } from './compute-one-address';
 import { create2ContractDeploymentList, HardhatRuntimeEnvironmentExtended } from './utils';
 
-export const computeFromList = async (hre: HardhatRuntimeEnvironmentExtended): Promise<void> => {
+export const computeCreate2DeploymentAddressesFromList = async (
+  hre: HardhatRuntimeEnvironmentExtended,
+): Promise<void> => {
   if (!hre.config.xdeploy.networks || !hre.config.xdeploy.rpcUrls) {
     throw new Error('Bad network configuration');
   }
@@ -18,10 +20,10 @@ export const computeFromList = async (hre: HardhatRuntimeEnvironmentExtended): P
     create2ContractDeploymentList.map(async (contract) => {
       switch (contract) {
         case 'EthereumProxy':
-          await computeOne({ contract: 'EthereumProxy' }, hre);
+          await computeCreate2DeploymentAddress({ contract: 'EthereumProxy' }, hre);
           break;
         case 'EthereumFeeProxy':
-          await computeOne({ contract: 'EthereumFeeProxy' }, hre);
+          await computeCreate2DeploymentAddress({ contract: 'EthereumFeeProxy' }, hre);
           break;
         // Other cases to add when necessary
         default:
