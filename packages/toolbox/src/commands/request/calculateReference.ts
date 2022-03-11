@@ -1,19 +1,29 @@
 import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 import * as yargs from 'yargs';
-
+import { utils } from 'ethers';
 interface IReqOptions {
   requestId: string;
   salt: string;
   address: string;
 }
 
-const calculateReferenceForRequest = (options: IReqOptions): string => {
-  const paymentRef = PaymentReferenceCalculator.calculate(
-    options.requestId,
-    options.salt,
-    options.address,
-  );
-  return paymentRef;
+const calculateReferenceForRequest = (options: IReqOptions): void => {
+  try {
+    const paymentRef = PaymentReferenceCalculator.calculate(
+      options.requestId,
+      options.salt,
+      options.address,
+    );
+    console.log('#####################################################################');
+    console.log(`Payment reference: ${paymentRef}`);
+    console.log('#####################################################################');
+    const indexedRef = utils.keccak256(`0x${paymentRef}`);
+    console.log(`Payment reference indexed: ${indexedRef}`);
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error(`Error ! ${e.message}`);
+    }
+  }
 };
 
 export const command = 'calculateReference <requestId> <salt> <address>';
