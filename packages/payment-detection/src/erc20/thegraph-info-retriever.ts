@@ -43,10 +43,12 @@ export class TheGraphInfoRetriever {
     };
   }
 
-  public async getTransferEvents(): Promise<PaymentTypes.ERC20PaymentNetworkEvent[]> {
+  public async getTransferEvents(): Promise<
+    PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>
+  > {
     const variables = this.getGraphVariables();
-    const payments = await this.client.GetPayments(variables);
-    return payments.payments.map((p) => ({
+    const paymentsAndEscrows = await this.client.GetPaymentsAndEscrowState(variables);
+    const paymentEvents = paymentsAndEscrows.payments.map((p) => ({
       amount: p.amount,
       name: this.eventName,
       parameters: {
@@ -58,6 +60,21 @@ export class TheGraphInfoRetriever {
       },
       timestamp: p.timestamp,
     }));
+    const escrowEvents = paymentsAndEscrows.escrowEvents.map((p) => ({
+      name: PaymentTypes.EVENTS_NAMES.ESCROW,
+      parameters: {
+        to: this.toAddress,
+        from: p.from,
+        txHash: p.txHash,
+        block: p.block,
+        eventName: p.eventName,
+      },
+      timestamp: p.timestamp,
+    }));
+    return {
+      paymentEvents: paymentEvents,
+      escrowEvents: escrowEvents,
+    };
   }
 }
 

@@ -8,6 +8,13 @@ export interface IPaymentRetriever<
   getTransferEvents(): Promise<TPaymentNetworkEvent[]>;
 }
 
+export interface IGraphEventsRetriever<
+  TPaymentNetworkEvent extends PaymentTypes.IPaymentNetworkEvent<unknown, TEventNames>,
+  TEventNames = PaymentTypes.EVENTS_NAMES
+> {
+  getTransferEvents(): Promise<PaymentTypes.AllNetworkRetrieverEvents<TPaymentNetworkEvent>>;
+}
+
 /** Generic info retriever interface without transfers */
 export interface IEventRetriever<
   TPaymentNetworkEvent extends PaymentTypes.IPaymentNetworkBaseEvent<TEventNames>,

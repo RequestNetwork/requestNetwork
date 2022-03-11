@@ -1,10 +1,5 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
-import {
-  ExtensionTypes,
-  IdentityTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks';
@@ -17,56 +12,17 @@ import {
   privateErc20Address,
   requestNetwork,
 } from './fixtures';
-
-const createMockRequest = ({
-  network,
-  tokenAddress,
-  paymentAddress,
-  salt,
-  requestId,
-  feeAddress,
-  feeAmount,
-}: Record<
-  'network' | 'tokenAddress' | 'paymentAddress' | 'salt' | 'requestId' | 'feeAddress' | 'feeAmount',
-  string
->): RequestLogicTypes.IRequest => ({
-  creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
-  currency: {
-    network,
-    type: RequestLogicTypes.CURRENCY.ERC20,
-    value: tokenAddress,
-  },
-  events: [],
-  expectedAmount: '0',
-  extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: {
-      events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-      values: {
-        paymentAddress,
-        salt,
-        feeAddress,
-        feeAmount,
-      },
-      version: '0.1.0',
-    },
-  },
-  extensionsData: [],
-  requestId,
-  state: RequestLogicTypes.STATE.CREATED,
-  timestamp: 0,
-  version: '0.2.0',
-});
+import { createMockErc20FeeRequest } from '../utils';
 
 const erc20FeeProxy = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
+  // FIXME: the mocked advanced logic is address based
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
 });
 
 describe('ERC20 Fee Proxy detection test-suite', () => {
   it('can getBalance on a mainnet request', async () => {
-    const mockRequest = createMockRequest({
+    const mockRequest = createMockErc20FeeRequest({
       network: 'mainnet',
       requestId: '016d4cf8006982f7d91a437f8c72700aa62767de00a605133ee5f84ad8d224ba04',
       paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
@@ -88,7 +44,7 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
   }, 10000);
 
   it('can getBalance on a rinkeby request', async () => {
-    const mockRequest = createMockRequest({
+    const mockRequest = createMockErc20FeeRequest({
       network: 'rinkeby',
       requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
       paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
@@ -110,7 +66,7 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
   }, 10000);
 
   it('can getBalance on a matic request, with TheGraph', async () => {
-    const mockRequest = createMockRequest({
+    const mockRequest = createMockErc20FeeRequest({
       network: 'matic',
       requestId: '014bcd076791fb915af457df1d3f26c81ff66f7e278e4a18f0e48a1705572a6306',
       paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',

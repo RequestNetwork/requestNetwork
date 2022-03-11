@@ -43,6 +43,8 @@ export async function approveErc20ForEscrow(
  * Processes a transaction to payEscrow().
  * @param request request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param amount optional, if you want to override the amount in the request.
+ * @param feeAmount optional, if you want to override the feeAmount in the request.
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payEscrow(
@@ -50,6 +52,7 @@ export async function payEscrow(
   signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
+  overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const encodedTx = encodePayEscrow(request, signerOrProvider, amount, feeAmount);
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
@@ -59,6 +62,7 @@ export async function payEscrow(
     data: encodedTx,
     to: contractAddress,
     value: 0,
+    ...overrides,
   });
   return tx;
 }

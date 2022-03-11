@@ -82,9 +82,11 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     _requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+      };
     }
     const infoRetriever = new NearInfoRetriever(
       paymentReference,
@@ -94,8 +96,10 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
       eventName,
       paymentChain,
     );
-    const events = await infoRetriever.getTransferEvents();
-    return events;
+    const paymentEvents = await infoRetriever.getTransferEvents();
+    return {
+      paymentEvents,
+    };
   }
 
   protected static getVersionOrThrow = (paymentNetworkVersion: string): string => {

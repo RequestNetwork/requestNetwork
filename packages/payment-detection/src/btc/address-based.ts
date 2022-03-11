@@ -74,7 +74,7 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
    */
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IBTCPaymentEventParameters>[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IBTCPaymentEventParameters>> {
     const { paymentAddress, refundAddress } = this.getPaymentExtension(request).values;
 
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
@@ -93,6 +93,9 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
           )
         : { events: [] },
     ]);
-    return [...payments.events, ...refunds.events];
+    const paymentEvents = [...payments.events, ...refunds.events];
+    return {
+      paymentEvents,
+    };
   }
 }
