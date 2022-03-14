@@ -41,7 +41,7 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(params?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
     expect(balance.events[0].amount).toBe('1000000000000000000');
     expect(balance.events[0].timestamp).toBe(1599070058);
-  });
+  }, 10000);
 
   it('can getBalance on a rinkeby request', async () => {
     const mockRequest = createMockErc20FeeRequest({
@@ -63,7 +63,7 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(params?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
     expect(balance.events[0].amount).toBe('1000000000000000000000');
     expect(balance.events[0].timestamp).toBe(1599013969);
-  });
+  }, 10000);
 
   it('can getBalance on a matic request, with TheGraph', async () => {
     const mockRequest = createMockErc20FeeRequest({
@@ -114,7 +114,7 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events[0].name).toBe('payment');
     expect(balance.events[0].amount).toBe('1');
     expect(Math.abs(declarationTimestamp - (balance.events[0].timestamp ?? 0))).toBeLessThan(5);
-  });
+  }, 15000);
 
   it('getBalance = 0 if the payer declared the payment', async () => {
     // Create a request
@@ -141,5 +141,5 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     });
     expect(balance.balance).toBe('0');
     expect(balance.events).toHaveLength(0);
-  });
+  }, 15000);
 });
