@@ -84,7 +84,7 @@ export enum EVENTS_NAMES {
 export enum ESCROW_EVENTS_NAMES {
   PAID_ESCROW = 'paidEscrow',
   PAID_ISSUER = 'paidIssuer',
-  INITIATED_EMERGENCY_CLAIM = 'initializeEmergencyClaim',
+  INITIATED_EMERGENCY_CLAIM = 'initiateEmergencyClaim',
   REVERTED_EMERGENCY_CLAIM = 'revertEmergencyClaim',
   FREEZE_ESCROW = 'freezeEscrow',
 }
