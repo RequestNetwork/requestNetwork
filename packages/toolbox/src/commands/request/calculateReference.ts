@@ -29,7 +29,7 @@ const calculateReferenceForRequest = (options: IReqOptions): void => {
 export const command = 'calculateReference <requestId> <salt> <address>';
 export const describe = 'Calculates the payment reference from requestId, salt and address';
 export const builder = (): yargs.Argv<IReqOptions> =>
-  yargs.options({
+  yargs.env().options({
     requestId: {
       demand: true,
       type: 'string',
