@@ -1,4 +1,5 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { verifyOne } from './verify-one';
 
 // Deploys, set up the contracts
 export default async function deployDeployer(hre: HardhatRuntimeEnvironment): Promise<void> {
@@ -11,6 +12,7 @@ export default async function deployDeployer(hre: HardhatRuntimeEnvironment): Pr
       deployer,
     );
     const RequestDeployer = await RequestDeployer__factory.deploy();
+    await verifyOne(RequestDeployer.address, { contract: 'RequestDeployer' }, hre);
 
     // ----------------------------------
     console.log('Contract deployed');

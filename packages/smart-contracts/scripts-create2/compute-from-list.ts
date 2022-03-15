@@ -18,12 +18,15 @@ export const computeCreate2DeploymentAddressesFromList = async (
 
   await Promise.all(
     create2ContractDeploymentList.map(async (contract) => {
+      let address: string;
       switch (contract) {
         case 'EthereumProxy':
-          await computeCreate2DeploymentAddress({ contract: 'EthereumProxy' }, hre);
+          address = await computeCreate2DeploymentAddress({ contract: 'EthereumProxy' }, hre);
+          console.log(`EthereumProxy                ${address}`);
           break;
         case 'EthereumFeeProxy':
-          await computeCreate2DeploymentAddress({ contract: 'EthereumFeeProxy' }, hre);
+          address = await computeCreate2DeploymentAddress({ contract: 'EthereumFeeProxy' }, hre);
+          console.log(`EthereumFeeProxy             ${address}`);
           break;
         // Other cases to add when necessary
         default:

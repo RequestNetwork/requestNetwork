@@ -1,4 +1,5 @@
-import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './utils';
+import { HardhatRuntimeEnvironmentExtended } from './utils';
+import { IDeploymentParams } from '@requestnetwork/xdeployer';
 
 export const verifyOne = async (
   contractAddress: string,

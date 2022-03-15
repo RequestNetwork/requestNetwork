@@ -3,22 +3,10 @@ import { create2ContractDeploymentList, HardhatRuntimeEnvironmentExtended } from
 import { computeCreate2DeploymentAddress } from './compute-one-address';
 
 // Verifies the contracts
-export default async function VerifyPayments(
+export default async function VerifyCreate2FromList(
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<void> {
   try {
-    if (!hre.config.xdeploy.networks || !hre.config.xdeploy.rpcUrls) {
-      throw new Error('Bad network configuration');
-    }
-
-    if (!hre.config.xdeploy.salt) {
-      throw new Error('Missing salt');
-    }
-
-    if (!hre.config.xdeploy.deployerAddress) {
-      console.warn('Deployer address is set to default !');
-    }
-
     let address: string;
     await Promise.all(
       create2ContractDeploymentList.map(async (contract) => {

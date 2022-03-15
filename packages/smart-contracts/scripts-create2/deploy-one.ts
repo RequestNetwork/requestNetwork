@@ -1,4 +1,5 @@
-import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, isContractDeployed } from './utils';
+import { HardhatRuntimeEnvironmentExtended, isContractDeployed } from './utils';
+import { IDeploymentParams } from '@requestnetwork/xdeployer';
 
 // Deploys, set up the contracts
 export const deployOneWithCreate2 = async (
@@ -15,8 +16,8 @@ export const deployOneWithCreate2 = async (
       if (deploymentResult[i].deployed) {
         console.log(`${deploymentParams.contract} succesffuly deployed:`);
         console.log(`         On network:        ${hre.config.xdeploy.networks[i]}`);
-        console.log(`               At address:        ${deploymentResult[i].address}`);
-        console.log(`               At block:          ${deploymentResult[i].blockNumber}`);
+        console.log(`         At address:        ${deploymentResult[i].address}`);
+        console.log(`         At block:          ${deploymentResult[i].blockNumber}`);
       } else {
         if (
           isContractDeployed(
@@ -27,12 +28,13 @@ export const deployOneWithCreate2 = async (
         ) {
           console.log(`${deploymentParams.contract} already deployed:`);
           console.log(`         On network:        ${hre.config.xdeploy.networks[i]}`);
-          console.log(`               At address:        ${deploymentResult[i].address}`);
+          console.log(`         At address:        ${deploymentResult[i].address}`);
         } else {
           console.log(`${deploymentParams.contract} has not been deployed:`);
           console.log(`         On network:        ${hre.config.xdeploy.networks[i]}`);
-          console.log(`               Error:             ${deploymentResult[i].error.reason}`);
-          console.log(`               Hint:              Check that your artefacts are up to date`);
+          console.log(`         Error:             ${deploymentResult[i].error.reason}`);
+          console.log(`         Hint:              Check that your artefacts are up to date`);
+          console.log(deploymentResult[i].error);
         }
       }
     }

@@ -1,5 +1,8 @@
-import { HardhatRuntimeEnvironmentExtended, IDeploymentParams } from './utils';
-import { CREATE2_DEPLOYER_ADDRESS as CREATE2_DEPLOYER_ADDRESS_DEFAULT } from 'xdeployer';
+import { HardhatRuntimeEnvironmentExtended } from './utils';
+import {
+  CREATE2_DEPLOYER_ADDRESS as CREATE2_DEPLOYER_ADDRESS_DEFAULT,
+  IDeploymentParams,
+} from '@requestnetwork/xdeployer';
 import { requestDeployer } from '../src/lib';
 
 // Deploys, set up the contracts
@@ -24,8 +27,10 @@ export async function computeCreate2DeploymentAddress(
       ? hre.config.xdeploy.deployerAddress
       : CREATE2_DEPLOYER_ADDRESS_DEFAULT;
 
-    const provider = new hre.ethers.providers.JsonRpcProvider('http://127.0.0.1:8545');
-    const RequestDeployer = requestDeployer.connect('private', provider);
+    const provider = new hre.ethers.providers.JsonRpcProvider(
+      'https://api.avax.network/ext/bc/C/rpc',
+    );
+    const RequestDeployer = requestDeployer.connect('avalanche', provider);
     const ContractToDeploy = await hre.ethers.getContractFactory(deploymentParams.contract);
     let initcode;
     if (deploymentParams.constructorArgs) {

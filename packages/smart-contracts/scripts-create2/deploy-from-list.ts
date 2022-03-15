@@ -16,17 +16,18 @@ export const deployWithCreate2FromList = async (
     console.warn('Deployer address is set to default !');
   }
 
-  await Promise.all(
-    create2ContractDeploymentList.map(async (contract) => {
-      switch (contract) {
-        case 'EthereumProxy':
-        case 'EthereumFeeProxy':
-          await deployOneWithCreate2({ contract: contract }, hre);
-          break;
-        // Other cases to add when necessary
-        default:
-          throw new Error(`The contrat ${contract} is not to be deployed using the CREATE2 scheme`);
-      }
-    }),
-  );
+  for (let i = 0; i < create2ContractDeploymentList.length; i++) {
+    const contract = create2ContractDeploymentList[i];
+    switch (contract) {
+      case 'EthereumProxy':
+        await deployOneWithCreate2({ contract: 'EthereumProxy' }, hre);
+        break;
+      case 'EthereumFeeProxy':
+        await deployOneWithCreate2({ contract: 'EthereumFeeProxy' }, hre);
+        break;
+      // Other cases to add when necessary
+      default:
+        throw new Error(`The contrat ${contract} is not to be deployed using the CREATE2 scheme`);
+    }
+  }
 };
