@@ -133,6 +133,7 @@ yarn hardhat prepare-live-payments --network private
 
 The request deployer enables multichain deployment of several smart contract at predefined address.
 For now it is used to deploy:
+
 - `EthereumProxy`
 - `EthereumFeeProxy`
 
@@ -145,6 +146,7 @@ Environment variables needed: `DEPLOYER_MASTER_KEY`
 ```bash
 yarn hardhat deploy-deployer-contract --network <NETWORK>
 ```
+
 The resulting contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2` (live chains)
 
 #### Compute the contract addresses
@@ -167,6 +169,7 @@ Then run:
 ```bash
 yarn hardhat deploy-contract-through-deployer
 ```
+
 To deploy on live chains set `REQUEST_DEPLOYER_LIVE` to true
 
 #### Verify the contracts
@@ -176,6 +179,7 @@ For each network the contract were deployed to run:
 ```bash
 yarn hardhat verify-contract-from-deployer --network <NETWORK>
 ```
+
 The associated `EXPLORER_API_KEY` is mandatory.
 
 ### Tests
