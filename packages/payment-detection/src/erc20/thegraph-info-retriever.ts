@@ -44,7 +44,7 @@ export class TheGraphInfoRetriever {
   }
 
   public async getTransferEvents(): Promise<
-    PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>
+    PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>
   > {
     const variables = this.getGraphVariables();
     const paymentsAndEscrows = await this.client.GetPaymentsAndEscrowState(variables);
