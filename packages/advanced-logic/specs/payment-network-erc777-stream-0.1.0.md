@@ -3,7 +3,7 @@
 ## Description
 
 This extension allows payments to be made with streams of ERC777 Super tokens (cf. Superfluid Finance). Payments may include fees.
-This payment network inherits from the [ERC20 Fee Proxy Contract](./payment-network-erc20-proxy-contract-0.1.0.md) extension.
+This payment network inherits from the [ERC20 Fee Proxy Contract](./payment-network-erc20-fee-proxy-contract-0.1.0.md) extension.
 
 Many requests can be paid with the same stream, typically recurring requests of fixed amount paid continuously. A group of requests payable with the same stream are called a request series, they must all have the same currency. It is possible to pay one series of requests with many streams, but it is not the purpose.
 
