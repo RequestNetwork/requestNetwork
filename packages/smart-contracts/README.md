@@ -18,8 +18,12 @@ WEB3_PROVIDER_URL=...       # Mandatory to interact with live blockchains
 ETHERSCAN_API_KEY=...       # Only used to verify smart contracts code on live blockchains, even for other explorers, except:
 BSCSCAN_API_KEY=...         # ... for BSCScan
 POLYGONSCAN_API_KEY=...     # ... for PolygonScan
-FTMSCAN_API_KEY=...         # .j. for FTMScan
+FTMSCAN_API_KEY=...         # ... for FTMScan
+SNOWTRACE_API_KEY=...       # ... for Snowtrace
+ARBISCAN_API_KEY=...        # ... for Arbiscan
 ADMIN_WALLET_ADDRESS=...    # Mandatory to deploy contracts with admin tasks (e.g. ChainlinkConversionPath)
+DEPLOYER_MASTER_KEY=...     # Mandatory to deploy the request deployer smart contract
+REQUEST_DEPLOYER_LIVE=...   # Must be true to deploy contracts through the request deployer on live blockchains.
 ```
 
 ## Usage
@@ -126,6 +130,55 @@ Environment variables needed: `ADMIN_PRIVATE_KEY`
 ```bash
 yarn hardhat prepare-live-payments --network private
 ```
+
+### Deployment through request deployer
+
+The request deployer enables multichain deployment of several smart contract at predefined address.
+For now it is used to deploy:
+- `EthereumProxy`
+- `EthereumFeeProxy`
+
+Next versions of our contracts will also be deployed via the request deployer.
+The list of the smart contracts deployed through this scheme can be found [here]('./../scripts-create2/utils.ts')
+
+#### Deploy the request deployer
+
+Environment variables needed: `DEPLOYER_MASTER_KEY`
+
+```bash
+yarn hardhat deploy-deployer-contract --network <NETWORK>
+```
+To deploy on live chains set `REQUEST_DEPLOYER_LIVE` to true
+The resulting contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2` (live chains)
+
+#### Compute the contract addresses
+
+Run: 
+
+```bash
+yarn hardhat compute-contract-addresses
+```
+It will compute the addresses of the contract to be deployed via the request deployer. 
+
+#### Deploy the contracts
+
+Depending on the xdeployer config, this script will deploy the smart contracts on several chain simultaneously
+Environment variables needed: `ADMIN_PRIVATE_KEY`
+You will need the request deployer to be deployed.
+Then run: 
+
+```bash
+yarn hardhat deploy-contract-through-deployer
+```
+
+#### Verify the contracts
+
+For each network the contract were deployed to run:
+
+```bash
+yarn hardhat verify-contract-from-deployer --network <NETWORK>
+```
+The associated `EXPLORER_API_KEY` is mandatory.
 
 ### Tests
 
