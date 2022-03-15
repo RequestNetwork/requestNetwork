@@ -35,13 +35,11 @@ import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { providers } from 'ethers';
 
-const requestHashStorageMainnetAddress = SmartContracts.requestHashStorageArtifact.getAddress(
-  'mainnet',
-);
+const requestHashStorageMainnetAddress =
+  SmartContracts.requestHashStorageArtifact.getAddress('mainnet');
 
-const requestHashSubmitterRinkebyAddress = SmartContracts.requestHashSubmitterArtifact.getAddress(
-  'rinkeby',
-);
+const requestHashSubmitterRinkebyAddress =
+  SmartContracts.requestHashSubmitterArtifact.getAddress('rinkeby');
 
 const requestHashStorageABI = SmartContracts.requestHashStorageArtifact.getContractAbi();
 
@@ -135,6 +133,7 @@ yarn hardhat prepare-live-payments --network private
 
 The request deployer enables multichain deployment of several smart contract at predefined address.
 For now it is used to deploy:
+
 - `EthereumProxy`
 - `EthereumFeeProxy`
 
@@ -148,24 +147,26 @@ Environment variables needed: `DEPLOYER_MASTER_KEY`
 ```bash
 yarn hardhat deploy-deployer-contract --network <NETWORK>
 ```
+
 To deploy on live chains set `REQUEST_DEPLOYER_LIVE` to true
 The resulting contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2` (live chains)
 
 #### Compute the contract addresses
 
-Run: 
+Run:
 
 ```bash
 yarn hardhat compute-contract-addresses
 ```
-It will compute the addresses of the contract to be deployed via the request deployer. 
+
+It will compute the addresses of the contract to be deployed via the request deployer.
 
 #### Deploy the contracts
 
 Depending on the xdeployer config, this script will deploy the smart contracts on several chain simultaneously
 Environment variables needed: `ADMIN_PRIVATE_KEY`
 You will need the request deployer to be deployed.
-Then run: 
+Then run:
 
 ```bash
 yarn hardhat deploy-contract-through-deployer
@@ -178,6 +179,7 @@ For each network the contract were deployed to run:
 ```bash
 yarn hardhat verify-contract-from-deployer --network <NETWORK>
 ```
+
 The associated `EXPLORER_API_KEY` is mandatory.
 
 ### Tests
