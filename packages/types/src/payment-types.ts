@@ -65,6 +65,7 @@ export interface IBalanceWithEvents<TEventParameters = any> {
   balance: string | null;
   events: Array<IPaymentNetworkEvent<TEventParameters>>;
   error?: IBalanceError;
+  escrowEvents?: Array<EscrowNetworkEvent>;
 }
 
 /** Interface for error encounter when getting the balance */
@@ -77,12 +78,15 @@ export interface IBalanceError {
 export enum EVENTS_NAMES {
   PAYMENT = 'payment',
   REFUND = 'refund',
+  ESCROW = 'escrow',
 }
 
 export enum ESCROW_EVENTS_NAMES {
-  FROZEN_PAYMENT = 'frozenPayment',
-  INITIATED_EMERGENCY_CLAIM = 'initiatedEmergencyClaim',
-  REVERTED_EMERGENCY_CLAIM = 'revertedEmergencyClaim',
+  PAID_ESCROW = 'paidEscrow',
+  PAID_ISSUER = 'paidIssuer',
+  INITIATE_EMERGENCY_CLAIM = 'initiateEmergencyClaim',
+  REVERT_EMERGENCY_CLAIM = 'revertEmergencyClaim',
+  FREEZE_ESCROW = 'freezeEscrow',
 }
 
 /** Balance error codes */
@@ -121,16 +125,32 @@ export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePa
 /** Declarative BalanceWithEvents */
 export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;
 
+/** Generic info retriever interface without transfers */
+export interface IPaymentNetworkBaseInfoRetriever<
+  TPaymentNetworkEvent extends IPaymentNetworkBaseEvent<TEventNames>,
+  TEventNames = EVENTS_NAMES
+> {
+  getAllContractEvents(): Promise<TPaymentNetworkEvent[]>;
+}
 /**
  * ERC20 networks and events
  */
 
 /** Parameters for events of ERC20 payments */
-export interface IERC20PaymentEventParameters {
-  from?: string;
-  to: string;
+export interface GenericEventParameters {
   block?: number;
   txHash?: string;
+}
+
+export interface EscrowEventParameters extends GenericEventParameters {
+  from?: string;
+  to?: string;
+}
+
+/** Parameters for events of ERC20 payments */
+export interface IERC20PaymentEventParameters extends GenericEventParameters {
+  from?: string;
+  to: string;
 }
 
 /** Parameters for events of ERC20 payments with fees */
@@ -146,6 +166,7 @@ export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParam
 export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
   IERC20PaymentEventParameters | IERC20FeePaymentEventParameters
 >;
+
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
 
@@ -209,3 +230,54 @@ export interface IBTCPaymentEventParameters {
 export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<IBTCPaymentEventParameters>;
 /** BTC BalanceWithEvents */
 export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters>;
+
+/** Parameters for escrow events from EscrowERC20 contract state changes */
+export interface IEscrowEventParameters {
+  block: number;
+  txHash: string;
+  from?: string;
+  to?: string;
+  eventName: string;
+}
+/** Escrow events that change the state of the Escrow */
+export type EscrowEvents = IEscrowEventParameters;
+
+export enum ESCROW_STATE {
+  PAID_ESCROW = 'paidEscrow',
+  IN_FROZEN = 'frozen',
+  IN_EMERGENCY = 'emergency',
+  PAID_ISSUER = 'paidIssuer',
+}
+
+/** Parameters that describe the current escrow state */
+export interface IEscrowParameters {
+  creationBlock: number;
+  creationTimestamp: number;
+  escrowState: string;
+  tokenAddress: string;
+  amount: string;
+  from: string;
+  to: string;
+  feeAmount: string;
+  feeAddress: string;
+}
+/** Represents the current state of an escrow instance */
+export type EscrowData = IEscrowParameters;
+
+/** escrow payment network event */
+export interface IPaymentNetworkEscrowEvent<TEventParameters, TEventNames = EVENTS_NAMES>
+  extends IPaymentNetworkBaseEvent<TEventNames> {
+  parameters?: TEventParameters;
+}
+
+export type EscrowNetworkEvent = IPaymentNetworkEscrowEvent<IEscrowEventParameters, EVENTS_NAMES>;
+
+export type AllNetworkEvents<TMyEventParameters> = {
+  paymentEvents: IPaymentNetworkEvent<TMyEventParameters>[];
+  escrowEvents?: EscrowNetworkEvent[];
+};
+
+export type AllNetworkRetrieverEvents<TPaymentNetworkEventType> = {
+  paymentEvents: TPaymentNetworkEventType[];
+  escrowEvents?: EscrowNetworkEvent[];
+};

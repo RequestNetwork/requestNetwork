@@ -86,9 +86,11 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToErc20.ICreationParameters>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+      };
     }
     const { acceptedTokens, maxRateTimespan = 0 } = paymentNetwork.values;
 
@@ -125,9 +127,10 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
           maxRateTimespan,
         );
 
-    return infoRetriever.getTransferEvents() as Promise<
-      PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]
-    >;
+    const paymentEvents = (await infoRetriever.getTransferEvents()) as PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[];
+    return {
+      paymentEvents,
+    };
   }
 
   protected getPaymentChain(request: RequestLogicTypes.IRequest): string {

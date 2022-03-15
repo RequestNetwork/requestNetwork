@@ -20,6 +20,8 @@ describe('api/erc20/thegraph-info-retriever', () => {
         amount: '30000000000000',
         requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
         block: 9606098,
+        feeAddress: '0x5000EE9FB9c96A2A09D8efB695aC21D6C429fF11',
+        feeAmount: '0',
       };
       const paymentReference = PaymentReferenceCalculator.calculate(
         paymentData.requestId,
@@ -37,13 +39,16 @@ describe('api/erc20/thegraph-info-retriever', () => {
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         paymentData.network,
       );
-      const transferEvents = await graphRetriever.getTransferEvents();
+      const allNetworkEvents = await graphRetriever.getTransferEvents();
+      const transferEvents = allNetworkEvents.paymentEvents;
       expect(transferEvents).toHaveLength(1);
       expect(transferEvents[0].amount).toEqual('30000000000000');
       expect(transferEvents[0].name).toEqual('payment');
       expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);
       expect(transferEvents[0].parameters?.txHash).toEqual(paymentData.txHash);
       expect(transferEvents[0].parameters?.block).toEqual(paymentData.block);
+      expect(transferEvents[0].parameters?.feeAddress).toEqual(paymentData.feeAddress);
+      expect(transferEvents[0].parameters?.feeAmount).toEqual(paymentData.feeAmount);
     });
 
     it('should get payment event from ethFeeConversionProxy via subgraph', async () => {
@@ -75,7 +80,8 @@ describe('api/erc20/thegraph-info-retriever', () => {
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         paymentData.network,
       );
-      const transferEvents = await graphRetriever.getTransferEvents();
+      const allNetworkEvents = await graphRetriever.getTransferEvents();
+      const transferEvents = allNetworkEvents.paymentEvents;
       expect(transferEvents).toHaveLength(1);
       expect(transferEvents[0].amount).toEqual(paymentData.amount);
       expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);

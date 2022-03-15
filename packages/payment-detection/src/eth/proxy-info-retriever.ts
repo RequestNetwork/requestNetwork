@@ -117,7 +117,6 @@ export class EthProxyInfoRetriever
         },
         timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
       }));
-
-    return Promise.all(eventPromises);
+    return await Promise.all(eventPromises);
   }
 }

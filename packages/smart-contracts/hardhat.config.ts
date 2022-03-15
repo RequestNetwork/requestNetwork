@@ -94,6 +94,11 @@ export default {
       chainId: 421611,
       accounts,
     },
+    avalanche: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://api.avax.network/ext/bc/C/rpc',
+      chainId: 43114,
+      accounts,
+    },
   },
   etherscan: {
     // Can be overridden according to the network (set-explorer-api-key)
@@ -128,6 +133,10 @@ const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
     }
     case 'arbitrum-one': {
       hre.config.etherscan.apiKey = process.env.ARBISCAN_API_KEY;
+      return;
+    }
+    case 'avalanche': {
+      hre.config.etherscan.apiKey = process.env.SNOWTRACE_API_KEY;
       return;
     }
   }

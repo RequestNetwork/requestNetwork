@@ -197,7 +197,9 @@ export class DeclarativePaymentDetector extends DeclarativePaymentDetectorBase<
 
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IDeclarativePaymentEventParameters>[]> {
-    return this.getDeclarativeEvents(request);
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IDeclarativePaymentEventParameters>> {
+    return {
+      paymentEvents: this.getDeclarativeEvents(request),
+    };
   }
 }
