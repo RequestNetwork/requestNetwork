@@ -46,14 +46,12 @@
     "lint": "yarn run lint:lib && yarn run lint:sol",
     "lint:check": "yarn run lint:lib:check && yarn run lint:sol:check",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
-    "deploy-deployer": "yarn hardhat deploy-deployer --network private",
     "deploy-contracts": "yarn hardhat deploy-all",
     "test": "yarn hardhat test --network private",
     "test:lib": "yarn jest test/lib"
   },
   "dependencies": {
-    "tslib": "2.3.1",
-    "xdeployer": "^1.1.6"
+    "tslib": "2.3.1"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.0.2",
@@ -77,6 +75,7 @@
     "hardhat": "2.9.1",
     "shx": "0.3.2",
     "solhint": "3.3.6",
-    "typechain": "5.1.1"
+    "typechain": "5.1.1",
+    "@requestnetwork/xdeployer": "https://github.com/requestnetwork/xdeployer"
   }
 }
