@@ -11,8 +11,6 @@ import { preparePayments } from './scripts/prepare-payments';
 import deployBatchPayments from './scripts/deploy-batch-payments';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
-import 'hardhat-gas-reporter';
-
 config();
 
 const accounts = process.env.DEPLOYMENT_PRIVATE_KEY
@@ -45,9 +43,7 @@ export default {
     rinkeby: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.infura.io/v3/YOUR_API_KEY',
       chainId: 4,
-      accounts: {
-        mnemonic: 'anger capable gym couch mystery notice devote cheap corn crew canoe theme',
-      },
+      accounts,
     },
     matic: {
       url: process.env.WEB3_PROVIDER_URL || 'https://polygon-rpc.com',

@@ -85,40 +85,6 @@ describe('contract: ERC20FeeProxy', () => {
     expect(feeNewBalance.toString()).to.equals(feeOldBalance.add(2).toString());
   });
 
-  it('GAS EVALUATION XX txs: transfers tokens for payment and fees', async function () {
-    await testERC20.approve(erc20FeeProxy.address, '1102', { from });
-
-    const fromOldBalance = await testERC20.balanceOf(from);
-    const toOldBalance = await testERC20.balanceOf(to);
-    const feeOldBalance = await testERC20.balanceOf(feeAddress);
-
-    let nbTxs = 30;
-    let amount = 2;
-    let feeAmount = 1;
-
-    for (let i = 0; i < nbTxs; i++) {
-      await erc20FeeProxy.transferFromWithReferenceAndFee(
-        testERC20.address,
-        to,
-        amount,
-        referenceExample,
-        feeAmount,
-        feeAddress,
-      );
-    }
-
-    const fromNewBalance = await testERC20.balanceOf(from);
-    const toNewBalance = await testERC20.balanceOf(to);
-    const feeNewBalance = await testERC20.balanceOf(feeAddress);
-
-    // Check balance changes
-    expect(fromNewBalance.toString()).to.equals(
-      fromOldBalance.sub((amount + feeAmount) * nbTxs).toString(),
-    );
-    expect(toNewBalance.toString()).to.equals(toOldBalance.add(amount * nbTxs).toString());
-    expect(feeNewBalance.toString()).to.equals(feeOldBalance.add(feeAmount * nbTxs).toString());
-  });
-
   it('should revert if no allowance', async function () {
     const fromOldBalance = await testERC20.balanceOf(from);
     const toOldBalance = await testERC20.balanceOf(to);

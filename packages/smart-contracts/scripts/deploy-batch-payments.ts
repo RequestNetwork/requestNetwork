@@ -11,18 +11,14 @@ async function deployPayment(args: any, hre: HardhatRuntimeEnvironment): Promise
       `Deploying with the account: ${deployer.address} on the network ${hre.network.name} (${hre.network.config.chainId})`,
     );
 
-    // Deploy BatchErc20PaymentRequestsOptim contract
-    const { address: BatchErc20PaymentsOptimAddress } = await deployOne(
-      args,
-      hre,
-      'BatchErc20PaymentsOptim',
-    );
-    console.log('BatchErc20PaymentsOptim Contract deployed: ' + BatchErc20PaymentsOptimAddress);
+    // Deploy BatchPayment contract
+    const { address: BatchPaymentsAddress } = await deployOne(args, hre, 'BatchPayments');
+    console.log('BatchPayments Contract deployed: ' + BatchPaymentsAddress);
 
     // ----------------------------------
     console.log('Contracts deployed');
     console.log(`
-      BatchErc20PaymentsOptimAddress: ${BatchErc20PaymentsOptimAddress}
+      BatchPaymentsAddress: ${BatchPaymentsAddress}
     `);
     return {};
   } catch (e) {
