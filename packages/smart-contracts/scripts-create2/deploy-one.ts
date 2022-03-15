@@ -34,7 +34,6 @@ export const deployOneWithCreate2 = async (
           console.log(`         On network:        ${hre.config.xdeploy.networks[i]}`);
           console.log(`         Error:             ${deploymentResult[i].error.reason}`);
           console.log(`         Hint:              Check that your artefacts are up to date`);
-          console.log(deploymentResult[i].error);
         }
       }
     }
