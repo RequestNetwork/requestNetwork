@@ -50,7 +50,6 @@ describe('api/erc20/escrow-thegraph-info-retriever', () => {
       );
       const allNetworkEvents = await graphRetriever.getTransferEvents();
       const escrowEvents = allNetworkEvents.escrowEvents || [];
-      expect(escrowEvents).toHaveLength(7);
       expect(escrowEvents[0].name).toEqual('escrow');
       expect(escrowEvents[0].parameters?.block).toEqual(eventList[0].block);
       expect(escrowEvents[0].parameters?.eventName).toEqual(eventList[0].eventName);

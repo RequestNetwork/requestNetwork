@@ -81,10 +81,10 @@ export class EscrowERC20InfoRetriever
       PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW,
     );
     const initEmergencyEvents = await this.getContractEventsForEventName(
-      PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM,
+      PaymentTypes.ESCROW_EVENTS_NAMES.INITIATE_EMERGENCY_CLAIM,
     );
     const revertEmergencyEvents = await this.getContractEventsForEventName(
-      PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM,
+      PaymentTypes.ESCROW_EVENTS_NAMES.REVERT_EMERGENCY_CLAIM,
     );
 
     return [...freezeEvents, ...initEmergencyEvents, ...revertEmergencyEvents];
@@ -117,9 +117,9 @@ export class EscrowERC20InfoRetriever
       eventName === PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW
         ? // Create a filter to find all the RequestFrozen logs with the payment reference
           this.contractEscrow.filters.RequestFrozen('0x' + this.paymentReference)
-        : eventName === PaymentTypes.ESCROW_EVENTS_NAMES.INITIATED_EMERGENCY_CLAIM
+        : eventName === PaymentTypes.ESCROW_EVENTS_NAMES.INITIATE_EMERGENCY_CLAIM
         ? this.contractEscrow.filters.InitiatedEmergencyClaim('0x' + this.paymentReference)
-        : eventName === PaymentTypes.ESCROW_EVENTS_NAMES.REVERTED_EMERGENCY_CLAIM
+        : eventName === PaymentTypes.ESCROW_EVENTS_NAMES.REVERT_EMERGENCY_CLAIM
         ? this.contractEscrow.filters.RevertedEmergencyClaim('0x' + this.paymentReference)
         : eventName === PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ESCROW
         ? this.contractEscrow.filters.TransferWithReferenceAndFee(
