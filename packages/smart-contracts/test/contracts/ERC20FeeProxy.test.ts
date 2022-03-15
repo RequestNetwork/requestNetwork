@@ -2,11 +2,11 @@ import { ethers } from 'hardhat';
 import {
   ERC20FeeProxy__factory,
   ERC20FeeProxy,
-  // BadERC20__factory,
-  // ERC20True__factory,
-  // ERC20NoReturn__factory,
-  // ERC20Revert__factory,
-  // ERC20False__factory,
+  BadERC20__factory,
+  ERC20True__factory,
+  ERC20NoReturn__factory,
+  ERC20Revert__factory,
+  ERC20False__factory,
   TestERC20__factory,
 } from '../../types';
 import { Contract, Signer } from 'ethers';
@@ -119,201 +119,201 @@ describe('contract: ERC20FeeProxy', () => {
     expect(feeNewBalance.toString()).to.equals(feeOldBalance.add(feeAmount * nbTxs).toString());
   });
 
-  // it('should revert if no allowance', async function () {
-  //   const fromOldBalance = await testERC20.balanceOf(from);
-  //   const toOldBalance = await testERC20.balanceOf(to);
-  //   const feeOldBalance = await testERC20.balanceOf(feeAddress);
+  it('should revert if no allowance', async function () {
+    const fromOldBalance = await testERC20.balanceOf(from);
+    const toOldBalance = await testERC20.balanceOf(to);
+    const feeOldBalance = await testERC20.balanceOf(feeAddress);
 
-  //   await expect(
-  //     erc20FeeProxy.transferFromWithReferenceAndFee(
-  //       testERC20.address,
-  //       to,
-  //       '100',
-  //       referenceExample,
-  //       '2',
-  //       feeAddress,
-  //     ),
-  //   ).to.be.revertedWith('revert');
+    await expect(
+      erc20FeeProxy.transferFromWithReferenceAndFee(
+        testERC20.address,
+        to,
+        '100',
+        referenceExample,
+        '2',
+        feeAddress,
+      ),
+    ).to.be.revertedWith('revert');
 
-  //   const fromNewBalance = await testERC20.balanceOf(from);
-  //   const toNewBalance = await testERC20.balanceOf(to);
-  //   const feeNewBalance = await testERC20.balanceOf(feeAddress);
+    const fromNewBalance = await testERC20.balanceOf(from);
+    const toNewBalance = await testERC20.balanceOf(to);
+    const feeNewBalance = await testERC20.balanceOf(feeAddress);
 
-  //   // Check balance changes
-  //   expect(fromNewBalance.toString()).to.equals(fromOldBalance.toString(), 'Payer balance changed');
-  //   expect(toNewBalance.toString()).to.equals(toOldBalance.toString(), 'Issuer balance changed');
-  //   expect(feeNewBalance.toString()).to.equals(
-  //     feeOldBalance.toString(),
-  //     'Fee account balance changed',
-  //   );
-  // });
+    // Check balance changes
+    expect(fromNewBalance.toString()).to.equals(fromOldBalance.toString(), 'Payer balance changed');
+    expect(toNewBalance.toString()).to.equals(toOldBalance.toString(), 'Issuer balance changed');
+    expect(feeNewBalance.toString()).to.equals(
+      feeOldBalance.toString(),
+      'Fee account balance changed',
+    );
+  });
 
-  // it('should revert if error', async function () {
-  //   await testERC20.approve(erc20FeeProxy.address, '102', { from });
+  it('should revert if error', async function () {
+    await testERC20.approve(erc20FeeProxy.address, '102', { from });
 
-  //   const fromOldBalance = await testERC20.balanceOf(from);
-  //   const toOldBalance = await testERC20.balanceOf(to);
-  //   const feeOldBalance = await testERC20.balanceOf(feeAddress);
+    const fromOldBalance = await testERC20.balanceOf(from);
+    const toOldBalance = await testERC20.balanceOf(to);
+    const feeOldBalance = await testERC20.balanceOf(feeAddress);
 
-  //   await expect(
-  //     erc20FeeProxy.transferFromWithReferenceAndFee(
-  //       testERC20.address,
-  //       to,
-  //       '100',
-  //       referenceExample,
-  //       '-10',
-  //       feeAddress,
-  //       {
-  //         from,
-  //       },
-  //     ),
-  //   ).to.be.reverted; // Revert from invalid argument
+    await expect(
+      erc20FeeProxy.transferFromWithReferenceAndFee(
+        testERC20.address,
+        to,
+        '100',
+        referenceExample,
+        '-10',
+        feeAddress,
+        {
+          from,
+        },
+      ),
+    ).to.be.reverted; // Revert from invalid argument
 
-  //   const fromNewBalance = await testERC20.balanceOf(from);
-  //   const toNewBalance = await testERC20.balanceOf(to);
-  //   const feeNewBalance = await testERC20.balanceOf(feeAddress);
+    const fromNewBalance = await testERC20.balanceOf(from);
+    const toNewBalance = await testERC20.balanceOf(to);
+    const feeNewBalance = await testERC20.balanceOf(feeAddress);
 
-  //   // Check balance changes
-  //   expect(fromNewBalance.toString()).to.equals(fromOldBalance.toString());
-  //   expect(toNewBalance.toString()).to.equals(toOldBalance.toString());
-  //   expect(feeNewBalance.toString()).to.equals(feeOldBalance.toString());
-  // });
+    // Check balance changes
+    expect(fromNewBalance.toString()).to.equals(fromOldBalance.toString());
+    expect(toNewBalance.toString()).to.equals(toOldBalance.toString());
+    expect(feeNewBalance.toString()).to.equals(feeOldBalance.toString());
+  });
 
-  // it('should revert if no fund', async function () {
-  //   await testERC20.approve(erc20FeeProxy.address, '10000', { from });
-  //   await expect(
-  //     erc20FeeProxy.transferFromWithReferenceAndFee(
-  //       testERC20.address,
-  //       to,
-  //       '10000',
-  //       referenceExample,
-  //       '0',
-  //       feeAddress,
-  //     ),
-  //   ).to.be.reverted; // No explicit message from contract
-  // });
+  it('should revert if no fund', async function () {
+    await testERC20.approve(erc20FeeProxy.address, '10000', { from });
+    await expect(
+      erc20FeeProxy.transferFromWithReferenceAndFee(
+        testERC20.address,
+        to,
+        '10000',
+        referenceExample,
+        '0',
+        feeAddress,
+      ),
+    ).to.be.reverted; // No explicit message from contract
+  });
 
-  // it('no fee transfer if amount is 0', async function () {
-  //   await testERC20.approve(erc20FeeProxy.address, '100');
-  //   const fromOldBalance = await testERC20.balanceOf(from);
-  //   const toOldBalance = await testERC20.balanceOf(to);
-  //   const feeOldBalance = await testERC20.balanceOf(feeAddress);
+  it('no fee transfer if amount is 0', async function () {
+    await testERC20.approve(erc20FeeProxy.address, '100');
+    const fromOldBalance = await testERC20.balanceOf(from);
+    const toOldBalance = await testERC20.balanceOf(to);
+    const feeOldBalance = await testERC20.balanceOf(feeAddress);
 
-  //   await expect(
-  //     erc20FeeProxy.transferFromWithReferenceAndFee(
-  //       testERC20.address,
-  //       to,
-  //       '100',
-  //       referenceExample,
-  //       '0',
-  //       feeAddress,
-  //       {
-  //         from,
-  //       },
-  //     ),
-  //   )
-  //     // transferReference indexes the event log, therefore the keccak256 is stored
-  //     .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
-  //     .withArgs(
-  //       testERC20.address,
-  //       to,
-  //       '100',
-  //       ethers.utils.keccak256(referenceExample),
-  //       '0',
-  //       feeAddress,
-  //     );
+    await expect(
+      erc20FeeProxy.transferFromWithReferenceAndFee(
+        testERC20.address,
+        to,
+        '100',
+        referenceExample,
+        '0',
+        feeAddress,
+        {
+          from,
+        },
+      ),
+    )
+      // transferReference indexes the event log, therefore the keccak256 is stored
+      .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+      .withArgs(
+        testERC20.address,
+        to,
+        '100',
+        ethers.utils.keccak256(referenceExample),
+        '0',
+        feeAddress,
+      );
 
-  //   const fromNewBalance = await testERC20.balanceOf(from);
-  //   const toNewBalance = await testERC20.balanceOf(to);
-  //   const feeNewBalance = await testERC20.balanceOf(feeAddress);
+    const fromNewBalance = await testERC20.balanceOf(from);
+    const toNewBalance = await testERC20.balanceOf(to);
+    const feeNewBalance = await testERC20.balanceOf(feeAddress);
 
-  //   // Check balance changes
-  //   expect(fromNewBalance.toString()).to.equals(fromOldBalance.sub(100).toString());
-  //   expect(toNewBalance.toString()).to.equals(toOldBalance.add(100).toString());
-  //   expect(feeNewBalance.toString()).to.equals(feeOldBalance.toString());
-  // });
+    // Check balance changes
+    expect(fromNewBalance.toString()).to.equals(fromOldBalance.sub(100).toString());
+    expect(toNewBalance.toString()).to.equals(toOldBalance.add(100).toString());
+    expect(feeNewBalance.toString()).to.equals(feeOldBalance.toString());
+  });
 
-  // it('transfers tokens for payment and fees on BadERC20', async function () {
-  //   const badERC20Factory = new BadERC20__factory(signer);
-  //   const badERC20 = await badERC20Factory.deploy(1000, 'BadERC20', 'BAD', 8);
-  //   await badERC20.approve(erc20FeeProxy.address, '102', { from });
+  it('transfers tokens for payment and fees on BadERC20', async function () {
+    const badERC20Factory = new BadERC20__factory(signer);
+    const badERC20 = await badERC20Factory.deploy(1000, 'BadERC20', 'BAD', 8);
+    await badERC20.approve(erc20FeeProxy.address, '102', { from });
 
-  //   const fromOldBalance = await badERC20.balanceOf(from);
-  //   const toOldBalance = await badERC20.balanceOf(to);
-  //   const feeOldBalance = await badERC20.balanceOf(feeAddress);
+    const fromOldBalance = await badERC20.balanceOf(from);
+    const toOldBalance = await badERC20.balanceOf(to);
+    const feeOldBalance = await badERC20.balanceOf(feeAddress);
 
-  //   await erc20FeeProxy.transferFromWithReferenceAndFee(
-  //     badERC20.address,
-  //     to,
-  //     '100',
-  //     referenceExample,
-  //     '2',
-  //     feeAddress,
-  //     {
-  //       from,
-  //     },
-  //   );
+    await erc20FeeProxy.transferFromWithReferenceAndFee(
+      badERC20.address,
+      to,
+      '100',
+      referenceExample,
+      '2',
+      feeAddress,
+      {
+        from,
+      },
+    );
 
-  //   const fromNewBalance = await badERC20.balanceOf(from);
-  //   const toNewBalance = await badERC20.balanceOf(to);
-  //   const feeNewBalance = await badERC20.balanceOf(feeAddress);
+    const fromNewBalance = await badERC20.balanceOf(from);
+    const toNewBalance = await badERC20.balanceOf(to);
+    const feeNewBalance = await badERC20.balanceOf(feeAddress);
 
-  //   // Check balance changes
-  //   expect(fromNewBalance.toString()).to.equals(fromOldBalance.sub(102).toString());
-  //   expect(toNewBalance.toString()).to.equals(toOldBalance.add(100).toString());
-  //   expect(feeNewBalance.toString()).to.equals(feeOldBalance.add(2).toString());
-  // });
+    // Check balance changes
+    expect(fromNewBalance.toString()).to.equals(fromOldBalance.sub(102).toString());
+    expect(toNewBalance.toString()).to.equals(toOldBalance.add(100).toString());
+    expect(feeNewBalance.toString()).to.equals(feeOldBalance.add(2).toString());
+  });
 
-  // it('transfers tokens for payment and fees on a variety of ERC20 contract formats', async function () {
-  //   const ERC20TrueFactory = new ERC20True__factory(signer);
-  //   const ERC20NoReturnFactory = new ERC20NoReturn__factory(signer);
-  //   const ERC20FalseFactory = new ERC20False__factory(signer);
-  //   const ERC20RevertFactory = new ERC20Revert__factory(signer);
-  //   const passContracts = [await ERC20TrueFactory.deploy(), await ERC20NoReturnFactory.deploy()];
-  //   const failContracts = [await ERC20FalseFactory.deploy(), await ERC20RevertFactory.deploy()];
+  it('transfers tokens for payment and fees on a variety of ERC20 contract formats', async function () {
+    const ERC20TrueFactory = new ERC20True__factory(signer);
+    const ERC20NoReturnFactory = new ERC20NoReturn__factory(signer);
+    const ERC20FalseFactory = new ERC20False__factory(signer);
+    const ERC20RevertFactory = new ERC20Revert__factory(signer);
+    const passContracts = [await ERC20TrueFactory.deploy(), await ERC20NoReturnFactory.deploy()];
+    const failContracts = [await ERC20FalseFactory.deploy(), await ERC20RevertFactory.deploy()];
 
-  //   for (let tokenContract of passContracts) {
-  //     await expect(
-  //       erc20FeeProxy.transferFromWithReferenceAndFee(
-  //         tokenContract.address,
-  //         to,
-  //         '100',
-  //         referenceExample,
-  //         '2',
-  //         feeAddress,
-  //       ),
-  //     )
-  //       .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
-  //       .withArgs(
-  //         tokenContract.address,
-  //         to,
-  //         '100',
-  //         ethers.utils.keccak256(referenceExample),
-  //         '2',
-  //         feeAddress,
-  //       );
-  //   }
+    for (let tokenContract of passContracts) {
+      await expect(
+        erc20FeeProxy.transferFromWithReferenceAndFee(
+          tokenContract.address,
+          to,
+          '100',
+          referenceExample,
+          '2',
+          feeAddress,
+        ),
+      )
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+        .withArgs(
+          tokenContract.address,
+          to,
+          '100',
+          ethers.utils.keccak256(referenceExample),
+          '2',
+          feeAddress,
+        );
+    }
 
-  //   await expect(
-  //     erc20FeeProxy.transferFromWithReferenceAndFee(
-  //       failContracts[0].address,
-  //       to,
-  //       '100',
-  //       referenceExample,
-  //       '2',
-  //       feeAddress,
-  //     ),
-  //   ).to.be.revertedWith('payment transferFrom() failed');
+    await expect(
+      erc20FeeProxy.transferFromWithReferenceAndFee(
+        failContracts[0].address,
+        to,
+        '100',
+        referenceExample,
+        '2',
+        feeAddress,
+      ),
+    ).to.be.revertedWith('payment transferFrom() failed');
 
-  //   await expect(
-  //     erc20FeeProxy.transferFromWithReferenceAndFee(
-  //       failContracts[1].address,
-  //       to,
-  //       '100',
-  //       referenceExample,
-  //       '2',
-  //       feeAddress,
-  //     ),
-  //   ).to.be.revertedWith('revert');
-  // });
+    await expect(
+      erc20FeeProxy.transferFromWithReferenceAndFee(
+        failContracts[1].address,
+        to,
+        '100',
+        referenceExample,
+        '2',
+        feeAddress,
+      ),
+    ).to.be.revertedWith('revert');
+  });
 });

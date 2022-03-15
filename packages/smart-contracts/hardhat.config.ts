@@ -45,7 +45,6 @@ export default {
     rinkeby: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.infura.io/v3/YOUR_API_KEY',
       chainId: 4,
-      gasPrice: 3 * 10 ** 9,
       accounts: {
         mnemonic: 'anger capable gym couch mystery notice devote cheap corn crew canoe theme',
       },
@@ -163,7 +162,6 @@ task(
 });
 
 task('deploy-batch-payments', 'Deploy on a live network').setAction(async (args, hre) => {
-  // args.force = true;
   args.force = true;
   await deployBatchPayments(args, hre);
   console.log('deployPayment contracts (re)deployed');

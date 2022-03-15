@@ -3,13 +3,12 @@ pragma solidity ^0.8.0;
 
 interface IERC20FeeProxy {
   event TransferWithReferenceAndFee(
-    address tokenAddress,
-    address to,
-    uint256 amount,
-    bytes indexed paymentReference,
-    uint256 feeAmount,
-    address feeAddress
-  );
+        address to,
+        uint256 amount,
+        bytes indexed paymentReference,
+        uint256 feeAmount,
+        address feeAddress
+    );
 
   function transferFromWithReferenceAndFee(
     address _tokenAddress,
