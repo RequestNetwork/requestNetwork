@@ -17,8 +17,8 @@ const options = [
         </p>
         <p>
           Go to{' '}
-          <Link to="https://invoicing.request.network/account/api-keys">
-            your Request Invoicing account
+          <Link to="https://app.request.finance/account/api-keys">
+            your Request Finance account
           </Link>{' '}
           in order to get your API keys, and your are good to go. This is the fastest option to
           integrate, and also the most performant to fetch requests because the Portal caches them
