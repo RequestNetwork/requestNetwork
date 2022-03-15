@@ -57,16 +57,12 @@ export default {
       accounts: undefined,
     },
     mainnet: {
-      url:
-        process.env.WEB3_PROVIDER_URL ||
-        'https://mainnet.infura.io/v3/9524d42a47cc4b8b86282744e20fc03b',
+      url: process.env.WEB3_PROVIDER_URL || 'https://mainnet.infura.io/v3/YOUR_API_KEY',
       chainId: 1,
       accounts,
     },
     rinkeby: {
-      url:
-        process.env.WEB3_PROVIDER_URL ||
-        'https://rinkeby.infura.io/v3/9524d42a47cc4b8b86282744e20fc03b',
+      url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.infura.io/v3/YOUR_API_KEY',
       chainId: 4,
       accounts,
     },
@@ -147,7 +143,7 @@ export default {
     salt: REQUEST_SALT,
     signer: process.env.ADMIN_PRIVATE_KEY,
     networks: ['mainnet'],
-    rpcUrls: ['https://mainnet.infura.io/v3/9524d42a47cc4b8b86282744e20fc03b'],
+    rpcUrls: ['https://mainnet.infura.io/v3/YOUR_API_KEY'],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
   },
