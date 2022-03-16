@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/ERC20FeeProxy.sol";
 import "./interfaces/EthereumFeeProxy.sol";
+import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 
 /**
  * @title BatchPayments
@@ -13,7 +14,7 @@ import "./interfaces/EthereumFeeProxy.sol";
  *          - regarding ERC20: on multiple tokens in a batch
  *          - to: multiple addresses
  */
-contract BatchPayments is Ownable {
+contract BatchPayments is Ownable, ReentrancyGuard {
     
     // Event to declare a transfer with a reference
     event TransferWithReferenceAndFee(
@@ -74,12 +75,12 @@ contract BatchPayments is Ownable {
         bytes[] calldata _paymentReferences,
         uint256[] calldata _feeAmounts,
         address _feeAddress 
-    ) external payable {
+    ) external payable nonReentrant {
         // EOA transfer token on the contract
         payable(address(this)).transfer(msg.value);
         uint256 toReturn = msg.value;
 
-        // Contract pay the batch payment
+        // Contract pays the batch payment
         for (uint256 i = 0; i < _recipients.length; i++) {
             toReturn -= (_amounts[i]+_feeAmounts[i]);
             paymentEthereumFeeProxy.transferWithReferenceAndFee{value: _amounts[i]+_feeAmounts[i]}(

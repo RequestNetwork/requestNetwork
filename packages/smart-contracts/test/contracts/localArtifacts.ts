@@ -7,7 +7,7 @@ export const localERC20AlphaArtifact = new ContractArtifact<ERC20Alpha>(
       abi: [],
       deployment: {
         private: {
-          address: '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35',
+          address: '0xB6F6B68637071d34B2B3cf291d8568bE32393182', //'0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35',
           creationBlockNumber: 0,
         },
       },
@@ -22,7 +22,7 @@ export const localUSDTArtifact = new ContractArtifact<ERC20Alpha>(
       abi: [],
       deployment: {
         private: {
-          address: '0xF328c11c4dF88d18FcBd30ad38d8B4714F4b33bF',
+          address: '0x06f293A873d886a5a3EEDF2969ea7D6f0a768F19', // '0xF328c11c4dF88d18FcBd30ad38d8B4714F4b33bF',
           creationBlockNumber: 0,
         },
       },
