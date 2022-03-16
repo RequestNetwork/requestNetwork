@@ -1,5 +1,6 @@
 import { CurrencyManager } from '@requestnetwork/currency';
-import { padAmountForChainlink, unpadAmountFromChainlink } from '../src';
+import { PaymentTypes } from '@requestnetwork/types';
+import { padAmountForChainlink, unpadAmountFromChainlink, calcEscrowState } from '../src';
 
 describe('conversion: padding amounts for Chainlink', () => {
   const currencyManager = CurrencyManager.getDefault();
@@ -43,5 +44,119 @@ describe('conversion: padding amounts for Chainlink', () => {
     const requestCurrency = currencyManager.fromSymbol('USDC')!;
     const twentyUsdc = '20000000';
     expect(padAmountForChainlink(twentyUsdc, requestCurrency).toString()).toBe(twentyUsdc);
+  });
+});
+
+describe('calcEscrowState', () => {
+  it('returns null if empty escrow events array', () => {
+    expect(calcEscrowState([])).toBeNull;
+  });
+  it('detects frozen escrow', () => {
+    const escrowEvents = [
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ESCROW,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+    ];
+    expect(calcEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.IN_FROZEN);
+  });
+  it('detects in emergency escrow', () => {
+    const escrowEvents = [
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ESCROW,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.INITIATE_EMERGENCY_CLAIM,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+    ];
+    expect(calcEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.IN_EMERGENCY);
+  });
+  it('detects in emergency then reverted to paidEscrow', () => {
+    const escrowEvents = [
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ESCROW,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.INITIATE_EMERGENCY_CLAIM,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.REVERT_EMERGENCY_CLAIM,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+    ];
+    expect(calcEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.PAID_ESCROW);
+  });
+  it('detects paid to issuer escrow', () => {
+    const escrowEvents = [
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ESCROW,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.INITIATE_EMERGENCY_CLAIM,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.REVERT_EMERGENCY_CLAIM,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+      {
+        name: PaymentTypes.EVENTS_NAMES.ESCROW,
+        parameters: {
+          eventName: PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ISSUER,
+          block: 123,
+          txHash: '0xabc',
+        },
+      },
+    ];
+    expect(calcEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.PAID_ISSUER);
   });
 });
