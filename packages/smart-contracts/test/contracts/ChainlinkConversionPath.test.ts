@@ -29,6 +29,20 @@ describe('contract: ChainlinkConversionPath', () => {
     DAI_address = localERC20AlphaArtifact.getAddress(network.name);
   });
 
+  after(async () => {
+    // reset tests
+    await conversionPathInstance.updateAggregator(
+      address1,
+      address2,
+      '0x0000000000000000000000000000000000000000',
+    );
+    await conversionPathInstance.updateAggregator(
+      address4,
+      address5,
+      '0x0000000000000000000000000000000000000000',
+    );
+  });
+
   describe('admin tasks', async () => {
     it('can updateAggregator and updateAggregatorsList', async () => {
       let addressAggregator = await conversionPathInstance.allAggregators(address1, address2);
