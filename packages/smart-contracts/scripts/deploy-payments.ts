@@ -18,8 +18,8 @@ import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { computeCreate2DeploymentAddress } from 'smart-contracts/scripts-create2/compute-one-address';
-import { HardhatRuntimeEnvironmentExtended } from 'smart-contracts/scripts-create2/utils';
+import { computeCreate2DeploymentAddress } from '../scripts-create2/compute-one-address';
+import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/utils';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.
@@ -148,15 +148,13 @@ export async function deployAllPaymentContracts(
       await jumpToNonce(args, hre, NONCE_BATCH_4);
 
       // Deploy ChainlinkConversionPath
-      const {
-        instance: chainlinkInstance,
-        address: chainlinkConversionPathAddress,
-      } = await runEasyDeployment({
-        contractName: 'ChainlinkConversionPath',
-        constructorArguments: [nativeTokenHash],
-        artifact: chainlinkConversionPathArtifact,
-        nonceCondition: NONCE_BATCH_4,
-      });
+      const { instance: chainlinkInstance, address: chainlinkConversionPathAddress } =
+        await runEasyDeployment({
+          contractName: 'ChainlinkConversionPath',
+          constructorArguments: [nativeTokenHash],
+          artifact: chainlinkConversionPathArtifact,
+          nonceCondition: NONCE_BATCH_4,
+        });
 
       // Deploy ETH Conversion
       const ethConversionResult = await deployETHConversionProxy(
