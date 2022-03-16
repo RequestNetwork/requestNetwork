@@ -11,7 +11,7 @@ import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
  * @title BatchPayments
  * @notice This contract pays multiple paymentrequests in one transaction:
  *          - on: ERC20, Ethereum
- *          - regarding ERC20: on multiple tokens in a batch
+ *              - regarding ERC20: on multiple tokens in a batch
  *          - to: multiple addresses
  */
 contract BatchPayments is Ownable, ReentrancyGuard {
@@ -42,25 +42,8 @@ contract BatchPayments is Ownable, ReentrancyGuard {
     receive() external payable {}
 
     /**
-     * @notice Send a batch of erc20 payments, to multiple accounts.
-     * @param _token The token to transact with.
-     * @param _recipients Takes a list of accounts.
-     * @param _amounts Takes a list of amounts, corresponding to recipients[].
-     * @dev Remember to give approval for this contract to spend user tokens.
-     */
-    function batchOrphanERC20Payments(
-        IERC20 _token, 
-        address[] calldata _recipients, 
-        uint256[] calldata _amounts
-    ) external {
-        for (uint256 i = 0; i < _recipients.length; i++)
-            _token.transferFrom(msg.sender, _recipients[i], _amounts[i]);
-    }
-
-    
-    /**
     * @notice Send a batch of Ethereum payments w/fees with paymentReferences to multiple accounts.
-    *         The sum of _amounts and _feeAMounts must be <= to msg.value.
+    *         The sum of _amounts and _feeAmounts must be <= to msg.value.
     *         If one payment failed, the whole batch is reverted
     * @param _recipients List of recipients accounts.
     * @param _amounts List of amounts, corresponding to recipients[].

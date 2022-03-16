@@ -11,7 +11,7 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0x36ED87AC93aD63f62e237018A22C80c09b030e7f',
+          address: '0xd54b47F8e6A1b97F3A84f63c867286272b273b7C',
           creationBlockNumber: 0,
         },
         mainnet: {
@@ -19,8 +19,8 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           creationBlockNumber: 12225751,
         },
         rinkeby: {
-          address: '0x78334ed20da456e89cd7e5a90de429d705f5bc88',
-          creationBlockNumber: 8014584,
+          address: '0xda46309973bFfDdD5a10cE12c44d2EE266f45A44',
+          creationBlockNumber: 7118080,
         },
         matic: {
           address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
@@ -68,7 +68,7 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
       abi: ABI_0_1_1,
       deployment: {
         private: {
-          address: '0x36ED87AC93aD63f62e237018A22C80c09b030e7f',
+          address: '0xd54b47F8e6A1b97F3A84f63c867286272b273b7C',
           creationBlockNumber: 0,
         },
       },

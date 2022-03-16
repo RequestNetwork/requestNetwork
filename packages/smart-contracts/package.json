@@ -47,7 +47,6 @@
     "lint:check": "yarn run lint:lib:check && yarn run lint:sol:check",
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "deploy": "yarn hardhat deploy-local-env --network private",
-    "deploy-batch-payments": "yarn hardhat deploy-batch-payments --network rinkeby",
     "test": "yarn hardhat test --network private",
     "test:lib": "yarn jest test/lib"
   },

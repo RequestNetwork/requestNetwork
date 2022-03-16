@@ -11,9 +11,9 @@ interface IEthereumFeeProxy {
   );
 
   function transferWithReferenceAndFee(
-        address payable _to,
-        bytes calldata _paymentReference,
-        uint256 _feeAmount,
-        address payable _feeAddress
+      address payable _to,
+      bytes calldata _paymentReference,
+      uint256 _feeAmount,
+      address payable _feeAddress
     ) external payable;
 }

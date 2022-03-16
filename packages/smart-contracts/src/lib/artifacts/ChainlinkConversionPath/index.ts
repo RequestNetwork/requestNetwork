@@ -11,7 +11,7 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0xc8c95BEDA54AFC0a6a39F8cD474aa8d0A6fbaBFE',
+          address: '0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a',
           creationBlockNumber: 0,
         },
         mainnet: {
@@ -56,7 +56,7 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
       abi: ABI_0_2_0,
       deployment: {
         private: {
-          address: '0xc8c95BEDA54AFC0a6a39F8cD474aa8d0A6fbaBFE',
+          address: '0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a',
           creationBlockNumber: 0,
         },
         rinkeby: {

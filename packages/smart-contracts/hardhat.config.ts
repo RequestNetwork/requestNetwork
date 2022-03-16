@@ -8,7 +8,6 @@ import { config } from 'dotenv';
 import deployAllContracts from './scripts/5_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
-import deployBatchPayments from './scripts/deploy-batch-payments';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 config();
@@ -164,10 +163,4 @@ task(
   'Run ERC20 approval transactions for Swap Conversion, with the second signer (FIXME with missing tasks).',
 ).setAction(async (_args, hre) => {
   await preparePayments(hre);
-});
-
-task('deploy-batch-payments', 'Deploy on a live network').setAction(async (args, hre) => {
-  args.force = true;
-  await deployBatchPayments(args, hre);
-  console.log('deployPayment contracts (re)deployed');
 });
