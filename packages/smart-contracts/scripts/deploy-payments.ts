@@ -1,12 +1,9 @@
 import '@nomiclabs/hardhat-ethers';
-import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import {
   chainlinkConversionPath as chainlinkConversionPathArtifact,
   ContractArtifact,
   erc20FeeProxyArtifact,
   erc20SwapToPayArtifact,
-  ethereumFeeProxyArtifact,
-  ethereumProxyArtifact,
 } from '../src/lib';
 import { deploySwapConversion } from './erc20-swap-to-conversion';
 import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversion-proxy';
@@ -21,6 +18,8 @@ import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { computeCreate2DeploymentAddress } from 'smart-contracts/scripts-create2/compute-one-address';
+import { HardhatRuntimeEnvironmentExtended } from 'smart-contracts/scripts-create2/utils';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.
@@ -38,7 +37,7 @@ import { RequestLogicTypes } from '@requestnetwork/types';
  */
 export async function deployAllPaymentContracts(
   args: any,
-  hre: HardhatRuntimeEnvironment,
+  hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<void> {
   const deploymentResults: (DeploymentResult | undefined)[] = [];
   let simulationSuccess: boolean | undefined;
@@ -286,11 +285,7 @@ export async function deployAllPaymentContracts(
     // #region MAIN - Deployments
 
     // Batch 1
-    await runEasyDeployment({
-      contractName: 'EthereumProxy',
-      artifact: ethereumProxyArtifact,
-      nonceCondition: 0,
-    });
+    await jumpToNonce(args, hre, 1);
     const { address: erc20FeeProxyAddress } = await runEasyDeployment({
       contractName: 'ERC20FeeProxy',
       artifact: erc20FeeProxyArtifact,
@@ -301,7 +296,6 @@ export async function deployAllPaymentContracts(
     await runDeploymentBatch_2(erc20FeeProxyAddress);
 
     // Batch 3
-    const NONCE_BATCH_3 = 6;
 
     // SwapToConversion
     let swapRouterAddress = uniswapV2RouterAddresses[hre.network.name];
@@ -326,12 +320,11 @@ export async function deployAllPaymentContracts(
     );
     addToResult(swapConversionResult);
 
-    // EthereumFeeProxy
-    const { address: ethFeeProxyAddress } = await runEasyDeployment({
-      contractName: 'EthereumFeeProxy',
-      artifact: ethereumFeeProxyArtifact,
-      nonceCondition: NONCE_BATCH_3 + 1,
-    });
+    // Compute EthereumFeeProxy address (CREATE2)
+    const ethFeeProxyAddress = await computeCreate2DeploymentAddress(
+      { contract: 'EthereumFeeProxy' },
+      hre,
+    );
 
     // Batch 4
     const chainlinkInstance = await runDeploymentBatch_4(ethFeeProxyAddress);
