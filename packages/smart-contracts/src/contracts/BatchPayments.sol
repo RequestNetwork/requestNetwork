@@ -38,7 +38,7 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         paymentEthereumFeeProxy = IEthereumFeeProxy(_paymentEthereumFeeProxy);
     }
 
-    // Needed because batchEthereumPaymentsWithReferenceAndFee requires that the contract has ethers
+    // Needed because batchEthPaymentsWithReferenceAndFee requires that the contract has ethers
     receive() external payable {}
 
     /**
@@ -51,20 +51,30 @@ contract BatchPayments is Ownable, ReentrancyGuard {
     * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
     * @param _feeAddress The fee recipient.
     * @dev Uses EthereumFeeProxy.sol to pay an invoice and fees, with a payment reference.
-     */
-    function batchEthereumPaymentsWithReferenceAndFee(
+    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)
+    */
+    function batchEthPaymentsWithReference(
         address[] calldata _recipients, 
         uint256[] calldata _amounts,
         bytes[] calldata _paymentReferences,
         uint256[] calldata _feeAmounts,
         address _feeAddress 
     ) external payable nonReentrant {
-        // EOA transfer token on the contract
+        require(
+            _recipients.length == _amounts.length
+            && _recipients.length == _paymentReferences.length
+            && _recipients.length == _feeAmounts.length
+            , "the input arrays must have the same length"
+        );
+
+        // sender transfer token on the contract
         payable(address(this)).transfer(msg.value);
         uint256 toReturn = msg.value;
 
         // Contract pays the batch payment
         for (uint256 i = 0; i < _recipients.length; i++) {
+            require(toReturn >= _amounts[i] + _feeAmounts[i], "not enough funds");
+
             toReturn -= (_amounts[i]+_feeAmounts[i]);
             paymentEthereumFeeProxy.transferWithReferenceAndFee{value: _amounts[i]+_feeAmounts[i]}(
                 payable(_recipients[i]), 
@@ -88,8 +98,9 @@ contract BatchPayments is Ownable, ReentrancyGuard {
      * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
      * @param _feeAddress The fee recipient.
      * @dev Uses ERC20FeeProxy.sol to pay an invoice and fees, with a payment reference.
+     *      Make sure the contract has allowance to spend the sender token.
      */
-    function batchERC20PaymentsWithReferenceAndFee(
+    function batchERC20PaymentsWithReference(
         address _tokenAddress, 
         address[] calldata _recipients, 
         uint256[] calldata _amounts,
@@ -97,6 +108,13 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         uint256[] calldata _feeAmounts,
         address _feeAddress 
     ) external {
+        require(
+            _recipients.length == _amounts.length
+            && _recipients.length == _paymentReferences.length
+            && _recipients.length == _feeAmounts.length
+            , "the input arrays must have the same length"
+        );
+
         for (uint256 i = 0; i < _recipients.length; i++) {
            (bool status, ) = address(paymentErc20FeeProxy).delegatecall(
             abi.encodeWithSignature(
@@ -122,8 +140,9 @@ contract BatchPayments is Ownable, ReentrancyGuard {
      * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
      * @param _feeAddress The fee recipient.
      * @dev Uses ERC20FeeProxy.sol to pay an invoice and fees, with a payment reference.
+     *      Make sure the contract has allowance to spend the sender token.
      */
-    function batchERC20PaymentsMultiTokensWithReferenceAndFee(
+    function batchERC20PaymentsMultiTokensWithReference(
         address[] calldata _tokenAddresses, 
         address[] calldata _recipients, 
         uint256[] calldata _amounts,
@@ -131,6 +150,14 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         uint256[] calldata _feeAmounts,
         address _feeAddress 
     ) external {
+        require(
+            _tokenAddresses.length == _recipients.length
+            && _tokenAddresses.length == _amounts.length
+            && _tokenAddresses.length == _paymentReferences.length
+            && _tokenAddresses.length == _feeAmounts.length
+            , "the input arrays must have the same length"
+            );
+
         for (uint256 i = 0; i < _recipients.length; i++) {
            (bool status, ) = address(paymentErc20FeeProxy).delegatecall(
             abi.encodeWithSignature(

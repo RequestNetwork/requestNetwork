@@ -87,7 +87,7 @@
           "type": "address"
         }
       ],
-      "name": "batchERC20PaymentsWithReferenceAndFee",
+      "name": "batchERC20PaymentsWithReference",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -120,7 +120,7 @@
           "type": "address"
         }
       ],
-      "name": "batchEthereumPaymentsWithReferenceAndFee",
+      "name": "batchEthPaymentsWithReference",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -158,30 +158,7 @@
           "type": "address"
         }
       ],
-      "name": "batchERC20PaymentsMultiTokensWithReferenceAndFee",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "contract IERC20",
-          "name": "_token",
-          "type": "address"
-        },
-        {
-          "internalType": "address[]",
-          "name": "_recipients",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_values",
-          "type": "uint256[]"
-        }
-      ],
-      "name": "batchOrphanERC20Payments",
+      "name": "batchERC20PaymentsMultiTokensWithReference",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

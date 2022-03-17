@@ -10,7 +10,7 @@ import { HttpNetworkConfig } from 'hardhat/types';
 
 use(solidity);
 
-const logInfos = false;
+const logGasInfos = false;
 
 describe('contract: BatchPayments: Ethereum', () => {
   let payee1: string;
@@ -49,7 +49,7 @@ describe('contract: BatchPayments: Ethereum', () => {
     await expect(
       batch
         .connect(owner)
-        .batchEthereumPaymentsWithReferenceAndFee(
+        .batchEthPaymentsWithReference(
           [payee1, payee2],
           [20, 30],
           [referenceExample1, referenceExample2],
@@ -82,7 +82,7 @@ describe('contract: BatchPayments: Ethereum', () => {
 
     const tx = await batch
       .connect(owner)
-      .batchEthereumPaymentsWithReferenceAndFee(
+      .batchEthPaymentsWithReference(
         [payee1, payee2],
         [20, 30],
         [referenceExample1, referenceExample2],
@@ -99,10 +99,12 @@ describe('contract: BatchPayments: Ethereum', () => {
 
     afterEthBalance2 = await provider.getBalance(payee2);
     expect(afterEthBalance2).to.be.equal(beforeEthBalance2.add(30));
+
+    expect(await provider.getBalance(batchAddress)).to.be.equal(0);
   });
 
   it('Should pay 100 Ethereum payments', async function () {
-    beforeEthBalance1 = await provider.getBalance(payee2);
+    beforeEthBalance2 = await provider.getBalance(payee2);
 
     const amount = 2;
     const feeAmount = 1;
@@ -119,7 +121,7 @@ describe('contract: BatchPayments: Ethereum', () => {
 
     const tx = await batch
       .connect(owner)
-      .batchEthereumPaymentsWithReferenceAndFee(
+      .batchEthPaymentsWithReference(
         recipients,
         amounts,
         paymentReferences,
@@ -131,15 +133,17 @@ describe('contract: BatchPayments: Ethereum', () => {
       );
 
     const receipt = await tx.wait();
-    if (logInfos) {
+    if (logGasInfos) {
       console.log(`nbTxs= ${nbTxs}, gas consumption: `, receipt.gasUsed.toString());
     }
 
-    afterEthBalance1 = await provider.getBalance(payee2);
-    expect(afterEthBalance1).to.be.equal(beforeEthBalance1.add(amount * nbTxs));
+    afterEthBalance2 = await provider.getBalance(payee2);
+    expect(afterEthBalance2).to.be.equal(beforeEthBalance2.add(amount * nbTxs));
+
+    expect(await provider.getBalance(batchAddress)).to.be.equal(0);
   });
 
-  it('Should revert batch if not enough funds (if one tx fail -> every payments are reverted)', async function () {
+  it('Should revert batch if not enough funds', async function () {
     beforeEthBalance1 = await provider.getBalance(payee1);
     beforeEthBalance2 = await provider.getBalance(payee2);
 
@@ -148,7 +152,7 @@ describe('contract: BatchPayments: Ethereum', () => {
     await expect(
       batch
         .connect(owner)
-        .batchEthereumPaymentsWithReferenceAndFee(
+        .batchEthPaymentsWithReference(
           [payee1, payee2],
           [20, 30],
           [referenceExample1, referenceExample2],
@@ -158,13 +162,67 @@ describe('contract: BatchPayments: Ethereum', () => {
             value: totalAmout,
           },
         ),
-    ).to.be.reverted;
+    ).revertedWith('not enough funds');
 
     afterEthBalance1 = await provider.getBalance(payee1);
     expect(afterEthBalance1).to.be.equal(beforeEthBalance1);
 
     afterEthBalance2 = await provider.getBalance(payee2);
     expect(afterEthBalance2).to.be.equal(beforeEthBalance2);
+
+    expect(await provider.getBalance(batchAddress)).to.be.equal(0);
+  });
+
+  it('Should revert batch if input s arrays do not have same size', async function () {
+    await expect(
+      batch
+        .connect(owner)
+        .batchEthPaymentsWithReference(
+          [payee1, payee2],
+          [5, 30],
+          [referenceExample1, referenceExample2],
+          [1],
+          feeAddress,
+        ),
+    ).revertedWith('the input arrays must have the same length');
+
+    await expect(
+      batch
+        .connect(owner)
+        .batchEthPaymentsWithReference(
+          [payee1],
+          [5, 30],
+          [referenceExample1, referenceExample2],
+          [1, 2],
+          feeAddress,
+        ),
+    ).revertedWith('the input arrays must have the same length');
+
+    await expect(
+      batch
+        .connect(owner)
+        .batchEthPaymentsWithReference(
+          [payee1, payee2],
+          [5],
+          [referenceExample1, referenceExample2],
+          [1, 2],
+          feeAddress,
+        ),
+    ).revertedWith('the input arrays must have the same length');
+
+    await expect(
+      batch
+        .connect(owner)
+        .batchEthPaymentsWithReference(
+          [payee1, payee2],
+          [5, 30],
+          [referenceExample1],
+          [1, 2],
+          feeAddress,
+        ),
+    ).revertedWith('the input arrays must have the same length');
+
+    expect(await provider.getBalance(batchAddress)).to.be.equal(0);
   });
 });
 
