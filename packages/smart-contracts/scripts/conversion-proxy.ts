@@ -46,6 +46,7 @@ export async function deployETHConversionProxy(
     chainlinkConversionPathAddress?: string;
     ethFeeProxyAddress?: string;
     nonceCondition?: number;
+    version?: string;
   },
   hre: HardhatRuntimeEnvironment,
 ) {
@@ -85,5 +86,6 @@ export async function deployETHConversionProxy(
     ],
     artifact: ethConversionArtifact,
     nonceCondition: args.nonceCondition,
+    version: args.version,
   });
 }
