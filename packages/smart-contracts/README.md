@@ -57,6 +57,10 @@ const erc20FeeProxyInstance = erc20FeeProxyArtifact.connect(
 
 The package stores the following smart contracts:
 
+**Smart contracts for request deployment**
+
+- `RequestDeployer` smart contract to which we delegate our deployment through the function `deploy(value, salt, bytecode)`. It enables to deploy contract with the `CREATE2` opcode to easily manage our contract deployment addresses.
+
 **Smart contracts for ethereum-storage package**
 
 - `RequestHashStorage` allows to declare a hash `NewHash(hash, submitter, feesParameters)`. Only a whitelisted contract can declare hashes.
