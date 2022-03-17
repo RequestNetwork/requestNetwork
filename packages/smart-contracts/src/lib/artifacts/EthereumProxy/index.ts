@@ -164,6 +164,10 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x322F0037d272E980984F89E94Aae43BD0FC065E6',
           creationBlockNumber: 14392194,
         },
+        celo: {
+          address: '0x322F0037d272E980984F89E94Aae43BD0FC065E6',
+          creationBlockNumber: 11988954,
+        },
       },
     },
   },

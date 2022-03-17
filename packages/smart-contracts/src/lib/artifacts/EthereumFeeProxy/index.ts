@@ -90,6 +90,10 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
           address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
           creationBlockNumber: 14392218,
         },
+        celo: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 11988955,
+        },
       },
     },
   },
