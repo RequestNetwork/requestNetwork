@@ -36,11 +36,11 @@ import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { providers } from 'ethers';
 
 const requestHashStorageMainnetAddress = SmartContracts.requestHashStorageArtifact.getAddress(
-  'mainnet'
+  'mainnet',
 );
 
 const requestHashSubmitterRinkebyAddress = SmartContracts.requestHashSubmitterArtifact.getAddress(
-  'rinkeby'
+  'rinkeby',
 );
 
 const requestHashStorageABI = SmartContracts.requestHashStorageArtifact.getContractAbi();
