@@ -95,7 +95,6 @@ export default {
     },
   },
   etherscan: {
-    // Can be overridden according to the network (set-explorer-api-key)
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY,
       rinkeby: process.env.ETHERSCAN_API_KEY,
