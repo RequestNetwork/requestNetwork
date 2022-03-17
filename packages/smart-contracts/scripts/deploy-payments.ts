@@ -44,10 +44,11 @@ export async function deployAllPaymentContracts(
   let simulationSuccess: boolean | undefined;
 
   const logDeploymentMsg = (contractName: string, result?: DeploymentResult, message?: string) => {
+    const blockMsg = result?.type === 'deployed' ? ` at ${result.block}` : '';
     const resultMsg = result
       ? result.address === result.type
         ? result.address
-        : `${result.address} (${result.type})`
+        : `${result.address}${blockMsg} (${result.type})`
       : '';
     const customMsg = message ? `(${message})` : '';
     console.log(`${`      ${contractName}:`.padEnd(36, ' ')}${resultMsg}${customMsg}`);
@@ -166,6 +167,7 @@ export async function deployAllPaymentContracts(
           chainlinkConversionPathAddress,
           ethFeeProxyAddress,
           nonceCondition: NONCE_BATCH_4 + 1,
+          version: '0.2.0',
         },
         hre,
       );

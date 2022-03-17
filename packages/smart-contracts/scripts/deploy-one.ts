@@ -10,6 +10,7 @@ export interface DeploymentResult<TContract extends Contract | unknown = Contrac
   constructorArguments: any[];
   type: 'simulated' | 'deployed' | 'attached' | 'skipped';
   verificationPromise?: Promise<boolean>;
+  block?: number;
 }
 
 const SIMULATED_DEPLOYMENT: DeploymentResult<unknown> = {
@@ -112,6 +113,7 @@ export async function deployOne<TContract extends Contract>(
     const instance = (await factory.deploy(...constructorArguments)) as TContract;
     await instance.deployed();
     address = instance.address;
+    const block = instance.deployTransaction.blockNumber;
 
     // Verfication
     let verificationPromise: Promise<boolean> | undefined = undefined;
@@ -134,6 +136,7 @@ export async function deployOne<TContract extends Contract>(
 
     return {
       address,
+      block,
       contractName,
       instance,
       constructorArguments,
