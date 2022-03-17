@@ -12,7 +12,7 @@ import {
   parseLogArgs,
   padAmountForChainlink,
   unpadAmountFromChainlink,
-  calcEscrowState,
+  calculateEscrowState,
 } from './utils';
 import { NearInfoRetriever } from './near-info-retriever';
 import { NearNativeTokenPaymentDetector } from './near-detector';
@@ -47,5 +47,5 @@ export {
   parseLogArgs,
   padAmountForChainlink,
   unpadAmountFromChainlink,
-  calcEscrowState,
+  calculateEscrowState,
 };

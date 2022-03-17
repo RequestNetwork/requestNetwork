@@ -106,7 +106,7 @@ export const hashReference = (paymentReference: string): string => {
  * @param escrowEvents Balance of the request being updated
  * @returns
  */
-export const calcEscrowState = (
+export const calculateEscrowState = (
   escrowEvents: PaymentTypes.EscrowNetworkEvent[],
 ): PaymentTypes.ESCROW_STATE | null => {
   if (escrowEvents.length === 0) {

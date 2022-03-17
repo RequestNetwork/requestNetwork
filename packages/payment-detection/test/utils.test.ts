@@ -1,6 +1,6 @@
 import { CurrencyManager } from '@requestnetwork/currency';
 import { PaymentTypes } from '@requestnetwork/types';
-import { padAmountForChainlink, unpadAmountFromChainlink, calcEscrowState } from '../src';
+import { padAmountForChainlink, unpadAmountFromChainlink, calculateEscrowState } from '../src';
 
 describe('conversion: padding amounts for Chainlink', () => {
   const currencyManager = CurrencyManager.getDefault();
@@ -47,9 +47,9 @@ describe('conversion: padding amounts for Chainlink', () => {
   });
 });
 
-describe('calcEscrowState', () => {
+describe('calculateEscrowState', () => {
   it('returns null if empty escrow events array', () => {
-    expect(calcEscrowState([])).toBeNull;
+    expect(calculateEscrowState([])).toBeNull;
   });
   it('detects frozen escrow', () => {
     const escrowEvents = [
@@ -70,7 +70,7 @@ describe('calcEscrowState', () => {
         },
       },
     ];
-    expect(calcEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.IN_FROZEN);
+    expect(calculateEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.IN_FROZEN);
   });
   it('detects in emergency escrow', () => {
     const escrowEvents = [
@@ -91,7 +91,7 @@ describe('calcEscrowState', () => {
         },
       },
     ];
-    expect(calcEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.IN_EMERGENCY);
+    expect(calculateEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.IN_EMERGENCY);
   });
   it('detects in emergency then reverted to paidEscrow', () => {
     const escrowEvents = [
@@ -120,7 +120,7 @@ describe('calcEscrowState', () => {
         },
       },
     ];
-    expect(calcEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.PAID_ESCROW);
+    expect(calculateEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.PAID_ESCROW);
   });
   it('detects paid to issuer escrow', () => {
     const escrowEvents = [
@@ -157,6 +157,6 @@ describe('calcEscrowState', () => {
         },
       },
     ];
-    expect(calcEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.PAID_ISSUER);
+    expect(calculateEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.PAID_ISSUER);
   });
 });
