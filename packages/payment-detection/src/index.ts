@@ -8,7 +8,12 @@ import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './an
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
 import { initPaymentDetectionApiKeys, setProviderFactory, getDefaultProvider } from './provider';
 import { getTheGraphClient, networkSupportsTheGraph } from './thegraph';
-import { parseLogArgs, padAmountForChainlink, unpadAmountFromChainlink } from './utils';
+import {
+  parseLogArgs,
+  padAmountForChainlink,
+  unpadAmountFromChainlink,
+  calculateEscrowState,
+} from './utils';
 import { NearInfoRetriever } from './near-info-retriever';
 import { NearNativeTokenPaymentDetector } from './near-detector';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
@@ -42,4 +47,5 @@ export {
   parseLogArgs,
   padAmountForChainlink,
   unpadAmountFromChainlink,
+  calculateEscrowState,
 };
