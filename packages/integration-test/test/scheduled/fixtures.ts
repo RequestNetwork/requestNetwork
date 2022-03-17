@@ -43,7 +43,7 @@ export const erc20requestCreationHash: Types.IRequestInfo = {
 
 export const ethInputDataCreationHash: Types.IRequestInfo = {
   currency: {
-    network: 'private',
+    network: 'rinkeby',
     type: Types.RequestLogic.CURRENCY.ETH,
     value: privateErc20Address, // TODO: Change to ETH address
   },
@@ -56,6 +56,8 @@ export const localErc20PaymentNetworkParams: PaymentTypes.IPaymentNetworkCreateP
   id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
   parameters: {
     paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+    feeAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    feeAmount: '0',
   },
 };
 

@@ -69,46 +69,52 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IETHPaymentEventParameters>[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IETHPaymentEventParameters>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+      };
     }
+
     const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
+
     const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
     if (!currency) {
       throw new UnsupportedCurrencyError(requestCurrency.value);
+    } else {
+      const proxyInfoRetriever = this.useTheGraph(paymentChain)
+        ? new TheGraphConversionRetriever(
+            currency,
+            paymentReference,
+            contractInfo.address,
+            address,
+            eventName,
+            paymentChain,
+            undefined,
+            paymentNetwork.values?.maxRateTimespan,
+          )
+        : new AnyToEthInfoRetriever(
+            currency,
+            paymentReference,
+            contractInfo.address,
+            contractInfo.creationBlockNumber,
+            abi,
+            address,
+            eventName,
+            paymentChain,
+            undefined,
+            paymentNetwork.values?.maxRateTimespan,
+          );
+      const paymentEvents = await proxyInfoRetriever.getTransferEvents();
+      return {
+        paymentEvents,
+      };
     }
-
-    const proxyInfoRetriever = this.useTheGraph(paymentChain)
-      ? new TheGraphConversionRetriever(
-          currency,
-          paymentReference,
-          contractInfo.address,
-          address,
-          eventName,
-          paymentChain,
-          undefined,
-          paymentNetwork.values?.maxRateTimespan,
-        )
-      : new AnyToEthInfoRetriever(
-          currency,
-          paymentReference,
-          contractInfo.address,
-          contractInfo.creationBlockNumber,
-          abi,
-          address,
-          eventName,
-          paymentChain,
-          undefined,
-          paymentNetwork.values?.maxRateTimespan,
-        );
-
-    return await proxyInfoRetriever.getTransferEvents();
   }
 
   /**

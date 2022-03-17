@@ -59,7 +59,7 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           creationBlockNumber: 5321045,
         },
         avalanche: {
-          address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
+          address: '0xA5186dec7dC1ec85B42A3cd2Dc8289e248530B07',
           creationBlockNumber: 11671967,
         },
       },

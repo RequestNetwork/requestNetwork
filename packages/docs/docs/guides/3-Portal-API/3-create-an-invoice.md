@@ -1,6 +1,6 @@
 ---
 title: Invoice API - Introduction
-keywords: [ERC20, DAI, Request, Invoice, Portal, API, Request Invoicing]
+keywords: [ERC20, DAI, Request, Invoice, Portal, API, Request Finance]
 description: Learn how to use Request's invoice API.
 ---
 
@@ -10,7 +10,7 @@ You are now familiar with the [Request API](./1-create-and-share-request.md),
 but did you know you could also create, on Portal, invoices which supersede requests?
 
 Invoices are simply an implementation of requests with a predefined schema for the `contentData` property.
-Invoices are mainly used by the [Request Invoicing](https://invoicing.request.network/) application
+Invoices are mainly used by the [Request Finance](https://app.request.finance/) application
 as a way to practically represent general invoicing data.
 
 Invoice API also differ by the layer of automation added on top of Request API.
