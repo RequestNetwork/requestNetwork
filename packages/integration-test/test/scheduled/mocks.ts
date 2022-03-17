@@ -52,7 +52,7 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-    streamErc777: {
+    erc777Stream: {
       supportedNetworks: ['rinkeby'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
