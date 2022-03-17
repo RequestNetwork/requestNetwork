@@ -62,7 +62,6 @@
     "@openzeppelin/test-helpers": "0.5.6",
     "@requestnetwork/currency": "0.8.0",
     "@requestnetwork/types": "0.35.0",
-    "@requestnetwork/xdeployer": "https://github.com/requestnetwork/xdeployer",
     "@typechain/ethers-v5": "7.0.1",
     "@typechain/hardhat": "2.1.2",
     "@types/chai": "4.2.21",

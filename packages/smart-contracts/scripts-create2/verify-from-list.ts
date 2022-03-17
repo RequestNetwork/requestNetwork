@@ -1,6 +1,7 @@
 import { verifyOne } from './verify-one';
-import { create2ContractDeploymentList, HardhatRuntimeEnvironmentExtended } from './utils';
+import { create2ContractDeploymentList } from './utils';
 import { computeCreate2DeploymentAddress } from './compute-one-address';
+import { HardhatRuntimeEnvironmentExtended } from './types';
 
 // Verifies the contracts
 export default async function VerifyCreate2FromList(

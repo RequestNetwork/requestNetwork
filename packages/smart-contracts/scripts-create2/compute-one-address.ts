@@ -1,8 +1,4 @@
-import { HardhatRuntimeEnvironmentExtended } from './utils';
-import {
-  CREATE2_DEPLOYER_ADDRESS as CREATE2_DEPLOYER_ADDRESS_DEFAULT,
-  IDeploymentParams,
-} from '@requestnetwork/xdeployer';
+import { IDeploymentParams, HardhatRuntimeEnvironmentExtended } from './types';
 import { requestDeployer } from '../src/lib';
 
 // Deploys, set up the contracts
@@ -20,12 +16,8 @@ export async function computeCreate2DeploymentAddress(
     }
 
     if (!hre.config.xdeploy.deployerAddress) {
-      console.warn('Deployer address is set to default !');
+      throw new Error('Missing deployer address');
     }
-
-    const deployerAddress = hre.config.xdeploy.deployerAddress
-      ? hre.config.xdeploy.deployerAddress
-      : CREATE2_DEPLOYER_ADDRESS_DEFAULT;
 
     const provider = new hre.ethers.providers.JsonRpcProvider(
       'https://api.avax.network/ext/bc/C/rpc',
@@ -45,7 +37,7 @@ export async function computeCreate2DeploymentAddress(
     const computedAddress = await RequestDeployer.computeAddressWithDeployer(
       hre.ethers.utils.id(hre.config.xdeploy.salt),
       hre.ethers.utils.keccak256(initcode.data),
-      deployerAddress,
+      hre.config.xdeploy.deployerAddress,
     );
     return computedAddress;
   } catch (e) {

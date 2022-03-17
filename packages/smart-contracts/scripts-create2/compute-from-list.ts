@@ -1,5 +1,6 @@
 import { computeCreate2DeploymentAddress } from './compute-one-address';
-import { create2ContractDeploymentList, HardhatRuntimeEnvironmentExtended } from './utils';
+import { create2ContractDeploymentList } from './utils';
+import { HardhatRuntimeEnvironmentExtended } from './types';
 
 export const computeCreate2DeploymentAddressesFromList = async (
   hre: HardhatRuntimeEnvironmentExtended,

@@ -1,4 +1,4 @@
-import { HardhatRuntimeEnvironmentExtended } from './utils';
+import { HardhatRuntimeEnvironmentExtended } from './types';
 
 export const checkCreate2Deployer = async (
   hre: HardhatRuntimeEnvironmentExtended,
@@ -7,7 +7,7 @@ export const checkCreate2Deployer = async (
     throw new Error('Invalid network configuration');
   }
   await Promise.all(
-    hre.config.xdeploy.networks.map(async (network, index) => {
+    hre.config.xdeploy.networks.map(async (network: string, index: number) => {
       if (!hre.config.xdeploy.rpcUrls || !hre.config.xdeploy.rpcUrls[index]) {
         throw new Error('Bad network configuration for ' + network);
       }

@@ -1,5 +1,6 @@
 import { deployOneWithCreate2 } from './deploy-one';
-import { create2ContractDeploymentList, HardhatRuntimeEnvironmentExtended } from './utils';
+import { create2ContractDeploymentList } from './utils';
+import { HardhatRuntimeEnvironmentExtended } from './types';
 
 export const deployWithCreate2FromList = async (
   hre: HardhatRuntimeEnvironmentExtended,

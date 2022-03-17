@@ -1,13 +1,5 @@
 import { Contract } from 'ethers';
-import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { XdeployConfig } from '@requestnetwork/xdeployer/src/types';
 import * as artefacts from '../src/lib';
-
-export type HardhatRuntimeEnvironmentExtended = HardhatRuntimeEnvironment & {
-  config: {
-    xdeploy: XdeployConfig;
-  };
-};
 
 /**
  * List of smart contract that we deploy using the CREATE2 scheme thourhg the Request Deployer contract

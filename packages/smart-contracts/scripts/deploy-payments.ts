@@ -18,8 +18,8 @@ import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types';
 import { computeCreate2DeploymentAddress } from '../scripts-create2/compute-one-address';
-import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/utils';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.

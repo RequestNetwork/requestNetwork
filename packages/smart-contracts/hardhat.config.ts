@@ -3,7 +3,6 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-ganache';
 import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
-import '@requestnetwork/xdeployer';
 import { subtask, task } from 'hardhat/config';
 import { config } from 'dotenv';
 import deployAllContracts from './scripts/5_deploy-all';
@@ -14,6 +13,7 @@ import { deployWithCreate2FromList } from './scripts-create2/deploy-from-list';
 import deployDeployer from './scripts-create2/deploy-request-deployer';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-from-list';
 import VerifyCreate2FromList from './scripts-create2/verify-from-list';
+import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 
 config();
 
@@ -142,8 +142,8 @@ export default {
   xdeploy: {
     salt: REQUEST_SALT,
     signer: process.env.ADMIN_PRIVATE_KEY,
-    networks: ['mainnet'],
-    rpcUrls: ['https://mainnet.infura.io/v3/YOUR_API_KEY'],
+    networks: ['celo'],
+    rpcUrls: ['https://forno.celo.org'],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
   },
@@ -168,7 +168,7 @@ task(
     args.dryRun = args.dryRun ?? false;
     args.simulate = args.dryRun;
     await hre.run(DEPLOYER_KEY_GUARD);
-    await deployAllPaymentContracts(args, hre);
+    await deployAllPaymentContracts(args, hre as HardhatRuntimeEnvironmentExtended);
   });
 
 task(
@@ -191,22 +191,22 @@ task(
   'compute-contract-addresses',
   'Compute the contract addresses from the Create2DeploymentList using the create2 scheme',
 ).setAction(async (_args, hre) => {
-  await computeCreate2DeploymentAddressesFromList(hre);
+  await computeCreate2DeploymentAddressesFromList(hre as HardhatRuntimeEnvironmentExtended);
 });
 
 task(
   'deploy-contract-through-deployer',
   'Deploy the contracts from the Create2DeploymentList using the create2 scheme',
 ).setAction(async (_args, hre) => {
-  await checkCreate2Deployer(hre);
-  await deployWithCreate2FromList(hre);
+  await checkCreate2Deployer(hre as HardhatRuntimeEnvironmentExtended);
+  await deployWithCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
 });
 
 task(
   'verify-contract-from-deployer',
   'Verify the contracts from the Create2DeploymentList for a specific network',
 ).setAction(async (_args, hre) => {
-  await VerifyCreate2FromList(hre);
+  await VerifyCreate2FromList(hre as HardhatRuntimeEnvironmentExtended);
 });
 
 subtask(DEPLOYER_KEY_GUARD, 'prevent usage of the deployer master key').setAction(async () => {
