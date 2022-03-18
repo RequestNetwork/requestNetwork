@@ -75,6 +75,14 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 11671698,
         },
+        matic: {
+          address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
+          creationBlockNumber: 25999509,
+        },
+        celo: {
+          address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
+          creationBlockNumber: 11969004,
+        },
       },
     },
   },

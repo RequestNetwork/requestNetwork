@@ -1,5 +1,5 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { RequestLogicTypes, PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish, Contract } from 'ethers';
 import { keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
@@ -99,4 +99,30 @@ export const makeGetDeploymentInformation = <
 
 export const hashReference = (paymentReference: string): string => {
   return keccak256(`0x${paymentReference}`);
+};
+
+/**
+ * Returns escrow status based on array of escrow events
+ * @param escrowEvents Balance of the request being updated
+ * @returns
+ */
+export const calculateEscrowState = (
+  escrowEvents: PaymentTypes.EscrowNetworkEvent[],
+): PaymentTypes.ESCROW_STATE | null => {
+  if (escrowEvents.length === 0) {
+    return null;
+  }
+  const latestEscrowEvent = escrowEvents[escrowEvents.length - 1];
+  switch (latestEscrowEvent.parameters?.eventName) {
+    case PaymentTypes.ESCROW_EVENTS_NAMES.FREEZE_ESCROW:
+      return PaymentTypes.ESCROW_STATE.IN_FROZEN;
+    case PaymentTypes.ESCROW_EVENTS_NAMES.INITIATE_EMERGENCY_CLAIM:
+      return PaymentTypes.ESCROW_STATE.IN_EMERGENCY;
+    case PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ESCROW:
+    case PaymentTypes.ESCROW_EVENTS_NAMES.REVERT_EMERGENCY_CLAIM:
+      return PaymentTypes.ESCROW_STATE.PAID_ESCROW;
+    case PaymentTypes.ESCROW_EVENTS_NAMES.PAID_ISSUER:
+      return PaymentTypes.ESCROW_STATE.PAID_ISSUER;
+  }
+  return null;
 };
