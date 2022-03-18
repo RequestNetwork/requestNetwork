@@ -4,7 +4,7 @@ import { EscrowERC20InfoRetriever } from '../../src/erc20/escrow-info-retriever'
 import { ethers } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 
-const escrowContractAddress = '0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154';
+const escrowContractAddress = '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc';
 const paymentReferenceMock = 'aaaa';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

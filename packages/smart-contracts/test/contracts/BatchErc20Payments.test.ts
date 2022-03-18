@@ -157,12 +157,12 @@ describe('contract: BatchPayments: ERC20', () => {
     expect(afterERC20Balance2).to.be.equal(beforeERC20Balance2.add(amount * 2));
   });
 
-  it('Should pay 100 ERC20 payments', async function () {
+  it('Should pay 10 ERC20 payments', async function () {
     beforeERC20Balance1 = await token1.balanceOf(payee3);
 
     const amount = 2;
     const feeAmount = 1;
-    const nbTxs = 100;
+    const nbTxs = 10;
     const [
       token1Addresses,
       recipients,
@@ -187,12 +187,12 @@ describe('contract: BatchPayments: ERC20', () => {
     expect(afterERC20Balance1).to.be.equal(beforeERC20Balance1.add(amount * nbTxs));
   });
 
-  it('Should pay 100 ERC20 payments on multiple tokens', async function () {
+  it('Should pay 10 ERC20 payments on multiple tokens', async function () {
     beforeERC20Balance1 = await token1.balanceOf(payee3);
 
     const amount = 2;
     const feeAmount = 1;
-    const nbTxs = 100;
+    const nbTxs = 10;
     const [
       token1Addresses,
       recipients,

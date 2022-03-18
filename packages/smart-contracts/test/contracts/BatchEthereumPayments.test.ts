@@ -103,12 +103,12 @@ describe('contract: BatchPayments: Ethereum', () => {
     expect(await provider.getBalance(batchAddress)).to.be.equal(0);
   });
 
-  it('Should pay 100 Ethereum payments', async function () {
+  it('Should pay 10 Ethereum payments', async function () {
     beforeEthBalance2 = await provider.getBalance(payee2);
 
     const amount = 2;
     const feeAmount = 1;
-    const nbTxs = 100;
+    const nbTxs = 10; // to compare gas optim, go to 100.
     const [_, recipients, amounts, paymentReferences, feeAmounts] = getBatchPaymentsInputs(
       nbTxs,
       '_noTokenAddress',
