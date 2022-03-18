@@ -16,6 +16,7 @@ import { getErc20Balance } from '../../src/payment/erc20';
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
+const erc20EscrowToPayAddress = '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc';
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -126,7 +127,7 @@ describe('erc20-escrow-payment tests:', () => {
 
       expect(spy).toHaveBeenCalledWith({
         data: `0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
-        to: '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc', // ERC20EscrowToPay address
+        to: erc20EscrowToPayAddress,
         value: 0,
       });
       wallet.sendTransaction = originalSendTransaction;
