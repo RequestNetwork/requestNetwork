@@ -34,6 +34,7 @@ import { providers } from 'ethers';
 const requestHashStorageMainnetAddress = SmartContracts.requestHashStorageArtifact.getAddress(
   'mainnet',
 );
+
 const requestHashSubmitterRinkebyAddress = SmartContracts.requestHashSubmitterArtifact.getAddress(
   'rinkeby',
 );

@@ -8,6 +8,7 @@ import { config } from 'dotenv';
 import deployAllContracts from './scripts/5_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
+
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 config();
