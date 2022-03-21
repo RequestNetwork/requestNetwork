@@ -1,9 +1,9 @@
-import { isContractDeployed } from './utils';
+import { create2ContractDeploymentList, isContractDeployed } from './utils';
 import { IDeploymentParams } from './types';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 import { xdeploy } from './xdeployer';
 
-// Deploys, set up the contracts
+// Deploys, set up the contracts and returns the address
 export const deployOneWithCreate2 = async (
   deploymentParams: IDeploymentParams,
   hre: HardhatRuntimeEnvironmentExtended,
@@ -42,5 +42,21 @@ export const deployOneWithCreate2 = async (
     return deploymentResult[0].address;
   } catch (e) {
     throw new Error(e.toString());
+  }
+};
+
+export const deployWithCreate2FromList = async (
+  hre: HardhatRuntimeEnvironmentExtended,
+): Promise<void> => {
+  for (const contract of create2ContractDeploymentList) {
+    switch (contract) {
+      case 'EthereumProxy':
+      case 'EthereumFeeProxy':
+        await deployOneWithCreate2({ contract }, hre);
+        break;
+      // Other cases to add when necessary
+      default:
+        throw new Error(`The contrat ${contract} is not to be deployed using the CREATE2 scheme`);
+    }
   }
 };

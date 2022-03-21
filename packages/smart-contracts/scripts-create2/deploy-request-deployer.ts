@@ -3,7 +3,7 @@ import { HardhatRuntimeEnvironmentExtended } from './types';
 import { verifyOne } from './verify-one';
 
 // Deploys, set up the contracts
-export default async function deployDeployer(hre: HardhatRuntimeEnvironment): Promise<void> {
+export async function deployDeployer(hre: HardhatRuntimeEnvironment): Promise<void> {
   try {
     const [deployer] = await hre.ethers.getSigners();
 

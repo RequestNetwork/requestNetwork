@@ -9,11 +9,11 @@ import deployAllContracts from './scripts/5_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
 import { checkCreate2Deployer } from './scripts-create2/check-deployer';
-import { deployWithCreate2FromList } from './scripts-create2/deploy-from-list';
-import deployDeployer from './scripts-create2/deploy-request-deployer';
-import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-from-list';
-import VerifyCreate2FromList from './scripts-create2/verify-from-list';
+import { deployDeployer } from './scripts-create2/deploy-request-deployer';
 import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
+import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
+import { VerifyCreate2FromList } from './scripts-create2/verify-one';
+import { deployWithCreate2FromList } from './scripts-create2/deploy-one';
 
 config();
 

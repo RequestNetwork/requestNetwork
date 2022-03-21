@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult
 import { constants } from 'ethers';
 import { requestDeployer } from '../src/lib';
 
-const AMOUNT = 0;
+const ZERO_ETH_INPUT = 0;
 
 export const xdeploy = async (
   deploymentParams: IDeploymentParams,
@@ -29,11 +29,6 @@ export const xdeploy = async (
     throw new Error('Missing deployer address');
   }
 
-  const providers: Array<any> = [];
-  const wallets: Array<any> = [];
-  const signers: Array<any> = [];
-  const create2Deployer: Array<any> = [];
-  const createReceipt: Array<any> = [];
   const result: Array<IDeploymentResult> = [];
   let initcode: any;
 
@@ -45,10 +40,10 @@ export const xdeploy = async (
   }
 
   for (let i = 0; i < hre.config.xdeploy.rpcUrls.length; i++) {
-    providers[i] = new hre.ethers.providers.JsonRpcProvider(hre.config.xdeploy.rpcUrls[i]);
+    const provider = new hre.ethers.providers.JsonRpcProvider(hre.config.xdeploy.rpcUrls[i]);
     if (hre.config.xdeploy.networks[i] === 'celo') {
-      const originalBlockFormatter = providers[i].formatter._block;
-      providers[i].formatter._block = (value: any, format: any) => {
+      const originalBlockFormatter = provider.formatter._block;
+      provider.formatter._block = (value: any, format: any) => {
         return originalBlockFormatter(
           {
             gasLimit: constants.Zero,
@@ -58,106 +53,51 @@ export const xdeploy = async (
         );
       };
     }
-    wallets[i] = new hre.ethers.Wallet(hre.config.xdeploy.signer, providers[i]);
-    signers[i] = wallets[i].connect(providers[i]);
+    const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
+    const signer = wallet.connect(provider);
 
     let computedContractAddress: string;
-    if (
-      hre.config.xdeploy.networks[i] !== 'hardhat' &&
-      hre.config.xdeploy.networks[i] !== 'localhost'
-    ) {
-      create2Deployer[i] = new hre.ethers.Contract(
-        hre.config.xdeploy.deployerAddress,
-        requestDeployer.getContractAbi(),
-        signers[i],
+    const create2Deployer = new hre.ethers.Contract(
+      hre.config.xdeploy.deployerAddress,
+      requestDeployer.getContractAbi(),
+      signer,
+    );
+    try {
+      computedContractAddress = await create2Deployer.computeAddress(
+        hre.ethers.utils.id(hre.config.xdeploy.salt),
+        hre.ethers.utils.keccak256(initcode.data),
       );
-      try {
-        computedContractAddress = await create2Deployer[i].computeAddress(
-          hre.ethers.utils.id(hre.config.xdeploy.salt),
-          hre.ethers.utils.keccak256(initcode.data),
-        );
-      } catch (err) {
-        throw new Error(
-          'Contract address could not be computed, check your contract name and arguments',
-        );
-      }
-      try {
-        createReceipt[i] = await create2Deployer[i].deploy(
-          AMOUNT,
-          hre.ethers.utils.id(hre.config.xdeploy.salt),
-          initcode.data,
-          { gasLimit: hre.config.xdeploy.gasLimit },
-        );
-
-        createReceipt[i] = await createReceipt[i].wait();
-
-        result[i] = {
-          network: hre.config.xdeploy.networks[i],
-          contract: contract,
-          address: computedContractAddress,
-          receipt: createReceipt[i],
-          deployed: true,
-          error: undefined,
-        };
-      } catch (err) {
-        result[i] = {
-          network: hre.config.xdeploy.networks[i],
-          contract: contract,
-          address: computedContractAddress,
-          receipt: undefined,
-          deployed: false,
-          error: err,
-        };
-      }
-    } else if (
-      hre.config.xdeploy.networks[i] === 'hardhat' ||
-      hre.config.xdeploy.networks[i] === 'localhost'
-    ) {
-      console.log('ici');
-      const hhcreate2Deployer = await hre.ethers.getContractFactory('Create2DeployerLocal');
-      console.log('ici');
-      console.log(hhcreate2Deployer);
-      create2Deployer[i] = await hhcreate2Deployer.deploy();
-      console.log('ici');
-      try {
-        computedContractAddress = await create2Deployer[i].computeAddress(
-          hre.ethers.utils.id(hre.config.xdeploy.salt),
-          hre.ethers.utils.keccak256(initcode.data),
-        );
-      } catch (err) {
-        throw new Error(
-          'Contract address could not be computed, check your contract name and arguments',
-        );
-      }
-      try {
-        createReceipt[i] = await create2Deployer[i].deploy(
-          AMOUNT,
-          hre.ethers.utils.id(hre.config.xdeploy.salt),
-          initcode.data,
-          { gasLimit: hre.config.xdeploy.gasLimit },
-        );
-
-        createReceipt[i] = await createReceipt[i].wait();
-
-        result[i] = {
-          network: hre.config.xdeploy.networks[i],
-          contract: contract,
-          address: computedContractAddress,
-          receipt: createReceipt[i],
-          deployed: true,
-          error: undefined,
-        };
-      } catch (err) {
-        result[i] = {
-          network: hre.config.xdeploy.networks[i],
-          contract: contract,
-          address: computedContractAddress,
-          receipt: undefined,
-          deployed: false,
-          error: err,
-        };
-      }
+    } catch (err) {
+      throw new Error(
+        'Contract address could not be computed, check your contract name and arguments',
+      );
     }
+
+    let receipt = undefined;
+    let deployed = false;
+    let error = undefined;
+    try {
+      let createReceipt = await (
+        await create2Deployer.deploy(
+          ZERO_ETH_INPUT,
+          hre.ethers.utils.id(hre.config.xdeploy.salt),
+          initcode.data,
+          { gasLimit: hre.config.xdeploy.gasLimit },
+        )
+      ).wait();
+      receipt = createReceipt;
+      deployed = true;
+    } catch (err) {
+      error = err;
+    }
+    result[i] = {
+      network: hre.config.xdeploy.networks[i],
+      contract: contract,
+      address: computedContractAddress,
+      receipt,
+      deployed,
+      error,
+    };
   }
   return result;
 };

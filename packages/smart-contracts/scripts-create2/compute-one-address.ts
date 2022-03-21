@@ -1,5 +1,6 @@
 import { IDeploymentParams, HardhatRuntimeEnvironmentExtended } from './types';
 import { requestDeployer } from '../src/lib';
+import { create2ContractDeploymentList } from './utils';
 
 // Deploys, set up the contracts
 export async function computeCreate2DeploymentAddress(
@@ -7,10 +8,6 @@ export async function computeCreate2DeploymentAddress(
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<string> {
   try {
-    if (!hre.config.xdeploy.networks || !hre.config.xdeploy.rpcUrls) {
-      throw new Error('Bad network configuration');
-    }
-
     if (!hre.config.xdeploy.salt) {
       throw new Error('Missing salt');
     }
@@ -44,3 +41,23 @@ export async function computeCreate2DeploymentAddress(
     throw new Error(e.toString());
   }
 }
+
+export const computeCreate2DeploymentAddressesFromList = async (
+  hre: HardhatRuntimeEnvironmentExtended,
+): Promise<void> => {
+  await Promise.all(
+    create2ContractDeploymentList.map(async (contract) => {
+      let address: string;
+      switch (contract) {
+        case 'EthereumProxy':
+        case 'EthereumFeeProxy':
+          address = await computeCreate2DeploymentAddress({ contract }, hre);
+          console.log(`${contract.padEnd(36, ' ')}${address}`);
+          break;
+        // Other cases to add when necessary
+        default:
+          throw new Error(`The contrat ${contract} is not to be deployed using the CREATE2 scheme`);
+      }
+    }),
+  );
+};

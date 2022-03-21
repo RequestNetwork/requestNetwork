@@ -22,7 +22,7 @@ FTMSCAN_API_KEY=...         # ... for FTMScan
 SNOWTRACE_API_KEY=...       # ... for Snowtrace
 ARBISCAN_API_KEY=...        # ... for Arbiscan
 ADMIN_WALLET_ADDRESS=...    # Mandatory to deploy contracts with admin tasks (e.g. ChainlinkConversionPath)
-DEPLOYER_MASTER_KEY=...     # Mandatory to deploy the request deployer smart contract
+DEPLOYER_MASTER_KEY=...     # Mandatory to deploy the request deployer smart contract on live blockchains
 REQUEST_DEPLOYER_LIVE=...   # Must be true to deploy contracts through the request deployer on live blockchains.
 ```
 
@@ -138,12 +138,10 @@ yarn hardhat prepare-live-payments --network private
 ### Deployment through request deployer
 
 The request deployer enables multichain deployment of several smart contract at predefined address.
-For now it is used to deploy:
 
-- `EthereumProxy`
-- `EthereumFeeProxy`
+The deployer contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2` on live chains.
 
-Next versions of our contracts will also be deployed via the request deployer
+Be sure to run `yarn build:sol` before deploying the deployer or a contract.
 
 #### Deploy the request deployer
 
@@ -152,8 +150,6 @@ Environment variables needed: `DEPLOYER_MASTER_KEY`
 ```bash
 yarn hardhat deploy-deployer-contract --network <NETWORK>
 ```
-
-The resulting contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2` (live chains)
 
 #### Compute the contract addresses
 
@@ -173,7 +169,7 @@ You will need the request deployer to be deployed.
 Then run:
 
 ```bash
-yarn hardhat deploy-contract-through-deployer
+yarn hardhat deploy-contracts-through-deployer
 ```
 
 To deploy on live chains set `REQUEST_DEPLOYER_LIVE` to true

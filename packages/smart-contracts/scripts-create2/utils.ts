@@ -1,5 +1,5 @@
 import { Contract } from 'ethers';
-import * as artefacts from '../src/lib';
+import * as artifacts from '../src/lib';
 
 /**
  * List of smart contract that we deploy using the CREATE2 scheme thourhg the Request Deployer contract
@@ -7,33 +7,33 @@ import * as artefacts from '../src/lib';
 export const create2ContractDeploymentList = ['EthereumProxy', 'EthereumFeeProxy'];
 
 /**
- * Returns the artefact of the specified contract
+ * Returns the artifact of the specified contract
  * @param contract name of the contract
  */
-export const getArtefact = (contract: string): artefacts.ContractArtifact<Contract> => {
+export const getArtifact = (contract: string): artifacts.ContractArtifact<Contract> => {
   switch (contract) {
     case 'RequestHashStorage':
-      return artefacts.requestHashStorageArtifact;
+      return artifacts.requestHashStorageArtifact;
     case 'RequestOpenHashSubmitter':
-      return artefacts.requestHashSubmitterArtifact;
+      return artifacts.requestHashSubmitterArtifact;
     case 'ERC20Proxy':
-      return artefacts.erc20ProxyArtifact;
+      return artifacts.erc20ProxyArtifact;
     case 'ERC20FeeProxy':
-      return artefacts.erc20FeeProxyArtifact;
+      return artifacts.erc20FeeProxyArtifact;
     case 'EthereumProxy':
-      return artefacts.ethereumProxyArtifact;
+      return artifacts.ethereumProxyArtifact;
     case 'EthereumFeeProxy':
-      return artefacts.ethereumFeeProxyArtifact;
+      return artifacts.ethereumFeeProxyArtifact;
     case 'ChainlinkConversionPath':
-      return artefacts.chainlinkConversionPath;
+      return artifacts.chainlinkConversionPath;
     case 'Erc20ConversionProxy':
-      return artefacts.erc20ConversionProxy;
+      return artifacts.erc20ConversionProxy;
     case 'EthConversionProxy':
-      return artefacts.ethConversionArtifact;
+      return artifacts.ethConversionArtifact;
     case 'ERC20SwapToPay':
-      return artefacts.erc20SwapToPayArtifact;
+      return artifacts.erc20SwapToPayArtifact;
     case 'ERC20SwapToConversion':
-      return artefacts.erc20SwapConversionArtifact;
+      return artifacts.erc20SwapConversionArtifact;
     default:
       throw new Error('Contract unknown');
   }
@@ -51,7 +51,7 @@ export const isContractDeployed = (
   network: string,
   computedAddress: string,
 ): boolean => {
-  const contractArtefact = getArtefact(contract);
-  const addresses = contractArtefact.getAllAddresses(network);
+  const contractArtifact = getArtifact(contract);
+  const addresses = contractArtifact.getAllAddresses(network);
   return addresses.some((x) => x.address === computedAddress);
 };
