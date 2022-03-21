@@ -71,6 +71,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           creationBlockNumber: 11969006,
         },
+        bsc: {
+          address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
+          creationBlockNumber: 16170265,
+        },
       },
     },
   },

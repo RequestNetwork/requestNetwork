@@ -32,6 +32,7 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   fantom: ['fantom-price-feeds', 'Fantom Mainnet'],
   matic: ['matic-addresses', 'Polygon Mainnet'],
   xdai: ['data-feeds-gnosis-chain', 'Gnosis Chain Mainnet'],
+  bsc: ['bnb-chain-addresses-price', 'BNB Chain Testnet'],
 };
 
 export const getAvailableAggregators = async (

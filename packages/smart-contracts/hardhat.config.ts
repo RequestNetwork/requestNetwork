@@ -14,6 +14,7 @@ import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
 import { VerifyCreate2FromList } from './scripts-create2/verify-one';
 import { deployWithCreate2FromList } from './scripts-create2/deploy-one';
+import { erc20ConversionProxy } from './src/lib';
 
 config();
 
@@ -54,7 +55,7 @@ export default {
   networks: {
     private: {
       url: 'http://127.0.0.1:8545',
-      accounts: undefined,
+      accounts,
     },
     mainnet: {
       url: process.env.WEB3_PROVIDER_URL || 'https://mainnet.infura.io/v3/YOUR_API_KEY',
@@ -181,6 +182,27 @@ task(
     await hre.run(DEPLOYER_KEY_GUARD);
     await deployAllPaymentContracts(args, hre as HardhatRuntimeEnvironmentExtended);
   });
+
+task('info', 'TODO remove').setAction(async (_args, hre) => {
+  const [deployer] = await hre.ethers.getSigners();
+  const contract = new hre.ethers.Contract(
+    '0xA5186dec7dC1ec85B42A3cd2Dc8289e248530B07',
+    erc20ConversionProxy.getContractAbi(),
+    deployer,
+  );
+  let filter = contract.filters.WhitelistAdminAdded();
+  contract.on(filter, (account) => {
+    console.log(`acct: ${account}`);
+  });
+});
+
+task('topup', 'TODO remove').setAction(async (_args, hre) => {
+  const [payer] = await hre.ethers.getSigners();
+  const deployer = '0x42479654251c6d2561dcf352d4eb39f9c4a45ccd';
+  console.log((await payer.getBalance()).toString());
+  await payer.sendTransaction({ to: deployer, value: hre.ethers.utils.parseEther('1') });
+  console.log((await payer.getBalance()).toString());
+});
 
 task(
   'prepare-live-payments',
