@@ -9,8 +9,6 @@ import deployAllContracts from './scripts/5_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
 
-import { HardhatRuntimeEnvironment } from 'hardhat/types';
-
 config();
 
 const accounts = process.env.DEPLOYMENT_PRIVATE_KEY
@@ -97,8 +95,28 @@ export default {
     },
   },
   etherscan: {
-    // Can be overridden according to the network (set-explorer-api-key)
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      rinkeby: process.env.ETHERSCAN_API_KEY,
+      // binance smart chain
+      bsc: process.env.BSCSCAN_API_KEY,
+      bscTestnet: process.env.BSCSCAN_API_KEY,
+      // fantom mainnet
+      opera: process.env.FTMSCAN_API_KEY,
+      // polygon
+      polygon: process.env.POLYGONSCAN_API_KEY,
+      polygonMumbai: process.env.POLYGONSCAN_API_KEY,
+      // arbitrum
+      arbitrumOne: process.env.ARBISCAN_API_KEY,
+      // avalanche
+      avalanche: process.env.SNOWTRACE_API_KEY,
+      // xdai and sokol don't need an API key, but you still need
+      // to specify one; any string placeholder will work
+      xdai: 'api-key',
+      sokol: 'api-key',
+      aurora: 'api-key',
+      auroraTestnet: 'api-key',
+    },
   },
   typechain: {
     outDir: 'src/types',
@@ -108,34 +126,6 @@ export default {
   mocha: {
     timeout: 60000, // Usefull on test networks
   },
-};
-
-// Override the default API key for non-Etherscan explorers
-const setExplorerApiKey = (hre: HardhatRuntimeEnvironment) => {
-  switch (hre.network.name) {
-    case 'bsc':
-    case 'bsctestnet': {
-      hre.config.etherscan.apiKey = process.env.BSCSCAN_API_KEY;
-      return;
-    }
-    case 'matic':
-    case 'mumbai': {
-      hre.config.etherscan.apiKey = process.env.POLYGONSCAN_API_KEY;
-      return;
-    }
-    case 'fantom': {
-      hre.config.etherscan.apiKey = process.env.FTMSCAN_API_KEY;
-      return;
-    }
-    case 'arbitrum-one': {
-      hre.config.etherscan.apiKey = process.env.ARBISCAN_API_KEY;
-      return;
-    }
-    case 'avalanche': {
-      hre.config.etherscan.apiKey = process.env.SNOWTRACE_API_KEY;
-      return;
-    }
-  }
 };
 
 // FIXME: use deployAllPaymentContracts instead to test with the same deployments
@@ -155,7 +145,6 @@ task(
     args.force = args.force ?? false;
     args.dryRun = args.dryRun ?? false;
     args.simulate = args.dryRun;
-    setExplorerApiKey(hre);
     await deployAllPaymentContracts(args, hre);
   });
 
