@@ -61,7 +61,7 @@ export const xdeploy = async (
     let deployed = false;
     let error = undefined;
     try {
-      let createReceipt = await (
+      const createReceipt = await (
         await create2Deployer.deploy(
           ZERO_ETH_INPUT,
           hre.ethers.utils.id(hre.config.xdeploy.salt),

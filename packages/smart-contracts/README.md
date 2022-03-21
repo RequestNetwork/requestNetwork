@@ -137,7 +137,7 @@ yarn hardhat prepare-live-payments --network private
 
 ### Deployment through request deployer
 
-The request deployer enables multichain deployment of several smart contract at predefined address.
+The request deployer enables multichain deployment of several smart contracts at predefined address. It is based on https://github.com/pcaversaccio/xdeployer
 
 The deployer contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2` on live chains.
 
@@ -159,7 +159,7 @@ Run:
 yarn hardhat compute-contract-addresses
 ```
 
-It will compute the addresses of the contract to be deployed via the request deployer.
+It will compute the addresses of the contracts to be deployed via the request deployer.
 
 #### Deploy the contracts
 
@@ -173,6 +173,11 @@ yarn hardhat deploy-contracts-through-deployer
 ```
 
 To deploy on live chains set `REQUEST_DEPLOYER_LIVE` to true
+
+This command will output details about each contract deployment on each chain:
+- If successfull: the network, the contract address and block number
+- If already deployed: the network, and the contract address
+- If and error occured: the said error 
 
 #### Verify the contracts
 
