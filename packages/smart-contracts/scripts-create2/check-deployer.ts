@@ -1,3 +1,4 @@
+import { getDefaultProvider } from 'ethers';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 
 export const checkCreate2Deployer = async (
@@ -10,11 +11,8 @@ export const checkCreate2Deployer = async (
     throw new Error('Deployer contract address missing');
   }
   await Promise.all(
-    hre.config.xdeploy.networks.map(async (network: string, index: number) => {
-      if (!hre.config.xdeploy.rpcUrls || !hre.config.xdeploy.rpcUrls[index]) {
-        throw new Error('Bad network configuration for ' + network);
-      }
-      const provider = new hre.ethers.providers.JsonRpcProvider(hre.config.xdeploy.rpcUrls[index]);
+    hre.config.xdeploy.networks.map(async (network: string) => {
+      const provider = getDefaultProvider(network);
       const code = await provider.getCode(hre.config.xdeploy.deployerAddress);
 
       if (code === '0x') {

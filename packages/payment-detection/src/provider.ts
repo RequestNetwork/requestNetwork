@@ -1,4 +1,4 @@
-import { providers } from 'ethers';
+import { constants, providers } from 'ethers';
 
 type ProviderFactory = (network: string | undefined) => providers.Provider | string;
 
@@ -42,6 +42,7 @@ const networkRpcs: Record<string, string> = {
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
   'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
   avalanche: 'https://api.avax.network/ext/bc/C/rpc',
+  celo: 'https://forno.celo.org',
 };
 
 /**
@@ -80,6 +81,10 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
       initPaymentDetectionApiKeys({ infura: () => "myApiKey" });
       `);
       warned = true;
+    }
+
+    if (network === 'celo') {
+      return getCeloProvider(apiKey);
     }
     return new providers.InfuraProvider(network, apiKey);
   } catch (e) {
@@ -128,5 +133,20 @@ export const getDefaultProvider = (network?: string): providers.Provider => {
   if (typeof provider === 'string') {
     return new providers.StaticJsonRpcProvider(provider);
   }
+  return provider;
+};
+
+const getCeloProvider = (apiKey: string): string | providers.Provider => {
+  const provider = new providers.InfuraProvider('celo', apiKey);
+  const originalBlockFormatter = provider.formatter._block;
+  provider.formatter._block = (value: any, format: any) => {
+    return originalBlockFormatter(
+      {
+        gasLimit: constants.Zero,
+        ...value,
+      },
+      format,
+    );
+  };
   return provider;
 };

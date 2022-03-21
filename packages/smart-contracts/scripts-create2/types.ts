@@ -9,7 +9,6 @@ export type HardhatRuntimeEnvironmentExtended = HardhatRuntimeEnvironment & {
   config: {
     xdeploy: {
       networks: Array<string>;
-      rpcUrls: Array<string>;
       salt: string;
       signer: string;
       deployerAddress: string;

@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
-import { constants } from 'ethers';
+import { getDefaultProvider } from 'ethers';
 import { requestDeployer } from '../src/lib';
 
 const ZERO_ETH_INPUT = 0;
@@ -13,12 +13,8 @@ export const xdeploy = async (
 
   await hre.run('compile');
 
-  if (!hre.config.xdeploy.networks || !hre.config.xdeploy.rpcUrls) {
+  if (!hre.config.xdeploy.networks) {
     throw new Error('Bad network configuration');
-  }
-
-  if (hre.config.xdeploy.networks.length !== hre.config.xdeploy.rpcUrls.length) {
-    throw new Error('Number of rpc url does not match number of network');
   }
 
   if (!hre.config.xdeploy.salt) {
@@ -39,20 +35,8 @@ export const xdeploy = async (
     initcode = await Contract.getDeployTransaction();
   }
 
-  for (let i = 0; i < hre.config.xdeploy.rpcUrls.length; i++) {
-    const provider = new hre.ethers.providers.JsonRpcProvider(hre.config.xdeploy.rpcUrls[i]);
-    if (hre.config.xdeploy.networks[i] === 'celo') {
-      const originalBlockFormatter = provider.formatter._block;
-      provider.formatter._block = (value: any, format: any) => {
-        return originalBlockFormatter(
-          {
-            gasLimit: constants.Zero,
-            ...value,
-          },
-          format,
-        );
-      };
-    }
+  for (const network of hre.config.xdeploy.networks) {
+    const provider = getDefaultProvider(network);
     const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
     const signer = wallet.connect(provider);
 
@@ -90,14 +74,14 @@ export const xdeploy = async (
     } catch (err) {
       error = err;
     }
-    result[i] = {
-      network: hre.config.xdeploy.networks[i],
+    result.push({
+      network,
       contract: contract,
       address: computedContractAddress,
       receipt,
       deployed,
       error,
-    };
+    });
   }
   return result;
 };

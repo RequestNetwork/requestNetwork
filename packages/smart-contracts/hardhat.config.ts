@@ -142,28 +142,9 @@ export default {
   xdeploy: {
     salt: REQUEST_SALT,
     signer: process.env.ADMIN_PRIVATE_KEY,
-    networks: [
-      'mainnet',
-      'matic',
-      'bsc',
-      'celo',
-      'xdai',
-      'fuse',
-      'arbitrum-one',
-      'fantom',
-      'avalanche',
-    ],
-    rpcUrls: [
-      'https://mainnet.infura.io/v3/YOUR_API_KEY',
-      'https://polygon-rpc.com',
-      'https://bsc-dataseed1.binance.org',
-      'https://forno.celo.org',
-      'https://rpc.xdaichain.com/',
-      'https://rpc.fuse.io',
-      'https://arb1.arbitrum.io/rpc',
-      'https://rpcapi.fantom.network',
-      'https://api.avax.network/ext/bc/C/rpc',
-    ],
+    networks: process.env.NETWORK
+      ? [process.env.NETWORK]
+      : ['mainnet', 'matic', 'bsc', 'celo', 'xdai', 'fuse', 'arbitrum-one', 'fantom', 'avalanche'],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
   },
@@ -215,7 +196,7 @@ task(
 });
 
 task(
-  'deploy-contract-through-deployer',
+  'deploy-contracts-through-deployer',
   'Deploy the contracts from the Create2DeploymentList using the create2 scheme',
 ).setAction(async (_args, hre) => {
   await checkCreate2Deployer(hre as HardhatRuntimeEnvironmentExtended);
