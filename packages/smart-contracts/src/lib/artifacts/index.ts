@@ -17,3 +17,4 @@ export * from './BatchPayments';
  */
 export * from './RequestHashStorage';
 export * from './RequestHashSubmitter';
+export * from './RequestDeployer';
