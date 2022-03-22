@@ -11,7 +11,7 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0xd54b47F8e6A1b97F3A84f63c867286272b273b7C',
+          address: '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E',
           creationBlockNumber: 0,
         },
         mainnet: {
@@ -68,7 +68,7 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
       abi: ABI_0_1_1,
       deployment: {
         private: {
-          address: '0xd54b47F8e6A1b97F3A84f63c867286272b273b7C',
+          address: '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E',
           creationBlockNumber: 0,
         },
       },

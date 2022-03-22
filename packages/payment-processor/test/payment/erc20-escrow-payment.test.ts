@@ -16,7 +16,7 @@ import { getErc20Balance } from '../../src/payment/erc20';
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-const erc20EscrowToPayContractAddress = '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc';
+const erc20EscrowToPayContractAddress = '0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154';
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';

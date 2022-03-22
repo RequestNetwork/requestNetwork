@@ -10,7 +10,7 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0x9F544a3Fc3D1045e6ec49D4ecEF6dCD700457165',
+          address: '0xd54b47F8e6A1b97F3A84f63c867286272b273b7C',
           creationBlockNumber: 0,
         },
         rinkeby: {

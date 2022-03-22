@@ -4,7 +4,7 @@ import { EscrowERC20InfoRetriever } from '../../src/erc20/escrow-info-retriever'
 import { ethers } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 
-const escrowContractAddress = '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc';
+const escrowContractAddress = '0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154';
 const paymentReferenceMock = 'aaaa';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -15,7 +15,7 @@ describe('api/erc20/escrow-info-retriever', () => {
       blockNumber: 38,
       blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
       transactionIndex: 0,
-      address: '0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a',
+      address: '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c',
       data:
         '0x3a322d4500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002aaaa000000000000000000000000000000000000000000000000000000000000',
       topics: [
@@ -30,7 +30,7 @@ describe('api/erc20/escrow-info-retriever', () => {
       blockNumber: 38,
       blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
       transactionIndex: 0,
-      address: '0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a',
+      address: '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c',
       data:
         '0x82865e9d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002aaaa000000000000000000000000000000000000000000000000000000000000',
       topics: [
@@ -45,7 +45,7 @@ describe('api/erc20/escrow-info-retriever', () => {
       blockNumber: 38,
       blockHash: '0x5be4f7b06ebbe0df573da7bc70768247abdc4e03e70264e946226d7154e42742',
       transactionIndex: 0,
-      address: '0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a',
+      address: '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c',
       data:
         '0x0797560800000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002aaaa000000000000000000000000000000000000000000000000000000000000',
       topics: [
@@ -67,7 +67,7 @@ describe('api/erc20/escrow-info-retriever', () => {
         escrowContractAddress,
         0,
         '0x4c88a33fb62e2999fc365141f99d5f278eb68e8f68165be07c74839921cdb564',
-        '0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a',
+        '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c',
         'private',
       );
 

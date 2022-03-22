@@ -50,10 +50,11 @@ The `TransferWithConversionAndReference` event is emitted when the tokens are tr
 [See smart contract source](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/contracts/EthConversionProxy.sol)
 
 | Network | Contract Address                           |
-| ------- | ------------------------------------------ |
+| ------- | ------------------------------------------ | ----- |
 | Mainnet | TODO                                       |
-| Rinkeby | 0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4 |
-| Private | 0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154 |
+| Rinkeby | 0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4 | 0.1.0 |
+| Rinkeby | 0x7Ebf48a26253810629C191b56C3212Fd0D211c26 | 0.2.0 |
+| Private | 0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A |
 
 ## Properties
 

@@ -17,7 +17,7 @@ import { currencyManager } from './shared';
 import { IConversionPaymentSettings } from '../../src/index';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 
-const erc20ConversionContractAddress = '0xd54b47F8e6A1b97F3A84f63c867286272b273b7C';
+const erc20ConversionContractAddress = '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E';
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 const alphaPaymentSettings: IConversionPaymentSettings = {
