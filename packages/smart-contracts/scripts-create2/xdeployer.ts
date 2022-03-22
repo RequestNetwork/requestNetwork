@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
 import { constants, ethers } from 'ethers';
-import { getDefaultProvider } from '@requestnetwork/payment-detection';
+import utils from '@requestnetwork/utils';
 import { requestDeployer } from '../src/lib';
 
 const ZERO_ETH_INPUT = 0;
@@ -51,7 +51,7 @@ export const xdeploy = async (
         );
       };
     } else {
-      provider = getDefaultProvider(network);
+      provider = utils.getDefaultProvider(network);
     }
     const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
     const signer = wallet.connect(provider);

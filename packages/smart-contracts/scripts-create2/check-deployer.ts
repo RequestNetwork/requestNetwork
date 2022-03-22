@@ -1,5 +1,5 @@
 import { constants, providers } from 'ethers';
-import { getDefaultProvider } from '@requestnetwork/payment-detection';
+import utils from '@requestnetwork/utils';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 
 export const checkCreate2Deployer = async (
@@ -27,7 +27,7 @@ export const checkCreate2Deployer = async (
           );
         };
       } else {
-        provider = getDefaultProvider(network);
+        provider = utils.getDefaultProvider(network);
       }
       const code = await provider.getCode(hre.config.xdeploy.deployerAddress);
 
