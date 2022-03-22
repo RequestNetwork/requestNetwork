@@ -24,6 +24,7 @@ ARBISCAN_API_KEY=...        # ... for Arbiscan
 ADMIN_WALLET_ADDRESS=...    # Mandatory to deploy contracts with admin tasks (e.g. ChainlinkConversionPath)
 DEPLOYER_MASTER_KEY=...     # Mandatory to deploy the request deployer smart contract on live blockchains
 REQUEST_DEPLOYER_LIVE=...   # Must be true to deploy contracts through the request deployer on live blockchains.
+NETWORK=...                 # List of network to deploy contracts on with the request deployer. If not set default to all supported chain.
 ```
 
 ## Usage
@@ -35,13 +36,11 @@ import * as SmartContracts from '@requestnetwork/smart-contracts';
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { providers } from 'ethers';
 
-const requestHashStorageMainnetAddress = SmartContracts.requestHashStorageArtifact.getAddress(
-  'mainnet',
-);
+const requestHashStorageMainnetAddress =
+  SmartContracts.requestHashStorageArtifact.getAddress('mainnet');
 
-const requestHashSubmitterRinkebyAddress = SmartContracts.requestHashSubmitterArtifact.getAddress(
-  'rinkeby',
-);
+const requestHashSubmitterRinkebyAddress =
+  SmartContracts.requestHashSubmitterArtifact.getAddress('rinkeby');
 
 const requestHashStorageABI = SmartContracts.requestHashStorageArtifact.getContractAbi();
 
@@ -175,9 +174,10 @@ yarn hardhat deploy-contracts-through-deployer
 To deploy on live chains set `REQUEST_DEPLOYER_LIVE` to true
 
 This command will output details about each contract deployment on each chain:
+
 - If successfull: the network, the contract address and block number
 - If already deployed: the network, and the contract address
-- If and error occured: the said error 
+- If and error occured: the said error
 
 #### Verify the contracts
 
