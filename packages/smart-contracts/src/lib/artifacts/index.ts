@@ -16,3 +16,4 @@ export * from './ERC20EscrowToPay';
  */
 export * from './RequestHashStorage';
 export * from './RequestHashSubmitter';
+export * from './RequestDeployer';

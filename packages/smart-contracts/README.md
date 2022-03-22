@@ -18,8 +18,13 @@ WEB3_PROVIDER_URL=...       # Mandatory to interact with live blockchains
 ETHERSCAN_API_KEY=...       # Only used to verify smart contracts code on live blockchains, even for other explorers, except:
 BSCSCAN_API_KEY=...         # ... for BSCScan
 POLYGONSCAN_API_KEY=...     # ... for PolygonScan
-FTMSCAN_API_KEY=...         # .j. for FTMScan
+FTMSCAN_API_KEY=...         # ... for FTMScan
+SNOWTRACE_API_KEY=...       # ... for Snowtrace
+ARBISCAN_API_KEY=...        # ... for Arbiscan
 ADMIN_WALLET_ADDRESS=...    # Mandatory to deploy contracts with admin tasks (e.g. ChainlinkConversionPath)
+DEPLOYER_MASTER_KEY=...     # Mandatory to deploy the request deployer smart contract on live blockchains
+REQUEST_DEPLOYER_LIVE=...   # Must be true to deploy contracts through the request deployer on live blockchains.
+NETWORK=...                 # List of network to deploy contracts on with the request deployer. If not set default to all supported chain.
 ```
 
 ## Usage
@@ -52,6 +57,10 @@ const erc20FeeProxyInstance = erc20FeeProxyArtifact.connect(
 ## Smart Contracts
 
 The package stores the following smart contracts:
+
+**Smart contracts for request deployment**
+
+- `RequestDeployer` smart contract to which we delegate our deployment through the function `deploy(value, salt, bytecode)`. It enables to deploy contract with the `CREATE2` opcode to easily manage our contract deployment addresses.
 
 **Smart contracts for ethereum-storage package**
 
@@ -126,6 +135,61 @@ Environment variables needed: `ADMIN_PRIVATE_KEY`
 ```bash
 yarn hardhat prepare-live-payments --network private
 ```
+
+### Deployment through request deployer
+
+The request deployer enables multichain deployment of several smart contracts at predefined address. It is based on https://github.com/pcaversaccio/xdeployer
+
+The deployer contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2` on live chains.
+
+Be sure to run `yarn build:sol` before deploying the deployer or a contract.
+
+#### Deploy the request deployer
+
+Environment variables needed: `DEPLOYER_MASTER_KEY`
+
+```bash
+yarn hardhat deploy-deployer-contract --network <NETWORK>
+```
+
+#### Compute the contract addresses
+
+Run:
+
+```bash
+yarn hardhat compute-contract-addresses
+```
+
+It will compute the addresses of the contracts to be deployed via the request deployer.
+
+#### Deploy the contracts
+
+Depending on the xdeployer config, this script will deploy the smart contracts on several chain simultaneously
+Environment variables needed: `ADMIN_PRIVATE_KEY`
+You will need the request deployer to be deployed.
+Then run:
+
+```bash
+yarn hardhat deploy-contracts-through-deployer
+```
+
+To deploy on live chains set `REQUEST_DEPLOYER_LIVE` to true
+
+This command will output details about each contract deployment on each chain:
+
+- If successfull: the network, the contract address and block number
+- If already deployed: the network, and the contract address
+- If and error occured: the said error
+
+#### Verify the contracts
+
+For each network the contract were deployed to run:
+
+```bash
+yarn hardhat verify-contract-from-deployer --network <NETWORK>
+```
+
+The associated `EXPLORER_API_KEY` is mandatory.
 
 ### Tests
 
