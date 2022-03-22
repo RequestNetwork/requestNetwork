@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
-import { getDefaultProvider } from 'ethers';
+import { constants, getDefaultProvider } from 'ethers';
 import { requestDeployer } from '../src/lib';
+import { ethers } from 'hardhat';
 
 const ZERO_ETH_INPUT = 0;
 
@@ -36,7 +37,22 @@ export const xdeploy = async (
   }
 
   for (const network of hre.config.xdeploy.networks) {
-    const provider = getDefaultProvider(network);
+    let provider;
+    if (network === 'celo') {
+      provider = new ethers.providers.JsonRpcProvider('https://forno.celo.org');
+      const originalBlockFormatter = provider.formatter._block;
+      provider.formatter._block = (value: any, format: any) => {
+        return originalBlockFormatter(
+          {
+            gasLimit: constants.Zero,
+            ...value,
+          },
+          format,
+        );
+      };
+    } else {
+      provider = getDefaultProvider(network);
+    }
     const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
     const signer = wallet.connect(provider);
 

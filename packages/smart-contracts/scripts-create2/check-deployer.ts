@@ -1,4 +1,5 @@
-import { getDefaultProvider } from 'ethers';
+import { constants, providers } from 'ethers';
+import { getDefaultProvider } from 'payment-detection';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 
 export const checkCreate2Deployer = async (
@@ -12,7 +13,22 @@ export const checkCreate2Deployer = async (
   }
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network: string) => {
-      const provider = getDefaultProvider(network);
+      let provider;
+      if (network === 'celo') {
+        provider = new providers.JsonRpcProvider('https://forno.celo.org');
+        const originalBlockFormatter = provider.formatter._block;
+        provider.formatter._block = (value: any, format: any) => {
+          return originalBlockFormatter(
+            {
+              gasLimit: constants.Zero,
+              ...value,
+            },
+            format,
+          );
+        };
+      } else {
+        provider = getDefaultProvider(network);
+      }
       const code = await provider.getCode(hre.config.xdeploy.deployerAddress);
 
       if (code === '0x') {
