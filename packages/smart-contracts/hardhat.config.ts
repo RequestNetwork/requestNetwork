@@ -121,14 +121,24 @@ export default {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY,
       rinkeby: process.env.ETHERSCAN_API_KEY,
+      // binance smart chain
       bsc: process.env.BSCSCAN_API_KEY,
       bscTestnet: process.env.BSCSCAN_API_KEY,
+      // fantom mainnet
       opera: process.env.FTMSCAN_API_KEY,
+      // polygon
       polygon: process.env.POLYGONSCAN_API_KEY,
+      polygonMumbai: process.env.POLYGONSCAN_API_KEY,
+      // arbitrum
       arbitrumOne: process.env.ARBISCAN_API_KEY,
-      arbitrumTestnet: process.env.ARBISCAN_API_KEY,
+      // avalanche
       avalanche: process.env.SNOWTRACE_API_KEY,
+      // xdai and sokol don't need an API key, but you still need
+      // to specify one; any string placeholder will work
       xdai: 'api-key',
+      sokol: 'api-key',
+      aurora: 'api-key',
+      auroraTestnet: 'api-key',
     },
   },
   typechain: {
