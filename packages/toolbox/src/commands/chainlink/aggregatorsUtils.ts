@@ -38,10 +38,13 @@ export const getAvailableAggregators = async (
   network: string,
   cm: CurrencyManager,
   pairs?: string[],
+  listAll?: boolean,
 ): Promise<Aggregator[]> => {
   const [feedName, networkName] = feedMap[network] || [];
   if (!feedName || !networkName) {
-    throw new Error(`network ${network} not supported`);
+    throw new Error(
+      `network ${network} not supported by feed provider. Is it supported by Chainlink?`,
+    );
   }
   const { data } = await axios.get<Record<string, Feed>>(
     'https://cl-docs-addresses.web.app/addresses.json',
@@ -66,7 +69,7 @@ export const getAvailableAggregators = async (
       toCurrency.type !== RequestLogicTypes.CURRENCY.BTC &&
       (fromCurrency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
         fromCurrency.network === network) &&
-      !cm.getConversionPath(fromCurrency, toCurrency, network)
+      (listAll || !cm.getConversionPath(fromCurrency, toCurrency, network))
     ) {
       missingAggregators.push({
         name: proxy.pair,
