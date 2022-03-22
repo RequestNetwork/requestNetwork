@@ -1,8 +1,7 @@
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
-import { constants } from 'ethers';
+import { constants, ethers } from 'ethers';
 import { getDefaultProvider } from '@requestnetwork/payment-detection';
 import { requestDeployer } from '../src/lib';
-import { ethers } from 'hardhat';
 
 const ZERO_ETH_INPUT = 0;
 
