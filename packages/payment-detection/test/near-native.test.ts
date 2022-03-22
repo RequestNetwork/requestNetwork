@@ -45,7 +45,6 @@ const request: any = {
 };
 
 describe('Near payments detection', () => {
-  // TODO Near tests failing. Asked NEAR team about this.
   it('NearInfoRetriever can retrieve a NEAR payment', async () => {
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
@@ -90,7 +89,7 @@ describe('Near payments detection', () => {
     ).toBeInstanceOf(NearNativeTokenPaymentDetector);
   });
 
-  it('NearNativeTokenPaymentDetector can detect a payment on aurora', async () => {
+  it('NearNativeTokenPaymentDetector can detect a payment on Near', async () => {
     const paymentDetector = new NearNativeTokenPaymentDetector({
       advancedLogic: mockAdvancedLogic,
     });

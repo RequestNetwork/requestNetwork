@@ -29,9 +29,7 @@ export class NearInfoRetriever {
     }
     if (this.network !== 'aurora') {
       // FIXME: remove this check and implement testnet detection once aurora-testnet subgraphes are available
-      throw new Error(
-        'FIXME: getTransactionsFromNearSubGraph() only implemented for aurora mainnet',
-      );
+      throw new Error('FIXME: getTransactionsFromNearSubGraph() only implemented for Near mainnet');
     }
     this.network = this.network.replace('aurora', 'near');
     if (this.proxyContractName !== 'requestnetwork.near') {
