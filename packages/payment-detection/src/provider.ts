@@ -81,7 +81,6 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
       `);
       warned = true;
     }
-
     return new providers.InfuraProvider(network, apiKey);
   } catch (e) {
     // suppress errors

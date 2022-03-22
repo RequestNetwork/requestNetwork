@@ -1,5 +1,5 @@
 import { constants, providers } from 'ethers';
-import { getDefaultProvider } from 'payment-detection';
+import { getDefaultProvider } from '@requestnetwork/payment-detection';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 
 export const checkCreate2Deployer = async (
