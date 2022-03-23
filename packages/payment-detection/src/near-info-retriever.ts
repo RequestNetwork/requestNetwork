@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { getTheGraphClient, TheGraphClient } from '.';
+import { getTheGraphNearClient, TheGraphClient } from '.';
 
 // FIXME#1: when Near subgraphes can retrieve a txHash, replace the custom IPaymentNetworkEvent with PaymentTypes.ETHPaymentNetworkEvent
 interface NearSubGraphPaymentEvent extends PaymentTypes.IETHPaymentEventParameters {
@@ -37,7 +37,7 @@ export class NearInfoRetriever {
         `Proxy contract "${proxyContractName}" not supported by Near subgraph retriever`,
       );
     }
-    this.client = getTheGraphClient<'near'>(this.network);
+    this.client = getTheGraphNearClient(this.network as 'near' | 'near-testnet');
   }
 
   public async getTransferEvents(): Promise<

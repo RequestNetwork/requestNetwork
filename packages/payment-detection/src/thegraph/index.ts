@@ -20,10 +20,10 @@ export type TheGraphClientOptions = {
   timeout?: number;
 };
 
-export const getTheGraphClient = <TGraphClientVariant extends 'near' | null = null>(
+export const getTheGraphClient = (
   network: string,
   options?: TheGraphClientOptions,
-) => {
+): TheGraphClient => {
   const baseUrl = options?.baseUrl || network === 'private' ? 'http://localhost:8000' : BASE_URL;
   // Note: it is also possible to use the IPFS hash of the subgraph
   //  eg. /subgraphs/id/QmcCaSkefrmhe4xQj6Y6BBbHiFkbrn6UGDEBUWER7nt399
@@ -31,10 +31,17 @@ export const getTheGraphClient = <TGraphClientVariant extends 'near' | null = nu
   //  library each time the subgraph is updated, which isn't ideal
   //  for early testing.
   const url = `${baseUrl}/subgraphs/name/requestnetwork/request-payments-${network}`;
-  if (network === 'near') {
-    return getSdkNear(new GraphQLClient(url, options)) as TheGraphClient<TGraphClientVariant>;
-  }
-  return getSdk(new GraphQLClient(url, options)) as TheGraphClient<TGraphClientVariant>;
+  return getSdk(new GraphQLClient(url, options));
+};
+
+export const getTheGraphNearClient = (
+  network: 'near' | 'near-testnet' | 'private',
+  options?: TheGraphClientOptions,
+): TheGraphClient<'near'> => {
+  const baseUrl = options?.baseUrl || network === 'private' ? 'http://localhost:8000' : BASE_URL;
+  // Note: cf. getTheGraphClient for baseUrl
+  const url = `${baseUrl}/subgraphs/name/requestnetwork/request-payments-${network}`;
+  return getSdkNear(new GraphQLClient(url, options));
 };
 
 export const networkSupportsTheGraph = (network: string): boolean => {

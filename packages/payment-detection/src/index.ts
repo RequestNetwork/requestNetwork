@@ -7,7 +7,7 @@ import * as Erc20PaymentNetwork from './erc20';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
 import { initPaymentDetectionApiKeys, setProviderFactory, getDefaultProvider } from './provider';
-import { getTheGraphClient, networkSupportsTheGraph } from './thegraph';
+import { getTheGraphClient, getTheGraphNearClient, networkSupportsTheGraph } from './thegraph';
 import {
   parseLogArgs,
   padAmountForChainlink,
@@ -37,6 +37,7 @@ export {
   initPaymentDetectionApiKeys,
   getDefaultProvider,
   getTheGraphClient,
+  getTheGraphNearClient,
   networkSupportsTheGraph,
   parseLogArgs,
   padAmountForChainlink,
