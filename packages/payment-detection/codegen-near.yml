@@ -1,0 +1,10 @@
+overwrite: true
+schema: 'https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-near'
+documents: src/thegraph/queries/near/*.graphql
+generates:
+  src/thegraph/generated/graphql-near.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-graphql-request'
+      - 'typescript-document-nodes'
