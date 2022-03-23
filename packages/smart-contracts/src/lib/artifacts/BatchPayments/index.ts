@@ -13,10 +13,6 @@ export const batchPaymentsArtifact = new ContractArtifact<BatchPayments>(
           address: '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc',
           creationBlockNumber: 0,
         },
-        rinkeby: {
-          address: '0xD02C5E6D86BA8D72eac9a71c9cF11263e181e6FD',
-          creationBlockNumber: 10292043,
-        },
       },
     },
   },
