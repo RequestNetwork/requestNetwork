@@ -47,6 +47,55 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
         },
       },
     },
+    '0.2.0': {
+      abi: ABI_0_1_0,
+      deployment: {
+        private: {
+          address: '0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241',
+          creationBlockNumber: 0,
+        },
+        rinkeby: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 10307582,
+        },
+        fantom: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 33495801,
+        },
+        avalanche: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 12144016,
+        },
+        fuse: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 15992819,
+        },
+        matic: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 25972999,
+        },
+        xdai: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 21123997,
+        },
+        'arbitrum-one': {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 7943516,
+        },
+        bsc: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 16084639,
+        },
+        mainnet: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 14392218,
+        },
+        celo: {
+          address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
+          creationBlockNumber: 11988955,
+        },
+      },
+    },
   },
-  '0.1.0',
+  '0.2.0',
 );

@@ -1630,24 +1630,18 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('c19da4923539c37f');
+      ).toBe('efce79375b2db9f7');
 
       jest.advanceTimersByTime(150);
       const dataAfterRefresh = await request.refresh();
 
-      expect(dataAfterRefresh.balance?.balance).toBe('12345600000');
-      expect(dataAfterRefresh.balance?.events.length).toBe(2);
+      expect(dataAfterRefresh.balance?.balance).toBe('12300000000');
+      expect(dataAfterRefresh.balance?.events.length).toBe(1);
 
       expect(dataAfterRefresh.balance?.events[0].name).toBe('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).toBe('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
-      );
-
-      expect(dataAfterRefresh.balance?.events[1].name).toBe('payment');
-      expect(dataAfterRefresh.balance?.events[1].amount).toBe('45600000');
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).toBe(
-        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
       jest.useRealTimers();
     });
@@ -1702,7 +1696,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('c19da4923539c37f');
+      ).toBe('efce79375b2db9f7');
 
       jest.advanceTimersByTime(150);
       let dataAfterRefresh = await request.refresh();
@@ -1712,38 +1706,26 @@ describe('index', () => {
       jest.advanceTimersByTime(150);
       dataAfterRefresh = await request.refresh();
 
-      expect(dataAfterRefresh.balance?.balance).toBe('12345600000');
-      expect(dataAfterRefresh.balance?.events.length).toBe(2);
+      expect(dataAfterRefresh.balance?.balance).toBe('12300000000');
+      expect(dataAfterRefresh.balance?.events.length).toBe(1);
 
       expect(dataAfterRefresh.balance?.events[0].name).toBe('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).toBe('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
-      );
-
-      expect(dataAfterRefresh.balance?.events[1].name).toBe('payment');
-      expect(dataAfterRefresh.balance?.events[1].amount).toBe('45600000');
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).toBe(
-        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
 
       request.disablePaymentDetection();
       jest.advanceTimersByTime(150);
       dataAfterRefresh = await request.refresh();
 
-      expect(dataAfterRefresh.balance?.balance).toBe('12345600000');
-      expect(dataAfterRefresh.balance?.events.length).toBe(2);
+      expect(dataAfterRefresh.balance?.balance).toBe('12300000000');
+      expect(dataAfterRefresh.balance?.events.length).toBe(1);
 
       expect(dataAfterRefresh.balance?.events[0].name).toBe('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).toBe('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
-      );
-
-      expect(dataAfterRefresh.balance?.events[1].name).toBe('payment');
-      expect(dataAfterRefresh.balance?.events[1].amount).toBe('45600000');
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).toBe(
-        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
       jest.useRealTimers();
     });
@@ -1798,42 +1780,30 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('c19da4923539c37f');
+      ).toBe('efce79375b2db9f7');
 
       jest.advanceTimersByTime(150);
       let dataAfterRefresh = await request.refresh();
       expect(dataAfterRefresh.balance).toBeNull();
 
       const balance = await request.refreshBalance();
-      expect(balance?.balance).toBe('12345600000');
-      expect(balance?.events.length).toBe(2);
+      expect(balance?.balance).toBe('12300000000');
+      expect(balance?.events.length).toBe(1);
 
       expect(balance?.events[0].name).toBe('payment');
       expect(balance?.events[0].amount).toBe('12300000000');
       expect(balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
       );
-
-      expect(balance?.events[1].name).toBe('payment');
-      expect(balance?.events[1].amount).toBe('45600000');
-      expect(balance?.events[1].parameters!.txHash).toBe(
-        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
-      );
       dataAfterRefresh = request.getData();
 
-      expect(dataAfterRefresh.balance?.balance).toBe('12345600000');
-      expect(dataAfterRefresh.balance?.events.length).toBe(2);
+      expect(dataAfterRefresh.balance?.balance).toBe('12300000000');
+      expect(dataAfterRefresh.balance?.events.length).toBe(1);
 
       expect(dataAfterRefresh.balance?.events[0].name).toBe('payment');
       expect(dataAfterRefresh.balance?.events[0].amount).toBe('12300000000');
       expect(dataAfterRefresh.balance?.events[0].parameters!.txHash).toBe(
         '0x06d95c3889dcd974106e82fa27358549d9392d6fee6ea14fe1acedadc1013114',
-      );
-
-      expect(dataAfterRefresh.balance?.events[1].name).toBe('payment');
-      expect(dataAfterRefresh.balance?.events[1].amount).toBe('45600000');
-      expect(dataAfterRefresh.balance?.events[1].parameters!.txHash).toBe(
-        '0x38c44820c37d31fbfe3fcee9d4bcf1b887d3f90fb67d62d924af03b065a80ced',
       );
 
       jest.useRealTimers();
