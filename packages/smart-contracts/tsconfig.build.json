@@ -4,7 +4,7 @@
     "outDir": "dist",
     "rootDir": "."
   },
-  "include": ["src/**/*", "src/**/*.json", "scripts", "hardhat.config.ts"],
+  "include": ["src/**/*", "src/**/*.json", "scripts", "hardhat.config.ts", "scripts-create2"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts"],
   "references": [
     { "path": "../currency/tsconfig.build.json" },

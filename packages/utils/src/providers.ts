@@ -22,9 +22,7 @@ let providersApiKeys: Record<string, string | (() => string)> = {
 
 /**
  * @param defaultProviderOptions Default Provider Options as specified in https://docs.ethers.io/v5/api/providers/#providers-getDefaultProvider  */
-export const initPaymentDetectionApiKeys = (
-  defaultProviderOptions?: typeof providersApiKeys,
-): void => {
+const initPaymentDetectionApiKeys = (defaultProviderOptions?: typeof providersApiKeys): void => {
   providersApiKeys = { ...providersApiKeys, ...defaultProviderOptions };
 };
 
@@ -108,7 +106,7 @@ let currentProviderFactory: CurrentProviderFactory = defaultProviderFactory;
  * Override the default providerFactory, which relies mainly on Infura.
  * @param providerFactory if not specify, will reset to the default factory
  */
-export const setProviderFactory = (providerFactory?: CurrentProviderFactory): void => {
+const setProviderFactory = (providerFactory?: CurrentProviderFactory): void => {
   currentProviderFactory = providerFactory || defaultProviderFactory;
 };
 
@@ -123,10 +121,16 @@ export const setProviderFactory = (providerFactory?: CurrentProviderFactory): vo
  *
  * @param network the blockchain network. See https://chainid.network/chains.json `network` field for reference
  */
-export const getDefaultProvider = (network?: string): providers.Provider => {
+const getDefaultProvider = (network?: string): providers.Provider => {
   const provider = currentProviderFactory(network, defaultProviderFactory);
   if (typeof provider === 'string') {
     return new providers.StaticJsonRpcProvider(provider);
   }
   return provider;
+};
+
+export default {
+  setProviderFactory,
+  initPaymentDetectionApiKeys,
+  getDefaultProvider,
 };
