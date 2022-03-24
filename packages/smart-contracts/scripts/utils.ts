@@ -30,15 +30,17 @@ export const uniswapV2RouterAddresses: Record<string, string> = {
  */
 export const jumpToNonce = async (args: any, hre: HardhatRuntimeEnvironment, nonce: number) => {
   const [deployer] = await hre.ethers.getSigners();
+  let nextNonce = await deployer.getTransactionCount();
   if (args.simulate) {
-    const currentNonce = await deployer.getTransactionCount();
-    if (currentNonce < nonce) {
-      console.log(`Simulating a jump to nonce ${nonce} (current: ${currentNonce})`);
+    if (nextNonce < nonce) {
+      console.log(`Simulating a jump to nonce ${nonce} (current: ${nextNonce})`);
     }
     return;
   }
-  while ((await deployer.getTransactionCount()) < nonce) {
+  while (nextNonce < nonce) {
     // Atificially increase nonce if needed
-    await deployer.sendTransaction({ to: deployer.address });
+    const tx = await deployer.sendTransaction({ to: deployer.address, nonce: nextNonce });
+    await tx.wait(1);
+    nextNonce = await deployer.getTransactionCount();
   }
 };
