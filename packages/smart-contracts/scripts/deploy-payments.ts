@@ -16,7 +16,7 @@ import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
 import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
-import { EthConversionProxy } from 'smart-contracts/src/types';
+import { EthConversionProxy } from '../src/types/EthConversionProxy';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types';
