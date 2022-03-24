@@ -1,6 +1,7 @@
 import * as ContentData from './extensions/content-data-types';
 import * as PnAddressBased from './extensions/pn-any-address-based-types';
 import * as PnAnyDeclarative from './extensions/pn-any-declarative-types';
+import * as PnStreamReferenceBased from './extensions/pn-any-stream-reference-based-types';
 import * as PnFeeReferenceBased from './extensions/pn-any-fee-reference-based-types';
 import * as PnReferenceBased from './extensions/pn-any-reference-based-types';
 import * as PnAnyToErc20 from './extensions/pn-any-to-erc20-types';
@@ -13,6 +14,7 @@ export {
   ContentData,
   PnAnyDeclarative,
   PnAddressBased,
+  PnStreamReferenceBased,
   PnFeeReferenceBased,
   PnReferenceBased,
   PnAnyToErc20,
