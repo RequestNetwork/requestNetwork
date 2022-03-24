@@ -34,7 +34,11 @@ export async function deployERC20ConversionProxy(
   }
 
   return deployOne<Erc20ConversionProxy>(args, hre, contractName, {
-    constructorArguments: [args.erc20FeeProxyAddress, args.chainlinkConversionPathAddress],
+    constructorArguments: [
+      args.erc20FeeProxyAddress,
+      args.chainlinkConversionPathAddress,
+      process.env.ADMIN_WALLET_ADDRESS ?? (await (await hre.ethers.getSigners())[0].getAddress()),
+    ],
     artifact: erc20ConversionProxyArtifact,
     nonceCondition: args.nonceCondition,
     version: '0.1.1',
