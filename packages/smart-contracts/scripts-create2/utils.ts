@@ -4,7 +4,11 @@ import * as artifacts from '../src/lib';
 /**
  * List of smart contract that we deploy using the CREATE2 scheme thourhg the Request Deployer contract
  */
-export const create2ContractDeploymentList = ['EthereumProxy', 'EthereumFeeProxy'];
+export const create2ContractDeploymentList = [
+  'EthereumProxy',
+  'EthereumFeeProxy',
+  'Erc20ConversionProxy',
+];
 
 /**
  * Returns the artifact of the specified contract

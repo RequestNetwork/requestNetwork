@@ -27,7 +27,7 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
         switch (contract) {
           case 'EthereumProxy':
           case 'EthereumFeeProxy':
-          case 'ERC20ConversionProxy': {
+          case 'Erc20ConversionProxy': {
             const constructorArgs = getConstructorArgs(contract);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
             await verifyOne(address, { contract, constructorArgs }, hre);

@@ -52,7 +52,7 @@ export const computeCreate2DeploymentAddressesFromList = async (
       switch (contract) {
         case 'EthereumProxy':
         case 'EthereumFeeProxy':
-        case 'ERC20ConversionProxy': {
+        case 'Erc20ConversionProxy': {
           const constructorArgs = getConstructorArgs(contract);
           address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
           console.log(`${contract.padEnd(36, ' ')}${address}`);
