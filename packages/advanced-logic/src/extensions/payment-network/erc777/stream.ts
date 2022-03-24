@@ -1,5 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from '../reference-based';
+import Utils from '@requestnetwork/utils';
 
 const CURRENT_VERSION = '0.1.0';
 
@@ -39,5 +40,53 @@ export default class Erc777StreamPaymentNetwork<
     return super.createCreationAction(
       creationParameters,
     ) as ExtensionTypes.IAction<TCreationParameters>;
+  }
+
+  protected applyCreation(
+    extensionAction: ExtensionTypes.IAction,
+    timestamp: number,
+  ): ExtensionTypes.IState {
+    if (!extensionAction.parameters.expectedStartDate) {
+      throw Error('expectedStartDate should not be empty');
+    }
+    if (!extensionAction.parameters.expectedFlowRate) {
+      throw Error('expectedFlowRate should not be empty');
+    }
+    if (
+      extensionAction.parameters.expectedStartDate &&
+      !Utils.amount.isValid(extensionAction.parameters.expectedStartDate)
+    ) {
+      throw Error('expectedStartDate is not a valid amount');
+    }
+    if (
+      extensionAction.parameters.expectedFlowRate &&
+      !Utils.amount.isValid(extensionAction.parameters.expectedFlowRate)
+    ) {
+      throw Error('expectedFlowRate is not a valid amount');
+    }
+
+    const proxyPNCreationAction = super.applyCreation(extensionAction, timestamp);
+
+    return {
+      ...proxyPNCreationAction,
+      events: [
+        {
+          name: 'create',
+          parameters: {
+            expectedStartDate: extensionAction.parameters.expectedStartDate,
+            expectedFlowRate: extensionAction.parameters.expectedFlowRate,
+            paymentAddress: extensionAction.parameters.paymentAddress,
+            refundAddress: extensionAction.parameters.refundAddress,
+            salt: extensionAction.parameters.salt,
+          },
+          timestamp,
+        },
+      ],
+      values: {
+        ...proxyPNCreationAction.values,
+        expectedStartDate: extensionAction.parameters.expectedStartDate,
+        expectedFlowRate: extensionAction.parameters.expectedFlowRate,
+      },
+    };
   }
 }
