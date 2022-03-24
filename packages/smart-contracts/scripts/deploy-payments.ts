@@ -16,6 +16,8 @@ import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
 import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
+// eslint-disable-next-line
+// @ts-ignore Cannot find module
 import { EthConversionProxy } from '../src/types/EthConversionProxy';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
