@@ -14,9 +14,14 @@ contract Erc20ConversionProxy is Ownable {
     address public paymentProxy;
     ChainlinkConversionPath public chainlinkConversionPath;
 
-    constructor(address _paymentProxyAddress, address _chainlinkConversionPathAddress) {
+    constructor(
+        address _paymentProxyAddress,
+        address _chainlinkConversionPathAddress,
+        address _owner
+    ) {
         paymentProxy = _paymentProxyAddress;
         chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+        transferOwnership(_owner);
     }
 
     // Event to declare a conversion with a reference
