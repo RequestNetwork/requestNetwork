@@ -72,18 +72,19 @@ Two equivalent ways to read the 3 parameters (`expectedStartDate`, `expectedFlow
 
 ### Parameters
 
-|                                 | Type & Description | Requirement   |
-| ------------------------------- | ------------------ | ------------- |
-| **id**                          | cf. Properties     | **Mandatory** |
-| **type**                        | \*                 | **Mandatory** |
-| **version**                     | \*                 | **Mandatory** |
-| **parameters**                  | Object             |               |
-| **parameters.salt**             | \*                 | **Mandatory** |
-| **parameters.expectedFlowRate** | \*                 | Optional      |
-| **parameters.paymentAddress**   | \*                 | Optional      |
-| **parameters.refundAddress**    | \*                 | Optional      |
-| **parameters.feeAddress**       | \*                 | Optional      |
-| **parameters.feeAmount**        | \*                 | Optional      |
+|                                  | Type & Description | Requirement   |
+| -------------------------------- | ------------------ | ------------- |
+| **id**                           | cf. Properties     | **Mandatory** |
+| **type**                         | \*                 | **Mandatory** |
+| **version**                      | \*                 | **Mandatory** |
+| **parameters**                   | Object             |               |
+| **parameters.salt**              | \*                 | **Mandatory** |
+| **parameters.expectedFlowRate**  | \*                 | **Mandatory** |
+| **parameters.expectedStartDate** | \*                 | **Mandatory** |
+| **parameters.paymentAddress**    | \*                 | Optional      |
+| **parameters.refundAddress**     | \*                 | Optional      |
+| **parameters.feeAddress**        | \*                 | Optional      |
+| **parameters.feeAmount**         | \*                 | Optional      |
 
 ### Conditions
 
@@ -100,19 +101,20 @@ This action must trigger the same warnings as a normal ERC20 Fee Proxy extension
 
 The extension state is created with the following properties:
 
-|  Property                   |  Value                                                         |
-| --------------------------- | -------------------------------------------------------------- |
-| **id**                      | cf. Properties                                                 |
-| **type**                    | \*                                                             |
-| **version**                 | \*                                                             |
-| **values**                  |                                                                |
-| **values.paymentAddress**   | `paymentAddress` from parameters if given, undefined otherwise |
-| **values.refundAddress**    | `refundAddress` from parameters if given, undefined otherwise  |
-| **values.feeAddress**       | `feeAddress` from parameters if given, undefined otherwise     |
-| **values.feeAmount**        | `feeAmount` from parameters if given, undefined otherwise      |
-| **values.salt**             | cf. Properties                                                 |
-| **values.expectedFlowRate** | \*                                                             |
-| **events**                  | Array with one 'create' event (see below)                      |
+|  Property                    |  Value                                                                 |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| **id**                       | cf. Properties                                                         |
+| **type**                     | \*                                                                     |
+| **version**                  | \*                                                                     |
+| **values**                   |                                                                        |
+| **values.paymentAddress**    | `paymentAddress` from parameters if given, undefined otherwise         |
+| **values.refundAddress**     | `refundAddress` from parameters if given, undefined otherwise          |
+| **values.feeAddress**        | `feeAddress` from parameters if given, undefined otherwise             |
+| **values.feeAmount**         | `feeAmount` from parameters if given, undefined otherwise              |
+| **values.salt**              | cf. Properties                                                         |
+| **values.expectedFlowRate**  | `expectedFlowRate` from parameters if given, undefined otherwise       |
+| **values.expectedStartDate** | `expectedStartDate` from parameters if given, undefined otherwise      |
+| **events**                   | Array with one 'create' event (see below)                              |
 
 The 'create' event in the extension state **events**:
 
