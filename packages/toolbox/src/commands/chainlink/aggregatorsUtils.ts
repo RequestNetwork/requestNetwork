@@ -32,7 +32,7 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   fantom: ['fantom-price-feeds', 'Fantom Mainnet'],
   matic: ['matic-addresses', 'Polygon Mainnet'],
   xdai: ['data-feeds-gnosis-chain', 'Gnosis Chain Mainnet'],
-  bsc: ['bnb-chain-addresses-price', 'BNB Chain Testnet'],
+  bsc: ['bnb-chain-addresses-price', 'BNB Chain Mainnet'],
 };
 
 export const getAvailableAggregators = async (
@@ -58,8 +58,8 @@ export const getAvailableAggregators = async (
   const missingAggregators: Aggregator[] = [];
   for (const proxy of proxies) {
     const [from, to] = proxy.pair.split(' / ');
-    const fromCurrency = cm.from(from);
-    const toCurrency = cm.from(to);
+    const fromCurrency = cm.from(from, network);
+    const toCurrency = cm.from(to, network);
     if (pairs && !pairs.includes(`${from}-${to}`.toLowerCase())) {
       continue;
     }
