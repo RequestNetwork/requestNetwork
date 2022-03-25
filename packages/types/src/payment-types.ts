@@ -264,6 +264,19 @@ export interface IEscrowParameters {
 /** Represents the current state of an escrow instance */
 export type EscrowData = IEscrowParameters;
 
+export interface IEscrowChainData {
+  tokenAddress: string;
+  payee: string;
+  payer: string;
+  amount: number;
+  unlockDate: number;
+  emergencyClaimDate: number;
+  emergencyState: boolean;
+  isFrozen: boolean;
+}
+/** Represents the escrow data stored onchain */
+export type EscrowChainData = IEscrowChainData;
+
 /** escrow payment network event */
 export interface IPaymentNetworkEscrowEvent<TEventParameters, TEventNames = EVENTS_NAMES>
   extends IPaymentNetworkBaseEvent<TEventNames> {
