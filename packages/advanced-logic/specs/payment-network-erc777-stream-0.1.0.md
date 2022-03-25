@@ -48,9 +48,9 @@ Manual payment declarations follow the same specifications as [payment-network-e
 | **values.feeAddress**        | String    | Blockchain address for the fee payment           | Optional      |
 | **values.feeAmount**         | String    | The fee amount in the request `currency`         | Optional      |
 
-The `expectedStartDate` and `expectedFlowRate` describe the expected payment conditions, which in combination with the request `expectedAmount` fixes the expected payment end date for the give first request of the series.
+The `expectedStartDate` and `expectedFlowRate` describe the expected payment conditions, which in combination with the request `expectedAmount` fixes the expected payment end date (`expectedEndDate`) for the give first request of the series.
 
-Two equivalent ways to read the 3 parameters (`expectedStartDate`, `expectedFlowRate` and `expectedAmount`) + 1 fixed paramater (`expectedEndDate`):
+Two equivalent ways to read the 3 parameters (`expectedStartDate`, `expectedFlowRate` and `expectedAmount`) + 1 fixed parameter (`expectedEndDate`):
 
 - The stream is expected to start in between the `expectedStartDate` and `expectedEndDate`, with a flow equal to `expectedFlowRate`. A (one-shot) transfer is expected to compensate for the period between the `expectedStartDate` and the actual flow start.
 - The later the stream starts after the `expectedStartDate`, the worse the payer. The later the balance equals the `expectedAmount` after the `expectedEndDate`, considering one-shot transfers and flows, the worse the payer.
