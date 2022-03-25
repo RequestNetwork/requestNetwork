@@ -10,7 +10,11 @@ export const xdeploy = async (
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<Array<IDeploymentResult>> => {
   const { contract, constructorArgs } = deploymentParams;
-  console.log(`Deployment of ${contract} through xdeployer starting now !`);
+  console.log(
+    `Deployment of ${contract} through xdeployer starting now, with ${
+      new hre.ethers.Wallet(hre.config.xdeploy.signer).address
+    }`,
+  );
 
   await hre.run('compile');
 
@@ -37,6 +41,7 @@ export const xdeploy = async (
   }
 
   for (const network of hre.config.xdeploy.networks) {
+    console.log(`... on ${network}`);
     let provider;
     if (network === 'celo') {
       provider = new ethers.providers.JsonRpcProvider('https://forno.celo.org');
@@ -92,7 +97,7 @@ export const xdeploy = async (
     }
     result.push({
       network,
-      contract: contract,
+      contract,
       address: computedContractAddress,
       receipt,
       deployed,

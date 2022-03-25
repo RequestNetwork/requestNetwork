@@ -126,16 +126,6 @@ yarn hardhat deploy-live-payments --network private --force
 yarn hardhat deploy-live-payments --network private --force --dry-run
 ```
 
-### Payment preparation (Beta)
-
-**FIXME: only configured for rinkeby and private networks.**
-
-Environment variables needed: `ADMIN_PRIVATE_KEY`
-
-```bash
-yarn hardhat prepare-live-payments --network private
-```
-
 ### Deployment through request deployer
 
 The request deployer enables multichain deployment of several smart contracts at predefined address. It is based on https://github.com/pcaversaccio/xdeployer
@@ -143,6 +133,8 @@ The request deployer enables multichain deployment of several smart contracts at
 The deployer contract should be deployed at `0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2` on live chains.
 
 Be sure to run `yarn build:sol` before deploying the deployer or a contract.
+
+The contracts implemented are listed in the array `create2ContractDeploymentList` in [Utils](./scripts-create2/utils.ts).
 
 #### Deploy the request deployer
 
