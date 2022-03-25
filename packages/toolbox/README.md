@@ -42,6 +42,7 @@ yarn request-toolbox addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
 ```
 
 It will suggest pairs of currencies:
+
 - With a Chainlink price feed oracle (according to [a cached JSON](https://cl-docs-addresses.web.app/addresses.json]))
 - If they exist in Currency Manager (cf. [../currency/src/erc20/networks]())
 - If they are not already added to the Chainlink Aggregation Path contract, as reported by the Price Aggregators subgraph ([Example for BSC](https://thegraph.com/hosted-service/subgraph/requestnetwork/price-aggregators-bsc))
