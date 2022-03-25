@@ -35,7 +35,7 @@ yarn run:create 12
 
 #### Adding & removing aggregators
 
-The following command guides you in detecting missing aggregators.
+The following command guides you in adding missing aggregators.
 
 ```bash
 yarn request-toolbox addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
