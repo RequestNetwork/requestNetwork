@@ -43,6 +43,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A',
           creationBlockNumber: 0,
         },
+        mainnet: {
+          address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
+          creationBlockNumber: 14448211,
+        },
         rinkeby: {
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           creationBlockNumber: 10023415,
@@ -66,11 +70,6 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
         celo: {
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           creationBlockNumber: 11969006,
-        },
-        /* All the contracts below have not been updated with 0.2.0 yet */
-        mainnet: {
-          address: '0xCa3353a15fCb5C83a1Ff64BFf055781aC5c4d2F4',
-          creationBlockNumber: 13765042,
         },
       },
     },

@@ -59,6 +59,11 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c',
           creationBlockNumber: 0,
         },
+        // Not used, 0.1.0 is only bugged for other networks
+        mainnet: {
+          address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
+          creationBlockNumber: 14448210,
+        },
         rinkeby: {
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 10023414,
