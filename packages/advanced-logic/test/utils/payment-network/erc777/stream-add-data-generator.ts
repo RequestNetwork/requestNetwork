@@ -17,27 +17,28 @@ export const invalidAddress = '0x not and address';
 export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionAddPaymentAddress = {
-  action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
+  action: ExtensionTypes.PnStreamReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
   parameters: {
     paymentAddress,
   },
 };
 export const actionAddRefundAddress = {
-  action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_REFUND_ADDRESS,
+  action: ExtensionTypes.PnStreamReferenceBased.ACTION.ADD_REFUND_ADDRESS,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
   parameters: {
     refundAddress,
   },
 };
-export const actionAddFee = {
-  action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
-  parameters: {
-    expectedFlowRate,
-    expectedStartDate,
-  },
-};
+// TODO: Fee will be added later
+// export const actionAddFee = {
+//   action: ExtensionTypes.PnStreamReferenceBased.ACTION.ADD_FEE,
+//   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+//   parameters: {
+//     expectedFlowRate,
+//     expectedStartDate,
+//   },
+// };
 
 // ---------------------------------------------------------------------
 // extensions states
@@ -45,12 +46,12 @@ export const extensionStateWithPaymentAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
     events: [
       {
-        name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
+        name: ExtensionTypes.PnStreamReferenceBased.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
+        name: ExtensionTypes.PnStreamReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
         parameters: {
           paymentAddress,
         },
@@ -70,12 +71,12 @@ export const extensionStateWithRefundAfterCreation = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
     events: [
       {
-        name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
+        name: ExtensionTypes.PnStreamReferenceBased.ACTION.CREATE,
         parameters: {},
         timestamp: arbitraryTimestamp,
       },
       {
-        name: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_REFUND_ADDRESS,
+        name: ExtensionTypes.PnStreamReferenceBased.ACTION.ADD_REFUND_ADDRESS,
         parameters: {
           refundAddress,
         },
@@ -91,32 +92,33 @@ export const extensionStateWithRefundAfterCreation = {
   },
 };
 
-export const extensionStateWithFeeAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
-    events: [
-      {
-        name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
-        parameters: {},
-        timestamp: arbitraryTimestamp,
-      },
-      {
-        name: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-        parameters: {
-          expectedFlowRate,
-          expectedStartDate,
-        },
-        timestamp: arbitraryTimestamp,
-      },
-    ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
-    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-    values: {
-      expectedFlowRate,
-      expectedStartDate,
-    },
-    version: '0.1.0',
-  },
-};
+// TODO: Fee will be added later
+// export const extensionStateWithFeeAfterCreation = {
+//   [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
+//     events: [
+//       {
+//         name: ExtensionTypes.PnStreamReferenceBased.ACTION.CREATE,
+//         parameters: {},
+//         timestamp: arbitraryTimestamp,
+//       },
+//       {
+//         name: ExtensionTypes.PnStreamReferenceBased.ACTION.ADD_FEE,
+//         parameters: {
+//           expectedFlowRate,
+//           expectedStartDate,
+//         },
+//         timestamp: arbitraryTimestamp,
+//       },
+//     ],
+//     id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+//     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+//     values: {
+//       expectedFlowRate,
+//       expectedStartDate,
+//     },
+//     version: '0.1.0',
+//   },
+// };
 
 // ---------------------------------------------------------------------
 // request states
@@ -162,44 +164,45 @@ export const requestStateCreatedEmptyThenAddPayment: RequestLogicTypes.IRequest 
   version: '0.1.0',
 };
 
-export const requestStateCreatedEmptyThenAddFee: RequestLogicTypes.IRequest = {
-  creator: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: TestData.payeeRaw.address,
-  },
-  currency: {
-    network: 'rinkeby',
-    type: RequestLogicTypes.CURRENCY.ERC777,
-    value: '0x745861aed1eee363b4aaa5f1994be40b1e05ff90', //fDAIx
-  },
-  events: [
-    {
-      actionSigner: {
-        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        value: TestData.payeeRaw.address,
-      },
-      name: RequestLogicTypes.ACTION_NAME.CREATE,
-      parameters: {
-        expectedAmount: '123400000000000000',
-        extensionsDataLength: 2,
-        isSignedRequest: false,
-      },
-      timestamp: arbitraryTimestamp,
-    },
-  ],
-  expectedAmount: TestData.arbitraryExpectedAmount,
-  extensions: extensionStateWithFeeAfterCreation,
-  extensionsData: [TestDataCreate.actionCreationEmpty, actionAddFee],
-  payee: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: TestData.payeeRaw.address,
-  },
-  payer: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: TestData.payerRaw.address,
-  },
-  requestId: TestData.requestIdMock,
-  state: RequestLogicTypes.STATE.CREATED,
-  timestamp: TestData.arbitraryTimestamp,
-  version: '0.1.0',
-};
+// TODO: Fee will be added later
+// export const requestStateCreatedEmptyThenAddFee: RequestLogicTypes.IRequest = {
+//   creator: {
+//     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+//     value: TestData.payeeRaw.address,
+//   },
+//   currency: {
+//     network: 'rinkeby',
+//     type: RequestLogicTypes.CURRENCY.ERC777,
+//     value: '0x745861aed1eee363b4aaa5f1994be40b1e05ff90', //fDAIx
+//   },
+//   events: [
+//     {
+//       actionSigner: {
+//         type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+//         value: TestData.payeeRaw.address,
+//       },
+//       name: RequestLogicTypes.ACTION_NAME.CREATE,
+//       parameters: {
+//         expectedAmount: '123400000000000000',
+//         extensionsDataLength: 2,
+//         isSignedRequest: false,
+//       },
+//       timestamp: arbitraryTimestamp,
+//     },
+//   ],
+//   expectedAmount: TestData.arbitraryExpectedAmount,
+//   extensions: extensionStateWithFeeAfterCreation,
+//   extensionsData: [TestDataCreate.actionCreationEmpty, actionAddFee],
+//   payee: {
+//     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+//     value: TestData.payeeRaw.address,
+//   },
+//   payer: {
+//     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+//     value: TestData.payerRaw.address,
+//   },
+//   requestId: TestData.requestIdMock,
+//   state: RequestLogicTypes.STATE.CREATED,
+//   timestamp: TestData.arbitraryTimestamp,
+//   version: '0.1.0',
+// };
