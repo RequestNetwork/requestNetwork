@@ -1,12 +1,16 @@
 import { EventEmitter } from 'events';
 
-import { DeclarativePaymentDetector } from '@requestnetwork/payment-detection';
+import {
+  DeclarativePaymentDetector,
+  EscrowERC20InfoRetriever,
+} from '@requestnetwork/payment-detection';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
 import * as Types from '../types';
 import ContentDataExtension from './content-data-extension';
 import localUtils from './utils';
+import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 
 /**
  * Class representing a request.
@@ -643,6 +647,22 @@ export default class Request {
       meta: this.requestMeta,
       pending,
     });
+  }
+
+  public async getEscrowData(
+    paymentReference: string,
+    network: string,
+  ): Promise<PaymentTypes.EscrowChainData> {
+    const escrowContractAddress = erc20EscrowToPayArtifact.getAddress(network);
+    const escrowInfoRetriever = new EscrowERC20InfoRetriever(
+      paymentReference,
+      escrowContractAddress,
+      0,
+      '',
+      '',
+      network,
+    );
+    return await escrowInfoRetriever.getEscrowRequestMapping();
   }
 
   /**
