@@ -7,4 +7,9 @@ export const supportedBSCERC20: TokenMap = {
     symbol: 'DAI',
     decimals: 18,
   },
+  '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56': {
+    name: 'Binance-Peg BUSD Token',
+    symbol: 'BUSD',
+    decimals: 18,
+  },
 };

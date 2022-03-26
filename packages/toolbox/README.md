@@ -35,21 +35,25 @@ yarn run:create 12
 
 #### Adding & removing aggregators
 
-The following commands can add and remove aggregators
-
-- `addAggregators` will fetch available aggregators from Chainlink and interactively prompt for selection
-- `addAggregator` can be used if you have all information about an aggregator you want to add
-- `removeAggregator` will set the given currency pair to the 0x00[...]00 address.
-
-Example usage:
+The following command guides you in adding missing aggregators.
 
 ```bash
 yarn request-toolbox addAggregators mainnet --privateKey $PRIVATE_KEY --dryRun
 ```
 
-Use `--help` for details about each command.
+It will suggest pairs of currencies:
 
-Additionally, the command `listMissingAggregators` will display missing aggregators for all networks.
+- With a Chainlink price feed oracle (according to [a cached JSON](https://cl-docs-addresses.web.app/addresses.json]))
+- If they exist in Currency Manager (cf. [../currency/src/erc20/networks]())
+- If they are not already added to the Chainlink Aggregation Path contract, as reported by the Price Aggregators subgraph ([Example for BSC](https://thegraph.com/hosted-service/subgraph/requestnetwork/price-aggregators-bsc))
+
+The following commands are also available:
+
+- `yarn cli addAggregator` can be used if you have all information about an aggregator you want to add
+- `yarn cli removeAggregator` will set the given currency pair to the 0x00[...]00 address.
+- `yarn cli listMissingAggregators <name>` (where `name` is a valid Request Finance currency list, [https://api.request.network/currency/list/name]() should be valid) will display missing aggregators for that list on all networks.
+
+Use `--help` for details about each command.
 
 #### Updating conversion paths
 
