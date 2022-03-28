@@ -16,6 +16,9 @@ import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
 import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
+// eslint-disable-next-line
+// @ts-ignore Cannot find module
+import { EthConversionProxy } from '../src/types/EthConversionProxy';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types';
@@ -109,6 +112,19 @@ export async function deployAllPaymentContracts(
         simulationSuccess = simulationSuccess ?? true;
       }
     };
+
+    /* Returns true if the nonce is <= targetNonce, and switches to simulation if != targetNonce */
+    const nonceReady = async (targetNonce: number) => {
+      const currentNonce = await deployer.getTransactionCount();
+      if (currentNonce !== targetNonce && currentNonce > 17) {
+        console.warn(`Warning: got nonce ${currentNonce} instead of ${targetNonce}`);
+        switchToSimulation();
+      }
+      if (currentNonce === targetNonce) {
+        return true;
+      }
+      return false;
+    };
     // #endregion
 
     // #region BATCH DEFINITIONS
@@ -182,7 +198,8 @@ export async function deployAllPaymentContracts(
           );
         }
         if (args.simulate === false) {
-          await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
+          const tx = await chainlinkInstance.addWhitelistAdmin(process.env.ADMIN_WALLET_ADDRESS);
+          await tx.wait(1);
         } else {
           console.log('[i] Simulating addWhitelistAdmin to chainlinkInstance');
         }
@@ -195,7 +212,7 @@ export async function deployAllPaymentContracts(
           switchToSimulation();
         }
       }
-      return chainlinkInstance;
+      return { chainlinkInstance, ethConversionResult };
     };
 
     /*
@@ -208,8 +225,9 @@ export async function deployAllPaymentContracts(
       chainlinkInstance: ChainlinkConversionPath,
       erc20FeeProxyAddress: string,
       erc20SwapConversionInstance: ERC20SwapToConversion,
+      ethConversionResultInstance?: EthConversionProxy,
     ) => {
-      const NONCE_BATCH_5 = 13;
+      const NONCE_BATCH_5 = 15;
       await jumpToNonce(args, hre, NONCE_BATCH_5);
       let chainlinkConversionPathAddress = chainlinkInstance?.address;
       if (!chainlinkConversionPathAddress) {
@@ -231,26 +249,21 @@ export async function deployAllPaymentContracts(
 
       // 5.b ERC20ConversionProxy.transferOwnership
 
-      let currentNonce = await deployer.getTransactionCount();
-      const erc20ConversionAdminNonce = NONCE_BATCH_5 + 1;
-      if (currentNonce === erc20ConversionAdminNonce && erc20ConversionResult) {
-        if (!process.env.ADMIN_WALLET_ADDRESS) {
-          throw new Error(
-            'ADMIN_WALLET_ADDRESS missing for: ERC20ConversionProxy.transferOwnership',
-          );
-        }
-        if (args.simulate === false) {
-          await erc20ConversionResult.instance.transferOwnership(process.env.ADMIN_WALLET_ADDRESS);
+      if (await nonceReady(NONCE_BATCH_5 + 1)) {
+        if (erc20ConversionResult) {
+          if (!process.env.ADMIN_WALLET_ADDRESS) {
+            throw new Error(
+              'ADMIN_WALLET_ADDRESS missing for: ERC20ConversionProxy.transferOwnership',
+            );
+          }
+          if (args.simulate === false) {
+            await erc20ConversionResult.instance.transferOwnership(
+              process.env.ADMIN_WALLET_ADDRESS,
+            );
+          } else {
+            console.log('[i] Simulating transferOwnership to ERC20ConversionProxy');
+          }
         } else {
-          console.log('[i] Simulating transferOwnership to ERC20ConversionProxy');
-        }
-      } else {
-        if (currentNonce < erc20ConversionAdminNonce) {
-          console.warn(
-            `Warning: got nonce ${currentNonce} instead of ${erc20ConversionAdminNonce}`,
-          );
-          switchToSimulation();
-        } else if (!erc20ConversionResult) {
           console.warn(
             `Warning: the ERC20ConversionProxy contract instance is not ready, consider retrying.`,
           );
@@ -259,25 +272,60 @@ export async function deployAllPaymentContracts(
       }
 
       // 5.c ERC20SwapConversion.setPaymentProxy
-      currentNonce = await deployer.getTransactionCount();
-      const erc20SwapConversionAdminNonce = NONCE_BATCH_5 + 2;
-      if (currentNonce === erc20SwapConversionAdminNonce && erc20ConversionResult) {
-        if (args.simulate === false) {
-          await erc20SwapConversionInstance.setPaymentProxy(erc20ConversionResult?.address);
-        } else {
-          console.log('[i] Simulating setPaymentProxy to ERC20SwapConversion');
+      // Ignore if the ERC20 conversion proxy is already live and used, until it gets deprecated
+      const IGNORE_SET_PAYMENT_PROXY = true;
+      console.warn(
+        `DOUBLE-CHECK: ${
+          IGNORE_SET_PAYMENT_PROXY ? '' : 'not '
+        }ignoring erc20SwapConversionInstance.setPaymentProxy on ${
+          erc20SwapConversionInstance.address
+        }`,
+      );
+
+      if (!IGNORE_SET_PAYMENT_PROXY) {
+        if (await nonceReady(NONCE_BATCH_5 + 2)) {
+          if (erc20ConversionResult) {
+            if (args.simulate === false) {
+              await erc20SwapConversionInstance.setPaymentProxy(erc20ConversionResult?.address);
+            } else {
+              console.log('[i] Simulating setPaymentProxy to ERC20SwapConversion');
+            }
+          } else {
+            console.warn(
+              `Warning: the ERC20ConversionProxy contract instance is not ready for ERC20SwapConversion update, consider retrying.`,
+            );
+            switchToSimulation();
+          }
         }
-      } else {
-        if (currentNonce < erc20SwapConversionAdminNonce) {
-          console.warn(
-            `Warning: got nonce ${currentNonce} instead of ${erc20SwapConversionAdminNonce}`,
-          );
-          switchToSimulation();
-        } else if (!erc20ConversionResult) {
-          console.warn(
-            `Warning: the ERC20ConversionProxy contract instance is not ready for ERC20SwapConversion update, consider retrying.`,
-          );
-          switchToSimulation();
+      }
+      const ethConversionAdminNonce = NONCE_BATCH_5 + 3;
+      await jumpToNonce(args, hre, ethConversionAdminNonce);
+
+      // 5.d ETHConversion.transferOwnership
+      if (await nonceReady(ethConversionAdminNonce)) {
+        if (ethConversionResultInstance) {
+          if (!process.env.ADMIN_WALLET_ADDRESS) {
+            throw new Error(
+              'ADMIN_WALLET_ADDRESS missing, cannot addWhitelistAdmin on ETHConversion.',
+            );
+          }
+          if (args.simulate === false) {
+            const tx = await ethConversionResultInstance.addWhitelistAdmin(
+              process.env.ADMIN_WALLET_ADDRESS,
+            );
+            await tx.wait(1);
+          } else {
+            console.log(
+              `[i] Simulating addWhitelistAdmin to ETHConversion at ${ethConversionResultInstance.address}`,
+            );
+          }
+        } else {
+          if (!ethConversionResultInstance) {
+            console.warn(
+              `Warning: the ETHConversion contract instance is not ready for ETHConversion update, consider retrying.`,
+            );
+            switchToSimulation();
+          }
         }
       }
     };
@@ -329,13 +377,16 @@ export async function deployAllPaymentContracts(
     );
 
     // Batch 4
-    const chainlinkInstance = await runDeploymentBatch_4(ethFeeProxyAddress);
+    const { chainlinkInstance, ethConversionResult } = await runDeploymentBatch_4(
+      ethFeeProxyAddress,
+    );
 
     // Batch 5
     await runDeploymentBatch_5(
       chainlinkInstance,
       erc20FeeProxyAddress,
       swapConversionResult.instance,
+      ethConversionResult?.instance as EthConversionProxy,
     );
 
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -368,8 +419,6 @@ export async function deployAllPaymentContracts(
             `*  CRITICAL: update src/lib/artifacts files, and push changes NOW !`,
             `* IMPORTANT: execute updateAggregatorsList() on conversionPaths`,
             `*          : then update the lib with chainlinkPath util in toolbox and push changes`,
-            `*     OTHER: run \`yarn hardhat prepare-live-payments --network ${hre.network.name}\``,
-            `*     OTHER: execute administration tasks: approveRouterToSpend(), approvePaymentProxyToSpend() on swaps`,
             `*     OTHER: deploy subgraphes where needed`,
           ].join('\r\n'),
     );

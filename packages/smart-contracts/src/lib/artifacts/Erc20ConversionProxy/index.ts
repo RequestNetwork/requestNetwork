@@ -34,10 +34,6 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
           creationBlockNumber: 12759699,
         },
-        bsc: {
-          address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
-          creationBlockNumber: 11540180,
-        },
         fantom: {
           address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
           creationBlockNumber: 20061367,
@@ -62,6 +58,14 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           address: '0xA5186dec7dC1ec85B42A3cd2Dc8289e248530B07',
           creationBlockNumber: 11671967,
         },
+        /**
+         * FIXME: The contract was deployed on networks below with ABI 0.1.2
+         * The ABI for payments is the same, only administration tasks change.
+         *  */
+        bsc: {
+          address: '0xbbd9c5D112343A4Aa2bc194245760CaeeaF118Be',
+          creationBlockNumber: 16361281,
+        },
       },
     },
     '0.1.1': {
@@ -70,6 +74,31 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
         private: {
           address: '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E',
           creationBlockNumber: 0,
+        },
+        // Not used on mainnet
+        mainnet: {
+          address: '0x1550A8C4F4E5afC67Ea07e8ac590fdcAdB4bBfb1',
+          creationBlockNumber: 14448345,
+        },
+        /**
+         * The contract on networks below is used as ABI 0.1.0 (cf. above)
+         *  */
+        'arbitrum-one': {
+          address: '0xA5186dec7dC1ec85B42A3cd2Dc8289e248530B07',
+          creationBlockNumber: 5321045,
+        },
+        avalanche: {
+          address: '0xA5186dec7dC1ec85B42A3cd2Dc8289e248530B07',
+          creationBlockNumber: 11671967,
+        },
+      },
+    },
+    '0.1.2': {
+      abi: ABI_0_1_1,
+      deployment: {
+        bsc: {
+          address: '0xbbd9c5D112343A4Aa2bc194245760CaeeaF118Be',
+          creationBlockNumber: 16361281,
         },
       },
     },

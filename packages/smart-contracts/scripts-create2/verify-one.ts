@@ -1,4 +1,5 @@
 import { computeCreate2DeploymentAddress } from './compute-one-address';
+import { getConstructorArgs } from './constructor-args';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 import { IDeploymentParams } from './types';
 import { create2ContractDeploymentList } from './utils';
@@ -26,9 +27,12 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
         switch (contract) {
           case 'EthereumProxy':
           case 'EthereumFeeProxy':
-            address = await computeCreate2DeploymentAddress({ contract: contract }, hre);
-            await verifyOne(address, { contract: contract }, hre);
+          case 'Erc20ConversionProxy': {
+            const constructorArgs = getConstructorArgs(contract);
+            address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
+            await verifyOne(address, { contract, constructorArgs }, hre);
             break;
+          }
           // Other cases to add when necessary
           default:
             throw new Error(

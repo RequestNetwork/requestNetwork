@@ -79,7 +79,7 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee2],
           [20, 30, 40],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([3, 6, 9]),
           feeAddress,
         ),
     )
@@ -126,6 +126,7 @@ describe('contract: BatchPayments: ERC20', () => {
 
     const amount = 2;
     const feeAmount = 1;
+    const feeBacthAmount = 1;
     const nbTxs = 4;
     const [
       tokenAddresses,
@@ -133,7 +134,16 @@ describe('contract: BatchPayments: ERC20', () => {
       amounts,
       paymentReferences,
       feeAmounts,
-    ] = getBatchPaymentsInputs(nbTxs, token1Address, payee2, amount, referenceExample1, feeAmount);
+      feeBacthAmounts,
+    ] = getBatchPaymentsInputs(
+      nbTxs,
+      token1Address,
+      payee2,
+      amount,
+      referenceExample1,
+      feeAmount,
+      feeBacthAmount,
+    );
 
     tokenAddresses[2] = token2Address;
     tokenAddresses[3] = token2Address;
@@ -145,7 +155,7 @@ describe('contract: BatchPayments: ERC20', () => {
         recipients,
         amounts,
         paymentReferences,
-        feeAmounts,
+        feeAmounts.concat(feeBacthAmounts),
         feeAddress,
       );
     await tx.wait();
@@ -162,6 +172,7 @@ describe('contract: BatchPayments: ERC20', () => {
 
     const amount = 2;
     const feeAmount = 1;
+    const feeBacthAmount = 3;
     const nbTxs = 10;
     const [
       token1Addresses,
@@ -169,7 +180,16 @@ describe('contract: BatchPayments: ERC20', () => {
       amounts,
       paymentReferences,
       feeAmounts,
-    ] = getBatchPaymentsInputs(nbTxs, token1Address, payee3, amount, referenceExample1, feeAmount);
+      feeBacthAmounts,
+    ] = getBatchPaymentsInputs(
+      nbTxs,
+      token1Address,
+      payee3,
+      amount,
+      referenceExample1,
+      feeAmount,
+      feeBacthAmount,
+    );
 
     const tx = await batch
       .connect(spender1)
@@ -178,7 +198,7 @@ describe('contract: BatchPayments: ERC20', () => {
         recipients,
         amounts,
         paymentReferences,
-        feeAmounts,
+        feeAmounts.concat(feeBacthAmounts),
         feeAddress,
       );
     await tx.wait();
@@ -192,6 +212,7 @@ describe('contract: BatchPayments: ERC20', () => {
 
     const amount = 2;
     const feeAmount = 1;
+    const feeBatchAmount = 3;
     const nbTxs = 10;
     const [
       token1Addresses,
@@ -199,7 +220,16 @@ describe('contract: BatchPayments: ERC20', () => {
       amounts,
       paymentReferences,
       feeAmounts,
-    ] = getBatchPaymentsInputs(nbTxs, token1Address, payee3, amount, referenceExample1, feeAmount);
+      feeBatchAmounts,
+    ] = getBatchPaymentsInputs(
+      nbTxs,
+      token1Address,
+      payee3,
+      amount,
+      referenceExample1,
+      feeAmount,
+      feeBatchAmount,
+    );
 
     const tx = await batch
       .connect(spender1)
@@ -208,7 +238,7 @@ describe('contract: BatchPayments: ERC20', () => {
         recipients,
         amounts,
         paymentReferences,
-        feeAmounts,
+        feeAmounts.concat(feeBatchAmounts),
         feeAddress,
       );
 
@@ -230,7 +260,7 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [5, 30, 400],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
     ).revertedWith('revert transferFromWithReference failed');
@@ -245,7 +275,7 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [20, 30, 40],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
     ).revertedWith('revert transferFromWithReference failed');
@@ -260,7 +290,7 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [5, 30, 400],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
     ).revertedWith('revert transferFromWithReference failed');
@@ -275,7 +305,7 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [20, 30, 40],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
     ).revertedWith('revert transferFromWithReference failed');
@@ -290,10 +320,10 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [5, 30, 40],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -303,10 +333,10 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2],
           [5, 30, 40],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -316,10 +346,10 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [5, 30],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -329,10 +359,10 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [5, 30, 40],
           [referenceExample1, referenceExample2],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -342,10 +372,10 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [5, 30, 40],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2],
+          [1, 2].concat([1, 2, 3]),
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
   });
 
   it('Should revert batch if input s arrays do not have same size', async function () {
@@ -357,10 +387,10 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [5, 30, 40],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2],
+          [1, 2].concat([1, 2, 3]),
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -370,10 +400,10 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2],
           [5, 30, 40],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -383,10 +413,10 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [5, 30],
           [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -396,10 +426,10 @@ describe('contract: BatchPayments: ERC20', () => {
           [payee1, payee2, payee3],
           [5, 30, 40],
           [referenceExample1, referenceExample2],
-          [1, 2, 3],
+          [1, 2, 3].concat([1, 2, 3]),
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
   });
 });
 
@@ -411,12 +441,14 @@ const getBatchPaymentsInputs = function (
   amount: number,
   referenceExample1: string,
   feeAmount: number,
-): [Array<string>, Array<string>, Array<number>, Array<string>, Array<number>] {
+  batchFeeAmount: number,
+): [Array<string>, Array<string>, Array<number>, Array<string>, Array<number>, Array<number>] {
   let token1Addresses = [];
   let recipients = [];
   let amounts = [];
   let paymentReferences = [];
   let feeAmounts = [];
+  let batchFeeAmounts = [];
 
   for (let i = 0; i < nbTxs; i++) {
     token1Addresses.push(token1Address);
@@ -424,6 +456,7 @@ const getBatchPaymentsInputs = function (
     amounts.push(amount);
     paymentReferences.push(referenceExample1);
     feeAmounts.push(feeAmount);
+    batchFeeAmounts.push(batchFeeAmount);
   }
-  return [token1Addresses, recipients, amounts, paymentReferences, feeAmounts];
+  return [token1Addresses, recipients, amounts, paymentReferences, feeAmounts, batchFeeAmounts];
 };

@@ -53,7 +53,7 @@ describe('contract: BatchPayments: Ethereum', () => {
           [payee1, payee2],
           [20, 30],
           [referenceExample1, referenceExample2],
-          [1, 2],
+          [1, 2, 3, 6],
           feeAddress,
           {
             value: BigNumber.from('1000'),
@@ -78,7 +78,7 @@ describe('contract: BatchPayments: Ethereum', () => {
     beforeEthBalance1 = await provider.getBalance(payee1);
     beforeEthBalance2 = await provider.getBalance(payee2);
 
-    const totalAmout = BigNumber.from('53');
+    const totalAmout = BigNumber.from('62');
 
     const tx = await batch
       .connect(owner)
@@ -86,7 +86,7 @@ describe('contract: BatchPayments: Ethereum', () => {
         [payee1, payee2],
         [20, 30],
         [referenceExample1, referenceExample2],
-        [1, 2],
+        [1, 2, 3, 6],
         feeAddress,
         {
           value: totalAmout,
@@ -108,16 +108,25 @@ describe('contract: BatchPayments: Ethereum', () => {
 
     const amount = 2;
     const feeAmount = 1;
+    const batchFeeAmount = 1;
     const nbTxs = 10; // to compare gas optim, go to 100.
-    const [_, recipients, amounts, paymentReferences, feeAmounts] = getBatchPaymentsInputs(
+    const [
+      _,
+      recipients,
+      amounts,
+      paymentReferences,
+      feeAmounts,
+      batchFeeAmounts,
+    ] = getBatchPaymentsInputs(
       nbTxs,
       '_noTokenAddress',
       payee2,
       amount,
       referenceExample1,
       feeAmount,
+      batchFeeAmount,
     );
-    const totalAmount = BigNumber.from(((amount + feeAmount) * nbTxs).toString());
+    const totalAmount = BigNumber.from(((amount + feeAmount + batchFeeAmount) * nbTxs).toString());
 
     const tx = await batch
       .connect(owner)
@@ -125,7 +134,7 @@ describe('contract: BatchPayments: Ethereum', () => {
         recipients,
         amounts,
         paymentReferences,
-        feeAmounts,
+        feeAmounts.concat(batchFeeAmounts),
         feeAddress,
         {
           value: totalAmount,
@@ -156,7 +165,7 @@ describe('contract: BatchPayments: Ethereum', () => {
           [payee1, payee2],
           [20, 30],
           [referenceExample1, referenceExample2],
-          [1, 2],
+          [1, 2, 3, 6],
           feeAddress,
           {
             value: totalAmout,
@@ -174,6 +183,7 @@ describe('contract: BatchPayments: Ethereum', () => {
   });
 
   it('Should revert batch if input s arrays do not have same size', async function () {
+    // missing a fee, or a feeBatch
     await expect(
       batch
         .connect(owner)
@@ -181,10 +191,10 @@ describe('contract: BatchPayments: Ethereum', () => {
           [payee1, payee2],
           [5, 30],
           [referenceExample1, referenceExample2],
-          [1],
+          [1, 2, 3],
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -193,10 +203,10 @@ describe('contract: BatchPayments: Ethereum', () => {
           [payee1],
           [5, 30],
           [referenceExample1, referenceExample2],
-          [1, 2],
+          [1, 2, 3, 6],
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -205,10 +215,10 @@ describe('contract: BatchPayments: Ethereum', () => {
           [payee1, payee2],
           [5],
           [referenceExample1, referenceExample2],
-          [1, 2],
+          [1, 2, 3, 6],
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     await expect(
       batch
@@ -217,10 +227,10 @@ describe('contract: BatchPayments: Ethereum', () => {
           [payee1, payee2],
           [5, 30],
           [referenceExample1],
-          [1, 2],
+          [1, 2, 3, 6],
           feeAddress,
         ),
-    ).revertedWith('the input arrays must have the same length');
+    ).revertedWith('the input arrays must have the same length, except fees: 2 times longer');
 
     expect(await provider.getBalance(batchAddress)).to.be.equal(0);
   });
@@ -234,12 +244,14 @@ const getBatchPaymentsInputs = function (
   amount: number,
   referenceExample1: string,
   feeAmount: number,
-): [Array<string>, Array<string>, Array<number>, Array<string>, Array<number>] {
+  batchFeeAmount: number,
+): [Array<string>, Array<string>, Array<number>, Array<string>, Array<number>, Array<number>] {
   let tokenAddresses = [];
   let recipients = [];
   let amounts = [];
   let paymentReferences = [];
   let feeAmounts = [];
+  let bacthFeeAmounts = [];
 
   for (let i = 0; i < nbTxs; i++) {
     tokenAddresses.push(tokenAddress);
@@ -247,6 +259,7 @@ const getBatchPaymentsInputs = function (
     amounts.push(amount);
     paymentReferences.push(referenceExample1);
     feeAmounts.push(feeAmount);
+    bacthFeeAmounts.push(batchFeeAmount);
   }
-  return [tokenAddresses, recipients, amounts, paymentReferences, feeAmounts];
+  return [tokenAddresses, recipients, amounts, paymentReferences, feeAmounts, bacthFeeAmounts];
 };
