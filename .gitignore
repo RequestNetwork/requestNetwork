@@ -44,9 +44,3 @@ tsconfig.build.tsbuildinfo
 /packages/smart-contracts/cache/
 /packages/smart-contracts/types/
 /packages/smart-contracts/src/types/
-
-# tmp
-/packages/smart-contracts/src/contracts/BatchPayments.sol
-.editorconfig
-.gitignore
-
