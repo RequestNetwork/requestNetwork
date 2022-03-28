@@ -15,11 +15,6 @@ import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
  *          - to: multiple addresses
  */
 contract BatchPayments is Ownable, ReentrancyGuard {
-    
-    struct AmountRecords {
-        uint256 toReturn;
-        uint256 sumBatchFeeAmount;
-    }
 
     // Event to declare a transfer with a reference
     event TransferWithReferenceAndFee(
@@ -75,16 +70,16 @@ contract BatchPayments is Ownable, ReentrancyGuard {
 
         // sender transfer token on the contract
         payable(address(this)).transfer(msg.value);
-        AmountRecords memory amountRecords;
-        amountRecords.toReturn = msg.value;
-        amountRecords.sumBatchFeeAmount = 0;
+    
+        uint toReturn = msg.value;
+        uint sumBatchFeeAmount = 0;
         
         // Contract pays the batch payment, and then, the batchFee
         for (uint256 i = 0; i < _recipients.length; i++) {
-            require(amountRecords.toReturn >= _amounts[i] + _feeAndBatchFeeAmounts[i] +
+            require(toReturn >= _amounts[i] + _feeAndBatchFeeAmounts[i] +
              _feeAndBatchFeeAmounts[_recipients.length + i], "not enough funds");
-            amountRecords.sumBatchFeeAmount += _feeAndBatchFeeAmounts[_recipients.length + i];
-            amountRecords.toReturn -= (_amounts[i] + _feeAndBatchFeeAmounts[i] + 
+            sumBatchFeeAmount += _feeAndBatchFeeAmounts[_recipients.length + i];
+            toReturn -= (_amounts[i] + _feeAndBatchFeeAmounts[i] + 
             _feeAndBatchFeeAmounts[_recipients.length + i]);
 
             paymentEthereumFeeProxy.transferWithReferenceAndFee{value: _amounts[i] +
@@ -95,10 +90,10 @@ contract BatchPayments is Ownable, ReentrancyGuard {
                 _feeAddress
             );
         }
-        _feeAddress.transfer(amountRecords.sumBatchFeeAmount);
+        _feeAddress.transfer(sumBatchFeeAmount);
 
         // Transfer the remaining ethers to the sender
-        (bool sendBackSuccess, ) = payable(msg.sender).call{ value: amountRecords.toReturn }('');
+        (bool sendBackSuccess, ) = payable(msg.sender).call{ value: toReturn }('');
         require(sendBackSuccess, 'Could not send remaining funds to the payer');
     }
 
