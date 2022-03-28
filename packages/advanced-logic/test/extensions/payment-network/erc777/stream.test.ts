@@ -10,7 +10,7 @@ import * as TestData from '../../../utils/test-data-generator';
 const erc777StreamPaymentNetwork = new Erc777StreamPaymentNetwork();
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
+describe('extensions/payment-network/erc777/stream', () => {
   describe('createCreationAction', () => {
     it('can create a create action with all parameters', () => {
       expect(
