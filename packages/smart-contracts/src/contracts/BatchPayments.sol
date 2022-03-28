@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -9,13 +9,18 @@ import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 
 /**
  * @title BatchPayments
- * @notice This contract pays multiple paymentrequests in one transaction:
+ * @notice This contract pays multiple paymentrequests in one transaction and includes batch fees:
  *          - on: ERC20, Ethereum
  *              - regarding ERC20: on multiple tokens in a batch
  *          - to: multiple addresses
  */
 contract BatchPayments is Ownable, ReentrancyGuard {
     
+    struct AmountRecords {
+        uint256 toReturn;
+        uint256 sumBatchFeeAmount;
+    }
+
     // Event to declare a transfer with a reference
     event TransferWithReferenceAndFee(
         address tokenAddress,
@@ -48,44 +53,52 @@ contract BatchPayments is Ownable, ReentrancyGuard {
     * @param _recipients List of recipients accounts.
     * @param _amounts List of amounts, corresponding to recipients[].
     * @param _paymentReferences List of paymentRefs, corr. to the recipients[].
-    * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
+    * @param _feeAndBatchFeeAmounts List of amounts of the payment fee, corr. to the recipients[]. 
+    *        concatenated with list of fee due to batch feature, corr. to the recipients[].
     * @param _feeAddress The fee recipient.
     * @dev Uses EthereumFeeProxy.sol to pay an invoice and fees, with a payment reference.
     *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)
     */
     function batchEthPaymentsWithReference(
-        address[] calldata _recipients, 
+        address [] calldata _recipients, 
         uint256[] calldata _amounts,
         bytes[] calldata _paymentReferences,
-        uint256[] calldata _feeAmounts,
-        address _feeAddress 
+        uint256[] calldata _feeAndBatchFeeAmounts,
+        address payable _feeAddress 
     ) external payable nonReentrant {
         require(
             _recipients.length == _amounts.length
             && _recipients.length == _paymentReferences.length
-            && _recipients.length == _feeAmounts.length
-            , "the input arrays must have the same length"
+            && 2 * _recipients.length == _feeAndBatchFeeAmounts.length
+            , "the input arrays must have the same length, except fees: 2 times longer"
         );
 
         // sender transfer token on the contract
         payable(address(this)).transfer(msg.value);
-        uint256 toReturn = msg.value;
-
-        // Contract pays the batch payment
+        AmountRecords memory amountRecords;
+        amountRecords.toReturn = msg.value;
+        amountRecords.sumBatchFeeAmount = 0;
+        
+        // Contract pays the batch payment, and then, the batchFee
         for (uint256 i = 0; i < _recipients.length; i++) {
-            require(toReturn >= _amounts[i] + _feeAmounts[i], "not enough funds");
+            require(amountRecords.toReturn >= _amounts[i] + _feeAndBatchFeeAmounts[i] +
+             _feeAndBatchFeeAmounts[_recipients.length + i], "not enough funds");
+            amountRecords.sumBatchFeeAmount += _feeAndBatchFeeAmounts[_recipients.length + i];
+            amountRecords.toReturn -= (_amounts[i] + _feeAndBatchFeeAmounts[i] + 
+            _feeAndBatchFeeAmounts[_recipients.length + i]);
 
-            toReturn -= (_amounts[i]+_feeAmounts[i]);
-            paymentEthereumFeeProxy.transferWithReferenceAndFee{value: _amounts[i]+_feeAmounts[i]}(
+            paymentEthereumFeeProxy.transferWithReferenceAndFee{value: _amounts[i] +
+             _feeAndBatchFeeAmounts[i]}(
                 payable(_recipients[i]), 
                 _paymentReferences[i],
-                _feeAmounts[i],
-                payable(_feeAddress)
+                _feeAndBatchFeeAmounts[i],
+                _feeAddress
             );
         }
+        _feeAddress.transfer(amountRecords.sumBatchFeeAmount);
 
         // Transfer the remaining ethers to the sender
-        (bool sendBackSuccess, ) = payable(msg.sender).call{ value: toReturn }('');
+        (bool sendBackSuccess, ) = payable(msg.sender).call{ value: amountRecords.toReturn }('');
         require(sendBackSuccess, 'Could not send remaining funds to the payer');
     }
 
@@ -95,7 +108,8 @@ contract BatchPayments is Ownable, ReentrancyGuard {
      * @param _recipients List of recipients accounts.
      * @param _amounts List of amounts, corresponding to recipients[].
      * @param _paymentReferences List of paymentRefs, corr. to the recipients[] and .
-     * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
+     * @param _feeAndBatchFeeAmounts List of amounts of the payment fee, corr. to the recipients[].
+     *        concatenated with list of fee due to batch feature, corr. to the recipients[].
      * @param _feeAddress The fee recipient.
      * @dev Uses ERC20FeeProxy.sol to pay an invoice and fees, with a payment reference.
      *      Make sure the contract has allowance to spend the sender token.
@@ -105,17 +119,20 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         address[] calldata _recipients, 
         uint256[] calldata _amounts,
         bytes[] calldata _paymentReferences,
-        uint256[] calldata _feeAmounts,
+        uint256[] calldata _feeAndBatchFeeAmounts,
         address _feeAddress 
-    ) external {
+    ) external { 
         require(
             _recipients.length == _amounts.length
             && _recipients.length == _paymentReferences.length
-            && _recipients.length == _feeAmounts.length
-            , "the input arrays must have the same length"
+            && 2 * _recipients.length == _feeAndBatchFeeAmounts.length
+            , "the input arrays must have the same length, except fees: 2 times longer"
         );
-
+        
+        uint256 sumBatchFeeAmount = 0;
+        
         for (uint256 i = 0; i < _recipients.length; i++) {
+            sumBatchFeeAmount += _feeAndBatchFeeAmounts[_recipients.length + i];
            (bool status, ) = address(paymentErc20FeeProxy).delegatecall(
             abi.encodeWithSignature(
             "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
@@ -123,11 +140,15 @@ contract BatchPayments is Ownable, ReentrancyGuard {
                 _recipients[i], 
                 _amounts[i],
                 _paymentReferences[i],
-                _feeAmounts[i],
+                _feeAndBatchFeeAmounts[i],
                 _feeAddress
                 )
             );
             require(status, "transferFromWithReference failed");
+        }
+
+        if (sumBatchFeeAmount > 0) {
+            safeTransferFrom(_tokenAddress, _feeAddress, sumBatchFeeAmount);
         }
     }
 
@@ -137,7 +158,8 @@ contract BatchPayments is Ownable, ReentrancyGuard {
      * @param _recipients List of recipients accounts.
      * @param _amounts List of amounts, corresponding to recipients[].
      * @param _paymentReferences List of paymentRefs, corr. to the recipients[].
-     * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
+     * @param _feeAndBatchFeeAmounts List of amounts of the payment fee, corr. to the recipients[]. 
+     *        concatenated with list of fee due to batch feature, corr. to the recipients[].
      * @param _feeAddress The fee recipient.
      * @dev Uses ERC20FeeProxy.sol to pay an invoice and fees, with a payment reference.
      *      Make sure the contract has allowance to spend the sender token.
@@ -147,15 +169,16 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         address[] calldata _recipients, 
         uint256[] calldata _amounts,
         bytes[] calldata _paymentReferences,
-        uint256[] calldata _feeAmounts,
+        uint256[] calldata _feeAndBatchFeeAmounts,
         address _feeAddress 
     ) external {
+        // lengthReipients memory amountRecords;
         require(
             _tokenAddresses.length == _recipients.length
             && _tokenAddresses.length == _amounts.length
             && _tokenAddresses.length == _paymentReferences.length
-            && _tokenAddresses.length == _feeAmounts.length
-            , "the input arrays must have the same length"
+            && 2 * _tokenAddresses.length == _feeAndBatchFeeAmounts.length
+            , "the input arrays must have the same length, except fees: 2 times longer"
             );
 
         for (uint256 i = 0; i < _recipients.length; i++) {
@@ -166,12 +189,32 @@ contract BatchPayments is Ownable, ReentrancyGuard {
                 _recipients[i], 
                 _amounts[i],
                 _paymentReferences[i],
-                _feeAmounts[i],
+                _feeAndBatchFeeAmounts[i],
                 _feeAddress
                 )
             );
             require(status, "transferFromWithReference failed");
+
+            uint _batchFeeAmount = _feeAndBatchFeeAmounts[_recipients.length + i];
+            if (_batchFeeAmount > 0 && _feeAddress != address(0)) {
+                safeTransferFrom(_tokenAddresses[i], _feeAddress, _batchFeeAmount);
+            }
         }
+    }
+
+    /**
+    * @notice Call transferFrom ERC20 function and validates the return data of a ERC20 contract call.
+    * @dev Used in the context that _tokenAddress has already been called
+    *      and check by Erc20FeeProxy safeTransferFrom function.
+    */
+    function safeTransferFrom(address _tokenAddress, address _to, uint256 _amount) internal {
+        (bool success, ) = _tokenAddress.call(abi.encodeWithSignature(
+            "transferFrom(address,address,uint256)",
+            msg.sender,
+            _to,
+            _amount
+        ));
+        require(success, "transferFrom() has been reverted");
     }
 
     /*

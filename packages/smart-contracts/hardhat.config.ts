@@ -46,6 +46,15 @@ const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
 
 export default {
   solidity: '0.8.9',
+  settings: {
+    optimizer: {
+      enabled: true,
+      runs: 200,
+      details: {
+        yul: false,
+      },
+    },
+  },
   paths: {
     sources: 'src/contracts',
     tests: 'test/contracts',
