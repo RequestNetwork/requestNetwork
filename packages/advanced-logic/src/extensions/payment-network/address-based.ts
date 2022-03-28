@@ -161,6 +161,7 @@ export default abstract class AddressBasedPaymentNetwork<
         );
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
+      case RequestLogicTypes.CURRENCY.ERC777:
         return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
       default:
         throw new Error(

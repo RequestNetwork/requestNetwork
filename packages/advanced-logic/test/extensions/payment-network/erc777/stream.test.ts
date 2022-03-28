@@ -3,8 +3,8 @@ import Utils from '@requestnetwork/utils';
 
 import Erc777StreamPaymentNetwork from '../../../../src/extensions/payment-network/erc777/stream';
 
-import * as DataERC20FeeAddData from '../../../utils/payment-network/erc777/stream-add-data-generator';
-import * as DataERC20FeeCreate from '../../../utils/payment-network/erc777/stream-create-data-generator';
+import * as DataERC777StreamAddData from '../../../utils/payment-network/erc777/stream-add-data-generator';
+import * as DataERC777StreamCreate from '../../../utils/payment-network/erc777/stream-create-data-generator';
 import * as TestData from '../../../utils/test-data-generator';
 
 const erc777StreamPaymentNetwork = new Erc777StreamPaymentNetwork();
@@ -31,7 +31,7 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
           refundAddress: '0x0000000000000000000000000000000000000003',
           salt: 'ea3bc7caf64110ca',
         },
-        version: '0.2.0',
+        version: '0.1.0',
       });
     });
 
@@ -88,14 +88,14 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
     describe('applyActionToExtension', () => {
       describe('applyActionToExtension/unknown action', () => {
         it('cannot applyActionToExtensions of unknown action', () => {
-          const unknownAction = Utils.deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
+          const unknownAction = Utils.deepCopy(DataERC777StreamAddData.actionAddPaymentAddress);
           unknownAction.action = 'unknown action' as any;
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+              DataERC777StreamCreate.requestStateCreatedEmpty.extensions,
               unknownAction,
-              DataERC20FeeCreate.requestStateCreatedEmpty,
+              DataERC777StreamCreate.requestStateCreatedEmpty,
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
@@ -103,14 +103,14 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
         });
 
         it('cannot applyActionToExtensions of unknown id', () => {
-          const unknownAction = Utils.deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
+          const unknownAction = Utils.deepCopy(DataERC777StreamAddData.actionAddPaymentAddress);
           unknownAction.id = 'unknown id' as any;
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+              DataERC777StreamCreate.requestStateCreatedEmpty.extensions,
               unknownAction,
-              DataERC20FeeCreate.requestStateCreatedEmpty,
+              DataERC777StreamCreate.requestStateCreatedEmpty,
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
@@ -123,29 +123,29 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
           // 'new extension state wrong'
           expect(
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateNoExtensions.extensions,
-              DataERC20FeeCreate.actionCreationFull,
-              DataERC20FeeCreate.requestStateNoExtensions,
+              DataERC777StreamCreate.requestStateNoExtensions.extensions,
+              DataERC777StreamCreate.actionCreationFull,
+              DataERC777StreamCreate.requestStateNoExtensions,
               TestData.otherIdRaw.identity,
               TestData.arbitraryTimestamp,
             ),
-          ).toEqual(DataERC20FeeCreate.extensionFullState);
+          ).toEqual(DataERC777StreamCreate.extensionFullState);
         });
 
         it('cannot applyActionToExtensions of creation with a previous state', () => {
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestFullStateCreated.extensions,
-              DataERC20FeeCreate.actionCreationFull,
-              DataERC20FeeCreate.requestFullStateCreated,
+              DataERC777StreamCreate.requestFullStateCreated.extensions,
+              DataERC777StreamCreate.actionCreationFull,
+              DataERC777StreamCreate.requestFullStateCreated,
               TestData.otherIdRaw.identity,
               TestData.arbitraryTimestamp,
             );
           }).toThrowError('This extension has already been created');
         });
 
-        it('cannot applyActionToExtensions of creation on a non ERC20 request', () => {
+        it('cannot applyActionToExtensions of creation on a non ERC777 request', () => {
           const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
             TestData.requestCreatedNoExtension,
           );
@@ -157,53 +157,53 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
               TestData.requestCreatedNoExtension.extensions,
-              DataERC20FeeCreate.actionCreationFull,
+              DataERC777StreamCreate.actionCreationFull,
               requestCreatedNoExtension,
               TestData.otherIdRaw.identity,
               TestData.arbitraryTimestamp,
             );
-          }).toThrowError('This extension can be used only on ERC20 requests');
+          }).toThrowError('This extension can be used only on ERC777 requests');
         });
 
         it('cannot applyActionToExtensions of creation with payment address not valid', () => {
-          const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeCreate.actionCreationFull);
-          testnetPaymentAddress.parameters.paymentAddress = DataERC20FeeAddData.invalidAddress;
+          const testnetPaymentAddress = Utils.deepCopy(DataERC777StreamCreate.actionCreationFull);
+          testnetPaymentAddress.parameters.paymentAddress = DataERC777StreamAddData.invalidAddress;
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateNoExtensions.extensions,
+              DataERC777StreamCreate.requestStateNoExtensions.extensions,
               testnetPaymentAddress,
-              DataERC20FeeCreate.requestStateNoExtensions,
+              DataERC777StreamCreate.requestStateNoExtensions,
               TestData.otherIdRaw.identity,
               TestData.arbitraryTimestamp,
             );
           }).toThrowError(
-            `paymentAddress '${DataERC20FeeAddData.invalidAddress}' is not a valid address`,
+            `paymentAddress '${DataERC777StreamAddData.invalidAddress}' is not a valid address`,
           );
         });
 
         it('cannot applyActionToExtensions of creation with refund address not valid', () => {
-          const testnetRefundAddress = Utils.deepCopy(DataERC20FeeCreate.actionCreationFull);
-          testnetRefundAddress.parameters.refundAddress = DataERC20FeeAddData.invalidAddress;
+          const testnetRefundAddress = Utils.deepCopy(DataERC777StreamCreate.actionCreationFull);
+          testnetRefundAddress.parameters.refundAddress = DataERC777StreamAddData.invalidAddress;
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateNoExtensions.extensions,
+              DataERC777StreamCreate.requestStateNoExtensions.extensions,
               testnetRefundAddress,
-              DataERC20FeeCreate.requestStateNoExtensions,
+              DataERC777StreamCreate.requestStateNoExtensions,
               TestData.otherIdRaw.identity,
               TestData.arbitraryTimestamp,
             );
           }).toThrowError(
-            `refundAddress '${DataERC20FeeAddData.invalidAddress}' is not a valid address`,
+            `refundAddress '${DataERC777StreamAddData.invalidAddress}' is not a valid address`,
           );
         });
 
         it('keeps the version used at creation', () => {
           const newState = erc777StreamPaymentNetwork.applyActionToExtension(
             {},
-            { ...DataERC20FeeCreate.actionCreationFull, version: 'ABCD' },
-            DataERC20FeeCreate.requestStateNoExtensions,
+            { ...DataERC777StreamCreate.actionCreationFull, version: 'ABCD' },
+            DataERC777StreamCreate.requestStateNoExtensions,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -214,8 +214,8 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
               {},
-              { ...DataERC20FeeCreate.actionCreationFull, version: '' },
-              DataERC20FeeCreate.requestStateNoExtensions,
+              { ...DataERC777StreamCreate.actionCreationFull, version: '' },
+              DataERC777StreamCreate.requestStateNoExtensions,
               TestData.otherIdRaw.identity,
               TestData.arbitraryTimestamp,
             );
@@ -228,22 +228,22 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
           // 'new extension state wrong'
           expect(
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
-              DataERC20FeeAddData.actionAddPaymentAddress,
-              DataERC20FeeCreate.requestStateCreatedEmpty,
+              DataERC777StreamCreate.requestStateCreatedEmpty.extensions,
+              DataERC777StreamAddData.actionAddPaymentAddress,
+              DataERC777StreamCreate.requestStateCreatedEmpty,
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             ),
-          ).toEqual(DataERC20FeeAddData.extensionStateWithPaymentAfterCreation);
+          ).toEqual(DataERC777StreamAddData.extensionStateWithPaymentAfterCreation);
         });
 
         it('cannot applyActionToExtensions of addPaymentAddress without a previous state', () => {
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateNoExtensions.extensions,
-              DataERC20FeeAddData.actionAddPaymentAddress,
-              DataERC20FeeCreate.requestStateNoExtensions,
+              DataERC777StreamCreate.requestStateNoExtensions.extensions,
+              DataERC777StreamAddData.actionAddPaymentAddress,
+              DataERC777StreamCreate.requestStateNoExtensions,
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
@@ -251,13 +251,13 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
         });
 
         it('cannot applyActionToExtensions of addPaymentAddress without a payee', () => {
-          const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+          const previousState = Utils.deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
           previousState.payee = undefined;
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
               previousState.extensions,
-              DataERC20FeeAddData.actionAddPaymentAddress,
+              DataERC777StreamAddData.actionAddPaymentAddress,
               previousState,
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
@@ -266,12 +266,12 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
         });
 
         it('cannot applyActionToExtensions of addPaymentAddress signed by someone else than the payee', () => {
-          const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+          const previousState = Utils.deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
               previousState.extensions,
-              DataERC20FeeAddData.actionAddPaymentAddress,
+              DataERC777StreamAddData.actionAddPaymentAddress,
               previousState,
               TestData.payerRaw.identity,
               TestData.arbitraryTimestamp,
@@ -283,9 +283,9 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestFullStateCreated.extensions,
-              DataERC20FeeAddData.actionAddPaymentAddress,
-              DataERC20FeeCreate.requestFullStateCreated,
+              DataERC777StreamCreate.requestFullStateCreated.extensions,
+              DataERC777StreamAddData.actionAddPaymentAddress,
+              DataERC777StreamCreate.requestFullStateCreated,
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
@@ -293,19 +293,21 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
         });
 
         it('cannot applyActionToExtensions of addPaymentAddress with payment address not valid', () => {
-          const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddPaymentAddress);
-          testnetPaymentAddress.parameters.paymentAddress = DataERC20FeeAddData.invalidAddress;
+          const testnetPaymentAddress = Utils.deepCopy(
+            DataERC777StreamAddData.actionAddPaymentAddress,
+          );
+          testnetPaymentAddress.parameters.paymentAddress = DataERC777StreamAddData.invalidAddress;
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+              DataERC777StreamCreate.requestStateCreatedEmpty.extensions,
               testnetPaymentAddress,
-              DataERC20FeeCreate.requestStateCreatedEmpty,
+              DataERC777StreamCreate.requestStateCreatedEmpty,
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
           }).toThrowError(
-            `paymentAddress '${DataERC20FeeAddData.invalidAddress}' is not a valid address`,
+            `paymentAddress '${DataERC777StreamAddData.invalidAddress}' is not a valid address`,
           );
         });
       });
@@ -315,22 +317,22 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
           // 'new extension state wrong'
           expect(
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
-              DataERC20FeeAddData.actionAddRefundAddress,
-              DataERC20FeeCreate.requestStateCreatedEmpty,
+              DataERC777StreamCreate.requestStateCreatedEmpty.extensions,
+              DataERC777StreamAddData.actionAddRefundAddress,
+              DataERC777StreamCreate.requestStateCreatedEmpty,
               TestData.payerRaw.identity,
               TestData.arbitraryTimestamp,
             ),
-          ).toEqual(DataERC20FeeAddData.extensionStateWithRefundAfterCreation);
+          ).toEqual(DataERC777StreamAddData.extensionStateWithRefundAfterCreation);
         });
 
         it('cannot applyActionToExtensions of addRefundAddress without a previous state', () => {
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateNoExtensions.extensions,
-              DataERC20FeeAddData.actionAddRefundAddress,
-              DataERC20FeeCreate.requestStateNoExtensions,
+              DataERC777StreamCreate.requestStateNoExtensions.extensions,
+              DataERC777StreamAddData.actionAddRefundAddress,
+              DataERC777StreamCreate.requestStateNoExtensions,
               TestData.payerRaw.identity,
               TestData.arbitraryTimestamp,
             );
@@ -338,13 +340,13 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
         });
 
         it('cannot applyActionToExtensions of addRefundAddress without a payer', () => {
-          const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+          const previousState = Utils.deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
           previousState.payer = undefined;
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
               previousState.extensions,
-              DataERC20FeeAddData.actionAddRefundAddress,
+              DataERC777StreamAddData.actionAddRefundAddress,
               previousState,
               TestData.payerRaw.identity,
               TestData.arbitraryTimestamp,
@@ -353,12 +355,12 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
         });
 
         it('cannot applyActionToExtensions of addRefundAddress signed by someone else than the payer', () => {
-          const previousState = Utils.deepCopy(DataERC20FeeCreate.requestStateCreatedEmpty);
+          const previousState = Utils.deepCopy(DataERC777StreamCreate.requestStateCreatedEmpty);
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
               previousState.extensions,
-              DataERC20FeeAddData.actionAddRefundAddress,
+              DataERC777StreamAddData.actionAddRefundAddress,
               previousState,
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
@@ -370,9 +372,9 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestFullStateCreated.extensions,
-              DataERC20FeeAddData.actionAddRefundAddress,
-              DataERC20FeeCreate.requestFullStateCreated,
+              DataERC777StreamCreate.requestFullStateCreated.extensions,
+              DataERC777StreamAddData.actionAddRefundAddress,
+              DataERC777StreamCreate.requestFullStateCreated,
               TestData.payerRaw.identity,
               TestData.arbitraryTimestamp,
             );
@@ -380,14 +382,16 @@ describe('extensions/payment-network/erc777/fee-proxy-contract', () => {
         });
 
         it('cannot applyActionToExtensions of addRefundAddress with refund address not valid', () => {
-          const testnetPaymentAddress = Utils.deepCopy(DataERC20FeeAddData.actionAddRefundAddress);
-          testnetPaymentAddress.parameters.refundAddress = DataERC20FeeAddData.invalidAddress;
+          const testnetPaymentAddress = Utils.deepCopy(
+            DataERC777StreamAddData.actionAddRefundAddress,
+          );
+          testnetPaymentAddress.parameters.refundAddress = DataERC777StreamAddData.invalidAddress;
           // 'must throw'
           expect(() => {
             erc777StreamPaymentNetwork.applyActionToExtension(
-              DataERC20FeeCreate.requestStateCreatedEmpty.extensions,
+              DataERC777StreamCreate.requestStateCreatedEmpty.extensions,
               testnetPaymentAddress,
-              DataERC20FeeCreate.requestStateCreatedEmpty,
+              DataERC777StreamCreate.requestStateCreatedEmpty,
               TestData.payeeRaw.identity,
               TestData.arbitraryTimestamp,
             );
