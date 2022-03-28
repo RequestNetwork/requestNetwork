@@ -23,6 +23,7 @@ export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   'arbitrum-one': {},
   xdai: {},
   avalanche: {},
+  bsc: {},
 };
 
 export const chainlinkSupportedNetworks = Object.keys(chainlinkCurrencyPairs);

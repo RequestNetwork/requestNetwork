@@ -22,14 +22,14 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: { nativeToken: [mockNearPaymentNetwork] },
 };
-const salt = '360ab22e5fb6c41c';
-const paymentAddress = 'pay.testnet';
+const salt = 'a6475e4c3d45feb6';
+const paymentAddress = 'gus.near';
 const request: any = {
-  requestId: '017a738821782329122ffb1b944dc2bbcecc56fdc8d95b050fe49a1fc04349a9c4',
+  requestId: '01c9190b6d015b3a0b2bbd0e492b9474b0734ca19a16f2fda8f7adec10d0fa3e7a',
   currency: {
-    network: 'aurora-testnet',
+    network: 'aurora',
     type: RequestLogicTypes.CURRENCY.ETH,
-    value: 'NEAR-testnet',
+    value: 'NEAR',
   },
   extensions: {
     [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
@@ -45,8 +45,7 @@ const request: any = {
 };
 
 describe('Near payments detection', () => {
-  // TODO Near tests failing. Asked NEAR team about this.
-  it.skip('NearInfoRetriever can detect a NEAR payment', async () => {
+  it('NearInfoRetriever can retrieve a NEAR payment', async () => {
     const paymentReference = PaymentReferenceCalculator.calculate(
       request.requestId,
       salt,
@@ -55,16 +54,19 @@ describe('Near payments detection', () => {
 
     const infoRetriever = new NearInfoRetriever(
       paymentReference,
-      paymentAddress,
-      'dev-1631521265288-35171138540673',
-      'com.nearprotocol.testnet.explorer.select:INDEXER_BACKEND',
+      'gus.near',
+      'requestnetwork.near',
       PaymentTypes.EVENTS_NAMES.PAYMENT,
-      'aurora-testnet',
+      'aurora',
     );
     const events = await infoRetriever.getTransferEvents();
     expect(events).toHaveLength(1);
 
-    expect(events[0].amount).toBe('2000000000000000000000000');
+    expect(events[0].amount).toBe('1000000000000000000000000');
+    expect(events[0].timestamp).toBe(1631788427230);
+    expect(events[0].parameters?.receiptId).toBe('FYVnCvJFoNtK7LE2uAdTFfReFMGiCUHMczLsvEni1Cpf');
+    expect(events[0].parameters?.txHash).toBeUndefined();
+    expect(events[0].parameters?.block).toBe(47891257);
   });
 
   it('PaymentNetworkFactory can get the detector (testnet)', async () => {
@@ -87,15 +89,14 @@ describe('Near payments detection', () => {
     ).toBeInstanceOf(NearNativeTokenPaymentDetector);
   });
 
-  // TODO Near tests failing. Asked NEAR team about this.
-  it.skip('NearNativeTokenPaymentDetector can detect a payment on aurora-testnet', async () => {
+  it('NearNativeTokenPaymentDetector can detect a payment on Near', async () => {
     const paymentDetector = new NearNativeTokenPaymentDetector({
       advancedLogic: mockAdvancedLogic,
     });
     const balance = await paymentDetector.getBalance(request);
 
     expect(balance.events).toHaveLength(1);
-    expect(balance.balance).toBe('2000000000000000000000000');
+    expect(balance.balance).toBe('1000000000000000000000000');
   });
 
   describe('Edge cases for NearNativeTokenPaymentDetector', () => {

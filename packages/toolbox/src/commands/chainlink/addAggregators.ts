@@ -2,6 +2,7 @@ import * as yargs from 'yargs';
 import inquirer from 'inquirer';
 import { runUpdate } from './contractUtils';
 import { Aggregator, getAvailableAggregators, getCurrencyManager } from './aggregatorsUtils';
+import { conversionSupportedNetworks } from '@requestnetwork/currency';
 
 type Options = {
   dryRun: boolean;
@@ -71,6 +72,13 @@ export const handler = async (args: Options): Promise<void> => {
   const pairs = pair?.map((x) => x.toLowerCase().trim());
 
   const currencyManager = await getCurrencyManager(args.list);
+
+  if (!conversionSupportedNetworks.includes(network)) {
+    console.warn(
+      `WARNING: ${network} is missing in chainlinkSupportedNetworks from the Currency package.`,
+      `Add '${network}: {}' to chainlinkCurrencyPairs, in currency/src/chainlink-path-aggregators.ts.`,
+    );
+  }
 
   const availableAggregators = await getAvailableAggregators(
     network,

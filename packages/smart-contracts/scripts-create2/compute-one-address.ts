@@ -1,6 +1,7 @@
 import { IDeploymentParams, HardhatRuntimeEnvironmentExtended } from './types';
 import { requestDeployer } from '../src/lib';
 import { create2ContractDeploymentList } from './utils';
+import { getConstructorArgs } from './constructor-args';
 
 // Deploys, set up the contracts
 export async function computeCreate2DeploymentAddress(
@@ -51,9 +52,12 @@ export const computeCreate2DeploymentAddressesFromList = async (
       switch (contract) {
         case 'EthereumProxy':
         case 'EthereumFeeProxy':
-          address = await computeCreate2DeploymentAddress({ contract }, hre);
+        case 'Erc20ConversionProxy': {
+          const constructorArgs = getConstructorArgs(contract);
+          address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
           console.log(`${contract.padEnd(36, ' ')}${address}`);
           break;
+        }
         // Other cases to add when necessary
         default:
           throw new Error(`The contrat ${contract} is not to be deployed using the CREATE2 scheme`);
