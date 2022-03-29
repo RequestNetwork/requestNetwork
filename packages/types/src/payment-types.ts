@@ -10,6 +10,7 @@ export enum PAYMENT_NETWORK_ID {
   ERC20_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
   ERC20_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   ERC20_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+  ERC777_STREAM = Extension.ID.PAYMENT_NETWORK_ERC777_STREAM,
   ETH_INPUT_DATA = Extension.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   ETH_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
   NATIVE_TOKEN = Extension.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
@@ -133,6 +134,23 @@ export interface IPaymentNetworkBaseInfoRetriever<
   getAllContractEvents(): Promise<TPaymentNetworkEvent[]>;
 }
 /**
+ * ERC777 networks and events
+ */
+
+/** Parameters for events of ERC777 payments */
+export interface IERC777PaymentEventParameters {
+  from?: string;
+  to: string;
+  block?: number;
+  txHash?: string;
+}
+
+/** ERC777 Payment Network Event */
+export type ERC777PaymentNetworkEvent = IPaymentNetworkEvent<IERC777PaymentEventParameters>;
+/** ERC777 BalanceWithEvents */
+export type ERC777BalanceWithEvents = IBalanceWithEvents<IERC777PaymentEventParameters>;
+
+/**
  * ERC20 networks and events
  */
 
@@ -191,7 +209,7 @@ export interface IETHPaymentEventParameters {
   confirmations?: number;
   txHash?: string;
 }
-/** Parameters for events of ERC20 payments with fees */
+/** Parameters for events of ETH payments with fees */
 export interface IETHFeePaymentEventParameters extends IETHPaymentEventParameters {
   feeAddress?: string;
   feeAmount?: string;

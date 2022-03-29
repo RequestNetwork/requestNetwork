@@ -2,5 +2,6 @@
   "mochaExplorer.files": "**/test/**/*.ts",
   "mochaExplorer.require": "ts-node/register",
   "mochaExplorer.cwd": "../..",
-  "jest.jestCommandLine": "node_modules/.bin/jest"
+  "jest.jestCommandLine": "node_modules/.bin/jest",
+  "jest.autoRun": "off"
 }

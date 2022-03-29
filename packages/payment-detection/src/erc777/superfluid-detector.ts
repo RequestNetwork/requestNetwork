@@ -12,16 +12,13 @@ import { ReferenceBasedDetector } from '../reference-based-detector';
  */
 export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
   ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IERC20PaymentEventParameters
+  PaymentTypes.IERC777PaymentEventParameters
 > {
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
-      advancedLogic.extensions.proxyContractErc20,
-    );
+    super(PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM, advancedLogic.extensions.erc777Stream);
   }
 
   /**
@@ -40,12 +37,13 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     paymentReference: string,
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
-  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC777PaymentEventParameters>> {
     if (!address) {
       return {
         paymentEvents: [],
       };
     }
+
     const infoRetriever = new SuperFluidInfoRetriever(
       paymentReference,
       requestCurrency.value,

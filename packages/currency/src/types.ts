@@ -31,12 +31,23 @@ export type ERC20Currency = {
 };
 
 /**
+ * An ERC777 SuperToken (DAIx, USDCx...)
+ */
+export type ERC777Currency = {
+  symbol: string;
+  decimals: number;
+  network: string;
+  address: string;
+};
+
+/**
  * The minimum properties of a Currency
  */
 export type CurrencyInput =
   | ({ type: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC } & NativeCurrency)
   | ({ type: RequestLogicTypes.CURRENCY.ISO4217 } & ISO4217Currency)
-  | ({ type: RequestLogicTypes.CURRENCY.ERC20 } & ERC20Currency);
+  | ({ type: RequestLogicTypes.CURRENCY.ERC20 } & ERC20Currency)
+  | ({ type: RequestLogicTypes.CURRENCY.ERC777 } & ERC777Currency);
 
 /**
  * The description of Currency, its core properties and some computed properties.
