@@ -6,14 +6,6 @@ import { IEventRetriever } from '../types';
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
 
-// The ERC20 escrow smart contract ABI fragment containing escrow specific events.
-// const erc20EscrowContractAbiFragment = [
-//   'event RequestFrozen(bytes indexed paymentReference)',
-//   'event InitiatedEmergencyClaim(bytes indexed paymentReference)',
-//   'event RevertedEmergencyClaim(bytes indexed paymentReference)',
-//   'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
-// ];
-
 /** Escrow contract event arguments. */
 type EscrowArgs = {
   paymentReference: string;
