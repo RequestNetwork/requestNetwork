@@ -13,6 +13,7 @@ import Declarative from './extensions/payment-network/declarative';
 import AddressBasedErc20 from './extensions/payment-network/erc20/address-based';
 import FeeProxyContractErc20 from './extensions/payment-network/erc20/fee-proxy-contract';
 import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contract';
+import Erc777Stream from './extensions/payment-network/erc777/stream';
 import FeeProxyContractEth from './extensions/payment-network/ethereum/fee-proxy-contract';
 import EthereumInputData from './extensions/payment-network/ethereum/input-data';
 import NearNative from './extensions/payment-network/near-native';
@@ -37,6 +38,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     nativeToken: NativeTokenPaymentNetwork[];
     feeProxyContractErc20: FeeProxyContractErc20;
     proxyContractErc20: ProxyContractErc20;
+    erc777Stream: Erc777Stream;
     feeProxyContractEth: FeeProxyContractEth;
     anyToEthProxy: AnyToEthProxy;
   };
@@ -55,6 +57,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       ethereumInputData: new EthereumInputData(),
       feeProxyContractErc20: new FeeProxyContractErc20(),
       proxyContractErc20: new ProxyContractErc20(),
+      erc777Stream: new Erc777Stream(),
       feeProxyContractEth: new FeeProxyContractEth(),
       anyToEthProxy: new AnyToEthProxy(currencyManager),
       nativeToken: [new NearNative()],
@@ -105,6 +108,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: this.extensions.proxyContractErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: this.extensions
         .feeProxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM]: this.extensions.erc777Stream,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: this.extensions.ethereumInputData,
       [ExtensionTypes.ID
         .PAYMENT_NETWORK_NATIVE_TOKEN]: this.getNativeTokenExtensionForActionAndState(

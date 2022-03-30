@@ -49,6 +49,7 @@ describe('contract: Erc20ConversionProxy', () => {
     testErc20ConversionProxy = await new Erc20ConversionProxy__factory(signer).deploy(
       erc20FeeProxy.address,
       chainlinkPath.address,
+      await signer.getAddress(),
     );
     DAI_address = await localERC20AlphaArtifact.getAddress(network.name);
     testERC20 = await new TestERC20__factory(signer).attach(DAI_address);

@@ -21,15 +21,15 @@ const createMockRequest = ({
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
   currency: {
     network,
-    type: RequestLogicTypes.CURRENCY.ERC20,
+    type: RequestLogicTypes.CURRENCY.ERC777,
     value: tokenAddress,
   },
   events: [],
   expectedAmount: '320833333333331260',
   extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -64,7 +64,7 @@ describe('ERC777 SuperFluid detection test-suite', () => {
     expect(balance.balance).toBe('320833333333331260');
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe('payment');
-    const params = balance.events[0].parameters as PaymentTypes.IERC20FeePaymentEventParameters;
+    const params = balance.events[0].parameters as PaymentTypes.IERC777PaymentEventParameters;
     expect(params.to).toBe('0x52e5bcfa46393894afcfe6cd98a6761fa692c594');
     expect(balance.events[0].amount).toBe('320833333333331260');
     expect(balance.events[0].timestamp).toBe('1642693617');
