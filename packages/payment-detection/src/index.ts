@@ -17,6 +17,7 @@ import {
 import { NearNativeTokenPaymentDetector } from './near-detector';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
+import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
 
 export type { TheGraphClient } from './thegraph';
 
@@ -43,4 +44,5 @@ export {
   padAmountForChainlink,
   unpadAmountFromChainlink,
   calculateEscrowState,
+  EscrowERC20InfoRetriever,
 };

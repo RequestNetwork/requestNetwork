@@ -1,18 +1,10 @@
 import { PaymentTypes } from '@requestnetwork/types';
-
+import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { BigNumber, ethers } from 'ethers';
 import { IEventRetriever } from '../types';
 
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
-
-// The ERC20 escrow smart contract ABI fragment containing escrow specific events.
-const erc20EscrowContractAbiFragment = [
-  'event RequestFrozen(bytes indexed paymentReference)',
-  'event InitiatedEmergencyClaim(bytes indexed paymentReference)',
-  'event RevertedEmergencyClaim(bytes indexed paymentReference)',
-  'event TransferWithReferenceAndFee(address tokenAddress, address to,uint256 amount,bytes indexed paymentReference,uint256 feeAmount,address feeAddress)',
-];
 
 /** Escrow contract event arguments. */
 type EscrowArgs = {
@@ -64,7 +56,7 @@ export class EscrowERC20InfoRetriever
     // Setup the ERC20 escrow contract interface.
     this.contractEscrow = new ethers.Contract(
       this.escrowContractAddress,
-      erc20EscrowContractAbiFragment,
+      erc20EscrowToPayArtifact.getContractAbi(),
       this.provider,
     );
   }
@@ -182,5 +174,12 @@ export class EscrowERC20InfoRetriever
       }));
 
     return Promise.all(eventPromises);
+  }
+
+  /**
+   * Retrieves current escrow data from requestMapping in the Escrow smart contract
+   */
+  public async getEscrowRequestMapping(): Promise<PaymentTypes.EscrowChainData> {
+    return this.contractEscrow.requestMapping(`0x${this.paymentReference}`);
   }
 }

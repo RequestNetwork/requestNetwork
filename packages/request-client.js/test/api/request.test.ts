@@ -2,6 +2,7 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { EventEmitter } from 'events';
+import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
 import Request from '../../src/api/request';
 
@@ -530,6 +531,21 @@ describe('api/request', () => {
       await request.refresh();
 
       expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
+  describe('Gets escrow chain data', () => {
+    it('fetches escrow onchain data from the smart contract', async () => {
+      const request = new Request('1', mockRequestLogic, currencyManager);
+      const reference = PaymentReferenceCalculator.calculate(
+        '01227296c706fa0a188d685b13d7aa0db970b06fcea2c01169739131d48e09bd6b',
+        '410abec1ce481357',
+        '0x5000EE9FB9c96A2A09D8efB695aC21D6C429fF11',
+      );
+      const escrowChainData = await request.getEscrowData(reference, 'rinkeby');
+      expect(escrowChainData.payee).toEqual('0x5000EE9FB9c96A2A09D8efB695aC21D6C429fF11');
+      expect(escrowChainData.payer).toEqual('0x5000EE9FB9c96A2A09D8efB695aC21D6C429fF11');
+      expect(escrowChainData.tokenAddress).toEqual('0xFab46E002BbF0b4509813474841E0716E6730136');
+      expect(escrowChainData.amount.toString()).toEqual('2300000000000000000');
     });
   });
 });
