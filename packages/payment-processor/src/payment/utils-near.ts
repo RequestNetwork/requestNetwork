@@ -13,7 +13,11 @@ export const isValidNearAddress = async (nearNetwork: Near, address: string): Pr
 };
 
 export const isNearNetwork = (network?: string): boolean => {
-  return !!network && (network === 'aurora-testnet' || network === 'aurora');
+  if (network === 'aurora-testnet' || network === 'aurora') {
+    console.warn(`Using ${network} as an alias for Near will be deprecated`);
+    return true;
+  }
+  return !!network && (network === 'near-testnet' || network === 'near');
 };
 
 export const isNearAccountSolvent = (
@@ -41,7 +45,7 @@ export const processNearPayment = async (
   amount: BigNumberish,
   to: string,
   payment_reference: string,
-  version = '0.2.0',
+  version = '0.3.0',
 ): Promise<void> => {
   if (version !== '0.2.0') {
     if (version === '0.1.0') {
@@ -49,7 +53,7 @@ export const processNearPayment = async (
         'Native Token payments on Near with extension v0.1.0 are not supported anymore',
       );
     }
-    throw new Error('Native Token payments on Near only support v0.2.0 extensions');
+    throw new Error('Native Token payments on Near only support extensions starting at 0.2.0');
   }
   if (!(await isValidNearAddress(walletConnection._near, to))) {
     throw new Error(`Invalid NEAR payment address: ${to}`);

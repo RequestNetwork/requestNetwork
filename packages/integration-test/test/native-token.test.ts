@@ -6,24 +6,38 @@ import { CurrencyManager } from '@requestnetwork/currency';
 
 const advancedLogic = new AdvancedLogic();
 const currency = {
-  network: 'aurora-testnet',
+  network: 'near-testnet',
   type: RequestLogicTypes.CURRENCY.ETH,
   value: 'NEAR',
 };
 const createCreationActionParams: PnReferenceBased.ICreationParameters = {
   paymentAddress: 'payment.testnet',
   salt: 'a1a2a3a4a5a6a7a8',
-  paymentNetworkName: 'aurora-testnet',
+  paymentNetworkName: 'near-testnet',
 };
 
 describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
   it('PaymentNetworkFactory can createPaymentNetwork (mainnet)', async () => {
     const paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
       advancedLogic,
-      currency: { ...currency, network: 'aurora-testnet' },
+      currency,
       paymentNetworkCreationParameters: {
         id: PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
         parameters: createCreationActionParams,
+      },
+      currencyManager: CurrencyManager.getDefault(),
+    });
+    const action = await paymentNetwork.createExtensionsDataForCreation(createCreationActionParams);
+    expect(action.parameters.paymentAddress).toEqual('payment.testnet');
+    expect(action.parameters.paymentNetworkName).toEqual('aurora-testnet');
+  });
+  it('PaymentNetworkFactory can createPaymentNetwork (mainnet with deprecated alias)', async () => {
+    const paymentNetwork = PaymentNetworkFactory.createPaymentNetwork({
+      advancedLogic,
+      currency: { ...currency, network: 'aurora-testnet' },
+      paymentNetworkCreationParameters: {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
+        parameters: { ...createCreationActionParams, paymentNetworkName: 'aurora-testnet' },
       },
       currencyManager: CurrencyManager.getDefault(),
     });

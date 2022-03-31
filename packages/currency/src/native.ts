@@ -67,13 +67,13 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       symbol: 'NEAR',
       decimals: 24,
       name: 'Near',
-      network: 'aurora',
+      network: 'near',
     },
     {
       symbol: 'NEAR-testnet',
       decimals: 24,
       name: 'Near Testnet',
-      network: 'aurora-testnet',
+      network: 'near-testnet',
     },
     {
       symbol: 'ARETH',

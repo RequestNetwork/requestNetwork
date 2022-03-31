@@ -269,7 +269,7 @@ describe('swapToPayRequest', () => {
   it('cannot swap to pay a non-EVM request currency', async () => {
     const request: any = {
       currencyInfo: {
-        network: 'aurora',
+        network: 'near',
       },
       extensions: {
         [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
@@ -282,7 +282,7 @@ describe('swapToPayRequest', () => {
       },
     };
     await expect(swapToPayRequest(request, swapSettings, wallet)).rejects.toThrowError(
-      'Payment currency network aurora is not supported',
+      'Payment currency network near is not supported',
     );
   });
 

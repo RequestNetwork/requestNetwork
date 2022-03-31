@@ -100,24 +100,30 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     const id: ExtensionTypes.ID = extensionAction.id;
     const extension: ExtensionTypes.IExtension | undefined = {
       [ExtensionTypes.ID.CONTENT_DATA]: this.extensions.contentData,
+      // Bitcoin
       [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: this.extensions.addressBasedBtc,
       [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: this.extensions
         .addressBasedTestnetBtc,
+      // Declarative
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: this.extensions.declarative,
+      // ERC20
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: this.extensions.addressBasedErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: this.extensions.proxyContractErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: this.extensions
         .feeProxyContractErc20,
+      // ERC777
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM]: this.extensions.erc777Stream,
+      // ETH and non-EVM native tokens
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: this.extensions.ethereumInputData,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: this.extensions
+        .feeProxyContractEth,
       [ExtensionTypes.ID
         .PAYMENT_NETWORK_NATIVE_TOKEN]: this.getNativeTokenExtensionForActionAndState(
         extensionAction,
         requestState,
       ),
+      // Any denomination with conversion
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: this.extensions.anyToErc20Proxy,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: this.extensions
-        .feeProxyContractEth,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY]: this.extensions.anyToEthProxy,
     }[id];
 

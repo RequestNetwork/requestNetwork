@@ -276,7 +276,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   static getDefaultLegacyTokens(): LegacyTokenMap {
     return {
       near: {
-        NEAR: ['NEAR', 'aurora'],
+        NEAR: ['NEAR', 'near'],
       },
     };
   }

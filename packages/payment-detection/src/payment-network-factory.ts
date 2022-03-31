@@ -38,6 +38,11 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
     },
   },
   ETH: {
+    near: { [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
+    'near-testnet': {
+      [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
+    },
+    // Aurora is not supported but was mistakenly used as a Near alias
     aurora: { [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector },
     'aurora-testnet': {
       [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector,

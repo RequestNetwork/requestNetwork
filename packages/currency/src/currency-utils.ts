@@ -4,7 +4,7 @@
  */
 export const isValidNearAddress = (address: string, network?: string): boolean => {
   if (!network) {
-    return isValidNearAddress(address, 'aurora') || isValidNearAddress(address, 'aurora-testnet');
+    return isValidNearAddress(address, 'near') || isValidNearAddress(address, 'near-testnet');
   }
   // see link bellow for NEAR address specification
   // https://nomicon.io/DataStructures/Account.html
@@ -17,8 +17,10 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
   // see link bellow for details about top level accounts on mainnet and testnet
   // https://docs.near.org/docs/videos/accounts-keys
   switch (network) {
+    case 'near':
     case 'aurora':
       return !!address.match(/\.near$/);
+    case 'near-testnet':
     case 'aurora-testnet':
       return !!address.match(/\.testnet$/);
     default:
