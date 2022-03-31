@@ -27,16 +27,7 @@ export class NearInfoRetriever {
     if (this.network !== 'aurora' && this.network !== 'aurora-testnet') {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
-    if (this.network !== 'aurora') {
-      // FIXME: remove this check and implement testnet detection once aurora-testnet subgraphes are available
-      throw new Error('FIXME: getTransactionsFromNearSubGraph() only implemented for Near mainnet');
-    }
     this.network = this.network.replace('aurora', 'near');
-    if (this.proxyContractName !== 'requestnetwork.near') {
-      throw new Error(
-        `Proxy contract "${proxyContractName}" not supported by Near subgraph retriever`,
-      );
-    }
     this.client = getTheGraphNearClient(this.network as 'near' | 'near-testnet');
   }
 
@@ -46,6 +37,7 @@ export class NearInfoRetriever {
     const payments = await this.client.GetNearPayments({
       reference: this.paymentReference,
       to: this.toAddress,
+      contractAddress: this.proxyContractName,
     });
     return payments.payments.map((p) => ({
       amount: p.amount,
