@@ -1,9 +1,11 @@
 import { ExtensionTypes } from '@requestnetwork/types';
 import { UnsupportedNetworkError } from './address-based';
 import NativeTokenPaymentNetwork from './native-token';
+import * as Semver from 'semver';
 
-const CURRENT_VERSION = '0.2.0';
-const supportedNetworks = ['aurora', 'aurora-testnet'];
+const CURRENT_VERSION = '0.3.0';
+const supportedNetworks_0_2_0 = ['aurora', 'aurora-testnet'];
+const supportedNetworks = ['near', 'near-testnet'];
 
 /**
  * Implementation of the payment network to pay in Near based on input data.
@@ -13,7 +15,10 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(extensionId, currentVersion, supportedNetworks);
+    const supportedNetworksForVersion = Semver.lt(currentVersion, '0.3.0')
+      ? supportedNetworks_0_2_0
+      : supportedNetworks;
+    super(extensionId, currentVersion, supportedNetworksForVersion);
   }
 
   /**
@@ -25,8 +30,10 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
   protected isValidAddress(address: string, networkName?: string): boolean {
     switch (networkName) {
       case 'aurora':
+      case 'near':
         return this.isValidMainnetAddress(address);
       case 'aurora-testnet':
+      case 'near-testnet':
         return this.isValidTestnetAddress(address);
       case undefined:
         return this.isValidMainnetAddress(address) || this.isValidTestnetAddress(address);
@@ -36,10 +43,10 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
   }
 
   private isValidMainnetAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'aurora');
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'near');
   }
 
   private isValidTestnetAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'aurora-testnet');
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'near-testnet');
   }
 }

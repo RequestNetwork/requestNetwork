@@ -45,6 +45,24 @@ describe('extensions/payment-network/native-token', () => {
       currency: nearTestnetCurrency,
       wrongCurrency: nearCurrency,
     },
+    {
+      name: 'Near',
+      paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
+      networkName: 'near',
+      suffix: 'near',
+      wrongSuffix: 'testnet',
+      currency: nearCurrency,
+      wrongCurrency: nearTestnetCurrency,
+    },
+    {
+      name: 'Near testnet',
+      paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
+      networkName: 'near-testnet',
+      suffix: 'testnet',
+      wrongSuffix: 'near',
+      currency: nearTestnetCurrency,
+      wrongCurrency: nearCurrency,
+    },
   ];
 
   nativeTokenTestCases.forEach((testCase) => {
@@ -149,6 +167,7 @@ describe('extensions/payment-network/native-token', () => {
   });
 
   describe('AdvancedLogic.applyActionToExtension', () => {
+    // TODO replace 0 with Near but also test retrocompatibility where relevant
     const mainnetTestCase = nativeTokenTestCases[0];
     it('works with state and action on the same network', () => {
       const advancedLogic = new AdvancedLogic();
@@ -247,13 +266,13 @@ describe('extensions/payment-network/native-token', () => {
       expect(() => {
         advancedLogic.applyActionToExtensions(
           requestState.extensions,
-          nearPn.createCreationAction({ salt, paymentNetworkName: 'aurora-testnet' }),
+          nearPn.createCreationAction({ salt, paymentNetworkName: 'near-testnet' }),
           requestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
       }).toThrowError(
-        'Cannot apply action for network aurora-testnet on state with payment network: aurora',
+        'Cannot apply action for network near-testnet on state with payment network: near',
       );
     });
     it('throws when adding a payment address a different network', () => {
@@ -267,7 +286,7 @@ describe('extensions/payment-network/native-token', () => {
 
       const intermediateExtensionState = advancedLogic.applyActionToExtensions(
         requestState.extensions,
-        nearPn.createCreationAction({ salt, paymentNetworkName: 'aurora' }),
+        nearPn.createCreationAction({ salt, paymentNetworkName: 'near' }),
         requestState,
         payeeRaw.identity,
         arbitraryTimestamp,

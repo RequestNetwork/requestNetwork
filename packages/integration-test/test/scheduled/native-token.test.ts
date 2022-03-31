@@ -10,7 +10,7 @@ const advancedLogic = new AdvancedLogic();
 const createCreationActionParams: PnReferenceBased.ICreationParameters = {
   paymentAddress: 'payment.testnet',
   salt: 'a1a2a3a4a5a6a7a8',
-  paymentNetworkName: 'aurora-testnet',
+  paymentNetworkName: 'near-testnet',
 };
 
 describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
@@ -22,17 +22,17 @@ describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
     const paymentNetwork = paymentNetworkFactory.createPaymentNetwork(
       PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
       RequestLogicTypes.CURRENCY.ETH,
-      'aurora-testnet',
+      'near-testnet',
     );
     const action = await paymentNetwork.createExtensionsDataForCreation(createCreationActionParams);
     expect(action.parameters.paymentAddress).toEqual('payment.testnet');
-    expect(action.parameters.paymentNetworkName).toEqual('aurora-testnet');
+    expect(action.parameters.paymentNetworkName).toEqual('near-testnet');
   });
   it('throws without a payment network name', async () => {
     const paymentNetwork = paymentNetworkFactory.createPaymentNetwork(
       PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
       RequestLogicTypes.CURRENCY.ETH,
-      'aurora-testnet',
+      'near-testnet',
     );
     await expect(async () => {
       await paymentNetwork.createExtensionsDataForCreation(

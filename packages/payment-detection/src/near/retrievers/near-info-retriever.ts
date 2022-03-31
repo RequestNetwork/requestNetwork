@@ -14,6 +14,7 @@ export class NearInfoRetriever {
   /**
    * @param paymentReference The reference to identify the payment
    * @param toAddress Address to check
+   * @param proxyContractName: The contract expected to process the payment
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
    *
@@ -25,10 +26,10 @@ export class NearInfoRetriever {
     protected eventName: PaymentTypes.EVENTS_NAMES,
     protected network: string,
   ) {
-    if (this.network !== 'aurora' && this.network !== 'aurora-testnet') {
+    this.network = this.network.replace('aurora', 'near');
+    if (this.network !== 'near' && this.network !== 'near-testnet') {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
-    this.network = this.network.replace('aurora', 'near');
     this.client = getTheGraphNearClient(this.network as 'near' | 'near-testnet');
   }
 

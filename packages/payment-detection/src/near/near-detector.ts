@@ -17,6 +17,7 @@ interface IProxyContractVersion {
 const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
   ['0.1.0']: '0.1.0',
   ['0.2.0']: '0.2.0',
+  ['0.3.0']: '0.3.0',
 };
 
 /**
@@ -33,9 +34,13 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     super(PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN, advancedLogic.extensions.nativeToken[0]);
   }
 
-  public static getContractName = (chainName: string, paymentNetworkVersion = '0.2.0'): string => {
+  public static getContractName = (chainName: string, paymentNetworkVersion = '0.3.0'): string => {
     const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     const versionMap: Record<string, Record<string, string>> = {
+      near: { '0.3.0': 'requestnetwork.near' },
+      'near-testnet': {
+        '0.3.0': 'dev-1631521265288-35171138540673',
+      },
       aurora: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
       'aurora-testnet': {
         '0.1.0': 'dev-1626339335241-5544297',
@@ -82,6 +87,18 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     return {
       paymentEvents,
     };
+  }
+
+  /**
+   * Get the network of the payment
+   * @returns The network of payment
+   */
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+    const network = request.currency.network;
+    if (!network) {
+      throw Error(`request.currency.network must be defined for ${this.paymentNetworkId}`);
+    }
+    return network.replace('aurora', 'near');
   }
 
   protected static getVersionOrThrow = (paymentNetworkVersion: string): string => {
