@@ -3,11 +3,13 @@ import deployRequest from './1_deploy-request-storage';
 import deployPayment from './2_deploy-main-payments';
 import deployConversion from './3_deploy_chainlink_contract';
 import { deployEscrow } from './4_deploy-escrow-deployment';
+import { deployBatchPayment } from './5_deploy-batch-erc-eth-deployment';
 
 // Deploys, set up the contracts
-export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment) {
+export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment): Promise<any> {
   await deployRequest(_args, hre);
   const mainPaymentAddresses = await deployPayment(_args, hre);
   await deployConversion(_args, hre, mainPaymentAddresses);
   await deployEscrow(hre);
+  await deployBatchPayment(_args, hre);
 }
