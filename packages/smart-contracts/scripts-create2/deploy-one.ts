@@ -51,8 +51,9 @@ export const deployWithCreate2FromList = async (
     switch (contract) {
       case 'EthereumProxy':
       case 'EthereumFeeProxy':
-      case 'Erc20ConversionProxy': {
-        const constructorArgs = getConstructorArgs(contract);
+      case 'Erc20ConversionProxy':
+      case 'ERC20EscrowToPay': {
+        const constructorArgs = getConstructorArgs(contract, hre.config.xdeploy.networks[0]);
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
         break;
       }
