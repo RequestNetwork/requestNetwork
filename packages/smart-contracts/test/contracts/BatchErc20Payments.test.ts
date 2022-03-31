@@ -80,6 +80,10 @@ describe('contract: BatchPayments: ERC20', () => {
     await batch.connect(owner).setBatchFee(100);
   });
 
+  after(async () => {
+    await batch.connect(owner).setBatchFee(10);
+  });
+
   describe('Batch working well: right args, and approvals', () => {
     it('Should pay 3 ERC20 payments with paymentRef and pay batch fee', async function () {
       beforeERC20Balance1 = await token1.balanceOf(payee1);
