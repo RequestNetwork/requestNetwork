@@ -9,10 +9,10 @@ export async function deployEscrow(hre: HardhatRuntimeEnvironment) {
   let erc20EscrowToPayAddress: string;
   try {
     [deployer] = await hre.ethers.getSigners();
-
+    const admin = process.env.ADMIN_WALLET_ADDRESS || '';
     const erc20EscrowToPay = await (
       await hre.ethers.getContractFactory('ERC20EscrowToPay', deployer)
-    ).deploy(erc20FeeProxyAddress);
+    ).deploy(erc20FeeProxyAddress, admin);
     // Deploy Escrow contract
 
     erc20EscrowToPayAddress = erc20EscrowToPay.address;
