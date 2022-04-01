@@ -33,7 +33,7 @@ contract ERC20EscrowToPay is WhitelistAdminRole {
 
     /**
      * @notice Duration of emergency claim period that payee can initiate.
-     The payer can reverse this claim within this period.
+     *         The payer can reverse this claim within this period.
      */
     uint256 public emergencyClaimPeriod = 24 weeks;
 
