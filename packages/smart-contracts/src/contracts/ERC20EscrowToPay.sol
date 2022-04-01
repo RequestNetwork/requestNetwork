@@ -39,7 +39,7 @@ contract ERC20EscrowToPay is WhitelistAdminRole {
 
     /**
      * @notice Duration of Escrow freeze period that payer can initiate.
-     This lock is irreversable, once the funds are frozen, payer must wait for the whole period.
+     *         This lock is irreversable, once the funds are frozen, payer must wait for the whole period.
      */
     uint256 public frozenPeriod = 52 weeks;
 
