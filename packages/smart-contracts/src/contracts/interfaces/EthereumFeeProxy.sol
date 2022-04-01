@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IERC20FeeProxy {
+interface IEthereumFeeProxy {
   event TransferWithReferenceAndFee(
-    address tokenAddress,
     address to,
     uint256 amount,
     bytes indexed paymentReference,
@@ -11,12 +10,10 @@ interface IERC20FeeProxy {
     address feeAddress
   );
 
-  function transferFromWithReferenceAndFee(
-    address _tokenAddress,
-    address _to,
-    uint256 _amount,
+  function transferWithReferenceAndFee(
+    address payable _to,
     bytes calldata _paymentReference,
     uint256 _feeAmount,
-    address _feeAddress
-  ) external;
+    address payable _feeAddress
+  ) external payable;
 }
