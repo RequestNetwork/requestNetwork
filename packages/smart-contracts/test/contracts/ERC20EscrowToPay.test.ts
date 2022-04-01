@@ -111,7 +111,7 @@ describe('Contract: ERC20EscrowToPay', () => {
     });
   });
   describe('Emergency claim flow:', () => {
-    it.only('Should initiate emergencyClaim w/ 24 week lockperiod and emit event.', async () => {
+    it('Should initiate emergencyClaim w/ 24 week lockperiod and emit event.', async () => {
       await testERC20.connect(payer).approve(erc20EscrowToPayAddress, 1001);
       await erc20EscrowToPay
         .connect(payer)
