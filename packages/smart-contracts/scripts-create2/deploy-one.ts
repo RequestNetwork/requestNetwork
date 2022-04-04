@@ -56,6 +56,11 @@ export const deployWithCreate2FromList = async (
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
         break;
       }
+      case 'ERC20SwapToConversion': {
+        const constructorArgs = getConstructorArgs(contract);
+        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+        break;
+      }
       // Other cases to add when necessary
       default:
         throw new Error(`The contrat ${contract} is not to be deployed using the CREATE2 scheme`);
