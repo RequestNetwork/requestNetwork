@@ -4,47 +4,39 @@ import TheGraphInfoRetriever from '../../src/erc20/thegraph-info-retriever';
 
 describe('api/erc20/escrow-thegraph-info-retriever', () => {
   describe('on rinkeby', () => {
-    const RINKEBY_ESCROW_CONTRACT = '0x8230e703b1c4467a4543422b2cc3284133b9ab5e';
+    const RINKEBY_ESCROW_CONTRACT = '0xff1cae28e5a5b199ccbaae5257b118372095aa26';
 
     it('should get escrow event list in correct order via subgraph', async () => {
       const eventList = [
         {
+          from: '0x186e7fe6c34ea0eca7f9c2fd29651fc0443e3f29',
+          txHash: '0x7db4bfda43a77b6f3a31d7c05cee930d4669cfb80834735e91b4dbda885a1964',
           eventName: 'paidEscrow',
-          from: '0x9dce3840976e4254aa073d5edcf59aa4007f50ac',
-          txHash: '0x93e59e2f43e2ea4e7c6f093f106e10577969122ad434821f960dd57a43e6bcde',
-          block: 9669873,
-          timestamp: 1637331138,
+          timestamp: 1648814320,
+          block: 10428275,
         },
         {
+          from: '0x5000ee9fb9c96a2a09d8efb695ac21d6c429ff11',
+          txHash: '0xd0af88ef673c6fbd1733b6dc2d6cce2f030cd66abc2f704bad613518f0a06168',
+          eventName: 'initiateEmergencyClaim',
+          timestamp: 1648814605,
+          block: 10428294,
+        },
+        {
+          from: '0x5000ee9fb9c96a2a09d8efb695ac21d6c429ff11',
+          txHash: '0x74fd1aa9ceb8f359bc8d21aa53c7c99d3bbe4c81b86c76b92abd041c12d402be',
           eventName: 'paidIssuer',
-          from: '0x9dce3840976e4254aa073d5edcf59aa4007f50ac',
-          txHash: '0x360de11d0c69c178dc207c57d540fcb9d37b4dde6dcd3c2d7ea329ecdffa2d29',
-          block: 9669879,
-          timestamp: 1637331228,
-        },
-
-        {
-          eventName: 'paidEscrow',
-          from: '0xc24cd7f1085e0424d57531a466945b7530d510f0',
-          txHash: '0x94d993f967c01ff64ab6fe96e456c1e29ef38d81eb1fc84b0272ddc52723ba01',
-          block: 9769660,
-          timestamp: 1638828593,
-        },
-        {
-          eventName: 'revertEmergencyClaim',
-          from: '0xc24cd7f1085e0424d57531a466945b7530d510f0',
-          txHash: '0xf36b97332e8d87da83dbf9caf0fb7ff0c52e9076a964f77155f62873cd19b027',
-          block: 9769706,
-          timestamp: 1638829283,
+          timestamp: 1648815071,
+          block: 10428325,
         },
       ];
-      const paymentReference = 'aaaa';
+      const paymentReference = '07cf432fc93c665e';
 
       const graphRetriever = new TheGraphInfoRetriever(
         paymentReference,
         RINKEBY_ESCROW_CONTRACT,
         '0xfab46e002bbf0b4509813474841e0716e6730136',
-        '0x8230e703b1c4467a4543422b2cc3284133b9ab5e',
+        RINKEBY_ESCROW_CONTRACT,
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         'rinkeby',
       );
