@@ -537,15 +537,15 @@ describe('api/request', () => {
     it('fetches escrow onchain data from the smart contract', async () => {
       const request = new Request('1', mockRequestLogic, currencyManager);
       const reference = PaymentReferenceCalculator.calculate(
-        '01227296c706fa0a188d685b13d7aa0db970b06fcea2c01169739131d48e09bd6b',
-        '410abec1ce481357',
+        '01d1a974cc48a045454c0070cbb033997c45a37b5106165f6cceaff47d694aba15',
+        'f2827e01e021a90f',
         '0x5000EE9FB9c96A2A09D8efB695aC21D6C429fF11',
       );
       const escrowChainData = await request.getEscrowData(reference, 'rinkeby');
       expect(escrowChainData.payee).toEqual('0x5000EE9FB9c96A2A09D8efB695aC21D6C429fF11');
-      expect(escrowChainData.payer).toEqual('0x5000EE9FB9c96A2A09D8efB695aC21D6C429fF11');
+      expect(escrowChainData.payer).toEqual('0x186e7fE6c34Ea0ecA7F9C2Fd29651Fc0443e3F29');
       expect(escrowChainData.tokenAddress).toEqual('0xFab46E002BbF0b4509813474841E0716E6730136');
-      expect(escrowChainData.amount.toString()).toEqual('2300000000000000000');
+      expect(escrowChainData.amount.toString()).toEqual('1800000000000000000');
     });
   });
 });
