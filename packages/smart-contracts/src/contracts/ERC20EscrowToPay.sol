@@ -1,7 +1,7 @@
 /// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import './legacy_openzeppelin/contracts/access/roles/WhitelistAdminRole.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './lib/SafeERC20.sol';
 import './interfaces/ERC20FeeProxy.sol';
@@ -10,7 +10,7 @@ import './interfaces/ERC20FeeProxy.sol';
  * @title   ERC20EscrowToPay
  * @notice  Request Invoice with Escrow.
  */
-contract ERC20EscrowToPay is WhitelistAdminRole {
+contract ERC20EscrowToPay is Ownable {
     using SafeERC20 for IERC20;
 
     IERC20FeeProxy public paymentProxy;
@@ -141,8 +141,7 @@ contract ERC20EscrowToPay is WhitelistAdminRole {
 
     constructor(address _paymentProxyAddress, address _admin) {
         paymentProxy = IERC20FeeProxy(_paymentProxyAddress);
-        addWhitelistAdmin(_admin);
-        renounceWhitelistAdmin();
+        transferOwnership(_admin);
     }
 
     /**
@@ -152,11 +151,11 @@ contract ERC20EscrowToPay is WhitelistAdminRole {
         revert('not payable receive');
     }
 
-    function setEmergencyClaimPeriod(uint256 _emergencyClaimPeriod) external onlyWhitelistAdmin {
+    function setEmergencyClaimPeriod(uint256 _emergencyClaimPeriod) external onlyOwner {
         emergencyClaimPeriod = _emergencyClaimPeriod;
     }
 
-    function setFrozenPeriod(uint256 _frozenPeriod) external onlyWhitelistAdmin {
+    function setFrozenPeriod(uint256 _frozenPeriod) external onlyOwner {
         frozenPeriod = _frozenPeriod;
     }
 
