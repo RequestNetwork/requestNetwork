@@ -3,9 +3,15 @@ import { Contract, Signer } from 'ethers';
 import { expect, use } from 'chai';
 import { solidity } from 'ethereum-waffle';
 
+let latestBlockchainSnapshot: number;
 const moveTimeForward = async (timeInSeconds: number) => {
+  latestBlockchainSnapshot = await ethers.provider.send('evm_snapshot', []);
   await ethers.provider.send('evm_increaseTime', [timeInSeconds]);
   await ethers.provider.send('evm_mine', []);
+};
+
+const revertTimeToSnapshot = async () => {
+  await ethers.provider.send('evm_revert', [latestBlockchainSnapshot]);
 };
 
 import {
@@ -168,6 +174,7 @@ describe('Contract: ERC20EscrowToPay', () => {
       await erc20EscrowToPay.connect(payee).completeEmergencyClaim(thisReference);
       const payeeNewBalance = await testERC20.balanceOf(payeeAddress);
       expect(payeeNewBalance.toString()).to.equals(payeeOldBalance.add(1000).toString());
+      revertTimeToSnapshot();
     });
   });
   describe('Cancel emergency flow:', () => {
