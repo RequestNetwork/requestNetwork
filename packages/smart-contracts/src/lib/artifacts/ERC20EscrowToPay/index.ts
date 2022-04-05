@@ -10,7 +10,7 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154',
+          address: '0xC4B9a5271e3Ffe01AAc3c1428Ea430695D0bCD3d',
           creationBlockNumber: 0,
         },
         mainnet: {
