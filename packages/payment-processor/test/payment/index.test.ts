@@ -357,7 +357,7 @@ describe('hasSufficientFunds', () => {
     expect(fakeProvider.getBalance).toHaveBeenCalledTimes(1);
   });
 
-  it('should call the ERC20 payment method', async () => {
+  it('should call the ERC20 getBalance method', async () => {
     const spy = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
@@ -379,6 +379,38 @@ describe('hasSufficientFunds', () => {
         [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {},
+          version: '1.0',
+        },
+      },
+    };
+    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call the ERC777 getBalance method', async () => {
+    const spy = jest
+      .spyOn(erc20Module, 'getAnyErc20Balance')
+      .mockReturnValue(Promise.resolve(BigNumber.from('200')));
+    const fakeProvider: any = {
+      getBalance: () => Promise.resolve(BigNumber.from('200')),
+    };
+    const request: any = {
+      balance: {
+        balance: '0',
+      },
+      currencyInfo: {
+        network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ERC777,
+
+        value: '0xany',
+      },
+      expectedAmount: '100',
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {},
           version: '1.0',
