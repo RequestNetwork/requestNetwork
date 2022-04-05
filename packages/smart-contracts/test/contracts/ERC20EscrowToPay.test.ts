@@ -266,10 +266,10 @@ describe('Contract: ERC20EscrowToPay', () => {
     });
     it('Contract creator should not be able to change periods', async () => {
       expect(erc20EscrowToPay.connect(owner).setEmergencyClaimPeriod(100)).to.be.revertedWith(
-        'WhitelistAdminRole: caller does not have the WhitelistAdmin role',
+        'Ownable: caller is not the owner',
       );
       expect(erc20EscrowToPay.connect(owner).setFrozenPeriod(100)).to.be.revertedWith(
-        'WhitelistAdminRole: caller does not have the WhitelistAdmin role',
+        'Ownable: caller is not the owner',
       );
     });
   });
