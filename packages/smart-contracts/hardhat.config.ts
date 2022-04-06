@@ -202,6 +202,7 @@ task(
   'compute-contract-addresses',
   'Compute the contract addresses from the Create2DeploymentList using the create2 scheme',
 ).setAction(async (_args, hre) => {
+  await hre.run('compile');
   await computeCreate2DeploymentAddressesFromList(hre as HardhatRuntimeEnvironmentExtended);
 });
 
