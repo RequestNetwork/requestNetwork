@@ -77,7 +77,10 @@ describe('contract: ERC20SwapToConversion', () => {
     defaultSwapRouterAddress = await swapConversionProxy.swapRouter();
     await swapConversionProxy.setRouter(fakeSwapRouter.address);
     await swapConversionProxy.approveRouterToSpend(spentErc20.address);
-    await swapConversionProxy.approvePaymentProxyToSpend(paymentNetworkErc20.address);
+    await swapConversionProxy.approvePaymentProxyToSpend(
+      paymentNetworkErc20.address,
+      erc20ConversionProxy.address,
+    );
     swapConversionProxy = await swapConversionProxy.connect(signer);
 
     // give payer some token
@@ -108,6 +111,7 @@ describe('contract: ERC20SwapToConversion', () => {
     // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(70),
@@ -157,6 +161,7 @@ describe('contract: ERC20SwapToConversion', () => {
   it('does not pay anyone if I swap 0', async function () {
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         0,
         0,
@@ -196,6 +201,7 @@ describe('contract: ERC20SwapToConversion', () => {
   it('cannot swap with a too low maximum spent', async function () {
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(50), // Too low
@@ -214,6 +220,7 @@ describe('contract: ERC20SwapToConversion', () => {
   it('cannot swap with a past deadline', async function () {
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(50),
@@ -239,6 +246,7 @@ describe('contract: ERC20SwapToConversion', () => {
     ).to.be.true;
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(tooHighAmount),
         initialFromBalance,
@@ -259,6 +267,7 @@ describe('contract: ERC20SwapToConversion', () => {
 
     await expect(
       swapConversionProxy.swapTransferWithReference(
+        erc20ConversionProxy.address,
         to,
         fiatDecimal.mul(10),
         erc20Decimal.mul(66),
@@ -272,5 +281,24 @@ describe('contract: ERC20SwapToConversion', () => {
       ),
     ).to.be.revertedWith('Could not transfer payment token from swapper-payer');
     await expectPayerBalanceUnchanged();
+  });
+
+  it('cannot swap with a bad proxy address', async function () {
+    // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
+    await expect(
+      swapConversionProxy.swapTransferWithReference(
+        chainlinkConversion.address, // random address that is not a conversion proxy
+        to,
+        fiatDecimal.mul(10),
+        erc20Decimal.mul(70),
+        [spentErc20.address, paymentNetworkErc20.address], // _uniswapPath
+        [USDhash, paymentNetworkErc20.address], // _chainlinkPath
+        referenceExample,
+        fiatDecimal.mul(1),
+        builder,
+        exchangeRateOrigin + 1000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
+        0, // _chainlinkMaxRateTimespan
+      ),
+    ).to.be.revertedWith('');
   });
 });
