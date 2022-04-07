@@ -7,7 +7,6 @@ import { subtask, task } from 'hardhat/config';
 import { config } from 'dotenv';
 import deployAllContracts from './scripts/6_deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
-import { preparePayments } from './scripts/prepare-payments';
 import { checkCreate2Deployer } from './scripts-create2/check-deployer';
 import { deployDeployer } from './scripts-create2/deploy-request-deployer';
 import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
@@ -163,7 +162,6 @@ export default {
 // FIXME: use deployAllPaymentContracts instead to test with the same deployments
 task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hre) => {
   args.force = true;
-  await hre.run(DEPLOYER_KEY_GUARD);
   await deployAllContracts(args, hre);
   console.log('All contracts (re)deployed locally');
 });
@@ -181,14 +179,6 @@ task(
     await hre.run(DEPLOYER_KEY_GUARD);
     await deployAllPaymentContracts(args, hre as HardhatRuntimeEnvironmentExtended);
   });
-
-task(
-  'prepare-live-payments',
-  'Run ERC20 approval transactions for Swap Conversion, with the second signer (FIXME with missing tasks).',
-).setAction(async (_args, hre) => {
-  await hre.run(DEPLOYER_KEY_GUARD);
-  await preparePayments(hre);
-});
 
 // Tasks inherent to the CREATE2 deployment scheme
 task(
