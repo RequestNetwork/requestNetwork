@@ -61,6 +61,7 @@ export const deployWithCreate2FromList = async (
         const constructorArgs = getConstructorArgs(contract);
         const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
         await setupERC20SwapToConversion(address, hre);
+        break;
       }
       case 'ERC20EscrowToPay': {
         const network = hre.config.xdeploy.networks[0];
