@@ -42,16 +42,17 @@ contract ERC20SwapToConversion is Ownable {
   *         where the issuer expects a token B, and the payer uses a token C.
   *         The conversion rate from A to B is done using Chainlink.
   *         The token swap is done using Uniswap.
+  * @param _paymentProxy Address of the ERC20ConversionProxy which will perform the payment.
   * @param _to Transfer recipient = request issuer
   * @param _requestAmount Amount to transfer in request currency
   * @param _amountInMax Maximum amount allowed to spend for currency swap, in payment network currency.
             This amount should take into account the fees.
-    @param _uniswapPath, path of ERC20 tokens to swap from paymentNetworkToken to spentToken. The first
+    @param _uniswapPath, path of ERC20 tokens to swap from spentToken to expectedToken. The first
             address of the path should be the spent currency. The last element should be the
-            payment network currency.
-    @param _chainlinkPath, path of currencies to convert from request currency to paymentNetworkToken. The first
-            address of the path should be the request currency. The last element should be the
-            payment network currency.
+            expected currency.
+    @param _chainlinkPath, path of currencies to convert from invoicing currency to expectedToken. The first
+            address of the path should be the invoicing currency. The last element should be the
+            expected currency.
   * @param _paymentReference Reference of the payment related
   * @param _requestFeeAmount Amount of the fee in request currency
   * @param _feeAddress Where to pay the fee
@@ -77,7 +78,7 @@ contract ERC20SwapToConversion is Ownable {
         );
 
         // Get the amount to pay in paymentNetworkToken
-        uint256 paymentNetworkTotalAmount = getConversion(
+        uint256 paymentNetworkTotalAmount = _getConversion(
             _chainlinkPath,
             _requestAmount,
             _requestFeeAmount
@@ -88,12 +89,12 @@ contract ERC20SwapToConversion is Ownable {
             'Could not transfer payment token from swapper-payer'
         );
 
-        swapRouter.swapTokensForExactTokens(
-            paymentNetworkTotalAmount,
+        _swapAndApproveIfNeeded(
+            _paymentProxy,
             _amountInMax,
             _uniswapPath,
-            address(this),
-            _uniswapDeadline
+            _uniswapDeadline,
+            paymentNetworkTotalAmount
         );
 
         IERC20ConversionProxy paymentProxy = IERC20ConversionProxy(_paymentProxy);
@@ -155,7 +156,7 @@ contract ERC20SwapToConversion is Ownable {
     /*
      * Internal functions to reduce the stack in swapTransferWithReference()
      */
-    function getConversion(
+    function _getConversion(
         address[] memory _path,
         uint256 _requestAmount,
         uint256 _requestFeeAmount
@@ -164,5 +165,40 @@ contract ERC20SwapToConversion is Ownable {
             _requestAmount + _requestFeeAmount,
             _path
         );
+    }
+
+    /**
+     * Internal functions to reduce the stack in swapTransferWithReference()
+     * Approve the SwapRouter to spend the spentToken if needed
+     * Swap the spentToken in exchange for the expectedToken
+     * Approve the payment proxy to spend the expected token if needed.
+     */
+    function _swapAndApproveIfNeeded(
+        address _paymentProxy,
+        uint256 _amountInMax, // SpentToken
+        address[] memory _uniswapPath, // from spentToken to expectedToken on uniswap
+        uint256 _uniswapDeadline,
+        uint256 _paymentNetworkTotalAmount
+    ) internal {
+        IERC20 spentToken = IERC20(_uniswapPath[0]);
+        // Allow the router to spend all this contract's spentToken
+        if (spentToken.allowance(address(this), address(swapRouter)) < _amountInMax) {
+            approveRouterToSpend(address(spentToken));
+        }
+
+        swapRouter.swapTokensForExactTokens(
+            _paymentNetworkTotalAmount,
+            _amountInMax,
+            _uniswapPath,
+            address(this),
+            _uniswapDeadline
+        );
+
+        IERC20 requestedToken = IERC20(_uniswapPath[_uniswapPath.length - 1]);
+
+        // Allow the payment network to spend all this contract's requestedToken
+        if (requestedToken.allowance(address(this), _paymentProxy) < _paymentNetworkTotalAmount) {
+            approvePaymentProxyToSpend(address(requestedToken), _paymentProxy);
+        }
     }
 }
