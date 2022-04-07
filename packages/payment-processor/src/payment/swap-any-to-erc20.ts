@@ -7,6 +7,7 @@ import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
   getProvider,
+  getProxyAddress,
   getRequestPaymentValues,
   getSigner,
   validateConversionFeeProxyRequest,
@@ -14,6 +15,7 @@ import {
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
 import { IPreparedTransaction } from './prepared-transaction';
+import { AnyToERC20PaymentDetector } from 'payment-detection/dist';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
 
@@ -148,10 +150,16 @@ export function encodeSwapToPayAnyToErc20Request(
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
 
+  const conversionProxyAddress = getProxyAddress(
+    request,
+    AnyToERC20PaymentDetector.getDeploymentInformation,
+  );
+
   const contractAddress = erc20SwapConversionArtifact.getAddress(network);
   const swapToPayContract = ERC20SwapToConversion__factory.connect(contractAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
+    conversionProxyAddress,
     paymentAddress, // _to: string,
     amountToPay, // _requestAmount: BigNumberish,
     swapSettings.maxInputAmount, // _amountInMax: BigNumberish,
