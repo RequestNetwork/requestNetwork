@@ -4,7 +4,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from '../scripts/deploy-one';
 
 // Deploys, set up the contracts
-export async function deployEscrow(hre: HardhatRuntimeEnvironment) {
+export async function deployEscrow(hre: HardhatRuntimeEnvironment): Promise<void> {
   const erc20FeeProxyAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
   let deployer: Signer;
   try {
