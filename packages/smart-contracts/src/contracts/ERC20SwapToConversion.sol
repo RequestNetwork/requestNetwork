@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './lib/SafeERC20.sol';
-import './Erc20ConversionProxy.sol';
+import './interfaces/IERC20ConversionProxy.sol';
 import './ChainlinkConversionPath.sol';
 
 interface IUniswapV2Router02 {
@@ -25,17 +25,14 @@ contract ERC20SwapToConversion is Ownable {
     using SafeERC20 for IERC20;
 
     IUniswapV2Router02 public swapRouter;
-    Erc20ConversionProxy public paymentProxy;
     ChainlinkConversionPath public chainlinkConversionPath;
 
     constructor(
         address _swapRouterAddress,
-        address _paymentProxyAddress,
         address _chainlinkConversionPath,
         address _owner
     ) {
         swapRouter = IUniswapV2Router02(_swapRouterAddress);
-        paymentProxy = Erc20ConversionProxy(_paymentProxyAddress);
         chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPath);
         _transferOwnership(_owner);
     }
@@ -62,12 +59,13 @@ contract ERC20SwapToConversion is Ownable {
   * @param _chainlinkMaxRateTimespan Max time span with the oldestrate, ignored if zero
   */
     function swapTransferWithReference(
+        address _paymentProxy,
         address _to,
         uint256 _requestAmount, // requestCurrency
         uint256 _amountInMax, // SpentToken
-        address[] memory _uniswapPath, // from paymentNetworkToken to spentToken on uniswap
-        address[] memory _chainlinkPath, // from requestCurrency to spentToken on chainlink
-        bytes calldata _paymentReference,
+        address[] memory _uniswapPath, // from spentToken to expectedToken on uniswap
+        address[] memory _chainlinkPath, // from invoicingCurrency to expectedToken on chainlink
+        bytes memory _paymentReference,
         uint256 _requestFeeAmount, // requestCurrency
         address _feeAddress,
         uint256 _uniswapDeadline,
@@ -98,6 +96,7 @@ contract ERC20SwapToConversion is Ownable {
             _uniswapDeadline
         );
 
+        IERC20ConversionProxy paymentProxy = IERC20ConversionProxy(_paymentProxy);
         // Pay the request and fees
         paymentProxy.transferFromWithReferenceAndFee(
             _to,
@@ -128,11 +127,12 @@ contract ERC20SwapToConversion is Ownable {
     /**
      * @notice Authorizes the proxy to spend a new request currency (ERC20).
      * @param _erc20Address Address of an ERC20 used as a request currency
+     * @param _paymentProxy Address of the payment proxy to approve
      */
-    function approvePaymentProxyToSpend(address _erc20Address) public {
+    function approvePaymentProxyToSpend(address _erc20Address, address _paymentProxy) public {
         IERC20 erc20 = IERC20(_erc20Address);
         uint256 max = 2**256 - 1;
-        erc20.safeApprove(address(paymentProxy), max);
+        erc20.safeApprove(_paymentProxy, max);
     }
 
     /**
@@ -146,13 +146,8 @@ contract ERC20SwapToConversion is Ownable {
     }
 
     /*
-     * Admin functions to edit the admin, router address or proxy address
+     * Admin function to edit the router address
      */
-    function setPaymentProxy(address _paymentProxyAddress) public onlyOwner {
-        paymentProxy = Erc20ConversionProxy(_paymentProxyAddress);
-        chainlinkConversionPath = ChainlinkConversionPath(paymentProxy.chainlinkConversionPath());
-    }
-
     function setRouter(address _newSwapRouterAddress) public onlyOwner {
         swapRouter = IUniswapV2Router02(_newSwapRouterAddress);
     }
