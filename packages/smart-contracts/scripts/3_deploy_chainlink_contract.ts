@@ -50,17 +50,22 @@ export default async function deploy(
   );
   console.log('AggregatorsList updated.');
 
-  // erc20SwapConversion
-  const erc20ConversionAddress = (
-    await deployERC20ConversionProxy(
-      {
-        ...args,
-        chainlinkConversionPathAddress: conversionPathInstance.address,
-        erc20FeeProxyAddress: mainPaymentAddresses.ERC20FeeProxyAddress,
-      },
-      hre,
-    )
-  )?.address;
+  // ERC20Conversion
+  const ERC20Conversion = await deployERC20ConversionProxy(
+    {
+      ...args,
+      chainlinkConversionPathAddress: conversionPathInstance.address,
+      erc20FeeProxyAddress: mainPaymentAddresses.ERC20FeeProxyAddress,
+    },
+    hre,
+  );
+
+  if (!ERC20Conversion || !ERC20Conversion.address) {
+    console.error('Deployment for ERC20Conversion failed.');
+    return;
+  }
+
+  // ERC20SwapConversion
   const localSwapRouterAddress = '0x4E72770760c011647D4873f60A3CF6cDeA896CD8';
   const {
     address: erc20SwapConversionAddress,
@@ -68,7 +73,7 @@ export default async function deploy(
   } = await deploySwapConversion(
     {
       ...args,
-      conversionProxyAddress: erc20ConversionAddress,
+      conversionProxyAddress: ERC20Conversion.address,
       swapProxyAddress: localSwapRouterAddress,
       chainlinkConversionPathAddress: conversionPathInstance.address,
     },
@@ -78,7 +83,10 @@ export default async function deploy(
     console.error('Deployment for erc20SwapConversion failed.');
     return;
   }
-  await erc20SwapConversion.approvePaymentProxyToSpend(mainPaymentAddresses.DAIAddress);
+  await erc20SwapConversion.approvePaymentProxyToSpend(
+    mainPaymentAddresses.DAIAddress,
+    ERC20Conversion.address,
+  );
   await erc20SwapConversion.approveRouterToSpend(mainPaymentAddresses.ERC20TestAddress);
 
   // EthConversion
@@ -100,7 +108,7 @@ export default async function deploy(
     (fake) USDT:              ${USDT_address}
     AggDAI_USD:               ${AggDAI_USD_address}
     ChainlinkConversionPath:  ${conversionPathInstance.address}
-    Erc20ConversionProxy:     ${erc20ConversionAddress}
+    Erc20ConversionProxy:     ${ERC20Conversion.address}
     Erc20SwapConversionProxy: ${erc20SwapConversionAddress}
     EthConversionProxy:       ${ethConversionProxyAddress}
     `);
