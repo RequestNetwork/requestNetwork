@@ -33,6 +33,13 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
             await verifyOne(address, { contract, constructorArgs }, hre);
             break;
           }
+          case 'ERC20EscrowToPay': {
+            const network = hre.config.xdeploy.networks[0];
+            const constructorArgs = getConstructorArgs(contract, network);
+            address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
+            await verifyOne(address, { contract, constructorArgs }, hre);
+            break;
+          }
           // Other cases to add when necessary
           default:
             throw new Error(
