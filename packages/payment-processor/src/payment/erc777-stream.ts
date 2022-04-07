@@ -25,9 +25,20 @@ export async function payErc777StreamRequest(
     throw new Error('Not a supported ERC777 payment network request');
   }
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  const networkName =
+    request.currencyInfo.network === 'private' ? 'custom' : request.currencyInfo.network;
+  console.log('networkName:', networkName);
+
   const sf = await Framework.create({
-    networkName: request.currencyInfo.network,
+    networkName: networkName,
     provider: signer.provider ? signer.provider : getProvider(),
+    dataMode: 'WEB3_ONLY',
+    resolverAddress: '0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da', //this is how you get the resolver address
+    protocolReleaseVersion: 'test',
+  });
+  const superSigner = sf.createSigner({
+    signer: signer,
+    provider: signer.provider,
   });
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
   console.log('superToken.address:', superToken.address);
@@ -40,5 +51,5 @@ export async function payErc777StreamRequest(
     userData: `0x${paymentReference}`,
   });
   const batchCall = sf.batchCall([streamPayOp]);
-  return batchCall.exec(signer);
+  return batchCall.exec(superSigner);
 }
