@@ -62,7 +62,7 @@ const validRequest: ClientTypes.IRequestData = {
         acceptedTokens: [acceptedTokenAddress],
         network: 'private',
       },
-      version: '1.0',
+      version: '0.1.0',
     },
   },
   extensionsData: [],
