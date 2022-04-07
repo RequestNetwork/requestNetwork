@@ -1,5 +1,6 @@
 import { constants, ContractTransaction, Signer, BigNumber, providers } from 'ethers';
 
+import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20SwapToConversion__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
@@ -15,7 +16,6 @@ import {
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
 import { IPreparedTransaction } from './prepared-transaction';
-import { AnyToERC20PaymentDetector } from 'payment-detection/dist';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
 
