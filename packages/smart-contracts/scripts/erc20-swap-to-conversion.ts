@@ -17,6 +17,7 @@ export async function deploySwapConversion(
   },
   hre: HardhatRuntimeEnvironment,
 ) {
+  const [deployer] = await hre.ethers.getSigners();
   if (!args.conversionProxyAddress) {
     // FIXME: should try to retrieve information from artifacts instead
     console.error(
@@ -31,6 +32,7 @@ export async function deploySwapConversion(
       uniswapV2RouterAddresses[hre.network.name] ?? args.swapProxyAddress,
       args.conversionProxyAddress,
       args.chainlinkConversionPathAddress,
+      deployer.address,
     ],
     artifact: erc20SwapConversionArtifact,
     nonceCondition: args.nonceCondition,
