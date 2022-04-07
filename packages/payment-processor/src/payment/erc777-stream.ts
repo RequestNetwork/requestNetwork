@@ -7,7 +7,6 @@ import {
   getProvider,
   getRequestPaymentValues,
   validateRequest,
-  // validateRequest,
 } from './utils';
 import { Framework } from '@superfluid-finance/sdk-core';
 
