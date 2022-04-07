@@ -17,7 +17,6 @@ export const getConstructorArgs = (contract: string) => {
       return [
         '0x0000000000000000000000000000000000000000',
         '0x0000000000000000000000000000000000000000',
-        '0x0000000000000000000000000000000000000000',
         process.env.ADMIN_WALLET_ADDRESS,
       ];
     }

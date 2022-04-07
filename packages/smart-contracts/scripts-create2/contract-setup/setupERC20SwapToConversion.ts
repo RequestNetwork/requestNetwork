@@ -1,12 +1,13 @@
-import {
-  chainlinkConversionPath,
-  erc20ConversionProxy,
-  erc20SwapConversionArtifact,
-} from '../../src/lib';
+import { chainlinkConversionPath, erc20SwapConversionArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import utils from '@requestnetwork/utils';
 import { uniswapV2RouterAddresses } from '../../scripts/utils';
 
+/**
+ * Updates the values of the chainlinkConversionPath and swap router of the ERC20SwapToConversion contract
+ * @param contractAddress address of the ERC20SwapToConversion Proxy
+ * @param hre Hardhat runtime environment
+ */
 export const setupERC20SwapToConversion = async (
   contractAddress: string,
   hre: HardhatRuntimeEnvironmentExtended,
@@ -44,21 +45,6 @@ export const setupERC20SwapToConversion = async (
         await ERC20SwapToConversionConnected.updateConversionPathAddress(
           chainlinkConversionPathAddress,
         );
-      }
-
-      // FIXME: If we are to deploy a new ERC20ConversionProxy contract (through the deployer)
-      //        its address will have to be pass down directly to the constructor and this
-      //        step will have to be removed. (This way, for each version of the pn any-to-erc20
-      //        there will be an associated SwapToConversion contract).
-      //
-      // FIXME2:  As swap contracts are not payment network themselves, we do not handle
-      //          versionning for them (we choose the last version by default when paying).
-      //          Each version of a PN should be tied to a specific version of a Swap
-      //          and we should detect which version of the swap to use depending on PN version.
-      const currentProxyAddress = await ERC20SwapToConversionConnected.paymentProxy();
-      const conversionProxyAddress = erc20ConversionProxy.getAddress(network);
-      if (currentProxyAddress !== conversionProxyAddress) {
-        await ERC20SwapToConversionConnected.updateConversionPathAddress(conversionProxyAddress);
       }
 
       const currentSwapRouter = await ERC20SwapToConversionConnected.swapRouter();
