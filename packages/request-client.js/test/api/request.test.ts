@@ -2,7 +2,6 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { EventEmitter } from 'events';
-import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
 
 import Request from '../../src/api/request';
 
