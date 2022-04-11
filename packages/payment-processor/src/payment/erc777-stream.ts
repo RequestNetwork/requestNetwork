@@ -33,7 +33,7 @@ export async function payErc777StreamRequest(
     networkName: networkName,
     provider: signer.provider ? signer.provider : getProvider(),
     dataMode: 'WEB3_ONLY',
-    resolverAddress: '0xF12b5dd4EAD5F743C6BaA640B0216200e89B60Da', //this is how you get the resolver address
+    resolverAddress: '0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae', //this is how you get the resolver address
     protocolReleaseVersion: 'test',
   });
   const superSigner = sf.createSigner({
