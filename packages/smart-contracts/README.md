@@ -73,7 +73,7 @@ The package stores the following smart contracts:
 - `TestERC20` minimal erc20 token used for tests.
 - `ERC20Proxy` used to pay requests with an ERC20 proxy contract payment network
 - `EthereumProxy` used to pay requests in blockchain native tokens such as ETH on mainnet
-- `ERC20FeeProxy` used to pay requests in ERC20 with a fee for the builder [cf. the payment network ERC20 with fee]('../advanced-logic/specs/payment-network-erc20-fee-proxy-contract-0.1.0.md')
+- `ERC20FeeProxy` used to pay requests in ERC20 with a fee for the builder [cf. the payment network ERC20 with fee](../advanced-logic/specs/payment-network-erc20-fee-proxy-contract-0.1.0.md)
 - `ERC20ConversionProxy` used to process a payment in ERC20 for an amount fixed in fiat, relying on `ERC20FeeProxy`, [cf. the payment network any-to-erc20](../advanced-logic/specs/payment-network-erc20-fee-proxy-contract-0.1.0.md)
 
 **Smart contracts for payments with swaps**
