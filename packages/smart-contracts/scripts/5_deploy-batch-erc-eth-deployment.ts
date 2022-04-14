@@ -2,6 +2,8 @@ import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from '../scripts/deploy-one';
 
+import { batchPaymentsArtifact } from '../src/lib';
+
 // Deploys, set up the contracts
 export async function deployBatchPayment(args: any, hre: HardhatRuntimeEnvironment): Promise<any> {
   try {
@@ -16,13 +18,15 @@ export async function deployBatchPayment(args: any, hre: HardhatRuntimeEnvironme
         await (await hre.ethers.getSigners())[0].getAddress(),
       ],
     });
-    console.log('BatchPaymentsAddress Contract deployed: ' + BatchPaymentsAddress);
 
+    // Initialize batch fee, useful to others packages.
+    const [owner] = await hre.ethers.getSigners();
+    const batch = batchPaymentsArtifact.connect(hre.network.name, owner);
+    await batch.connect(owner).setBatchFee(10);
+
+    console.log('BatchPaymentsAddress Contract deployed: ' + BatchPaymentsAddress);
     // ----------------------------------
     console.log('Contracts deployed');
-    console.log(`
-      BatchPaymentsAddress:       ${BatchPaymentsAddress}
-    `);
   } catch (e) {
     console.error(e);
   }

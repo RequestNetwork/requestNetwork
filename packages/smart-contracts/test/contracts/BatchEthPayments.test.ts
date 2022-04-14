@@ -44,6 +44,10 @@ describe('contract: BatchPayments: Ethereum', () => {
     await batch.connect(owner).setBatchFee(10);
   });
 
+  after(async () => {
+    await batch.connect(owner).setBatchFee(10);
+  });
+
   describe('Batch Eth normal flow', () => {
     it('Should pay 2 payments and contract do not keep funds of ethers', async function () {
       beforeEthBalance1 = await provider.getBalance(payee1);
