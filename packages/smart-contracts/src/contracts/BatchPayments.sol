@@ -26,7 +26,16 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         uint256 feeAmount,
         address feeAddress
     );
-    
+
+    // This event is declared in EthFeeProxy
+    event TransferWithReferenceAndFee(
+        address to,
+        uint256 amount,
+        bytes indexed paymentReference,
+        uint256 feeAmount,
+        address feeAddress
+    );
+
     // @dev: Between 0 and 1000, i.e: batchFee = 10 represent 1% of fee
     uint256 public batchFee;
 
