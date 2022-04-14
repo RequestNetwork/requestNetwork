@@ -23,7 +23,7 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
  *   2 modes available: single token or multi tokens
  * It requires batch proxy's approval
  *
- *  Eth Batch Proxy payment details:
+ * Eth Batch Proxy payment details:
  *   batch of request with the same payment network type
  *   batch of request with the same payment network version
  */
@@ -96,19 +96,7 @@ export function prepareBatchPaymentTransaction(
   let totalAmount = 0;
 
   if (paymentType === 'eth') {
-    const [
-      _tokens,
-      _paymentAddresses,
-      amountsToPay,
-      _paymentReferences,
-      feesToPay,
-      _feeAddress,
-    ] = GetBatchArgs(requests, paymentType);
-
-    _tokens;
-    _paymentReferences;
-    _paymentAddresses;
-    _feeAddress;
+    const { amountsToPay, feesToPay } = getBatchArgs(requests, paymentType);
 
     const amountToPay = amountsToPay.reduce((sum, current) => sum.add(current), BigNumber.from(0));
     const batchFeeToPay = BigNumber.from(amountToPay).mul(batchFee).div(1000);
@@ -139,14 +127,14 @@ export function encodePayBatchRequest(
   paymentType: 'eth' | 'erc20',
   isMultiTokens = false,
 ): string {
-  const [
+  const {
     tokenAddresses,
     paymentAddresses,
     amountsToPay,
     paymentReferences,
     feesToPay,
-    feeAddress,
-  ] = GetBatchArgs(requests, paymentType);
+    feeAddressUsed,
+  } = getBatchArgs(requests, paymentType);
 
   const proxyContract = BatchPayments__factory.createInterface();
 
@@ -154,7 +142,9 @@ export function encodePayBatchRequest(
     const pn = getPaymentNetworkExtension(requests[0]);
     for (let i = 0; i < requests.length; i++) {
       validateErc20FeeProxyRequest(requests[i]);
-      comparePnTypeAndVersion(pn, requests[i]);
+      if (!comparePnTypeAndVersion(pn, requests[i])) {
+        throw new Error(`Every payment network type and version must be identical`);
+      }
     }
 
     if (isMultiTokens) {
@@ -164,7 +154,7 @@ export function encodePayBatchRequest(
         amountsToPay,
         paymentReferences,
         feesToPay,
-        feeAddress,
+        feeAddressUsed,
       ]);
     } else {
       return proxyContract.encodeFunctionData('batchERC20PaymentsWithReference', [
@@ -173,7 +163,7 @@ export function encodePayBatchRequest(
         amountsToPay,
         paymentReferences,
         feesToPay,
-        feeAddress,
+        feeAddressUsed,
       ]);
     }
   } else {
@@ -183,7 +173,7 @@ export function encodePayBatchRequest(
       amountsToPay,
       paymentReferences,
       feesToPay,
-      feeAddress,
+      feeAddressUsed,
     ]);
   }
 }
@@ -195,10 +185,17 @@ export function encodePayBatchRequest(
  * @returns List with the args required by batchEthPaymentsWithReference,
  * @dev tokenAddresses returned is for multi tokens function
  */
-export function GetBatchArgs(
+function getBatchArgs(
   requests: ClientTypes.IRequestData[],
   paymentType: 'eth' | 'erc20',
-): [Array<string>, Array<string>, Array<BigNumber>, Array<string>, Array<BigNumber>, string] {
+): {
+  tokenAddresses: Array<string>;
+  paymentAddresses: Array<string>;
+  amountsToPay: Array<BigNumber>;
+  paymentReferences: Array<string>;
+  feesToPay: Array<BigNumber>;
+  feeAddressUsed: string;
+} {
   const tokenAddresses: Array<string> = [];
   const paymentAddresses: Array<string> = [];
   const amountsToPay: Array<BigNumber> = [];
@@ -227,14 +224,14 @@ export function GetBatchArgs(
     feeAddressUsed = feeAddress || constants.AddressZero;
   }
 
-  return [
+  return {
     tokenAddresses,
     paymentAddresses,
     amountsToPay,
     paymentReferences,
     feesToPay,
     feeAddressUsed,
-  ];
+  };
 }
 
 /**

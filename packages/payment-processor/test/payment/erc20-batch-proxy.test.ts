@@ -191,7 +191,7 @@ describe('erc20-batch-proxy', () => {
           batchFee,
           false,
         ),
-      ).rejects.toThrowError('Every payment version must be identical');
+      ).rejects.toThrowError('Every payment network type and version must be identical');
     });
 
     describe('payBatchProxyRequest', () => {
@@ -418,7 +418,7 @@ describe('erc20-batch-proxy', () => {
           batchFee,
           true,
         ),
-      ).rejects.toThrowError('Every payment version must be identical');
+      ).rejects.toThrowError('Every payment network type and version must be identical');
     });
 
     describe('payBatchProxyRequest', () => {
