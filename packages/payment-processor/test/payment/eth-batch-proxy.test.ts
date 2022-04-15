@@ -88,9 +88,9 @@ const validRequest2: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -185,7 +185,7 @@ describe('payBatchProxyRequest', () => {
     expect(balancePayeeEthAfter1.toString()).toBe(balancePayeeEthBefore1.add('200').toString()); // = 100 * Nb_txs, and Nb_txs = 2
   });
 
-  it('should pay an ETH batch of 2 requests with different receiverAddress and pay fee & batch fee', async () => {
+  it('should pay an ETH batch of 2 requests with different receiverAddress and pay fee & batch fee and payment network id', async () => {
     const balanceEthBefore = await wallet.getBalance();
     const balanceFeeEthBefore = await provider.getBalance(feeAddress);
     const balancePayeeEthBefore1 = await provider.getBalance(paymentAddress1);

@@ -178,8 +178,7 @@ function getBatchArgs(
   const paymentType = requests[0].currencyInfo.type;
   for (let i = 0; i < requests.length; i++) {
     if (paymentType === 'ETH') {
-      // if (requests[i].extensionsData. extensions.)// todo ode : check extension and accept both so change the one call by the validate..
-      validateEthFeeProxyRequest(requests[i]); //, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
+      validateEthFeeProxyRequest(requests[i], undefined, undefined, undefined, true);
     } else if (paymentType === 'ERC20') {
       validateErc20FeeProxyRequest(requests[i]);
     } else {

@@ -97,7 +97,7 @@ export function prepareEthFeeProxyPaymentTransaction(
  * @param request to validate
  * @param feeAmountOverride optionally, the custom fee amount
  * @param paymentNetwork defaults to ETH Fee Proxy contract
- * @param isBatch is required only for batch payment
+ * @param isEthBatch is required only for eth batch payment, to accept two PAYMENT_NETWORK_ID
  */
 export function validateEthFeeProxyRequest(
   request: ClientTypes.IRequestData,
@@ -105,9 +105,9 @@ export function validateEthFeeProxyRequest(
   feeAmountOverride?: BigNumberish,
   paymentNetwork: PaymentTypes.PAYMENT_NETWORK_ID = PaymentTypes.PAYMENT_NETWORK_ID
     .ETH_FEE_PROXY_CONTRACT,
-  isBatch = false,
+  isEthBatch = false,
 ): void {
-  validateRequest(request, paymentNetwork, isBatch);
+  validateRequest(request, paymentNetwork, isEthBatch);
 
   const { feeAmount } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount);

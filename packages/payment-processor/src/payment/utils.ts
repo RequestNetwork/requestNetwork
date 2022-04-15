@@ -178,16 +178,17 @@ const currenciesMap: any = {
  * Utility to validate a request currency and payment details against a paymentNetwork.
  * @param request
  * @param paymentNetworkId
- * @param isBatch is required to handle two handle 2 kinds of paymentNetworkId
+ * @param isEthBatch is required only for eth batch payment, to accept two PAYMENT_NETWORK_ID
  */
 export function validateRequest(
   request: ClientTypes.IRequestData,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
-  isBatch = false,
+  isEthBatch = false,
 ): void {
   const { feeAmount, feeAddress } = getRequestPaymentValues(request);
   let extension = request.extensions[paymentNetworkId];
-  if (isBatch && !extension) {
+
+  if (isEthBatch && !extension) {
     extension = request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
   }
 
