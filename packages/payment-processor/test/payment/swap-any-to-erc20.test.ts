@@ -173,10 +173,13 @@ describe('swap-any-to-erc20', () => {
         await approvalTx.wait(1);
       }
 
+      const swapFeesCollectorAddress = '0x2191eF87E392377ec08E7c08Eb105Ef5448eCED5';
+
       // get the balances to compare after payment
       const initialPayerBalance = await paymentToken.balanceOf(wallet.address);
       const initialPayeeBalance = await acceptedToken.balanceOf(paymentAddress);
       const initialBuilderBalance = await acceptedToken.balanceOf(feeAddress);
+      const initialCollectorBalance = await acceptedToken.balanceOf(swapFeesCollectorAddress);
 
       // Swap and pay
       const tx = await swapToPayAnyToErc20Request(validRequest, wallet, {
@@ -193,18 +196,20 @@ describe('swap-any-to-erc20', () => {
       const finalPayerBalance = await paymentToken.balanceOf(wallet.address);
       const finalPayeeBalance = await acceptedToken.balanceOf(paymentAddress);
       const finalBuilderBalance = await acceptedToken.balanceOf(feeAddress);
+      const finalCollectorBalance = await acceptedToken.balanceOf(swapFeesCollectorAddress);
 
       // Check each balance
 
       //   expectedAmount:      100000000
       //   feeAmount:        +    2000000
-      //                     =  102000000 (8 decimals)
+      //   swapFeesAmount:   +     500000
+      //                     =  102500000 (8 decimals)
       //   AggDaiUsd.sol     /  101000000
-      //                     =  1009900990099009900 (18 decimals)
+      //                     =  1014851485148514850 (18 decimals)
       //   Swapper           *  2
-      //                     =  2019801980198019800 (18 decimals) paid by payer in erc20BeforeSwap
+      //                     =  2029702970297029700 (18 decimals) paid by payer in erc20BeforeSwap
       expect(finalPayerBalance.toString()).toEqual(
-        initialPayerBalance.sub('2019801980198019800').toString(),
+        initialPayerBalance.sub('2029702970297029700').toString(),
       );
 
       //   expectedAmount:      100000000 (8 decimals)
@@ -219,6 +224,15 @@ describe('swap-any-to-erc20', () => {
       //                     =  19801980198019801 (18 decimals) received by fee address in erc20AfterConversion
       expect(finalBuilderBalance.toString()).toEqual(
         initialBuilderBalance.add('19801980198019801').toString(),
+      );
+
+      //   expectedAmount:      100000000
+      //   swapFee:          *        0.5
+      //                     =     500000 (8 decimals)
+      //   AggDaiUsd.sol     /  101000000
+      //                     =  4950495049504950 (18 decimals)
+      expect(finalCollectorBalance.toString()).toEqual(
+        initialCollectorBalance.add('4950495049504950').toString(),
       );
     });
   });
