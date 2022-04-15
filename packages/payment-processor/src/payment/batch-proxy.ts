@@ -30,8 +30,8 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 
 /**
  * Processes a transaction to pay of batch of ETH Requests with fees.
+ * Requests paymentType must be "ETH" or "ERC20"
  * @param requests List of request
- * @param paymentType it can be "eth" or "erc20"
  * @param version version of the batch proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param batchFee Only for batch ETH: additional fee applied to a batch, between 0 and 1000, default value = 10
@@ -39,64 +39,34 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
  */
 export async function payBatchProxyRequest(
   requests: ClientTypes.IRequestData[],
-  paymentType: 'eth' | 'erc20',
   version: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   batchFee: number,
-  isMultiTokens: boolean,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = prepareBatchPaymentTransaction(
-    requests,
-    paymentType,
-    version,
-    batchFee,
-    isMultiTokens,
-  );
+  const { data, to, value } = prepareBatchPaymentTransaction(requests, version, batchFee);
   const signer = getSigner(signerOrProvider);
   return signer.sendTransaction({ data, to, value, ...overrides });
 }
 
 /**
- * Processes the approval transaction of the targeted ERC20 with batch proxy.
- * @param request request to pay
- * @param account account that will be used to pay the request
- * @param version version of the batch proxy, which can be different from request pn version
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param overrides optionally, override default transaction values, like gas.
- */
-export async function approveErc20BatchIfNeeded(
-  request: ClientTypes.IRequestData,
-  account: string,
-  version: string,
-  signerOrProvider: providers.Provider | Signer = getProvider(),
-  overrides?: ITransactionOverrides,
-): Promise<ContractTransaction | void> {
-  if (!(await hasErc20BatchApproval(request, account, version, signerOrProvider))) {
-    return approveErc20Batch(request, version, getSigner(signerOrProvider), overrides);
-  }
-}
-
-/**
  * Prepate the transaction to pay a batch of requests through the batch proxy contract, can be used with a Multisig contract.
+ * Requests paymentType must be "ETH" or "ERC20"
  * @param requests list of ETH requests to pay
- * @param paymentType it can be "eth" or "erc20"
  * @param version version of the batch proxy, which can be different from request pn version
  * @param batchFee additional fee applied to a batch
  */
 export function prepareBatchPaymentTransaction(
   requests: ClientTypes.IRequestData[],
-  paymentType: 'eth' | 'erc20',
   version: string,
   batchFee: number,
-  isMultiTokens: boolean,
 ): IPreparedTransaction {
-  const encodedTx = encodePayBatchRequest(requests, paymentType, isMultiTokens);
+  const encodedTx = encodePayBatchRequest(requests);
   const proxyAddress = getBatchProxyAddress(requests[0], version);
   let totalAmount = 0;
 
-  if (paymentType === 'eth') {
-    const { amountsToPay, feesToPay } = getBatchArgs(requests, paymentType);
+  if (requests[0].currencyInfo.type === 'ETH') {
+    const { amountsToPay, feesToPay } = getBatchArgs(requests);
 
     const amountToPay = amountsToPay.reduce((sum, current) => sum.add(current), BigNumber.from(0));
     const batchFeeToPay = BigNumber.from(amountToPay).mul(batchFee).div(1000);
@@ -118,15 +88,9 @@ export function prepareBatchPaymentTransaction(
  * Encodes the call to pay a batch of requests through the ERC20Bacth or ETHBatch proxy contract,
  * can be used with a Multisig contract.
  * @param requests list of ECR20 requests to pay
- * @param paymentType it can be "eth" or "erc20"
- * @param isMultiTokens pay multiple tokens in a batch, false by default
  * @dev pn version of the requests is checked to avoid paying with two differents proxies (e.g: erc20proxy v1 and v2)
  */
-export function encodePayBatchRequest(
-  requests: ClientTypes.IRequestData[],
-  paymentType: 'eth' | 'erc20',
-  isMultiTokens = false,
-): string {
+export function encodePayBatchRequest(requests: ClientTypes.IRequestData[]): string {
   const {
     tokenAddresses,
     paymentAddresses,
@@ -134,11 +98,19 @@ export function encodePayBatchRequest(
     paymentReferences,
     feesToPay,
     feeAddressUsed,
-  } = getBatchArgs(requests, paymentType);
+  } = getBatchArgs(requests);
 
   const proxyContract = BatchPayments__factory.createInterface();
 
-  if (paymentType === 'erc20') {
+  if (requests[0].currencyInfo.type === 'ERC20') {
+    let isMultiTokens = false;
+    for (let i = 0; tokenAddresses.length; i++) {
+      if (tokenAddresses[0] !== tokenAddresses[i]) {
+        isMultiTokens = true;
+        break;
+      }
+    }
+
     const pn = getPaymentNetworkExtension(requests[0]);
     for (let i = 0; i < requests.length; i++) {
       validateErc20FeeProxyRequest(requests[i]);
@@ -187,7 +159,7 @@ export function encodePayBatchRequest(
  */
 function getBatchArgs(
   requests: ClientTypes.IRequestData[],
-  paymentType: 'eth' | 'erc20',
+  // paymentType: 'eth' | 'erc20',
 ): {
   tokenAddresses: Array<string>;
   paymentAddresses: Array<string>;
@@ -203,11 +175,15 @@ function getBatchArgs(
   const feesToPay: Array<BigNumber> = [];
   let feeAddressUsed = constants.AddressZero;
 
+  const paymentType = requests[0].currencyInfo.type;
   for (let i = 0; i < requests.length; i++) {
-    if (paymentType === 'eth') {
-      validateEthFeeProxyRequest(requests[i]);
-    } else {
+    if (paymentType === 'ETH') {
+      // if (requests[i].extensionsData. extensions.)// todo ode : check extension and accept both so change the one call by the validate..
+      validateEthFeeProxyRequest(requests[i]); //, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
+    } else if (paymentType === 'ERC20') {
       validateErc20FeeProxyRequest(requests[i]);
+    } else {
+      throw new Error(`paymentType ${paymentType} is not supported for batch payment`);
     }
 
     const tokenAddress = requests[i].currencyInfo.value;
@@ -257,6 +233,26 @@ export function getBatchProxyAddress(request: ClientTypes.IRequestData, version:
 /**
  * ERC20 Batch proxy approvals methods
  */
+
+/**
+ * Processes the approval transaction of the targeted ERC20 with batch proxy.
+ * @param request request to pay
+ * @param account account that will be used to pay the request
+ * @param version version of the batch proxy, which can be different from request pn version
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export async function approveErc20BatchIfNeeded(
+  request: ClientTypes.IRequestData,
+  account: string,
+  version: string,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  overrides?: ITransactionOverrides,
+): Promise<ContractTransaction | void> {
+  if (!(await hasErc20BatchApproval(request, account, version, signerOrProvider))) {
+    return approveErc20Batch(request, version, getSigner(signerOrProvider), overrides);
+  }
+}
 
 /**
  * Checks if the batch proxy has the necessary allowance from a given account

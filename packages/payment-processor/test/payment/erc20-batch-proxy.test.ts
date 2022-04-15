@@ -21,7 +21,6 @@ import {
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-const paymentType = 'erc20';
 const batchFee = 10;
 const batchVersion = '0.1.0';
 const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
@@ -95,14 +94,7 @@ describe('erc20-batch-proxy', () => {
       ethRequest.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
 
       await expect(
-        payBatchProxyRequest(
-          [erc20Request, ethRequest],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          false,
-        ),
+        payBatchProxyRequest([erc20Request, ethRequest], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
@@ -112,14 +104,7 @@ describe('erc20-batch-proxy', () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(
-        payBatchProxyRequest(
-          [validRequest, request],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          false,
-        ),
+        payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
@@ -129,14 +114,7 @@ describe('erc20-batch-proxy', () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.network = '';
       await expect(
-        payBatchProxyRequest(
-          [validRequest, request],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          false,
-        ),
+        payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
@@ -147,14 +125,7 @@ describe('erc20-batch-proxy', () => {
       request.extensions = [] as any;
 
       await expect(
-        payBatchProxyRequest(
-          [validRequest, request],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          false,
-        ),
+        payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
       ).rejects.toThrowError('no payment network found');
     });
 
@@ -185,11 +156,9 @@ describe('erc20-batch-proxy', () => {
               },
             } as any,
           ],
-          paymentType,
           batchVersion,
           wallet,
           batchFee,
-          false,
         ),
       ).rejects.toThrowError('Every payment network type and version must be identical');
     });
@@ -199,20 +168,12 @@ describe('erc20-batch-proxy', () => {
         const spy = jest.fn();
         const originalSendTransaction = wallet.sendTransaction.bind(wallet);
         wallet.sendTransaction = spy;
-        await payBatchProxyRequest(
-          [validRequest, validRequest],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          false,
-          {
-            gasPrice: '20000000000',
-          },
-        );
+        await payBatchProxyRequest([validRequest, validRequest], batchVersion, wallet, batchFee, {
+          gasPrice: '20000000000',
+        });
         expect(spy).toHaveBeenCalledWith({
           data:
-            '0xc6e6d98b0000000000000000000000009fbda871d559710256a2502a2517b794b482db4000000000000000000000000000000000000000000000000000000000000000c0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000260000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002',
+            '0xfa73314200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000001e000000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef00000000000000000000000000000000000000000000000000000000000000020000000000000000000000009fbda871d559710256a2502a2517b794b482db400000000000000000000000009fbda871d559710256a2502a2517b794b482db400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002',
           gasPrice: '20000000000',
           to: '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc',
           value: 0,
@@ -246,11 +207,9 @@ describe('erc20-batch-proxy', () => {
 
         const tx = await payBatchProxyRequest(
           [request, validRequest],
-          paymentType,
           batchVersion,
           wallet,
           batchFee,
-          false,
         );
         const confirmedTx = await tx.wait(1);
 
@@ -305,10 +264,8 @@ describe('erc20-batch-proxy', () => {
                 },
               } as any,
             ],
-            paymentType,
             batchVersion,
             batchFee,
-            false,
           ).to,
         ).toBe(batchPaymentsArtifact.getAddress('private', '0.1.0'));
       });
@@ -322,14 +279,7 @@ describe('erc20-batch-proxy', () => {
       ethRequest.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
 
       await expect(
-        payBatchProxyRequest(
-          [erc20Request, ethRequest],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          true,
-        ),
+        payBatchProxyRequest([erc20Request, ethRequest], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
@@ -339,14 +289,7 @@ describe('erc20-batch-proxy', () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.value = '';
       await expect(
-        payBatchProxyRequest(
-          [validRequest, request],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          true,
-        ),
+        payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
@@ -356,14 +299,7 @@ describe('erc20-batch-proxy', () => {
       const request = Utils.deepCopy(validRequest);
       request.currencyInfo.network = '';
       await expect(
-        payBatchProxyRequest(
-          [validRequest, request],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          true,
-        ),
+        payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
@@ -374,14 +310,7 @@ describe('erc20-batch-proxy', () => {
       request.extensions = [] as any;
 
       await expect(
-        payBatchProxyRequest(
-          [validRequest, request],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          true,
-        ),
+        payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
       ).rejects.toThrowError('no payment network found');
     });
 
@@ -412,11 +341,9 @@ describe('erc20-batch-proxy', () => {
               },
             } as any,
           ],
-          paymentType,
           batchVersion,
           wallet,
           batchFee,
-          true,
         ),
       ).rejects.toThrowError('Every payment network type and version must be identical');
     });
@@ -426,17 +353,9 @@ describe('erc20-batch-proxy', () => {
         const spy = jest.fn();
         const originalSendTransaction = wallet.sendTransaction.bind(wallet);
         wallet.sendTransaction = spy;
-        await payBatchProxyRequest(
-          [validRequest, validRequest],
-          paymentType,
-          batchVersion,
-          wallet,
-          batchFee,
-          true,
-          {
-            gasPrice: '20000000000',
-          },
-        );
+        await payBatchProxyRequest([validRequest, validRequest], batchVersion, wallet, batchFee, {
+          gasPrice: '20000000000',
+        });
         expect(spy).toHaveBeenCalledWith({
           data:
             '0xfa73314200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000001e000000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef00000000000000000000000000000000000000000000000000000000000000020000000000000000000000009fbda871d559710256a2502a2517b794b482db400000000000000000000000009fbda871d559710256a2502a2517b794b482db400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002',
@@ -469,11 +388,9 @@ describe('erc20-batch-proxy', () => {
 
         const tx = await payBatchProxyRequest(
           [validRequest, validRequest],
-          paymentType,
           batchVersion,
           wallet,
           batchFee,
-          true,
         );
         const confirmedTx = await tx.wait(1);
 
@@ -529,10 +446,8 @@ describe('erc20-batch-proxy', () => {
                 },
               } as any,
             ],
-            paymentType,
             batchVersion,
             batchFee,
-            true,
           ).to,
         ).toBe(batchPaymentsArtifact.getAddress('private', '0.1.0'));
       });

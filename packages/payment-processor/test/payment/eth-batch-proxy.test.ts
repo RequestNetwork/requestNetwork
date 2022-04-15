@@ -16,8 +16,6 @@ import { getRequestPaymentValues } from '../../src/payment/utils';
 /* eslint-disable @typescript-eslint/await-thenable */
 
 const batchFee = 10;
-const isMultiTokens = false;
-const paymentType = 'eth';
 const batchVersion = '0.1.0';
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress1 = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -128,14 +126,7 @@ describe('payBatchProxyRequest', () => {
     request.currencyInfo.type = RequestLogicTypes.CURRENCY.ERC20;
 
     await expect(
-      payBatchProxyRequest(
-        [validRequest, request],
-        paymentType,
-        batchVersion,
-        wallet,
-        batchFee,
-        isMultiTokens,
-      ),
+      payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
     ).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-fee-proxy-contract request',
     );
@@ -145,14 +136,7 @@ describe('payBatchProxyRequest', () => {
     const request = Utils.deepCopy(validRequest);
     request.currencyInfo.network = '';
     await expect(
-      payBatchProxyRequest(
-        [validRequest, request],
-        paymentType,
-        batchVersion,
-        wallet,
-        batchFee,
-        isMultiTokens,
-      ),
+      payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
     ).rejects.toThrowError(
       'request cannot be processed, or is not an pn-eth-fee-proxy-contract request',
     );
@@ -163,14 +147,7 @@ describe('payBatchProxyRequest', () => {
     request.extensions = [] as any;
 
     await expect(
-      payBatchProxyRequest(
-        [validRequest, request],
-        paymentType,
-        batchVersion,
-        wallet,
-        batchFee,
-        isMultiTokens,
-      ),
+      payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
     ).rejects.toThrowError('no payment network found');
   });
 
@@ -181,11 +158,9 @@ describe('payBatchProxyRequest', () => {
 
     const tx = await payBatchProxyRequest(
       [validRequest, validRequest],
-      paymentType,
       batchVersion,
       wallet,
       batchFee,
-      isMultiTokens,
     );
     const confirmedTx = await tx.wait(1);
 
@@ -218,11 +193,9 @@ describe('payBatchProxyRequest', () => {
 
     const tx = await payBatchProxyRequest(
       [validRequest, validRequest2],
-      paymentType,
       batchVersion,
       wallet,
       batchFee,
-      isMultiTokens,
     );
     const confirmedTx = await tx.wait(1);
 
@@ -252,7 +225,7 @@ describe('payBatchProxyRequest', () => {
 
 describe('encodePayEthBatchRequest', () => {
   it('should encode pay for an ETH batch of 2 requests', async () => {
-    expect(encodePayBatchRequest([validRequest, validRequest], 'eth')).toBe(
+    expect(encodePayBatchRequest([validRequest, validRequest])).toBe(
       '0x73535e5500000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001600000000000000000000000000000000000000000000000000000000000000240000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000064000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002',
     );
   });

@@ -178,16 +178,22 @@ const currenciesMap: any = {
  * Utility to validate a request currency and payment details against a paymentNetwork.
  * @param request
  * @param paymentNetworkId
+ * @param isBatch is required to handle two handle 2 kinds of paymentNetworkId
  */
 export function validateRequest(
   request: ClientTypes.IRequestData,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+  isBatch = false,
 ): void {
   const { feeAmount, feeAddress } = getRequestPaymentValues(request);
-  const extension = request.extensions[paymentNetworkId];
+  let extension = request.extensions[paymentNetworkId];
+  if (isBatch && !extension) {
+    extension = request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
+  }
 
   // Compatibility of the request currency type with the payment network
   const expectedCurrencyType = currenciesMap[paymentNetworkId];
+
   const validCurrencyType =
     paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
       ? // Any currency type is valid with Any to ERC20 conversion
