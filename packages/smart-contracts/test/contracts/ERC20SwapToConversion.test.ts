@@ -41,6 +41,8 @@ describe('contract: ERC20SwapToConversion', () => {
   let fakeSwapRouter: FakeSwapRouter;
   let chainlinkConversion: ChainlinkConversionPath;
   let defaultSwapRouterAddress: string;
+  let requestFeesCollector: string;
+  let requestSwapFees: BigNumber;
 
   const fiatDecimal = BigNumber.from('100000000');
   const erc20Decimal = BigNumber.from('1000000000000000000');
@@ -53,6 +55,9 @@ describe('contract: ERC20SwapToConversion', () => {
     chainlinkConversion = chainlinkConvArtifact.connect(network.name, adminSigner);
     erc20ConversionProxy = erc20ConversionProxyArtifact.connect(network.name, adminSigner);
     swapConversionProxy = erc20SwapConversionArtifact.connect(network.name, adminSigner);
+
+    requestFeesCollector = await swapConversionProxy.requestFeesCollector();
+    requestSwapFees = await swapConversionProxy.requestSwapFees();
   });
 
   beforeEach(async () => {
@@ -108,6 +113,7 @@ describe('contract: ERC20SwapToConversion', () => {
   };
 
   it('converts, swaps and pays the request', async function () {
+    const initialCollectorBalance = await paymentNetworkErc20.balanceOf(requestFeesCollector);
     // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
     await expect(
       swapConversionProxy.swapTransferWithReference(
@@ -142,20 +148,31 @@ describe('contract: ERC20SwapToConversion', () => {
         ethers.utils.getAddress(builder),
       );
 
+    const requestSwapFeesAmountInPaymentNetworkErc20 = erc20Decimal
+      .mul(10)
+      .mul(3)
+      .mul(requestSwapFees)
+      .div(1000);
+    const requestSwapFeesAmountInSpentToken = requestSwapFeesAmountInPaymentNetworkErc20.mul(2);
+
     const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     const finalPayerBalance = await spentErc20.balanceOf(from);
+    const finalCollectorBalance = await paymentNetworkErc20.balanceOf(requestFeesCollector);
     expect(finalBuilderBalance.toString(), 'builder balance is wrong').to.equals(
       erc20Decimal.mul(3).toString(),
     );
     expect(finalIssuerBalance.toString(), 'issuer balance is wrong').to.equals(
       erc20Decimal.mul(30).toString(),
     );
+    expect(finalCollectorBalance).to.equals(
+      initialCollectorBalance.add(requestSwapFeesAmountInPaymentNetworkErc20),
+    );
 
     expect(
       initialFromBalance.sub(finalPayerBalance).toString(),
       'payer balance is wrong',
-    ).to.equals(erc20Decimal.mul(66).toString());
+    ).to.equals(erc20Decimal.mul(66).add(requestSwapFeesAmountInSpentToken).toString());
   });
 
   it('does not pay anyone if I swap 0', async function () {

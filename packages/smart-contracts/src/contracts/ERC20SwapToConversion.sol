@@ -27,14 +27,21 @@ contract ERC20SwapToConversion is Ownable {
     IUniswapV2Router02 public swapRouter;
     ChainlinkConversionPath public chainlinkConversionPath;
 
+    uint256 public requestSwapFees;
+    address public requestFeesCollector;
+
     constructor(
         address _swapRouterAddress,
         address _chainlinkConversionPath,
-        address _owner
+        address _owner,
+        address _requestFeesCollector,
+        uint256 _requestSwapFees
     ) {
         swapRouter = IUniswapV2Router02(_swapRouterAddress);
         chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPath);
         _transferOwnership(_owner);
+        requestSwapFees = _requestSwapFees;
+        requestFeesCollector = _requestFeesCollector;
     }
 
     /**
@@ -84,6 +91,13 @@ contract ERC20SwapToConversion is Ownable {
             _requestFeeAmount
         );
 
+        // Compute the request swap fees
+        uint256 requestSwapFeesAmount = _getConversion(
+            _chainlinkPath,
+            (_requestAmount * requestSwapFees) / 1000,
+            0
+        );
+
         require(
             IERC20(_uniswapPath[0]).safeTransferFrom(msg.sender, address(this), _amountInMax),
             'Could not transfer payment token from swapper-payer'
@@ -94,7 +108,7 @@ contract ERC20SwapToConversion is Ownable {
             _amountInMax,
             _uniswapPath,
             _uniswapDeadline,
-            paymentNetworkTotalAmount
+            paymentNetworkTotalAmount + requestSwapFeesAmount
         );
 
         IERC20ConversionProxy paymentProxy = IERC20ConversionProxy(_paymentProxy);
@@ -108,6 +122,12 @@ contract ERC20SwapToConversion is Ownable {
             _feeAddress,
             paymentNetworkTotalAmount, // _maxToSpend
             _chainlinkMaxRateTimespan
+        );
+
+        // Pay the request swap fees
+        IERC20(_uniswapPath[_uniswapPath.length - 1]).safeTransfer(
+            requestFeesCollector,
+            requestSwapFeesAmount
         );
 
         // Give the change back to the payer, in both currencies (only spent token should remain)
@@ -147,10 +167,18 @@ contract ERC20SwapToConversion is Ownable {
     }
 
     /*
-     * Admin function to edit the router address
+     * Admin functions to edit the router address, the fees amount and the fees collector address
      */
     function setRouter(address _newSwapRouterAddress) public onlyOwner {
         swapRouter = IUniswapV2Router02(_newSwapRouterAddress);
+    }
+
+    function setRequestSwapFees(uint256 _newRequestSwapFees) public onlyOwner {
+        requestSwapFees = _newRequestSwapFees;
+    }
+
+    function setRequestFeesCollector(address _newRequestFeesCollector) public onlyOwner {
+        requestFeesCollector = _newRequestFeesCollector;
     }
 
     /*

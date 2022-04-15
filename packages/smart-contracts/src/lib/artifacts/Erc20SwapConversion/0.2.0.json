@@ -16,6 +16,16 @@
           "internalType": "address",
           "name": "_owner",
           "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_requestFeesCollector",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_requestSwapFees",
+          "type": "uint256"
         }
       ],
       "stateMutability": "nonpayable",
@@ -100,6 +110,58 @@
     {
       "inputs": [],
       "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "requestFeesCollector",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "requestSwapFees",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newRequestFeesCollector",
+          "type": "address"
+        }
+      ],
+      "name": "setRequestFeesCollector",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_newRequestSwapFees",
+          "type": "uint256"
+        }
+      ],
+      "name": "setRequestSwapFees",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

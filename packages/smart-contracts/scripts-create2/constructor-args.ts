@@ -1,6 +1,7 @@
 import * as artifacts from '../src/lib';
 
 export const getConstructorArgs = (contract: string, network?: string) => {
+  const requestFeesCollector = '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7';
   switch (contract) {
     case 'Erc20ConversionProxy': {
       if (!process.env.ADMIN_WALLET_ADDRESS) {
@@ -20,6 +21,8 @@ export const getConstructorArgs = (contract: string, network?: string) => {
         '0x0000000000000000000000000000000000000000',
         '0x0000000000000000000000000000000000000000',
         process.env.ADMIN_WALLET_ADDRESS,
+        requestFeesCollector,
+        '5',
       ];
     }
     case 'ERC20EscrowToPay': {

@@ -27,11 +27,15 @@ export async function deploySwapConversion(
   if (!uniswapV2RouterAddresses[hre.network.name] && !args.swapProxyAddress) {
     console.error(`Missing swap router, cannot deploy ${contractName}.`);
   }
+  const requestSwapFees = '5'; // 0.5%
+  const requestFeesCollector = '0x2191eF87E392377ec08E7c08Eb105Ef5448eCED5';
   const deployment = await deployOne<ERC20SwapToConversion>(args, hre, contractName, {
     constructorArguments: [
       uniswapV2RouterAddresses[hre.network.name] ?? args.swapProxyAddress,
       args.chainlinkConversionPathAddress,
       deployer.address,
+      requestFeesCollector,
+      requestSwapFees,
     ],
     artifact: erc20SwapConversionArtifact,
     nonceCondition: args.nonceCondition,
