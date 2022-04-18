@@ -199,7 +199,8 @@ contract BatchPayments is Ownable, ReentrancyGuard {
 
         // Sender transfer tokens on the batch proxy
         for (uint256 i = 0; i < uniqueTokens.length && amountByToken[i] > 0; i++) {
-            require(safeTransferFrom(uniqueTokens[i], address(this), amountByToken[i]), "payment transferFrom() failed");
+            require(safeTransferFrom(uniqueTokens[i], address(this), amountByToken[i]),
+                "payment transferFrom() failed");
 
             // Batch proxy approve Erc20FeeProxy to spend the token
             IERC20 requestedToken = IERC20(uniqueTokens[i]);
