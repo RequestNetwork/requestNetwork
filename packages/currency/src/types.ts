@@ -1,29 +1,33 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 
+/** Native Currency types */
+export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
+
 /**
  * A native blockchain token (ETH, MATIC, ETH-rinkeby...)
  */
 export type NativeCurrency = {
+  type: NativeCurrencyType;
   symbol: string;
   decimals: number;
   network: string;
 };
 
-/** Native Currency types */
-export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTypes.CURRENCY.ETH;
-
 /**
  * A Fiat currency (EUR, USD...)
  */
 export type ISO4217Currency = {
+  type: RequestLogicTypes.CURRENCY.ISO4217;
   symbol: string;
   decimals: number;
+  network?: never;
 };
 
 /**
  * An ERC20 token (DAI, USDT...)
  */
 export type ERC20Currency = {
+  type: RequestLogicTypes.CURRENCY.ERC20;
   symbol: string;
   decimals: number;
   network: string;
@@ -34,6 +38,7 @@ export type ERC20Currency = {
  * An ERC777 SuperToken (DAIx, USDCx...)
  */
 export type ERC777Currency = {
+  type: RequestLogicTypes.CURRENCY.ERC777;
   symbol: string;
   decimals: number;
   network: string;
@@ -43,21 +48,27 @@ export type ERC777Currency = {
 /**
  * The minimum properties of a Currency
  */
-export type CurrencyInput =
-  | ({ type: RequestLogicTypes.CURRENCY.ETH | RequestLogicTypes.CURRENCY.BTC } & NativeCurrency)
-  | ({ type: RequestLogicTypes.CURRENCY.ISO4217 } & ISO4217Currency)
-  | ({ type: RequestLogicTypes.CURRENCY.ERC20 } & ERC20Currency)
-  | ({ type: RequestLogicTypes.CURRENCY.ERC777 } & ERC777Currency);
+export type CurrencyInput = NativeCurrency | ISO4217Currency | ERC20Currency | ERC777Currency;
 
 /**
  * The description of Currency, its core properties and some computed properties.
  * `meta` enables applications to add any metadata they need to a Currency
  */
-export type CurrencyDefinition<TMeta = unknown> = CurrencyInput & {
+export type FromInput<T, TMeta> = T & {
   id: string;
   hash: string;
   meta: TMeta;
 };
+
+/**
+ * The description of Currency, its core properties and some computed properties.
+ * `meta` enables applications to add any metadata they need to a Currency
+ */
+export type CurrencyDefinition<TMeta = unknown> =
+  | FromInput<NativeCurrency, TMeta>
+  | FromInput<ISO4217Currency, TMeta>
+  | FromInput<ERC20Currency, TMeta>
+  | FromInput<ERC777Currency, TMeta>;
 
 /**
  * Alias for ICurrency for clarity in the context

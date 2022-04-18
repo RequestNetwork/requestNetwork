@@ -257,16 +257,12 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
       type: ISO4217,
     }));
 
-    const eth: CurrencyInput[] = nativeCurrencies.ETH.map((x) => ({ ...x, type: ETH }));
-    const btc: CurrencyInput[] = nativeCurrencies.BTC.map((x) => ({ ...x, type: BTC }));
-
     const erc20Tokens = getSupportedERC20Tokens();
     const erc20Currencies: CurrencyInput[] = erc20Tokens.map((x) => ({ ...x, type: ERC20 }));
 
     return isoCurrencies
       .concat(erc20Currencies)
-      .concat(eth)
-      .concat(btc)
+      .concat(nativeCurrencies)
       .map(CurrencyManager.fromInput);
   }
 
