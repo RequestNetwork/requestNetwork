@@ -74,10 +74,7 @@ const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinit
 };
 
 describe('CurrencyManager', () => {
-  let currencyManager: CurrencyManager;
-  beforeEach(() => {
-    currencyManager = CurrencyManager.getDefault();
-  });
+  const currencyManager: CurrencyManager = CurrencyManager.getDefault();
 
   describe('Creating a CurrencyManager', () => {
     it('can get a default currency manager', () => {
@@ -93,7 +90,7 @@ describe('CurrencyManager', () => {
       const list: CurrencyInput[] = [
         { type: RequestLogicTypes.CURRENCY.ETH, decimals: 18, network: 'anything', symbol: 'ANY' },
       ];
-      currencyManager = new CurrencyManager(list);
+      const currencyManager = new CurrencyManager(list);
       expect(currencyManager.from('ANY')).toBeDefined();
     });
 
