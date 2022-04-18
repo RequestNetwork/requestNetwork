@@ -194,7 +194,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Utility function to compute the unique identifier
    */
   static currencyId(currency: CurrencyInput): string {
-    return 'network' in currency ? `${currency.symbol}-${currency.network}` : currency.symbol;
+    return currency.network ? `${currency.symbol}-${currency.network}` : currency.symbol;
   }
 
   /**
