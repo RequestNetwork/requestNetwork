@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import './lib/SafeERC20.sol';
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/ERC20FeeProxy.sol";
 import "./interfaces/EthereumFeeProxy.sol";
@@ -12,53 +13,36 @@ import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
  * @notice This contract makes multiple payments with references, in one transaction:
  *          - on: ERC20 Payment Proxy and ETH Payment Proxy of the Request Network protocol
  *          - to: multiple addresses
- *          - fees: Proxy fees can be paid to the same address. 
- *                  An additional batch fee is added, paid to the same address.
+ *          - fees: payee1 and ETH Proxy fees are paid to the same address. 
+ *                  An additional batch fee is paid to the same address.
+ *         If one transaction fail, every transactions are reverted.
  */
 contract BatchPayments is Ownable, ReentrancyGuard {
-    
-    // This event is declared in ERC20FeeProxy
-    event TransferWithReferenceAndFee(
-        address tokenAddress,
-        address to,
-        uint256 amount,
-        bytes indexed paymentReference,
-        uint256 feeAmount,
-        address feeAddress
-    );
-
-    // This event is declared in EthFeeProxy
-    event TransferWithReferenceAndFee(
-        address to,
-        uint256 amount,
-        bytes indexed paymentReference,
-        uint256 feeAmount,
-        address feeAddress
-    );
-
-    // @dev: Between 0 and 1000, i.e: batchFee = 10 represent 1% of fee
-    uint256 public batchFee;
+    using SafeERC20 for IERC20;
 
     IERC20FeeProxy public paymentErc20FeeProxy;
-    IEthereumFeeProxy public paymentEthereumFeeProxy;
+    IEthereumFeeProxy public paymentEthFeeProxy;
+
+     // @dev: Between 0 and 1000, i.e: batchFee = 10 represent 1% of fee
+    uint256 public batchFee;
 
     /**
      * @param _paymentErc20FeeProxy The address to the ERC20 payment proxy to use.
-     * @param _paymentEthereumFeeProxy The address to the Ethereum payment proxy to use.
+     * @param _paymentEthFeeProxy The address to the Ethereum payment proxy to use.
      * @param _owner Owner of the contract.
      */
-    constructor(address _paymentErc20FeeProxy, address _paymentEthereumFeeProxy, address _owner) {
+    constructor(address _paymentErc20FeeProxy, address _paymentEthFeeProxy, address _owner) {
         paymentErc20FeeProxy  = IERC20FeeProxy(_paymentErc20FeeProxy);
-        paymentEthereumFeeProxy = IEthereumFeeProxy(_paymentEthereumFeeProxy);
-        batchFee = 0;
+        paymentEthFeeProxy = IEthereumFeeProxy(_paymentEthFeeProxy);
         transferOwnership(_owner);
+        batchFee = 0;
     }
 
-    // Needed because batchEthPaymentsWithReferenceAndFee requires that the contract has ethers
+    // batchEthPaymentsWithReferenceAndFee requires that the contract has ethers
     receive() external payable {}
 
     /**
-    * @notice Send a batch of Ethereum payments w/fees with paymentReferences to multiple accounts.
+    * @notice Send a batch of Eth payments w/fees with paymentReferences to multiple accounts.
     *         The sum of _amounts and _feeAmounts must be <= to msg.value.
     *         If one payment failed, the whole batch is reverted
     * @param _recipients List of recipients accounts.
@@ -85,17 +69,17 @@ contract BatchPayments is Ownable, ReentrancyGuard {
 
         // Sender transfers tokens to the contract
         payable(address(this)).transfer(msg.value);
-        uint256 toReturn = msg.value;
+        uint256 remainingAmount = msg.value;
         uint256 sumBatchFeeAmount = 0;
 
-        // Contract pays the batch payment
+        // Batch proxy pays the requests thourgh EthFeeProxy
         for (uint256 i = 0; i < _recipients.length; i++) {
             uint256 batchFeeAmount = (_amounts[i] * batchFee) / 1000;
-            require(toReturn >= _amounts[i] + _feeAmounts[i] + batchFeeAmount, "not enough funds");
+            require(remainingAmount >= _amounts[i] + _feeAmounts[i] + batchFeeAmount, "not enough funds");
             sumBatchFeeAmount += batchFeeAmount;
-            toReturn -= (_amounts[i]+_feeAmounts[i] + batchFeeAmount);
+            remainingAmount -= (_amounts[i]+_feeAmounts[i] + batchFeeAmount);
 
-            paymentEthereumFeeProxy.transferWithReferenceAndFee{value: _amounts[i]+_feeAmounts[i]}(
+            paymentEthFeeProxy.transferWithReferenceAndFee{value: _amounts[i]+_feeAmounts[i]}(
                 payable(_recipients[i]), 
                 _paymentReferences[i],
                 _feeAmounts[i],
@@ -105,8 +89,10 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         _feeAddress.transfer(sumBatchFeeAmount);
 
         // Transfer the remaining ethers to the sender
-        (bool sendBackSuccess, ) = payable(msg.sender).call{ value: toReturn }('');
-        require(sendBackSuccess, 'Could not send remaining funds to the payer');
+        if (remainingAmount > 0) {
+            (bool sendBackSuccess, ) = payable(msg.sender).call{ value: remainingAmount }('');
+            require(sendBackSuccess, 'Could not send remaining funds to the payer');
+        }
     }
 
     /**
@@ -134,29 +120,38 @@ contract BatchPayments is Ownable, ReentrancyGuard {
             && _recipients.length == _feeAmounts.length
             , "the input arrays must have the same length"
         );
-        
-        uint256 batchAmount = 0;
 
+        // Transfer the total amount to the batch proxy
+        uint totalAmount = 0;
         for (uint256 i = 0; i < _recipients.length; i++) {
-             batchAmount += _amounts[i];
-           (bool status, ) = address(paymentErc20FeeProxy).delegatecall(
-            abi.encodeWithSignature(
-            "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
+            totalAmount += _amounts[i] + _feeAmounts[i];
+        }
+        require(safeTransferFrom(_tokenAddress, address(this), totalAmount), "payment transferFrom() failed");
+
+        // Batch proxy approve Erc20FeeProxy to spend the token
+        IERC20 requestedToken = IERC20(_tokenAddress);
+        if (requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) < totalAmount) {
+            approvePaymentProxyToSpend(address(requestedToken));
+        }
+        
+        // Batch proxy pays the requests using Erc20FeeProxy
+        for (uint256 i = 0; i < _recipients.length; i++) {
+            // totalAmount is now used as the batch amount to calculate batch fee amount
+            totalAmount -= _feeAmounts[i];
+            paymentErc20FeeProxy.transferFromWithReferenceAndFee(
                 _tokenAddress,
                 _recipients[i], 
                 _amounts[i],
                 _paymentReferences[i],
                 _feeAmounts[i],
                 _feeAddress
-                )
             );
-            require(status, "transferFromWithReference failed");
         }
 
-        require(safeTransferFrom(_tokenAddress, _feeAddress, (batchAmount * batchFee) / 1000),
+        // Sender pays batch fee amount
+        require(safeTransferFrom(_tokenAddress, _feeAddress, (totalAmount * batchFee) / 1000),
          "batch fee transferFrom() failed");
     }
-
 
     /**
      * @notice Send a batch of erc20 payments on multiple tokens w/fees with paymentReferences to multiple accounts.
@@ -185,44 +180,63 @@ contract BatchPayments is Ownable, ReentrancyGuard {
             , "the input arrays must have the same length"
         );
 
+        // Create 2 lists of unique tokens used and the amounts associated
         address[] memory uniqueTokens = new address[](_tokenAddresses.length);
         uint256[] memory amountByToken = new uint256[](_tokenAddresses.length);
-
-        // Pay the requests
         for (uint256 i = 0; i < _recipients.length; i++) {
-            // Create a list of unique tokens used
             for(uint j = 0; j < uniqueTokens.length; j++){
                 if(uniqueTokens[j] == _tokenAddresses[i]){
-                    amountByToken[j] += _amounts[i];
+                    amountByToken[j] += _amounts[i] + _feeAmounts[i];
                     break;
                 }
                 if(amountByToken[j] == 0){
                     uniqueTokens[j] = _tokenAddresses[i];
-                    amountByToken[j] = _amounts[i];
+                    amountByToken[j] = _amounts[i] + _feeAmounts[i];
                     break;
                 }
             }
+        }
 
-           (bool status, ) = address(paymentErc20FeeProxy).delegatecall(
-            abi.encodeWithSignature(
-            "transferFromWithReferenceAndFee(address,address,uint256,bytes,uint256,address)",
+        // Sender transfer tokens on the batch proxy
+        for (uint256 i = 0; i < uniqueTokens.length && amountByToken[i] > 0; i++) {
+            require(safeTransferFrom(uniqueTokens[i], address(this), amountByToken[i]), "payment transferFrom() failed");
+
+            // Batch proxy approve Erc20FeeProxy to spend the token
+            IERC20 requestedToken = IERC20(uniqueTokens[i]);
+            if (requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) < amountByToken[i]) {
+                approvePaymentProxyToSpend(address(requestedToken));
+            }
+        }
+
+        // Batch proxy pays the requests using Erc20FeeProxy
+        for (uint256 i = 0; i < _recipients.length; i++) {
+            paymentErc20FeeProxy.transferFromWithReferenceAndFee(
                 _tokenAddresses[i],
                 _recipients[i], 
                 _amounts[i],
                 _paymentReferences[i],
                 _feeAmounts[i],
                 _feeAddress
-                )
             );
-            require(status, "transferFromWithReference failed");
         }
 
-        // Pay batch fee
+        // Sender pays batch fee amount
         for(uint i = 0; i < uniqueTokens.length && amountByToken[i] > 0; i++){
-            require(safeTransferFrom(uniqueTokens[i], _feeAddress, (amountByToken[i] * batchFee) / 1000),
+            uint amount = amountByToken[i];
+            amountByToken[i] = 0;
+            require(safeTransferFrom(uniqueTokens[i], _feeAddress, (amount * batchFee) / 1000),
              "batch fee transferFrom() failed");
-             amountByToken[i] = 0;
         }
+    }
+
+    /**
+     * @notice Authorizes the proxy to spend a new request currency (ERC20).
+     * @param _erc20Address Address of an ERC20 used as the request currency.
+     */
+    function approvePaymentProxyToSpend(address _erc20Address) public {
+        IERC20 erc20 = IERC20(_erc20Address);
+        uint256 max = 2**256 - 1;
+        erc20.safeApprove(address(paymentErc20FeeProxy), max);
     }
 
     /**
@@ -273,11 +287,11 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         batchFee = _batchFee;
     }
 
-    function setPaymentErc20FeeProxy(address _paymentProxyAddress) public onlyOwner {
-        paymentErc20FeeProxy = IERC20FeeProxy(_paymentProxyAddress);
+    function setPaymentErc20FeeProxy(address _paymentErc20FeeProxy) public onlyOwner {
+        paymentErc20FeeProxy = IERC20FeeProxy(_paymentErc20FeeProxy);
     }
 
-    function setPaymentEthereumFeeProxy(address _paymentEthereumFeeProxyAddress) public onlyOwner {
-        paymentEthereumFeeProxy = IEthereumFeeProxy(_paymentEthereumFeeProxyAddress);
+    function setPaymentEthFeeProxy(address _paymentEthFeeProxy) public onlyOwner {
+        paymentEthFeeProxy = IEthereumFeeProxy(_paymentEthFeeProxy);
     }
 }

@@ -1,11 +1,8 @@
 import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
-import { expect, use } from 'chai';
-import { solidity } from 'ethereum-waffle';
-import { TestERC20__factory, TestERC20, BatchPayments } from '../../src/types';
-import { batchPaymentsArtifact } from '../../src/lib';
-
-use(solidity);
+import { expect } from 'chai';
+import { TestERC20__factory, TestERC20, BatchPayments, ERC20FeeProxy } from '../../src/types';
+import { batchPaymentsArtifact, erc20FeeProxyArtifact } from '../../src/lib';
 
 const logGasInfos = false;
 
@@ -20,6 +17,7 @@ describe('contract: BatchPayments: ERC20', () => {
   let token2: TestERC20;
   let token3: TestERC20;
   let batch: BatchPayments;
+  let erc20FeeProxy: ERC20FeeProxy;
 
   let token1Address: string;
   let token2Address: string;
@@ -47,6 +45,8 @@ describe('contract: BatchPayments: ERC20', () => {
   before(async () => {
     [, payee1, payee2, payee3, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [owner, spender1, spender2, spender3] = await ethers.getSigners();
+
+    erc20FeeProxy = erc20FeeProxyArtifact.connect(network.name, owner);
     batch = batchPaymentsArtifact.connect(network.name, owner);
     token1 = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
     token2 = await new TestERC20__factory(owner).deploy(erc20Decimal.mul(10000));
@@ -103,9 +103,8 @@ describe('contract: BatchPayments: ERC20', () => {
           ),
       )
         .to.emit(token1, 'Transfer')
-        .to.emit(token1, 'Transfer')
-        .to.emit(token1, 'Transfer')
-        .to.emit(batch, 'TransferWithReferenceAndFee')
+        .withArgs(spender3Address, batchAddress, 20 + 30 + 40 + 1 + 2 + 3)
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
         .withArgs(
           token1Address,
           payee1,
@@ -114,7 +113,8 @@ describe('contract: BatchPayments: ERC20', () => {
           '1',
           feeAddress,
         )
-        .to.emit(batch, 'TransferWithReferenceAndFee')
+        .to.emit(token1, 'Transfer')
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
         .withArgs(
           token1Address,
           payee2,
@@ -123,7 +123,8 @@ describe('contract: BatchPayments: ERC20', () => {
           '2',
           feeAddress,
         )
-        .to.emit(batch, 'TransferWithReferenceAndFee')
+        .to.emit(token1, 'Transfer')
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
         .withArgs(
           token1Address,
           payee2,
@@ -131,6 +132,13 @@ describe('contract: BatchPayments: ERC20', () => {
           ethers.utils.keccak256(referenceExample3),
           '3',
           feeAddress,
+        )
+        // batch fee amount from the spender to feeAddress
+        .to.emit(token1, 'Transfer')
+        .withArgs(
+          spender3Address,
+          feeAddress,
+          9, // batch fee amount = (20+30+40)*10%
         );
 
       afterERC20Balance1 = await token1.balanceOf(payee1);
@@ -154,17 +162,65 @@ describe('contract: BatchPayments: ERC20', () => {
       const beforeFeeAddress_token2 = await token2.balanceOf(feeAddress);
       const beforeFeeAddress_token3 = await token3.balanceOf(feeAddress);
 
-      let tx = await batch
-        .connect(spender3)
-        .batchERC20PaymentsMultiTokensWithReference(
-          [token1Address, token2Address, token3Address],
-          [payee1, payee2, payee2],
-          [20, 30, 40],
-          [referenceExample1, referenceExample2, referenceExample3],
-          [1, 2, 3],
+      await expect(
+        batch
+          .connect(spender3)
+          .batchERC20PaymentsMultiTokensWithReference(
+            [token1Address, token2Address, token3Address],
+            [payee1, payee2, payee2],
+            [20, 30, 40],
+            [referenceExample1, referenceExample2, referenceExample3],
+            [1, 2, 3],
+            feeAddress,
+          ),
+      )
+        // Transfer event of each token from the spender to the batch proxy
+        .to.emit(token1, 'Transfer')
+        .withArgs(spender3Address, batchAddress, 20 + 1)
+        .to.emit(token2, 'Transfer')
+        .withArgs(spender3Address, batchAddress, 30 + 2)
+        .to.emit(token3, 'Transfer')
+        .withArgs(spender3Address, batchAddress, 40 + 3)
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+        .withArgs(
+          token1Address,
+          payee1,
+          '20',
+          ethers.utils.keccak256(referenceExample1),
+          '1',
           feeAddress,
-        );
-      await tx.wait();
+        )
+        .to.emit(token2, 'Transfer')
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+        .withArgs(
+          token2Address,
+          payee2,
+          '30',
+          ethers.utils.keccak256(referenceExample2),
+          '2',
+          feeAddress,
+        )
+        .to.emit(token3, 'Transfer')
+        .to.emit(erc20FeeProxy, 'TransferWithReferenceAndFee')
+        .withArgs(
+          token3Address,
+          payee2,
+          '40',
+          ethers.utils.keccak256(referenceExample3),
+          '3',
+          feeAddress,
+        )
+        // batch fee amount from the spender to feeAddress for each token
+        .to.emit(token1, 'Transfer')
+        .withArgs(
+          spender3Address,
+          feeAddress,
+          2, // batch fee amount = 20*10%
+        )
+        .to.emit(token2, 'Transfer')
+        .withArgs(spender3Address, feeAddress, 3)
+        .to.emit(token3, 'Transfer')
+        .withArgs(spender3Address, feeAddress, 4);
 
       afterERC20Balance1 = await token1.balanceOf(payee1);
       expect(afterERC20Balance1).to.be.equal(beforeERC20Balance1.add(20));
@@ -339,7 +395,7 @@ describe('contract: BatchPayments: ERC20', () => {
             [1, 2, 3],
             feeAddress,
           ),
-      ).revertedWith('revert transferFromWithReference failed');
+      ).revertedWith('revert');
     });
 
     it('Should revert batch if not enough funds to pay the batch fee', async function () {
@@ -367,7 +423,7 @@ describe('contract: BatchPayments: ERC20', () => {
             [1, 2, 3],
             feeAddress,
           ),
-      ).revertedWith('revert transferFromWithReference failed');
+      ).revertedWith('revert');
     });
 
     it('Should revert batch multi tokens if not enough funds', async function () {
@@ -382,7 +438,7 @@ describe('contract: BatchPayments: ERC20', () => {
             [1, 2, 3],
             feeAddress,
           ),
-      ).revertedWith('revert transferFromWithReference failed');
+      ).revertedWith('revert');
     });
 
     it('Should revert batch multi tokens if not enough funds to pay the batch fee', async function () {
@@ -410,7 +466,7 @@ describe('contract: BatchPayments: ERC20', () => {
             [1, 2, 3],
             feeAddress,
           ),
-      ).revertedWith('revert transferFromWithReference failed');
+      ).revertedWith('revert');
     });
 
     it('Should revert batch multi tokens if input s arrays do not have same size', async function () {
