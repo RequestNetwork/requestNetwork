@@ -16,7 +16,7 @@ export async function deploySuperFluid(hre: HardhatRuntimeEnvironment) {
     // get account from hardhat
     [deployer] = await hre.ethers.getSigners();
 
-    //deploy the framework
+    // deploy the framework
     await deployFramework(errorHandler, {
       web3: hre.web3,
       from: deployer.address,
