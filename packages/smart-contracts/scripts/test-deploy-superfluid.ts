@@ -28,7 +28,7 @@ export async function deploySuperFluid(hre: HardhatRuntimeEnvironment) {
       from: deployer.address,
     });
 
-    // //deploy a fake erc20 wrapper super token around the fDAI token
+    // deploy a fake erc20 wrapper super token around the fDAI token
     await deploySuperToken(errorHandler, [':', 'fDAI'], {
       web3: hre.web3,
       from: deployer.address,
