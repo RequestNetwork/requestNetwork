@@ -202,11 +202,12 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
     )();
 
     // get the transactions from the cache
-    const transactionsCached: DataAccessTypes.IReturnGetTransactions = this.getCachedTransactionsAndCleanCache(
-      channelId,
-      data.meta.transactionsStorageLocation,
-      timestampBoundaries,
-    );
+    const transactionsCached: DataAccessTypes.IReturnGetTransactions =
+      this.getCachedTransactionsAndCleanCache(
+        channelId,
+        data.meta.transactionsStorageLocation,
+        timestampBoundaries,
+      );
 
     // merge cache and data from the node
     return {

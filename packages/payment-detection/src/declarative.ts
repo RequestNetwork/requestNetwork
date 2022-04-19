@@ -12,7 +12,7 @@ import { PaymentDetectorBase } from './payment-detector-base';
  */
 export abstract class DeclarativePaymentDetectorBase<
   TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative,
-  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters,
 > extends PaymentDetectorBase<TExtension, TPaymentEventParameters> {
   public constructor(_paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
     super(_paymentNetworkId, extension);

@@ -230,9 +230,8 @@ export function encodePayEscrow(
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   // collects the parameters to be used, from the request
-  const { paymentReference, paymentAddress, feeAmount, feeAddress } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAmount, feeAddress } =
+    getRequestPaymentValues(request);
 
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);

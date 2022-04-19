@@ -188,20 +188,8 @@ describe('contract: BatchPayments: ERC20', () => {
       const amount = 20;
       const feeAmount = 1;
       const nbTxs = 4;
-      const [
-        tokenAddresses,
-        recipients,
-        amounts,
-        paymentReferences,
-        feeAmounts,
-      ] = getBatchPaymentsInputs(
-        nbTxs,
-        token1Address,
-        payee2,
-        amount,
-        referenceExample1,
-        feeAmount,
-      );
+      const [tokenAddresses, recipients, amounts, paymentReferences, feeAmounts] =
+        getBatchPaymentsInputs(nbTxs, token1Address, payee2, amount, referenceExample1, feeAmount);
 
       tokenAddresses[2] = token2Address;
       tokenAddresses[3] = token2Address;
@@ -237,20 +225,8 @@ describe('contract: BatchPayments: ERC20', () => {
       const amount = 2;
       const feeAmount = 1;
       const nbTxs = 10;
-      const [
-        token1Addresses,
-        recipients,
-        amounts,
-        paymentReferences,
-        feeAmounts,
-      ] = getBatchPaymentsInputs(
-        nbTxs,
-        token1Address,
-        payee3,
-        amount,
-        referenceExample1,
-        feeAmount,
-      );
+      const [token1Addresses, recipients, amounts, paymentReferences, feeAmounts] =
+        getBatchPaymentsInputs(nbTxs, token1Address, payee3, amount, referenceExample1, feeAmount);
 
       const tx = await batch
         .connect(spender1)
@@ -280,20 +256,8 @@ describe('contract: BatchPayments: ERC20', () => {
       const amount = 2;
       const feeAmount = 1;
       const nbTxs = 10;
-      const [
-        tokenAddresses,
-        recipients,
-        amounts,
-        paymentReferences,
-        feeAmounts,
-      ] = getBatchPaymentsInputs(
-        nbTxs,
-        token1Address,
-        payee3,
-        amount,
-        referenceExample1,
-        feeAmount,
-      );
+      const [tokenAddresses, recipients, amounts, paymentReferences, feeAmounts] =
+        getBatchPaymentsInputs(nbTxs, token1Address, payee3, amount, referenceExample1, feeAmount);
 
       for (let i = 0; i < 5; i++) {
         tokenAddresses[i] = token2Address;

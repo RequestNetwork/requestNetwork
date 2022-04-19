@@ -127,7 +127,8 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
           maxRateTimespan,
         );
 
-    const paymentEvents = (await infoRetriever.getTransferEvents()) as PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[];
+    const paymentEvents =
+      (await infoRetriever.getTransferEvents()) as PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[];
     return {
       paymentEvents,
     };

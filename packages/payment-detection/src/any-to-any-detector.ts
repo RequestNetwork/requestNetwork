@@ -9,7 +9,7 @@ import { ICurrencyManager } from '@requestnetwork/currency';
  */
 export abstract class AnyToAnyDetector<
   TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  TPaymentEventParameters
+  TPaymentEventParameters,
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extension, with conversion

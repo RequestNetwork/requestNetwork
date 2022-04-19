@@ -101,8 +101,7 @@ describe('Request system', () => {
         method: EncryptionTypes.METHOD.ECIES,
       },
       encryptionParams: {
-        key:
-          '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+        key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
         method: EncryptionTypes.METHOD.ECIES,
       },
       identity: {
@@ -119,8 +118,7 @@ describe('Request system', () => {
         method: EncryptionTypes.METHOD.ECIES,
       },
       encryptionParams: {
-        key:
-          '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
+        key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
         method: EncryptionTypes.METHOD.ECIES,
       },
       identity: {
