@@ -27,21 +27,21 @@ export async function payErc777StreamRequest(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const networkName =
     request.currencyInfo.network === 'private' ? 'custom' : request.currencyInfo.network;
-  // console.log('networkName:', networkName);
-
   const sf = await Framework.create({
     networkName: networkName,
     provider: signer.provider ? signer.provider : getProvider(),
-    dataMode: 'WEB3_ONLY',
-    resolverAddress: '0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae', //this is how you get the resolver address
-    protocolReleaseVersion: 'test',
+    dataMode: request.currencyInfo.network === 'private' ? 'WEB3_ONLY' : undefined,
+    resolverAddress:
+      request.currencyInfo.network === 'private'
+        ? '0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae'
+        : undefined,
+    protocolReleaseVersion: request.currencyInfo.network === 'private' ? 'test' : undefined,
   });
   const superSigner = sf.createSigner({
     signer: signer,
     provider: signer.provider,
   });
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
-  // console.log('superToken.address:', superToken.address);
   // TODO: use expectedStartDate to compute offset between start of invoicing and start of payment
   const { paymentReference, paymentAddress, expectedFlowRate } = getRequestPaymentValues(request);
   const streamPayOp = sf.cfaV1.createFlow({

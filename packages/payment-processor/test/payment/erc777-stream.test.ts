@@ -130,31 +130,24 @@ describe('erc777-stream', () => {
         networkName: 'custom',
         provider,
         dataMode: 'WEB3_ONLY',
-        resolverAddress: resolverAddress, //this is how you get the resolver address
+        resolverAddress: resolverAddress,
         protocolReleaseVersion: 'test',
       });
 
       //use the framework to get the SuperToken
       const daix = await sf.loadSuperToken('fDAIx');
-      // console.log('superToken.address:', daix.address);
 
       //get the contract object for the erc20 token
       const daiAddress = daix.underlyingToken.address;
-      // console.log('underlyingToken.address:', daiAddress);
-
       const dai = new Contract(daiAddress, daiABI, wallet);
-      // console.log('dai.address:', dai.address);
 
       // //minting fDAI
       const daiBalBefore = await dai.balanceOf(wallet.address);
-      // console.log('fDAI bal for wallet: ', daiBalBefore.toString());
       tx = await dai.connect(wallet).mint(wallet.address, ethersUtils.parseEther('1000'));
       confirmedTx = await tx.wait(1);
       expect(confirmedTx.status).toBe(1);
       expect(tx.hash).not.toBeUndefined();
       const daiBalAfter = await dai.balanceOf(wallet.address);
-      // console.log('fDAI bal for wallet: ', daiBalAfter.toString());
-      // console.log('fDAI minted for wallet: ', daiBalAfter.sub(daiBalBefore).toString());
       expect(daiBalAfter.sub(daiBalBefore).toString()).toBe('1000000000000000000000');
 
       //approving SuperToken contract to access minted fDAI
@@ -163,7 +156,6 @@ describe('erc777-stream', () => {
       expect(confirmedTx.status).toBe(1);
       expect(tx.hash).not.toBeUndefined();
       const amountAllowed = await dai.allowance(wallet.address, daix.address);
-      // console.log('fDAI allowed for wallet: ', amountAllowed.toString());
       expect(amountAllowed.toString()).toBe('1000000000000000000000');
 
       // wrapping fDAI into fDAIx
@@ -171,7 +163,6 @@ describe('erc777-stream', () => {
         account: wallet.address,
         providerOrSigner: wallet,
       });
-      // console.log('fDAIx bal for wallet: ', daixBalBefore);
       const daixUpgradeOperation = daix.upgrade({
         amount: ethersUtils.parseEther('1000').toString(),
       });
@@ -183,11 +174,6 @@ describe('erc777-stream', () => {
         account: wallet.address,
         providerOrSigner: wallet,
       });
-      // console.log('fDAIx bal for wallet: ', daixBalAfter);
-      // console.log(
-      //   'fDAIx wrapped for wallet: ',
-      //   BigNumber.from(daixBalAfter).sub(daixBalBefore).toString(),
-      // );
       expect(BigNumber.from(daixBalAfter).sub(daixBalBefore).toString()).toBe(
         '1000000000000000000000',
       );
@@ -203,14 +189,12 @@ describe('erc777-stream', () => {
         account: wallet.address,
         providerOrSigner: provider,
       });
-      // console.log('daix flow rate for payer: ', wFlowRate);
       expect(wFlowRate).toBe(`-${expectedFlowRate}`);
       const pFlowRate = await sf.cfaV1.getNetFlow({
         superToken: daix.address,
         account: paymentAddress,
         providerOrSigner: provider,
       });
-      // console.log('daix flow rate for payee: ', pFlowRate);
       expect(pFlowRate).toBe(expectedFlowRate);
     });
   });
