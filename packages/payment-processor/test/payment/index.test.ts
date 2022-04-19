@@ -408,7 +408,7 @@ describe('hasSufficientFunds', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it('should call the ERC777 getBalance method', async () => {
+  it('should call the ERC20 getBalance method for ERC777 requests', async () => {
     const spy = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
