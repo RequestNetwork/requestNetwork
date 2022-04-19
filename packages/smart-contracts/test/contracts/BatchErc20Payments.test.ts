@@ -395,7 +395,7 @@ describe('contract: BatchPayments: ERC20', () => {
             [1, 2, 3],
             feeAddress,
           ),
-      ).revertedWith('revert');
+      ).revertedWith('revert: not enough funds');
     });
 
     it('Should revert batch if not enough funds to pay the batch fee', async function () {
