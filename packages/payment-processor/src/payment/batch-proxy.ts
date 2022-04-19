@@ -26,12 +26,14 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
  * Eth Batch Proxy payment details:
  *   batch of request with the same payment network type
  *   batch of request with the same payment network version
+ * -> Eth batch proxy accepts requests with 2 id: ethProxy and ethFeeProxy
+ *    but only call ethFeeProxy. It can impact payment detection
  */
 
 /**
- * Processes a transaction to pay of batch of ETH Requests with fees.
+ * Processes a transaction to pay a batch of ETH Requests with fees.
  * Requests paymentType must be "ETH" or "ERC20"
- * @param requests List of request
+ * @param requests List of requests
  * @param version version of the batch proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param batchFee Only for batch ETH: additional fee applied to a batch, between 0 and 1000, default value = 10
