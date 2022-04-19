@@ -121,7 +121,7 @@ describe('erc777-stream', () => {
     });
   });
 
-  describe.only('payErc777StreamRequest', () => {
+  describe('payErc777StreamRequest', () => {
     it('should pay an ERC777 request with fees', async () => {
       let tx;
       let confirmedTx;
