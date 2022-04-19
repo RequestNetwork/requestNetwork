@@ -46,7 +46,7 @@ export async function payErc777StreamRequest(
   // TODO: use expectedStartDate to compute offset between start of invoicing and start of payment
   const { paymentReference, paymentAddress, expectedFlowRate } = getRequestPaymentValues(request);
   const streamPayOp = sf.cfaV1.createFlow({
-    flowRate: expectedFlowRate ? expectedFlowRate : '0',
+    flowRate: expectedFlowRate ?? '0',
     receiver: paymentAddress,
     superToken: superToken.address,
     userData: `0x${paymentReference}`,
