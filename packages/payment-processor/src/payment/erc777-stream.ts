@@ -29,8 +29,8 @@ export async function payErc777StreamRequest(
   const networkName =
     request.currencyInfo.network === 'private' ? 'custom' : request.currencyInfo.network;
   const sf = await Framework.create({
-    networkName: networkName,
-    provider: signer.provider ? signer.provider : getProvider(),
+    networkName,
+    provider: signer.provider ?? getProvider(),
     dataMode: request.currencyInfo.network === 'private' ? 'WEB3_ONLY' : undefined,
     resolverAddress:
       request.currencyInfo.network === 'private'

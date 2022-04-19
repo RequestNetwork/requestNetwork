@@ -210,9 +210,7 @@ export function validateRequest(
 
   // ERC20 based payment networks are only valid if the request currency has a value
   const validCurrencyValue =
-    (paymentNetworkId !== ERC20_PROXY_CONTRACT &&
-      paymentNetworkId !== ERC20_FEE_PROXY_CONTRACT &&
-      paymentNetworkId !== ERC777_STREAM) ||
+    ![ERC20_PROXY_CONTRACT, ERC20_FEE_PROXY_CONTRACT, ERC777_STREAM].includes(paymentNetworkId) ||
     request.currencyInfo.value;
 
   // Payment network with fees should have both or none of fee address and fee amount

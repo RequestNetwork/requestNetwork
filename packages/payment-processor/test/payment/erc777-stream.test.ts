@@ -146,7 +146,7 @@ describe('erc777-stream', () => {
       tx = await dai.connect(wallet).mint(wallet.address, ethersUtils.parseEther('1000'));
       confirmedTx = await tx.wait(1);
       expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
+      expect(tx.hash).toBeDefined();
       const daiBalAfter = await dai.balanceOf(wallet.address);
       expect(daiBalAfter.sub(daiBalBefore).toString()).toBe('1000000000000000000000');
 
@@ -154,7 +154,7 @@ describe('erc777-stream', () => {
       tx = await dai.connect(wallet).approve(daix.address, ethersUtils.parseEther('1000'));
       confirmedTx = await tx.wait(1);
       expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
+      expect(tx.hash).toBeDefined();
       const amountAllowed = await dai.allowance(wallet.address, daix.address);
       expect(amountAllowed.toString()).toBe('1000000000000000000000');
 

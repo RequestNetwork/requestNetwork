@@ -22,7 +22,7 @@ export async function deploySuperFluid(hre: HardhatRuntimeEnvironment) {
       from: deployer.address,
     });
 
-    // //deploy a fake erc20 token
+    // deploy a fake erc20 token
     await deployTestToken(errorHandler, [':', 'fDAI'], {
       web3: hre.web3,
       from: deployer.address,
