@@ -13,7 +13,7 @@ const errorHandler = (err: any) => {
 export async function deploySuperFluid(hre: HardhatRuntimeEnvironment) {
   let deployer: SignerWithAddress;
   try {
-    //get account from hardhat
+    // get account from hardhat
     [deployer] = await hre.ethers.getSigners();
 
     //deploy the framework
