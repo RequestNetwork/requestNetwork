@@ -125,7 +125,7 @@ describe('erc777-stream', () => {
     it('should pay an ERC777 request with fees', async () => {
       let tx;
       let confirmedTx;
-      //initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
+      // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
       const sf = await Framework.create({
         networkName: 'custom',
         provider,
@@ -134,14 +134,14 @@ describe('erc777-stream', () => {
         protocolReleaseVersion: 'test',
       });
 
-      //use the framework to get the SuperToken
+      // use the framework to get the SuperToken
       const daix = await sf.loadSuperToken('fDAIx');
 
-      //get the contract object for the erc20 token
+      // get the contract object for the erc20 token
       const daiAddress = daix.underlyingToken.address;
       const dai = new Contract(daiAddress, daiABI, wallet);
 
-      // //minting fDAI
+      // minting fDAI
       const daiBalBefore = await dai.balanceOf(wallet.address);
       tx = await dai.connect(wallet).mint(wallet.address, ethersUtils.parseEther('1000'));
       confirmedTx = await tx.wait(1);
@@ -150,7 +150,7 @@ describe('erc777-stream', () => {
       const daiBalAfter = await dai.balanceOf(wallet.address);
       expect(daiBalAfter.sub(daiBalBefore).toString()).toBe('1000000000000000000000');
 
-      //approving SuperToken contract to access minted fDAI
+      // approving SuperToken contract to access minted fDAI
       tx = await dai.connect(wallet).approve(daix.address, ethersUtils.parseEther('1000'));
       confirmedTx = await tx.wait(1);
       expect(confirmedTx.status).toBe(1);
