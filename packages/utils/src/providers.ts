@@ -1,4 +1,4 @@
-import { providers } from 'ethers';
+import { providers, constants } from 'ethers';
 
 type ProviderFactory = (network: string | undefined) => providers.Provider | string;
 
@@ -129,8 +129,24 @@ const getDefaultProvider = (network?: string): providers.Provider => {
   return provider;
 };
 
+const getCeloProvider = (): providers.Provider => {
+  const provider = new providers.JsonRpcProvider('https://forno.celo.org');
+  const originalBlockFormatter = provider.formatter._block;
+  provider.formatter._block = (value: any, format: any) => {
+    return originalBlockFormatter(
+      {
+        gasLimit: constants.Zero,
+        ...value,
+      },
+      format,
+    );
+  };
+  return provider;
+};
+
 export default {
   setProviderFactory,
   initPaymentDetectionApiKeys,
   getDefaultProvider,
+  getCeloProvider,
 };
