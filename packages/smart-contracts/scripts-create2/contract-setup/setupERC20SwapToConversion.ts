@@ -1,10 +1,14 @@
-import { chainlinkConversionPath, erc20SwapConversionArtifact } from '../../src/lib';
+import { erc20SwapConversionArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import utils from '@requestnetwork/utils';
-import { uniswapV2RouterAddresses } from '../../scripts/utils';
+import {
+  updateChainlinkConversionPath,
+  updateRequestSwapFees,
+  updateSwapRouter,
+} from './adminTasks';
 
 /**
- * Updates the values of the chainlinkConversionPath and swap router of the ERC20SwapToConversion contract
+ * Updates the values of the chainlinkConversionPath and swap router of the ERC20SwapToConversion contract, if needed
  * @param contractAddress address of the ERC20SwapToConversion Proxy
  * @param hre Hardhat runtime environment
  */
@@ -21,17 +25,7 @@ export const setupERC20SwapToConversion = async (
     hre.config.xdeploy.networks.map(async (network) => {
       let provider;
       if (network === 'celo') {
-        provider = new hre.ethers.providers.JsonRpcProvider('https://forno.celo.org');
-        const originalBlockFormatter = provider.formatter._block;
-        provider.formatter._block = (value: any, format: any) => {
-          return originalBlockFormatter(
-            {
-              gasLimit: hre.ethers.constants.Zero,
-              ...value,
-            },
-            format,
-          );
-        };
+        provider = utils.getCeloProvider();
       } else {
         provider = utils.getDefaultProvider(network);
       }
@@ -39,18 +33,11 @@ export const setupERC20SwapToConversion = async (
       const signer = wallet.connect(provider);
       const ERC20SwapToConversionConnected = await ERC20SwapToConversionContract.connect(signer);
 
-      const currentChainlinkAddress = await ERC20SwapToConversionConnected.chainlinkConversionPath();
-      const chainlinkConversionPathAddress = chainlinkConversionPath.getAddress(network);
-      if (currentChainlinkAddress !== chainlinkConversionPathAddress) {
-        await ERC20SwapToConversionConnected.updateConversionPathAddress(
-          chainlinkConversionPathAddress,
-        );
-      }
-
-      const currentSwapRouter = await ERC20SwapToConversionConnected.swapRouter();
-      if (currentSwapRouter !== uniswapV2RouterAddresses[network]) {
-        await ERC20SwapToConversionConnected.setRouter(uniswapV2RouterAddresses[network]);
-      }
+      await Promise.all([
+        updateChainlinkConversionPath(ERC20SwapToConversionConnected, network),
+        updateSwapRouter(ERC20SwapToConversionConnected, network),
+        updateRequestSwapFees(ERC20SwapToConversionConnected),
+      ]);
     }),
   );
   console.log('Setup for ERC20SwapToConversion successfull');
