@@ -4,28 +4,8 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_swapRouterAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_chainlinkConversionPath",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
           "name": "_owner",
           "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_requestFeesCollector",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_requestSwapFees",
-          "type": "uint256"
         }
       ],
       "stateMutability": "nonpayable",
@@ -116,19 +96,6 @@
     },
     {
       "inputs": [],
-      "name": "requestFeesCollector",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "requestSwapFees",
       "outputs": [
         {
@@ -138,32 +105,6 @@
         }
       ],
       "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_newRequestFeesCollector",
-          "type": "address"
-        }
-      ],
-      "name": "setRequestFeesCollector",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_newRequestSwapFees",
-          "type": "uint256"
-        }
-      ],
-      "name": "setRequestSwapFees",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -184,7 +125,7 @@
       "name": "swapRouter",
       "outputs": [
         {
-          "internalType": "contract IUniswapV2Router02",
+          "internalType": "contract ISwapRouter",
           "name": "",
           "type": "address"
         }
@@ -216,7 +157,7 @@
         },
         {
           "internalType": "address[]",
-          "name": "_uniswapPath",
+          "name": "_swapRouterPath",
           "type": "address[]"
         },
         {
@@ -241,7 +182,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "_uniswapDeadline",
+          "name": "_deadline",
           "type": "uint256"
         },
         {
@@ -264,6 +205,32 @@
         }
       ],
       "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_chainlinkConversionPath",
+          "type": "address"
+        }
+      ],
+      "name": "updateConversionPathAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_newRequestSwapFees",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateRequestSwapFees",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
