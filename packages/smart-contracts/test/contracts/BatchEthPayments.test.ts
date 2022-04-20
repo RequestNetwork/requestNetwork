@@ -10,7 +10,7 @@ import { HttpNetworkConfig } from 'hardhat/types';
 
 use(solidity);
 
-const logGasInfos = false;
+const logGasInfos = true;
 
 describe('contract: BatchPayments: Ethereum', () => {
   let payee1: string;
@@ -50,6 +50,7 @@ describe('contract: BatchPayments: Ethereum', () => {
 
   describe('Batch Eth normal flow', () => {
     it('Should pay 2 payments and contract do not keep funds of ethers', async function () {
+      const beforeEthBalanceFee = await provider.getBalance(feeAddress);
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
 
@@ -58,25 +59,28 @@ describe('contract: BatchPayments: Ethereum', () => {
           .connect(owner)
           .batchEthPaymentsWithReference(
             [payee1, payee2],
-            [200, 300],
+            [2000, 3000],
             [referenceExample1, referenceExample2],
-            [10, 20],
+            [100, 200],
             feeAddress,
             {
-              value: BigNumber.from('1000'),
+              value: BigNumber.from('6000'),
             },
           ),
       )
         .to.emit(ethFeeProxy, 'TransferWithReferenceAndFee')
-        .withArgs(payee1, '200', ethers.utils.keccak256(referenceExample1), '10', feeAddress)
+        .withArgs(payee1, '2000', ethers.utils.keccak256(referenceExample1), '100', feeAddress)
         .to.emit(ethFeeProxy, 'TransferWithReferenceAndFee')
-        .withArgs(payee2, '300', ethers.utils.keccak256(referenceExample2), '20', feeAddress);
+        .withArgs(payee2, '3000', ethers.utils.keccak256(referenceExample2), '200', feeAddress);
+
+      const afterEthBalanceFee = await provider.getBalance(feeAddress);
+      expect(afterEthBalanceFee).to.be.equal(beforeEthBalanceFee.add(100 + 20 + 200 + 30));
 
       afterEthBalance1 = await provider.getBalance(payee1);
-      expect(afterEthBalance1).to.be.equal(beforeEthBalance1.add(200));
+      expect(afterEthBalance1).to.be.equal(beforeEthBalance1.add(2000));
 
       afterEthBalance2 = await provider.getBalance(payee2);
-      expect(afterEthBalance2).to.be.equal(beforeEthBalance2.add(300));
+      expect(afterEthBalance2).to.be.equal(beforeEthBalance2.add(3000));
 
       expect(await provider.getBalance(batchAddress)).to.be.equal(0);
     });
@@ -201,7 +205,7 @@ describe('contract: BatchPayments: Ethereum', () => {
               value: totalAmout,
             },
           ),
-      ).revertedWith('not enough funds');
+      ).revertedWith('not enough funds for batch fee');
 
       afterEthBalance1 = await provider.getBalance(payee1);
       expect(afterEthBalance1).to.be.equal(beforeEthBalance1);
