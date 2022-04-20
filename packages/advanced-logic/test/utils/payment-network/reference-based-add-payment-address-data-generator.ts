@@ -6,7 +6,8 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 
 export const arbitraryTimestamp = 1544426030;
 
-const PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED = 'do-not-use!-pn-test-reference-based' as ExtensionTypes.ID;
+const PAYMENT_NETWORK_TEST_GENERIC_REFERENCE_BASED =
+  'do-not-use!-pn-test-reference-based' as ExtensionTypes.ID;
 // ---------------------------------------------------------------------
 // Mock addresses for testing generic address based payment networks
 export const paymentAddress = '0x627306090abaB3A6e1400e9345bC60c78a8BEf57';

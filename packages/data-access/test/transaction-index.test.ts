@@ -25,10 +25,12 @@ describe('TransactionIndex', () => {
 
     it('calls locationByTopic and timestampByLocation', async () => {
       const pushStorageLocationIndexedWithBlockTopicsMock = jest.fn();
-      (transactionIndex as any).locationByTopic.pushStorageLocationIndexedWithBlockTopics = pushStorageLocationIndexedWithBlockTopicsMock;
+      (transactionIndex as any).locationByTopic.pushStorageLocationIndexedWithBlockTopics =
+        pushStorageLocationIndexedWithBlockTopicsMock;
 
       const pushTimestampByLocationMock = jest.fn();
-      (transactionIndex as any).timestampByLocation.pushTimestampByLocation = pushTimestampByLocationMock;
+      (transactionIndex as any).timestampByLocation.pushTimestampByLocation =
+        pushTimestampByLocationMock;
 
       await transactionIndex.addTransaction('abcd', testBlock, 2);
 

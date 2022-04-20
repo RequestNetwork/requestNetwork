@@ -120,8 +120,7 @@ describe('hasErc20approval & approveErc20', () => {
         gasPrice: '20000000000',
       });
       expect(spy).toHaveBeenCalledWith({
-        data:
-          '0x095ea7b300000000000000000000000075c35c980c0d37ef46df04d31a140b65503c0eedffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+        data: '0x095ea7b300000000000000000000000075c35c980c0d37ef46df04d31a140b65503c0eedffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
         gasPrice: '20000000000',
         to: '0x9FBDa871d559710256a2502A2517b794B482Db40',
         value: 0,
@@ -172,8 +171,7 @@ describe('hasErc20approval & approveErc20', () => {
         gasPrice: '20000000000',
       });
       expect(spy).toHaveBeenCalledWith({
-        data:
-          '0x095ea7b30000000000000000000000002c2b9c9a4a25e24b174f26114e8926a9f2128fe4ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+        data: '0x095ea7b30000000000000000000000002c2b9c9a4a25e24b174f26114e8926a9f2128fe4ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
         gasPrice: '20000000000',
         to: '0x9FBDa871d559710256a2502A2517b794B482Db40',
         value: 0,

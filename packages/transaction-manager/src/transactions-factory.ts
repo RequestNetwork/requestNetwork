@@ -75,9 +75,8 @@ export default class TransactionsFactory {
           symmetricKey,
           encryptionParam,
         );
-        const identityEncryption = Utils.encryption.getIdentityFromEncryptionParams(
-          encryptionParam,
-        );
+        const identityEncryption =
+          Utils.encryption.getIdentityFromEncryptionParams(encryptionParam);
         const multiFormattedIdentity: string = MultiFormat.serialize(identityEncryption);
 
         return { encryptedKey, multiFormattedIdentity };

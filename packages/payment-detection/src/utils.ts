@@ -68,7 +68,7 @@ export type GetDeploymentInformation<TAllowUndefined extends boolean> = (
  */
 export const makeGetDeploymentInformation = <
   TVersion extends string = string,
-  TAllowUndefined extends boolean = false
+  TAllowUndefined extends boolean = false,
 >(
   artifact: ContractArtifact<Contract>,
   map: Record<string, TVersion>,

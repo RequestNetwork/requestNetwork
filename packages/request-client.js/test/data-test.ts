@@ -136,16 +136,18 @@ export const timestampedTransaction: TransactionTypes.ITimestampedTransaction = 
   timestamp: arbitraryTimestamp,
   transaction: { data: JSON.stringify(action) },
 };
-export const timestampedTransactionWithoutExtensionsData: TransactionTypes.ITimestampedTransaction = {
-  state: TransactionTypes.TransactionState.PENDING,
-  timestamp: arbitraryTimestamp,
-  transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
-};
-export const timestampedTransactionWithoutExtensionsDataConfirmed: TransactionTypes.ITimestampedTransaction = {
-  state: TransactionTypes.TransactionState.CONFIRMED,
-  timestamp: arbitraryTimestamp,
-  transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
-};
+export const timestampedTransactionWithoutExtensionsData: TransactionTypes.ITimestampedTransaction =
+  {
+    state: TransactionTypes.TransactionState.PENDING,
+    timestamp: arbitraryTimestamp,
+    transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
+  };
+export const timestampedTransactionWithoutExtensionsDataConfirmed: TransactionTypes.ITimestampedTransaction =
+  {
+    state: TransactionTypes.TransactionState.CONFIRMED,
+    timestamp: arbitraryTimestamp,
+    transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
+  };
 export const timestampedTransactionWithDeclarative: TransactionTypes.ITimestampedTransaction = {
   state: TransactionTypes.TransactionState.CONFIRMED,
   timestamp: arbitraryTimestamp,

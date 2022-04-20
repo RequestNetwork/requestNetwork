@@ -79,9 +79,7 @@ export function getPaymentNetworkExtension(
  * Utility to access the payment address, reference, and optional feeAmount and feeAddress of a Request.
  * @param request
  */
-export function getRequestPaymentValues(
-  request: ClientTypes.IRequestData,
-): {
+export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   paymentAddress: string;
   paymentReference: string;
   feeAmount?: string;
@@ -95,15 +93,8 @@ export function getRequestPaymentValues(
   if (!extension) {
     throw new Error('no payment network found');
   }
-  const {
-    paymentAddress,
-    salt,
-    feeAmount,
-    feeAddress,
-    tokensAccepted,
-    maxRateTimespan,
-    network,
-  } = extension.values;
+  const { paymentAddress, salt, feeAmount, feeAddress, tokensAccepted, maxRateTimespan, network } =
+    extension.values;
   const paymentReference = PaymentReferenceCalculator.calculate(
     request.requestId,
     salt,
