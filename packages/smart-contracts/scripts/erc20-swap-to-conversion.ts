@@ -3,7 +3,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 // @ts-ignore Cannot find module
 import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
 import { erc20SwapConversionArtifact } from '../src/lib';
-import { deployOne } from './deploy-one';
+import { DeploymentResult, deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses } from './utils';
 
 const contractName = 'ERC20SwapToConversion';
@@ -16,7 +16,7 @@ export async function deploySwapConversion(
     nonceCondition?: number;
   },
   hre: HardhatRuntimeEnvironment,
-) {
+): Promise<DeploymentResult> {
   const [deployer] = await hre.ethers.getSigners();
   if (!args.conversionProxyAddress) {
     // FIXME: should try to retrieve information from artifacts instead
@@ -27,16 +27,8 @@ export async function deploySwapConversion(
   if (!uniswapV2RouterAddresses[hre.network.name] && !args.swapProxyAddress) {
     console.error(`Missing swap router, cannot deploy ${contractName}.`);
   }
-  const requestSwapFees = '5'; // 0.5%
-  const requestFeesCollector = '0x2191eF87E392377ec08E7c08Eb105Ef5448eCED5';
   const deployment = await deployOne<ERC20SwapToConversion>(args, hre, contractName, {
-    constructorArguments: [
-      uniswapV2RouterAddresses[hre.network.name] ?? args.swapProxyAddress,
-      args.chainlinkConversionPathAddress,
-      deployer.address,
-      requestFeesCollector,
-      requestSwapFees,
-    ],
+    constructorArguments: [deployer.address],
     artifact: erc20SwapConversionArtifact,
     nonceCondition: args.nonceCondition,
   });

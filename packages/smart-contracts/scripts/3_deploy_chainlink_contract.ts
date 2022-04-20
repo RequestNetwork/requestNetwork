@@ -83,6 +83,10 @@ export default async function deploy(
     console.error('Deployment for erc20SwapConversion failed.');
     return;
   }
+  // Admin tasks:
+  await erc20SwapConversion.setRouter(localSwapRouterAddress);
+  await erc20SwapConversion.updateRequestSwapFees(5);
+  await erc20SwapConversion.updateConversionPathAddress(conversionPathInstance.address);
   await erc20SwapConversion.approvePaymentProxyToSpend(
     mainPaymentAddresses.DAIAddress,
     ERC20Conversion.address,
