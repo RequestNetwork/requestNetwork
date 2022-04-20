@@ -41,8 +41,7 @@ describe('contract: ERC20SwapToConversion', () => {
   let fakeSwapRouter: FakeSwapRouter;
   let chainlinkConversion: ChainlinkConversionPath;
   let defaultSwapRouterAddress: string;
-  let requestFeesCollector: string;
-  let requestSwapFees: BigNumber;
+  let requestSwapFees = BigNumber.from(5);
 
   const fiatDecimal = BigNumber.from('100000000');
   const erc20Decimal = BigNumber.from('1000000000000000000');
@@ -56,8 +55,8 @@ describe('contract: ERC20SwapToConversion', () => {
     erc20ConversionProxy = erc20ConversionProxyArtifact.connect(network.name, adminSigner);
     swapConversionProxy = erc20SwapConversionArtifact.connect(network.name, adminSigner);
 
-    requestFeesCollector = await swapConversionProxy.requestFeesCollector();
-    requestSwapFees = await swapConversionProxy.requestSwapFees();
+    await swapConversionProxy.updateConversionPathAddress(chainlinkConversion.address);
+    await swapConversionProxy.updateRequestSwapFees(requestSwapFees);
   });
 
   beforeEach(async () => {
@@ -113,7 +112,6 @@ describe('contract: ERC20SwapToConversion', () => {
   };
 
   it('converts, swaps and pays the request', async function () {
-    const initialCollectorBalance = await paymentNetworkErc20.balanceOf(requestFeesCollector);
     // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
     await expect(
       swapConversionProxy.swapTransferWithReference(
@@ -149,30 +147,32 @@ describe('contract: ERC20SwapToConversion', () => {
       );
 
     const requestSwapFeesAmountInPaymentNetworkErc20 = erc20Decimal
-      .mul(10)
+      // Request amount to pay (10 + 1 (fee) USD)
+      .mul(11)
+      // USD to expected token ( * 3)
       .mul(3)
+      // Compute the swap fees ( 0.5 %) - in expected token
       .mul(requestSwapFees)
       .div(1000);
+
+    // Compute the swap fees ( * 2) - in payent token
     const requestSwapFeesAmountInSpentToken = requestSwapFeesAmountInPaymentNetworkErc20.mul(2);
 
     const finalBuilderBalance = await paymentNetworkErc20.balanceOf(builder);
     const finalIssuerBalance = await paymentNetworkErc20.balanceOf(to);
     const finalPayerBalance = await spentErc20.balanceOf(from);
-    const finalCollectorBalance = await paymentNetworkErc20.balanceOf(requestFeesCollector);
-    expect(finalBuilderBalance.toString(), 'builder balance is wrong').to.equals(
-      erc20Decimal.mul(3).toString(),
-    );
-    expect(finalIssuerBalance.toString(), 'issuer balance is wrong').to.equals(
-      erc20Decimal.mul(30).toString(),
-    );
-    expect(finalCollectorBalance).to.equals(
-      initialCollectorBalance.add(requestSwapFeesAmountInPaymentNetworkErc20),
-    );
 
+    // 66 = (10 + 1) (USD) * 3 (ExpectedToken) * 2 (SpentToken)
     expect(
       initialFromBalance.sub(finalPayerBalance).toString(),
       'payer balance is wrong',
     ).to.equals(erc20Decimal.mul(66).add(requestSwapFeesAmountInSpentToken).toString());
+    expect(finalBuilderBalance.toString(), 'builder balance is wrong').to.equals(
+      erc20Decimal.mul(3).add(requestSwapFeesAmountInPaymentNetworkErc20).toString(),
+    );
+    expect(finalIssuerBalance.toString(), 'issuer balance is wrong').to.equals(
+      erc20Decimal.mul(30).toString(),
+    );
   });
 
   it('does not pay anyone if I swap 0', async function () {
@@ -300,7 +300,7 @@ describe('contract: ERC20SwapToConversion', () => {
     await expectPayerBalanceUnchanged();
   });
 
-  it('cannot swap with a bad proxy address', async function () {
+  it('Should not swap with a bad proxy address', async function () {
     // Simulate request payment for 10 (fiat) + 1 (fiat) fee, in paymentNetworkErc20
     await expect(
       swapConversionProxy.swapTransferWithReference(
@@ -316,6 +316,6 @@ describe('contract: ERC20SwapToConversion', () => {
         exchangeRateOrigin + 1000, // _uniswapDeadline. 100 -> 1000: Too low value may lead to error (network dependent)
         0, // _chainlinkMaxRateTimespan
       ),
-    ).to.be.revertedWith('');
+    ).to.be.revertedWith('Invalid payment proxy');
   });
 });
