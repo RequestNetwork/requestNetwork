@@ -7,7 +7,7 @@ import './lib/SafeERC20.sol';
 import './interfaces/IERC20ConversionProxy.sol';
 import './ChainlinkConversionPath.sol';
 
-interface IUniswapV2Router02 {
+interface ISwapRouter {
     function swapTokensForExactTokens(
         uint256 amountOut,
         uint256 amountInMax,
@@ -24,65 +24,57 @@ interface IUniswapV2Router02 {
 contract ERC20SwapToConversion is Ownable {
     using SafeERC20 for IERC20;
 
-    IUniswapV2Router02 public swapRouter;
+    ISwapRouter public swapRouter;
     ChainlinkConversionPath public chainlinkConversionPath;
 
+    // Fees taken by request when a payment is made through swap. Range 0-1000. 10 => 1% fees.
     uint256 public requestSwapFees;
-    address public requestFeesCollector;
 
-    constructor(
-        address _swapRouterAddress,
-        address _chainlinkConversionPath,
-        address _owner,
-        address _requestFeesCollector,
-        uint256 _requestSwapFees
-    ) {
-        swapRouter = IUniswapV2Router02(_swapRouterAddress);
-        chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPath);
+    constructor(address _owner) {
         _transferOwnership(_owner);
-        requestSwapFees = _requestSwapFees;
-        requestFeesCollector = _requestFeesCollector;
     }
 
     /**
-  * @notice Performs a request payment, denominated in a token or currency A,
-  *         where the issuer expects a token B, and the payer uses a token C.
-  *         The conversion rate from A to B is done using Chainlink.
-  *         The token swap is done using Uniswap.
-  * @param _paymentProxy Address of the ERC20ConversionProxy which will perform the payment.
-  * @param _to Transfer recipient = request issuer
-  * @param _requestAmount Amount to transfer in request currency
-  * @param _amountInMax Maximum amount allowed to spend for currency swap, in payment network currency.
-            This amount should take into account the fees.
-    @param _uniswapPath, path of ERC20 tokens to swap from spentToken to expectedToken. The first
-            address of the path should be the spent currency. The last element should be the
-            expected currency.
-    @param _chainlinkPath, path of currencies to convert from invoicing currency to expectedToken. The first
-            address of the path should be the invoicing currency. The last element should be the
-            expected currency.
-  * @param _paymentReference Reference of the payment related
-  * @param _requestFeeAmount Amount of the fee in request currency
-  * @param _feeAddress Where to pay the fee
-  * @param _uniswapDeadline Deadline for the swap to be valid
-  * @param _chainlinkMaxRateTimespan Max time span with the oldestrate, ignored if zero
-  */
+* @notice Performs a request payment, denominated in a token or currency A,
+*         where the issuer expects a token B, and the payer uses a token C.
+*         The conversion rate from A to B is done using Chainlink.
+*         The token swap is done using UniswapV2 or equivalent.
+* @param _paymentProxy Address of the ERC20ConversionProxy which will perform the payment.
+* @param _to Transfer recipient = request issuer
+* @param _requestAmount Amount to transfer in request currency
+* @param _amountInMax Maximum amount allowed to spend for currency swap, in payment network currency.
+        This amount should take into account the fees.
+@param _swapRouterPath, path of ERC20 tokens to swap from spentToken to expectedToken. The first
+        address of the path should be the spent currency. The last element should be the
+        expected currency.
+@param _chainlinkPath, path of currencies to convert from invoicing currency to expectedToken. The first
+        address of the path should be the invoicing currency. The last element should be the
+        expected currency.
+* @param _paymentReference Reference of the payment related
+* @param _requestFeeAmount Amount of the fee in request currency
+* @param _feeAddress Where to pay the fee
+* @param _deadline Deadline for the swap to be valid
+* @param _chainlinkMaxRateTimespan Max time span with the oldestrate, ignored if zero
+*/
     function swapTransferWithReference(
         address _paymentProxy,
         address _to,
         uint256 _requestAmount, // requestCurrency
         uint256 _amountInMax, // SpentToken
-        address[] memory _uniswapPath, // from spentToken to expectedToken on uniswap
+        address[] memory _swapRouterPath, // from spentToken to expectedToken on the swap router
         address[] memory _chainlinkPath, // from invoicingCurrency to expectedToken on chainlink
         bytes memory _paymentReference,
         uint256 _requestFeeAmount, // requestCurrency
         address _feeAddress,
-        uint256 _uniswapDeadline,
+        uint256 _deadline,
         uint256 _chainlinkMaxRateTimespan
     ) external {
         require(
-            _uniswapPath[_uniswapPath.length - 1] == _chainlinkPath[_chainlinkPath.length - 1],
-            'the requested token on uniswap must be the payment currency'
+            _swapRouterPath[_swapRouterPath.length - 1] ==
+                _chainlinkPath[_chainlinkPath.length - 1],
+            'the requested token on the swap router must be the payment currency'
         );
+        require(_feeAddress != address(0), 'Invalid fee addres');
 
         // Get the amount to pay in paymentNetworkToken
         uint256 paymentNetworkTotalAmount = _getConversion(
@@ -92,55 +84,57 @@ contract ERC20SwapToConversion is Ownable {
         );
 
         // Compute the request swap fees
-        uint256 requestSwapFeesAmount = _getConversion(
-            _chainlinkPath,
-            (_requestAmount * requestSwapFees) / 1000,
-            0
-        );
+        uint256 requestSwapFeesAmount = (paymentNetworkTotalAmount * requestSwapFees) / 1000;
 
         require(
-            IERC20(_uniswapPath[0]).safeTransferFrom(msg.sender, address(this), _amountInMax),
+            IERC20(_swapRouterPath[0]).safeTransferFrom(msg.sender, address(this), _amountInMax),
             'Could not transfer payment token from swapper-payer'
         );
 
         _swapAndApproveIfNeeded(
             _paymentProxy,
             _amountInMax,
-            _uniswapPath,
-            _uniswapDeadline,
+            _swapRouterPath,
+            _deadline,
             paymentNetworkTotalAmount + requestSwapFeesAmount
         );
 
         IERC20ConversionProxy paymentProxy = IERC20ConversionProxy(_paymentProxy);
         // Pay the request and fees
-        paymentProxy.transferFromWithReferenceAndFee(
-            _to,
-            _requestAmount,
-            _chainlinkPath,
-            _paymentReference,
-            _requestFeeAmount,
-            _feeAddress,
-            paymentNetworkTotalAmount, // _maxToSpend
-            _chainlinkMaxRateTimespan
-        );
+        try
+            paymentProxy.transferFromWithReferenceAndFee(
+                _to,
+                _requestAmount,
+                _chainlinkPath,
+                _paymentReference,
+                _requestFeeAmount,
+                _feeAddress,
+                paymentNetworkTotalAmount, // _maxToSpend
+                _chainlinkMaxRateTimespan
+            )
+        {} catch (
+            bytes memory /*lowLevelData*/
+        ) {
+            revert('Invalid payment proxy');
+        }
 
         // Pay the request swap fees
-        IERC20(_uniswapPath[_uniswapPath.length - 1]).safeTransfer(
-            requestFeesCollector,
+        IERC20(_swapRouterPath[_swapRouterPath.length - 1]).safeTransfer(
+            _feeAddress,
             requestSwapFeesAmount
         );
 
         // Give the change back to the payer, in both currencies (only spent token should remain)
-        if (IERC20(_uniswapPath[0]).balanceOf(address(this)) > 0) {
-            IERC20(_uniswapPath[0]).safeTransfer(
+        if (IERC20(_swapRouterPath[0]).balanceOf(address(this)) > 0) {
+            IERC20(_swapRouterPath[0]).safeTransfer(
                 msg.sender,
-                IERC20(_uniswapPath[0]).balanceOf(address(this))
+                IERC20(_swapRouterPath[0]).balanceOf(address(this))
             );
         }
-        if (IERC20(_uniswapPath[_uniswapPath.length - 1]).balanceOf(address(this)) > 0) {
-            IERC20(_uniswapPath[_uniswapPath.length - 1]).safeTransfer(
+        if (IERC20(_swapRouterPath[_swapRouterPath.length - 1]).balanceOf(address(this)) > 0) {
+            IERC20(_swapRouterPath[_swapRouterPath.length - 1]).safeTransfer(
                 msg.sender,
-                IERC20(_uniswapPath[_uniswapPath.length - 1]).balanceOf(address(this))
+                IERC20(_swapRouterPath[_swapRouterPath.length - 1]).balanceOf(address(this))
             );
         }
     }
@@ -170,15 +164,15 @@ contract ERC20SwapToConversion is Ownable {
      * Admin functions to edit the router address, the fees amount and the fees collector address
      */
     function setRouter(address _newSwapRouterAddress) public onlyOwner {
-        swapRouter = IUniswapV2Router02(_newSwapRouterAddress);
+        swapRouter = ISwapRouter(_newSwapRouterAddress);
     }
 
-    function setRequestSwapFees(uint256 _newRequestSwapFees) public onlyOwner {
+    function updateRequestSwapFees(uint256 _newRequestSwapFees) public onlyOwner {
         requestSwapFees = _newRequestSwapFees;
     }
 
-    function setRequestFeesCollector(address _newRequestFeesCollector) public onlyOwner {
-        requestFeesCollector = _newRequestFeesCollector;
+    function updateConversionPathAddress(address _chainlinkConversionPath) public onlyOwner {
+        chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPath);
     }
 
     /*
@@ -204,11 +198,11 @@ contract ERC20SwapToConversion is Ownable {
     function _swapAndApproveIfNeeded(
         address _paymentProxy,
         uint256 _amountInMax, // SpentToken
-        address[] memory _uniswapPath, // from spentToken to expectedToken on uniswap
-        uint256 _uniswapDeadline,
+        address[] memory _swapRouterPath, // from spentToken to expectedToken on the swap router
+        uint256 _deadline,
         uint256 _paymentNetworkTotalAmount
     ) internal {
-        IERC20 spentToken = IERC20(_uniswapPath[0]);
+        IERC20 spentToken = IERC20(_swapRouterPath[0]);
         // Allow the router to spend all this contract's spentToken
         if (spentToken.allowance(address(this), address(swapRouter)) < _amountInMax) {
             approveRouterToSpend(address(spentToken));
@@ -217,12 +211,12 @@ contract ERC20SwapToConversion is Ownable {
         swapRouter.swapTokensForExactTokens(
             _paymentNetworkTotalAmount,
             _amountInMax,
-            _uniswapPath,
+            _swapRouterPath,
             address(this),
-            _uniswapDeadline
+            _deadline
         );
 
-        IERC20 requestedToken = IERC20(_uniswapPath[_uniswapPath.length - 1]);
+        IERC20 requestedToken = IERC20(_swapRouterPath[_swapRouterPath.length - 1]);
 
         // Allow the payment network to spend all this contract's requestedToken
         if (requestedToken.allowance(address(this), _paymentProxy) < _paymentNetworkTotalAmount) {
