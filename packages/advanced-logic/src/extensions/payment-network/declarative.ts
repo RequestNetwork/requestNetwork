@@ -8,7 +8,7 @@ const CURRENT_VERSION = '0.1.0';
  * Core of the declarative payment network
  */
 export default class DeclarativePaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnAnyDeclarative.ICreationParameters = ExtensionTypes.PnAnyDeclarative.ICreationParameters
+  TCreationParameters extends ExtensionTypes.PnAnyDeclarative.ICreationParameters = ExtensionTypes.PnAnyDeclarative.ICreationParameters,
 > extends AbstractExtension<TCreationParameters> {
   public constructor(
     public extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
@@ -17,18 +17,18 @@ export default class DeclarativePaymentNetwork<
     super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);
     this.actions = {
       ...this.actions,
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .ADD_PAYMENT_INSTRUCTION]: this.applyAddPaymentInstruction.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .ADD_REFUND_INSTRUCTION]: this.applyAddRefundInstruction.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_SENT_PAYMENT]: this.applyDeclareSentPayment.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_SENT_REFUND]: this.applyDeclareSentRefund.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_RECEIVED_PAYMENT]: this.applyDeclareReceivedPayment.bind(this),
-      [ExtensionTypes.PnAnyDeclarative.ACTION
-        .DECLARE_RECEIVED_REFUND]: this.applyDeclareReceivedRefund.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION]:
+        this.applyAddPaymentInstruction.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION]:
+        this.applyAddRefundInstruction.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT]:
+        this.applyDeclareSentPayment.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND]:
+        this.applyDeclareSentRefund.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT]:
+        this.applyDeclareReceivedPayment.bind(this),
+      [ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND]:
+        this.applyDeclareReceivedRefund.bind(this),
       [ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE]: this.applyAddDelegate.bind(this),
     };
   }

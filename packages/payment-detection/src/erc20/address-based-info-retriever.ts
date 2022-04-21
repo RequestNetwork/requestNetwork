@@ -49,7 +49,8 @@ const erc20BalanceOfAbiFragment = [
  * Retrieves a list of transfer events for an address
  */
 export default class ERC20InfoRetriever
-  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
+  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent>
+{
   /**
    * @param tokenContractAddress The address of the ERC20 contract
    * @param address Address of the balance we want to check

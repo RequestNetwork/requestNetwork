@@ -66,16 +66,17 @@ export const actionCreationPayeeDelegate = {
   parameters: { payeeDelegate },
   version: '0.1.0',
 };
-export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> = {
-  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
-  parameters: {
-    paymentAddress: 'pay.near',
-    refundAddress: 'refund.near',
-    salt,
-  },
-  version: '0.2.0',
-};
+export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> =
+  {
+    action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    parameters: {
+      paymentAddress: 'pay.near',
+      refundAddress: 'refund.near',
+      salt,
+    },
+    version: '0.2.0',
+  };
 
 export const actionAddDelegate = {
   action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,

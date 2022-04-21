@@ -161,15 +161,13 @@ export async function deployAllPaymentContracts(
       await jumpToNonce(args, hre, NONCE_BATCH_4);
 
       // Deploy ChainlinkConversionPath
-      const {
-        instance: chainlinkInstance,
-        address: chainlinkConversionPathAddress,
-      } = await runEasyDeployment({
-        contractName: 'ChainlinkConversionPath',
-        constructorArguments: [nativeTokenHash],
-        artifact: chainlinkConversionPathArtifact,
-        nonceCondition: NONCE_BATCH_4,
-      });
+      const { instance: chainlinkInstance, address: chainlinkConversionPathAddress } =
+        await runEasyDeployment({
+          contractName: 'ChainlinkConversionPath',
+          constructorArguments: [nativeTokenHash],
+          artifact: chainlinkConversionPathArtifact,
+          nonceCondition: NONCE_BATCH_4,
+        });
 
       // Deploy ETH Conversion
       const ethConversionResult = await deployETHConversionProxy(

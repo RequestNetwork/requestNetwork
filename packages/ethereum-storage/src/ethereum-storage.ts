@@ -299,10 +299,8 @@ export class EthereumStorage implements StorageTypes.IStorage {
       throw new Error('Ethereum storage must be initialized');
     }
     this.logger.info('Fetching dataIds from Ethereum', ['ethereum']);
-    const {
-      ethereumEntries,
-      lastTimestamp,
-    } = await this.smartContractManager.getEntriesFromEthereum(options);
+    const { ethereumEntries, lastTimestamp } =
+      await this.smartContractManager.getEntriesFromEthereum(options);
 
     // If no hash was found on ethereum, we return an empty list
     if (!ethereumEntries.length) {
@@ -355,7 +353,8 @@ export class EthereumStorage implements StorageTypes.IStorage {
     }
     this.logger.info('Getting some previous ignored dataIds', ['ethereum']);
 
-    const ethereumEntries: StorageTypes.IEthereumEntry[] = await this.ignoredDataIds.getDataIdsToRetry();
+    const ethereumEntries: StorageTypes.IEthereumEntry[] =
+      await this.ignoredDataIds.getDataIdsToRetry();
 
     // If no hash was found on ethereum, we return an empty list
     if (!ethereumEntries.length) {

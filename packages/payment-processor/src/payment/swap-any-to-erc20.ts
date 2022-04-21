@@ -125,9 +125,8 @@ export function encodeSwapToPayAnyToErc20Request(
 
   const signer = getSigner(signerOrProvider);
   const paymentNetworkTokenAddress = conversionSettings.currency.value;
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
+    getRequestPaymentValues(request);
 
   const chainlinkDecimal = 8;
   const decimals = currencyManager.fromStorageCurrency(request.currencyInfo)?.decimals;
