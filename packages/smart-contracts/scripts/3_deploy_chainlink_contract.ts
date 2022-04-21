@@ -75,7 +75,6 @@ export default async function deploy(
       ...args,
       conversionProxyAddress: ERC20Conversion.address,
       swapProxyAddress: localSwapRouterAddress,
-      chainlinkConversionPathAddress: conversionPathInstance.address,
     },
     hre,
   );

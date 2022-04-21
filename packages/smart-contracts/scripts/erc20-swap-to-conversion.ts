@@ -12,7 +12,6 @@ export async function deploySwapConversion(
   args: {
     conversionProxyAddress?: string;
     swapProxyAddress?: string;
-    chainlinkConversionPathAddress: string;
     nonceCondition?: number;
   },
   hre: HardhatRuntimeEnvironment,
