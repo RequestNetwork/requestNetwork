@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { TestERC20__factory, TestERC20, BatchPayments, ERC20FeeProxy } from '../../src/types';
 import { batchPaymentsArtifact, erc20FeeProxyArtifact } from '../../src/lib';
 
-const logGasInfos = true;
+const logGasInfos = false;
 
 describe('contract: BatchPayments: ERC20', () => {
   let payee1: string;

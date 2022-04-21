@@ -1,16 +1,13 @@
 import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
-import { expect, use } from 'chai';
-import { solidity } from 'ethereum-waffle';
+import { expect } from 'chai';
 import { EthereumFeeProxy, BatchPayments } from '../../src/types';
 import { batchPaymentsArtifact } from '../../src/lib';
 
 import { ethereumFeeProxyArtifact } from '../../src/lib';
 import { HttpNetworkConfig } from 'hardhat/types';
 
-use(solidity);
-
-const logGasInfos = true;
+const logGasInfos = false;
 
 describe('contract: BatchPayments: Ethereum', () => {
   let payee1: string;

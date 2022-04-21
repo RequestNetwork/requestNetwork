@@ -26,7 +26,7 @@ contract BatchPayments is Ownable, ReentrancyGuard {
      // @dev: Between 0 and 1000, i.e: batchFee = 10 represent 1% of fee
     uint256 public batchFee;
 
-    struct TokenDetails {
+    struct Token {
         address tokenAddress;
         uint256 amountAndFee;
         uint256 batchFeeAmount;
@@ -74,12 +74,14 @@ contract BatchPayments is Ownable, ReentrancyGuard {
 
         // Payer transfers tokens to the batch contract
         payable(address(this)).transfer(msg.value);
-        uint256 sumAmount = 0;
+
+        // amount is used to get the total amount and then used as batch fee amount
+        uint256 amount = 0;
 
         // Batch contract pays the requests thourgh EthFeeProxy
         for (uint256 i = 0; i < _recipients.length; i++) {
             require(address(this).balance >= _amounts[i] + _feeAmounts[i], "not enough funds");
-            sumAmount += _amounts[i];
+            amount += _amounts[i];
 
             paymentEthFeeProxy.transferWithReferenceAndFee{value: _amounts[i]+_feeAmounts[i]}(
                 payable(_recipients[i]), 
@@ -89,12 +91,12 @@ contract BatchPayments is Ownable, ReentrancyGuard {
             );
         }
 
-        // sumAmount is updated into batch fee amount.
-        sumAmount = (sumAmount * batchFee) / 1000;
+        // amount is updated into batch fee amount
+        amount = (amount * batchFee) / 1000;
         // Check that batch contract has enough funds to pay batch fee
-        require(address(this).balance >= sumAmount, "not enough funds for batch fee");
+        require(address(this).balance >= amount, "not enough funds for batch fee");
         // Batch pays batch fee
-        _feeAddress.transfer(sumAmount);
+        _feeAddress.transfer(amount);
 
         // Batch contract transfers the remaining ethers to the payer
         if (address(this).balance > 0) {
@@ -130,25 +132,27 @@ contract BatchPayments is Ownable, ReentrancyGuard {
             , "the input arrays must have the same length"
         );
 
-        // Transfer the amount and fee from the payer to the batch contract
-        uint totalAmount = 0;
+        
+        // amount is used to get the total amount and fee, and then used as batch fee amount
+        uint amount = 0;
         for (uint256 i = 0; i < _recipients.length; i++) {
-            totalAmount += _amounts[i] + _feeAmounts[i];
+            amount += _amounts[i] + _feeAmounts[i];
         }
         
+        // Transfer the amount and fee from the payer to the batch contract
         IERC20 requestedToken = IERC20(_tokenAddress);
-        require(requestedToken.balanceOf(msg.sender) >= totalAmount, "not enough funds");
-        require(safeTransferFrom(_tokenAddress, address(this), totalAmount), "payment transferFrom() failed");
+        require(requestedToken.balanceOf(msg.sender) >= amount, "not enough funds");
+        require(safeTransferFrom(_tokenAddress, address(this), amount), "payment transferFrom() failed");
         
         // Batch contract approve Erc20FeeProxy to spend the token
-        if (requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) < totalAmount) {
+        if (requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) < amount) {
             approvePaymentProxyToSpend(address(requestedToken));
         }
         
         // Batch contract pays the requests using Erc20FeeProxy
         for (uint256 i = 0; i < _recipients.length; i++) {
-            // totalAmount is updated to become the sum of amounts, to calculate batch fee amount
-            totalAmount -= _feeAmounts[i];
+            // amount is updated to become the sum of amounts, to calculate batch fee amount
+            amount -= _feeAmounts[i];
             paymentErc20FeeProxy.transferFromWithReferenceAndFee(
                 _tokenAddress,
                 _recipients[i], 
@@ -159,13 +163,14 @@ contract BatchPayments is Ownable, ReentrancyGuard {
             );
         }
 
+        // amount is updated into batch fee amount
+        amount = (amount * batchFee) / 1000;
         // Check if the payer has enough funds to pay batch fee
-        totalAmount = (totalAmount * batchFee) / 1000;
-        require(requestedToken.balanceOf(msg.sender) >= totalAmount,
+        require(requestedToken.balanceOf(msg.sender) >= amount,
          "not enough funds for the batch fee");
          
         // Payer pays batch fee amount
-        require(safeTransferFrom(_tokenAddress, _feeAddress, totalAmount),
+        require(safeTransferFrom(_tokenAddress, _feeAddress, amount),
          "batch fee transferFrom() failed");
     }
 
@@ -198,48 +203,47 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         );
 
         // Create a list of unique tokens used and the amounts associated
-        // we considere only tokens having: amounts + feeAmounts > 0
-        TokenDetails[] memory uniqueTokensDetails = new TokenDetails[](_tokenAddresses.length);
+        // Only considere tokens having: amounts + feeAmounts > 0
+        // batchFeeAmount is the amount's sum, and then, batch fee rate is applied
+        Token[] memory uniqueTokens = new Token[](_tokenAddresses.length);
         for (uint i = 0; i < _tokenAddresses.length; i++) {
             for(uint j = 0; j < _tokenAddresses.length; j++){
-                // if the token is already in the existing uniqueTokensDetails list
-                // we add all tokens amount paid throught paymentErc20FeeProxy, including fee 
-                if (uniqueTokensDetails[j].tokenAddress == _tokenAddresses[i]) {
-                    uniqueTokensDetails[j].amountAndFee += _amounts[i] + _feeAmounts[i];
-                    uniqueTokensDetails[j].batchFeeAmount += _amounts[i];
+                // If the token is already in the existing uniqueTokens list
+                if (uniqueTokens[j].tokenAddress == _tokenAddresses[i]) {
+                    uniqueTokens[j].amountAndFee += _amounts[i] + _feeAmounts[i];
+                    uniqueTokens[j].batchFeeAmount += _amounts[i];
                     break;
                 }
-                // if the token is not in the list, by checking its amountAndFee = 0
-                // we add the token to uniqueTokens and the amount associated in amountByToken list
-                if (uniqueTokensDetails[j].amountAndFee == 0) {
-                    uniqueTokensDetails[j].tokenAddress = _tokenAddresses[i];
-                    uniqueTokensDetails[j].amountAndFee = _amounts[i] + _feeAmounts[i];
-                    uniqueTokensDetails[j].batchFeeAmount = _amounts[i];
+                // If the token is not in the list, by checking its amountAndFee = 0
+                if (uniqueTokens[j].amountAndFee == 0) {
+                    uniqueTokens[j].tokenAddress = _tokenAddresses[i];
+                    uniqueTokens[j].amountAndFee = _amounts[i] + _feeAmounts[i];
+                    uniqueTokens[j].batchFeeAmount = _amounts[i];
                     break;
                 }
             }
         }
 
         // The payer transfers tokens to the batch contract and pays batch fee
-        for (uint256 i = 0; i < uniqueTokensDetails.length && uniqueTokensDetails[i].amountAndFee > 0; i++) {
-            uniqueTokensDetails[i].batchFeeAmount = (uniqueTokensDetails[i].batchFeeAmount * batchFee) / 1000;
-            IERC20 requestedToken = IERC20(uniqueTokensDetails[i].tokenAddress);
+        for (uint256 i = 0; i < uniqueTokens.length && uniqueTokens[i].amountAndFee > 0; i++) {
+            uniqueTokens[i].batchFeeAmount = (uniqueTokens[i].batchFeeAmount * batchFee) / 1000;
+            IERC20 requestedToken = IERC20(uniqueTokens[i].tokenAddress);
 
             // check if the payer can pay the amount, the fee, and the batchFee
             require(requestedToken.balanceOf(msg.sender) >= 
-             uniqueTokensDetails[i].amountAndFee + uniqueTokensDetails[i].batchFeeAmount, "not enough funds");
+             uniqueTokens[i].amountAndFee + uniqueTokens[i].batchFeeAmount, "not enough funds");
 
              // Transfer only the amount and fee required for the token on the batch contract
-            require(safeTransferFrom(uniqueTokensDetails[i].tokenAddress, address(this), uniqueTokensDetails[i].amountAndFee),
-                "payment transferFrom() failed");
+            require(safeTransferFrom(uniqueTokens[i].tokenAddress, address(this),
+             uniqueTokens[i].amountAndFee), "payment transferFrom() failed");
 
             // Batch contract approves Erc20FeeProxy to spend the token
-            if (requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) < uniqueTokensDetails[i].amountAndFee) {
+            if (requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) < uniqueTokens[i].amountAndFee) {
                 approvePaymentProxyToSpend(address(requestedToken));
             }
 
             // Payer pays batch fee amount
-            require(safeTransferFrom(uniqueTokensDetails[i].tokenAddress, _feeAddress, uniqueTokensDetails[i].batchFeeAmount),
+            require(safeTransferFrom(uniqueTokens[i].tokenAddress, _feeAddress, uniqueTokens[i].batchFeeAmount),
              "batch fee transferFrom() failed");
         }
 
