@@ -81,9 +81,7 @@ export function getPaymentNetworkExtension(
  * of a Request.
  * @param request
  */
-export function getRequestPaymentValues(
-  request: ClientTypes.IRequestData,
-): {
+export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   paymentAddress: string;
   paymentReference: string;
   feeAmount?: string;
@@ -193,9 +191,8 @@ export function validateRequest(
   request: ClientTypes.IRequestData,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
 ): void {
-  const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } = getRequestPaymentValues(
-    request,
-  );
+  const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } =
+    getRequestPaymentValues(request);
   const extension = request.extensions[paymentNetworkId];
 
   // Compatibility of the request currency type with the payment network
