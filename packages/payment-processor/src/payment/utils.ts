@@ -221,7 +221,7 @@ export function validateRequest(
 
   // Payment network with stream should have both or none of stream flow rate and stream start date
   const validStreamParams =
-    paymentNetworkId !== ERC777_STREAM || !!expectedFlowRate === !!expectedStartDate;
+    paymentNetworkId !== ERC777_STREAM || (!!expectedFlowRate && !!expectedStartDate);
 
   if (!validStreamParams) {
     throw new Error(

@@ -10,6 +10,8 @@ import {
 } from './utils';
 import { Framework } from '@superfluid-finance/sdk-core';
 
+export const resolverAddress = '0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae';
+
 /**
  * Processes a transaction to pay an ERC777 stream Request.
  * @param request
@@ -32,10 +34,7 @@ export async function payErc777StreamRequest(
     networkName,
     provider: signer.provider ?? getProvider(),
     dataMode: request.currencyInfo.network === 'private' ? 'WEB3_ONLY' : undefined,
-    resolverAddress:
-      request.currencyInfo.network === 'private'
-        ? '0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae'
-        : undefined,
+    resolverAddress: request.currencyInfo.network === 'private' ? resolverAddress : undefined,
     protocolReleaseVersion: request.currencyInfo.network === 'private' ? 'test' : undefined,
   });
   const superSigner = sf.createSigner({
@@ -43,7 +42,10 @@ export async function payErc777StreamRequest(
     provider: signer.provider,
   });
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
-  // TODO: use expectedStartDate to compute offset between start of invoicing and start of payment
+  // FIXME: according to specs PR https://github.com/RequestNetwork/requestNetwork/pull/688
+  // in file packages/advanced-logic/specs/payment-network-erc777-stream-0.1.0.md
+  // - use expectedStartDate to compute offset between start of invoicing and start of streaming
+  // - start fee streaming
   const { paymentReference, paymentAddress, expectedFlowRate } = getRequestPaymentValues(request);
   const streamPayOp = sf.cfaV1.createFlow({
     flowRate: expectedFlowRate ?? '0',

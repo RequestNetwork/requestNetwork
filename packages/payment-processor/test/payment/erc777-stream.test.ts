@@ -10,7 +10,7 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import { payErc777StreamRequest } from '../../src/payment/erc777-stream';
+import { payErc777StreamRequest, resolverAddress } from '../../src/payment/erc777-stream';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 const daiABI = require('../abis/fDAIABI');
 
@@ -18,7 +18,6 @@ const daiABI = require('../abis/fDAIABI');
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
 const erc777ContractAddress = '0x921c6a682E6c6aE959dc5AE66cf1baBdF90E8E33';
-const resolverAddress = '0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
