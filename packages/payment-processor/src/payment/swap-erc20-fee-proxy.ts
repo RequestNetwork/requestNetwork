@@ -115,9 +115,8 @@ export function encodeSwapToPayErc20FeeRequest(
 
   const signer = getSigner(signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
+    getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, options?.amount);
   const feeToPay = BigNumber.from(options?.feeAmount || feeAmount || 0);
 

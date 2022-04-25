@@ -267,20 +267,8 @@ describe('contract: BatchPayments: ERC20', () => {
       const amount = 20;
       const feeAmount = 1;
       const nbTxs = 4;
-      const [
-        tokenAddresses,
-        recipients,
-        amounts,
-        paymentReferences,
-        feeAmounts,
-      ] = getBatchPaymentsInputs(
-        nbTxs,
-        token1Address,
-        payee2,
-        amount,
-        referenceExample1,
-        feeAmount,
-      );
+      const [tokenAddresses, recipients, amounts, paymentReferences, feeAmounts] =
+        getBatchPaymentsInputs(nbTxs, token1Address, payee2, amount, referenceExample1, feeAmount);
 
       tokenAddresses[2] = token2Address;
       tokenAddresses[3] = token2Address;
@@ -315,24 +303,14 @@ describe('contract: BatchPayments: ERC20', () => {
       await token1.connect(spender3).approve(batchAddress, 1000);
 
       beforeERC20Balance1 = await token1.balanceOf(payee1);
+      const beforeFeeAddress_token1 = await token1.balanceOf(feeAddress);
 
-      const amount = 2;
-      const feeAmount = 1;
+      const amount = 20;
+      const feeAmount = 10;
       const nbTxs = 10;
-      const [
-        token1Addresses,
-        recipients,
-        amounts,
-        paymentReferences,
-        feeAmounts,
-      ] = getBatchPaymentsInputs(
-        nbTxs,
-        token1Address,
-        payee1,
-        amount,
-        referenceExample1,
-        feeAmount,
-      );
+
+      const [token1Addresses, recipients, amounts, paymentReferences, feeAmounts] =
+        getBatchPaymentsInputs(nbTxs, token1Address, payee1, amount, referenceExample1, feeAmount);
 
       const tx = await batch
         .connect(spender3)
@@ -353,6 +331,10 @@ describe('contract: BatchPayments: ERC20', () => {
 
       afterERC20Balance1 = await token1.balanceOf(payee1);
       expect(afterERC20Balance1).to.be.equal(beforeERC20Balance1.add(amount * nbTxs));
+      const afterFeeAddress_token1 = await token1.balanceOf(feeAddress);
+      expect(afterFeeAddress_token1).to.be.equal(
+        beforeFeeAddress_token1.add(feeAmount * nbTxs + (amount * nbTxs) / 10),
+      );
     });
 
     it('Should pay 10 ERC20 payments on multiple tokens', async function () {
@@ -368,20 +350,9 @@ describe('contract: BatchPayments: ERC20', () => {
       const amount = 20;
       const feeAmount = 10;
       const nbTxs = 10;
-      const [
-        tokenAddresses,
-        recipients,
-        amounts,
-        paymentReferences,
-        feeAmounts,
-      ] = getBatchPaymentsInputs(
-        nbTxs,
-        token1Address,
-        payee1,
-        amount,
-        referenceExample1,
-        feeAmount,
-      );
+
+      const [tokenAddresses, recipients, amounts, paymentReferences, feeAmounts] =
+        getBatchPaymentsInputs(nbTxs, token1Address, payee1, amount, referenceExample1, feeAmount);
 
       for (let i = 0; i < 5; i++) {
         tokenAddresses[i] = token2Address;

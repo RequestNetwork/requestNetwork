@@ -62,18 +62,16 @@ export default async function deploy(
     )
   )?.address;
   const localSwapRouterAddress = '0x4E72770760c011647D4873f60A3CF6cDeA896CD8';
-  const {
-    address: erc20SwapConversionAddress,
-    instance: erc20SwapConversion,
-  } = await deploySwapConversion(
-    {
-      ...args,
-      conversionProxyAddress: erc20ConversionAddress,
-      swapProxyAddress: localSwapRouterAddress,
-      chainlinkConversionPathAddress: conversionPathInstance.address,
-    },
-    hre,
-  );
+  const { address: erc20SwapConversionAddress, instance: erc20SwapConversion } =
+    await deploySwapConversion(
+      {
+        ...args,
+        conversionProxyAddress: erc20ConversionAddress,
+        swapProxyAddress: localSwapRouterAddress,
+        chainlinkConversionPathAddress: conversionPathInstance.address,
+      },
+      hre,
+    );
   if (!erc20SwapConversion) {
     console.error('Deployment for erc20SwapConversion failed.');
     return;

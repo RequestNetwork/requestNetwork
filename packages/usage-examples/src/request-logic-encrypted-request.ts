@@ -33,8 +33,7 @@ const createParams = {
 };
 
 const payeeEncryptionParameters: EncryptionTypes.IEncryptionParameters = {
-  key:
-    '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
+  key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
   method: EncryptionTypes.METHOD.ECIES,
 };
 const payeeDecryptionParameters: EncryptionTypes.IDecryptionParameters = {
@@ -43,23 +42,20 @@ const payeeDecryptionParameters: EncryptionTypes.IDecryptionParameters = {
 };
 
 const payerEncryptionParameters: EncryptionTypes.IEncryptionParameters = {
-  key:
-    'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
+  key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
   method: EncryptionTypes.METHOD.ECIES,
 };
 
 // A signature provider, for example @requestnetwork/epk-signature
-const signatureProvider: SignatureProviderTypes.ISignatureProvider = new EthereumPrivateKeySignatureProvider(
-  {
+const signatureProvider: SignatureProviderTypes.ISignatureProvider =
+  new EthereumPrivateKeySignatureProvider({
     method: SignatureTypes.METHOD.ECDSA,
     privateKey: '0xc87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3',
-  },
-);
+  });
 
 // A decryption provider, for example @requestnetwork/epk-decryption
-const decryptionProvider: DecryptionProviderTypes.IDecryptionProvider = new EthereumPrivateKeyDecryptionProvider(
-  payeeDecryptionParameters,
-);
+const decryptionProvider: DecryptionProviderTypes.IDecryptionProvider =
+  new EthereumPrivateKeyDecryptionProvider(payeeDecryptionParameters);
 
 /* eslint-disable no-console */
 (async (): Promise<any> => {

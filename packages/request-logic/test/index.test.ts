@@ -1178,8 +1178,7 @@ describe('index', () => {
                 state: TransactionTypes.TransactionState.PENDING,
                 timestamp: 2,
                 transaction: {
-                  data:
-                    '{"data":{"name":"accept","parameters":{"requestId":"010246b8aeb3aa72f4c7039284bf7307c3d543541ff309ee52e9361f4bd2c89c9c"},"version":"2.0.3"},"signature":{"method":"ecdsa","value":"0xe53448080b32927c66827f3d946e988f18cfa4dfa640e15563eb4c266ab65e3932df94fdab3e3625da4f41b8ce8ef56c3ae39d89189859c3d3090ca4503247141b"}}',
+                  data: '{"data":{"name":"accept","parameters":{"requestId":"010246b8aeb3aa72f4c7039284bf7307c3d543541ff309ee52e9361f4bd2c89c9c"},"version":"2.0.3"},"signature":{"method":"ecdsa","value":"0xe53448080b32927c66827f3d946e988f18cfa4dfa640e15563eb4c266ab65e3932df94fdab3e3625da4f41b8ce8ef56c3ae39d89189859c3d3090ca4503247141b"}}',
                 },
               },
             },
@@ -1893,8 +1892,8 @@ describe('index', () => {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
         ignoredTransactions: {},
       };
-      const listAllActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> = Promise.resolve(
-        {
+      const listAllActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> =
+        Promise.resolve({
           meta,
           result: {
             transactions: {
@@ -1936,8 +1935,7 @@ describe('index', () => {
               ],
             },
           },
-        },
-      );
+        });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
         getChannelsByMultipleTopics: jest.fn() as any,
@@ -2063,8 +2061,8 @@ describe('index', () => {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
         ignoredTransactions: {},
       };
-      const listAllActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> = Promise.resolve(
-        {
+      const listAllActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> =
+        Promise.resolve({
           meta,
           result: {
             transactions: {
@@ -2106,8 +2104,7 @@ describe('index', () => {
               ],
             },
           },
-        },
-      );
+        });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
         getChannelsByMultipleTopics: jest.fn() as any,
@@ -2182,8 +2179,8 @@ describe('index', () => {
         dataAccessMeta: { [requestId]: [] },
         ignoredTransactions: {},
       };
-      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> = Promise.resolve(
-        {
+      const listActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> =
+        Promise.resolve({
           meta,
           result: {
             transactions: {
@@ -2206,8 +2203,7 @@ describe('index', () => {
               ],
             },
           },
-        },
-      );
+        });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
         getChannelsByMultipleTopics: jest.fn() as any,
@@ -2335,8 +2331,8 @@ describe('index', () => {
         dataAccessMeta: { [requestId]: [], [newRequestId2]: [], [newRequestId3]: [] },
         ignoredTransactions: {},
       };
-      const listAllActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> = Promise.resolve(
-        {
+      const listAllActions: Promise<TransactionTypes.IReturnGetTransactionsByChannels> =
+        Promise.resolve({
           meta,
           result: {
             transactions: {
@@ -2378,13 +2374,13 @@ describe('index', () => {
               ],
             },
           },
-        },
-      );
+        });
 
       const fakeTransactionManagerGet: TransactionTypes.ITransactionManager = {
-        getChannelsByMultipleTopics: (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
-          return listAllActions;
-        },
+        getChannelsByMultipleTopics:
+          (): Promise<TransactionTypes.IReturnGetTransactionsByChannels> => {
+            return listAllActions;
+          },
         getChannelsByTopic: jest.fn() as any,
         getTransactionsByChannelId: jest.fn() as any,
         persistTransaction: jest.fn() as any,

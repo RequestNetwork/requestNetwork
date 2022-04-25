@@ -10,8 +10,7 @@ export const id1Raw = {
     method: EncryptionTypes.METHOD.ECIES,
   },
   encryptionParams: {
-    key:
-      '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
     method: EncryptionTypes.METHOD.ECIES,
   },
   identity: {
@@ -30,8 +29,7 @@ export const id2Raw = {
     method: EncryptionTypes.METHOD.ECIES,
   },
   encryptionParams: {
-    key:
-      'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
+    key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
     method: EncryptionTypes.METHOD.ECIES,
   },
   identity: {

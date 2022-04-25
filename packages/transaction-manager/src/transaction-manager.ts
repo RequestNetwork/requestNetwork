@@ -69,14 +69,11 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     } else {
       const resultGetTx = await this.dataAccess.getTransactionsByChannelId(channelId);
 
-      const {
-        channelKey,
-        channelType,
-        encryptionMethod,
-      } = await this.channelParser.getChannelTypeAndChannelKey(
-        channelId,
-        resultGetTx.result.transactions,
-      );
+      const { channelKey, channelType, encryptionMethod } =
+        await this.channelParser.getChannelTypeAndChannelKey(
+          channelId,
+          resultGetTx.result.transactions,
+        );
 
       if (channelType === TransactionTypes.ChannelType.UNKNOWN) {
         throw new Error(`Impossible to retrieve the channel: ${channelId}`);
@@ -162,11 +159,8 @@ export default class TransactionManager implements TransactionTypes.ITransaction
     );
 
     // Decrypts and cleans the channel from the data-access layers
-    const {
-      transactions,
-      ignoredTransactions,
-      encryptionMethod,
-    } = await this.channelParser.decryptAndCleanChannel(channelId, resultGetTx.result.transactions);
+    const { transactions, ignoredTransactions, encryptionMethod } =
+      await this.channelParser.decryptAndCleanChannel(channelId, resultGetTx.result.transactions);
 
     const meta = {
       dataAccessMeta: resultGetTx.meta,

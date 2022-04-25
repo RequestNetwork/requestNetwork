@@ -74,13 +74,8 @@
       }
 
       async function startTestSignatureWithMetamask(web3) {
-        const {
-          contentData,
-          paymentNetwork,
-          requestCreationHash,
-          signatureInfo,
-          topics,
-        } = getMockData();
+        const { contentData, paymentNetwork, requestCreationHash, signatureInfo, topics } =
+          getMockData();
 
         // Initialize the signature provider
         const signatureProvider = new Web3SignatureProvider.Web3SignatureProvider(web3);

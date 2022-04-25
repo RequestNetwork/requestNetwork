@@ -176,9 +176,8 @@ export default class RequestNetwork {
       explorerApiKeys?: Record<string, string>;
     },
   ): Promise<Request> {
-    const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId = await this.requestLogic.getRequestFromId(
-      requestId,
-    );
+    const requestAndMeta: RequestLogicTypes.IReturnGetRequestFromId =
+      await this.requestLogic.getRequestFromId(requestId);
 
     // if no request found, throw a human readable message:
     if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
@@ -189,15 +188,14 @@ export default class RequestNetwork {
     const requestState: RequestLogicTypes.IRequest = requestAndMeta.result.request
       ? requestAndMeta.result.request
       : (requestAndMeta.result.pending as RequestLogicTypes.IRequest);
-    const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-      {
+    const paymentNetwork: PaymentTypes.IPaymentNetwork | null =
+      PaymentNetworkFactory.getPaymentNetworkFromRequest({
         advancedLogic: this.advancedLogic,
         bitcoinDetectionProvider: this.bitcoinDetectionProvider,
         request: requestState,
         explorerApiKeys: options?.explorerApiKeys,
         currencyManager: this.currencyManager,
-      },
-    );
+      });
 
     // create the request object
     const request = new Request(requestId, this.requestLogic, this.currencyManager, {
@@ -270,10 +268,8 @@ export default class RequestNetwork {
     options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
-    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByTopic(
-      topic,
-      updatedBetween,
-    );
+    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
+      await this.requestLogic.getRequestsByTopic(topic, updatedBetween);
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
       async (requestFromLogic: {
@@ -285,14 +281,13 @@ export default class RequestNetwork {
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
 
-        const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-          {
+        const paymentNetwork: PaymentTypes.IPaymentNetwork | null =
+          PaymentNetworkFactory.getPaymentNetworkFromRequest({
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
             request: requestState,
             currencyManager: this.currencyManager,
-          },
-        );
+          });
 
         // create the request object
         const request = new Request(
@@ -331,10 +326,8 @@ export default class RequestNetwork {
     options?: { disablePaymentDetection?: boolean; disableEvents?: boolean },
   ): Promise<Request[]> {
     // Gets all the requests indexed by the value of the identity
-    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic = await this.requestLogic.getRequestsByMultipleTopics(
-      topics,
-      updatedBetween,
-    );
+    const requestsAndMeta: RequestLogicTypes.IReturnGetRequestsByTopic =
+      await this.requestLogic.getRequestsByMultipleTopics(topics, updatedBetween);
 
     // From the requests of the request-logic layer creates the request objects and gets the payment networks
     const requestPromises = requestsAndMeta.result.requests.map(
@@ -347,14 +340,13 @@ export default class RequestNetwork {
           ? requestFromLogic.request
           : (requestFromLogic.pending as RequestLogicTypes.IRequest);
 
-        const paymentNetwork: PaymentTypes.IPaymentNetwork | null = PaymentNetworkFactory.getPaymentNetworkFromRequest(
-          {
+        const paymentNetwork: PaymentTypes.IPaymentNetwork | null =
+          PaymentNetworkFactory.getPaymentNetworkFromRequest({
             advancedLogic: this.advancedLogic,
             bitcoinDetectionProvider: this.bitcoinDetectionProvider,
             request: requestState,
             currencyManager: this.currencyManager,
-          },
-        );
+          });
 
         // create the request object
         const request = new Request(
@@ -398,9 +390,7 @@ export default class RequestNetwork {
    * @param parameters Parameters to create a request
    * @returns the parameters, ready for request creation, the topics, and the paymentNetwork
    */
-  private async prepareRequestParameters(
-    parameters: Types.ICreateRequestParameters,
-  ): Promise<{
+  private async prepareRequestParameters(parameters: Types.ICreateRequestParameters): Promise<{
     requestParameters: RequestLogicTypes.ICreateParameters;
     topics: any[];
     paymentNetwork: PaymentTypes.IPaymentNetwork | null;

@@ -74,13 +74,14 @@ export abstract class ConversionInfoRetriever {
    */
   public async getTransferEvents(): Promise<PaymentTypes.ConversionPaymentNetworkEvent[]> {
     // Create a filter to find all the Fee Transfer logs with the payment reference
-    const conversionFilter = this.contractConversionProxy.filters.TransferWithConversionAndReference(
-      null,
-      null,
-      '0x' + this.paymentReference,
-      null,
-      null,
-    ) as ethers.providers.Filter;
+    const conversionFilter =
+      this.contractConversionProxy.filters.TransferWithConversionAndReference(
+        null,
+        null,
+        '0x' + this.paymentReference,
+        null,
+        null,
+      ) as ethers.providers.Filter;
     conversionFilter.fromBlock = this.conversionProxyCreationBlockNumber;
     conversionFilter.toBlock = 'latest';
 

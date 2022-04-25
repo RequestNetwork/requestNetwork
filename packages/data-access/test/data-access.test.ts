@@ -109,9 +109,8 @@ const emptyDataResult: StorageTypes.IEntriesWithLastTimestamp = {
   lastTimestamp: 0,
 };
 
-const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> = Promise.resolve(
-  getDataResult,
-);
+const defaultTestData: Promise<StorageTypes.IEntriesWithLastTimestamp> =
+  Promise.resolve(getDataResult);
 
 const defaultFakeStorage: StorageTypes.IStorage = {
   _getStatus: jest.fn((): any => ({
