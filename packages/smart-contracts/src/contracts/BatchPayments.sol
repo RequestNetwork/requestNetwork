@@ -48,7 +48,7 @@ contract BatchPayments is Ownable, ReentrancyGuard {
     batchFee = 0;
   }
 
-  // batchEthPaymentsWithReferenceAndFee requires that the contract has ethers
+  // batch Eth requires batch contract to receive the funds in order to send it to recipients
   receive() external payable {}
 
   /**
@@ -144,6 +144,10 @@ contract BatchPayments is Ownable, ReentrancyGuard {
 
     // Transfer the amount and fee from the payer to the batch contract
     IERC20 requestedToken = IERC20(_tokenAddress);
+    require(
+      requestedToken.allowance(msg.sender, address(this)) >= amount,
+      'Not sufficient allowance for batch to pay'
+    );
     require(requestedToken.balanceOf(msg.sender) >= amount, 'not enough funds');
     require(
       safeTransferFrom(_tokenAddress, address(this), amount),
@@ -221,8 +225,8 @@ contract BatchPayments is Ownable, ReentrancyGuard {
           uniqueTokens[j].batchFeeAmount += _amounts[i];
           break;
         }
-        // If the token is not in the list, by checking its amountAndFee = 0
-        if (uniqueTokens[j].amountAndFee == 0) {
+        // If the token is not in the list (amountAndFee = 0), and amount + fee > 0
+        if (uniqueTokens[j].amountAndFee == 0 && (_amounts[i] + _feeAmounts[i]) > 0) {
           uniqueTokens[j].tokenAddress = _tokenAddresses[i];
           uniqueTokens[j].amountAndFee = _amounts[i] + _feeAmounts[i];
           uniqueTokens[j].batchFeeAmount = _amounts[i];
@@ -236,6 +240,11 @@ contract BatchPayments is Ownable, ReentrancyGuard {
       uniqueTokens[i].batchFeeAmount = (uniqueTokens[i].batchFeeAmount * batchFee) / 1000;
       IERC20 requestedToken = IERC20(uniqueTokens[i].tokenAddress);
 
+      require(
+        requestedToken.allowance(msg.sender, address(this)) >=
+          uniqueTokens[i].amountAndFee + uniqueTokens[i].batchFeeAmount,
+        'Not sufficient allowance for batch to pay'
+      );
       // check if the payer can pay the amount, the fee, and the batchFee
       require(
         requestedToken.balanceOf(msg.sender) >=

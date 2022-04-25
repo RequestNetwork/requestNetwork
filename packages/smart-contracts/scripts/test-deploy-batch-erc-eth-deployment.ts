@@ -24,9 +24,11 @@ export async function deployBatchPayment(args: any, hre: HardhatRuntimeEnvironme
     const batch = batchPaymentsArtifact.connect(hre.network.name, owner);
     await batch.connect(owner).setBatchFee(10);
 
-    console.log('BatchPaymentsAddress Contract deployed: ' + BatchPaymentsAddress);
     // ----------------------------------
     console.log('Contracts deployed');
+    console.log(`
+      BatchPayments:            ${BatchPaymentsAddress}
+    `);
   } catch (e) {
     console.error(e);
   }

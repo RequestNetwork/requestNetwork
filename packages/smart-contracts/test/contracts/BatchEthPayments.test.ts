@@ -152,7 +152,7 @@ describe('contract: BatchPayments: Ethereum', () => {
     });
   });
 
-  describe('Batch revert, issues with: args, or funds, or approval', () => {
+  describe('Batch revert, issues with: args, or funds', () => {
     it('Should revert batch if not enough funds', async function () {
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
