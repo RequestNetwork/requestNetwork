@@ -48,9 +48,8 @@ export function encodePayEthFeeProxyRequest(
 ): string {
   validateEthFeeProxyRequest(request, amount, feeAmountOverride);
 
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
+    getRequestPaymentValues(request);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
   const proxyContract = EthereumFeeProxy__factory.createInterface();
 

@@ -5,7 +5,7 @@ import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import { subtask, task } from 'hardhat/config';
 import { config } from 'dotenv';
-import deployAllContracts from './scripts/6_deploy-all';
+import deployAllContracts from './scripts/test-deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { preparePayments } from './scripts/prepare-payments';
 import { checkCreate2Deployer } from './scripts-create2/check-deployer';

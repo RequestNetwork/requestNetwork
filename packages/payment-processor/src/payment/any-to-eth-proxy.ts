@@ -65,14 +65,8 @@ export function encodePayAnyToEthProxyRequest(
     throw new UnsupportedCurrencyError(request.currencyInfo);
   }
 
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAddress,
-    feeAmount,
-    maxRateTimespan,
-    network,
-  } = getRequestPaymentValues(request);
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan, network } =
+    getRequestPaymentValues(request);
 
   if (!network) {
     throw new Error(`missing network`);

@@ -5,6 +5,7 @@ import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
 import { payErc20Request } from './erc20';
+import { payErc777StreamRequest } from './erc777-stream';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { payEthFeeProxyRequest } from './eth-fee-proxy';
 import { ITransactionOverrides } from './transaction-overrides';
@@ -22,6 +23,7 @@ import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from './settings';
 
 export const supportedNetworks = [
+  ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
@@ -63,6 +65,7 @@ export class UnsupportedPaymentChain extends Error {
  * - ETH_INPUT_DATA
  * - ERC20_FEE_PROXY_CONTRACT
  * - ANY_TO_ERC20_PROXY
+ * - ERC777_STREAM
  *
  * @throws UnsupportedNetworkError if network isn't supported for swap or payment.
  * @throws UnsupportedPaymentChain if the currency network is not supported (eg Near)
@@ -85,6 +88,8 @@ export async function payRequest(
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
       return payErc20Request(request, signer, amount, undefined, overrides);
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM:
+      return payErc777StreamRequest(request, signer);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
       if (!paymentSettings) {
         throw new Error('Missing payment settings for a payment with conversion');
@@ -277,6 +282,7 @@ async function getCurrencyBalance(
     case 'ETH': {
       return provider.getBalance(address);
     }
+    case 'ERC777':
     case 'ERC20': {
       return getAnyErc20Balance(paymentCurrency.value, address, provider);
     }

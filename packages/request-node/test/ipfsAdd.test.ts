@@ -34,8 +34,7 @@ describe('ipfsAdd', () => {
       },
       transactions: [
         {
-          data:
-            '{"data":{"name":"create","parameters":{"currency":{"type":"BTC","value":"BTC"},"expectedAmount":"1000","payee":{"type":"ethereumAddress","value":"0x627306090abab3a6e1400e9345bc60c78a8bef57"},"payer":{"type":"ethereumAddress","value":"0xf17f52151ebef6c7334fad080c5704d77216b732"},"extensionsData":[],"timestamp":1578884046},"version":"2.0.2"},"signature":{"method":"ecdsa","value":"0x82dac7769e5ea7889d1916205de71628ad14bd152d9d4341c9e6d3401425a60f32a2c5ca998260dfc5d8c6575b564efc1bd8018fd1576d1920b8296caa6407521c"}}',
+          data: '{"data":{"name":"create","parameters":{"currency":{"type":"BTC","value":"BTC"},"expectedAmount":"1000","payee":{"type":"ethereumAddress","value":"0x627306090abab3a6e1400e9345bc60c78a8bef57"},"payer":{"type":"ethereumAddress","value":"0xf17f52151ebef6c7334fad080c5704d77216b732"},"extensionsData":[],"timestamp":1578884046},"version":"2.0.2"},"signature":{"method":"ecdsa","value":"0x82dac7769e5ea7889d1916205de71628ad14bd152d9d4341c9e6d3401425a60f32a2c5ca998260dfc5d8c6575b564efc1bd8018fd1576d1920b8296caa6407521c"}}',
         },
       ],
     });

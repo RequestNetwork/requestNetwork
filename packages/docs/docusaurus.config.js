@@ -42,8 +42,7 @@ module.exports = {
         { to: 'docs/client', label: 'Request-client.js', position: 'left' },
         { to: 'portal', label: 'Portal REST API', position: 'left' },
         {
-          href:
-            'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-logic/specs',
+          href: 'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-logic/specs',
           label: 'Protocol Specs',
           position: 'left',
         },
@@ -70,8 +69,7 @@ module.exports = {
             },
             {
               label: 'Request Protocol',
-              to:
-                'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-logic/specs',
+              to: 'https://github.com/RequestNetwork/requestNetwork/tree/master/packages/request-logic/specs',
             },
           ],
         },

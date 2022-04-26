@@ -8,8 +8,7 @@ const otherIdRaw = {
     method: EncryptionTypes.METHOD.ECIES,
   },
   encryptionParams: {
-    key:
-      'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
+    key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
     method: EncryptionTypes.METHOD.ECIES,
   },
   identity: {

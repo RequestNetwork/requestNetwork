@@ -122,14 +122,15 @@ export interface IDeclarativePaymentEventParameters {
   from?: IIdentity;
 }
 /** Declarative Payment Network Event */
-export type DeclarativePaymentNetworkEvent = IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;
+export type DeclarativePaymentNetworkEvent =
+  IPaymentNetworkEvent<IDeclarativePaymentEventParameters>;
 /** Declarative BalanceWithEvents */
 export type DeclarativeBalanceWithEvents = IBalanceWithEvents<IDeclarativePaymentEventParameters>;
 
 /** Generic info retriever interface without transfers */
 export interface IPaymentNetworkBaseInfoRetriever<
   TPaymentNetworkEvent extends IPaymentNetworkBaseEvent<TEventNames>,
-  TEventNames = EVENTS_NAMES
+  TEventNames = EVENTS_NAMES,
 > {
   getAllContractEvents(): Promise<TPaymentNetworkEvent[]>;
 }
@@ -197,7 +198,8 @@ export type ConversionPaymentNetworkEventParameters =
   | IERC20FeePaymentEventParameters
   | IETHPaymentEventParameters
   | IETHFeePaymentEventParameters;
-export type ConversionPaymentNetworkEvent = IPaymentNetworkEvent<ConversionPaymentNetworkEventParameters>;
+export type ConversionPaymentNetworkEvent =
+  IPaymentNetworkEvent<ConversionPaymentNetworkEventParameters>;
 
 /**
  * ETH and native token balance and events

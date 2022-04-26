@@ -14,8 +14,7 @@ const CURRENT_VERSION = Version.currentVersion;
 export const payeeRaw = {
   address: '0xAf083f77F1fFd54218d91491AFD06c9296EaC3ce',
   encryptionParams: {
-    key:
-      '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
     method: EncryptionTypes.METHOD.ECIES,
   },
   identity: {
@@ -35,8 +34,7 @@ export const payeeRaw = {
 export const payerRaw = {
   address: '0x740fc87Bd3f41d07d23A01DEc90623eBC5fed9D6',
   encryptionParams: {
-    key:
-      '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
+    key: '9008306d319755055226827c22f4b95552c799bae7af0e99780cf1b5500d9d1ecbdbcf6f27cdecc72c97fef3703c54b717bca613894212e0b2525cbb2d1161b9',
     method: EncryptionTypes.METHOD.ECIES,
   },
   identity: {
@@ -56,8 +54,7 @@ export const payerRaw = {
 export const otherIdRaw = {
   address: '0x818B6337657A23F58581715Fc610577292e521D0',
   encryptionParams: {
-    key:
-      'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
+    key: 'cf4a1d0bbef8bf0e3fa479a9def565af1b22ea6266294061bfb430701b54a83699e3d47bf52e9f0224dcc29a02721810f1f624f1f70ea3cc5f1fb752cfed379d',
     method: EncryptionTypes.METHOD.ECIES,
   },
   identity: {

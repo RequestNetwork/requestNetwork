@@ -10,7 +10,8 @@ type IDecryptionParametersDictionary = Map<string, EncryptionTypes.IDecryptionPa
  * Allows to decrypt() with "ethereumAddress" identities thanks to their private key given in constructor() or addDecryptionParameters()
  */
 export default class EthereumPrivateKeyDecryptionProvider
-  implements DecryptionProviderTypes.IDecryptionProvider {
+  implements DecryptionProviderTypes.IDecryptionProvider
+{
   /** list of supported encryption method */
   public supportedMethods: EncryptionTypes.METHOD[] = [EncryptionTypes.METHOD.ECIES];
   /** list of supported identity types */
@@ -47,9 +48,8 @@ export default class EthereumPrivateKeyDecryptionProvider
     }
 
     // toLowerCase to avoid mismatch because of case
-    const decryptionParameters:
-      | EncryptionTypes.IDecryptionParameters
-      | undefined = this.decryptionParametersDictionary.get(identity.value.toLowerCase());
+    const decryptionParameters: EncryptionTypes.IDecryptionParameters | undefined =
+      this.decryptionParametersDictionary.get(identity.value.toLowerCase());
 
     if (!decryptionParameters) {
       throw Error(`private key unknown for the identity: ${identity.value}`);

@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import '@openzeppelin/contracts/utils/Context.sol';
-import "../Roles.sol";
-import "./WhitelistAdminRole.sol";
+import '../Roles.sol';
+import './WhitelistAdminRole.sol';
 
 /**
  * @title WhitelistedRole
@@ -12,41 +12,44 @@ import "./WhitelistAdminRole.sol";
  * it), and not Whitelisteds themselves.
  */
 abstract contract WhitelistedRole is Context, WhitelistAdminRole {
-    using Roles for Roles.Role;
+  using Roles for Roles.Role;
 
-    event WhitelistedAdded(address indexed account);
-    event WhitelistedRemoved(address indexed account);
+  event WhitelistedAdded(address indexed account);
+  event WhitelistedRemoved(address indexed account);
 
-    Roles.Role private _whitelisteds;
+  Roles.Role private _whitelisteds;
 
-    modifier onlyWhitelisted() {
-        require(isWhitelisted(_msgSender()), "WhitelistedRole: caller does not have the Whitelisted role");
-        _;
-    }
+  modifier onlyWhitelisted() {
+    require(
+      isWhitelisted(_msgSender()),
+      'WhitelistedRole: caller does not have the Whitelisted role'
+    );
+    _;
+  }
 
-    function isWhitelisted(address account) public view returns (bool) {
-        return _whitelisteds.has(account);
-    }
+  function isWhitelisted(address account) public view returns (bool) {
+    return _whitelisteds.has(account);
+  }
 
-    function addWhitelisted(address account) public onlyWhitelistAdmin {
-        _addWhitelisted(account);
-    }
+  function addWhitelisted(address account) public onlyWhitelistAdmin {
+    _addWhitelisted(account);
+  }
 
-    function removeWhitelisted(address account) public onlyWhitelistAdmin {
-        _removeWhitelisted(account);
-    }
+  function removeWhitelisted(address account) public onlyWhitelistAdmin {
+    _removeWhitelisted(account);
+  }
 
-    function renounceWhitelisted() public {
-        _removeWhitelisted(_msgSender());
-    }
+  function renounceWhitelisted() public {
+    _removeWhitelisted(_msgSender());
+  }
 
-    function _addWhitelisted(address account) internal {
-        _whitelisteds.add(account);
-        emit WhitelistedAdded(account);
-    }
+  function _addWhitelisted(address account) internal {
+    _whitelisteds.add(account);
+    emit WhitelistedAdded(account);
+  }
 
-    function _removeWhitelisted(address account) internal {
-        _whitelisteds.remove(account);
-        emit WhitelistedRemoved(account);
-    }
+  function _removeWhitelisted(address account) internal {
+    _whitelisteds.remove(account);
+    emit WhitelistedRemoved(account);
+  }
 }

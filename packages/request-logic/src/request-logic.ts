@@ -535,9 +535,7 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
    * @param requestId the requestId of the request to compute
    * @returns the request, the pending state of the request and the ignored transactions
    */
-  private async computeRequestFromRequestId(
-    requestId: RequestLogicTypes.RequestId,
-  ): Promise<{
+  private async computeRequestFromRequestId(requestId: RequestLogicTypes.RequestId): Promise<{
     confirmedRequestState: RequestLogicTypes.IRequest | null;
     pendingRequestState: RequestLogicTypes.IRequest | null;
     ignoredTransactions: any[];
@@ -586,11 +584,8 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
       }),
     );
 
-    const {
-      confirmedRequestState,
-      pendingRequestState,
-      ignoredTransactionsByApplication,
-    } = await this.computeRequestFromTransactions(timestampedActionsWithoutDuplicates.uniqueItems);
+    const { confirmedRequestState, pendingRequestState, ignoredTransactionsByApplication } =
+      await this.computeRequestFromTransactions(timestampedActionsWithoutDuplicates.uniqueItems);
     ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
     return {
@@ -718,13 +713,10 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
         );
 
         // Computes the request from the transactions
-        const {
-          confirmedRequestState,
-          pendingRequestState,
-          ignoredTransactionsByApplication,
-        } = await this.computeRequestFromTransactions(
-          timestampedActionsWithoutDuplicates.uniqueItems,
-        );
+        const { confirmedRequestState, pendingRequestState, ignoredTransactionsByApplication } =
+          await this.computeRequestFromTransactions(
+            timestampedActionsWithoutDuplicates.uniqueItems,
+          );
         ignoredTransactions = ignoredTransactions.concat(ignoredTransactionsByApplication);
 
         const pending = this.computeDiffBetweenPendingAndConfirmedRequestState(
