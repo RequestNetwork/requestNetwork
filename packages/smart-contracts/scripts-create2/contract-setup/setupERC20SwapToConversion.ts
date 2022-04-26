@@ -32,11 +32,18 @@ export const setupERC20SwapToConversion = async (
       const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
       const signer = wallet.connect(provider);
       const ERC20SwapToConversionConnected = await ERC20SwapToConversionContract.connect(signer);
+      const adminNonce = await signer.getTransactionCount();
+      const gasPrice = await provider.getGasPrice();
 
       await Promise.all([
-        updateChainlinkConversionPath(ERC20SwapToConversionConnected, network),
-        updateSwapRouter(ERC20SwapToConversionConnected, network),
-        updateRequestSwapFees(ERC20SwapToConversionConnected),
+        updateChainlinkConversionPath(
+          ERC20SwapToConversionConnected,
+          network,
+          adminNonce,
+          gasPrice,
+        ),
+        updateSwapRouter(ERC20SwapToConversionConnected, network, adminNonce + 1, gasPrice),
+        updateRequestSwapFees(ERC20SwapToConversionConnected, adminNonce + 2, gasPrice),
       ]);
     }),
   );

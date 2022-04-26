@@ -70,13 +70,14 @@ export const xdeploy = async (
     let receipt = undefined;
     let deployed = false;
     let error = undefined;
+    const gasPrice = await provider.getGasPrice();
     try {
       const createReceipt = await (
         await create2Deployer.deploy(
           ZERO_ETH_INPUT,
           hre.ethers.utils.id(hre.config.xdeploy.salt),
           initcode.data,
-          { gasLimit: hre.config.xdeploy.gasLimit },
+          { gasLimit: hre.config.xdeploy.gasLimit, gasPrice: gasPrice },
         )
       ).wait();
       receipt = createReceipt;
