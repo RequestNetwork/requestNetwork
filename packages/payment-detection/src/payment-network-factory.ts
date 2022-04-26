@@ -12,6 +12,7 @@ import { DeclarativePaymentDetector } from './declarative';
 import { ERC20AddressBasedPaymentDetector } from './erc20/address-based';
 import { ERC20FeeProxyPaymentDetector } from './erc20/fee-proxy-contract';
 import { ERC20ProxyPaymentDetector } from './erc20/proxy-contract';
+import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EthInputDataPaymentDetector } from './eth/input-data';
 import { EthFeeProxyPaymentDetector } from './eth/fee-proxy-detector';
 import { AnyToERC20PaymentDetector } from './any/any-to-erc20-proxy';
@@ -28,6 +29,11 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
     },
     testnet: {
       [PN_ID.TESTNET_BITCOIN_ADDRESS_BASED]: BtcTestnetAddressBasedDetector,
+    },
+  },
+  ERC777: {
+    '*': {
+      [PN_ID.ERC777_STREAM]: SuperFluidPaymentDetector,
     },
   },
   ERC20: {
