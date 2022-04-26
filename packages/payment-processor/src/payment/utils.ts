@@ -186,19 +186,17 @@ const currenciesMap: any = {
  * Utility to validate a request currency and payment details against a paymentNetwork.
  * @param request
  * @param paymentNetworkId
- * @param isEthBatch is required only for eth batch payment, to accept two PAYMENT_NETWORK_ID
- *                   FIXME: not needed anymore when "invoicing" will use only ethFeeProxy
+ * FIXME: updating the extension: not needed anymore when "invoicing" will use only ethFeeProxy
  */
 export function validateRequest(
   request: ClientTypes.IRequestData,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
-  isEthBatch = false,
 ): void {
   const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } =
     getRequestPaymentValues(request);
   let extension = request.extensions[paymentNetworkId];
 
-  if (isEthBatch && !extension) {
+  if (paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT && !extension) {
     extension = request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
   }
 

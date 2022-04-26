@@ -176,7 +176,7 @@ function getBatchArgs(requests: ClientTypes.IRequestData[]): {
   const paymentType = requests[0].currencyInfo.type;
   for (let i = 0; i < requests.length; i++) {
     if (paymentType === 'ETH') {
-      validateEthFeeProxyRequest(requests[i], undefined, undefined, undefined, true);
+      validateEthFeeProxyRequest(requests[i]);
     } else if (paymentType === 'ERC20') {
       validateErc20FeeProxyRequest(requests[i]);
     } else {

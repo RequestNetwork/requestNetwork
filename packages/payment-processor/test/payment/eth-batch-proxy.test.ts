@@ -185,7 +185,7 @@ describe('payBatchProxyRequest', () => {
     expect(balancePayeeEthAfter1.toString()).toBe(balancePayeeEthBefore1.add('2000').toString()); // = 1000 * Nb_txs, and Nb_txs = 2
   });
 
-  it('should pay an ETH batch of 2 requests with different receiverAddress and pay fee & batch fee and payment network id', async () => {
+  it('should pay an ETH batch of 2 requests with different: receiverAddress and payment network id', async () => {
     const balanceEthBefore = await wallet.getBalance();
     const balanceFeeEthBefore = await provider.getBalance(feeAddress);
     const balancePayeeEthBefore1 = await provider.getBalance(paymentAddress1);
