@@ -154,15 +154,11 @@ export function encodePayBatchRequest(requests: ClientTypes.IRequestData[]): str
 
 /**
  * Get batch arguments
- * @param requests List of request
- * @param paymentType it can be "eth" or "erc20"
- * @returns List with the args required by batchEthPaymentsWithReference,
- * @dev tokenAddresses returned is for multi tokens function
+ * @param requests List of requests
+ * @returns List with the args required by batch Eth and Erc20 functions,
+ * @dev tokenAddresses returned is for batch Erc20 functions
  */
-function getBatchArgs(
-  requests: ClientTypes.IRequestData[],
-  // paymentType: 'eth' | 'erc20',
-): {
+function getBatchArgs(requests: ClientTypes.IRequestData[]): {
   tokenAddresses: Array<string>;
   paymentAddresses: Array<string>;
   amountsToPay: Array<BigNumber>;
@@ -194,8 +190,7 @@ function getBatchArgs(
 
     tokenAddresses.push(tokenAddress);
     paymentAddresses.push(paymentAddress);
-    const amountToPay = getAmountToPay(requests[i]);
-    amountsToPay.push(amountToPay);
+    amountsToPay.push(getAmountToPay(requests[i]));
     paymentReferences.push(`0x${paymentReference}`);
     feesToPay.push(BigNumber.from(feeAmount || 0));
     feeAddressUsed = feeAddress || constants.AddressZero;
@@ -212,13 +207,13 @@ function getBatchArgs(
 }
 
 /**
- * Get getBatchProxyAddress
+ * Get Batch contract Address
  * @param request
  * @param version version of the batch proxy, which can be different from request pn version
  */
 export function getBatchProxyAddress(request: ClientTypes.IRequestData, version: string): string {
   const pn = getPaymentNetworkExtension(request);
-  const pnId = (pn?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
+  const pnId = pn?.id as unknown as PaymentTypes.PAYMENT_NETWORK_ID;
   if (!pnId) {
     throw new Error('No payment network Id');
   }

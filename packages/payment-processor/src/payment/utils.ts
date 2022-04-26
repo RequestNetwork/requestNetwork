@@ -187,13 +187,15 @@ const currenciesMap: any = {
  * @param request
  * @param paymentNetworkId
  * @param isEthBatch is required only for eth batch payment, to accept two PAYMENT_NETWORK_ID
+ *                   FIXME: not needed anymore when "invoicing" will use only ethFeeProxy
  */
 export function validateRequest(
   request: ClientTypes.IRequestData,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
   isEthBatch = false,
 ): void {
-  const { feeAmount, feeAddress } = getRequestPaymentValues(request);
+  const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } =
+    getRequestPaymentValues(request);
   let extension = request.extensions[paymentNetworkId];
 
   if (isEthBatch && !extension) {
@@ -202,7 +204,6 @@ export function validateRequest(
 
   // Compatibility of the request currency type with the payment network
   const expectedCurrencyType = currenciesMap[paymentNetworkId];
-
   const validCurrencyType =
     paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
       ? // Any currency type is valid with Any to ERC20 conversion
@@ -333,10 +334,9 @@ export function getAmountToPay(
 
 /**
  * Compare 2 payment networks type and version in request's extension
- * e.g: Erc20 batch: compare network type and version of 2 requests
  * @param pn payment network
  * @param request
- * @returns true if type and version are identique
+ * @returns true if type and version are identique else false
  */
 export function comparePnTypeAndVersion(
   pn: ExtensionTypes.IState | undefined,
