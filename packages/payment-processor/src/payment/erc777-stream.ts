@@ -10,7 +10,7 @@ import {
 } from './utils';
 import { Framework } from '@superfluid-finance/sdk-core';
 
-export const resolverAddress = '0x8e4C131B37383E431B9cd0635D3cF9f3F628EDae';
+export const resolverAddress = '0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5';
 
 /**
  * Processes a transaction to pay an ERC777 stream Request.

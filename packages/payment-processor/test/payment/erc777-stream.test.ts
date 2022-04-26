@@ -17,7 +17,7 @@ const daiABI = require('../abis/fDAIABI');
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-const erc777ContractAddress = '0x921c6a682E6c6aE959dc5AE66cf1baBdF90E8E33';
+const erc777ContractAddress = '0xb7d9241104dcfEd860336bDAB18987bB1B6e3867';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
