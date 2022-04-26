@@ -86,7 +86,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
 
-      const totalAmout = BigNumber.from('535'); // amount: 500, fee: 10+20, batchFee: 2+3
+      const totalAmount = BigNumber.from('535'); // amount: 500, fee: 10+20, batchFee: 2+3
 
       const tx = await batch
         .connect(owner)
@@ -97,7 +97,7 @@ describe('contract: BatchPayments: Ethereum', () => {
           [10, 20],
           feeAddress,
           {
-            value: totalAmout,
+            value: totalAmount,
           },
         );
       await tx.wait();
@@ -157,7 +157,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
 
-      const totalAmout = BigNumber.from('400');
+      const totalAmount = BigNumber.from('400');
 
       await expect(
         batch
@@ -169,7 +169,7 @@ describe('contract: BatchPayments: Ethereum', () => {
             [10, 20],
             feeAddress,
             {
-              value: totalAmout,
+              value: totalAmount,
             },
           ),
       ).revertedWith('not enough funds');
@@ -187,7 +187,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
 
-      const totalAmout = BigNumber.from('530'); // missing 5 (= (200+300) * 1%)
+      const totalAmount = BigNumber.from('530'); // missing 5 (= (200+300) * 1%)
 
       await expect(
         batch
@@ -199,7 +199,7 @@ describe('contract: BatchPayments: Ethereum', () => {
             [10, 20],
             feeAddress,
             {
-              value: totalAmout,
+              value: totalAmount,
             },
           ),
       ).revertedWith('not enough funds for batch fee');

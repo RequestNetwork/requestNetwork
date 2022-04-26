@@ -48,8 +48,10 @@ contract BatchPayments is Ownable, ReentrancyGuard {
     batchFee = 0;
   }
 
-  // batch Eth requires batch contract to receive the funds in order to send it to recipients
-  receive() external payable {}
+  // batch Eth requires batch contract to receive funds from ethFeeProxy
+  receive() external payable {
+    require(msg.value == 0, 'Non-payable');
+  }
 
   /**
    * @notice Send a batch of Eth payments w/fees with paymentReferences to multiple accounts.
@@ -75,9 +77,6 @@ contract BatchPayments is Ownable, ReentrancyGuard {
         _recipients.length == _feeAmounts.length,
       'the input arrays must have the same length'
     );
-
-    // Payer transfers tokens to the batch contract
-    payable(address(this)).transfer(msg.value);
 
     // amount is used to get the total amount and then used as batch fee amount
     uint256 amount = 0;
