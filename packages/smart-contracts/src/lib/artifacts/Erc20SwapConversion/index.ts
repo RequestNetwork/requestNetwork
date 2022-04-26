@@ -59,6 +59,22 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
           address: '0xd54b47F8e6A1b97F3A84f63c867286272b273b7C',
           creationBlockNumber: 0,
         },
+        rinkeby: {
+          address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
+          creationBlockNumber: 0,
+        },
+        matic: {
+          address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
+          creationBlockNumber: 27597829,
+        },
+        mainnet: {
+          address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
+          creationBlockNumber: 14660280,
+        },
+        xdai: {
+          address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
+          creationBlockNumber: 21837165,
+        },
       },
     },
   },
