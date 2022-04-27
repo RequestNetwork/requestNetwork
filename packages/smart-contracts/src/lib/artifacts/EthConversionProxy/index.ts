@@ -11,7 +11,7 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A',
+          address: '0x98d9f9e8DEbd4A632682ba207670d2a5ACD3c489',
           creationBlockNumber: 0,
         },
         rinkeby: {
@@ -40,7 +40,7 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
       abi: ABI_0_2_0,
       deployment: {
         private: {
-          address: '0x8273e4B8ED6c78e252a9fCa5563Adfcc75C91b2A',
+          address: '0x98d9f9e8DEbd4A632682ba207670d2a5ACD3c489',
           creationBlockNumber: 0,
         },
         mainnet: {

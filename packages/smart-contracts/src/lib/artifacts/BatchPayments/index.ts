@@ -10,7 +10,7 @@ export const batchPaymentsArtifact = new ContractArtifact<BatchPayments>(
       abi: ABI_0_1_0,
       deployment: {
         private: {
-          address: '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc',
+          address: '0x1411CB266FCEd1587b0AA29E9d5a9Ef3Db64A9C5',
           creationBlockNumber: 0,
         },
         rinkeby: {

@@ -1,4 +1,3 @@
-import { constants, providers } from 'ethers';
 import utils from '@requestnetwork/utils';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 
@@ -15,17 +14,7 @@ export const checkCreate2Deployer = async (
     hre.config.xdeploy.networks.map(async (network: string) => {
       let provider;
       if (network === 'celo') {
-        provider = new providers.JsonRpcProvider('https://forno.celo.org');
-        const originalBlockFormatter = provider.formatter._block;
-        provider.formatter._block = (value: any, format: any) => {
-          return originalBlockFormatter(
-            {
-              gasLimit: constants.Zero,
-              ...value,
-            },
-            format,
-          );
-        };
+        provider = utils.getCeloProvider();
       } else {
         provider = utils.getDefaultProvider(network);
       }
