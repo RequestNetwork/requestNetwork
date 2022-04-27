@@ -16,6 +16,7 @@ import {
   payBatchProxyRequest,
   approveErc20BatchIfNeeded,
   prepareBatchPaymentTransaction,
+  getBatchProxyAddress,
 } from '../../src/payment/batch-proxy';
 
 /* eslint-disable no-magic-numbers */
@@ -198,7 +199,7 @@ const testSuite = (
         expect(spy).toHaveBeenCalledWith({
           data: getData(request1, request2),
           gasPrice: '20000000000',
-          to: '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc',
+          to: getBatchProxyAddress(request1, '0.1.0'),
           value: 0,
         });
         wallet.sendTransaction = originalSendTransaction;
