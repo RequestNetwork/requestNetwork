@@ -68,48 +68,20 @@ const validRequest: ClientTypes.IRequestData = {
   version: '2.0.3',
 };
 
-const validRequest2: ClientTypes.IRequestData = {
-  balance: {
-    balance: '0',
+const validRequest2 = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
+validRequest2.extensions = {
+  [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
     events: [],
-  },
-  contentData: {},
-  creator: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: wallet.address,
-  },
-  currency: 'ETH',
-  currencyInfo: {
-    network: 'private',
-    type: RequestLogicTypes.CURRENCY.ETH,
-    value: RequestLogicTypes.CURRENCY.ETH,
-  },
-
-  events: [],
-  expectedAmount: '1000',
-  extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
-      events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
-      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-      values: {
-        feeAddress,
-        feeAmount: '2',
-        paymentAddress: paymentAddress2,
-        salt: 'salt',
-      },
-      version: '0.1.0',
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      feeAddress,
+      feeAmount: '2',
+      paymentAddress: paymentAddress2,
+      salt: 'salt',
     },
+    version: '0.1.0',
   },
-  extensionsData: [],
-  meta: {
-    transactionManagerMeta: {},
-  },
-  pending: null,
-  requestId: 'abcd',
-  state: RequestLogicTypes.STATE.CREATED,
-  timestamp: 0,
-  version: '2.0.3',
 };
 
 describe('getRequestPaymentValues', () => {
@@ -151,52 +123,17 @@ describe('payBatchProxyRequest', () => {
     ).rejects.toThrowError('no payment network found');
   });
 
-  it('should pay an ETH batch of 2 requests and pay fee & batch fee', async () => {
-    const balanceEthBefore = await wallet.getBalance();
-    const balanceFeeEthBefore = await provider.getBalance(feeAddress);
-    const balancePayeeEthBefore1 = await provider.getBalance(paymentAddress1);
-
-    const tx = await payBatchProxyRequest(
-      [validRequest, validRequest],
-      batchVersion,
-      wallet,
-      batchFee,
-    );
-    const confirmedTx = await tx.wait(1);
-
-    const balanceEthAfter = await wallet.getBalance();
-    const balanceFeeEthAfter = await provider.getBalance(feeAddress);
-    const balancePayeeEthAfter1 = await provider.getBalance(paymentAddress1);
-
-    expect(confirmedTx.status).toBe(1);
-    expect(tx.hash).not.toBeUndefined();
-
-    expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
-
-    // check every balance: payer, feeAddress, payee1
-    expect(balanceEthBefore.toString()).toBe(
-      balanceEthAfter
-        .add(BigNumber.from(validRequest.expectedAmount).mul(2).toString()) // 2 is Nb_txs
-        .add('24') // = (2 + 10) * 2, and Nb_txs = 2 -> (fee + batchFee) * Nb_txs
-        .add(confirmedTx.gasUsed?.mul(tx?.gasPrice ?? 1))
-        .toString(),
-    );
-    expect(balanceFeeEthAfter.toString()).toBe(balanceFeeEthBefore.add('24').toString()); // = (fee+ batchFee) * Nb_txs <=> (2 + 10) * 2
-    expect(balancePayeeEthAfter1.toString()).toBe(balancePayeeEthBefore1.add('2000').toString()); // = 1000 * Nb_txs, and Nb_txs = 2
-  });
-
-  it('should pay an ETH batch of 2 requests with different: receiverAddress and payment network id', async () => {
+  const payEth = async (
+    request1: ClientTypes.IRequestData,
+    request2: ClientTypes.IRequestData,
+    argsDifferent = false,
+  ) => {
     const balanceEthBefore = await wallet.getBalance();
     const balanceFeeEthBefore = await provider.getBalance(feeAddress);
     const balancePayeeEthBefore1 = await provider.getBalance(paymentAddress1);
     const balancePayeeEthBefore2 = await provider.getBalance(paymentAddress2);
 
-    const tx = await payBatchProxyRequest(
-      [validRequest, validRequest2],
-      batchVersion,
-      wallet,
-      batchFee,
-    );
+    const tx = await payBatchProxyRequest([request1, request2], batchVersion, wallet, batchFee);
     const confirmedTx = await tx.wait(1);
 
     const balanceEthAfter = await wallet.getBalance();
@@ -218,8 +155,20 @@ describe('payBatchProxyRequest', () => {
         .toString(),
     );
     expect(balanceFeeEthAfter.toString()).toBe(balanceFeeEthBefore.add('24').toString());
-    expect(balancePayeeEthAfter1.toString()).toBe(balancePayeeEthBefore1.add('1000').toString());
-    expect(balancePayeeEthAfter2.toString()).toBe(balancePayeeEthBefore2.add('1000').toString());
+    if (argsDifferent) {
+      expect(balancePayeeEthAfter1.toString()).toBe(balancePayeeEthBefore1.add('1000').toString());
+      expect(balancePayeeEthAfter2.toString()).toBe(balancePayeeEthBefore2.add('1000').toString());
+    } else {
+      expect(balancePayeeEthAfter1.toString()).toBe(balancePayeeEthBefore1.add('2000').toString()); // = 1000 * Nb_txs, and Nb_txs = 2
+    }
+  };
+
+  it('should pay an ETH batch of 2 requests and pay fee & batch fee', async () => {
+    await payEth(validRequest, validRequest);
+  });
+
+  it('should pay an ETH batch of 2 requests with different: receiverAddress and payment network id', async () => {
+    await payEth(validRequest, validRequest2, true);
   });
 });
 
