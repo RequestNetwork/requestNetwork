@@ -186,7 +186,6 @@ const currenciesMap: any = {
  * Utility to validate a request currency and payment details against a paymentNetwork.
  * @param request
  * @param paymentNetworkId
- * FIXME: updating the extension: not needed anymore when "invoicing" will use only ethFeeProxy
  */
 export function validateRequest(
   request: ClientTypes.IRequestData,
@@ -196,6 +195,7 @@ export function validateRequest(
     getRequestPaymentValues(request);
   let extension = request.extensions[paymentNetworkId];
 
+  // FIXME: updating the extension: not needed anymore when "invoicing" will use only ethFeeProxy
   if (paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT && !extension) {
     extension = request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
   }

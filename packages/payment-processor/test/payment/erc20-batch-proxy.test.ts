@@ -81,59 +81,75 @@ fauValidRequest.currencyInfo = {
   value: FAUTokenAddress,
 };
 
-describe('erc20-batch-proxy', () => {
-  beforeEach(() => {
-    jest.restoreAllMocks();
-  });
-  describe('getRequestPaymentValues', () => {
-    it('handles ERC20', () => {
-      const values = getRequestPaymentValues(validRequest);
-      expect(values.feeAddress).toBe(feeAddress);
-      expect(values.feeAmount).toBe('2');
-      expect(values.paymentAddress).toBe(paymentAddress1);
-      expect(values.paymentReference).toBe('86dfbccad783599a');
-    });
-  });
+const sameCurrencyValue = (
+  requestA: ClientTypes.IRequestData,
+  requestB: ClientTypes.IRequestData,
+): boolean => {
+  return requestA.currencyInfo.value === requestB.currencyInfo.value;
+};
 
-  describe('encodePayErc20BatchRequest for one ERC20', () => {
+const getData = (
+  request1: ClientTypes.IRequestData,
+  request2: ClientTypes.IRequestData,
+): string => {
+  if (sameCurrencyValue(request1, validRequest) && sameCurrencyValue(request2, validRequest)) {
+    return '0xfa73314200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000001e000000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000000000000200000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa3500000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa350000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002';
+  } else if (
+    sameCurrencyValue(request1, validRequest) &&
+    sameCurrencyValue(request2, fauValidRequest)
+  ) {
+    return '0xfa73314200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000001e000000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000000000000200000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa350000000000000000000000009fbda871d559710256a2502a2517b794b482db400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002';
+  } else {
+    throw 'wrong requests';
+  }
+};
+
+const testSuite = (
+  suiteName: string,
+  requestTemplate1: ClientTypes.IRequestData,
+  requestTemplate2: ClientTypes.IRequestData,
+) => {
+  describe(suiteName, () => {
+    let request1: ClientTypes.IRequestData;
+    let request2: ClientTypes.IRequestData;
+
+    beforeEach(() => {
+      jest.restoreAllMocks();
+      request1 = Utils.deepCopy(requestTemplate1) as ClientTypes.IRequestData;
+      request2 = Utils.deepCopy(requestTemplate2) as ClientTypes.IRequestData;
+    });
+
     it('should throw an error if the request is not erc20', async () => {
-      const erc20Request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      const ethRequest = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      ethRequest.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
-
+      request2.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
       await expect(
-        payBatchProxyRequest([erc20Request, ethRequest], batchVersion, wallet, batchFee),
+        payBatchProxyRequest([request1, request2], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
 
-    it('should throw an error if the currencyInfo has no value', async () => {
-      const request = Utils.deepCopy(validRequest);
-      request.currencyInfo.value = '';
+    it("should throw an error if one request's currencyInfo has no value", async () => {
+      request2.currencyInfo.value = '';
       await expect(
-        payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
+        payBatchProxyRequest([request1, request2], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
 
-    it('should throw an error if currencyInfo has no network', async () => {
-      const request = Utils.deepCopy(validRequest);
-      request.currencyInfo.network = '';
+    it("should throw an error if one request's currencyInfo has no network", async () => {
+      request2.currencyInfo.network = '';
       await expect(
-        payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
+        payBatchProxyRequest([request1, request2], batchVersion, wallet, batchFee),
       ).rejects.toThrowError(
         'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
       );
     });
 
     it('should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validRequest);
-      request.extensions = [] as any;
-
+      request2.extensions = [] as any;
       await expect(
-        payBatchProxyRequest([validRequest, request], batchVersion, wallet, batchFee),
+        payBatchProxyRequest([request1, request2], batchVersion, wallet, batchFee),
       ).rejects.toThrowError('no payment network found');
     });
 
@@ -142,7 +158,7 @@ describe('erc20-batch-proxy', () => {
         payBatchProxyRequest(
           [
             {
-              ...validRequest,
+              ...request1,
               extensions: {
                 [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
                   ...validRequest.extensions[
@@ -153,7 +169,7 @@ describe('erc20-batch-proxy', () => {
               },
             } as any,
             {
-              ...validRequest,
+              ...request2,
               extensions: {
                 [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
                   ...validRequest.extensions[
@@ -176,11 +192,11 @@ describe('erc20-batch-proxy', () => {
         const spy = jest.fn();
         const originalSendTransaction = wallet.sendTransaction.bind(wallet);
         wallet.sendTransaction = spy;
-        await payBatchProxyRequest([validRequest, validRequest], batchVersion, wallet, batchFee, {
+        await payBatchProxyRequest([request1, request2], batchVersion, wallet, batchFee, {
           gasPrice: '20000000000',
         });
         expect(spy).toHaveBeenCalledWith({
-          data: '0xfa73314200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000001e000000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000000000000200000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa3500000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa350000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002',
+          data: getData(request1, request2),
           gasPrice: '20000000000',
           to: '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc',
           value: 0,
@@ -190,11 +206,27 @@ describe('erc20-batch-proxy', () => {
 
       it('should pay an ERC20 request with fees', async () => {
         // first approve the contract
-        const doubleValueRequest = Utils.deepCopy(validRequest);
-        doubleValueRequest.expectedAmount = '2000';
+        const tmpRequest = Utils.deepCopy(request1);
+        let amount = 1000;
+        const isMultiToken = !sameCurrencyValue(request1, request2);
+
+        if (!isMultiToken) {
+          amount = 2 * amount;
+          tmpRequest.expectedAmount = amount.toString();
+        } else {
+          const ApprovalTx2 = await approveErc20BatchIfNeeded(
+            request2,
+            wallet.address,
+            batchVersion,
+            wallet,
+          );
+          if (ApprovalTx2) {
+            await ApprovalTx2.wait(1);
+          }
+        }
 
         const approvalTx = await approveErc20BatchIfNeeded(
-          doubleValueRequest,
+          tmpRequest,
           wallet.address,
           batchVersion,
           wallet,
@@ -203,56 +235,69 @@ describe('erc20-batch-proxy', () => {
         if (approvalTx) {
           await approvalTx.wait(1);
         }
+        request1.extensions['pn-erc20-fee-proxy-contract'].values.feeAmount = '6';
 
-        const request = Utils.deepCopy(validRequest);
-        request.extensions['pn-erc20-fee-proxy-contract'].values.feeAmount = '6';
-
-        // get the balance to compare after payment
+        // get the balance
         const balanceEthBefore = await wallet.getBalance();
-        const balanceErc20Before = await getErc20Balance(validRequest, wallet.address, provider);
-        const feeBalanceErc20Before = await getErc20Balance(validRequest, feeAddress, provider);
+        const balanceErc20Before = await getErc20Balance(request1, wallet.address, provider);
+        const feeBalanceErc20Before = await getErc20Balance(request1, feeAddress, provider);
 
-        const tx = await payBatchProxyRequest(
-          [request, validRequest],
-          batchVersion,
-          wallet,
-          batchFee,
-        );
+        const balanceErc20Before2 = await getErc20Balance(request2, wallet.address, provider);
+        const feeBalanceErc20Before2 = await getErc20Balance(request2, feeAddress, provider);
+
+        // Batch payment
+        const tx = await payBatchProxyRequest([request1, request2], batchVersion, wallet, batchFee);
         const confirmedTx = await tx.wait(1);
 
         const balanceEthAfter = await wallet.getBalance();
-        const balanceErc20After = await getErc20Balance(validRequest, wallet.address, provider);
-        const feeBalanceErc20After = await getErc20Balance(validRequest, feeAddress, provider);
+        const balanceErc20After = await getErc20Balance(request1, wallet.address, provider);
+        const feeBalanceErc20After = await getErc20Balance(request1, feeAddress, provider);
 
         expect(confirmedTx.status).toBe(1);
         expect(tx.hash).not.toBeUndefined();
         expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
 
-        // ERC20 balance should be lower
+        let feeAmount = 6 + 10 + (2 + 10);
+        if (isMultiToken) {
+          feeAmount = 6 + 10; // (2 + 10) will be sent on the 2nd token fee address
+          const balanceErc20After2 = await getErc20Balance(request2, wallet.address, provider);
+          const feeBalanceErc20After2 = await getErc20Balance(request2, feeAddress, provider);
+          // compare request 2 balances
+          expect(
+            BigNumber.from(balanceErc20After2).eq(
+              BigNumber.from(balanceErc20Before2).sub(amount + (2 + 10)),
+            ),
+          );
+          expect(
+            BigNumber.from(feeBalanceErc20After2).eq(
+              BigNumber.from(feeBalanceErc20Before2).add(2 + 10),
+            ),
+          );
+        }
+
+        // compare request 1 balances
         expect(
           BigNumber.from(balanceErc20After).eq(
-            BigNumber.from(balanceErc20Before).sub(2000 + (6 + 10) + (2 + 10)),
+            BigNumber.from(balanceErc20Before).sub(amount + feeAmount),
           ),
-        ).toBeTruthy();
-        // fee ERC20 balance should be higher
+        );
         expect(
           BigNumber.from(feeBalanceErc20After).eq(
-            BigNumber.from(feeBalanceErc20Before).add(6 + 10 + (2 + 10)),
+            BigNumber.from(feeBalanceErc20Before).add(feeAmount),
           ),
-        ).toBeTruthy();
+        );
       });
     });
-
     describe('prepareBatchPaymentTransaction', () => {
       it('should consider the version mapping', () => {
         expect(
           prepareBatchPaymentTransaction(
             [
               {
-                ...validRequest,
+                ...request1,
                 extensions: {
                   [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
-                    ...validRequest.extensions[
+                    ...request1.extensions[
                       PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
                     ],
                     version: '0.1.0',
@@ -260,10 +305,10 @@ describe('erc20-batch-proxy', () => {
                 },
               } as any,
               {
-                ...validRequest,
+                ...request2,
                 extensions: {
                   [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
-                    ...validRequest.extensions[
+                    ...request2.extensions[
                       PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
                     ],
                     version: '0.1.0',
@@ -278,231 +323,22 @@ describe('erc20-batch-proxy', () => {
       });
     });
   });
+};
 
-  describe('encodePayBatchRequest: multi tokens -> using two ERC20', () => {
-    it('should throw an error if the request is not erc20, for two ERC20', async () => {
-      const erc20Request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      const ethRequest = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
-      ethRequest.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
-
-      await expect(
-        payBatchProxyRequest([erc20Request, ethRequest], batchVersion, wallet, batchFee),
-      ).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-      );
-    });
-
-    it('should throw an error if the currencyInfo has no value for two ERC20', async () => {
-      const request = Utils.deepCopy(validRequest);
-      request.currencyInfo.value = '';
-      await expect(
-        payBatchProxyRequest([fauValidRequest, request], batchVersion, wallet, batchFee),
-      ).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-      );
-    });
-
-    it('should throw an error if currencyInfo has no network for two ERC20', async () => {
-      const request = Utils.deepCopy(validRequest);
-      request.currencyInfo.network = '';
-      await expect(
-        payBatchProxyRequest([fauValidRequest, request], batchVersion, wallet, batchFee),
-      ).rejects.toThrowError(
-        'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-      );
-    });
-
-    it('should throw an error if request has no extension', async () => {
-      const request = Utils.deepCopy(validRequest);
-      request.extensions = [] as any;
-
-      await expect(
-        payBatchProxyRequest([fauValidRequest, request], batchVersion, wallet, batchFee),
-      ).rejects.toThrowError('no payment network found');
-    });
-
-    it('should throw an error if there is a wrong version mapping for two ERC20', async () => {
-      await expect(
-        payBatchProxyRequest(
-          [
-            {
-              ...fauValidRequest,
-              extensions: {
-                [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
-                  ...validRequest.extensions[
-                    PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
-                  ],
-                  version: '0.1.0',
-                },
-              },
-            } as any,
-            {
-              ...validRequest,
-              extensions: {
-                [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
-                  ...validRequest.extensions[
-                    PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
-                  ],
-                  version: '0.3.0',
-                },
-              },
-            } as any,
-          ],
-          batchVersion,
-          wallet,
-          batchFee,
-        ),
-      ).rejects.toThrowError('Every payment network type and version must be identical');
-    });
-
-    describe('payBatchProxyRequest', () => {
-      it('should consider override parameters for two ERC20', async () => {
-        const spy = jest.fn();
-        const originalSendTransaction = wallet.sendTransaction.bind(wallet);
-        wallet.sendTransaction = spy;
-        await payBatchProxyRequest(
-          [fauValidRequest, validRequest],
-          batchVersion,
-          wallet,
-          batchFee,
-          {
-            gasPrice: '20000000000',
-          },
-        );
-        expect(spy).toHaveBeenCalledWith({
-          data: '0xfa73314200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000001e000000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef00000000000000000000000000000000000000000000000000000000000000020000000000000000000000009fbda871d559710256a2502a2517b794b482db4000000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa350000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002',
-          gasPrice: '20000000000',
-          to: '0x74e3FC764c2474f25369B9d021b7F92e8441A2Dc',
-          value: 0,
-        });
-        wallet.sendTransaction = originalSendTransaction;
-      });
-
-      it('should pay two different ERC20 requests with fees', async () => {
-        // first approve the contract
-        const approvalTx = await approveErc20BatchIfNeeded(
-          validRequest,
-          wallet.address,
-          batchVersion,
-          wallet,
-        );
-
-        if (approvalTx) {
-          await approvalTx.wait(1);
-        }
-
-        const fauApprovalTx = await approveErc20BatchIfNeeded(
-          fauValidRequest,
-          wallet.address,
-          batchVersion,
-          wallet,
-        );
-        if (fauApprovalTx) {
-          await fauApprovalTx.wait(1);
-        }
-        // get the balance to compare after payment
-        const balanceEthBefore = await wallet.getBalance();
-        const balanceErc20Before = await getErc20Balance(validRequest, wallet.address, provider);
-        const feeBalanceErc20Before = await getErc20Balance(validRequest, feeAddress, provider);
-        const fauBalanceErc20Before = await getErc20Balance(
-          fauValidRequest,
-          wallet.address,
-          provider,
-        );
-        const fauFeeBalanceErc20Before = await getErc20Balance(
-          fauValidRequest,
-          feeAddress,
-          provider,
-        );
-
-        const tx = await payBatchProxyRequest(
-          [validRequest, fauValidRequest],
-          batchVersion,
-          wallet,
-          batchFee,
-        );
-        const confirmedTx = await tx.wait(1);
-
-        const balanceEthAfter = await wallet.getBalance();
-        const balanceErc20After = await getErc20Balance(validRequest, wallet.address, provider);
-        const feeBalanceErc20After = await getErc20Balance(validRequest, feeAddress, provider);
-        const fauBalanceErc20After = await getErc20Balance(
-          fauValidRequest,
-          wallet.address,
-          provider,
-        );
-        const fauFeeBalanceErc20After = await getErc20Balance(
-          fauValidRequest,
-          feeAddress,
-          provider,
-        );
-
-        expect(confirmedTx.status).toBe(1);
-        expect(tx.hash).not.toBeUndefined();
-
-        expect(balanceEthAfter.lte(balanceEthBefore)).toBeTruthy(); // 'ETH balance should be lower'
-
-        // ERC20 balance should be lower
-        expect(
-          BigNumber.from(balanceErc20After).eq(
-            BigNumber.from(balanceErc20Before).sub(1000 + (2 + 10)),
-          ),
-        ).toBeTruthy();
-        // fee ERC20 balance should be higher
-        expect(
-          BigNumber.from(feeBalanceErc20After).eq(
-            BigNumber.from(feeBalanceErc20Before).add(2 + 10),
-          ),
-        ).toBeTruthy();
-
-        // Fau ERC20 balance should be lower
-        expect(
-          BigNumber.from(fauBalanceErc20After).eq(
-            BigNumber.from(fauBalanceErc20Before).sub(1000 + (2 + 10)),
-          ),
-        ).toBeTruthy();
-        // fee Fau ERC20 balance should be higher
-        expect(
-          BigNumber.from(fauFeeBalanceErc20After).eq(
-            BigNumber.from(fauFeeBalanceErc20Before).add(2 + 10),
-          ),
-        ).toBeTruthy();
-      });
-    });
-
-    describe('prepareBatchPaymentTransaction', () => {
-      it('should consider the version mapping for two ERC20', () => {
-        expect(
-          prepareBatchPaymentTransaction(
-            [
-              {
-                ...validRequest,
-                extensions: {
-                  [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
-                    ...validRequest.extensions[
-                      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
-                    ],
-                    version: '0.1.0',
-                  },
-                },
-              } as any,
-              {
-                ...fauValidRequest,
-                extensions: {
-                  [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
-                    ...validRequest.extensions[
-                      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
-                    ],
-                    version: '0.1.0',
-                  },
-                },
-              } as any,
-            ],
-            batchVersion,
-            batchFee,
-          ).to,
-        ).toBe(batchPaymentsArtifact.getAddress('private', '0.1.0'));
-      });
+describe('erc20-batch-proxy BIS', () => {
+  beforeEach(() => {
+    jest.restoreAllMocks();
+  });
+  describe('getRequestPaymentValues', () => {
+    it('handles ERC20', () => {
+      const values = getRequestPaymentValues(validRequest);
+      expect(values.feeAddress).toBe(feeAddress);
+      expect(values.feeAmount).toBe('2');
+      expect(values.paymentAddress).toBe(paymentAddress1);
+      expect(values.paymentReference).toBe('86dfbccad783599a');
     });
   });
+
+  testSuite('encodePayErc20BatchRequest for one type of ERC20', validRequest, validRequest);
+  testSuite('encodePayErc20BatchRequest using two different ERC20', validRequest, fauValidRequest);
 });
