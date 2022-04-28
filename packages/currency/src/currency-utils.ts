@@ -11,9 +11,15 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
   if (address.length < 2 || address.length > 64) {
     return false;
   }
-  if (address.match(/^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]{64}$/)) {
+  if (!address.match(/^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/)) {
+    return false;
+  }
+
+  // Return true when account format is in hexadecimal format
+  if (address.match(/[a-fA-F0-9]{64}$/)) {
     return true;
   }
+
   // see link bellow for details about top level accounts on mainnet and testnet
   // https://docs.near.org/docs/videos/accounts-keys
   switch (network) {
