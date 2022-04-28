@@ -1,6 +1,6 @@
 import * as artifacts from '../src/lib';
 
-export const getConstructorArgs = (contract: string, network?: string) => {
+export const getConstructorArgs = (contract: string, network?: string): string[] => {
   switch (contract) {
     case 'Erc20ConversionProxy': {
       if (!process.env.ADMIN_WALLET_ADDRESS) {
@@ -11,6 +11,12 @@ export const getConstructorArgs = (contract: string, network?: string) => {
         '0x0000000000000000000000000000000000000000',
         process.env.ADMIN_WALLET_ADDRESS,
       ];
+    }
+    case 'ERC20SwapToConversion': {
+      if (!process.env.ADMIN_WALLET_ADDRESS) {
+        throw new Error(`ADMIN_WALLET_ADDRESS missing to get constructor args for: ${contract}`);
+      }
+      return [process.env.ADMIN_WALLET_ADDRESS];
     }
     case 'ERC20EscrowToPay': {
       if (!process.env.ADMIN_WALLET_ADDRESS) {

@@ -27,6 +27,7 @@ export const supportedNetworks = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+  ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
 ];
 
 export interface IConversionPaymentSettings {

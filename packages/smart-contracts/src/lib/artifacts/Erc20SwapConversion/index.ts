@@ -1,6 +1,7 @@
 import { ContractArtifact } from '../../ContractArtifact';
 
 import { abi as ABI_0_1_0 } from './0.1.0.json';
+import { abi as ABI_0_2_0 } from './0.2.0.json';
 // @ts-ignore Cannot find module
 import type { ERC20SwapToConversion } from '../../../types/ERC20SwapToConversion';
 
@@ -51,6 +52,31 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
         },
       },
     },
+    '0.2.0': {
+      abi: ABI_0_2_0,
+      deployment: {
+        private: {
+          address: '0xd54b47F8e6A1b97F3A84f63c867286272b273b7C',
+          creationBlockNumber: 0,
+        },
+        rinkeby: {
+          address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
+          creationBlockNumber: 0,
+        },
+        matic: {
+          address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
+          creationBlockNumber: 27597829,
+        },
+        mainnet: {
+          address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
+          creationBlockNumber: 14660280,
+        },
+        xdai: {
+          address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
+          creationBlockNumber: 21837165,
+        },
+      },
+    },
   },
-  '0.1.0',
+  '0.2.0',
 );

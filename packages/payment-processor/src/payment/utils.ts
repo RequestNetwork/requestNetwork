@@ -193,7 +193,12 @@ export function validateRequest(
 ): void {
   const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } =
     getRequestPaymentValues(request);
-  const extension = request.extensions[paymentNetworkId];
+  let extension = request.extensions[paymentNetworkId];
+
+  // FIXME: updating the extension: not needed anymore when "invoicing" will use only ethFeeProxy
+  if (paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT && !extension) {
+    extension = request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
+  }
 
   // Compatibility of the request currency type with the payment network
   const expectedCurrencyType = currenciesMap[paymentNetworkId];
@@ -323,4 +328,20 @@ export function getAmountToPay(
     throw new Error('cannot pay a null amount');
   }
   return amountToPay;
+}
+
+/**
+ * Compare 2 payment networks type and version in request's extension
+ * @param pn payment network
+ * @param request
+ * @returns true if type and version are identique else false
+ */
+export function comparePnTypeAndVersion(
+  pn: ExtensionTypes.IState | undefined,
+  request: ClientTypes.IRequestData,
+): boolean {
+  return (
+    pn?.type === getPaymentNetworkExtension(request)?.type &&
+    pn?.version === getPaymentNetworkExtension(request)?.version
+  );
 }

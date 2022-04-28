@@ -5,7 +5,6 @@ import {
   erc20FeeProxyArtifact,
   erc20SwapToPayArtifact,
 } from '../src/lib';
-import { deploySwapConversion } from './erc20-swap-to-conversion';
 import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversion-proxy';
 import { DeploymentResult, deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses, jumpToNonce } from './utils';
@@ -13,9 +12,6 @@ import { Contract } from 'ethers';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
 import { ChainlinkConversionPath } from '../src/types/ChainlinkConversionPath';
-// eslint-disable-next-line
-// @ts-ignore Cannot find module
-import { ERC20SwapToConversion } from '../src/types/ERC20SwapToConversion';
 // eslint-disable-next-line
 // @ts-ignore Cannot find module
 import { EthConversionProxy } from '../src/types/EthConversionProxy';
@@ -217,12 +213,10 @@ export async function deployAllPaymentContracts(
      * Batch 5
      *   - 5.a ERC20ConversionProxy
      *   - 5.b ERC20ConversionProxy.transferOwnership
-     *   - 5.c ERC20SwapConversion.setPaymentProxy
      */
     const runDeploymentBatch_5 = async (
       chainlinkInstance: ChainlinkConversionPath,
       erc20FeeProxyAddress: string,
-      erc20SwapConversionInstance: ERC20SwapToConversion,
       ethConversionResultInstance?: EthConversionProxy,
     ) => {
       const NONCE_BATCH_5 = 15;
@@ -266,34 +260,6 @@ export async function deployAllPaymentContracts(
             `Warning: the ERC20ConversionProxy contract instance is not ready, consider retrying.`,
           );
           switchToSimulation();
-        }
-      }
-
-      // 5.c ERC20SwapConversion.setPaymentProxy
-      // Ignore if the ERC20 conversion proxy is already live and used, until it gets deprecated
-      const IGNORE_SET_PAYMENT_PROXY = true;
-      console.warn(
-        `DOUBLE-CHECK: ${
-          IGNORE_SET_PAYMENT_PROXY ? '' : 'not '
-        }ignoring erc20SwapConversionInstance.setPaymentProxy on ${
-          erc20SwapConversionInstance.address
-        }`,
-      );
-
-      if (!IGNORE_SET_PAYMENT_PROXY) {
-        if (await nonceReady(NONCE_BATCH_5 + 2)) {
-          if (erc20ConversionResult) {
-            if (args.simulate === false) {
-              await erc20SwapConversionInstance.setPaymentProxy(erc20ConversionResult?.address);
-            } else {
-              console.log('[i] Simulating setPaymentProxy to ERC20SwapConversion');
-            }
-          } else {
-            console.warn(
-              `Warning: the ERC20ConversionProxy contract instance is not ready for ERC20SwapConversion update, consider retrying.`,
-            );
-            switchToSimulation();
-          }
         }
       }
       const ethConversionAdminNonce = NONCE_BATCH_5 + 3;
@@ -343,30 +309,7 @@ export async function deployAllPaymentContracts(
     // Batch 2
     await runDeploymentBatch_2(erc20FeeProxyAddress);
 
-    // Batch 3
-
-    // SwapToConversion
-    let swapRouterAddress = uniswapV2RouterAddresses[hre.network.name];
-    if (!swapRouterAddress) {
-      logDeploymentMsg(
-        'ERC20SwapToConversion:',
-        undefined,
-        'swap and chainlinkPath set to 0x000..000 - can be administrated by deployer',
-      );
-      swapRouterAddress = '0x0000000000000000000000000000000000000000';
-    }
-
-    const swapConversionResult = await deploySwapConversion(
-      {
-        ...args,
-        conversionProxyAddress: '0x0000000000000000000000000000000000000000',
-        chainlinkConversionPathAddress: '0x0000000000000000000000000000000000000000',
-        swapProxyAddress: swapRouterAddress,
-        nonceCondition: 6,
-      },
-      hre,
-    );
-    addToResult(swapConversionResult);
+    // Batch 3 - SwapToConversion : REMOVED -> Deployment CREATE2
 
     // Compute EthereumFeeProxy address (CREATE2)
     const ethFeeProxyAddress = await computeCreate2DeploymentAddress(
@@ -383,7 +326,6 @@ export async function deployAllPaymentContracts(
     await runDeploymentBatch_5(
       chainlinkInstance,
       erc20FeeProxyAddress,
-      swapConversionResult.instance,
       ethConversionResult?.instance as EthConversionProxy,
     );
 
