@@ -30,7 +30,7 @@ const mockWeb3: any = {
   })),
 };
 
-// use of Infura only to initialize Web3SignatureProvider - but web3 is mocked afterward
+// use of an empty function to initialize Web3SignatureProvider - but web3 is mocked afterward
 const signProvider = new Web3SignatureProvider(() => {});
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
