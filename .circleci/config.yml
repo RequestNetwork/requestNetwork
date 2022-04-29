@@ -27,7 +27,24 @@ references:
       ipfs: 'localhost:5001'
       ethereum: 'private:http://localhost:8545'
       GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 1
-  graph_deploy: &graph_deploy
+  postgres_image: &postgres_image
+    image: postgres
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+  step_graph_deploy: &step_graph_deploy
+    name: 'Subgraph deployment and configuration'
+    working_directory: ~/
+    command: |
+      git clone https://github.com/RequestNetwork/storage-subgraph
+      cd storage-subgraph
+      yarn
+      yarn codegen  ./subgraph-private.yaml
+      yarn create-local ./subgraph-private.yaml
+      yarn deploy-local --version-label v0.0.1 ./subgraph-private.yaml
+      sleep 5
+  step_wait_for_node: &step_wait_for_node
     name: 'Waiting for Request Node to be ready'
     command: |
       for i in `seq 1 10`;
@@ -37,12 +54,6 @@ references:
         sleep 1
       done
       echo Failed waiting for Node initialization && exit 1
-  postgres_image: &postgres_image
-    image: postgres
-    environment:
-      POSTGRES_USER: graph-node
-      POSTGRES_PASSWORD: let-me-in
-      POSTGRES_DB: graph-node
 jobs:
   build:
     docker:
@@ -261,17 +272,7 @@ jobs:
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Subgraph deployment and configuration'
-          working_directory: ~/
-          command: |
-            git clone https://github.com/RequestNetwork/storage-subgraph
-            cd storage-subgraph
-            yarn
-            yarn codegen  ./subgraph-private.yaml
-            yarn create-local ./subgraph-private.yaml
-            yarn deploy-local --version-label v0.0.1 ./subgraph-private.yaml
-            sleep 5
+      - run: *step_graph_deploy
       - run:
           name: 'Test request-node'
           command: 'yarn workspace @requestnetwork/request-node run test --ci'
@@ -377,7 +378,7 @@ jobs:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
-      - run: *graph_deploy
+      - run: *step_wait_for_node
       - run:
           name: 'Test integration-test (node)'
           command: 'yarn workspace @requestnetwork/integration-test run test:node --ci --maxWorkers=1'
@@ -402,24 +403,14 @@ jobs:
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
-      - run:
-          name: 'Subgraph deployment and configuration'
-          working_directory: ~/
-          command: |
-            git clone https://github.com/RequestNetwork/storage-subgraph
-            cd storage-subgraph
-            yarn
-            yarn codegen  ./subgraph-private.yaml
-            yarn create-local ./subgraph-private.yaml
-            yarn deploy-local --version-label v0.0.1 ./subgraph-private.yaml
-            sleep 5
+      - run: *step_graph_deploy
       - run:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
           environment:
             GRAPH_NODE_URL: http://localhost:8000/subgraphs/name/RequestNetwork/request-storage
-      - run: *graph_deploy
+      - run: *step_wait_for_node
       - run:
           name: 'Confirm TheGraph mode'
           command: |
