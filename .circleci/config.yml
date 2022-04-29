@@ -27,6 +27,16 @@ references:
       ipfs: 'localhost:5001'
       ethereum: 'private:http://localhost:8545'
       GRAPH_ALLOW_NON_DETERMINISTIC_IPFS: 1
+  graph_deploy: &graph_deploy
+    name: 'Waiting for Request Node to be ready'
+    command: |
+      for i in `seq 1 10`;
+      do
+        curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
+        echo -n .
+        sleep 1
+      done
+      echo Failed waiting for Node initialization && exit 1
   postgres_image: &postgres_image
     image: postgres
     environment:
@@ -367,16 +377,7 @@ jobs:
           name: 'Start request-node'
           command: 'yarn workspace @requestnetwork/request-node run start'
           background: true
-      - run:
-          name: 'Waiting for Request Node to be ready'
-          command: |
-            for i in `seq 1 10`;
-            do
-              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for Node initialization && exit 1
+      - run: *graph_deploy
       - run:
           name: 'Test integration-test (node)'
           command: 'yarn workspace @requestnetwork/integration-test run test:node --ci --maxWorkers=1'
@@ -418,16 +419,7 @@ jobs:
           background: true
           environment:
             GRAPH_NODE_URL: http://localhost:8000/subgraphs/name/RequestNetwork/request-storage
-      - run:
-          name: 'Waiting for Request Node to be ready'
-          command: |
-            for i in `seq 1 10`;
-            do
-              curl -s -o /dev/null -f http://localhost:3000/readyz > /dev/null && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for Node initialization && exit 1
+      - run: *graph_deploy
       - run:
           name: 'Confirm TheGraph mode'
           command: |
