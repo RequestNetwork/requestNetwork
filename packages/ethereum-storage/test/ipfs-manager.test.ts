@@ -161,7 +161,7 @@ describe('Ipfs manager', () => {
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequest.emit('abort'), 1000);
-    await expect(ipfsManager.read(hash)).rejects.toThrowError('Ipfs read request has been aborted');
+    await expect(ipfsManager.read(hash)).rejects.toThrowError('Ipfs read request has been closed');
   });
 
   it('aborting read request response should throw an error', async () => {
@@ -179,7 +179,7 @@ describe('Ipfs manager', () => {
 
     setTimeout(() => hookedRequestResponse.emit('aborted'), 1000);
     await expect(ipfsManager.read(hash)).rejects.toThrowError(
-      'Ipfs read request response has been aborted',
+      'Ipfs read request response has been closed',
     );
   });
 
@@ -214,7 +214,7 @@ describe('Ipfs manager', () => {
 
     setTimeout(() => hookedRequest.emit('abort'), 1000);
     await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError(
-      'Ipfs stat request has been aborted',
+      'Ipfs stat request has been closed',
     );
   });
 
@@ -233,7 +233,7 @@ describe('Ipfs manager', () => {
 
     setTimeout(() => hookedRequestResponse.emit('aborted'), 1000);
     await expect(ipfsManager.getContentLength(hash)).rejects.toThrowError(
-      'Ipfs stat request response has been aborted',
+      'Ipfs stat request response has been closed',
     );
   });
 

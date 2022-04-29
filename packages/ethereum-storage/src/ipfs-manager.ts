@@ -75,11 +75,11 @@ export default class IpfsManager {
             reject(Error(`Ipfs id response error: ${e}`));
           });
           res.on('aborted', () => {
-            reject(Error('Ipfs id response has been aborted'));
+            reject(Error('Ipfs id response has been closed'));
           });
         })
-        .on('abort', () => {
-          reject(Error('Ipfs id has been aborted'));
+        .on('close', () => {
+          reject(Error('Ipfs id has been closed'));
         })
         .on('error', (e: string) => {
           reject(Error(`Ipfs id error: ${e}`));
@@ -152,7 +152,7 @@ export default class IpfsManager {
           }
         });
         res.on('aborted', () => {
-          return reject(Error('Ipfs add request response has been aborted'));
+          return reject(Error('Ipfs add request response has been closed'));
         });
       });
 
@@ -160,11 +160,11 @@ export default class IpfsManager {
       addRequest.on('timeout', () => {
         didTimeout = true;
         // explicitly abort the request
-        addRequest.abort();
+        addRequest.destroy();
         return reject(Error('Ipfs add request timeout'));
       });
-      addRequest.on('abort', () => {
-        return reject(Error('Ipfs add request has been aborted'));
+      addRequest.on('close', () => {
+        return reject(Error('Ipfs add request has been closed'));
       });
       addRequest.on('error', (e: string) => {
         // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
@@ -215,7 +215,7 @@ export default class IpfsManager {
               data += chunk;
               // decode the base64 to compute the actual size of the data
               if (Buffer.from(data, 'base64').length > maxSize) {
-                getRequest.abort();
+                getRequest.destroy();
                 res.destroy();
                 return reject(
                   new Error(
@@ -261,18 +261,18 @@ export default class IpfsManager {
               }
             });
             res.on('aborted', () => {
-              return reject(new IpfsConnectionError('Ipfs read request response has been aborted'));
+              return reject(new IpfsConnectionError('Ipfs read request response has been closed'));
             });
           },
         )
         .on('timeout', () => {
           didTimeout = true;
           // explicitly abort the request
-          getRequest.abort();
+          getRequest.destroy();
           return reject(new IpfsConnectionError('Ipfs read request timeout'));
         })
-        .on('abort', () => {
-          return reject(new IpfsConnectionError('Ipfs read request has been aborted'));
+        .on('close', () => {
+          return reject(new IpfsConnectionError('Ipfs read request has been closed'));
         })
         .on('error', (e: string) => {
           // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
@@ -357,18 +357,18 @@ export default class IpfsManager {
               }
             });
             res.on('aborted', () => {
-              return reject(Error('Ipfs pin request response has been aborted'));
+              return reject(Error('Ipfs pin request response has been closed'));
             });
           },
         )
         .on('timeout', () => {
           didTimeout = true;
           // explicitly abort the request
-          getRequest.abort();
+          getRequest.destroy();
           return reject(Error('Ipfs pin request timeout'));
         })
-        .on('abort', () => {
-          return reject(Error('Ipfs pin request has been aborted'));
+        .on('close', () => {
+          return reject(Error('Ipfs pin request has been closed'));
         })
         .on('error', (e: string) => {
           // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
@@ -449,18 +449,18 @@ export default class IpfsManager {
               }
             });
             res.on('aborted', () => {
-              return reject(Error('Ipfs stat request response has been aborted'));
+              return reject(Error('Ipfs stat request response has been closed'));
             });
           },
         )
         .on('timeout', () => {
           didTimeout = true;
           // explicitly abort the request
-          getRequest.abort();
+          getRequest.destroy();
           return reject(Error('Ipfs stat request timeout'));
         })
-        .on('abort', () => {
-          return reject(Error('Ipfs stat request has been aborted'));
+        .on('close', () => {
+          return reject(Error('Ipfs stat request has been closed'));
         })
         .on('error', (e: string) => {
           // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
@@ -520,11 +520,11 @@ export default class IpfsManager {
             reject(Error(`Ipfs bootstrap list response error: ${e}`));
           });
           res.on('aborted', () => {
-            reject(Error('Ipfs bootstrap list response has been aborted'));
+            reject(Error('Ipfs bootstrap list response has been closed'));
           });
         })
-        .on('abort', () => {
-          reject(Error('Ipfs bootstrap list has been aborted'));
+        .on('close', () => {
+          reject(Error('Ipfs bootstrap list has been closed'));
         })
         .on('error', (e: string) => {
           reject(Error(`Ipfs bootstrap list error: ${e}`));
