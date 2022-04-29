@@ -157,7 +157,7 @@ describe('Ipfs manager', () => {
       hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };
-    const hookedIpfsConnectionModule = { get: requestHook };
+    const hookedIpfsConnectionModule = { get: requestHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequest.emit('abort'), 1000);
@@ -174,7 +174,7 @@ describe('Ipfs manager', () => {
         resCallback(hookedRequestResponse);
       });
     };
-    const hookedIpfsConnectionModule = { get: requestHook };
+    const hookedIpfsConnectionModule = { get: requestHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequestResponse.emit('aborted'), 1000);
@@ -193,7 +193,7 @@ describe('Ipfs manager', () => {
         resCallback(hookedRequestResponse);
       });
     };
-    const hookedIpfsConnectionModule = { get: requestHook };
+    const hookedIpfsConnectionModule = { get: requestHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequestResponse.emit('error'), 1000);
@@ -209,7 +209,7 @@ describe('Ipfs manager', () => {
       hookedRequest = http.get(request, (_res) => {});
       return hookedRequest;
     };
-    const hookedIpfsConnectionModule = { get: requestHook };
+    const hookedIpfsConnectionModule = { get: requestHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequest.emit('abort'), 1000);
@@ -228,7 +228,7 @@ describe('Ipfs manager', () => {
         resCallback(hookedRequestResponse);
       });
     };
-    const hookedIpfsConnectionModule = { get: requestHook };
+    const hookedIpfsConnectionModule = { get: requestHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequestResponse.emit('aborted'), 1000);
@@ -247,7 +247,7 @@ describe('Ipfs manager', () => {
         resCallback(hookedRequestResponse);
       });
     };
-    const hookedIpfsConnectionModule = { get: requestHook };
+    const hookedIpfsConnectionModule = { get: requestHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     setTimeout(() => hookedRequestResponse.emit('error'), 1000);
@@ -266,7 +266,7 @@ describe('Ipfs manager', () => {
         resCallback(hookedRequestResponse);
       });
     };
-    const hookedIpfsConnectionModule = { get: requestHook };
+    const hookedIpfsConnectionModule = { get: requestHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     // We emit end event directly, we will call end callball with no response data
@@ -286,7 +286,7 @@ describe('Ipfs manager', () => {
         resCallback(hookedRequestResponse);
       });
     };
-    const hookedIpfsConnectionModule = { get: requestHook };
+    const hookedIpfsConnectionModule = { get: requestHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     // We emit custom json data with no DataSize field
@@ -319,7 +319,7 @@ describe('Ipfs manager', () => {
       });
     };
 
-    const hookedIpfsConnectionModule = { get: getHook };
+    const hookedIpfsConnectionModule = { get: getHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     // Fails for the original request, the retries and the last one that will fail
@@ -343,7 +343,7 @@ describe('Ipfs manager', () => {
         resCallback(hookedGetResponse);
       });
     };
-    const hookedIpfsConnectionModule = { get: getHook };
+    const hookedIpfsConnectionModule = { get: getHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     // Fails for the original request, the retries and the last one that will fail
@@ -368,7 +368,7 @@ describe('Ipfs manager', () => {
       });
     };
 
-    const hookedIpfsConnectionModule = { get: getHook };
+    const hookedIpfsConnectionModule = { get: getHook } as any;
     ipfsManager.ipfsConnectionModule = hookedIpfsConnectionModule;
 
     for (let i = 0; i < retryTestErrorHandling.maxRetries + 2; i++) {
@@ -378,5 +378,18 @@ describe('Ipfs manager', () => {
       'Ipfs stat request response error',
     );
     expect(spy).toHaveBeenCalledTimes(5);
+  });
+
+  it('should throw on add timeout', async () => {
+    ipfsManager = new IpfsManager({ ...ipfsGatewayConnection, timeout: 1 }, retryTestErrorHandling);
+    const assertionsNb = 10;
+    expect.assertions(assertionsNb);
+    let assertions = [];
+    for (let i = 0; i < assertionsNb; i++) {
+      assertions.push(
+        expect(ipfsManager.add('test')).rejects.toThrowError('Ipfs add request timeout'),
+      );
+    }
+    await Promise.all(assertions);
   });
 });

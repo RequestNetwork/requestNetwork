@@ -17,7 +17,7 @@ export default class IpfsManager {
    * Node module used to send request to ipfs
    * This attribute is left public for mocking purposes
    */
-  public ipfsConnectionModule: any;
+  public ipfsConnectionModule: typeof http | typeof https;
 
   /** IPFS error handling configurations */
   public errorHandlingConfig: StorageTypes.IIpfsErrorHandlingConfiguration;
@@ -38,10 +38,10 @@ export default class IpfsManager {
    * Private network is used for default values
    */
   public constructor(
-    _ipfsConnection: StorageTypes.IIpfsGatewayConnection = getDefaultIpfs(),
+    ipfsConnection: StorageTypes.IIpfsGatewayConnection = getDefaultIpfs(),
     ipfsErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration = getIpfsErrorHandlingConfig(),
   ) {
-    this.ipfsConnection = _ipfsConnection;
+    this.ipfsConnection = ipfsConnection;
     this.errorHandlingConfig = ipfsErrorHandling;
 
     this.ipfsConnectionModule = this.getIpfsConnectionModuleModule(this.ipfsConnection.protocol);
@@ -109,16 +109,14 @@ export default class IpfsManager {
         method: 'post',
         path: this.IPFS_API_ADD,
         port: this.ipfsConnection.port,
+        timeout: this.ipfsConnection.timeout > 0 ? this.ipfsConnection.timeout : undefined,
       });
+
       // Sending the request
       addForm.pipe(addRequest);
 
-      if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {
-        addRequest.setTimeout(this.ipfsConnection.timeout);
-      }
-
       // Waiting for response
-      addRequest.on('response', (res: any) => {
+      addRequest.on('response', (res) => {
         let data = '';
         // Response data
         res.on('data', (chunk: string) => {
@@ -206,61 +204,67 @@ export default class IpfsManager {
       let didTimeout = false;
 
       const getRequest = this.ipfsConnectionModule
-        .get(getRequestString, (res: any) => {
-          let data = '';
+        .get(
+          getRequestString,
+          { timeout: this.ipfsConnection.timeout > 0 ? this.ipfsConnection.timeout : undefined },
+          (res) => {
+            let data = '';
 
-          // Chunk of response data
-          res.on('data', (chunk: string) => {
-            data += chunk;
-            // decode the base64 to compute the actual size of the data
-            if (Buffer.from(data, 'base64').length > maxSize) {
-              getRequest.abort();
-              res.destroy();
-              return reject(
-                new Error(`File size (${data.length}) exceeds the declared file size (${maxSize})`),
-              );
-            }
-          });
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+              // decode the base64 to compute the actual size of the data
+              if (Buffer.from(data, 'base64').length > maxSize) {
+                getRequest.abort();
+                res.destroy();
+                return reject(
+                  new Error(
+                    `File size (${data.length}) exceeds the declared file size (${maxSize})`,
+                  ),
+                );
+              }
+            });
 
-          // All data has been received
-          res.on('end', () => {
-            let jsonData;
-            try {
-              jsonData = JSON.parse(data);
-            } catch (error) {
-              return reject(
-                new Error('Ipfs object get request response cannot be parsed into JSON format'),
-              );
-            }
-            if (jsonData.Type === 'error') {
-              return reject(new Error(`Ipfs object get failed: ${jsonData.Message}`));
-            }
-            const ipfsDataBuffer = Buffer.from(jsonData.Data, 'base64');
-            const content = this.getContentFromMarshaledData(ipfsDataBuffer);
-            const ipfsSize = ipfsDataBuffer.length;
-            const ipfsLinks = jsonData.Links;
-            resolve({ content, ipfsSize, ipfsLinks });
-          });
+            // All data has been received
+            res.on('end', () => {
+              let jsonData;
+              try {
+                jsonData = JSON.parse(data);
+              } catch (error) {
+                return reject(
+                  new Error('Ipfs object get request response cannot be parsed into JSON format'),
+                );
+              }
+              if (jsonData.Type === 'error') {
+                return reject(new Error(`Ipfs object get failed: ${jsonData.Message}`));
+              }
+              const ipfsDataBuffer = Buffer.from(jsonData.Data, 'base64');
+              const content = this.getContentFromMarshaledData(ipfsDataBuffer);
+              const ipfsSize = ipfsDataBuffer.length;
+              const ipfsLinks = jsonData.Links;
+              resolve({ content, ipfsSize, ipfsLinks });
+            });
 
-          // Error handling
-          res.on('error', (e: string) => {
-            // If maxRetries is set, and we haven't reached maxRetries, retry the request
-            if (
-              this.errorHandlingConfig.maxRetries &&
-              retries <= this.errorHandlingConfig.maxRetries
-            ) {
-              setTimeout(
-                () => resolve(this.read(hash, maxSize, retries + 1)),
-                this.errorHandlingConfig.delayBetweenRetries,
-              );
-            } else {
-              return reject(new IpfsConnectionError(`Ipfs read request response error: ${e}`));
-            }
-          });
-          res.on('aborted', () => {
-            return reject(new IpfsConnectionError('Ipfs read request response has been aborted'));
-          });
-        })
+            // Error handling
+            res.on('error', (e: string) => {
+              // If maxRetries is set, and we haven't reached maxRetries, retry the request
+              if (
+                this.errorHandlingConfig.maxRetries &&
+                retries <= this.errorHandlingConfig.maxRetries
+              ) {
+                setTimeout(
+                  () => resolve(this.read(hash, maxSize, retries + 1)),
+                  this.errorHandlingConfig.delayBetweenRetries,
+                );
+              } else {
+                return reject(new IpfsConnectionError(`Ipfs read request response error: ${e}`));
+              }
+            });
+            res.on('aborted', () => {
+              return reject(new IpfsConnectionError('Ipfs read request response has been aborted'));
+            });
+          },
+        )
         .on('timeout', () => {
           didTimeout = true;
           // explicitly abort the request
@@ -285,10 +289,6 @@ export default class IpfsManager {
             return reject(new IpfsConnectionError(`Ipfs read request error: ${e}`));
           }
         });
-
-      if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {
-        getRequest.setTimeout(this.ipfsConnection.timeout);
-      }
     });
   }
 
@@ -310,49 +310,57 @@ export default class IpfsManager {
       let didTimeout = false;
 
       const getRequest = this.ipfsConnectionModule
-        .get(getRequestString, (res: any) => {
-          let data = '';
+        .get(
+          getRequestString,
+          {
+            timeout:
+              timeout ??
+              (this.ipfsConnection.timeout > 0 ? this.ipfsConnection.timeout : undefined),
+          },
+          (res) => {
+            let data = '';
 
-          // Chunk of response data
-          res.on('data', (chunk: string) => {
-            data += chunk;
-          });
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+            });
 
-          // Response data
-          res.on('end', () => {
-            let jsonData;
-            try {
-              jsonData = JSON.parse(data);
-            } catch (error) {
-              return reject(Error('Ipfs pin request response cannot be parsed into JSON format'));
-            }
-            if (!jsonData || !jsonData.Pins) {
-              return reject(Error('Ipfs pin request response has no Pins field'));
-            }
+            // Response data
+            res.on('end', () => {
+              let jsonData;
+              try {
+                jsonData = JSON.parse(data);
+              } catch (error) {
+                return reject(Error('Ipfs pin request response cannot be parsed into JSON format'));
+              }
+              if (!jsonData || !jsonData.Pins) {
+                return reject(Error('Ipfs pin request response has no Pins field'));
+              }
 
-            // Return the hash of the response
-            resolve(jsonData.Pins);
-          });
+              // Return the hash of the response
+              resolve(jsonData.Pins);
+            });
 
-          // Error handling
-          res.on('error', (e: string) => {
-            // If maxRetries is set, and we haven't reached maxRetries, retry the request
-            if (
-              this.errorHandlingConfig.maxRetries &&
-              retries <= this.errorHandlingConfig.maxRetries
-            ) {
-              setTimeout(
-                () => resolve(this.pin(hashes, timeout, retries + 1)),
-                this.errorHandlingConfig.delayBetweenRetries,
-              );
-            } else {
-              return reject(Error(`Ipfs pin request response error: ${e}`));
-            }
-          });
-          res.on('aborted', () => {
-            return reject(Error('Ipfs pin request response has been aborted'));
-          });
-        })
+            // Error handling
+            res.on('error', (e: string) => {
+              // If maxRetries is set, and we haven't reached maxRetries, retry the request
+              if (
+                this.errorHandlingConfig.maxRetries &&
+                retries <= this.errorHandlingConfig.maxRetries
+              ) {
+                setTimeout(
+                  () => resolve(this.pin(hashes, timeout, retries + 1)),
+                  this.errorHandlingConfig.delayBetweenRetries,
+                );
+              } else {
+                return reject(Error(`Ipfs pin request response error: ${e}`));
+              }
+            });
+            res.on('aborted', () => {
+              return reject(Error('Ipfs pin request response has been aborted'));
+            });
+          },
+        )
         .on('timeout', () => {
           didTimeout = true;
           // explicitly abort the request
@@ -377,10 +385,6 @@ export default class IpfsManager {
             return reject(Error(`Ipfs pin request error: ${e}`));
           }
         });
-
-      if (timeout || (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0)) {
-        getRequest.setTimeout(timeout || this.ipfsConnection.timeout);
-      }
     });
   }
 
@@ -399,48 +403,56 @@ export default class IpfsManager {
       let didTimeout = false;
 
       const getRequest = this.ipfsConnectionModule
-        .get(getRequestString, (res: any) => {
-          let data = '';
+        .get(
+          getRequestString,
+          {
+            timeout: this.ipfsConnection.timeout > 0 ? this.ipfsConnection.timeout : undefined,
+          },
+          (res) => {
+            let data = '';
 
-          // Chunk of response data
-          res.on('data', (chunk: string) => {
-            data += chunk;
-          });
-          // All data has been received
-          res.on('end', () => {
-            let jsonData;
-            try {
-              jsonData = JSON.parse(data);
-            } catch (error) {
-              return reject(Error('Ipfs stat request response cannot be parsed into JSON format'));
-            }
-            if (!jsonData || !jsonData.DataSize) {
-              return reject(Error('Ipfs stat request response has no DataSize field'));
-            } else {
-              // Return the data size
-              resolve(parseInt(jsonData.DataSize, 10));
-            }
-          });
+            // Chunk of response data
+            res.on('data', (chunk: string) => {
+              data += chunk;
+            });
+            // All data has been received
+            res.on('end', () => {
+              let jsonData;
+              try {
+                jsonData = JSON.parse(data);
+              } catch (error) {
+                return reject(
+                  Error('Ipfs stat request response cannot be parsed into JSON format'),
+                );
+              }
+              if (!jsonData || !jsonData.DataSize) {
+                return reject(Error('Ipfs stat request response has no DataSize field'));
+              } else {
+                // Return the data size
+                resolve(parseInt(jsonData.DataSize, 10));
+              }
+            });
 
-          // Error handling
-          res.on('error', (e: string) => {
-            // If maxRetries is set, and we haven't reached maxRetries, retry the request
-            if (
-              this.errorHandlingConfig.maxRetries &&
-              retries <= this.errorHandlingConfig.maxRetries
-            ) {
-              setTimeout(
-                () => resolve(this.getContentLength(hash, retries + 1)),
-                this.errorHandlingConfig.delayBetweenRetries,
-              );
-            } else {
-              return reject(Error(`Ipfs stat request response error: ${e}`));
-            }
-          });
-          res.on('aborted', () => {
-            return reject(Error('Ipfs stat request response has been aborted'));
-          });
-        })
+            // Error handling
+            res.on('error', (e: string) => {
+              // If maxRetries is set, and we haven't reached maxRetries, retry the request
+              if (
+                this.errorHandlingConfig.maxRetries &&
+                retries <= this.errorHandlingConfig.maxRetries
+              ) {
+                setTimeout(
+                  () => resolve(this.getContentLength(hash, retries + 1)),
+                  this.errorHandlingConfig.delayBetweenRetries,
+                );
+              } else {
+                return reject(Error(`Ipfs stat request response error: ${e}`));
+              }
+            });
+            res.on('aborted', () => {
+              return reject(Error('Ipfs stat request response has been aborted'));
+            });
+          },
+        )
         .on('timeout', () => {
           didTimeout = true;
           // explicitly abort the request
@@ -465,10 +477,6 @@ export default class IpfsManager {
             return reject(Error(`Ipfs stat request error: ${e}`));
           }
         });
-
-      if (this.ipfsConnection.timeout && this.ipfsConnection.timeout > 0) {
-        getRequest.setTimeout(this.ipfsConnection.timeout);
-      }
     });
   }
 
@@ -546,7 +554,9 @@ export default class IpfsManager {
    * @param protocol Protocol used to send ipfs requests
    * @returns Network module
    */
-  private getIpfsConnectionModuleModule(protocol: StorageTypes.IpfsGatewayProtocol): any {
+  private getIpfsConnectionModuleModule(
+    protocol: StorageTypes.IpfsGatewayProtocol,
+  ): typeof http | typeof https {
     const protocolModule = {
       [StorageTypes.IpfsGatewayProtocol.HTTP as StorageTypes.IpfsGatewayProtocol]: http,
       [StorageTypes.IpfsGatewayProtocol.HTTPS as StorageTypes.IpfsGatewayProtocol]: https,
