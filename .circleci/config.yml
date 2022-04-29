@@ -240,6 +240,7 @@ jobs:
       - *node_image
       - *ipfs_image
       - *ganache_image
+      - *graph_image
     working_directory: *working_directory
     steps:
       - attach_workspace:
@@ -250,6 +251,17 @@ jobs:
       - run:
           name: 'Deploy test contract from smart-contracts'
           command: 'yarn workspace @requestnetwork/smart-contracts run deploy'
+      - run:
+          name: 'Subgraph deployment and configuration'
+          working_directory: ~/
+          command: |
+            git clone https://github.com/RequestNetwork/storage-subgraph
+            cd storage-subgraph
+            yarn
+            yarn codegen  ./subgraph-private.yaml
+            yarn create-local ./subgraph-private.yaml
+            yarn deploy-local --version-label v0.0.1 ./subgraph-private.yaml
+            sleep 5
       - run:
           name: 'Test request-node'
           command: 'yarn workspace @requestnetwork/request-node run test --ci'
