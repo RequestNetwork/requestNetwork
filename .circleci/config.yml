@@ -261,6 +261,7 @@ jobs:
       - *node_image
       - *ipfs_image
       - *ganache_image
+      - *postgres_image
       - *graph_image
     working_directory: *working_directory
     steps:
@@ -386,7 +387,7 @@ jobs:
           name: 'Test integration-test (layers)'
           command: 'yarn workspace @requestnetwork/integration-test run test:layers --ci --maxWorkers=1'
   # This test runs the node-client tests against a node backed by TheGraph data access
-  test-graph-node:
+  test-integration-graph-node:
     docker:
       - *node_image
       - *ipfs_image
