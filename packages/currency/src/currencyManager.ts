@@ -2,6 +2,7 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 import { utils } from 'ethers';
 import addressValidator from 'multicoin-address-validator';
 import { getSupportedERC20Tokens } from './erc20';
+import { getSupportedERC777Tokens } from './erc777';
 import { getHash } from './getHash';
 import iso4217 from './iso4217';
 import { nativeCurrencies } from './native';
@@ -17,7 +18,7 @@ import {
 import { chainlinkCurrencyPairs, CurrencyPairs, getPath } from './chainlink-path-aggregators';
 import { isValidNearAddress } from './currency-utils';
 
-const { BTC, ERC20, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
+const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 
 /**
  * Handles a list of currencies and provide features to retrieve them, as well as convert to/from storage format
@@ -93,7 +94,10 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined {
     address = utils.getAddress(address);
     const matches = this.knownCurrencies.filter(
-      (x) => x.type === ERC20 && x.address === address && (!network || x.network === network),
+      (x) =>
+        (x.type === ERC20 || x.type === ERC777) &&
+        x.address === address &&
+        (!network || x.network === network),
     );
     if (matches.length > 1) {
       const networks = matches.map((x) => (x as ERC20Currency).network).join(', ');
@@ -203,7 +207,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   static toStorageCurrency(currency: CurrencyInput): StorageCurrency {
     return {
       type: currency.type,
-      value: currency.type === ERC20 ? currency.address : currency.symbol,
+      value:
+        currency.type === ERC20 || currency.type === ERC777 ? currency.address : currency.symbol,
       network: currency.type === ISO4217 ? undefined : currency.network,
     };
   }
@@ -218,6 +223,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
         throw new Error(`Could not validate an address for an ISO4217 currency`);
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
+      case RequestLogicTypes.CURRENCY.ERC777:
         switch (currency.symbol) {
           case 'NEAR':
           case 'NEAR-testnet':
@@ -245,6 +251,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * Contains:
    * - ISO currencies
    * - ERC20 currencies from Metamask/contract-metadata + some additional tokens
+   * - ERC777 SuperTokens managed by SuperFluid
    * - ETH, & some EVM-compatible chains native tokens
    * - NEAR, YEL, ZIL, BTC
    * - ETH-rinkeby, FAU-rinkeby, CTBK-rinkeby
@@ -263,8 +270,12 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     const erc20Tokens = getSupportedERC20Tokens();
     const erc20Currencies: CurrencyInput[] = erc20Tokens.map((x) => ({ ...x, type: ERC20 }));
 
+    const erc777Tokens = getSupportedERC777Tokens();
+    const erc777Currencies: CurrencyInput[] = erc777Tokens.map((x) => ({ ...x, type: ERC777 }));
+
     return isoCurrencies
       .concat(erc20Currencies)
+      .concat(erc777Currencies)
       .concat(eth)
       .concat(btc)
       .map(CurrencyManager.fromInput);
