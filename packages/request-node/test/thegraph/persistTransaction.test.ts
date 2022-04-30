@@ -1,10 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 import { RequestNodeBase } from '../../src/requestNodeBase';
 import { TheGraphRequestNode } from '../../src/thegraph';
-import * as NodeConfig from '../../src/config';
 import * as core from 'express-serve-static-core';
-import { IpfsGatewayProtocol } from '@requestnetwork/types/src/storage-types';
 
 const subgraphUrl = 'http://localhost:8000/subgraphs/name/RequestNetwork/request-storage';
 const channelId = '010aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -17,8 +17,11 @@ const transactionData = { data: 'this is sample data for a transaction' };
 let requestNodeInstance: RequestNodeBase;
 let server: core.Express;
 
+const axiosMock = new MockAdapter(axios);
+
 describe('persistTransaction', () => {
   beforeAll(async () => {
+    axiosMock.onAny().passThrough();
     requestNodeInstance = new TheGraphRequestNode(subgraphUrl);
     await requestNodeInstance.initialize();
     server = (requestNodeInstance as any).express;
@@ -27,6 +30,7 @@ describe('persistTransaction', () => {
   afterAll(async () => {
     await requestNodeInstance.close();
     jest.restoreAllMocks();
+    axiosMock.reset();
   });
 
   it('responds with status 200 to requests with correct values', async () => {
@@ -39,18 +43,8 @@ describe('persistTransaction', () => {
   });
 
   it('should catch IPFS timeout error', async () => {
-    // recreate server with low timeout
-    await requestNodeInstance.close();
-    jest.spyOn(NodeConfig, 'getIpfsConfiguration').mockReturnValue({
-      host: 'localhost',
-      port: 5001,
-      protocol: IpfsGatewayProtocol.HTTP,
-      timeout: 1,
-    });
-    requestNodeInstance = new TheGraphRequestNode(subgraphUrl);
-    await requestNodeInstance.initialize();
-    server = (requestNodeInstance as any).express;
-
+    axiosMock.reset();
+    axiosMock.onAny().timeout();
     const assertionsNb = 10;
     const assertions = [];
     for (let i = 0; i < assertionsNb; i++) {

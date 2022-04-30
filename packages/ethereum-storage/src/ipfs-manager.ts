@@ -192,7 +192,7 @@ export default class IpfsManager {
     return {
       delayBetweenRetries: this.ipfsErrorHandling.delayBetweenRetries,
       host: this.ipfsGatewayConnection.host,
-      id: JSON.parse(await this.getIpfsNodeId()),
+      id: await this.getIpfsNodeId(),
       maxRetries: this.ipfsErrorHandling.maxRetries,
       port: this.ipfsGatewayConnection.port,
       protocol: this.ipfsGatewayConnection.protocol,
