@@ -14,7 +14,7 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
   private logger: LogTypes.ILogger;
 
   constructor({ ipfsGatewayConnection, logger }: IpfsStorageProps) {
-    this.ipfsManager = new IpfsManager(ipfsGatewayConnection);
+    this.ipfsManager = new IpfsManager({ ipfsGatewayConnection, logger });
     this.logger = logger || new Utils.SimpleLogger();
   }
 
@@ -91,13 +91,9 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
    * @param maxSize The maximum size of the file to read
    * @returns Promise resolving retrieved ipfs object
    */
-  public async read(
-    hash: string,
-    maxSize?: number,
-    retries?: number,
-  ): Promise<StorageTypes.IIpfsObject> {
+  public async read(hash: string, maxSize?: number): Promise<StorageTypes.IIpfsObject> {
     try {
-      return this.ipfsManager.read(hash, maxSize, retries);
+      return this.ipfsManager.read(hash, maxSize);
     } catch (error) {
       throw Error(`Ipfs read request error: ${error}`);
     }

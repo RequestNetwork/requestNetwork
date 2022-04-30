@@ -1,26 +1,20 @@
-import { StorageTypes } from '@requestnetwork/types';
-import * as FormData from 'form-data';
-import * as http from 'http';
-import * as https from 'https';
-import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config';
-import IpfsConnectionError from './ipfs-connection-error';
-
 import * as unixfs from 'ipfs-unixfs';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import Utils from '@requestnetwork/utils';
+import { LogTypes, StorageTypes } from '@requestnetwork/types';
+
+import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config';
+import axiosRetry from 'axios-retry';
+import * as FormData from 'form-data';
 
 /**
  * Manages Ipfs communication used as storage
  */
 export default class IpfsManager {
-  public ipfsConnection: StorageTypes.IIpfsGatewayConnection;
-
-  /**
-   * Node module used to send request to ipfs
-   * This attribute is left public for mocking purposes
-   */
-  public ipfsConnectionModule: typeof http | typeof https;
-
-  /** IPFS error handling configurations */
-  public errorHandlingConfig: StorageTypes.IIpfsErrorHandlingConfiguration;
+  private logger: LogTypes.ILogger;
+  private axiosInstance: AxiosInstance;
+  private ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection;
+  private ipfsErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration;
 
   public readonly IPFS_API_ADD: string = '/api/v0/add';
   public readonly IPFS_API_CAT: string = '/api/v0/object/get';
@@ -33,58 +27,42 @@ export default class IpfsManager {
 
   /**
    * Constructor
-   * @param ipfsConnection Object to connect to the ipfs gateway
+   * @param options.ipfsConnection Object to connect to the ipfs gateway
    * If no values are provided default values from config are used
    * Private network is used for default values
+   * @param options.ipfsErrorHandling
+   * @param options.logger
    */
-  public constructor(
-    ipfsConnection: StorageTypes.IIpfsGatewayConnection = getDefaultIpfs(),
-    ipfsErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration = getIpfsErrorHandlingConfig(),
-  ) {
-    this.ipfsConnection = ipfsConnection;
-    this.errorHandlingConfig = ipfsErrorHandling;
-
-    this.ipfsConnectionModule = this.getIpfsConnectionModuleModule(this.ipfsConnection.protocol);
+  public constructor(options?: {
+    ipfsGatewayConnection?: StorageTypes.IIpfsGatewayConnection;
+    ipfsErrorHandling?: StorageTypes.IIpfsErrorHandlingConfiguration;
+    logger?: LogTypes.ILogger;
+  }) {
+    this.ipfsGatewayConnection = options?.ipfsGatewayConnection || getDefaultIpfs();
+    this.ipfsErrorHandling = options?.ipfsErrorHandling || getIpfsErrorHandlingConfig();
+    this.logger = options?.logger || new Utils.SimpleLogger();
+    this.axiosInstance = axios.create({
+      baseURL: `${this.ipfsGatewayConnection.protocol}://${this.ipfsGatewayConnection.host}:${this.ipfsGatewayConnection.port}`,
+      timeout: this.ipfsGatewayConnection.timeout,
+    });
+    axiosRetry(this.axiosInstance, {
+      retries: this.ipfsErrorHandling.maxRetries,
+      retryDelay: () => this.ipfsErrorHandling.delayBetweenRetries,
+    });
   }
 
   /**
    * Get the IPFS node ID
    * @returns Promise resolving the node ID data
    */
-  public getIpfsNodeId(): Promise<string> {
-    // Promise to wait for response from server
-    return new Promise<string>((resolve, reject): void => {
-      // Construction get request
-      const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${this.ipfsConnection.port}${this.IPFS_API_ID}`;
-
-      this.ipfsConnectionModule
-        .get(getRequestString, (res: any) => {
-          let data = '';
-
-          // Chunk of response data
-          res.on('data', (chunk: string) => {
-            data += chunk;
-          });
-          // All data has been received
-          res.on('end', () => {
-            return resolve(data);
-          });
-
-          // Error handling
-          res.on('error', (e: string) => {
-            reject(Error(`Ipfs id response error: ${e}`));
-          });
-          res.on('aborted', () => {
-            reject(Error('Ipfs id response has been closed'));
-          });
-        })
-        .on('close', () => {
-          reject(Error('Ipfs id has been closed'));
-        })
-        .on('error', (e: string) => {
-          reject(Error(`Ipfs id error: ${e}`));
-        });
-    });
+  public async getIpfsNodeId(): Promise<string> {
+    try {
+      const response = await this.axiosInstance.get(this.IPFS_API_ID);
+      return response.data;
+    } catch (e) {
+      this.logger.error(`Failed to retrieve IPFS node ID: ${e.message}`, ['ipfs']);
+      throw e;
+    }
   }
 
   /**
@@ -92,96 +70,23 @@ export default class IpfsManager {
    * @param content Content to add to ipfs
    * @returns Promise resolving the hash of the new added content
    */
-  public add(content: string, retries = 0): Promise<string> {
-    // Promise to wait for response from server
-    return new Promise<string>((resolve, reject): void => {
-      // Preparing form data for add request
+  public async add(content: string): Promise<string> {
+    try {
       const addForm = new FormData();
       addForm.append('file', Buffer.from(content));
-
-      // Flag if a timeout error was thrown
-      let didTimeout = false;
-
-      // Creating object for add request
-      const addRequest = this.ipfsConnectionModule.request({
+      const response = await this.axiosInstance.post(this.IPFS_API_ADD, addForm, {
         headers: addForm.getHeaders(),
-        host: this.ipfsConnection.host,
-        method: 'post',
-        path: this.IPFS_API_ADD,
-        port: this.ipfsConnection.port,
-        timeout: this.ipfsConnection.timeout > 0 ? this.ipfsConnection.timeout : undefined,
       });
-
-      // Sending the request
-      addForm.pipe(addRequest);
-
-      // Waiting for response
-      addRequest.on('response', (res) => {
-        let data = '';
-        // Response data
-        res.on('data', (chunk: string) => {
-          data += chunk;
-        });
-
-        res.on('end', () => {
-          let jsonData;
-          try {
-            jsonData = JSON.parse(data);
-          } catch (error) {
-            return reject(Error('Ipfs add request response cannot be parsed into JSON format'));
-          }
-          if (!jsonData || !jsonData.Hash) {
-            return reject(Error('Ipfs add request response has no Hash field'));
-          }
-          // Return the hash of the response
-          resolve(jsonData.Hash);
-        });
-
-        res.on('error', (e: string) => {
-          // If maxRetries is set, and we haven't reached maxRetries, retry the request
-          if (
-            this.errorHandlingConfig.maxRetries &&
-            retries <= this.errorHandlingConfig.maxRetries
-          ) {
-            setTimeout(
-              () => resolve(this.add(content, retries + 1)),
-              this.errorHandlingConfig.delayBetweenRetries,
-            );
-          } else {
-            return reject(Error(`Ipfs add request response error: ${e}`));
-          }
-        });
-        res.on('aborted', () => {
-          return reject(Error('Ipfs add request response has been closed'));
-        });
-      });
-
-      // Throw error on timeout
-      addRequest.on('timeout', () => {
-        didTimeout = true;
-        // explicitly abort the request
-        addRequest.destroy();
-        return reject(Error('Ipfs add request timeout'));
-      });
-      addRequest.on('close', () => {
-        return reject(Error('Ipfs add request has been closed'));
-      });
-      addRequest.on('error', (e: string) => {
-        // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
-        if (
-          !didTimeout &&
-          this.errorHandlingConfig.maxRetries &&
-          retries <= this.errorHandlingConfig.maxRetries
-        ) {
-          setTimeout(
-            () => resolve(this.add(content, retries + 1)),
-            this.errorHandlingConfig.delayBetweenRetries,
-          );
-        } else {
-          return reject(Error(`Ipfs add request error: ${e}`));
-        }
-      });
-    });
+      // Return the hash of the response
+      const hash = response.data.Hash;
+      if (!hash) {
+        throw new Error('response has no Hash field');
+      }
+      return hash;
+    } catch (e) {
+      this.logger.error(`Failed to add IPFS file: ${e.message}`, ['ipfs']);
+      throw e;
+    }
   }
 
   /**
@@ -190,106 +95,32 @@ export default class IpfsManager {
    * @param maxSize The maximum size of the file to read
    * @returns Promise resolving retrieved ipfs object
    */
-  public read(
+  public async read(
     hash: string,
     maxSize: number = Number.POSITIVE_INFINITY,
-    retries = 0,
   ): Promise<StorageTypes.IIpfsObject> {
-    // Promise to wait for response from server
-    return new Promise<StorageTypes.IIpfsObject>((resolve, reject): void => {
-      // Construction get request
-      const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${this.ipfsConnection.port}${this.IPFS_API_CAT}?arg=${hash}&data-encoding=base64`;
-
-      // Flag if a timeout error was thrown
-      let didTimeout = false;
-
-      const getRequest = this.ipfsConnectionModule
-        .get(
-          getRequestString,
-          { timeout: this.ipfsConnection.timeout > 0 ? this.ipfsConnection.timeout : undefined },
-          (res) => {
-            let data = '';
-
-            // Chunk of response data
-            res.on('data', (chunk: string) => {
-              data += chunk;
-              // decode the base64 to compute the actual size of the data
-              if (Buffer.from(data, 'base64').length > maxSize) {
-                getRequest.destroy();
-                res.destroy();
-                return reject(
-                  new Error(
-                    `File size (${data.length}) exceeds the declared file size (${maxSize})`,
-                  ),
-                );
-              }
-            });
-
-            // All data has been received
-            res.on('end', () => {
-              let jsonData;
-              try {
-                jsonData = JSON.parse(data);
-              } catch (error) {
-                return reject(
-                  new Error('Ipfs object get request response cannot be parsed into JSON format'),
-                );
-              }
-              if (jsonData.Type === 'error') {
-                return reject(new Error(`Ipfs object get failed: ${jsonData.Message}`));
-              }
-              const ipfsDataBuffer = Buffer.from(jsonData.Data, 'base64');
-              const content = this.getContentFromMarshaledData(ipfsDataBuffer);
-              const ipfsSize = ipfsDataBuffer.length;
-              const ipfsLinks = jsonData.Links;
-              resolve({ content, ipfsSize, ipfsLinks });
-            });
-
-            // Error handling
-            res.on('error', (e: string) => {
-              // If maxRetries is set, and we haven't reached maxRetries, retry the request
-              if (
-                this.errorHandlingConfig.maxRetries &&
-                retries <= this.errorHandlingConfig.maxRetries
-              ) {
-                setTimeout(
-                  () => resolve(this.read(hash, maxSize, retries + 1)),
-                  this.errorHandlingConfig.delayBetweenRetries,
-                );
-              } else {
-                return reject(new IpfsConnectionError(`Ipfs read request response error: ${e}`));
-              }
-            });
-            res.on('aborted', () => {
-              return reject(new IpfsConnectionError('Ipfs read request response has been closed'));
-            });
-          },
-        )
-        .on('timeout', () => {
-          didTimeout = true;
-          // explicitly abort the request
-          getRequest.destroy();
-          return reject(new IpfsConnectionError('Ipfs read request timeout'));
-        })
-        .on('close', () => {
-          return reject(new IpfsConnectionError('Ipfs read request has been closed'));
-        })
-        .on('error', (e: string) => {
-          // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
-          if (
-            !didTimeout &&
-            this.errorHandlingConfig.maxRetries &&
-            retries <= this.errorHandlingConfig.maxRetries
-          ) {
-            setTimeout(
-              () => resolve(this.read(hash, maxSize, retries + 1)),
-              this.errorHandlingConfig.delayBetweenRetries,
-            );
-          } else {
-            return reject(new IpfsConnectionError(`Ipfs read request error: ${e}`));
-          }
-        });
-    });
+    try {
+      if (maxSize !== Number.POSITIVE_INFINITY) {
+        const maxSizeBase64 = ((4 * maxSize) / 3 + 3) & ~3;
+        const jsonMinSize = 500;
+        maxSize = Math.max(maxSizeBase64, jsonMinSize);
+      }
+      const response: AxiosResponse = await this.axiosInstance.get(
+        `${this.IPFS_API_CAT}?arg=${hash}&data-encoding=base64`,
+        { maxContentLength: maxSize },
+      );
+      if (response.data.Type === 'error') {
+        throw new Error(response.data.Message);
+      }
+      const ipfsDataBuffer = Buffer.from(response.data.Data, 'base64');
+      const content = IpfsManager.getContentFromMarshaledData(ipfsDataBuffer);
+      const ipfsSize = ipfsDataBuffer.length;
+      const ipfsLinks = response.data.Links;
+      return { content, ipfsSize, ipfsLinks };
+    } catch (e) {
+      this.logger.error(`Failed to read IPFS file: ${e.message}`, ['ipfs']);
+      throw e;
+    }
   }
 
   /**
@@ -298,94 +129,21 @@ export default class IpfsManager {
    * @param [timeout] An optional timeout for the IPFS pin request
    * @returns Promise resolving the hash pinned after pinning the content
    */
-  public pin(hashes: string[], timeout?: number, retries = 0): Promise<string[]> {
-    // Promise to wait for response from server
-    return new Promise<string[]>((resolve, reject): void => {
-      // Construction get request
-      const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${
-        this.ipfsConnection.port
-      }${this.IPFS_API_PIN}?arg=${hashes.join('&arg=')}`;
-
-      // Flag if a timeout error was thrown
-      let didTimeout = false;
-
-      const getRequest = this.ipfsConnectionModule
-        .get(
-          getRequestString,
-          {
-            timeout:
-              timeout ??
-              (this.ipfsConnection.timeout > 0 ? this.ipfsConnection.timeout : undefined),
-          },
-          (res) => {
-            let data = '';
-
-            // Chunk of response data
-            res.on('data', (chunk: string) => {
-              data += chunk;
-            });
-
-            // Response data
-            res.on('end', () => {
-              let jsonData;
-              try {
-                jsonData = JSON.parse(data);
-              } catch (error) {
-                return reject(Error('Ipfs pin request response cannot be parsed into JSON format'));
-              }
-              if (!jsonData || !jsonData.Pins) {
-                return reject(Error('Ipfs pin request response has no Pins field'));
-              }
-
-              // Return the hash of the response
-              resolve(jsonData.Pins);
-            });
-
-            // Error handling
-            res.on('error', (e: string) => {
-              // If maxRetries is set, and we haven't reached maxRetries, retry the request
-              if (
-                this.errorHandlingConfig.maxRetries &&
-                retries <= this.errorHandlingConfig.maxRetries
-              ) {
-                setTimeout(
-                  () => resolve(this.pin(hashes, timeout, retries + 1)),
-                  this.errorHandlingConfig.delayBetweenRetries,
-                );
-              } else {
-                return reject(Error(`Ipfs pin request response error: ${e}`));
-              }
-            });
-            res.on('aborted', () => {
-              return reject(Error('Ipfs pin request response has been closed'));
-            });
-          },
-        )
-        .on('timeout', () => {
-          didTimeout = true;
-          // explicitly abort the request
-          getRequest.destroy();
-          return reject(Error('Ipfs pin request timeout'));
-        })
-        .on('close', () => {
-          return reject(Error('Ipfs pin request has been closed'));
-        })
-        .on('error', (e: string) => {
-          // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
-          if (
-            !didTimeout &&
-            this.errorHandlingConfig.maxRetries &&
-            retries <= this.errorHandlingConfig.maxRetries
-          ) {
-            setTimeout(
-              () => resolve(this.pin(hashes, timeout, retries + 1)),
-              this.errorHandlingConfig.delayBetweenRetries,
-            );
-          } else {
-            return reject(Error(`Ipfs pin request error: ${e}`));
-          }
-        });
-    });
+  public async pin(hashes: string[], timeout?: number): Promise<string[]> {
+    try {
+      const response = await this.axiosInstance.get(
+        `${this.IPFS_API_PIN}?arg=${hashes.join('&arg=')}`,
+        { timeout },
+      );
+      const pins = response.data.Pins;
+      if (!pins) {
+        throw new Error('Ipfs pin request response has no Pins field');
+      }
+      return pins;
+    } catch (e) {
+      this.logger.error(`Failed to pin IPFS file: ${e.message}`, ['ipfs']);
+      throw e;
+    }
   }
 
   /**
@@ -393,143 +151,36 @@ export default class IpfsManager {
    * @param hash Hash of the content
    * @returns Promise resolving size of the content
    */
-  public getContentLength(hash: string, retries = 0): Promise<number> {
-    // Promise to wait for response from server
-    return new Promise<number>((resolve, reject): void => {
-      // Construction get request
-      const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${this.ipfsConnection.port}${this.IPFS_API_STAT}?arg=${hash}`;
-
-      // Flag if a timeout error was thrown
-      let didTimeout = false;
-
-      const getRequest = this.ipfsConnectionModule
-        .get(
-          getRequestString,
-          {
-            timeout: this.ipfsConnection.timeout > 0 ? this.ipfsConnection.timeout : undefined,
-          },
-          (res) => {
-            let data = '';
-
-            // Chunk of response data
-            res.on('data', (chunk: string) => {
-              data += chunk;
-            });
-            // All data has been received
-            res.on('end', () => {
-              let jsonData;
-              try {
-                jsonData = JSON.parse(data);
-              } catch (error) {
-                return reject(
-                  Error('Ipfs stat request response cannot be parsed into JSON format'),
-                );
-              }
-              if (!jsonData || !jsonData.DataSize) {
-                return reject(Error('Ipfs stat request response has no DataSize field'));
-              } else {
-                // Return the data size
-                resolve(parseInt(jsonData.DataSize, 10));
-              }
-            });
-
-            // Error handling
-            res.on('error', (e: string) => {
-              // If maxRetries is set, and we haven't reached maxRetries, retry the request
-              if (
-                this.errorHandlingConfig.maxRetries &&
-                retries <= this.errorHandlingConfig.maxRetries
-              ) {
-                setTimeout(
-                  () => resolve(this.getContentLength(hash, retries + 1)),
-                  this.errorHandlingConfig.delayBetweenRetries,
-                );
-              } else {
-                return reject(Error(`Ipfs stat request response error: ${e}`));
-              }
-            });
-            res.on('aborted', () => {
-              return reject(Error('Ipfs stat request response has been closed'));
-            });
-          },
-        )
-        .on('timeout', () => {
-          didTimeout = true;
-          // explicitly abort the request
-          getRequest.destroy();
-          return reject(Error('Ipfs stat request timeout'));
-        })
-        .on('close', () => {
-          return reject(Error('Ipfs stat request has been closed'));
-        })
-        .on('error', (e: string) => {
-          // If the error isn't a timeout, maxRetries is set, and we haven't reached maxRetries, retry the request
-          if (
-            !didTimeout &&
-            this.errorHandlingConfig.maxRetries &&
-            retries <= this.errorHandlingConfig.maxRetries
-          ) {
-            setTimeout(
-              () => resolve(this.getContentLength(hash, retries + 1)),
-              this.errorHandlingConfig.delayBetweenRetries,
-            );
-          } else {
-            return reject(Error(`Ipfs stat request error: ${e}`));
-          }
-        });
-    });
+  public async getContentLength(hash: string): Promise<number> {
+    try {
+      const response = await this.axiosInstance.get(`${this.IPFS_API_STAT}?arg=${hash}`);
+      const length = response.data.DataSize;
+      if (!length) {
+        throw new Error('Ipfs stat request response has no DataSize field');
+      }
+      return parseInt(length, 10);
+    } catch (e) {
+      this.logger.error(`Failed to retrieve IPFS file size: ${e.message}`, ['ipfs']);
+      throw e;
+    }
   }
 
   /**
    * Get the list of the bootstrap nodes
    * @returns Promise resolving an array of the bootstrap nodes
    */
-  public getBootstrapList(): Promise<string[]> {
-    // Promise to wait for response from server
-    return new Promise<string[]>((resolve, reject): void => {
-      // Construction get request
-      const getRequestString = `${this.ipfsConnection.protocol}://${this.ipfsConnection.host}:${this.ipfsConnection.port}${this.IPFS_API_BOOTSTRAP_LIST}`;
-
-      this.ipfsConnectionModule
-        .get(getRequestString, (res: any) => {
-          let data = '';
-
-          // Chunk of response data
-          res.on('data', (chunk: string) => {
-            data += chunk;
-          });
-
-          // All data has been received
-          res.on('end', () => {
-            let jsonData;
-            try {
-              jsonData = JSON.parse(data);
-            } catch (error) {
-              return reject(Error('Ipfs bootstrap list request response cannot be parsed'));
-            }
-            if (!jsonData || !jsonData.Peers) {
-              return reject(Error('Ipfs bootstrap list request response has no Peers field'));
-            } else {
-              // Return the bootstrap nodes
-              resolve(jsonData.Peers);
-            }
-          });
-
-          // Error handling
-          res.on('error', (e: string) => {
-            reject(Error(`Ipfs bootstrap list response error: ${e}`));
-          });
-          res.on('aborted', () => {
-            reject(Error('Ipfs bootstrap list response has been closed'));
-          });
-        })
-        .on('close', () => {
-          reject(Error('Ipfs bootstrap list has been closed'));
-        })
-        .on('error', (e: string) => {
-          reject(Error(`Ipfs bootstrap list error: ${e}`));
-        });
-    });
+  public async getBootstrapList(): Promise<string[]> {
+    try {
+      const response = await this.axiosInstance.get(this.IPFS_API_BOOTSTRAP_LIST);
+      const peers = response.data.Peers;
+      if (!peers) {
+        throw new Error('Ipfs bootstrap list request response has no Peers field');
+      }
+      return peers;
+    } catch (e) {
+      this.logger.error(`Failed to retrieve IPFS file size: ${e.message}`, ['ipfs']);
+      throw e;
+    }
   }
 
   /**
@@ -539,34 +190,14 @@ export default class IpfsManager {
    */
   public async getConfig(): Promise<StorageTypes.IIpfsConfig> {
     return {
-      delayBetweenRetries: this.errorHandlingConfig.delayBetweenRetries,
-      host: this.ipfsConnection.host,
+      delayBetweenRetries: this.ipfsErrorHandling.delayBetweenRetries,
+      host: this.ipfsGatewayConnection.host,
       id: JSON.parse(await this.getIpfsNodeId()),
-      maxRetries: this.errorHandlingConfig.maxRetries,
-      port: this.ipfsConnection.port,
-      protocol: this.ipfsConnection.protocol,
-      timeout: this.ipfsConnection.timeout,
+      maxRetries: this.ipfsErrorHandling.maxRetries,
+      port: this.ipfsGatewayConnection.port,
+      protocol: this.ipfsGatewayConnection.protocol,
+      timeout: this.ipfsGatewayConnection.timeout,
     };
-  }
-
-  /**
-   * Get the javascript network module used to send request to ipfs
-   * @param protocol Protocol used to send ipfs requests
-   * @returns Network module
-   */
-  private getIpfsConnectionModuleModule(
-    protocol: StorageTypes.IpfsGatewayProtocol,
-  ): typeof http | typeof https {
-    const protocolModule = {
-      [StorageTypes.IpfsGatewayProtocol.HTTP as StorageTypes.IpfsGatewayProtocol]: http,
-      [StorageTypes.IpfsGatewayProtocol.HTTPS as StorageTypes.IpfsGatewayProtocol]: https,
-    }[protocol];
-
-    if (!protocolModule) {
-      throw Error('Protocol not implemented for IPFS');
-    }
-
-    return protocolModule;
   }
 
   /**
@@ -574,9 +205,8 @@ export default class IpfsManager {
    * @param marshaledData marshaled data
    * @returns the content without the padding
    */
-  private getContentFromMarshaledData(marshaledData: Buffer): string {
+  private static getContentFromMarshaledData(marshaledData: Buffer): string {
     const unmarshalData = unixfs.unmarshal(marshaledData).data.toString();
-
     // eslint-disable-next-line no-control-regex
     return unmarshalData.replace(/[\x00-\x09\x0B-\x1F\x7F-\uFFFF]/g, '');
   }
