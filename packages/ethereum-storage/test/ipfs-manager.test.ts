@@ -101,7 +101,7 @@ describe('Ipfs manager', () => {
     const maxSize = 10;
     const hash = await ipfsManager.add(bigContent);
     await expect(ipfsManager.read(hash, maxSize)).rejects.toThrowError(
-      `maxContentLength size of 500 exceeded`,
+      `maxContentLength size of 516 exceeded`,
     );
   });
 
