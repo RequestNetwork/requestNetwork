@@ -142,7 +142,9 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     return this.knownCurrencies.find(
       (x) =>
         x.type === currency.type &&
-        ((x.type === ERC20 && currency.value === x.address && x.network === networkOrDefault) ||
+        (((x.type === ERC20 || x.type === ERC777) &&
+          currency.value === x.address &&
+          x.network === networkOrDefault) ||
           ((x.type === ETH || x.type === BTC) && x.network === networkOrDefault) ||
           (x.symbol === currency.value && !currency.network)),
     );
