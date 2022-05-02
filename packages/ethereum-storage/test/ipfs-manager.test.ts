@@ -161,4 +161,22 @@ describe('Ipfs manager', () => {
     // only one request should have been sent, no retry should happen on timeouts
     expect(axiosInstanceMock.history.post.length).toBe(1);
   });
+
+  it('added and read files should have the same size and content', async () => {
+    let content = `{
+  test;
+\ttest again tab
+  spéci@l çhàractêrs
+}`;
+    const lengthyString = '='.repeat(10000);
+    content += lengthyString;
+    const contentSize = Buffer.from(content, 'utf-8').length;
+    const hash = await ipfsManager.add(content);
+    const contentSizeOnIPFS = await ipfsManager.getContentLength(hash);
+    const contentRead = await ipfsManager.read(hash, contentSizeOnIPFS);
+    expect(contentRead.ipfsSize).toEqual(contentSizeOnIPFS);
+    const contentReadSize = Buffer.from(contentRead.content, 'utf-8').length;
+    expect(contentReadSize).toBe(contentSize);
+    expect(contentRead.content).toBe(content);
+  });
 });

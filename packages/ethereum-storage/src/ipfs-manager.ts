@@ -1,4 +1,5 @@
-import * as unixfs from 'ipfs-unixfs';
+import { UnixFS } from 'ipfs-unixfs';
+import * as qs from 'qs';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import Utils from '@requestnetwork/utils';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
@@ -11,10 +12,10 @@ import * as FormData from 'form-data';
  * Manages Ipfs communication used as storage
  */
 export default class IpfsManager {
-  private logger: LogTypes.ILogger;
-  private axiosInstance: AxiosInstance;
-  private ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection;
-  private ipfsErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration;
+  private readonly logger: LogTypes.ILogger;
+  private readonly axiosInstance: AxiosInstance;
+  private readonly ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection;
+  private readonly ipfsErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration;
 
   public readonly IPFS_API_ADD: string = '/api/v0/add';
   public readonly IPFS_API_CAT: string = '/api/v0/object/get';
@@ -44,6 +45,9 @@ export default class IpfsManager {
     this.axiosInstance = axios.create({
       baseURL: `${this.ipfsGatewayConnection.protocol}://${this.ipfsGatewayConnection.host}:${this.ipfsGatewayConnection.port}`,
       timeout: this.ipfsGatewayConnection.timeout,
+      paramsSerializer: function (params) {
+        return qs.stringify(params, { arrayFormat: 'repeat' });
+      },
     });
     axiosRetry(this.axiosInstance, {
       retries: this.ipfsErrorHandling.maxRetries,
@@ -92,7 +96,7 @@ export default class IpfsManager {
   /**
    * Retrieve content from ipfs from its hash
    * @param hash Hash of the content
-   * @param maxSize The maximum size of the file to read
+   * @param maxSize The maximum size of the file to read, in bytes. This is the unixfs file size, as represented on IPFS.
    * @returns Promise resolving retrieved ipfs object
    */
   public async read(
@@ -101,14 +105,20 @@ export default class IpfsManager {
   ): Promise<StorageTypes.IIpfsObject> {
     try {
       if (maxSize !== Number.POSITIVE_INFINITY) {
-        const maxSizeBase64 = ((4 * maxSize) / 3 + 3) & ~3;
-        const jsonMinSize = 500;
-        maxSize = Math.max(maxSizeBase64, jsonMinSize);
+        // In order to prevent downloading a file that is too big, we can set maxContentLength in axios options.
+        // maxContentLength defines the maximum allowed size of the HTTP response in bytes.
+        // The IPFS HTTP RPC API returns a JSON with some metadata around the actual file itself, so we need to take that into consideration.
+        const jsonMetadataSize = 500;
+        // We ask the IPFS node to return a file encoded in base64 to avoid JSON in JSON, and in case of binary data.
+        // Let's transform the max file size in bytes, to the max length of the base64 string that represents the file.
+        // This will be our max content length in bytes, since each base64 string characters is encoded as one byte in UTF-8.
+        const base64StringMaxLength = ((4 * maxSize) / 3 + 3) & ~3; // https://stackoverflow.com/a/32140193/16270345
+        maxSize = base64StringMaxLength + jsonMetadataSize;
       }
-      const response: AxiosResponse = await this.axiosInstance.get(
-        `${this.IPFS_API_CAT}?arg=${hash}&data-encoding=base64`,
-        { maxContentLength: maxSize },
-      );
+      const response: AxiosResponse = await this.axiosInstance.get(this.IPFS_API_CAT, {
+        params: { arg: hash, 'data-encoding': 'base64' },
+        maxContentLength: maxSize,
+      });
       if (response.data.Type === 'error') {
         throw new Error(response.data.Message);
       }
@@ -131,10 +141,10 @@ export default class IpfsManager {
    */
   public async pin(hashes: string[], timeout?: number): Promise<string[]> {
     try {
-      const response = await this.axiosInstance.get(
-        `${this.IPFS_API_PIN}?arg=${hashes.join('&arg=')}`,
-        { timeout },
-      );
+      const response = await this.axiosInstance.get(this.IPFS_API_PIN, {
+        params: { arg: hashes },
+        timeout,
+      });
       const pins = response.data.Pins;
       if (!pins) {
         throw new Error('Ipfs pin request response has no Pins field');
@@ -153,7 +163,7 @@ export default class IpfsManager {
    */
   public async getContentLength(hash: string): Promise<number> {
     try {
-      const response = await this.axiosInstance.get(`${this.IPFS_API_STAT}?arg=${hash}`);
+      const response = await this.axiosInstance.get(this.IPFS_API_STAT, { params: { arg: hash } });
       const length = response.data.DataSize;
       if (!length) {
         throw new Error('Ipfs stat request response has no DataSize field');
@@ -201,13 +211,13 @@ export default class IpfsManager {
   }
 
   /**
-   * Removes the Unicode special character from a ipfs content
+   * Removes the Unicode special characters from an IPFS content
    * @param marshaledData marshaled data
    * @returns the content without the padding
    */
   private static getContentFromMarshaledData(marshaledData: Buffer): string {
-    const unmarshalData = unixfs.unmarshal(marshaledData).data.toString();
-    // eslint-disable-next-line no-control-regex
-    return unmarshalData.replace(/[\x00-\x09\x0B-\x1F\x7F-\uFFFF]/g, '');
+    const { data } = UnixFS.unmarshal(marshaledData);
+    if (!data) throw new Error('Cannot unmarshal data');
+    return data.toString();
   }
 }
