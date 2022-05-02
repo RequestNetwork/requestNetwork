@@ -62,6 +62,12 @@ const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinit
       symbol: 'FAU',
       network: 'rinkeby',
     },
+    'fDAIx-rinkeby': {
+      address: '0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90',
+      decimals: 18,
+      symbol: 'fDAIx',
+      network: 'rinkeby',
+    },
   },
   bitcoin: {
     BTC: { symbol: 'BTC' },
@@ -279,7 +285,7 @@ describe('CurrencyManager', () => {
     });
 
     describe('fromStorageCurrency', () => {
-      it('can access a token from its storage format', () => {
+      it('can access a ERC20 token from its storage format', () => {
         expect(
           currencyManager.fromStorageCurrency({
             type: RequestLogicTypes.CURRENCY.ERC20,
@@ -293,6 +299,16 @@ describe('CurrencyManager', () => {
             network: 'mainnet',
           }),
         ).toMatchObject({ id: 'DAI-mainnet' });
+      });
+
+      it('can access a ERC777 token from its storage format', () => {
+        expect(
+          currencyManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ERC777,
+            value: '0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90',
+            network: 'rinkeby',
+          }),
+        ).toMatchObject({ id: 'fDAIx-rinkeby' });
       });
 
       it('can access native tokens from storage format', () => {
@@ -500,6 +516,7 @@ describe('CurrencyManager', () => {
               switch (currency.type) {
                 case RequestLogicTypes.CURRENCY.ETH:
                 case RequestLogicTypes.CURRENCY.ERC20:
+                case RequestLogicTypes.CURRENCY.ERC777:
                   switch (currency.symbol) {
                     case 'NEAR':
                     case 'NEAR-testnet':
