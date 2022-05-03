@@ -76,16 +76,18 @@ export function getPaymentNetworkExtension(
 }
 
 /**
- * Utility to access the payment address, reference, and optional feeAmount and feeAddress of a Request.
+ * Utility to access the payment address, reference,
+ * and optional feeAmount, feeAddress, expectedFlowRate, expectedStartDate
+ * of a Request.
  * @param request
  */
-export function getRequestPaymentValues(
-  request: ClientTypes.IRequestData,
-): {
+export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   paymentAddress: string;
   paymentReference: string;
   feeAmount?: string;
   feeAddress?: string;
+  expectedFlowRate?: string;
+  expectedStartDate?: string;
   tokensAccepted?: string[];
   maxRateTimespan?: string;
   network?: string;
@@ -100,6 +102,8 @@ export function getRequestPaymentValues(
     salt,
     feeAmount,
     feeAddress,
+    expectedFlowRate,
+    expectedStartDate,
     tokensAccepted,
     maxRateTimespan,
     network,
@@ -114,6 +118,8 @@ export function getRequestPaymentValues(
     paymentReference,
     feeAmount,
     feeAddress,
+    expectedFlowRate,
+    expectedStartDate,
     tokensAccepted,
     maxRateTimespan,
     network,
@@ -159,6 +165,7 @@ export const getProxyAddress = (
 };
 
 const {
+  ERC777_STREAM,
   ERC20_PROXY_CONTRACT,
   ETH_INPUT_DATA,
   ETH_FEE_PROXY_CONTRACT,
@@ -167,6 +174,7 @@ const {
   NATIVE_TOKEN,
 } = PaymentTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
+  [ERC777_STREAM]: RequestLogicTypes.CURRENCY.ERC777,
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ERC20_FEE_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
   [ETH_INPUT_DATA]: RequestLogicTypes.CURRENCY.ETH,
@@ -183,8 +191,14 @@ export function validateRequest(
   request: ClientTypes.IRequestData,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
 ): void {
-  const { feeAmount, feeAddress } = getRequestPaymentValues(request);
-  const extension = request.extensions[paymentNetworkId];
+  const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } =
+    getRequestPaymentValues(request);
+  let extension = request.extensions[paymentNetworkId];
+
+  // FIXME: updating the extension: not needed anymore when "invoicing" will use only ethFeeProxy
+  if (paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT && !extension) {
+    extension = request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
+  }
 
   // Compatibility of the request currency type with the payment network
   const expectedCurrencyType = currenciesMap[paymentNetworkId];
@@ -198,7 +212,7 @@ export function validateRequest(
 
   // ERC20 based payment networks are only valid if the request currency has a value
   const validCurrencyValue =
-    (paymentNetworkId !== ERC20_PROXY_CONTRACT && paymentNetworkId !== ERC20_FEE_PROXY_CONTRACT) ||
+    ![ERC20_PROXY_CONTRACT, ERC20_FEE_PROXY_CONTRACT, ERC777_STREAM].includes(paymentNetworkId) ||
     request.currencyInfo.value;
 
   // Payment network with fees should have both or none of fee address and fee amount
@@ -208,6 +222,16 @@ export function validateRequest(
 
   if (!validFeeParams) {
     throw new Error('Both fee address and fee amount have to be declared, or both left empty');
+  }
+
+  // Payment network with stream should have both or none of stream flow rate and stream start date
+  const validStreamParams =
+    paymentNetworkId !== ERC777_STREAM || (!!expectedFlowRate && !!expectedStartDate);
+
+  if (!validStreamParams) {
+    throw new Error(
+      'Both stream flow rate and stream start date have to be declared, or both left empty',
+    );
   }
 
   if (
@@ -304,4 +328,20 @@ export function getAmountToPay(
     throw new Error('cannot pay a null amount');
   }
   return amountToPay;
+}
+
+/**
+ * Compare 2 payment networks type and version in request's extension
+ * @param pn payment network
+ * @param request
+ * @returns true if type and version are identique else false
+ */
+export function comparePnTypeAndVersion(
+  pn: ExtensionTypes.IState | undefined,
+  request: ClientTypes.IRequestData,
+): boolean {
+  return (
+    pn?.type === getPaymentNetworkExtension(request)?.type &&
+    pn?.version === getPaymentNetworkExtension(request)?.version
+  );
 }

@@ -57,10 +57,8 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
       };
     }
 
-    const {
-      address: proxyContractAddress,
-      creationBlockNumber: proxyCreationBlockNumber,
-    } = ERC20ProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
+    const { address: proxyContractAddress, creationBlockNumber: proxyCreationBlockNumber } =
+      ERC20ProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
     if (networkSupportsTheGraph(paymentChain)) {
       const graphInfoRetriever = new TheGraphInfoRetriever(

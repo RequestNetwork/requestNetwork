@@ -1,5 +1,6 @@
 import { constants, ContractTransaction, Signer, BigNumber, providers } from 'ethers';
 
+import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20SwapToConversion__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
@@ -7,6 +8,7 @@ import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
   getProvider,
+  getProxyAddress,
   getRequestPaymentValues,
   getSigner,
   validateConversionFeeProxyRequest,
@@ -123,9 +125,8 @@ export function encodeSwapToPayAnyToErc20Request(
 
   const signer = getSigner(signerOrProvider);
   const paymentNetworkTokenAddress = conversionSettings.currency.value;
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
+    getRequestPaymentValues(request);
 
   const chainlinkDecimal = 8;
   const decimals = currencyManager.fromStorageCurrency(request.currencyInfo)?.decimals;
@@ -148,10 +149,16 @@ export function encodeSwapToPayAnyToErc20Request(
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
 
+  const conversionProxyAddress = getProxyAddress(
+    request,
+    AnyToERC20PaymentDetector.getDeploymentInformation,
+  );
+
   const contractAddress = erc20SwapConversionArtifact.getAddress(network);
   const swapToPayContract = ERC20SwapToConversion__factory.connect(contractAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
+    conversionProxyAddress,
     paymentAddress, // _to: string,
     amountToPay, // _requestAmount: BigNumberish,
     swapSettings.maxInputAmount, // _amountInMax: BigNumberish,

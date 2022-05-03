@@ -3,6 +3,7 @@ import { IDeploymentParams } from './types';
 import { HardhatRuntimeEnvironmentExtended } from './types';
 import { xdeploy } from './xdeployer';
 import { getConstructorArgs } from './constructor-args';
+import { setupERC20SwapToConversion } from './contract-setup';
 
 // Deploys, set up the contracts and returns the address
 export const deployOneWithCreate2 = async (
@@ -54,6 +55,12 @@ export const deployWithCreate2FromList = async (
       case 'Erc20ConversionProxy': {
         const constructorArgs = getConstructorArgs(contract);
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
+        break;
+      }
+      case 'ERC20SwapToConversion': {
+        const constructorArgs = getConstructorArgs(contract);
+        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+        await setupERC20SwapToConversion(address, hre);
         break;
       }
       case 'ERC20EscrowToPay': {

@@ -12,9 +12,8 @@ const BASE_URL = `https://api.thegraph.com`;
  *
  * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near
  */
-export type TheGraphClient<
-  TGraphClientVariant extends 'near' | null = null
-> = TGraphClientVariant extends 'near' ? ReturnType<typeof getSdkNear> : ReturnType<typeof getSdk>;
+export type TheGraphClient<TGraphClientVariant extends 'near' | null = null> =
+  TGraphClientVariant extends 'near' ? ReturnType<typeof getSdkNear> : ReturnType<typeof getSdk>;
 export type TheGraphClientOptions = {
   baseUrl?: string;
   timeout?: number;

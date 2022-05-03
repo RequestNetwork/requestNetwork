@@ -122,13 +122,11 @@ export default class ChannelParser {
       Promise.resolve([]),
     );
 
-    const ignoredTransactions: Array<TransactionTypes.IIgnoredTransaction | null> = validAndIgnoredTransactions.map(
-      (elem: any) => elem.ignored,
-    );
+    const ignoredTransactions: Array<TransactionTypes.IIgnoredTransaction | null> =
+      validAndIgnoredTransactions.map((elem: any) => elem.ignored);
 
-    const cleanTransactions: Array<TransactionTypes.ITimestampedTransaction | null> = validAndIgnoredTransactions.map(
-      (elem: any) => elem.valid,
-    );
+    const cleanTransactions: Array<TransactionTypes.ITimestampedTransaction | null> =
+      validAndIgnoredTransactions.map((elem: any) => elem.valid);
 
     // The cleaned result
     return {

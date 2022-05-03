@@ -199,19 +199,20 @@ describe('EthereumStorage', () => {
       await ethereumStorage.initialize();
 
       ethereumStorage.smartContractManager.requestHashStorage.getPastEvents = getPastEventsMock;
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
-        return {
-          blockConfirmation: 10,
-          blockNumber: 10,
-          blockTimestamp: 1545816416,
-          cost: '110',
-          fee: '100',
-          gasFee: '10',
-          networkName: 'private',
-          smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-          transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+      ethereumStorage.smartContractManager.addHashAndSizeToEthereum =
+        async (): Promise<StorageTypes.IEthereumMetadata> => {
+          return {
+            blockConfirmation: 10,
+            blockNumber: 10,
+            blockTimestamp: 1545816416,
+            cost: '110',
+            fee: '100',
+            gasFee: '10',
+            networkName: 'private',
+            smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+            transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+          };
         };
-      };
     });
 
     it('cannot be initialized twice', async () => {
@@ -242,9 +243,10 @@ describe('EthereumStorage', () => {
     });
 
     it('throws when append and addHashAndSizeToEthereum throws', (done) => {
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
-        throw Error('fake error');
-      };
+      ethereumStorage.smartContractManager.addHashAndSizeToEthereum =
+        async (): Promise<StorageTypes.IEthereumMetadata> => {
+          throw Error('fake error');
+        };
 
       expect.assertions(1);
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -280,19 +282,20 @@ describe('EthereumStorage', () => {
 
       // Ethereum metadata is determined by the return data of addHashAndSizeToEthereum
       // We change the return data of this function to ensure the second call of append contain different metadata
-      ethereumStorage.smartContractManager.addHashAndSizeToEthereum = async (): Promise<StorageTypes.IEthereumMetadata> => {
-        return {
-          blockConfirmation: 20,
-          blockNumber: 11,
-          blockTimestamp: 1545816416,
-          cost: '110',
-          fee: '1',
-          gasFee: '100',
-          networkName: 'private',
-          smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-          transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+      ethereumStorage.smartContractManager.addHashAndSizeToEthereum =
+        async (): Promise<StorageTypes.IEthereumMetadata> => {
+          return {
+            blockConfirmation: 20,
+            blockNumber: 11,
+            blockTimestamp: 1545816416,
+            cost: '110',
+            fee: '1',
+            gasFee: '100',
+            networkName: 'private',
+            smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+            transactionHash: '0x7c45c575a54893dc8dc7230e3044e1de5c8714cd0a1374cf3a66378c639627a3',
+          };
         };
-      };
 
       const result2 = await ethereumStorage.append(content1);
 
@@ -464,25 +467,26 @@ describe('EthereumStorage', () => {
       // For this test, we don't want to use the ethereum metadata cache
       // We want to force the retrieval of metadata with getPastEvents function
       ethereumStorage.ethereumMetadataCache.saveDataIdMeta = async (_dataId, _meta) => {};
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = async (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
-        return {
-          ethereumEntries: [
-            {
-              feesParameters: { contentSize: 1 },
-              hash: hash1,
-              meta: {
-                blockConfirmation: 1561192254600,
-                blockNumber: 1,
-                blockTimestamp: 1561191682,
-                networkName: 'private',
-                smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
-                transactionHash: '0xa',
+      ethereumStorage.smartContractManager.getEntriesFromEthereum =
+        async (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
+          return {
+            ethereumEntries: [
+              {
+                feesParameters: { contentSize: 1 },
+                hash: hash1,
+                meta: {
+                  blockConfirmation: 1561192254600,
+                  blockNumber: 1,
+                  blockTimestamp: 1561191682,
+                  networkName: 'private',
+                  smartContractAddress: '0x345ca3e014aaf5dca488057592ee47305d9b3e10',
+                  transactionHash: '0xa',
+                },
               },
-            },
-          ],
-          lastTimestamp: 0,
+            ],
+            lastTimestamp: 0,
+          };
         };
-      };
 
       const result = await ethereumStorage.getData();
       expect(result.entries.length).toBe(0);
@@ -519,17 +523,18 @@ describe('EthereumStorage', () => {
       );
 
       // Test with no meta
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
-        return Promise.resolve({
-          ethereumEntries: [
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0xad',
-            } as StorageTypes.IEthereumEntry,
-          ],
-          lastTimestamp: 0,
-        });
-      };
+      ethereumStorage.smartContractManager.getEntriesFromEthereum =
+        (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
+          return Promise.resolve({
+            ethereumEntries: [
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0xad',
+              } as StorageTypes.IEthereumEntry,
+            ],
+            lastTimestamp: 0,
+          });
+        };
 
       await expect(ethereumStorage.getData()).rejects.toThrowError('The event log has no metadata');
     });
@@ -563,48 +568,49 @@ describe('EthereumStorage', () => {
 
     it('allows to read hash on IPFS with retries', async () => {
       // Mock to test IPFS read retry
-      ethereumStorage.smartContractManager.getEntriesFromEthereum = (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
-        return Promise.resolve({
-          ethereumEntries: [
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x0',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x1',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x2',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x3',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x4',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x5',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-            {
-              feesParameters: { contentSize: 10 },
-              hash: '0x6',
-              meta: {},
-            } as StorageTypes.IEthereumEntry,
-          ],
-          lastTimestamp: 0,
-        });
-      };
+      ethereumStorage.smartContractManager.getEntriesFromEthereum =
+        (): Promise<StorageTypes.IEthereumEntriesWithLastTimestamp> => {
+          return Promise.resolve({
+            ethereumEntries: [
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x0',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x1',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x2',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x3',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x4',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x5',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+              {
+                feesParameters: { contentSize: 10 },
+                hash: '0x6',
+                meta: {},
+              } as StorageTypes.IEthereumEntry,
+            ],
+            lastTimestamp: 0,
+          });
+        };
 
       // Store how many time we tried to read a specific hash
       const hashTryCount: any = {};

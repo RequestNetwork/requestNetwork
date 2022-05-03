@@ -8,7 +8,7 @@ import { ReferenceBasedDetector } from './reference-based-detector';
  */
 export abstract class FeeReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  TPaymentEventParameters extends { feeAmount?: string; feeAddress?: string }
+  TPaymentEventParameters extends { feeAmount?: string; feeAddress?: string },
 > extends ReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA

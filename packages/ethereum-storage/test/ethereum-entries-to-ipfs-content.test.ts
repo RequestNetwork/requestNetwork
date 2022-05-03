@@ -38,19 +38,17 @@ describe('ethereum-entries-to-ipfs-content', () => {
       ipfsSize: 2,
     }));
 
-    ipfsManager.read = jest.fn(
-      async (hash: string): Promise<StorageTypes.IIpfsObject> => {
-        if (hash === 'hConnectionError') {
-          return connectionErrorSpy();
-        } else if (hash === 'hIncorrectFile') {
-          return incorrectErrorSpy();
-        } else if (hash === 'hBiggerFile') {
-          return biggerErrorSpy();
-        } else {
-          return okSpy();
-        }
-      },
-    );
+    ipfsManager.read = jest.fn(async (hash: string): Promise<StorageTypes.IIpfsObject> => {
+      if (hash === 'hConnectionError') {
+        return connectionErrorSpy();
+      } else if (hash === 'hIncorrectFile') {
+        return incorrectErrorSpy();
+      } else if (hash === 'hBiggerFile') {
+        return biggerErrorSpy();
+      } else {
+        return okSpy();
+      }
+    });
 
     const ethereumEntriesToProcess: StorageTypes.IEthereumEntry[] = [
       { hash: 'hConnectionError', feesParameters: { contentSize: 3 }, meta: {} as any },
@@ -154,20 +152,18 @@ describe('ethereum-entries-to-ipfs-content', () => {
     }));
 
     let tryCount = 0;
-    ipfsManager.read = jest.fn(
-      async (hash: string): Promise<StorageTypes.IIpfsObject> => {
-        if (hash === 'hConnectionError' && tryCount === 0) {
-          tryCount++;
-          return connectionErrorSpy();
-        } else if (hash === 'hIncorrectFile') {
-          return incorrectErrorSpy();
-        } else if (hash === 'hBiggerFile') {
-          return biggerErrorSpy();
-        } else {
-          return okSpy();
-        }
-      },
-    );
+    ipfsManager.read = jest.fn(async (hash: string): Promise<StorageTypes.IIpfsObject> => {
+      if (hash === 'hConnectionError' && tryCount === 0) {
+        tryCount++;
+        return connectionErrorSpy();
+      } else if (hash === 'hIncorrectFile') {
+        return incorrectErrorSpy();
+      } else if (hash === 'hBiggerFile') {
+        return biggerErrorSpy();
+      } else {
+        return okSpy();
+      }
+    });
 
     const ethereumEntriesToProcess: StorageTypes.IEthereumEntry[] = [
       { hash: 'hConnectionError', feesParameters: { contentSize: 3 }, meta: {} as any },

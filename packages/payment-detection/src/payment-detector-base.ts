@@ -8,8 +8,9 @@ import {
 
 export abstract class PaymentDetectorBase<
   TExtension extends ExtensionTypes.IExtension,
-  TPaymentEventParameters
-> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters> {
+  TPaymentEventParameters,
+> implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters>
+{
   public constructor(
     readonly paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
     protected readonly extension: TExtension,

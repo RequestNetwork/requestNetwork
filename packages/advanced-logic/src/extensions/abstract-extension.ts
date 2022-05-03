@@ -53,9 +53,8 @@ export abstract class AbstractExtension<TCreationParameters> {
   ): RequestLogicTypes.IExtensionStates {
     this.validate(requestState, extensionAction);
 
-    const copiedExtensionState: RequestLogicTypes.IExtensionStates = Utils.deepCopy(
-      extensionsState,
-    );
+    const copiedExtensionState: RequestLogicTypes.IExtensionStates =
+      Utils.deepCopy(extensionsState);
 
     if (extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE) {
       if (requestState.extensions[extensionAction.id]) {

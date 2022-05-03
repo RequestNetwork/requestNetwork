@@ -14,12 +14,11 @@ export async function deployEscrow(hre: HardhatRuntimeEnvironment): Promise<void
     const { address: erc20EscrowToPayAddress } = await deployOne({}, hre, 'ERC20EscrowToPay', {
       constructorArguments: [erc20FeeProxyAddress, deployerAddress],
     });
-    console.log(`ERC20EscrowToPay Contract deployed:  ${erc20EscrowToPayAddress}`);
 
     // ----------------------------------
+    console.log('Contracts deployed');
     console.log(`
-    Contracts deployed'
-        ERC20EscrowToPay          ${erc20EscrowToPayAddress}
+      ERC20EscrowToPay:         ${erc20EscrowToPayAddress}
     `);
   } catch (e) {
     console.error(e);

@@ -10,7 +10,8 @@ type ISignatureParametersDictionary = Map<string, SignatureTypes.ISignatureParam
  * Allows to sign() with "Ethereum_address" identities thanks to their private key given in constructor() or addSignatureParameters()
  */
 export default class EthereumPrivateKeySignatureProvider
-  implements SignatureProviderTypes.ISignatureProvider {
+  implements SignatureProviderTypes.ISignatureProvider
+{
   /** list of supported signing method */
   public supportedMethods: SignatureTypes.METHOD[] = [SignatureTypes.METHOD.ECDSA];
   /** list of supported identity types */
@@ -46,9 +47,8 @@ export default class EthereumPrivateKeySignatureProvider
     }
 
     // toLowerCase to avoid mismatch because of case
-    const signatureParameter:
-      | SignatureTypes.ISignatureParameters
-      | undefined = this.signatureParametersDictionary.get(actualSigner.value.toLowerCase());
+    const signatureParameter: SignatureTypes.ISignatureParameters | undefined =
+      this.signatureParametersDictionary.get(actualSigner.value.toLowerCase());
 
     if (!signatureParameter) {
       throw Error(`private key unknown for the address ${actualSigner.value}`);

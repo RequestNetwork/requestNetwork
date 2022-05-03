@@ -1,5 +1,4 @@
 import { HardhatRuntimeEnvironmentExtended, IDeploymentParams, IDeploymentResult } from './types';
-import { constants, ethers } from 'ethers';
 import utils from '@requestnetwork/utils';
 import { requestDeployer } from '../src/lib';
 
@@ -44,17 +43,7 @@ export const xdeploy = async (
     console.log(`... on ${network}`);
     let provider;
     if (network === 'celo') {
-      provider = new ethers.providers.JsonRpcProvider('https://forno.celo.org');
-      const originalBlockFormatter = provider.formatter._block;
-      provider.formatter._block = (value: any, format: any) => {
-        return originalBlockFormatter(
-          {
-            gasLimit: constants.Zero,
-            ...value,
-          },
-          format,
-        );
-      };
+      provider = utils.getCeloProvider();
     } else {
       provider = utils.getDefaultProvider(network);
     }
@@ -81,13 +70,14 @@ export const xdeploy = async (
     let receipt = undefined;
     let deployed = false;
     let error = undefined;
+    const gasPrice = await provider.getGasPrice();
     try {
       const createReceipt = await (
         await create2Deployer.deploy(
           ZERO_ETH_INPUT,
           hre.ethers.utils.id(hre.config.xdeploy.salt),
           initcode.data,
-          { gasLimit: hre.config.xdeploy.gasLimit },
+          { gasLimit: hre.config.xdeploy.gasLimit, gasPrice: gasPrice },
         )
       ).wait();
       receipt = createReceipt;

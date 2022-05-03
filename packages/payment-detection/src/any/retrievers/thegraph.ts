@@ -9,7 +9,8 @@ import { unpadAmountFromChainlink } from '../../utils';
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 export class TheGraphConversionRetriever
-  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent> {
+  implements IPaymentRetriever<PaymentTypes.ERC20PaymentNetworkEvent>
+{
   private client: TheGraphClient;
 
   /**

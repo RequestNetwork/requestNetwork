@@ -10,7 +10,7 @@ import { DeclarativePaymentDetectorBase } from './declarative';
  */
 export abstract class ReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased,
-  TPaymentEventParameters
+  TPaymentEventParameters,
 > extends DeclarativePaymentDetectorBase<
   TExtension,
   TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
