@@ -12,7 +12,7 @@ const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'nonexistent',
   port: 5001,
   protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 1000,
+  timeout: 10000,
 };
 
 const hash1 = 'QmNXA5DyFZkdf4XkUT81nmJSo3nS2bL25x7YepxeoDa6tY';
