@@ -4,8 +4,6 @@ import Web3SignatureProvider from '../src/web3-signature-provider';
 
 import Utils from '@requestnetwork/utils';
 
-import { providers } from 'ethers';
-
 const id1Raw = {
   identity: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -32,8 +30,8 @@ const mockWeb3: any = {
   })),
 };
 
-// use of infura only to initialize Web3SignatureProvider - but web3 is mocked afterward
-const signProvider = new Web3SignatureProvider(new providers.InfuraProvider());
+// use of an empty function to initialize Web3SignatureProvider - but web3 is mocked afterward
+const signProvider = new Web3SignatureProvider(() => {});
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('web3-signature-provider', () => {

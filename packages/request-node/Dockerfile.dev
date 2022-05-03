@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:16-alpine
 
 ## Warning! This Docker config is meant to be used for development and debugging, not in prod.
 ## This is a simplified Dockerfile for a fast build

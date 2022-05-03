@@ -28,7 +28,7 @@ describe('IPFS Storage', () => {
       ipfsGatewayConnection: invalidHostIpfsGatewayConnection,
     });
     await expect(ipfsStorage.initialize()).rejects.toThrowError(
-      'IPFS node is not accessible or corrupted: Error: Ipfs id error: Error: getaddrinfo ENOTFOUND nonexistent',
+      'IPFS node is not accessible or corrupted: Error: getaddrinfo ENOTFOUND nonexistent',
     );
   });
   it('cannot initialize if ipfs node not in the right network', async () => {
