@@ -43,7 +43,7 @@
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "axios": "0.21.1",
+    "axios": "0.21.2",
     "axios-retry": "3.2.5",
     "bluebird": "3.7.2",
     "ethers": "5.5.1",
