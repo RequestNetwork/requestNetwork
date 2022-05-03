@@ -148,7 +148,7 @@ export interface IWeb3Connection {
   timeout?: number;
 }
 
-/** Information to connect to a ipfs gateway */
+/** Information to connect to an IPFS gateway */
 export interface IIpfsGatewayConnection {
   host: string;
   port: number;
