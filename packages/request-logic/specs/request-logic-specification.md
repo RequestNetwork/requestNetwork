@@ -354,7 +354,7 @@ This action is valid, if:
 
 - the request **has a payer**
 - the Role of the action **signer is the payer**
-- the request state is `created`
+- the request state is not `canceled`
 
   **Or, if**:
 
