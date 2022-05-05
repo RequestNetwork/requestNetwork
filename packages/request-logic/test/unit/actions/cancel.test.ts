@@ -109,7 +109,7 @@ describe('actions/cancel', () => {
         timestamp: 2,
       });
     });
-    it('cannot cancel by payer with state === accepted', async () => {
+    it('can cancel by payer with state === accepted', async () => {
       const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
@@ -118,13 +118,12 @@ describe('actions/cancel', () => {
         TestData.fakeSignatureProvider,
       );
 
-      expect(() =>
-        CancelAction.applyActionToRequest(
-          actionCancel,
-          2,
-          Utils.deepCopy(TestData.requestAcceptedNoExtension),
-        ),
-      ).toThrowError('A payer cancel need to be done on a request with the state created');
+      const request = CancelAction.applyActionToRequest(
+        actionCancel,
+        2,
+        Utils.deepCopy(TestData.requestAcceptedNoExtension),
+      );
+      expect(request.state).toBe(RequestLogicTypes.STATE.CANCELED);
     });
     it('cannot cancel by payer with state === canceled', async () => {
       const actionCancel = await CancelAction.format(
@@ -141,7 +140,7 @@ describe('actions/cancel', () => {
           2,
           Utils.deepCopy(TestData.requestCanceledNoExtension),
         ),
-      ).toThrowError('A payer cancel need to be done on a request with the state created');
+      ).toThrowError('Cannot cancel an already canceled request');
     });
 
     it('can cancel by payee with state === created', async () => {

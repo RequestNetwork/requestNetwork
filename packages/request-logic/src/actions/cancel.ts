@@ -60,15 +60,8 @@ function applyActionToRequest(
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 
-  if (signerRole === RequestLogicTypes.ROLE.PAYER) {
-    if (request.state === RequestLogicTypes.STATE.CREATED) {
-      throw new Error('Cannot cancel an already canceled request');
-    }
-    requestCopied.state = RequestLogicTypes.STATE.CANCELED;
-    return requestCopied;
-  }
-
-  if (signerRole === RequestLogicTypes.ROLE.PAYEE) {
+  const allowedRoles = [RequestLogicTypes.ROLE.PAYER, RequestLogicTypes.ROLE.PAYEE];
+  if (allowedRoles.includes(signerRole)) {
     if (request.state === RequestLogicTypes.STATE.CANCELED) {
       throw new Error('Cannot cancel an already canceled request');
     }
