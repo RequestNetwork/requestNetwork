@@ -66,17 +66,31 @@ export const actionCreationPayeeDelegate = {
   parameters: { payeeDelegate },
   version: '0.1.0',
 };
-export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> =
-  {
-    action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
-    parameters: {
-      paymentAddress: 'pay.near',
-      refundAddress: 'refund.near',
-      salt,
-    },
-    version: '0.2.0',
-  };
+export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+  parameters: {
+    paymentAddress: 'pay.near',
+    refundAddress: 'refund.near',
+    salt,
+  },
+  version: '0.2.0',
+};
+export const actionCreationWithAnyToNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnAnyToAnyConversion.ICreationParameters> = {
+  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+  parameters: {
+    paymentAddress: 'pay.near',
+    refundAddress: 'refund.near',
+    feeAddress: 'fee.near',
+    feeAmount: '100',
+    salt,
+    paymentNetworkName: 'aurora',
+    network: 'aurora',
+    maxRateTimespan: 1000000,
+  },
+  version: '0.2.0',
+};
 
 export const actionAddDelegate = {
   action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
@@ -223,6 +237,91 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
     version: '0.2.0',
   },
 };
+export const extensionStateWithAnyToNativeTokenPaymentAndRefund: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {
+          paymentAddress: 'pay.near',
+          refundAddress: 'refund.near',
+          salt,
+          feeAddress: 'fee.near',
+          feeAmount: '100',
+          maxRateTimespan: 1000000,
+          network: 'aurora',
+        },
+        timestamp: arbitraryTimestamp,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      paymentAddress: 'pay.near',
+      refundAddress: 'refund.near',
+      feeAddress: 'fee.near',
+      salt,
+      payeeDelegate: undefined,
+      payerDelegate: undefined,
+      paymentInfo: undefined,
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      refundInfo: undefined,
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
+      network: 'aurora',
+      maxRateTimespan: 1000000,
+      feeAmount: '100',
+    },
+    version: '0.2.0',
+  },
+};
+export const extensionStateAnyToNativeWithPaymentAddressAdded: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN as string]: {
+    events: [
+      {
+        name: 'create',
+        parameters: {
+          refundAddress: 'refund.near',
+          salt,
+          feeAddress: 'fee.near',
+          feeAmount: '100',
+          maxRateTimespan: 1000000,
+          network: 'aurora',
+        },
+        timestamp: arbitraryTimestamp,
+      },
+      {
+        name: 'addPaymentAddress',
+        parameters: {
+          paymentAddress: 'pay.near',
+        },
+        timestamp: arbitraryTimestamp,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      paymentAddress: 'pay.near',
+      refundAddress: 'refund.near',
+      feeAddress: 'fee.near',
+      salt,
+      payeeDelegate: undefined,
+      payerDelegate: undefined,
+      paymentInfo: undefined,
+      receivedPaymentAmount: '0',
+      receivedRefundAmount: '0',
+      refundInfo: undefined,
+      sentPaymentAmount: '0',
+      sentRefundAmount: '0',
+      network: 'aurora',
+      maxRateTimespan: 1000000,
+      feeAmount: '100',
+    },
+    version: '0.2.0',
+  },
+};
+
 export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
     events: [
