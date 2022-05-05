@@ -71,6 +71,40 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
       throw Error('network is required');
     }
 
+    if (
+      extensionAction.parameters.paymentAddress &&
+      !this.isValidAddress(
+        extensionAction.parameters.paymentAddress,
+        extensionAction.parameters.network,
+      )
+    ) {
+      throw Error(
+        `paymentAddress ${extensionAction.parameters.paymentAddress} is not a valid address`,
+      );
+    }
+
+    if (
+      extensionAction.parameters.feeAddress &&
+      !this.isValidAddress(
+        extensionAction.parameters.feeAddress,
+        extensionAction.parameters.network,
+      )
+    ) {
+      throw Error(`feeAddress ${extensionAction.parameters.feeAddress} is not a valid address`);
+    }
+
+    if (
+      extensionAction.parameters.refundAddress &&
+      !this.isValidAddress(
+        extensionAction.parameters.refundAddress,
+        extensionAction.parameters.network,
+      )
+    ) {
+      throw Error(
+        `refundAddress ${extensionAction.parameters.refundAddress} is not a valid address`,
+      );
+    }
+
     const feePNCreationAction = super.applyCreation(extensionAction, timestamp);
 
     return {
@@ -120,6 +154,30 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
       throw new Error(`paymentAddress '${paymentAddress}' is not a valid address`);
     }
     return super.applyAddPaymentAddress(
+      extensionState,
+      extensionAction,
+      requestState,
+      actionSigner,
+      timestamp,
+    );
+  }
+
+  protected applyAddFee(
+    extensionState: ExtensionTypes.IState,
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+    actionSigner: IdentityTypes.IIdentity,
+    timestamp: number,
+  ): ExtensionTypes.IState {
+    const network =
+      requestState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN].values.network;
+    if (
+      extensionAction.parameters.feeAddress &&
+      !this.isValidAddress(extensionAction.parameters.feeAddress, network)
+    ) {
+      throw Error('feeAddress is not a valid address');
+    }
+    return super.applyAddFee(
       extensionState,
       extensionAction,
       requestState,

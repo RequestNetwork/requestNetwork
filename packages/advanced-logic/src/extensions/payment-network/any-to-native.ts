@@ -39,6 +39,9 @@ export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenc
     ) {
       throw new InvalidPaymentAddressError(creationParameters.feeAddress, 'feeAddress');
     }
+    if (creationParameters.maxRateTimespan && creationParameters.maxRateTimespan < 0) {
+      throw new InvalidMaxRateTimespanError(creationParameters.maxRateTimespan);
+    }
     return super.createCreationAction(creationParameters);
   }
 
@@ -47,5 +50,11 @@ export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenc
     throw new Error(
       `Default implementation of isValidAddress() does not support native tokens. Please override this method.`,
     );
+  }
+}
+
+export class InvalidMaxRateTimespanError extends Error {
+  constructor(maxRateTimespan: number) {
+    super(`${maxRateTimespan} is not a valid maxRateTimespan`);
   }
 }

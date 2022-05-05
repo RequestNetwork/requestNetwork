@@ -189,8 +189,8 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       network = extensionAction.parameters.network;
     } else {
       network =
-        requestState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN].values
-          .network;
+        requestState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN]?.values
+          ?.network;
     }
     return network;
   }
