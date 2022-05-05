@@ -17,7 +17,7 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
   }
 
   /**
-   * Check if an ethereum address is valid
+   * Check if a near address is valid
    *
    * @param {string} address address to check
    * @returns {boolean} true if address is valid
