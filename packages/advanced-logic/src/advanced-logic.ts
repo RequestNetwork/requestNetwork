@@ -20,6 +20,8 @@ import NearNative from './extensions/payment-network/near-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
 import NativeTokenPaymentNetwork from './extensions/payment-network/native-token';
+import AnyToNear from './extensions/payment-network/any-to-near';
+import AnyToNativeTokenPaymentNetwork from './extensions/payment-network/any-to-native';
 
 /**
  * Module to manage Advanced logic extensions
@@ -41,6 +43,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     erc777Stream: Erc777Stream;
     feeProxyContractEth: FeeProxyContractEth;
     anyToEthProxy: AnyToEthProxy;
+    anyToNativeToken: AnyToNativeTokenPaymentNetwork[];
   };
 
   constructor(currencyManager?: ICurrencyManager) {
@@ -61,6 +64,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       feeProxyContractEth: new FeeProxyContractEth(),
       anyToEthProxy: new AnyToEthProxy(currencyManager),
       nativeToken: [new NearNative()],
+      anyToNativeToken: [new AnyToNear(currencyManager)],
     };
   }
 
@@ -101,21 +105,29 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     const extension: ExtensionTypes.IExtension | undefined = {
       [ExtensionTypes.ID.CONTENT_DATA]: this.extensions.contentData,
       [ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED]: this.extensions.addressBasedBtc,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]:
-        this.extensions.addressBasedTestnetBtc,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED]: this.extensions
+        .addressBasedTestnetBtc,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: this.extensions.declarative,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED]: this.extensions.addressBasedErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: this.extensions.proxyContractErc20,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]:
-        this.extensions.feeProxyContractErc20,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: this.extensions
+        .feeProxyContractErc20,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM]: this.extensions.erc777Stream,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA]: this.extensions.ethereumInputData,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN]:
-        this.getNativeTokenExtensionForActionAndState(extensionAction, requestState),
+      [ExtensionTypes.ID
+        .PAYMENT_NETWORK_NATIVE_TOKEN]: this.getNativeTokenExtensionForActionAndState(
+        extensionAction,
+        requestState,
+      ),
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: this.extensions.anyToErc20Proxy,
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]:
-        this.extensions.feeProxyContractEth,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]: this.extensions
+        .feeProxyContractEth,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY]: this.extensions.anyToEthProxy,
+      [ExtensionTypes.ID
+        .PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN]: this.getAnyToNativeTokenExtensionForActionAndState(
+        extensionAction,
+        requestState,
+      ),
     }[id];
 
     if (!extension) {
@@ -123,6 +135,11 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
         throw Error(
           `extension with id: ${id} not found for network: ${requestState.currency.network}`,
         );
+      }
+
+      if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN) {
+        const network = this.getNetwork(extensionAction, requestState);
+        throw Error(`extension with id: ${id} not found for network: ${network}`);
       }
       throw Error(`extension not recognized, id: ${id}`);
     }
@@ -148,5 +165,33 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
           nativeTokenExtension.supportedNetworks.includes(network),
         )
       : undefined;
+  }
+
+  protected getAnyToNativeTokenExtensionForActionAndState(
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+  ): ExtensionTypes.IExtension<ExtensionTypes.PnAnyToEth.ICreationParameters> | undefined {
+    const network = this.getNetwork(extensionAction, requestState);
+
+    return network
+      ? this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
+          anyToNativeTokenExtension.supportedNetworks.includes(network),
+        )
+      : undefined;
+  }
+
+  protected getNetwork(
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+  ): string {
+    let network: string;
+    if (extensionAction.action === 'create') {
+      network = extensionAction.parameters.network;
+    } else {
+      network =
+        requestState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN].values
+          .network;
+    }
+    return network;
   }
 }
