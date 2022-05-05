@@ -61,8 +61,8 @@ function applyActionToRequest(
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 
   if (signerRole === RequestLogicTypes.ROLE.PAYER) {
-    if (request.state !== RequestLogicTypes.STATE.CREATED) {
-      throw new Error('A payer cancel need to be done on a request with the state created');
+    if (request.state === RequestLogicTypes.STATE.CREATED) {
+      throw new Error('Cannot cancel an already canceled request');
     }
     requestCopied.state = RequestLogicTypes.STATE.CANCELED;
     return requestCopied;
