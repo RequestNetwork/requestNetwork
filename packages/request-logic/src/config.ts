@@ -1,6 +1,6 @@
 export default {
   specificationVersion: {
-    current: '2.0.4',
+    current: '2.1.0',
     exceptions: [],
   },
 };
