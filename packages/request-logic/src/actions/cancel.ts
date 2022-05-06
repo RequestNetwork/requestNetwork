@@ -66,7 +66,7 @@ function applyActionToRequest(
   }
 
   if (signerRole === RequestLogicTypes.ROLE.PAYER) {
-    if (Semver.lt(action.data.version, '2.1.0')) {
+    if (Semver.lt(request.version, '2.1.0')) {
       if (request.state !== RequestLogicTypes.STATE.CREATED) {
         throw new Error('A payer cancel need to be done on a request with the state created');
       }

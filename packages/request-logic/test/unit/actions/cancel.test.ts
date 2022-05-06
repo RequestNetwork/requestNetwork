@@ -122,7 +122,7 @@ describe('actions/cancel', () => {
       requestAcceptedOlderVersion.version = '2.0.3';
       expect(() =>
         CancelAction.applyActionToRequest(actionCancel, 2, requestAcceptedOlderVersion),
-      ).toThrowError('Cannot cancel an already accepted request');
+      ).toThrowError('A payer cancel need to be done on a request with the state created');
     });
 
     it('can cancel by payer with state === accepted on version >= 2.1.0', async () => {

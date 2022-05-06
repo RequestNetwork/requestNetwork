@@ -121,7 +121,7 @@ describe('index', () => {
             },
           },
           result: {
-            requestId: '016bbc670a8b76ca65c9476d17b141e9c7a594264e67fa0c67fd2089b9fb35a7f2',
+            requestId: '011a9a73634ecaca37bcc93d5fea4d082216bfbc2ccbf90090fc14aab18681ee8b',
           },
         });
       });
@@ -276,7 +276,7 @@ describe('index', () => {
             },
           },
           result: {
-            requestId: '016bbc670a8b76ca65c9476d17b141e9c7a594264e67fa0c67fd2089b9fb35a7f2',
+            requestId: '011a9a73634ecaca37bcc93d5fea4d082216bfbc2ccbf90090fc14aab18681ee8b',
           },
         });
       });
@@ -1179,7 +1179,7 @@ describe('index', () => {
                 timestamp: 2,
                 transaction: {
                   data:
-                    '{"data":{"name":"accept","parameters":{"requestId":"016bbc670a8b76ca65c9476d17b141e9c7a594264e67fa0c67fd2089b9fb35a7f2"},"version":"2.0.4"},"signature":{"method":"ecdsa","value":"0x1046d54000a58aae49027e33e5c576d2f1ae4d0ec7d081fb694bde341244c9414136d37542588b999c076f402f82daef57888705d442ed00f87e75dedd1db1901b"}}',
+                    '{"data":{"name":"accept","parameters":{"requestId":"011a9a73634ecaca37bcc93d5fea4d082216bfbc2ccbf90090fc14aab18681ee8b"},"version":"2.1.0"},"signature":{"method":"ecdsa","value":"0x7aa5b6ba95fe0d330bfe7fefa512d471fd5cd7ca6ef95d9556f4633d1b5225a3573ba22dbe26292ea2c0dc70926ec2b64109ab77d9cee06deea8454e347e53af1c"}}',
                 },
               },
             },
