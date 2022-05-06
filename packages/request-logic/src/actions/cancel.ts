@@ -1,5 +1,6 @@
 import { IdentityTypes, RequestLogicTypes, SignatureProviderTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
+import * as Semver from 'semver';
 
 import Action from '../action';
 import Request from '../request';
@@ -60,11 +61,21 @@ function applyActionToRequest(
   requestCopied = Request.pushExtensionsData(requestCopied, action.data.parameters.extensionsData);
   requestCopied.events.push(generateEvent(action, timestamp, signer));
 
-  const allowedRoles = [RequestLogicTypes.ROLE.PAYER, RequestLogicTypes.ROLE.PAYEE];
-  if (allowedRoles.includes(signerRole)) {
-    if (request.state === RequestLogicTypes.STATE.CANCELED) {
-      throw new Error('Cannot cancel an already canceled request');
+  if (request.state === RequestLogicTypes.STATE.CANCELED) {
+    throw new Error('Cannot cancel an already canceled request');
+  }
+
+  if (signerRole === RequestLogicTypes.ROLE.PAYER) {
+    if (Semver.lt(action.data.version, '2.1.0')) {
+      if (request.state !== RequestLogicTypes.STATE.CREATED) {
+        throw new Error('A payer cancel need to be done on a request with the state created');
+      }
     }
+    requestCopied.state = RequestLogicTypes.STATE.CANCELED;
+    return requestCopied;
+  }
+
+  if (signerRole === RequestLogicTypes.ROLE.PAYEE) {
     requestCopied.state = RequestLogicTypes.STATE.CANCELED;
     return requestCopied;
   }

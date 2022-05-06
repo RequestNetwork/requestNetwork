@@ -110,7 +110,7 @@ describe('actions/cancel', () => {
       });
     });
 
-    it('cannot cancel by payer with state === accepted on version <= 2.0.3', async () => {
+    it('cannot cancel by payer with state === accepted on version < 2.1.0', async () => {
       const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
@@ -118,17 +118,14 @@ describe('actions/cancel', () => {
         TestData.payerRaw.identity,
         TestData.fakeSignatureProvider,
       );
-
+      const requestAcceptedOlderVersion = Utils.deepCopy(TestData.requestAcceptedNoExtension);
+      requestAcceptedOlderVersion.version = '2.0.3';
       expect(() =>
-        CancelAction.applyActionToRequest(
-          actionCancel,
-          2,
-          Utils.deepCopy(TestData.requestAcceptedNoExtension),
-        ),
+        CancelAction.applyActionToRequest(actionCancel, 2, requestAcceptedOlderVersion),
       ).toThrowError('Cannot cancel an already accepted request');
     });
 
-    it('can cancel by payer with state === accepted on version >= 2.0.4', async () => {
+    it('can cancel by payer with state === accepted on version >= 2.1.0', async () => {
       const actionCancel = await CancelAction.format(
         {
           requestId: TestData.requestIdMock,
