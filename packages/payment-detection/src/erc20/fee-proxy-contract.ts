@@ -1,4 +1,4 @@
-import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
+import { erc20EscrowToPayArtifact, erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -19,13 +19,18 @@ const PROXY_CONTRACT_ADDRESS_MAP = {
   ['0.2.0']: '0.2.0',
 };
 
+const ESCROW_CONTRACT_ADDRESS_MAP = {
+  ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.1.0',
+};
+
 /**
  * Handle payment networks with ERC20 fee proxy contract extension, or derived
  */
 
 export abstract class ERC20FeeProxyPaymentDetectorBase<
   TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  TPaymentEventParameters extends PaymentTypes.IERC20FeePaymentEventParameters,
+  TPaymentEventParameters extends PaymentTypes.IERC20FeePaymentEventParameters
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
@@ -98,8 +103,10 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
       });
     }
 
-    const { address: proxyContractAddress, creationBlockNumber: proxyCreationBlockNumber } =
-      ERC20FeeProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
+    const {
+      address: proxyContractAddress,
+      creationBlockNumber: proxyCreationBlockNumber,
+    } = ERC20FeeProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
     if (networkSupportsTheGraph(paymentChain)) {
       const graphInfoRetriever = new TheGraphInfoRetriever(
@@ -134,5 +141,10 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
   public static getDeploymentInformation = makeGetDeploymentInformation(
     erc20FeeProxyArtifact,
     PROXY_CONTRACT_ADDRESS_MAP,
+  );
+
+  public static getEscrowDeploymentInformation = makeGetDeploymentInformation(
+    erc20EscrowToPayArtifact,
+    ESCROW_CONTRACT_ADDRESS_MAP,
   );
 }

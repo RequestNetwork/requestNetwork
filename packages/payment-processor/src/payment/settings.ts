@@ -42,4 +42,6 @@ export interface IRequestPaymentOptions {
   swap?: ISwapSettings;
   /** Used, and required, only for on chain conversion */
   conversion?: IConversionSettings;
+  /** Optional, specifies if escrow is being used */
+  isEscrow?: boolean;
 }

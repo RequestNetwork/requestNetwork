@@ -77,6 +77,20 @@ export async function hasErc20Approval(
   );
 }
 
+export async function hasEscrowErc20Approval(
+  request: ClientTypes.IRequestData,
+  account: string,
+  signerOrProvider: providers.Provider | Signer = getNetworkProvider(request),
+): Promise<boolean> {
+  return checkErc20Allowance(
+    account,
+    getEscrowProxyAddress(request),
+    signerOrProvider,
+    request.currencyInfo.value,
+    request.expectedAmount,
+  );
+}
+
 /**
  * Checks if a spender has enough allowance from an ERC20 token owner to pay an amount.
  * @param ownerAddress address of the owner
@@ -164,8 +178,8 @@ export function encodeApproveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider | Signer = getProvider(),
 ): string {
-  const paymentNetworkId = getPaymentNetworkExtension(request)
-    ?.id as unknown as PaymentTypes.PAYMENT_NETWORK_ID;
+  const paymentNetworkId = (getPaymentNetworkExtension(request)
+    ?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
   if (!paymentNetworkId) {
     throw new Error('No payment network Id');
   }
@@ -274,4 +288,16 @@ function getProxyAddress(request: ClientTypes.IRequestData): string {
   }
 
   throw new Error(`Unsupported payment network: ${id}`);
+}
+
+/**
+ * Get the escrow contract address
+ * @param request
+ * @returns the payment network escrow address
+ */
+function getEscrowProxyAddress(request: ClientTypes.IRequestData): string {
+  return genericGetProxyAddress(
+    request,
+    Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getEscrowDeploymentInformation,
+  );
 }

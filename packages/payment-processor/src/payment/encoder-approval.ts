@@ -1,7 +1,7 @@
 import { IRequestPaymentOptions } from './settings';
 import { IPreparedTransaction } from './prepared-transaction';
 import { providers, BigNumber } from 'ethers';
-import { hasErc20Approval, prepareApproveErc20 } from './erc20';
+import { hasErc20Approval, hasEscrowErc20Approval, prepareApproveErc20 } from './erc20';
 import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import {
   hasErc20ApprovalForProxyConversion,
@@ -218,6 +218,12 @@ export async function isRequestErc20ApprovalWithoutSwapNeeded(
       }
       break;
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
+      if (options?.isEscrow) {
+        if (!(await hasEscrowErc20Approval(request, from))) {
+          return true;
+        }
+        return false;
+      }
       if (!(await hasErc20Approval(request, from))) {
         return true;
       }
