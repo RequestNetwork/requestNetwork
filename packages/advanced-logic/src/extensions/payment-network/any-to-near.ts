@@ -16,19 +16,6 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
   }
 
   /**
-   * Creates the extensionsData to add a fee address
-   *
-   * @param addFeeParameters extensions parameters to create
-   *
-   * @returns IAction the extensionsData to be stored in the request
-   */
-  public createAddFeeAction(
-    addFeeParameters: ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters,
-  ): ExtensionTypes.IAction {
-    return super.createAddFeeAction(addFeeParameters);
-  }
-
-  /**
    * Check if a near address is valid
    *
    * @param {string} address address to check

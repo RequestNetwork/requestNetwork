@@ -85,7 +85,6 @@ export const actionCreationWithAnyToNativeTokenPayment: ExtensionTypes.IAction<E
     feeAddress: 'fee.near',
     feeAmount: '100',
     salt,
-    paymentNetworkName: 'aurora',
     network: 'aurora',
     maxRateTimespan: 1000000,
   },

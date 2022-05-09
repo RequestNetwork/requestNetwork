@@ -12,16 +12,12 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AnyToNearPaymentNetwork from '../../../src/extensions/payment-network/any-to-near';
 import AnyToNativeTokenPaymentNetwork from '../../../src/extensions/payment-network/any-to-native';
 import { CurrencyManager } from '@requestnetwork/currency';
+import utils from '@requestnetwork/utils';
 
 const salt = arbitrarySalt;
 const currencyManager = CurrencyManager.getDefault();
 
 describe('extensions/payment-network/any-to-native-token', () => {
-  const nearCurrency = {
-    type: RequestLogicTypes.CURRENCY.ETH,
-    value: 'NEAR',
-    network: 'aurora',
-  };
   const validCurrency = {
     type: RequestLogicTypes.CURRENCY.ISO4217,
     value: 'USD',
@@ -29,11 +25,6 @@ describe('extensions/payment-network/any-to-native-token', () => {
   const wrongCurrency = {
     type: RequestLogicTypes.CURRENCY.ISO4217,
     value: 'EUR',
-  };
-  const nearTestnetCurrency = {
-    type: RequestLogicTypes.CURRENCY.ETH,
-    value: 'NEAR-testnet',
-    network: 'aurora-testnet',
   };
   const anyToNativeTokenTestCases = [
     {
@@ -43,8 +34,6 @@ describe('extensions/payment-network/any-to-native-token', () => {
       ) as AnyToNativeTokenPaymentNetwork,
       suffix: 'near',
       wrongSuffix: 'testnet',
-      currency: nearCurrency,
-      wrongCurrency: nearTestnetCurrency,
       network: 'aurora',
       wrongNetwork: 'aurora-testnet',
       maxRateTimespan: 100000,
@@ -57,8 +46,6 @@ describe('extensions/payment-network/any-to-native-token', () => {
       ) as AnyToNativeTokenPaymentNetwork,
       suffix: 'testnet',
       wrongSuffix: 'near',
-      currency: nearTestnetCurrency,
-      wrongCurrency: nearCurrency,
       network: 'aurora-testnet',
       wrongNetwork: 'aurora',
       maxRateTimespan: 100000,
@@ -279,27 +266,25 @@ describe('extensions/payment-network/any-to-native-token', () => {
 
   describe('AdvancedLogic.applyActionToExtension', () => {
     const mainnetTestCase = anyToNativeTokenTestCases[0];
+    let advancedLogic: AdvancedLogic;
+    let validRequestState: typeof requestStateNoExtensions;
+    let creationAction: ExtensionTypes.IAction;
+    let anyToNearPn: AnyToNearPaymentNetwork;
+    beforeEach(() => {
+      advancedLogic = new AdvancedLogic();
+      anyToNearPn = new AnyToNearPaymentNetwork(currencyManager);
+      validRequestState = {
+        ...requestStateNoExtensions,
+        currency: validCurrency,
+      };
+      creationAction = utils.deepCopy(actionCreationWithAnyToNativeTokenPayment);
+    });
     describe('applyActionToExtension/create action', () => {
       it('works with valid parameters', () => {
-        const advancedLogic = new AdvancedLogic();
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
-        const creationAction = {
-          ...actionCreationWithAnyToNativeTokenPayment,
-          parameters: {
-            ...actionCreationWithAnyToNativeTokenPayment.parameters,
-            paymentNetworkName: mainnetTestCase.network,
-          },
-        };
-
         const newExtensionState = advancedLogic.applyActionToExtensions(
-          requestState.extensions,
+          validRequestState.extensions,
           creationAction,
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
@@ -307,26 +292,15 @@ describe('extensions/payment-network/any-to-native-token', () => {
         expect(newExtensionState).toEqual(extensionStateWithAnyToNativeTokenPaymentAndRefund);
       });
       it('throws with unsupported currencies', () => {
-        const advancedLogic = new AdvancedLogic();
-
-        const requestState: typeof requestStateNoExtensions = {
+        const invalidRequestState: typeof requestStateNoExtensions = {
           ...requestStateNoExtensions,
           currency: wrongCurrency,
         };
-
-        const creationAction = {
-          ...actionCreationWithAnyToNativeTokenPayment,
-          parameters: {
-            ...actionCreationWithAnyToNativeTokenPayment.parameters,
-            paymentNetworkName: mainnetTestCase.network,
-          },
-        };
-
         expect(() =>
           advancedLogic.applyActionToExtensions(
-            requestState.extensions,
+            invalidRequestState.extensions,
             creationAction,
-            requestState,
+            invalidRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           ),
@@ -335,26 +309,12 @@ describe('extensions/payment-network/any-to-native-token', () => {
         );
       });
       it('throws when network is undefined', () => {
-        const advancedLogic = new AdvancedLogic();
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
-        const wrongActionCreation = {
-          ...actionCreationWithAnyToNativeTokenPayment,
-          parameters: {
-            ...actionCreationWithAnyToNativeTokenPayment.parameters,
-            network: undefined,
-          },
-        };
-
+        creationAction.parameters.network = undefined;
         expect(() =>
           advancedLogic.applyActionToExtensions(
-            requestState.extensions,
-            wrongActionCreation,
-            requestState,
+            validRequestState.extensions,
+            creationAction,
+            validRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           ),
@@ -363,27 +323,14 @@ describe('extensions/payment-network/any-to-native-token', () => {
         );
       });
       it('throws on a wrong network', () => {
-        const advancedLogic = new AdvancedLogic();
         const wrongNetwork = `wrong network`;
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
-        const wrongActionCreation = {
-          ...actionCreationWithAnyToNativeTokenPayment,
-          parameters: {
-            ...actionCreationWithAnyToNativeTokenPayment.parameters,
-            network: wrongNetwork,
-          },
-        };
+        creationAction.parameters.network = wrongNetwork;
 
         expect(() =>
           advancedLogic.applyActionToExtensions(
-            requestState.extensions,
-            wrongActionCreation,
-            requestState,
+            validRequestState.extensions,
+            creationAction,
+            validRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           ),
@@ -392,97 +339,67 @@ describe('extensions/payment-network/any-to-native-token', () => {
         );
       });
       it('throws when payment address is not valid', () => {
-        const advancedLogic = new AdvancedLogic();
         const invalidAddress = 'pay.testnet';
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
-        const wrongActionCreation = {
-          ...actionCreationWithAnyToNativeTokenPayment,
-          parameters: {
-            ...actionCreationWithAnyToNativeTokenPayment.parameters,
-            paymentAddress: invalidAddress,
-          },
-        };
+        creationAction.parameters.paymentAddress = invalidAddress;
 
         expect(() =>
           advancedLogic.applyActionToExtensions(
-            requestState.extensions,
-            wrongActionCreation,
-            requestState,
+            validRequestState.extensions,
+            creationAction,
+            validRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           ),
         ).toThrowError(`paymentAddress ${invalidAddress} is not a valid address`);
       });
-      it('throws when fee address is not valid', () => {
-        const advancedLogic = new AdvancedLogic();
-        const invalidAddress = 'fee.testnet';
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
-        const wrongActionCreation = {
-          ...actionCreationWithAnyToNativeTokenPayment,
-          parameters: {
-            ...actionCreationWithAnyToNativeTokenPayment.parameters,
-            feeAddress: invalidAddress,
-          },
-        };
-
-        expect(() =>
-          advancedLogic.applyActionToExtensions(
-            requestState.extensions,
-            wrongActionCreation,
-            requestState,
-            payeeRaw.identity,
-            arbitraryTimestamp,
-          ),
-        ).toThrowError(`feeAddress ${invalidAddress} is not a valid address`);
-      });
       it('throws when refund address is not valid', () => {
-        const advancedLogic = new AdvancedLogic();
         const invalidAddress = 'refund.testnet';
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
-        const wrongActionCreation = {
-          ...actionCreationWithAnyToNativeTokenPayment,
-          parameters: {
-            ...actionCreationWithAnyToNativeTokenPayment.parameters,
-            refundAddress: invalidAddress,
-          },
-        };
+        creationAction.parameters.refundAddress = invalidAddress;
 
         expect(() =>
           advancedLogic.applyActionToExtensions(
-            requestState.extensions,
-            wrongActionCreation,
-            requestState,
+            validRequestState.extensions,
+            creationAction,
+            validRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           ),
         ).toThrowError(`refundAddress ${invalidAddress} is not a valid address`);
       });
+      it('throws when fee address is not valid', () => {
+        const invalidAddress = 'fee.testnet';
+        creationAction.parameters.feeAddress = invalidAddress;
+
+        expect(() =>
+          advancedLogic.applyActionToExtensions(
+            validRequestState.extensions,
+            creationAction,
+            validRequestState,
+            payeeRaw.identity,
+            arbitraryTimestamp,
+          ),
+        ).toThrowError(`feeAddress ${invalidAddress} is not a valid address`);
+      });
+      it('throws when fee amount is not valid', () => {
+        const invalidFeeAmount = '-100';
+        creationAction.parameters.feeAmount = invalidFeeAmount;
+
+        expect(() =>
+          advancedLogic.applyActionToExtensions(
+            validRequestState.extensions,
+            creationAction,
+            validRequestState,
+            payeeRaw.identity,
+            arbitraryTimestamp,
+          ),
+        ).toThrowError(`feeAmount is not a valid amount`);
+      });
       it('throws when version is missing', () => {
         expect(() => {
-          const advancedLogic = new AdvancedLogic();
-          const requestState = {
-            ...requestStateNoExtensions,
-            currency: validCurrency,
-          };
           advancedLogic.applyActionToExtensions(
             {},
             { ...actionCreationWithAnyToNativeTokenPayment, version: '' },
-            requestState,
+            validRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           );
@@ -491,16 +408,8 @@ describe('extensions/payment-network/any-to-native-token', () => {
     });
     describe('applyActionToExtension/addPaymentAddress action', () => {
       it('works when adding a payment address to a created state', () => {
-        const advancedLogic = new AdvancedLogic();
-        const anyToNearPn = new AnyToNearPaymentNetwork(currencyManager);
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
-          requestState.extensions,
+          validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
             network: 'aurora',
@@ -509,12 +418,12 @@ describe('extensions/payment-network/any-to-native-token', () => {
             feeAmount: '100',
             maxRateTimespan: 1000000,
           }),
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
 
-        requestState.extensions = intermediateExtensionState;
+        validRequestState.extensions = intermediateExtensionState;
 
         const addPaymentAddressAction = anyToNearPn.createAddPaymentAddressAction({
           paymentAddress: 'pay.near',
@@ -523,7 +432,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
         const newExtensionState = advancedLogic.applyActionToExtensions(
           intermediateExtensionState,
           addPaymentAddressAction,
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
@@ -531,17 +440,10 @@ describe('extensions/payment-network/any-to-native-token', () => {
         expect(newExtensionState).toEqual(extensionStateAnyToNativeWithPaymentAddressAdded);
       });
       it('throws with invalid payment address', () => {
-        const advancedLogic = new AdvancedLogic();
-        const anyToNearPn = new AnyToNearPaymentNetwork(currencyManager);
         const invalidAddress = 'pay.testnet';
 
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
-          requestState.extensions,
+          validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
             network: 'aurora',
@@ -550,12 +452,12 @@ describe('extensions/payment-network/any-to-native-token', () => {
             feeAmount: '100',
             maxRateTimespan: 1000000,
           }),
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
 
-        requestState.extensions = intermediateExtensionState;
+        validRequestState.extensions = intermediateExtensionState;
 
         const addPaymentAddressAction = anyToNearPn.createAddPaymentAddressAction({
           paymentAddress: invalidAddress,
@@ -565,7 +467,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           advancedLogic.applyActionToExtensions(
             intermediateExtensionState,
             addPaymentAddressAction,
-            requestState,
+            validRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           );
@@ -574,16 +476,8 @@ describe('extensions/payment-network/any-to-native-token', () => {
     });
     describe('applyActionToExtension/addFeeAddress action', () => {
       it('works when adding a fee parameters to a created state', () => {
-        const advancedLogic = new AdvancedLogic();
-        const anyToNearPn = new AnyToNearPaymentNetwork(currencyManager);
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
-          requestState.extensions,
+          validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
             paymentAddress: 'pay.near',
@@ -591,12 +485,12 @@ describe('extensions/payment-network/any-to-native-token', () => {
             refundAddress: 'refund.near',
             maxRateTimespan: 1000000,
           }),
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
 
-        requestState.extensions = intermediateExtensionState;
+        validRequestState.extensions = intermediateExtensionState;
 
         const addFeeAction = anyToNearPn.createAddFeeAction({
           feeAddress: 'fee.near',
@@ -606,7 +500,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
         const newExtensionState = advancedLogic.applyActionToExtensions(
           intermediateExtensionState,
           addFeeAction,
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
@@ -614,28 +508,20 @@ describe('extensions/payment-network/any-to-native-token', () => {
         expect(newExtensionState).toEqual(extensionStateAnyToNativeWithFeeAdded);
       });
       it('throws with invalid fee amount', () => {
-        const advancedLogic = new AdvancedLogic();
-        const anyToNearPn = new AnyToNearPaymentNetwork(currencyManager);
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
-          requestState.extensions,
+          validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
             network: 'aurora',
             refundAddress: 'refund.near',
             maxRateTimespan: 1000000,
           }),
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
 
-        requestState.extensions = intermediateExtensionState;
+        validRequestState.extensions = intermediateExtensionState;
 
         const addFeeAction = {
           action: 'addFee',
@@ -650,35 +536,27 @@ describe('extensions/payment-network/any-to-native-token', () => {
           advancedLogic.applyActionToExtensions(
             intermediateExtensionState,
             addFeeAction,
-            requestState,
+            validRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           );
         }).toThrowError(`feeAmount is not a valid amount`);
       });
       it('throws with invalid fee address', () => {
-        const advancedLogic = new AdvancedLogic();
-        const anyToNearPn = new AnyToNearPaymentNetwork(currencyManager);
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
-          requestState.extensions,
+          validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
             network: 'aurora',
             refundAddress: 'refund.near',
             maxRateTimespan: 1000000,
           }),
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
 
-        requestState.extensions = intermediateExtensionState;
+        validRequestState.extensions = intermediateExtensionState;
 
         const addFeeAction = {
           action: 'addFee',
@@ -693,23 +571,15 @@ describe('extensions/payment-network/any-to-native-token', () => {
           advancedLogic.applyActionToExtensions(
             intermediateExtensionState,
             addFeeAction,
-            requestState,
+            validRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           );
         }).toThrowError(`feeAddress is not a valid address`);
       });
       it('throws when fee parameters already given', () => {
-        const advancedLogic = new AdvancedLogic();
-        const anyToNearPn = new AnyToNearPaymentNetwork(currencyManager);
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
-          requestState.extensions,
+          validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
             network: 'aurora',
@@ -718,12 +588,12 @@ describe('extensions/payment-network/any-to-native-token', () => {
             feeAmount: '100',
             maxRateTimespan: 1000000,
           }),
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
 
-        requestState.extensions = intermediateExtensionState;
+        validRequestState.extensions = intermediateExtensionState;
 
         const addFeeAction = {
           action: 'addFee',
@@ -738,35 +608,27 @@ describe('extensions/payment-network/any-to-native-token', () => {
           advancedLogic.applyActionToExtensions(
             intermediateExtensionState,
             addFeeAction,
-            requestState,
+            validRequestState,
             payeeRaw.identity,
             arbitraryTimestamp,
           );
         }).toThrowError(`Fee address already given`);
       });
       it('throws when addFee action is signed by someone else', () => {
-        const advancedLogic = new AdvancedLogic();
-        const anyToNearPn = new AnyToNearPaymentNetwork(currencyManager);
-
-        const requestState: typeof requestStateNoExtensions = {
-          ...requestStateNoExtensions,
-          currency: validCurrency,
-        };
-
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
-          requestState.extensions,
+          validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
             network: 'aurora',
             refundAddress: 'refund.near',
             maxRateTimespan: 1000000,
           }),
-          requestState,
+          validRequestState,
           payeeRaw.identity,
           arbitraryTimestamp,
         );
 
-        requestState.extensions = intermediateExtensionState;
+        validRequestState.extensions = intermediateExtensionState;
 
         const addFeeAction = {
           action: 'addFee',
@@ -781,7 +643,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           advancedLogic.applyActionToExtensions(
             intermediateExtensionState,
             addFeeAction,
-            requestState,
+            validRequestState,
             payerRaw.identity,
             arbitraryTimestamp,
           );
@@ -790,15 +652,10 @@ describe('extensions/payment-network/any-to-native-token', () => {
     });
 
     it('keeps the version used at creation', () => {
-      const advancedLogic = new AdvancedLogic();
-      const requestState = {
-        ...requestStateNoExtensions,
-        currency: validCurrency,
-      };
       const newState = advancedLogic.applyActionToExtensions(
-        requestState.extensions,
+        validRequestState.extensions,
         { ...actionCreationWithAnyToNativeTokenPayment, version: 'ABCD' },
-        requestState,
+        validRequestState,
         payeeRaw.identity,
         arbitraryTimestamp,
       );
