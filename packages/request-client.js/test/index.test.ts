@@ -35,7 +35,8 @@ const encryptionData = {
     method: EncryptionTypes.METHOD.ECIES,
   },
   encryptionParams: {
-    key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    key:
+      '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
     method: EncryptionTypes.METHOD.ECIES,
   },
   identity: {
@@ -1629,7 +1630,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('efce79375b2db9f7');
+      ).toBe('a0ebc16890a6483f');
 
       jest.advanceTimersByTime(150);
       const dataAfterRefresh = await request.refresh();
@@ -1695,7 +1696,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('efce79375b2db9f7');
+      ).toBe('a0ebc16890a6483f');
 
       jest.advanceTimersByTime(150);
       let dataAfterRefresh = await request.refresh();
@@ -1779,7 +1780,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('efce79375b2db9f7');
+      ).toBe('a0ebc16890a6483f');
 
       jest.advanceTimersByTime(150);
       let dataAfterRefresh = await request.refresh();
