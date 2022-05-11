@@ -18,9 +18,9 @@ export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenc
     if (!network) {
       throw Error('network is required');
     }
-    if (!this.supportedNetworks.includes(network)) {
-      throw Error(`network ${network} not supported`);
-    }
+
+    this.throwIfInvalidNetwork(network, this.supportedNetworks);
+
     if (
       creationParameters.paymentAddress &&
       !this.isValidAddress(creationParameters.paymentAddress, network)

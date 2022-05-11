@@ -8,7 +8,7 @@ import DeclarativePaymentNetwork from './declarative';
  * This module is called by the address based payment networks to avoid code redundancy
  */
 export default abstract class AddressBasedPaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
+  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
 > extends DeclarativePaymentNetwork<TCreationParameters> {
   public constructor(
     public extensionId: ExtensionTypes.ID,
@@ -19,10 +19,12 @@ export default abstract class AddressBasedPaymentNetwork<
     super(extensionId, currentVersion);
     this.actions = {
       ...this.actions,
-      [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]:
-        this.applyAddPaymentAddress.bind(this),
-      [ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS]:
-        this.applyAddRefundAddress.bind(this),
+      [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]: this.applyAddPaymentAddress.bind(
+        this,
+      ),
+      [ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS]: this.applyAddRefundAddress.bind(
+        this,
+      ),
     };
   }
 
@@ -283,8 +285,12 @@ export default abstract class AddressBasedPaymentNetwork<
     if (request.currency.type !== this.supportedCurrencyType) {
       throw Error(`This extension can be used only on ${this.supportedCurrencyType} requests`);
     }
-    if (request.currency.network && !this.supportedNetworks.includes(request.currency.network)) {
-      throw new UnsupportedNetworkError(request.currency.network, this.supportedNetworks);
+    this.throwIfInvalidNetwork(request.currency.network, this.supportedNetworks);
+  }
+
+  protected throwIfInvalidNetwork(network?: string, supportedNetworks?: string[]): void {
+    if (network && supportedNetworks && !supportedNetworks.includes(network)) {
+      throw new UnsupportedNetworkError(network, supportedNetworks);
     }
   }
 }

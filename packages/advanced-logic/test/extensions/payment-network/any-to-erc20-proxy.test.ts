@@ -148,7 +148,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           network: 'kovan',
           acceptedTokens: ['0x0000000000000000000000000000000000000003'],
         });
-      }).toThrowError('network kovan not supported');
+      }).toThrowError(`Payment network 'kovan' is not supported by this extension (only`);
     });
 
     it('cannot createCreationAction with tokens accepted not supported', () => {

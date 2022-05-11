@@ -31,9 +31,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
     if (!network) {
       throw Error('network is required');
     }
-    if (!conversionSupportedNetworks.includes(network)) {
-      throw Error(`network ${network} not supported`);
-    }
+    this.throwIfInvalidNetwork(network, conversionSupportedNetworks);
     return super.createCreationAction(creationParameters);
   }
 

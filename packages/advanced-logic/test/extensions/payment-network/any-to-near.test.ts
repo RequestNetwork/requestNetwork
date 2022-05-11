@@ -67,7 +67,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
               network: testCase.network,
               maxRateTimespan: testCase.maxRateTimespan,
             }),
-          ).toBeTruthy();
+          ).toBeDefined();
         });
         it('works with minimum parameters', () => {
           expect(
@@ -77,7 +77,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             }),
           ).toBeTruthy();
         });
-        it('throws with invalid payment address', () => {
+        it('throws when payment address is invalid', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: 'not a near address',
@@ -88,7 +88,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             });
           }).toThrowError("paymentAddress 'not a near address' is not a valid address");
         });
-        it('throws with payment address on the wrong network', () => {
+        it('throws when payment address is on the wrong network', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: `pay.${testCase.wrongSuffix}`,
@@ -99,7 +99,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             });
           }).toThrowError(`paymentAddress 'pay.${testCase.wrongSuffix}' is not a valid address`);
         });
-        it('throws with invalid refund address', () => {
+        it('throws when refund address is invalid', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: `pay.${testCase.suffix}`,
@@ -110,7 +110,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             });
           }).toThrowError("refundAddress 'not a near address' is not a valid address");
         });
-        it('throws with refund address on the wrong network', () => {
+        it('throws when refund address is on the wrong network', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: `pay.${testCase.suffix}`,
@@ -121,7 +121,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             });
           }).toThrowError(`refundAddress 'refund.${testCase.wrongSuffix}' is not a valid address`);
         });
-        it('throws with invalid fee address', () => {
+        it('throws when fee address is invalid', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: `pay.${testCase.suffix}`,
@@ -133,7 +133,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             });
           }).toThrowError("feeAddress 'not a near address' is not a valid address");
         });
-        it('throws with fee address on the wrong network', () => {
+        it('throws when fee address is on the wrong network', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: `pay.${testCase.suffix}`,
@@ -145,7 +145,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             });
           }).toThrowError(`feeAddress 'fee.${testCase.wrongSuffix}' is not a valid address`);
         });
-        it('throws with invalid fee amount', () => {
+        it('throws when fee amount is invalid', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: `pay.${testCase.suffix}`,
@@ -158,7 +158,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             });
           }).toThrowError(`feeAmount is not a valid amount`);
         });
-        it('throws with invalid maxRateTimespan', () => {
+        it('throws when maxRateTimespan is invalid', () => {
           expect(() => {
             testCase.paymentNetwork.createCreationAction({
               paymentAddress: `pay.${testCase.suffix}`,
@@ -180,7 +180,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             }),
           ).toBeTruthy();
         });
-        it('throws with invalid payment address', () => {
+        it('throws when payment address is invalid', () => {
           expect(() => {
             testCase.paymentNetwork.createAddPaymentAddressAction({
               paymentAddress: 'not a near address',
@@ -196,7 +196,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             }),
           ).toBeTruthy();
         });
-        it('throws with invalid payment address', () => {
+        it('throws when payment address is invalid', () => {
           expect(() => {
             testCase.paymentNetwork.createAddRefundAddressAction({
               refundAddress: `not a near address`,
@@ -240,24 +240,15 @@ describe('extensions/payment-network/any-to-native-token', () => {
       feeAmount: '100',
       maxRateTimespan: 1000000,
     };
-    it('createCreationAction() works with no payment, refund address, feeAddress and feeAmount', () => {
-      expect(
-        new AnyToNearPaymentNetwork(currencyManager).createCreationAction({
-          salt,
-          network: 'aurora',
-        }),
-      ).toBeTruthy();
-    });
-    it('createCreationAction() throws with unsupported payment network', () => {
+    it('throws when payment network is not supported', () => {
       expect(() => {
         new AnyToNearPaymentNetwork(currencyManager).createCreationAction({
           ...partialCreationParams,
-          paymentNetworkName: 'another-chain',
           network: 'another-chain',
         });
-      }).toThrowError(`network another-chain not supported`);
+      }).toThrowError(`Payment network 'another-chain' is not supported by this extension (only`);
     });
-    it('createCreationAction() throws without payment network', () => {
+    it('throws when payment network is missing', () => {
       expect(() => {
         new AnyToNearPaymentNetwork(currencyManager).createCreationAction(partialCreationParams);
       }).toThrowError(`network is required`);
@@ -291,7 +282,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
 
         expect(newExtensionState).toEqual(extensionStateWithAnyToNativeTokenPaymentAndRefund);
       });
-      it('throws with unsupported currencies', () => {
+      it('throws when currency is not supported', () => {
         const invalidRequestState: typeof requestStateNoExtensions = {
           ...requestStateNoExtensions,
           currency: wrongCurrency,
@@ -305,7 +296,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             arbitraryTimestamp,
           ),
         ).toThrowError(
-          'The currency (EUR) of the request is not supported for this payment network',
+          `The currency (${wrongCurrency.value}) of the request is not supported for this payment network`,
         );
       });
       it('throws when network is undefined', () => {
@@ -322,7 +313,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           'extension with id: pn-any-to-native-token not found for network: undefined',
         );
       });
-      it('throws on a wrong network', () => {
+      it('throws when the network is wrong', () => {
         const wrongNetwork = `wrong network`;
         creationAction.parameters.network = wrongNetwork;
 
@@ -439,7 +430,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
 
         expect(newExtensionState).toEqual(extensionStateAnyToNativeWithPaymentAddressAdded);
       });
-      it('throws with invalid payment address', () => {
+      it('throws when payment address is invalid', () => {
         const invalidAddress = 'pay.testnet';
 
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
@@ -507,7 +498,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
 
         expect(newExtensionState).toEqual(extensionStateAnyToNativeWithFeeAdded);
       });
-      it('throws with invalid fee amount', () => {
+      it('throws when fee amount is invalid', () => {
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
           validRequestState.extensions,
           anyToNearPn.createCreationAction({
@@ -542,7 +533,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           );
         }).toThrowError(`feeAmount is not a valid amount`);
       });
-      it('throws with invalid fee address', () => {
+      it('throws when fee address is invalid', () => {
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
           validRequestState.extensions,
           anyToNearPn.createCreationAction({
@@ -577,7 +568,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           );
         }).toThrowError(`feeAddress is not a valid address`);
       });
-      it('throws when fee parameters already given', () => {
+      it('throws when fee parameters is already given', () => {
         const intermediateExtensionState = advancedLogic.applyActionToExtensions(
           validRequestState.extensions,
           anyToNearPn.createCreationAction({

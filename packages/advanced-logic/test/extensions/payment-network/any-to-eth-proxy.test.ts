@@ -119,7 +119,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
           salt: 'ea3bc7caf64110ca',
           network: 'kovan',
         });
-      }).toThrowError('network kovan not supported');
+      }).toThrowError(`Payment network 'kovan' is not supported by this extension (only`);
     });
 
     it('cannot applyActionToExtensions of creation with an invalid network', () => {
