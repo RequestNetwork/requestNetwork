@@ -1629,7 +1629,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('a0ebc16890a6483f');
+      ).toBe('0xa0ebc16890a6483f');
 
       jest.advanceTimersByTime(150);
       const dataAfterRefresh = await request.refresh();
@@ -1695,7 +1695,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('a0ebc16890a6483f');
+      ).toBe('0xa0ebc16890a6483f');
 
       jest.advanceTimersByTime(150);
       let dataAfterRefresh = await request.refresh();
@@ -1779,7 +1779,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('a0ebc16890a6483f');
+      ).toBe('0xa0ebc16890a6483f');
 
       jest.advanceTimersByTime(150);
       let dataAfterRefresh = await request.refresh();
