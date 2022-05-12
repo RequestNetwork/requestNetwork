@@ -109,17 +109,17 @@ export const parametersWithoutExtensionsDataForSigning: RequestLogicTypes.ICreat
 export const data = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters,
-  version: '2.0.3',
+  version: '2.1.0',
 };
 export const dataWithoutExtensionsData = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: parametersWithoutExtensionsDataForSigning,
-  version: '2.0.3',
+  version: '2.1.0',
 };
 export const dataWithDeclarative = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: parametersWithDeclarative,
-  version: '2.0.3',
+  version: '2.1.0',
 };
 
 export const action: RequestLogicTypes.IAction = Utils.signature.sign(
@@ -180,7 +180,7 @@ const dataSecondRequest = {
     payee: payee.identity,
     timestamp: 1544426030,
   },
-  version: '2.0.3',
+  version: '2.1.0',
 };
 
 export const actionCreationSecondRequest: RequestLogicTypes.IAction = Utils.signature.sign(

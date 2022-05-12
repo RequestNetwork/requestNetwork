@@ -41,7 +41,7 @@ export default class EtherscanProviderMock {
             to: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
             value: BigNumber.from('0x02dd231b00'),
             nonce: 205,
-            data: '0xa0ebc16890a6483f',
+            data: '0xefce79375b2db9f7',
             creates: null,
             networkId: 0,
             chainId: 0,
