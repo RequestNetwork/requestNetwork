@@ -216,7 +216,7 @@ describe('api/eth/input-data', () => {
         },
       },
       requestId: '0110e7eaba7a3ff2e2239081497308db70e4c66362100d747903ffa5c83d290d5d',
-      version: '2.0.3',
+      version: '2.1.0',
       events: [
         {
           actionSigner: {

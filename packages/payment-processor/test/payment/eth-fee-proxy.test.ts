@@ -65,7 +65,7 @@ const validRequest: ClientTypes.IRequestData = {
   requestId: 'abcd',
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: 0,
-  version: '2.0.3',
+  version: '2.1.0',
 };
 
 describe('getRequestPaymentValues', () => {

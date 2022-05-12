@@ -38,7 +38,7 @@ describe('Any to ETH payment detection', () => {
     requestId: '012b8b6d4224549af7527c79559ddfbaa832b3f08303c429cdfc4ed78b7bdd5cc9',
     state: RequestLogicTypes.STATE.CREATED,
     timestamp: 0,
-    version: '2.0.3',
+    version: '2.1.0',
   };
 
   const expectedBalance = {

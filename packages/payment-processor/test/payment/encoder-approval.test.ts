@@ -160,7 +160,7 @@ const validRequestEthProxy: ClientTypes.IRequestData = {
       version: '0.1.0',
     },
   },
-  version: '2.0.3',
+  version: '2.1.0',
 };
 
 const validRequestEthFeeProxy: ClientTypes.IRequestData = {
@@ -185,7 +185,7 @@ const validRequestEthFeeProxy: ClientTypes.IRequestData = {
       version: '0.1.0',
     },
   },
-  version: '2.0.3',
+  version: '2.1.0',
 };
 
 const validRequestEthConversionProxy: ClientTypes.IRequestData = {

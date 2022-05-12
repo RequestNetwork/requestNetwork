@@ -65,7 +65,7 @@ const validRequest: ClientTypes.IRequestData = {
   requestId: 'abcd',
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: 0,
-  version: '2.0.3',
+  version: '2.1.0',
 };
 
 const validRequest2 = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
