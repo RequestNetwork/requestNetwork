@@ -1629,8 +1629,7 @@ describe('index', () => {
           data.extensionsData[0].parameters.salt,
           data.extensionsData[0].parameters.paymentAddress,
         ),
-      ).toBe('efce79375b2db9f7');
-
+      ).toBe('a0ebc16890a6483f');
       jest.advanceTimersByTime(150);
       const dataAfterRefresh = await request.refresh();
 
