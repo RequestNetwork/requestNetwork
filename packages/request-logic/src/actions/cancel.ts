@@ -65,22 +65,19 @@ function applyActionToRequest(
     throw new Error('Cannot cancel an already canceled request');
   }
 
-  if (signerRole === RequestLogicTypes.ROLE.PAYER) {
-    if (Semver.lt(request.version, '2.1.0')) {
-      if (request.state !== RequestLogicTypes.STATE.CREATED) {
-        throw new Error('A payer cancel need to be done on a request with the state created');
-      }
-    }
-    requestCopied.state = RequestLogicTypes.STATE.CANCELED;
-    return requestCopied;
+  if (
+    Semver.lt(request.version, '2.1.0') &&
+    signerRole === RequestLogicTypes.ROLE.PAYER &&
+    request.state !== RequestLogicTypes.STATE.CREATED
+  ) {
+    throw new Error('A payer cancel need to be done on a request with the state created');
   }
 
-  if (signerRole === RequestLogicTypes.ROLE.PAYEE) {
-    requestCopied.state = RequestLogicTypes.STATE.CANCELED;
-    return requestCopied;
+  if (signerRole !== RequestLogicTypes.ROLE.PAYEE && signerRole !== RequestLogicTypes.ROLE.PAYER) {
+    throw new Error('Signer must be the payer or the payee');
   }
-
-  throw new Error('Signer must be the payer or the payee');
+  requestCopied.state = RequestLogicTypes.STATE.CANCELED;
+  return requestCopied;
 }
 
 /**
