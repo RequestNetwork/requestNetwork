@@ -510,27 +510,6 @@ describe('Approval encoder handles ERC20 Fee Proxy with Escrow', () => {
     });
   });
 
-  // it('Should return approval transaction if there is ERC20 Fee proxy allowance, but not escrow allowance', async () => {
-  //   let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
-  //     validRequestERC20FeeProxy,
-  //     provider,
-  //     wallet.address,
-  //   );
-  //   await wallet.sendTransaction(approvalTransaction as IPreparedTransaction);
-  //   approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
-  //     validRequestERC20FeeProxy,
-  //     provider,
-  //     wallet.address,
-  //     { isEscrow: true },
-  //   );
-  //   const escrowProxyAddress = getEscrowProxyAddress(validRequestERC20FeeProxy);
-  //   expect(approvalTransaction).toEqual({
-  //     data: erc20ApprovalData(escrowProxyAddress),
-  //     to: erc20ContractAddress,
-  //     value: 0,
-  //   });
-  // });
-
   it('Should not return anything', async () => {
     let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
       validRequestERC20FeeProxy,
