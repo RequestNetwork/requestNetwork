@@ -110,7 +110,7 @@ export function encodeRequestErc20ApprovalWithoutSwap(
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
       return prepareApproveErc20(request, provider, overrides);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return prepareApproveErc20(request, provider, overrides);
+      return prepareApproveErc20(request, provider, overrides, options?.isEscrow);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
       if (
         !options ||

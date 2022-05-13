@@ -6,7 +6,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestErc20ApprovalIfNeeded } from '../../src';
+import { encodeRequestErc20ApprovalIfNeeded, getEscrowProxyAddress } from '../../src';
 import { getProxyAddress } from '../../src/payment/utils';
 import { AnyToERC20PaymentDetector, Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { currencyManager } from './shared';
@@ -489,6 +489,62 @@ describe('Approval encoder handles Eth Requests', () => {
       validRequestEthConversionProxy,
       provider,
       wallet.address,
+    );
+    expect(approvalTransaction).toBeUndefined();
+  });
+});
+
+describe('Approval encoder handles ERC20 Fee Proxy with Escrow', () => {
+  it('Should return a valid transaction', async () => {
+    const approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+      validRequestERC20FeeProxy,
+      provider,
+      wallet.address,
+      { isEscrow: true },
+    );
+    const escrowProxyAddress = getEscrowProxyAddress(validRequestERC20FeeProxy);
+    expect(approvalTransaction).toEqual({
+      data: erc20ApprovalData(escrowProxyAddress),
+      to: erc20ContractAddress,
+      value: 0,
+    });
+  });
+
+  // it('Should return approval transaction if there is ERC20 Fee proxy allowance, but not escrow allowance', async () => {
+  //   let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+  //     validRequestERC20FeeProxy,
+  //     provider,
+  //     wallet.address,
+  //   );
+  //   await wallet.sendTransaction(approvalTransaction as IPreparedTransaction);
+  //   approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+  //     validRequestERC20FeeProxy,
+  //     provider,
+  //     wallet.address,
+  //     { isEscrow: true },
+  //   );
+  //   const escrowProxyAddress = getEscrowProxyAddress(validRequestERC20FeeProxy);
+  //   expect(approvalTransaction).toEqual({
+  //     data: erc20ApprovalData(escrowProxyAddress),
+  //     to: erc20ContractAddress,
+  //     value: 0,
+  //   });
+  // });
+
+  it('Should not return anything', async () => {
+    let approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+      validRequestERC20FeeProxy,
+      provider,
+      wallet.address,
+      { isEscrow: true },
+    );
+    await wallet.sendTransaction(approvalTransaction as IPreparedTransaction);
+
+    approvalTransaction = await encodeRequestErc20ApprovalIfNeeded(
+      validRequestERC20FeeProxy,
+      provider,
+      wallet.address,
+      { isEscrow: true },
     );
     expect(approvalTransaction).toBeUndefined();
   });

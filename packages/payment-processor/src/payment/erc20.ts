@@ -157,8 +157,9 @@ export function prepareApproveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
+  isEscrow?: boolean,
 ): IPreparedTransaction {
-  const encodedTx = encodeApproveErc20(request, signerOrProvider);
+  const encodedTx = encodeApproveErc20(request, signerOrProvider, isEscrow);
   const tokenAddress = request.currencyInfo.value;
   return {
     data: encodedTx,
@@ -173,10 +174,12 @@ export function prepareApproveErc20(
  * the request in its payment currency. Can be used with a Multisig contract.
  * @param request the request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param isEscrow wether to approve the payment proxy or escrow contract
  */
 export function encodeApproveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  isEscrow = false,
 ): string {
   const paymentNetworkId = (getPaymentNetworkExtension(request)
     ?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
@@ -184,9 +187,10 @@ export function encodeApproveErc20(
     throw new Error('No payment network Id');
   }
   validateRequest(request, paymentNetworkId);
+  const proxyAddress = isEscrow ? getEscrowProxyAddress(request) : getProxyAddress(request);
   return encodeApproveAnyErc20(
     request.currencyInfo.value,
-    getProxyAddress(request),
+    proxyAddress,
     getSigner(signerOrProvider),
   );
 }
@@ -267,7 +271,7 @@ export function _getErc20PaymentUrl(
  * @param request
  * @returns the payment network proxy address
  */
-function getProxyAddress(request: ClientTypes.IRequestData): string {
+export function getProxyAddress(request: ClientTypes.IRequestData): string {
   const pn = getPaymentNetworkExtension(request);
   const id = pn?.id;
   if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED) {
@@ -295,7 +299,7 @@ function getProxyAddress(request: ClientTypes.IRequestData): string {
  * @param request
  * @returns the payment network escrow address
  */
-function getEscrowProxyAddress(request: ClientTypes.IRequestData): string {
+export function getEscrowProxyAddress(request: ClientTypes.IRequestData): string {
   return genericGetProxyAddress(
     request,
     Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getEscrowDeploymentInformation,
