@@ -6,7 +6,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestPayment } from '../../src';
+import { encodeRequestPayment, getEscrowProxyAddress } from '../../src';
 import { getProxyAddress } from '../../src/payment/utils';
 import {
   AnyToERC20PaymentDetector,
@@ -391,5 +391,19 @@ describe('Payment encoder handles Eth Conversion Proxy', () => {
     expect(() => encodeRequestPayment(validRequestEthConversionProxy, provider)).toThrowError(
       'Conversion settings missing',
     );
+  });
+});
+
+describe('Payment encoder handlers ERC20 Escrow payments', () => {
+  it('Should return a valid transaction', async () => {
+    const paymentTransaction = await encodeRequestPayment(validRequestERC20FeeProxy, provider, {
+      isEscrow: true,
+    });
+    const escrowProxyAddress = getEscrowProxyAddress(validRequestERC20FeeProxy);
+    expect(paymentTransaction).toEqual({
+      data: '0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000',
+      to: escrowProxyAddress,
+      value: 0,
+    });
   });
 });

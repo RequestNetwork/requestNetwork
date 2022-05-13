@@ -54,7 +54,7 @@ export async function payEscrow(
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodePayEscrow(request, signerOrProvider, amount, feeAmount);
+  const encodedTx = encodePayEscrow(request, amount, feeAmount);
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
   const signer = getSigner(signerOrProvider);
 
@@ -219,15 +219,11 @@ export async function refundFrozenFunds(
  */
 export function encodePayEscrow(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-  const signer = getSigner(signerOrProvider);
-
   const tokenAddress = request.currencyInfo.value;
-  const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
 
   // collects the parameters to be used, from the request
   const { paymentReference, paymentAddress, feeAmount, feeAddress } =
@@ -236,9 +232,9 @@ export function encodePayEscrow(
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
 
-  const erc20EscrowContract = ERC20EscrowToPay__factory.connect(contractAddress, signer);
+  const erc20EscrowContract = ERC20EscrowToPay__factory.createInterface();
 
-  return erc20EscrowContract.interface.encodeFunctionData('payEscrow', [
+  return erc20EscrowContract.encodeFunctionData('payEscrow', [
     tokenAddress,
     paymentAddress,
     amountToPay,

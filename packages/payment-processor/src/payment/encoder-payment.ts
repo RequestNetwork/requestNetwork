@@ -12,6 +12,8 @@ import { prepareEthFeeProxyPaymentTransaction } from './eth-fee-proxy';
 import { prepareAnyToEthProxyPaymentTransaction } from './any-to-eth-proxy';
 import { IConversionPaymentSettings } from '.';
 import { getPaymentNetworkExtension } from './utils';
+import { encodePayEscrow } from './erc20-escrow-payment';
+import { getEscrowProxyAddress } from './erc20';
 
 export function encodeRequestPayment(
   request: ClientTypes.IRequestData,
@@ -41,10 +43,21 @@ export function encodeRequestPaymentWithoutSwap(
         ...overrides,
       };
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return {
-        ...prepareErc20FeeProxyPaymentTransaction(request, amount, feeAmount),
-        ...overrides,
-      };
+      if (options?.isEscrow) {
+        const encodedTx = encodePayEscrow(request, amount);
+        return {
+          data: encodedTx,
+          to: getEscrowProxyAddress(request),
+          value: 0,
+          ...overrides,
+        };
+      } else {
+        return {
+          ...prepareErc20FeeProxyPaymentTransaction(request, amount, feeAmount),
+          ...overrides,
+        };
+      }
+
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
       if (
         !options ||
