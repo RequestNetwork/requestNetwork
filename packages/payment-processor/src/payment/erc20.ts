@@ -181,8 +181,8 @@ export function encodeApproveErc20(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   isEscrow = false,
 ): string {
-  const paymentNetworkId = (getPaymentNetworkExtension(request)
-    ?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
+  const paymentNetworkId = getPaymentNetworkExtension(request)
+    ?.id as unknown as PaymentTypes.PAYMENT_NETWORK_ID;
   if (!paymentNetworkId) {
     throw new Error('No payment network Id');
   }

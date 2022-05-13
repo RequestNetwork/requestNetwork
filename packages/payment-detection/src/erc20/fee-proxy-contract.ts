@@ -30,7 +30,7 @@ const ESCROW_CONTRACT_ADDRESS_MAP = {
 
 export abstract class ERC20FeeProxyPaymentDetectorBase<
   TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  TPaymentEventParameters extends PaymentTypes.IERC20FeePaymentEventParameters
+  TPaymentEventParameters extends PaymentTypes.IERC20FeePaymentEventParameters,
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
    * @param extension The advanced logic payment network extensions
@@ -103,10 +103,8 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
       });
     }
 
-    const {
-      address: proxyContractAddress,
-      creationBlockNumber: proxyCreationBlockNumber,
-    } = ERC20FeeProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
+    const { address: proxyContractAddress, creationBlockNumber: proxyCreationBlockNumber } =
+      ERC20FeeProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
     if (networkSupportsTheGraph(paymentChain)) {
       const graphInfoRetriever = new TheGraphInfoRetriever(
