@@ -33,7 +33,8 @@ export class EscrowERC20InfoRetriever
     IEventRetriever<
       PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>,
       PaymentTypes.ESCROW_EVENTS_NAMES
-    > {
+    >
+{
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
 
