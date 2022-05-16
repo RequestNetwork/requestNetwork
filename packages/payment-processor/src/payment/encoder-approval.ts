@@ -219,10 +219,7 @@ export async function isRequestErc20ApprovalWithoutSwapNeeded(
       break;
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
       if (options?.isEscrow) {
-        if (!(await hasEscrowErc20Approval(request, from))) {
-          return true;
-        }
-        return false;
+        return !(await hasEscrowErc20Approval(request, from));
       }
       if (!(await hasErc20Approval(request, from))) {
         return true;
