@@ -51,7 +51,7 @@ export async function payErc777StreamRequest(
     flowRate: expectedFlowRate ?? '0',
     receiver: paymentAddress,
     superToken: superToken.address,
-    userData: `0x${paymentReference}`,
+    userData: `0xbeefacc${paymentReference}`,
     overrides: overrides,
   });
   const batchCall = sf.batchCall([streamPayOp]);
