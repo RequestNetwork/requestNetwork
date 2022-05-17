@@ -4,7 +4,12 @@ import { BigNumber, ethers } from 'ethers';
 import { IEventRetriever } from '../types';
 
 import { getDefaultProvider } from '../provider';
-import { parseLogArgs } from '../utils';
+import { makeGetDeploymentInformation, parseLogArgs } from '../utils';
+
+const ESCROW_CONTRACT_ADDRESS_MAP = {
+  ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.1.0',
+};
 
 /** Escrow contract event arguments. */
 type EscrowArgs = {
@@ -28,8 +33,7 @@ export class EscrowERC20InfoRetriever
     IEventRetriever<
       PaymentTypes.IPaymentNetworkBaseEvent<PaymentTypes.ESCROW_EVENTS_NAMES>,
       PaymentTypes.ESCROW_EVENTS_NAMES
-    >
-{
+    > {
   public contractEscrow: ethers.Contract;
   public provider: ethers.providers.Provider;
 
@@ -183,4 +187,9 @@ export class EscrowERC20InfoRetriever
   public async getEscrowRequestMapping(): Promise<PaymentTypes.EscrowChainData> {
     return this.contractEscrow.requestMapping(`0x${this.paymentReference}`);
   }
+
+  public static getEscrowDeploymentInformation = makeGetDeploymentInformation(
+    erc20EscrowToPayArtifact,
+    ESCROW_CONTRACT_ADDRESS_MAP,
+  );
 }
