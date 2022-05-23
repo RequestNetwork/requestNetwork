@@ -226,9 +226,8 @@ export function encodePayEscrow(
   const tokenAddress = request.currencyInfo.value;
 
   // collects the parameters to be used, from the request
-  const { paymentReference, paymentAddress, feeAmount, feeAddress } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAmount, feeAddress } =
+    getRequestPaymentValues(request);
 
   const amountToPay = getAmountToPay(request, amount);
   const feeToPay = BigNumber.from(feeAmountOverride || feeAmount || 0);
