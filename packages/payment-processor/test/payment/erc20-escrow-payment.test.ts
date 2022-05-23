@@ -138,37 +138,37 @@ describe('erc20-escrow-payment tests:', () => {
     const values = getRequestPaymentValues(validRequest);
 
     it('Should encode data to execute payEscrow().', () => {
-      expect(Escrow.encodePayEscrow(validRequest, wallet)).toBe(
+      expect(Escrow.encodePayEscrow(validRequest)).toBe(
         `0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute payRequestFromEscrow().', () => {
-      expect(Escrow.encodePayRequestFromEscrow(validRequest, wallet)).toBe(
+      expect(Escrow.encodePayRequestFromEscrow(validRequest)).toBe(
         `0x2a16f4c300000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute freezeRequest().', () => {
-      expect(Escrow.encodeFreezeRequest(validRequest, wallet)).toBe(
+      expect(Escrow.encodeFreezeRequest(validRequest)).toBe(
         `0x82865e9d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute initiateEmergencyClaim().', () => {
-      expect(Escrow.encodeInitiateEmergencyClaim(validRequest, wallet)).toBe(
+      expect(Escrow.encodeInitiateEmergencyClaim(validRequest)).toBe(
         `0x3a322d4500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute completeEmergencyClaim().', () => {
-      expect(Escrow.encodeCompleteEmergencyClaim(validRequest, wallet)).toBe(
+      expect(Escrow.encodeCompleteEmergencyClaim(validRequest)).toBe(
         `0x6662e1e000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute revertEmergencyClaim().', () => {
-      expect(Escrow.encodeRevertEmergencyClaim(validRequest, wallet)).toBe(
+      expect(Escrow.encodeRevertEmergencyClaim(validRequest)).toBe(
         `0x0797560800000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute refundFrozenFunds().', () => {
-      expect(Escrow.encodeRefundFrozenFunds(validRequest, wallet)).toBe(
+      expect(Escrow.encodeRefundFrozenFunds(validRequest)).toBe(
         `0x1a77f53a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
