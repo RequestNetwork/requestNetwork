@@ -19,6 +19,7 @@ export * from './payment/any-to-eth-proxy';
 export * from './payment/encoder-payment';
 export * from './payment/encoder-approval';
 export * as Escrow from './payment/erc20-escrow-payment';
+export * from './payment/prepared-transaction';
 import * as utils from './payment/utils';
 
 export { utils };
