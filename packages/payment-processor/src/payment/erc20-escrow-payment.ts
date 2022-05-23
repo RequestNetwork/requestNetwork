@@ -245,19 +245,31 @@ export function encodePayEscrow(
 }
 
 /**
- * Returns the encoded data to freezeRequest().
- * @param request request to pay.
+ * Encapsulates the validation, paymentReference calculation and escrow contract interface creation.
+ * These steps are used in all subsequent functions encoding escrow interaction transactions
+ * @param request Request data
+ * @returns {erc20EscrowToPayContract, paymentReference}
  */
-export function encodeFreezeRequest(request: ClientTypes.IRequestData): string {
+function prepareForEncoding(request: ClientTypes.IRequestData) {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
 
   // collects the parameters to be used from the request
   const { paymentReference } = getRequestPaymentValues(request);
 
-  // interface of the escrow contract
+  // connections to the escrow contract
   const erc20EscrowToPayContract = ERC20EscrowToPay__factory.createInterface();
+  return {
+    erc20EscrowToPayContract,
+    paymentReference,
+  };
+}
 
-  // encodes the function data and returns them
+/**
+ * Returns the encoded data to freezeRequest().
+ * @param request request to pay.
+ */
+export function encodeFreezeRequest(request: ClientTypes.IRequestData): string {
+  const { erc20EscrowToPayContract, paymentReference } = prepareForEncoding(request);
   return erc20EscrowToPayContract.encodeFunctionData('freezeRequest', [`0x${paymentReference}`]);
 }
 
@@ -266,15 +278,7 @@ export function encodeFreezeRequest(request: ClientTypes.IRequestData): string {
  * @param request request for pay
  */
 export function encodePayRequestFromEscrow(request: ClientTypes.IRequestData): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-
-  // collects the parameters to be used from the request
-  const { paymentReference } = getRequestPaymentValues(request);
-
-  // connections to the escrow contract
-  const erc20EscrowToPayContract = ERC20EscrowToPay__factory.createInterface();
-
-  // encodes the function data and returns them
+  const { erc20EscrowToPayContract, paymentReference } = prepareForEncoding(request);
   return erc20EscrowToPayContract.encodeFunctionData('payRequestFromEscrow', [
     `0x${paymentReference}`,
   ]);
@@ -285,15 +289,7 @@ export function encodePayRequestFromEscrow(request: ClientTypes.IRequestData): s
  * @param request request to pay.
  */
 export function encodeInitiateEmergencyClaim(request: ClientTypes.IRequestData): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-
-  // collects the parameters to be used from the request
-  const { paymentReference } = getRequestPaymentValues(request);
-
-  // connections to the escrow contract
-  const erc20EscrowToPayContract = ERC20EscrowToPay__factory.createInterface();
-
-  // encodes the function data and returns them
+  const { erc20EscrowToPayContract, paymentReference } = prepareForEncoding(request);
   return erc20EscrowToPayContract.encodeFunctionData('initiateEmergencyClaim', [
     `0x${paymentReference}`,
   ]);
@@ -304,15 +300,7 @@ export function encodeInitiateEmergencyClaim(request: ClientTypes.IRequestData):
  * @param request request to pay.
  */
 export function encodeCompleteEmergencyClaim(request: ClientTypes.IRequestData): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-
-  // collects the parameters to be used from the request
-  const { paymentReference } = getRequestPaymentValues(request);
-
-  // connections to the escrow contract
-  const erc20EscrowToPayContract = ERC20EscrowToPay__factory.createInterface();
-
-  // encodes the function data and returns them
+  const { erc20EscrowToPayContract, paymentReference } = prepareForEncoding(request);
   return erc20EscrowToPayContract.encodeFunctionData('completeEmergencyClaim', [
     `0x${paymentReference}`,
   ]);
@@ -323,15 +311,7 @@ export function encodeCompleteEmergencyClaim(request: ClientTypes.IRequestData):
  * @param request request to pay.
  */
 export function encodeRevertEmergencyClaim(request: ClientTypes.IRequestData): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-
-  // collects the parameters to be used from the request
-  const { paymentReference } = getRequestPaymentValues(request);
-
-  // connections to the escrow contract
-  const erc20EscrowToPayContract = ERC20EscrowToPay__factory.createInterface();
-
-  // encodes the function data and returns them
+  const { erc20EscrowToPayContract, paymentReference } = prepareForEncoding(request);
   return erc20EscrowToPayContract.encodeFunctionData('revertEmergencyClaim', [
     `0x${paymentReference}`,
   ]);
@@ -342,15 +322,7 @@ export function encodeRevertEmergencyClaim(request: ClientTypes.IRequestData): s
  * @param request request to pay.
  */
 export function encodeRefundFrozenFunds(request: ClientTypes.IRequestData): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
-
-  // collects the parameters to be used from the request
-  const { paymentReference } = getRequestPaymentValues(request);
-
-  // connections to the escrow contract
-  const erc20EscrowToPayContract = ERC20EscrowToPay__factory.createInterface();
-
-  // encodes the function data and returns them
+  const { erc20EscrowToPayContract, paymentReference } = prepareForEncoding(request);
   return erc20EscrowToPayContract.encodeFunctionData('refundFrozenFunds', [
     `0x${paymentReference}`,
   ]);
