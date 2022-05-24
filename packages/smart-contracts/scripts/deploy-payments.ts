@@ -297,14 +297,14 @@ export async function deployAllPaymentContracts(
 
     /*
      * Batch 6
-     *   - 5.a ERC20EscrowToPay
+     *   - 6.a ERC20EscrowToPay
+     *   - 6.b ERC20EscrowToPay.transferOwnership
      */
     const runDeploymentBatch_6 = async (erc20FeeProxyAddress: string) => {
-      // todo calculate
       const NONCE_BATCH_6 = 20;
       await jumpToNonce(args, hre, NONCE_BATCH_6);
 
-      // 5.a ERC20EscrowToPay(
+      // 6.a ERC20EscrowToPay(
       const erc20EscrowResult = await deployERC20EscrowToPay(
         {
           ...args,
@@ -315,7 +315,7 @@ export async function deployAllPaymentContracts(
       );
       addToResult(erc20EscrowResult);
 
-      // 5.b ERC20EscrowToPay.transferOwnership
+      // 6.b ERC20EscrowToPay.transferOwnership
       if (await nonceReady(NONCE_BATCH_6 + 1)) {
         if (erc20EscrowResult) {
           if (!process.env.ADMIN_WALLET_ADDRESS) {
