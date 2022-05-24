@@ -11,7 +11,7 @@ export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment)
   await deployRequest(_args, hre);
   const mainPaymentAddresses = await deployPayment(_args, hre);
   await deployConversion(_args, hre, mainPaymentAddresses);
-  await deployEscrow(hre);
+  await deployEscrow(hre, mainPaymentAddresses);
   await deployBatchPayment(_args, hre);
   await deploySuperFluid(hre);
 }
