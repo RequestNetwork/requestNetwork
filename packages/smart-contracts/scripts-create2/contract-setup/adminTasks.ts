@@ -4,6 +4,8 @@ import { BigNumber } from 'ethers';
 
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
+// Batch Fees: 1%
+export const BATCH_FEE = 10;
 
 export const updateChainlinkConversionPath = async (
   contract: any,
@@ -44,5 +46,16 @@ export const updateRequestSwapFees = async (
   const currentFees = await contract.requestSwapFees();
   if (currentFees !== REQUEST_SWAP_FEES) {
     await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, { nonce: nonce, gasPrice: gasPrice });
+  }
+};
+
+export const updateBatchPaymentFees = async (
+  contract: any,
+  nonce: number,
+  gasPrice: BigNumber,
+): Promise<void> => {
+  const currentFees = await contract.batchFee();
+  if (currentFees !== BATCH_FEE) {
+    await contract.setBatchFee(BATCH_FEE, { nonce: nonce, gasPrice: gasPrice });
   }
 };
