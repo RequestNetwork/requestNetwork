@@ -19,6 +19,7 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
 import { HardhatRuntimeEnvironmentExtended } from '../scripts-create2/types';
 import { computeCreate2DeploymentAddress } from '../scripts-create2/compute-one-address';
+import { deployERC20EscrowToPay } from './escrow-proxy';
 
 /**
  * Script ensuring all payment contracts are deployed and usable on a live chain.
@@ -294,6 +295,48 @@ export async function deployAllPaymentContracts(
       }
     };
 
+    /*
+     * Batch 6
+     *   - 5.a ERC20EscrowToPay
+     */
+    const runDeploymentBatch_6 = async (erc20FeeProxyAddress: string) => {
+      // todo calculate
+      const NONCE_BATCH_6 = 20;
+      await jumpToNonce(args, hre, NONCE_BATCH_6);
+
+      // 5.a ERC20EscrowToPay(
+      const erc20EscrowResult = await deployERC20EscrowToPay(
+        {
+          ...args,
+          erc20FeeProxyAddress,
+          nonceCondition: NONCE_BATCH_6,
+        },
+        hre,
+      );
+      addToResult(erc20EscrowResult);
+
+      // 5.b ERC20EscrowToPay.transferOwnership
+      if (await nonceReady(NONCE_BATCH_6 + 1)) {
+        if (erc20EscrowResult) {
+          if (!process.env.ADMIN_WALLET_ADDRESS) {
+            throw new Error(
+              'ADMIN_WALLET_ADDRESS missing for: ERC20EscrowToPay(.transferOwnership',
+            );
+          }
+          if (args.simulate === false) {
+            await erc20EscrowResult.instance.transferOwnership(process.env.ADMIN_WALLET_ADDRESS);
+          } else {
+            console.log('[i] Simulating transferOwnership to ERC20ConversionProxy');
+          }
+        } else {
+          console.warn(
+            `Warning: the ERC20ConversionProxy contract instance is not ready, consider retrying.`,
+          );
+          switchToSimulation();
+        }
+      }
+    };
+
     // #endregion
 
     // #region MAIN - Deployments
@@ -328,6 +371,9 @@ export async function deployAllPaymentContracts(
       erc20FeeProxyAddress,
       ethConversionResult?.instance as EthConversionProxy,
     );
+
+    // Batch 6
+    await runDeploymentBatch_6(erc20FeeProxyAddress);
 
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Add future batches above this line
