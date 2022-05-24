@@ -40,11 +40,11 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
           'Batch contract requires network parameter to get correct address of erc20FeeProxy and ethereumFeeProxy',
         );
       }
-      const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
-      const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
-      const ethereumFeeProxy = artifacts.ethereumFeeProxyArtifact;
-      const ethereumFeeProxyAddress = ethereumFeeProxy.getAddress(network);
-      return [erc20FeeProxyAddress, ethereumFeeProxyAddress, process.env.ADMIN_WALLET_ADDRESS];
+      return [
+        '0x0000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000',
+        process.env.ADMIN_WALLET_ADDRESS,
+      ];
     }
     default:
       return [];

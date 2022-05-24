@@ -2,7 +2,7 @@ import { Contract } from 'ethers';
 import * as artifacts from '../src/lib';
 
 /**
- * List of smart contract that we deploy using the CREATE2 scheme thourhg the Request Deployer contract
+ * List of smart contract that we deploy using the CREATE2 scheme through the Request Deployer contract
  */
 export const create2ContractDeploymentList = [
   'EthereumProxy',

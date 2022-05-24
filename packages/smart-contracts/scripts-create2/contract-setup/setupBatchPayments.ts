@@ -1,7 +1,11 @@
 import { batchPaymentsArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import utils from '@requestnetwork/utils';
-import { updateBatchPaymentFees } from './adminTasks';
+import {
+  updateBatchPaymentFees,
+  updatePaymentErc20FeeProxy,
+  updatePaymentEthFeeProxy,
+} from './adminTasks';
 
 /**
  * Updates the values of the batch fees of the BatchPayments contract, if needed
@@ -27,12 +31,14 @@ export const setupBatchPayments = async (
       }
       const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
       const signer = wallet.connect(provider);
-      const batchPaymentConnected = batchPaymentContract.connect(signer);
+      const batchPaymentConnected = await batchPaymentContract.connect(signer);
       const adminNonce = await signer.getTransactionCount();
       const gasPrice = await provider.getGasPrice();
 
       await Promise.all([
-        updateBatchPaymentFees(batchPaymentConnected, adminNonce + 3, gasPrice.mul(2)),
+        updateBatchPaymentFees(batchPaymentConnected, adminNonce + 3, gasPrice),
+        updatePaymentErc20FeeProxy(batchPaymentConnected, network, adminNonce + 4, gasPrice),
+        updatePaymentEthFeeProxy(batchPaymentConnected, network, adminNonce + 5, gasPrice),
       ]);
     }),
   );
