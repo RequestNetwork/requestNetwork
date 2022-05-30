@@ -134,7 +134,9 @@
             "type": "number"
           },
           "currency": {
-            "type": "string"
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 5
           },
           "deliveryDate": {
             "type": "string",
