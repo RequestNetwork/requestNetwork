@@ -47,7 +47,9 @@ export async function payErc777StreamRequest(
   // - use expectedStartDate to compute offset between start of invoicing and start of streaming
   // - start fee streaming
   const { paymentReference, paymentAddress, expectedFlowRate } = getRequestPaymentValues(request);
-  // To be able to filter SuperFluid subgraph events containing only this prefix
+  // Superfluid payments of requests use the generic field `userData` to index payments.
+  // Since it's a multi-purpose field, payments will use a fix-prefix heading the payment reference,
+  // in order to speed up the indexing and payment detection.
   const streamPayOp = sf.cfaV1.createFlow({
     flowRate: expectedFlowRate ?? '0',
     receiver: paymentAddress,
