@@ -101,20 +101,20 @@ This action must trigger the same warnings as a normal ERC20 Fee Proxy extension
 
 The extension state is created with the following properties:
 
-|  Property                    |  Value                                                                 |
-| ---------------------------- | ---------------------------------------------------------------------- |
-| **id**                       | cf. Properties                                                         |
-| **type**                     | \*                                                                     |
-| **version**                  | \*                                                                     |
-| **values**                   |                                                                        |
-| **values.paymentAddress**    | `paymentAddress` from parameters if given, undefined otherwise         |
-| **values.refundAddress**     | `refundAddress` from parameters if given, undefined otherwise          |
-| **values.feeAddress**        | `feeAddress` from parameters if given, undefined otherwise             |
-| **values.feeAmount**         | `feeAmount` from parameters if given, undefined otherwise              |
-| **values.salt**              | cf. Properties                                                         |
-| **values.expectedFlowRate**  | `expectedFlowRate` from parameters if given, undefined otherwise       |
-| **values.expectedStartDate** | `expectedStartDate` from parameters if given, undefined otherwise      |
-| **events**                   | Array with one 'create' event (see below)                              |
+|  Property                    |  Value                                                            |
+| ---------------------------- | ----------------------------------------------------------------- |
+| **id**                       | cf. Properties                                                    |
+| **type**                     | \*                                                                |
+| **version**                  | \*                                                                |
+| **values**                   |                                                                   |
+| **values.paymentAddress**    | `paymentAddress` from parameters if given, undefined otherwise    |
+| **values.refundAddress**     | `refundAddress` from parameters if given, undefined otherwise     |
+| **values.feeAddress**        | `feeAddress` from parameters if given, undefined otherwise        |
+| **values.feeAmount**         | `feeAmount` from parameters if given, undefined otherwise         |
+| **values.salt**              | cf. Properties                                                    |
+| **values.expectedFlowRate**  | `expectedFlowRate` from parameters if given, undefined otherwise  |
+| **values.expectedStartDate** | `expectedStartDate` from parameters if given, undefined otherwise |
+| **events**                   | Array with one 'create' event (see below)                         |
 
 The 'create' event in the extension state **events**:
 
@@ -394,10 +394,12 @@ In edge case scenarios, a new request is added to the end of the suite after an 
 
 ### Events
 
+Similarly to eth-input-data, Superfluid payments of requests use the generic field `userData` to index payments. Since it's a multi-purpose field, payments will use a fix-prefix heading the payment reference, in order to speed up the indexing and payment detection.
+
 Three types of events have to be interpreted for the suite balance update:
 
 - `FlowUpdated` when payment flows are created, updated or stopped, with agreements "Instant Distribution Agreement" or "Constant Flow Agreement"
-  - Case A (**main updates**): payment initiated or updated by the payer, must contain a `paymentReference`
+  - Case A (**main updates**): payment initiated or updated by the payer, must contain a `paymentReference` prefixed by `0xbeefac` as explained above
   - Case B (**untagged updates**): the flow is updated by third-party (e.g. the flow is interrupted due to a lack of funds), does not contain the `paymentReference`
   - Assumption: only flow interruptions (`flowRate = 0`) are interpreted as **untagged updates**
 - ERC20 payments and refunds: inheriting from [payment-network-erc20-fee-proxy](./payment-network-erc20-fee-proxy-contract-0.1.0.md)
@@ -411,13 +413,13 @@ We gather events by receiving address (`values.paymentAddress` for the request b
 
    - `recipient === values.paymentAddress` or `recipient === values.feeAddress` (whether we compute the main balance or fee balance)
    - `token === request.currency`
-   - `userData === last8Bytes(hash(lowercase(requestId + salt + values.paymentAddress)))`
+   - `userData === 0xbeefac + last8Bytes(hash(lowercase(requestId + salt + values.paymentAddress)))`
 
 2. Edge case: if events matching the criteria are sent by more than one payer, group them by payer and treat the rest of this script idependently for each group. At the end, add everything up.
 
 3. To account for a specific `paymentReference`'s flow rate, we look for the **_difference between the previous flow rate and the new one_**. This way, one payer can pay many requests to the same payee, simultaneously within the same stream. This value is called `referencedRate`
-4. If the last flow update has `referencedRate = 0`, we will look in 5. for the **untagged updates** in between the first and the last updates
-5. If the last flow update has `referencedRate > 0`, we will look in 5. for all the **untagged updates** since the first update
+4. If the last flow update has `referencedRate = 0`, we will look in 6. for the **untagged updates** in between the first and the last updates
+5. If the last flow update has `referencedRate > 0`, we will look in 6. for all the **untagged updates** since the first update
 6. Given the time constraints of 4. or 5., **untagged updates** are flow updates where all these conditions are met:
 
    - `userData !== paymentReference`
