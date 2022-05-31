@@ -168,8 +168,7 @@
           },
           "currency": {
             "type": "string",
-            "minLength": 2,
-            "maxLength": 10
+            "minLength": 2
           },
           "deliveryDate": {
             "type": "string",

@@ -39,7 +39,7 @@ export class SuperFluidInfoRetriever {
 
   private getGraphVariables(): GraphPaymentQueryParams {
     return {
-      reference: ethersUtils.keccak256(`0x${this.paymentReference}`),
+      reference: '0xbeefac' + ethersUtils.keccak256(`0x${this.paymentReference}`).slice(2),
       to: this.toAddress,
       tokenAddress: this.tokenContractAddress,
     };
