@@ -239,6 +239,21 @@
     {
       "constant": true,
       "inputs": [],
+      "name": "paymentEthFeeProxy",
+      "outputs": [
+        {
+          "internalType": "contract IEthereumFeeProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
       "name": "batchFee",
       "outputs": [
         {
@@ -249,6 +264,32 @@
       ],
       "payable": false,
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paymentErc20FeeProxy",
+          "type": "address"
+        }
+      ],
+      "name": "setPaymentErc20FeeProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paymentEthFeeProxy",
+          "type": "address"
+        }
+      ],
+      "name": "setPaymentEthFeeProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]
