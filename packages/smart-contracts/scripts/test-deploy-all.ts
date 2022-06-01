@@ -5,6 +5,7 @@ import deployConversion from './test-deploy_chainlink_contract';
 import { deployEscrow } from './test-deploy-escrow-deployment';
 import { deployBatchPayment } from './test-deploy-batch-erc-eth-deployment';
 import { deploySuperFluid } from './test-deploy-superfluid';
+import { deployBatchConversionPayment } from './test-deploy-batch-conversion-deployment';
 
 // Deploys, set up the contracts
 export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment): Promise<any> {
@@ -14,4 +15,5 @@ export default async function deploy(_args: any, hre: HardhatRuntimeEnvironment)
   await deployEscrow(hre);
   await deployBatchPayment(_args, hre);
   await deploySuperFluid(hre);
+  await deployBatchConversionPayment(_args, hre);
 }
