@@ -10,25 +10,25 @@ export async function deployBatchConversionPayment(
   hre: HardhatRuntimeEnvironment,
 ): Promise<any> {
   try {
-    //replace by erc20feeproxy const ERC20FeeProxyAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
+    const _paymentErc20ConversionFeeProxy = '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E';
 
-    // Deploy BatchPayments contract
+    // Deploy BatchConversionPayments contract
     const { address: BatchConversionPaymentsAddress } = await deployOne(
       args,
       hre,
-      'BatchPayments',
+      'BatchConversionPayments',
       {
         constructorArguments: [
-          // !!= ERC20FeeProxyAddress,
+          _paymentErc20ConversionFeeProxy,
           await (await hre.ethers.getSigners())[0].getAddress(),
         ],
       },
     );
 
-    // Initialize batch fee, useful to others packages.
+    // Initialize batch conversion fee, useful to others packages.
     const [owner] = await hre.ethers.getSigners();
-    const batch = batchConversionPaymentsArtifact.connect(hre.network.name, owner);
-    await batch.connect(owner).setBatchConversionFee(10);
+    const batchConversion = batchConversionPaymentsArtifact.connect(hre.network.name, owner);
+    await batchConversion.connect(owner).setBatchConversionFee(10);
 
     // ----------------------------------
     console.log('Contracts deployed');

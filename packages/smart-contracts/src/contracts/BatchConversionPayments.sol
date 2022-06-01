@@ -11,11 +11,10 @@ import './interfaces/IERC20ConversionProxy.sol';
 
 /**
  * @title BatchConversionPayments
- * @notice This contract makes multiple payments with references, in one transaction:
- *          - on: ERC20 Payment Proxy and ETH Payment Proxy of the Request Network protocol
+ * @notice This contract makes multiple conversion payments with references, in one transaction:
+ *          - on: ERC20 Payment Proxy of the Request Network protocol
  *          - to: multiple addresses
- *          - fees: ERC20 and ETH proxies fees are paid to the same address.
- *                  An additional batch fee is paid to the same address.
+ *          - fees: ERC20 proxy fees and additional batch conversion fee are paid to the same address.
  *         If one transaction of the batch fail, every transactions are reverted.
  */
 contract BatchConversionPayments is Ownable, ReentrancyGuard {
@@ -37,11 +36,11 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
   }
 
   /**
-   * @param _erc20ConversionFeeProxy The address to the ERC20 Conversion payment proxy to use.
+   * @param _paymentErc20ConversionFeeProxy The address to the ERC20 Conversion payment proxy to use.
    * @param _owner Owner of the contract.
    */
-  constructor(address _erc20ConversionFeeProxy, address _owner) {
-    paymentProxy = IERC20ConversionProxy(_erc20ConversionFeeProxy);
+  constructor(address _paymentErc20ConversionFeeProxy, address _owner) {
+    paymentProxy = IERC20ConversionProxy(_paymentErc20ConversionFeeProxy);
     transferOwnership(_owner);
     batchConversionFee = 0;
   }
@@ -141,7 +140,7 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
     batchConversionFee = _batchConversionFee;
   }
 
-  function setPaymentProxy(address _paymentProxy) public onlyOwner {
-    paymentProxy = IERC20ConversionProxy(_paymentProxy);
+  function setPaymentProxy(address _paymentErc20ConversionFeeProxy) public onlyOwner {
+    paymentProxy = IERC20ConversionProxy(_paymentErc20ConversionFeeProxy);
   }
 }

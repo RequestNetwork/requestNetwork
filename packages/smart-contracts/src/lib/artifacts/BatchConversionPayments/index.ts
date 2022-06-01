@@ -8,7 +8,12 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
   {
     '0.1.0': {
       abi: ABI_0_1_0,
-      deployment: {},
+      deployment: {
+        private: {
+          address: '0x2e335F247E91caa168c64b63104C4475b2af3942',
+          creationBlockNumber: 0,
+        },
+      },
     },
   },
   '0.1.0',
