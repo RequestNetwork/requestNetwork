@@ -4,12 +4,12 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_erc20FeeProxy",
+          "name": "_paymentErc20FeeProxy",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "_erc20FeeProxy",
+          "name": "_paymentEthFeeProxy",
           "type": "address"
         },
         {
@@ -25,44 +25,71 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "address",
-          "name": "tokenAddress",
+          "name": "previousOwner",
           "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
         },
         {
           "indexed": true,
-          "internalType": "bytes",
-          "name": "paymentReference",
-          "type": "bytes"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "feeAmount",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
           "internalType": "address",
-          "name": "feeAddress",
+          "name": "newOwner",
           "type": "address"
         }
       ],
-      "name": "TransferWithReferenceAndFee",
+      "name": "OwnershipTransferred",
       "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_erc20Address",
+          "type": "address"
+        }
+      ],
+      "name": "approvePaymentProxyToSpend",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_tokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "_recipients",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "_paymentReferences",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_feeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchERC20PaymentsMultiTokensWithReference",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
       "inputs": [
@@ -78,7 +105,7 @@
         },
         {
           "internalType": "uint256[]",
-          "name": "_values",
+          "name": "_amounts",
           "type": "uint256[]"
         },
         {
@@ -88,7 +115,7 @@
         },
         {
           "internalType": "uint256[]",
-          "name": "_feeAmount",
+          "name": "_feeAmounts",
           "type": "uint256[]"
         },
         {
@@ -111,7 +138,7 @@
         },
         {
           "internalType": "uint256[]",
-          "name": "_values",
+          "name": "_amounts",
           "type": "uint256[]"
         },
         {
@@ -121,7 +148,7 @@
         },
         {
           "internalType": "uint256[]",
-          "name": "_feeAmount",
+          "name": "_feeAmounts",
           "type": "uint256[]"
         },
         {
@@ -136,123 +163,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_feeBatch",
-          "type": "uint256"
-        }
-      ],
-      "name": "setBatchFee",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address[]",
-          "name": "_tokenAddresses",
-          "type": "address[]"
-        },
-        {
-          "internalType": "address[]",
-          "name": "_recipients",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_values",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "bytes[]",
-          "name": "_paymentReferences",
-          "type": "bytes[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_feeAmount",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "address",
-          "name": "_feeAddress",
-          "type": "address"
-        }
-      ],
-      "name": "batchERC20PaymentsMultiTokensWithReference",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "erc20FeeProxy",
-      "outputs": [
-        {
-          "internalType": "contract IERC20FeeProxy",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "recieve",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "paymentEthereumFeeProxy",
-      "outputs": [
-        {
-          "internalType": "contract IEthereumFeeProxy",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "paymentErc20FeeProxy",
-      "outputs": [
-        {
-          "internalType": "contract IERC20FeeProxy",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "paymentEthFeeProxy",
-      "outputs": [
-        {
-          "internalType": "contract IEthereumFeeProxy",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
       "inputs": [],
       "name": "batchFee",
       "outputs": [
@@ -262,8 +172,66 @@
           "type": "uint256"
         }
       ],
-      "payable": false,
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paymentErc20FeeProxy",
+      "outputs": [
+        {
+          "internalType": "contract IERC20FeeProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paymentEthFeeProxy",
+      "outputs": [
+        {
+          "internalType": "contract IEthereumFeeProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_batchFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setBatchFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -291,6 +259,23 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
     }
   ]
 }
