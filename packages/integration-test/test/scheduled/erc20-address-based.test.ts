@@ -9,7 +9,7 @@ import { mockAdvancedLogic } from './mocks';
 
 describe('ERC20 Address Based detection test-suite', () => {
   describe('check mainnet payment detection', () => {
-    Object.entries(tokens).forEach(([symbol, { address, amount }]) => {
+    Object.entries(tokens).forEach(([symbol, { address, amount, paymentEventCount = 1 }]) => {
       it(`can detect the balance of ${symbol}`, async () => {
         const infoRetriever = new ERC20AddressBasedInfoRetriever(
           address,
@@ -20,7 +20,7 @@ describe('ERC20 Address Based detection test-suite', () => {
         const events = await infoRetriever.getTransferEvents();
 
         // if this assert fails it means this address received another transaction
-        expect(events).toHaveLength(1);
+        expect(events).toHaveLength(paymentEventCount);
         const event = events[0];
         expect(event.name).toBe('payment');
         expect(event.amount).toBe(amount);

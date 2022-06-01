@@ -3,6 +3,8 @@ import * as artifacts from '../src/lib';
 
 /**
  * List of smart contract that we deploy using the CREATE2 scheme through the Request Deployer contract
+ * By default all smart contracts from bellow will get deployed.
+ * If you want to skip deploying one or more, then comment them out in the list bellow.
  */
 export const create2ContractDeploymentList = [
   'EthereumProxy',
