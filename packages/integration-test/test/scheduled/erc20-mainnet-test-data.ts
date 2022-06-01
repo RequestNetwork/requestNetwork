@@ -4,7 +4,16 @@ export const account = '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB';
 /**
  * ERC20 tokens to test detection
  */
-export const tokens = {
+export const tokens: Record<
+  string,
+  {
+    address: string;
+    amount: string;
+    decimals: string;
+    transaction: string;
+    paymentEventCount?: number;
+  }
+> = {
   BAT: {
     address: '0x0d8775f648430679a709e98d2b0cb6250d2887ef',
     amount: '1000797637650547675',
@@ -64,6 +73,7 @@ export const tokens = {
     amount: '200048',
     decimals: '6',
     transaction: '0x230cc66f82124f359febad368e2e7208dc4f21b6c8ee3ed8cfc0768f35653f7b',
+    paymentEventCount: 2,
   },
   USDT: {
     address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
