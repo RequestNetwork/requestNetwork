@@ -8,6 +8,7 @@ import './interfaces/ERC20FeeProxy.sol';
 import './interfaces/EthereumFeeProxy.sol';
 import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 import './interfaces/IERC20ConversionProxy.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 /**
  * @title BatchConversionPayments
@@ -48,13 +49,13 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
   /**
    * @notice Transfers a batch of ERC20 tokens with a reference with amount based on the request amount in fiat
    * @param requestsInfo containing every information of a request
-   *   _recipients Transfer recipients of the payement
-   *   _requestAmounts Request amounts
-   *   _paths Conversion paths
-   *   _paymentReferences References of the payment related
-   *   _feeAmounts The amounts of the payment fee
-   *   _maxToSpends Amounts max that we can spend on the behalf of the user
-   *   _maxRateTimespans Max times span with the oldestrate, ignored if zero
+   *   _recipient Transfer recipients of the payement
+   *   _requestAmount Request amounts
+   *   _path Conversion paths
+   *   _paymentReference References of the payment related
+   *   _feeAmount The amounts of the payment fee
+   *   _maxToSpend Amounts max that we can spend on the behalf of the user
+   *   _maxRateTimespan Max times span with the oldestrate, ignored if zero
    * @param _feeAddress The fee recipient
    */
   function batchERC20ConversionPaymentsMultiTokens(
@@ -62,7 +63,42 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
     address _feeAddress
   ) external {
     // require sum(amountToPay) + sum(amountToPayInFees) + sum(amountToPayInBatchFees) <= sum(_maxToSpend)
+    // uint256 aa = 6;
+
+    // Transfer only the amount and fee required for the token on the batch contract
+
     for (uint256 i = 0; i < requestsInfo.length; i++) {
+      // Transfer the amount and fee from the payer to the batch contract
+      // address paymentCurrency = requestsInfo[i]._path[requestsInfo[i]._path.length - 1];
+      IERC20 requestedToken = IERC20(requestsInfo[i]._path[requestsInfo[i]._path.length - 1]);
+
+      require(
+        requestedToken.allowance(msg.sender, address(this)) >=
+          requestsInfo[i]._requestAmount + requestsInfo[i]._feeAmount,
+        'Not sufficient allowance for batch to pay'
+      );
+      require(
+        requestedToken.balanceOf(msg.sender) >=
+          requestsInfo[i]._requestAmount + requestsInfo[i]._feeAmount,
+        'not enough funds'
+      );
+
+      require(
+        safeTransferFrom(
+          requestsInfo[i]._path[requestsInfo[i]._path.length - 1],
+          address(this),
+          requestsInfo[i]._requestAmount + requestsInfo[i]._feeAmount
+        ),
+        'payment transferFrom() failed'
+      );
+      // Batch contract approves Erc20ConversionProxy to spend the token
+      if (
+        requestedToken.allowance(address(this), address(paymentProxy)) <
+        15 * requestsInfo[i]._requestAmount + requestsInfo[i]._feeAmount
+      ) {
+        approvePaymentProxyToSpend(requestsInfo[i]._path[requestsInfo[i]._path.length - 1]);
+      }
+
       paymentProxy.transferFromWithReferenceAndFee(
         requestsInfo[i]._recipient,
         requestsInfo[i]._requestAmount,
@@ -84,6 +120,8 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
     erc20.safeApprove(address(paymentProxy), max);
+    // todo correct here
+    erc20.safeApprove(address(0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35), max);
   }
 
   /**

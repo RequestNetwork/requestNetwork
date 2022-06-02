@@ -19,7 +19,7 @@ import { localERC20AlphaArtifact } from './localArtifacts';
 
 use(solidity);
 
-describe('contract: Erc20ConversionProxy', () => {
+describe('contract: BatchErc20ConversionPayments', () => {
   let from: string;
   let to: string;
   let feeAddress: string;
@@ -43,34 +43,39 @@ describe('contract: Erc20ConversionProxy', () => {
   let erc20FeeProxy: ERC20FeeProxy;
   let chainlinkPath: ChainlinkConversionPath;
   // let requestInfo: BatchConversionPayments.RequestInfo;
-
   before(async () => {
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [signer] = await ethers.getSigners();
 
     chainlinkPath = chainlinkConversionPath.connect(network.name, signer);
     erc20FeeProxy = await new ERC20FeeProxy__factory(signer).deploy();
+
     testErc20ConversionProxy = await new Erc20ConversionProxy__factory(signer).deploy(
       erc20FeeProxy.address,
       chainlinkPath.address,
       await signer.getAddress(),
     );
+    console.log(testErc20ConversionProxy.address);
     testBatchConversionProxy = await new BatchConversionPayments__factory(signer).deploy(
       testErc20ConversionProxy.address,
       await signer.getAddress(),
     );
     DAI_address = await localERC20AlphaArtifact.getAddress(network.name);
     testERC20 = await new TestERC20__factory(signer).attach(DAI_address);
-    await testERC20.approve(erc20FeeProxy.address, '100');
+    // await testERC20.approve(erc20FeeProxy.address, '100');
 
-    await testERC20.connect(from).approve(testBatchConversionProxy.address, 1000);
+    // await testERC20.connect(signer).approve(testBatchConversionProxy.address, '1000000000000000');
   });
 
   describe('transferFromWithReferenceAndFee', () => {
     describe('transferFromWithReferenceAndFee with DAI', () => {
       it('allows to transfer DAI tokens for USD payment', async function () {
         const path = [USD_hash, DAI_address];
-        await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
+        // await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, {
+        //   from,
+        // });
+
+        await testERC20.approve(testBatchConversionProxy.address, thousandWith18Decimal, {
           from,
         });
 
@@ -79,9 +84,16 @@ describe('contract: Erc20ConversionProxy', () => {
         const feeOldBalance = await testERC20.balanceOf(feeAddress);
         const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
         const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
+        console.log('DAI_address', DAI_address);
+        console.log('fromOldBalance', fromOldBalance.toString());
+        console.log('conversionToPay', conversionToPay);
+        console.log('conversionFees', conversionFees);
+        console.log('amountInFiat', amountInFiat);
+        console.log('path', path);
 
-        await expect(
-          testBatchConversionProxy.batchERC20ConversionPaymentsMultiTokens(
+        const setGreetingsTx = await testBatchConversionProxy
+          .connect(signer)
+          .batchERC20ConversionPaymentsMultiTokens(
             [
               {
                 _recipient: to,
@@ -94,16 +106,11 @@ describe('contract: Erc20ConversionProxy', () => {
               },
             ],
             feeAddress,
-          ),
-        )
-          .to.emit(testErc20ConversionProxy, 'TransferWithConversionAndReference')
-          .withArgs(
-            amountInFiat,
-            ethers.utils.getAddress(path[0]),
-            ethers.utils.keccak256(referenceExample),
-            feesAmountInFiat,
-            '0',
           );
+
+        // wait until the transaction is mined
+        await setGreetingsTx.wait();
+        console.log('setGreetingsTx', setGreetingsTx);
 
         const fromNewBalance = await testERC20.balanceOf(from);
         const toNewBalance = await testERC20.balanceOf(to);

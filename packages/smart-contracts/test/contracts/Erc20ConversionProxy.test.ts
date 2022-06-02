@@ -53,7 +53,7 @@ describe('contract: Erc20ConversionProxy', () => {
     );
     DAI_address = await localERC20AlphaArtifact.getAddress(network.name);
     testERC20 = await new TestERC20__factory(signer).attach(DAI_address);
-    await testERC20.approve(erc20FeeProxy.address, '100');
+    // await testERC20.approve(erc20FeeProxy.address, '100');
   });
 
   describe('transferFromWithReferenceAndFee', () => {
