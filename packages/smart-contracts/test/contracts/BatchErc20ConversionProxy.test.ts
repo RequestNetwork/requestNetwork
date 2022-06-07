@@ -58,8 +58,11 @@ describe('contract: BatchErc20ConversionPayments', () => {
     console.log(testErc20ConversionProxy.address);
     testBatchConversionProxy = await new BatchConversionPayments__factory(signer).deploy(
       testErc20ConversionProxy.address,
+      chainlinkPath.address,
       await signer.getAddress(),
     );
+
+    await testBatchConversionProxy.setBatchConversionFee(10);
     DAI_address = await localERC20AlphaArtifact.getAddress(network.name);
     testERC20 = await new TestERC20__factory(signer).attach(DAI_address);
     // await testERC20.approve(erc20FeeProxy.address, '100');
@@ -78,22 +81,14 @@ describe('contract: BatchErc20ConversionPayments', () => {
         await testERC20.approve(testBatchConversionProxy.address, thousandWith18Decimal, {
           from,
         });
-
         const fromOldBalance = await testERC20.balanceOf(from);
         const toOldBalance = await testERC20.balanceOf(to);
         const feeOldBalance = await testERC20.balanceOf(feeAddress);
         const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
         const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
-        console.log('DAI_address', DAI_address);
-        console.log('fromOldBalance', fromOldBalance.toString());
-        console.log('conversionToPay', conversionToPay);
-        console.log('conversionFees', conversionFees);
-        console.log('amountInFiat', amountInFiat);
-        console.log('path', path);
 
-        const setGreetingsTx = await testBatchConversionProxy
-          .connect(signer)
-          .batchERC20ConversionPaymentsMultiTokens(
+        await expect(
+          testBatchConversionProxy.connect(signer).batchERC20ConversionPaymentsMultiTokens(
             [
               {
                 _recipient: to,
@@ -101,16 +96,21 @@ describe('contract: BatchErc20ConversionPayments', () => {
                 _path: path,
                 _paymentReference: referenceExample,
                 _feeAmount: feesAmountInFiat,
-                _maxToSpend: hundredWith18Decimal,
+                _maxToSpend: conversionToPay.result.add(conversionFees.result).toString(),
                 _maxRateTimespan: 0,
               },
             ],
             feeAddress,
+          ),
+        )
+          .to.emit(testErc20ConversionProxy, 'TransferWithConversionAndReference')
+          .withArgs(
+            amountInFiat,
+            ethers.utils.getAddress(path[0]),
+            ethers.utils.keccak256(referenceExample),
+            feesAmountInFiat,
+            '0',
           );
-
-        // wait until the transaction is mined
-        await setGreetingsTx.wait();
-        console.log('setGreetingsTx', setGreetingsTx);
 
         const fromNewBalance = await testERC20.balanceOf(from);
         const toNewBalance = await testERC20.balanceOf(to);
@@ -129,15 +129,22 @@ describe('contract: BatchErc20ConversionPayments', () => {
         // Check balance changes
         expect(fromDiffBalance.toString()).to.equals(
           '-' +
-            BigNumber.from(conversionToPay.result.toString()).add(conversionFees.result.toString()),
+            conversionToPay.result
+              .add(conversionToPay.result.mul(10).div(1000))
+              .add(conversionFees.result)
+              .toString(),
         );
         expect(toDiffBalance).to.equals(conversionToPay.result.toString());
-        expect(feeDiffBalance).to.equals(conversionFees.result.toString());
+        expect(feeDiffBalance).to.equals(
+          conversionToPay.result.mul(10).div(1000).add(conversionFees.result).toString(),
+        );
       });
 
       it('allows to transfer DAI tokens for EUR payment', async function () {
         const path = [EUR_hash, USD_hash, DAI_address];
-        await testERC20.approve(testErc20ConversionProxy.address, thousandWith18Decimal, { from });
+        await testERC20.approve(testBatchConversionProxy.address, thousandWith18Decimal, {
+          from,
+        });
 
         const fromOldBalance = await testERC20.balanceOf(from);
         const toOldBalance = await testERC20.balanceOf(to);
@@ -145,16 +152,32 @@ describe('contract: BatchErc20ConversionPayments', () => {
         const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
         const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
 
+        // await expect(
+        //   testErc20ConversionProxy.transferFromWithReferenceAndFee(
+        //     to,
+        //     amountInFiat,
+        //     path,
+        //     referenceExample,
+        //     feesAmountInFiat,
+        //     feeAddress,
+        //     hundredWith18Decimal,
+        //     0,
+        //   ),
+        // )
         await expect(
-          testErc20ConversionProxy.transferFromWithReferenceAndFee(
-            to,
-            amountInFiat,
-            path,
-            referenceExample,
-            feesAmountInFiat,
+          testBatchConversionProxy.connect(signer).batchERC20ConversionPaymentsMultiTokens(
+            [
+              {
+                _recipient: to,
+                _requestAmount: amountInFiat,
+                _path: path,
+                _paymentReference: referenceExample,
+                _feeAmount: feesAmountInFiat,
+                _maxToSpend: conversionToPay.result.add(conversionFees.result).toString(),
+                _maxRateTimespan: 0,
+              },
+            ],
             feeAddress,
-            hundredWith18Decimal,
-            0,
           ),
         )
           .to.emit(testERC20, 'Transfer')
@@ -186,10 +209,15 @@ describe('contract: BatchErc20ConversionPayments', () => {
 
         // Check balance changes
         expect(fromDiffBalance.toString()).to.equals(
-          '-' + conversionToPay.result.add(conversionFees.result).toString(),
+          '-' +
+            conversionToPay.result
+              .add(conversionToPay.result.mul(10).div(1000).add(conversionFees.result))
+              .toString(),
         );
         expect(toDiffBalance.toString()).to.equals(conversionToPay.result.toString());
-        expect(feeDiffBalance.toString()).to.equals(conversionFees.result.toString());
+        expect(feeDiffBalance.toString()).to.equals(
+          conversionToPay.result.mul(10).div(1000).add(conversionFees.result).toString(),
+        );
       });
     });
 

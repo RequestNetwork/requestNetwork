@@ -48,7 +48,10 @@
     "ganache": "ganache-cli -l 90000000 -p 8545 -m \"candy maple cake sugar pudding cream honey rich smooth crumble sweet treat\"",
     "deploy": "yarn hardhat deploy-local-env --network private",
     "test": "yarn hardhat test --network private",
-    "test:lib": "yarn jest test/lib"
+    "test:lib": "yarn jest test/lib",
+    "compile": "yarn hardhat compile",
+    "testp": "yarn test test/contracts/BatchErc20ConversionProxy.test.ts",
+    "testcp": "yarn compile && yarn testp"
   },
   "dependencies": {
     "tslib": "2.3.1"
