@@ -3,9 +3,9 @@ version: 2.1
 references:
   working_directory: &working_directory ~/repo
   attach_workspace: &attach_workspace
-  image_name: &image_name 'circleci/python:3.7'
+  image_name: &image_name 'cimg/python:3.7'
   node_image: &node_image
-    image: circleci/node:16
+    image: cimg/node:16.15
   ipfs_image: &ipfs_image
     image: requestnetwork/request-ipfs:0.4.23-2
   ganache_image: &ganache_image

@@ -1,6 +1,5 @@
 import { SuperFluidInfoRetriever } from '../../src/erc777/superfluid-retriever';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
-import { utils } from 'ethers';
 import { PaymentTypes } from '@requestnetwork/types';
 import { GraphQLClient } from 'graphql-request';
 import { mocked } from 'ts-jest/utils';
@@ -13,7 +12,7 @@ describe('api/erc777/superfluid-info-retriever', () => {
   describe('on untagged requests', () => {
     it('should get payment events from SuperFluid via subgraph with 1 request', async () => {
       const paymentData = {
-        reference: '0xbeefacf81e1f6b6ff7cd15ab5538b403c8fdf3fed1f254ce6abcddf18941354039c752',
+        reference: '0xbeefaccc470c7dbd54de69',
         txHash: '0xe472ca1b52751b058fbdaeaffebd98c0cc43b45aa31794b3eb06834ede19f7be',
         from: '0x9c040e2d6fd83a8b35069aa7154b69674961e0f7',
         to: '0x52e5bcfa46393894afcfe6cd98a6761fa692c594',
@@ -31,8 +30,8 @@ describe('api/erc777/superfluid-info-retriever', () => {
         paymentData.salt,
         paymentData.to,
       );
-      const onChainReference = '0xbeefac' + utils.keccak256(`0x${paymentReference}`).slice(2);
-      expect(onChainReference).toEqual(paymentData.reference);
+      const subgraphReference = `0xbeefac${paymentReference}`;
+      expect(subgraphReference).toEqual(paymentData.reference);
 
       const graphRetriever = new SuperFluidInfoRetriever(
         paymentReference,
@@ -56,7 +55,7 @@ describe('api/erc777/superfluid-info-retriever', () => {
   describe('on 2 nested requests', () => {
     it('should get payment event from SuperFluid via subgraph with 2 requests', async () => {
       const paymentData = {
-        reference: '0xbeefac23b12cbc2c59e39389f3c7cd652c4594a3a7595d7e9af265d07878345a6fe488',
+        reference: '0xbeefac9474ad7670909da5',
         from: '0x9c040e2d6fd83a8b35069aa7154b69674961e0f7',
         to: '0x52e5bcfa46393894afcfe6cd98a6761fa692c594',
         network: 'rinkeby',
@@ -73,8 +72,8 @@ describe('api/erc777/superfluid-info-retriever', () => {
         paymentData.salt,
         paymentData.to,
       );
-      const onChainReference = '0xbeefac' + utils.keccak256(`0x${paymentReference}`).slice(2);
-      expect(onChainReference).toEqual(paymentData.reference);
+      const subgraphReference = `0xbeefac${paymentReference}`;
+      expect(subgraphReference).toEqual(paymentData.reference);
       const graphRetriever = new SuperFluidInfoRetriever(
         paymentReference,
         paymentData.token,
@@ -93,7 +92,7 @@ describe('api/erc777/superfluid-info-retriever', () => {
   describe('on ongoing request', () => {
     it('should get payment event from SuperFluid via subgraph with ongoing request', async () => {
       const paymentData = {
-        reference: '0xbeefac272b93b983e5435bdba30902066ca3a0839cdb05bd526d648f6b0db79adbd2b5',
+        reference: '0xbeefac0e87b43bf1e99c82',
         from: '0x165a26628ac843e97f657e648b004226fbb7f7c5',
         to: '0xe7e6431f08db273d915b49888f0c67ef61802e05',
         network: 'rinkeby',
@@ -110,8 +109,8 @@ describe('api/erc777/superfluid-info-retriever', () => {
         paymentData.salt,
         paymentData.to,
       );
-      const onChainReference = '0xbeefac' + utils.keccak256(`0x${paymentReference}`).slice(2);
-      expect(onChainReference).toEqual(paymentData.reference);
+      const subgraphReference = `0xbeefac${paymentReference}`;
+      expect(subgraphReference).toEqual(paymentData.reference);
       const graphRetriever = new SuperFluidInfoRetriever(
         paymentReference,
         paymentData.token,
