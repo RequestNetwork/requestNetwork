@@ -7,10 +7,12 @@ import { supportedFantomTokens } from './fantom';
 import { supportedBSCTestERC20 } from './bsctest';
 import { supportedBSCERC20 } from './bsc';
 import { supportedXDAIERC20 } from './xdai';
+import { supportedGoerliERC20 } from './goerli';
 
 export const supportedNetworks: Record<string, TokenMap> = {
   celo: supportedCeloERC20,
   rinkeby: supportedRinkebyERC20,
+  goerli: supportedGoerliERC20,
   mainnet: supportedMainnetERC20,
   matic: supportedMaticERC20,
   fantom: supportedFantomTokens,

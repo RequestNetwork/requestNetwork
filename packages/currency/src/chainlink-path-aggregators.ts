@@ -24,6 +24,7 @@ export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   xdai: {},
   avalanche: {},
   bsc: {},
+  goerli: {},
 };
 
 export const chainlinkSupportedNetworks = Object.keys(chainlinkCurrencyPairs);
