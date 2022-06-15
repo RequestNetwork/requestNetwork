@@ -1,5 +1,4 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { utils as ethersUtils } from 'ethers';
 import Utils from '@requestnetwork/utils';
 import { FlowUpdatedEvent } from '../thegraph/generated/graphql-superfluid';
 import {
@@ -39,7 +38,7 @@ export class SuperFluidInfoRetriever {
 
   private getGraphVariables(): GraphPaymentQueryParams {
     return {
-      reference: ethersUtils.keccak256(`0x${this.paymentReference}`),
+      reference: `0xbeefac${this.paymentReference}`,
       to: this.toAddress,
       tokenAddress: this.tokenContractAddress,
     };

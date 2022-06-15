@@ -47,11 +47,14 @@ export async function payErc777StreamRequest(
   // - use expectedStartDate to compute offset between start of invoicing and start of streaming
   // - start fee streaming
   const { paymentReference, paymentAddress, expectedFlowRate } = getRequestPaymentValues(request);
+  // Superfluid payments of requests use the generic field `userData` to index payments.
+  // Since it's a multi-purpose field, payments will use a fix-prefix heading the payment reference,
+  // in order to speed up the indexing and payment detection.
   const streamPayOp = sf.cfaV1.createFlow({
     flowRate: expectedFlowRate ?? '0',
     receiver: paymentAddress,
     superToken: superToken.address,
-    userData: `0x${paymentReference}`,
+    userData: `0xbeefac${paymentReference}`,
     overrides: overrides,
   });
   const batchCall = sf.batchCall([streamPayOp]);
