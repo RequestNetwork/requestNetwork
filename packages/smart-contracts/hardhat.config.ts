@@ -65,6 +65,11 @@ export default {
       chainId: 4,
       accounts,
     },
+    goerli: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://goerli.infura.io/v3/YOUR_API_KEY',
+      chainId: 5,
+      accounts,
+    },
     matic: {
       url: process.env.WEB3_PROVIDER_URL || 'https://polygon-rpc.com',
       chainId: 137,
@@ -120,6 +125,7 @@ export default {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY,
       rinkeby: process.env.ETHERSCAN_API_KEY,
+      goerli: process.env.ETHERSCAN_API_KEY,
       // binance smart chain
       bsc: process.env.BSCSCAN_API_KEY,
       bscTestnet: process.env.BSCSCAN_API_KEY,
