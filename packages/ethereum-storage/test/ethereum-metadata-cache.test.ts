@@ -25,7 +25,7 @@ const metadataExample3: StorageTypes.IEthereumMetadata = {
   blockConfirmation: 3,
   blockNumber: 0,
   blockTimestamp: 300,
-  networkName: 'kovan',
+  networkName: 'goerli',
   smartContractAddress: '0xeee',
   transactionHash: '0xfff',
 };

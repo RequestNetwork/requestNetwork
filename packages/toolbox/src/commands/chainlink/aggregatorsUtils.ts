@@ -29,6 +29,7 @@ export type Aggregator = {
 const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   mainnet: ['ethereum-addresses', 'Ethereum Mainnet'],
   rinkeby: ['ethereum-addresses', 'Rinkeby Testnet'],
+  goerli: ['ethereum-addresses', 'Goerli Testnet'],
   fantom: ['fantom-price-feeds', 'Fantom Mainnet'],
   matic: ['matic-addresses', 'Polygon Mainnet'],
   xdai: ['data-feeds-gnosis-chain', 'Gnosis Chain Mainnet'],

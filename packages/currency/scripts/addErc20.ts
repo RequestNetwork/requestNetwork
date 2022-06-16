@@ -73,7 +73,7 @@ yargs(process.argv.slice(2)).command<IOptions>(
         type: 'string',
       })
       .option('network', {
-        describe: 'The network of the token (mainnet, rinkeby, matic...)',
+        describe: 'The network of the token (mainnet, rinkeby, goerli, matic...)',
         default: 'mainnet',
       })
       .option('skipUpgrade', {

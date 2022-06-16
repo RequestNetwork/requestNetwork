@@ -249,7 +249,7 @@ export interface ICurrency {
   type: CURRENCY;
   /** The currency value (e.g.: '0x123...789', 'EUR', 'ETH') */
   value: string;
-  /** The currency network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox') */
+  /** The currency network (e.g.: 'mainnet', 'rinkeby', 'goerli', 'bank_sandbox') */
   network?: string;
 }
 

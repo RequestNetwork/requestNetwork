@@ -5,6 +5,7 @@ const CURRENT_VERSION = '0.3.0';
 const supportedNetworks = [
   'mainnet',
   'rinkeby',
+  'goerli',
   'xdai',
   'sokol',
   'fuse',
@@ -14,6 +15,7 @@ const supportedNetworks = [
   'bsctest',
   'bsc',
   'arbitrum-rinkeby',
+  'arbitrum-goerli',
   'arbitrum-one',
   'avalanche',
 ];

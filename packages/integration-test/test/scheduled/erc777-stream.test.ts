@@ -69,4 +69,24 @@ describe('ERC777 SuperFluid detection test-suite', () => {
     expect(balance.events[0].amount).toBe('320833333333331260');
     expect(balance.events[0].timestamp).toBe('1642693617');
   });
+
+  it('can getBalance on a goerli request', async () => {
+    const mockRequest = createMockRequest({
+      network: 'goerli',
+      requestId: '0288792633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f273c7a4e3ce7e2',
+      paymentAddress: '0x52e5bcfa46393894afcfe6cd98a6761fa692c594',
+      salt: '0ee84db293a752c6',
+      tokenAddress: '0x745861aed1eee363b4aaa5f1994be40b1e05ff90', // FAU
+    });
+
+    const balance = await detector.getBalance(mockRequest);
+
+    expect(balance.balance).toBe('320833333333331260');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe('payment');
+    const params = balance.events[0].parameters as PaymentTypes.IERC777PaymentEventParameters;
+    expect(params.to).toBe('0x52e5bcfa46393894afcfe6cd98a6761fa692c594');
+    expect(balance.events[0].amount).toBe('320833333333331260');
+    expect(balance.events[0].timestamp).toBe('1642693617');
+  });
 });

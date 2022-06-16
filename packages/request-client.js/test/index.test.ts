@@ -1459,7 +1459,7 @@ describe('index', () => {
       jest.restoreAllMocks();
     });
 
-    it('can create ETH requests with given salt', async () => {
+    it('can create ETH requests with given salt (Rinkeby)', async () => {
       jest.useFakeTimers('modern');
 
       const requestNetwork = new RequestNetwork({
@@ -1505,7 +1505,53 @@ describe('index', () => {
       jest.useRealTimers();
     });
 
-    it('can create ETH requests without given salt', async () => {
+    it('can create ETH requests with given salt (Goerli)', async () => {
+      jest.useFakeTimers('modern');
+
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const salt = 'ea3bc7caf64110ca';
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          salt,
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'goerli',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
+        paymentNetwork,
+        requestInfo,
+        signer: TestData.payee.identity,
+      });
+
+      jest.advanceTimersByTime(150);
+      const data = await request.refresh();
+
+      expect(data).toBeDefined();
+      expect(data.balance).toBeDefined();
+      expect(data.meta).toBeDefined();
+      expect(data.currency).toBe('ETH-goerli-goerli');
+      expect(data.extensionsData[0].parameters.salt).toBe(salt);
+      expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
+      jest.useRealTimers();
+    });
+
+    it('can create ETH requests without given salt (Rinkeby)', async () => {
       jest.useFakeTimers('modern');
 
       const requestNetwork = new RequestNetwork({
@@ -1543,7 +1589,45 @@ describe('index', () => {
       jest.useRealTimers();
     });
 
-    it('can create ETH requests without refund address', async () => {
+    it('can create ETH requests without given salt (Goerli)', async () => {
+      jest.useFakeTimers('modern');
+
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+          refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'goerli',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
+        paymentNetwork,
+        requestInfo,
+        signer: TestData.payee.identity,
+      });
+
+      jest.advanceTimersByTime(150);
+      const data = await request.refresh();
+
+      expect(data.extensionsData[0].parameters.salt.length).toBe(16);
+      jest.useRealTimers();
+    });
+
+    it('can create ETH requests without refund address (Rinkeby)', async () => {
       jest.useFakeTimers('modern');
 
       const requestNetwork = new RequestNetwork({
@@ -1561,6 +1645,43 @@ describe('index', () => {
       const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
         currency: {
           network: 'rinkeby',
+          type: RequestLogicTypes.CURRENCY.ETH,
+          value: 'ETH',
+        },
+      });
+
+      const request = await requestNetwork.createRequest({
+        disablePaymentDetection: true,
+        paymentNetwork,
+        requestInfo,
+        signer: TestData.payee.identity,
+      });
+
+      jest.advanceTimersByTime(150);
+      const data = await request.refresh();
+
+      expect(data.extensionsData[0].parameters.salt.length).toBe(16);
+      jest.useRealTimers();
+    });
+
+    it('can create ETH requests without refund address (Goerli)', async () => {
+      jest.useFakeTimers('modern');
+
+      const requestNetwork = new RequestNetwork({
+        signatureProvider: TestData.fakeSignatureProvider,
+        useMockStorage: true,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        parameters: {
+          paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
+        },
+      };
+
+      const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
+        currency: {
+          network: 'goerli',
           type: RequestLogicTypes.CURRENCY.ETH,
           value: 'ETH',
         },

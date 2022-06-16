@@ -349,7 +349,7 @@ describe('hasSufficientFunds', () => {
     );
   });
 
-  it('should call the ETH getBalance method', async () => {
+  it('should call the ETH getBalance method (Rinkeby)', async () => {
     const fakeProvider: any = {
       getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
     };
@@ -359,6 +359,33 @@ describe('hasSufficientFunds', () => {
       },
       currencyInfo: {
         network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ETH,
+      },
+      expectedAmount: '100',
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {},
+          version: '1.0',
+        },
+      },
+    };
+    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    expect(fakeProvider.getBalance).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call the ETH getBalance method (Goerli)', async () => {
+    const fakeProvider: any = {
+      getBalance: jest.fn().mockReturnValue(Promise.resolve(BigNumber.from('200'))),
+    };
+    const request: any = {
+      balance: {
+        balance: '0',
+      },
+      currencyInfo: {
+        network: 'goerli',
         type: RequestLogicTypes.CURRENCY.ETH,
       },
       expectedAmount: '100',
@@ -408,7 +435,7 @@ describe('hasSufficientFunds', () => {
     expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  it('should call the ERC20 getBalance method for ERC777 requests', async () => {
+  it('should call the ERC20 getBalance method for ERC777 requests (Rinkeby)', async () => {
     const spy = jest
       .spyOn(erc20Module, 'getAnyErc20Balance')
       .mockReturnValue(Promise.resolve(BigNumber.from('200')));
@@ -421,6 +448,38 @@ describe('hasSufficientFunds', () => {
       },
       currencyInfo: {
         network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ERC777,
+
+        value: '0xany',
+      },
+      expectedAmount: '100',
+      extensions: {
+        [PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {},
+          version: '1.0',
+        },
+      },
+    };
+    await hasSufficientFunds(request, 'abcd', { provider: fakeProvider });
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should call the ERC20 getBalance method for ERC777 requests (Goerli)', async () => {
+    const spy = jest
+      .spyOn(erc20Module, 'getAnyErc20Balance')
+      .mockReturnValue(Promise.resolve(BigNumber.from('200')));
+    const fakeProvider: any = {
+      getBalance: () => Promise.resolve(BigNumber.from('200')),
+    };
+    const request: any = {
+      balance: {
+        balance: '0',
+      },
+      currencyInfo: {
+        network: 'goerli',
         type: RequestLogicTypes.CURRENCY.ERC777,
 
         value: '0xany',

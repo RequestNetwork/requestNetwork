@@ -13,7 +13,15 @@ export default class Erc777StreamPaymentNetwork<
   public constructor(
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
     currentVersion: string = CURRENT_VERSION,
-    public supportedNetworks: string[] = ['matic', 'xdai', 'mumbai', 'rinkeby', 'arbitrum-rinkeby'],
+    public supportedNetworks: string[] = [
+      'matic',
+      'xdai',
+      'mumbai',
+      'rinkeby',
+      'goerli',
+      'arbitrum-rinkeby',
+      'arbitrum-goerli',
+    ],
     public supportedCurrencyType: RequestLogicTypes.CURRENCY = RequestLogicTypes.CURRENCY.ERC777,
   ) {
     super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);

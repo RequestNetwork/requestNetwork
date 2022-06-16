@@ -1,7 +1,7 @@
 import { RequestLogicTypes } from '@requestnetwork/types';
 
 /**
- * A native blockchain token (ETH, MATIC, ETH-rinkeby...)
+ * A native blockchain token (ETH, MATIC, ETH-rinkeby, ETH-goerli, ...)
  */
 export type NativeCurrency = {
   symbol: string;

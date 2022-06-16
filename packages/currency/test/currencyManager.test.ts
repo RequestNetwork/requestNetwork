@@ -69,6 +69,27 @@ const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinit
       network: 'rinkeby',
     },
   },
+  goerli: {
+    'ETH-goerli': { symbol: 'ETH-goerli', network: 'goerli' },
+    TST: {
+      address: '0x7af963cF6D228E564e2A0aA0DdBF06210B38615D',
+      decimals: 18,
+      symbol: 'TST',
+      network: 'goerli',
+    },
+    FAU: {
+      address: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc',
+      decimals: 18,
+      symbol: 'FAU',
+      network: 'goerli',
+    },
+    'fDAIx-goerli': {
+      address: '0x2bf02814ea0b2b155ed47b7cede18caa752940e6',
+      decimals: 18,
+      symbol: 'fDAIx',
+      network: 'goerli',
+    },
+  },
   bitcoin: {
     BTC: { symbol: 'BTC' },
     'BTC-testnet': { symbol: 'BTC-testnet', network: 'testnet' },
@@ -171,10 +192,17 @@ describe('CurrencyManager', () => {
       });
     });
 
-    it('access a currency by its id', () => {
+    it('access a currency by its id (Rinkeby)', () => {
       expect(currencyManager.from('ETH-rinkeby-rinkeby')).toMatchObject({
         symbol: 'ETH-rinkeby',
         network: 'rinkeby',
+      });
+    });
+
+    it('access a currency by its id (Goerli)', () => {
+      expect(currencyManager.from('ETH-goerli-goerli')).toMatchObject({
+        symbol: 'ETH-goerli',
+        network: 'goerli',
       });
     });
 
@@ -275,6 +303,9 @@ describe('CurrencyManager', () => {
         currencyManager.fromAddress('0xFab46E002BbF0b4509813474841E0716E6730136', 'rinkeby'),
       ).toBeDefined();
       expect(
+        currencyManager.fromAddress('0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc', 'goerli'),
+      ).toBeDefined();
+      expect(
         currencyManager.fromAddress('0xFab46E002BbF0b4509813474841E0716E6730136', 'mainnet'),
       ).not.toBeDefined();
     });
@@ -308,7 +339,14 @@ describe('CurrencyManager', () => {
             value: '0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90',
             network: 'rinkeby',
           }),
-        ).toMatchObject({ id: 'fDAIx-rinkeby' });
+        ).toMatchObject({ id: 'fDAIx-goerli' });
+        expect(
+          currencyManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ERC777,
+            value: '0x2bf02814ea0b2b155ed47b7cede18caa752940e6',
+            network: 'goerli',
+          }),
+        ).toMatchObject({ id: 'fDAIx-goerli' });
       });
 
       it('can access native tokens from storage format', () => {
@@ -349,6 +387,22 @@ describe('CurrencyManager', () => {
             network: 'rinkeby',
           }),
         ).toMatchObject({ id: 'ETH-rinkeby-rinkeby' });
+
+        expect(
+          currencyManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH-goerli',
+            network: 'goerli',
+          }),
+        ).toMatchObject({ id: 'ETH-goerli-goerli' });
+
+        expect(
+          currencyManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ETH,
+            value: 'ETH',
+            network: 'goerli',
+          }),
+        ).toMatchObject({ id: 'ETH-goerli-goerli' });
       });
 
       it('can access fiat currencies from storage format', () => {

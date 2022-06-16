@@ -8,6 +8,7 @@ describe('Artifact', () => {
       '0x2c2b9c9a4a25e24b174f26114e8926a9f2128fe4',
     );
     expect(erc20ProxyArtifact.getCreationBlockNumber('rinkeby')).toBe(5628198);
+    expect(erc20ProxyArtifact.getCreationBlockNumber('goerli')).toBe(5628198);
     expect(erc20ProxyArtifact.getDeploymentInformation('mainnet')).toEqual({
       address: '0x5f821c20947ff9be22e823edc5b3c709b33121b3',
       creationBlockNumber: 9119380,
@@ -19,6 +20,7 @@ describe('Artifact', () => {
       '0x2c2b9c9a4a25e24b174f26114e8926a9f2128fe4',
     );
     expect(erc20ProxyArtifact.getCreationBlockNumber('rinkeby', '0.1.0')).toBe(5628198);
+    expect(erc20ProxyArtifact.getCreationBlockNumber('goerli', '0.1.0')).toBe(5628198);
     expect(erc20ProxyArtifact.getDeploymentInformation('mainnet', '0.1.0')).toEqual({
       address: '0x5f821c20947ff9be22e823edc5b3c709b33121b3',
       creationBlockNumber: 9119380,

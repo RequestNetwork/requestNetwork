@@ -53,8 +53,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Gets a supported currency from a symbol, symbol-network, currency definition id or address.
    *
-   * @param currencyIdentifier e.g. 'DAI', 'FAU', 'FAU-rinkeby', 'ETH-rinkeby-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
-   * @param network e.g. rinkeby, mainnet
+   * @param currencyIdentifier e.g. 'DAI', 'FAU', 'FAU-rinkeby', 'ETH-rinkeby-rinkeby', 'FAU-goerli', 'ETH-goerli-goerli' or '0xFab46E002BbF0b4509813474841E0716E6730136'
+   * @param network e.g. rinkeby, goerli, mainnet
    */
   from(
     currencyIdentifier: string | undefined,
@@ -256,7 +256,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
    * - ERC777 SuperTokens managed by SuperFluid
    * - ETH, & some EVM-compatible chains native tokens
    * - NEAR, YEL, ZIL, BTC
-   * - ETH-rinkeby, FAU-rinkeby, CTBK-rinkeby
+   * - ETH-rinkeby, FAU-rinkeby, CTBK-rinkeby, ETH-goerli, FAU-goerli, TST-goerli
    */
   static getDefaultList(): CurrencyDefinition[] {
     const isoCurrencies: CurrencyInput[] = iso4217.map((cc) => ({

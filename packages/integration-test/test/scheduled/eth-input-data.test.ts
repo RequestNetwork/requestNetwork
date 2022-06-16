@@ -17,7 +17,7 @@ const ethInputContract = new EthInputDataPaymentDetector({
 });
 
 describe('ETH Fee proxy detection test-suite', () => {
-  it('can getBalance for a payment declared by the payee', async () => {
+  it('can getBalance for a payment declared by the payee (Rinkeby)', async () => {
     const request = await requestNetwork.createRequest({
       paymentNetwork: localEthInputDataPaymentNetworkParams,
       requestInfo: ethInputDataCreationHash,
@@ -36,6 +36,37 @@ describe('ETH Fee proxy detection test-suite', () => {
       ...requestData,
       currency: {
         network: 'rinkeby',
+        type: RequestLogicTypes.CURRENCY.ETH,
+        value: privateErc20Address,
+      },
+    });
+    expect(balance.error).toBeUndefined();
+    expect(balance.balance).toBe('50000000000000000');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe('payment');
+    expect(balance.events[0].amount).toBe('50000000000000000');
+    expect(Math.abs(declarationTimestamp - (balance.events[0].timestamp ?? 0))).toBeLessThan(5);
+  }, 20000);
+
+  it('can getBalance for a payment declared by the payee (Goerli)', async () => {
+    const request = await requestNetwork.createRequest({
+      paymentNetwork: localEthInputDataPaymentNetworkParams,
+      requestInfo: ethInputDataCreationHash,
+      signer: payeeIdentity,
+    });
+
+    let requestData = await request.declareReceivedPayment(
+      '50000000000000000',
+      'OK',
+      payeeIdentity,
+    );
+    const declarationTimestamp = Utils.getCurrentTimestampInSecond();
+    requestData = await new Promise((resolve): unknown => requestData.on('confirmed', resolve));
+
+    const balance = await ethInputContract.getBalance({
+      ...requestData,
+      currency: {
+        network: 'goerli',
         type: RequestLogicTypes.CURRENCY.ETH,
         value: privateErc20Address,
       },

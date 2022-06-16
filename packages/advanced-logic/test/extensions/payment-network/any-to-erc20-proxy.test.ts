@@ -12,7 +12,7 @@ const anyToErc20Proxy = new AnyToErc20Proxy(CurrencyManager.getDefault());
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () => {
   describe('createCreationAction', () => {
-    it('can create a create action with all parameters', () => {
+    it('can create a create action with all parameters (Rinkeby)', () => {
       expect(
         anyToErc20Proxy.createCreationAction({
           feeAddress: '0x0000000000000000000000000000000000000001',
@@ -41,7 +41,36 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       });
     });
 
-    it('can create a create action without fee parameters', () => {
+    it('can create a create action with all parameters (Goerli)', () => {
+      expect(
+        anyToErc20Proxy.createCreationAction({
+          feeAddress: '0x0000000000000000000000000000000000000001',
+          feeAmount: '0',
+          paymentAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0x0000000000000000000000000000000000000003',
+          salt: 'ea3bc7caf64110ca',
+          network: 'goerli',
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          maxRateTimespan: 1000000,
+        }),
+      ).toEqual({
+        action: 'create',
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+        parameters: {
+          feeAddress: '0x0000000000000000000000000000000000000001',
+          feeAmount: '0',
+          paymentAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0x0000000000000000000000000000000000000003',
+          salt: 'ea3bc7caf64110ca',
+          network: 'goerli',
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          maxRateTimespan: 1000000,
+        },
+        version: '0.1.0',
+      });
+    });
+
+    it('can create a create action without fee parameters (Rinkeby)', () => {
       expect(
         anyToErc20Proxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -64,7 +93,30 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       });
     });
 
-    it('cannot createCreationAction with payment address not an ethereum address', () => {
+    it('can create a create action without fee parameters (Goerli)', () => {
+      expect(
+        anyToErc20Proxy.createCreationAction({
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+          salt: 'ea3bc7caf64110ca',
+          network: 'goerli',
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+        }),
+      ).toEqual({
+        action: 'create',
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+        parameters: {
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+          salt: 'ea3bc7caf64110ca',
+          network: 'goerli',
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+        },
+        version: '0.1.0',
+      });
+    });
+
+    it('cannot createCreationAction with payment address not an ethereum address (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
@@ -77,7 +129,20 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
     });
 
-    it('cannot createCreationAction with refund address not an ethereum address', () => {
+    it('cannot createCreationAction with payment address not an ethereum address (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToErc20Proxy.createCreationAction({
+          paymentAddress: 'not an ethereum address',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          network: 'goerli',
+          salt: 'ea3bc7caf64110ca',
+        });
+      }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
+    });
+
+    it('cannot createCreationAction with refund address not an ethereum address (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
@@ -90,7 +155,20 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
     });
 
-    it('cannot createCreationAction with fee address not an ethereum address', () => {
+    it('cannot createCreationAction with refund address not an ethereum address (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToErc20Proxy.createCreationAction({
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          network: 'goerli',
+          refundAddress: 'not an ethereum address',
+          salt: 'ea3bc7caf64110ca',
+        });
+      }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
+    });
+
+    it('cannot createCreationAction with fee address not an ethereum address (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
@@ -103,7 +181,20 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError('feeAddress is not a valid address');
     });
 
-    it('cannot createCreationAction with invalid fee amount', () => {
+    it('cannot createCreationAction with fee address not an ethereum address (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToErc20Proxy.createCreationAction({
+          feeAddress: 'not an ethereum address',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          network: 'goerli',
+          salt: 'ea3bc7caf64110ca',
+        });
+      }).toThrowError('feeAddress is not a valid address');
+    });
+
+    it('cannot createCreationAction with invalid fee amount (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
@@ -116,7 +207,20 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError('feeAmount is not a valid amount');
     });
 
-    it('cannot createCreationAction without acceptedTokens', () => {
+    it('cannot createCreationAction with invalid fee amount (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToErc20Proxy.createCreationAction({
+          feeAmount: '-20000',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          network: 'goerli',
+          salt: 'ea3bc7caf64110ca',
+        });
+      }).toThrowError('feeAmount is not a valid amount');
+    });
+
+    it('cannot createCreationAction without acceptedTokens (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
@@ -127,7 +231,18 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError('acceptedTokens is required');
     });
 
-    it('cannot createCreationAction with invalid tokens accepted', () => {
+    it('cannot createCreationAction without acceptedTokens (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToErc20Proxy.createCreationAction({
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          network: 'goerli',
+          salt: 'ea3bc7caf64110ca',
+        });
+      }).toThrowError('acceptedTokens is required');
+    });
+
+    it('cannot createCreationAction with invalid tokens accepted (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({
@@ -135,6 +250,18 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           salt: 'ea3bc7caf64110ca',
           acceptedTokens: ['0x0000000000000000000000000000000000000003', 'invalid address'],
           network: 'rinkeby',
+        });
+      }).toThrowError('acceptedTokens must contains only valid ethereum addresses');
+    });
+
+    it('cannot createCreationAction with invalid tokens accepted (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToErc20Proxy.createCreationAction({
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          salt: 'ea3bc7caf64110ca',
+          acceptedTokens: ['0x0000000000000000000000000000000000000003', 'invalid address'],
+          network: 'goerli',
         });
       }).toThrowError('acceptedTokens must contains only valid ethereum addresses');
     });

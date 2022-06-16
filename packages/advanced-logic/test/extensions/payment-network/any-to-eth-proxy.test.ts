@@ -11,7 +11,7 @@ const anyToEthProxy = new AnyToEthProxy(CurrencyManager.getDefault());
 
 describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', () => {
   describe('createCreationAction', () => {
-    it('can create a create action with all parameters', () => {
+    it('can create a create action with all parameters (Rinkeby)', () => {
       expect(
         anyToEthProxy.createCreationAction({
           feeAddress: '0x0000000000000000000000000000000000000001',
@@ -38,7 +38,34 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       });
     });
 
-    it('can create a create action without fee parameters', () => {
+    it('can create a create action with all parameters (Goerli)', () => {
+      expect(
+        anyToEthProxy.createCreationAction({
+          feeAddress: '0x0000000000000000000000000000000000000001',
+          feeAmount: '0',
+          paymentAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0x0000000000000000000000000000000000000003',
+          salt: 'ea3bc7caf64110ca',
+          network: 'goerli',
+          maxRateTimespan: 1000000,
+        }),
+      ).toEqual({
+        action: 'create',
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        parameters: {
+          feeAddress: '0x0000000000000000000000000000000000000001',
+          feeAmount: '0',
+          paymentAddress: '0x0000000000000000000000000000000000000002',
+          refundAddress: '0x0000000000000000000000000000000000000003',
+          salt: 'ea3bc7caf64110ca',
+          network: 'goerli',
+          maxRateTimespan: 1000000,
+        },
+        version: '0.2.0',
+      });
+    });
+
+    it('can create a create action without fee parameters (Rinkeby)', () => {
       expect(
         anyToEthProxy.createCreationAction({
           paymentAddress: '0x0000000000000000000000000000000000000001',
@@ -59,7 +86,28 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       });
     });
 
-    it('cannot createCreationAction with payment address not an ethereum address', () => {
+    it('can create a create action without fee parameters (Goerli)', () => {
+      expect(
+        anyToEthProxy.createCreationAction({
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+          salt: 'ea3bc7caf64110ca',
+          network: 'goerli',
+        }),
+      ).toEqual({
+        action: 'create',
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        parameters: {
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+          salt: 'ea3bc7caf64110ca',
+          network: 'goerli',
+        },
+        version: '0.2.0',
+      });
+    });
+
+    it('cannot createCreationAction with payment address not an ethereum address (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToEthProxy.createCreationAction({
@@ -72,7 +120,20 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
     });
 
-    it('cannot createCreationAction with refund address not an ethereum address', () => {
+    it('cannot createCreationAction with payment address not an ethereum address (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToEthProxy.createCreationAction({
+          paymentAddress: 'not an ethereum address',
+          refundAddress: '0x0000000000000000000000000000000000000002',
+
+          network: 'goerli',
+          salt: 'ea3bc7caf64110ca',
+        });
+      }).toThrowError("paymentAddress 'not an ethereum address' is not a valid address");
+    });
+
+    it('cannot createCreationAction with refund address not an ethereum address (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToEthProxy.createCreationAction({
@@ -85,7 +146,20 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
     });
 
-    it('cannot createCreationAction with fee address not an ethereum address', () => {
+    it('cannot createCreationAction with refund address not an ethereum address (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToEthProxy.createCreationAction({
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+
+          network: 'goerli',
+          refundAddress: 'not an ethereum address',
+          salt: 'ea3bc7caf64110ca',
+        });
+      }).toThrowError("refundAddress 'not an ethereum address' is not a valid address");
+    });
+
+    it('cannot createCreationAction with fee address not an ethereum address (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToEthProxy.createCreationAction({
@@ -98,7 +172,20 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       }).toThrowError('feeAddress is not a valid address');
     });
 
-    it('cannot createCreationAction with invalid fee amount', () => {
+    it('cannot createCreationAction with fee address not an ethereum address (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToEthProxy.createCreationAction({
+          feeAddress: 'not an ethereum address',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+
+          network: 'goerli',
+          salt: 'ea3bc7caf64110ca',
+        });
+      }).toThrowError('feeAddress is not a valid address');
+    });
+
+    it('cannot createCreationAction with invalid fee amount (Rinkeby)', () => {
       // 'must throw'
       expect(() => {
         anyToEthProxy.createCreationAction({
@@ -106,6 +193,19 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
           paymentAddress: '0x0000000000000000000000000000000000000001',
 
           network: 'rinkeby',
+          salt: 'ea3bc7caf64110ca',
+        });
+      }).toThrowError('feeAmount is not a valid amount');
+    });
+
+    it('cannot createCreationAction with invalid fee amount (Goerli)', () => {
+      // 'must throw'
+      expect(() => {
+        anyToEthProxy.createCreationAction({
+          feeAmount: '-20000',
+          paymentAddress: '0x0000000000000000000000000000000000000001',
+
+          network: 'goerli',
           salt: 'ea3bc7caf64110ca',
         });
       }).toThrowError('feeAmount is not a valid amount');

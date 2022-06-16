@@ -324,6 +324,26 @@ describe('CreateAction', () => {
           TestData.fakeSignatureProvider,
         ),
       ).toThrowError('Signer must be the payee or the payer');
+
+      expect(() =>
+        CreateAction.format(
+          {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              value: 'ETH',
+            },
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            payee: {
+              network: 'goerli',
+              type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+              value: TestData.payeeRaw.address,
+            } as IdentityTypes.ISmartContractIdentity,
+            timestamp: TestData.arbitraryTimestamp,
+          },
+          TestData.payeeRaw.identity,
+          TestData.fakeSignatureProvider,
+        ),
+      ).toThrowError('Signer must be the payee or the payer');
     });
 
     it('cannot create without payee and payer', () => {

@@ -65,6 +65,50 @@ describe('ERC20 Fee Proxy detection test-suite', () => {
     expect(balance.events[0].timestamp).toBe(1599013969);
   }, 10000);
 
+  it('can getBalance on a goerli request', async () => {
+    const mockRequest = createMockErc20FeeRequest({
+      network: 'goerli',
+      requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
+      paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
+      salt: '0ee84db293a752c6',
+      tokenAddress: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc', // FAU
+      feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+      feeAmount: '1000000000000000',
+    });
+
+    const balance = await erc20FeeProxy.getBalance(mockRequest);
+
+    expect(balance.balance).toBe('1000000000000000000000');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe('payment');
+    const params = balance.events[0].parameters as PaymentTypes.IERC20FeePaymentEventParameters;
+    expect(params?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
+    expect(balance.events[0].amount).toBe('1000000000000000000000');
+    expect(balance.events[0].timestamp).toBe(1599013969);
+  }, 10000);
+
+  it('can getBalance on a goerli request', async () => {
+    const mockRequest = createMockErc20FeeRequest({
+      network: 'goerli',
+      requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
+      paymentAddress: '0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93',
+      salt: '0ee84db293a752c6',
+      tokenAddress: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc', // FAU
+      feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+      feeAmount: '1000000000000000',
+    });
+
+    const balance = await erc20FeeProxy.getBalance(mockRequest);
+
+    expect(balance.balance).toBe('1000000000000000000000');
+    expect(balance.events).toHaveLength(1);
+    expect(balance.events[0].name).toBe('payment');
+    const params = balance.events[0].parameters as PaymentTypes.IERC20FeePaymentEventParameters;
+    expect(params?.to).toBe('0x4E64C2d06d19D13061e62E291b2C4e9fe5679b93');
+    expect(balance.events[0].amount).toBe('1000000000000000000000');
+    expect(balance.events[0].timestamp).toBe(1599013969);
+  }, 10000);
+
   it('can getBalance on a matic request, with TheGraph', async () => {
     const mockRequest = createMockErc20FeeRequest({
       network: 'matic',
