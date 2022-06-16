@@ -10,6 +10,7 @@ jest.mock('graphql-request');
 const graphql = mocked(GraphQLClient.prototype);
 const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');
 
+// TODO: not sure about this
 describe('Any to ETH payment detection', () => {
   const mockRequest: RequestLogicTypes.IRequest = {
     creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
