@@ -36,9 +36,9 @@ export const setupBatchPayments = async (
       const gasPrice = await provider.getGasPrice();
 
       await Promise.all([
-        updateBatchPaymentFees(batchPaymentConnected, adminNonce + 3, gasPrice),
-        updatePaymentErc20FeeProxy(batchPaymentConnected, network, adminNonce + 4, gasPrice),
-        updatePaymentEthFeeProxy(batchPaymentConnected, network, adminNonce + 5, gasPrice),
+        updateBatchPaymentFees(batchPaymentConnected, adminNonce + 0, gasPrice.mul(2)),
+        updatePaymentErc20FeeProxy(batchPaymentConnected, network, adminNonce + 1, gasPrice.mul(2)),
+        updatePaymentEthFeeProxy(batchPaymentConnected, network, adminNonce + 2, gasPrice.mul(2)),
       ]);
     }),
   );
