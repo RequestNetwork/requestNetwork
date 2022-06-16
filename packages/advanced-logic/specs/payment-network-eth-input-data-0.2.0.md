@@ -40,6 +40,7 @@ The `TransferWithReference` event is emitted when the Ether is transfered. This 
 | ------- | ------------------------------------------ |
 | Mainnet | 0x37a8f5f64f2a84f2377481537f04d2a59c9f59b6 |
 | Rinkeby | 0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff |
+| Goerli  | TODO ..................................... |
 
 ## Properties
 

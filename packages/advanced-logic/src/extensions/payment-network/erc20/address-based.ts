@@ -3,7 +3,7 @@ import AddressBasedPaymentNetwork from '../address-based';
 
 const CURRENT_VERSION = '0.1.0';
 
-const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
+const supportedNetworks = ['mainnet', 'rinkeby', 'goerli', 'private'];
 
 /**
  * Implementation of the payment network to pay in ERC20 tokens based on an Ethereum address
