@@ -7,11 +7,11 @@ import * as artifacts from '../src/lib';
  * If you want to skip deploying one or more, then comment them out in the list bellow.
  */
 export const create2ContractDeploymentList = [
-  'EthereumProxy',
-  'EthereumFeeProxy',
-  'Erc20ConversionProxy',
-  'ERC20SwapToConversion',
-  'ERC20EscrowToPay',
+  // 'EthereumProxy',
+  // 'EthereumFeeProxy',
+  // 'Erc20ConversionProxy',
+  // 'ERC20SwapToConversion',
+  // 'ERC20EscrowToPay',
   'BatchPayments',
 ];
 

@@ -86,7 +86,7 @@ export default {
       accounts,
     },
     xdai: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://rpc.xdaichain.com/',
+      url: process.env.WEB3_PROVIDER_URL || 'https://gnosis-mainnet.public.blastapi.io',
       chainId: 100,
       accounts,
     },
