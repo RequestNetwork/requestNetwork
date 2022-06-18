@@ -7,7 +7,6 @@ import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { suggestFees } from 'eip1559-fee-suggestions-ethers';
 import { GasPriceDefiner } from '@requestnetwork/ethereum-storage';
-import assert from 'assert';
 
 type TheGraphStorageProps = {
   network: string;
@@ -33,11 +32,7 @@ export class TheGraphStorage {
     this.logger = logger || new Utils.SimpleLogger();
     this.ipfsStorage = ipfsStorage;
     this.network = network;
-    assert(
-      signer.provider instanceof providers.JsonRpcProvider,
-      'TheGraphStorage provider must be a JsonRpcProvider',
-    );
-    this.provider = signer.provider;
+    this.provider = signer.provider as providers.JsonRpcProvider;
     this.hashSubmitter = requestHashSubmitterArtifact.connect(
       network,
       signer,
