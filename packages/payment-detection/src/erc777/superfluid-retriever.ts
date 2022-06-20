@@ -1,5 +1,4 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { utils as ethersUtils } from 'ethers';
 import Utils from '@requestnetwork/utils';
 import { FlowUpdatedEvent } from '../thegraph/generated/graphql-superfluid';
 import {
@@ -39,7 +38,7 @@ export class SuperFluidInfoRetriever {
 
   private getGraphVariables(): GraphPaymentQueryParams {
     return {
-      reference: '0xbeefac' + ethersUtils.keccak256(`0x${this.paymentReference}`).slice(2),
+      reference: `0xbeefac${this.paymentReference}`,
       to: this.toAddress,
       tokenAddress: this.tokenContractAddress,
     };
@@ -67,8 +66,8 @@ export class SuperFluidInfoRetriever {
         oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
         flowRate: 0,
         timestamp: Utils.getCurrentTimestampInSecond(),
-        blockNumber: null,
-        transactionHash: null,
+        blockNumber: parseInt(streamEvents[streamEvents.length - 1].blockNumber),
+        transactionHash: streamEvents[streamEvents.length - 1].transactionHash,
       } as FlowUpdatedEvent);
     }
 
@@ -96,7 +95,7 @@ export class SuperFluidInfoRetriever {
         name: this.eventName,
         parameters: {
           to: this.toAddress,
-          block: streamEvents[index].blockNumber,
+          block: parseInt(streamEvents[index].blockNumber),
           txHash: streamEvents[index].transactionHash,
         },
         timestamp: streamEvents[index].timestamp,
