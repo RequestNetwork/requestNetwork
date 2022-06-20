@@ -1,6 +1,12 @@
 import { Contract } from 'ethers';
 import * as artifacts from '../src/lib';
 
+/** TODO ODE before push :
+ * - deploy on xdai: error network
+ * - verify every contract
+ * - clean utils... befor to merge
+ * */
+
 /**
  * List of smart contract that we deploy using the CREATE2 scheme through the Request Deployer contract
  * By default all smart contracts from bellow will get deployed.
