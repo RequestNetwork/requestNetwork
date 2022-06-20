@@ -66,5 +66,6 @@ export const isContractDeployed = (
 ): boolean => {
   const contractArtifact = getArtifact(contract);
   const addresses = contractArtifact.getAllAddresses(network);
+  console.log(`Checking contract ${contract} on ${network} on addr: ${computedAddress}`);
   return addresses.some((x) => x.address === computedAddress);
 };
