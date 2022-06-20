@@ -14,8 +14,15 @@ describe('getDefaultProvider', () => {
     await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 1 });
   });
 
-  it('Can take a standard network', async () => {
+  it('Can take a standard network (Rinkeby)', async () => {
     const provider = getDefaultProvider('rinkeby');
+
+    expect(provider).toBeInstanceOf(providers.InfuraProvider);
+    await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 4 });
+  });
+
+  it('Can take a standard network (Goerli)', async () => {
+    const provider = getDefaultProvider('goerli');
 
     expect(provider).toBeInstanceOf(providers.InfuraProvider);
     await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 4 });
@@ -68,6 +75,9 @@ describe('getDefaultProvider', () => {
     // still works for standard providers
     expect((getDefaultProvider('rinkeby') as providers.JsonRpcProvider).connection.url).toMatch(
       /https:\/\/rinkeby\.infura.*/,
+    );
+    expect((getDefaultProvider('goerli') as providers.JsonRpcProvider).connection.url).toMatch(
+      /https:\/\/goerli\.infura.*/,
     );
   });
 

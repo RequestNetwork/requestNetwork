@@ -15,6 +15,7 @@ export default class Erc20FeeProxyPaymentNetwork<
     public supportedNetworks: string[] = [
       'mainnet',
       'rinkeby',
+      'goerli',
       'private',
       'matic',
       'mumbai',
@@ -26,6 +27,7 @@ export default class Erc20FeeProxyPaymentNetwork<
       'xdai',
       'fantom',
       'arbitrum-rinkeby',
+      'arbitrum-goerli',
       'arbitrum-one',
       'avalanche',
     ],

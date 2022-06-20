@@ -41,6 +41,7 @@ The `TransferWithReference` event is emitted when the tokens are transfered. Thi
 | ------- | ------------------------------------------ |
 | Mainnet | 0x5f821c20947ff9be22e823edc5b3c709b33121b3 |
 | Rinkeby | 0x162edb802fae75b9ee4288345735008ba51a4ec9 |
+| Goerli  | TODO ..................................... |
 
 ## Properties
 
@@ -56,6 +57,7 @@ The `TransferWithReference` event is emitted when the tokens are transfered. Thi
 | **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
 
 Note: to use the Rinkeby testnet, create a request with `currency.network` as `rinkeby`.
+to use the Goerli testnet, create a request with `currency.network` as `goerli`.
 
 ---
 
