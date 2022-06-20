@@ -25,7 +25,7 @@ describe('getDefaultProvider', () => {
     const provider = getDefaultProvider('goerli');
 
     expect(provider).toBeInstanceOf(providers.InfuraProvider);
-    await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 4 });
+    await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 5 });
   });
 
   it('Can take a private network', async () => {
