@@ -50,7 +50,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           refundAddress: '0x0000000000000000000000000000000000000003',
           salt: 'ea3bc7caf64110ca',
           network: 'goerli',
-          acceptedTokens: ['0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'],
+          acceptedTokens: ['0xba62bcfcaafc6622853cca2be6ac7d845bc0f2dc'],
           maxRateTimespan: 1000000,
         }),
       ).toEqual({
@@ -63,7 +63,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           refundAddress: '0x0000000000000000000000000000000000000003',
           salt: 'ea3bc7caf64110ca',
           network: 'goerli',
-          acceptedTokens: ['0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'],
+          acceptedTokens: ['0xba62bcfcaafc6622853cca2be6ac7d845bc0f2dc'],
           maxRateTimespan: 1000000,
         },
         version: '0.1.0',

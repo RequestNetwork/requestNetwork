@@ -4,6 +4,7 @@ import { CurrencyDefinition } from './types';
 import privateAggregator from './aggregators/private.json';
 import mainnetAggregator from './aggregators/mainnet.json';
 import rinkebyAggregator from './aggregators/rinkeby.json';
+import goerliAggregator from './aggregators/goerli.json';
 import maticAggregator from './aggregators/matic.json';
 import fantomAggregator from './aggregators/fantom.json';
 
@@ -24,7 +25,8 @@ export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   xdai: {},
   avalanche: {},
   bsc: {},
-  goerli: {},
+  // FIX ME: There are still no Goerli chainlink oracles but we added these few for the tests to pass.
+  goerli: goerliAggregator,
 };
 
 export const chainlinkSupportedNetworks = Object.keys(chainlinkCurrencyPairs);
