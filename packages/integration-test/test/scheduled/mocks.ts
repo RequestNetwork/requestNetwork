@@ -18,7 +18,7 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createCreationAction,
     },
     feeProxyContractErc20: {
-      supportedNetworks: ['mainnet', 'rinkeby', 'private', 'matic'],
+      supportedNetworks: ['mainnet', 'rinkeby', 'goerli', 'private', 'matic'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -28,7 +28,7 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddRefundInstructionAction,
     },
     proxyContractErc20: {
-      supportedNetworks: ['rinkeby', 'private'],
+      supportedNetworks: ['rinkeby', 'goerli', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -37,7 +37,7 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddRefundInstructionAction,
     },
     feeProxyContractEth: {
-      supportedNetworks: ['rinkeby', 'private'],
+      supportedNetworks: ['rinkeby', 'goerli', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -45,7 +45,7 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddRefundInstructionAction,
     },
     ethereumInputData: {
-      supportedNetworks: ['rinkeby', 'private'],
+      supportedNetworks: ['rinkeby', 'goerli', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -53,7 +53,7 @@ export const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddRefundInstructionAction,
     },
     erc777Stream: {
-      supportedNetworks: ['rinkeby'],
+      supportedNetworks: ['rinkeby', 'goerli'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,

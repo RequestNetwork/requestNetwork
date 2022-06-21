@@ -41,6 +41,7 @@ export const erc20requestCreationHash: Types.IRequestInfo = {
   payer: payerIdentity,
 };
 
+// FIXME: Replace by goerli and ETH = ETH-goerli/rinkeby?
 export const ethInputDataCreationHash: Types.IRequestInfo = {
   currency: {
     network: 'rinkeby',

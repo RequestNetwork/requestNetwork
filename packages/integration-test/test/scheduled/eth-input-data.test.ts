@@ -32,6 +32,7 @@ describe('ETH Fee proxy detection test-suite', () => {
     const declarationTimestamp = Utils.getCurrentTimestampInSecond();
     requestData = await new Promise((resolve): unknown => requestData.on('confirmed', resolve));
 
+    // FIXME: Replace by goerli and ETH = ETH-goerli/rinkeby?
     const balance = await ethInputContract.getBalance({
       ...requestData,
       currency: {
