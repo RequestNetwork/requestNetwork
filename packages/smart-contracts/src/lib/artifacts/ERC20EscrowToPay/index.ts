@@ -25,30 +25,30 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
           address: '0xc7f471F5A8f8b33F131049b1e9A43941CbE31792',
           creationBlockNumber: 29821569,
         },
-        celo: {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 13299808,
-        },
-        xdai: {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 22438806,
-        },
         fuse: {
           address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
           creationBlockNumber: 17328459,
         },
-        'arbitrum-one': {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 13417262,
-        },
-        fantom: {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 39534777,
-        },
-        bsc: {
-          address: '0xc7f471F5A8f8b33F131049b1e9A43941CbE31792',
-          creationBlockNumber: 18877277,
-        },
+        // celo: {
+        //   address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
+        //   creationBlockNumber: 13299808,
+        // },
+        // xdai: {
+        //   address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
+        //   creationBlockNumber: 22438806,
+        // },
+        // 'arbitrum-one': {
+        //   address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
+        //   creationBlockNumber: 13417262,
+        // },
+        // fantom: {
+        //   address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
+        //   creationBlockNumber: 39534777,
+        // },
+        // bsc: {
+        //   address: '0xc7f471F5A8f8b33F131049b1e9A43941CbE31792',
+        //   creationBlockNumber: 18877277,
+        // },
       },
     },
   },
