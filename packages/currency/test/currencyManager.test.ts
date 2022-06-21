@@ -186,10 +186,17 @@ describe('CurrencyManager', () => {
       });
     });
 
-    it('access a currency by its id', () => {
+    it('access a currency by its id (Rinkeby)', () => {
       expect(currencyManager.from('ETH-rinkeby-rinkeby')).toMatchObject({
         symbol: 'ETH-rinkeby',
         network: 'rinkeby',
+      });
+    });
+
+    it('access a currency by its id (Goerli)', () => {
+      expect(currencyManager.from('ETH-goerli-goerli')).toMatchObject({
+        symbol: 'ETH-goerli',
+        network: 'goerli',
       });
     });
 
@@ -290,6 +297,9 @@ describe('CurrencyManager', () => {
         currencyManager.fromAddress('0xFab46E002BbF0b4509813474841E0716E6730136', 'rinkeby'),
       ).toBeDefined();
       expect(
+        currencyManager.fromAddress('0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc', 'goerli'),
+      ).toBeDefined();
+      expect(
         currencyManager.fromAddress('0xFab46E002BbF0b4509813474841E0716E6730136', 'mainnet'),
       ).not.toBeDefined();
     });
@@ -316,7 +326,7 @@ describe('CurrencyManager', () => {
         ).toMatchObject({ id: 'DAI-mainnet' });
       });
 
-      it('can access a ERC777 token from its storage format', () => {
+      it('can access a ERC777 token from its storage format (Rinkeby)', () => {
         expect(
           currencyManager.fromStorageCurrency({
             type: RequestLogicTypes.CURRENCY.ERC777,
@@ -325,6 +335,7 @@ describe('CurrencyManager', () => {
           }),
         ).toMatchObject({ id: 'fDAIx-rinkeby' });
       });
+      // FIXME: Add Goerli ERC777 to create this test
 
       it('can access native tokens from storage format', () => {
         expect(
@@ -360,249 +371,249 @@ describe('CurrencyManager', () => {
         expect(
           currencyManager.fromStorageCurrency({
             type: RequestLogicTypes.CURRENCY.ETH,
-            value: 'ETH',
-            network: 'rinkeby',
+            value: 'ETH-goerli',
+            network: 'goerli',
           }),
-        ).toMatchObject({ id: 'ETH-rinkeby-rinkeby' });
-      });
+        ).toMatchObject({ id: 'ETH-goerli-goerli' });
 
-      it('can access fiat currencies from storage format', () => {
-        expect(
-          currencyManager.fromStorageCurrency({
-            type: RequestLogicTypes.CURRENCY.ISO4217,
-            value: 'EUR',
-          }),
-        ).toMatchObject({ id: 'EUR' });
-      });
-    });
-  });
-
-  describe('Extending currencies', () => {
-    it('Can specify metadata type', () => {
-      const currencyManager = new CurrencyManager([
-        {
-          type: RequestLogicTypes.CURRENCY.ETH,
-          symbol: 'ABCD',
-          decimals: 18,
-          network: 'private',
-          meta: {
-            rate: 0.1,
-          },
-        },
-      ]);
-
-      expect(currencyManager.from('ABCD')?.meta?.rate).toBe(0.1);
-    });
-  });
-
-  describe('Default currencies', () => {
-    Object.entries(testCasesPerNetwork).forEach(([network, testCases]) => {
-      describe(network, () => {
-        Object.entries(testCases).forEach(([symbol, expected]) => {
-          it(`Resolves ${symbol}`, () => {
-            expect(currencyManager.from(symbol)).toMatchObject(expected);
-          });
+        it('can access fiat currencies from storage format', () => {
+          expect(
+            currencyManager.fromStorageCurrency({
+              type: RequestLogicTypes.CURRENCY.ISO4217,
+              value: 'EUR',
+            }),
+          ).toMatchObject({ id: 'EUR' });
         });
       });
     });
-  });
 
-  describe('Conflicting currencies', () => {
-    it('TOP', () => {
-      expect(currencyManager.from('TOP')).toMatchObject({
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-      });
-      expect(currencyManager.from('TOP', 'mainnet')).toMatchObject({
-        type: RequestLogicTypes.CURRENCY.ERC20,
-      });
-    });
-    it('BOB', () => {
-      expect(currencyManager.from('BOB')).toMatchObject({
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-      });
-      expect(currencyManager.from('BOB', 'mainnet')).toMatchObject({
-        type: RequestLogicTypes.CURRENCY.ERC20,
-      });
-    });
-    it('MNT', () => {
-      expect(currencyManager.from('MNT')).toMatchObject({
-        type: RequestLogicTypes.CURRENCY.ISO4217,
-      });
-      expect(currencyManager.from('MNT', 'mainnet')).toMatchObject({
-        type: RequestLogicTypes.CURRENCY.ERC20,
+    describe('Extending currencies', () => {
+      it('Can specify metadata type', () => {
+        const currencyManager = new CurrencyManager([
+          {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            symbol: 'ABCD',
+            decimals: 18,
+            network: 'private',
+            meta: {
+              rate: 0.1,
+            },
+          },
+        ]);
+
+        expect(currencyManager.from('ABCD')?.meta?.rate).toBe(0.1);
       });
     });
-  });
 
-  describe('Back & forth', () => {
-    // exclude conflicting & native testnet
-    const defaultList = CurrencyManager.getDefaultList().filter(
-      (x) =>
-        !['BOB', 'MNT', 'TOP'].includes(x.symbol) &&
-        !(
-          (x.type === RequestLogicTypes.CURRENCY.ETH ||
-            x.type === RequestLogicTypes.CURRENCY.BTC) &&
-          x.symbol.includes('-')
-        ),
-    );
-    const defaultManager = new CurrencyManager(defaultList);
-    defaultList.forEach((currency) => {
-      it(currency.id, () => {
-        const def = CurrencyManager.fromInput(currency);
-        expect(def).toBeDefined();
-        expect(def).toEqual(defaultManager.from(def.id));
-        if ('network' in def) {
-          expect(def).toEqual(defaultManager.from(def.symbol, def.network));
-          expect(def).toEqual(defaultManager.fromSymbol(def.symbol, def.network));
-        }
-        expect(def).toEqual(
-          defaultManager.fromStorageCurrency(CurrencyManager.toStorageCurrency(def)),
-        );
-      });
-    });
-  });
-
-  describe('Validate addresses', () => {
-    const bitcoinAddresses: Record<string, string> = {
-      mainnet: '1JwZzh9HLK5M4VZ98yBQLeFiGuL97vQvL3',
-      testnet: 'n4VQ5YdHf7hLQ2gWQYYrcxoE5B7nWuDFNF',
-    };
-
-    const nearAddresses: Record<string, string> = {
-      aurora: 'requestnetwork.near',
-      'aurora-testnet': 'requestnetwork.testnet',
-    };
-
-    const eip55Addresses: string[] = [
-      // All Caps
-      '0x52908400098527886E0F7030069857D2E4169EE7',
-      '0x8617E340B3D01FA5F11F306F4090FD50E238070D',
-      // All Lower
-      '0xde709f2102306220921060314715629080e2fb77',
-      '0x27b1fdb04752bbc536007a920d24acb045561c26',
-      // Normal
-      '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
-      '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
-      '0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB',
-      '0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb',
-    ];
-
-    const extendedTestCasesPerNetwork: Record<
-      string,
-      Record<string, Partial<CurrencyDefinition>>
-    > = {
-      ...testCasesPerNetwork,
-      aurora: {
-        NEAR: {
-          type: RequestLogicTypes.CURRENCY.ETH,
-          symbol: 'NEAR',
-          network: 'aurora',
-        },
-        'NEAR-testnet': {
-          type: RequestLogicTypes.CURRENCY.ETH,
-          symbol: 'NEAR-testnet',
-          network: 'aurora-testnet',
-        },
-      },
-    };
-
-    const testValidateAddressForCurrency = (
-      address: string,
-      currency: CurrencyDefinition | undefined,
-      expectedResult = true,
-    ) => {
-      if (!currency) {
-        throw new Error('currency is undefined');
-      }
-      const result = CurrencyManager.validateAddress(address, currency);
-      expect(result).toBe(expectedResult);
-    };
-
-    describe(`valid cases`, () => {
-      Object.entries(extendedTestCasesPerNetwork).forEach(([network, testCases]) => {
-        if (network === 'other') {
-          return;
-        }
-        describe(`valid cases for ${network}`, () => {
-          Object.entries(testCases).forEach(([, currencyTemplate]) => {
-            it(`should validate ${network}.${currencyTemplate.symbol}`, () => {
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const currency = currencyManager.fromSymbol(currencyTemplate.symbol!)!;
-              switch (currency.type) {
-                case RequestLogicTypes.CURRENCY.ETH:
-                case RequestLogicTypes.CURRENCY.ERC20:
-                case RequestLogicTypes.CURRENCY.ERC777:
-                  switch (currency.symbol) {
-                    case 'NEAR':
-                    case 'NEAR-testnet':
-                      testValidateAddressForCurrency(nearAddresses[currency.network], currency);
-                      break;
-                    default:
-                      eip55Addresses.forEach((address) =>
-                        testValidateAddressForCurrency(address, currency),
-                      );
-                  }
-                  break;
-                case RequestLogicTypes.CURRENCY.BTC:
-                  testValidateAddressForCurrency(bitcoinAddresses[currency.network], currency);
-                  break;
-                default:
-                  throw new Error(`Could not generate a valid address for an unknown type`);
-              }
+    describe('Default currencies', () => {
+      Object.entries(testCasesPerNetwork).forEach(([network, testCases]) => {
+        describe(network, () => {
+          Object.entries(testCases).forEach(([symbol, expected]) => {
+            it(`Resolves ${symbol}`, () => {
+              expect(currencyManager.from(symbol)).toMatchObject(expected);
             });
           });
         });
       });
     });
 
-    describe(`invalid cases`, () => {
-      it('should not validate bitcoin addresses on ethereum network', () => {
-        const currency = currencyManager.from('ETH', 'mainnet');
-        testValidateAddressForCurrency(bitcoinAddresses.mainnet, currency, false);
+    describe('Conflicting currencies', () => {
+      it('TOP', () => {
+        expect(currencyManager.from('TOP')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+        });
+        expect(currencyManager.from('TOP', 'mainnet')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+        });
       });
-      it('should not validate bitcoin mainnet addresses on bitcoin testnet network', () => {
-        const currency = currencyManager.from('BTC-testnet', 'testnet');
-        testValidateAddressForCurrency(bitcoinAddresses.mainnet, currency, false);
+      it('BOB', () => {
+        expect(currencyManager.from('BOB')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+        });
+        expect(currencyManager.from('BOB', 'mainnet')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+        });
       });
-      it('should not validate bitcoin testnet addresses on bitcoin mainnet network', () => {
-        const currency = currencyManager.from('BTC-testnet', 'mainnet');
-        testValidateAddressForCurrency(bitcoinAddresses.testnet, currency, false);
+      it('MNT', () => {
+        expect(currencyManager.from('MNT')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ISO4217,
+        });
+        expect(currencyManager.from('MNT', 'mainnet')).toMatchObject({
+          type: RequestLogicTypes.CURRENCY.ERC20,
+        });
       });
-      it('should not validate ethereum addresses on bitcoin network', () => {
-        const currency = currencyManager.from('BTC', 'mainnet');
-        testValidateAddressForCurrency(eip55Addresses[0], currency, false);
+    });
+
+    describe('Back & forth', () => {
+      // exclude conflicting & native testnet
+      const defaultList = CurrencyManager.getDefaultList().filter(
+        (x) =>
+          !['BOB', 'MNT', 'TOP'].includes(x.symbol) &&
+          !(
+            (x.type === RequestLogicTypes.CURRENCY.ETH ||
+              x.type === RequestLogicTypes.CURRENCY.BTC) &&
+            x.symbol.includes('-')
+          ),
+      );
+      const defaultManager = new CurrencyManager(defaultList);
+      defaultList.forEach((currency) => {
+        it(currency.id, () => {
+          const def = CurrencyManager.fromInput(currency);
+          expect(def).toBeDefined();
+          expect(def).toEqual(defaultManager.from(def.id));
+          if ('network' in def) {
+            expect(def).toEqual(defaultManager.from(def.symbol, def.network));
+            expect(def).toEqual(defaultManager.fromSymbol(def.symbol, def.network));
+          }
+          expect(def).toEqual(
+            defaultManager.fromStorageCurrency(CurrencyManager.toStorageCurrency(def)),
+          );
+        });
       });
-      describe(`ISO4217 currencies`, () => {
-        Object.entries(testCasesPerNetwork.other).forEach(([, currencyTemplate]) => {
-          it(`should throw for ${currencyTemplate.symbol} currency`, () => {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const currency = currencyManager.from(currencyTemplate.symbol)!;
-            expect(() => CurrencyManager.validateAddress('anyAddress', currency)).toThrow();
+    });
+
+    describe('Validate addresses', () => {
+      const bitcoinAddresses: Record<string, string> = {
+        mainnet: '1JwZzh9HLK5M4VZ98yBQLeFiGuL97vQvL3',
+        testnet: 'n4VQ5YdHf7hLQ2gWQYYrcxoE5B7nWuDFNF',
+      };
+
+      const nearAddresses: Record<string, string> = {
+        aurora: 'requestnetwork.near',
+        'aurora-testnet': 'requestnetwork.testnet',
+      };
+
+      const eip55Addresses: string[] = [
+        // All Caps
+        '0x52908400098527886E0F7030069857D2E4169EE7',
+        '0x8617E340B3D01FA5F11F306F4090FD50E238070D',
+        // All Lower
+        '0xde709f2102306220921060314715629080e2fb77',
+        '0x27b1fdb04752bbc536007a920d24acb045561c26',
+        // Normal
+        '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+        '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
+        '0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB',
+        '0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb',
+      ];
+
+      const extendedTestCasesPerNetwork: Record<
+        string,
+        Record<string, Partial<CurrencyDefinition>>
+      > = {
+        ...testCasesPerNetwork,
+        aurora: {
+          NEAR: {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            symbol: 'NEAR',
+            network: 'aurora',
+          },
+          'NEAR-testnet': {
+            type: RequestLogicTypes.CURRENCY.ETH,
+            symbol: 'NEAR-testnet',
+            network: 'aurora-testnet',
+          },
+        },
+      };
+
+      const testValidateAddressForCurrency = (
+        address: string,
+        currency: CurrencyDefinition | undefined,
+        expectedResult = true,
+      ) => {
+        if (!currency) {
+          throw new Error('currency is undefined');
+        }
+        const result = CurrencyManager.validateAddress(address, currency);
+        expect(result).toBe(expectedResult);
+      };
+
+      describe(`valid cases`, () => {
+        Object.entries(extendedTestCasesPerNetwork).forEach(([network, testCases]) => {
+          if (network === 'other') {
+            return;
+          }
+          describe(`valid cases for ${network}`, () => {
+            Object.entries(testCases).forEach(([, currencyTemplate]) => {
+              it(`should validate ${network}.${currencyTemplate.symbol}`, () => {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                const currency = currencyManager.fromSymbol(currencyTemplate.symbol!)!;
+                switch (currency.type) {
+                  case RequestLogicTypes.CURRENCY.ETH:
+                  case RequestLogicTypes.CURRENCY.ERC20:
+                  case RequestLogicTypes.CURRENCY.ERC777:
+                    switch (currency.symbol) {
+                      case 'NEAR':
+                      case 'NEAR-testnet':
+                        testValidateAddressForCurrency(nearAddresses[currency.network], currency);
+                        break;
+                      default:
+                        eip55Addresses.forEach((address) =>
+                          testValidateAddressForCurrency(address, currency),
+                        );
+                    }
+                    break;
+                  case RequestLogicTypes.CURRENCY.BTC:
+                    testValidateAddressForCurrency(bitcoinAddresses[currency.network], currency);
+                    break;
+                  default:
+                    throw new Error(`Could not generate a valid address for an unknown type`);
+                }
+              });
+            });
+          });
+        });
+      });
+
+      describe(`invalid cases`, () => {
+        it('should not validate bitcoin addresses on ethereum network', () => {
+          const currency = currencyManager.from('ETH', 'mainnet');
+          testValidateAddressForCurrency(bitcoinAddresses.mainnet, currency, false);
+        });
+        it('should not validate bitcoin mainnet addresses on bitcoin testnet network', () => {
+          const currency = currencyManager.from('BTC-testnet', 'testnet');
+          testValidateAddressForCurrency(bitcoinAddresses.mainnet, currency, false);
+        });
+        it('should not validate bitcoin testnet addresses on bitcoin mainnet network', () => {
+          const currency = currencyManager.from('BTC-testnet', 'mainnet');
+          testValidateAddressForCurrency(bitcoinAddresses.testnet, currency, false);
+        });
+        it('should not validate ethereum addresses on bitcoin network', () => {
+          const currency = currencyManager.from('BTC', 'mainnet');
+          testValidateAddressForCurrency(eip55Addresses[0], currency, false);
+        });
+        describe(`ISO4217 currencies`, () => {
+          Object.entries(testCasesPerNetwork.other).forEach(([, currencyTemplate]) => {
+            it(`should throw for ${currencyTemplate.symbol} currency`, () => {
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const currency = currencyManager.from(currencyTemplate.symbol)!;
+              expect(() => CurrencyManager.validateAddress('anyAddress', currency)).toThrow();
+            });
           });
         });
       });
     });
-  });
 
-  describe('Conversion paths', () => {
-    let eur: CurrencyDefinition, usd: CurrencyDefinition, dai: CurrencyDefinition;
-    beforeEach(() => {
-      eur = currencyManager.from('EUR')!;
-      usd = currencyManager.from('USD')!;
-      dai = currencyManager.from('DAI')!;
-    });
-
-    it('has a default conversion path', () => {
-      const path = currencyManager.getConversionPath(eur, dai, 'mainnet');
-      expect(path).toMatchObject([eur.hash, usd.hash, dai.hash.toLowerCase()]);
-    });
-
-    it('can override the default conversion path', () => {
-      const manager = new CurrencyManager(CurrencyManager.getDefaultList(), undefined, {
-        mainnet: { [eur.hash]: { [dai.hash.toLocaleLowerCase()]: 1 } },
+    describe('Conversion paths', () => {
+      let eur: CurrencyDefinition, usd: CurrencyDefinition, dai: CurrencyDefinition;
+      beforeEach(() => {
+        eur = currencyManager.from('EUR')!;
+        usd = currencyManager.from('USD')!;
+        dai = currencyManager.from('DAI')!;
       });
-      const path = manager.getConversionPath(eur, dai, 'mainnet');
-      expect(path).toMatchObject([eur.hash, dai.hash.toLowerCase()]);
+
+      it('has a default conversion path', () => {
+        const path = currencyManager.getConversionPath(eur, dai, 'mainnet');
+        expect(path).toMatchObject([eur.hash, usd.hash, dai.hash.toLowerCase()]);
+      });
+
+      it('can override the default conversion path', () => {
+        const manager = new CurrencyManager(CurrencyManager.getDefaultList(), undefined, {
+          mainnet: { [eur.hash]: { [dai.hash.toLocaleLowerCase()]: 1 } },
+        });
+        const path = manager.getConversionPath(eur, dai, 'mainnet');
+        expect(path).toMatchObject([eur.hash, dai.hash.toLowerCase()]);
+      });
     });
   });
 });
