@@ -41,7 +41,7 @@ Request uses IPFS and Ethereum to store request transactions. For this reason, t
 You can use any HTTP/S Ethereum node to run your Request Node.
 For local development, you can use ganache-cli, a local Ethereum RPC client for tests (explained in more detail on the following pages).
 
-An easy way to get going with Ethereum Mainnet or Rinkeby is to use services like Infura, that will expose an Ethereum node API for you.
+An easy way to get going with Ethereum Mainnet, Rinkeby, Goerli is to use services like Infura, that will expose an Ethereum node API for you.
 
 ### IPFS node
 
