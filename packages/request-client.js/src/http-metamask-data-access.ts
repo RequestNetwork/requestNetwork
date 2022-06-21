@@ -81,7 +81,13 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
       const network = await this.provider.getNetwork();
 
       this.networkName =
-        network.chainId === 1 ? 'mainnet' : network.chainId === 4 ? 'rinkeby' : 'private';
+        network.chainId === 1
+          ? 'mainnet'
+          : network.chainId === 4
+          ? 'rinkeby'
+          : network.chainId === 5
+          ? 'goerli'
+          : 'private';
 
       this.submitterContract = new ethers.Contract(
         requestHashSubmitterArtifact.getAddress(this.networkName),

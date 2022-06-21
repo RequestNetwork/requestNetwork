@@ -1478,6 +1478,7 @@ describe('index', () => {
         },
       };
 
+      // FIXME: Replace by goerli?
       const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
         currency: {
           network: 'rinkeby',
@@ -1499,6 +1500,7 @@ describe('index', () => {
       expect(data).toBeDefined();
       expect(data.balance).toBeDefined();
       expect(data.meta).toBeDefined();
+      // FIXME: replace by goerli?
       expect(data.currency).toBe('ETH-rinkeby-rinkeby');
       expect(data.extensionsData[0].parameters.salt).toBe(salt);
       expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
@@ -1521,6 +1523,7 @@ describe('index', () => {
         },
       };
 
+      // FIXME: Replace by goerli?
       const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
         currency: {
           network: 'rinkeby',
@@ -1558,6 +1561,7 @@ describe('index', () => {
         },
       };
 
+      // FIXME: Replace by goerli?
       const requestInfo = Object.assign({}, TestData.parametersWithoutExtensionsData, {
         currency: {
           network: 'rinkeby',
