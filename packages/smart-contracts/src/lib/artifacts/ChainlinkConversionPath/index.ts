@@ -22,6 +22,7 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0xBFAD7f00A3988BFf17144728b624267Fee7F236e',
           creationBlockNumber: 7684572,
         },
+        // FIXME: add goerli version
         matic: {
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 17427745,
@@ -50,6 +51,7 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 8403926,
         },
+        // FIXME: add goerli version
       },
     },
     '0.2.0': {
@@ -68,6 +70,7 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 10023414,
         },
+        // FIXME: add goerli version
         fantom: {
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 28548259,

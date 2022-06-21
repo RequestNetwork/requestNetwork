@@ -21,6 +21,7 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
           address: '0xb674e3d228e631594D8fd4BF947E1811288bf836',
           creationBlockNumber: 7363204,
         },
+        // FIXME: add goerli version
       },
     },
     '0.3.0': {
@@ -38,6 +39,7 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
           address: '0x1B5077Ca852d39CDDeDaF45FAF1235841854420b',
           creationBlockNumber: 7408086,
         },
+        // FIXME: add goerli version
         bsc: {
           address: '0x75740D9b5cA3BCCb356CA7f0D0dB71aBE427a835',
           creationBlockNumber: 16165020,
