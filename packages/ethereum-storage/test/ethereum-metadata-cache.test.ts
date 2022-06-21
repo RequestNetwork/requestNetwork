@@ -12,6 +12,7 @@ const metadataExample1: StorageTypes.IEthereumMetadata = {
   transactionHash: '0xbbb',
 };
 
+// FIXME: Replace rinkeby by goerli to avoid the `metadataExample2`variable problems
 const metadataExample2: StorageTypes.IEthereumMetadata = {
   blockConfirmation: 5,
   blockNumber: 0,
