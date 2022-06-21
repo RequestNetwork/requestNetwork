@@ -145,7 +145,9 @@ const getCurrency = (symbol: string) => {
 };
 
 export const listAggregators = async (options?: IOptions): Promise<void> => {
-  const networks = options?.network ? [options.network] : ['private', 'rinkeby', 'mainnet'];
+  const networks = options?.network
+    ? [options.network]
+    : ['private', 'rinkeby', 'goerli', 'mainnet'];
 
   // Create an Object to be used by a dijkstra algorithm to find the best path between two currencies
   const allAggregators: Record<string, Record<string, Record<string, string>>> = {};

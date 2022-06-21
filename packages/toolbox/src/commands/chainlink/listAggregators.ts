@@ -8,7 +8,7 @@ export const builder = (): yargs.Argv<IOptions> =>
     network: {
       demand: false,
       type: 'string',
-      desc: 'Network for which to list aggregators (mainnet, rinkeby, private)',
+      desc: 'Network for which to list aggregators (mainnet, rinkeby, goerli, private)',
     },
     web3Url: {
       demand: false,
