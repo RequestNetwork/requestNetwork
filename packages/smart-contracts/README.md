@@ -169,7 +169,7 @@ This command will output details about each contract deployment on each chain:
 
 - If successfull: the network, the contract address and block number
 - If already deployed: the network, and the contract address
-- If and error occured: the said error
+- If an error occured: the said error
 
 #### Verify the contracts
 
