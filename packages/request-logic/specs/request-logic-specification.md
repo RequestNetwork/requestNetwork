@@ -693,7 +693,7 @@ This optional value is free for the user to define, but some have meaningful val
 Some common values, including the default value in bold (if network is not declared), for the supported currency types are:
 
 - **BTC**: **mainnet** and testnet
-- **ETH** and **ERC20**: **mainnet** and rinkeby
+- **ETH** and **ERC20**: **mainnet** and rinkeby and goerli
 - **ISO4217**: these are usually left empty, but can be useful in some cases, like when using a payment processor sandbox.
 
 ### Amount type
@@ -812,10 +812,10 @@ List of the Signature methods supported in this version:
 
 List of the Identity types supported in this version:
 
-| Type                      | Identity Value                         | extra value                                                                    | Signature Method                                      |
-| ------------------------- | -------------------------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| **ethereumAddress**       | hexadecimal string (e.g.: "0xe649f..") | _none_                                                                         | **ecdsa** _(see "Signature methods supported" above)_ |
-| **ethereumSmartContract** | hexadecimal string (e.g.: "0xe649f..") | optional: network ('mainnet', 'rinkeby', 'private'... ) 'mainnet' if not given |  *none*                                               |
+| Type                      | Identity Value                         | extra value                                                                              | Signature Method                                      |
+| ------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **ethereumAddress**       | hexadecimal string (e.g.: "0xe649f..") | _none_                                                                                   | **ecdsa** _(see "Signature methods supported" above)_ |
+| **ethereumSmartContract** | hexadecimal string (e.g.: "0xe649f..") | optional: network ('mainnet', 'rinkeby', 'goerli', 'private'... ) 'mainnet' if not given |  *none*                                               |
 
 ### How to sign a JSON object
 
