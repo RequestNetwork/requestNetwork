@@ -93,7 +93,7 @@ export const GetChannelsByTopicsQuery = gql`
 `;
 
 export const GetBlock = gql`
-  query {
+  query GetBlock {
     _meta {
       block {
         number
