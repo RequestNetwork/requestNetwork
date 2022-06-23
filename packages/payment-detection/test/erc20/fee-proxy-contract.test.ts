@@ -331,6 +331,31 @@ describe('api/erc20/fee-proxy-contract', () => {
       currencyManager,
     });
 
+    const mockExtractEvents = (eventName: any) => {
+      if (eventName !== 'payment') return Promise.resolve({ paymentEvents: [] });
+
+      return Promise.resolve({
+        paymentEvents: [
+          {
+            amount: '1000000000000000000',
+            name: 'payment',
+            parameters: {
+              to: '0x6d69c636c825263Aa71a3D86D32D0E4897a7a580',
+              txHash: '0xb3355cf69d9ef047b73ca13eb7aeb06ce5e5b8658a1baac9b2bc743190e65fda',
+              block: 10897333,
+              feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+              feeAmount: '1000000000000000',
+              gasUsed: '79220',
+              gasPrice: '1500000011',
+            },
+            timestamp: 1655912433,
+          },
+        ],
+        escrowEvents: [],
+      });
+    };
+    jest.spyOn(erc20FeeProxyContract as any, 'extractEvents').mockImplementation(mockExtractEvents);
+
     const balance = await erc20FeeProxyContract.getBalance(mockRequest);
 
     expect(balance.error).toBeUndefined();
