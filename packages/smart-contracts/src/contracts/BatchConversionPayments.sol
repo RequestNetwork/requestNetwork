@@ -53,7 +53,7 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
     batchConversionFee = 0;
   }
 
-  struct Token {
+  struct Path {
     address[] path;
     uint256 requestAmount;
     uint256 feeAmount;
@@ -77,71 +77,62 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
     RequestInfo[] calldata requestsInfo,
     address _feeAddress
   ) external {
-    // Create a list of unique tokens used and the amounts associated
-    // Only considere tokens having: amounts + feeAmounts > 0
+    // Create a list of unique paths used and the amounts associated
+    // Only considere paths having: amounts + feeAmounts > 0
     // batchFeeAmount is the amount's sum, and then, batch fee rate is applied
-    Token[] memory uniqueTokens = new Token[](requestsInfo.length);
+    Path[] memory uPaths = new Path[](requestsInfo.length);
     for (uint256 i = 0; i < requestsInfo.length; i++) {
       RequestInfo memory rI = requestsInfo[i];
       for (uint256 j = 0; j < requestsInfo.length; j++) {
-        // If the token is already in the existing uniqueTokens list
+        // If the Path is already in the existing uPaths list
         if (
-          uniqueTokens[j].path.length > 0 &&
-          uniqueTokens[j].path[0] == rI._path[0] &&
-          uniqueTokens[j].path[uniqueTokens[j].path.length - 1] == rI._path[rI._path.length - 1]
+          uPaths[j].path.length > 0 &&
+          keccak256(abi.encodePacked(uPaths[j].path)) == keccak256(abi.encodePacked(rI._path))
         ) {
-          uniqueTokens[j].requestAmount += rI._requestAmount;
-          uniqueTokens[j].feeAmount += rI._feeAmount;
-          uniqueTokens[j].maxToSpend += rI._maxToSpend;
+          uPaths[j].requestAmount += rI._requestAmount;
+          uPaths[j].feeAmount += rI._feeAmount;
+          uPaths[j].maxToSpend += rI._maxToSpend;
           // Keep the lowest maxRateTimespan, above 0
-          if (rI._maxRateTimespan > 0 && uniqueTokens[j].maxRateTimespan > rI._maxRateTimespan) {
-            uniqueTokens[j].maxRateTimespan = rI._maxRateTimespan;
+          if (rI._maxRateTimespan > 0 && uPaths[j].maxRateTimespan > rI._maxRateTimespan) {
+            uPaths[j].maxRateTimespan = rI._maxRateTimespan;
           }
           break;
         }
-        // If the token is not in the list
-        if (
-          (uniqueTokens[j].requestAmount + uniqueTokens[j].feeAmount) == 0 &&
+        // Else if the path is not in the list, and the invoice has an amount > 0
+        else if (
+          (uPaths[j].requestAmount + uPaths[j].feeAmount) == 0 &&
           (rI._requestAmount + rI._feeAmount) > 0
         ) {
-          uniqueTokens[j].path = rI._path;
-          uniqueTokens[j].requestAmount += rI._requestAmount;
-          uniqueTokens[j].feeAmount += rI._feeAmount;
-          uniqueTokens[j].maxToSpend = rI._maxToSpend;
-          uniqueTokens[j].maxRateTimespan = rI._maxRateTimespan;
+          uPaths[j].path = rI._path;
+          uPaths[j].requestAmount += rI._requestAmount;
+          uPaths[j].feeAmount += rI._feeAmount;
+          uPaths[j].maxToSpend = rI._maxToSpend;
+          uPaths[j].maxRateTimespan = rI._maxRateTimespan;
           break;
         }
       }
     }
-    // IERC20 requestedTokenEEE = IERC20(requestsInfo[0]._path[requestsInfo[0]._path.length - 1]);
-    // require(
-    //     requestedTokenEEE.allowance(msg.sender, address(this)) <
-    //       requestsInfo[0]._maxToSpend,
-    //     'Not sufficient allowance for batch to pay EEE2'
-    //   );
 
-    // require sum(amountToPay) + sum(amountToPayInFees) + sum(amountToPayInBatchFees) <= sum(_maxToSpend)
-    // uint256 aa = 6;
-
-    // todo:&& (uniqueTokens[i].requestAmount + uniqueTokens[i].feeAmount) > 0 , is it useful???
+    // todo:&& (uPaths[i].requestAmount + uPaths[i].feeAmount) > 0 , is it useful???
     // The payer transfers tokens to the batch contract and pays batch fee
     for (
       uint256 i = 0;
-      i < uniqueTokens.length && (uniqueTokens[i].requestAmount + uniqueTokens[i].feeAmount) > 0;
+      i < uPaths.length && (uPaths[i].requestAmount + uPaths[i].feeAmount) > 0;
       i++
     ) {
-      Token memory uT = uniqueTokens[i];
-      // can call getConversions to make sure maxRateTimespan is OK. one fail would revert everything
+      Path memory uP = uPaths[i];
+      // call getConversions to make sure maxRateTimespan is OK. one fail would revert everything
+      // caution: Solidity division rounds down to the nearest integer.
+      //          for one path, the amountToPay is >= sum(amountToPayByInvoice),
       (uint256 amountToPay, uint256 amountToPayInFees) = getConversions(
-        uT.path,
-        uT.requestAmount,
-        uT.feeAmount,
-        uT.maxRateTimespan
+        uP.path,
+        uP.requestAmount,
+        uP.feeAmount,
+        uP.maxRateTimespan
       );
 
       // Transfer the amount and fee from the payer to the batch contract
-      IERC20 requestedToken = IERC20(uT.path[uT.path.length - 1]);
-
+      IERC20 requestedToken = IERC20(uP.path[uP.path.length - 1]);
       require(
         requestedToken.allowance(msg.sender, address(this)) >= amountToPay + amountToPayInFees,
         'Not sufficient allowance for batch to pay'
@@ -155,27 +146,27 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
           ((amountToPay + amountToPayInFees) * (1000 + batchConversionFee)) / 1000,
         'not enough funds to pay batchConversionFee'
       );
-
       require(
         safeTransferFrom(
-          uT.path[uT.path.length - 1],
+          uP.path[uP.path.length - 1],
           address(this),
-          (amountToPay + amountToPayInFees)
+          amountToPay + amountToPayInFees
         ),
         'payment transferFrom() failed'
       );
+
       // Batch contract approves Erc20ConversionProxy to spend the token
       if (
         requestedToken.allowance(address(this), address(paymentProxy)) <
         amountToPay + amountToPayInFees
       ) {
-        approvePaymentProxyToSpend(uT.path[uT.path.length - 1]);
+        approvePaymentProxyToSpend(uP.path[uP.path.length - 1]);
       }
 
       // Payer pays batch fee amount
       require(
         safeTransferFrom(
-          uT.path[uT.path.length - 1],
+          uP.path[uP.path.length - 1],
           _feeAddress,
           (amountToPay * batchConversionFee) / 1000
         ),
@@ -184,7 +175,6 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
     }
 
     // Transfer only the amount and fee required for the token on the batch conversion contract
-
     // Batch Conversion contract pays the requests using Erc20ConversionFeeProxy
     for (uint256 i = 0; i < requestsInfo.length; i++) {
       RequestInfo memory rI = requestsInfo[i];
@@ -199,11 +189,45 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
         rI._maxRateTimespan
       );
     }
+    /**
+    TODO
+    - use getRate once by path
+    - apply it on each invoice and then sum it get the amountToPay and fee
+    - transfer this amount and check tests
+     */
 
-    // TODO : do we need to send back some token? (because of maxToSpend vs reality...)
-    // for (uint256 i = 0; i < uniqueTokens.length && (uniqueTokens[i].requestAmount + uniqueTokens[i].feeAmount) > 0; i++) {
-    //   // todo
+    // // TODO : do we need to send back some token? (because of maxToSpend vs reality...)
+    // for (uint256 i = 0; i < uPaths.length && (uPaths[i].requestAmount + uPaths[i].feeAmount) > 0; i++) {
+    //   IERC20 requestedToken = IERC20(uPaths[i].path[uPaths[i].path.length - 1]);
+    //   // if (requestedToken.balanceOf(msg.sender) >= 0) {
+    //     // TODO NOW: call to send back
+    //     // require(
+    //     // safeTransferFrom(
+    //     //   uPaths[i].path[uPaths[i].path.length - 1],
+    //     //   _feeAddress,
+    //     //   (amountToPay * batchConversionFee) / 1000
+    //     // ),
+    //   //   'batch conversion fee transferFrom() failed'
+    //   // );
+    //   }
     // }
+  }
+
+  function getRate(address[] memory _path, uint256 _maxRateTimespan)
+    internal
+    view
+    returns (uint256, uint256)
+  {
+    (uint256 rate, uint256 oldestTimestampRate, uint256 decimals) = chainlinkConversionPath.getRate(
+      _path
+    );
+
+    // Check rate timespan
+    require(
+      _maxRateTimespan == 0 || block.timestamp - oldestTimestampRate <= _maxRateTimespan,
+      'aggregator rate is outdated'
+    );
+    return (rate, decimals);
   }
 
   function getConversions(
@@ -235,8 +259,6 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
     erc20.safeApprove(address(paymentProxy), max);
-    // todo correct here
-    // erc20.safeApprove(address(0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35), max);
   }
 
   /**

@@ -10,6 +10,7 @@ export async function deployBatchConversionPayment(
   hre: HardhatRuntimeEnvironment,
 ): Promise<any> {
   try {
+    console.log('start BatchConversionPayments');
     const _chainlinkConversionPath = '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c';
     const _paymentErc20ConversionFeeProxy = '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E';
 

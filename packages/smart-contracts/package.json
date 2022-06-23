@@ -51,7 +51,8 @@
     "test:lib": "yarn jest test/lib",
     "compile": "yarn hardhat compile",
     "testp": "yarn test test/contracts/BatchErc20ConversionProxy.test.ts",
-    "testcp": "yarn compile && yarn testp"
+    "testcp": "yarn compile && yarn testp",
+    "redeploy": "yarn clean && yarn build && yarn deploy"
   },
   "dependencies": {
     "tslib": "2.3.1"
