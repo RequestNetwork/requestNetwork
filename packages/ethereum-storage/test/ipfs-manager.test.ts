@@ -14,7 +14,7 @@ const invalidHostIpfsGatewayConnection: StorageTypes.IIpfsGatewayConnection = {
   host: 'nonexistent',
   port: 5001,
   protocol: StorageTypes.IpfsGatewayProtocol.HTTP,
-  timeout: 1000,
+  timeout: 1500,
 };
 
 const testErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration = {
@@ -76,24 +76,24 @@ describe('Ipfs manager', () => {
   it('allows to pin one file ipfs', async () => {
     await ipfsManager.add(content);
     const pinnedHash = await ipfsManager.pin([hash]);
-    expect(hash).toBe(pinnedHash[0]);
+    expect(pinnedHash[0]).toBe(hash);
   });
 
   it('allows to pin multiple files to ipfs', async () => {
     await ipfsManager.add(content);
     await ipfsManager.add(content2);
     const pinnedHashes = await ipfsManager.pin([hash, hash2]);
-    expect([hash, hash2]).toMatchObject(pinnedHashes);
+    expect(pinnedHashes).toMatchObject([hash, hash2]);
   });
 
   it('allows to read files from ipfs', async () => {
     await ipfsManager.add(content);
     let contentReturned = await ipfsManager.read(hash, 36);
-    expect(content).toBe(contentReturned.content);
+    expect(contentReturned.content).toBe(content);
 
     await ipfsManager.add(content2);
     contentReturned = await ipfsManager.read(hash2);
-    expect(content2).toBe(contentReturned.content);
+    expect(contentReturned.content).toBe(content2);
   });
 
   it('must throw if max size reached', async () => {
@@ -108,11 +108,11 @@ describe('Ipfs manager', () => {
   it('allows to get file size from ipfs', async () => {
     await ipfsManager.add(content);
     let sizeReturned = await ipfsManager.getContentLength(hash);
-    expect(contentLengthOnIpfs).toEqual(sizeReturned);
+    expect(sizeReturned).toEqual(contentLengthOnIpfs);
 
     await ipfsManager.add(content2);
     sizeReturned = await ipfsManager.getContentLength(hash2);
-    expect(contentLengthOnIpfs2).toEqual(sizeReturned);
+    expect(sizeReturned).toEqual(contentLengthOnIpfs2);
   });
 
   it('operations with a invalid host network should throw ENOTFOUND errors', async () => {
@@ -149,7 +149,7 @@ describe('Ipfs manager', () => {
     expect(axiosInstanceMock.history.post.length).toBe(retryTestErrorHandling.maxRetries + 1);
   });
 
-  it('timeout errors should not generate any retry', async () => {
+  it('timeout errors should generate retry', async () => {
     ipfsManager = new IpfsManager({
       ipfsGatewayConnection: { ...ipfsGatewayConnection, timeout: 1 },
       ipfsErrorHandling: retryTestErrorHandling,
@@ -158,8 +158,7 @@ describe('Ipfs manager', () => {
     const axiosInstanceMock = new MockAdapter(axiosInstance);
     axiosInstanceMock.onAny().timeout();
     await expect(ipfsManager.add('test')).rejects.toThrowError('timeout of 1ms exceeded');
-    // only one request should have been sent, no retry should happen on timeouts
-    expect(axiosInstanceMock.history.post.length).toBe(1);
+    expect(axiosInstanceMock.history.post.length).toBe(retryTestErrorHandling.maxRetries + 1);
   });
 
   it('added and read files should have the same size and content', async () => {

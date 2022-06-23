@@ -1,12 +1,23 @@
 import { UnixFS } from 'ipfs-unixfs';
 import * as qs from 'qs';
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import Utils from '@requestnetwork/utils';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { getDefaultIpfs, getIpfsErrorHandlingConfig } from './config';
-import axiosRetry from 'axios-retry';
 import * as FormData from 'form-data';
+
+/** A mapping between IPFS Paths and the response type */
+type IpfsPaths = {
+  id: string;
+  add: { Hash: string };
+  'object/get':
+    | { Type: 'error'; Message: string }
+    | { Type: undefined; Data: string; Links: string[] };
+  'object/stat': { DataSize: number };
+  'pin/add': { Pins: string[] };
+  'bootstrap/list': { Peers: string[] };
+};
 
 /**
  * Manages Ipfs communication used as storage
@@ -17,14 +28,7 @@ export default class IpfsManager {
   private readonly ipfsGatewayConnection: StorageTypes.IIpfsGatewayConnection;
   private readonly ipfsErrorHandling: StorageTypes.IIpfsErrorHandlingConfiguration;
 
-  public readonly IPFS_API_ADD: string = '/api/v0/add';
-  public readonly IPFS_API_CAT: string = '/api/v0/object/get';
-  public readonly IPFS_API_STAT: string = '/api/v0/object/stat';
-  public readonly IPFS_API_CONNECT_SWARM: string = '/api/v0/swarm/connect';
-
-  public readonly IPFS_API_ID: string = '/api/v0/id';
-  public readonly IPFS_API_PIN: string = '/api/v0/pin/add';
-  public readonly IPFS_API_BOOTSTRAP_LIST: string = '/api/v0/bootstrap/list';
+  public readonly BASE_PATH: string = 'api/v0';
 
   /**
    * Constructor
@@ -42,17 +46,33 @@ export default class IpfsManager {
     this.ipfsGatewayConnection = options?.ipfsGatewayConnection || getDefaultIpfs();
     this.ipfsErrorHandling = options?.ipfsErrorHandling || getIpfsErrorHandlingConfig();
     this.logger = options?.logger || new Utils.SimpleLogger();
+
     this.axiosInstance = axios.create({
-      baseURL: `${this.ipfsGatewayConnection.protocol}://${this.ipfsGatewayConnection.host}:${this.ipfsGatewayConnection.port}`,
+      baseURL: `${this.ipfsGatewayConnection.protocol}://${this.ipfsGatewayConnection.host}:${this.ipfsGatewayConnection.port}/${this.BASE_PATH}/`,
       timeout: this.ipfsGatewayConnection.timeout,
       paramsSerializer: function (params) {
         return qs.stringify(params, { arrayFormat: 'repeat' });
       },
     });
-    axiosRetry(this.axiosInstance, {
-      retries: this.ipfsErrorHandling.maxRetries,
-      retryDelay: () => this.ipfsErrorHandling.delayBetweenRetries,
+  }
+
+  private async ipfs<T extends keyof IpfsPaths>(path: T, config?: AxiosRequestConfig) {
+    const _post = Utils.retry(this.axiosInstance.post, {
+      context: this.axiosInstance,
+      maxRetries: this.ipfsErrorHandling.maxRetries,
+      retryDelay: this.ipfsErrorHandling.delayBetweenRetries,
     });
+    try {
+      const { data, ...rest } = config || {};
+      const response = await _post<IpfsPaths[T]>(path, data, rest);
+      return response.data;
+    } catch (e) {
+      const axiosError = e as AxiosError<{ Message?: string }>;
+      if (axiosError.isAxiosError && axiosError.response?.data?.Message) {
+        throw new Error(axiosError.response.data.Message);
+      }
+      throw e;
+    }
   }
 
   /**
@@ -61,8 +81,7 @@ export default class IpfsManager {
    */
   public async getIpfsNodeId(): Promise<string> {
     try {
-      const response = await this.axiosInstance.post(this.IPFS_API_ID);
-      return response.data;
+      return await this.ipfs('id');
     } catch (e) {
       this.logger.error(`Failed to retrieve IPFS node ID: ${e.message}`, ['ipfs']);
       throw e;
@@ -78,11 +97,12 @@ export default class IpfsManager {
     try {
       const addForm = new FormData();
       addForm.append('file', Buffer.from(content));
-      const response = await this.axiosInstance.post(this.IPFS_API_ADD, addForm, {
+      const response = await this.ipfs('add', {
+        data: addForm,
         headers: addForm.getHeaders(),
       });
       // Return the hash of the response
-      const hash = response.data.Hash;
+      const hash = response.Hash;
       if (!hash) {
         throw new Error('response has no Hash field');
       }
@@ -115,17 +135,17 @@ export default class IpfsManager {
         const base64StringMaxLength = ((4 * maxSize) / 3 + 3) & ~3; // https://stackoverflow.com/a/32140193/16270345
         maxSize = base64StringMaxLength + jsonMetadataSize;
       }
-      const response: AxiosResponse = await this.axiosInstance.post(this.IPFS_API_CAT, {
+      const response = await this.ipfs('object/get', {
         params: { arg: hash, 'data-encoding': 'base64' },
         maxContentLength: maxSize,
       });
-      if (response.data.Type === 'error') {
-        throw new Error(response.data.Message);
+      if (response.Type === 'error') {
+        throw new Error(response.Message);
       }
-      const ipfsDataBuffer = Buffer.from(response.data.Data, 'base64');
+      const ipfsDataBuffer = Buffer.from(response.Data, 'base64');
       const content = IpfsManager.getContentFromMarshaledData(ipfsDataBuffer);
       const ipfsSize = ipfsDataBuffer.length;
-      const ipfsLinks = response.data.Links;
+      const ipfsLinks = response.Links;
       return { content, ipfsSize, ipfsLinks };
     } catch (e) {
       this.logger.error(`Failed to read IPFS file: ${e.message}`, ['ipfs']);
@@ -141,11 +161,11 @@ export default class IpfsManager {
    */
   public async pin(hashes: string[], timeout?: number): Promise<string[]> {
     try {
-      const response = await this.axiosInstance.post(this.IPFS_API_PIN, {
+      const response = await this.ipfs('pin/add', {
         params: { arg: hashes },
         timeout,
       });
-      const pins = response.data.Pins;
+      const pins = response.Pins;
       if (!pins) {
         throw new Error('Ipfs pin request response has no Pins field');
       }
@@ -163,12 +183,12 @@ export default class IpfsManager {
    */
   public async getContentLength(hash: string): Promise<number> {
     try {
-      const response = await this.axiosInstance.post(this.IPFS_API_STAT, { params: { arg: hash } });
-      const length = response.data.DataSize;
+      const response = await this.ipfs('object/stat', { params: { arg: hash } });
+      const length = response.DataSize;
       if (!length) {
         throw new Error('Ipfs stat request response has no DataSize field');
       }
-      return parseInt(length, 10);
+      return length;
     } catch (e) {
       this.logger.error(`Failed to retrieve IPFS file size: ${e.message}`, ['ipfs']);
       throw e;
@@ -181,8 +201,8 @@ export default class IpfsManager {
    */
   public async getBootstrapList(): Promise<string[]> {
     try {
-      const response = await this.axiosInstance.post(this.IPFS_API_BOOTSTRAP_LIST);
-      const peers = response.data.Peers;
+      const response = await this.ipfs('bootstrap/list');
+      const peers = response.Peers;
       if (!peers) {
         throw new Error('Ipfs bootstrap list request response has no Peers field');
       }
