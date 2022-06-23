@@ -310,7 +310,6 @@ describe('api/erc20/fee-proxy-contract', () => {
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
-            // refundAddress: '0xrefundAddress',
             feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
             feeAmount: '1000000000000000',
             paymentAddress: '0x6d69c636c825263Aa71a3D86D32D0E4897a7a580',
