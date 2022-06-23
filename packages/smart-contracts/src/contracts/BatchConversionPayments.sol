@@ -194,6 +194,7 @@ contract BatchConversionPayments is Ownable, ReentrancyGuard {
     - use getRate once by path
     - apply it on each invoice and then sum it get the amountToPay and fee
     - transfer this amount and check tests
+    .
      */
 
     // // TODO : do we need to send back some token? (because of maxToSpend vs reality...)
