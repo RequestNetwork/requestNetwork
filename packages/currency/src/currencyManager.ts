@@ -53,8 +53,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Gets a supported currency from a symbol, symbol-network, currency definition id or address.
    *
-   * @param currencyIdentifier e.g. 'DAI', 'FAU', 'FAU-rinkeby', 'ETH-rinkeby-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
-   * @param network e.g. rinkeby, mainnet
+   * @param currencyIdentifier e.g. 'DAI', 'FAU', 'FAU-rinkeby', 'FAU-rinkeby', 'ETH-rinkeby-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
+   * @param network e.g. rinkeby, goerli, mainnet
    */
   from(
     currencyIdentifier: string | undefined,
@@ -70,7 +70,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     const parts = currencyIdentifier.split('-');
     const currencyFromSymbol =
       this.fromSymbol(parts[0], network || parts[1]) ||
-      // try without splitting the symbol to support currencies like ETH-rinkeby
+      // try without splitting the symbol to support currencies like ETH-rinkeby, ETH-goerli
       this.fromSymbol(currencyIdentifier, network);
 
     if (currencyFromSymbol) {
