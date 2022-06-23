@@ -146,7 +146,7 @@ describe('Ipfs manager', () => {
     const axiosInstanceMock = new MockAdapter(axiosInstance);
     axiosInstanceMock.onAny().networkError();
     await expect(ipfsManager.read(hash)).rejects.toThrowError('Network Error');
-    expect(axiosInstanceMock.history.get.length).toBe(retryTestErrorHandling.maxRetries + 1);
+    expect(axiosInstanceMock.history.post.length).toBe(retryTestErrorHandling.maxRetries + 1);
   });
 
   it('timeout errors should not generate any retry', async () => {
