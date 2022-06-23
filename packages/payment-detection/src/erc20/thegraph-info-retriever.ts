@@ -47,7 +47,6 @@ export class TheGraphInfoRetriever {
     PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>
   > {
     const variables = this.getGraphVariables();
-    console.log('variables >>> ', variables);
     const paymentsAndEscrows = await this.client.GetPaymentsAndEscrowState(variables);
     const paymentEvents = paymentsAndEscrows.payments.map((p) => ({
       amount: p.amount,
@@ -76,11 +75,6 @@ export class TheGraphInfoRetriever {
       },
       timestamp: p.timestamp,
     }));
-
-    console.log('payload >>> ', {
-      paymentEvents: paymentEvents,
-      escrowEvents: escrowEvents,
-    });
 
     return {
       paymentEvents: paymentEvents,
