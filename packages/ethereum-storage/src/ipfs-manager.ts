@@ -61,7 +61,7 @@ export default class IpfsManager {
    */
   public async getIpfsNodeId(): Promise<string> {
     try {
-      const response = await this.axiosInstance.get(this.IPFS_API_ID);
+      const response = await this.axiosInstance.post(this.IPFS_API_ID);
       return response.data;
     } catch (e) {
       this.logger.error(`Failed to retrieve IPFS node ID: ${e.message}`, ['ipfs']);
@@ -115,7 +115,7 @@ export default class IpfsManager {
         const base64StringMaxLength = ((4 * maxSize) / 3 + 3) & ~3; // https://stackoverflow.com/a/32140193/16270345
         maxSize = base64StringMaxLength + jsonMetadataSize;
       }
-      const response: AxiosResponse = await this.axiosInstance.get(this.IPFS_API_CAT, {
+      const response: AxiosResponse = await this.axiosInstance.post(this.IPFS_API_CAT, {
         params: { arg: hash, 'data-encoding': 'base64' },
         maxContentLength: maxSize,
       });
@@ -141,7 +141,7 @@ export default class IpfsManager {
    */
   public async pin(hashes: string[], timeout?: number): Promise<string[]> {
     try {
-      const response = await this.axiosInstance.get(this.IPFS_API_PIN, {
+      const response = await this.axiosInstance.post(this.IPFS_API_PIN, {
         params: { arg: hashes },
         timeout,
       });
@@ -163,7 +163,7 @@ export default class IpfsManager {
    */
   public async getContentLength(hash: string): Promise<number> {
     try {
-      const response = await this.axiosInstance.get(this.IPFS_API_STAT, { params: { arg: hash } });
+      const response = await this.axiosInstance.post(this.IPFS_API_STAT, { params: { arg: hash } });
       const length = response.data.DataSize;
       if (!length) {
         throw new Error('Ipfs stat request response has no DataSize field');
@@ -181,7 +181,7 @@ export default class IpfsManager {
    */
   public async getBootstrapList(): Promise<string[]> {
     try {
-      const response = await this.axiosInstance.get(this.IPFS_API_BOOTSTRAP_LIST);
+      const response = await this.axiosInstance.post(this.IPFS_API_BOOTSTRAP_LIST);
       const peers = response.data.Peers;
       if (!peers) {
         throw new Error('Ipfs bootstrap list request response has no Peers field');
