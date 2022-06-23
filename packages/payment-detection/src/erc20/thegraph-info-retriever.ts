@@ -57,6 +57,8 @@ export class TheGraphInfoRetriever {
         block: p.block,
         feeAddress: p.feeAddress ? utils.getAddress(p.feeAddress) : undefined,
         feeAmount: p.feeAmount || undefined,
+        gasUsed: p.gasUsed,
+        gasPrice: p.gasPrice,
       },
       timestamp: p.timestamp,
     }));
@@ -68,9 +70,12 @@ export class TheGraphInfoRetriever {
         txHash: p.txHash,
         block: p.block,
         eventName: p.eventName,
+        gasUsed: p.gasUsed,
+        gasPrice: p.gasPrice,
       },
       timestamp: p.timestamp,
     }));
+
     return {
       paymentEvents: paymentEvents,
       escrowEvents: escrowEvents,

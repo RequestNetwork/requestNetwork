@@ -20,6 +20,8 @@ query GetPaymentsAndEscrowState(
     feeAmount
     feeAddress
     from
+    gasUsed
+    gasPrice
     timestamp
   }
   escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
@@ -28,5 +30,7 @@ query GetPaymentsAndEscrowState(
     from
     timestamp
     block
+    gasUsed
+    gasPrice
   }
 }
