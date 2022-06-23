@@ -47,6 +47,7 @@ export class TheGraphInfoRetriever {
     PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>
   > {
     const variables = this.getGraphVariables();
+    console.log('variables >>> ', variables);
     const paymentsAndEscrows = await this.client.GetPaymentsAndEscrowState(variables);
     const paymentEvents = paymentsAndEscrows.payments.map((p) => ({
       amount: p.amount,
@@ -57,6 +58,8 @@ export class TheGraphInfoRetriever {
         block: p.block,
         feeAddress: p.feeAddress ? utils.getAddress(p.feeAddress) : undefined,
         feeAmount: p.feeAmount || undefined,
+        gasUsed: p.gasUsed,
+        gasPrice: p.gasPrice,
       },
       timestamp: p.timestamp,
     }));
@@ -68,9 +71,17 @@ export class TheGraphInfoRetriever {
         txHash: p.txHash,
         block: p.block,
         eventName: p.eventName,
+        gasUsed: p.gasUsed,
+        gasPrice: p.gasPrice,
       },
       timestamp: p.timestamp,
     }));
+
+    console.log('payload >>> ', {
+      paymentEvents: paymentEvents,
+      escrowEvents: escrowEvents,
+    });
+
     return {
       paymentEvents: paymentEvents,
       escrowEvents: escrowEvents,
