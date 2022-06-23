@@ -9,7 +9,7 @@ import {
 
 /**
  * Updates the values of the batch fees of the BatchPayments contract, if needed
- * @param contractAddress address of the BatchPayment Proxy
+ * @param contractAddress address of the BatchPayments Proxy
  * @param hre Hardhat runtime environment
  */
 export const setupBatchPayments = async (
@@ -35,10 +35,11 @@ export const setupBatchPayments = async (
       const adminNonce = await signer.getTransactionCount();
       const gasPrice = await provider.getGasPrice();
 
+      // start to add 0 to the adminNonce, increase gasPrice if needed
       await Promise.all([
-        updateBatchPaymentFees(batchPaymentConnected, adminNonce + 0, gasPrice.mul(2)),
-        updatePaymentErc20FeeProxy(batchPaymentConnected, network, adminNonce + 1, gasPrice.mul(2)),
-        updatePaymentEthFeeProxy(batchPaymentConnected, network, adminNonce + 2, gasPrice.mul(2)),
+        updateBatchPaymentFees(batchPaymentConnected, adminNonce + 0, gasPrice),
+        updatePaymentErc20FeeProxy(batchPaymentConnected, network, adminNonce + 1, gasPrice),
+        updatePaymentEthFeeProxy(batchPaymentConnected, network, adminNonce + 2, gasPrice),
       ]);
     }),
   );

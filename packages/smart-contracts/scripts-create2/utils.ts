@@ -1,23 +1,17 @@
 import { Contract } from 'ethers';
 import * as artifacts from '../src/lib';
 
-/** TODO ODE before push :
- * - deploy on xdai: error network
- * - verify every contract
- * - clean utils... befor to merge
- * */
-
 /**
  * List of smart contract that we deploy using the CREATE2 scheme through the Request Deployer contract
  * By default all smart contracts from bellow will get deployed.
  * If you want to skip deploying one or more, then comment them out in the list bellow.
  */
 export const create2ContractDeploymentList = [
-  // 'EthereumProxy',
-  // 'EthereumFeeProxy',
-  // 'Erc20ConversionProxy',
-  // 'ERC20SwapToConversion',
-  // 'ERC20EscrowToPay',
+  'EthereumProxy',
+  'EthereumFeeProxy',
+  'Erc20ConversionProxy',
+  'ERC20SwapToConversion',
+  'ERC20EscrowToPay',
   'BatchPayments',
 ];
 

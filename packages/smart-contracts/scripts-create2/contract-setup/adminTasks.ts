@@ -90,6 +90,8 @@ export const updatePaymentEthFeeProxy = async (
   const ethereumFeeProxyAddress = ethereumFeeProxy.getAddress(network);
   const currentAddress = await contract.paymentEthFeeProxy();
   if (currentAddress !== ethereumFeeProxyAddress) {
+    console.log('currentAddress', currentAddress);
+    console.log('ethereumFeeProxyAddress', ethereumFeeProxyAddress);
     await contract.setPaymentEthFeeProxy(ethereumFeeProxyAddress, {
       nonce: nonce,
       gasPrice: gasPrice,
