@@ -8,7 +8,7 @@ export interface IIdentity {
 
 /** Identity for Ethereum Smart contract */
 export interface ISmartContractIdentity extends IIdentity {
-  // The smart contract network (e.g.: 'mainnet', 'rinkeby', 'bank_sandbox')
+  // The smart contract network (e.g.: 'mainnet', 'goerli', 'rinkeby', 'bank_sandbox')
   network?: string;
 }
 
