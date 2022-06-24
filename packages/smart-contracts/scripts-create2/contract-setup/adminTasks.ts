@@ -71,8 +71,6 @@ export const updatePaymentErc20FeeProxy = async (
   const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
   const currentAddress = await contract.paymentErc20FeeProxy();
   if (currentAddress !== erc20FeeProxyAddress) {
-    console.log('currentAddress', currentAddress);
-    console.log('erc20FeeProxyAddress', erc20FeeProxyAddress);
     await contract.setPaymentErc20FeeProxy(erc20FeeProxyAddress, {
       nonce: nonce,
       gasPrice: gasPrice,
@@ -90,8 +88,6 @@ export const updatePaymentEthFeeProxy = async (
   const ethereumFeeProxyAddress = ethereumFeeProxy.getAddress(network);
   const currentAddress = await contract.paymentEthFeeProxy();
   if (currentAddress !== ethereumFeeProxyAddress) {
-    console.log('currentAddress', currentAddress);
-    console.log('ethereumFeeProxyAddress', ethereumFeeProxyAddress);
     await contract.setPaymentEthFeeProxy(ethereumFeeProxyAddress, {
       nonce: nonce,
       gasPrice: gasPrice,

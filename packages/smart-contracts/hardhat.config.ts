@@ -44,6 +44,9 @@ const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
   ? LIVE_DEPLOYER_ADDRESS
   : LOCAL_DEPLOYER_ADDRESS;
 
+const url = (network: string): string =>
+  process.env.WEB3_PROVIDER_URL || utils.networkRpcs[network];
+
 export default {
   solidity: '0.8.9',
   paths: {
@@ -67,52 +70,52 @@ export default {
       accounts,
     },
     matic: {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.matic,
+      url: url,
       chainId: 137,
       accounts,
     },
     celo: {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.celo,
+      url: url,
       chainId: 42220,
       accounts,
     },
     bsctest: {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.bsctest,
+      url: url,
       chainId: 97,
       accounts,
     },
     bsc: {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.bsc,
+      url: url,
       chainId: 56,
       accounts,
     },
     xdai: {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.xdai,
+      url: url,
       chainId: 100,
       accounts,
     },
     fuse: {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.fuse,
+      url: url,
       chainId: 122,
       accounts,
     },
     fantom: {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.fantom,
+      url: url,
       chainId: 250,
       accounts,
     },
     'arbitrum-one': {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs['arbitrum-one'],
+      url: url,
       chainId: 42161,
       accounts,
     },
     'arbitrum-rinkeby': {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs['arbitrum-rinkeby'],
+      url: url,
       chainId: 421611,
       accounts,
     },
     avalanche: {
-      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.avalanche,
+      url: url,
       chainId: 43114,
       accounts,
     },
