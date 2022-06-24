@@ -35,7 +35,7 @@ export const setupBatchPayments = async (
       const adminNonce = await signer.getTransactionCount();
       const gasPrice = await provider.getGasPrice();
 
-      // start to add 0 to the adminNonce, increase gasPrice if needed
+      // start from the adminNonce, increase gasPrice if needed
       await Promise.all([
         updateBatchPaymentFees(batchPaymentConnected, adminNonce + 0, gasPrice),
         updatePaymentErc20FeeProxy(batchPaymentConnected, network, adminNonce + 1, gasPrice),
