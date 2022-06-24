@@ -21,7 +21,6 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
           address: '0xEbe28A2B7336670Ba752bfEad4a121D2c4FF2464',
           creationBlockNumber: 10461945,
         },
-        // FIXME: add goerli version
         goerli: {
           address: '0xB6f943d324a70B2883aE890089433345feCe8Be4',
           creationBlockNumber: 7091487,

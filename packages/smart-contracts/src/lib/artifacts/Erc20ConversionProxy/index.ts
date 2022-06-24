@@ -23,8 +23,8 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           creationBlockNumber: 8014584,
         },
         goerli: {
-          address: '0x493d6cBeE0142c73eE5461fA92CaC94e3e75df62',
-          creationBlockNumber: 7091387,
+          address: '0xdc81d17177353A429AcB29587656686d86Ea3816',
+          creationBlockNumber: 7109163,
         },
         matic: {
           address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
