@@ -13,6 +13,7 @@ import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
 import { VerifyCreate2FromList } from './scripts-create2/verify-one';
 import { deployWithCreate2FromList } from './scripts-create2/deploy-one';
+import utils from '@requestnetwork/utils';
 
 config();
 
@@ -66,52 +67,52 @@ export default {
       accounts,
     },
     matic: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://polygon-rpc.com',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.matic,
       chainId: 137,
       accounts,
     },
     celo: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://forno.celo.org',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.celo,
       chainId: 42220,
       accounts,
     },
     bsctest: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://data-seed-prebsc-1-s1.binance.org:8545',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.bsctest,
       chainId: 97,
       accounts,
     },
     bsc: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://bsc-dataseed1.binance.org',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.bsc,
       chainId: 56,
       accounts,
     },
     xdai: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://gnosis-mainnet.public.blastapi.io',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.xdai,
       chainId: 100,
       accounts,
     },
     fuse: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://rpc.fuse.io',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.fuse,
       chainId: 122,
       accounts,
     },
     fantom: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://rpcapi.fantom.network',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.fantom,
       chainId: 250,
       accounts,
     },
     'arbitrum-one': {
-      url: process.env.WEB3_PROVIDER_URL || 'https://arb1.arbitrum.io/rpc',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs['arbitrum-one'],
       chainId: 42161,
       accounts,
     },
     'arbitrum-rinkeby': {
-      url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.arbitrum.io/rpc',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs['arbitrum-rinkeby'],
       chainId: 421611,
       accounts,
     },
     avalanche: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://api.avax.network/ext/bc/C/rpc',
+      url: process.env.WEB3_PROVIDER_URL || utils.networkRpcs.avalanche,
       chainId: 43114,
       accounts,
     },
