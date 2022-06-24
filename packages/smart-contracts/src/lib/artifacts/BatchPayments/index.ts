@@ -14,8 +14,8 @@ export const batchPaymentsArtifact = new ContractArtifact<BatchPayments>(
           creationBlockNumber: 0,
         },
         rinkeby: {
-          address: '0xfeE3f8937Ca62DA486a4E067Ed11aA6Bc6B21b4B',
-          creationBlockNumber: 10732960,
+          address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
+          creationBlockNumber: 10857190,
         },
         mainnet: {
           address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
@@ -37,10 +37,10 @@ export const batchPaymentsArtifact = new ContractArtifact<BatchPayments>(
           address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
           creationBlockNumber: 22438505,
         },
-        // bsc: {
-        //   address: '',
-        //   creationBlockNumber: ,
-        // },
+        bsc: {
+          address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
+          creationBlockNumber: 18772049,
+        },
         fantom: {
           address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
           creationBlockNumber: 39541135,
@@ -49,10 +49,10 @@ export const batchPaymentsArtifact = new ContractArtifact<BatchPayments>(
           address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
           creationBlockNumber: 13425347,
         },
-        // avalanche: {
-        //   address: '',
-        //   creationBlockNumber: ,
-        // },
+        avalanche: {
+          address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
+          creationBlockNumber: 16157128,
+        },
       },
     },
   },
