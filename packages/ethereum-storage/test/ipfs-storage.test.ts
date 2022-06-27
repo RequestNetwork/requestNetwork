@@ -93,11 +93,10 @@ describe('IPFS Storage', () => {
     });
 
     await ipfsStorage.pinDataToIPFS([hash1]);
-    expect(
-      warnLogMock,
-    ).toHaveBeenCalledWith('Failed pinning some hashes the IPFS node: Error: expected error', [
-      'ipfs',
-    ]);
+    expect(warnLogMock).toHaveBeenCalledWith(
+      'Failed pinning some hashes the IPFS node: Error: expected error',
+      ['ipfs'],
+    );
   });
 
   describe('compareBootstrapNodes', () => {
