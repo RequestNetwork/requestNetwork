@@ -375,15 +375,15 @@ describe('CurrencyManager', () => {
             network: 'goerli',
           }),
         ).toMatchObject({ id: 'ETH-goerli-goerli' });
+      });
 
-        it('can access fiat currencies from storage format', () => {
-          expect(
-            currencyManager.fromStorageCurrency({
-              type: RequestLogicTypes.CURRENCY.ISO4217,
-              value: 'EUR',
-            }),
-          ).toMatchObject({ id: 'EUR' });
-        });
+      it('can access fiat currencies from storage format', () => {
+        expect(
+          currencyManager.fromStorageCurrency({
+            type: RequestLogicTypes.CURRENCY.ISO4217,
+            value: 'EUR',
+          }),
+        ).toMatchObject({ id: 'EUR' });
       });
     });
 
