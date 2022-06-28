@@ -21,6 +21,9 @@ describe('Ethereum Utils', () => {
       expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY)).toBe(
         'rinkeby',
       );
+      expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.GOERLI)).toBe(
+        'goerli',
+      );
       expect(EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.SOKOL)).toBe(
         'sokol',
       );
@@ -47,6 +50,9 @@ describe('Ethereum Utils', () => {
       );
       expect(EthereumUtils.getEthereumIdFromNetworkName('rinkeby')).toBe(
         StorageTypes.EthereumNetwork.RINKEBY,
+      );
+      expect(EthereumUtils.getEthereumIdFromNetworkName('goerli')).toBe(
+        StorageTypes.EthereumNetwork.GOERLI,
       );
       expect(EthereumUtils.getEthereumIdFromNetworkName('sokol')).toBe(
         StorageTypes.EthereumNetwork.SOKOL,

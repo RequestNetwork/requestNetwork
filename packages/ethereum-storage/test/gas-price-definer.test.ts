@@ -16,7 +16,7 @@ describe('GasPriceDefiner', () => {
   });
 
   describe('getGasPrice', () => {
-    it('returns default gas price from config if network has no provider', async () => {
+    it('returns default gas price from config if network has no provider (Rinkeby)', async () => {
       gasPriceDefiner.gasPriceProviderList = {
         [StorageTypes.EthereumNetwork.MAINNET]: [
           { getGasPrice: () => Promise.resolve(BigNumber.from(1)) },
@@ -25,6 +25,20 @@ describe('GasPriceDefiner', () => {
       const gasPrice = await gasPriceDefiner.getGasPrice(
         StorageTypes.GasPriceType.STANDARD,
         EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.RINKEBY),
+      );
+
+      expect(gasPrice).toEqual(config.getDefaultEthereumGasPrice());
+    });
+
+    it('returns default gas price from config if network has no provider (Goerli)', async () => {
+      gasPriceDefiner.gasPriceProviderList = {
+        [StorageTypes.EthereumNetwork.MAINNET]: [
+          { getGasPrice: () => Promise.resolve(BigNumber.from(1)) },
+        ],
+      };
+      const gasPrice = await gasPriceDefiner.getGasPrice(
+        StorageTypes.GasPriceType.STANDARD,
+        EthereumUtils.getEthereumNetworkNameFromId(StorageTypes.EthereumNetwork.GOERLI),
       );
 
       expect(gasPrice).toEqual(config.getDefaultEthereumGasPrice());

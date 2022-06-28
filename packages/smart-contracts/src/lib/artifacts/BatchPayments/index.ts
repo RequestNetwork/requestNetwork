@@ -17,6 +17,10 @@ export const batchPaymentsArtifact = new ContractArtifact<BatchPayments>(
           address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
           creationBlockNumber: 10857190,
         },
+        goerli: {
+          address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
+          creationBlockNumber: 7091488,
+        },
         mainnet: {
           address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
           creationBlockNumber: 14884721,

@@ -41,6 +41,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 | ------- | ------------------------------------------ |
 | Mainnet | TODO                                       |
 | Rinkeby | 0xC6E23a20C0a1933ACC8E30247B5D1e2215796C1F |
+| Goerli  | TODO ..................................... |
 | Private | 0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241 |
 
 ## Properties

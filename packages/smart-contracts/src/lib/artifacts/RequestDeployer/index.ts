@@ -21,10 +21,16 @@ export const requestDeployer = new ContractArtifact<RequestDeployer>(
           address: '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2',
           creationBlockNumber: 10307305,
         },
+        goerli: {
+          address: '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2',
+          creationBlockNumber: 7068867,
+        },
+        // FIXME: add goerli version
         'arbitrum-rinkeby': {
           address: '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2',
           creationBlockNumber: 10382055,
         },
+        // FIXME: add goerli version
         'arbitrum-one': {
           address: '0xE99Ab70a5FAE59551544FA326fA048f7B95A24B2',
           creationBlockNumber: 7933954,

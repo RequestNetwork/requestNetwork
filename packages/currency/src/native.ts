@@ -81,7 +81,7 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       name: 'Near Testnet',
       network: 'aurora-testnet',
     },
-    // TODO: Add arbitrum-goerli under a new symbol or directly replace arbitrum-rinkeby
+    // FIXME: Add arbitrum-goerli under a new symbol or directly replace arbitrum-rinkeby
     {
       symbol: 'ARETH',
       decimals: 18,

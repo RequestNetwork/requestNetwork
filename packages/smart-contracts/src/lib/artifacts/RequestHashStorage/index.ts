@@ -21,6 +21,7 @@ export const requestHashStorageArtifact = new ContractArtifact<RequestHashStorag
           address: '0x309a3a9898f9cafc26499243a980992156671e5e',
           creationBlockNumber: 4742809,
         },
+        // FIXME: add goerli version
         xdai: {
           address: '0x2256938E8225a998C498bf86B43c1768EE14b90B',
           creationBlockNumber: 15193752,

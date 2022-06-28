@@ -69,6 +69,21 @@ const testCasesPerNetwork: Record<string, Record<string, Partial<CurrencyDefinit
       network: 'rinkeby',
     },
   },
+  goerli: {
+    'ETH-goerli': { symbol: 'ETH-goerli', network: 'goerli' },
+    TST: {
+      address: '0x7af963cF6D228E564e2A0aA0DdBF06210B38615D',
+      decimals: 18,
+      symbol: 'TST',
+      network: 'goerli',
+    },
+    'FAU-goerli': {
+      address: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc',
+      decimals: 18,
+      symbol: 'FAU-goerli',
+      network: 'goerli',
+    },
+  },
   bitcoin: {
     BTC: { symbol: 'BTC' },
     'BTC-testnet': { symbol: 'BTC-testnet', network: 'testnet' },

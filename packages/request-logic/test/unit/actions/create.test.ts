@@ -304,17 +304,41 @@ describe('CreateAction', () => {
       expect(actionCreation.data.parameters.payee.value).toBe(TestData.payeeRaw.address);
     });
 
-    it('cannot create with a smartcontract', () => {
+    it('cannot create with a smartcontract (Rinkeby)', () => {
       expect(() =>
         CreateAction.format(
           {
             currency: {
               type: RequestLogicTypes.CURRENCY.ETH,
+              // FIXME: ETH-rinkeby?
               value: 'ETH',
             },
             expectedAmount: TestData.arbitraryExpectedAmount,
             payee: {
               network: 'rinkeby',
+              type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
+              value: TestData.payeeRaw.address,
+            } as IdentityTypes.ISmartContractIdentity,
+            timestamp: TestData.arbitraryTimestamp,
+          },
+          TestData.payeeRaw.identity,
+          TestData.fakeSignatureProvider,
+        ),
+      ).toThrowError('Signer must be the payee or the payer');
+    });
+
+    it('cannot create with a smartcontract (Goerli)', () => {
+      expect(() =>
+        CreateAction.format(
+          {
+            currency: {
+              type: RequestLogicTypes.CURRENCY.ETH,
+              // FIXME: ETH-goerli?
+              value: 'ETH',
+            },
+            expectedAmount: TestData.arbitraryExpectedAmount,
+            payee: {
+              network: 'goerli',
               type: IdentityTypes.TYPE.ETHEREUM_SMART_CONTRACT,
               value: TestData.payeeRaw.address,
             } as IdentityTypes.ISmartContractIdentity,

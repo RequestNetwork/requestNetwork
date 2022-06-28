@@ -28,6 +28,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 | **values.refundAddress**  | String | Ethereum address for the refund                | Optional      |
 
 Note: to use the Rinkeby testnet just replace the id by "pn-rinkeby-erc20-address-based"
+to use the Goerli testnet just replace the id by "pn-goerli-erc20-address-based"
 
 ---
 

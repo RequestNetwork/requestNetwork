@@ -42,6 +42,9 @@ const requestHashStorageMainnetAddress =
 const requestHashSubmitterRinkebyAddress =
   SmartContracts.requestHashSubmitterArtifact.getAddress('rinkeby');
 
+const requestHashSubmitterGoerliAddress =
+  SmartContracts.requestHashSubmitterArtifact.getAddress('goerli');
+
 const requestHashStorageABI = SmartContracts.requestHashStorageArtifact.getContractAbi();
 
 const erc20FeeProxyInstance = erc20FeeProxyArtifact.connect(

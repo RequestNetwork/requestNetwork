@@ -53,7 +53,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
   /**
    * Gets a supported currency from a symbol, symbol-network, currency definition id or address.
    *
-   * @param currencyIdentifier e.g. 'DAI', 'FAU', 'FAU-rinkeby', 'FAU-goerli', 'ETH-rinkeby-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
+
+   * @param currencyIdentifier e.g. 'DAI', 'FAU', 'FAU-rinkeby', 'FAU-rinkeby', 'ETH-rinkeby-rinkeby' or '0xFab46E002BbF0b4509813474841E0716E6730136'
    * @param network e.g. rinkeby, goerli, mainnet
    */
   from(

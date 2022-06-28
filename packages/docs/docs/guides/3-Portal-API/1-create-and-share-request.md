@@ -19,7 +19,7 @@ We assume you know React. Before you run the code below, don't forget to:
 - Change the `API_KEY`, with your test API key
 - Change the payment value with one of your Ethereum addresses
 
-Even if for this tests the transaction will be done over the Rinkeby network, it's more realistic to configure your own address.
+Even if for this tests the transaction will be done over the Goerli network, it's more realistic to configure your own address.
 
 And now, let's look at the code:
 

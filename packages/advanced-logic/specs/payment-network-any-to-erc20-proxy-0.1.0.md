@@ -60,6 +60,7 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 | Mainnet                    | 0xe72Ecea44b6d8B2b3cf5171214D9730E86213cA2 |
 | Matic                      | 0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E |
 | Ethereum Testnet - Rinkeby | 0x78334ed20da456e89cd7e5a90de429d705f5bc88 |
+| Ethereum Testnet - Goerli  | TODO ..................................... |
 | Private                    | 0xB9B7e0cb2EDF5Ea031C8B297A5A1Fa20379b6A0a |
 
 ## Properties

@@ -51,6 +51,7 @@ If you need the proxy smart contract addresses, we list the most relevant ones b
 "rinkeby": {
 	"address": "0x162edb802fae75b9ee4288345735008ba51a4ec9",
 }
+// FIXME
 ```
 
 [Proxy smart contracts for ETH when input data cannot be used](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/artifacts/EthereumProxy/artifacts.json):
@@ -62,6 +63,7 @@ If you need the proxy smart contract addresses, we list the most relevant ones b
 "rinkeby": {
 	"address": "0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff",
 }
+// FIXME
 ```
 
 For reference based payment requests, the references for the main payment and the refund are different.

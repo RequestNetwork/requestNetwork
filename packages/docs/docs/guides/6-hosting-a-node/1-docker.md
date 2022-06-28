@@ -32,7 +32,7 @@ The environment variables passed to the script are:
 
 - **MNEMONIC** should be the node wallet mnemonic seed.
 - **WEB3_PROVIDER_URL** should be the URL to your web3 provider.
-- **ETHEREUM_NETWORK_ID** should be either `1` for Mainnet or `4` for Rinkeby.
+- **ETHEREUM_NETWORK_ID** should be either `1` for Mainnet or `4` for Rinkeby or `5` for Goerli.
 - **IPFS_HOST** is the URL of your IPFS node. Here we use the Docker host URL.
 
 That's it! Now your Node should be running and syncing to the network.
@@ -44,6 +44,8 @@ If you want to know more about the available options you can pass to the node, y
 
 We can (and should) use docker-compose to make it simpler to launch your local Request Node.
 With [Docker Compose](https://docs.docker.com/compose/) installed, use the following `docker-compose.yml` file:
+
+// FIXME: Replace the url rinkeby by goerli?
 
 ```yml
 version: '3.1'
