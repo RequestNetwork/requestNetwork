@@ -22,4 +22,5 @@ export default {
   signature,
   ...providers,
   ...utils,
+  networkRpcs: providers.networkRpcs,
 };
