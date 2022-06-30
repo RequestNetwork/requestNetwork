@@ -4,7 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 
 const GET_CHANNELS_TIMEOUT = 600000;
 export default class GetChannelHandler {
-  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccessTypes.IDataAccess) {
+  constructor(private logger: LogTypes.ILogger, private dataAccess: DataAccessTypes.IDataRead) {
     this.handler = this.handler.bind(this);
   }
 
