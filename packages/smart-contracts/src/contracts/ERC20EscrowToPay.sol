@@ -357,6 +357,12 @@ contract ERC20EscrowToPay is Ownable {
       approvePaymentProxyToSpend(address(requestedToken));
     }
 
+    assert(requestMapping[_paymentRef].amount == 0);
+    assert(!requestMapping[_paymentRef].isFrozen);
+    assert(!requestMapping[_paymentRef].emergencyState);
+
+    delete requestMapping[_paymentRef];
+
     paymentProxy.transferFromWithReferenceAndFee(
       address(requestedToken),
       _receiver,
@@ -365,12 +371,6 @@ contract ERC20EscrowToPay is Ownable {
       0,
       address(0)
     );
-
-    assert(requestMapping[_paymentRef].amount == 0);
-    assert(!requestMapping[_paymentRef].isFrozen);
-    assert(!requestMapping[_paymentRef].emergencyState);
-
-    delete requestMapping[_paymentRef];
 
     return true;
   }
