@@ -152,10 +152,12 @@ contract ERC20EscrowToPay is Ownable {
   }
 
   function setEmergencyClaimPeriod(uint256 _emergencyClaimPeriod) external onlyOwner {
+    require(_emergencyClaimPeriod >= 30, 'emergency period too short');
     emergencyClaimPeriod = _emergencyClaimPeriod;
   }
 
   function setFrozenPeriod(uint256 _frozenPeriod) external onlyOwner {
+    require(_frozenPeriod >= 30, 'frozen period too short');
     frozenPeriod = _frozenPeriod;
   }
 
