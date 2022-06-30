@@ -4,6 +4,10 @@ type PendingItem = {
   transaction: DataAccessTypes.ITransaction;
   storageResult: StorageTypes.IAppendResult;
 };
+/**
+ * A simple in-memory store to share state between DataReader and DataWriter
+ * Useful to retrieve a transaction that was just emitted but is not confirmed yet
+ **/
 export class PendingStore {
   private pending: Record<string, PendingItem> = {};
 
