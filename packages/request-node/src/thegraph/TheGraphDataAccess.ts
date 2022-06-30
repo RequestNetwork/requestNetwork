@@ -317,6 +317,9 @@ export class TheGraphDataAccess extends CombinedDataAccess {
 
   constructor({ graphql, ...options }: TheGraphDataAccessOptions) {
     const { url, ...rest } = graphql;
+    if (!options.pendingStore) {
+      options.pendingStore = new PendingStore();
+    }
     const graphqlClient = new SubgraphClient(url, rest);
     const storage = new TheGraphStorage(options);
     const reader = new TheGraphDataRead(graphqlClient, options);
