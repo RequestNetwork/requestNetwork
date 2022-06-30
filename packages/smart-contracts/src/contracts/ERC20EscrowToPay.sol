@@ -183,7 +183,8 @@ contract ERC20EscrowToPay is Ownable {
     address _feeAddress
   ) external IsNotInEscrow(_paymentRef) {
     if (_amount == 0 || _feeAmount == 0) revert('Zero Value');
-
+    require(_to != address(0), 'payee address cannot be 0');
+    
     requestMapping[_paymentRef] = Request(
       _tokenAddress,
       _to,
