@@ -6,7 +6,6 @@ const networks: Record<string, ethers.providers.Network> = {
   celo: { chainId: 42220, name: 'celo' },
   fantom: { chainId: 250, name: 'fantom' },
   'arbitrum-rinkeby': { chainId: 421611, name: 'arbitrum-rinkeby' },
-  'arbitrum-goerli': { chainId: 421612, name: 'arbitrum-goerli' },
   'arbitrum-one': { chainId: 42161, name: 'arbitrum-one' },
   avalanche: { chainId: 43114, name: 'avalanche' },
   bsc: { chainId: 56, name: 'bsc' },
@@ -50,8 +49,6 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://explorer.testnet.near.org';
       case 'arbitrum-rinkeby':
         return 'https://testnet.arbiscan.io/';
-      case 'arbitrum-goerli':
-        return 'https://nitro-devnet-explorer.arbitrum.io';
       case 'arbitrum-one':
         return 'https://api.arbiscan.io';
       case 'avalanche':

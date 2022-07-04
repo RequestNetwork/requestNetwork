@@ -39,7 +39,6 @@ const networkRpcs: Record<string, string> = {
   xdai: 'https://gnosischain-rpc.gateway.pokt.network/',
   celo: 'https://forno.celo.org',
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
-  'arbitrum-goerli': 'https://nitro-devnet.arbitrum.io/rpc',
   'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
   avalanche: 'https://api.avax.network/ext/bc/C/rpc',
 };

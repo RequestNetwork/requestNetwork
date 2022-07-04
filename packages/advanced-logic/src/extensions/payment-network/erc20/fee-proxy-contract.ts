@@ -27,7 +27,6 @@ export default class Erc20FeeProxyPaymentNetwork<
       'xdai',
       'fantom',
       'arbitrum-rinkeby',
-      'arbitrum-goerli',
       'arbitrum-one',
       'avalanche',
     ],

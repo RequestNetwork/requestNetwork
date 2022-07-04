@@ -15,7 +15,6 @@ const supportedNetworks = [
   'bsctest',
   'bsc',
   'arbitrum-rinkeby',
-  'arbitrum-goerli',
   'arbitrum-one',
   'avalanche',
 ];
