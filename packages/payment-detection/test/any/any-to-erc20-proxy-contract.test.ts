@@ -2,7 +2,6 @@ import { ethers } from 'ethers';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
-  IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
@@ -39,7 +38,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-describe('api/any/conversion-fee-proxy-contract', () => {
+describe('api/any/conversion-fee-proxy-contract', async () => {
   beforeEach(() => {
     anyToErc20Proxy = new AnyToERC20PaymentDetector({
       advancedLogic: mockAdvancedLogic,
