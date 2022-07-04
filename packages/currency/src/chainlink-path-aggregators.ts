@@ -15,6 +15,7 @@ export type CurrencyPairs = Record<string, Record<string, number>>;
 export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   private: privateAggregator,
   rinkeby: rinkebyAggregator,
+  goerli: goerliAggregator,
   mainnet: mainnetAggregator,
   matic: maticAggregator,
   fantom: fantomAggregator,
@@ -25,8 +26,6 @@ export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   xdai: {},
   avalanche: {},
   bsc: {},
-  // FIX ME: There are still no Goerli chainlink oracles but we added these few for the tests to pass.
-  goerli: goerliAggregator,
 };
 
 export const chainlinkSupportedNetworks = Object.keys(chainlinkCurrencyPairs);
