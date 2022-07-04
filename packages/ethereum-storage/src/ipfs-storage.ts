@@ -137,8 +137,8 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
 
   static hasRequiredBootstrapNodes(actualList: string[]): boolean {
     const expectedList = getIpfsExpectedBootstrapNodes();
-    return expectedList.every((nodeExpected) => 
-        actualList.some((actual) => nodeExpected.test(actual))
-    )
+    return expectedList.every((nodeExpected) =>
+      actualList.some((actual) => nodeExpected.test(actual)),
+    );
   }
 }
