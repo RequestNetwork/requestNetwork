@@ -59,16 +59,6 @@ describe('ERC777 SuperFluid detection test-suite', () => {
       tokenAddress: '0x745861aed1eee363b4aaa5f1994be40b1e05ff90', // FAU
     });
 
-    // When added, there are 2 mockRequest variables + find ERC777 token
-    // it('can getBalance on a goerli request', async () => {
-    //   const mockRequest = createMockRequest({
-    //     network: 'goerli',
-    //     requestId: '0288792633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f273c7a4e3ce7e2',
-    //     paymentAddress: '0x52e5bcfa46393894afcfe6cd98a6761fa692c594',
-    //     salt: '0ee84db293a752c6',
-    //     tokenAddress: '0x745861aed1eee363b4aaa5f1994be40b1e05ff90', // FAU
-    //   });
-
     const balance = await detector.getBalance(mockRequest);
 
     expect(balance.balance).toBe('320833333333331260');

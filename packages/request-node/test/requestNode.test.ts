@@ -96,13 +96,4 @@ describe('requestNode server', () => {
       'the environment variable MNEMONIC must be set up. The default mnemonic is only for private network.',
     );
   });
-
-  it('must throw if no mnemonic given with goerli', async () => {
-    process.env.ETHEREUM_NETWORK_ID = '5';
-
-    // 'must throw'
-    expect(() => new RequestNode()).toThrowError(
-      'the environment variable MNEMONIC must be set up. The default mnemonic is only for private network.',
-    );
-  });
 });
