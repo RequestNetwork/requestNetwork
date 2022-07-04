@@ -111,7 +111,6 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 8403921,
         },
-        // FIXME: add goerli version
         'arbitrum-one': {
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 5309741,
@@ -135,7 +134,7 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 	9447187,
         },
-        // FIXME: add goerli version
+        // FIXME: add goerli 
         celo: {
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 10141030,
