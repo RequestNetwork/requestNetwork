@@ -50,7 +50,6 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           address: '0xf0f49873C50765239F6f9534Ba13c4fe16eD5f2E',
           creationBlockNumber: 8403930,
         },
-        // FIXME: add goerli version
         /**
          * FIXME: The contract was deployed on networks below with ABI 0.1.1
          * The ABI for payments is the same, only administration tasks change.
