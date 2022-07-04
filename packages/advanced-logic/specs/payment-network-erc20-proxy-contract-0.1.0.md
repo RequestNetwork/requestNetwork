@@ -41,7 +41,6 @@ The `TransferWithReference` event is emitted when the tokens are transfered. Thi
 | ------- | ------------------------------------------ |
 | Mainnet | 0x5f821c20947ff9be22e823edc5b3c709b33121b3 |
 | Rinkeby | 0x162edb802fae75b9ee4288345735008ba51a4ec9 |
-| Goerli  | TODO ..................................... |
 
 ## Properties
 
