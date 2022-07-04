@@ -21,7 +21,7 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff',
           creationBlockNumber: 5955681,
         },
-        // FIXME: add goerli version
+        // FIXME: add goerli 
         xdai: {
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 18326895,
@@ -46,7 +46,6 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 8403917,
         },
-        // FIXME: add goerli version
         'arbitrum-one': {
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 5309737,
@@ -80,7 +79,7 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 9447186,
         },
-        // FIXME: add goerli version
+        // FIXME: add goerli 
         xdai: {
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 18326895,
@@ -105,7 +104,6 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 8403917,
         },
-        // FIXME: add goerli version
         'arbitrum-one': {
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 5309737,
@@ -136,7 +134,7 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x322F0037d272E980984F89E94Aae43BD0FC065E6',
           creationBlockNumber: 10307566,
         },
-        // FIXME: add goerli version
+        // FIXME: add goerli 
         fantom: {
           address: '0x322F0037d272E980984F89E94Aae43BD0FC065E6',
           creationBlockNumber: 33496209,
