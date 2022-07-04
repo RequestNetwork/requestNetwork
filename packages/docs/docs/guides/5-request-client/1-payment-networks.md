@@ -63,7 +63,7 @@ If you need the proxy smart contract addresses, we list the most relevant ones b
 "rinkeby": {
 	"address": "0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff",
 }
-// FIXME
+// FIXME: add goerli
 ```
 
 For reference based payment requests, the references for the main payment and the refund are different.

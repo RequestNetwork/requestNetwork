@@ -34,7 +34,6 @@ const RequestNetwork = require('@requestnetwork/request-client.js');
 3. Configure the node
 
 ```jsx
-//FIXME: Replace Rinkeby by Goerli?
 const requestNetwork = new RequestNetwork({
   // The Rinkeby Gateway is the node hosted by Request
   // You can use it on the Rinkeby network without limit, for testing and discovery of the library
