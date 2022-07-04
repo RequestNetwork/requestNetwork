@@ -167,7 +167,6 @@ export const anotherCreationTransactionConfirmed: TransactionTypes.ITimestampedT
   transaction: { data: JSON.stringify(anotherCreationAction) },
 };
 
-// FIXME: Replace by goerli? and replace ETH by ETH-rinkeby/goerli?
 const dataSecondRequest = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: {

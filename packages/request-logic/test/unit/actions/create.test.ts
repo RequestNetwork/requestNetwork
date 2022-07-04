@@ -310,7 +310,6 @@ describe('CreateAction', () => {
           {
             currency: {
               type: RequestLogicTypes.CURRENCY.ETH,
-              // FIXME: ETH-rinkeby?
               value: 'ETH',
             },
             expectedAmount: TestData.arbitraryExpectedAmount,
@@ -333,7 +332,6 @@ describe('CreateAction', () => {
           {
             currency: {
               type: RequestLogicTypes.CURRENCY.ETH,
-              // FIXME: ETH-goerli?
               value: 'ETH',
             },
             expectedAmount: TestData.arbitraryExpectedAmount,

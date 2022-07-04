@@ -51,7 +51,7 @@ If you need the proxy smart contract addresses, we list the most relevant ones b
 "rinkeby": {
 	"address": "0x162edb802fae75b9ee4288345735008ba51a4ec9",
 }
-// FIXME
+// FIXME: add goerli
 ```
 
 [Proxy smart contracts for ETH when input data cannot be used](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/artifacts/EthereumProxy/artifacts.json):

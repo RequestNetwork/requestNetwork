@@ -45,8 +45,6 @@ If you want to know more about the available options you can pass to the node, y
 We can (and should) use docker-compose to make it simpler to launch your local Request Node.
 With [Docker Compose](https://docs.docker.com/compose/) installed, use the following `docker-compose.yml` file:
 
-// FIXME: Replace the url rinkeby by goerli?
-
 ```yml
 version: '3.1'
 

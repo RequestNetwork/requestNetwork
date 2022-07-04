@@ -32,8 +32,6 @@ For our solution, we use additional smart contracts for fee verification. Using 
 
 The RequestHashStorage smart contract address can be found on [GitHub](https://github.com/RequestNetwork/requestNetwork/blob/1f24dd17353497cc6ee21abf2d7bfda9e63d2ba5/packages/smart-contracts/artifacts/RequestHashStorage/artifacts.json)
 
-// FIXME: add goerli?
-
 ```json
  "mainnet": {
   "address": "0x24a66afda3666fb0202f439708ece45c8121a9bb"

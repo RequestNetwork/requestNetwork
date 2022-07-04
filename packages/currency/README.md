@@ -37,7 +37,6 @@ const DAICurrency: RequestLogicTypes.ICurrency = Currency.from(
   '0x6B175474E89094C44Da98b954EedeAC495271d0F',
 );
 
-// FIXME: Replace or add by Goerli
 console.log(FAUCurrency.toString()); // FAU-rinkeby
 console.log(DAICurrency.toString()); // DAI
 

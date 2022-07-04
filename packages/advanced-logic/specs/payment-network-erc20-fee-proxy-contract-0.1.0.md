@@ -43,7 +43,6 @@ The `TransferWithReferenceAndFee` event is emitted when the tokens are transfere
 | Matic                      | 0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9 |
 | Celo                       | 0x2171a0dc12a9E5b1659feF2BB20E54c84Fa7dB0C |
 | Ethereum Testnet - Rinkeby | 0xda46309973bffddd5a10ce12c44d2ee266f45a44 |
-| Ethereum Testnet - Goerli  | TODO ..................................... |
 | Matic Testnet - Mumbai     | 0x131eb294E3803F23dc2882AB795631A12D1d8929 |
 | Private                    | 0x75c35C980C0d37ef46DF04d31A140b65503c0eEd |
 
