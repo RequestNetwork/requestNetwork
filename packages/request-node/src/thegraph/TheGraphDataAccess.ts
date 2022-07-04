@@ -218,7 +218,6 @@ export class TheGraphDataWrite implements DataAccessTypes.IDataWrite {
     private readonly graphql: SubgraphClient,
     {
       network,
-
       logger,
       pendingStore,
     }: Pick<
