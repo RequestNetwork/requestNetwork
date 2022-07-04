@@ -14,6 +14,10 @@ import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/com
 import { VerifyCreate2FromList } from './scripts-create2/verify-one';
 import { deployWithCreate2FromList } from './scripts-create2/deploy-one';
 import utils from '@requestnetwork/utils';
+import deployRequestStorageTestnet from './scripts/test-deploy-request-storage-goerli';
+
+require('@nomiclabs/hardhat-waffle');
+require('@nomiclabs/hardhat-etherscan');
 
 config();
 
@@ -226,3 +230,9 @@ subtask(DEPLOYER_KEY_GUARD, 'prevent usage of the deployer master key').setActio
     throw new Error('The deployer master key should not be used for this action');
   }
 });
+
+task('deploy-request-storage', 'Deploying the Request Storage contracts').setAction(
+  async (_args, hre) => {
+    await deployRequestStorageTestnet(_args, hre);
+  },
+);
