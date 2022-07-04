@@ -2,6 +2,7 @@ import { ethers } from 'ethers';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
+  IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
@@ -208,48 +209,91 @@ describe('api/any/conversion-fee-proxy-contract', async () => {
     });
   });
 
-  // TODO: not sure about this
-  // it('can get the fees out of payment events, and payment & refund work even with the wrong feeAddress while feeBalance sum only if feeAddress is fine (Rinkeby)', async () => {
-  //   const mockRequest: RequestLogicTypes.IRequest = {
-  //     creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
-  //     currency: {
-  //       type: RequestLogicTypes.CURRENCY.ISO4217,
-  //       value: 'EUR',
-  //     },
-  //     events: [],
-  //     expectedAmount: '1000',
-  //     extensions: {
-  //       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: {
-  //         events: [],
-  //         id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
-  //         type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-  //         values: {
-  //           feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
-  //           feeAmount: '5',
-  //           paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-  //           refundAddress: '0x666666151EbEF6C7334FAD080c5704D77216b732',
-  //           acceptedTokens: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
-  //           network: 'rinkeby',
-  //           salt: 'abcd',
-  //         },
-  //         version: '0',
-  //       },
-  //     },
-  //     extensionsData: [],
-  //     requestId: '0x1',
-  //     state: RequestLogicTypes.STATE.CREATED,
-  //     timestamp: 0,
-  //     version: '0.2',
-  //   };
+  it('can get the fees out of payment events, and payment & refund work even with the wrong feeAddress while feeBalance sum only if feeAddress is fine (Rinkeby)', async () => {
+    const mockRequest: RequestLogicTypes.IRequest = {
+      creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
+      currency: {
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'EUR',
+      },
+      events: [],
+      expectedAmount: '1000',
+      extensions: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
+            feeAmount: '5',
+            paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+            refundAddress: '0x666666151EbEF6C7334FAD080c5704D77216b732',
+            acceptedTokens: ['0x9FBDa871d559710256a2502A2517b794B482Db40'],
+            network: 'rinkeby',
+            salt: 'abcd',
+          },
+          version: '0',
+        },
+      },
+      extensionsData: [],
+      requestId: '0x1',
+      state: RequestLogicTypes.STATE.CREATED,
+      timestamp: 0,
+      version: '0.2',
+    };
 
-  const mockExtractEvents = (eventName: PaymentTypes.EVENTS_NAMES) => {
-    if (eventName === PaymentTypes.EVENTS_NAMES.PAYMENT) {
+    const mockExtractEvents = (eventName: PaymentTypes.EVENTS_NAMES) => {
+      if (eventName === PaymentTypes.EVENTS_NAMES.PAYMENT) {
+        return Promise.resolve({
+          paymentEvents: [
+            // Wrong fee address
+            {
+              amount: '100',
+              name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+              parameters: {
+                block: 1,
+                feeAddress: 'fee address',
+                feeAmount: '5',
+                to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+                txHash: '0xABC',
+              },
+              timestamp: 10,
+            },
+            // Correct fee address and a fee value
+            {
+              amount: '500',
+              name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+              parameters: {
+                block: 1,
+                feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
+                feeAmount: '5',
+                to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+                txHash: '0xABCD',
+              },
+              timestamp: 11,
+            },
+            // No fee
+            {
+              amount: '500',
+              name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+              parameters: {
+                block: 1,
+                feeAddress: '',
+                feeAmount: '0',
+                to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+                txHash: '0xABCDE',
+              },
+              timestamp: 12,
+            },
+          ],
+        });
+      }
       return Promise.resolve({
         paymentEvents: [
           // Wrong fee address
           {
             amount: '100',
-            name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+            name: PaymentTypes.EVENTS_NAMES.REFUND,
             parameters: {
               block: 1,
               feeAddress: 'fee address',
@@ -261,110 +305,69 @@ describe('api/any/conversion-fee-proxy-contract', async () => {
           },
           // Correct fee address and a fee value
           {
-            amount: '500',
-            name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+            amount: '100',
+            name: PaymentTypes.EVENTS_NAMES.REFUND,
             parameters: {
               block: 1,
               feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
               feeAmount: '5',
-              to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+              to: '0x666666151EbEF6C7334FAD080c5704D77216b732',
               txHash: '0xABCD',
             },
             timestamp: 11,
           },
           // No fee
           {
-            amount: '500',
-            name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+            amount: '100',
+            name: PaymentTypes.EVENTS_NAMES.REFUND,
             parameters: {
               block: 1,
               feeAddress: '',
               feeAmount: '0',
-              to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+              to: '0x666666151EbEF6C7334FAD080c5704D77216b732',
               txHash: '0xABCDE',
             },
             timestamp: 12,
           },
         ],
       });
-    }
-    return Promise.resolve({
-      paymentEvents: [
-        // Wrong fee address
-        {
-          amount: '100',
-          name: PaymentTypes.EVENTS_NAMES.REFUND,
-          parameters: {
-            block: 1,
-            feeAddress: 'fee address',
-            feeAmount: '5',
-            to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
-            txHash: '0xABC',
-          },
-          timestamp: 10,
-        },
-        // Correct fee address and a fee value
-        {
-          amount: '100',
-          name: PaymentTypes.EVENTS_NAMES.REFUND,
-          parameters: {
-            block: 1,
-            feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
-            feeAmount: '5',
-            to: '0x666666151EbEF6C7334FAD080c5704D77216b732',
-            txHash: '0xABCD',
-          },
-          timestamp: 11,
-        },
-        // No fee
-        {
-          amount: '100',
-          name: PaymentTypes.EVENTS_NAMES.REFUND,
-          parameters: {
-            block: 1,
-            feeAddress: '',
-            feeAmount: '0',
-            to: '0x666666151EbEF6C7334FAD080c5704D77216b732',
-            txHash: '0xABCDE',
-          },
-          timestamp: 12,
-        },
-      ],
+    };
+    jest
+      .spyOn(anyToErc20Proxy as any, 'extractEvents')
+      .mockImplementation(mockExtractEvents as any);
+
+    const balance = await anyToErc20Proxy.getBalance(mockRequest);
+    expect(balance.error).toBeUndefined();
+    // Payments: 100 + 500 + 500
+    // Refunds: 100 + 100 + 100
+    expect(balance.balance).toBe('800');
+    // Payments: 5 (correct fee address)
+    // Refunds: 5 (correct fee address)
+    expect(
+      mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.feeBalance
+        .balance,
+    ).toBe('10');
+  });
+
+  it('can retrieve the decimals from a contract if unknown', async () => {
+    const spy = jest.spyOn(ERC20__factory, 'connect').mockImplementation(() => {
+      return {
+        decimals: () => Promise.resolve(42),
+        symbol: () => Promise.resolve('FAKE'),
+      } as any;
     });
-  };
-  jest.spyOn(anyToErc20Proxy as any, 'extractEvents').mockImplementation(mockExtractEvents as any);
 
-  const balance = await anyToErc20Proxy.getBalance(mockRequest);
-  expect(balance.error).toBeUndefined();
-  // Payments: 100 + 500 + 500
-  // Refunds: 100 + 100 + 100
-  expect(balance.balance).toBe('800');
-  // Payments: 5 (correct fee address)
-  // Refunds: 5 (correct fee address)
-  expect(
-    mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.feeBalance
-      .balance,
-  ).toBe('10');
-});
+    expect(
+      await (anyToErc20Proxy as any).getCurrency({
+        type: 'ERC20',
+        network: 'mainnet',
+        value: ethers.constants.AddressZero,
+      }),
+    ).toMatchObject({
+      decimals: 42,
+      symbol: 'FAKE',
+    });
 
-it('can retrieve the decimals from a contract if unknown', async () => {
-  const spy = jest.spyOn(ERC20__factory, 'connect').mockImplementation(() => {
-    return {
-      decimals: () => Promise.resolve(42),
-      symbol: () => Promise.resolve('FAKE'),
-    } as any;
+    expect(spy).toHaveBeenCalledWith(ethers.constants.AddressZero, expect.anything());
   });
-
-  expect(
-    await (anyToErc20Proxy as any).getCurrency({
-      type: 'ERC20',
-      network: 'mainnet',
-      value: ethers.constants.AddressZero,
-    }),
-  ).toMatchObject({
-    decimals: 42,
-    symbol: 'FAKE',
-  });
-
-  expect(spy).toHaveBeenCalledWith(ethers.constants.AddressZero, expect.anything());
 });
