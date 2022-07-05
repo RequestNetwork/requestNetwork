@@ -98,4 +98,41 @@ describe('IPFS Storage', () => {
       ['ipfs'],
     );
   });
+
+  describe('compareBootstrapNodes', () => {
+    describe.each(['ipfs', 'p2p'])('It supports the %s path', (path) => {
+      it('Returns true for same list', () => {
+        expect(
+          IpfsStorage.hasRequiredBootstrapNodes([
+            `/dns4/ipfs-survival.request.network/tcp/4001/${path}/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh`,
+            `/dns4/ipfs-2.request.network/tcp/4001/${path}/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd`,
+            `/dns4/ipfs-bootstrap-2.request.network/tcp/4001/${path}/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj`,
+            `/dns4/ipfs-bootstrap.request.network/tcp/4001/${path}/QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967Fdxx`,
+          ]),
+        ).toBeTruthy();
+      });
+
+      it('Returns false for additional items', () => {
+        expect(
+          IpfsStorage.hasRequiredBootstrapNodes([
+            `/dns4/ipfs-survival.request.network/tcp/4001/${path}/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh`,
+            `/dns4/ipfs-2.request.network/tcp/4001/${path}/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd`,
+            `/dns4/ipfs-bootstrap-2.request.network/tcp/4001/${path}/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj`,
+            `/dns4/ipfs-bootstrap.request.network/tcp/4001/${path}/QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967Fdxx`,
+            `/dns4/ipfs-bootstrap-NONEXISTANT.request.network/tcp/4001/${path}/QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967FaKe`,
+          ]),
+        ).toBeTruthy();
+      });
+
+      it('Returns false for missing items', () => {
+        expect(
+          IpfsStorage.hasRequiredBootstrapNodes([
+            `/dns4/ipfs-survival.request.network/tcp/4001/${path}/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh`,
+            `/dns4/ipfs-2.request.network/tcp/4001/${path}/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd`,
+            `/dns4/ipfs-bootstrap-2.request.network/tcp/4001/${path}/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj`,
+          ]),
+        ).toBeFalsy();
+      });
+    });
+  });
 });

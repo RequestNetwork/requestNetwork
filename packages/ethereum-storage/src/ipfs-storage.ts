@@ -125,12 +125,7 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
     this.logger.info('Checking ipfs network', ['ipfs', 'sanity']);
     try {
       const bootstrapList = await this.ipfsManager.getBootstrapList();
-
-      const bootstrapNodeFoundCount: number = getIpfsExpectedBootstrapNodes().filter(
-        (nodeExpected) => bootstrapList.includes(nodeExpected),
-      ).length;
-
-      if (bootstrapNodeFoundCount !== getIpfsExpectedBootstrapNodes().length) {
+      if (!IpfsStorage.hasRequiredBootstrapNodes(bootstrapList)) {
         throw Error(
           `The list of bootstrap node in the ipfs config don't match the expected bootstrap nodes`,
         );
@@ -138,5 +133,12 @@ export class IpfsStorage implements StorageTypes.IIpfsStorage {
     } catch (error) {
       throw Error(`IPFS node bootstrap node check failed: ${error}`);
     }
+  }
+
+  static hasRequiredBootstrapNodes(actualList: string[]): boolean {
+    const expectedList = getIpfsExpectedBootstrapNodes();
+    return expectedList.every((nodeExpected) =>
+      actualList.some((actual) => nodeExpected.test(actual)),
+    );
   }
 }
