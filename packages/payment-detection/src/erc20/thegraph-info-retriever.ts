@@ -57,6 +57,7 @@ export class TheGraphInfoRetriever {
         block: p.block,
         feeAddress: p.feeAddress ? utils.getAddress(p.feeAddress) : undefined,
         feeAmount: p.feeAmount || undefined,
+        from: p.from,
         gasUsed: p.gasUsed,
         gasPrice: p.gasPrice,
       },

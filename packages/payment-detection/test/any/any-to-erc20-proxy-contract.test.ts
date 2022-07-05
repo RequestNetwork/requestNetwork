@@ -1,4 +1,6 @@
 import { ethers } from 'ethers';
+import { GraphQLClient } from 'graphql-request';
+import { mocked } from 'ts-jest/utils';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -9,6 +11,9 @@ import {
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { AnyToERC20PaymentDetector } from '../../src/any/any-to-erc20-proxy';
+
+jest.mock('graphql-request');
+const graphql = mocked(GraphQLClient.prototype);
 
 let anyToErc20Proxy: AnyToERC20PaymentDetector;
 const currencyManager = CurrencyManager.getDefault();
@@ -369,5 +374,65 @@ describe('api/any/conversion-fee-proxy-contract', async () => {
     });
 
     expect(spy).toHaveBeenCalledWith(ethers.constants.AddressZero, expect.anything());
+  });
+
+  it('should get gas info from the graph', async () => {
+    const mockRequest: RequestLogicTypes.IRequest = {
+      creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
+      currency: {
+        type: RequestLogicTypes.CURRENCY.ISO4217,
+        value: 'EUR',
+      },
+      events: [],
+      expectedAmount: '100',
+      extensions: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+            feeAmount: '0',
+            paymentAddress: '0x98F32171D88F9511b397809534eE42ACFCe4F640',
+            salt: 'a9c4f042874e24b7',
+            network: 'rinkeby',
+            acceptedTokens: ['0xFab46E002BbF0b4509813474841E0716E6730136'],
+          },
+          version: '0.1.0',
+        },
+      },
+      extensionsData: [],
+      requestId: '01cbe434720b58051f5150ec8d414aead2f1e04fca4d69c9401da0cc3e733f1646',
+      state: RequestLogicTypes.STATE.CREATED,
+      timestamp: 0,
+      version: '0.2',
+    };
+
+    graphql.request.mockResolvedValue({
+      payments: [
+        {
+          amount: '100000000',
+          block: 8404818,
+          txHash: '0xc672ce6704182e710b92919e88b38904a27fd17ea1036269147e4ddff352ab4d',
+          feeAmount: '0',
+          feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+          from: '0x98f32171d88f9511b397809534ee42acfce4f640',
+          timestamp: 1618306072,
+          tokenAddress: '0xfab46e002bbf0b4509813474841e0716e6730136',
+          currency: '0x17b4158805772ced11225e77339f90beb5aae968',
+          amountInCrypto: '1190282493338176476',
+          feeAmountInCrypto: '0',
+          maxRateTimespan: 0,
+          gasUsed: '130259',
+          gasPrice: '73500000000',
+        },
+      ],
+    });
+
+    const balance = await anyToErc20Proxy.getBalance(mockRequest);
+    expect(balance.error).toBeUndefined();
+    const parameters = balance.events[0].parameters as any;
+    expect(parameters.gasUsed).toBe('130259');
+    expect(parameters.gasPrice).toBe('73500000000');
   });
 });

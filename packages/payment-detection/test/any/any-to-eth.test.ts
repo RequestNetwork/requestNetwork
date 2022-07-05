@@ -59,6 +59,16 @@ describe('Any to ETH payment detection', () => {
     timestamp: 1643647285,
   };
 
+  const expectedBalanceWithGasInfo = {
+    ...expectedBalance,
+    parameters: {
+      ...expectedBalance.parameters,
+      gasUsed: '144262',
+      gasPrice: '2425000017',
+      from: '0x0e8d9cb9e11278ad6e2ba1ca90385c7295dc6532',
+    },
+  };
+
   it('RPC Payment detection', async () => {
     getLogs
       .mockResolvedValueOnce([
@@ -122,6 +132,8 @@ describe('Any to ETH payment detection', () => {
           timestamp: 1643647285,
           tokenAddress: null,
           txHash: '0x7733a0fad7d7bdd0222ff1b63902aa26f1904e0fe14e03e95de73195e22a8ae6',
+          gasUsed: '144262',
+          gasPrice: '2425000017',
         },
       ],
     });
@@ -135,6 +147,6 @@ describe('Any to ETH payment detection', () => {
     const balance = await detector.getBalance(mockRequest);
     expect(balance.error).not.toBeDefined();
     expect(balance.balance).toBe('5000');
-    expect(balance.events).toMatchObject([expectedBalance]);
+    expect(balance.events).toMatchObject([expectedBalanceWithGasInfo]);
   });
 });
