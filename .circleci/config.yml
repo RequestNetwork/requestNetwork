@@ -7,7 +7,7 @@ references:
   node_image: &node_image
     image: cimg/node:16.15
   ipfs_image: &ipfs_image
-    image: requestnetwork/request-ipfs:0.4.23-2
+    image: requestnetwork/request-ipfs:v0.13.0
   ganache_image: &ganache_image
     image: trufflesuite/ganache-cli:v6.8.2
     command:

@@ -3,9 +3,9 @@ import { BigNumber } from 'ethers';
 
 // This contains default values used to use Ethereum Network and IPFS
 // if information are not provided by the user
-const config: any = {
+const config = {
   ethereum: {
-    default: 'private',
+    default: 'private' as const,
     gasPriceDefault: '100000000000',
     maxRetries: 5,
     nodeUrlDefault: {
@@ -22,22 +22,19 @@ const config: any = {
     defaultNode: {
       host: 'localhost',
       port: 5001,
-      protocol: 'http',
+      protocol: 'http' as StorageTypes.IpfsGatewayProtocol,
       timeout: 30000,
     },
     errorHandling: {
       delayBetweenRetries: 500,
       maxRetries: 3,
     },
-    expectedBootstrapNodes: [
-      '/dns4/ipfs-bootstrap.request.network/tcp/4001/ipfs/QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967Fdxx',
-
-      '/dns4/ipfs-bootstrap-2.request.network/tcp/4001/ipfs/QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj',
-
-      '/dns4/ipfs-2.request.network/tcp/4001/ipfs/QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
-
-      '/dns4/ipfs-survival.request.network/tcp/4001/ipfs/Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
-    ],
+    expectedBootstrapNodes: {
+      'ipfs-bootstrap.request.network': 'QmaSrBXFBaupfeGMTuigswtKtsthbVaSonurjTV967Fdxx',
+      'ipfs-bootstrap-2.request.network': 'QmYdcSoVNU1axgSnkRAyHtwsKiSvFHXeVvRonGCAV9LVEj',
+      'ipfs-2.request.network': 'QmPBPgTDVjveRu6KjGVMYixkCSgGtVyV8aUe6wGQeLZFVd',
+      'ipfs-survival.request.network': 'Qmb6a5DH45k8JwLdLVZUhRhv1rnANpsbXjtsH41esGhNCh',
+    },
     maxIpfsReadRetry: 1,
     pinRequest: {
       delayBetweenCalls: 1000,
@@ -147,10 +144,12 @@ export function getIpfsErrorHandlingConfig(): StorageTypes.IIpfsErrorHandlingCon
 
 /**
  * Retrieve from config the ipfs bootstrap nodes of the ipfs node
- * @returns array of the swarm addresses
+ * @returns array of the swarm addresses regexes
  */
-export function getIpfsExpectedBootstrapNodes(): string[] {
-  return config.ipfs.expectedBootstrapNodes;
+export function getIpfsExpectedBootstrapNodes(): RegExp[] {
+  return Object.entries(config.ipfs.expectedBootstrapNodes).map(
+    ([host, id]) => new RegExp(`/dns4/${host}/tcp/4001/(ipfs|p2p)/${id}`),
+  );
 }
 
 /**
