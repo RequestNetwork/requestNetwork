@@ -102,28 +102,6 @@ And in another terminal, deploy the smart contracts locally with:
 yarn run deploy
 ```
 
-### Live deployment (Payment only)
-
-The goal of this script is to let all our payment contracts be deployed with the same sequence on every chain.
-
-The script also verify deployed contracts.
-
-**Be sure that artifacts are up-to-date with most recent deployments**
-
-Environment variables needed: `ETHERSCAN_API_KEY`, `ADMIN_WALLET_ADDRESS`, `DEPLOYMENT_PRIVATE_KEY`
-
-```bash
-# First check what will be done
-yarn hardhat deploy-live-payments --network matic --dry-run
-
-# Run
-yarn hardhat deploy-live-payments --network matic
-
-# To test locally
-yarn hardhat deploy-live-payments --network private --force
-yarn hardhat deploy-live-payments --network private --force --dry-run
-```
-
 ### Deployment through request deployer
 
 The request deployer enables multichain deployment of several smart contracts at predefined address. It is based on https://github.com/pcaversaccio/xdeployer
@@ -159,6 +137,14 @@ Environment variables needed: `ADMIN_PRIVATE_KEY`
 You will need the request deployer to be deployed.
 Then run:
 
+To deploy all contracts to one network, use:
+
+```bash
+NETWORK=<NETWORK> yarn hardhat deploy-contracts-through-deployer
+```
+
+If you want to deploy all contracts on all networks:
+
 ```bash
 yarn hardhat deploy-contracts-through-deployer
 ```
@@ -180,6 +166,28 @@ yarn hardhat verify-contract-from-deployer --network <NETWORK>
 ```
 
 The associated `EXPLORER_API_KEY` is mandatory.
+
+### Live deployment (Payment only - deprecated method)
+
+The goal of this script is to let all our payment contracts be deployed with the same sequence on every chain.
+
+The script also verify deployed contracts.
+
+**Be sure that artifacts are up-to-date with most recent deployments**
+
+Environment variables needed: `ETHERSCAN_API_KEY`, `ADMIN_WALLET_ADDRESS`, `DEPLOYMENT_PRIVATE_KEY`
+
+```bash
+# First check what will be done
+yarn hardhat deploy-live-payments --network matic --dry-run
+
+# Run
+yarn hardhat deploy-live-payments --network matic
+
+# To test locally
+yarn hardhat deploy-live-payments --network private --force
+yarn hardhat deploy-live-payments --network private --force --dry-run
+```
 
 ### Tests
 
