@@ -10,25 +10,27 @@ import { prepareSwapToPayAnyToErc20Request } from './swap-any-to-erc20';
 import { prepareEthProxyPaymentTransaction } from './eth-proxy';
 import { prepareEthFeeProxyPaymentTransaction } from './eth-fee-proxy';
 import { prepareAnyToEthProxyPaymentTransaction } from './any-to-eth-proxy';
+import { prepareErc777StreamPaymentTransaction } from './erc777-stream';
 import { IConversionPaymentSettings } from '.';
 import { getPaymentNetworkExtension } from './utils';
 
-export function encodeRequestPayment(
+export async function encodeRequestPayment(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
   options?: IRequestPaymentOptions,
-): IPreparedTransaction {
+): Promise<IPreparedTransaction> {
   if (options && options.swap) {
     return encodeRequestPaymentWithSwap(request, provider, options);
   } else {
-    return encodeRequestPaymentWithoutSwap(request, options);
+    return await encodeRequestPaymentWithoutSwap(request, provider, options);
   }
 }
 
-export function encodeRequestPaymentWithoutSwap(
+export async function encodeRequestPaymentWithoutSwap(
   request: ClientTypes.IRequestData,
+  provider: providers.Provider,
   options?: IRequestPaymentOptions,
-): IPreparedTransaction {
+): Promise<IPreparedTransaction> {
   const paymentNetwork = getPaymentNetworkExtension(request)?.id;
   const amount = options?.amount ? options.amount : undefined;
   const feeAmount = options?.feeAmount ? options.feeAmount : undefined;
@@ -91,6 +93,11 @@ export function encodeRequestPaymentWithoutSwap(
     case ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT:
       return {
         ...prepareEthFeeProxyPaymentTransaction(request, amount, feeAmount),
+        ...overrides,
+      };
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM:
+      return {
+        ...(await prepareErc777StreamPaymentTransaction(request, provider)),
         ...overrides,
       };
     default:

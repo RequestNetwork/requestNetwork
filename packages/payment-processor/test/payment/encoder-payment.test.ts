@@ -275,9 +275,9 @@ describe('Payment encoder handles ERC20 Conversion Proxy', () => {
     });
   });
   it('Should not be possible to encode a conversion transaction without passing options', async () => {
-    expect(() => encodeRequestPayment(validRequestERC20ConversionProxy, provider)).toThrowError(
-      'Conversion settings missing',
-    );
+    expect(
+      async () => await encodeRequestPayment(validRequestERC20ConversionProxy, provider),
+    ).toThrowError('Conversion settings missing');
   });
 });
 
@@ -322,16 +322,17 @@ describe('Payment encoder handles ERC20 Swap & Conversion Proxy', () => {
   });
 
   it('Should not be possible to encode a conversion transaction without passing options', () => {
-    expect(() => encodeRequestPayment(validRequestERC20ConversionProxy, provider)).toThrowError(
-      'Conversion settings missing',
-    );
+    expect(
+      async () => await encodeRequestPayment(validRequestERC20ConversionProxy, provider),
+    ).toThrowError('Conversion settings missing');
   });
 
   it('Should not be possible to encode a conversion transaction without passing conversion options', () => {
-    expect(() =>
-      encodeRequestPayment(validRequestERC20ConversionProxy, provider, {
-        swap: alphaSwapSettings,
-      }),
+    expect(
+      async () =>
+        await encodeRequestPayment(validRequestERC20ConversionProxy, provider, {
+          swap: alphaSwapSettings,
+        }),
     ).toThrowError('Conversion settings missing');
   });
 });
@@ -388,8 +389,8 @@ describe('Payment encoder handles Eth Conversion Proxy', () => {
     });
   });
   it('Should not be possible to encode a conversion transaction without passing conversion options', () => {
-    expect(() => encodeRequestPayment(validRequestEthConversionProxy, provider)).toThrowError(
-      'Conversion settings missing',
-    );
+    expect(
+      async () => await encodeRequestPayment(validRequestEthConversionProxy, provider),
+    ).toThrowError('Conversion settings missing');
   });
 });

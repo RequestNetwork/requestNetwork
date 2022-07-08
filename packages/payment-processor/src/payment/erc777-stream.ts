@@ -9,6 +9,7 @@ import {
   validateRequest,
 } from './utils';
 import { Framework } from '@superfluid-finance/sdk-core';
+import { IPreparedTransaction } from './prepared-transaction';
 
 export const RESOLVER_ADDRESS = '0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db';
 // Superfluid payments of requests use the generic field `userData` to index payments.
@@ -27,20 +28,8 @@ export async function payErc777StreamRequest(
   signer: Signer,
   overrides?: Overrides,
 ): Promise<ContractTransaction> {
-  const id = getPaymentNetworkExtension(request)?.id;
-  if (id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM) {
-    throw new Error('Not a supported ERC777 payment network request');
-  }
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
-  const sf = await getSuperFluidFramework(request, signer);
-  // FIXME: according to specs PR https://github.com/RequestNetwork/requestNetwork/pull/688
-  // in file packages/advanced-logic/specs/payment-network-erc777-stream-0.1.0.md
-  // Below are the SF actions to add in the BatchCall:
-  // - use expectedStartDate to compute offset between start of invoicing and start of streaming
-  // - start fee streaming
-  const streamPayOp = await getStartStreamOp(sf, request, overrides);
-  const batchCall = sf.batchCall([streamPayOp]);
-  return batchCall.exec(signer);
+  const { data, to, value } = await prepareErc777StreamPaymentTransaction(request, signer);
+  return signer.sendTransaction({ data, to, value, ...overrides });
 }
 
 /**
@@ -81,11 +70,7 @@ async function getSuperFluidFramework(request: ClientTypes.IRequestData, signer:
     protocolReleaseVersion: isNetworkPrivate ? 'test' : undefined,
   });
 }
-async function getStartStreamOp(
-  sf: Framework,
-  request: ClientTypes.IRequestData,
-  overrides?: Overrides,
-) {
+async function getStartStreamOp(sf: Framework, request: ClientTypes.IRequestData) {
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
   const { paymentReference, paymentAddress, expectedFlowRate } = getRequestPaymentValues(request);
   return sf.cfaV1.createFlow({
@@ -93,7 +78,6 @@ async function getStartStreamOp(
     receiver: paymentAddress,
     superToken: superToken.address,
     userData: `${USERDATA_PREFIX}${paymentReference}`,
-    overrides: overrides,
   });
 }
 
@@ -112,4 +96,48 @@ async function getStopStreamOp(
     userData: `${USERDATA_PREFIX}${paymentReference}`,
     overrides: overrides,
   });
+}
+
+/**
+ * Encodes the call to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
+ * @param request request to pay
+ * @param sf the SuperFluid framework to use
+ */
+export async function encodePayErc777StreamRequest(
+  request: ClientTypes.IRequestData,
+  sf: Framework,
+): Promise<string> {
+  // FIXME: according to specs PR https://github.com/RequestNetwork/requestNetwork/pull/688
+  // in file packages/advanced-logic/specs/payment-network-erc777-stream-0.1.0.md
+  // Below are the SF actions to add in the BatchCall:
+  // - use expectedStartDate to compute offset between start of invoicing and start of streaming
+  // - start fee streaming
+  const streamPayOp = await getStartStreamOp(sf, request);
+  const batchCall = sf.batchCall([streamPayOp]);
+
+  const operationStructArray = await Promise.all(batchCall.getOperationStructArrayPromises);
+  return batchCall.host.hostContract.interface.encodeFunctionData(
+    'batchCall',
+    operationStructArray,
+  );
+}
+/**
+ * Prepate the transaction to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
+ * @param request request to pay
+ * @param signer the Web3 signer. Defaults to window.ethereum.
+ */
+export async function prepareErc777StreamPaymentTransaction(
+  request: ClientTypes.IRequestData,
+  signer: Signer,
+): Promise<IPreparedTransaction> {
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  const sf = await getSuperFluidFramework(request, signer);
+
+  const encodedTx = await encodePayErc777StreamRequest(request, sf);
+
+  return {
+    data: encodedTx,
+    to: sf.host.hostContract.address,
+    value: 0,
+  };
 }
