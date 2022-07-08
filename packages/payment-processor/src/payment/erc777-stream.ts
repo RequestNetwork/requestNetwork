@@ -15,7 +15,7 @@ export const resolverAddress = '0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db';
 /**
  * Processes a transaction to pay an ERC777 stream Request.
  * @param request
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param signer the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payErc777StreamRequest(
@@ -54,6 +54,54 @@ export async function payErc777StreamRequest(
     flowRate: expectedFlowRate ?? '0',
     receiver: paymentAddress,
     superToken: superToken.address,
+    userData: `0xbeefac${paymentReference}`,
+    overrides: overrides,
+  });
+  const batchCall = sf.batchCall([streamPayOp]);
+  return batchCall.exec(superSigner);
+}
+/**
+ * Processes a transaction to cancel an ERC777 stream paying a Request.
+ * @param request
+ * @param signer the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export async function cancelErc777StreamRequest(
+  request: ClientTypes.IRequestData,
+  signer: Signer,
+  overrides?: Overrides,
+): Promise<ContractTransaction> {
+  const id = getPaymentNetworkExtension(request)?.id;
+  if (id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM) {
+    throw new Error('Not a supported ERC777 payment network request');
+  }
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  const networkName =
+    request.currencyInfo.network === 'private' ? 'custom' : request.currencyInfo.network;
+  const sf = await Framework.create({
+    networkName,
+    provider: signer.provider ?? getProvider(),
+    dataMode: request.currencyInfo.network === 'private' ? 'WEB3_ONLY' : undefined,
+    resolverAddress: request.currencyInfo.network === 'private' ? resolverAddress : undefined,
+    protocolReleaseVersion: request.currencyInfo.network === 'private' ? 'test' : undefined,
+  });
+  const superSigner = sf.createSigner({
+    signer: signer,
+    provider: signer.provider,
+  });
+  const superToken = await sf.loadSuperToken(request.currencyInfo.value);
+  // FIXME: according to specs PR https://github.com/RequestNetwork/requestNetwork/pull/688
+  // in file packages/advanced-logic/specs/payment-network-erc777-stream-0.1.0.md
+  // - use expectedStartDate and recurence to compute offset between stop of invoicing and stop of streaming
+  // - stop fee streaming
+  const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
+  // Superfluid payments of requests use the generic field `userData` to index payments.
+  // Since it's a multi-purpose field, payments will use a fix-prefix heading the payment reference,
+  // in order to speed up the indexing and payment detection.
+  const streamPayOp = sf.cfaV1.deleteFlow({
+    superToken: superToken.address,
+    sender: await signer.getAddress(),
+    receiver: paymentAddress,
     userData: `0xbeefac${paymentReference}`,
     overrides: overrides,
   });
