@@ -36,7 +36,6 @@ export async function payErc20ProxyRequest(
 /**
  * Encodes the call to pay a request through the ERC20 proxy contract, can be used with a Multisig contract.
  * @param request request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function encodePayErc20Request(
@@ -83,7 +82,6 @@ export function _getErc20ProxyPaymentUrl(
 /**
  * Encodes the call to pay a request through the ERC20 proxy contract, can be used with a Multisig contract.
  * @param request request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function prepareErc20ProxyPaymentTransaction(
