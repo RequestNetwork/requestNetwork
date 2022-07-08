@@ -52,11 +52,18 @@ export const computeCreate2DeploymentAddressesFromList = async (
       switch (contract) {
         case 'EthereumProxy':
         case 'EthereumFeeProxy':
+        case 'ERC20FeeProxy':
         case 'Erc20ConversionProxy':
+        case 'ERC20EscrowToPay':
+        case 'BatchPayments':
         case 'ERC20SwapToConversion': {
-          const constructorArgs = getConstructorArgs(contract);
-          address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
-          console.log(`${contract.padEnd(36, ' ')}${address}`);
+          try {
+            const constructorArgs = getConstructorArgs(contract, hre.network.name);
+            address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
+            console.log(`${contract.padEnd(36, ' ')}${address}`);
+          } catch (e) {
+            console.warn(`ERROR computing address of ${contract}: ${e}`);
+          }
           break;
         }
         // Other cases to add when necessary
