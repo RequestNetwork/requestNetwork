@@ -214,8 +214,8 @@ export async function refundFrozenFunds(
 /**
  * Encodes the call to payEscrow().
  * @param request request to pay.
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
 export function encodePayEscrow(
   request: ClientTypes.IRequestData,

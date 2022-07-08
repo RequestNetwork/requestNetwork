@@ -61,7 +61,7 @@ export async function payErc20Request(
  * Checks if the proxy has the necessary allowance from a given account to pay a given request with ERC20
  * @param request request to pay
  * @param account account that will be used to pay the request
- * @param provider the web3 provider. Defaults to Etherscan.
+ * @param signerOrProvider the web3 provider. Defaults to Etherscan.
  */
 export async function hasErc20Approval(
   request: ClientTypes.IRequestData,

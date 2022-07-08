@@ -43,7 +43,6 @@ export async function payAnyToEthProxyRequest(
 /**
  * Encodes the call to pay a request with a native token when the request currency is different. The payment is made by the ETH fee proxy contract.
  * @param request request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings payment settings
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
