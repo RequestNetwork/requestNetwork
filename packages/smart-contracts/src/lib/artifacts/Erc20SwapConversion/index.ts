@@ -18,6 +18,10 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
           address: '0x1d6B06C6f7adFd9314BD4C58a6D306261113a1D4',
           creationBlockNumber: 9447192,
         },
+        goerli: {
+          address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
+          creationBlockNumber: 7091388,
+        },
         bsc: {
           address: '0x1d6B06C6f7adFd9314BD4C58a6D306261113a1D4',
           creationBlockNumber: 16165023,
