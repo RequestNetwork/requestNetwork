@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-ethers';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversion-proxy';
+import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy';
 import { deploySwapConversion } from './erc20-swap-to-conversion';
 import { deployOne } from './deploy-one';
 
@@ -93,7 +93,7 @@ export default async function deploy(
   // EthConversion
   const ethConversionProxyAddress =
     (
-      await deployETHConversionProxy(
+      await deployEthConversionProxy(
         {
           ...args,
           chainlinkConversionPathAddress: conversionPathInstance.address,
