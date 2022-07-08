@@ -53,6 +53,7 @@ export const deployWithCreate2FromList = async (
     switch (contract) {
       case 'EthereumProxy':
       case 'EthereumFeeProxy':
+      case 'ETHConversionProxy':
       case 'ERC20FeeProxy':
       case 'Erc20ConversionProxy': {
         const constructorArgs = getConstructorArgs(contract);

@@ -9,6 +9,7 @@ import * as artifacts from '../src/lib';
 export const create2ContractDeploymentList = [
   'EthereumProxy',
   'EthereumFeeProxy',
+  'ETHConversionProxy',
   'ERC20FeeProxy',
   'Erc20ConversionProxy',
   'ERC20SwapToConversion',
