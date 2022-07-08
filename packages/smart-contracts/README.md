@@ -79,9 +79,7 @@ The package stores the following smart contracts:
 - `ERC20SwapToPay` same as `ERC20FeeProxy` but allowing the payer to swap another token before paying
 - `ERC20SwapToConversion` same as `ERC20ConversionProxy` but allowing the payer to swap another token before paying
 
-## Smart contracts deployment
-
-### Local deployment
+## Local deployment
 
 The smart contracts can be deployed locally with the following commands:
 
@@ -102,7 +100,7 @@ And in another terminal, deploy the smart contracts locally with:
 yarn run deploy
 ```
 
-### Deployment through request deployer
+## Live deployment
 
 The request deployer enables multichain deployment of several smart contracts at predefined address. It is based on https://github.com/pcaversaccio/xdeployer
 
@@ -112,7 +110,7 @@ Be sure to run `yarn build:sol` before deploying the deployer or a contract.
 
 The contracts implemented are listed in the array `create2ContractDeploymentList` in [Utils](./scripts-create2/utils.ts).
 
-#### Deploy the request deployer
+### Deploy the request deployer (once per chain)
 
 Environment variables needed: `DEPLOYER_MASTER_KEY`
 
@@ -120,7 +118,7 @@ Environment variables needed: `DEPLOYER_MASTER_KEY`
 yarn hardhat deploy-deployer-contract --network <NETWORK>
 ```
 
-#### Compute the contract addresses
+### Compute the contract addresses
 
 Run:
 
@@ -130,7 +128,7 @@ yarn hardhat compute-contract-addresses
 
 It will compute the addresses of the contracts to be deployed via the request deployer.
 
-#### Deploy the contracts
+### Deploy the contracts
 
 Depending on the xdeployer config, this script will deploy the smart contracts on several chain simultaneously
 Environment variables needed: `ADMIN_PRIVATE_KEY`
@@ -157,17 +155,23 @@ This command will output details about each contract deployment on each chain:
 - If already deployed: the network, and the contract address
 - If an error occured: the said error
 
-#### Verify the contracts
+### Verify the contracts
 
-For each network the contract were deployed to run:
+Verify and publish the contract code automatically to blockchain explorers, right after smart contracts compilation. You should first set the `ETHERSCAN_API_KEY` environment variable.
 
 ```bash
 yarn hardhat verify-contract-from-deployer --network <NETWORK>
 ```
 
-The associated `EXPLORER_API_KEY` is mandatory.
+#### Verify the contracts manually With Hardhat (legacy)
 
-### Live deployment (Payment only - deprecated method)
+A more generic way to verify any contract by setting constructor argments manually:
+
+```bash
+yarn hardhat verify --network NETWORK_NAME DEPLOYED_CONTRACT_ADDRESS "Constructor argument 1"
+```
+
+### Deprecated payment deployment scripts (legacy)
 
 The goal of this script is to let all our payment contracts be deployed with the same sequence on every chain.
 
@@ -189,7 +193,7 @@ yarn hardhat deploy-live-payments --network private --force
 yarn hardhat deploy-live-payments --network private --force --dry-run
 ```
 
-### Tests
+## Tests
 
 After a local deployment:
 
@@ -202,14 +206,6 @@ yarn test
 Networks and providers are configured in [hardhat.config.ts](hardhat.config.ts).
 
 Have a look at the [Hardhat documentation](https://hardhat.org/config/).
-
-## Contract verification with Hardhat
-
-Verify and publish the contract code automatically to blockchain explorers, right after smart contracts compilation. You should first set the `ETHERSCAN_API_KEY` environment variable.
-
-```bash
-yarn hardhat verify --network NETWORK_NAME DEPLOYED_CONTRACT_ADDRESS "Constructor argument 1"
-```
 
 ## Contributing
 
