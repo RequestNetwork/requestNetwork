@@ -151,11 +151,19 @@ contract ERC20EscrowToPay is Ownable {
     revert('not payable receive');
   }
 
+  /**
+   * @notice Sets duration of emergency period, with minimum value of 30 days.
+   */
   function setEmergencyClaimPeriod(uint256 _emergencyClaimPeriod) external onlyOwner {
+    require(_emergencyClaimPeriod >= 30 days, 'emergency period too short');
     emergencyClaimPeriod = _emergencyClaimPeriod;
   }
 
+  /**
+   * @notice Sets duration of freeze period, with minimum value of 30 days.
+   */
   function setFrozenPeriod(uint256 _frozenPeriod) external onlyOwner {
+    require(_frozenPeriod >= 30 days, 'frozen period too short');
     frozenPeriod = _frozenPeriod;
   }
 
@@ -181,6 +189,7 @@ contract ERC20EscrowToPay is Ownable {
     address _feeAddress
   ) external IsNotInEscrow(_paymentRef) {
     if (_amount == 0 || _feeAmount == 0) revert('Zero Value');
+    require(_to != address(0), 'payee address cannot be 0');
 
     requestMapping[_paymentRef] = Request(
       _tokenAddress,
@@ -354,6 +363,12 @@ contract ERC20EscrowToPay is Ownable {
       approvePaymentProxyToSpend(address(requestedToken));
     }
 
+    assert(requestMapping[_paymentRef].amount == 0);
+    assert(!requestMapping[_paymentRef].isFrozen);
+    assert(!requestMapping[_paymentRef].emergencyState);
+
+    delete requestMapping[_paymentRef];
+
     paymentProxy.transferFromWithReferenceAndFee(
       address(requestedToken),
       _receiver,
@@ -362,12 +377,6 @@ contract ERC20EscrowToPay is Ownable {
       0,
       address(0)
     );
-
-    assert(requestMapping[_paymentRef].amount == 0);
-    assert(!requestMapping[_paymentRef].isFrozen);
-    assert(!requestMapping[_paymentRef].emergencyState);
-
-    delete requestMapping[_paymentRef];
 
     return true;
   }
