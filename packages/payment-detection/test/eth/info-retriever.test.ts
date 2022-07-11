@@ -51,6 +51,7 @@ describe('api/eth/info-retriever', () => {
     [
       'mainnet',
       'rinkeby',
+      'goerli',
       // 'xdai',
       // 'sokol',
       'fuse',
