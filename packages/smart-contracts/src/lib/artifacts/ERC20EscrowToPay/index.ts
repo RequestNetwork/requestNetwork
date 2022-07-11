@@ -22,8 +22,8 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
           creationBlockNumber: 10461945,
         },
         goerli: {
-          address: '0xEbe28A2B7336670Ba752bfEad4a121D2c4FF2464',
-          creationBlockNumber: 10461945,
+          address: '0xB6f943d324a70B2883aE890089433345feCe8Be4',
+          creationBlockNumber: 7091488,
         },
         matic: {
           address: '0xc7f471F5A8f8b33F131049b1e9A43941CbE31792',

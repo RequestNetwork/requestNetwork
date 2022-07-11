@@ -25,7 +25,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     proxyContractErc20: {
-      supportedNetworks: ['mainnet', 'rinkeby'],
+      supportedNetworks: ['mainnet', 'rinkeby', 'goerli'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -160,7 +160,7 @@ describe('api/erc20/proxy-contract', () => {
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
         message:
-          'Payment network WRONG not supported by pn-erc20-proxy-contract payment detection. Supported networks: mainnet, rinkeby',
+          'Payment network WRONG not supported by pn-erc20-proxy-contract payment detection. Supported networks: mainnet, rinkeby, goerli',
       },
       events: [],
     });
