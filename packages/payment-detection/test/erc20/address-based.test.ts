@@ -126,7 +126,7 @@ describe('api/erc20/address-based', () => {
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
         message:
-          'Payment network wrong not supported by ERC20 payment detection. Supported networks: mainnet, rinkeby, private',
+          'Payment network wrong not supported by ERC20 payment detection. Supported networks: mainnet, rinkeby, goerli, private',
       },
       events: [],
     });

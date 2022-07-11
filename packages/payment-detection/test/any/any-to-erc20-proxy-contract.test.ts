@@ -31,7 +31,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     anyToErc20Proxy: {
-      supportedNetworks: ['mainnet', 'rinkeby', 'private'],
+      supportedNetworks: ['mainnet', 'rinkeby', 'goerli', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -56,7 +56,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     jest.clearAllMocks();
   });
 
-  it('can createExtensionsDataForCreation', async () => {
+  it('can createExtensionsDataForCreation (Rinkeby)', async () => {
     await anyToErc20Proxy.createExtensionsDataForCreation({
       paymentAddress: 'ethereum address',
       salt: 'ea3bc7caf64110ca',
@@ -77,7 +77,28 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     });
   });
 
-  it('can createExtensionsDataForCreation with fee amount and address', async () => {
+  it('can createExtensionsDataForCreation (Goerli)', async () => {
+    await anyToErc20Proxy.createExtensionsDataForCreation({
+      paymentAddress: 'ethereum address',
+      salt: 'ea3bc7caf64110ca',
+      acceptedTokens: ['ethereum address2'],
+      network: 'goerli',
+      maxRateTimespan: 1000,
+    });
+
+    expect(createCreationAction).toHaveBeenCalledWith({
+      feeAddress: undefined,
+      feeAmount: undefined,
+      paymentAddress: 'ethereum address',
+      refundAddress: undefined,
+      salt: 'ea3bc7caf64110ca',
+      acceptedTokens: ['ethereum address2'],
+      network: 'goerli',
+      maxRateTimespan: 1000,
+    });
+  });
+
+  it('can createExtensionsDataForCreation with fee amount and address (Rinkeby)', async () => {
     await anyToErc20Proxy.createExtensionsDataForCreation({
       feeAddress: 'fee address',
       feeAmount: '2000',
@@ -95,6 +116,27 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       salt: 'ea3bc7caf64110ca',
       acceptedTokens: ['ethereum address2'],
       network: 'rinkeby',
+    });
+  });
+
+  it('can createExtensionsDataForCreation with fee amount and address (Goerli)', async () => {
+    await anyToErc20Proxy.createExtensionsDataForCreation({
+      feeAddress: 'fee address',
+      feeAmount: '2000',
+      paymentAddress: 'ethereum address',
+      salt: 'ea3bc7caf64110ca',
+      acceptedTokens: ['ethereum address2'],
+      network: 'goerli',
+    });
+
+    expect(createCreationAction).toHaveBeenCalledWith({
+      feeAddress: 'fee address',
+      feeAmount: '2000',
+      paymentAddress: 'ethereum address',
+      refundAddress: undefined,
+      salt: 'ea3bc7caf64110ca',
+      acceptedTokens: ['ethereum address2'],
+      network: 'goerli',
     });
   });
 

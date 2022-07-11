@@ -16,13 +16,13 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
         getAdminWalletAddress(contract),
       ];
     }
-    case 'ETHConversionProxy': {
+    case 'EthConversionProxy': {
       return [
         '0x0000000000000000000000000000000000000000',
         '0x0000000000000000000000000000000000000000',
         '0x39e19aa5b69466dfdc313c7cda37cb2a599015cd',
       ];
-      // TODO setupETHConversionProxy
+      // TODO setupEthConversionProxy
     }
     case 'ERC20SwapToConversion': {
       return [getAdminWalletAddress(contract)];
