@@ -5,7 +5,7 @@ import {
   erc20FeeProxyArtifact,
   erc20SwapToPayArtifact,
 } from '../src/lib';
-import { deployERC20ConversionProxy, deployETHConversionProxy } from './conversion-proxy';
+import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy';
 import { DeploymentResult, deployOne } from './deploy-one';
 import { uniswapV2RouterAddresses, jumpToNonce } from './utils';
 import { Contract } from 'ethers';
@@ -154,7 +154,7 @@ export async function deployAllPaymentContracts(
     /*
      * Batch 4
      *   - ChainlinkConversionPath (+ addWhitelistAdmin())
-     *   - ETHConversionProxy
+     *   - EthConversionProxy
      */
     const runDeploymentBatch_4 = async (ethFeeProxyAddress: string) => {
       const NONCE_BATCH_4 = 10;
@@ -170,7 +170,7 @@ export async function deployAllPaymentContracts(
         });
 
       // Deploy ETH Conversion
-      const ethConversionResult = await deployETHConversionProxy(
+      const ethConversionResult = await deployEthConversionProxy(
         {
           ...args,
           chainlinkConversionPathAddress,
@@ -265,12 +265,12 @@ export async function deployAllPaymentContracts(
       const ethConversionAdminNonce = NONCE_BATCH_5 + 3;
       await jumpToNonce(args, hre, ethConversionAdminNonce);
 
-      // 5.d ETHConversion.transferOwnership
+      // 5.d EthConversion.transferOwnership
       if (await nonceReady(ethConversionAdminNonce)) {
         if (ethConversionResultInstance) {
           if (!process.env.ADMIN_WALLET_ADDRESS) {
             throw new Error(
-              'ADMIN_WALLET_ADDRESS missing, cannot addWhitelistAdmin on ETHConversion.',
+              'ADMIN_WALLET_ADDRESS missing, cannot addWhitelistAdmin on EthConversion.',
             );
           }
           if (args.simulate === false) {
@@ -280,13 +280,13 @@ export async function deployAllPaymentContracts(
             await tx.wait(1);
           } else {
             console.log(
-              `[i] Simulating addWhitelistAdmin to ETHConversion at ${ethConversionResultInstance.address}`,
+              `[i] Simulating addWhitelistAdmin to EthConversion at ${ethConversionResultInstance.address}`,
             );
           }
         } else {
           if (!ethConversionResultInstance) {
             console.warn(
-              `Warning: the ETHConversion contract instance is not ready for ETHConversion update, consider retrying.`,
+              `Warning: the EthConversion contract instance is not ready for EthConversion update, consider retrying.`,
             );
             switchToSimulation();
           }
