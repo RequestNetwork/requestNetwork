@@ -216,6 +216,9 @@ describe('erc777-stream', () => {
       // use the framework to get the SuperToken
       const daix = await sf.loadSuperToken('fDAIx');
 
+      // wait 2 seconds of streaming to avoid failing
+      await new Promise((r) => setTimeout(r, 2000));
+
       // Paying fDAIX stream request
       tx = await completeErc777StreamRequest(validRequest, wallet);
       confirmedTx = await tx.wait(1);
