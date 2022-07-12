@@ -11,8 +11,8 @@ import { checkCreate2Deployer } from './scripts-create2/check-deployer';
 import { deployDeployer } from './scripts-create2/deploy-request-deployer';
 import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
-import { VerifyCreate2FromList } from './scripts-create2/verify-one';
-import { deployWithCreate2FromList } from './scripts-create2/deploy-one';
+import { VerifyCreate2FromList } from './scripts-create2/verify';
+import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import utils from '@requestnetwork/utils';
 
 config();
