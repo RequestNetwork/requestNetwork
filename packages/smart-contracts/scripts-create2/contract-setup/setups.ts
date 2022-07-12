@@ -94,8 +94,8 @@ const setupERC20SwapToConversion = async (
 };
 
 /**
- * Updates the values of the batch fees of the BatchPayments contract, if needed
- * @param contractAddress address of the BatchPayments Proxy
+ * Updates the values of the EthConversionProxy contract, if needed
+ * @param contractAddress address of the EthConversion Proxy
  * @param hre Hardhat runtime environment
  */
 const setupEthConversionProxy = async (
@@ -131,6 +131,12 @@ const setupEthConversionProxy = async (
   console.log('Setup for EthConversionProxy successful');
 };
 
+/**
+ * Updates the values of either BatchPayments, EthConversionProxy, or ERC20SwapToConversion contract, if needed
+ * @param contractAddress address of the proxy
+ * @param hre Hardhat runtime environment
+ * @param contractName name of the contract
+ */
 export const setupContract = async (
   contractAddress: string,
   hre: HardhatRuntimeEnvironmentExtended,
