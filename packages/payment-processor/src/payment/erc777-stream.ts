@@ -19,7 +19,7 @@ export const USERDATA_PREFIX = '0xbeefac';
 /**
  * Processes a transaction to pay an ERC777 stream Request.
  * @param request
- * @param signer the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param signer the Web3 signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payErc777StreamRequest(
