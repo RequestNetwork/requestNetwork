@@ -251,7 +251,7 @@ describe('api/eth/input-data', () => {
       currency: {
         network: 'goerli',
         type: RequestLogicTypes.CURRENCY.ETH,
-        value: 'ETH-goerli',
+        value: 'ETH',
       },
       expectedAmount: '80000000000000000',
       payee: {
