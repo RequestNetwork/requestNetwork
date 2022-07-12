@@ -13,7 +13,7 @@ import Utils from '@requestnetwork/utils';
 import {
   completeErc777StreamRequest,
   payErc777StreamRequest,
-  resolverAddress,
+  RESOLVER_ADDRESS,
 } from '../../src/payment/erc777-stream';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 const daiABI = require('../abis/fDAIABI');
@@ -133,7 +133,7 @@ describe('erc777-stream', () => {
         networkName: 'custom',
         provider,
         dataMode: 'WEB3_ONLY',
-        resolverAddress: resolverAddress,
+        resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
       });
 
@@ -209,7 +209,7 @@ describe('erc777-stream', () => {
         networkName: 'custom',
         provider,
         dataMode: 'WEB3_ONLY',
-        resolverAddress: resolverAddress,
+        resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
       });
 
