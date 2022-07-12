@@ -20,7 +20,7 @@ describe('api/erc777/superfluid-info-retriever', () => {
         salt: '0ee84db293a752c6',
         amount: '92592592592592000',
         requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
-        block: '9945543',
+        block: 9945543,
         token: '0x745861aed1eee363b4aaa5f1994be40b1e05ff90', //fDAIx
       };
       graphql.request.mockResolvedValue(mockSuperfluidSubgraph[0]);
@@ -61,7 +61,7 @@ describe('api/erc777/superfluid-info-retriever', () => {
         salt: '0ee84db293a752c6',
         amount: '92592592592592000',
         requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
-        block: '9945543',
+        block: 9945543,
         token: '0x2bf02814ea0b2b155ed47b7cede18caa752940e6', //fDAIx
       };
       graphql.request.mockResolvedValue(mockSuperfluidSubgraph[0]);
