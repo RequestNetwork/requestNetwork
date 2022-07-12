@@ -10,7 +10,11 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
-import { payErc777StreamRequest, resolverAddress } from '../../src/payment/erc777-stream';
+import {
+  completeErc777StreamRequest,
+  payErc777StreamRequest,
+  RESOLVER_ADDRESS,
+} from '../../src/payment/erc777-stream';
 import { getRequestPaymentValues } from '../../src/payment/utils';
 const daiABI = require('../abis/fDAIABI');
 
@@ -120,8 +124,8 @@ describe('erc777-stream', () => {
     });
   });
 
-  describe('payErc777StreamRequest', () => {
-    it('should pay an ERC777 request with fees', async () => {
+  describe('Streams management', () => {
+    it('payErc777StreamRequest should pay an ERC777 request', async () => {
       let tx;
       let confirmedTx;
       // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
@@ -129,7 +133,7 @@ describe('erc777-stream', () => {
         networkName: 'custom',
         provider,
         dataMode: 'WEB3_ONLY',
-        resolverAddress: resolverAddress,
+        resolverAddress: RESOLVER_ADDRESS,
         protocolReleaseVersion: 'test',
       });
 
@@ -183,18 +187,56 @@ describe('erc777-stream', () => {
       expect(confirmedTx.status).toBe(1);
       expect(tx.hash).not.toBeUndefined();
 
-      const wFlowRate = await sf.cfaV1.getNetFlow({
+      const walletFlowRate = await sf.cfaV1.getNetFlow({
         superToken: daix.address,
         account: wallet.address,
         providerOrSigner: provider,
       });
-      expect(wFlowRate).toBe(`-${expectedFlowRate}`);
-      const pFlowRate = await sf.cfaV1.getNetFlow({
+      expect(walletFlowRate).toBe(`-${expectedFlowRate}`);
+      const paymentFlowRate = await sf.cfaV1.getNetFlow({
         superToken: daix.address,
         account: paymentAddress,
         providerOrSigner: provider,
       });
-      expect(pFlowRate).toBe(expectedFlowRate);
+      expect(paymentFlowRate).toBe(expectedFlowRate);
+    });
+
+    it('completeErc777StreamRequest should complete an ERC777 request', async () => {
+      let tx;
+      let confirmedTx;
+      // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
+      const sf = await Framework.create({
+        networkName: 'custom',
+        provider,
+        dataMode: 'WEB3_ONLY',
+        resolverAddress: RESOLVER_ADDRESS,
+        protocolReleaseVersion: 'test',
+      });
+
+      // use the framework to get the SuperToken
+      const daix = await sf.loadSuperToken('fDAIx');
+
+      // wait 2 seconds of streaming to avoid failing
+      await new Promise((r) => setTimeout(r, 2000));
+
+      // Stopping fDAIX stream request
+      tx = await completeErc777StreamRequest(validRequest, wallet);
+      confirmedTx = await tx.wait(1);
+      expect(confirmedTx.status).toBe(1);
+      expect(tx.hash).not.toBeUndefined();
+
+      const walletFlowRate = await sf.cfaV1.getNetFlow({
+        superToken: daix.address,
+        account: wallet.address,
+        providerOrSigner: provider,
+      });
+      expect(walletFlowRate).toBe('0');
+      const paymentFlowRate = await sf.cfaV1.getNetFlow({
+        superToken: daix.address,
+        account: paymentAddress,
+        providerOrSigner: provider,
+      });
+      expect(paymentFlowRate).toBe('0');
     });
   });
 });
