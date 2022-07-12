@@ -35,7 +35,7 @@ export async function payErc777StreamRequest(
   const sf = await getSuperFluidFramework(request, signer);
   // FIXME: according to specs PR https://github.com/RequestNetwork/requestNetwork/pull/688
   // in file packages/advanced-logic/specs/payment-network-erc777-stream-0.1.0.md
-  // Below are the SF actions to add in the BatchCall :
+  // Below are the SF actions to add in the BatchCall:
   // - use expectedStartDate to compute offset between start of invoicing and start of streaming
   // - start fee streaming
   const streamPayOp = await getStartStreamOp(sf, request, overrides);
