@@ -61,17 +61,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     RequestsInfoParent requestsInfoParent;
   }
 
-  // Summarize informations for each path
-  struct Path {
-    address[] path;
-    uint256 amountToPay;
-    uint256 amountToPayInFees;
-    uint256 maxRateTimespan;
-    uint256 rate;
-    uint256 decimals;
-    uint256 oldestTimestampRate;
-  }
-
   /**
    * @param _paymentErc20FeeProxy The address to the ERC20 payment proxy to use.
    * @param _paymentEthFeeProxy The address to the Ethereum payment proxy to use.
@@ -227,7 +216,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
       );
     }
 
-    // batch send back to the payer the tokens not spent
+    // batch send back to the payer the tokens not spent and pay the batch
     for (uint256 k = 0; k < uTokens.length && uTokens[k].amountAndFee > 0; k++) {
       IERC20 requestedToken = IERC20(uTokens[k].tokenAddress);
 
@@ -236,15 +225,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
       if (excessAmount > 0) {
         requestedToken.safeTransfer(msg.sender, excessAmount);
       }
-
-      //   uint256 amountAndFeePaid = ;
-      // // amount * (1+.001) = realAmountAndFee
-      // // amount = realAmountAndFee / 1.001
-      //   // reduce the usual .1% fee. precision at 1 wei because of solidity rounding.
-      //   uint256 amountPaid = ;
-      //   // --13199869437493199
-      //   // +-13188118811881187
-      //   uint256 batchFeeAmount = ;
 
       // Payer pays batch fee amount
       require(
