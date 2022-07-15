@@ -21,10 +21,6 @@ export const erc20SwapToPayArtifact = new ContractArtifact<ERC20SwapToPay>(
           address: '0xb674e3d228e631594D8fd4BF947E1811288bf836',
           creationBlockNumber: 7363204,
         },
-        goerli: {
-          address: '0x0Ef49176A87Adcc88bD5125126C6a6c23a28303C',
-          creationBlockNumber: 7109102,
-        },
       },
     },
     '0.3.0': {
