@@ -108,6 +108,15 @@ describe('getNetworkProvider', () => {
     expect(getNetworkProvider(request)).toBeInstanceOf(providers.Provider);
   });
 
+  it('returns a provider for goerli', () => {
+    const request: any = {
+      currencyInfo: {
+        network: 'goerli',
+      },
+    };
+    expect(getNetworkProvider(request)).toBeInstanceOf(providers.Provider);
+  });
+
   it('fails for other network', () => {
     const request: any = {
       currencyInfo: {
