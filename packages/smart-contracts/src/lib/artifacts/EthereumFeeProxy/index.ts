@@ -17,10 +17,6 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
           address: '0xC6E23a20C0a1933ACC8E30247B5D1e2215796C1F',
           creationBlockNumber: 9447193,
         },
-        goerli: {
-          address: '0xe11BF2fDA23bF0A98365e1A4c04A87C9339e8687',
-          creationBlockNumber: 7091386,
-        },
         fantom: {
           address: '0xC6E23a20C0a1933ACC8E30247B5D1e2215796C1F',
           creationBlockNumber: 20066431,
@@ -65,6 +61,10 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
         rinkeby: {
           address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
           creationBlockNumber: 10307582,
+        },
+        goerli: {
+          address: '0xe11BF2fDA23bF0A98365e1A4c04A87C9339e8687',
+          creationBlockNumber: 7091386,
         },
         fantom: {
           address: '0xfCFBcfc4f5A421089e3Df45455F7f4985FE2D6a8',
