@@ -55,6 +55,10 @@ export const ethConversionArtifact = new ContractArtifact<EthConversionProxy>(
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           creationBlockNumber: 10023415,
         },
+        goerli: {
+          address: '0xED250D9219EB93098Bb67aEbc992963172B9c8DA',
+          creationBlockNumber: 7108896,
+        },
         fantom: {
           address: '0x7Ebf48a26253810629C191b56C3212Fd0D211c26',
           creationBlockNumber: 28552915,
