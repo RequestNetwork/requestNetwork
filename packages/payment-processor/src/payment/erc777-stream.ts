@@ -118,7 +118,7 @@ export async function encodePayErc777StreamRequest(
   const operationStructArray = await Promise.all(batchCall.getOperationStructArrayPromises);
   return batchCall.host.hostContract.interface.encodeFunctionData(
     'batchCall',
-    operationStructArray,
+    [operationStructArray],
   );
 }
 /**
