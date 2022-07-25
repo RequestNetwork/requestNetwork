@@ -17,6 +17,7 @@ export async function deployBatchConversionPayment(
     const _EthereumFeeProxyAddress = '0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241';
     const _chainlinkConversionPath = '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c';
     const _paymentErc20ConversionFeeProxy = '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E';
+    const _paymentEthConversionFeeProxy = '0x98d9f9e8DEbd4A632682ba207670d2a5ACD3c489';
 
     // Deploy BatchConversionPayments contract
     const { address: BatchConversionPaymentsAddress } = await deployOne(
@@ -28,6 +29,7 @@ export async function deployBatchConversionPayment(
           _ERC20FeeProxyAddress,
           _EthereumFeeProxyAddress,
           _paymentErc20ConversionFeeProxy,
+          _paymentEthConversionFeeProxy,
           _chainlinkConversionPath,
           await (await hre.ethers.getSigners())[0].getAddress(),
         ],

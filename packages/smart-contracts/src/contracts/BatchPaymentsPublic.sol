@@ -6,7 +6,6 @@ import './lib/SafeERC20.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import './interfaces/ERC20FeeProxy.sol';
 import './interfaces/EthereumFeeProxy.sol';
-import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 
 /**
  * @title BatchPayments
@@ -16,8 +15,9 @@ import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
  *          - fees: ERC20 and ETH proxies fees are paid to the same address.
  *                  An additional batch fee is paid to the same address.
  *         If one transaction of the batch fail, every transactions are reverted.
+ * @dev Please notify than fees are now divided by 10_000 instead of 1_000 in previous version
  */
-contract BatchPaymentsPublic is Ownable, ReentrancyGuard {
+contract BatchPaymentsPublic is Ownable {
   using SafeERC20 for IERC20;
 
   IERC20FeeProxy public paymentErc20FeeProxy;
@@ -70,7 +70,7 @@ contract BatchPaymentsPublic is Ownable, ReentrancyGuard {
     bytes[] calldata _paymentReferences,
     uint256[] calldata _feeAmounts,
     address payable _feeAddress
-  ) public payable nonReentrant {
+  ) public payable {
     require(
       _recipients.length == _amounts.length &&
         _recipients.length == _paymentReferences.length &&
@@ -285,11 +285,15 @@ contract BatchPaymentsPublic is Ownable, ReentrancyGuard {
     }
   }
 
+  /*
+   * Helper functions
+   */
+
   /**
    * @notice Authorizes the proxy to spend a new request currency (ERC20).
    * @param _erc20Address Address of an ERC20 used as the request currency.
    */
-  function approvePaymentProxyToSpend(address _erc20Address) public {
+  function approvePaymentProxyToSpend(address _erc20Address) private {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
     erc20.safeApprove(address(paymentErc20FeeProxy), max);

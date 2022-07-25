@@ -19,6 +19,11 @@
         },
         {
           "internalType": "address",
+          "name": "_paymentEthConversionFeeProxy",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
           "name": "_chainlinkConversionPathAddress",
           "type": "address"
         },
@@ -59,19 +64,6 @@
         }
       ],
       "name": "approveConversionPaymentProxyToSpend",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_erc20Address",
-          "type": "address"
-        }
-      ],
-      "name": "approvePaymentProxyToSpend",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -152,7 +144,7 @@
           "type": "address"
         }
       ],
-      "name": "batchERC20ConversionPaymentsMultiTokensEasy",
+      "name": "batchERC20ConversionPaymentsMultiTokens",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -231,6 +223,61 @@
       "name": "batchERC20PaymentsWithReference",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "_recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_requestAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "_path",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "_paymentReference",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_feeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_maxToSpend",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_maxRateTimespan",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BatchConversionPayments.RequestInfo[]",
+          "name": "requestsInfo",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address payable",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchEthConversionPaymentsWithReference",
+      "outputs": [],
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -375,7 +422,7 @@
       ],
       "name": "batchRouter",
       "outputs": [],
-      "stateMutability": "nonpayable",
+      "stateMutability": "payable",
       "type": "function"
     },
     {
@@ -498,6 +545,19 @@
         }
       ],
       "name": "setConversionPaymentProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paymentEthConversionFeeProxy",
+          "type": "address"
+        }
+      ],
+      "name": "setEthConversionPaymentProxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

@@ -2,6 +2,7 @@ import { ethers, network } from 'hardhat';
 import {
   ERC20FeeProxy__factory,
   Erc20ConversionProxy__factory,
+  EthConversionProxy__factory,
   BatchConversionPayments__factory,
   EthereumFeeProxy__factory,
   ERC20FeeProxy,
@@ -9,6 +10,7 @@ import {
   ChainlinkConversionPath,
   TestERC20,
   Erc20ConversionProxy,
+  EthConversionProxy,
   TestERC20__factory,
   BatchConversionPayments,
 } from '../../src/types';
@@ -18,8 +20,14 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
 import { localERC20AlphaArtifact } from './localArtifacts';
 import Utils from '@requestnetwork/utils';
+import { HttpNetworkConfig } from 'hardhat/types';
+
+const logGas = true;
 
 describe('contract: BatchErc20ConversionPayments', () => {
+  const networkConfig = network.config as HttpNetworkConfig;
+  const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
+
   let from: string;
   let to: string;
   let feeAddress: string;
@@ -42,6 +50,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
   let fakeFAU_address: string;
 
   let testErc20ConversionProxy: Erc20ConversionProxy;
+  let testEthConversionProxy: EthConversionProxy;
   let testBatchConversionProxy: BatchConversionPayments;
   let testERC20: TestERC20;
   let testERC20b: TestERC20;
@@ -93,9 +102,13 @@ describe('contract: BatchErc20ConversionPayments', () => {
   let emitOneTx: Function;
   /**
    * Function batch conversion, it can be the batchRouter function, used with conversion args,
-   *  or directly batchERC20ConversionPaymentsMultiTokensEasy
+   *  or directly batchERC20ConversionPaymentsMultiTokens
    * */
-  let batchConvFunction: (args: any, feeAddress: string) => Promise<ContractTransaction>;
+  let batchConvFunction: (
+    args: any,
+    feeAddress: string,
+    optional?: any,
+  ) => Promise<ContractTransaction>;
   /** Format arguments so they can be used by batchConvFunction */
   let argTemplate: Function;
 
@@ -111,10 +124,16 @@ describe('contract: BatchErc20ConversionPayments', () => {
       chainlinkPath.address,
       await signer.getAddress(),
     );
+    testEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
+      ethereumFeeProxy.address,
+      chainlinkPath.address,
+      ETH_hash,
+    );
     testBatchConversionProxy = await new BatchConversionPayments__factory(signer).deploy(
       erc20FeeProxy.address,
       ethereumFeeProxy.address,
       testErc20ConversionProxy.address,
+      testEthConversionProxy.address,
       chainlinkPath.address,
       await signer.getAddress(),
     );
@@ -204,7 +223,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
    * It can also be used for batch IF batchFee == batchConvFee
    * The 3rd arg is used to calcul batch fees
    */
-  const calculBalances = (
+  const calculERC20Balances = (
     _conversionToPay_result: BigNumber,
     _conversionFees_result: BigNumber,
     _conversionsToPay_results: BigNumber[],
@@ -227,7 +246,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
     feeDiffBalanceExpected = feeDiffBalanceExpected.add(batchFeeToPay(sumToPay));
   };
 
-  const transferOneTokenConv = async (path: string[], logGas = false) => {
+  const transferOneTokenConv = async (path: string[]) => {
     await initConvToPayAndRequestInfo(to, path, amountInFiat, feesAmountInFiat, 0, chainlinkPath);
 
     const result = batchConvFunction(argTemplate([requestInfo]), feeAddress);
@@ -240,10 +259,10 @@ describe('contract: BatchErc20ConversionPayments', () => {
       await emitOneTx(expect(result), requestInfo, conversionToPay, conversionFees);
     }
 
-    calculBalances(conversionToPay.result, conversionFees.result, [conversionToPay.result]);
+    calculERC20Balances(conversionToPay.result, conversionFees.result, [conversionToPay.result]);
   };
 
-  const twoTransferOneTokenConv = async (path2: string[], nTimes: number, logGas = false) => {
+  const twoTransferOneTokenConv = async (path2: string[], nTimes: number) => {
     const coef = 2;
     const amountInFiat2 = BigNumber.from(amountInFiat).mul(coef).toString();
     const feesAmountInFiat2 = BigNumber.from(feesAmountInFiat).mul(coef).toString();
@@ -277,22 +296,22 @@ describe('contract: BatchErc20ConversionPayments', () => {
       requestInfo2._path[requestInfo2._path.length - 1]
     ) {
       for (let i = 0; i < nTimes - 1; i++) {
-        calculBalances(conversionToPay.result, conversionFees.result, []);
-        calculBalances(conversionToPay2.result, conversionFees2.result, []);
+        calculERC20Balances(conversionToPay.result, conversionFees.result, []);
+        calculERC20Balances(conversionToPay2.result, conversionFees2.result, []);
       }
-      calculBalances(conversionToPay.result, conversionFees.result, []);
-      calculBalances(
+      calculERC20Balances(conversionToPay.result, conversionFees.result, []);
+      calculERC20Balances(
         conversionToPay2.result,
         conversionFees2.result,
         conversionsToPay.map((ctp) => ctp.result),
       );
     } else {
       for (let i = 0; i < nTimes - 1; i++) {
-        calculBalances(conversionToPay.result, conversionFees.result, []);
+        calculERC20Balances(conversionToPay.result, conversionFees.result, []);
       }
       const conversionsToPayBis = conversionsToPay.filter((_, i) => i % 2 === 0);
 
-      calculBalances(
+      calculERC20Balances(
         conversionToPay.result,
         conversionFees.result,
         conversionsToPayBis.map((ctp) => ctp.result),
@@ -300,7 +319,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
     }
   };
 
-  const testSuite = (suiteName: string) => {
+  const ERC20TestSuite = (suiteName: string) => {
     emitOneTx = (
       result: Chai.Assertion,
       requestInfo: RequestInfo,
@@ -345,15 +364,15 @@ describe('contract: BatchErc20ConversionPayments', () => {
           ];
         };
       }
-      if (suiteName === 'batchERC20ConversionPaymentsMultiTokensEasy') {
-        batchConvFunction = testBatchConversionProxy.batchERC20ConversionPaymentsMultiTokensEasy;
+      if (suiteName === 'batchERC20ConversionPaymentsMultiTokens') {
+        batchConvFunction = testBatchConversionProxy.batchERC20ConversionPaymentsMultiTokens;
         argTemplate = (requestInfos: RequestInfo[]) => {
           return requestInfos;
         };
       }
     });
     describe(suiteName, () => {
-      describe('batchERC20ConversionPaymentsMultiTokensEasy with DAI', async () => {
+      describe('batchERC20ConversionPaymentsMultiTokens with DAI', async () => {
         it('allows to transfer DAI tokens for USD payment', async () => {
           await transferOneTokenConv(path);
         });
@@ -366,20 +385,20 @@ describe('contract: BatchErc20ConversionPayments', () => {
         });
         it('allows to transfer DAI tokens for EUR payment - GAS', async () => {
           path = [EUR_hash, USD_hash, DAI_address];
-          await transferOneTokenConv(path, true);
+          await transferOneTokenConv(path);
         });
         it('allows to transfer 2 transactions DAI tokens for USD and EUR payment - GAS', async function () {
           const path2 = [EUR_hash, USD_hash, DAI_address];
-          await twoTransferOneTokenConv(path2, 1, true);
+          await twoTransferOneTokenConv(path2, 1);
         });
         it('TMP allows to transfer two kind of tokens for USD - GAS', async function () {
           const path2 = [USD_hash, fakeFAU_address];
-          await twoTransferOneTokenConv(path2, 1, true);
+          await twoTransferOneTokenConv(path2, 1);
         });
       });
     });
 
-    describe('batchERC20ConversionPaymentsMultiTokensEasy with errors', () => {
+    describe('batchERC20ConversionPaymentsMultiTokens with errors', () => {
       it('cannot transfer with invalid path', async function () {
         const wrongPath = [EUR_hash, ETH_hash, DAI_address];
         requestInfo._path = wrongPath;
@@ -468,7 +487,9 @@ describe('contract: BatchErc20ConversionPayments', () => {
           amount * (batchFee / 10_000), // batch fee amount = 200 * 1%
         );
 
-      calculBalances(BigNumber.from(amount), BigNumber.from(feeAmount), [BigNumber.from(amount)]);
+      calculERC20Balances(BigNumber.from(amount), BigNumber.from(feeAmount), [
+        BigNumber.from(amount),
+      ]);
     };
     it('batchERC20PaymentsWithReference transfers token', async function () {
       await batchERC20Payments(false, 'batchERC20PaymentsWithReference');
@@ -485,6 +506,148 @@ describe('contract: BatchErc20ConversionPayments', () => {
     });
   });
 
-  testSuite('batchRouter');
-  testSuite('batchERC20ConversionPaymentsMultiTokensEasy');
+  const EthTestSuite = (suiteName: string) => {
+    describe(`Test ETH ${suiteName} functions`, () => {
+      let beforeEthBalanceTo: BigNumber;
+      let beforeEthBalanceFee: BigNumber;
+      let beforeEthBalance: BigNumber;
+      let feesToPay: ConvToPay;
+      let tx: ContractTransaction;
+      let amountToPayExpected: BigNumber;
+      let feeToPayExpected: BigNumber;
+      const amount = BigNumber.from(100000); // usually in USD
+      const feeAmount = amount.mul(basicFee).div(10000); // usually in USD
+      let inputs: Array<RequestInfo>;
+      const pathUsdEth = [USD_hash, ETH_hash];
+
+      const getInputs = (inputs: Array<RequestInfo>) => {
+        if (suiteName !== 'batchEthConversionPaymentsWithReference') {
+          return [
+            {
+              paymentNetworkId: '3',
+              requestsInfo: inputs,
+              requestsInfoParent: requestsInfoParent1, // not used
+            },
+          ];
+        }
+        return inputs;
+      };
+
+      before(() => {
+        if (suiteName === 'batchEthConversionPaymentsWithReference') {
+          batchConvFunction = testBatchConversionProxy.batchEthConversionPaymentsWithReference;
+        } else {
+          batchConvFunction = testBatchConversionProxy.batchRouter;
+        }
+
+        requestInfo = {
+          _recipient: to,
+          _requestAmount: amount,
+          _path: pathUsdEth,
+          _paymentReference: referenceExample,
+          _feeAmount: feeAmount,
+          _maxToSpend: BigNumber.from(0),
+          _maxRateTimespan: BigNumber.from(0),
+        };
+      });
+
+      describe('success functions', () => {
+        beforeEach(async () => {
+          beforeEthBalanceTo = await provider.getBalance(to);
+          beforeEthBalanceFee = await provider.getBalance(feeAddress);
+          beforeEthBalance = await provider.getBalance(await signer.getAddress());
+          requestInfo = {
+            _recipient: to,
+            _requestAmount: amount,
+            _path: pathUsdEth,
+            _paymentReference: referenceExample,
+            _feeAmount: feeAmount,
+            _maxToSpend: BigNumber.from(0),
+            _maxRateTimespan: BigNumber.from(0),
+          };
+
+          // basic setup: 1 payment
+          conversionToPay = await chainlinkPath.getConversion(
+            requestInfo._requestAmount,
+            requestInfo._path,
+          );
+          feesToPay = await chainlinkPath.getConversion(requestInfo._feeAmount, requestInfo._path);
+
+          amountToPayExpected = conversionToPay.result;
+          feeToPayExpected = feesToPay.result;
+        });
+
+        afterEach(async () => {
+          tx = await batchConvFunction(getInputs(inputs), feeAddress, {
+            value: BigNumber.from('100000000000000000'),
+          });
+          const receipt = await tx.wait();
+
+          if (logGas) console.log('gas consumption: ', receipt.gasUsed.toString());
+
+          const afterEthBalance = await provider.getBalance(await signer.getAddress());
+          const afterEthBalanceTo = await provider.getBalance(to);
+          const afterEthBalanceFee = await provider.getBalance(feeAddress);
+
+          const proxyBalance = await provider.getBalance(testBatchConversionProxy.address);
+          const _diffBalance = beforeEthBalance.sub(afterEthBalance);
+          const _diffBalanceTo = afterEthBalanceTo.sub(beforeEthBalanceTo);
+          const _diffBalanceFee = afterEthBalanceFee.sub(beforeEthBalanceFee);
+          const _diffBalanceExpect = receipt.gasUsed
+            .mul(2 * 10 ** 10)
+            .add(_diffBalanceTo)
+            .add(_diffBalanceFee);
+
+          expect(_diffBalance).to.equals(_diffBalanceExpect.toString(), 'DiffBalance');
+          expect(_diffBalanceTo).to.equals(amountToPayExpected.toString(), 'diffBalanceTo');
+
+          expect(_diffBalanceFee.toString()).to.equals(
+            amountToPayExpected.mul(batchConvFee).div(10000).add(feeToPayExpected).toString(),
+            'diffBalanceFee',
+          );
+          expect(proxyBalance).to.equals('0', 'proxyBalance');
+        });
+
+        it('batchEthConversionPaymentsWithReference transfer 1 payment in ethers denominated in USD', async function () {
+          inputs = [requestInfo];
+        });
+
+        it('batchEthConversionPaymentsWithReference transfer 3 payment in ethers denominated in USD', async function () {
+          amountToPayExpected = amountToPayExpected.mul(3);
+          feeToPayExpected = feeToPayExpected.mul(3);
+          inputs = [requestInfo, requestInfo, requestInfo];
+        });
+
+        it('batchEthConversionPaymentsWithReference transfer 3 payments in ethers denominated in USD and EUR', async function () {
+          const EurRequestInfo = Utils.deepCopy(requestInfo);
+          EurRequestInfo._path = [EUR_hash, USD_hash, ETH_hash];
+
+          const eurConversionToPay = await chainlinkPath.getConversion(
+            EurRequestInfo._requestAmount,
+            EurRequestInfo._path,
+          );
+          const eurFeesToPay = await chainlinkPath.getConversion(
+            EurRequestInfo._feeAmount,
+            EurRequestInfo._path,
+          );
+
+          amountToPayExpected = eurConversionToPay.result.add(amountToPayExpected.mul(2));
+          feeToPayExpected = eurFeesToPay.result.add(feeToPayExpected.mul(2));
+          inputs = [requestInfo, EurRequestInfo, requestInfo];
+        });
+      });
+      it('batchEthConversionPaymentsWithReference transfer FAIL: not enough funds', async function () {
+        await expect(
+          batchConvFunction(getInputs([requestInfo]), feeAddress, {
+            value: 10000,
+          }),
+        ).to.be.revertedWith('not enough funds');
+      });
+    });
+  };
+
+  ERC20TestSuite('batchRouter');
+  ERC20TestSuite('batchERC20ConversionPaymentsMultiTokens');
+  EthTestSuite('batchRouter');
+  EthTestSuite('batchEthConversionPaymentsWithReference');
 });
