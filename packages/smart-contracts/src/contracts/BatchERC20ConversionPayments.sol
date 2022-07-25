@@ -15,9 +15,11 @@ import './BatchPaymentsPublic.sol';
 /**
  * @title BatchConversionPayments
  * @notice This contract makes multiple conversion payments with references, in one transaction:
- *          - on: ERC20 Payment Proxy of the Request Network protocol
+ *          - on: 
+ *              - ERC20 tokens: using Erc20ConversionProxy and ERC20FeeProxy
+ *              - Native token: as Eth, using EthConversionProxy and EthereumFeeProxy
  *          - to: multiple addresses
- *          - fees: ERC20 proxy fees and additional batch conversion fee are paid to the same address.
+ *          - fees: conversion proxy fees and additional batch conversion fee are paid to the same address.
  *         If one transaction of the batch fail, every transactions are reverted.
  * @dev Please notify than fees are now divided by 10_000 instead of 1_000 in previous version
  */
@@ -216,7 +218,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
       );
     }
 
-    // batch send back to the payer the tokens not spent and pay the batch
+    // batch send back to the payer the tokens not spent and pay the batch fee
     for (uint256 k = 0; k < uTokens.length && uTokens[k].amountAndFee > 0; k++) {
       IERC20 requestedToken = IERC20(uTokens[k].tokenAddress);
 

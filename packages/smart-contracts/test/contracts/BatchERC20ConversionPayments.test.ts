@@ -177,8 +177,6 @@ describe('contract: BatchErc20ConversionPayments', () => {
     toBalance = await testERC20.balanceOf(to);
     feeBalance = await testERC20.balanceOf(feeAddress);
     batchBalance = await testERC20.balanceOf(batchAddress);
-    // console.log('fromOldBalance', fromOldBalance.toString());
-    // console.log('fromBalance', fromBalance.toString());
     const fromDiffBalance = BigNumber.from(fromBalance.toString())
       .sub(fromOldBalance.toString())
       .toString();
