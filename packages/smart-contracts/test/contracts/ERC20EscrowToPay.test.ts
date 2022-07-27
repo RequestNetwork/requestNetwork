@@ -259,19 +259,33 @@ describe('Contract: ERC20EscrowToPay', () => {
     });
   });
   describe('Admin should be able to change emergency and freeze periods', () => {
-    it('Should be able to change emergency period', async () => {
+    it('Minimum emergency period is 30 days', async () => {
       const twoDaysInSeconds = 3600 * 24 * 2;
-      await erc20EscrowToPay.connect(admin).setEmergencyClaimPeriod(twoDaysInSeconds);
+      expect(
+        erc20EscrowToPay.connect(admin).setEmergencyClaimPeriod(twoDaysInSeconds),
+      ).to.be.revertedWith('emergency period too short');
+    });
+
+    it('Minimum frozen period is 30 days', async () => {
+      const twentyNineDaysInSeconds = 3600 * 24 * 29;
+      expect(
+        erc20EscrowToPay.connect(admin).setFrozenPeriod(twentyNineDaysInSeconds),
+      ).to.be.revertedWith('frozen period too short');
+    });
+
+    it('Should be able to adjust emergency period', async () => {
+      const thirtyOneDaysInSeconds = 3600 * 24 * 31;
+      await erc20EscrowToPay.connect(admin).setEmergencyClaimPeriod(thirtyOneDaysInSeconds);
       const contractEmergencyPeriod = await erc20EscrowToPay.connect(payee).emergencyClaimPeriod();
-      expect(contractEmergencyPeriod).to.be.equal(twoDaysInSeconds);
+      expect(contractEmergencyPeriod).to.be.equal(thirtyOneDaysInSeconds);
     });
-    it('Should be able to adjust freeze period, only admin', async () => {
-      const twoDaysInSeconds = 3600 * 24 * 2;
-      await erc20EscrowToPay.connect(admin).setFrozenPeriod(twoDaysInSeconds);
+    it('Should be able to adjust freeze period', async () => {
+      const thirtyOneDaysInSeconds = 3600 * 24 * 31;
+      await erc20EscrowToPay.connect(admin).setFrozenPeriod(thirtyOneDaysInSeconds);
       const contractFreezePeriod = await erc20EscrowToPay.connect(payee).frozenPeriod();
-      expect(contractFreezePeriod).to.be.equal(twoDaysInSeconds);
+      expect(contractFreezePeriod).to.be.equal(thirtyOneDaysInSeconds);
     });
-    it('Contract creator should not be able to change periods', async () => {
+    it('Contract creator who is not the owner, should not be able to change periods', async () => {
       expect(erc20EscrowToPay.connect(owner).setEmergencyClaimPeriod(100)).to.be.revertedWith(
         'Ownable: caller is not the owner',
       );

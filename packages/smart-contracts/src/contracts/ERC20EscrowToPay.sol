@@ -151,13 +151,19 @@ contract ERC20EscrowToPay is Ownable {
     revert('not payable receive');
   }
 
+  /**
+   * @notice Sets duration of emergency period, with minimum value of 30 days.
+   */
   function setEmergencyClaimPeriod(uint256 _emergencyClaimPeriod) external onlyOwner {
-    require(_emergencyClaimPeriod >= 30, 'emergency period too short');
+    require(_emergencyClaimPeriod >= 30 days, 'emergency period too short');
     emergencyClaimPeriod = _emergencyClaimPeriod;
   }
 
+  /**
+   * @notice Sets duration of freeze period, with minimum value of 30 days.
+   */
   function setFrozenPeriod(uint256 _frozenPeriod) external onlyOwner {
-    require(_frozenPeriod >= 30, 'frozen period too short');
+    require(_frozenPeriod >= 30 days, 'frozen period too short');
     frozenPeriod = _frozenPeriod;
   }
 
