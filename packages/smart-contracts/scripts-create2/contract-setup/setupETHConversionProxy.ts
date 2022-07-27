@@ -34,7 +34,12 @@ export const setupEthConversionProxy = async (
       // start from the adminNonce, increase gasPrice if needed
       await Promise.all([
         updatePaymentErc20FeeProxy(EthConversionProxyConnected, network, adminNonce, gasPrice),
-        updateChainlinkConversionPath(EthConversionProxyConnected, network, adminNonce+1, gasPrice),
+        updateChainlinkConversionPath(
+          EthConversionProxyConnected,
+          network,
+          adminNonce + 1,
+          gasPrice,
+        ),
       ]);
     }),
   );
