@@ -1,5 +1,6 @@
 import { constants, ContractTransaction, Signer, BigNumber, providers } from 'ethers';
 
+import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20SwapToConversion__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
@@ -7,12 +8,14 @@ import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
   getProvider,
+  getProxyAddress,
   getRequestPaymentValues,
   getSigner,
   validateConversionFeeProxyRequest,
 } from './utils';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { IRequestPaymentOptions } from './settings';
+import { IPreparedTransaction } from './prepared-transaction';
 
 export { ISwapSettings } from './swap-erc20-fee-proxy';
 
@@ -24,9 +27,26 @@ export { ISwapSettings } from './swap-erc20-fee-proxy';
  */
 export async function swapToPayAnyToErc20Request(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   options: IRequestPaymentOptions,
 ): Promise<ContractTransaction> {
+  const preparedTx = prepareSwapToPayAnyToErc20Request(request, signerOrProvider, options);
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction(preparedTx);
+  return tx;
+}
+
+/**
+ * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
+ * @param request
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param options to override amount, feeAmount and transaction parameters
+ */
+export function prepareSwapToPayAnyToErc20Request(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  options: IRequestPaymentOptions,
+): IPreparedTransaction {
   if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
     throw new Error(`The request must have the payment network any-to-erc20-proxy`);
   }
@@ -39,15 +59,13 @@ export async function swapToPayAnyToErc20Request(
 
   const encodedTx = encodeSwapToPayAnyToErc20Request(request, signerOrProvider, options);
   const proxyAddress = erc20SwapConversionArtifact.getAddress(network);
-  const signer = getSigner(signerOrProvider);
 
-  const tx = await signer.sendTransaction({
+  return {
     data: encodedTx,
     to: proxyAddress,
     value: 0,
     ...options?.overrides,
-  });
-  return tx;
+  };
 }
 
 /**
@@ -58,7 +76,7 @@ export async function swapToPayAnyToErc20Request(
  */
 export function encodeSwapToPayAnyToErc20Request(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   options: IRequestPaymentOptions,
 ): string {
   const conversionSettings = options?.conversion;
@@ -107,9 +125,8 @@ export function encodeSwapToPayAnyToErc20Request(
 
   const signer = getSigner(signerOrProvider);
   const paymentNetworkTokenAddress = conversionSettings.currency.value;
-  const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-    request,
-  );
+  const { paymentReference, paymentAddress, feeAddress, feeAmount } =
+    getRequestPaymentValues(request);
 
   const chainlinkDecimal = 8;
   const decimals = currencyManager.fromStorageCurrency(request.currencyInfo)?.decimals;
@@ -132,10 +149,16 @@ export function encodeSwapToPayAnyToErc20Request(
     throw new Error('A swap with a past deadline will fail, the transaction will not be pushed');
   }
 
+  const conversionProxyAddress = getProxyAddress(
+    request,
+    AnyToERC20PaymentDetector.getDeploymentInformation,
+  );
+
   const contractAddress = erc20SwapConversionArtifact.getAddress(network);
   const swapToPayContract = ERC20SwapToConversion__factory.connect(contractAddress, signer);
 
   return swapToPayContract.interface.encodeFunctionData('swapTransferWithReference', [
+    conversionProxyAddress,
     paymentAddress, // _to: string,
     amountToPay, // _requestAmount: BigNumberish,
     swapSettings.maxInputAmount, // _amountInMax: BigNumberish,

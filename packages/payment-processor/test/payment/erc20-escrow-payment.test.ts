@@ -7,7 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { Escrow } from '@requestnetwork/payment-processor';
+import { Escrow } from '../../src/';
 import { getRequestPaymentValues, getSigner } from '../../src/payment/utils';
 
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
@@ -16,7 +16,7 @@ import { getErc20Balance } from '../../src/payment/erc20';
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-const erc20ContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
+const erc20TokenContractAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
@@ -37,7 +37,7 @@ const validRequest: ClientTypes.IRequestData = {
   currencyInfo: {
     network: 'private',
     type: RequestLogicTypes.CURRENCY.ERC20,
-    value: erc20ContractAddress,
+    value: erc20TokenContractAddress,
   },
   events: [],
   expectedAmount: '100',
@@ -122,12 +122,13 @@ describe('erc20-escrow-payment tests:', () => {
 
       const values = getRequestPaymentValues(validRequest);
 
-      await Escrow.payEscrow(validRequest, wallet, undefined);
+      await Escrow.payEscrow(validRequest, wallet, undefined, undefined, { gasPrice: 500 });
 
       expect(spy).toHaveBeenCalledWith({
         data: `0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
-        to: '0xF08dF3eFDD854FEDE77Ed3b2E515090EEe765154',
+        to: escrowAddress,
         value: 0,
+        gasPrice: 500,
       });
       wallet.sendTransaction = originalSendTransaction;
     });
@@ -137,37 +138,37 @@ describe('erc20-escrow-payment tests:', () => {
     const values = getRequestPaymentValues(validRequest);
 
     it('Should encode data to execute payEscrow().', () => {
-      expect(Escrow.encodePayEscrow(validRequest, wallet)).toBe(
+      expect(Escrow.encodePayEscrow(validRequest)).toBe(
         `0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute payRequestFromEscrow().', () => {
-      expect(Escrow.encodePayRequestFromEscrow(validRequest, wallet)).toBe(
+      expect(Escrow.encodePayRequestFromEscrow(validRequest)).toBe(
         `0x2a16f4c300000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute freezeRequest().', () => {
-      expect(Escrow.encodeFreezeRequest(validRequest, wallet)).toBe(
+      expect(Escrow.encodeFreezeRequest(validRequest)).toBe(
         `0x82865e9d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute initiateEmergencyClaim().', () => {
-      expect(Escrow.encodeInitiateEmergencyClaim(validRequest, wallet)).toBe(
+      expect(Escrow.encodeInitiateEmergencyClaim(validRequest)).toBe(
         `0x3a322d4500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute completeEmergencyClaim().', () => {
-      expect(Escrow.encodeCompleteEmergencyClaim(validRequest, wallet)).toBe(
+      expect(Escrow.encodeCompleteEmergencyClaim(validRequest)).toBe(
         `0x6662e1e000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute revertEmergencyClaim().', () => {
-      expect(Escrow.encodeRevertEmergencyClaim(validRequest, wallet)).toBe(
+      expect(Escrow.encodeRevertEmergencyClaim(validRequest)).toBe(
         `0x0797560800000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
     it('Should encode data to execute refundFrozenFunds().', () => {
-      expect(Escrow.encodeRefundFrozenFunds(validRequest, wallet)).toBe(
+      expect(Escrow.encodeRefundFrozenFunds(validRequest)).toBe(
         `0x1a77f53a00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
       );
     });
@@ -175,7 +176,7 @@ describe('erc20-escrow-payment tests:', () => {
 
   describe('Main use cases:', () => {
     beforeEach(async () => {
-      await Escrow.approveErc20ForEscrow(validRequest, erc20ContractAddress, wallet);
+      await Escrow.approveErc20ForEscrow(validRequest, erc20TokenContractAddress, wallet);
     });
 
     describe('Normal Flow:', () => {
@@ -193,17 +194,11 @@ describe('erc20-escrow-payment tests:', () => {
         const feeAfterBalance = await getErc20Balance(request, feeAddress);
 
         // Expect payer ERC20 balance should be lower.
-        expect(
-          BigNumber.from(payerAfterBalance).eq(BigNumber.from(payerBeforeBalance).sub(102)),
-        ).toBeTruthy();
+        expect(BigNumber.from(payerAfterBalance).eq(BigNumber.from(payerBeforeBalance).sub(102)));
         // Expect fee ERC20 balance should be higher.
-        expect(
-          BigNumber.from(feeAfterBalance).eq(BigNumber.from(feeBeforeBalance).add(2)),
-        ).toBeTruthy();
+        expect(BigNumber.from(feeAfterBalance).eq(BigNumber.from(feeBeforeBalance).add(2)));
         // Expect escrow Erc20 balance should be higher.
-        expect(
-          BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).add(100)),
-        ).toBeTruthy();
+        expect(BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).add(100)));
       });
       it('Should withdraw funds and pay funds from escrow to payee', async () => {
         // Set a new requestID to test independent unit-tests.
@@ -224,13 +219,9 @@ describe('erc20-escrow-payment tests:', () => {
         const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
 
         // Expect escrow Erc20 balance should be lower.
-        expect(
-          BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).sub(100)),
-        ).toBeTruthy();
+        expect(BigNumber.from(escrowAfterBalance).eq(BigNumber.from(escrowBeforeBalance).sub(100)));
         // Expect payee ERC20 balance should be higher.
-        expect(
-          BigNumber.from(payeeAfterBalance).eq(BigNumber.from(payeeBeforeBalance).add(100)),
-        ).toBeTruthy();
+        expect(BigNumber.from(payeeAfterBalance).eq(BigNumber.from(payeeBeforeBalance).add(100)));
       });
     });
 
@@ -244,9 +235,7 @@ describe('erc20-escrow-payment tests:', () => {
         const payee = getSigner(provider, paymentAddress);
 
         // Execute payEscrow.
-        expect(
-          await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1),
-        ).toBeTruthy();
+        expect(await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1));
 
         // Payer initiate emergency claim.
         const tx = await Escrow.initiateEmergencyClaim(request, payee);
@@ -265,10 +254,12 @@ describe('erc20-escrow-payment tests:', () => {
         const payee = getSigner(provider, paymentAddress);
 
         // Execute payEscrow.
-        await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1);
+        const tx1 = await Escrow.payEscrow(request, wallet, undefined, undefined);
+        await tx1.wait(1);
 
         // Payer initiate emergency claim.
-        await (await Escrow.initiateEmergencyClaim(request, payee)).wait(1);
+        const tx2 = await Escrow.initiateEmergencyClaim(request, payee);
+        await tx2.wait(1);
 
         // Payer reverts the emergency claim.
         const tx = await Escrow.revertEmergencyClaim(request, wallet);
@@ -287,15 +278,15 @@ describe('erc20-escrow-payment tests:', () => {
         request.requestId = 'aaee';
 
         // Execute payEscrow function on smart contract.
-        await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1);
-
+        const tx1 = await Escrow.payEscrow(request, wallet, undefined, undefined);
+        await tx1.wait(1);
         // Payer freeze escrow funds.
-        const tx = await Escrow.freezeRequest(request, wallet);
-        const confirmedTx = await tx.wait(1);
+        const tx2 = await Escrow.freezeRequest(request, wallet);
+        const confirmedTx = await tx2.wait(1);
 
         // Checks the status and tx.hash.
         expect(confirmedTx.status).toBe(1);
-        expect(tx.hash).toBeDefined();
+        expect(tx2.hash).toBeDefined();
       });
       it('Should revert if tried to withdraw to early:', async () => {
         // Set a new requestID to test independent unit-tests.
@@ -303,10 +294,11 @@ describe('erc20-escrow-payment tests:', () => {
         request.requestId = 'aaff';
 
         // Execute payEscrow.
-        await (await Escrow.payEscrow(request, wallet, undefined, undefined)).wait(1);
-
+        const tx1 = await Escrow.payEscrow(request, wallet, undefined, undefined);
+        await tx1.wait(1);
         // Payer executes a freeze of escrow funds.
-        await (await Escrow.freezeRequest(request, wallet)).wait(1);
+        const tx2 = await Escrow.freezeRequest(request, wallet);
+        await tx2.wait(1);
 
         // Payer tries to withdraw frozen funds before unlock date.
         await expect(Escrow.refundFrozenFunds(request, wallet)).rejects.toThrowError('Not Yet!');

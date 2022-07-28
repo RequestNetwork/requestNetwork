@@ -1,7 +1,6 @@
 query GetConversionPayments(
   $contractAddress: Bytes!
   $reference: Bytes!
-  $acceptedTokens: [Bytes!]!
   $to: Bytes!
   $maxRateTimespan: Int!
 ) {
@@ -9,7 +8,6 @@ query GetConversionPayments(
     where: {
       contractAddress: $contractAddress
       reference: $reference
-      tokenAddress_in: $acceptedTokens
       to: $to
       maxRateTimespan_gte: $maxRateTimespan
     }
@@ -29,5 +27,7 @@ query GetConversionPayments(
     amountInCrypto
     feeAmountInCrypto
     maxRateTimespan
+    gasUsed
+    gasPrice
   }
 }

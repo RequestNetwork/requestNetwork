@@ -10,7 +10,7 @@ import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { FeeReferenceBasedDetector } from '../fee-reference-based-detector';
 import TheGraphInfoRetriever from '../erc20/thegraph-info-retriever';
 import { makeGetDeploymentInformation } from '../utils';
-import { networkSupportsTheGraphForNativePayments } from '../thegraph';
+import { networkSupportsTheGraph } from '../thegraph';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -19,6 +19,7 @@ interface IProxyContractVersion {
 
 const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
   ['0.1.0']: '0.1.0',
+  ['0.2.0']: '0.2.0',
 };
 
 /**
@@ -60,35 +61,41 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     >
       ? ExtensionTypes.IState<X>
       : never,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IETHPaymentEventParameters>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+      };
     }
 
     const proxyContractArtifact = EthFeeProxyPaymentDetector.getDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
-
-    const proxyInfoRetriever = networkSupportsTheGraphForNativePayments(paymentChain)
-      ? new TheGraphInfoRetriever(
-          paymentReference,
-          proxyContractArtifact.address,
-          null,
-          address,
-          eventName,
-          paymentChain,
-        )
-      : new EthProxyInfoRetriever(
-          paymentReference,
-          proxyContractArtifact.address,
-          proxyContractArtifact.creationBlockNumber,
-          address,
-          eventName,
-          paymentChain,
-        );
-
-    return proxyInfoRetriever.getTransferEvents();
+    if (networkSupportsTheGraph(paymentChain)) {
+      const graphInfoRetriever = new TheGraphInfoRetriever(
+        paymentReference,
+        proxyContractArtifact.address,
+        null,
+        address,
+        eventName,
+        paymentChain,
+      );
+      return graphInfoRetriever.getTransferEvents();
+    } else {
+      const proxyInfoRetriever = new EthProxyInfoRetriever(
+        paymentReference,
+        proxyContractArtifact.address,
+        proxyContractArtifact.creationBlockNumber,
+        address,
+        eventName,
+        paymentChain,
+      );
+      const paymentEvents = await proxyInfoRetriever.getTransferEvents();
+      return {
+        paymentEvents,
+      };
+    }
   }
 
   /*

@@ -78,7 +78,7 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
    */
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
     if (!request.currency.network) {
       request.currency.network = 'mainnet';
     }
@@ -110,7 +110,10 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
       request.currency.value,
     );
 
-    return [...paymentEvents, ...refundEvents];
+    const allPaymentEvents = [...paymentEvents, ...refundEvents];
+    return {
+      paymentEvents: allPaymentEvents,
+    };
   }
 
   /**

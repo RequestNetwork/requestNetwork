@@ -1,4 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
+import { IPaymentRetriever } from '../types';
 import { BigNumber, ethers } from 'ethers';
 import { getDefaultProvider } from '../provider';
 import { parseLogArgs } from '../utils';
@@ -26,7 +27,8 @@ type TransferWithReferenceAndFeeArgs = TransferWithReferenceArgs & {
  * Retrieves a list of payment events from a payment reference, a destination address, a token address and a proxy contract
  */
 export class EthProxyInfoRetriever
-  implements PaymentTypes.IPaymentNetworkInfoRetriever<PaymentTypes.ETHPaymentNetworkEvent> {
+  implements IPaymentRetriever<PaymentTypes.ETHPaymentNetworkEvent>
+{
   public contractProxy: ethers.Contract;
   public provider: ethers.providers.Provider;
 
@@ -116,7 +118,6 @@ export class EthProxyInfoRetriever
         },
         timestamp: (await this.provider.getBlock(blockNumber || 0)).timestamp,
       }));
-
-    return Promise.all(eventPromises);
+    return await Promise.all(eventPromises);
   }
 }

@@ -5,6 +5,10 @@ const networks: Record<string, ethers.providers.Network> = {
   fuse: { chainId: 122, name: 'fuse' },
   celo: { chainId: 42220, name: 'celo' },
   fantom: { chainId: 250, name: 'fantom' },
+  'arbitrum-rinkeby': { chainId: 421611, name: 'arbitrum-rinkeby' },
+  'arbitrum-one': { chainId: 42161, name: 'arbitrum-one' },
+  avalanche: { chainId: 43114, name: 'avalanche' },
+  bsc: { chainId: 56, name: 'bsc' },
 };
 
 /**
@@ -43,6 +47,12 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
         return 'https://explorer.mainnet.near.org';
       case 'aurora-testnet':
         return 'https://explorer.testnet.near.org';
+      case 'arbitrum-rinkeby':
+        return 'https://testnet.arbiscan.io/';
+      case 'arbitrum-one':
+        return 'https://api.arbiscan.io';
+      case 'avalanche':
+        return 'https://api.snowtrace.io';
       default:
         return super.getBaseUrl();
     }

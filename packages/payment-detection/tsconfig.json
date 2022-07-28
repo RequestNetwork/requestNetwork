@@ -1,14 +1,3 @@
 {
-  "extends": "../../tsconfig",
-  "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src"
-  },
-  "include": ["./src/**/*"],
-  "references": [
-    { "path": "../currency" },
-    { "path": "../types" },
-    { "path": "../utils" },
-    { "path": "../smart-contracts" }
-  ]
+  "extends": "../../tsconfig"
 }

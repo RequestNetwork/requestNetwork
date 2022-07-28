@@ -5,6 +5,7 @@ import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
 import { payErc20Request } from './erc20';
+import { payErc777StreamRequest } from './erc777-stream';
 import { _getEthPaymentUrl, payEthInputDataRequest } from './eth-input-data';
 import { payEthFeeProxyRequest } from './eth-fee-proxy';
 import { ITransactionOverrides } from './transaction-overrides';
@@ -16,11 +17,17 @@ import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
 import { isNearNetwork, isNearAccountSolvent } from './utils-near';
 import { ICurrencyManager } from '@requestnetwork/currency';
+import { encodeRequestErc20ApprovalIfNeeded } from './encoder-approval';
+import { encodeRequestPayment } from './encoder-payment';
+import { IPreparedTransaction } from './prepared-transaction';
+import { IRequestPaymentOptions } from './settings';
 
 export const supportedNetworks = [
+  ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+  ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
 ];
 
 export interface IConversionPaymentSettings {
@@ -59,6 +66,7 @@ export class UnsupportedPaymentChain extends Error {
  * - ETH_INPUT_DATA
  * - ERC20_FEE_PROXY_CONTRACT
  * - ANY_TO_ERC20_PROXY
+ * - ERC777_STREAM
  *
  * @throws UnsupportedNetworkError if network isn't supported for swap or payment.
  * @throws UnsupportedPaymentChain if the currency network is not supported (eg Near)
@@ -81,6 +89,8 @@ export async function payRequest(
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
       return payErc20Request(request, signer, amount, undefined, overrides);
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM:
+      return payErc777StreamRequest(request, signer);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
       if (!paymentSettings) {
         throw new Error('Missing payment settings for a payment with conversion');
@@ -114,6 +124,37 @@ export async function payRequest(
     default:
       throw new UnsupportedNetworkError(paymentNetwork);
   }
+}
+
+/**
+ * Encode the transactions associated to a request
+ * @param request the request to pay.
+ * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
+ * @param from The address which will send the transaction.
+ * @param options encoding options
+ * @returns
+ */
+export async function encodeRequestApprovalAndPayment(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Provider,
+  from?: string,
+  options?: IRequestPaymentOptions,
+): Promise<IPreparedTransaction[]> {
+  const preparedTransactions: IPreparedTransaction[] = [];
+
+  if (from) {
+    const approvalTx = await encodeRequestErc20ApprovalIfNeeded(
+      request,
+      signerOrProvider,
+      from,
+      options,
+    );
+    if (approvalTx) {
+      preparedTransactions.push(approvalTx);
+    }
+  }
+  preparedTransactions.push(encodeRequestPayment(request, signerOrProvider, options));
+  return preparedTransactions;
 }
 
 /**
@@ -242,6 +283,7 @@ async function getCurrencyBalance(
     case 'ETH': {
       return provider.getBalance(address);
     }
+    case 'ERC777':
     case 'ERC20': {
       return getAnyErc20Balance(paymentCurrency.value, address, provider);
     }

@@ -33,13 +33,15 @@ export const initPaymentDetectionApiKeys = (
  */
 const networkRpcs: Record<string, string> = {
   private: providers.JsonRpcProvider.defaultUrl(),
-  matic: 'https://rpc-mainnet.matic.network/',
+  matic: 'https://polygon-rpc.com/',
   fantom: 'https://rpc.ftm.tools',
   fuse: 'https://rpc.fuse.io',
   bsctest: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   bsc: 'https://bsc-dataseed1.binance.org/',
   xdai: 'https://rpc.xdaichain.com/',
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
+  'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
+  avalanche: 'https://api.avax.network/ext/bc/C/rpc',
 };
 
 /**

@@ -17,6 +17,7 @@ import {
   getSigner,
   validateRequest,
 } from './utils';
+import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ERC20 Request.
@@ -29,7 +30,7 @@ import {
  */
 export async function payErc20Request(
   request: ClientTypes.IRequestData,
-  signerOrProvider?: providers.Web3Provider | Signer,
+  signerOrProvider?: providers.Provider | Signer,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
   overrides?: ITransactionOverrides,
@@ -122,19 +123,35 @@ export async function approveErc20IfNeeded(
  */
 export async function approveErc20(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const encodedTx = encodeApproveErc20(request, signerOrProvider);
+  const preparedTx = prepareApproveErc20(request, signerOrProvider, overrides);
   const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction(preparedTx);
+  return tx;
+}
+
+/**
+ * Prepare the transaction to approve the proxy to spend signer's tokens to pay
+ * the request in its payment currency. Can be used with a Multisig contract.
+ * @param request request to pay
+ * @param provider the web3 provider. Defaults to Etherscan.
+ * @param overrides optionally, override default transaction values, like gas.
+ */
+export function prepareApproveErc20(
+  request: ClientTypes.IRequestData,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+  overrides?: ITransactionOverrides,
+): IPreparedTransaction {
+  const encodedTx = encodeApproveErc20(request, signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
-  const tx = await signer.sendTransaction({
+  return {
     data: encodedTx,
     to: tokenAddress,
     value: 0,
     ...overrides,
-  });
-  return tx;
+  };
 }
 
 /**
@@ -145,10 +162,10 @@ export async function approveErc20(
  */
 export function encodeApproveErc20(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
 ): string {
-  const paymentNetworkId = (getPaymentNetworkExtension(request)
-    ?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
+  const paymentNetworkId = getPaymentNetworkExtension(request)
+    ?.id as unknown as PaymentTypes.PAYMENT_NETWORK_ID;
   if (!paymentNetworkId) {
     throw new Error('No payment network Id');
   }

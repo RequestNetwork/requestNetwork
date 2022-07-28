@@ -2,14 +2,10 @@ import { EventEmitter } from 'events';
 import * as StorageTypes from './storage-types';
 
 /** Data Access Layer */
-export interface IDataAccess {
+export interface IDataRead {
   initialize: () => Promise<void>;
   close: () => Promise<void>;
-  persistTransaction: (
-    transactionData: ITransaction,
-    channelId: string,
-    topics?: string[],
-  ) => Promise<IReturnPersistTransaction>;
+
   getTransactionsByChannelId: (
     channelId: string,
     timestampBoundaries?: ITimestampBoundaries,
@@ -22,6 +18,20 @@ export interface IDataAccess {
     topics: string[],
     updatedBetween?: ITimestampBoundaries,
   ): Promise<IReturnGetChannelsByTopic>;
+}
+
+export interface IDataWrite {
+  initialize: () => Promise<void>;
+  close: () => Promise<void>;
+
+  persistTransaction: (
+    transactionData: ITransaction,
+    channelId: string,
+    topics?: string[],
+  ) => Promise<IReturnPersistTransaction>;
+}
+
+export interface IDataAccess extends IDataRead, IDataWrite {
   _getStatus(detailed?: boolean): Promise<IDataAccessStatus>;
 }
 

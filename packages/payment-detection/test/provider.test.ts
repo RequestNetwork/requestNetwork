@@ -41,7 +41,7 @@ describe('getDefaultProvider', () => {
   it('Can override the RPC configuration for an existing network', async () => {
     expect(getDefaultProvider('matic')).toBeInstanceOf(providers.JsonRpcProvider);
     expect((getDefaultProvider('matic') as providers.JsonRpcProvider).connection.url).toBe(
-      'https://rpc-mainnet.matic.network/',
+      'https://polygon-rpc.com/',
     );
     setProviderFactory(() => 'http://matic.fake');
     expect(getDefaultProvider('matic')).toBeInstanceOf(providers.JsonRpcProvider);

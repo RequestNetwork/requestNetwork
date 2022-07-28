@@ -18,5 +18,5 @@ interface IERC20FeeProxy {
     bytes calldata _paymentReference,
     uint256 _feeAmount,
     address _feeAddress
-    ) external;
+  ) external;
 }

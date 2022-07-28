@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { Contract } from 'near-api-js';
 import { Near, WalletConnection } from 'near-api-js';
-import { Near as NearPaymentDetection } from '@requestnetwork/payment-detection';
+import { NearNativeTokenPaymentDetector } from '@requestnetwork/payment-detection';
 
 export const isValidNearAddress = async (nearNetwork: Near, address: string): Promise<boolean> => {
   try {
@@ -58,7 +58,7 @@ export const processNearPayment = async (
   try {
     const contract = new Contract(
       walletConnection.account(),
-      NearPaymentDetection.getContractName(network, version),
+      NearNativeTokenPaymentDetector.getContractName(network, version),
       {
         changeMethods: ['transfer_with_reference'],
         viewMethods: [],

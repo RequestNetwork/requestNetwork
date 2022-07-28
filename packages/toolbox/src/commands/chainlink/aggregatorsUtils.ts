@@ -31,30 +31,35 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   rinkeby: ['ethereum-addresses', 'Rinkeby Testnet'],
   fantom: ['fantom-price-feeds', 'Fantom Mainnet'],
   matic: ['matic-addresses', 'Polygon Mainnet'],
+  xdai: ['data-feeds-gnosis-chain', 'Gnosis Chain Mainnet'],
+  bsc: ['bnb-chain-addresses-price', 'BNB Chain Mainnet'],
 };
 
 export const getAvailableAggregators = async (
   network: string,
   cm: CurrencyManager,
   pairs?: string[],
+  listAll?: boolean,
 ): Promise<Aggregator[]> => {
   const [feedName, networkName] = feedMap[network] || [];
   if (!feedName || !networkName) {
-    throw new Error(`network ${network} not supported`);
+    throw new Error(
+      `network ${network} not supported by feed provider. Is it supported by Chainlink?`,
+    );
   }
   const { data } = await axios.get<Record<string, Feed>>(
     'https://cl-docs-addresses.web.app/addresses.json',
   );
 
-  const mainnetProxies = data[feedName].networks.find((x) => x.name === networkName)?.proxies;
-  if (!mainnetProxies) {
+  const proxies = data[feedName].networks.find((x) => x.name === networkName)?.proxies;
+  if (!proxies) {
     throw new Error(`not proxies for feed ${feedName} > ${networkName}`);
   }
   const missingAggregators: Aggregator[] = [];
-  for (const proxy of mainnetProxies) {
+  for (const proxy of proxies) {
     const [from, to] = proxy.pair.split(' / ');
-    const fromCurrency = cm.from(from);
-    const toCurrency = cm.from(to);
+    const fromCurrency = cm.from(from, network);
+    const toCurrency = cm.from(to, network);
     if (pairs && !pairs.includes(`${from}-${to}`.toLowerCase())) {
       continue;
     }
@@ -65,7 +70,7 @@ export const getAvailableAggregators = async (
       toCurrency.type !== RequestLogicTypes.CURRENCY.BTC &&
       (fromCurrency.type === RequestLogicTypes.CURRENCY.ISO4217 ||
         fromCurrency.network === network) &&
-      !cm.getConversionPath(fromCurrency, toCurrency, network)
+      (listAll || !cm.getConversionPath(fromCurrency, toCurrency, network))
     ) {
       missingAggregators.push({
         name: proxy.pair,

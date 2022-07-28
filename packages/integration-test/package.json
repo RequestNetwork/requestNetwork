@@ -17,7 +17,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "directories": {
     "test": "test"
@@ -26,14 +26,15 @@
     "test"
   ],
   "scripts": {
-    "build": "tsc -b",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "eslint \"test/**/*.ts\"",
     "test": "run-s test:node test:layers",
-    "test:scheduled": "run-s test:erc20 test:btc",
+    "test:scheduled": "run-s test:erc20 test:erc777 test:btc ",
     "test:layers": "jest test/layers.test.ts  --forceExit",
     "test:node": "jest test/node-client.test.ts --forceExit",
     "test:erc20": "jest test/scheduled/erc20*.test.ts --forceExit",
+    "test:erc777": "jest test/scheduled/erc777*.test.ts --forceExit",
     "test:btc": "jest test/scheduled/btc.test.ts --forceExit"
   },
   "devDependencies": {

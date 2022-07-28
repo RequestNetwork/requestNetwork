@@ -136,6 +136,7 @@ export enum EthereumNetwork {
   PRIVATE = 0,
   MAINNET = 1,
   RINKEBY = 4,
+  GOERLI = 5,
   KOVAN = 42,
   SOKOL = 77,
   XDAI = 100,
@@ -148,7 +149,7 @@ export interface IWeb3Connection {
   timeout?: number;
 }
 
-/** Information to connect to a ipfs gateway */
+/** Information to connect to an IPFS gateway */
 export interface IIpfsGatewayConnection {
   host: string;
   port: number;

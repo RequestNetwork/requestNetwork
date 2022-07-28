@@ -284,46 +284,13 @@ This mnemonic should only be used for testing.
 ### Docker
 
 The Request Node can be deployed with Docker.
-For now, the user has to clone the repository to build the Docker and run it.
-
-```bash
-git clone https://github.com/RequestNetwork/requestNetwork.git
-cd packages/request-node
-docker build -t "request-node" .
-docker run request-node
-```
-
-The environment variables used to configure the Node can be defined in the `docker run` command.
-
-For example, the user can define custom parameters for IPFS connection with the following command:
-
-```
-docker run -e IPFS_HOST=<custom_ipfs_host> IPFS_PORT=<custom_ipfs_port>
-```
-
-If the user want the server to listen on a specific port, he has to expose that port as well:
-
-```
-docker run -e PORT=80 --expose 80
-```
-
-The user can connect to an IPFS node and Ethereum node (like ganache) on the local machine, using the following:
-
-```bash
-docker run -e IPFS_HOST=host.docker.internal -e WEB3_PROVIDER_URL=http://host.docker.internal:8545
-```
-
-The user can use the docker-compose tool to run an environment containing the Request Node and an instance of IPFS with the following command:
-
-```bash
-docker-compose up
-```
-
-The environment variables must be defined in the `docker-compose.yml` file in the `environment` section. `$ETHEREUM_NETWORK_ID` and `$WEB3_PROVIDER_URL` must be defined.
+The Docker image is available on the [DockerHub](https://hub.docker.com/r/requestnetwork/request-node).
+Please refer to the [RequestNetwork/docker-images](https://github.com/RequestNetwork/docker-images) repository
+for instructions on how to use this image.
 
 #### Docker for unpublished version
 
-See instructions in [Dockerfile.dev](./Dockerfile.dev)
+See instructions in [Dockerfile.dev](./Dockerfile.dev).
 
 ### Running fully locally
 
@@ -346,8 +313,6 @@ yarn build
 ```
 
 #### 3. On a new terminal, launch a local IPFS node
-
-Note: only IPFS v0.4.\* supported, from the [IPFS Installation docs](https://docs.ipfs.io/install/), replace the binary URL with the good one from the following list: https://github.com/ipfs/go-ipfs/releases/tag/v0.4.23
 
 ```bash
 ipfs daemon

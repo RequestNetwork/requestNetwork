@@ -1,0 +1,36 @@
+query GetPaymentsAndEscrowState(
+  $contractAddress: Bytes!
+  $reference: Bytes!
+  $tokenAddress: Bytes
+  $to: Bytes!
+) {
+  payments(
+    where: {
+      contractAddress: $contractAddress
+      reference: $reference
+      tokenAddress: $tokenAddress
+      to: $to
+    }
+    orderBy: timestamp
+    orderDirection: asc
+  ) {
+    amount
+    block
+    txHash
+    feeAmount
+    feeAddress
+    from
+    gasUsed
+    gasPrice
+    timestamp
+  }
+  escrowEvents(where: { reference: $reference }, orderBy: timestamp, orderDirection: asc) {
+    txHash
+    eventName
+    from
+    timestamp
+    block
+    gasUsed
+    gasPrice
+  }
+}

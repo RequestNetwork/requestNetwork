@@ -16,6 +16,12 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       network: 'rinkeby',
     },
     {
+      symbol: 'ETH-goerli',
+      decimals: 18,
+      name: 'Goerli Ether',
+      network: 'goerli',
+    },
+    {
       symbol: 'MATIC',
       decimals: 18,
       name: 'Matic',
@@ -80,6 +86,18 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       decimals: 18,
       name: 'Arbitrum Testnet',
       network: 'arbitrum-rinkeby',
+    },
+    {
+      symbol: 'AETH',
+      decimals: 18,
+      name: 'Arbitrum Ether',
+      network: 'arbitrum-one',
+    },
+    {
+      symbol: 'AVAX',
+      decimals: 18,
+      name: 'AVAX',
+      network: 'avalanche',
     },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [

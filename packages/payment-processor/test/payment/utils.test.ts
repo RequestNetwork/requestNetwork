@@ -96,7 +96,7 @@ describe('getNetworkProvider', () => {
         network: 'mainnet',
       },
     };
-    expect(getNetworkProvider(request)).toBeInstanceOf(providers.BaseProvider);
+    expect(getNetworkProvider(request)).toBeInstanceOf(providers.Provider);
   });
 
   it('returns a provider for rinkeby', () => {
@@ -105,7 +105,7 @@ describe('getNetworkProvider', () => {
         network: 'rinkeby',
       },
     };
-    expect(getNetworkProvider(request)).toBeInstanceOf(providers.BaseProvider);
+    expect(getNetworkProvider(request)).toBeInstanceOf(providers.Provider);
   });
 
   it('fails for other network', () => {

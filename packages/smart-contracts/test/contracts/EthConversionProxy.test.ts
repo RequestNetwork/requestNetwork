@@ -7,6 +7,10 @@ import {
   EthConversionProxy,
   ChainlinkConversionPath__factory,
   AggregatorMock__factory,
+  EtherPaymentFallback,
+  GnosisSafeProxy,
+  EtherPaymentFallback__factory,
+  GnosisSafeProxy__factory,
 } from '../../src/types';
 import { BigNumber, Signer } from 'ethers';
 import { expect, use } from 'chai';
@@ -35,6 +39,8 @@ describe('contract: EthConversionProxy', () => {
   let testEthConversionProxy: EthConversionProxy;
   let ethFeeProxy: EthereumFeeProxy;
   let chainlinkPath: ChainlinkConversionPath;
+  let gnosisSafeProxy: GnosisSafeProxy;
+  let etherPaymentFallback: EtherPaymentFallback;
   const networkConfig = network.config as HttpNetworkConfig;
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
 
@@ -48,6 +54,10 @@ describe('contract: EthConversionProxy', () => {
       ethFeeProxy.address,
       chainlinkPath.address,
       ETH_hash,
+    );
+    etherPaymentFallback = await new EtherPaymentFallback__factory(signer).deploy();
+    gnosisSafeProxy = await new GnosisSafeProxy__factory(signer).deploy(
+      etherPaymentFallback.address,
     );
   });
 
@@ -123,7 +133,7 @@ describe('contract: EthConversionProxy', () => {
           feeAddress,
           0,
           {
-            value: conversionFees.result.add(conversionToPay.result), //.add("100000"),
+            value: conversionFees.result.add(conversionToPay.result).add('100000'),
           },
         );
 
@@ -144,6 +154,63 @@ describe('contract: EthConversionProxy', () => {
         const contractFeeBalance = await provider.getBalance(ethFeeProxy.address);
 
         const toDiffBalance = BigNumber.from(toNewBalance).sub(toOldBalance).toString();
+        const feeDiffBalance = BigNumber.from(feeNewBalance).sub(feeOldBalance).toString();
+
+        expect(contractBalance.toString()).to.equals('0');
+        expect(contractFeeBalance.toString()).to.equals('0');
+
+        // Check balance changes
+        expect(fromNewBalance).to.be.lt(
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result),
+        );
+        expect(fromNewBalance).to.be.gt(
+          fromOldBalance.sub(conversionToPay.result).sub(conversionFees.result).mul(95).div(100),
+        );
+        expect(toDiffBalance).to.equals(conversionToPay.result.toString());
+        expect(feeDiffBalance).to.equals(conversionFees.result.toString());
+      });
+
+      it('allows to transfer ETH for EUR payment and extra msg.value to a gnosis safe', async function () {
+        const path = [EUR_hash, USD_hash, ETH_hash];
+
+        const fromOldBalance = await provider.getBalance(from);
+        const gnosisSafeOldBalance = await provider.getBalance(gnosisSafeProxy.address);
+        const feeOldBalance = await provider.getBalance(feeAddress);
+        const conversionToPay = await chainlinkPath.getConversion(amountInFiat, path);
+        const conversionFees = await chainlinkPath.getConversion(feesAmountInFiat, path);
+
+        const tx = testEthConversionProxy.transferWithReferenceAndFee(
+          gnosisSafeProxy.address,
+          amountInFiat,
+          path,
+          referenceExample,
+          feesAmountInFiat,
+          feeAddress,
+          0,
+          {
+            value: conversionFees.result.add(conversionToPay.result).add('100000'),
+          },
+        );
+
+        await expect(tx)
+          .to.emit(testEthConversionProxy, 'TransferWithConversionAndReference')
+          .withArgs(
+            amountInFiat,
+            ethers.utils.getAddress(path[0]),
+            ethers.utils.keccak256(referenceExample),
+            feesAmountInFiat,
+            '0',
+          );
+
+        const fromNewBalance = await provider.getBalance(from);
+        const gnosisSafeNewBalance = await provider.getBalance(gnosisSafeProxy.address);
+        const feeNewBalance = await provider.getBalance(feeAddress);
+        const contractBalance = await provider.getBalance(testEthConversionProxy.address);
+        const contractFeeBalance = await provider.getBalance(ethFeeProxy.address);
+
+        const toDiffBalance = BigNumber.from(gnosisSafeNewBalance)
+          .sub(gnosisSafeOldBalance)
+          .toString();
         const feeDiffBalance = BigNumber.from(feeNewBalance).sub(feeOldBalance).toString();
 
         expect(contractBalance.toString()).to.equals('0');

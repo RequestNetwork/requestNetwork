@@ -33,10 +33,7 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     super(PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN, advancedLogic.extensions.nativeToken[0]);
   }
 
-  public static getNearContractName = (
-    chainName: string,
-    paymentNetworkVersion = '0.2.0',
-  ): string => {
+  public static getContractName = (chainName: string, paymentNetworkVersion = '0.2.0'): string => {
     const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     const versionMap: Record<string, Record<string, string>> = {
       aurora: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
@@ -49,20 +46,6 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
       return versionMap[chainName][version];
     }
     throw Error(`Unconfigured chain '${chainName}' and version '${version}'.`);
-  };
-
-  /**
-   * Documentation: https://github.com/near/near-indexer-for-explorer
-   */
-  public static getProcedureName = (chainName: string, paymentNetworkVersion: string): string => {
-    NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
-    switch (chainName) {
-      case 'aurora':
-        return 'com.nearprotocol.mainnet.explorer.select:INDEXER_BACKEND';
-      case 'aurora-testnet':
-        return 'com.nearprotocol.testnet.explorer.select:INDEXER_BACKEND';
-    }
-    throw new Error(`Invalid chain name '${chainName} for Near info retriever.`);
   };
 
   /**
@@ -82,20 +65,23 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     _requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
-  ): Promise<PaymentTypes.ETHPaymentNetworkEvent[]> {
+  ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+      };
     }
     const infoRetriever = new NearInfoRetriever(
       paymentReference,
       address,
-      NearNativeTokenPaymentDetector.getNearContractName(paymentChain, paymentNetwork.version),
-      NearNativeTokenPaymentDetector.getProcedureName(paymentChain, paymentNetwork.version),
+      NearNativeTokenPaymentDetector.getContractName(paymentChain, paymentNetwork.version),
       eventName,
       paymentChain,
     );
-    const events = await infoRetriever.getTransferEvents();
-    return events;
+    const paymentEvents = await infoRetriever.getTransferEvents();
+    return {
+      paymentEvents,
+    };
   }
 
   protected static getVersionOrThrow = (paymentNetworkVersion: string): string => {

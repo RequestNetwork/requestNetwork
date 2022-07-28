@@ -19,7 +19,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -32,9 +32,9 @@
   ],
   "scripts": {
     "build": "run-s build:commonjs build:umd",
-    "build:commonjs": "tsc -b",
+    "build:commonjs": "tsc -b tsconfig.build.json",
     "build:umd": "webpack",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "docs": "shx rm -rf ./docs && compodoc -p tsconfig.json --output docs --disablePrivate --gaID UA-105153327-8",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
@@ -55,7 +55,7 @@
     "@requestnetwork/transaction-manager": "0.26.9",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "axios": "0.21.1",
+    "axios": "0.27.2",
     "ethers": "5.5.1",
     "tslib": "2.3.1"
   },

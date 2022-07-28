@@ -1,5 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { getSdk } from './generated/graphql';
+import { getSdk as getSdkNear } from './generated/graphql-near';
 
 const BASE_URL = `https://api.thegraph.com`;
 
@@ -8,8 +9,11 @@ const BASE_URL = `https://api.thegraph.com`;
 // To generate types, run `yarn codegen`, then open the generated files so that the code editor picks up the changes.
 /**
  * A GraphQL client to query Request's subgraph.
+ *
+ * @type TGraphClientVariant: null if no variant, 'near' if native token payments detection on Near
  */
-export type TheGraphClient = ReturnType<typeof getSdk>;
+export type TheGraphClient<TGraphClientVariant extends 'near' | null = null> =
+  TGraphClientVariant extends 'near' ? ReturnType<typeof getSdkNear> : ReturnType<typeof getSdk>;
 export type TheGraphClientOptions = {
   baseUrl?: string;
   timeout?: number;
@@ -29,11 +33,16 @@ export const getTheGraphClient = (
   return getSdk(new GraphQLClient(url, options));
 };
 
-// Note: temporary until TheGraph has been thoroughly tested
-export const networkSupportsTheGraph = (network: string): boolean => {
-  return !['mainnet', 'rinkeby', 'private', 'fantom'].includes(network);
+export const getTheGraphNearClient = (
+  network: 'near' | 'near-testnet' | 'private',
+  options?: TheGraphClientOptions,
+): TheGraphClient<'near'> => {
+  const baseUrl = options?.baseUrl || network === 'private' ? 'http://localhost:8000' : BASE_URL;
+  // Note: cf. getTheGraphClient for baseUrl
+  const url = `${baseUrl}/subgraphs/name/requestnetwork/request-payments-${network}`;
+  return getSdkNear(new GraphQLClient(url, options));
 };
 
-export const networkSupportsTheGraphForNativePayments = (network: string): boolean => {
-  return !['mainnet', 'private', 'fantom'].includes(network);
+export const networkSupportsTheGraph = (network: string): boolean => {
+  return network !== 'private';
 };

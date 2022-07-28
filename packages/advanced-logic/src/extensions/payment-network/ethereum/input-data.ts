@@ -1,7 +1,7 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from '../reference-based';
 
-const CURRENT_VERSION = '0.2.0';
+const CURRENT_VERSION = '0.3.0';
 const supportedNetworks = [
   'mainnet',
   'rinkeby',
@@ -14,6 +14,8 @@ const supportedNetworks = [
   'bsctest',
   'bsc',
   'arbitrum-rinkeby',
+  'arbitrum-one',
+  'avalanche',
 ];
 
 /**

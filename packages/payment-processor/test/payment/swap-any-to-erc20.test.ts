@@ -62,7 +62,7 @@ const validRequest: ClientTypes.IRequestData = {
         acceptedTokens: [acceptedTokenAddress],
         network: 'private',
       },
-      version: '1.0',
+      version: '0.1.0',
     },
   },
   extensionsData: [],
@@ -200,11 +200,13 @@ describe('swap-any-to-erc20', () => {
       //   feeAmount:        +    2000000
       //                     =  102000000 (8 decimals)
       //   AggDaiUsd.sol     /  101000000
-      //                     =  1009900990099009900 (18 decimals)
+      //                     =  1009900990099009900
+      //   Swap fees         *                1.005
+      //                     =  1014950495049504949 (18 decimals)
       //   Swapper           *  2
-      //                     =  2019801980198019800 (18 decimals) paid by payer in erc20BeforeSwap
+      //                     =  2029900990099009898 (18 decimals) paid by payer in erc20BeforeSwap
       expect(finalPayerBalance.toString()).toEqual(
-        initialPayerBalance.sub('2019801980198019800').toString(),
+        initialPayerBalance.sub('2029900990099009898').toString(),
       );
 
       //   expectedAmount:      100000000 (8 decimals)
@@ -217,8 +219,18 @@ describe('swap-any-to-erc20', () => {
       //   feeAmount:           2000000 (8 decimals)
       //   AggDaiUsd.sol     /  101000000
       //                     =  19801980198019801 (18 decimals) received by fee address in erc20AfterConversion
+      //      +
+      //
+      //   Swap fees            100000000
+      //   feeAmount         +    2000000
+      //                     =  102000000 (8 decimals)
+      //   AggDaiUsd.sol     /  101000000
+      //                     =  1009900990099009900
+      //   Swap fees         *                0.005
+      //                     =     5049504950495049
+      //   Total fees        =    24851485148514850
       expect(finalBuilderBalance.toString()).toEqual(
-        initialBuilderBalance.add('19801980198019801').toString(),
+        initialBuilderBalance.add('24851485148514850').toString(),
       );
     });
   });

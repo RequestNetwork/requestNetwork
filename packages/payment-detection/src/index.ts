@@ -7,18 +7,19 @@ import * as Erc20PaymentNetwork from './erc20';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
 import { initPaymentDetectionApiKeys, setProviderFactory, getDefaultProvider } from './provider';
-import { getTheGraphClient, networkSupportsTheGraph } from './thegraph';
-import { parseLogArgs, padAmountForChainlink, unpadAmountFromChainlink } from './utils';
-import { NearInfoRetriever } from './near-info-retriever';
+import { getTheGraphClient, getTheGraphNearClient, networkSupportsTheGraph } from './thegraph';
+import {
+  parseLogArgs,
+  padAmountForChainlink,
+  unpadAmountFromChainlink,
+  calculateEscrowState,
+} from './utils';
 import { NearNativeTokenPaymentDetector } from './near-detector';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
+import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
+import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
 
 export type { TheGraphClient } from './thegraph';
-
-const Near = {
-  InfoRetriever: NearInfoRetriever,
-  getContractName: NearNativeTokenPaymentDetector.getNearContractName,
-};
 
 export {
   PaymentNetworkFactory,
@@ -31,13 +32,17 @@ export {
   AnyToERC20PaymentDetector,
   AnyToEthFeeProxyPaymentDetector,
   FeeReferenceBasedDetector,
-  Near,
+  SuperFluidPaymentDetector,
+  NearNativeTokenPaymentDetector,
   setProviderFactory,
   initPaymentDetectionApiKeys,
   getDefaultProvider,
   getTheGraphClient,
+  getTheGraphNearClient,
   networkSupportsTheGraph,
   parseLogArgs,
   padAmountForChainlink,
   unpadAmountFromChainlink,
+  calculateEscrowState,
+  EscrowERC20InfoRetriever,
 };

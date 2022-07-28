@@ -6,9 +6,8 @@ export {
 } from './pn-any-address-based-types';
 
 /** Manager of the extension */
-export type IReferenceBased<
-  TCreationParameters = ICreationParameters
-> = PnAddressBased.IAddressBased<TCreationParameters>;
+export type IReferenceBased<TCreationParameters = ICreationParameters> =
+  PnAddressBased.IAddressBased<TCreationParameters>;
 
 /** Extension values of the extension */
 export interface IValues extends PnAddressBased.IValues {

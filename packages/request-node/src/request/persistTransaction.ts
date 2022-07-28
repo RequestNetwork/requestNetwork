@@ -15,7 +15,7 @@ export default class PersistTransactionHandler {
    */
   constructor(
     private confirmedTransactionStore: ConfirmedTransactionStore,
-    private dataAccess: DataAccessTypes.IDataAccess,
+    private dataAccess: DataAccessTypes.IDataWrite,
     private logger: LogTypes.ILogger,
   ) {
     this.handler = this.handler.bind(this);

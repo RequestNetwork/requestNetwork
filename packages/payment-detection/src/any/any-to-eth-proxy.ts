@@ -11,6 +11,8 @@ import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/curr
 import { AnyToEthInfoRetriever } from './retrievers/any-to-eth-proxy';
 import { AnyToAnyDetector } from '../any-to-any-detector';
 import { makeGetDeploymentInformation } from '../utils';
+import { networkSupportsTheGraph } from '../thegraph';
+import { TheGraphConversionRetriever } from './retrievers/thegraph';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -29,21 +31,25 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
   ExtensionTypes.PnAnyToEth.IAnyToEth,
   PaymentTypes.IETHPaymentEventParameters
 > {
+  private useTheGraph: (network: string) => boolean;
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({
     advancedLogic,
     currencyManager,
+    useTheGraph = networkSupportsTheGraph,
   }: {
     advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
     currencyManager: ICurrencyManager;
+    useTheGraph?: typeof networkSupportsTheGraph;
   }) {
     super(
       PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
       currencyManager,
     );
+    this.useTheGraph = useTheGraph;
   }
 
   /**
@@ -63,35 +69,52 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IETHPaymentEventParameters>[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IETHPaymentEventParameters>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+      };
     }
+
     const contractInfo = AnyToEthFeeProxyPaymentDetector.getDeploymentInformation(
       paymentChain,
       paymentNetwork.version,
     );
+
     const abi = SmartContracts.ethConversionArtifact.getContractAbi(contractInfo.contractVersion);
 
     const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
     if (!currency) {
       throw new UnsupportedCurrencyError(requestCurrency.value);
+    } else {
+      const proxyInfoRetriever = this.useTheGraph(paymentChain)
+        ? new TheGraphConversionRetriever(
+            currency,
+            paymentReference,
+            contractInfo.address,
+            address,
+            eventName,
+            paymentChain,
+            undefined,
+            paymentNetwork.values?.maxRateTimespan,
+          )
+        : new AnyToEthInfoRetriever(
+            currency,
+            paymentReference,
+            contractInfo.address,
+            contractInfo.creationBlockNumber,
+            abi,
+            address,
+            eventName,
+            paymentChain,
+            undefined,
+            paymentNetwork.values?.maxRateTimespan,
+          );
+      const paymentEvents = await proxyInfoRetriever.getTransferEvents();
+      return {
+        paymentEvents,
+      };
     }
-
-    const proxyInfoRetriever = new AnyToEthInfoRetriever(
-      currency,
-      paymentReference,
-      contractInfo.address,
-      contractInfo.creationBlockNumber,
-      abi,
-      address,
-      eventName,
-      paymentChain,
-      undefined,
-      paymentNetwork.values?.maxRateTimespan,
-    );
-
-    return await proxyInfoRetriever.getTransferEvents();
   }
 
   /**

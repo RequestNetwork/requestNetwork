@@ -30,7 +30,7 @@ import { IConversionPaymentSettings } from './index';
  */
 export async function payAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
@@ -95,13 +95,8 @@ export function encodePayAnyToErc20ProxyRequest(
   // Check request
   validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAddress,
-    feeAmount,
-    maxRateTimespan,
-  } = getRequestPaymentValues(request);
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
+    getRequestPaymentValues(request);
 
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);

@@ -8,7 +8,7 @@ import DeclarativePaymentNetwork from './declarative';
  * This module is called by the address based payment networks to avoid code redundancy
  */
 export default abstract class AddressBasedPaymentNetwork<
-  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters
+  TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
   public constructor(
     public extensionId: ExtensionTypes.ID,
@@ -19,12 +19,10 @@ export default abstract class AddressBasedPaymentNetwork<
     super(extensionId, currentVersion);
     this.actions = {
       ...this.actions,
-      [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]: this.applyAddPaymentAddress.bind(
-        this,
-      ),
-      [ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS]: this.applyAddRefundAddress.bind(
-        this,
-      ),
+      [ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS]:
+        this.applyAddPaymentAddress.bind(this),
+      [ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS]:
+        this.applyAddRefundAddress.bind(this),
     };
   }
 
@@ -161,6 +159,7 @@ export default abstract class AddressBasedPaymentNetwork<
         );
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
+      case RequestLogicTypes.CURRENCY.ERC777:
         return this.isValidAddressForSymbolAndNetwork(address, 'ETH', 'mainnet');
       default:
         throw new Error(

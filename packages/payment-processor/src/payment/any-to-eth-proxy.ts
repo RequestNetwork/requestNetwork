@@ -24,7 +24,7 @@ import { getProxyAddress } from './utils';
  */
 export async function payAnyToEthProxyRequest(
   request: ClientTypes.IRequestData,
-  signerOrProvider: providers.Web3Provider | Signer = getProvider(),
+  signerOrProvider: providers.Provider | Signer = getProvider(),
   paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
@@ -65,14 +65,8 @@ export function encodePayAnyToEthProxyRequest(
     throw new UnsupportedCurrencyError(request.currencyInfo);
   }
 
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAddress,
-    feeAmount,
-    maxRateTimespan,
-    network,
-  } = getRequestPaymentValues(request);
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan, network } =
+    getRequestPaymentValues(request);
 
   if (!network) {
     throw new Error(`missing network`);

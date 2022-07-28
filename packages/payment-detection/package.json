@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,22 +31,21 @@
   ],
   "scripts": {
     "prebuild": "yarn codegen",
-    "build": "tsc -b",
-    "clean": "shx rm -rf dist tsconfig.tsbuildinfo **/generated",
+    "build": "tsc -b tsconfig.build.json",
+    "clean": "shx rm -rf dist tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo **/generated",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "prepare": "yarn run build",
     "test": "jest --runInBand",
     "test:watch": "yarn test --watch",
-    "codegen": "graphql-codegen --config codegen.yml"
+    "codegen": "graphql-codegen --config codegen.yml ; graphql-codegen --config codegen-superfluid.yml; graphql-codegen --config codegen-near.yml"
   },
   "dependencies": {
     "@requestnetwork/currency": "0.8.0",
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "autobahn": "20.9.2",
-    "axios": "0.21.1",
+    "axios": "0.27.2",
     "ethers": "5.5.1",
     "graphql": "15.5.1",
     "graphql-request": "3.4.0",
@@ -61,7 +60,7 @@
     "@graphql-codegen/typescript-graphql-request": "3.2.1",
     "@graphql-codegen/typescript-operations": "1.18.0",
     "@graphql-codegen/typescript-resolvers": "1.19.2",
-    "@types/autobahn": "18.10.1",
+    "@requestnetwork/advanced-logic": "0.34.0",
     "@types/jest": "26.0.13",
     "jest": "26.4.2",
     "nyc": "15.1.0",
@@ -71,8 +70,5 @@
     "ts-jest": "26.3.0",
     "ts-node": "9.0.0",
     "typescript": "4.4.4"
-  },
-  "resolutions": {
-    "**/autobahn/ws": "<8"
   }
 }

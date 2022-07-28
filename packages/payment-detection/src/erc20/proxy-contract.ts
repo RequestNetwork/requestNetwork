@@ -4,6 +4,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+
 import { erc20ProxyArtifact } from '@requestnetwork/smart-contracts';
 import ProxyInfoRetriever from './proxy-info-retriever';
 import TheGraphInfoRetriever from './thegraph-info-retriever';
@@ -49,36 +50,41 @@ export class ERC20ProxyPaymentDetector extends ReferenceBasedDetector<
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20PaymentEventParameters>[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20PaymentEventParameters>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+      };
     }
 
-    const {
-      address: proxyContractAddress,
-      creationBlockNumber: proxyCreationBlockNumber,
-    } = ERC20ProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
+    const { address: proxyContractAddress, creationBlockNumber: proxyCreationBlockNumber } =
+      ERC20ProxyPaymentDetector.getDeploymentInformation(paymentChain, paymentNetwork.version);
 
-    const infoRetriever = networkSupportsTheGraph(paymentChain)
-      ? new TheGraphInfoRetriever(
-          paymentReference,
-          proxyContractAddress,
-          requestCurrency.value,
-          address,
-          eventName,
-          paymentChain,
-        )
-      : new ProxyInfoRetriever(
-          paymentReference,
-          proxyContractAddress,
-          proxyCreationBlockNumber,
-          requestCurrency.value,
-          address,
-          eventName,
-          paymentChain,
-        );
-
-    return infoRetriever.getTransferEvents();
+    if (networkSupportsTheGraph(paymentChain)) {
+      const graphInfoRetriever = new TheGraphInfoRetriever(
+        paymentReference,
+        proxyContractAddress,
+        requestCurrency.value,
+        address,
+        eventName,
+        paymentChain,
+      );
+      return graphInfoRetriever.getTransferEvents();
+    } else {
+      const proxyInfoRetriever = new ProxyInfoRetriever(
+        paymentReference,
+        proxyContractAddress,
+        proxyCreationBlockNumber,
+        requestCurrency.value,
+        address,
+        eventName,
+        paymentChain,
+      );
+      const paymentEvents = await proxyInfoRetriever.getTransferEvents();
+      return {
+        paymentEvents,
+      };
+    }
   }
 
   /*

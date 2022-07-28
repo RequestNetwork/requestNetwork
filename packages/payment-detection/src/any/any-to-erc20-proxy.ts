@@ -9,7 +9,7 @@ import Utils from '@requestnetwork/utils';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { ERC20FeeProxyPaymentDetectorBase } from '../erc20/fee-proxy-contract';
 import { AnyToErc20InfoRetriever } from './retrievers/any-to-erc20-proxy';
-import { TheGraphAnyToErc20Retriever } from './retrievers/thegraph';
+import { TheGraphConversionRetriever } from './retrievers/thegraph';
 import { networkSupportsTheGraph } from '../thegraph';
 import { makeGetDeploymentInformation } from '../utils';
 
@@ -86,9 +86,11 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
     paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToErc20.ICreationParameters>,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]> {
+  ): Promise<PaymentTypes.AllNetworkEvents<PaymentTypes.IERC20FeePaymentEventParameters>> {
     if (!address) {
-      return [];
+      return {
+        paymentEvents: [],
+      };
     }
     const { acceptedTokens, maxRateTimespan = 0 } = paymentNetwork.values;
 
@@ -102,7 +104,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     const currency = await this.getCurrency(requestCurrency);
 
     const infoRetriever = networkSupportsTheGraph(paymentChain)
-      ? new TheGraphAnyToErc20Retriever(
+      ? new TheGraphConversionRetriever(
           currency,
           paymentReference,
           conversionProxyContractAddress,
@@ -125,9 +127,11 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
           maxRateTimespan,
         );
 
-    return infoRetriever.getTransferEvents() as Promise<
-      PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[]
-    >;
+    const paymentEvents =
+      (await infoRetriever.getTransferEvents()) as PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[];
+    return {
+      paymentEvents,
+    };
   }
 
   protected getPaymentChain(request: RequestLogicTypes.IRequest): string {

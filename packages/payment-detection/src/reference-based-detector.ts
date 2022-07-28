@@ -10,7 +10,7 @@ import { DeclarativePaymentDetectorBase } from './declarative';
  */
 export abstract class ReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased,
-  TPaymentEventParameters
+  TPaymentEventParameters,
 > extends DeclarativePaymentDetectorBase<
   TExtension,
   TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
@@ -81,9 +81,9 @@ export abstract class ReferenceBasedDetector<
   protected async getEvents(
     request: RequestLogicTypes.IRequest,
   ): Promise<
-    PaymentTypes.IPaymentNetworkEvent<
+    PaymentTypes.AllNetworkEvents<
       TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
-    >[]
+    >
   > {
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
@@ -100,7 +100,7 @@ export abstract class ReferenceBasedDetector<
     this.checkRequiredParameter(paymentExtension.values.salt, 'salt');
     this.checkRequiredParameter(paymentExtension.values.paymentAddress, 'paymentAddress');
 
-    const [paymentEvents, refundEvents] = await Promise.all([
+    const [paymentAndEscrowEvents, refundAndEscrowEvents] = await Promise.all([
       this.extractEvents(
         PaymentTypes.EVENTS_NAMES.PAYMENT,
         paymentExtension.values.paymentAddress,
@@ -118,9 +118,16 @@ export abstract class ReferenceBasedDetector<
         paymentExtension,
       ),
     ]);
+    const paymentEvents = paymentAndEscrowEvents.paymentEvents;
+    const escrowEvents = paymentAndEscrowEvents.escrowEvents;
+    const refundEvents = refundAndEscrowEvents.paymentEvents;
 
     const declaredEvents = this.getDeclarativeEvents(request);
-    return [...declaredEvents, ...paymentEvents, ...refundEvents];
+    const allPaymentEvents = [...declaredEvents, ...paymentEvents, ...refundEvents];
+    return {
+      paymentEvents: allPaymentEvents,
+      escrowEvents: escrowEvents,
+    };
   }
 
   /**
@@ -143,7 +150,7 @@ export abstract class ReferenceBasedDetector<
     paymentNetwork: TExtension extends ExtensionTypes.IExtension<infer X>
       ? ExtensionTypes.IState<X>
       : never,
-  ): Promise<PaymentTypes.IPaymentNetworkEvent<TPaymentEventParameters>[]>;
+  ): Promise<PaymentTypes.AllNetworkEvents<TPaymentEventParameters>>;
 
   /**
    * Get the network of the payment

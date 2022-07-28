@@ -10,6 +10,8 @@ import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 import { Transaction } from './queries';
 import { SubgraphClient } from './subgraphClient';
 import { TheGraphStorage } from './TheGraphStorage';
+import { CombinedDataAccess } from './CombinedDataAccess';
+import { PendingStore } from './PendingStore';
 
 export type TheGraphDataAccessOptions = {
   ipfsStorage: StorageTypes.IIpfsStorage;
@@ -17,6 +19,7 @@ export type TheGraphDataAccessOptions = {
   signer: Signer;
   network: string;
   logger?: LogTypes.ILogger;
+  pendingStore?: PendingStore;
 };
 
 type DataAccessEventEmitter = TypedEmitter<{
@@ -24,49 +27,48 @@ type DataAccessEventEmitter = TypedEmitter<{
   error: (error: unknown) => void;
 }>;
 
-export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
+const getStorageMeta = (
+  result: Transaction,
+  lastBlockNumber: number,
+  network: string,
+): StorageTypes.IEntryMetadata => {
+  return {
+    ethereum: {
+      blockConfirmation: lastBlockNumber - result.blockNumber,
+      blockNumber: result.blockNumber,
+      blockTimestamp: result.blockTimestamp,
+      networkName: network,
+      smartContractAddress: result.smartContractAddress,
+      transactionHash: result.transactionHash,
+    },
+    ipfs: {
+      size: BigNumber.from(result.size).toNumber(),
+    },
+    state: StorageTypes.ContentState.CONFIRMED,
+    storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
+    timestamp: result.blockTimestamp,
+  };
+};
+
+export class TheGraphDataRead implements DataAccessTypes.IDataRead {
   private network: string;
 
-  private graphql: SubgraphClient;
-  private pending: Record<
-    string,
-    { transaction: DataAccessTypes.ITransaction; storageResult: StorageTypes.IAppendResult }
-  > = {};
-  protected storage: TheGraphStorage;
-  private logger: LogTypes.ILogger;
+  private pendingStore?: PendingStore;
 
-  constructor({ ipfsStorage, network, signer, graphql, logger }: TheGraphDataAccessOptions) {
-    this.logger = logger || new Utils.SimpleLogger();
-    const { url, ...options } = graphql;
-    this.graphql = new SubgraphClient(url, options);
+  constructor(
+    private readonly graphql: SubgraphClient,
+    { network, pendingStore }: Pick<TheGraphDataAccessOptions, 'network' | 'pendingStore'>,
+  ) {
     this.network = network;
-    this.storage = new TheGraphStorage({ network, signer, ipfsStorage, logger: this.logger });
+    this.pendingStore = pendingStore;
   }
 
   async initialize(): Promise<void> {
     await this.graphql.getBlockNumber();
-    await this.storage.initialize();
   }
 
   close(): Promise<void> {
     return Promise.resolve();
-  }
-
-  async persistTransaction(
-    transaction: DataAccessTypes.ITransaction,
-    channelId: string,
-    topics?: string[] | undefined,
-  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
-    const updatedBlock = Block.pushTransaction(
-      Block.createEmptyBlock(),
-      transaction,
-      channelId,
-      topics,
-    );
-
-    const storageResult = await this.storage.append(JSON.stringify(updatedBlock));
-
-    return this.createPersistTransactionResult(channelId, transaction, storageResult, topics || []);
   }
 
   async getTransactionsByChannelId(
@@ -83,7 +85,7 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
           .map((x) => x.hash)
           .concat(pending.meta.transactionsStorageLocation),
         storageMeta: result.transactions.map((tx) =>
-          this.getStorageMeta(tx, result._meta.block.number),
+          getStorageMeta(tx, result._meta.block.number, this.network),
         ),
       },
       result: {
@@ -120,7 +122,7 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     return {
       meta: {
         storageMeta: filteredTxs.reduce((acc, tx) => {
-          acc[tx.channelId] = [this.getStorageMeta(tx, result._meta.block.number)];
+          acc[tx.channelId] = [getStorageMeta(tx, result._meta.block.number, this.network)];
           return acc;
         }, {} as Record<string, StorageTypes.IEntryMetadata[]>),
         transactionsStorageLocation: filteredTxs.reduce((prev, curr) => {
@@ -143,26 +145,6 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     };
   }
 
-  async _getStatus(): Promise<any> {
-    return {
-      lastBlock: await this.graphql.getBlockNumber(),
-      endpoint: this.graphql.endpoint,
-      storage: await this.storage._getStatus(),
-    };
-  }
-
-  private addPending(
-    channelId: string,
-    transaction: DataAccessTypes.ITransaction,
-    storageResult: StorageTypes.IAppendResult,
-  ) {
-    this.pending[channelId] = { transaction, storageResult };
-  }
-
-  private deletePending(channelId: string) {
-    delete this.pending[channelId];
-  }
-
   private async getPending(channelId: string): Promise<DataAccessTypes.IReturnGetTransactions> {
     const emptyResult = {
       meta: {
@@ -173,18 +155,17 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
         transactions: [],
       },
     };
-    if (!this.pending[channelId]) {
+    const pending = this.pendingStore?.get(channelId);
+    if (!pending) {
       return emptyResult;
     }
-    const { storageResult, transaction } = this.pending[channelId];
+    const { storageResult, transaction } = pending;
 
-    const { transactions } = await this.graphql.getTransactionsByHash(
-      this.pending[channelId].storageResult.id,
-    );
+    const { transactions } = await this.graphql.getTransactionsByHash(storageResult.id);
 
     // if the pending tx is found, remove its state and fetch the real data
     if (transactions.length > 0) {
-      this.deletePending(channelId);
+      this.pendingStore?.remove(channelId);
       return emptyResult;
     }
 
@@ -205,6 +186,76 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     };
   }
 
+  private getTimestampedTransaction(
+    transaction: Transaction,
+  ): DataAccessTypes.ITimestampedTransaction {
+    return {
+      state: DataAccessTypes.TransactionState.CONFIRMED,
+      timestamp: transaction.blockTimestamp,
+      transaction: {
+        data: transaction.data || undefined,
+        encryptedData: transaction.encryptedData || undefined,
+        encryptionMethod: transaction.encryptionMethod || undefined,
+        keys: transaction.publicKeys?.reduce(
+          (prev, curr, i) => ({
+            ...prev,
+            [curr]: transaction.encryptedKeys?.[i],
+          }),
+          {},
+        ),
+      },
+    };
+  }
+}
+
+export class TheGraphDataWrite implements DataAccessTypes.IDataWrite {
+  private logger: LogTypes.ILogger;
+  private network: string;
+  private pendingStore?: PendingStore;
+
+  constructor(
+    protected storage: TheGraphStorage,
+    private readonly graphql: SubgraphClient,
+    {
+      network,
+      logger,
+      pendingStore,
+    }: Pick<
+      TheGraphDataAccessOptions,
+      'ipfsStorage' | 'network' | 'signer' | 'logger' | 'pendingStore'
+    >,
+  ) {
+    this.logger = logger || new Utils.SimpleLogger();
+    this.network = network;
+    this.pendingStore = pendingStore;
+  }
+
+  async initialize(): Promise<void> {
+    await this.graphql.getBlockNumber();
+    await this.storage.initialize();
+  }
+
+  close(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  async persistTransaction(
+    transaction: DataAccessTypes.ITransaction,
+    channelId: string,
+    topics?: string[] | undefined,
+  ): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    const updatedBlock = Block.pushTransaction(
+      Block.createEmptyBlock(),
+      transaction,
+      channelId,
+      topics,
+    );
+
+    const storageResult = await this.storage.append(JSON.stringify(updatedBlock));
+
+    return this.createPersistTransactionResult(channelId, transaction, storageResult, topics || []);
+  }
+
   protected createPersistTransactionResult(
     channelId: string,
     transaction: DataAccessTypes.ITransaction,
@@ -212,12 +263,12 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
     topics: string[],
   ): DataAccessTypes.IReturnPersistTransaction {
     const eventEmitter = new EventEmitter() as DataAccessEventEmitter;
-    this.addPending(channelId, transaction, storageResult);
+    this.pendingStore?.add(channelId, transaction, storageResult);
 
     const result: DataAccessTypes.IReturnPersistTransactionRaw = {
       meta: {
-        transactionStorageLocation: this.pending[channelId].storageResult.id,
-        storageMeta: this.pending[channelId].storageResult.meta,
+        transactionStorageLocation: storageResult.id,
+        storageMeta: storageResult.meta,
         topics,
       },
       result: {},
@@ -236,67 +287,52 @@ export class TheGraphDataAccess implements DataAccessTypes.IDataAccess {
         { maxRetries: 100, retryDelay: 1000 },
       )()
         .then((response) => {
-          this.deletePending(channelId);
+          this.pendingStore?.remove(channelId);
           eventEmitter.emit('confirmed', {
             ...result,
             meta: {
               ...result.meta,
-              storageMeta: this.getStorageMeta(
+              storageMeta: getStorageMeta(
                 response.transactions[0],
                 response._meta.block.number,
+                this.network,
               ),
             },
           });
         })
         .catch((error) => {
-          this.deletePending(channelId);
+          this.pendingStore?.remove(channelId);
           eventEmitter.emit('error', error);
         });
     });
 
     return Object.assign(eventEmitter, result);
   }
+}
 
-  private getStorageMeta(
-    result: Transaction,
-    lastBlockNumber: number,
-  ): StorageTypes.IEntryMetadata {
-    return {
-      ethereum: {
-        blockConfirmation: lastBlockNumber - result.blockNumber,
-        blockNumber: result.blockNumber,
-        blockTimestamp: result.blockTimestamp,
-        networkName: this.network,
-        smartContractAddress: result.smartContractAddress,
-        transactionHash: result.transactionHash,
-      },
-      ipfs: {
-        size: BigNumber.from(result.size).toNumber(),
-      },
-      state: StorageTypes.ContentState.CONFIRMED,
-      storageType: StorageTypes.StorageSystemType.ETHEREUM_IPFS,
-      timestamp: result.blockTimestamp,
-    };
+export class TheGraphDataAccess extends CombinedDataAccess {
+  private readonly graphql: SubgraphClient;
+  private readonly storage: TheGraphStorage;
+
+  constructor({ graphql, ...options }: TheGraphDataAccessOptions) {
+    const { url, ...rest } = graphql;
+    if (!options.pendingStore) {
+      options.pendingStore = new PendingStore();
+    }
+    const graphqlClient = new SubgraphClient(url, rest);
+    const storage = new TheGraphStorage(options);
+    const reader = new TheGraphDataRead(graphqlClient, options);
+    const writer = new TheGraphDataWrite(storage, graphqlClient, options);
+    super(reader, writer);
+    this.graphql = graphqlClient;
+    this.storage = storage;
   }
 
-  private getTimestampedTransaction(
-    transaction: Transaction,
-  ): DataAccessTypes.ITimestampedTransaction {
+  async _getStatus(): Promise<any> {
     return {
-      state: DataAccessTypes.TransactionState.CONFIRMED,
-      timestamp: 0,
-      transaction: {
-        data: transaction.data || undefined,
-        encryptedData: transaction.encryptedData || undefined,
-        encryptionMethod: transaction.encryptionMethod || undefined,
-        keys: transaction.publicKeys?.reduce(
-          (prev, curr, i) => ({
-            ...prev,
-            [curr]: transaction.encryptedKeys?.[i],
-          }),
-          {},
-        ),
-      },
+      lastBlock: await this.graphql.getBlockNumber(),
+      endpoint: this.graphql.endpoint,
+      storage: await this.storage._getStatus(),
     };
   }
 }

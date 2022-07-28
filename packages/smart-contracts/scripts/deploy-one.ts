@@ -10,6 +10,7 @@ export interface DeploymentResult<TContract extends Contract | unknown = Contrac
   constructorArguments: any[];
   type: 'simulated' | 'deployed' | 'attached' | 'skipped';
   verificationPromise?: Promise<boolean>;
+  block?: number;
 }
 
 const SIMULATED_DEPLOYMENT: DeploymentResult<unknown> = {
@@ -34,6 +35,7 @@ const SKIPPED_DEPLOYMENT: DeploymentResult<unknown> = {
  * @options
  *  - options.verify: set false to prevent verification on live networks
  *  - options.nonceCondition: only proceeds with the deployment if the nonce matches
+ *  - options.version: to deploy or map a version different from the last version
  * @returns a deployment result with address =
  *  - The address if the contract is deployed or attached
  *  - 'simulated' if args.simulate === true (no deployment/)
@@ -48,6 +50,7 @@ export async function deployOne<TContract extends Contract>(
     artifact?: ContractArtifact<Contract>;
     verify?: boolean;
     nonceCondition?: number;
+    version?: string;
   },
 ): Promise<DeploymentResult<TContract>> {
   const [deployer] = await hre.ethers.getSigners();
@@ -56,9 +59,13 @@ export async function deployOne<TContract extends Contract>(
   const constructorArguments = options?.constructorArguments ?? [];
   if (options?.artifact) {
     try {
-      address = options.artifact.getAddress(hre.network.name);
+      address = options.artifact.getAddress(hre.network.name, options.version);
       const action = args.force ? '(forcing deployment)' : '(skipping)';
-      console.log(`Found ${contractName} on ${hre.network.name} at address: ${address} ${action}`);
+      console.log(
+        `Found ${contractName}${options.version ? ` v${options.version}` : ''} on ${
+          hre.network.name
+        } at address: ${address} ${action}`,
+      );
       if (!args.force) {
         return {
           address,
@@ -106,6 +113,7 @@ export async function deployOne<TContract extends Contract>(
     const instance = (await factory.deploy(...constructorArguments)) as TContract;
     await instance.deployed();
     address = instance.address;
+    const block = instance.deployTransaction.blockNumber;
 
     // Verfication
     let verificationPromise: Promise<boolean> | undefined = undefined;
@@ -128,6 +136,7 @@ export async function deployOne<TContract extends Contract>(
 
     return {
       address,
+      block,
       contractName,
       instance,
       constructorArguments,
