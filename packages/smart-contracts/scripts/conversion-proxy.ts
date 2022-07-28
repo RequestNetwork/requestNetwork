@@ -45,7 +45,7 @@ export async function deployERC20ConversionProxy(
   });
 }
 
-export async function deployETHConversionProxy(
+export async function deployEthConversionProxy(
   args: {
     chainlinkConversionPathAddress?: string;
     ethFeeProxyAddress?: string;
