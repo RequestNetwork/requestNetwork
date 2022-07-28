@@ -18,7 +18,7 @@ export const deployOneWithCreate2 = async (
   const deploymentResult = await xdeploy(deploymentParams, hre);
   for (let i = 0; i < hre.config.xdeploy.networks.length; i++) {
     if (deploymentResult[i].deployed) {
-      console.log(`${deploymentParams.contract} succesffuly deployed:`);
+      console.log(`${deploymentParams.contract} successfully deployed:`);
       console.log(`         On network:        ${hre.config.xdeploy.networks[i]}`);
       console.log(`         At address:        ${deploymentResult[i].address}`);
       console.log(`         At block:          ${deploymentResult[i].receipt.blockNumber}`);
@@ -53,6 +53,8 @@ export const deployWithCreate2FromList = async (
     switch (contract) {
       case 'EthereumProxy':
       case 'EthereumFeeProxy':
+      case 'ETHConversionProxy':
+      case 'ERC20FeeProxy':
       case 'Erc20ConversionProxy': {
         const constructorArgs = getConstructorArgs(contract);
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
@@ -79,7 +81,7 @@ export const deployWithCreate2FromList = async (
       }
       // Other cases to add when necessary
       default:
-        throw new Error(`The contrat ${contract} is not to be deployed using the CREATE2 scheme`);
+        throw new Error(`The contract ${contract} is not to be deployed using the CREATE2 scheme`);
     }
   }
 };
