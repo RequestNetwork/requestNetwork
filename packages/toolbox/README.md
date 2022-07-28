@@ -27,8 +27,8 @@ CreateRequest.createTestRequest(12);
 #### In the CLI
 
 ```bash
-yarn run:create
-yarn run:create 12
+yarn request-toolbox request create
+yarn request-toolbox request create 12
 ```
 
 ### Conversion paths
