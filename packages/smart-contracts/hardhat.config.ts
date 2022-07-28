@@ -11,8 +11,8 @@ import { checkCreate2Deployer } from './scripts-create2/check-deployer';
 import { deployDeployer } from './scripts-create2/deploy-request-deployer';
 import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
-import { VerifyCreate2FromList } from './scripts-create2/verify-one';
-import { deployWithCreate2FromList } from './scripts-create2/deploy-one';
+import { VerifyCreate2FromList } from './scripts-create2/verify';
+import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import utils from '@requestnetwork/utils';
 
 config();
@@ -67,6 +67,11 @@ export default {
     rinkeby: {
       url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.infura.io/v3/YOUR_API_KEY',
       chainId: 4,
+      accounts,
+    },
+    goerli: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://goerli.infura.io/v3/YOUR_API_KEY',
+      chainId: 5,
       accounts,
     },
     matic: {
@@ -124,6 +129,7 @@ export default {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY,
       rinkeby: process.env.ETHERSCAN_API_KEY,
+      goerli: process.env.ETHERSCAN_API_KEY,
       // binance smart chain
       bsc: process.env.BSCSCAN_API_KEY,
       bscTestnet: process.env.BSCSCAN_API_KEY,
