@@ -21,6 +21,10 @@ export const ethereumProxyArtifact = new ContractArtifact<EthereumProxy>(
           address: '0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff',
           creationBlockNumber: 5955681,
         },
+        goerli: {
+          address: '0x171Ee0881407d4c0C11eA1a2FB7D5b4cdED71e6e',
+          creationBlockNumber: 7069045,
+        },
         xdai: {
           address: '0x27c60BE17e853c47A9F1d280B05365f483c2dFAF',
           creationBlockNumber: 18326895,
