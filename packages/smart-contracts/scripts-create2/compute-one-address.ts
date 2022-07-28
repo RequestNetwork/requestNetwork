@@ -52,7 +52,7 @@ export const computeCreate2DeploymentAddressesFromList = async (
       switch (contract) {
         case 'EthereumProxy':
         case 'EthereumFeeProxy':
-        case 'ETHConversionProxy':
+        case 'EthConversionProxy':
         case 'ERC20FeeProxy':
         case 'Erc20ConversionProxy':
         case 'ERC20EscrowToPay':
