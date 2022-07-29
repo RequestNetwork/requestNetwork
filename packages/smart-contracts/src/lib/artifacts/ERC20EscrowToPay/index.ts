@@ -14,44 +14,24 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
           creationBlockNumber: 0,
         },
         mainnet: {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 14884007,
+          address: '0x7DfD5955a1Ed6Bf74ccF8e24FF53E0a9A7e9F477',
+          creationBlockNumber: 15146972,
         },
         rinkeby: {
-          address: '0xEbe28A2B7336670Ba752bfEad4a121D2c4FF2464',
-          creationBlockNumber: 10461945,
+          address: '0x2b487A3251aCC34ae95E4f5aA7fdcD2C7447B42e',
+          creationBlockNumber: 11028247,
         },
         goerli: {
-          address: '0xEbe28A2B7336670Ba752bfEad4a121D2c4FF2464',
-          creationBlockNumber: 10461945,
+          address: '0xd2777001fD7D89331D8E87eC439f78079179322b',
+          creationBlockNumber: 7230322,
         },
         matic: {
-          address: '0xc7f471F5A8f8b33F131049b1e9A43941CbE31792',
-          creationBlockNumber: 29821569,
+          address: '0x937Db37ffb67083242fbC6AdD472146bF10E01ec',
+          creationBlockNumber: 30751595,
         },
         fuse: {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 17328459,
-        },
-        celo: {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 13299808,
-        },
-        xdai: {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 22438806,
-        },
-        'arbitrum-one': {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 13417262,
-        },
-        fantom: {
-          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
-          creationBlockNumber: 39534777,
-        },
-        bsc: {
-          address: '0xc7f471F5A8f8b33F131049b1e9A43941CbE31792',
-          creationBlockNumber: 18877277,
+          address: '0x4BA012eae4d64da79Bd6bcdBa366803fCe701A4C',
+          creationBlockNumber: 18086337,
         },
       },
     },
