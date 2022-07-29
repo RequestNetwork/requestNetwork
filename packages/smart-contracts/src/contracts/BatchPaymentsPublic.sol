@@ -8,14 +8,16 @@ import './interfaces/ERC20FeeProxy.sol';
 import './interfaces/EthereumFeeProxy.sol';
 
 /**
- * @title BatchPayments
- * @notice This contract makes multiple payments with references, in one transaction:
+ * @title BatchPaymentsPublic
+ * @notice  This contract makes multiple payments with references, in one transaction:
  *          - on: ERC20 Payment Proxy and ETH Payment Proxy of the Request Network protocol
  *          - to: multiple addresses
  *          - fees: ERC20 and ETH proxies fees are paid to the same address.
  *                  An additional batch fee is paid to the same address.
  *         If one transaction of the batch fail, every transactions are reverted.
- * @dev Please notify than fees are now divided by 10_000 instead of 1_000 in previous version
+ * @dev It is a clone of BatchPayment.sol, with two main modifications:
+ *         - fees are now divided by 10_000 instead of 1_000 in previous version
+ *         - batch payment functions are now public, instead of external
  */
 contract BatchPaymentsPublic is Ownable {
   using SafeERC20 for IERC20;
@@ -155,7 +157,7 @@ contract BatchPaymentsPublic is Ownable {
 
     // Batch contract approve Erc20FeeProxy to spend the token
     if (requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) < amount) {
-      approvePaymentProxyToSpend(address(requestedToken));
+      approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20FeeProxy));
     }
 
     // Batch contract pays the requests using Erc20FeeProxy
@@ -262,7 +264,7 @@ contract BatchPaymentsPublic is Ownable {
         requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) <
         uniqueTokens[i].amountAndFee
       ) {
-        approvePaymentProxyToSpend(address(requestedToken));
+        approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20FeeProxy));
       }
 
       // Payer pays batch fee amount
@@ -292,11 +294,12 @@ contract BatchPaymentsPublic is Ownable {
   /**
    * @notice Authorizes the proxy to spend a new request currency (ERC20).
    * @param _erc20Address Address of an ERC20 used as the request currency.
+   * @param _paymentErc20Proxy Address of the proxy.
    */
-  function approvePaymentProxyToSpend(address _erc20Address) private {
+  function approvePaymentProxyToSpend(address _erc20Address, address _paymentErc20Proxy) internal {
     IERC20 erc20 = IERC20(_erc20Address);
     uint256 max = 2**256 - 1;
-    erc20.safeApprove(address(paymentErc20FeeProxy), max);
+    erc20.safeApprove(address(_paymentErc20Proxy), max);
   }
 
   /**

@@ -13,8 +13,8 @@ import './BatchPaymentsPublic.sol';
  *              - ERC20 tokens: using Erc20ConversionProxy and ERC20FeeProxy
  *              - Native token: as Eth, using EthConversionProxy and EthereumFeeProxy
  *          - to: multiple addresses
- *          - fees: conversion proxy fees and additional batch conversion fee are paid to the same address.
- *         batchRouter is the main function to batch every kind of payment at once.
+ *          - fees: conversion proxy fees and additional batch conversion fees are paid to the same address.
+ *         batchRouter is the main function to batch every kind of payments at once.
  *         If one transaction of the batch fail, every transactions are reverted.
  * @dev Please notify than fees are now divided by 10_000 instead of 1_000 in previous version
  *      batchRouter is the main function, but others batch payment functions are "public" in order to do
@@ -65,7 +65,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
   /**
    * @dev Used by batchRouter to hold information for any kind of request.
-   *  - paymentNetworkId requests are group by paymentType to be paid with the appropriate function.
+   *  - paymentNetworkId requests are grouped by paymentType to be paid with the appropriate function.
    *    More details in batchRouter description.
    *  - requestsInfo all informations required for conversion requests to be paid (=> paymentNetworkId equal 0 or 3)
    *  - requestsInfoParent all informations required for None-conversion requests to be paid
@@ -225,7 +225,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
         requestedToken.allowance(address(this), address(conversionPaymentProxy)) <
         uTokens[k].amountAndFee
       ) {
-        approveConversionPaymentProxyToSpend(uTokens[k].tokenAddress);
+        approvePaymentProxyToSpend(uTokens[k].tokenAddress, address(conversionPaymentProxy));
       }
     }
 
@@ -359,16 +359,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @notice Authorizes the conveersion proxy to spend a new request currency (ERC20).
-   * @param _erc20Address Address of an ERC20 used as the request currency.
-   */
-  function approveConversionPaymentProxyToSpend(address _erc20Address) public {
-    IERC20 erc20 = IERC20(_erc20Address);
-    uint256 max = 2**256 - 1;
-    erc20.safeApprove(address(conversionPaymentProxy), max);
-  }
-
-  /**
    * @notice Get conversion rate and decimals from chainlink
    */
   function getRate(address[] memory _path, uint256 _maxRateTimespan)
@@ -392,7 +382,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    * Admin functions to edit the conversion proxies address
    */
 
-  /** fees applied on a single request*/
+  /** fees applied on a single request */
   function setBasicFee(uint256 _basicFee) public onlyOwner {
     basicFee = _basicFee;
   }

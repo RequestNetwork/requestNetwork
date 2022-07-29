@@ -22,7 +22,8 @@ import { localERC20AlphaArtifact } from './localArtifacts';
 import Utils from '@requestnetwork/utils';
 import { HttpNetworkConfig } from 'hardhat/types';
 
-const logGas = true;
+// set to true to log batch payments's gas consumption
+const logGas = false;
 
 describe('contract: BatchErc20ConversionPayments', () => {
   const networkConfig = network.config as HttpNetworkConfig;
