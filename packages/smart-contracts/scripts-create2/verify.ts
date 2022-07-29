@@ -27,7 +27,7 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
         switch (contract) {
           case 'EthereumProxy':
           case 'EthereumFeeProxy':
-          case 'EthConversionProxy':
+          case 'ETHConversionProxy':
           case 'ERC20FeeProxy':
           case 'ERC20SwapToConversion':
           case 'Erc20ConversionProxy': {
