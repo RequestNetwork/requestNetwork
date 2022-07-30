@@ -159,8 +159,7 @@ describe('api/eth/input-data', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        message:
-          /Payment network wrong not supported by ETH payment detection\. Supported networks: mainnet, rinkeby, goerli, private.*/,
+        message: /Payment network wrong not supported by ETH payment detection\. Supported networks: mainnet, rinkeby, goerli, private.*/,
       },
       events: [],
     });
@@ -253,7 +252,7 @@ describe('api/eth/input-data', () => {
         type: RequestLogicTypes.CURRENCY.ETH,
         value: 'ETH-goerli',
       },
-      expectedAmount: '80000000000000000',
+      expectedAmount: '7000000000000',
       payee: {
         type: 'ethereumAddress',
         value: '0x1D274D164937465B7A7259347AD3f1aaEEEaC8e1',
@@ -262,16 +261,16 @@ describe('api/eth/input-data', () => {
         type: 'ethereumAddress',
         value: '0x5e7D193321A4CCB091038d01755a10d143cb2Dc8',
       },
-      timestamp: 1620207049,
+      timestamp: 1659195985,
       extensionsData: [
         {
           action: 'create',
           id: 'pn-eth-input-data',
           parameters: {
-            paymentAddress: '0x8400b234e7B113686bD584af9b1041E5a233E754',
+            paymentAddress: '0xBc9643B7Bd7c8621F4a68280433796484b9E525d',
             salt: '2334c5f6691a9131',
           },
-          version: '0.2.0',
+          version: '0.3.0',
         },
       ],
       extensions: {
@@ -280,19 +279,19 @@ describe('api/eth/input-data', () => {
             {
               name: 'create',
               parameters: {
-                paymentAddress: '0x8400b234e7B113686bD584af9b1041E5a233E754',
+                paymentAddress: '0xBc9643B7Bd7c8621F4a68280433796484b9E525d',
                 salt: '2334c5f6691a9131',
               },
-              timestamp: 1620207051,
+              timestamp: 1659195985,
             },
           ],
           id: 'pn-eth-input-data',
           type: 'payment-network',
           values: {
-            paymentAddress: '0x8400b234e7B113686bD584af9b1041E5a233E754',
+            paymentAddress: '0xBc9643B7Bd7c8621F4a68280433796484b9E525d',
             salt: '2334c5f6691a9131',
           },
-          version: '0.2.0',
+          version: '0.3.0',
         },
       },
       requestId: '0110e7eaba7a3ff2e2239081497308db70e4c66362100d747903ffa5c83d290d5d',
@@ -305,7 +304,7 @@ describe('api/eth/input-data', () => {
           },
           name: 'create',
           parameters: {
-            expectedAmount: '80000000000000000',
+            expectedAmount: '7000000000000',
             extensionsDataLength: 2,
             isSignedRequest: false,
           },
@@ -319,10 +318,10 @@ describe('api/eth/input-data', () => {
       },
     };
     const balance = await ethInputData.getBalance(goerliRequest as RequestLogicTypes.IRequest);
-    expect(balance.balance).toBe('80000000000000000');
+    expect(balance.balance).toBe('7000000000000');
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
-    expect(balance.events[0].amount).toBe('80000000000000000');
+    expect(balance.events[0].amount).toBe('7000000000000');
     expect(typeof balance.events[0].timestamp).toBe('number');
   });
 });
