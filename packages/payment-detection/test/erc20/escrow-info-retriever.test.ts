@@ -177,8 +177,7 @@ describe('api/erc20/escrow-info-retriever', () => {
     it('should get escrow chain data', async () => {
       const escrowChainData = await infoRetriever.getEscrowRequestMapping();
       // Not yet ERC777 token on goerli
-      // expect(escrowChainData.tokenAddress).toEqual('0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90');
-      expect(escrowChainData.payer).toEqual('0xffb1d8efecaa177deef1cd1ab202e5e9f6a84db4');
+      expect(escrowChainData.payer).toEqual('0xffb1D8EfeCAA177DeEf1cD1AB202E5E9f6a84db4');
       expect(escrowChainData.amount.toString()).toEqual('20000000000000000');
       expect(escrowChainData.unlockDate.toString()).toEqual('0');
       expect(escrowChainData.emergencyClaimDate.toString()).toEqual('0');
