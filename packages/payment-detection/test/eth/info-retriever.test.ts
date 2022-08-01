@@ -46,7 +46,7 @@ describe('api/eth/info-retriever', () => {
   });
 
   describe('Multichain', () => {
-    // TODO temporary disable xDAI, CELO Sokol, and Goerli
+    // TODO temporary disable xDAI, CELO, Sokol, and Goerli
     // FIXME: API-based checks should run nightly and be mocked for CI
     [
       'mainnet',
