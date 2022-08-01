@@ -12,7 +12,7 @@ const fUSDCxTokenRinkeby = '0x0f1d7c55a2b133e000ea10eec03c774e0d6796e8';
 const fDAIxTokenGoerli = '0x2bf02814ea0b2b155ed47b7cede18caa752940e6';
 const fUSDCxTokenGoerli = '0x2bf02814ea0b2b155ed47b7cede18caa752940e6';
 
-const testSuite = (network: string, fDAIxToken: string) => {
+const testSuiteWithDaix = (network: string, fDAIxToken: string) => {
   describe('api/erc777/superfluid-info-retriever', () => {
     describe('on untagged requests', () => {
       it(`should get payment events from SuperFluid via subgraph with 1 request on ${network}`, async () => {
@@ -96,7 +96,7 @@ const testSuite = (network: string, fDAIxToken: string) => {
   });
 };
 
-const testSuite2 = (network: string, fUSDCxToken: string) => {
+const testSuiteWithUSDCx = (network: string, fUSDCxToken: string) => {
   describe('on ongoing request', () => {
     it(`should get payment event from SuperFluid via subgraph with ongoing request on ${network}`, async () => {
       const paymentData = {
@@ -137,8 +137,8 @@ const testSuite2 = (network: string, fUSDCxToken: string) => {
   });
 };
 
-testSuite('rinkeby', fDAIxTokenRinkeby);
-testSuite('goerli', fDAIxTokenGoerli);
+testSuiteWithDaix('rinkeby', fDAIxTokenRinkeby);
+testSuiteWithDaix('goerli', fDAIxTokenGoerli);
 
-testSuite2('rinkeby', fUSDCxTokenRinkeby);
-testSuite2('goerli', fUSDCxTokenGoerli);
+testSuiteWithUSDCx('rinkeby', fUSDCxTokenRinkeby);
+testSuiteWithUSDCx('goerli', fUSDCxTokenGoerli);
