@@ -13,13 +13,17 @@ describe('getDefaultProvider', () => {
     expect(provider).toBeInstanceOf(providers.InfuraProvider);
     await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 1 });
   });
+  const testSuite = (network: string, chainId: number) => {
+    it(`Can take a standard network ${network}`, async () => {
+      const provider = getDefaultProvider(network);
 
-  it('Can take a standard network (Rinkeby)', async () => {
-    const provider = getDefaultProvider('rinkeby');
+      expect(provider).toBeInstanceOf(providers.InfuraProvider);
+      await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: chainId });
+    });
+  };
 
-    expect(provider).toBeInstanceOf(providers.InfuraProvider);
-    await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 4 });
-  });
+  testSuite('rinkeby', 4);
+  testSuite('goerli', 5);
 
   it('Can take a standard network (Goerli)', async () => {
     const provider = getDefaultProvider('goerli');
