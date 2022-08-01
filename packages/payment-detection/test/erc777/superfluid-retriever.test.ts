@@ -94,7 +94,7 @@ describe('api/erc777/superfluid-info-retriever', () => {
   });
 
   describe('on 2 nested requests', () => {
-    it('should get payment event from SuperFluid via subgraph with 2 requests (Rinkeby)', async () => {
+    it('should get payment event from SuperFluid via subgraph with 2 requests on Rinkeby', async () => {
       const paymentData = {
         reference: '0xbeefac9474ad7670909da5',
         from: '0x9c040e2d6fd83a8b35069aa7154b69674961e0f7',
