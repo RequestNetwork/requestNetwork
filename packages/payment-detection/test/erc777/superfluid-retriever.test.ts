@@ -166,7 +166,7 @@ describe('api/erc777/superfluid-info-retriever', () => {
   });
 
   describe('on ongoing request', () => {
-    it('should get payment event from SuperFluid via subgraph with ongoing request (Rinkeby)', async () => {
+    it('should get payment event from SuperFluid via subgraph with ongoing request on Rinkeby', async () => {
       const paymentData = {
         reference: '0xbeefac0e87b43bf1e99c82',
         from: '0x165a26628ac843e97f657e648b004226fbb7f7c5',
