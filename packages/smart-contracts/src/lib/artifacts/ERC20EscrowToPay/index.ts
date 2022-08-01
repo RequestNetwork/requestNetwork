@@ -33,6 +33,26 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
           address: '0x4BA012eae4d64da79Bd6bcdBa366803fCe701A4C',
           creationBlockNumber: 18086337,
         },
+        celo: {
+          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
+          creationBlockNumber: 13299808,
+        },
+        xdai: {
+          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
+          creationBlockNumber: 22438806,
+        },
+        'arbitrum-one': {
+          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
+          creationBlockNumber: 13417262,
+        },
+        fantom: {
+          address: '0xa015c141C02996EcE6410646DA3D07d70091c577',
+          creationBlockNumber: 39534777,
+        },
+        bsc: {
+          address: '0xc7f471F5A8f8b33F131049b1e9A43941CbE31792',
+          creationBlockNumber: 18877277,
+        },
       },
     },
   },
