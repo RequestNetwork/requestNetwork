@@ -13,7 +13,7 @@ describe('getDefaultProvider', () => {
     expect(provider).toBeInstanceOf(providers.InfuraProvider);
     await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 1 });
   });
-  const testSuite = (network: string, chainId: int) => {
+  const testSuite = (network: string, chainId: number) => {
     it(`Can take a standard network ${network}`, async () => {
       const provider = getDefaultProvider(network);
 
