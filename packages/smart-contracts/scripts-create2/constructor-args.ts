@@ -22,7 +22,6 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
         '0x0000000000000000000000000000000000000000',
         '0x39e19aa5b69466dfdc313c7cda37cb2a599015cd',
       ];
-      // TODO setupETHConversionProxy
     }
     case 'ERC20SwapToConversion': {
       return [getAdminWalletAddress(contract)];
