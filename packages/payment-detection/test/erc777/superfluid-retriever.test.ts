@@ -203,7 +203,7 @@ describe('api/erc777/superfluid-info-retriever', () => {
       expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);
     });
 
-    it('should get payment event from SuperFluid via subgraph with ongoing request (Goerli)', async () => {
+    it('should get payment event from SuperFluid via subgraph with ongoing request on Goerli', async () => {
       const paymentData = {
         reference: '0xbeefac0e87b43bf1e99c82',
         from: '0x165a26628ac843e97f657e648b004226fbb7f7c5',
