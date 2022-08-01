@@ -13,12 +13,23 @@ describe('getDefaultProvider', () => {
     expect(provider).toBeInstanceOf(providers.InfuraProvider);
     await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 1 });
   });
+  const testSuite = (network: string, chainId: number) => {
+    it(`Can take a standard network ${network}`, async () => {
+      const provider = getDefaultProvider(network);
 
-  it('Can take a standard network', async () => {
-    const provider = getDefaultProvider('rinkeby');
+      expect(provider).toBeInstanceOf(providers.InfuraProvider);
+      await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: chainId });
+    });
+  };
+
+  testSuite('rinkeby', 4);
+  testSuite('goerli', 5);
+
+  it('Can take a standard network (Goerli)', async () => {
+    const provider = getDefaultProvider('goerli');
 
     expect(provider).toBeInstanceOf(providers.InfuraProvider);
-    await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 4 });
+    await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 5 });
   });
 
   it('Can take a private network', async () => {
@@ -71,12 +82,16 @@ describe('getDefaultProvider', () => {
     );
   });
 
-  it('Can override the api key for a standard provider', async () => {
-    initPaymentDetectionApiKeys({
-      infura: 'foo-bar',
-    });
+  expect((getDefaultProvider('goerli') as providers.JsonRpcProvider).connection.url).toMatch(
+    /https:\/\/goerli\.infura.*/,
+  );
+});
 
-    const provider = getDefaultProvider() as providers.InfuraProvider;
-    expect(provider.connection.url).toEqual('https://mainnet.infura.io/v3/foo-bar');
+it('Can override the api key for a standard provider', async () => {
+  initPaymentDetectionApiKeys({
+    infura: 'foo-bar',
   });
+
+  const provider = getDefaultProvider() as providers.InfuraProvider;
+  expect(provider.connection.url).toEqual('https://mainnet.infura.io/v3/foo-bar');
 });

@@ -23,7 +23,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   },
   extensions: {
     feeProxyContractErc20: {
-      supportedNetworks: ['mainnet', 'private', 'rinkeby'],
+      supportedNetworks: ['mainnet', 'private', 'rinkeby', 'goerli'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -283,7 +283,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     ).toBe('7');
   });
 
-  it('should have gasFee & gasUsed in the payment eventl', async () => {
+  it('should have gasFee & gasUsed in the payment event', async () => {
     const mockRequest: RequestLogicTypes.IRequest = {
       creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
       currency: {

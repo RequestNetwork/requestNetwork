@@ -9,7 +9,7 @@ import * as artifacts from '../src/lib';
 export const create2ContractDeploymentList = [
   'EthereumProxy',
   'EthereumFeeProxy',
-  'ETHConversionProxy',
+  'EthConversionProxy',
   'ERC20FeeProxy',
   'Erc20ConversionProxy',
   'ERC20SwapToConversion',
@@ -39,7 +39,7 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.chainlinkConversionPath;
     case 'Erc20ConversionProxy':
       return artifacts.erc20ConversionProxy;
-    case 'EthConversionProxy':
+    case 'ETHConversionProxy':
       return artifacts.ethConversionArtifact;
     case 'ERC20SwapToPay':
       return artifacts.erc20SwapToPayArtifact;

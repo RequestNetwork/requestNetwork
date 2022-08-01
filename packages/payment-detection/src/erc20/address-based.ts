@@ -8,7 +8,7 @@ import { BalanceError } from '../balance-error';
 import Erc20InfoRetriever from './address-based-info-retriever';
 
 import { PaymentDetectorBase } from '../payment-detector-base';
-const supportedNetworks = ['mainnet', 'rinkeby', 'private'];
+const supportedNetworks = ['mainnet', 'rinkeby', 'goerli', 'private'];
 
 /**
  * Handle payment networks with ERC20 based address extension
