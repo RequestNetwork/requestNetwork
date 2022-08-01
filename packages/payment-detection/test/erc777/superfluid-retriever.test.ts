@@ -8,7 +8,7 @@ import { mockSuperfluidSubgraph } from './mocks';
 jest.mock('graphql-request');
 const graphql = mocked(GraphQLClient.prototype);
 
-const testSuite = (network: string, token: string) => {
+const testSuite = (network: string, fDAIxToken: string) => {
   describe('api/erc777/superfluid-info-retriever', () => {
     describe('on untagged requests', () => {
       it(`should get payment events from SuperFluid via subgraph with 1 request on ${network}`, async () => {
@@ -22,7 +22,7 @@ const testSuite = (network: string, token: string) => {
           amount: '92592592592592000',
           requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
           block: 9945543,
-          token: token, //fDAIx
+          token: fDAIxToken,
         };
         graphql.request.mockResolvedValue(mockSuperfluidSubgraph[0]);
 
@@ -64,7 +64,7 @@ const testSuite = (network: string, token: string) => {
           amount: '320833333333331260',
           // = (1642693617 - 1642692777 = 840 sec) x (385802469135800 - 3858024691358 = 381944444444442 Wei DAIx / sec)
           requestId: '0288792633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f273c7a4e3ce7e2',
-          token: token, //fDAIx
+          token: fDAIxToken,
         };
         graphql.request.mockResolvedValue(mockSuperfluidSubgraph[1]);
 
@@ -95,7 +95,7 @@ const testSuite = (network: string, token: string) => {
 testSuite('rinkeby', '0x745861aed1eee363b4aaa5f1994be40b1e05ff90');
 testSuite('goerli', '0x2bf02814ea0b2b155ed47b7cede18caa752940e6');
 
-const testSuite2 = (network: string, token: string) => {
+const testSuite2 = (network: string, fUSDCxToken: string) => {
   describe('on ongoing request', () => {
     it(`should get payment event from SuperFluid via subgraph with ongoing request on ${network}`, async () => {
       const paymentData = {
@@ -106,7 +106,7 @@ const testSuite2 = (network: string, token: string) => {
         salt: '0ee84db293a752c6',
         amount: '1',
         requestId: '0688792633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f273c7a4e3ce7e2',
-        token: token, //fUSDCx
+        token: fUSDCxToken,
         timestamp: 1643041225,
       };
       graphql.request.mockResolvedValue(mockSuperfluidSubgraph[2]);
