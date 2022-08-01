@@ -7,6 +7,10 @@ import { mockSuperfluidSubgraph } from './mocks';
 
 jest.mock('graphql-request');
 const graphql = mocked(GraphQLClient.prototype);
+const fDAIxTokenRinkeby = '0x745861aed1eee363b4aaa5f1994be40b1e05ff90';
+const fUSDCxTokenRinkeby = '0x0f1d7c55a2b133e000ea10eec03c774e0d6796e8';
+const fDAIxTokenGoerli = '0x2bf02814ea0b2b155ed47b7cede18caa752940e6';
+const fUSDCxTokenGoerli = '0x2bf02814ea0b2b155ed47b7cede18caa752940e6';
 
 const testSuite = (network: string, fDAIxToken: string) => {
   describe('api/erc777/superfluid-info-retriever', () => {
@@ -92,9 +96,6 @@ const testSuite = (network: string, fDAIxToken: string) => {
   });
 };
 
-testSuite('rinkeby', '0x745861aed1eee363b4aaa5f1994be40b1e05ff90');
-testSuite('goerli', '0x2bf02814ea0b2b155ed47b7cede18caa752940e6');
-
 const testSuite2 = (network: string, fUSDCxToken: string) => {
   describe('on ongoing request', () => {
     it(`should get payment event from SuperFluid via subgraph with ongoing request on ${network}`, async () => {
@@ -136,5 +137,8 @@ const testSuite2 = (network: string, fUSDCxToken: string) => {
   });
 };
 
-testSuite2('rinkeby', '0x0f1d7c55a2b133e000ea10eec03c774e0d6796e8');
-testSuite2('goerli', '0x2bf02814ea0b2b155ed47b7cede18caa752940e6');
+testSuite('rinkeby', fDAIxTokenRinkeby);
+testSuite('goerli', fDAIxTokenGoerli);
+
+testSuite2('rinkeby', fUSDCxTokenRinkeby);
+testSuite2('goerli', fUSDCxTokenGoerli);
