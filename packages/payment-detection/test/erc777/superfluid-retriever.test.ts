@@ -51,7 +51,7 @@ describe('api/erc777/superfluid-info-retriever', () => {
       expect(transferEvents[0].parameters?.block).toEqual(paymentData.block);
     });
 
-    it('should get payment events from SuperFluid via subgraph with 1 request (Goerli)', async () => {
+    it('should get payment events from SuperFluid via subgraph with 1 request on Goerli', async () => {
       const paymentData = {
         reference: '0xbeefaccc470c7dbd54de69',
         txHash: '0xe472ca1b52751b058fbdaeaffebd98c0cc43b45aa31794b3eb06834ede19f7be',
