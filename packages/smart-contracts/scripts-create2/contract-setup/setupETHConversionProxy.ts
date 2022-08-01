@@ -8,7 +8,7 @@ import { updateChainlinkConversionPath, updatePaymentErc20FeeProxy } from './adm
  * @param contractAddress address of the BatchPayments Proxy
  * @param hre Hardhat runtime environment
  */
-export const setupEthConversionProxy = async (
+export const setupETHConversionProxy = async (
   contractAddress: string,
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<void> => {

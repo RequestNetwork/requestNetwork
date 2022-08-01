@@ -76,7 +76,7 @@ const mockFlows = [
     },
     {
       transactionHash: '0xe472ca1b52751b058fbdaeaffebd98c0cc43b45aa31794b3eb06834ede19f7be',
-      blockNumber: '9945543',
+      blockNumber: 9945543,
       timestamp: '1641495767',
       sender: '0x9c040e2d6fd83a8b35069aa7154b69674961e0f7',
       flowRate: '0',
