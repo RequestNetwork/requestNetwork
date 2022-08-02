@@ -78,7 +78,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       });
     });
 
-    it(`can createExtensionsDataForCreation with fee amount and address ${network}`, async () => {
+    it(`can createExtensionsDataForCreation with fee amount and address on ${network}`, async () => {
       await anyToErc20Proxy.createExtensionsDataForCreation({
         feeAddress: 'fee address',
         feeAmount: '2000',
@@ -102,27 +102,6 @@ describe('api/any/conversion-fee-proxy-contract', () => {
 
   testSuite('rinkeby');
   testSuite('goerli');
-
-  it('can createExtensionsDataForCreation with fee amount and address (Goerli)', async () => {
-    await anyToErc20Proxy.createExtensionsDataForCreation({
-      feeAddress: 'fee address',
-      feeAmount: '2000',
-      paymentAddress: 'ethereum address',
-      salt: 'ea3bc7caf64110ca',
-      acceptedTokens: ['ethereum address2'],
-      network: 'goerli',
-    });
-
-    expect(createCreationAction).toHaveBeenCalledWith({
-      feeAddress: 'fee address',
-      feeAmount: '2000',
-      paymentAddress: 'ethereum address',
-      refundAddress: undefined,
-      salt: 'ea3bc7caf64110ca',
-      acceptedTokens: ['ethereum address2'],
-      network: 'goerli',
-    });
-  });
 
   it('can createExtensionsDataForCreation without salt', async () => {
     await anyToErc20Proxy.createExtensionsDataForCreation({
