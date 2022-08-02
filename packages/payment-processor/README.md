@@ -9,6 +9,7 @@ It contains client-side payment methods for:
 ### Test
 
 To run the payment-processor tests we need a local running ganache with all our smart contracts deployed. You can open two terminals and do:
+Do not define "NETWORK" variable in the smart-contracts .env file.
 
 ```
 # Terminal 1

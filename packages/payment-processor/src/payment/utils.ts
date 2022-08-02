@@ -1,4 +1,4 @@
-import { ethers, Signer, providers, BigNumber, BigNumberish } from 'ethers';
+import { ethers, Signer, providers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 
 import { PaymentReferenceCalculator, getDefaultProvider } from '@requestnetwork/payment-detection';
 import {
@@ -8,6 +8,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { getCurrencyHash } from '@requestnetwork/currency';
+import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 
 /**
  * Thrown when the library does not support a payment blockchain network.
@@ -344,4 +345,28 @@ export function comparePnTypeAndVersion(
     pn?.type === getPaymentNetworkExtension(request)?.type &&
     pn?.version === getPaymentNetworkExtension(request)?.version
   );
+}
+
+/**
+ * set approval to 0 of a token from a user (as wallet address provider)
+ */
+export async function resetApproveErc20Utils(
+  spenderAddress: string,
+  paymentTokenAddress: string,
+  signerOrProvider: providers.Provider | Signer = getProvider(),
+): Promise<ContractTransaction> {
+  const erc20interface = ERC20__factory.connect(paymentTokenAddress, signerOrProvider).interface;
+  const encodedTx = erc20interface.encodeFunctionData('approve', [
+    spenderAddress,
+    BigNumber.from(0),
+  ]);
+
+  const preparedTx = {
+    data: encodedTx,
+    to: paymentTokenAddress,
+    value: 0,
+  };
+  const signer = getSigner(signerOrProvider);
+  const tx = await signer.sendTransaction(preparedTx);
+  return tx;
 }

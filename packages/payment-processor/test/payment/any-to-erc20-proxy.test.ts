@@ -16,6 +16,8 @@ import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { currencyManager } from './shared';
 import { IConversionPaymentSettings } from '../../src/index';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
+import { getProxyAddress, resetApproveErc20Utils } from '../../src/payment/utils';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -81,6 +83,15 @@ const validEuroRequest: ClientTypes.IRequestData = {
 };
 
 describe('conversion-erc20-fee-proxy', () => {
+  beforeAll(async () => {
+    // reset approval
+    await resetApproveErc20Utils(
+      getProxyAddress(validEuroRequest, AnyToERC20PaymentDetector.getDeploymentInformation),
+      erc20ContractAddress,
+      wallet.provider,
+    );
+  });
+
   describe('error checking', () => {
     it('should throw an error if the token is not accepted', async () => {
       await expect(
