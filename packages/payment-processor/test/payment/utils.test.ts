@@ -99,7 +99,7 @@ describe('getNetworkProvider', () => {
     expect(getNetworkProvider(request)).toBeInstanceOf(providers.Provider);
   });
 
-  const testSuite = (network: string) => {
+  const testProvider = (network: string) => {
     it(`returns a provider for ${network}`, () => {
       const request: any = {
         currencyInfo: {
@@ -110,8 +110,8 @@ describe('getNetworkProvider', () => {
     });
   };
 
-  testSuite('rinkeby');
-  testSuite('goerli');
+  testProvider('rinkeby');
+  testProvider('goerli');
 
   it('fails for other network', () => {
     const request: any = {
