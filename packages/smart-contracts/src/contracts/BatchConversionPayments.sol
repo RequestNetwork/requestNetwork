@@ -29,6 +29,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
   // Between 0 and 10000, i.e: batchFee = 100 represent 1% of fee
   uint256 public batchConversionFee;
+  // Between 0 and 10000,fees applied for basic invoice, 0.1% at Request Finance
   uint256 public basicFee;
 
   /**
@@ -172,8 +173,11 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
   /**
    * @notice Transfers a batch of multiple ERC20 tokens with a reference with amount based on the request amount in fiat
-   * @param requestsInfo list of requestInfo, each one containing every informations of a request.
+   * @param requestsInfo list of requestInfo, each one containing every informations of a request
    * @param _feeAddress The fee recipient
+   * @dev amountAndFee is an approximation of the amount and the fee to be paid, in order to get enough tokens.
+   *                   The excess is sent back to the payer
+   *      batchFeeAmount is an approximation for the same reason of amountAndFee
    */
   function batchERC20ConversionPaymentsMultiTokens(
     RequestInfo[] calldata requestsInfo,
@@ -255,7 +259,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
         requestedToken.safeTransfer(msg.sender, excessAmount);
       }
 
-      // Payer pays batch fees amount
+      // Payer pays the exact batch fees amount
       require(
         safeTransferFrom(
           uTokens[k].tokenAddress,
@@ -288,7 +292,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     Path[] memory rPaths = new Path[](requestsInfo.length);
     for (uint256 i = 0; i < requestsInfo.length; i++) {
       RequestInfo memory rI = requestsInfo[i];
-      for (uint64 k = 0; k < requestsInfo.length; k++) {
+      for (uint256 k = 0; k < requestsInfo.length; k++) {
         // Check if the path is already known
         if (rPaths[k].rate > 0 && rPaths[k]._path[0] == rI._path[0]) {
           // use the already known rate and decimals from path already queried
@@ -383,19 +387,19 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    */
 
   /** fees applied on a single request */
-  function setBasicFee(uint256 _basicFee) public onlyOwner {
+  function setBasicFee(uint256 _basicFee) external onlyOwner {
     basicFee = _basicFee;
   }
 
-  function setBatchConversionFee(uint256 _batchConversionFee) public onlyOwner {
+  function setBatchConversionFee(uint256 _batchConversionFee) external onlyOwner {
     batchConversionFee = _batchConversionFee;
   }
 
-  function setConversionPaymentProxy(address _paymentErc20ConversionFeeProxy) public onlyOwner {
+  function setConversionPaymentProxy(address _paymentErc20ConversionFeeProxy) external onlyOwner {
     conversionPaymentProxy = IERC20ConversionProxy(_paymentErc20ConversionFeeProxy);
   }
 
-  function setEthConversionPaymentProxy(address _paymentEthConversionFeeProxy) public onlyOwner {
+  function setEthConversionPaymentProxy(address _paymentEthConversionFeeProxy) external onlyOwner {
     conversionPaymentEthProxy = IEthConversionProxy(_paymentEthConversionFeeProxy);
   }
 

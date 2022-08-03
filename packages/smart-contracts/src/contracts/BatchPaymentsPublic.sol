@@ -352,15 +352,15 @@ contract BatchPaymentsPublic is Ownable {
    * Admin functions to edit the proxies address
    */
 
-  function setBatchFee(uint256 _batchFee) public onlyOwner {
+  function setBatchFee(uint256 _batchFee) external onlyOwner {
     batchFee = _batchFee;
   }
 
-  function setPaymentErc20FeeProxy(address _paymentErc20FeeProxy) public onlyOwner {
+  function setPaymentErc20FeeProxy(address _paymentErc20FeeProxy) external onlyOwner {
     paymentErc20FeeProxy = IERC20FeeProxy(_paymentErc20FeeProxy);
   }
 
-  function setPaymentEthFeeProxy(address _paymentEthFeeProxy) public onlyOwner {
+  function setPaymentEthFeeProxy(address _paymentEthFeeProxy) external onlyOwner {
     paymentEthFeeProxy = IEthereumFeeProxy(_paymentEthFeeProxy);
   }
 }
