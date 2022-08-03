@@ -22,10 +22,9 @@ import './interfaces/EthereumFeeProxy.sol';
 contract BatchPaymentsPublic is Ownable {
   using SafeERC20 for IERC20;
 
-  IERC20FeeProxy public paymentErc20FeeProxy;
-  IEthereumFeeProxy public paymentEthFeeProxy;
+  IERC20FeeProxy public paymentErc20Proxy;
+  IEthereumFeeProxy public paymentEthProxy;
 
-  // @dev: Between 0 and 10000, i.e: batchFee = 100 represent 1% of fee
   uint256 public batchFee;
 
   struct Token {
@@ -35,17 +34,17 @@ contract BatchPaymentsPublic is Ownable {
   }
 
   /**
-   * @param _paymentErc20FeeProxy The address to the ERC20 payment proxy to use.
-   * @param _paymentEthFeeProxy The address to the Ethereum payment proxy to use.
+   * @param _paymentErc20Proxy The address to the ERC20 fee payment proxy to use.
+   * @param _paymentEthProxy The address to the Ethereum fee payment proxy to use.
    * @param _owner Owner of the contract.
    */
   constructor(
-    address _paymentErc20FeeProxy,
-    address _paymentEthFeeProxy,
+    address _paymentErc20Proxy,
+    address _paymentEthProxy,
     address _owner
   ) {
-    paymentErc20FeeProxy = IERC20FeeProxy(_paymentErc20FeeProxy);
-    paymentEthFeeProxy = IEthereumFeeProxy(_paymentEthFeeProxy);
+    paymentErc20Proxy = IERC20FeeProxy(_paymentErc20Proxy);
+    paymentEthProxy = IEthereumFeeProxy(_paymentEthProxy);
     transferOwnership(_owner);
     batchFee = 0;
   }
@@ -88,7 +87,7 @@ contract BatchPaymentsPublic is Ownable {
       require(address(this).balance >= _amounts[i] + _feeAmounts[i], 'not enough funds');
       amount += _amounts[i];
 
-      paymentEthFeeProxy.transferWithReferenceAndFee{value: _amounts[i] + _feeAmounts[i]}(
+      paymentEthProxy.transferWithReferenceAndFee{value: _amounts[i] + _feeAmounts[i]}(
         payable(_recipients[i]),
         _paymentReferences[i],
         _feeAmounts[i],
@@ -156,15 +155,15 @@ contract BatchPaymentsPublic is Ownable {
     );
 
     // Batch contract approve Erc20FeeProxy to spend the token
-    if (requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) < amount) {
-      approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20FeeProxy));
+    if (requestedToken.allowance(address(this), address(paymentErc20Proxy)) < amount) {
+      approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20Proxy));
     }
 
     // Batch contract pays the requests using Erc20FeeProxy
     for (uint256 i = 0; i < _recipients.length; i++) {
       // amount is updated to become the sum of amounts, to calculate batch fee amount
       amount -= _feeAmounts[i];
-      paymentErc20FeeProxy.transferFromWithReferenceAndFee(
+      paymentErc20Proxy.transferFromWithReferenceAndFee(
         _tokenAddress,
         _recipients[i],
         _amounts[i],
@@ -261,10 +260,10 @@ contract BatchPaymentsPublic is Ownable {
 
       // Batch contract approves Erc20FeeProxy to spend the token
       if (
-        requestedToken.allowance(address(this), address(paymentErc20FeeProxy)) <
+        requestedToken.allowance(address(this), address(paymentErc20Proxy)) <
         uniqueTokens[i].amountAndFee
       ) {
-        approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20FeeProxy));
+        approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20Proxy));
       }
 
       // Payer pays batch fee amount
@@ -276,7 +275,7 @@ contract BatchPaymentsPublic is Ownable {
 
     // Batch contract pays the requests using Erc20FeeProxy
     for (uint256 i = 0; i < _recipients.length; i++) {
-      paymentErc20FeeProxy.transferFromWithReferenceAndFee(
+      paymentErc20Proxy.transferFromWithReferenceAndFee(
         _tokenAddresses[i],
         _recipients[i],
         _amounts[i],
@@ -349,18 +348,28 @@ contract BatchPaymentsPublic is Ownable {
   }
 
   /*
-   * Admin functions to edit the proxies address
+   * Admin functions to edit the proxies address and fees
    */
 
+  /**
+   * @notice fees added when using Erc20/Eth batch functions
+   * @param _batchFee between 0 and 10000, i.e: batchFee = 50 represent 0.50% of fee
+   */
   function setBatchFee(uint256 _batchFee) external onlyOwner {
     batchFee = _batchFee;
   }
 
-  function setPaymentErc20FeeProxy(address _paymentErc20FeeProxy) external onlyOwner {
-    paymentErc20FeeProxy = IERC20FeeProxy(_paymentErc20FeeProxy);
+  /**
+   * @param _paymentErc20Proxy The address to the Erc20 fee payment proxy to use.
+   */
+  function setPaymentErc20Proxy(address _paymentErc20Proxy) external onlyOwner {
+    paymentErc20Proxy = IERC20FeeProxy(_paymentErc20Proxy);
   }
 
-  function setPaymentEthFeeProxy(address _paymentEthFeeProxy) external onlyOwner {
-    paymentEthFeeProxy = IEthereumFeeProxy(_paymentEthFeeProxy);
+  /**
+   * @param _paymentEthProxy The address to the Ethereum fee payment proxy to use.
+   */
+  function setPaymentEthProxy(address _paymentEthProxy) external onlyOwner {
+    paymentEthProxy = IEthereumFeeProxy(_paymentEthProxy);
   }
 }

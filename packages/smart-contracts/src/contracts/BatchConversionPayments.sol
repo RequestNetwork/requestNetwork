@@ -14,8 +14,8 @@ import './BatchPaymentsPublic.sol';
  *              - Native token: as Eth, using EthConversionProxy and EthereumFeeProxy
  *          - to: multiple addresses
  *          - fees: conversion proxy fees and additional batch conversion fees are paid to the same address.
- *         batchRouter is the main function to batch every kind of payments at once.
- *         If one transaction of the batch fail, every transactions are reverted.
+ *         batchRouter is the main function to batch all kind of payments at once.
+ *         If one transaction of the batch fail, all transactions are reverted.
  * @dev Please notify than fees are now divided by 10_000 instead of 1_000 in previous version
  *      batchRouter is the main function, but others batch payment functions are "public" in order to do
  *      gas optimization in some cases.
@@ -23,17 +23,15 @@ import './BatchPaymentsPublic.sol';
 contract BatchConversionPayments is BatchPaymentsPublic {
   using SafeERC20 for IERC20;
 
-  IERC20ConversionProxy conversionPaymentProxy;
-  IEthConversionProxy conversionPaymentEthProxy;
+  IERC20ConversionProxy paymentErc20ConversionProxy;
+  IEthConversionProxy paymentEthConversionProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
-  // Between 0 and 10000, i.e: batchFee = 100 represent 1% of fee
   uint256 public batchConversionFee;
-  // Between 0 and 10000,fees applied for basic invoice, 0.1% at Request Finance
   uint256 public basicFee;
 
   /**
-   * @dev Every informations of a request, excepted the feeAddress
+   * @dev All the information of a request, excepted the feeAddress
    *   _recipient Recipients address of the payement
    *   _requestAmount Request amount in fiat
    *   _path Conversion path
@@ -85,26 +83,26 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @param _paymentErc20FeeProxy The address to the ERC20 payment proxy to use.
-   * @param _paymentEthFeeProxy The address to the Ethereum payment proxy to use.
-   * @param _paymentErc20ConversionFeeProxy The address of the ERC20 Conversion payment proxy to use.
-   * @param _paymentEthConversionFeeProxy The address of the ETH Conversion payment proxy to use.
+   * @param _paymentErc20Proxy The address to the ERC20 fee payment proxy to use.
+   * @param _paymentEthProxy The address to the Ethereum fee payment proxy to use.
+   * @param _paymentErc20ConversionProxy The address of the ERC20 Conversion payment proxy to use.
+   * @param _paymentEthConversionFeeProxy The address of the Ethereum Conversion payment proxy to use.
    * @param _chainlinkConversionPathAddress The address of the conversion path contract
    * @param _owner Owner of the contract.
    */
   constructor(
-    address _paymentErc20FeeProxy,
-    address _paymentEthFeeProxy,
-    address _paymentErc20ConversionFeeProxy,
+    address _paymentErc20Proxy,
+    address _paymentEthProxy,
+    address _paymentErc20ConversionProxy,
     address _paymentEthConversionFeeProxy,
     address _chainlinkConversionPathAddress,
     address _owner
-  ) BatchPaymentsPublic(_paymentErc20FeeProxy, _paymentEthFeeProxy, _owner) {
-    paymentErc20FeeProxy = IERC20FeeProxy(_paymentErc20FeeProxy);
-    paymentEthFeeProxy = IEthereumFeeProxy(_paymentEthFeeProxy);
+  ) BatchPaymentsPublic(_paymentErc20Proxy, _paymentEthProxy, _owner) {
+    paymentErc20Proxy = IERC20FeeProxy(_paymentErc20Proxy);
+    paymentEthProxy = IEthereumFeeProxy(_paymentEthProxy);
 
-    conversionPaymentProxy = IERC20ConversionProxy(_paymentErc20ConversionFeeProxy);
-    conversionPaymentEthProxy = IEthConversionProxy(_paymentEthConversionFeeProxy);
+    paymentErc20ConversionProxy = IERC20ConversionProxy(_paymentErc20ConversionProxy);
+    paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionFeeProxy);
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
     transferOwnership(_owner);
 
@@ -173,7 +171,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
   /**
    * @notice Transfers a batch of multiple ERC20 tokens with a reference with amount based on the request amount in fiat
-   * @param requestsInfo list of requestInfo, each one containing every informations of a request
+   * @param requestsInfo list of requestInfo, each one containing all the information of a request
    * @param _feeAddress The fee recipient
    * @dev amountAndFee is an approximation of the amount and the fee to be paid, in order to get enough tokens.
    *                   The excess is sent back to the payer
@@ -226,17 +224,17 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
       // Batch contract approves Erc20ConversionProxy to spend the token
       if (
-        requestedToken.allowance(address(this), address(conversionPaymentProxy)) <
+        requestedToken.allowance(address(this), address(paymentErc20ConversionProxy)) <
         uTokens[k].amountAndFee
       ) {
-        approvePaymentProxyToSpend(uTokens[k].tokenAddress, address(conversionPaymentProxy));
+        approvePaymentProxyToSpend(uTokens[k].tokenAddress, address(paymentErc20ConversionProxy));
       }
     }
 
     // Batch pays the requests using Erc20ConversionFeeProxy
     for (uint256 i = 0; i < requestsInfo.length; i++) {
       RequestInfo memory rI = requestsInfo[i];
-      conversionPaymentProxy.transferFromWithReferenceAndFee(
+      paymentErc20ConversionProxy.transferFromWithReferenceAndFee(
         rI.recipient,
         rI.requestAmount,
         rI.path,
@@ -275,7 +273,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   /**
    * @notice Send a batch of Eth conversion payments w/fees with paymentReferences to multiple accounts.
    *         If one payment failed, the whole batch is reverted.
-   * @param requestsInfo List of requestInfos, each one containing every informations of a request.
+   * @param requestsInfo List of requestInfos, each one containing all the information of a request.
    *                     _maxToSpend is not used in this function.
    * @param _feeAddress The fee recipient.
    * @dev It uses EthereumConversionProxy to pay an invoice and fees.
@@ -306,7 +304,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
         } else if (i == k) {
           // set the path, and get the associated rate and decimals
           rPaths[i].path = rI.path;
-          (rPaths[i].rate, rPaths[i].decimals) = getRate(rI.path, rI.maxRateTimespan);
+          (rPaths[i].rate, rPaths[i].decimals) = getRateAndDecimals(rI.path, rI.maxRateTimespan);
           amountAndFeeToPay = amountAndFeeConversion(
             rI.requestAmount,
             rI.feeAmount,
@@ -320,7 +318,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
       require(address(this).balance >= amountAndFeeToPay, 'not enough funds');
 
       // Batch contract pays the requests through EthConversionProxy
-      conversionPaymentEthProxy.transferWithReferenceAndFee{value: amountAndFeeToPay}(
+      paymentEthConversionProxy.transferWithReferenceAndFee{value: amountAndFeeToPay}(
         payable(rI.recipient),
         rI.requestAmount,
         rI.path,
@@ -365,8 +363,8 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   /**
    * @notice Get conversion rate and decimals from chainlink
    */
-  function getRate(address[] memory _path, uint256 _maxRateTimespan)
-    internal
+  function getRateAndDecimals(address[] memory _path, uint256 _maxRateTimespan)
+    private
     view
     returns (uint256, uint256)
   {
@@ -383,24 +381,41 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /*
-   * Admin functions to edit the conversion proxies address
+   * Admin functions to edit the conversion proxies address and fees
    */
 
-  /** fees applied on a single request */
+  /**
+   * @notice Fees applied for basic invoice, 0.1% at Request Finance
+   * @param _basicFee Between 0 and 10000, e.i: basicFee = 10 represent 0.10% of fees
+   *         Update it cautiously.
+   *         e.i: Only if the Request Finance 'basicFee' has evolve, which should be exceptional
+   */
   function setBasicFee(uint256 _basicFee) external onlyOwner {
     basicFee = _basicFee;
   }
 
+  /**
+   * @notice fees added when using Erc20/Eth conversion batch functions
+   * @param _batchConversionFee between 0 and 10000, i.e: batchFee = 50 represent 0.50% of fees
+   */
   function setBatchConversionFee(uint256 _batchConversionFee) external onlyOwner {
     batchConversionFee = _batchConversionFee;
   }
 
-  function setConversionPaymentProxy(address _paymentErc20ConversionFeeProxy) external onlyOwner {
-    conversionPaymentProxy = IERC20ConversionProxy(_paymentErc20ConversionFeeProxy);
+  /**
+   * @param _paymentErc20ConversionProxy The address of the ERC20 Conversion payment proxy to use.
+   *        Update cautiously, the proxy has to match the invoice proxy.
+   */
+  function setPaymentErc20ConversionProxy(address _paymentErc20ConversionProxy) external onlyOwner {
+    paymentErc20ConversionProxy = IERC20ConversionProxy(_paymentErc20ConversionProxy);
   }
 
-  function setEthConversionPaymentProxy(address _paymentEthConversionFeeProxy) external onlyOwner {
-    conversionPaymentEthProxy = IEthConversionProxy(_paymentEthConversionFeeProxy);
+  /**
+   * @param _paymentEthConversionProxy The address of the Ethereum Conversion payment proxy to use.
+   *        Update cautiously, the proxy has to match the invoice proxy.
+   */
+  function setPaymentEthConversionProxy(address _paymentEthConversionProxy) external onlyOwner {
+    paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionProxy);
   }
 
   /**

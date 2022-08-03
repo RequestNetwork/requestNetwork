@@ -82,22 +82,22 @@ describe('contract: BatchErc20ConversionPayments', () => {
   let feeDiffBalanceExpected: BigNumber;
 
   type RequestInfo = {
-    _recipient: string;
-    _requestAmount: BigNumberish;
-    _path: string[];
-    _paymentReference: BytesLike;
-    _feeAmount: BigNumberish;
-    _maxToSpend: BigNumberish;
-    _maxRateTimespan: BigNumberish;
+    recipient: string;
+    requestAmount: BigNumberish;
+    path: string[];
+    paymentReference: BytesLike;
+    feeAmount: BigNumberish;
+    maxToSpend: BigNumberish;
+    maxRateTimespan: BigNumberish;
   };
   let requestInfo: RequestInfo;
 
   let requestsInfoParent1 = {
-    _tokenAddresses: [],
-    _recipients: [],
-    _amounts: [],
-    _paymentReferences: [],
-    _feeAmounts: [],
+    tokenAddresses: [],
+    recipients: [],
+    amounts: [],
+    paymentReferences: [],
+    feeAmounts: [],
   };
   /** Function used to emit events of batch conversion proxy */
   let emitOneTx: Function;
@@ -166,13 +166,13 @@ describe('contract: BatchErc20ConversionPayments', () => {
     conversionToPay = await _chainlinkPath.getConversion(_requestAmount, _path);
     conversionFees = await _chainlinkPath.getConversion(_feeAmount, _path);
     requestInfo = {
-      _recipient: _recipient,
-      _requestAmount: _requestAmount,
-      _path: _path,
-      _paymentReference: referenceExample,
-      _feeAmount: _feeAmount,
-      _maxToSpend: conversionToPay.result.add(conversionFees.result).toString(),
-      _maxRateTimespan: _maxRateTimespan,
+      recipient: _recipient,
+      requestAmount: _requestAmount,
+      path: _path,
+      paymentReference: referenceExample,
+      feeAmount: _feeAmount,
+      maxToSpend: conversionToPay.result.add(conversionFees.result).toString(),
+      maxRateTimespan: _maxRateTimespan,
     };
   };
 
@@ -273,10 +273,10 @@ describe('contract: BatchErc20ConversionPayments', () => {
 
     let requestInfo2 = Utils.deepCopy(requestInfo);
 
-    requestInfo2._path = path2;
-    requestInfo2._requestAmount = amountInFiat2;
-    requestInfo2._feeAmount = feesAmountInFiat2;
-    requestInfo2._maxToSpend = conversionToPay2.result.add(conversionFees2.result).toString();
+    requestInfo2.path = path2;
+    requestInfo2.requestAmount = amountInFiat2;
+    requestInfo2.feeAmount = feesAmountInFiat2;
+    requestInfo2.maxToSpend = conversionToPay2.result.add(conversionFees2.result).toString();
 
     let requestInfos: RequestInfo[] = [];
     let conversionsToPay: ConvToPay[] = [];
@@ -293,8 +293,8 @@ describe('contract: BatchErc20ConversionPayments', () => {
     }
 
     if (
-      requestInfo._path[requestInfo._path.length - 1] ===
-      requestInfo2._path[requestInfo2._path.length - 1]
+      requestInfo.path[requestInfo.path.length - 1] ===
+      requestInfo2.path[requestInfo2.path.length - 1]
     ) {
       for (let i = 0; i < nTimes - 1; i++) {
         calculERC20Balances(conversionToPay.result, conversionFees.result, []);
@@ -331,16 +331,16 @@ describe('contract: BatchErc20ConversionPayments', () => {
       return result.to
         .emit(testErc20ConversionProxy, 'TransferWithConversionAndReference')
         .withArgs(
-          requestInfo._requestAmount,
-          ethers.utils.getAddress(requestInfo._path[0]),
+          requestInfo.requestAmount,
+          ethers.utils.getAddress(requestInfo.path[0]),
           ethers.utils.keccak256(referenceExample),
-          requestInfo._feeAmount,
+          requestInfo.feeAmount,
           '0',
         )
         .to.emit(testErc20ConversionProxy, 'TransferWithReferenceAndFee')
         .withArgs(
           ethers.utils.getAddress(DAI_address),
-          ethers.utils.getAddress(requestInfo._recipient),
+          ethers.utils.getAddress(requestInfo.recipient),
           _conversionToPay.result,
           ethers.utils.keccak256(referenceExample),
           _conversionFees.result,
@@ -402,14 +402,14 @@ describe('contract: BatchErc20ConversionPayments', () => {
     describe('batchERC20ConversionPaymentsMultiTokens with errors', () => {
       it('cannot transfer with invalid path', async function () {
         const wrongPath = [EUR_hash, ETH_hash, DAI_address];
-        requestInfo._path = wrongPath;
+        requestInfo.path = wrongPath;
         await expect(batchConvFunction(argTemplate([requestInfo]), feeAddress)).to.be.revertedWith(
           'revert No aggregator found',
         );
       });
 
       it('cannot transfer if max to spend too low', async function () {
-        requestInfo._maxToSpend = conversionToPay.result
+        requestInfo.maxToSpend = conversionToPay.result
           .add(conversionFees.result)
           .sub(1)
           .toString();
@@ -419,7 +419,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
       });
 
       it('cannot transfer if rate is too old', async function () {
-        requestInfo._maxRateTimespan = 10;
+        requestInfo.maxRateTimespan = 10;
 
         await expect(batchConvFunction(argTemplate([requestInfo]), feeAddress)).to.be.revertedWith(
           'aggregator rate is outdated',
@@ -444,11 +444,11 @@ describe('contract: BatchErc20ConversionPayments', () => {
               paymentNetworkId: subFunction === 'batchERC20PaymentsWithReference' ? 1 : 2,
               requestsInfo: [],
               requestsInfoParent: {
-                _tokenAddresses: [tokenAddress],
-                _recipients: [to],
-                _amounts: [amount],
-                _paymentReferences: [referenceExample],
-                _feeAmounts: [feeAmount],
+                tokenAddresses: [tokenAddress],
+                recipients: [to],
+                amounts: [amount],
+                paymentReferences: [referenceExample],
+                feeAmounts: [feeAmount],
               },
             },
           ],
@@ -495,7 +495,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
     it('batchERC20PaymentsWithReference transfers token', async function () {
       await batchERC20Payments(false, 'batchERC20PaymentsWithReference');
     });
-    it('with batchRouter, batchERC20PaymentsMultiTokensWithReference transfers token', async function () {
+    it('with batchRouter, batchERC20PaymentsWithReference transfers token', async function () {
       await batchERC20Payments(true, 'batchERC20PaymentsWithReference');
     });
 
@@ -542,13 +542,13 @@ describe('contract: BatchErc20ConversionPayments', () => {
         }
 
         requestInfo = {
-          _recipient: to,
-          _requestAmount: amount,
-          _path: pathUsdEth,
-          _paymentReference: referenceExample,
-          _feeAmount: feeAmount,
-          _maxToSpend: BigNumber.from(0),
-          _maxRateTimespan: BigNumber.from(0),
+          recipient: to,
+          requestAmount: amount,
+          path: pathUsdEth,
+          paymentReference: referenceExample,
+          feeAmount: feeAmount,
+          maxToSpend: BigNumber.from(0),
+          maxRateTimespan: BigNumber.from(0),
         };
       });
 
@@ -558,21 +558,21 @@ describe('contract: BatchErc20ConversionPayments', () => {
           beforeEthBalanceFee = await provider.getBalance(feeAddress);
           beforeEthBalance = await provider.getBalance(await signer.getAddress());
           requestInfo = {
-            _recipient: to,
-            _requestAmount: amount,
-            _path: pathUsdEth,
-            _paymentReference: referenceExample,
-            _feeAmount: feeAmount,
-            _maxToSpend: BigNumber.from(0),
-            _maxRateTimespan: BigNumber.from(0),
+            recipient: to,
+            requestAmount: amount,
+            path: pathUsdEth,
+            paymentReference: referenceExample,
+            feeAmount: feeAmount,
+            maxToSpend: BigNumber.from(0),
+            maxRateTimespan: BigNumber.from(0),
           };
 
           // basic setup: 1 payment
           conversionToPay = await chainlinkPath.getConversion(
-            requestInfo._requestAmount,
-            requestInfo._path,
+            requestInfo.requestAmount,
+            requestInfo.path,
           );
-          feesToPay = await chainlinkPath.getConversion(requestInfo._feeAmount, requestInfo._path);
+          feesToPay = await chainlinkPath.getConversion(requestInfo.feeAmount, requestInfo.path);
 
           amountToPayExpected = conversionToPay.result;
           feeToPayExpected = feesToPay.result;
@@ -621,15 +621,15 @@ describe('contract: BatchErc20ConversionPayments', () => {
 
         it('batchEthConversionPaymentsWithReference transfer 3 payments in ethers denominated in USD and EUR', async function () {
           const EurRequestInfo = Utils.deepCopy(requestInfo);
-          EurRequestInfo._path = [EUR_hash, USD_hash, ETH_hash];
+          EurRequestInfo.path = [EUR_hash, USD_hash, ETH_hash];
 
           const eurConversionToPay = await chainlinkPath.getConversion(
-            EurRequestInfo._requestAmount,
-            EurRequestInfo._path,
+            EurRequestInfo.requestAmount,
+            EurRequestInfo.path,
           );
           const eurFeesToPay = await chainlinkPath.getConversion(
-            EurRequestInfo._feeAmount,
-            EurRequestInfo._path,
+            EurRequestInfo.feeAmount,
+            EurRequestInfo.path,
           );
 
           amountToPayExpected = eurConversionToPay.result.add(amountToPayExpected.mul(2));

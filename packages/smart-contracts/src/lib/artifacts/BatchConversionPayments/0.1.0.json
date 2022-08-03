@@ -4,17 +4,17 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentErc20FeeProxy",
+          "name": "_paymentErc20Proxy",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "_paymentEthFeeProxy",
+          "name": "_paymentEthProxy",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "_paymentErc20ConversionFeeProxy",
+          "name": "_paymentErc20ConversionProxy",
           "type": "address"
         },
         {
@@ -56,19 +56,6 @@
       "type": "event"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_erc20Address",
-          "type": "address"
-        }
-      ],
-      "name": "approveConversionPaymentProxyToSpend",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "basicFee",
       "outputs": [
@@ -100,37 +87,37 @@
           "components": [
             {
               "internalType": "address",
-              "name": "_recipient",
+              "name": "recipient",
               "type": "address"
             },
             {
               "internalType": "uint256",
-              "name": "_requestAmount",
+              "name": "requestAmount",
               "type": "uint256"
             },
             {
               "internalType": "address[]",
-              "name": "_path",
+              "name": "path",
               "type": "address[]"
             },
             {
               "internalType": "bytes",
-              "name": "_paymentReference",
+              "name": "paymentReference",
               "type": "bytes"
             },
             {
               "internalType": "uint256",
-              "name": "_feeAmount",
+              "name": "feeAmount",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "_maxToSpend",
+              "name": "maxToSpend",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "_maxRateTimespan",
+              "name": "maxRateTimespan",
               "type": "uint256"
             }
           ],
@@ -231,37 +218,37 @@
           "components": [
             {
               "internalType": "address",
-              "name": "_recipient",
+              "name": "recipient",
               "type": "address"
             },
             {
               "internalType": "uint256",
-              "name": "_requestAmount",
+              "name": "requestAmount",
               "type": "uint256"
             },
             {
               "internalType": "address[]",
-              "name": "_path",
+              "name": "path",
               "type": "address[]"
             },
             {
               "internalType": "bytes",
-              "name": "_paymentReference",
+              "name": "paymentReference",
               "type": "bytes"
             },
             {
               "internalType": "uint256",
-              "name": "_feeAmount",
+              "name": "feeAmount",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "_maxToSpend",
+              "name": "maxToSpend",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "_maxRateTimespan",
+              "name": "maxRateTimespan",
               "type": "uint256"
             }
           ],
@@ -339,37 +326,37 @@
               "components": [
                 {
                   "internalType": "address",
-                  "name": "_recipient",
+                  "name": "recipient",
                   "type": "address"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "_requestAmount",
+                  "name": "requestAmount",
                   "type": "uint256"
                 },
                 {
                   "internalType": "address[]",
-                  "name": "_path",
+                  "name": "path",
                   "type": "address[]"
                 },
                 {
                   "internalType": "bytes",
-                  "name": "_paymentReference",
+                  "name": "paymentReference",
                   "type": "bytes"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "_feeAmount",
+                  "name": "feeAmount",
                   "type": "uint256"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "_maxToSpend",
+                  "name": "maxToSpend",
                   "type": "uint256"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "_maxRateTimespan",
+                  "name": "maxRateTimespan",
                   "type": "uint256"
                 }
               ],
@@ -381,27 +368,27 @@
               "components": [
                 {
                   "internalType": "address[]",
-                  "name": "_tokenAddresses",
+                  "name": "tokenAddresses",
                   "type": "address[]"
                 },
                 {
                   "internalType": "address[]",
-                  "name": "_recipients",
+                  "name": "recipients",
                   "type": "address[]"
                 },
                 {
                   "internalType": "uint256[]",
-                  "name": "_amounts",
+                  "name": "amounts",
                   "type": "uint256[]"
                 },
                 {
                   "internalType": "bytes[]",
-                  "name": "_paymentReferences",
+                  "name": "paymentReferences",
                   "type": "bytes[]"
                 },
                 {
                   "internalType": "uint256[]",
-                  "name": "_feeAmounts",
+                  "name": "feeAmounts",
                   "type": "uint256[]"
                 }
               ],
@@ -453,7 +440,7 @@
     },
     {
       "inputs": [],
-      "name": "paymentErc20FeeProxy",
+      "name": "paymentErc20Proxy",
       "outputs": [
         {
           "internalType": "contract IERC20FeeProxy",
@@ -466,7 +453,7 @@
     },
     {
       "inputs": [],
-      "name": "paymentEthFeeProxy",
+      "name": "paymentEthProxy",
       "outputs": [
         {
           "internalType": "contract IEthereumFeeProxy",
@@ -540,11 +527,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentErc20ConversionFeeProxy",
+          "name": "_paymentErc20ConversionProxy",
           "type": "address"
         }
       ],
-      "name": "setConversionPaymentProxy",
+      "name": "setPaymentErc20ConversionProxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -553,11 +540,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentEthConversionFeeProxy",
+          "name": "_paymentErc20Proxy",
           "type": "address"
         }
       ],
-      "name": "setEthConversionPaymentProxy",
+      "name": "setPaymentErc20Proxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -566,11 +553,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentErc20FeeProxy",
+          "name": "_paymentEthConversionProxy",
           "type": "address"
         }
       ],
-      "name": "setPaymentErc20FeeProxy",
+      "name": "setPaymentEthConversionProxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -579,11 +566,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentEthFeeProxy",
+          "name": "_paymentEthProxy",
           "type": "address"
         }
       ],
-      "name": "setPaymentEthFeeProxy",
+      "name": "setPaymentEthProxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
