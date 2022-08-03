@@ -14,6 +14,7 @@ export type CurrencyPairs = Record<string, Record<string, number>>;
 export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   private: privateAggregator,
   rinkeby: rinkebyAggregator,
+  goerli: {},
   mainnet: mainnetAggregator,
   matic: maticAggregator,
   fantom: fantomAggregator,
