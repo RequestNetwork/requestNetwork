@@ -44,24 +44,24 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    *   _maxRateTimespan Max times span with the oldestrate, ignored if zero
    */
   struct RequestInfo {
-    address _recipient;
-    uint256 _requestAmount;
-    address[] _path;
-    bytes _paymentReference;
-    uint256 _feeAmount;
-    uint256 _maxToSpend;
-    uint256 _maxRateTimespan;
+    address recipient;
+    uint256 requestAmount;
+    address[] path;
+    bytes paymentReference;
+    uint256 feeAmount;
+    uint256 maxToSpend;
+    uint256 maxRateTimespan;
   }
 
   /**
    * @dev It is the structure of the input for the function from contract BatchPaymentsPublic
    */
   struct RequestsInfoParent {
-    address[] _tokenAddresses;
-    address[] _recipients;
-    uint256[] _amounts;
-    bytes[] _paymentReferences;
-    uint256[] _feeAmounts;
+    address[] tokenAddresses;
+    address[] recipients;
+    uint256[] amounts;
+    bytes[] paymentReferences;
+    uint256[] feeAmounts;
   }
 
   /**
@@ -79,7 +79,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   struct Path {
-    address[] _path;
+    address[] path;
     uint256 rate;
     uint256 decimals;
   }
@@ -136,20 +136,20 @@ contract BatchConversionPayments is BatchPaymentsPublic {
         batchERC20ConversionPaymentsMultiTokens(metaRequestsInfo.requestsInfo, _feeAddress);
       } else if (metaRequestsInfo.paymentNetworkId == 1) {
         batchERC20PaymentsWithReference(
-          metaRequestsInfo.requestsInfoParent._tokenAddresses[0],
-          metaRequestsInfo.requestsInfoParent._recipients,
-          metaRequestsInfo.requestsInfoParent._amounts,
-          metaRequestsInfo.requestsInfoParent._paymentReferences,
-          metaRequestsInfo.requestsInfoParent._feeAmounts,
+          metaRequestsInfo.requestsInfoParent.tokenAddresses[0],
+          metaRequestsInfo.requestsInfoParent.recipients,
+          metaRequestsInfo.requestsInfoParent.amounts,
+          metaRequestsInfo.requestsInfoParent.paymentReferences,
+          metaRequestsInfo.requestsInfoParent.feeAmounts,
           _feeAddress
         );
       } else if (metaRequestsInfo.paymentNetworkId == 2) {
         batchERC20PaymentsMultiTokensWithReference(
-          metaRequestsInfo.requestsInfoParent._tokenAddresses,
-          metaRequestsInfo.requestsInfoParent._recipients,
-          metaRequestsInfo.requestsInfoParent._amounts,
-          metaRequestsInfo.requestsInfoParent._paymentReferences,
-          metaRequestsInfo.requestsInfoParent._feeAmounts,
+          metaRequestsInfo.requestsInfoParent.tokenAddresses,
+          metaRequestsInfo.requestsInfoParent.recipients,
+          metaRequestsInfo.requestsInfoParent.amounts,
+          metaRequestsInfo.requestsInfoParent.paymentReferences,
+          metaRequestsInfo.requestsInfoParent.feeAmounts,
           _feeAddress
         );
       } else if (metaRequestsInfo.paymentNetworkId == 3) {
@@ -159,10 +159,10 @@ contract BatchConversionPayments is BatchPaymentsPublic {
         );
       } else if (metaRequestsInfo.paymentNetworkId == 4) {
         batchEthPaymentsWithReference(
-          metaRequestsInfo.requestsInfoParent._recipients,
-          metaRequestsInfo.requestsInfoParent._amounts,
-          metaRequestsInfo.requestsInfoParent._paymentReferences,
-          metaRequestsInfo.requestsInfoParent._feeAmounts,
+          metaRequestsInfo.requestsInfoParent.recipients,
+          metaRequestsInfo.requestsInfoParent.amounts,
+          metaRequestsInfo.requestsInfoParent.paymentReferences,
+          metaRequestsInfo.requestsInfoParent.feeAmounts,
           payable(_feeAddress)
         );
       } else {
@@ -188,15 +188,15 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     for (uint256 i = 0; i < requestsInfo.length; i++) {
       for (uint256 k = 0; k < requestsInfo.length; k++) {
         // If the token is already in the existing uTokens list
-        if (uTokens[k].tokenAddress == requestsInfo[i]._path[requestsInfo[i]._path.length - 1]) {
-          uTokens[k].amountAndFee += requestsInfo[i]._maxToSpend;
+        if (uTokens[k].tokenAddress == requestsInfo[i].path[requestsInfo[i].path.length - 1]) {
+          uTokens[k].amountAndFee += requestsInfo[i].maxToSpend;
           break;
         }
         // If the token is not in the list (amountAndFee = 0)
-        else if (uTokens[k].amountAndFee == 0 && (requestsInfo[i]._maxToSpend) > 0) {
-          uTokens[k].tokenAddress = requestsInfo[i]._path[requestsInfo[i]._path.length - 1];
+        else if (uTokens[k].amountAndFee == 0 && (requestsInfo[i].maxToSpend) > 0) {
+          uTokens[k].tokenAddress = requestsInfo[i].path[requestsInfo[i].path.length - 1];
           // amountAndFee is used to store _maxToSpend, useful to send enough tokens to this contract
-          uTokens[k].amountAndFee = requestsInfo[i]._maxToSpend;
+          uTokens[k].amountAndFee = requestsInfo[i].maxToSpend;
           break;
         }
       }
@@ -237,14 +237,14 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     for (uint256 i = 0; i < requestsInfo.length; i++) {
       RequestInfo memory rI = requestsInfo[i];
       conversionPaymentProxy.transferFromWithReferenceAndFee(
-        rI._recipient,
-        rI._requestAmount,
-        rI._path,
-        rI._paymentReference,
-        rI._feeAmount,
+        rI.recipient,
+        rI.requestAmount,
+        rI.path,
+        rI.paymentReference,
+        rI.feeAmount,
         _feeAddress,
-        rI._maxToSpend,
-        rI._maxRateTimespan
+        rI.maxToSpend,
+        rI.maxRateTimespan
       );
     }
 
@@ -294,22 +294,22 @@ contract BatchConversionPayments is BatchPaymentsPublic {
       RequestInfo memory rI = requestsInfo[i];
       for (uint256 k = 0; k < requestsInfo.length; k++) {
         // Check if the path is already known
-        if (rPaths[k].rate > 0 && rPaths[k]._path[0] == rI._path[0]) {
+        if (rPaths[k].rate > 0 && rPaths[k].path[0] == rI.path[0]) {
           // use the already known rate and decimals from path already queried
           amountAndFeeToPay = amountAndFeeConversion(
-            rI._requestAmount,
-            rI._feeAmount,
+            rI.requestAmount,
+            rI.feeAmount,
             rPaths[k].rate,
             rPaths[k].decimals
           );
           break;
         } else if (i == k) {
           // set the path, and get the associated rate and decimals
-          rPaths[i]._path = rI._path;
-          (rPaths[i].rate, rPaths[i].decimals) = getRate(rI._path, rI._maxRateTimespan);
+          rPaths[i].path = rI.path;
+          (rPaths[i].rate, rPaths[i].decimals) = getRate(rI.path, rI.maxRateTimespan);
           amountAndFeeToPay = amountAndFeeConversion(
-            rI._requestAmount,
-            rI._feeAmount,
+            rI.requestAmount,
+            rI.feeAmount,
             rPaths[i].rate,
             rPaths[i].decimals
           );
@@ -321,13 +321,13 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
       // Batch contract pays the requests through EthConversionProxy
       conversionPaymentEthProxy.transferWithReferenceAndFee{value: amountAndFeeToPay}(
-        payable(rI._recipient),
-        rI._requestAmount,
-        rI._path,
-        rI._paymentReference,
-        rI._feeAmount,
+        payable(rI.recipient),
+        rI.requestAmount,
+        rI.path,
+        rI.paymentReference,
+        rI.feeAmount,
         _feeAddress,
-        rI._maxRateTimespan
+        rI.maxRateTimespan
       );
     }
 
