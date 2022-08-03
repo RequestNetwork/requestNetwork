@@ -25,13 +25,6 @@ describe('getDefaultProvider', () => {
   testSuite('rinkeby', 4);
   testSuite('goerli', 5);
 
-  it('Can take a standard network (Goerli)', async () => {
-    const provider = getDefaultProvider('goerli');
-
-    expect(provider).toBeInstanceOf(providers.InfuraProvider);
-    await expect(provider.getNetwork()).resolves.toMatchObject({ chainId: 5 });
-  });
-
   it('Can take a private network', async () => {
     const provider = getDefaultProvider('private') as providers.JsonRpcProvider;
 
