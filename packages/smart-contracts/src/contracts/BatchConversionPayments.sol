@@ -202,7 +202,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
       // Check proxy's allowance from user, and user's funds to pay approximated amounts.
       require(
         requestedToken.allowance(msg.sender, address(this)) >= uTokens[k].amountAndFee,
-        'Not sufficient allowance for batch to pay'
+        'Insufficient allowance for batch to pay'
       );
       require(
         requestedToken.balanceOf(msg.sender) >= uTokens[k].amountAndFee + uTokens[k].batchFeeAmount,
