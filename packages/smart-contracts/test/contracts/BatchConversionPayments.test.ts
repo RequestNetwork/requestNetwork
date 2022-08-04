@@ -34,7 +34,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
   let feeAddress: string;
   let batchAddress: string;
   let signer: Signer;
-  let toSigner: Signer;
+  let xSigner: Signer;
   const basicFee = 10;
   const batchFee = 100;
   const batchConvFee = 100;
@@ -103,7 +103,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
   /** Function used to emit events of batch conversion proxy */
   let emitOneTx: Function;
   /**
-   * Function batch conversion, it can be the batchRouter function, used with conversion args,
+   * @notice Function batch conversion, it can be the batchRouter function, used with conversion args,
    *  or directly batchERC20ConversionPaymentsMultiTokens
    * */
   let batchConvFunction: (
@@ -115,10 +115,8 @@ describe('contract: BatchErc20ConversionPayments', () => {
   let argTemplate: Function;
 
   before(async () => {
-    let _;
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
-    [signer, _, _, toSigner] = await ethers.getSigners();
-    _;
+    [signer, xSigner, xSigner, xSigner] = await ethers.getSigners();
     chainlinkPath = chainlinkConversionPath.connect(network.name, signer);
     erc20FeeProxy = await new ERC20FeeProxy__factory(signer).deploy();
     ethereumFeeProxy = await new EthereumFeeProxy__factory(signer).deploy();
@@ -127,7 +125,6 @@ describe('contract: BatchErc20ConversionPayments', () => {
       chainlinkPath.address,
       await signer.getAddress(),
     );
-    console.log('testErc20ConversionProxy', testErc20ConversionProxy.address);
     testEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
       ethereumFeeProxy.address,
       chainlinkPath.address,
@@ -158,6 +155,9 @@ describe('contract: BatchErc20ConversionPayments', () => {
     return conversionAmountToPay.mul(batchConvFee).div(10000);
   };
 
+  /**
+   * @notice it gets the conversions including fees to be paid, and it set the requestInfo
+   */
   const initConvToPayAndRequestInfo = async (
     _recipient: string,
     _path: string[],
@@ -223,9 +223,10 @@ describe('contract: BatchErc20ConversionPayments', () => {
     expect(batchDiffBalance).to.equals('0', 'batchDiffBalance');
   });
 
-  /** Function used to calcul the expected new balance for batch conversion.
+  /**
+   * @notice Used to calcul the expected new ERC20 balance for batch conversion.
    * It can also be used for batch IF batchFee == batchConvFee
-   * The 3rd arg is used to calcul batch fees
+   * @param _conversionsToPay_results is used to calcul batch fees, in case of multiple payments
    */
   const calculERC20Balances = (
     _conversionToPay_result: BigNumber,
@@ -238,10 +239,17 @@ describe('contract: BatchErc20ConversionPayments', () => {
 
     toDiffBalanceExpected = toDiffBalanceExpected.add(_conversionToPay_result);
     feeDiffBalanceExpected = feeDiffBalanceExpected.add(_conversionFees_result);
-    if (_conversionsToPay_results.length > 0) calculBatchFeeBalances(_conversionsToPay_results);
+    if (_conversionsToPay_results.length > 0)
+      calculERC20BatchFeeBalances(_conversionsToPay_results);
   };
 
-  const calculBatchFeeBalances = (_conversionsToPay_results: BigNumber[]) => {
+  /**
+   * @notice Used to calcul the expected new ERC20 fee batch balance for batch conversion.
+   * @param _conversionsToPay_results is used to calcul batch fees, it case of payments multiple
+   * @dev in case of payments multiple, we sum the amount paid, and then, we calcul the fees amount
+   *      because the sum(batchFeeToPay(amountPay[i])) != batchFeeToPay(sum(amountPay[i]))
+   */
+  const calculERC20BatchFeeBalances = (_conversionsToPay_results: BigNumber[]) => {
     let sumToPay = BigNumber.from(0);
     for (let i = 0; i < _conversionsToPay_results.length; i++) {
       sumToPay = sumToPay.add(_conversionsToPay_results[i]);
@@ -250,6 +258,10 @@ describe('contract: BatchErc20ConversionPayments', () => {
     feeDiffBalanceExpected = feeDiffBalanceExpected.add(batchFeeToPay(sumToPay));
   };
 
+  /**
+   * @notice update requestInfo, do an ERC20 conv batch payment and calcul the balances
+   * @param path to update the resquestInfo
+   */
   const transferOneTokenConv = async (path: string[]) => {
     await initConvToPayAndRequestInfo(to, path, amountInFiat, feesAmountInFiat, 0, chainlinkPath);
 
@@ -266,7 +278,12 @@ describe('contract: BatchErc20ConversionPayments', () => {
     calculERC20Balances(conversionToPay.result, conversionFees.result, [conversionToPay.result]);
   };
 
-  const twoTransferOneTokenConv = async (path2: string[], nTimes: number) => {
+  /**
+   * @notice generate nTimes 2 requestInfos, do an ERC20 conv batch payment with theses 2*nTimes requests
+   *         and calcul the balances
+   * @param path2 to update the second resquestInfo
+   */
+  const transferTokensConv = async (path2: string[], nTimes: number) => {
     const coef = 2;
     const amountInFiat2 = BigNumber.from(amountInFiat).mul(coef).toString();
     const feesAmountInFiat2 = BigNumber.from(feesAmountInFiat).mul(coef).toString();
@@ -323,7 +340,11 @@ describe('contract: BatchErc20ConversionPayments', () => {
     }
   };
 
-  const ERC20TestSuite = (suiteName: string) => {
+  /**
+   * @notice it contains all the tests related to the ERC20 batch payment, and its context required
+   * @param erc20Function is the batch function name tested: "batchRouter" or "batchERC20ConversionPaymentsMultiTokens"
+   */
+  const ERC20TestSuite = (erc20Function: string) => {
     emitOneTx = (
       result: Chai.Assertion,
       requestInfo: RequestInfo,
@@ -357,7 +378,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
     });
 
     const setBatchConvFunction = async (_signer: Signer) => {
-      if (suiteName === 'batchRouter') {
+      if (erc20Function === 'batchRouter') {
         batchConvFunction = testBatchConversionProxy.connect(_signer).batchRouter;
         argTemplate = (requestInfos: RequestInfo[]) => {
           return [
@@ -369,7 +390,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
           ];
         };
       }
-      if (suiteName === 'batchERC20ConversionPaymentsMultiTokens') {
+      if (erc20Function === 'batchERC20ConversionPaymentsMultiTokens') {
         batchConvFunction =
           testBatchConversionProxy.connect(_signer).batchERC20ConversionPaymentsMultiTokens;
         argTemplate = (requestInfos: RequestInfo[]) => {
@@ -380,7 +401,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
     before(() => {
       setBatchConvFunction(signer);
     });
-    describe(suiteName, () => {
+    describe(erc20Function, () => {
       describe('batchERC20ConversionPaymentsMultiTokens with DAI', async () => {
         it('allows to transfer DAI tokens for USD payment', async () => {
           await transferOneTokenConv(path);
@@ -390,19 +411,19 @@ describe('contract: BatchErc20ConversionPayments', () => {
           await transferOneTokenConv(path);
         });
         it('allows to transfer 2 transactions DAI tokens for USD payment', async function () {
-          await twoTransferOneTokenConv(path, 1);
+          await transferTokensConv(path, 1);
         });
-        it('allows to transfer DAI tokens for EUR payment - GAS', async () => {
+        it('allows to transfer DAI tokens for EUR payment', async () => {
           path = [EUR_hash, USD_hash, DAI_address];
           await transferOneTokenConv(path);
         });
-        it('allows to transfer 2 transactions DAI tokens for USD and EUR payment - GAS', async function () {
+        it('allows to transfer 2 transactions DAI tokens for USD and EUR payments', async function () {
           const path2 = [EUR_hash, USD_hash, DAI_address];
-          await twoTransferOneTokenConv(path2, 1);
+          await transferTokensConv(path2, 1);
         });
-        it('allows to transfer two kinds of tokens for USD - GAS', async function () {
+        it('allows to transfer two kinds of tokens for USD', async function () {
           const path2 = [USD_hash, fakeFAU_address];
-          await twoTransferOneTokenConv(path2, 1);
+          await transferTokensConv(path2, 1);
         });
       });
     });
@@ -435,8 +456,8 @@ describe('contract: BatchErc20ConversionPayments', () => {
       });
 
       it('Not enough allowance', async function () {
-        // toSigner connect to the batch function
-        setBatchConvFunction(toSigner);
+        // xSigner connect to the batch function
+        setBatchConvFunction(xSigner);
         await expect(batchConvFunction(argTemplate([requestInfo]), feeAddress)).to.be.revertedWith(
           'Not sufficient allowance for batch to pay',
         );
@@ -445,21 +466,21 @@ describe('contract: BatchErc20ConversionPayments', () => {
       });
 
       it('Not enough funds', async function () {
-        // increase toSigner allowance
+        // increase xSigner allowance
         await testERC20
-          .connect(toSigner)
+          .connect(xSigner)
           .approve(testBatchConversionProxy.address, thousandWith18Decimal);
-        // toSigner connect to the batch function
-        setBatchConvFunction(toSigner);
+        // xSigner connect to the batch function
+        setBatchConvFunction(xSigner);
 
         await expect(batchConvFunction(argTemplate([requestInfo]), feeAddress)).to.be.revertedWith(
           'not enough funds, including fees',
         );
 
         // reset:
-        //   - decrease toSigner allowance
+        //   - decrease xSigner allowance
         //   - connect with signer account
-        await testERC20.connect(toSigner).approve(testBatchConversionProxy.address, '0');
+        await testERC20.connect(xSigner).approve(testBatchConversionProxy.address, '0');
         testERC20.connect(signer);
         setBatchConvFunction(signer);
       });
@@ -545,8 +566,12 @@ describe('contract: BatchErc20ConversionPayments', () => {
     });
   });
 
-  const EthTestSuite = (suiteName: string) => {
-    describe(`Test ETH ${suiteName} functions`, () => {
+  /**
+   * @notice it contains all the tests related to the Eth batch payment, and its context required
+   * @param ethFunction is the batch function name tested: "batchRouter" or "batchEthConversionPaymentsWithReference"
+   */
+  const EthTestSuite = (ethFunction: string) => {
+    describe(`Test ETH ${ethFunction} functions`, () => {
       let beforeEthBalanceTo: BigNumber;
       let beforeEthBalanceFee: BigNumber;
       let beforeEthBalance: BigNumber;
@@ -559,8 +584,12 @@ describe('contract: BatchErc20ConversionPayments', () => {
       let inputs: Array<RequestInfo>;
       const pathUsdEth = [USD_hash, ETH_hash];
 
+      /**
+       * @notice it modify the Eth batch inputs if needed, depending of the function used: ethFunction
+       * @param inputs a list of requestInfo
+       */
       const getInputs = (inputs: Array<RequestInfo>) => {
-        if (suiteName !== 'batchEthConversionPaymentsWithReference') {
+        if (ethFunction !== 'batchEthConversionPaymentsWithReference') {
           return [
             {
               paymentNetworkId: '3',
@@ -573,7 +602,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
       };
 
       before(() => {
-        if (suiteName === 'batchEthConversionPaymentsWithReference') {
+        if (ethFunction === 'batchEthConversionPaymentsWithReference') {
           batchConvFunction = testBatchConversionProxy.batchEthConversionPaymentsWithReference;
         } else {
           batchConvFunction = testBatchConversionProxy.batchRouter;
