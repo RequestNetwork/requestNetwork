@@ -34,6 +34,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
   let feeAddress: string;
   let batchAddress: string;
   let signer: Signer;
+  let toSigner: Signer;
   const basicFee = 10;
   const batchFee = 100;
   const batchConvFee = 100;
@@ -114,9 +115,10 @@ describe('contract: BatchErc20ConversionPayments', () => {
   let argTemplate: Function;
 
   before(async () => {
+    let _;
     [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
-    [signer] = await ethers.getSigners();
-
+    [signer, _, _, toSigner] = await ethers.getSigners();
+    _;
     chainlinkPath = chainlinkConversionPath.connect(network.name, signer);
     erc20FeeProxy = await new ERC20FeeProxy__factory(signer).deploy();
     ethereumFeeProxy = await new EthereumFeeProxy__factory(signer).deploy();
@@ -353,9 +355,10 @@ describe('contract: BatchErc20ConversionPayments', () => {
       path = [USD_hash, DAI_address];
       initConvToPayAndRequestInfo(to, path, amountInFiat, feesAmountInFiat, 0, chainlinkPath);
     });
-    before(() => {
+
+    const setBatchConvFunction = async (_signer: Signer) => {
       if (suiteName === 'batchRouter') {
-        batchConvFunction = testBatchConversionProxy.batchRouter;
+        batchConvFunction = testBatchConversionProxy.connect(_signer).batchRouter;
         argTemplate = (requestInfos: RequestInfo[]) => {
           return [
             {
@@ -367,11 +370,15 @@ describe('contract: BatchErc20ConversionPayments', () => {
         };
       }
       if (suiteName === 'batchERC20ConversionPaymentsMultiTokens') {
-        batchConvFunction = testBatchConversionProxy.batchERC20ConversionPaymentsMultiTokens;
+        batchConvFunction =
+          testBatchConversionProxy.connect(_signer).batchERC20ConversionPaymentsMultiTokens;
         argTemplate = (requestInfos: RequestInfo[]) => {
           return requestInfos;
         };
       }
+    };
+    before(() => {
+      setBatchConvFunction(signer);
     });
     describe(suiteName, () => {
       describe('batchERC20ConversionPaymentsMultiTokens with DAI', async () => {
@@ -393,7 +400,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
           const path2 = [EUR_hash, USD_hash, DAI_address];
           await twoTransferOneTokenConv(path2, 1);
         });
-        it('TMP allows to transfer two kind of tokens for USD - GAS', async function () {
+        it('allows to transfer two kinds of tokens for USD - GAS', async function () {
           const path2 = [USD_hash, fakeFAU_address];
           await twoTransferOneTokenConv(path2, 1);
         });
@@ -425,6 +432,36 @@ describe('contract: BatchErc20ConversionPayments', () => {
         await expect(batchConvFunction(argTemplate([requestInfo]), feeAddress)).to.be.revertedWith(
           'aggregator rate is outdated',
         );
+      });
+
+      it('Not enough allowance', async function () {
+        // toSigner connect to the batch function
+        setBatchConvFunction(toSigner);
+        await expect(batchConvFunction(argTemplate([requestInfo]), feeAddress)).to.be.revertedWith(
+          'Not sufficient allowance for batch to pay',
+        );
+        // reset: signer connect to the batch function
+        setBatchConvFunction(signer);
+      });
+
+      it('Not enough funds', async function () {
+        // increase toSigner allowance
+        await testERC20
+          .connect(toSigner)
+          .approve(testBatchConversionProxy.address, thousandWith18Decimal);
+        // toSigner connect to the batch function
+        setBatchConvFunction(toSigner);
+
+        await expect(batchConvFunction(argTemplate([requestInfo]), feeAddress)).to.be.revertedWith(
+          'not enough funds, including fees',
+        );
+
+        // reset:
+        //   - decrease toSigner allowance
+        //   - connect with signer account
+        await testERC20.connect(toSigner).approve(testBatchConversionProxy.address, '0');
+        testERC20.connect(signer);
+        setBatchConvFunction(signer);
       });
     });
   };

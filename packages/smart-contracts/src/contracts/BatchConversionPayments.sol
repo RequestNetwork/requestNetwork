@@ -210,10 +210,9 @@ contract BatchConversionPayments is BatchPaymentsPublic {
         requestedToken.allowance(msg.sender, address(this)) >= uTokens[k].amountAndFee,
         'Not sufficient allowance for batch to pay'
       );
-      require(requestedToken.balanceOf(msg.sender) >= uTokens[k].amountAndFee, 'not enough funds');
       require(
         requestedToken.balanceOf(msg.sender) >= uTokens[k].amountAndFee + uTokens[k].batchFeeAmount,
-        'not enough funds to pay approximated batchConversionFee'
+        'not enough funds, including fees'
       );
 
       // Transfer the amount and fee required for the token on the batch conversion contract
