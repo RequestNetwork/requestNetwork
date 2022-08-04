@@ -105,15 +105,15 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
   /**
    * @notice Batch payments on different payment networks at once.
-   * - batchERC20ConversionPaymentsMultiTokens, paymentNetworks: 0
-   * - batchERC20PaymentsWithReference, paymentNetworks: 1
-   * - batchERC20PaymentsMultiTokensWithReference, paymentNetworks: 2
-   * - batchEthConversionPaymentsWithReference, paymentNetworks: 3
-   * - batchEthPaymentsWithReference, paymentNetworks: 4
    * @param metaRequestsInfos contains paymentNetworkId and requestsInfo
-   * @param _feeAddress The address of the proxy to send the fees
-   * @dev batchRouter reduces gas consumption if you are using more than a single payment networks,
-   *      else, it is more efficient to use the adapted batch function.
+   * - batchERC20ConversionPaymentsMultiTokens, paymentNetworkId=0
+   * - batchERC20PaymentsWithReference, paymentNetworkId=1
+   * - batchERC20PaymentsMultiTokensWithReference, paymentNetworkId=2
+   * - batchEthConversionPaymentsWithReference, paymentNetworkId=3
+   * - batchEthPaymentsWithReference, paymentNetworkId=4
+   * @param _feeAddress The address where fees should be paid
+   * @dev batchRouter only reduces gas consumption when using more than a single payment network.
+   *      For single payment network payments, it is more efficient to use the suited batch function.
    */
   function batchRouter(MetaRequestsInfo[] calldata metaRequestsInfos, address _feeAddress)
     external
