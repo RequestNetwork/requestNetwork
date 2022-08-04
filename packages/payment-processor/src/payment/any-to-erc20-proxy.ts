@@ -20,7 +20,7 @@ import { IConversionPaymentSettings } from './index';
 
 /**
  * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
- * The payment is made by the ERC20 fee proxy contract.
+ * The payment is made by the ERC20 Conversion fee proxy contract.
  * @param request the request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings payment settings
@@ -47,7 +47,8 @@ export async function payAnyToErc20ProxyRequest(
 }
 
 /**
- * Encodes the call to pay a request with an ERC20 currency that is different from the request currency (eg. fiat). The payment is made by the ERC20 fee proxy contract.
+ * Encodes the call to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
+ * The payment is made by the ERC20 Conversion fee proxy contract.
  * @param request request to pay
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings payment settings
