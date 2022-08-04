@@ -114,16 +114,16 @@ contract BatchPaymentsPublic is Ownable {
   }
 
   /**
-   * @notice Send a batch of erc20 payments w/fees with paymentReferences to multiple accounts.
-   * @param _tokenAddress Token to transact with.
-   * @param _recipients List of recipients accounts.
-   * @param _amounts List of amounts, corresponding to recipients[].
-   * @param _paymentReferences List of paymentRefs, corr. to the recipients[] and .
-   * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
+   * @notice Send a batch of ERC20 payments with fees and paymentReferences to multiple accounts.
+   * @param _tokenAddress Token used for all the payments.
+   * @param _recipients List of recipient accounts.
+   * @param _amounts List of amounts, matching recipients[].
+   * @param _paymentReferences List of paymentRefs, matching recipients[].
+   * @param _feeAmounts List of payment fee amounts, matching recipients[].
    * @param _feeAddress The fee recipient.
    * @dev Uses ERC20FeeProxy to pay an invoice and fees, with a payment reference.
-   *      Make sure the contract has allowance to spend the payer token.
-   *      Make sure the payer has enough tokens to pay the amount, the fee, the batch fee
+   *      Make sure this contract has enough allowance to spend the payer's token.
+   *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
    */
   function batchERC20PaymentsWithReference(
     address _tokenAddress,
