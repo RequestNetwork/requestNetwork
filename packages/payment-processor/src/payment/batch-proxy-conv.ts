@@ -31,51 +31,29 @@ import { IConversionPaymentSettings } from './index';
  *    but only call ethFeeProxy. It can impact payment detection
  */
 
-type metaRequests = {
+type MetaRequest = {
+  paymentNetworkId: number; // ref in batchConversionPayment.sol
   requests: ClientTypes.IRequestData[];
   paymentSettings?: IConversionPaymentSettings[];
   amount?: BigNumberish[];
   feeAmount?: BigNumberish[];
+  version?: string;
+  batchFee?: number;
 };
 
 /**
  * Processes a transaction to pay a batch of requests with an ERC20 or ETH currency that is different from the request currency (eg. fiat).
  * The payment is made by the ERC20, or ETH fee proxy contract.
- * @param requests List of requests
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param metaRequests List of MetaRequest
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param batchFee Only for batch ETH: additional fee applied to a batch, between 0 and 1000, default value = 10
  * @param overrides optionally, override default transaction values, like gas.
  */
 export async function payBatchConvProxyRequest(
-  requests: metaRequests,
-  version: string,
+  metaRequests: MetaRequest[],
   signerOrProvider: providers.Provider | Signer = getProvider(),
-  batchFee: number,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = prepareBatchPaymentTransaction(requests, version, batchFee);
-  const signer = getSigner(signerOrProvider);
-  return signer.sendTransaction({ data, to, value, ...overrides });
-}
-
-/**
- * Processes a transaction to pay a batch of ETH Requests with fees.
- * Requests paymentType must be "ETH" or "ERC20"
- * @param requests List of requests
- * @param version version of the batch proxy, which can be different from request pn version
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param batchFee Only for batch ETH: additional fee applied to a batch, between 0 and 1000, default value = 10
- * @param overrides optionally, override default transaction values, like gas.
- */
-export async function payBatchProxyRequest(
-  requests: ClientTypes.IRequestData[],
-  version: string,
-  signerOrProvider: providers.Provider | Signer = getProvider(),
-  batchFee: number,
-  overrides?: ITransactionOverrides,
-): Promise<ContractTransaction> {
-  const { data, to, value } = prepareBatchPaymentTransaction(requests, version, batchFee);
+  const { data, to, value } = prepareBatchConvPaymentTransaction(metaRequests);
   const signer = getSigner(signerOrProvider);
   return signer.sendTransaction({ data, to, value, ...overrides });
 }
@@ -83,15 +61,24 @@ export async function payBatchProxyRequest(
 /**
  * Prepate the transaction to pay a batch of requests through the batch proxy contract, can be used with a Multisig contract.
  * Requests paymentType must be "ETH" or "ERC20"
- * @param requests list of ETH requests to pay
- * @param version version of the batch proxy, which can be different from request pn version
- * @param batchFee additional fee applied to a batch
  */
-export function prepareBatchPaymentTransaction(
-  requests: ClientTypes.IRequestData[],
-  version: string,
-  batchFee: number,
+export function prepareBatchConvPaymentTransaction(
+  metaRequests: MetaRequest[],
 ): IPreparedTransaction {
+  // we only implement batchRouter
+  // later, to do gas optimizaton, we will implement the others batch functions,
+  // at this moment, paymentNetworkId will be useful
+
+  const metaRequest = metaRequests[0];
+
+  for (let i = 0; i < metaRequests.length; i++) {
+    if (metaRequests[i].paymentNetworkId === 0) {
+    } else if (metaRequests[i].paymentNetworkId === 1) {
+    } else if (metaRequests[i].paymentNetworkId === 2) {
+    } else if (metaRequests[i].paymentNetworkId === 3) {
+    } else if (metaRequests[i].paymentNetworkId === 4) {
+    }
+  }
   const encodedTx = encodePayBatchRequest(requests);
   const proxyAddress = getBatchProxyAddress(requests[0], version);
   let totalAmount = 0;
