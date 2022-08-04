@@ -31,15 +31,15 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   uint256 public basicFee;
 
   /**
-   * @dev All the information of a request, excepted the feeAddress
-   *   _recipient Recipients address of the payement
+   * @dev All the information of a request, except the feeAddress
+   *   _recipient Recipient address of the payment
    *   _requestAmount Request amount in fiat
    *   _path Conversion path
-   *   _paymentReference References of the payment related
-   *   _feeAmount The amount in fiat of the payment fee
-   *   _maxToSpend Amounts max in token that we can spend on the behalf of the user:
+   *   _paymentReference Unique reference of the payment
+   *   _feeAmount The fee amount denominated in the first currency of `_path`
+   *   _maxToSpend Maximum amount the payer wants to spend, denominated in the last currency of `_path`:
    *               it includes fee proxy but NOT the batchConversionFee
-   *   _maxRateTimespan Max times span with the oldestrate, ignored if zero
+   *   _maxRateTimespan Max acceptable times span for conversion rates, ignored if zero
    */
   struct RequestInfo {
     address recipient;
