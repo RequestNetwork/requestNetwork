@@ -75,11 +75,11 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @param _paymentErc20Proxy The address to the ERC20 fee payment proxy to use.
-   * @param _paymentEthProxy The address to the Ethereum fee payment proxy to use.
-   * @param _paymentErc20ConversionProxy The address of the ERC20 Conversion payment proxy to use.
-   * @param _paymentEthConversionFeeProxy The address of the Ethereum Conversion payment proxy to use.
-   * @param _chainlinkConversionPathAddress The address of the conversion path contract
+   * @param _paymentErc20Proxy The ERC20 payment proxy address to use.
+   * @param _paymentEthProxy The ETH payment proxy address to use.
+   * @param _paymentErc20ConversionProxy The ERC20 Conversion payment proxy address to use.
+   * @param _paymentEthConversionFeeProxy The ETH Conversion payment proxy address to use.
+   * @param _chainlinkConversionPathAddress The conversion path contract address
    * @param _owner Owner of the contract.
    */
   constructor(
