@@ -175,7 +175,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     RequestInfo[] calldata requestsInfo,
     address _feeAddress
   ) public {
-    // Aggregate _maxToSpend by token
+    // a list of unique tokens, with the sum of maxToSpend by token
     Token[] memory uTokens = new Token[](requestsInfo.length);
     for (uint256 i = 0; i < requestsInfo.length; i++) {
       for (uint256 k = 0; k < requestsInfo.length; k++) {
