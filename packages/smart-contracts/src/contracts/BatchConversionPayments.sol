@@ -52,7 +52,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @dev It is the structure of the input for the function from contract BatchPaymentsPublic
+   * @dev BatchPaymentsPublic contract input structure.
    */
   struct RequestsInfoParent {
     address[] tokenAddresses;
