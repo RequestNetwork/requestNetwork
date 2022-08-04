@@ -52,8 +52,10 @@ contract BatchPaymentsPublic is Ownable {
     batchFee = 0;
   }
 
-  // batch Eth requires batch contract to receive funds from ethFeeProxy with a value = 0
-  //            and also from paymentEthConversionProxy with a value > 0
+  /**
+   * This contract is non-payable. Making an ETH payment with conversion requires the contract to accept incoming ETH.
+   * See the end of `batchRouter` where the leftover is given back to the transaction sender.
+   */
   receive() external payable {
     require(payerAuthorized || msg.value == 0, 'Non-payable');
   }

@@ -459,7 +459,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
         // xSigner connect to the batch function
         setBatchConvFunction(xSigner);
         await expect(batchConvFunction(argTemplate([requestInfo]), feeAddress)).to.be.revertedWith(
-          'Not sufficient allowance for batch to pay',
+          'Insufficient allowance for batch to pay',
         );
         // reset: signer connect to the batch function
         setBatchConvFunction(signer);
