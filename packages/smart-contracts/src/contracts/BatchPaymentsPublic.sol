@@ -59,14 +59,14 @@ contract BatchPaymentsPublic is Ownable {
   }
 
   /**
-   * @notice Send a batch of Eth payments w/fees with paymentReferences to multiple accounts.
-   *         If one payment failed, the whole batch is reverted
-   * @param _recipients List of recipients accounts.
-   * @param _amounts List of amounts, corresponding to recipients[].
-   * @param _paymentReferences List of paymentRefs, corr. to the recipients[].
-   * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
+   * @notice Send a batch of ETH (or EVM native token) payments with fees and paymentReferences to multiple accounts.
+   *         If one payment fails, the whole batch reverts.
+   * @param _recipients List of recipient accounts.
+   * @param _amounts List of amounts, matching recipients[].
+   * @param _paymentReferences List of paymentRefs, matching recipients[].
+   * @param _feeAmounts List fee amounts, matching recipients[].
    * @param _feeAddress The fee recipient.
-   * @dev It uses EthereumFeeProxy to pay an invoice and fees, with a payment reference.
+   * @dev It uses EthereumFeeProxy to pay an invoice and fees with a payment reference.
    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
    */
   function batchEthPaymentsWithReference(
