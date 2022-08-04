@@ -264,16 +264,16 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @notice Send a batch of Eth conversion payments w/fees with paymentReferences to multiple accounts.
-   *         If one payment failed, the whole batch is reverted.
+   * @notice Send a batch of ETH conversion payments with fees and paymentReferences to multiple accounts.
+   *         If one payment fails, the whole batch is reverted.
    * @param requestsInfo List of requestInfos, each one containing all the information of a request.
    *                     _maxToSpend is not used in this function.
    * @param _feeAddress The fee recipient.
    * @dev It uses EthereumConversionProxy to pay an invoice and fees.
    *      Please:
-   *        Notice that if there is not enough ether sent to the contract,
-   *        it emit the follow error: "revert paymentProxy transferExactEthWithReferenceAndFee failed"
-   *        This choice reduces the gas significantly, otherwise, it would be necessary to make multiple calls to chainlink..
+   *        Note that if there is not enough ether attached to the function call,
+   *        the following error is thrown: "revert paymentProxy transferExactEthWithReferenceAndFee failed"
+   *        This choice reduces the gas significantly, by delegating the whole conversion to the payment proxy.
    */
   function batchEthConversionPaymentsWithReference(
     RequestInfo[] calldata requestsInfo,
