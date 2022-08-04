@@ -162,12 +162,9 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @notice Transfers a batch of multiple ERC20 tokens with a reference with amount based on the request amount in fiat
+   * @notice Makes a batch of transfers for multiple ERC20 tokens, with amounts based on a request currency (e.g. fiat) and with a reference per payment.
    * @param requestsInfo list of requestInfo, each one containing all the information of a request
    * @param _feeAddress The fee recipient
-   * @dev amountAndFee is an approximation of the amount and the fee to be paid, in order to get enough tokens.
-   *                   The excess is sent back to the payer
-   *      batchFeeAmount is an approximation for the same reason of amountAndFee
    */
   function batchERC20ConversionPaymentsMultiTokens(
     RequestInfo[] calldata requestsInfo,
