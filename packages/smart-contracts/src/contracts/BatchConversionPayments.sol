@@ -11,13 +11,13 @@ import './BatchPaymentsPublic.sol';
  * @notice This contract makes multiple conversion payments with references, in one transaction:
  *          - on:
  *              - ERC20 tokens: using Erc20ConversionProxy and ERC20FeeProxy
- *              - Native token: as Eth, using EthConversionProxy and EthereumFeeProxy
+ *              - Native tokens: (e.g. ETH) using EthConversionProxy and EthereumFeeProxy
  *          - to: multiple addresses
  *          - fees: conversion proxy fees and additional batch conversion fees are paid to the same address.
- *         batchRouter is the main function to batch all kind of payments at once.
- *         If one transaction of the batch fail, all transactions are reverted.
- * @dev Please notify than fees are now divided by 10_000 instead of 1_000 in previous version
- *      batchRouter is the main function, but others batch payment functions are "public" in order to do
+ *         batchRouter is the main function to batch all kinds of payments at once.
+ *         If one transaction of the batch fails, all transactions are reverted.
+ * @dev Note that fees have 4 decimals (instead of 3 in a previous version)
+ *      batchRouter is the main function, but other batch payment functions are "public" in order to do
  *      gas optimization in some cases.
  */
 contract BatchConversionPayments is BatchPaymentsPublic {
