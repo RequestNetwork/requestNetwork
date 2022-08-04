@@ -15,7 +15,8 @@ import './interfaces/EthereumFeeProxy.sol';
  *          - fees: ERC20 and ETH proxies fees are paid to the same address.
  *                  An additional batch fee is paid to the same address.
  *         If one transaction of the batch fail, every transactions are reverted.
- * @dev It is a clone of BatchPayment.sol, with two main modifications:
+ * @dev It is a clone of BatchPayment.sol, with three main modifications:
+ *         - function "receive" is not implemented
  *         - fees are now divided by 10_000 instead of 1_000 in previous version
  *         - batch payment functions are now public, instead of external
  */
@@ -47,11 +48,6 @@ contract BatchPaymentsPublic is Ownable {
     paymentEthProxy = IEthereumFeeProxy(_paymentEthProxy);
     transferOwnership(_owner);
     batchFee = 0;
-  }
-
-  // batch Eth requires batch contract to receive funds from ethFeeProxy
-  receive() external payable {
-    require(msg.value == 0, 'Non-payable');
   }
 
   /**

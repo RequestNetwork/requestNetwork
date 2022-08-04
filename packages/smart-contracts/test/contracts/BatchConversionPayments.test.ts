@@ -23,7 +23,7 @@ import Utils from '@requestnetwork/utils';
 import { HttpNetworkConfig } from 'hardhat/types';
 
 // set to true to log batch payments's gas consumption
-const logGas = false;
+const logGas = true;
 
 describe('contract: BatchErc20ConversionPayments', () => {
   const networkConfig = network.config as HttpNetworkConfig;
@@ -125,6 +125,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
       chainlinkPath.address,
       await signer.getAddress(),
     );
+    console.log('testErc20ConversionProxy', testErc20ConversionProxy.address);
     testEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
       ethereumFeeProxy.address,
       chainlinkPath.address,
@@ -642,7 +643,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
           batchConvFunction(getInputs([requestInfo]), feeAddress, {
             value: 10000,
           }),
-        ).to.be.revertedWith('not enough funds');
+        ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed');
       });
     });
   };

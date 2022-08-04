@@ -76,12 +76,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     RequestsInfoParent requestsInfoParent;
   }
 
-  struct Path {
-    address[] path;
-    uint256 rate;
-    uint256 decimals;
-  }
-
   /**
    * @param _paymentErc20Proxy The address to the ERC20 fee payment proxy to use.
    * @param _paymentEthProxy The address to the Ethereum fee payment proxy to use.
@@ -109,6 +103,12 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     basicFee = 0;
     batchFee = 0;
     batchConversionFee = 0;
+  }
+
+  // batch Eth requires batch contract to receive funds from ethFeeProxy with a value = 0
+  //            and also from paymentEthConversionProxy with a value > 0
+  receive() external payable {
+     require(address(msg.sender) == address(paymentEthConversionProxy) || msg.value == 0, 'Non-payable');
   }
 
   /**
@@ -277,55 +277,27 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    *                     _maxToSpend is not used in this function.
    * @param _feeAddress The fee recipient.
    * @dev It uses EthereumConversionProxy to pay an invoice and fees.
+   *      Please:
+   *        Notice that if there is not enough ether sent to the contract,
+   *        it emit the follow error: "revert paymentProxy transferExactEthWithReferenceAndFee failed"
+   *        This choice reduces the gas significantly, otherwise, it would be necessary to make multiple calls to chainlink..
    */
   function batchEthConversionPaymentsWithReference(
     RequestInfo[] calldata requestsInfo,
     address payable _feeAddress
   ) public payable {
     uint256 contractBalance = address(this).balance;
-    // amountAndFeeToPay in native token (as ETH), is updated at each payment
-    uint256 amountAndFeeToPay;
 
-    // rPaths stores _path, rate, and decimals only once by path
-    Path[] memory rPaths = new Path[](requestsInfo.length);
+    // Batch contract pays the requests through EthConversionProxy
     for (uint256 i = 0; i < requestsInfo.length; i++) {
-      RequestInfo memory rI = requestsInfo[i];
-      for (uint256 k = 0; k < requestsInfo.length; k++) {
-        // Check if the path is already known
-        if (rPaths[k].rate > 0 && rPaths[k].path[0] == rI.path[0]) {
-          // use the already known rate and decimals from path already queried
-          amountAndFeeToPay = amountAndFeeConversion(
-            rI.requestAmount,
-            rI.feeAmount,
-            rPaths[k].rate,
-            rPaths[k].decimals
-          );
-          break;
-        } else if (i == k) {
-          // set the path, and get the associated rate and decimals
-          rPaths[i].path = rI.path;
-          (rPaths[i].rate, rPaths[i].decimals) = getRateAndDecimals(rI.path, rI.maxRateTimespan);
-          amountAndFeeToPay = amountAndFeeConversion(
-            rI.requestAmount,
-            rI.feeAmount,
-            rPaths[i].rate,
-            rPaths[i].decimals
-          );
-          break;
-        }
-      }
-
-      require(address(this).balance >= amountAndFeeToPay, 'not enough funds');
-
-      // Batch contract pays the requests through EthConversionProxy
-      paymentEthConversionProxy.transferWithReferenceAndFee{value: amountAndFeeToPay}(
-        payable(rI.recipient),
-        rI.requestAmount,
-        rI.path,
-        rI.paymentReference,
-        rI.feeAmount,
+      paymentEthConversionProxy.transferWithReferenceAndFee{value: address(this).balance}(
+        payable(requestsInfo[i].recipient),
+        requestsInfo[i].requestAmount,
+        requestsInfo[i].path,
+        requestsInfo[i].paymentReference,
+        requestsInfo[i].feeAmount,
         _feeAddress,
-        rI.maxRateTimespan
+        requestsInfo[i].maxRateTimespan
       );
     }
 
@@ -338,46 +310,8 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     _feeAddress.transfer(amountBatchFees);
 
     // Batch contract transfers the remaining ethers to the payer
-    if (address(this).balance > 0) {
-      (bool sendBackSuccess, ) = payable(msg.sender).call{value: address(this).balance}('');
-      require(sendBackSuccess, 'Could not send remaining funds to the payer');
-    }
-  }
-
-  /*
-   * Helper functions
-   */
-
-  /**
-   * @notice Calculate the amount of the conversion
-   */
-  function amountAndFeeConversion(
-    uint256 requestAmount,
-    uint256 requestFee,
-    uint256 rate,
-    uint256 decimals
-  ) private pure returns (uint256) {
-    return (requestAmount * rate) / decimals + (requestFee * rate) / decimals;
-  }
-
-  /**
-   * @notice Get conversion rate and decimals from chainlink
-   */
-  function getRateAndDecimals(address[] memory _path, uint256 _maxRateTimespan)
-    private
-    view
-    returns (uint256, uint256)
-  {
-    (uint256 rate, uint256 oldestTimestampRate, uint256 decimals) = chainlinkConversionPath.getRate(
-      _path
-    );
-
-    // Check rate timespan
-    require(
-      _maxRateTimespan == 0 || block.timestamp - oldestTimestampRate <= _maxRateTimespan,
-      'aggregator rate is outdated'
-    );
-    return (rate, decimals);
+    (bool sendBackSuccess, ) = payable(msg.sender).call{value: address(this).balance}('');
+    require(sendBackSuccess, 'Could not send remaining funds to the payer');
   }
 
   /*
