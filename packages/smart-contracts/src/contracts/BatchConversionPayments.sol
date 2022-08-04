@@ -63,12 +63,10 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @dev Used by batchRouter to hold information for any kind of request.
-   *  - paymentNetworkId requests are grouped by paymentType to be paid with the appropriate function.
-   *    More details in batchRouter description.
-   *  - requestsInfo all informations required for conversion requests to be paid (=> paymentNetworkId equal 0 or 3)
-   *  - requestsInfoParent all informations required for None-conversion requests to be paid
-   *    (=> paymentNetworkId equal 1, 2, or 4)
+   * @dev Used by the batchRouter to handle information for heterogeneous batches, grouped by payment network.
+   *  - paymentNetworkId: from 0 to 4, cf. `batchRouter()` method.
+   *  - requestsInfo all the data required for conversion requests to be paid, for paymentNetworkId = 0 or 3
+   *  - requestsInfoParent all the data required to pay requests without conversion, for paymentNetworkId = 1, 2, or 4
    */
   struct MetaRequestsInfo {
     uint256 paymentNetworkId;
