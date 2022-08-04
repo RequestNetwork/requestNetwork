@@ -108,7 +108,10 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   // batch Eth requires batch contract to receive funds from ethFeeProxy with a value = 0
   //            and also from paymentEthConversionProxy with a value > 0
   receive() external payable {
-     require(address(msg.sender) == address(paymentEthConversionProxy) || msg.value == 0, 'Non-payable');
+    require(
+      address(msg.sender) == address(paymentEthConversionProxy) || msg.value == 0,
+      'Non-payable'
+    );
   }
 
   /**
