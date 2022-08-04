@@ -150,7 +150,7 @@ contract BatchPaymentsPublic is Ownable {
     IERC20 requestedToken = IERC20(_tokenAddress);
     require(
       requestedToken.allowance(msg.sender, address(this)) >= amount,
-      'Not sufficient allowance for batch to pay'
+      'Insufficient allowance for batch to pay'
     );
     require(requestedToken.balanceOf(msg.sender) >= amount, 'not enough funds');
     require(
