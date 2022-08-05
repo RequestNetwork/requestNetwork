@@ -221,7 +221,7 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
 
 describe('Payment encoder handles ERC20 Proxy', () => {
   it('Should return a valid transaction', async () => {
-    const paymentTransaction = await encodeRequestPayment(baseValidRequest, provider);
+    const paymentTransaction = encodeRequestPayment(baseValidRequest, provider);
 
     const proxyAddress = getProxyAddress(
       baseValidRequest,
@@ -238,7 +238,7 @@ describe('Payment encoder handles ERC20 Proxy', () => {
 
 describe('Payment encoder handles ERC20 Fee Proxy', () => {
   it('Should return a valid transaction', async () => {
-    const paymentTransaction = await encodeRequestPayment(validRequestERC20FeeProxy, provider);
+    const paymentTransaction = encodeRequestPayment(validRequestERC20FeeProxy, provider);
 
     const proxyAddress = getProxyAddress(
       validRequestERC20FeeProxy,
@@ -255,13 +255,9 @@ describe('Payment encoder handles ERC20 Fee Proxy', () => {
 
 describe('Payment encoder handles ERC20 Conversion Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(
-      validRequestERC20ConversionProxy,
-      provider,
-      {
-        conversion: alphaConversionSettings,
-      },
-    );
+    let paymentTransaction = encodeRequestPayment(validRequestERC20ConversionProxy, provider, {
+      conversion: alphaConversionSettings,
+    });
 
     const proxyAddress = getProxyAddress(
       validRequestERC20ConversionProxy,
@@ -283,7 +279,7 @@ describe('Payment encoder handles ERC20 Conversion Proxy', () => {
 
 describe('Payment encoder handles ERC20 Swap Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(validRequestERC20FeeProxy, provider, {
+    let paymentTransaction = encodeRequestPayment(validRequestERC20FeeProxy, provider, {
       swap: alphaSwapSettings,
     });
 
@@ -301,14 +297,10 @@ describe('Payment encoder handles ERC20 Swap Proxy', () => {
 
 describe('Payment encoder handles ERC20 Swap & Conversion Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(
-      validRequestERC20ConversionProxy,
-      provider,
-      {
-        swap: alphaSwapConversionSettings,
-        conversion: alphaConversionSettings,
-      },
-    );
+    let paymentTransaction = encodeRequestPayment(validRequestERC20ConversionProxy, provider, {
+      swap: alphaSwapConversionSettings,
+      conversion: alphaConversionSettings,
+    });
 
     const proxyAddress = erc20SwapConversionArtifact.getAddress(
       alphaConversionSettings.currency.network,
@@ -338,7 +330,7 @@ describe('Payment encoder handles ERC20 Swap & Conversion Proxy', () => {
 
 describe('Payment encoder handles Eth Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(validRequestEthProxy, provider);
+    let paymentTransaction = encodeRequestPayment(validRequestEthProxy, provider);
 
     const proxyAddress = getProxyAddress(
       validRequestEthProxy,
@@ -355,7 +347,7 @@ describe('Payment encoder handles Eth Proxy', () => {
 
 describe('Payment encoder handles Eth Fee Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(validRequestEthFeeProxy, provider);
+    let paymentTransaction = encodeRequestPayment(validRequestEthFeeProxy, provider);
 
     const proxyAddress = getProxyAddress(
       validRequestEthFeeProxy,
@@ -372,7 +364,7 @@ describe('Payment encoder handles Eth Fee Proxy', () => {
 
 describe('Payment encoder handles Eth Conversion Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(validRequestEthConversionProxy, provider, {
+    let paymentTransaction = encodeRequestPayment(validRequestEthConversionProxy, provider, {
       conversion: ethConversionSettings,
     });
 
