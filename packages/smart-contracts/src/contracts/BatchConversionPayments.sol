@@ -28,7 +28,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   ChainlinkConversionPath public chainlinkConversionPath;
 
   uint256 public batchConversionFee;
-  uint256 public basicFee;
 
   /**
    * @dev All the information of a request, except the feeAddress
@@ -98,7 +97,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
     transferOwnership(_owner);
 
-    basicFee = 0;
     batchFee = 0;
     batchConversionFee = 0;
   }
@@ -250,7 +248,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
         safeTransferFrom(
           uTokens[k].tokenAddress,
           _feeAddress,
-          ((((uTokens[k].amountAndFee - excessAmount) * 10000) / (10000 + basicFee)) *
+          ((uTokens[k].amountAndFee - excessAmount) *
             batchConversionFee) / 10000
         ),
         'batch fee transferFrom() failed'
@@ -291,8 +289,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     }
 
     // Check that batch contract has enough funds to pay batch conversion fees
-    uint256 amountBatchFees = ((((contractBalance - address(this).balance) * 10000) /
-      (10000 + basicFee)) * batchConversionFee) / 10000;
+    uint256 amountBatchFees = ((contractBalance - address(this).balance) * batchConversionFee) / 10000;
     require(address(this).balance >= amountBatchFees, 'not enough funds for batch conversion fees');
 
     // Batch contract pays batch fee
@@ -307,16 +304,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   /*
    * Admin functions to edit the conversion proxies address and fees
    */
-
-  /**
-   * @notice Fees applied for basic invoice, 0.1% at Request Finance
-   * @param _basicFee Between 0 and 10000, e.i: basicFee = 10 represent 0.10% of fees
-   *         Update it cautiously.
-   *         e.i: Only if the Request Finance 'basicFee' has evolve, which should be exceptional
-   */
-  function setBasicFee(uint256 _basicFee) external onlyOwner {
-    basicFee = _basicFee;
-  }
 
   /**
    * @notice fees added when using Erc20/Eth conversion batch functions

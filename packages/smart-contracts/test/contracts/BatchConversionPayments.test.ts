@@ -35,7 +35,6 @@ describe('contract: BatchErc20ConversionPayments', () => {
   let batchAddress: string;
   let signer: Signer;
   let xSigner: Signer;
-  const basicFee = 10;
   const batchFee = 100;
   const batchConvFee = 100;
   const amountInFiat = '100000000'; // 1 with 8 decimal
@@ -139,7 +138,6 @@ describe('contract: BatchErc20ConversionPayments', () => {
       await signer.getAddress(),
     );
 
-    await testBatchConversionProxy.setBasicFee(basicFee);
     await testBatchConversionProxy.setBatchFee(batchFee);
     await testBatchConversionProxy.setBatchConversionFee(batchConvFee);
 
@@ -232,6 +230,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
     _conversionToPay_result: BigNumber,
     _conversionFees_result: BigNumber,
     _conversionsToPay_results: BigNumber[],
+    _conversionFees_results: BigNumber[],
   ) => {
     fromDiffBalanceExpected = fromDiffBalanceExpected
       .add(_conversionToPay_result)
@@ -240,19 +239,22 @@ describe('contract: BatchErc20ConversionPayments', () => {
     toDiffBalanceExpected = toDiffBalanceExpected.add(_conversionToPay_result);
     feeDiffBalanceExpected = feeDiffBalanceExpected.add(_conversionFees_result);
     if (_conversionsToPay_results.length > 0)
-      calculERC20BatchFeeBalances(_conversionsToPay_results);
+      calculERC20BatchFeeBalances(_conversionsToPay_results, _conversionFees_results);
   };
 
   /**
    * @notice Used to calcul the expected new ERC20 fee batch balance for batch conversion.
    * @param _conversionsToPay_results is used to calcul batch fees, it case of payments multiple
-   * @dev in case of payments multiple, we sum the amount paid, and then, we calcul the fees amount
+   * @dev in case of payments multiple, we sum the amount paid including fees, and then, we calcul the batch fees amount
    *      because the sum(batchFeeToPay(amountPay[i])) != batchFeeToPay(sum(amountPay[i]))
    */
-  const calculERC20BatchFeeBalances = (_conversionsToPay_results: BigNumber[]) => {
+  const calculERC20BatchFeeBalances = (
+    _conversionsToPay_results: BigNumber[],
+    _conversionFees_result: BigNumber[],
+  ) => {
     let sumToPay = BigNumber.from(0);
     for (let i = 0; i < _conversionsToPay_results.length; i++) {
-      sumToPay = sumToPay.add(_conversionsToPay_results[i]);
+      sumToPay = sumToPay.add(_conversionsToPay_results[i]).add(_conversionFees_result[i]);
     }
     fromDiffBalanceExpected = fromDiffBalanceExpected.add(batchFeeToPay(sumToPay));
     feeDiffBalanceExpected = feeDiffBalanceExpected.add(batchFeeToPay(sumToPay));
@@ -275,7 +277,12 @@ describe('contract: BatchErc20ConversionPayments', () => {
       await emitOneTx(expect(result), requestInfo, conversionToPay, conversionFees);
     }
 
-    calculERC20Balances(conversionToPay.result, conversionFees.result, [conversionToPay.result]);
+    calculERC20Balances(
+      conversionToPay.result,
+      conversionFees.result,
+      [conversionToPay.result],
+      [conversionFees.result],
+    );
   };
 
   /**
@@ -300,9 +307,11 @@ describe('contract: BatchErc20ConversionPayments', () => {
 
     let requestInfos: RequestInfo[] = [];
     let conversionsToPay: ConvToPay[] = [];
+    let conversionsFees: ConvToPay[] = [];
     for (let i = 0; i < nTimes; i++) {
       requestInfos = requestInfos.concat([requestInfo, requestInfo2]);
       conversionsToPay = conversionsToPay.concat([conversionToPay, conversionToPay2]);
+      conversionsFees = conversionsFees.concat([conversionFees, conversionFees2]);
     }
     const result = batchConvFunction(argTemplate(requestInfos), feeAddress);
     const tx = await result;
@@ -317,18 +326,19 @@ describe('contract: BatchErc20ConversionPayments', () => {
       requestInfo2.path[requestInfo2.path.length - 1]
     ) {
       for (let i = 0; i < nTimes - 1; i++) {
-        calculERC20Balances(conversionToPay.result, conversionFees.result, []);
-        calculERC20Balances(conversionToPay2.result, conversionFees2.result, []);
+        calculERC20Balances(conversionToPay.result, conversionFees.result, [], []);
+        calculERC20Balances(conversionToPay2.result, conversionFees2.result, [], []);
       }
-      calculERC20Balances(conversionToPay.result, conversionFees.result, []);
+      calculERC20Balances(conversionToPay.result, conversionFees.result, [], []);
       calculERC20Balances(
         conversionToPay2.result,
         conversionFees2.result,
         conversionsToPay.map((ctp) => ctp.result),
+        conversionsFees.map((ctp) => ctp.result),
       );
     } else {
       for (let i = 0; i < nTimes - 1; i++) {
-        calculERC20Balances(conversionToPay.result, conversionFees.result, []);
+        calculERC20Balances(conversionToPay.result, conversionFees.result, [], []);
       }
       const conversionsToPayBis = conversionsToPay.filter((_, i) => i % 2 === 0);
 
@@ -336,6 +346,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
         conversionToPay.result,
         conversionFees.result,
         conversionsToPayBis.map((ctp) => ctp.result),
+        conversionsFees.map((ctp) => ctp.result),
       );
     }
   };
@@ -547,9 +558,12 @@ describe('contract: BatchErc20ConversionPayments', () => {
           amount * (batchFee / 10_000), // batch fee amount = 200 * 1%
         );
 
-      calculERC20Balances(BigNumber.from(amount), BigNumber.from(feeAmount), [
+      calculERC20Balances(
         BigNumber.from(amount),
-      ]);
+        BigNumber.from(feeAmount),
+        [BigNumber.from(amount)],
+        [BigNumber.from(feeAmount)],
+      );
     };
     it('batchERC20PaymentsWithReference transfers token', async function () {
       await batchERC20Payments(false, 'batchERC20PaymentsWithReference');
@@ -580,7 +594,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
       let amountToPayExpected: BigNumber;
       let feeToPayExpected: BigNumber;
       const amount = BigNumber.from(100000); // usually in USD
-      const feeAmount = amount.mul(basicFee).div(10000); // usually in USD
+      const feeAmount = amount.mul(10).div(10000); // usually in USD
       let inputs: Array<RequestInfo>;
       const pathUsdEth = [USD_hash, ETH_hash];
 
@@ -650,13 +664,13 @@ describe('contract: BatchErc20ConversionPayments', () => {
             value: BigNumber.from('100000000000000000'),
           });
           const receipt = await tx.wait();
-
+          console.log('lala');
           if (logGas) console.log('gas consumption: ', receipt.gasUsed.toString());
 
           const afterEthBalance = await provider.getBalance(await signer.getAddress());
           const afterEthBalanceTo = await provider.getBalance(to);
           const afterEthBalanceFee = await provider.getBalance(feeAddress);
-
+          console.log('lala');
           const proxyBalance = await provider.getBalance(testBatchConversionProxy.address);
           const _diffBalance = beforeEthBalance.sub(afterEthBalance);
           const _diffBalanceTo = afterEthBalanceTo.sub(beforeEthBalanceTo);
@@ -664,13 +678,28 @@ describe('contract: BatchErc20ConversionPayments', () => {
           const _diffBalanceExpect = receipt.gasUsed
             .mul(2 * 10 ** 10)
             .add(_diffBalanceTo)
-            .add(_diffBalanceFee);
-
+            // .add(_diffBalanceTo.mul(10).div(10000))
+            .add(_diffBalanceFee); //.mul(2));
+          // 2000000000000 _diffBalanceTo
+          //   22020000000 _diffBalanceFee
+          //  -22020000000 real
+          //  +20020000000 expected
+          //    2000000000 missing to the expected ?
+          //TODO FIX test modif: now we calcul batch fee on the sum amount + fees? 2000000000 is missing in the expected
           expect(_diffBalance).to.equals(_diffBalanceExpect.toString(), 'DiffBalance');
           expect(_diffBalanceTo).to.equals(amountToPayExpected.toString(), 'diffBalanceTo');
-
+          console.log('lala');
+          console.log('_diffBalanceTo', _diffBalanceTo.toString());
+          console.log('_diffBalanceFee', _diffBalanceFee.toString());
+          console.log('amountToPayExpected', amountToPayExpected.toString());
+          console.log('feeToPayExpected', feeToPayExpected.toString());
           expect(_diffBalanceFee.toString()).to.equals(
-            amountToPayExpected.mul(batchConvFee).div(10000).add(feeToPayExpected).toString(),
+            amountToPayExpected
+              .mul(batchConvFee)
+              .add(feeToPayExpected)
+              .mul(batchConvFee)
+              .div(10000)
+              .toString(),
             'diffBalanceFee',
           );
           expect(proxyBalance).to.equals('0', 'proxyBalance');

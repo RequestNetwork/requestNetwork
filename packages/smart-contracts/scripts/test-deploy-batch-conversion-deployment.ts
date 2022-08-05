@@ -39,7 +39,6 @@ export async function deployBatchConversionPayment(
     // Initialize batch conversion fee, useful to others packages.
     const [owner] = await hre.ethers.getSigners();
     const batchConversion = batchConversionPaymentsArtifact.connect(hre.network.name, owner);
-    await batchConversion.connect(owner).setBasicFee(10);
     await batchConversion.connect(owner).setBatchFee(30);
     await batchConversion.connect(owner).setBatchConversionFee(30);
 
