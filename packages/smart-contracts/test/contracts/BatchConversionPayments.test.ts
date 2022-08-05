@@ -18,7 +18,7 @@ import { BigNumber, BigNumberish, BytesLike, ContractTransaction, Signer } from 
 import { expect } from 'chai';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { chainlinkConversionPath } from '../../src/lib';
-import { localERC20AlphaArtifact } from './localArtifacts';
+import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts';
 import Utils from '@requestnetwork/utils';
 import { HttpNetworkConfig } from 'hardhat/types';
 
@@ -144,7 +144,9 @@ describe('contract: BatchErc20ConversionPayments', () => {
     DAI_address = localERC20AlphaArtifact.getAddress(network.name);
     testERC20 = new TestERC20__factory(signer).attach(DAI_address);
 
-    fakeFAU_address = '0x7153CCD1a20Bbb2f6dc89c1024de368326EC6b4F';
+    // caution, change add one transaction in deployment will modify this address !
+    // fakeFAU_address = '0x51FC52Fd0B30fA0319D97893dEFE0201fEd39C4c';
+    fakeFAU_address = secondLocalERC20AlphaArtifact.getAddress(network.name);
     testERC20b = new TestERC20__factory(signer).attach(fakeFAU_address);
     batchAddress = testBatchConversionProxy.address;
   });

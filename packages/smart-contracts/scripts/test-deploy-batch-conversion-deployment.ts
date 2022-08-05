@@ -2,7 +2,14 @@ import '@nomiclabs/hardhat-ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from './deploy-one';
 
-import { batchConversionPaymentsArtifact } from '../src/lib';
+import {
+  batchConversionPaymentsArtifact,
+  chainlinkConversionPath,
+  erc20ConversionProxy,
+  erc20FeeProxyArtifact,
+  ethConversionArtifact,
+  ethereumFeeProxyArtifact,
+} from '../src/lib';
 import { chainlinkConversionPath as chainlinkConvArtifact } from '../src/lib';
 import { CurrencyManager } from '@requestnetwork/currency';
 
@@ -13,11 +20,11 @@ export async function deployBatchConversionPayment(
 ): Promise<any> {
   try {
     console.log('start BatchConversionPayments');
-    const _ERC20FeeProxyAddress = '0x75c35C980C0d37ef46DF04d31A140b65503c0eEd';
-    const _EthereumFeeProxyAddress = '0x3d49d1eF2adE060a33c6E6Aa213513A7EE9a6241';
-    const _chainlinkConversionPath = '0x4e71920b7330515faf5EA0c690f1aD06a85fB60c';
-    const _paymentErc20ConversionFeeProxy = '0xdE5491f774F0Cb009ABcEA7326342E105dbb1B2E';
-    const _paymentEthConversionFeeProxy = '0x98d9f9e8DEbd4A632682ba207670d2a5ACD3c489';
+    const _ERC20FeeProxyAddress = erc20FeeProxyArtifact.getAddress('private');
+    const _EthereumFeeProxyAddress = ethereumFeeProxyArtifact.getAddress('private');
+    const _chainlinkConversionPath = chainlinkConversionPath.getAddress('private');
+    const _paymentErc20ConversionFeeProxy = erc20ConversionProxy.getAddress('private');
+    const _paymentEthConversionFeeProxy = ethConversionArtifact.getAddress('private');
 
     // Deploy BatchConversionPayments contract
     const { address: BatchConversionPaymentsAddress } = await deployOne(
@@ -39,7 +46,6 @@ export async function deployBatchConversionPayment(
     // Initialize batch conversion fee, useful to others packages.
     const [owner] = await hre.ethers.getSigners();
     const batchConversion = batchConversionPaymentsArtifact.connect(hre.network.name, owner);
-    await batchConversion.connect(owner).setBasicFee(10);
     await batchConversion.connect(owner).setBatchFee(30);
     await batchConversion.connect(owner).setBatchConversionFee(30);
 
@@ -61,9 +67,20 @@ export async function deployBatchConversionPayment(
     // ----------------------------------
     console.log('Contracts deployed');
     console.log(`
-      testERC20FakeFAU.address:                 ${testERC20FakeFAU.address}
-      BatchConversionPayments:            ${BatchConversionPaymentsAddress}
+    testERC20FakeFAU.address:                 ${testERC20FakeFAU.address}
+    BatchConversionPayments:            ${BatchConversionPaymentsAddress}
     `);
+
+    // Check the addresses of our contracts, to avoid misleading bugs in the tests
+    // ref to secondLocalERC20AlphaArtifact.getAddress('private'), that cannot be used in deployment
+    const fakeFAU_addressExpected = '0x51FC52Fd0B30fA0319D97893dEFE0201fEd39C4c';
+    if (testERC20FakeFAU.address !== fakeFAU_addressExpected) {
+      throw '! -> testERC20FakeFAU.address !== fakeFAU_addressExpected, please update your code or the artifact';
+    }
+    const batchConversionExpected = batchConversionPaymentsArtifact.getAddress('private');
+    if (BatchConversionPaymentsAddress !== batchConversionExpected) {
+      throw '! -> BatchConversionPaymentsAddress !== batchConversionExpected, please update your code or the artifact';
+    }
   } catch (e) {
     console.error(e);
   }

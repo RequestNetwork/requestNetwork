@@ -16,6 +16,21 @@ export const localERC20AlphaArtifact = new ContractArtifact<ERC20Alpha>(
   '0.0.1',
 );
 
+export const secondLocalERC20AlphaArtifact = new ContractArtifact<ERC20Alpha>(
+  {
+    '0.0.1': {
+      abi: [],
+      deployment: {
+        private: {
+          address: '0x51FC52Fd0B30fA0319D97893dEFE0201fEd39C4c',
+          creationBlockNumber: 0,
+        },
+      },
+    },
+  },
+  '0.0.1',
+);
+
 export const localUSDTArtifact = new ContractArtifact<ERC20Alpha>(
   {
     '0.0.1': {
