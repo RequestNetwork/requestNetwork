@@ -119,7 +119,7 @@ describe('erc777-stream', () => {
       request.extensions = [] as any;
 
       await expect(payErc777StreamRequest(request, wallet)).rejects.toThrowError(
-        'Not a supported ERC777 payment network request',
+        'no payment network found',
       );
     });
   });
