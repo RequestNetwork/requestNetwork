@@ -12,6 +12,7 @@ import { prepareEthFeeProxyPaymentTransaction } from './eth-fee-proxy';
 import { prepareAnyToEthProxyPaymentTransaction } from './any-to-eth-proxy';
 import { IConversionPaymentSettings } from '.';
 import { getPaymentNetworkExtension } from './utils';
+import { prepareErc777StreamPaymentTransaction } from './erc777-stream';
 
 export function encodeRequestPayment(
   request: ClientTypes.IRequestData,
@@ -95,6 +96,24 @@ export function encodeRequestPaymentWithoutSwap(
       };
     default:
       throw new Error('Payment network not found');
+  }
+}
+export async function encodeRequestPaymentWithStream(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider,
+  options?: IRequestPaymentOptions,
+): Promise<IPreparedTransaction> {
+  const paymentNetwork = getPaymentNetworkExtension(request)?.id;
+  const overrides = options?.overrides ? options.overrides : {};
+
+  switch (paymentNetwork) {
+    case ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM:
+      return {
+        ...(await prepareErc777StreamPaymentTransaction(request, provider)),
+        ...overrides,
+      };
+    default:
+      throw new Error(`Payment network {paymentNetwork} does not support stream`);
   }
 }
 
