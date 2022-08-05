@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, Overrides } from 'ethers';
+import { ContractTransaction, Signer, Overrides, providers } from 'ethers';
 
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
@@ -28,7 +28,10 @@ export async function payErc777StreamRequest(
   signer: Signer,
   overrides?: Overrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = await prepareErc777StreamPaymentTransaction(request, signer);
+  const { data, to, value } = await prepareErc777StreamPaymentTransaction(
+    request,
+    signer.provider ?? getProvider(),
+  );
   return signer.sendTransaction({ data, to, value, ...overrides });
 }
 
@@ -48,7 +51,7 @@ export async function completeErc777StreamRequest(
     throw new Error('Not a supported ERC777 payment network request');
   }
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
-  const sf = await getSuperFluidFramework(request, signer);
+  const sf = await getSuperFluidFramework(request, signer.provider ?? getProvider());
   // FIXME: according to specs PR https://github.com/RequestNetwork/requestNetwork/pull/688
   // in file packages/advanced-logic/specs/payment-network-erc777-stream-0.1.0.md
   // Below are the SF actions to add in the BatchCall :
@@ -59,12 +62,15 @@ export async function completeErc777StreamRequest(
   return batchCall.exec(signer);
 }
 
-async function getSuperFluidFramework(request: ClientTypes.IRequestData, signer: Signer) {
+async function getSuperFluidFramework(
+  request: ClientTypes.IRequestData,
+  provider: providers.Provider,
+) {
   const isNetworkPrivate = request.currencyInfo.network === 'private';
   const networkName = isNetworkPrivate ? 'custom' : request.currencyInfo.network;
   return await Framework.create({
     networkName,
-    provider: signer.provider ?? getProvider(),
+    provider: provider,
     dataMode: isNetworkPrivate ? 'WEB3_ONLY' : undefined,
     resolverAddress: isNetworkPrivate ? RESOLVER_ADDRESS : undefined,
     protocolReleaseVersion: isNetworkPrivate ? 'test' : undefined,
@@ -127,10 +133,10 @@ export async function encodePayErc777StreamRequest(
  */
 export async function prepareErc777StreamPaymentTransaction(
   request: ClientTypes.IRequestData,
-  signer: Signer,
+  provider: providers.Provider,
 ): Promise<IPreparedTransaction> {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
-  const sf = await getSuperFluidFramework(request, signer);
+  const sf = await getSuperFluidFramework(request, provider);
 
   const encodedTx = await encodePayErc777StreamRequest(request, sf);
 
