@@ -116,10 +116,9 @@ export async function encodePayErc777StreamRequest(
   const batchCall = sf.batchCall([streamPayOp]);
 
   const operationStructArray = await Promise.all(batchCall.getOperationStructArrayPromises);
-  return batchCall.host.hostContract.interface.encodeFunctionData(
-    'batchCall',
-    [operationStructArray],
-  );
+  return batchCall.host.hostContract.interface.encodeFunctionData('batchCall', [
+    operationStructArray,
+  ]);
 }
 /**
  * Prepate the transaction to pay a request through the ERC20 fee proxy contract, can be used with a Multisig contract.
