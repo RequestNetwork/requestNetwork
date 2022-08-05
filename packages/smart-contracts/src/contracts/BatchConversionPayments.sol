@@ -250,7 +250,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
         safeTransferFrom(
           uTokens[k].tokenAddress,
           _feeAddress,
-          ((((uTokens[k].amountAndFee - excessAmount) * 10000) / (10000 + basicFee)) *
+          ((uTokens[k].amountAndFee - excessAmount) *
             batchConversionFee) / 10000
         ),
         'batch fee transferFrom() failed'
@@ -291,8 +291,8 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     }
 
     // Check that batch contract has enough funds to pay batch conversion fees
-    uint256 amountBatchFees = ((((contractBalance - address(this).balance) * 10000) /
-      (10000 + basicFee)) * batchConversionFee) / 10000;
+    uint256 amountBatchFees = (((contractBalance - address(this).balance)
+      ) * batchConversionFee) / 10000;
     require(address(this).balance >= amountBatchFees, 'not enough funds for batch conversion fees');
 
     // Batch contract pays batch fee
