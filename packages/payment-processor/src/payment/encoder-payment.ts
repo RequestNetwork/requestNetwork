@@ -14,6 +14,12 @@ import { IConversionPaymentSettings } from '.';
 import { getPaymentNetworkExtension } from './utils';
 import { prepareErc777StreamPaymentTransaction } from './erc777-stream';
 
+/**
+ * Encodes a transaction to pay a Request in generic way. ERC777 stream excepted.
+ * @param request the request data to pay
+ * @param provider the Web3 provider. Defaults to window.ethereum.
+ * @param options optionally, the request payment options.
+ */
 export function encodeRequestPayment(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
@@ -26,6 +32,11 @@ export function encodeRequestPayment(
   }
 }
 
+/**
+ * Encodes a transaction to pay a Request in generic way without swap.
+ * @param request the request data to pay
+ * @param options optionally, the request payment options.
+ */
 export function encodeRequestPaymentWithoutSwap(
   request: ClientTypes.IRequestData,
   options?: IRequestPaymentOptions,
@@ -98,6 +109,13 @@ export function encodeRequestPaymentWithoutSwap(
       throw new Error('Payment network not found');
   }
 }
+
+/**
+ * Encodes a transaction to pay a Request with ERC777 stream.
+ * @param request the request data to pay
+ * @param provider the Web3 provider. Defaults to window.ethereum.
+ * @param options optionally, the request payment options.
+ */
 export async function encodeRequestPaymentWithStream(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
@@ -117,6 +135,12 @@ export async function encodeRequestPaymentWithStream(
   }
 }
 
+/**
+ * Encodes a transaction to pay a Request in generic way with swap.
+ * @param request the request data to pay
+ * @param provider the Web3 provider. Defaults to window.ethereum.
+ * @param options optionally, the request payment options.
+ */
 export function encodeRequestPaymentWithSwap(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
