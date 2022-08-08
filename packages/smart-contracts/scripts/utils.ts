@@ -62,7 +62,7 @@ export const deployAddressChecking = (
 ): void => {
   if (contractAddress !== contractAddressExpected) {
     NUMBER_ERRORS += 1;
-    const msg = `${contratName} deployed is different from the one expected, please update your code or the artifact`;
+    const msg = `${contratName} deployed at ${contractAddress} is different from the one expected: ${contractAddressExpected}, please update your code or the artifact`;
     throw Error(msg);
   }
 };

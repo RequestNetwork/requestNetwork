@@ -4,7 +4,6 @@ import { deployOne } from './deploy-one';
 
 import {
   batchConversionPaymentsArtifact,
-  chainlinkConversionPath,
   erc20ConversionProxy,
   erc20FeeProxyArtifact,
   ethConversionArtifact,
@@ -23,7 +22,6 @@ export async function deployBatchConversionPayment(
     console.log('start BatchConversionPayments');
     const _ERC20FeeProxyAddress = erc20FeeProxyArtifact.getAddress('private');
     const _EthereumFeeProxyAddress = ethereumFeeProxyArtifact.getAddress('private');
-    const _chainlinkConversionPath = chainlinkConversionPath.getAddress('private');
     const _paymentErc20ConversionFeeProxy = erc20ConversionProxy.getAddress('private');
     const _paymentEthConversionFeeProxy = ethConversionArtifact.getAddress('private');
 
@@ -38,19 +36,14 @@ export async function deployBatchConversionPayment(
           _EthereumFeeProxyAddress,
           _paymentErc20ConversionFeeProxy,
           _paymentEthConversionFeeProxy,
-          _chainlinkConversionPath,
           await (await hre.ethers.getSigners())[0].getAddress(),
         ],
       },
     );
 
-    // Initialize batch conversion fee, useful to others packages.
-    const [owner] = await hre.ethers.getSigners();
-    const batchConversion = batchConversionPaymentsArtifact.connect(hre.network.name, owner);
-    await batchConversion.connect(owner).setBatchFee(30);
-    await batchConversion.connect(owner).setBatchConversionFee(30);
-
     // Add a second ERC20 token and aggregator - useful for batch test
+    console.log('start adding a second conversion path instance');
+    const [owner] = await hre.ethers.getSigners();
     const erc20Factory = await hre.ethers.getContractFactory('TestERC20');
     const testERC20FakeFAU = await erc20Factory.deploy('1000000000000000000000000000000');
     const { address: AggFakeFAU_USD_address } = await deployOne(args, hre, 'AggregatorMock', {
@@ -65,23 +58,27 @@ export async function deployBatchConversionPayment(
       [AggFakeFAU_USD_address],
     );
 
-    // ----------------------------------
-    console.log('Contracts deployed');
-    console.log(`
-    testERC20FakeFAU.address:                 ${testERC20FakeFAU.address}
-    BatchConversionPayments:            ${BatchConversionPaymentsAddress}
-    `);
-
     // Check the addresses of our contracts, to avoid misleading bugs in the tests
-
     // ref to secondLocalERC20AlphaArtifact.getAddress('private'), that cannot be used in deployment
-    const fakeFAU_addressExpected = '0x51FC52Fd0B30fA0319D97893dEFE0201fEd39C4c';
+    const fakeFAU_addressExpected = '0xe4e47451AAd6C89a6D9E4aD104A7b77FfE1D3b36';
     deployAddressChecking('testERC20FakeFAU', testERC20FakeFAU.address, fakeFAU_addressExpected);
     deployAddressChecking(
       'batchConversionPayments',
       BatchConversionPaymentsAddress,
       batchConversionPaymentsArtifact.getAddress('private'),
     );
+
+    // Initialize batch conversion fee, useful to others packages.
+    const batchConversion = batchConversionPaymentsArtifact.connect(hre.network.name, owner);
+    await batchConversion.connect(owner).setBatchFee(30);
+    await batchConversion.connect(owner).setBatchConversionFee(30);
+
+    // ----------------------------------
+    console.log('Contracts deployed');
+    console.log(`
+    testERC20FakeFAU.address:                 ${testERC20FakeFAU.address}
+    BatchConversionPayments:            ${BatchConversionPaymentsAddress}
+    `);
   } catch (e) {
     console.error(e);
   }

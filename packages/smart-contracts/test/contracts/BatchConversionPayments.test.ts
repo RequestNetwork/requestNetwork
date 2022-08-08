@@ -131,12 +131,11 @@ describe('contract: BatchErc20ConversionPayments', () => {
 
     testBatchConversionProxy = batchConversionPaymentsArtifact.connect(network.name, signer);
 
-    // update batch payment proxies, chainlink path, and batch fees
+    // update batch payment proxies, and batch fees
     await testBatchConversionProxy.setPaymentErc20Proxy(erc20FeeProxy.address);
     await testBatchConversionProxy.setPaymentEthProxy(ethereumFeeProxy.address);
     await testBatchConversionProxy.setPaymentErc20ConversionProxy(testErc20ConversionProxy.address);
     await testBatchConversionProxy.setPaymentEthConversionProxy(testEthConversionProxy.address);
-    await testBatchConversionProxy.setConversionPathAddress(chainlinkPath.address);
 
     await testBatchConversionProxy.setBatchFee(batchFee);
     await testBatchConversionProxy.setBatchConversionFee(batchConvFee);
@@ -144,7 +143,6 @@ describe('contract: BatchErc20ConversionPayments', () => {
     DAI_address = localERC20AlphaArtifact.getAddress(network.name);
     testERC20 = new TestERC20__factory(signer).attach(DAI_address);
 
-    // fakeFAU_address = '0x51FC52Fd0B30fA0319D97893dEFE0201fEd39C4c';
     fakeFAU_address = secondLocalERC20AlphaArtifact.getAddress(network.name);
     testERC20b = new TestERC20__factory(signer).attach(fakeFAU_address);
     batchAddress = testBatchConversionProxy.address;
@@ -733,7 +731,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
     });
   };
 
-  // ERC20TestSuite('batchRouter');
+  ERC20TestSuite('batchRouter');
   ERC20TestSuite('batchERC20ConversionPaymentsMultiTokens');
   EthTestSuite('batchRouter');
   EthTestSuite('batchEthConversionPaymentsWithReference');

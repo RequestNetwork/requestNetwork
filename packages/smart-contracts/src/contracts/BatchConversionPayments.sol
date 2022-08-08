@@ -3,7 +3,6 @@ pragma solidity ^0.8.4;
 
 import './interfaces/IERC20ConversionProxy.sol';
 import './interfaces/IEthConversionProxy.sol';
-import './ChainlinkConversionPath.sol';
 import './BatchPaymentsPublic.sol';
 
 /**
@@ -25,7 +24,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
   IERC20ConversionProxy paymentErc20ConversionProxy;
   IEthConversionProxy paymentEthConversionProxy;
-  ChainlinkConversionPath public chainlinkConversionPath;
 
   uint256 public batchConversionFee;
 
@@ -78,7 +76,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    * @param _paymentEthProxy The ETH payment proxy address to use.
    * @param _paymentErc20ConversionProxy The ERC20 Conversion payment proxy address to use.
    * @param _paymentEthConversionFeeProxy The ETH Conversion payment proxy address to use.
-   * @param _chainlinkConversionPathAddress The conversion path contract address
    * @param _owner Owner of the contract.
    */
   constructor(
@@ -86,7 +83,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     address _paymentEthProxy,
     address _paymentErc20ConversionProxy,
     address _paymentEthConversionFeeProxy,
-    address _chainlinkConversionPathAddress,
     address _owner
   ) BatchPaymentsPublic(_paymentErc20Proxy, _paymentEthProxy, _owner) {
     paymentErc20Proxy = IERC20FeeProxy(_paymentErc20Proxy);
@@ -94,7 +90,6 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
     paymentErc20ConversionProxy = IERC20ConversionProxy(_paymentErc20ConversionProxy);
     paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionFeeProxy);
-    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
     transferOwnership(_owner);
 
     batchFee = 0;
@@ -327,13 +322,5 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    */
   function setPaymentEthConversionProxy(address _paymentEthConversionProxy) external onlyOwner {
     paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionProxy);
-  }
-
-  /**
-   * @notice Update the conversion path contract used to fetch conversions
-   * @param _chainlinkConversionPathAddress address of the conversion path contract
-   */
-  function setConversionPathAddress(address _chainlinkConversionPathAddress) external onlyOwner {
-    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
   }
 }
