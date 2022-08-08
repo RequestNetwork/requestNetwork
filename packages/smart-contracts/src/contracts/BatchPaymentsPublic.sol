@@ -27,6 +27,9 @@ contract BatchPaymentsPublic is Ownable {
   IEthereumFeeProxy public paymentEthProxy;
 
   uint256 public batchFee;
+  /** Used to to calcul batch fees */
+  uint256 internal tenThousand = 10000;
+
   // payerAuthorized is set to true only when needed for batch Eth conversion
   bool internal payerAuthorized;
 
@@ -102,7 +105,7 @@ contract BatchPaymentsPublic is Ownable {
     }
 
     // amount is updated into batch fee amount
-    amount = (amount * batchFee) / 10000;
+    amount = (amount * batchFee) / tenThousand;
     // Check that batch contract has enough funds to pay batch fee
     require(address(this).balance >= amount, 'not enough funds for batch fee');
     // Batch pays batch fee
@@ -180,7 +183,7 @@ contract BatchPaymentsPublic is Ownable {
     }
 
     // amount is updated into batch fee amount
-    amount = (amount * batchFee) / 10000;
+    amount = (amount * batchFee) / tenThousand;
     // Check if the payer has enough funds to pay batch fee
     require(requestedToken.balanceOf(msg.sender) >= amount, 'not enough funds for the batch fee');
 
@@ -243,7 +246,7 @@ contract BatchPaymentsPublic is Ownable {
 
     // The payer transfers tokens to the batch contract and pays batch fee
     for (uint256 i = 0; i < uniqueTokens.length && uniqueTokens[i].amountAndFee > 0; i++) {
-      uniqueTokens[i].batchFeeAmount = (uniqueTokens[i].batchFeeAmount * batchFee) / 10000;
+      uniqueTokens[i].batchFeeAmount = (uniqueTokens[i].batchFeeAmount * batchFee) / tenThousand;
       IERC20 requestedToken = IERC20(uniqueTokens[i].tokenAddress);
 
       require(

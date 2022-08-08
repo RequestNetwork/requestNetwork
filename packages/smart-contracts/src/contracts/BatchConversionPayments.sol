@@ -191,7 +191,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     // For each token: check allowance, transfer funds on the contract and approve the paymentProxy to spend if needed
     for (uint256 k = 0; k < uTokens.length && uTokens[k].amountAndFee > 0; k++) {
       requestedToken = IERC20(uTokens[k].tokenAddress);
-      uTokens[k].batchFeeAmount = (uTokens[k].amountAndFee * batchConversionFee) / 10000;
+      uTokens[k].batchFeeAmount = (uTokens[k].amountAndFee * batchConversionFee) / tenThousand;
       // Check proxy's allowance from user, and user's funds to pay approximated amounts.
       require(
         requestedToken.allowance(msg.sender, address(this)) >= uTokens[k].amountAndFee,
@@ -248,7 +248,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
         safeTransferFrom(
           uTokens[k].tokenAddress,
           _feeAddress,
-          ((uTokens[k].amountAndFee - excessAmount) * batchConversionFee) / 10000
+          ((uTokens[k].amountAndFee - excessAmount) * batchConversionFee) / tenThousand
         ),
         'batch fee transferFrom() failed'
       );
@@ -289,7 +289,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
     // Check that batch contract has enough funds to pay batch conversion fees
     uint256 amountBatchFees = (((contractBalance - address(this).balance)) * batchConversionFee) /
-      10000;
+      tenThousand;
     require(address(this).balance >= amountBatchFees, 'not enough funds for batch conversion fees');
 
     // Batch contract pays batch fee
