@@ -12,6 +12,7 @@ import {
 } from '../src/lib';
 import { chainlinkConversionPath as chainlinkConvArtifact } from '../src/lib';
 import { CurrencyManager } from '@requestnetwork/currency';
+import { deployAddressChecking } from './utils';
 
 // Deploys, set up the contracts
 export async function deployBatchConversionPayment(
@@ -72,15 +73,15 @@ export async function deployBatchConversionPayment(
     `);
 
     // Check the addresses of our contracts, to avoid misleading bugs in the tests
+
     // ref to secondLocalERC20AlphaArtifact.getAddress('private'), that cannot be used in deployment
     const fakeFAU_addressExpected = '0x51FC52Fd0B30fA0319D97893dEFE0201fEd39C4c';
-    if (testERC20FakeFAU.address !== fakeFAU_addressExpected) {
-      throw '! -> testERC20FakeFAU.address !== fakeFAU_addressExpected, please update your code or the artifact';
-    }
-    const batchConversionExpected = batchConversionPaymentsArtifact.getAddress('private');
-    if (BatchConversionPaymentsAddress !== batchConversionExpected) {
-      throw '! -> BatchConversionPaymentsAddress !== batchConversionExpected, please update your code or the artifact';
-    }
+    deployAddressChecking('testERC20FakeFAU', testERC20FakeFAU.address, fakeFAU_addressExpected);
+    deployAddressChecking(
+      'batchConversionPayments',
+      BatchConversionPaymentsAddress,
+      batchConversionPaymentsArtifact.getAddress('private'),
+    );
   } catch (e) {
     console.error(e);
   }

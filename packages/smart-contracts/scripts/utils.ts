@@ -45,3 +45,24 @@ export const jumpToNonce = async (args: any, hre: HardhatRuntimeEnvironment, non
     nextNonce = await deployer.getTransactionCount();
   }
 };
+
+/** Variable used to count the number of contracts deployed at the wrong address */
+export let NUMBER_ERRORS = 0;
+
+/**
+ * The function compare the address of the contract deployed with the existing one, usually stored in artifacts
+ * @param contratName name of the contract used to deployed an instance, or name of the instance if they are many implementations
+ * @param contractAddress address of the current deployement
+ * @param contractAddressExpected usually stored in artifacts
+ */
+export const deployAddressChecking = (
+  contratName: string,
+  contractAddress: string,
+  contractAddressExpected: string,
+): void => {
+  if (contractAddress !== contractAddressExpected) {
+    NUMBER_ERRORS += 1;
+    const msg = `${contratName} deployed is different from the one expected, please update your code or the artifact`;
+    throw Error(msg);
+  }
+};

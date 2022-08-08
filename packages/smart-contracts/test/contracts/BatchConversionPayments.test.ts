@@ -3,7 +3,6 @@ import {
   ERC20FeeProxy__factory,
   Erc20ConversionProxy__factory,
   EthConversionProxy__factory,
-  BatchConversionPayments__factory,
   EthereumFeeProxy__factory,
   ERC20FeeProxy,
   EthereumFeeProxy,
@@ -17,7 +16,7 @@ import {
 import { BigNumber, BigNumberish, BytesLike, ContractTransaction, Signer } from 'ethers';
 import { expect } from 'chai';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { chainlinkConversionPath } from '../../src/lib';
+import { chainlinkConversionPath, batchConversionPaymentsArtifact } from '../../src/lib';
 import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts';
 import Utils from '@requestnetwork/utils';
 import { HttpNetworkConfig } from 'hardhat/types';
@@ -129,14 +128,15 @@ describe('contract: BatchErc20ConversionPayments', () => {
       chainlinkPath.address,
       ETH_hash,
     );
-    testBatchConversionProxy = await new BatchConversionPayments__factory(signer).deploy(
-      erc20FeeProxy.address,
-      ethereumFeeProxy.address,
-      testErc20ConversionProxy.address,
-      testEthConversionProxy.address,
-      chainlinkPath.address,
-      await signer.getAddress(),
-    );
+
+    testBatchConversionProxy = batchConversionPaymentsArtifact.connect(network.name, signer);
+
+    // update batch payment proxies, chainlink path, and batch fees
+    await testBatchConversionProxy.setPaymentErc20Proxy(erc20FeeProxy.address);
+    await testBatchConversionProxy.setPaymentEthProxy(ethereumFeeProxy.address);
+    await testBatchConversionProxy.setPaymentErc20ConversionProxy(testErc20ConversionProxy.address);
+    await testBatchConversionProxy.setPaymentEthConversionProxy(testEthConversionProxy.address);
+    await testBatchConversionProxy.setConversionPathAddress(chainlinkPath.address);
 
     await testBatchConversionProxy.setBatchFee(batchFee);
     await testBatchConversionProxy.setBatchConversionFee(batchConvFee);
@@ -144,7 +144,6 @@ describe('contract: BatchErc20ConversionPayments', () => {
     DAI_address = localERC20AlphaArtifact.getAddress(network.name);
     testERC20 = new TestERC20__factory(signer).attach(DAI_address);
 
-    // caution, change add one transaction in deployment will modify this address !
     // fakeFAU_address = '0x51FC52Fd0B30fA0319D97893dEFE0201fEd39C4c';
     fakeFAU_address = secondLocalERC20AlphaArtifact.getAddress(network.name);
     testERC20b = new TestERC20__factory(signer).attach(fakeFAU_address);
