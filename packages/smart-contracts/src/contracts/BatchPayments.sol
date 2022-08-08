@@ -145,7 +145,7 @@ contract BatchPayments is Ownable, ReentrancyGuard {
     IERC20 requestedToken = IERC20(_tokenAddress);
     require(
       requestedToken.allowance(msg.sender, address(this)) >= amount,
-      'Insufficient allowance for batch to pay'
+      'Not sufficient allowance for batch to pay'
     );
     require(requestedToken.balanceOf(msg.sender) >= amount, 'not enough funds');
     require(
@@ -242,7 +242,7 @@ contract BatchPayments is Ownable, ReentrancyGuard {
       require(
         requestedToken.allowance(msg.sender, address(this)) >=
           uniqueTokens[i].amountAndFee + uniqueTokens[i].batchFeeAmount,
-        'Insufficient allowance for batch to pay'
+        'Not sufficient allowance for batch to pay'
       );
       // check if the payer can pay the amount, the fee, and the batchFee
       require(
