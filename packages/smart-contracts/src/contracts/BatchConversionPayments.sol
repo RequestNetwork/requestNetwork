@@ -214,16 +214,15 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
     // Batch pays the requests using Erc20ConversionFeeProxy
     for (uint256 i = 0; i < requestsInfo.length; i++) {
-      RequestInfo memory rI = requestsInfo[i];
       paymentErc20ConversionProxy.transferFromWithReferenceAndFee(
-        rI.recipient,
-        rI.requestAmount,
-        rI.path,
-        rI.paymentReference,
-        rI.feeAmount,
+        requestsInfo[i].recipient,
+        requestsInfo[i].requestAmount,
+        requestsInfo[i].path,
+        requestsInfo[i].paymentReference,
+        requestsInfo[i].feeAmount,
         _feeAddress,
-        rI.maxToSpend,
-        rI.maxRateTimespan
+        requestsInfo[i].maxToSpend,
+        requestsInfo[i].maxRateTimespan
       );
     }
 
