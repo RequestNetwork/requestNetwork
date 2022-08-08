@@ -29,6 +29,8 @@ export abstract class DeclarativePaymentDetectorBase<
     paymentNetworkCreationParameters: ExtensionTypes.PnAnyDeclarative.ICreationParameters,
   ): Promise<ExtensionTypes.IAction> {
     return this.extension.createCreationAction({
+      payeeDelegate: paymentNetworkCreationParameters.payeeDelegate,
+      payerDelegate: paymentNetworkCreationParameters.payerDelegate,
       paymentInfo: paymentNetworkCreationParameters.paymentInfo,
       refundInfo: paymentNetworkCreationParameters.refundInfo,
     });
