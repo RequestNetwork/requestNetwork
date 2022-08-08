@@ -252,7 +252,7 @@ contract BatchPaymentsPublic is Ownable {
       require(
         requestedToken.allowance(msg.sender, address(this)) >=
           uniqueTokens[i].amountAndFee + uniqueTokens[i].batchFeeAmount,
-        'Not sufficient allowance for batch to pay'
+        'Insufficient allowance for batch to pay'
       );
       // check if the payer can pay the amount, the fee, and the batchFee
       require(
