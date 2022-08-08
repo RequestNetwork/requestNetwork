@@ -3,6 +3,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployOne } from '../scripts/deploy-one';
 
 import { batchPaymentsArtifact } from '../src/lib';
+import { deployAddressChecking } from './utils';
 
 // Deploys, set up the contracts
 export async function deployBatchPayment(args: any, hre: HardhatRuntimeEnvironment): Promise<any> {
@@ -29,6 +30,12 @@ export async function deployBatchPayment(args: any, hre: HardhatRuntimeEnvironme
     console.log(`
       BatchPayments:            ${BatchPaymentsAddress}
     `);
+
+    deployAddressChecking(
+      'BatchPayments',
+      BatchPaymentsAddress,
+      batchPaymentsArtifact.getAddress('private'),
+    );
   } catch (e) {
     console.error(e);
   }

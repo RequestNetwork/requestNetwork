@@ -14,6 +14,7 @@ import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/com
 import { VerifyCreate2FromList } from './scripts-create2/verify';
 import { deployWithCreate2FromList } from './scripts-create2/deploy';
 import utils from '@requestnetwork/utils';
+import { NUMBER_ERRORS } from './scripts/utils';
 
 config();
 
@@ -173,7 +174,11 @@ export default {
 task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hre) => {
   args.force = true;
   await deployAllContracts(args, hre);
-  console.log('All contracts (re)deployed locally');
+  if (NUMBER_ERRORS > 0) {
+    console.log(`Deployment failed, please check the ${NUMBER_ERRORS} errors`);
+  } else {
+    console.log('All contracts (re)deployed locally');
+  }
 });
 
 task(

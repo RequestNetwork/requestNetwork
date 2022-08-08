@@ -3,7 +3,6 @@ import {
   ERC20FeeProxy__factory,
   Erc20ConversionProxy__factory,
   EthConversionProxy__factory,
-  BatchConversionPayments__factory,
   EthereumFeeProxy__factory,
   ERC20FeeProxy,
   EthereumFeeProxy,
@@ -17,8 +16,8 @@ import {
 import { BigNumber, BigNumberish, BytesLike, ContractTransaction, Signer } from 'ethers';
 import { expect } from 'chai';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { chainlinkConversionPath } from '../../src/lib';
-import { localERC20AlphaArtifact } from './localArtifacts';
+import { chainlinkConversionPath, batchConversionPaymentsArtifact } from '../../src/lib';
+import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts';
 import Utils from '@requestnetwork/utils';
 import { HttpNetworkConfig } from 'hardhat/types';
 
@@ -129,14 +128,14 @@ describe('contract: BatchErc20ConversionPayments', () => {
       chainlinkPath.address,
       ETH_hash,
     );
-    testBatchConversionProxy = await new BatchConversionPayments__factory(signer).deploy(
-      erc20FeeProxy.address,
-      ethereumFeeProxy.address,
-      testErc20ConversionProxy.address,
-      testEthConversionProxy.address,
-      chainlinkPath.address,
-      await signer.getAddress(),
-    );
+
+    testBatchConversionProxy = batchConversionPaymentsArtifact.connect(network.name, signer);
+
+    // update batch payment proxies, and batch fees
+    await testBatchConversionProxy.setPaymentErc20Proxy(erc20FeeProxy.address);
+    await testBatchConversionProxy.setPaymentEthProxy(ethereumFeeProxy.address);
+    await testBatchConversionProxy.setPaymentErc20ConversionProxy(testErc20ConversionProxy.address);
+    await testBatchConversionProxy.setPaymentEthConversionProxy(testEthConversionProxy.address);
 
     await testBatchConversionProxy.setBatchFee(batchFee);
     await testBatchConversionProxy.setBatchConversionFee(batchConvFee);
@@ -144,7 +143,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
     DAI_address = localERC20AlphaArtifact.getAddress(network.name);
     testERC20 = new TestERC20__factory(signer).attach(DAI_address);
 
-    fakeFAU_address = '0x7153CCD1a20Bbb2f6dc89c1024de368326EC6b4F';
+    fakeFAU_address = secondLocalERC20AlphaArtifact.getAddress(network.name);
     testERC20b = new TestERC20__factory(signer).attach(fakeFAU_address);
     batchAddress = testBatchConversionProxy.address;
   });
@@ -656,6 +655,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
           feesToPay = await chainlinkPath.getConversion(requestInfo.feeAmount, requestInfo.path);
 
           amountToPayExpected = conversionToPay.result;
+          // fees does not include batch conv fees yet
           feeToPayExpected = feesToPay.result;
         });
 
@@ -664,13 +664,11 @@ describe('contract: BatchErc20ConversionPayments', () => {
             value: BigNumber.from('100000000000000000'),
           });
           const receipt = await tx.wait();
-          console.log('lala');
           if (logGas) console.log('gas consumption: ', receipt.gasUsed.toString());
 
           const afterEthBalance = await provider.getBalance(await signer.getAddress());
           const afterEthBalanceTo = await provider.getBalance(to);
           const afterEthBalanceFee = await provider.getBalance(feeAddress);
-          console.log('lala');
           const proxyBalance = await provider.getBalance(testBatchConversionProxy.address);
           const _diffBalance = beforeEthBalance.sub(afterEthBalance);
           const _diffBalanceTo = afterEthBalanceTo.sub(beforeEthBalanceTo);
@@ -678,28 +676,18 @@ describe('contract: BatchErc20ConversionPayments', () => {
           const _diffBalanceExpect = receipt.gasUsed
             .mul(2 * 10 ** 10)
             .add(_diffBalanceTo)
-            // .add(_diffBalanceTo.mul(10).div(10000))
-            .add(_diffBalanceFee); //.mul(2));
-          // 2000000000000 _diffBalanceTo
-          //   22020000000 _diffBalanceFee
-          //  -22020000000 real
-          //  +20020000000 expected
-          //    2000000000 missing to the expected ?
-          //TODO FIX test modif: now we calcul batch fee on the sum amount + fees? 2000000000 is missing in the expected
+            .add(_diffBalanceFee);
           expect(_diffBalance).to.equals(_diffBalanceExpect.toString(), 'DiffBalance');
           expect(_diffBalanceTo).to.equals(amountToPayExpected.toString(), 'diffBalanceTo');
-          console.log('lala');
-          console.log('_diffBalanceTo', _diffBalanceTo.toString());
-          console.log('_diffBalanceFee', _diffBalanceFee.toString());
-          console.log('amountToPayExpected', amountToPayExpected.toString());
-          console.log('feeToPayExpected', feeToPayExpected.toString());
+
+          // feeToPayExpected includes batch conversion fees now
+          feeToPayExpected = amountToPayExpected
+            .add(feeToPayExpected)
+            .mul(batchConvFee)
+            .div(10000)
+            .add(feeToPayExpected);
           expect(_diffBalanceFee.toString()).to.equals(
-            amountToPayExpected
-              .mul(batchConvFee)
-              .add(feeToPayExpected)
-              .mul(batchConvFee)
-              .div(10000)
-              .toString(),
+            feeToPayExpected.toString(),
             'diffBalanceFee',
           );
           expect(proxyBalance).to.equals('0', 'proxyBalance');

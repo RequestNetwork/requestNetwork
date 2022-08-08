@@ -27,6 +27,9 @@ contract BatchPaymentsPublic is Ownable {
   IEthereumFeeProxy public paymentEthProxy;
 
   uint256 public batchFee;
+  /** Used to to calcul batch fees */
+  uint256 internal tenThousand = 10000;
+
   // payerAuthorized is set to true only when needed for batch Eth conversion
   bool internal payerAuthorized;
 
@@ -102,7 +105,7 @@ contract BatchPaymentsPublic is Ownable {
     }
 
     // amount is updated into batch fee amount
-    amount = (amount * batchFee) / 10000;
+    amount = (amount * batchFee) / tenThousand;
     // Check that batch contract has enough funds to pay batch fee
     require(address(this).balance >= amount, 'not enough funds for batch fee');
     // Batch pays batch fee
@@ -180,7 +183,7 @@ contract BatchPaymentsPublic is Ownable {
     }
 
     // amount is updated into batch fee amount
-    amount = (amount * batchFee) / 10000;
+    amount = (amount * batchFee) / tenThousand;
     // Check if the payer has enough funds to pay batch fee
     require(requestedToken.balanceOf(msg.sender) >= amount, 'not enough funds for the batch fee');
 
@@ -222,59 +225,59 @@ contract BatchPaymentsPublic is Ownable {
     // Create a list of unique tokens used and the amounts associated
     // Only considere tokens having: amounts + feeAmounts > 0
     // batchFeeAmount is the amount's sum, and then, batch fee rate is applied
-    Token[] memory uTokens = new Token[](_tokenAddresses.length);
+    Token[] memory uniqueTokens = new Token[](_tokenAddresses.length);
     for (uint256 i = 0; i < _tokenAddresses.length; i++) {
       for (uint256 j = 0; j < _tokenAddresses.length; j++) {
-        // If the token is already in the existing uTokens list
-        if (uTokens[j].tokenAddress == _tokenAddresses[i]) {
-          uTokens[j].amountAndFee += _amounts[i] + _feeAmounts[i];
-          uTokens[j].batchFeeAmount += _amounts[i];
+        // If the token is already in the existing uniqueTokens list
+        if (uniqueTokens[j].tokenAddress == _tokenAddresses[i]) {
+          uniqueTokens[j].amountAndFee += _amounts[i] + _feeAmounts[i];
+          uniqueTokens[j].batchFeeAmount += _amounts[i];
           break;
         }
         // If the token is not in the list (amountAndFee = 0), and amount + fee > 0
-        if (uTokens[j].amountAndFee == 0 && (_amounts[i] + _feeAmounts[i]) > 0) {
-          uTokens[j].tokenAddress = _tokenAddresses[i];
-          uTokens[j].amountAndFee = _amounts[i] + _feeAmounts[i];
-          uTokens[j].batchFeeAmount = _amounts[i];
+        if (uniqueTokens[j].amountAndFee == 0 && (_amounts[i] + _feeAmounts[i]) > 0) {
+          uniqueTokens[j].tokenAddress = _tokenAddresses[i];
+          uniqueTokens[j].amountAndFee = _amounts[i] + _feeAmounts[i];
+          uniqueTokens[j].batchFeeAmount = _amounts[i];
           break;
         }
       }
     }
 
     // The payer transfers tokens to the batch contract and pays batch fee
-    for (uint256 i = 0; i < uTokens.length && uTokens[i].amountAndFee > 0; i++) {
-      uTokens[i].batchFeeAmount = (uTokens[i].batchFeeAmount * batchFee) / 10000;
-      IERC20 requestedToken = IERC20(uTokens[i].tokenAddress);
+    for (uint256 i = 0; i < uniqueTokens.length && uniqueTokens[i].amountAndFee > 0; i++) {
+      uniqueTokens[i].batchFeeAmount = (uniqueTokens[i].batchFeeAmount * batchFee) / tenThousand;
+      IERC20 requestedToken = IERC20(uniqueTokens[i].tokenAddress);
 
       require(
         requestedToken.allowance(msg.sender, address(this)) >=
-          uTokens[i].amountAndFee + uTokens[i].batchFeeAmount,
-        'Not sufficient allowance for batch to pay'
+          uniqueTokens[i].amountAndFee + uniqueTokens[i].batchFeeAmount,
+        'Insufficient allowance for batch to pay'
       );
       // check if the payer can pay the amount, the fee, and the batchFee
       require(
         requestedToken.balanceOf(msg.sender) >=
-          uTokens[i].amountAndFee + uTokens[i].batchFeeAmount,
+          uniqueTokens[i].amountAndFee + uniqueTokens[i].batchFeeAmount,
         'not enough funds'
       );
 
       // Transfer only the amount and fee required for the token on the batch contract
       require(
-        safeTransferFrom(uTokens[i].tokenAddress, address(this), uTokens[i].amountAndFee),
+        safeTransferFrom(uniqueTokens[i].tokenAddress, address(this), uniqueTokens[i].amountAndFee),
         'payment transferFrom() failed'
       );
 
       // Batch contract approves Erc20FeeProxy to spend the token
       if (
         requestedToken.allowance(address(this), address(paymentErc20Proxy)) <
-        uTokens[i].amountAndFee
+        uniqueTokens[i].amountAndFee
       ) {
         approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20Proxy));
       }
 
       // Payer pays batch fee amount
       require(
-        safeTransferFrom(uTokens[i].tokenAddress, _feeAddress, uTokens[i].batchFeeAmount),
+        safeTransferFrom(uniqueTokens[i].tokenAddress, _feeAddress, uniqueTokens[i].batchFeeAmount),
         'batch fee transferFrom() failed'
       );
     }
