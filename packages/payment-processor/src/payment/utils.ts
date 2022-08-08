@@ -30,7 +30,7 @@ export function getProvider(): providers.Web3Provider {
 
 /**
  * Utility to get a network provider, depending on the request's currency network.
- * Will throw an error if the network isn't mainnet or rinkeby
+ * Will throw an error if the network isn't mainnet, rinkeby, or goerli
  *
  * @param request
  */
