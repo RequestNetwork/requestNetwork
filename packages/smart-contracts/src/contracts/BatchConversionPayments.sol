@@ -38,7 +38,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    *               it includes fee proxy but NOT the batchConversionFee
    *   _maxRateTimespan Max acceptable times span for conversion rates, ignored if zero
    */
-  struct RequestInfo {
+  struct ConversionDetail {
     address recipient;
     uint256 requestAmount;
     address[] path;
@@ -51,7 +51,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   /**
    * @dev BatchPaymentsPublic contract input structure.
    */
-  struct RequestsInfoParent {
+  struct CryptoDetails {
     address[] tokenAddresses;
     address[] recipients;
     uint256[] amounts;
@@ -62,13 +62,13 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   /**
    * @dev Used by the batchRouter to handle information for heterogeneous batches, grouped by payment network.
    *  - paymentNetworkId: from 0 to 4, cf. `batchRouter()` method.
-   *  - requestsInfo all the data required for conversion requests to be paid, for paymentNetworkId = 0 or 3
-   *  - requestsInfoParent all the data required to pay requests without conversion, for paymentNetworkId = 1, 2, or 4
+   *  - conversionDetails all the data required for conversion requests to be paid, for paymentNetworkId = 0 or 3
+   *  - cryptoDetails all the data required to pay requests without conversion, for paymentNetworkId = 1, 2, or 4
    */
-  struct MetaRequestsInfo {
+  struct MetaDetail {
     uint256 paymentNetworkId;
-    RequestInfo[] requestsInfo;
-    RequestsInfoParent requestsInfoParent;
+    ConversionDetail[] conversionDetails;
+    CryptoDetails cryptoDetails;
   }
 
   /**
@@ -98,7 +98,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
 
   /**
    * @notice Batch payments on different payment networks at once.
-   * @param metaRequestsInfos contains paymentNetworkId and requestsInfo
+   * @param metaDetails contains paymentNetworkId and conversionDetails
    * - batchERC20ConversionPaymentsMultiTokens, paymentNetworkId=0
    * - batchERC20PaymentsWithReference, paymentNetworkId=1
    * - batchERC20PaymentsMultiTokensWithReference, paymentNetworkId=2
@@ -108,44 +108,44 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    * @dev batchRouter only reduces gas consumption when using more than a single payment network.
    *      For single payment network payments, it is more efficient to use the suited batch function.
    */
-  function batchRouter(MetaRequestsInfo[] calldata metaRequestsInfos, address _feeAddress)
-    external
-    payable
-  {
-    require(metaRequestsInfos.length < 4, 'more than 4 requestsinfo');
-    for (uint256 i = 0; i < metaRequestsInfos.length; i++) {
-      MetaRequestsInfo calldata metaRequestsInfo = metaRequestsInfos[i];
-      if (metaRequestsInfo.paymentNetworkId == 0) {
-        batchERC20ConversionPaymentsMultiTokens(metaRequestsInfo.requestsInfo, _feeAddress);
-      } else if (metaRequestsInfo.paymentNetworkId == 1) {
+  function batchRouter(MetaDetail[] calldata metaDetails, address _feeAddress) external payable {
+    require(metaDetails.length < 4, 'more than 4 conversionDetails');
+    for (uint256 i = 0; i < metaDetails.length; i++) {
+      MetaDetail calldata metaConversionDetail = metaDetails[i];
+      if (metaConversionDetail.paymentNetworkId == 0) {
+        batchERC20ConversionPaymentsMultiTokens(
+          metaConversionDetail.conversionDetails,
+          _feeAddress
+        );
+      } else if (metaConversionDetail.paymentNetworkId == 1) {
         batchERC20PaymentsWithReference(
-          metaRequestsInfo.requestsInfoParent.tokenAddresses[0],
-          metaRequestsInfo.requestsInfoParent.recipients,
-          metaRequestsInfo.requestsInfoParent.amounts,
-          metaRequestsInfo.requestsInfoParent.paymentReferences,
-          metaRequestsInfo.requestsInfoParent.feeAmounts,
+          metaConversionDetail.cryptoDetails.tokenAddresses[0],
+          metaConversionDetail.cryptoDetails.recipients,
+          metaConversionDetail.cryptoDetails.amounts,
+          metaConversionDetail.cryptoDetails.paymentReferences,
+          metaConversionDetail.cryptoDetails.feeAmounts,
           _feeAddress
         );
-      } else if (metaRequestsInfo.paymentNetworkId == 2) {
+      } else if (metaConversionDetail.paymentNetworkId == 2) {
         batchERC20PaymentsMultiTokensWithReference(
-          metaRequestsInfo.requestsInfoParent.tokenAddresses,
-          metaRequestsInfo.requestsInfoParent.recipients,
-          metaRequestsInfo.requestsInfoParent.amounts,
-          metaRequestsInfo.requestsInfoParent.paymentReferences,
-          metaRequestsInfo.requestsInfoParent.feeAmounts,
+          metaConversionDetail.cryptoDetails.tokenAddresses,
+          metaConversionDetail.cryptoDetails.recipients,
+          metaConversionDetail.cryptoDetails.amounts,
+          metaConversionDetail.cryptoDetails.paymentReferences,
+          metaConversionDetail.cryptoDetails.feeAmounts,
           _feeAddress
         );
-      } else if (metaRequestsInfo.paymentNetworkId == 3) {
+      } else if (metaConversionDetail.paymentNetworkId == 3) {
         batchEthConversionPaymentsWithReference(
-          metaRequestsInfo.requestsInfo,
+          metaConversionDetail.conversionDetails,
           payable(_feeAddress)
         );
-      } else if (metaRequestsInfo.paymentNetworkId == 4) {
+      } else if (metaConversionDetail.paymentNetworkId == 4) {
         batchEthPaymentsWithReference(
-          metaRequestsInfo.requestsInfoParent.recipients,
-          metaRequestsInfo.requestsInfoParent.amounts,
-          metaRequestsInfo.requestsInfoParent.paymentReferences,
-          metaRequestsInfo.requestsInfoParent.feeAmounts,
+          metaConversionDetail.cryptoDetails.recipients,
+          metaConversionDetail.cryptoDetails.amounts,
+          metaConversionDetail.cryptoDetails.paymentReferences,
+          metaConversionDetail.cryptoDetails.feeAmounts,
           payable(_feeAddress)
         );
       } else {
@@ -155,28 +155,31 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @notice Makes a batch of transfers for multiple ERC20 tokens, with amounts based on a request currency (e.g. fiat) and with a reference per payment.
-   * @param requestsInfo list of requestInfo, each one containing all the information of a request
+   * @notice Makes a batch of transfers for multiple ERC20 tokens, with amounts based on a request
+   * currency (e.g. fiat) and with a reference per payment.
+   * @param conversionDetails list of requestInfo, each one containing all the information of a request
    * @param _feeAddress The fee recipient
    */
   function batchERC20ConversionPaymentsMultiTokens(
-    RequestInfo[] calldata requestsInfo,
+    ConversionDetail[] calldata conversionDetails,
     address _feeAddress
   ) public {
     // a list of unique tokens, with the sum of maxToSpend by token
-    Token[] memory uTokens = new Token[](requestsInfo.length);
-    for (uint256 i = 0; i < requestsInfo.length; i++) {
-      for (uint256 k = 0; k < requestsInfo.length; k++) {
+    Token[] memory uTokens = new Token[](conversionDetails.length);
+    for (uint256 i = 0; i < conversionDetails.length; i++) {
+      for (uint256 k = 0; k < conversionDetails.length; k++) {
         // If the token is already in the existing uTokens list
-        if (uTokens[k].tokenAddress == requestsInfo[i].path[requestsInfo[i].path.length - 1]) {
-          uTokens[k].amountAndFee += requestsInfo[i].maxToSpend;
+        if (
+          uTokens[k].tokenAddress == conversionDetails[i].path[conversionDetails[i].path.length - 1]
+        ) {
+          uTokens[k].amountAndFee += conversionDetails[i].maxToSpend;
           break;
         }
         // If the token is not in the list (amountAndFee = 0)
-        else if (uTokens[k].amountAndFee == 0 && (requestsInfo[i].maxToSpend) > 0) {
-          uTokens[k].tokenAddress = requestsInfo[i].path[requestsInfo[i].path.length - 1];
+        else if (uTokens[k].amountAndFee == 0 && (conversionDetails[i].maxToSpend) > 0) {
+          uTokens[k].tokenAddress = conversionDetails[i].path[conversionDetails[i].path.length - 1];
           // amountAndFee is used to store _maxToSpend, useful to send enough tokens to this contract
-          uTokens[k].amountAndFee = requestsInfo[i].maxToSpend;
+          uTokens[k].amountAndFee = conversionDetails[i].maxToSpend;
           break;
         }
       }
@@ -213,16 +216,17 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     }
 
     // Batch pays the requests using Erc20ConversionFeeProxy
-    for (uint256 i = 0; i < requestsInfo.length; i++) {
+    for (uint256 i = 0; i < conversionDetails.length; i++) {
+      ConversionDetail memory rI = conversionDetails[i];
       paymentErc20ConversionProxy.transferFromWithReferenceAndFee(
-        requestsInfo[i].recipient,
-        requestsInfo[i].requestAmount,
-        requestsInfo[i].path,
-        requestsInfo[i].paymentReference,
-        requestsInfo[i].feeAmount,
+        rI.recipient,
+        rI.requestAmount,
+        rI.path,
+        rI.paymentReference,
+        rI.feeAmount,
         _feeAddress,
-        requestsInfo[i].maxToSpend,
-        requestsInfo[i].maxRateTimespan
+        rI.maxToSpend,
+        rI.maxRateTimespan
       );
     }
 
@@ -252,7 +256,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   /**
    * @notice Send a batch of ETH conversion payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch is reverted.
-   * @param requestsInfo List of requestInfos, each one containing all the information of a request.
+   * @param conversionDetails List of requestInfos, each one containing all the information of a request.
    *                     _maxToSpend is not used in this function.
    * @param _feeAddress The fee recipient.
    * @dev It uses EthereumConversionProxy to pay an invoice and fees.
@@ -262,22 +266,22 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    *        This choice reduces the gas significantly, by delegating the whole conversion to the payment proxy.
    */
   function batchEthConversionPaymentsWithReference(
-    RequestInfo[] calldata requestsInfo,
+    ConversionDetail[] calldata conversionDetails,
     address payable _feeAddress
   ) public payable {
     uint256 contractBalance = address(this).balance;
     payerAuthorized = true;
 
     // Batch contract pays the requests through EthConversionProxy
-    for (uint256 i = 0; i < requestsInfo.length; i++) {
+    for (uint256 i = 0; i < conversionDetails.length; i++) {
       paymentEthConversionProxy.transferWithReferenceAndFee{value: address(this).balance}(
-        payable(requestsInfo[i].recipient),
-        requestsInfo[i].requestAmount,
-        requestsInfo[i].path,
-        requestsInfo[i].paymentReference,
-        requestsInfo[i].feeAmount,
+        payable(conversionDetails[i].recipient),
+        conversionDetails[i].requestAmount,
+        conversionDetails[i].path,
+        conversionDetails[i].paymentReference,
+        conversionDetails[i].feeAmount,
         _feeAddress,
-        requestsInfo[i].maxRateTimespan
+        conversionDetails[i].maxRateTimespan
       );
     }
 

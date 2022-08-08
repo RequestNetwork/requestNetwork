@@ -256,8 +256,7 @@ contract BatchPaymentsPublic is Ownable {
       );
       // check if the payer can pay the amount, the fee, and the batchFee
       require(
-        requestedToken.balanceOf(msg.sender) >=
-          uTokens[i].amountAndFee + uTokens[i].batchFeeAmount,
+        requestedToken.balanceOf(msg.sender) >= uTokens[i].amountAndFee + uTokens[i].batchFeeAmount,
         'not enough funds'
       );
 

@@ -24,11 +24,6 @@
         },
         {
           "internalType": "address",
-          "name": "_chainlinkConversionPathAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
           "name": "_owner",
           "type": "address"
         }
@@ -108,8 +103,8 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct BatchConversionPayments.RequestInfo[]",
-          "name": "requestsInfo",
+          "internalType": "struct BatchConversionPayments.ConversionDetail[]",
+          "name": "conversionDetails",
           "type": "tuple[]"
         },
         {
@@ -239,8 +234,8 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct BatchConversionPayments.RequestInfo[]",
-          "name": "requestsInfo",
+          "internalType": "struct BatchConversionPayments.ConversionDetail[]",
+          "name": "conversionDetails",
           "type": "tuple[]"
         },
         {
@@ -347,8 +342,8 @@
                   "type": "uint256"
                 }
               ],
-              "internalType": "struct BatchConversionPayments.RequestInfo[]",
-              "name": "requestsInfo",
+              "internalType": "struct BatchConversionPayments.ConversionDetail[]",
+              "name": "conversionDetails",
               "type": "tuple[]"
             },
             {
@@ -379,13 +374,13 @@
                   "type": "uint256[]"
                 }
               ],
-              "internalType": "struct BatchConversionPayments.RequestsInfoParent",
-              "name": "requestsInfoParent",
+              "internalType": "struct BatchConversionPayments.CryptoDetails",
+              "name": "cryptoDetails",
               "type": "tuple"
             }
           ],
-          "internalType": "struct BatchConversionPayments.MetaRequestsInfo[]",
-          "name": "metaRequestsInfos",
+          "internalType": "struct BatchConversionPayments.MetaDetail[]",
+          "name": "metaDetails",
           "type": "tuple[]"
         },
         {
@@ -397,19 +392,6 @@
       "name": "batchRouter",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "chainlinkConversionPath",
-      "outputs": [
-        {
-          "internalType": "contract ChainlinkConversionPath",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -480,19 +462,6 @@
         }
       ],
       "name": "setBatchFee",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_chainlinkConversionPathAddress",
-          "type": "address"
-        }
-      ],
-      "name": "setConversionPathAddress",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
