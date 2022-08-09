@@ -350,7 +350,7 @@ export function comparePnTypeAndVersion(
 /**
  * Revoke ERC20 approval of a token for a given `spenderAddress`
  */
-export async function resetApproveErc20Utils(
+export async function revokeErc20Approval(
   spenderAddress: string,
   paymentTokenAddress: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),

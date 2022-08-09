@@ -7,7 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestErc20ApprovalIfNeeded } from '../../src';
-import { getProxyAddress, resetApproveErc20Utils } from '../../src/payment/utils';
+import { getProxyAddress, revokeErc20Approval } from '../../src/payment/utils';
 import { AnyToERC20PaymentDetector, Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { currencyManager } from './shared';
 import { IPreparedTransaction } from 'payment-processor/dist/payment/prepared-transaction';
@@ -232,29 +232,29 @@ beforeAll(async () => {
     baseValidRequest,
     Erc20PaymentNetwork.ERC20ProxyPaymentDetector.getDeploymentInformation,
   );
-  await resetApproveErc20Utils(proxyERC20, erc20ContractAddress, wallet);
+  await revokeErc20Approval(proxyERC20, erc20ContractAddress, wallet);
 
   proxyERC20Fee = getProxyAddress(
     validRequestERC20FeeProxy,
     Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getDeploymentInformation,
   );
-  await resetApproveErc20Utils(proxyERC20Fee, erc20ContractAddress, wallet);
+  await revokeErc20Approval(proxyERC20Fee, erc20ContractAddress, wallet);
 
   proxyERC20Conv = getProxyAddress(
     validRequestERC20ConversionProxy,
     AnyToERC20PaymentDetector.getDeploymentInformation,
   );
-  await resetApproveErc20Utils(proxyERC20Conv, alphaContractAddress, wallet);
+  await revokeErc20Approval(proxyERC20Conv, alphaContractAddress, wallet);
 
   proxyERC20Swap = erc20SwapToPayArtifact.getAddress(
     validRequestERC20FeeProxy.currencyInfo.network!,
   );
-  await resetApproveErc20Utils(proxyERC20Swap, alphaContractAddress, wallet);
+  await revokeErc20Approval(proxyERC20Swap, alphaContractAddress, wallet);
 
   proxyERC20SwapConv = erc20SwapConversionArtifact.getAddress(
     validRequestERC20FeeProxy.currencyInfo.network!,
   );
-  await resetApproveErc20Utils(proxyERC20SwapConv, alphaContractAddress, wallet);
+  await revokeErc20Approval(proxyERC20SwapConv, alphaContractAddress, wallet);
 });
 
 describe('Approval encoder handles ERC20 Proxy', () => {
