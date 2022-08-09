@@ -16,7 +16,7 @@ import './interfaces/EthereumFeeProxy.sol';
  *                  An additional batch fee is paid to the same address.
  *         If one transaction of the batch fail, every transactions are reverted.
  * @dev It is a clone of BatchPayment.sol, with three main modifications:
- *         - function "receive" is not implemented
+ *         - function "receive" has one other condition: payerAuthorized
  *         - fees are now divided by 10_000 instead of 1_000 in previous version
  *         - batch payment functions are now public, instead of external
  */
@@ -27,6 +27,11 @@ contract BatchPaymentsPublic is Ownable {
   IEthereumFeeProxy public paymentEthProxy;
 
   uint256 public batchFee;
+  /** Used to to calcul batch fees */
+  uint256 internal tenThousand = 10000;
+
+  // payerAuthorized is set to true only when needed for batch Eth conversion
+  bool internal payerAuthorized;
 
   struct Token {
     address tokenAddress;
@@ -51,14 +56,22 @@ contract BatchPaymentsPublic is Ownable {
   }
 
   /**
-   * @notice Send a batch of Eth payments w/fees with paymentReferences to multiple accounts.
-   *         If one payment failed, the whole batch is reverted
-   * @param _recipients List of recipients accounts.
-   * @param _amounts List of amounts, corresponding to recipients[].
-   * @param _paymentReferences List of paymentRefs, corr. to the recipients[].
-   * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
+   * This contract is non-payable. Making an ETH payment with conversion requires the contract to accept incoming ETH.
+   * See the end of `paymentEthConversionProxy.transferWithReferenceAndFee` where the leftover is given back.
+   */
+  receive() external payable {
+    require(payerAuthorized || msg.value == 0, 'Non-payable');
+  }
+
+  /**
+   * @notice Send a batch of ETH (or EVM native token) payments with fees and paymentReferences to multiple accounts.
+   *         If one payment fails, the whole batch reverts.
+   * @param _recipients List of recipient accounts.
+   * @param _amounts List of amounts, matching recipients[].
+   * @param _paymentReferences List of paymentRefs, matching recipients[].
+   * @param _feeAmounts List fee amounts, matching recipients[].
    * @param _feeAddress The fee recipient.
-   * @dev It uses EthereumFeeProxy to pay an invoice and fees, with a payment reference.
+   * @dev It uses EthereumFeeProxy to pay an invoice and fees with a payment reference.
    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
    */
   function batchEthPaymentsWithReference(
@@ -92,7 +105,7 @@ contract BatchPaymentsPublic is Ownable {
     }
 
     // amount is updated into batch fee amount
-    amount = (amount * batchFee) / 10000;
+    amount = (amount * batchFee) / tenThousand;
     // Check that batch contract has enough funds to pay batch fee
     require(address(this).balance >= amount, 'not enough funds for batch fee');
     // Batch pays batch fee
@@ -106,16 +119,16 @@ contract BatchPaymentsPublic is Ownable {
   }
 
   /**
-   * @notice Send a batch of erc20 payments w/fees with paymentReferences to multiple accounts.
-   * @param _tokenAddress Token to transact with.
-   * @param _recipients List of recipients accounts.
-   * @param _amounts List of amounts, corresponding to recipients[].
-   * @param _paymentReferences List of paymentRefs, corr. to the recipients[] and .
-   * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
+   * @notice Send a batch of ERC20 payments with fees and paymentReferences to multiple accounts.
+   * @param _tokenAddress Token used for all the payments.
+   * @param _recipients List of recipient accounts.
+   * @param _amounts List of amounts, matching recipients[].
+   * @param _paymentReferences List of paymentRefs, matching recipients[].
+   * @param _feeAmounts List of payment fee amounts, matching recipients[].
    * @param _feeAddress The fee recipient.
    * @dev Uses ERC20FeeProxy to pay an invoice and fees, with a payment reference.
-   *      Make sure the contract has allowance to spend the payer token.
-   *      Make sure the payer has enough tokens to pay the amount, the fee, the batch fee
+   *      Make sure this contract has enough allowance to spend the payer's token.
+   *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
    */
   function batchERC20PaymentsWithReference(
     address _tokenAddress,
@@ -142,7 +155,7 @@ contract BatchPaymentsPublic is Ownable {
     IERC20 requestedToken = IERC20(_tokenAddress);
     require(
       requestedToken.allowance(msg.sender, address(this)) >= amount,
-      'Not sufficient allowance for batch to pay'
+      'Insufficient allowance for batch to pay'
     );
     require(requestedToken.balanceOf(msg.sender) >= amount, 'not enough funds');
     require(
@@ -170,7 +183,7 @@ contract BatchPaymentsPublic is Ownable {
     }
 
     // amount is updated into batch fee amount
-    amount = (amount * batchFee) / 10000;
+    amount = (amount * batchFee) / tenThousand;
     // Check if the payer has enough funds to pay batch fee
     require(requestedToken.balanceOf(msg.sender) >= amount, 'not enough funds for the batch fee');
 
@@ -182,16 +195,16 @@ contract BatchPaymentsPublic is Ownable {
   }
 
   /**
-   * @notice Send a batch of erc20 payments on multiple tokens w/fees with paymentReferences to multiple accounts.
+   * @notice Send a batch of ERC20 payments with fees and paymentReferences to multiple accounts, with multiple tokens.
    * @param _tokenAddresses List of tokens to transact with.
-   * @param _recipients List of recipients accounts.
-   * @param _amounts List of amounts, corresponding to recipients[].
-   * @param _paymentReferences List of paymentRefs, corr. to the recipients[].
-   * @param _feeAmounts List of amounts of the payment fee, corr. to the recipients[].
+   * @param _recipients List of recipient accounts.
+   * @param _amounts List of amounts, matching recipients[].
+   * @param _paymentReferences List of paymentRefs, matching recipients[].
+   * @param _feeAmounts List of amounts of the payment fee, matching recipients[].
    * @param _feeAddress The fee recipient.
    * @dev It uses ERC20FeeProxy to pay an invoice and fees, with a payment reference.
-   *      Make sure the contract has allowance to spend the payer token.
-   *      Make sure the payer has enough tokens to pay the amount, the fee, the batch fee
+   *      Make sure this contract has enough allowance to spend the payer's token.
+   *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
    */
   function batchERC20PaymentsMultiTokensWithReference(
     address[] calldata _tokenAddresses,
@@ -212,59 +225,58 @@ contract BatchPaymentsPublic is Ownable {
     // Create a list of unique tokens used and the amounts associated
     // Only considere tokens having: amounts + feeAmounts > 0
     // batchFeeAmount is the amount's sum, and then, batch fee rate is applied
-    Token[] memory uniqueTokens = new Token[](_tokenAddresses.length);
+    Token[] memory uTokens = new Token[](_tokenAddresses.length);
     for (uint256 i = 0; i < _tokenAddresses.length; i++) {
       for (uint256 j = 0; j < _tokenAddresses.length; j++) {
-        // If the token is already in the existing uniqueTokens list
-        if (uniqueTokens[j].tokenAddress == _tokenAddresses[i]) {
-          uniqueTokens[j].amountAndFee += _amounts[i] + _feeAmounts[i];
-          uniqueTokens[j].batchFeeAmount += _amounts[i];
+        // If the token is already in the existing uTokens list
+        if (uTokens[j].tokenAddress == _tokenAddresses[i]) {
+          uTokens[j].amountAndFee += _amounts[i] + _feeAmounts[i];
+          uTokens[j].batchFeeAmount += _amounts[i];
           break;
         }
         // If the token is not in the list (amountAndFee = 0), and amount + fee > 0
-        if (uniqueTokens[j].amountAndFee == 0 && (_amounts[i] + _feeAmounts[i]) > 0) {
-          uniqueTokens[j].tokenAddress = _tokenAddresses[i];
-          uniqueTokens[j].amountAndFee = _amounts[i] + _feeAmounts[i];
-          uniqueTokens[j].batchFeeAmount = _amounts[i];
+        if (uTokens[j].amountAndFee == 0 && (_amounts[i] + _feeAmounts[i]) > 0) {
+          uTokens[j].tokenAddress = _tokenAddresses[i];
+          uTokens[j].amountAndFee = _amounts[i] + _feeAmounts[i];
+          uTokens[j].batchFeeAmount = _amounts[i];
           break;
         }
       }
     }
 
     // The payer transfers tokens to the batch contract and pays batch fee
-    for (uint256 i = 0; i < uniqueTokens.length && uniqueTokens[i].amountAndFee > 0; i++) {
-      uniqueTokens[i].batchFeeAmount = (uniqueTokens[i].batchFeeAmount * batchFee) / 10000;
-      IERC20 requestedToken = IERC20(uniqueTokens[i].tokenAddress);
+    for (uint256 i = 0; i < uTokens.length && uTokens[i].amountAndFee > 0; i++) {
+      uTokens[i].batchFeeAmount = (uTokens[i].batchFeeAmount * batchFee) / tenThousand;
+      IERC20 requestedToken = IERC20(uTokens[i].tokenAddress);
 
       require(
         requestedToken.allowance(msg.sender, address(this)) >=
-          uniqueTokens[i].amountAndFee + uniqueTokens[i].batchFeeAmount,
-        'Not sufficient allowance for batch to pay'
+          uTokens[i].amountAndFee + uTokens[i].batchFeeAmount,
+        'Insufficient allowance for batch to pay'
       );
       // check if the payer can pay the amount, the fee, and the batchFee
       require(
-        requestedToken.balanceOf(msg.sender) >=
-          uniqueTokens[i].amountAndFee + uniqueTokens[i].batchFeeAmount,
+        requestedToken.balanceOf(msg.sender) >= uTokens[i].amountAndFee + uTokens[i].batchFeeAmount,
         'not enough funds'
       );
 
       // Transfer only the amount and fee required for the token on the batch contract
       require(
-        safeTransferFrom(uniqueTokens[i].tokenAddress, address(this), uniqueTokens[i].amountAndFee),
+        safeTransferFrom(uTokens[i].tokenAddress, address(this), uTokens[i].amountAndFee),
         'payment transferFrom() failed'
       );
 
       // Batch contract approves Erc20FeeProxy to spend the token
       if (
         requestedToken.allowance(address(this), address(paymentErc20Proxy)) <
-        uniqueTokens[i].amountAndFee
+        uTokens[i].amountAndFee
       ) {
         approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20Proxy));
       }
 
       // Payer pays batch fee amount
       require(
-        safeTransferFrom(uniqueTokens[i].tokenAddress, _feeAddress, uniqueTokens[i].batchFeeAmount),
+        safeTransferFrom(uTokens[i].tokenAddress, _feeAddress, uTokens[i].batchFeeAmount),
         'batch fee transferFrom() failed'
       );
     }
