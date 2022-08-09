@@ -7,7 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestErc20ApprovalIfNeeded } from '../../src';
-import { getProxyAddress } from '../../src/payment/utils';
+import { getProxyAddress, revokeErc20Approval } from '../../src/payment/utils';
 import { AnyToERC20PaymentDetector, Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { currencyManager } from './shared';
 import { IPreparedTransaction } from 'payment-processor/dist/payment/prepared-transaction';
@@ -54,6 +54,12 @@ const erc20ApprovalData = (proxy: string) => {
     .slice(2)
     .toLowerCase()}ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`;
 };
+
+let proxyERC20: string;
+let proxyERC20Fee: string;
+let proxyERC20Conv: string;
+let proxyERC20Swap: string;
+let proxyERC20SwapConv: string;
 
 const baseValidRequest: ClientTypes.IRequestData = {
   balance: {
@@ -215,11 +221,40 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
 beforeAll(async () => {
   const mainAddress = wallet.address;
   wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
-  wallet.sendTransaction({
+  await wallet.sendTransaction({
     to: mainAddress,
     value: BigNumber.from('1000000000000000000'),
   });
   wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
+
+  // reset approvals
+  proxyERC20 = getProxyAddress(
+    baseValidRequest,
+    Erc20PaymentNetwork.ERC20ProxyPaymentDetector.getDeploymentInformation,
+  );
+  await revokeErc20Approval(proxyERC20, erc20ContractAddress, wallet);
+
+  proxyERC20Fee = getProxyAddress(
+    validRequestERC20FeeProxy,
+    Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getDeploymentInformation,
+  );
+  await revokeErc20Approval(proxyERC20Fee, erc20ContractAddress, wallet);
+
+  proxyERC20Conv = getProxyAddress(
+    validRequestERC20ConversionProxy,
+    AnyToERC20PaymentDetector.getDeploymentInformation,
+  );
+  await revokeErc20Approval(proxyERC20Conv, alphaContractAddress, wallet);
+
+  proxyERC20Swap = erc20SwapToPayArtifact.getAddress(
+    validRequestERC20FeeProxy.currencyInfo.network!,
+  );
+  await revokeErc20Approval(proxyERC20Swap, alphaContractAddress, wallet);
+
+  proxyERC20SwapConv = erc20SwapConversionArtifact.getAddress(
+    validRequestERC20FeeProxy.currencyInfo.network!,
+  );
+  await revokeErc20Approval(proxyERC20SwapConv, alphaContractAddress, wallet);
 });
 
 describe('Approval encoder handles ERC20 Proxy', () => {
@@ -230,13 +265,8 @@ describe('Approval encoder handles ERC20 Proxy', () => {
       wallet.address,
     );
 
-    const proxyAddress = getProxyAddress(
-      baseValidRequest,
-      Erc20PaymentNetwork.ERC20ProxyPaymentDetector.getDeploymentInformation,
-    );
-
     expect(approvalTransaction).toEqual({
-      data: erc20ApprovalData(proxyAddress),
+      data: erc20ApprovalData(proxyERC20),
       to: erc20ContractAddress,
       value: 0,
     });
@@ -267,13 +297,8 @@ describe('Approval encoder handles ERC20 Fee Proxy', () => {
       wallet.address,
     );
 
-    const proxyAddress = getProxyAddress(
-      validRequestERC20FeeProxy,
-      Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector.getDeploymentInformation,
-    );
-
     expect(approvalTransaction).toEqual({
-      data: erc20ApprovalData(proxyAddress),
+      data: erc20ApprovalData(proxyERC20Fee),
       to: erc20ContractAddress,
       value: 0,
     });
@@ -306,13 +331,8 @@ describe('Approval encoder handles ERC20 Conversion Proxy', () => {
       },
     );
 
-    const proxyAddress = getProxyAddress(
-      validRequestERC20ConversionProxy,
-      AnyToERC20PaymentDetector.getDeploymentInformation,
-    );
-
     expect(approvalTransaction).toEqual({
-      data: erc20ApprovalData(proxyAddress),
+      data: erc20ApprovalData(proxyERC20Conv),
       to: alphaContractAddress,
       value: 0,
     });
@@ -362,12 +382,8 @@ describe('Approval encoder handles ERC20 Swap Proxy', () => {
       },
     );
 
-    const proxyAddress = erc20SwapToPayArtifact.getAddress(
-      validRequestERC20FeeProxy.currencyInfo.network!,
-    );
-
     expect(approvalTransaction).toEqual({
-      data: erc20ApprovalData(proxyAddress),
+      data: erc20ApprovalData(proxyERC20Swap),
       to: alphaContractAddress,
       value: 0,
     });
@@ -408,12 +424,8 @@ describe('Approval encoder handles ERC20 Swap & Conversion Proxy', () => {
       },
     );
 
-    const proxyAddress = erc20SwapConversionArtifact.getAddress(
-      validRequestERC20FeeProxy.currencyInfo.network!,
-    );
-
     expect(approvalTransaction).toEqual({
-      data: erc20ApprovalData(proxyAddress),
+      data: erc20ApprovalData(proxyERC20SwapConv),
       to: erc20ContractAddress,
       value: 0,
     });
