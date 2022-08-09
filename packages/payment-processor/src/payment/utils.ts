@@ -348,7 +348,7 @@ export function comparePnTypeAndVersion(
 }
 
 /**
- * set approval to 0 of a token from a user (as wallet address provider)
+ * Revoke ERC20 approval of a token for a given `spenderAddress`
  */
 export async function resetApproveErc20Utils(
   spenderAddress: string,
