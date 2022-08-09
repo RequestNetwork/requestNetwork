@@ -85,20 +85,14 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     address _paymentEthConversionFeeProxy,
     address _owner
   ) BatchPaymentsPublic(_paymentErc20Proxy, _paymentEthProxy, _owner) {
-    paymentErc20Proxy = IERC20FeeProxy(_paymentErc20Proxy);
-    paymentEthProxy = IEthereumFeeProxy(_paymentEthProxy);
-
     paymentErc20ConversionProxy = IERC20ConversionProxy(_paymentErc20ConversionProxy);
     paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionFeeProxy);
-    transferOwnership(_owner);
-
-    batchFee = 0;
     batchConversionFee = 0;
   }
 
   /**
    * @notice Batch payments on different payment networks at once.
-   * @param metaDetails contains paymentNetworkId and conversionDetails
+   * @param metaDetails contains paymentNetworkId, conversionDetails, and cryptoDetails
    * - batchERC20ConversionPaymentsMultiTokens, paymentNetworkId=0
    * - batchERC20PaymentsWithReference, paymentNetworkId=1
    * - batchERC20PaymentsMultiTokensWithReference, paymentNetworkId=2

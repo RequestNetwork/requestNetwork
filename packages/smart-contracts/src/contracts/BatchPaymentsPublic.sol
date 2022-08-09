@@ -16,7 +16,7 @@ import './interfaces/EthereumFeeProxy.sol';
  *                  An additional batch fee is paid to the same address.
  *         If one transaction of the batch fail, every transactions are reverted.
  * @dev It is a clone of BatchPayment.sol, with three main modifications:
- *         - function "receive" is not implemented
+ *         - function "receive" has one other condition: payerAuthorized
  *         - fees are now divided by 10_000 instead of 1_000 in previous version
  *         - batch payment functions are now public, instead of external
  */
