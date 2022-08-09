@@ -57,7 +57,7 @@ contract BatchPaymentsPublic is Ownable {
 
   /**
    * This contract is non-payable. Making an ETH payment with conversion requires the contract to accept incoming ETH.
-   * See the end of `batchRouter` where the leftover is given back to the transaction sender.
+   * See the end of `paymentEthConversionProxy.transferWithReferenceAndFee` where the leftover is given back.
    */
   receive() external payable {
     require(payerAuthorized || msg.value == 0, 'Non-payable');

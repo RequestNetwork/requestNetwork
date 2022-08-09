@@ -148,34 +148,6 @@ describe('contract: BatchErc20ConversionPayments', () => {
     batchAddress = testBatchConversionProxy.address;
   });
 
-  const batchFeeToPay = (conversionAmountToPay: BigNumber) => {
-    return conversionAmountToPay.mul(batchConvFee).div(10000);
-  };
-
-  /**
-   * @notice it gets the conversions including fees to be paid, and it set the convDetail
-   */
-  const initConvToPayAndConvDetail = async (
-    _recipient: string,
-    _path: string[],
-    _requestAmount: string,
-    _feeAmount: string,
-    _maxRateTimespan: number,
-    _chainlinkPath: ChainlinkConversionPath,
-  ) => {
-    conversionToPay = await _chainlinkPath.getConversion(_requestAmount, _path);
-    conversionFees = await _chainlinkPath.getConversion(_feeAmount, _path);
-    convDetail = {
-      recipient: _recipient,
-      requestAmount: _requestAmount,
-      path: _path,
-      paymentReference: referenceExample,
-      feeAmount: _feeAmount,
-      maxToSpend: conversionToPay.result.add(conversionFees.result).toString(),
-      maxRateTimespan: _maxRateTimespan,
-    };
-  };
-
   beforeEach(async () => {
     fromDiffBalanceExpected = BigNumber.from(0);
     toDiffBalanceExpected = BigNumber.from(0);
@@ -220,6 +192,34 @@ describe('contract: BatchErc20ConversionPayments', () => {
     expect(batchDiffBalance).to.equals('0', 'batchDiffBalance');
   });
 
+  const batchFeeToPay = (conversionAmountToPay: BigNumber) => {
+    return conversionAmountToPay.mul(batchConvFee).div(10000);
+  };
+
+  /**
+   * @notice it gets the conversions including fees to be paid, and it set the convDetail
+   */
+  const initConvToPayAndConvDetail = async (
+    _recipient: string,
+    _path: string[],
+    _requestAmount: string,
+    _feeAmount: string,
+    _maxRateTimespan: number,
+    _chainlinkPath: ChainlinkConversionPath,
+  ) => {
+    conversionToPay = await _chainlinkPath.getConversion(_requestAmount, _path);
+    conversionFees = await _chainlinkPath.getConversion(_feeAmount, _path);
+    convDetail = {
+      recipient: _recipient,
+      requestAmount: _requestAmount,
+      path: _path,
+      paymentReference: referenceExample,
+      feeAmount: _feeAmount,
+      maxToSpend: conversionToPay.result.add(conversionFees.result).toString(),
+      maxRateTimespan: _maxRateTimespan,
+    };
+  };
+
   /**
    * @notice Used to calcul the expected new ERC20 balance for batch conversion.
    * It can also be used for batch IF batchFee == batchConvFee
@@ -261,7 +261,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
 
   /**
    * @notice update convDetail, do an ERC20 conv batch payment and calcul the balances
-   * @param path to update the resquestInfo
+   * @param path to update the convDetail
    */
   const transferOneTokenConv = async (path: string[]) => {
     await initConvToPayAndConvDetail(to, path, amountInFiat, feesAmountInFiat, 0, chainlinkPath);
@@ -287,7 +287,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
   /**
    * @notice generate nTimes 2 convDetails, do an ERC20 conv batch payment with theses 2*nTimes requests
    *         and calcul the balances
-   * @param path2 to update the second resquestInfo
+   * @param path2 to update the second convDetail
    */
   const transferTokensConv = async (path2: string[], nTimes: number) => {
     const coef = 2;
@@ -312,9 +312,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
       conversionsToPay = conversionsToPay.concat([conversionToPay, conversionToPay2]);
       conversionsFees = conversionsFees.concat([conversionFees, conversionFees2]);
     }
-    const result = batchConvFunction(argTemplate(convDetails), feeAddress);
-    const tx = await result;
-    await tx.wait(1);
+    const tx = await batchConvFunction(argTemplate(convDetails), feeAddress);
     if (logGas) {
       const receipt = await tx.wait();
       console.log(`${2 * nTimes} req, gas consumption: `, receipt.gasUsed.toString());
@@ -597,7 +595,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
        * @notice it modify the Eth batch inputs if needed, depending of the function used: ethFunction
        * @param inputs a list of convDetail
        */
-      const getInputs = (inputs: Array<ConversionDetail>) => {
+      const getEthInputs = (inputs: Array<ConversionDetail>) => {
         if (ethFunction !== 'batchEthConversionPaymentsWithReference') {
           return [
             {
@@ -613,7 +611,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
       before(() => {
         if (ethFunction === 'batchEthConversionPaymentsWithReference') {
           batchConvFunction = testBatchConversionProxy.batchEthConversionPaymentsWithReference;
-        } else {
+        } else if (ethFunction === 'batchRouter') {
           batchConvFunction = testBatchConversionProxy.batchRouter;
         }
 
@@ -656,7 +654,7 @@ describe('contract: BatchErc20ConversionPayments', () => {
         });
 
         afterEach(async () => {
-          tx = await batchConvFunction(getInputs(inputs), feeAddress, {
+          tx = await batchConvFunction(getEthInputs(inputs), feeAddress, {
             value: BigNumber.from('100000000000000000'),
           });
           const receipt = await tx.wait();
@@ -719,10 +717,67 @@ describe('contract: BatchErc20ConversionPayments', () => {
       });
       it('batchEthConversionPaymentsWithReference transfer FAIL: not enough funds', async function () {
         await expect(
-          batchConvFunction(getInputs([convDetail]), feeAddress, {
+          batchConvFunction(getEthInputs([convDetail]), feeAddress, {
             value: 10000,
           }),
         ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed');
+      });
+
+      describe(`Eth BatchPaymentPublic functions: ${
+        ethFunction === 'batchRouter' ?? ''
+      } batchEthPaymentsWithReference`, () => {
+        it('transfer 1 payment', async function () {
+          beforeEthBalanceTo = await provider.getBalance(to);
+          beforeEthBalanceFee = await provider.getBalance(feeAddress);
+          beforeEthBalance = await provider.getBalance(await signer.getAddress());
+
+          const cryptoDetails = {
+            tokenAddresses: [],
+            recipients: [to],
+            amounts: [amount],
+            paymentReferences: [referenceExample],
+            feeAmounts: [feeAmount],
+          };
+          if (ethFunction === 'batchRouter') {
+            await testBatchConversionProxy.batchRouter(
+              [
+                {
+                  paymentNetworkId: 4,
+                  conversionDetails: [convDetail], // not used
+                  cryptoDetails: cryptoDetails,
+                },
+              ],
+              feeAddress,
+              { value: 1000000000 },
+            );
+          } else if (ethFunction === 'batchEthConversionPaymentsWithReference') {
+            await testBatchConversionProxy.batchEthPaymentsWithReference(
+              cryptoDetails.recipients,
+              cryptoDetails.amounts,
+              cryptoDetails.paymentReferences,
+              cryptoDetails.feeAmounts,
+              feeAddress,
+              { value: 1000000000 },
+            );
+          }
+
+          amountToPayExpected = amount;
+          feeToPayExpected = feeAmount;
+          const afterEthBalanceTo = await provider.getBalance(to);
+          const afterEthBalanceFee = await provider.getBalance(feeAddress);
+          const proxyBalance = await provider.getBalance(testBatchConversionProxy.address);
+          const _diffBalanceTo = afterEthBalanceTo.sub(beforeEthBalanceTo);
+          const _diffBalanceFee = afterEthBalanceFee.sub(beforeEthBalanceFee);
+
+          expect(_diffBalanceTo).to.equals(amountToPayExpected.toString(), 'diffBalanceTo');
+
+          feeToPayExpected = amountToPayExpected.mul(batchFee).div(10000).add(feeToPayExpected);
+          expect(_diffBalanceFee.toString()).to.equals(
+            feeToPayExpected.toString(),
+            'diffBalanceFee',
+          );
+          expect(proxyBalance).to.equals('0', 'proxyBalance');
+        });
       });
     });
   };
