@@ -23,7 +23,7 @@ import Utils from '@requestnetwork/utils';
 // set to true to log batch payments's gas consumption
 const logGas = false;
 
-describe('contract: BatchErc20ConversionPayments', () => {
+describe('contract: BatchConversionPayments', () => {
   let from: string;
   let to: string;
   let feeAddress: string;

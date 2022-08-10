@@ -63,8 +63,9 @@ describe('contract: BatchConversionPayments', () => {
   let tx: ContractTransaction;
   let amountToPayExpected: BigNumber;
   let feeToPayExpected: BigNumber;
-  const amount = BigNumber.from(100000); // usually in USD
-  const feeAmount = amount.mul(10).div(10000); // usually in USD
+  // amount and feeAmount are usually in fiat for conversion inputs, else in ETH
+  const amount = BigNumber.from(100000);
+  const feeAmount = amount.mul(10).div(10000);
   let inputs: Array<ConversionDetail>;
   const pathUsdEth = [USD_hash, ETH_hash];
 
@@ -246,9 +247,9 @@ describe('contract: BatchConversionPayments', () => {
           const cryptoDetails = {
             tokenAddresses: [],
             recipients: [to],
-            amounts: [amount],
+            amounts: [amount], // in ETH
             paymentReferences: [referenceExample],
-            feeAmounts: [feeAmount],
+            feeAmounts: [feeAmount], // in ETH
           };
           if (isBatchRouter) {
             await testBatchConversionProxy.batchRouter(
