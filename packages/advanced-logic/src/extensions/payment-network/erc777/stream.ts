@@ -36,64 +36,174 @@ export default class Erc777StreamPaymentNetwork<
   public createCreationAction(
     creationParameters: TCreationParameters,
   ): ExtensionTypes.IAction<TCreationParameters> {
-    if (!creationParameters.expectedFlowRate) {
-      throw Error('expectedFlowRate should not be empty');
+    /* Master Request Creation */
+    if (
+      !(
+        creationParameters.masterRequestId ||
+        creationParameters.previousRequestId ||
+        creationParameters.recurrenceNumber
+      )
+    ) {
+      if (!creationParameters.expectedFlowRate) {
+        throw Error('expectedFlowRate should not be empty');
+      }
+
+      if (!creationParameters.expectedStartDate) {
+        throw Error('expectedStartDate should not be empty');
+      }
+
+      return super.createCreationAction(
+        creationParameters,
+      ) as ExtensionTypes.IAction<TCreationParameters>;
     }
 
-    if (!creationParameters.expectedStartDate) {
-      throw Error('expectedStartDate should not be empty');
+    /* Subsequent Request Creation */
+    if (
+      creationParameters.masterRequestId &&
+      creationParameters.previousRequestId &&
+      creationParameters.recurrenceNumber
+    ) {
+      if (
+        (creationParameters.masterRequestId === creationParameters.previousRequestId &&
+          creationParameters.recurrenceNumber !== '1') ||
+        (creationParameters.recurrenceNumber === '1' &&
+          creationParameters.masterRequestId !== creationParameters.previousRequestId)
+      ) {
+        throw Error(
+          'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+        );
+      }
+
+      return {
+        action: 'create',
+        id: this.extensionId,
+        parameters: {
+          previousRequestId: creationParameters.previousRequestId,
+          masterRequestId: creationParameters.masterRequestId,
+          recurrenceNumber: creationParameters.recurrenceNumber,
+        },
+        version: this.currentVersion,
+      } as ExtensionTypes.IAction<TCreationParameters>;
     }
 
-    return super.createCreationAction(
-      creationParameters,
-    ) as ExtensionTypes.IAction<TCreationParameters>;
+    throw Error(
+      'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
+    );
   }
 
+  /**
+   * Applies a creation extension action
+   *
+   * @param extensionAction action to apply
+   * @param timestamp ?
+   *
+   * @returns state of the extension created
+   */
   protected applyCreation(
     extensionAction: ExtensionTypes.IAction,
     timestamp: number,
   ): ExtensionTypes.IState {
-    if (!extensionAction.parameters.expectedStartDate) {
-      throw Error('expectedStartDate should not be empty');
-    }
-    if (!extensionAction.parameters.expectedFlowRate) {
-      throw Error('expectedFlowRate should not be empty');
-    }
+    /* Master request Creation */
     if (
-      extensionAction.parameters.expectedStartDate &&
-      !Utils.amount.isValid(extensionAction.parameters.expectedStartDate)
+      !(
+        extensionAction.parameters.masterRequestId ||
+        extensionAction.parameters.previousRequestId ||
+        extensionAction.parameters.recurrenceNumber
+      )
     ) {
-      throw Error('expectedStartDate is not a valid amount');
-    }
-    if (
-      extensionAction.parameters.expectedFlowRate &&
-      !Utils.amount.isValid(extensionAction.parameters.expectedFlowRate)
-    ) {
-      throw Error('expectedFlowRate is not a valid amount');
-    }
+      if (!extensionAction.parameters.expectedStartDate) {
+        throw Error('expectedStartDate should not be empty');
+      }
+      if (!extensionAction.parameters.expectedFlowRate) {
+        throw Error('expectedFlowRate should not be empty');
+      }
+      if (
+        extensionAction.parameters.expectedStartDate &&
+        !Utils.amount.isValid(extensionAction.parameters.expectedStartDate)
+      ) {
+        throw Error('expectedStartDate is not a valid amount');
+      }
+      if (
+        extensionAction.parameters.expectedFlowRate &&
+        !Utils.amount.isValid(extensionAction.parameters.expectedFlowRate)
+      ) {
+        throw Error('expectedFlowRate is not a valid amount');
+      }
+      const proxyPNCreationAction = super.applyCreation(extensionAction, timestamp);
 
-    const proxyPNCreationAction = super.applyCreation(extensionAction, timestamp);
-
-    return {
-      ...proxyPNCreationAction,
-      events: [
-        {
-          name: 'create',
-          parameters: {
-            expectedStartDate: extensionAction.parameters.expectedStartDate,
-            expectedFlowRate: extensionAction.parameters.expectedFlowRate,
-            paymentAddress: extensionAction.parameters.paymentAddress,
-            refundAddress: extensionAction.parameters.refundAddress,
-            salt: extensionAction.parameters.salt,
+      return {
+        ...proxyPNCreationAction,
+        events: [
+          {
+            name: 'create',
+            parameters: {
+              expectedStartDate: extensionAction.parameters.expectedStartDate,
+              expectedFlowRate: extensionAction.parameters.expectedFlowRate,
+              paymentAddress: extensionAction.parameters.paymentAddress,
+              refundAddress: extensionAction.parameters.refundAddress,
+              salt: extensionAction.parameters.salt,
+            },
+            timestamp,
           },
-          timestamp,
+        ],
+        values: {
+          ...proxyPNCreationAction.values,
+          expectedStartDate: extensionAction.parameters.expectedStartDate,
+          expectedFlowRate: extensionAction.parameters.expectedFlowRate,
+          previousRequestId: extensionAction.parameters.previousRequestId,
+          masterRequestId: extensionAction.parameters.masterRequestId,
+          recurrenceNumber: extensionAction.parameters.recurrenceNumber,
         },
-      ],
-      values: {
-        ...proxyPNCreationAction.values,
-        expectedStartDate: extensionAction.parameters.expectedStartDate,
-        expectedFlowRate: extensionAction.parameters.expectedFlowRate,
-      },
-    };
+      };
+    }
+
+    /* Subsequent Request Creation */
+    if (
+      extensionAction.parameters.masterRequestId &&
+      extensionAction.parameters.previousRequestId &&
+      extensionAction.parameters.recurrenceNumber
+    ) {
+      if (
+        (extensionAction.parameters.masterRequestId ===
+          extensionAction.parameters.previousRequestId &&
+          extensionAction.parameters.recurrenceNumber !== '1') ||
+        (extensionAction.parameters.recurrenceNumber === '1' &&
+          extensionAction.parameters.masterRequestId !==
+            extensionAction.parameters.previousRequestId)
+      ) {
+        throw Error(
+          'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+        );
+      }
+
+      if (!extensionAction.version) {
+        throw Error('version is required at creation');
+      }
+
+      return {
+        events: [
+          {
+            name: 'create',
+            parameters: {
+              previousRequestId: extensionAction.parameters.previousRequestId,
+              masterRequestId: extensionAction.parameters.masterRequestId,
+              recurrenceNumber: extensionAction.parameters.recurrenceNumber,
+            },
+            timestamp,
+          },
+        ],
+        id: extensionAction.id,
+        type: this.extensionType,
+        values: {
+          previousRequestId: extensionAction.parameters.previousRequestId,
+          masterRequestId: extensionAction.parameters.masterRequestId,
+          recurrenceNumber: extensionAction.parameters.recurrenceNumber,
+        },
+        version: extensionAction.version,
+      };
+    }
+    throw Error(
+      'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
+    );
   }
 }
