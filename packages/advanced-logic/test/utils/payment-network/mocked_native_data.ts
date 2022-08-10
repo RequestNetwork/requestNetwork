@@ -15,19 +15,19 @@ const createEvent: ExtensionTypes.IEvent = {
   parameters: {},
   timestamp: arbitraryTimestamp,
 };
-// ---------------------------------------------------------------------
 const salt = arbitrarySalt;
 
-export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> = {
-  action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
-  parameters: {
-    paymentAddress: 'pay.near',
-    refundAddress: 'refund.near',
-    salt,
-  },
-  version: '0.2.0',
-};
+export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> =
+  {
+    action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    parameters: {
+      paymentAddress: 'pay.near',
+      refundAddress: 'refund.near',
+      salt,
+    },
+    version: '0.2.0',
+  };
 
 export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
