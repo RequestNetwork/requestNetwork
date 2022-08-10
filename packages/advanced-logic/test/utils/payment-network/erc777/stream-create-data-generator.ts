@@ -48,7 +48,9 @@ export const actionCreationOnlyPayment = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
   parameters: {
-    paymentAddress,
+    masterRequestId,
+    previousRequestId,
+    recurrenceNumber,
   },
   version,
 };
