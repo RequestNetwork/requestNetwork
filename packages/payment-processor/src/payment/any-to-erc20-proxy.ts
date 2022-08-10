@@ -61,6 +61,43 @@ export function encodePayAnyToErc20ProxyRequest(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
+  const {
+    path,
+    paymentReference,
+    paymentAddress,
+    feeAddress,
+    maxRateTimespan,
+    amountToPay,
+    feeToPay,
+  } = prepAnyToErc20ProxyRequest(request, paymentSettings, amount, feeAmountOverride);
+
+  const proxyContract = Erc20ConversionProxy__factory.createInterface();
+  return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
+    paymentAddress,
+    amountToPay,
+    path,
+    `0x${paymentReference}`,
+    feeToPay,
+    feeAddress || constants.AddressZero,
+    BigNumber.from(paymentSettings.maxToSpend),
+    maxRateTimespan || 0,
+  ]);
+}
+
+export function prepAnyToErc20ProxyRequest(
+  request: ClientTypes.IRequestData,
+  paymentSettings: IConversionPaymentSettings,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): {
+  path: string[];
+  paymentReference: string;
+  paymentAddress: string;
+  feeAddress: string | undefined;
+  maxRateTimespan: string | undefined;
+  amountToPay: BigNumber;
+  feeToPay: BigNumber;
+} {
   if (!paymentSettings.currency) {
     throw new Error('currency must be provided in the paymentSettings');
   }
@@ -96,23 +133,25 @@ export function encodePayAnyToErc20ProxyRequest(
   // Check request
   validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
-  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
-    getRequestPaymentValues(request);
+  const {
+    paymentReference,
+    paymentAddress,
+    feeAddress,
+    feeAmount,
+    maxRateTimespan,
+  } = getRequestPaymentValues(request);
 
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
-
-  const proxyContract = Erc20ConversionProxy__factory.createInterface();
-  return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
-    paymentAddress,
-    amountToPay,
+  return {
     path,
-    `0x${paymentReference}`,
+    paymentReference,
+    paymentAddress,
+    feeAddress,
+    maxRateTimespan,
+    amountToPay,
     feeToPay,
-    feeAddress || constants.AddressZero,
-    BigNumber.from(paymentSettings.maxToSpend),
-    maxRateTimespan || 0,
-  ]);
+  };
 }
 
 export function prepareAnyToErc20ProxyPaymentTransaction(
