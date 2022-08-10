@@ -3,7 +3,7 @@ import PnAnyDeclarative from '../../../src/extensions/payment-network/declarativ
 import Utils from '@requestnetwork/utils';
 import { ExtensionTypes } from '@requestnetwork/types';
 
-import * as TestDataDeclarative from '../../utils/payment-network/any/generator-data-create';
+import * as DeclarativeMocks from '../../utils/payment-network/any/generator-data-create';
 import * as TestData from '../../utils/test-data-generator';
 
 const pnAnyDeclarative = new PnAnyDeclarative();
@@ -15,11 +15,11 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         pnAnyDeclarative.createCreationAction({
-          paymentInfo: TestDataDeclarative.paymentInfo,
-          refundInfo: TestDataDeclarative.refundInfo,
-          payeeDelegate: TestDataDeclarative.payeeDelegate,
+          paymentInfo: DeclarativeMocks.paymentInfo,
+          refundInfo: DeclarativeMocks.refundInfo,
+          payeeDelegate: DeclarativeMocks.payeeDelegate,
         }),
-      ).toEqual(TestDataDeclarative.actionCreationWithPaymentAndRefund);
+      ).toEqual(DeclarativeMocks.actionCreationWithPaymentAndRefund);
     });
 
     it('can createCreationAction with only payment instruction', () => {
@@ -28,10 +28,10 @@ describe('extensions/payment-network/any/declarative', () => {
       expect(
         Utils.deepCopy(
           pnAnyDeclarative.createCreationAction({
-            paymentInfo: TestDataDeclarative.paymentInfo,
+            paymentInfo: DeclarativeMocks.paymentInfo,
           }),
         ),
-      ).toEqual(TestDataDeclarative.actionCreationOnlyPayment);
+      ).toEqual(DeclarativeMocks.actionCreationOnlyPayment);
     });
     it('can createCreationAction with only refund instruction', () => {
       // deep copy to remove the undefined properties to comply deep.equal()
@@ -39,10 +39,10 @@ describe('extensions/payment-network/any/declarative', () => {
       expect(
         Utils.deepCopy(
           pnAnyDeclarative.createCreationAction({
-            refundInfo: TestDataDeclarative.refundInfo,
+            refundInfo: DeclarativeMocks.refundInfo,
           }),
         ),
-      ).toEqual(TestDataDeclarative.actionCreationOnlyRefund);
+      ).toEqual(DeclarativeMocks.actionCreationOnlyRefund);
     });
 
     it('can createCreationAction with payee delegate', () => {
@@ -51,10 +51,10 @@ describe('extensions/payment-network/any/declarative', () => {
       expect(
         Utils.deepCopy(
           pnAnyDeclarative.createCreationAction({
-            payeeDelegate: TestDataDeclarative.payeeDelegate,
+            payeeDelegate: DeclarativeMocks.payeeDelegate,
           }),
         ),
-      ).toEqual(TestDataDeclarative.actionCreationPayeeDelegate);
+      ).toEqual(DeclarativeMocks.actionCreationPayeeDelegate);
     });
   });
 
@@ -63,9 +63,9 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         pnAnyDeclarative.createAddPaymentInstructionAction({
-          paymentInfo: TestDataDeclarative.paymentInfo,
+          paymentInfo: DeclarativeMocks.paymentInfo,
         }),
-      ).toEqual(TestDataDeclarative.actionPaymentInstruction);
+      ).toEqual(DeclarativeMocks.actionPaymentInstruction);
     });
   });
 
@@ -74,9 +74,9 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         pnAnyDeclarative.createAddRefundInstructionAction({
-          refundInfo: TestDataDeclarative.refundInfo,
+          refundInfo: DeclarativeMocks.refundInfo,
         }),
-      ).toEqual(TestDataDeclarative.actionRefundInstruction);
+      ).toEqual(DeclarativeMocks.actionRefundInstruction);
     });
   });
 
@@ -85,12 +85,12 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         pnAnyDeclarative.createDeclareSentPaymentAction({
-          amount: TestDataDeclarative.amount,
-          note: TestDataDeclarative.note,
-          txHash: TestDataDeclarative.txHash,
-          network: TestDataDeclarative.network,
+          amount: DeclarativeMocks.amount,
+          note: DeclarativeMocks.note,
+          txHash: DeclarativeMocks.txHash,
+          network: DeclarativeMocks.network,
         }),
-      ).toEqual(TestDataDeclarative.actionDeclareSentPayment);
+      ).toEqual(DeclarativeMocks.actionDeclareSentPayment);
     });
   });
 
@@ -99,12 +99,12 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         pnAnyDeclarative.createDeclareSentRefundAction({
-          amount: TestDataDeclarative.amount,
-          note: TestDataDeclarative.note,
-          txHash: TestDataDeclarative.txHash,
-          network: TestDataDeclarative.network,
+          amount: DeclarativeMocks.amount,
+          note: DeclarativeMocks.note,
+          txHash: DeclarativeMocks.txHash,
+          network: DeclarativeMocks.network,
         }),
-      ).toEqual(TestDataDeclarative.actionDeclareSentRefund);
+      ).toEqual(DeclarativeMocks.actionDeclareSentRefund);
     });
   });
 
@@ -113,12 +113,12 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         pnAnyDeclarative.createDeclareReceivedPaymentAction({
-          amount: TestDataDeclarative.amount,
-          note: TestDataDeclarative.note,
-          txHash: TestDataDeclarative.txHash,
-          network: TestDataDeclarative.network,
+          amount: DeclarativeMocks.amount,
+          note: DeclarativeMocks.note,
+          txHash: DeclarativeMocks.txHash,
+          network: DeclarativeMocks.network,
         }),
-      ).toEqual(TestDataDeclarative.actionDeclareReceivedPayment);
+      ).toEqual(DeclarativeMocks.actionDeclareReceivedPayment);
     });
   });
 
@@ -127,12 +127,12 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         pnAnyDeclarative.createDeclareReceivedRefundAction({
-          amount: TestDataDeclarative.amount,
-          note: TestDataDeclarative.note,
-          txHash: TestDataDeclarative.txHash,
-          network: TestDataDeclarative.network,
+          amount: DeclarativeMocks.amount,
+          note: DeclarativeMocks.note,
+          txHash: DeclarativeMocks.txHash,
+          network: DeclarativeMocks.network,
         }),
-      ).toEqual(TestDataDeclarative.actionDeclareReceivedRefund);
+      ).toEqual(DeclarativeMocks.actionDeclareReceivedRefund);
     });
   });
 
@@ -141,23 +141,23 @@ describe('extensions/payment-network/any/declarative', () => {
       // 'extensionsdata is wrong'
       expect(
         pnAnyDeclarative.createAddDelegateAction({
-          delegate: TestDataDeclarative.delegateToAdd,
+          delegate: DeclarativeMocks.delegateToAdd,
         }),
-      ).toEqual(TestDataDeclarative.actionAddDelegate);
+      ).toEqual(DeclarativeMocks.actionAddDelegate);
     });
   });
 
   describe('applyActionToExtension', () => {
     describe('applyActionToExtension/unknown action', () => {
       it('cannot applyActionToExtensions of unknown action', () => {
-        const unknownAction = Utils.deepCopy(TestDataDeclarative.actionCreationEmpty);
+        const unknownAction = Utils.deepCopy(DeclarativeMocks.actionCreationEmpty);
         unknownAction.action = 'unknown action' as any;
-        // 'must throw'
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
             unknownAction,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -167,24 +167,22 @@ describe('extensions/payment-network/any/declarative', () => {
 
     describe('applyActionToExtension/create', () => {
       it('can applyActionToExtensions of creation', () => {
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionCreationWithPaymentAndRefund,
-            TestDataDeclarative.requestStateNoExtensions,
+            DeclarativeMocks.requestStateNoExtensions.extensions,
+            DeclarativeMocks.actionCreationWithPaymentAndRefund,
+            DeclarativeMocks.requestStateNoExtensions,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateWithPaymentAndRefund);
+        ).toEqual(DeclarativeMocks.extensionStateWithPaymentAndRefund);
       });
       it('cannot applyActionToExtensions of creation with a previous state', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
-            TestDataDeclarative.actionCreationWithPaymentAndRefund,
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
+            DeclarativeMocks.requestStateWithPaymentAndRefund.extensions,
+            DeclarativeMocks.actionCreationWithPaymentAndRefund,
+            DeclarativeMocks.requestStateWithPaymentAndRefund,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -195,8 +193,8 @@ describe('extensions/payment-network/any/declarative', () => {
     it('keeps the version used at creation', () => {
       const newState = pnAnyDeclarative.applyActionToExtension(
         {},
-        { ...TestDataDeclarative.actionCreationWithPaymentAndRefund, version: 'ABCD' },
-        TestDataDeclarative.requestStateNoExtensions,
+        { ...DeclarativeMocks.actionCreationWithPaymentAndRefund, version: 'ABCD' },
+        DeclarativeMocks.requestStateNoExtensions,
         TestData.otherIdRaw.identity,
         TestData.arbitraryTimestamp,
       );
@@ -207,8 +205,8 @@ describe('extensions/payment-network/any/declarative', () => {
       expect(() => {
         pnAnyDeclarative.applyActionToExtension(
           {},
-          { ...TestDataDeclarative.actionCreationWithPaymentAndRefund, version: '' },
-          TestDataDeclarative.requestStateNoExtensions,
+          { ...DeclarativeMocks.actionCreationWithPaymentAndRefund, version: '' },
+          DeclarativeMocks.requestStateNoExtensions,
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         );
@@ -217,58 +215,56 @@ describe('extensions/payment-network/any/declarative', () => {
 
     describe('applyActionToExtension/addPaymentInstruction', () => {
       it('can applyActionToExtensions of addPaymentInstruction', () => {
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionPaymentInstruction,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyPaymentInstructionAdded);
+        ).toEqual(DeclarativeMocks.extensionStatePaymentInstructionAdded);
       });
       it('can applyActionToExtensions of addPaymentInstruction from payeeDelegate', () => {
         const expectedFromPayeeDelegate = Utils.deepCopy(
-          TestDataDeclarative.extensionStateCreatedEmptyPaymentInstructionAdded,
+          DeclarativeMocks.extensionStatePaymentInstructionAdded,
         );
         expectedFromPayeeDelegate[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
-        ].events[1].from = TestDataDeclarative.payeeDelegate;
-        // 'new extension state wrong'
+        ].events[1].from = DeclarativeMocks.payeeDelegate;
+
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionPaymentInstruction,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromPayeeDelegate);
       });
       it('cannot applyActionToExtensions of addPaymentInstruction without a previous state', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
-            TestDataDeclarative.requestStateNoExtensions,
+            DeclarativeMocks.requestStateNoExtensions.extensions,
+            DeclarativeMocks.actionPaymentInstruction,
+            DeclarativeMocks.requestStateNoExtensions,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of addPaymentInstruction without a payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
         previousState.payee = undefined;
         previousState.extensions[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
-        // 'must throw'
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
+            DeclarativeMocks.actionPaymentInstruction,
             previousState,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
@@ -276,12 +272,12 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The request must have a payee`);
       });
       it('cannot applyActionToExtensions of addPaymentInstruction signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        // 'must throw'
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
+            DeclarativeMocks.actionPaymentInstruction,
             previousState,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
@@ -289,12 +285,11 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The signer must be the payee`);
       });
       it('cannot applyActionToExtensions of addPaymentInstruction with payment instruction already assigned', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
-            TestDataDeclarative.actionPaymentInstruction,
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
+            DeclarativeMocks.requestStateWithPaymentAndRefund.extensions,
+            DeclarativeMocks.actionPaymentInstruction,
+            DeclarativeMocks.requestStateWithPaymentAndRefund,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -304,59 +299,62 @@ describe('extensions/payment-network/any/declarative', () => {
 
     describe('applyActionToExtension/addRefundInstruction', () => {
       it('can applyActionToExtensions of addRefundInstruction', () => {
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionRefundInstruction,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithNoDelegate.extensions,
+            DeclarativeMocks.actionRefundInstruction,
+            DeclarativeMocks.emptyRequestWithNoDelegate,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyRefundInstructionAdded);
+        ).toEqual(DeclarativeMocks.extensionStateRefundInstructionAdded);
       });
       it('can applyActionToExtensions of addRefundInstruction from payerDelegate', () => {
         const expectedFromThirdParty = Utils.deepCopy(
-          TestDataDeclarative.extensionStateCreatedEmptyRefundInstructionAdded,
+          DeclarativeMocks.extensionStateRefundInstructionAdded,
         );
         expectedFromThirdParty[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
-        ].events[1].from = TestDataDeclarative.payerDelegate;
+        ].events[1].from = DeclarativeMocks.payerDelegate;
+        expectedFromThirdParty[
+          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+        ].values.payeeDelegate = undefined;
+        expectedFromThirdParty[
+          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+        ].values.payerDelegate = TestData.payerDelegateRaw.identity;
 
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionRefundInstruction,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayerDelegate.extensions,
+            DeclarativeMocks.actionRefundInstruction,
+            DeclarativeMocks.emptyRequestWithPayerDelegate,
             TestData.payerDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of addRefundInstruction without a previous state', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionRefundInstruction,
-            TestDataDeclarative.requestStateNoExtensions,
+            DeclarativeMocks.requestStateNoExtensions.extensions,
+            DeclarativeMocks.actionRefundInstruction,
+            DeclarativeMocks.requestStateNoExtensions,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of addRefundInstruction without a payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
         previousState.payer = undefined;
         previousState.extensions[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
-        // 'must throw'
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionRefundInstruction,
+            DeclarativeMocks.actionRefundInstruction,
             previousState,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
@@ -364,12 +362,12 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The request must have a payer`);
       });
       it('cannot applyActionToExtensions of addRefundInstruction signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        // 'must throw'
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionRefundInstruction,
+            DeclarativeMocks.actionRefundInstruction,
             previousState,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
@@ -377,12 +375,11 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The signer must be the payer`);
       });
       it('cannot applyActionToExtensions of addRefundInstruction with payment instruction already assigned', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund.extensions,
-            TestDataDeclarative.actionRefundInstruction,
-            TestDataDeclarative.requestStateCreatedWithPaymentAndRefund,
+            DeclarativeMocks.requestStateWithPaymentAndRefund.extensions,
+            DeclarativeMocks.actionRefundInstruction,
+            DeclarativeMocks.requestStateWithPaymentAndRefund,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -392,59 +389,57 @@ describe('extensions/payment-network/any/declarative', () => {
 
     describe('applyActionToExtension/declareSentPayment', () => {
       it('can applyActionToExtensions of declareSentPayment', () => {
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithNoDelegate.extensions,
+            DeclarativeMocks.actionDeclareSentPayment,
+            DeclarativeMocks.emptyRequestWithNoDelegate,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptySentPayment);
+        ).toEqual(DeclarativeMocks.extensionStateDeclaredSent);
       });
       it('can applyActionToExtensions of declareSentPayment from payerDelegate', () => {
-        const expectedFromThirdParty = Utils.deepCopy(
-          TestDataDeclarative.extensionStateCreatedEmptySentPayment,
-        );
+        const expectedFromThirdParty = Utils.deepCopy(DeclarativeMocks.extensionStateDeclaredSent);
         expectedFromThirdParty[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
-        ].events[1].from = TestDataDeclarative.payerDelegate;
+        ].events[1].from = DeclarativeMocks.payerDelegate;
+        expectedFromThirdParty[
+          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+        ].values.payerDelegate = DeclarativeMocks.payerDelegate;
 
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayerDelegate.extensions,
+            DeclarativeMocks.actionDeclareSentPayment,
+            DeclarativeMocks.emptyRequestWithPayerDelegate,
             TestData.payerDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of declareSentPayment without a previous state', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
-            TestDataDeclarative.requestStateNoExtensions,
+            DeclarativeMocks.requestStateNoExtensions.extensions,
+            DeclarativeMocks.actionDeclareSentPayment,
+            DeclarativeMocks.requestStateNoExtensions,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of declareSentPayment without a payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
         previousState.payer = undefined;
         previousState.extensions[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
-        // 'must throw'
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
+            DeclarativeMocks.actionDeclareSentPayment,
             previousState,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
@@ -452,12 +447,12 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The request must have a payer`);
       });
       it('cannot applyActionToExtensions of declareSentPayment signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        // 'must throw'
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
+            DeclarativeMocks.actionDeclareSentPayment,
             previousState,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
@@ -465,14 +460,13 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The signer must be the payer`);
       });
       it('cannot applyActionToExtensions of declareSentPayment with an invalid amount', () => {
-        TestDataDeclarative.actionDeclareSentPayment.parameters.amount = 'invalid amount';
+        DeclarativeMocks.actionDeclareSentPayment.parameters.amount = 'invalid amount';
 
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareSentPayment,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionDeclareSentPayment,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -482,59 +476,59 @@ describe('extensions/payment-network/any/declarative', () => {
 
     describe('applyActionToExtension/declareReceivedRefund', () => {
       it('can applyActionToExtensions of declareReceivedRefund', () => {
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithNoDelegate.extensions,
+            DeclarativeMocks.actionDeclareReceivedRefund,
+            DeclarativeMocks.emptyRequestWithNoDelegate,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyReceivedRefund);
+        ).toEqual(DeclarativeMocks.declarativeExtStateRefundDeclared);
       });
       it('can applyActionToExtensions of declareReceivedRefund from payerDelegate', () => {
         const expectedFromThirdParty = Utils.deepCopy(
-          TestDataDeclarative.extensionStateCreatedEmptyReceivedRefund,
+          DeclarativeMocks.declarativeExtStateRefundDeclared,
         );
         expectedFromThirdParty[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
-        ].events[1].from = TestDataDeclarative.payerDelegate;
+        ].events[1].from = DeclarativeMocks.payerDelegate;
+        expectedFromThirdParty[
+          ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
+        ].values.payerDelegate = DeclarativeMocks.payerDelegate;
 
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayerDelegate.extensions,
+            DeclarativeMocks.actionDeclareReceivedRefund,
+            DeclarativeMocks.emptyRequestWithPayerDelegate,
             TestData.payerDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of declareReceivedRefund without a previous state', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
-            TestDataDeclarative.requestStateNoExtensions,
+            DeclarativeMocks.requestStateNoExtensions.extensions,
+            DeclarativeMocks.actionDeclareReceivedRefund,
+            DeclarativeMocks.requestStateNoExtensions,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of declareReceivedRefund without a payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
         previousState.payer = undefined;
         previousState.extensions[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
-        // 'must throw'
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
+            DeclarativeMocks.actionDeclareReceivedRefund,
             previousState,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
@@ -542,12 +536,12 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The request must have a payer`);
       });
       it('cannot applyActionToExtensions of declareReceivedRefund signed by someone else than the payer', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        // 'must throw'
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
+            DeclarativeMocks.actionDeclareReceivedRefund,
             previousState,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
@@ -555,14 +549,13 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The signer must be the payer`);
       });
       it('cannot applyActionToExtensions of declareReceivedRefund with an invalid amount', () => {
-        TestDataDeclarative.actionDeclareReceivedRefund.parameters.amount = 'invalid amount';
+        DeclarativeMocks.actionDeclareReceivedRefund.parameters.amount = 'invalid amount';
 
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareReceivedRefund,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionDeclareReceivedRefund,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -572,60 +565,54 @@ describe('extensions/payment-network/any/declarative', () => {
 
     describe('applyActionToExtension/declareSentRefund', () => {
       it('can applyActionToExtensions of declareSentRefund', () => {
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionDeclareSentRefund,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptySentRefund);
+        ).toEqual(DeclarativeMocks.extensionStateSentRefund);
       });
       it('can applyActionToExtensions of declareSentRefund from payeeDelegate', () => {
-        const expectedFromThirdParty = Utils.deepCopy(
-          TestDataDeclarative.extensionStateCreatedEmptySentRefund,
-        );
+        const expectedFromThirdParty = Utils.deepCopy(DeclarativeMocks.extensionStateSentRefund);
         expectedFromThirdParty[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
-        ].events[1].from = TestDataDeclarative.payeeDelegate;
+        ].events[1].from = DeclarativeMocks.payeeDelegate;
 
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionDeclareSentRefund,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of declareSentRefund without a previous state', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
-            TestDataDeclarative.requestStateNoExtensions,
+            DeclarativeMocks.requestStateNoExtensions.extensions,
+            DeclarativeMocks.actionDeclareSentRefund,
+            DeclarativeMocks.requestStateNoExtensions,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of declareSentRefund without a payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
         previousState.payee = undefined;
         previousState.extensions[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
 
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
+            DeclarativeMocks.actionDeclareSentRefund,
             previousState,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
@@ -633,12 +620,12 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The request must have a payee`);
       });
       it('cannot applyActionToExtensions of declareSentRefund signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        // 'must throw'
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
+            DeclarativeMocks.actionDeclareSentRefund,
             previousState,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
@@ -646,14 +633,13 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The signer must be the payee`);
       });
       it('cannot applyActionToExtensions of declareSentRefund with an invalid amount', () => {
-        TestDataDeclarative.actionDeclareSentRefund.parameters.amount = 'invalid amount';
+        DeclarativeMocks.actionDeclareSentRefund.parameters.amount = 'invalid amount';
 
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareSentRefund,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionDeclareSentRefund,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -663,60 +649,56 @@ describe('extensions/payment-network/any/declarative', () => {
 
     describe('applyActionToExtension/declareReceivedPayment', () => {
       it('can applyActionToExtensions of declareReceivedPayment', () => {
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionDeclareReceivedPayment,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyReceivedPayment);
+        ).toEqual(DeclarativeMocks.extensionStateReceivedPayment);
       });
       it('can applyActionToExtensions of declareReceivedPayment from payeeDelegate', () => {
         const expectedFromThirdParty = Utils.deepCopy(
-          TestDataDeclarative.extensionStateCreatedEmptyReceivedPayment,
+          DeclarativeMocks.extensionStateReceivedPayment,
         );
         expectedFromThirdParty[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
-        ].events[1].from = TestDataDeclarative.payeeDelegate;
+        ].events[1].from = DeclarativeMocks.payeeDelegate;
 
-        // 'new extension state wrong'
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionDeclareReceivedPayment,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeDelegateRaw.identity,
             TestData.arbitraryTimestamp,
           ),
         ).toEqual(expectedFromThirdParty);
       });
       it('cannot applyActionToExtensions of declareReceivedPayment without a previous state', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateNoExtensions.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
-            TestDataDeclarative.requestStateNoExtensions,
+            DeclarativeMocks.requestStateNoExtensions.extensions,
+            DeclarativeMocks.actionDeclareReceivedPayment,
+            DeclarativeMocks.requestStateNoExtensions,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(`The extension should be created before receiving any other action`);
       });
       it('cannot applyActionToExtensions of declareReceivedPayment without a payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
         previousState.payee = undefined;
         previousState.extensions[
           ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string
         ].values.payeeDelegate = undefined;
 
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
+            DeclarativeMocks.actionDeclareReceivedPayment,
             previousState,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
@@ -724,12 +706,12 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The request must have a payee`);
       });
       it('cannot applyActionToExtensions of declareReceivedPayment signed by someone else than the payee', () => {
-        const previousState = Utils.deepCopy(TestDataDeclarative.requestStateCreatedEmpty);
-        // 'must throw'
+        const previousState = Utils.deepCopy(DeclarativeMocks.emptyRequestWithPayeeDelegate);
+
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
             previousState.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
+            DeclarativeMocks.actionDeclareReceivedPayment,
             previousState,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
@@ -737,14 +719,13 @@ describe('extensions/payment-network/any/declarative', () => {
         }).toThrowError(`The signer must be the payee`);
       });
       it('cannot applyActionToExtensions of declareReceivedPayment with an invalid amount', () => {
-        TestDataDeclarative.actionDeclareReceivedPayment.parameters.amount = 'invalid amount';
+        DeclarativeMocks.actionDeclareReceivedPayment.parameters.amount = 'invalid amount';
 
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionDeclareReceivedPayment,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionDeclareReceivedPayment,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
@@ -753,49 +734,56 @@ describe('extensions/payment-network/any/declarative', () => {
     });
 
     describe('applyActionToExtension/addDelegate', () => {
-      it('can applyActionToExtensions of addDelegate from payee', () => {
-        // 'new extension state wrong'
+      it('lets the payee add a delegate', () => {
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmptyNoDelegate.extensions,
-            TestDataDeclarative.actionAddDelegate,
-            TestDataDeclarative.requestStateCreatedEmptyNoDelegate,
+            DeclarativeMocks.emptyRequestWithNoDelegate.extensions,
+            DeclarativeMocks.actionAddDelegate,
+            DeclarativeMocks.emptyRequestWithNoDelegate,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyAddPayeeDelegate);
+        ).toEqual(DeclarativeMocks.extensionStateAddPayeeDelegate);
       });
-      it('can applyActionToExtensions of addDelegate from payer', () => {
-        // 'new extension state wrong'
+      it('lets the payer add a delegate', () => {
         expect(
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmptyNoDelegate.extensions,
-            TestDataDeclarative.actionAddDelegate,
-            TestDataDeclarative.requestStateCreatedEmptyNoDelegate,
+            DeclarativeMocks.emptyRequestWithNoDelegate.extensions,
+            DeclarativeMocks.actionAddDelegate,
+            DeclarativeMocks.emptyRequestWithNoDelegate,
             TestData.payerRaw.identity,
             TestData.arbitraryTimestamp,
           ),
-        ).toEqual(TestDataDeclarative.extensionStateCreatedEmptyAddPayerDelegate);
+        ).toEqual(DeclarativeMocks.extensionStateAddPayerDelegate);
       });
-      it('cannot applyActionToExtensions of addDelegate if delegate already assigned', () => {
-        // 'must throw'
+      it('lets both the payer and the payee declare delegates', () => {
+        expect(
+          pnAnyDeclarative.applyActionToExtension(
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionAddDelegate,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
+            TestData.payerRaw.identity,
+            TestData.arbitraryTimestamp,
+          ),
+        ).toEqual(DeclarativeMocks.extensionStateWithTwoDelegates);
+      });
+      it('does not let one add a delegate if a similar delegate is already assigned', () => {
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionAddDelegate,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionAddDelegate,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.payeeRaw.identity,
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(`The payeeDelegate is already assigned`);
       });
       it('cannot applyActionToExtensions of addDelegate from a thirdparty', () => {
-        // 'must throw'
         expect(() => {
           pnAnyDeclarative.applyActionToExtension(
-            TestDataDeclarative.requestStateCreatedEmpty.extensions,
-            TestDataDeclarative.actionAddDelegate,
-            TestDataDeclarative.requestStateCreatedEmpty,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate.extensions,
+            DeclarativeMocks.actionAddDelegate,
+            DeclarativeMocks.emptyRequestWithPayeeDelegate,
             TestData.otherIdRaw.identity,
             TestData.arbitraryTimestamp,
           );
