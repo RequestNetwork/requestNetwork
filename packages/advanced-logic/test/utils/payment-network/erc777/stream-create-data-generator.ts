@@ -11,9 +11,9 @@ export const refundAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 export const expectedFlowRate = '381944444444442';
 export const expectedStartDate = '1643041225';
 export const invalidAddress = '0x not and address';
-export const masterRequestId = "abcd";
-export const previousRequestId = "efgh";
-export const recurrenceNumber = "2";
+export const masterRequestId = 'abcd';
+export const previousRequestId = 'efgh';
+export const recurrenceNumber = '2';
 
 // ---------------------------------------------------------------------
 export const salt = 'ea3bc7caf64110ca';
@@ -39,7 +39,7 @@ export const actionCreationFullSubsequent = {
     recurrenceNumber,
   },
   version: '0.1.0',
-}
+};
 export const actionCreationOnlyPayment = {
   action: 'create',
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
@@ -233,7 +233,6 @@ export const requestFullStateCreated: RequestLogicTypes.IRequest = {
   timestamp: TestData.arbitraryTimestamp,
   version: '0.1.0',
 };
-
 
 export const subsequentRequestFullStateCreated: RequestLogicTypes.IRequest = {
   creator: {
