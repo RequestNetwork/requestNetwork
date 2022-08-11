@@ -150,9 +150,6 @@ export default class Erc777StreamPaymentNetwork<
           ...proxyPNCreationAction.values,
           expectedStartDate: extensionAction.parameters.expectedStartDate,
           expectedFlowRate: extensionAction.parameters.expectedFlowRate,
-          previousRequestId: extensionAction.parameters.previousRequestId,
-          masterRequestId: extensionAction.parameters.masterRequestId,
-          recurrenceNumber: extensionAction.parameters.recurrenceNumber,
         },
       };
     }

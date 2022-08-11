@@ -11,5 +11,5 @@ export interface ICreationParameters extends Partial<PnReferenceBased.ICreationP
   expectedStartDate?: string;
   previousRequestId?: string;
   masterRequestId?: string;
-  recurrenceNumber?: string;
+  recurrenceNumber?: number;
 }
