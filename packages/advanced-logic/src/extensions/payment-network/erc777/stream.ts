@@ -65,8 +65,8 @@ export default class Erc777StreamPaymentNetwork<
     ) {
       if (
         (creationParameters.masterRequestId === creationParameters.previousRequestId &&
-          creationParameters.recurrenceNumber !== '1') ||
-        (creationParameters.recurrenceNumber === '1' &&
+          creationParameters.recurrenceNumber !== 1) ||
+        (creationParameters.recurrenceNumber === 1 &&
           creationParameters.masterRequestId !== creationParameters.previousRequestId)
       ) {
         throw Error(
@@ -166,8 +166,8 @@ export default class Erc777StreamPaymentNetwork<
       if (
         (extensionAction.parameters.masterRequestId ===
           extensionAction.parameters.previousRequestId &&
-          extensionAction.parameters.recurrenceNumber !== '1') ||
-        (extensionAction.parameters.recurrenceNumber === '1' &&
+          extensionAction.parameters.recurrenceNumber !== 1) ||
+        (extensionAction.parameters.recurrenceNumber === 1 &&
           extensionAction.parameters.masterRequestId !==
             extensionAction.parameters.previousRequestId)
       ) {

@@ -13,7 +13,7 @@ export const expectedStartDate = '1643041225';
 export const invalidAddress = '0x not and address';
 export const masterRequestId = 'abcd';
 export const previousRequestId = 'efgh';
-export const recurrenceNumber = '2';
+export const recurrenceNumber = 2;
 
 // ---------------------------------------------------------------------
 export const salt = 'ea3bc7caf64110ca';
