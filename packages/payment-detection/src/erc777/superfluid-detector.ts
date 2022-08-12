@@ -59,7 +59,8 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
         const expectedPreviousBalance =
           subrequestValues.recurrenceNumber * subrequestValues.expectedAmount;
         const remainingBalance = parseFloat(totalBalance.balance) - expectedPreviousBalance;
-        totalBalance.balance = remainingBalance > 0 ? remainingBalance.toString() : '0';
+        const subsequentRequestBalance = remainingBalance > 0 ? remainingBalance.toString() : '0';
+        totalBalance.balance = subsequentRequestBalance;
       }
     }
     return totalBalance;
