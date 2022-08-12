@@ -1,7 +1,6 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
 import ReferenceBasedPaymentNetwork from '../reference-based';
 import Utils from '@requestnetwork/utils';
-
 const CURRENT_VERSION = '0.1.0';
 
 /**
@@ -36,14 +35,17 @@ export default class Erc777StreamPaymentNetwork<
   public createCreationAction(
     creationParameters: TCreationParameters,
   ): ExtensionTypes.IAction<TCreationParameters> {
-    /* Master Request Creation */
     if (
-      !(
-        creationParameters.masterRequestId ||
-        creationParameters.previousRequestId ||
-        creationParameters.recurrenceNumber
-      )
+      !TypesUtils.isMasterRequestCreationParameters(creationParameters) &&
+      !TypesUtils.isSubsequentRequestCreationParameters(creationParameters)
     ) {
+      throw Error(
+        'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
+      );
+    }
+
+    /* Master Request Creation */
+    if (TypesUtils.isMasterRequestCreationParameters(creationParameters)) {
       if (!creationParameters.expectedFlowRate) {
         throw Error('expectedFlowRate should not be empty');
       }
@@ -57,38 +59,23 @@ export default class Erc777StreamPaymentNetwork<
       ) as ExtensionTypes.IAction<TCreationParameters>;
     }
 
-    /* Subsequent Request Creation */
-    if (
-      creationParameters.masterRequestId &&
-      creationParameters.previousRequestId &&
-      creationParameters.recurrenceNumber
-    ) {
-      if (
-        (creationParameters.masterRequestId === creationParameters.previousRequestId &&
-          creationParameters.recurrenceNumber !== 1) ||
-        (creationParameters.recurrenceNumber === 1 &&
-          creationParameters.masterRequestId !== creationParameters.previousRequestId)
-      ) {
-        throw Error(
-          'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
-        );
-      }
-
-      return {
-        action: 'create',
-        id: this.extensionId,
-        parameters: {
-          previousRequestId: creationParameters.previousRequestId,
-          masterRequestId: creationParameters.masterRequestId,
-          recurrenceNumber: creationParameters.recurrenceNumber,
-        },
-        version: this.currentVersion,
-      } as ExtensionTypes.IAction<TCreationParameters>;
+    /* Subsequent request Creation */
+    if (!this.isSubsequentRequestParametersValid(creationParameters)) {
+      throw Error(
+        'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+      );
     }
 
-    throw Error(
-      'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
-    );
+    return {
+      action: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
+      id: this.extensionId,
+      parameters: {
+        previousRequestId: creationParameters.previousRequestId,
+        masterRequestId: creationParameters.masterRequestId,
+        recurrenceNumber: creationParameters.recurrenceNumber,
+      },
+      version: this.currentVersion,
+    } as ExtensionTypes.IAction<TCreationParameters>;
   }
 
   /**
@@ -103,46 +90,41 @@ export default class Erc777StreamPaymentNetwork<
     extensionAction: ExtensionTypes.IAction,
     timestamp: number,
   ): ExtensionTypes.IState {
-    /* Master request Creation */
     if (
-      !(
-        extensionAction.parameters.masterRequestId ||
-        extensionAction.parameters.previousRequestId ||
-        extensionAction.parameters.recurrenceNumber
-      )
+      !TypesUtils.isMasterRequestCreationParameters(extensionAction.parameters) &&
+      !TypesUtils.isSubsequentRequestCreationParameters(extensionAction.parameters)
     ) {
-      if (!extensionAction.parameters.expectedStartDate) {
-        throw Error('expectedStartDate should not be empty');
-      }
-      if (!extensionAction.parameters.expectedFlowRate) {
-        throw Error('expectedFlowRate should not be empty');
-      }
+      throw Error(
+        'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
+      );
+    }
+
+    /* Master request Creation */
+    if (TypesUtils.isMasterRequestCreationParameters(extensionAction.parameters)) {
       if (
-        extensionAction.parameters.expectedStartDate &&
-        !Utils.amount.isValid(extensionAction.parameters.expectedStartDate)
+        !extensionAction.parameters.expectedStartDate ||
+        (extensionAction.parameters.expectedStartDate &&
+          !Utils.amount.isValid(extensionAction.parameters.expectedStartDate))
       ) {
-        throw Error('expectedStartDate is not a valid amount');
+        throw Error('expectedStartDate is empty or invalid');
       }
+
       if (
-        extensionAction.parameters.expectedFlowRate &&
-        !Utils.amount.isValid(extensionAction.parameters.expectedFlowRate)
+        !extensionAction.parameters.expectedFlowRate ||
+        (extensionAction.parameters.expectedFlowRate &&
+          !Utils.amount.isValid(extensionAction.parameters.expectedFlowRate))
       ) {
-        throw Error('expectedFlowRate is not a valid amount');
+        throw Error('expectedFlowRate is empty or invalid');
       }
+
       const proxyPNCreationAction = super.applyCreation(extensionAction, timestamp);
 
       return {
         ...proxyPNCreationAction,
         events: [
           {
-            name: 'create',
-            parameters: {
-              expectedStartDate: extensionAction.parameters.expectedStartDate,
-              expectedFlowRate: extensionAction.parameters.expectedFlowRate,
-              paymentAddress: extensionAction.parameters.paymentAddress,
-              refundAddress: extensionAction.parameters.refundAddress,
-              salt: extensionAction.parameters.salt,
-            },
+            name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
+            parameters: extensionAction.parameters,
             timestamp,
           },
         ],
@@ -155,52 +137,58 @@ export default class Erc777StreamPaymentNetwork<
     }
 
     /* Subsequent Request Creation */
-    if (
-      extensionAction.parameters.masterRequestId &&
-      extensionAction.parameters.previousRequestId &&
-      extensionAction.parameters.recurrenceNumber
-    ) {
-      if (
-        (extensionAction.parameters.masterRequestId ===
-          extensionAction.parameters.previousRequestId &&
-          extensionAction.parameters.recurrenceNumber !== 1) ||
-        (extensionAction.parameters.recurrenceNumber === 1 &&
-          extensionAction.parameters.masterRequestId !==
-            extensionAction.parameters.previousRequestId)
-      ) {
-        throw Error(
-          'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
-        );
-      }
-
-      if (!extensionAction.version) {
-        throw Error('version is required at creation');
-      }
-
-      return {
-        events: [
-          {
-            name: 'create',
-            parameters: {
-              previousRequestId: extensionAction.parameters.previousRequestId,
-              masterRequestId: extensionAction.parameters.masterRequestId,
-              recurrenceNumber: extensionAction.parameters.recurrenceNumber,
-            },
-            timestamp,
-          },
-        ],
-        id: extensionAction.id,
-        type: this.extensionType,
-        values: {
-          previousRequestId: extensionAction.parameters.previousRequestId,
-          masterRequestId: extensionAction.parameters.masterRequestId,
-          recurrenceNumber: extensionAction.parameters.recurrenceNumber,
-        },
-        version: extensionAction.version,
-      };
+    if (!extensionAction.parameters.masterRequestId) {
+      throw Error('masterRequestId is empty');
     }
-    throw Error(
-      'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
+
+    if (!extensionAction.parameters.previousRequestId) {
+      throw Error('previousRequestId is empty');
+    }
+
+    if (!extensionAction.parameters.recurrenceNumber) {
+      throw Error('recurrenceNumber is empty');
+    }
+
+    if (!extensionAction.version) {
+      throw Error('version is required at creation');
+    }
+
+    if (!this.isSubsequentRequestParametersValid(extensionAction.parameters)) {
+      throw Error(
+        'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+      );
+    }
+
+    return {
+      events: [
+        {
+          name: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
+          parameters: extensionAction.parameters,
+          timestamp,
+        },
+      ],
+      id: extensionAction.id,
+      type: this.extensionType,
+      values: extensionAction.parameters,
+      version: extensionAction.version,
+    };
+  }
+
+  /**
+   * Verifies the consistency between the different parameters of the create action for subsequent requests
+   *
+   * @param parameters extension parameters to check
+   *
+   * @returns a boolean
+   */
+  protected isSubsequentRequestParametersValid(
+    parameters: ExtensionTypes.PnStreamReferenceBased.ISubsequentRequestCreationParameters,
+  ): boolean {
+    return (
+      (parameters.masterRequestId === parameters.previousRequestId &&
+        parameters.recurrenceNumber === 1) ||
+      (parameters.recurrenceNumber !== 1 &&
+        parameters.masterRequestId !== parameters.previousRequestId)
     );
   }
 }
