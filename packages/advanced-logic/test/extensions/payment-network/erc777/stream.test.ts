@@ -421,19 +421,6 @@ describe('extensions/payment-network/erc777/stream', () => {
             version: '0.1.0',
           });
         });
-        invalidCases.forEach((invalidCase) => {
-          it(`Can not create a subsequent request with missing ${invalidCase}.`, () => {
-            expect(() =>
-              erc777StreamPaymentNetwork.createCreationAction({
-                masterRequestId: invalidCase === 'masterRequestId' ? undefined : 'abcd',
-                previousRequestId: invalidCase === 'previousRequestId' ? undefined : 'efgh',
-                recurrenceNumber: invalidCase === 'recurrenceNumber' ? undefined : 2,
-              }),
-            ).toThrowError(
-              'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
-            );
-          });
-        });
 
         it(`Can not create a the first subsequent request with invalid parameters - 1`, () => {
           expect(() =>
@@ -491,9 +478,7 @@ describe('extensions/payment-network/erc777/stream', () => {
                 TestData.otherIdRaw.identity,
                 TestData.arbitraryTimestamp,
               ),
-            ).toThrowError(
-              'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
-            );
+            ).toThrowError(`${invalidCase} is empty`);
           });
         });
 
