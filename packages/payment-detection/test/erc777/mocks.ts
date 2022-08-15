@@ -196,7 +196,7 @@ export const mockSuperfluidSubgraph = [
   },
 ];
 
-export const mockTransferEventsByMonth = (monthNumber: number, expectedAmount: number) => {
+export const genTransferEventsByMonth = (monthNumber: number, expectedAmount: number) => {
   const monthMultipliers: Record<number, number> = {
     1: 0.5,
     2: 1.5,
