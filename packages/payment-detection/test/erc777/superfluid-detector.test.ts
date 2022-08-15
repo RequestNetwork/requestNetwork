@@ -5,7 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { SuperFluidPaymentDetector } from '../../src/erc777/superfluid-detector';
-import { mockTransferEventsByMonth } from './mocks';
+import { genTransferEventsByMonth } from './mocks';
 
 let superfluidPaymentDetector: SuperFluidPaymentDetector;
 
@@ -68,7 +68,7 @@ const mockMasterRequest: RequestLogicTypes.IRequest = {
   },
 };
 // @ts-ignore
-const mockFirstSubRequest: RequestLogicTypes.IRequest = {
+const mockSecondSubrequest: RequestLogicTypes.IRequest = {
   ...baseRequestData,
   requestId: '0xsubseq1',
   extensions: {
@@ -91,7 +91,7 @@ const mockFirstSubRequest: RequestLogicTypes.IRequest = {
   },
 };
 // @ts-ignore
-const mockSecondSubRequest: RequestLogicTypes.IRequest = {
+const mockThirdSubrequest: RequestLogicTypes.IRequest = {
   ...baseRequestData,
   requestId: '0xsubseq2',
   extensions: {
@@ -107,14 +107,26 @@ const mockSecondSubRequest: RequestLogicTypes.IRequest = {
         salt: 'abcd',
         masterRequestId: '0xmaster1',
         previousRequestId: '0xsubseq1',
-        recurrenceNumber: 1,
+        recurrenceNumber: 2,
       },
       version: '0',
     },
   },
 };
 
-describe.only('superfluid balance computation', () => {
+/**
+ * Generates transfer event with specific balance depending on the month of observation.
+ * The monthNumber is not the month ID like 1 for Jan, 2 for Feb, but instead
+ */
+const mockTransferEventsForMonth = (monthNumber: number) => {
+  jest
+    .spyOn(superfluidPaymentDetector as any, 'getEvents')
+    .mockImplementation(
+      genTransferEventsByMonth(monthNumber, parseInt(mockMasterRequest.expectedAmount.toString())),
+    );
+};
+
+describe('superfluid balance computation', () => {
   beforeEach(() => {
     superfluidPaymentDetector = new SuperFluidPaymentDetector({ advancedLogic: mockAdvancedLogic });
   });
@@ -123,26 +135,38 @@ describe.only('superfluid balance computation', () => {
   });
 
   it('detects correct balance on master request in the middle of first month', async () => {
-    jest
-      .spyOn(superfluidPaymentDetector as any, 'getEvents')
-      .mockImplementation(
-        mockTransferEventsByMonth(1, parseInt(mockMasterRequest.expectedAmount.toString())),
-      );
+    mockTransferEventsForMonth(1);
     const balance = await superfluidPaymentDetector.getBalance(mockMasterRequest);
     expect(balance.balance).toEqual('500');
   });
   it('master request has full balance when observing in second month', async () => {
-    jest
-      .spyOn(superfluidPaymentDetector as any, 'getEvents')
-      .mockImplementation(
-        mockTransferEventsByMonth(2, parseInt(mockMasterRequest.expectedAmount.toString())),
-      );
+    mockTransferEventsForMonth(2);
     const balance = await superfluidPaymentDetector.getBalance(mockMasterRequest);
     expect(balance.balance).toEqual('1000');
   });
-  //   it('second request has 0 balance when observing in first month');
-  //   it('second request has correct balance in the middle of second month');
-  //   it('second request has full balance in the middle of third month');
-  //   it('third request has 0 balance in second month');
-  //   it('third request has good balance in third month');
+  it('second request has 0 balance when observing in first month', async () => {
+    mockTransferEventsForMonth(1);
+    const balance = await superfluidPaymentDetector.getBalance(mockSecondSubrequest);
+    expect(balance.balance).toEqual('0');
+  });
+  it('second request has correct balance in the middle of second month', async () => {
+    mockTransferEventsForMonth(2);
+    const balance = await superfluidPaymentDetector.getBalance(mockSecondSubrequest);
+    expect(balance.balance).toEqual('500');
+  });
+  it('second request has full balance in the middle of third month', async () => {
+    mockTransferEventsForMonth(3);
+    const balance = await superfluidPaymentDetector.getBalance(mockSecondSubrequest);
+    expect(balance.balance).toEqual('1500');
+  });
+  it('third request has 0 balance in second month', async () => {
+    mockTransferEventsForMonth(2);
+    const balance = await superfluidPaymentDetector.getBalance(mockThirdSubrequest);
+    expect(balance.balance).toEqual('0');
+  });
+  it('third request has good balance in third month', async () => {
+    mockTransferEventsForMonth(3);
+    const balance = await superfluidPaymentDetector.getBalance(mockThirdSubrequest);
+    expect(balance.balance).toEqual('500');
+  });
 });
