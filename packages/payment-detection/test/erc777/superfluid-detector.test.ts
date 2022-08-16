@@ -157,7 +157,7 @@ describe('superfluid balance computation', () => {
   it('second request has full balance in the middle of third month', async () => {
     mockTransferEventsForMonth(3);
     const balance = await superfluidPaymentDetector.getBalance(mockSecondSubrequest);
-    expect(balance.balance).toEqual('1500');
+    expect(balance.balance).toEqual(mockSecondSubrequest.expectedAmount.toString());
   });
   it('third request has 0 balance in second month', async () => {
     mockTransferEventsForMonth(2);
