@@ -21,7 +21,7 @@ const daiABI = require('../abis/fDAIABI');
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-const erc777ContractAddress = '0x7D782D2cc2755CA324De57D42e28Cc63278dFE12';
+export const DAIX_ADDRESS = '0x7D782D2cc2755CA324De57D42e28Cc63278dFE12';
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
@@ -44,7 +44,7 @@ const validRequest: ClientTypes.IRequestData = {
   currencyInfo: {
     network: 'private',
     type: RequestLogicTypes.CURRENCY.ERC777,
-    value: erc777ContractAddress,
+    value: DAIX_ADDRESS,
   },
 
   events: [],
@@ -119,7 +119,7 @@ describe('erc777-stream', () => {
       request.extensions = [] as any;
 
       await expect(payErc777StreamRequest(request, wallet)).rejects.toThrowError(
-        'Not a supported ERC777 payment network request',
+        'no payment network found',
       );
     });
   });
