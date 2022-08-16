@@ -6,7 +6,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { encodeRequestPayment } from '../../src';
+import { encodeRequestPayment, encodeRequestPaymentWithStream } from '../../src';
 import { getProxyAddress } from '../../src/payment/utils';
 import {
   AnyToERC20PaymentDetector,
@@ -20,6 +20,7 @@ import {
   erc20SwapToPayArtifact,
   erc20SwapConversionArtifact,
 } from '@requestnetwork/smart-contracts';
+import { DAIX_ADDRESS } from './erc777-stream.test';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -59,6 +60,8 @@ const alphaSwapConversionSettings = {
 
 const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble sweet treat';
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
+const expectedFlowRate = '100000';
+const expectedStartDate = '1643041225';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
 
@@ -114,6 +117,30 @@ const validRequestERC20FeeProxy: ClientTypes.IRequestData = {
       values: {
         feeAddress,
         feeAmount: '2',
+        paymentAddress,
+        salt: 'salt',
+      },
+      version: '0.1.0',
+    },
+  },
+};
+
+const validRequestERC777Stream: ClientTypes.IRequestData = {
+  ...baseValidRequest,
+  currency: 'DAIx',
+  currencyInfo: {
+    network: 'private',
+    type: RequestLogicTypes.CURRENCY.ERC777,
+    value: DAIX_ADDRESS,
+  },
+  extensions: {
+    [PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
+      events: [],
+      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+      type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+      values: {
+        expectedStartDate,
+        expectedFlowRate,
         paymentAddress,
         salt: 'salt',
       },
@@ -221,7 +248,7 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
 
 describe('Payment encoder handles ERC20 Proxy', () => {
   it('Should return a valid transaction', async () => {
-    const paymentTransaction = await encodeRequestPayment(baseValidRequest, provider);
+    const paymentTransaction = encodeRequestPayment(baseValidRequest, provider);
 
     const proxyAddress = getProxyAddress(
       baseValidRequest,
@@ -238,7 +265,7 @@ describe('Payment encoder handles ERC20 Proxy', () => {
 
 describe('Payment encoder handles ERC20 Fee Proxy', () => {
   it('Should return a valid transaction', async () => {
-    const paymentTransaction = await encodeRequestPayment(validRequestERC20FeeProxy, provider);
+    const paymentTransaction = encodeRequestPayment(validRequestERC20FeeProxy, provider);
 
     const proxyAddress = getProxyAddress(
       validRequestERC20FeeProxy,
@@ -255,13 +282,9 @@ describe('Payment encoder handles ERC20 Fee Proxy', () => {
 
 describe('Payment encoder handles ERC20 Conversion Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(
-      validRequestERC20ConversionProxy,
-      provider,
-      {
-        conversion: alphaConversionSettings,
-      },
-    );
+    let paymentTransaction = encodeRequestPayment(validRequestERC20ConversionProxy, provider, {
+      conversion: alphaConversionSettings,
+    });
 
     const proxyAddress = getProxyAddress(
       validRequestERC20ConversionProxy,
@@ -283,7 +306,7 @@ describe('Payment encoder handles ERC20 Conversion Proxy', () => {
 
 describe('Payment encoder handles ERC20 Swap Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(validRequestERC20FeeProxy, provider, {
+    let paymentTransaction = encodeRequestPayment(validRequestERC20FeeProxy, provider, {
       swap: alphaSwapSettings,
     });
 
@@ -301,14 +324,10 @@ describe('Payment encoder handles ERC20 Swap Proxy', () => {
 
 describe('Payment encoder handles ERC20 Swap & Conversion Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(
-      validRequestERC20ConversionProxy,
-      provider,
-      {
-        swap: alphaSwapConversionSettings,
-        conversion: alphaConversionSettings,
-      },
-    );
+    let paymentTransaction = encodeRequestPayment(validRequestERC20ConversionProxy, provider, {
+      swap: alphaSwapConversionSettings,
+      conversion: alphaConversionSettings,
+    });
 
     const proxyAddress = erc20SwapConversionArtifact.getAddress(
       alphaConversionSettings.currency.network,
@@ -338,7 +357,7 @@ describe('Payment encoder handles ERC20 Swap & Conversion Proxy', () => {
 
 describe('Payment encoder handles Eth Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(validRequestEthProxy, provider);
+    let paymentTransaction = encodeRequestPayment(validRequestEthProxy, provider);
 
     const proxyAddress = getProxyAddress(
       validRequestEthProxy,
@@ -355,7 +374,7 @@ describe('Payment encoder handles Eth Proxy', () => {
 
 describe('Payment encoder handles Eth Fee Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(validRequestEthFeeProxy, provider);
+    let paymentTransaction = encodeRequestPayment(validRequestEthFeeProxy, provider);
 
     const proxyAddress = getProxyAddress(
       validRequestEthFeeProxy,
@@ -372,7 +391,7 @@ describe('Payment encoder handles Eth Fee Proxy', () => {
 
 describe('Payment encoder handles Eth Conversion Proxy', () => {
   it('Should return a valid transaction', async () => {
-    let paymentTransaction = await encodeRequestPayment(validRequestEthConversionProxy, provider, {
+    let paymentTransaction = encodeRequestPayment(validRequestEthConversionProxy, provider, {
       conversion: ethConversionSettings,
     });
 
@@ -391,5 +410,20 @@ describe('Payment encoder handles Eth Conversion Proxy', () => {
     expect(() => encodeRequestPayment(validRequestEthConversionProxy, provider)).toThrowError(
       'Conversion settings missing',
     );
+  });
+});
+
+describe('Payment encoder handles ERC777 Stream', () => {
+  it('Should return a valid transaction', async () => {
+    const paymentTransaction = await encodeRequestPaymentWithStream(
+      validRequestERC777Stream,
+      provider,
+    );
+
+    expect(paymentTransaction).toEqual({
+      data: '0x6ad3ca7d00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000c90000000000000000000000000dd64f3458f32a277ccd94bfbdb31952b84d99ee000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000001600000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000a462fc305e0000000000000000000000007d782d2cc2755ca324de57d42e28cc63278dfe12000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b73200000000000000000000000000000000000000000000000000000000000186a00000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000bbeefac86dfbccad783599a000000000000000000000000000000000000000000',
+      to: '0x75076e4fbba61f65efB41D64e45cFF340b1e518A',
+      value: 0,
+    });
   });
 });

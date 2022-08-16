@@ -1,4 +1,4 @@
-import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes, IdentityTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 
 import Erc20ProxyContract from '../../../../src/extensions/payment-network/erc20/proxy-contract';
@@ -315,6 +315,17 @@ describe('extensions/payment-network/erc20/proxy-contract', () => {
             TestData.arbitraryTimestamp,
           );
         }).toThrowError(`The signer must be the payee`);
+      });
+      // FIXME This test should pass
+      it.skip('cannot createCreationAction with payerDelegate signed by the payee', () => {
+        expect(() => {
+          erc20ProxyContract.createCreationAction({
+            paymentAddress: '0x0000000000000000000000000000000000000001',
+            refundAddress: '0x0000000000000000000000000000000000000002',
+            payerDelegate: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: 'anyone' },
+            salt: 'ea3bc7caf64110ca',
+          });
+        }).toThrowError(`The signer must be the payer`);
       });
       it('cannot applyActionToExtensions of addPaymentAddress with payment address already given', () => {
         // 'must throw'
