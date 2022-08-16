@@ -422,7 +422,7 @@ describe('extensions/payment-network/erc777/stream', () => {
           });
         });
 
-        it(`Can not create a the first subsequent request with invalid parameters - 1`, () => {
+        it(`Can not create a subsequent request with invalid parameters - 1`, () => {
           expect(() =>
             erc777StreamPaymentNetwork.createCreationAction({
               masterRequestId: 'abcd',
@@ -434,7 +434,7 @@ describe('extensions/payment-network/erc777/stream', () => {
           );
         });
 
-        it(`Can not create a the first subsequent request with invalid parameters - 2`, () => {
+        it(`Can not create a subsequent request with invalid parameters - 2`, () => {
           expect(() =>
             erc777StreamPaymentNetwork.createCreationAction({
               masterRequestId: 'abcd',
@@ -504,7 +504,7 @@ describe('extensions/payment-network/erc777/stream', () => {
           );
         });
 
-        it(`Can not create a the first subsequent request with invalid parameters - 2`, () => {
+        it(`Can not create a subsequent request with invalid parameters - 2`, () => {
           const badActionCreation = {
             ...DataERC777StreamCreate.actionCreationFullSubsequent,
             parameters: {
