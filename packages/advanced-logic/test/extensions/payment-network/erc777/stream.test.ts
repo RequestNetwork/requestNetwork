@@ -408,7 +408,7 @@ describe('extensions/payment-network/erc777/stream', () => {
             erc777StreamPaymentNetwork.createCreationAction({
               masterRequestId: 'abcd',
               previousRequestId: 'efgh',
-              recurrenceNumber: '2',
+              recurrenceNumber: 2,
             }),
           ).toEqual({
             action: 'create',
@@ -416,43 +416,30 @@ describe('extensions/payment-network/erc777/stream', () => {
             parameters: {
               masterRequestId: 'abcd',
               previousRequestId: 'efgh',
-              recurrenceNumber: '2',
+              recurrenceNumber: 2,
             },
             version: '0.1.0',
           });
         });
-        invalidCases.forEach((invalidCase) => {
-          it(`Can not create a subsequent request with missing ${invalidCase}.`, () => {
-            expect(() =>
-              erc777StreamPaymentNetwork.createCreationAction({
-                masterRequestId: invalidCase === 'masterRequestId' ? undefined : 'abcd',
-                previousRequestId: invalidCase === 'previousRequestId' ? undefined : 'efgh',
-                recurrenceNumber: invalidCase === 'recurrenceNumber' ? undefined : '2',
-              }),
-            ).toThrowError(
-              'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
-            );
-          });
-        });
 
-        it(`Can not create a the first subsequent request with invalid parameters - 1`, () => {
+        it(`Can not create a subsequent request with invalid parameters - 1`, () => {
           expect(() =>
             erc777StreamPaymentNetwork.createCreationAction({
               masterRequestId: 'abcd',
               previousRequestId: 'abcd',
-              recurrenceNumber: '2',
+              recurrenceNumber: 2,
             }),
           ).toThrowError(
             'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
           );
         });
 
-        it(`Can not create a the first subsequent request with invalid parameters - 2`, () => {
+        it(`Can not create a subsequent request with invalid parameters - 2`, () => {
           expect(() =>
             erc777StreamPaymentNetwork.createCreationAction({
               masterRequestId: 'abcd',
               previousRequestId: 'efgh',
-              recurrenceNumber: '1',
+              recurrenceNumber: 1,
             }),
           ).toThrowError(
             'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
@@ -480,7 +467,7 @@ describe('extensions/payment-network/erc777/stream', () => {
               parameters: {
                 masterRequestId: invalidCase === 'masterRequestId' ? undefined : 'abcd',
                 previousRequestId: invalidCase === 'previousRequestId' ? undefined : 'efgh',
-                recurrenceNumber: invalidCase === 'recurrenceNumber' ? undefined : '2',
+                recurrenceNumber: invalidCase === 'recurrenceNumber' ? undefined : 2,
               },
             };
             expect(() =>
@@ -491,9 +478,7 @@ describe('extensions/payment-network/erc777/stream', () => {
                 TestData.otherIdRaw.identity,
                 TestData.arbitraryTimestamp,
               ),
-            ).toThrowError(
-              'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
-            );
+            ).toThrowError(`${invalidCase} is empty`);
           });
         });
 
@@ -503,7 +488,7 @@ describe('extensions/payment-network/erc777/stream', () => {
             parameters: {
               masterRequestId: 'abcd',
               previousRequestId: 'abcd',
-              recurrenceNumber: '2',
+              recurrenceNumber: 2,
             },
           };
           expect(() =>
@@ -519,13 +504,13 @@ describe('extensions/payment-network/erc777/stream', () => {
           );
         });
 
-        it(`Can not create a the first subsequent request with invalid parameters - 2`, () => {
+        it(`Can not create a subsequent request with invalid parameters - 2`, () => {
           const badActionCreation = {
             ...DataERC777StreamCreate.actionCreationFullSubsequent,
             parameters: {
               masterRequestId: 'abcd',
               previousRequestId: 'efgh',
-              recurrenceNumber: '1',
+              recurrenceNumber: 1,
             },
           };
           expect(() =>
