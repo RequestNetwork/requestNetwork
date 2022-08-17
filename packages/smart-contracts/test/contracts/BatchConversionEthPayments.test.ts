@@ -40,11 +40,9 @@ describe('contract: BatchConversionPayments', () => {
   let ethereumFeeProxy: EthereumFeeProxy;
   let chainlinkPath: ChainlinkConversionPath;
 
-  type ConvToPay = [BigNumber, BigNumber] & {
-    result: BigNumber;
-    oldestRateTimestamp: BigNumber;
-  };
-  let conversionToPay: ConvToPay;
+  let conversionToPay: BigNumber;
+  let feesToPay: BigNumber;
+
   type ConversionDetail = {
     recipient: string;
     requestAmount: BigNumberish;
@@ -56,11 +54,12 @@ describe('contract: BatchConversionPayments', () => {
   };
   let convDetail: ConversionDetail;
 
+  let tx: ContractTransaction;
+
   let beforeEthBalanceTo: BigNumber;
   let beforeEthBalanceFee: BigNumber;
   let beforeEthBalance: BigNumber;
-  let feesToPay: ConvToPay;
-  let tx: ContractTransaction;
+
   let amountToPayExpected: BigNumber;
   let feeToPayExpected: BigNumber;
   // amount and feeAmount are usually in fiat for conversion inputs, else in ETH
@@ -68,52 +67,6 @@ describe('contract: BatchConversionPayments', () => {
   const feeAmount = amount.mul(10).div(10000);
   let inputs: Array<ConversionDetail>;
   const pathUsdEth = [USD_hash, ETH_hash];
-
-  before(async () => {
-    [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
-    from;
-    [signer] = await ethers.getSigners();
-    chainlinkPath = chainlinkConversionPath.connect(network.name, signer);
-    ethereumFeeProxy = await new EthereumFeeProxy__factory(signer).deploy();
-    testEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
-      ethereumFeeProxy.address,
-      chainlinkPath.address,
-      ETH_hash,
-    );
-
-    testBatchConversionProxy = batchConversionPaymentsArtifact.connect(network.name, signer);
-
-    // update batch payment proxies, and batch fees
-    await testBatchConversionProxy.setPaymentEthProxy(ethereumFeeProxy.address);
-    await testBatchConversionProxy.setPaymentEthConversionProxy(testEthConversionProxy.address);
-    await testBatchConversionProxy.setBatchFee(batchFee);
-    await testBatchConversionProxy.setBatchConversionFee(batchConvFee);
-
-    convDetail = {
-      recipient: to,
-      requestAmount: amount,
-      path: pathUsdEth,
-      paymentReference: referenceExample,
-      feeAmount: feeAmount,
-      maxToSpend: BigNumber.from(0),
-      maxRateTimespan: BigNumber.from(0),
-    };
-
-    // basic setup: 1 payment
-    conversionToPay = await chainlinkPath.getConversion(convDetail.requestAmount, convDetail.path);
-    feesToPay = await chainlinkPath.getConversion(convDetail.feeAmount, convDetail.path);
-  });
-
-  beforeEach(async () => {
-    beforeEthBalanceTo = await provider.getBalance(to);
-    beforeEthBalanceFee = await provider.getBalance(feeAddress);
-    beforeEthBalance = await provider.getBalance(await signer.getAddress());
-
-    // expected balances
-    amountToPayExpected = conversionToPay.result;
-    // fees does not include batch fees yet
-    feeToPayExpected = feesToPay.result;
-  });
 
   /**
    * @notice Function batch conversion, it can be the batchRouter function, used with conversion args,
@@ -128,11 +81,11 @@ describe('contract: BatchConversionPayments', () => {
   /**
    * @notice it modify the Eth batch conversion inputs if needed, depending it is
    *         directly or through batchRouter
-   * @param isBatchRouter
+   * @param useBatchRouter
    * @param inputs a list of convDetail
    */
-  const getEthConvInputs = (isBatchRouter: boolean, inputs: Array<ConversionDetail>) => {
-    if (isBatchRouter) {
+  const getEthConvInputs = (useBatchRouter: boolean, inputs: Array<ConversionDetail>) => {
+    if (useBatchRouter) {
       return [
         {
           paymentNetworkId: '3',
@@ -143,7 +96,7 @@ describe('contract: BatchConversionPayments', () => {
             amounts: [],
             paymentReferences: [],
             feeAmounts: [],
-          }, // not used
+          }, // cryptoDetails is not used
         },
       ];
     }
@@ -183,24 +136,76 @@ describe('contract: BatchConversionPayments', () => {
    * @notice it contains all the tests related to the Eth batch payment, and its context required.
    *         It tests the 2 functions directly, or through batchRouter function.
    *         Functions: batchEthConversionPaymentsWithReference, and batchEthPaymentsWithReference
-   * @param isBatchRouter
+   * @param useBatchRouter
    */
-  const EthTestSuite = (isBatchRouter: boolean) => {
+  for (const useBatchRouter of [true, false]) {
     describe(`Test ETH batch functions ${
-      isBatchRouter ? 'through batchRouter' : 'without batchRouter'
+      useBatchRouter ? 'through batchRouter' : 'without batchRouter'
     }`, () => {
-      before(() => {
-        if (isBatchRouter) {
+      before(async () => {
+        [from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
+        from;
+        [signer] = await ethers.getSigners();
+        chainlinkPath = chainlinkConversionPath.connect(network.name, signer);
+        ethereumFeeProxy = await new EthereumFeeProxy__factory(signer).deploy();
+        testEthConversionProxy = await new EthConversionProxy__factory(signer).deploy(
+          ethereumFeeProxy.address,
+          chainlinkPath.address,
+          ETH_hash,
+        );
+
+        testBatchConversionProxy = batchConversionPaymentsArtifact.connect(network.name, signer);
+
+        // update batch payment proxies, and batch fees
+        await testBatchConversionProxy.setPaymentEthProxy(ethereumFeeProxy.address);
+        await testBatchConversionProxy.setPaymentEthConversionProxy(testEthConversionProxy.address);
+        await testBatchConversionProxy.setBatchFee(batchFee);
+        await testBatchConversionProxy.setBatchConversionFee(batchConvFee);
+
+        convDetail = {
+          recipient: to,
+          requestAmount: amount,
+          path: pathUsdEth,
+          paymentReference: referenceExample,
+          feeAmount: feeAmount,
+          maxToSpend: BigNumber.from(0),
+          maxRateTimespan: BigNumber.from(0),
+        };
+
+        // basic setup: 1 payment
+        const conversionToPayFull = await chainlinkPath.getConversion(
+          convDetail.requestAmount,
+          convDetail.path,
+        );
+        conversionToPay = conversionToPayFull.result;
+        const feesToPayFull = await chainlinkPath.getConversion(
+          convDetail.feeAmount,
+          convDetail.path,
+        );
+        feesToPay = feesToPayFull.result;
+
+        if (useBatchRouter) {
           batchConvFunction = testBatchConversionProxy.batchRouter;
         } else {
           batchConvFunction = testBatchConversionProxy.batchEthConversionPaymentsWithReference;
         }
       });
 
+      beforeEach(async () => {
+        beforeEthBalanceTo = await provider.getBalance(to);
+        beforeEthBalanceFee = await provider.getBalance(feeAddress);
+        beforeEthBalance = await provider.getBalance(await signer.getAddress());
+
+        // expected balances, it can be modified for each test
+        amountToPayExpected = conversionToPay;
+        // fees does not include batch fees yet
+        feeToPayExpected = feesToPay;
+      });
+
       describe('success functions', () => {
         it('batchEthConversionPaymentsWithReference transfer 1 payment in ethers denominated in USD', async function () {
           inputs = [convDetail];
-          tx = await batchConvFunction(getEthConvInputs(isBatchRouter, inputs), feeAddress, {
+          tx = await batchConvFunction(getEthConvInputs(useBatchRouter, inputs), feeAddress, {
             value: BigNumber.from('100000000000000000'),
           });
           await checkEthBalances(amountToPayExpected, feeToPayExpected);
@@ -210,7 +215,7 @@ describe('contract: BatchConversionPayments', () => {
           amountToPayExpected = amountToPayExpected.mul(3);
           feeToPayExpected = feeToPayExpected.mul(3);
           inputs = [convDetail, convDetail, convDetail];
-          tx = await batchConvFunction(getEthConvInputs(isBatchRouter, inputs), feeAddress, {
+          tx = await batchConvFunction(getEthConvInputs(useBatchRouter, inputs), feeAddress, {
             value: BigNumber.from('100000000000000000'),
           });
           await checkEthBalances(amountToPayExpected, feeToPayExpected);
@@ -233,7 +238,7 @@ describe('contract: BatchConversionPayments', () => {
           feeToPayExpected = eurFeesToPay.result.add(feeToPayExpected.mul(2));
           inputs = [convDetail, EurConvDetail, convDetail];
 
-          tx = await batchConvFunction(getEthConvInputs(isBatchRouter, inputs), feeAddress, {
+          tx = await batchConvFunction(getEthConvInputs(useBatchRouter, inputs), feeAddress, {
             value: BigNumber.from('100000000000000000'),
           });
           await checkEthBalances(amountToPayExpected, feeToPayExpected);
@@ -251,7 +256,7 @@ describe('contract: BatchConversionPayments', () => {
             paymentReferences: [referenceExample],
             feeAmounts: [feeAmount], // in ETH
           };
-          if (isBatchRouter) {
+          if (useBatchRouter) {
             await testBatchConversionProxy.batchRouter(
               [
                 {
@@ -295,7 +300,7 @@ describe('contract: BatchConversionPayments', () => {
       describe('revert functions', () => {
         it('batchEthConversionPaymentsWithReference transfer FAIL: not enough funds', async function () {
           await expect(
-            batchConvFunction(getEthConvInputs(isBatchRouter, [convDetail]), feeAddress, {
+            batchConvFunction(getEthConvInputs(useBatchRouter, [convDetail]), feeAddress, {
               value: 10000,
             }),
           ).to.be.revertedWith('paymentProxy transferExactEthWithReferenceAndFee failed');
@@ -311,7 +316,7 @@ describe('contract: BatchConversionPayments', () => {
 
           // it contains the function being just executed, and still processing
           let batchEthPayments;
-          if (isBatchRouter) {
+          if (useBatchRouter) {
             batchEthPayments = testBatchConversionProxy.batchRouter(
               [
                 {
@@ -337,8 +342,5 @@ describe('contract: BatchConversionPayments', () => {
         });
       });
     });
-  };
-
-  EthTestSuite(true);
-  EthTestSuite(false);
+  }
 });
