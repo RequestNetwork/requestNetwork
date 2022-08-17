@@ -27,7 +27,7 @@ contract BatchPaymentsPublic is Ownable {
   IEthereumFeeProxy public paymentEthProxy;
 
   uint256 public batchFee;
-  /** Used to to calcul batch fees */
+  /** Used to to calculate batch fees */
   uint256 internal tenThousand = 10000;
 
   // payerAuthorized is set to true only when needed for batch Eth conversion

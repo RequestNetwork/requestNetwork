@@ -1,12 +1,14 @@
 import NativeTokenPaymentNetwork from '../../../src/extensions/payment-network/native-token';
 import NearNativePaymentNetwork from '../../../src/extensions/payment-network/near-native';
 import {
-  actionCreationWithNativeTokenPayment,
-  extensionStateWithNativeTokenPaymentAndRefund,
-  extensionStateWithPaymentAddressAdded,
   requestStateNoExtensions,
   arbitrarySalt,
 } from '../../utils/payment-network/any/generator-data-create';
+import {
+  actionCreationWithNativeTokenPayment,
+  extensionStateWithNativeTokenPaymentAndRefund,
+  extensionStateWithPaymentAddressAdded,
+} from '../../utils/payment-network/mocked_native_data';
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
