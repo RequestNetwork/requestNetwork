@@ -4,6 +4,7 @@ import {
   ClientTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -35,7 +36,8 @@ const encryptionData = {
     method: EncryptionTypes.METHOD.ECIES,
   },
   encryptionParams: {
-    key: '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
+    key:
+      '299708c07399c9b28e9870c4e643742f65c94683f35d1b3fc05d0478344ee0cc5a6a5e23f78b5ff8c93a04254232b32350c8672d2873677060d5095184dad422',
     method: EncryptionTypes.METHOD.ECIES,
   },
   identity: {
@@ -953,6 +955,42 @@ describe('index', () => {
 
       expect(mock.history.get).toHaveLength(5);
       expect(mock.history.post).toHaveLength(1);
+    });
+
+    it('can have a payment reference on a declarative payment network', async () => {
+      const requestNetwork = new RequestNetwork({
+        httpConfig,
+        useMockStorage: true,
+        signatureProvider: TestData.fakeSignatureProvider,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters<ExtensionTypes.PnAnyDeclarative.ICreationParameters> = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {
+          paymentInfo: {
+            IBAN: 'FR123456789123456789',
+            BIC: 'CE123456789',
+          },
+          salt: 'a1a2a3a4a5a6a7a8',
+        },
+      };
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: TestData.payee.identity,
+      });
+      await request.waitForConfirmation();
+
+      const data = request.getData();
+
+      const paymentReference = PaymentReferenceCalculator.calculate(
+        data.requestId,
+        data.extensionsData[0].parameters.salt,
+        JSON.stringify(data.extensionsData[0].parameters.paymentInfo),
+      );
+
+      expect(paymentReference).toHaveLength(16);
     });
 
     it('allows to declare a received refund from delegate', async () => {

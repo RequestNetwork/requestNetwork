@@ -32,9 +32,9 @@ export interface IPaymentNetwork<TEventParameters = any> {
  */
 
 /** Interface to create a payment network  */
-export interface IPaymentNetworkCreateParameters {
+export interface IPaymentNetworkCreateParameters<T = any> {
   id: PAYMENT_NETWORK_ID;
-  parameters: any;
+  parameters: T;
 }
 
 /** Parameters to create a request with reference based payment network */
