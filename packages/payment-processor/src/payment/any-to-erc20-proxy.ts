@@ -133,13 +133,8 @@ export function prepAnyToErc20ProxyRequest(
   // Check request
   validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
 
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAddress,
-    feeAmount,
-    maxRateTimespan,
-  } = getRequestPaymentValues(request);
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
+    getRequestPaymentValues(request);
 
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
