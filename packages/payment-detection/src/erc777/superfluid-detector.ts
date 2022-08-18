@@ -7,6 +7,7 @@ import {
 import { SuperFluidInfoRetriever } from './superfluid-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import PaymentReferenceCalculator from '../payment-reference-calculator';
+import { BigNumber } from 'ethers';
 /**
  * Handle payment networks with ERC777 Superfluid streaming extension
  */
@@ -46,18 +47,19 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
       return totalBalance;
     }
     if (totalBalance.balance) {
-      let expectedPreviousBalance = 0;
+      const zeroBN = BigNumber.from(0);
+      let expectedPreviousBalance = zeroBN;
       if (this.isSubsequentRequest(request)) {
         const subrequestValues = this.getSubsequentValues(request);
         expectedPreviousBalance =
-          subrequestValues.recurrenceNumber * parseFloat(request.expectedAmount.toString());
+          BigNumber.from(subrequestValues.recurrenceNumber).mul(request.expectedAmount);
       }
-      const remainingBalance = parseFloat(totalBalance.balance) - expectedPreviousBalance;
-      let requestBalance = 0;
-      if (remainingBalance > request.expectedAmount) {
-        requestBalance = parseFloat(request.expectedAmount.toString());
+      const remainingBalance = BigNumber.from(totalBalance.balance).sub(expectedPreviousBalance);
+      let requestBalance = zeroBN;
+      if (remainingBalance > BigNumber.from(request.expectedAmount)) {
+        requestBalance = BigNumber.from(request.expectedAmount);
       } else {
-        requestBalance = remainingBalance > 0 ? remainingBalance : 0;
+        requestBalance = remainingBalance > zeroBN ? remainingBalance : zeroBN;
       }
       totalBalance.balance = requestBalance.toString();
     }
