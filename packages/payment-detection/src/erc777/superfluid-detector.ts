@@ -23,15 +23,16 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
   }
 
   protected isSubsequentRequest(request: RequestLogicTypes.IRequest): boolean {
-    return !!request.extensions[this.paymentNetworkId].values
-      .originalRequestId;
+    return !!request.extensions[this.paymentNetworkId].values.originalRequestId;
   }
 
   /**
    * This returns the specific values we store for the ERC777 extensions.
    * @param request The request we are processing
    */
-  protected getSubsequentValues(request: RequestLogicTypes.IRequest): ExtensionTypes.PnStreamReferenceBased.ISubsequentRequestCreationParameters {
+  protected getSubsequentValues(
+    request: RequestLogicTypes.IRequest,
+  ): ExtensionTypes.PnStreamReferenceBased.ISubsequentRequestCreationParameters {
     return request.extensions[this.paymentNetworkId].values;
   }
 
@@ -51,8 +52,9 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
       let expectedPreviousBalance = zeroBN;
       if (this.isSubsequentRequest(request)) {
         const subrequestValues = this.getSubsequentValues(request);
-        expectedPreviousBalance =
-          BigNumber.from(subrequestValues.recurrenceNumber).mul(request.expectedAmount);
+        expectedPreviousBalance = BigNumber.from(subrequestValues.recurrenceNumber).mul(
+          request.expectedAmount,
+        );
       }
       const remainingBalance = BigNumber.from(totalBalance.balance).sub(expectedPreviousBalance);
       let requestBalance = zeroBN;
@@ -109,7 +111,8 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     this.checkRequiredParameter(salt, 'salt');
     if (this.isSubsequentRequest(request)) {
       const originalRequestId =
-        request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM].values.originalRequestId;
+        request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM].values
+          .originalRequestId;
       return PaymentReferenceCalculator.calculate(originalRequestId, salt, paymentAddress);
     }
     return PaymentReferenceCalculator.calculate(request.requestId, salt, paymentAddress);

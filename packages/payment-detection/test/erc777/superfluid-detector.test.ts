@@ -122,7 +122,10 @@ const mockTransferEventsForMonth = (monthNumber: number) => {
   jest
     .spyOn(superfluidPaymentDetector as any, 'getEvents')
     .mockImplementation(
-      genTransferEventsByMonth(monthNumber, parseInt(mockOriginalRequest.expectedAmount.toString())),
+      genTransferEventsByMonth(
+        monthNumber,
+        parseInt(mockOriginalRequest.expectedAmount.toString()),
+      ),
     );
 };
 
