@@ -7,7 +7,7 @@ Ethereum Private Key Decryption Provider.
 Implementation of the decryption provider from the private keys.
 The decryption provider is used to make decryption in the Request Network Protocol (e.g.: see [Transaction Manager](/packages/transaction-manager)).
 
-It uses the Request Network Protocol concept of `Identity` described in the [request logic specification](/packages/request-logic/specs/request-logic-specification-v2.0.0.md).
+It uses the Request Network Protocol concept of `Identity` described in the [request logic specification](/packages/request-logic/specs/request-logic-specification.md).
 
 ## Installation
 
