@@ -46,7 +46,7 @@ type MetaDetail = {
  * It contains requests, paymentSettings, amount and feeAmount,
  * having the same PN, version, and batchFee
  */
-type EnrichedRequest = {
+export type EnrichedRequest = {
   paymentNetworkId: 0 | 2; // ref in batchConversionPayment.sol
   request: ClientTypes.IRequestData;
   paymentSettings?: IConversionPaymentSettings;
@@ -119,6 +119,10 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
   const conversionDetails: ConversionDetail[] = [];
 
   for (let i = 0; i < enrichedRequests.length; i++) {
+    const iExtension = getPaymentNetworkExtension(enrichedRequests[i].request);
+    if (!iExtension) {
+      throw new Error('no payment network found');
+    }
     if (enrichedRequests[i].paymentNetworkId === 0) {
       // set pn0FirstRequest only if it is undefined
       pn0FirstRequest = pn0FirstRequest ?? enrichedRequests[i].request;
@@ -134,14 +138,24 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
     } else if (enrichedRequests[i].paymentNetworkId === 2) {
       pn2requests.push(enrichedRequests[i].request);
 
-      if (!comparePnTypeAndVersion(getPaymentNetworkExtension(pn2requests[0]), pn2requests[-1])) {
+      if (
+        !comparePnTypeAndVersion(
+          getPaymentNetworkExtension(pn2requests[0]),
+          enrichedRequests[i].request,
+        )
+      ) {
         throw new Error(`Every payment network type and version must be identical`);
       }
     }
   }
   // get cryptoDetails values
-  const { tokenAddresses, paymentAddresses, amountsToPay, paymentReferences, feesToPay } =
-    getBatchArgs(pn2requests);
+  const {
+    tokenAddresses,
+    paymentAddresses,
+    amountsToPay,
+    paymentReferences,
+    feesToPay,
+  } = getBatchArgs(pn2requests);
 
   // add conversionDetails to metaDetails
   metaDetails.push({

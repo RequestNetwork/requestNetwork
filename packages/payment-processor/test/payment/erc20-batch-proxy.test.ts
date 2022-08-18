@@ -82,7 +82,7 @@ fauValidRequest.currencyInfo = {
   value: FAUTokenAddress,
 };
 
-const sameCurrencyValue = (
+export const sameCurrencyValue = (
   requestA: ClientTypes.IRequestData,
   requestB: ClientTypes.IRequestData,
 ): boolean => {
