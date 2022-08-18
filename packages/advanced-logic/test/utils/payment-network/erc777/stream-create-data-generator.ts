@@ -54,23 +54,6 @@ export const actionCreationOnlyPayment = {
   },
   version,
 };
-export const actionCreationOnlyRefund = {
-  action: RequestLogicTypes.ACTION_NAME.CREATE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
-  parameters: {
-    refundAddress,
-  },
-  version,
-};
-export const actionCreationOnlyFlow = {
-  action: RequestLogicTypes.ACTION_NAME.CREATE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
-  parameters: {
-    expectedFlowRate,
-    expectedStartDate,
-  },
-  version,
-};
 export const actionCreationEmpty = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
