@@ -56,10 +56,11 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
       }
       const remainingBalance = BigNumber.from(totalBalance.balance).sub(expectedPreviousBalance);
       let requestBalance = zeroBN;
-      if (remainingBalance > BigNumber.from(request.expectedAmount)) {
-        requestBalance = BigNumber.from(request.expectedAmount);
+      const expectedAmount = BigNumber.from(request.expectedAmount);
+      if (remainingBalance.gte(expectedAmount)) {
+        requestBalance = expectedAmount;
       } else {
-        requestBalance = remainingBalance > zeroBN ? remainingBalance : zeroBN;
+        requestBalance = remainingBalance.gt(zeroBN) ? remainingBalance : zeroBN;
       }
       totalBalance.balance = requestBalance.toString();
     }
