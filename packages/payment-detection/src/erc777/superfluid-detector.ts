@@ -6,8 +6,7 @@ import {
 } from '@requestnetwork/types';
 import { SuperFluidInfoRetriever } from './superfluid-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
-import { PaymentReferenceCalculator } from '..';
-
+import PaymentReferenceCalculator from '../payment-reference-calculator';
 /**
  * Handle payment networks with ERC777 Superfluid streaming extension
  */
@@ -23,23 +22,16 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
   }
 
   protected isSubsequentRequest(request: RequestLogicTypes.IRequest): boolean {
-    return !!request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM].values
+    return !!request.extensions[this.paymentNetworkId].values
       .masterRequestId;
   }
 
   /**
    * This returns the specific values we store for the ERC777 extensions.
-   * The extra fields specific for this extension are:
-   * expectedStartDate: The expected start date of streaming
-   * expectedFlowRate: extensionAction.parameters.expectedFlowRate,
-   * previousRequestId: The previous requestId in the streaming series
-   * masterRequestId: The first requestId of the streaming series
-   * recurrenceNumber: The position of this request in the streaming series, 0 indexed.
    * @param request The request we are processing
-   * @returns Object
    */
-  protected getSubsequentValues(request: RequestLogicTypes.IRequest): Record<string, any> {
-    return request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM].values;
+  protected getSubsequentValues(request: RequestLogicTypes.IRequest): ExtensionTypes.PnStreamReferenceBased.ISubsequentRequestCreationParameters {
+    return request.extensions[this.paymentNetworkId].values;
   }
 
   public async getBalance(
