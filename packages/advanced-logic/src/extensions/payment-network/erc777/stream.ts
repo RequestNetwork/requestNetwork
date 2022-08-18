@@ -36,16 +36,16 @@ export default class Erc777StreamPaymentNetwork<
     creationParameters: TCreationParameters,
   ): ExtensionTypes.IAction<TCreationParameters> {
     if (
-      !TypesUtils.isMasterRequestCreationParameters(creationParameters) &&
+      !TypesUtils.isOriginalRequestCreationParameters(creationParameters) &&
       !TypesUtils.isSubsequentRequestCreationParameters(creationParameters)
     ) {
       throw Error(
-        'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
+        'originalRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
       );
     }
 
-    /* Master Request Creation */
-    if (TypesUtils.isMasterRequestCreationParameters(creationParameters)) {
+    /* Original Request Creation */
+    if (TypesUtils.isOriginalRequestCreationParameters(creationParameters)) {
       if (!creationParameters.expectedFlowRate) {
         throw Error('expectedFlowRate should not be empty');
       }
@@ -62,7 +62,7 @@ export default class Erc777StreamPaymentNetwork<
     /* Subsequent request Creation */
     if (!this.isSubsequentRequestParametersValid(creationParameters)) {
       throw Error(
-        'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+        'recurrenceNumber must be 1 if originalRequestId and previousRequestId are equal and vice versa',
       );
     }
 
@@ -71,7 +71,7 @@ export default class Erc777StreamPaymentNetwork<
       id: this.extensionId,
       parameters: {
         previousRequestId: creationParameters.previousRequestId,
-        masterRequestId: creationParameters.masterRequestId,
+        originalRequestId: creationParameters.originalRequestId,
         recurrenceNumber: creationParameters.recurrenceNumber,
       },
       version: this.currentVersion,
@@ -91,16 +91,16 @@ export default class Erc777StreamPaymentNetwork<
     timestamp: number,
   ): ExtensionTypes.IState {
     if (
-      !TypesUtils.isMasterRequestCreationParameters(extensionAction.parameters) &&
+      !TypesUtils.isOriginalRequestCreationParameters(extensionAction.parameters) &&
       !TypesUtils.isSubsequentRequestCreationParameters(extensionAction.parameters)
     ) {
       throw Error(
-        'masterRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
+        'originalRequestId, previousRequestId and recurrenceNumber must be all empty or all filled',
       );
     }
 
     /* Master request Creation */
-    if (TypesUtils.isMasterRequestCreationParameters(extensionAction.parameters)) {
+    if (TypesUtils.isOriginalRequestCreationParameters(extensionAction.parameters)) {
       if (
         !extensionAction.parameters.expectedStartDate ||
         (extensionAction.parameters.expectedStartDate &&
@@ -137,8 +137,8 @@ export default class Erc777StreamPaymentNetwork<
     }
 
     /* Subsequent Request Creation */
-    if (!extensionAction.parameters.masterRequestId) {
-      throw Error('masterRequestId is empty');
+    if (!extensionAction.parameters.originalRequestId) {
+      throw Error('originalRequestId is empty');
     }
 
     if (!extensionAction.parameters.previousRequestId) {
@@ -155,7 +155,7 @@ export default class Erc777StreamPaymentNetwork<
 
     if (!this.isSubsequentRequestParametersValid(extensionAction.parameters)) {
       throw Error(
-        'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+        'recurrenceNumber must be 1 if originalRequestId and previousRequestId are equal and vice versa',
       );
     }
 
@@ -185,10 +185,10 @@ export default class Erc777StreamPaymentNetwork<
     parameters: ExtensionTypes.PnStreamReferenceBased.ISubsequentRequestCreationParameters,
   ): boolean {
     return (
-      (parameters.masterRequestId === parameters.previousRequestId &&
+      (parameters.originalRequestId === parameters.previousRequestId &&
         parameters.recurrenceNumber === 1) ||
       (parameters.recurrenceNumber !== 1 &&
-        parameters.masterRequestId !== parameters.previousRequestId)
+        parameters.originalRequestId !== parameters.previousRequestId)
     );
   }
 }

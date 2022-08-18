@@ -24,7 +24,7 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
 
   protected isSubsequentRequest(request: RequestLogicTypes.IRequest): boolean {
     return !!request.extensions[this.paymentNetworkId].values
-      .masterRequestId;
+      .originalRequestId;
   }
 
   /**
@@ -107,9 +107,9 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
     this.checkRequiredParameter(salt, 'salt');
     if (this.isSubsequentRequest(request)) {
-      const masterRequestId =
-        request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM].values.masterRequestId;
-      return PaymentReferenceCalculator.calculate(masterRequestId, salt, paymentAddress);
+      const originalRequestId =
+        request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM].values.originalRequestId;
+      return PaymentReferenceCalculator.calculate(originalRequestId, salt, paymentAddress);
     }
     return PaymentReferenceCalculator.calculate(request.requestId, salt, paymentAddress);
   }

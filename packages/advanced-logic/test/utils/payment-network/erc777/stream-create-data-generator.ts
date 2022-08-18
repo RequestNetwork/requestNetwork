@@ -11,7 +11,7 @@ export const refundAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 export const expectedFlowRate = '381944444444442';
 export const expectedStartDate = '1643041225';
 export const invalidAddress = '0x not and address';
-export const masterRequestId = 'abcd';
+export const originalRequestId = 'abcd';
 export const previousRequestId = 'efgh';
 export const recurrenceNumber = 2;
 
@@ -34,13 +34,21 @@ export const actionCreationFull = {
   },
   version: version,
 };
+export const actionCreationFullSubsequent = {
+  action: RequestLogicTypes.ACTION_NAME.CREATE,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+  parameters: {
+    originalRequestId,
+    previousRequestId,
+    recurrenceNumber,
+  },
+  version,
+};
 export const actionCreationOnlyPayment = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
   id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
   parameters: {
-    masterRequestId,
-    previousRequestId,
-    recurrenceNumber,
+    paymentAddress,
   },
   version,
 };
@@ -51,6 +59,29 @@ export const actionCreationEmpty = {
   version,
 };
 
+export const extensionFullStateSubsequent: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
+    events: [
+      {
+        name: RequestLogicTypes.ACTION_NAME.CREATE,
+        parameters: {
+          originalRequestId,
+          previousRequestId,
+          recurrenceNumber,
+        },
+        timestamp: arbitraryTimestamp,
+      },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      originalRequestId,
+      previousRequestId,
+      recurrenceNumber,
+    },
+    version,
+  },
+};
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionFullState: RequestLogicTypes.IExtensionStates = {
