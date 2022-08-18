@@ -17,7 +17,7 @@ export const recurrenceNumber = 2;
 
 const version = '0.1.0';
 const fDAIx = '0x745861aed1eee363b4aaa5f1994be40b1e05ff90';
-const network = 'rinkeby';
+const RINKEBY = 'rinkeby';
 
 // ---------------------------------------------------------------------
 export const salt = 'ea3bc7caf64110ca';
@@ -32,7 +32,7 @@ export const actionCreationFull = {
     refundAddress,
     salt,
   },
-  version: '0.1.0',
+  version: version,
 };
 export const actionCreationOnlyPayment = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
@@ -112,7 +112,7 @@ const baseRequestState = {
     value: TestData.payeeRaw.address,
   },
   currency: {
-    network: network,
+    network: RINKEBY,
     type: RequestLogicTypes.CURRENCY.ERC777,
     value: fDAIx,
   },
@@ -174,9 +174,9 @@ export const requestFullStateCreated: RequestLogicTypes.IRequest = {
     value: TestData.payeeRaw.address,
   },
   currency: {
-    network: 'rinkeby',
+    network: RINKEBY,
     type: RequestLogicTypes.CURRENCY.ERC777,
-    value: '0x745861aed1eee363b4aaa5f1994be40b1e05ff90', //fDAIx
+    value: fDAIx,
   },
   events: [
     {
