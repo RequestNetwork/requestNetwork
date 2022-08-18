@@ -158,7 +158,7 @@ export function encodePayBatchRequest(requests: ClientTypes.IRequestData[]): str
  * @returns List with the args required by batch Eth and Erc20 functions,
  * @dev tokenAddresses returned is for batch Erc20 functions
  */
-function getBatchArgs(requests: ClientTypes.IRequestData[]): {
+export function getBatchArgs(requests: ClientTypes.IRequestData[]): {
   tokenAddresses: Array<string>;
   paymentAddresses: Array<string>;
   amountsToPay: Array<BigNumber>;

@@ -1,25 +1,23 @@
-import { ContractTransaction, Signer, providers, constants, BigNumber, BigNumberish } from 'ethers';
-import { batchPaymentsArtifact } from '@requestnetwork/smart-contracts';
-import { BatchConversionPayments__factory, BatchPayments__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ContractTransaction, Signer, providers, BigNumber, BigNumberish } from 'ethers';
+import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
+import { BatchConversionPayments__factory } from '../../../smart-contracts/types';
+import { ClientTypes } from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   comparePnTypeAndVersion,
-  getAmountToPay,
   getPaymentNetworkExtension,
   getProvider,
   getRequestPaymentValues,
   getSigner,
-  validateErc20FeeProxyRequest,
 } from './utils';
-import { validateEthFeeProxyRequest } from './eth-fee-proxy';
 import { IPreparedTransaction } from './prepared-transaction';
-import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { IConversionPaymentSettings } from './index';
-import { prepAnyToErc20ProxyRequest } from './any-to-erc20-proxy';
+import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
+import { getBatchArgs } from './batch-proxy';
+import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 
-// used by batch smart contract
-export type ConversionDetail = {
+// Types used by batch conversion smart contract
+type ConversionDetail = {
   recipient: string;
   requestAmount: BigNumberish;
   path: string[];
@@ -29,7 +27,7 @@ export type ConversionDetail = {
   maxRateTimespan: BigNumberish;
 };
 
-export type CryptoDetails = {
+type CryptoDetails = {
   tokenAddresses: Array<string>;
   recipients: Array<string>;
   amounts: Array<BigNumberish>;
@@ -37,402 +35,228 @@ export type CryptoDetails = {
   feeAmounts: Array<BigNumberish>;
 };
 
-const emptyConversionDetail = {
-  recipient: '',
-  requestAmount: 0,
-  path: [],
-  paymentReference: '',
-  feeAmount: 0,
-  maxToSpend: 0,
-  maxRateTimespan: 0,
-};
-
-const emptyCryptoDetails = {
-  tokenAddresses: [],
-  recipients: [],
-  amounts: [],
-  paymentReferences: [],
-  feeAmounts: [],
-};
-
-export type MetaDetail = {
+type MetaDetail = {
   paymentNetworkId: number;
   conversionDetails: ConversionDetail[];
   cryptoDetails: CryptoDetails;
 };
 
-// used only for batch payment processor
-type EnrichedRequest = {
-  paymentNetworkId: number; // ref in batchConversionPayment.sol
-  requests: ClientTypes.IRequestData[];
-  paymentSettings?: IConversionPaymentSettings[];
-  amount?: BigNumberish[];
-  feeAmount?: BigNumberish[];
-  version?: string;
-  batchFee?: number;
-};
-
-/** TODO UPDATE
- * ERC20 Batch Proxy payment details:
- *   batch of request with the same payment network type: ERC20
- *   batch of request with the same payment network version
- *   2 modes available: single token or multi tokens
- * It requires batch proxy's approval
- *
- * Eth Batch Proxy payment details:
- *   batch of request with the same payment network type
- *   batch of request with the same payment network version
- * -> Eth batch proxy accepts requests with 2 id: ethProxy and ethFeeProxy
- *    but only call ethFeeProxy. It can impact payment detection
+/**
+ * Type used by batch conversion payment processor
+ * It contains requests, paymentSettings, amount and feeAmount,
+ * having the same PN, version, and batchFee
  */
+type EnrichedRequest = {
+  paymentNetworkId: 0 | 2; // ref in batchConversionPayment.sol
+  request: ClientTypes.IRequestData;
+  paymentSettings?: IConversionPaymentSettings;
+  amount?: BigNumberish;
+  feeAmount?: BigNumberish;
+};
 
 /**
  * Processes a transaction to pay a batch of requests with an ERC20 or ETH currency that is different from the request currency (eg. fiat).
- * The payment is made by the ERC20, or ETH fee proxy contract.
+ * The payment is made through ERC20 or ERC20Conversion proxies
+ * It can be used with a Multisig contract
  * @param enrichedRequests List of EnrichedRequest
+ * @param version of the batch conversion proxy
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
+ * @dev we only implement batchRouter using the ERC20 normal and conversion functions:
+ * batchERC20ConversionPaymentsMultiTokens, and batchERC20PaymentsMultiTokensWithReference.
+ * It implies that paymentNetworkId take only theses values: 0 or 2
+ * Next steps:
+ * - Enable ETH payment: normal and conversion
+ * - Enable gas optimizaton: implement the others batch functions
  */
-export async function payBatchConvProxyRequest(
+export async function payBatchConversionProxyRequest(
   enrichedRequests: EnrichedRequest[],
+  version: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = prepareBatchConvPaymentTransaction(enrichedRequests);
+  const { data, to, value } = prepareBatchConversionPaymentTransaction(enrichedRequests, version);
   const signer = getSigner(signerOrProvider);
   return signer.sendTransaction({ data, to, value, ...overrides });
 }
 
 /**
- * Prepate the transaction to pay a batch of requests through the batch proxy contract, can be used with a Multisig contract.
- * Requests paymentType must be "ETH" or "ERC20"
+ * Prepate the transaction to pay a batch of requests through the batch conversion proxy contract,
+ * it can be used with a Multisig contract.
  */
-export function prepareBatchConvPaymentTransaction(
+export function prepareBatchConversionPaymentTransaction(
   enrichedRequests: EnrichedRequest[],
+  version: string,
 ): IPreparedTransaction {
-  // we only implement batchRouter and the ERC20 normal and conversion functions
-  // batchERC20ConversionPaymentsMultiTokens, and batchERC20PaymentsMultiTokensWithReference
-  // => paymentNetworkId take only theses values: 0 or 2
-  // later, to do gas optimizaton, we will implement the others batch functions,
-
-  // revoir cette partie, il faut créer deux obj dict, un avec paymentNetworkId 0 (puis 2) ayant toutes les requests, feeAddress
-  let clusteredEnrichedRequest = []
-  for (let i = 0; i < enrichedRequests.length; i++) {
-    if (enrichedRequests[i].paymentNetworkId === 0) {
-      clusteredEnrichedRequest.push({paymentNetworkId: 0, request: enrichedRequests[i], feeAddress: enrichedRequests[i].})
-    } else if (enrichedRequests[i].paymentNetworkId === 2) {
-      clusteredEnrichedRequest.push({paymentNetworkId: 0, request: enrichedRequests[i]})
-    }
-  }
-  // create MetaDetails input
-  const metaDetails = [];
-  let ERC20ConversionInput: ConversionDetail[];
-  let ERC20Input: CryptoDetails;
-  for (let i = 0; i < enrichedRequests.length; i++) {
-    const enrichedRequest = enrichedRequests[i];
-    if (enrichedRequest.paymentNetworkId === 0) {
-      ERC20ConversionInput = batchERC20ConversionPaymentsMultiTokensInput(enrichedRequest);
-      metaDetails.push({
-        paymentNetworkId: 0,
-        conversionDetails: ERC20ConversionInput,
-        cryptoDetails: emptyCryptoDetails,
-      });
-    } else if (enrichedRequests[i].paymentNetworkId === 2) {
-      ERC20Input = batchERC20PaymentsMultiTokensWithReferenceInput(enrichedRequest);
-      metaDetails.push({
-        paymentNetworkId: 2,
-        conversionDetails: [emptyConversionDetail],
-        cryptoDetails: ERC20Input,
-      });
-    } else {
-      throw new Error('paymentNetworkId must be equal to 0 or 2');
-    }
-  }
-  console.log('metaDetails', metaDetails);
-  metaDetails;
-
-  const encodedTx = encodePayBatchRequest(requests);
-  const proxyAddress = getBatchProxyAddress(requests[0], version);
-  // let totalAmount = 0;
-
-  // if (requests[0].currencyInfo.type === 'ETH') {
-  //   const { amountsToPay, feesToPay } = getBatchArgs(requests);
-
-  //   const amountToPay = amountsToPay.reduce((sum, current) => sum.add(current), BigNumber.from(0));
-  //   const batchFeeToPay = BigNumber.from(amountToPay).mul(batchFee).div(1000);
-  //   const feeToPay = feesToPay.reduce(
-  //     (sum, current) => sum.add(current),
-  //     BigNumber.from(batchFeeToPay),
-  //   );
-  //   totalAmount = amountToPay.add(feeToPay).toNumber();
-  }
-
+  const encodedTx = encodePayBatchConversionRequest(enrichedRequests);
+  const proxyAddress = getBatchConversionProxyAddress(enrichedRequests[0].request, version);
   return {
     data: encodedTx,
     to: proxyAddress,
-    value: totalAmount,
+    value: 0,
   };
 }
 
-function batchERC20ConversionPaymentsMultiTokensInput(
-  enrichedRequest: EnrichedRequest,
-): ConversionDetail[] {
-  // encodePayAnyToErc20ProxyRequest look what they check
-  for (let i = 0; i < enrichedRequest.requests.length; i++) {
-    const {
-      path,
-      paymentReference,
-      paymentAddress,
-      feeAddress,
-      maxRateTimespan,
-      amountToPay,
-      feeToPay,
-    } = prepAnyToErc20ProxyRequest(request, enrichedRequest.paymentSettings, enrichedRequest.amount, enrichedRequest.feeAmountOverride);
-
-  }
-  
-  return [];
-}
-
-function batchERC20PaymentsMultiTokensWithReferenceInput(enrichedRequest: EnrichedRequest): CryptoDetails {
-  return {
-    tokenAddresses: [],
-    recipients: [],
-    amounts: [],
-    paymentReferences: [],
-    feeAmounts: [],
-  };
-}
-
-function samePaymentNetwork(requests: ClientTypes.IRequestData[]): void {
-  const pn = getPaymentNetworkExtension(requests[0]);
-  for (let i = 0; i < requests.length; i++) {
-    validateErc20FeeProxyRequest(requests[i]);
-    if (!comparePnTypeAndVersion(pn, requests[i])) {
-      throw new Error(`Every payment network type and version must be identical`);
-    }
-  }
-}
-
 /**
- * Encodes the call to pay a batch of requests through the ERC20Bacth or ETHBatch proxy contract,
- * can be used with a Multisig contract.
- * @param requests list of ECR20 requests to pay
- * @dev pn version of the requests is checked to avoid paying with two differents proxies (e.g: erc20proxy v1 and v2)
+ * Encodes the call to pay a batch conversion of requests through ERC20 or ERC20Conversion proxies
+ * It can be used with a Multisig contract.
+ * @param enrichedRequests list of ECR20 requests to pay
  */
- export function encodePayBatchConversion(metaDetails: MetaDetail[]): string {
-
-  const proxyContract = BatchConversionPayments__factory.createInterface();
-
-
-    
-
-    if (isMultiTokens) {
-      return proxyContract.encodeFunctionData('batchERC20PaymentsMultiTokensWithReference', [
-        tokenAddresses,
-        paymentAddresses,
-        amountsToPay,
-        paymentReferences,
-        feesToPay,
-        feeAddressUsed,
-      ]);
-    } else {
-      return proxyContract.encodeFunctionData('batchERC20PaymentsWithReference', [
-        tokenAddresses[0],
-        paymentAddresses,
-        amountsToPay,
-        paymentReferences,
-        feesToPay,
-        feeAddressUsed,
-      ]);
-    }
-  } else {
-    tokenAddresses;
-    return proxyContract.encodeFunctionData('batchEthPaymentsWithReference', [
-      paymentAddresses,
-      amountsToPay,
-      paymentReferences,
-      feesToPay,
-      feeAddressUsed,
-    ]);
+export function encodePayBatchConversionRequest(enrichedRequests: EnrichedRequest[]): string {
+  const extension = getPaymentNetworkExtension(enrichedRequests[0].request);
+  if (!extension) {
+    throw new Error('no payment network found');
   }
-}
 
-/**
- * Encodes the call to pay a batch of requests through the ERC20Bacth or ETHBatch proxy contract,
- * can be used with a Multisig contract.
- * @param requests list of ECR20 requests to pay
- * @dev pn version of the requests is checked to avoid paying with two differents proxies (e.g: erc20proxy v1 and v2)
- */
-export function encodePayBatchRequest(requests: ClientTypes.IRequestData[]): string {
-  const {
-    tokenAddresses,
-    paymentAddresses,
-    amountsToPay,
-    paymentReferences,
-    feesToPay,
-    feeAddressUsed,
-  } = getBatchArgs(requests);
+  const { feeAddress } = extension.values;
 
-  const proxyContract = BatchPayments__factory.createInterface();
+  const metaDetails: MetaDetail[] = [];
 
-  if (requests[0].currencyInfo.type === 'ERC20') {
-    let isMultiTokens = false;
-    for (let i = 0; tokenAddresses.length; i++) {
-      if (tokenAddresses[0] !== tokenAddresses[i]) {
-        isMultiTokens = true;
-        break;
+  // variable and constant to get info about each payment network (pn)
+  let pn0FirstRequest: ClientTypes.IRequestData | undefined;
+  const pn2requests = [];
+
+  const conversionDetails: ConversionDetail[] = [];
+
+  for (let i = 0; i < enrichedRequests.length; i++) {
+    if (enrichedRequests[i].paymentNetworkId === 0) {
+      // set pn0FirstRequest only if it is undefined
+      pn0FirstRequest = pn0FirstRequest ?? enrichedRequests[i].request;
+      if (
+        !comparePnTypeAndVersion(
+          getPaymentNetworkExtension(pn0FirstRequest),
+          enrichedRequests[i].request,
+        )
+      ) {
+        throw new Error(`Every payment network type and version must be identical`);
       }
-    }
+      conversionDetails.push(getInputConversionDetail(enrichedRequests[i]));
+    } else if (enrichedRequests[i].paymentNetworkId === 2) {
+      pn2requests.push(enrichedRequests[i].request);
 
-    const pn = getPaymentNetworkExtension(requests[0]);
-    for (let i = 0; i < requests.length; i++) {
-      validateErc20FeeProxyRequest(requests[i]);
-      if (!comparePnTypeAndVersion(pn, requests[i])) {
+      if (!comparePnTypeAndVersion(getPaymentNetworkExtension(pn2requests[0]), pn2requests[-1])) {
         throw new Error(`Every payment network type and version must be identical`);
       }
     }
-
-    if (isMultiTokens) {
-      return proxyContract.encodeFunctionData('batchERC20PaymentsMultiTokensWithReference', [
-        tokenAddresses,
-        paymentAddresses,
-        amountsToPay,
-        paymentReferences,
-        feesToPay,
-        feeAddressUsed,
-      ]);
-    } else {
-      return proxyContract.encodeFunctionData('batchERC20PaymentsWithReference', [
-        tokenAddresses[0],
-        paymentAddresses,
-        amountsToPay,
-        paymentReferences,
-        feesToPay,
-        feeAddressUsed,
-      ]);
-    }
-  } else {
-    tokenAddresses;
-    return proxyContract.encodeFunctionData('batchEthPaymentsWithReference', [
-      paymentAddresses,
-      amountsToPay,
-      paymentReferences,
-      feesToPay,
-      feeAddressUsed,
-    ]);
   }
+  // get cryptoDetails values
+  const { tokenAddresses, paymentAddresses, amountsToPay, paymentReferences, feesToPay } =
+    getBatchArgs(pn2requests);
+
+  // add conversionDetails to metaDetails
+  metaDetails.push({
+    paymentNetworkId: 0,
+    conversionDetails: conversionDetails,
+    cryptoDetails: {
+      tokenAddresses: [],
+      recipients: [],
+      amounts: [],
+      paymentReferences: [],
+      feeAmounts: [],
+    }, // cryptoDetails is not used with paymentNetworkId 0
+  });
+
+  // add cryptpoDetails to metaDetails
+  metaDetails.push({
+    paymentNetworkId: 2,
+    conversionDetails: [],
+    cryptoDetails: {
+      tokenAddresses: tokenAddresses,
+      recipients: paymentAddresses,
+      amounts: amountsToPay,
+      paymentReferences: paymentReferences,
+      feeAmounts: feesToPay,
+    },
+  });
+
+  const proxyContract = BatchConversionPayments__factory.createInterface();
+  return proxyContract.encodeFunctionData('batchRouter', [metaDetails, feeAddress]);
 }
 
 /**
- * Get batch arguments
- * @param requests List of requests
- * @returns List with the args required by batch Eth and Erc20 functions,
- * @dev tokenAddresses returned is for batch Erc20 functions
+ * It get the conversion detail values from one enriched request
+ * @param enrichedRequest
+ * @returns
  */
-function getBatchArgs(
-  requests: ClientTypes.IRequestData[],
-): {
-  tokenAddresses: Array<string>;
-  paymentAddresses: Array<string>;
-  amountsToPay: Array<BigNumber>;
-  paymentReferences: Array<string>;
-  feesToPay: Array<BigNumber>;
-  feeAddressUsed: string;
-} {
-  const tokenAddresses: Array<string> = [];
-  const paymentAddresses: Array<string> = [];
-  const amountsToPay: Array<BigNumber> = [];
-  const paymentReferences: Array<string> = [];
-  const feesToPay: Array<BigNumber> = [];
-  let feeAddressUsed = constants.AddressZero;
+function getInputConversionDetail(enrichedRequest: EnrichedRequest): ConversionDetail {
+  const paymentSettings = enrichedRequest.paymentSettings;
+  if (!paymentSettings) throw Error('the first enrichedRequest has no version');
+  const { path } = checkRequestAndGetPathAndCurrency(enrichedRequest.request, paymentSettings);
 
-  const paymentType = requests[0].currencyInfo.type;
-  for (let i = 0; i < requests.length; i++) {
-    if (paymentType === 'ETH') {
-      validateEthFeeProxyRequest(requests[i]);
-    } else if (paymentType === 'ERC20') {
-      validateErc20FeeProxyRequest(requests[i]);
-    } else {
-      throw new Error(`paymentType ${paymentType} is not supported for batch payment`);
-    }
+  const { paymentReference, paymentAddress, feeAmount, maxRateTimespan } = getRequestPaymentValues(
+    enrichedRequest.request,
+  );
 
-    const tokenAddress = requests[i].currencyInfo.value;
-    const { paymentReference, paymentAddress, feeAddress, feeAmount } = getRequestPaymentValues(
-      requests[i],
-    );
-
-    tokenAddresses.push(tokenAddress);
-    paymentAddresses.push(paymentAddress);
-    amountsToPay.push(getAmountToPay(requests[i]));
-    paymentReferences.push(`0x${paymentReference}`);
-    feesToPay.push(BigNumber.from(feeAmount || 0));
-    feeAddressUsed = feeAddress || constants.AddressZero;
-  }
+  const requestAmount = BigNumber.from(enrichedRequest.request.expectedAmount).sub(
+    enrichedRequest.request.balance?.balance || 0,
+  );
+  const maxToSpend = BigNumber.from(paymentSettings.maxToSpend);
 
   return {
-    tokenAddresses,
-    paymentAddresses,
-    amountsToPay,
-    paymentReferences,
-    feesToPay,
-    feeAddressUsed,
+    recipient: paymentAddress,
+    requestAmount: requestAmount,
+    path: path,
+    paymentReference: paymentReference,
+    feeAmount: BigNumber.from(feeAmount),
+    maxToSpend: maxToSpend,
+    maxRateTimespan: BigNumber.from(maxRateTimespan),
   };
 }
 
 /**
- * Get Batch contract Address
+ * Get Batch conversion contract Address
  * @param request
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param version version of the batch conversion proxy
  */
-export function getBatchProxyAddress(request: ClientTypes.IRequestData, version: string): string {
-  const pn = getPaymentNetworkExtension(request);
-  const pnId = (pn?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
-  if (!pnId) {
-    throw new Error('No payment network Id');
-  }
-
-  const proxyAddress = batchPaymentsArtifact.getAddress(request.currencyInfo.network!, version);
+export function getBatchConversionProxyAddress(
+  request: ClientTypes.IRequestData,
+  version: string,
+): string {
+  const network = request.currencyInfo.network;
+  if (!network) throw new Error('the request has no network within currencyInfo');
+  const proxyAddress = batchConversionPaymentsArtifact.getAddress(network, version);
 
   if (!proxyAddress) {
-    throw new Error(`No deployment found for network ${pn}, version ${pn?.version}`);
+    throw new Error(
+      `No deployment found on the network ${network}, associated with the version ${version}`,
+    );
   }
   return proxyAddress;
 }
 
 /**
- * ERC20 Batch proxy approvals methods
+ * ERC20 Batch conversion proxy approvals methods
  */
 
 /**
- * Processes the approval transaction of the targeted ERC20 with batch proxy.
+ * Processes the approval transaction of the targeted ERC20 with batch conversion proxy.
  * @param request request to pay
  * @param account account that will be used to pay the request
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param version version of the batch conversion proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function approveErc20BatchIfNeeded(
+export async function approveErc20BatchConversionIfNeeded(
   request: ClientTypes.IRequestData,
   account: string,
   version: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction | void> {
-  if (!(await hasErc20BatchApproval(request, account, version, signerOrProvider))) {
-    return approveErc20Batch(request, version, getSigner(signerOrProvider), overrides);
+  if (!(await hasErc20BatchConversionApproval(request, account, version, signerOrProvider))) {
+    return approveErc20BatchConversion(request, version, getSigner(signerOrProvider), overrides);
   }
 }
 
 /**
- * Checks if the batch proxy has the necessary allowance from a given account
+ * Checks if the batch conversion proxy has the necessary allowance from a given account
  * to pay a given request with ERC20 batch
  * @param request request to pay
  * @param account account that will be used to pay the request
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param version version of the batch conversion proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  */
-export async function hasErc20BatchApproval(
+export async function hasErc20BatchConversionApproval(
   request: ClientTypes.IRequestData,
   account: string,
   version: string,
@@ -440,7 +264,7 @@ export async function hasErc20BatchApproval(
 ): Promise<boolean> {
   return checkErc20Allowance(
     account,
-    getBatchProxyAddress(request, version),
+    getBatchConversionProxyAddress(request, version),
     signerOrProvider,
     request.currencyInfo.value,
     request.expectedAmount,
@@ -448,20 +272,25 @@ export async function hasErc20BatchApproval(
 }
 
 /**
- * Processes the transaction to approve the batch proxy to spend signer's tokens to pay
+ * Processes the transaction to approve the batch conversion proxy to spend signer's tokens to pay
  * the request in its payment currency. Can be used with a Multisig contract.
  * @param request request to pay
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param version version of the batch conversion proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export async function approveErc20Batch(
+export async function approveErc20BatchConversion(
   request: ClientTypes.IRequestData,
   version: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const preparedTx = prepareApproveErc20Batch(request, version, signerOrProvider, overrides);
+  const preparedTx = prepareApproveErc20BatchConversion(
+    request,
+    version,
+    signerOrProvider,
+    overrides,
+  );
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction(preparedTx);
   return tx;
@@ -471,17 +300,17 @@ export async function approveErc20Batch(
  * Prepare the transaction to approve the proxy to spend signer's tokens to pay
  * the request in its payment currency. Can be used with a Multisig contract.
  * @param request request to pay
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param version version of the batch conversion proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
-export function prepareApproveErc20Batch(
+export function prepareApproveErc20BatchConversion(
   request: ClientTypes.IRequestData,
   version: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): IPreparedTransaction {
-  const encodedTx = encodeApproveErc20Batch(request, version, signerOrProvider);
+  const encodedTx = encodeApproveErc20BatchConversion(request, version, signerOrProvider);
   const tokenAddress = request.currencyInfo.value;
   return {
     data: encodedTx,
@@ -492,18 +321,18 @@ export function prepareApproveErc20Batch(
 }
 
 /**
- * Encodes the transaction to approve the batch proxy to spend signer's tokens to pay
+ * Encodes the transaction to approve the batch conversion proxy to spend signer's tokens to pay
  * the request in its payment currency. Can be used with a Multisig contract.
  * @param request request to pay
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param version version of the batch conversion proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  */
-export function encodeApproveErc20Batch(
+export function encodeApproveErc20BatchConversion(
   request: ClientTypes.IRequestData,
   version: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
 ): string {
-  const proxyAddress = getBatchProxyAddress(request, version);
+  const proxyAddress = getBatchConversionProxyAddress(request, version);
 
   return encodeApproveAnyErc20(
     request.currencyInfo.value,
