@@ -32,17 +32,7 @@ export const actionCreationFull = {
     refundAddress,
     salt,
   },
-  version,
-};
-export const actionCreationFullSubsequent = {
-  action: RequestLogicTypes.ACTION_NAME.CREATE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
-  parameters: {
-    masterRequestId,
-    previousRequestId,
-    recurrenceNumber,
-  },
-  version,
+  version: '0.1.0',
 };
 export const actionCreationOnlyPayment = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
@@ -95,30 +85,7 @@ export const extensionFullState: RequestLogicTypes.IExtensionStates = {
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
     },
-    version,
-  },
-};
-export const extensionFullStateSubsequent: RequestLogicTypes.IExtensionStates = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
-    events: [
-      {
-        name: RequestLogicTypes.ACTION_NAME.CREATE,
-        parameters: {
-          masterRequestId,
-          previousRequestId,
-          recurrenceNumber,
-        },
-        timestamp: arbitraryTimestamp,
-      },
-    ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
-    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-    values: {
-      masterRequestId,
-      previousRequestId,
-      recurrenceNumber,
-    },
-    version,
+    version: '0.1.0',
   },
 };
 export const extensionStateCreatedEmpty = {
@@ -187,21 +154,60 @@ export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
   ],
   extensions: {},
   extensionsData: [],
+  payee: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payeeRaw.address,
+  },
+  payer: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payerRaw.address,
+  },
+  requestId: TestData.requestIdMock,
+  state: RequestLogicTypes.STATE.CREATED,
+  timestamp: TestData.arbitraryTimestamp,
+  version: '0.1.0',
 };
 
 export const requestFullStateCreated: RequestLogicTypes.IRequest = {
-  ...baseRequestState,
+  creator: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payeeRaw.address,
+  },
+  currency: {
+    network: 'rinkeby',
+    type: RequestLogicTypes.CURRENCY.ERC777,
+    value: '0x745861aed1eee363b4aaa5f1994be40b1e05ff90', //fDAIx
+  },
   events: [
     {
-      ...baseRequestEvent,
-      parameters: {
-        ...baseRequestEvent.parameters,
-        extensionsDataLength: 1,
+      actionSigner: {
+        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+        value: TestData.payeeRaw.address,
       },
+      name: RequestLogicTypes.ACTION_NAME.CREATE,
+      parameters: {
+        expectedAmount: '123400000000000000',
+        extensionsDataLength: 1,
+        isSignedRequest: false,
+      },
+      timestamp: arbitraryTimestamp,
     },
   ],
+  expectedAmount: TestData.arbitraryExpectedAmount,
   extensions: extensionFullState,
   extensionsData: [actionCreationFull],
+  payee: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payeeRaw.address,
+  },
+  payer: {
+    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
+    value: TestData.payerRaw.address,
+  },
+  requestId: TestData.requestIdMock,
+  state: RequestLogicTypes.STATE.CREATED,
+  timestamp: TestData.arbitraryTimestamp,
+  version: '0.1.0',
 };
 
 export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
