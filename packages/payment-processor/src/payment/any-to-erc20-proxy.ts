@@ -1,6 +1,10 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import {
+  CurrencyDefinition,
+  CurrencyManager,
+  UnsupportedCurrencyError,
+} from '@requestnetwork/currency';
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { Erc20ConversionProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes } from '@requestnetwork/types';
@@ -84,20 +88,15 @@ export function encodePayAnyToErc20ProxyRequest(
   ]);
 }
 
-export function prepAnyToErc20ProxyRequest(
+/**
+ * It checks paymentSettings values, it get request's path and requestCurrency
+ */
+export function checkRequestAndGetPathAndCurrency(
   request: ClientTypes.IRequestData,
   paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-): {
-  path: string[];
-  paymentReference: string;
-  paymentAddress: string;
-  feeAddress: string | undefined;
-  maxRateTimespan: string | undefined;
-  amountToPay: BigNumber;
-  feeToPay: BigNumber;
-} {
+): { path: string[]; requestCurrency: CurrencyDefinition<unknown> } {
   if (!paymentSettings.currency) {
     throw new Error('currency must be provided in the paymentSettings');
   }
@@ -132,9 +131,36 @@ export function prepAnyToErc20ProxyRequest(
 
   // Check request
   validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
+  return { path, requestCurrency };
+}
+export function prepAnyToErc20ProxyRequest(
+  request: ClientTypes.IRequestData,
+  paymentSettings: IConversionPaymentSettings,
+  amount?: BigNumberish,
+  feeAmountOverride?: BigNumberish,
+): {
+  path: string[];
+  paymentReference: string;
+  paymentAddress: string;
+  feeAddress: string | undefined;
+  maxRateTimespan: string | undefined;
+  amountToPay: BigNumber;
+  feeToPay: BigNumber;
+} {
+  const { path, requestCurrency } = checkRequestAndGetPathAndCurrency(
+    request,
+    paymentSettings,
+    amount,
+    feeAmountOverride,
+  );
 
-  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
-    getRequestPaymentValues(request);
+  const {
+    paymentReference,
+    paymentAddress,
+    feeAddress,
+    feeAmount,
+    maxRateTimespan,
+  } = getRequestPaymentValues(request);
 
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
