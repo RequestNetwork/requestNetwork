@@ -69,11 +69,7 @@ export default class Erc777StreamPaymentNetwork<
     return {
       action: ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE,
       id: this.extensionId,
-      parameters: {
-        previousRequestId: creationParameters.previousRequestId,
-        originalRequestId: creationParameters.originalRequestId,
-        recurrenceNumber: creationParameters.recurrenceNumber,
-      },
+      parameters: creationParameters,
       version: this.currentVersion,
     } as ExtensionTypes.IAction<TCreationParameters>;
   }
