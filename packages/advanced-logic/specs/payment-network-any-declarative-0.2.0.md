@@ -19,11 +19,12 @@ This extension does not ensure payment detection, only a consensus is made betwe
 As a payment network, this extension allows to deduce a payment `balance` for the request. (see
 [Interpretation](#Interpretation))
 
-### Delegates & Payment Reference 
-Although it cannot be detected, the declarative payment network can be used with some automation, with declaration by oracles for instance.
-For this purpose, a `payeeDelegate` and `payerDelegate` can be specied. The `payeeDelegate` will be allowed to declare the payment on behalf of the payee; the `payerDelegate` can declare the payment was sent, with no impact on the balance. 
+### Delegates & Payment Reference
 
-For automation, a payment reference can be computed, to be used in a bank transfer memo for instance. 
+Although it cannot be detected, the declarative payment network can be used with some automation, with declaration by oracles for instance.
+For this purpose, a `payeeDelegate` and `payerDelegate` can be specied. The `payeeDelegate` will be allowed to declare the payment on behalf of the payee; the `payerDelegate` can declare the payment was sent, with no impact on the balance.
+
+For automation, a payment reference can be computed, to be used in a bank transfer memo for instance.
 
 This `paymentReference` consists of the last 8 bytes of a salted hash of the requestId: `last8Bytes(hash(lowercase(requestId + salt + info)))`:
 
@@ -33,7 +34,6 @@ This `paymentReference` consists of the last 8 bytes of a salted hash of the req
 - `lowercase()` transforms all characters to lowercase
 - `hash()` is a keccak256 hash function
 - `last8Bytes()` take the last 8 bytes
-
 
 ## Properties
 
