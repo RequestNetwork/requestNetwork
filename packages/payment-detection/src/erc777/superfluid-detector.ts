@@ -36,6 +36,16 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     return request.extensions[this.paymentNetworkId].values;
   }
 
+  /**
+   * With streaming requests we have a custom balance computation.
+   * It is possible to have only one streaming event, start stream,
+   * but have 10 requests being created each month for the same stream.
+   * For the original request, the first one, the balance computation is easy because we don't care about previous expected balance.
+   * For subsequent requests we must take in to consideration how many requests were before this one and then attribute the rest of the balance to this one.
+   * At this point we are not detecting overpayment because in case of overpayment we are considering that another request should have been created in the series.
+   * @param request The request we are calculating balance for
+   * @returns Balance object with balance value and payment/refund events
+   */
   public async getBalance(
     request: RequestLogicTypes.IRequest,
   ): Promise<
@@ -105,6 +115,15 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     };
   }
 
+  /**
+   * In the case of the first, original request that starts the streaming,
+   * we calculate the payment reference from its own data: requestId, salt, paymentAddress.
+   * In the case of subsequent requests we need to have the same payment reference from the original request,
+   * so we need to use the original requests requestId, which we have stored in
+   * extension values as originalRequestId, the salt and paymentAddress are the same.
+   * @param request The request we need payment reference for
+   * @returns The payment reference
+   */
   protected getPaymentReference(request: RequestLogicTypes.IRequest): string {
     const { paymentAddress, salt } = this.getPaymentExtension(request).values;
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
