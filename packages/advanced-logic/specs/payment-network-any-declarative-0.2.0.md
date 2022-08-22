@@ -22,7 +22,7 @@ As a payment network, this extension allows to deduce a payment `balance` for th
 ### Delegates & Payment Reference
 
 Although it cannot be detected, the declarative payment network can be used with some automation, with declaration by oracles for instance.
-For this purpose, a `payeeDelegate` and `payerDelegate` can be specied. The `payeeDelegate` will be allowed to declare the payment on behalf of the payee; the `payerDelegate` can declare the payment was sent, with no impact on the balance.
+For this purpose, a `payeeDelegate` and `payerDelegate` can be specified. The `payeeDelegate` will be allowed to declare the payment on behalf of the payee; the `payerDelegate` can declare the payment was sent, with no impact on the balance.
 
 For automation, a payment reference can be computed, to be used in a bank transfer memo for instance.
 
