@@ -33,19 +33,6 @@ describe('api/request-network', () => {
     expect(typeof requestnetwork.fromRequestId).toBe('function');
   });
 
-  describe('createRequest', () => {
-    it('cannot createRequest() with extensionsData', async () => {
-      const requestnetwork = new RequestNetwork({ dataAccess: mockDataAccess });
-
-      await expect(
-        requestnetwork.createRequest({
-          requestInfo: { extensionsData: ['not expected'] } as any,
-          signer: {} as any,
-        }),
-      ).rejects.toThrowError('extensionsData in request parameters must be empty');
-    });
-  });
-
   describe('fromRequestId', () => {
     it('can get request with payment network fromRequestId', async () => {
       const mockDataAccessWithTxs: DataAccessTypes.IDataAccess = {
