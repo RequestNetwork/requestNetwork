@@ -128,12 +128,7 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     const { paymentAddress, salt } = this.getPaymentExtension(request).values;
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
     this.checkRequiredParameter(salt, 'salt');
-    if (this.isSubsequentRequest(request)) {
-      const originalRequestId =
-        request.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM].values
-          .originalRequestId;
-      return PaymentReferenceCalculator.calculate(originalRequestId, salt, paymentAddress);
-    }
-    return PaymentReferenceCalculator.calculate(request.requestId, salt, paymentAddress);
+    const requestId = this.isSubsequentRequest(request) ? this.getSubsequentValues(request).originalRequestId : request.requestId;
+    return PaymentReferenceCalculator.calculate(requestId, salt, paymentAddress);
   }
 }
