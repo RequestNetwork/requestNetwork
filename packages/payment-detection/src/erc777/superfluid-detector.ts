@@ -41,7 +41,7 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
    * It is possible to have only one streaming event, start stream,
    * but have 10 requests being created each month for the same stream.
    * For the original request, the first one, the balance computation is easy because we don't care about previous expected balance.
-   * For subsequent requests we must take in to consideration how many requests were before this one and then attribute the rest of the balance to this one.
+   * For subsequent requests we must take into consideration how many requests were before this one and then attribute the rest of the balance to this one.
    * At this point we are not detecting overpayment because in case of overpayment we are considering that another request should have been created in the series.
    * @param request The request we are calculating balance for
    * @returns Balance object with balance value and payment/refund events

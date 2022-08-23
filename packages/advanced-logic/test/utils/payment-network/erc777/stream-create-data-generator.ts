@@ -116,7 +116,7 @@ export const extensionFullState: RequestLogicTypes.IExtensionStates = {
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
     },
-    version: '0.1.0',
+    version,
   },
 };
 export const extensionStateCreatedEmpty = {
@@ -196,7 +196,7 @@ export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
   requestId: TestData.requestIdMock,
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
-  version: '0.1.0',
+  version,
 };
 
 export const requestFullStateCreated: RequestLogicTypes.IRequest = {
@@ -238,7 +238,7 @@ export const requestFullStateCreated: RequestLogicTypes.IRequest = {
   requestId: TestData.requestIdMock,
   state: RequestLogicTypes.STATE.CREATED,
   timestamp: TestData.arbitraryTimestamp,
-  version: '0.1.0',
+  version,
 };
 
 export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
