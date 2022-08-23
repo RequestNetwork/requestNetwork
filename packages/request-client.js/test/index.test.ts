@@ -838,7 +838,7 @@ describe('index', () => {
       expect(mock.history.post).toHaveLength(1);
     });
 
-    fit('allows to create a request with delegate', async () => {
+    it('allows to create a request with delegate', async () => {
       const requestNetwork = new RequestNetwork({
         useMockStorage: true,
         signatureProvider: TestData.fakeSignatureProvider,
