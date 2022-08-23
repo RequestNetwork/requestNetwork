@@ -59,21 +59,18 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     }
     if (totalBalance.balance) {
       const zeroBN = BigNumber.from(0);
-      let expectedPreviousBalance = zeroBN;
-      if (this.isSubsequentRequest(request)) {
-        const subrequestValues = this.getSubsequentValues(request);
-        expectedPreviousBalance = BigNumber.from(subrequestValues.recurrenceNumber).mul(
-          request.expectedAmount,
-        );
-      }
-      const remainingBalance = BigNumber.from(totalBalance.balance).sub(expectedPreviousBalance);
-      let requestBalance = zeroBN;
+      const recurrenceNumber = this.getSubsequentValues(request).recurrenceNumber || 0;
+      // This request's balance is the total streamed amount, less all previous requests balance.
+      const remainingBalance = BigNumber.from(totalBalance.balance).sub(
+        BigNumber.from(request.expectedAmount).mul(BigNumber.from(recurrenceNumber)),
+      );
+      // Balance is stricty between 0 and expectedAmount
       const expectedAmount = BigNumber.from(request.expectedAmount);
-      if (remainingBalance.gte(expectedAmount)) {
-        requestBalance = expectedAmount;
-      } else {
-        requestBalance = remainingBalance.gt(zeroBN) ? remainingBalance : zeroBN;
-      }
+      const requestBalance = remainingBalance.lt(0)
+        ? zeroBN
+        : remainingBalance.gt(expectedAmount)
+        ? expectedAmount
+        : remainingBalance;
       totalBalance.balance = requestBalance.toString();
     }
     return totalBalance;
@@ -128,7 +125,9 @@ export class SuperFluidPaymentDetector extends ReferenceBasedDetector<
     const { paymentAddress, salt } = this.getPaymentExtension(request).values;
     this.checkRequiredParameter(paymentAddress, 'paymentAddress');
     this.checkRequiredParameter(salt, 'salt');
-    const requestId = this.isSubsequentRequest(request) ? this.getSubsequentValues(request).originalRequestId : request.requestId;
+    const requestId = this.isSubsequentRequest(request)
+      ? this.getSubsequentValues(request).originalRequestId
+      : request.requestId;
     return PaymentReferenceCalculator.calculate(requestId, salt, paymentAddress);
   }
 }
