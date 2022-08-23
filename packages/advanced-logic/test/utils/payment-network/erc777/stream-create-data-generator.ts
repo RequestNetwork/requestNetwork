@@ -32,7 +32,7 @@ export const actionCreationFull = {
     refundAddress,
     salt,
   },
-  version: version,
+  version,
 };
 export const actionCreationFullSubsequent = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
