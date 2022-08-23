@@ -873,6 +873,34 @@ describe('index', () => {
       expect(requestData.balance!.balance).toEqual('10');
     });
 
+    it('allows to declare a received payment from delegate', async () => {
+      const requestNetwork = new RequestNetwork({
+        useMockStorage: true,
+        signatureProvider: TestData.fakeSignatureProvider,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {},
+      };
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: TestData.parametersWithoutExtensionsData,
+        signer: TestData.payee.identity,
+      });
+      await request.waitForConfirmation();
+
+      await waitForConfirmation(
+        request.addDeclarativeDelegate(TestData.delegate.identity, TestData.payee.identity),
+      );
+
+      const requestData = await waitForConfirmation(
+        request.declareReceivedPayment('10', 'received payment', TestData.delegate.identity),
+      );
+      expect(requestData.balance!.balance).toEqual('10');
+    });
+
     it('allows to declare a received payment by providing transaction hash and network', async () => {
       const requestNetwork = new RequestNetwork({
         httpConfig,
