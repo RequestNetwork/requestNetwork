@@ -116,7 +116,7 @@ const mockThirdSubrequest: RequestLogicTypes.IRequest = {
 
 /**
  * Generates transfer event with specific balance depending on the month of observation.
- * The monthNumber is not the month ID like 1 for Jan, 2 for Feb, but instead
+ * The monthNumber is the number of months passed since the start of the stream.
  */
 const mockTransferEventsForMonth = (monthNumber: number) => {
   jest
