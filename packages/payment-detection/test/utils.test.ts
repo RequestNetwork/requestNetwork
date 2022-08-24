@@ -166,7 +166,7 @@ describe('calculateEscrowState', () => {
   });
 });
 
-fdescribe('getPaymentReference', () => {
+describe('getPaymentReference', () => {
   const salt = 'a1a2a3a4a5a6a7a8';
   const paymentAddress = '0x0000000000000000000000000000000000000001';
   const refundAddress = '0x0000000000000000000000000000000000000002';
