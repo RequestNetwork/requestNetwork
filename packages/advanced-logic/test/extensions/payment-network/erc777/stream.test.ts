@@ -401,12 +401,12 @@ describe('extensions/payment-network/erc777/stream', () => {
     });
 
     describe('Subsequent Request creation', () => {
-      const invalidCases = ['masterRequestId', 'previousRequestId', 'recurrenceNumber'];
+      const invalidCases = ['originalRequestId', 'previousRequestId', 'recurrenceNumber'];
       describe('createCreateAction', () => {
         it('Can create a create action for a subsequent request of a serie', () => {
           expect(
             erc777StreamPaymentNetwork.createCreationAction({
-              masterRequestId: 'abcd',
+              originalRequestId: 'abcd',
               previousRequestId: 'efgh',
               recurrenceNumber: 2,
             }),
@@ -414,7 +414,7 @@ describe('extensions/payment-network/erc777/stream', () => {
             action: 'create',
             id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
             parameters: {
-              masterRequestId: 'abcd',
+              originalRequestId: 'abcd',
               previousRequestId: 'efgh',
               recurrenceNumber: 2,
             },
@@ -425,24 +425,24 @@ describe('extensions/payment-network/erc777/stream', () => {
         it(`Can not create a subsequent request with invalid parameters - 1`, () => {
           expect(() =>
             erc777StreamPaymentNetwork.createCreationAction({
-              masterRequestId: 'abcd',
+              originalRequestId: 'abcd',
               previousRequestId: 'abcd',
               recurrenceNumber: 2,
             }),
           ).toThrowError(
-            'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+            'recurrenceNumber must be 1 if originalRequestId and previousRequestId are equal and vice versa',
           );
         });
 
         it(`Can not create a subsequent request with invalid parameters - 2`, () => {
           expect(() =>
             erc777StreamPaymentNetwork.createCreationAction({
-              masterRequestId: 'abcd',
+              originalRequestId: 'abcd',
               previousRequestId: 'efgh',
               recurrenceNumber: 1,
             }),
           ).toThrowError(
-            'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+            'recurrenceNumber must be 1 if originalRequestId and previousRequestId are equal and vice versa',
           );
         });
       });
@@ -465,7 +465,7 @@ describe('extensions/payment-network/erc777/stream', () => {
             const badActionCreation = {
               ...DataERC777StreamCreate.actionCreationFullSubsequent,
               parameters: {
-                masterRequestId: invalidCase === 'masterRequestId' ? undefined : 'abcd',
+                originalRequestId: invalidCase === 'originalRequestId' ? undefined : 'abcd',
                 previousRequestId: invalidCase === 'previousRequestId' ? undefined : 'efgh',
                 recurrenceNumber: invalidCase === 'recurrenceNumber' ? undefined : 2,
               },
@@ -486,7 +486,7 @@ describe('extensions/payment-network/erc777/stream', () => {
           const badActionCreation = {
             ...DataERC777StreamCreate.actionCreationFullSubsequent,
             parameters: {
-              masterRequestId: 'abcd',
+              originalRequestId: 'abcd',
               previousRequestId: 'abcd',
               recurrenceNumber: 2,
             },
@@ -500,7 +500,7 @@ describe('extensions/payment-network/erc777/stream', () => {
               TestData.arbitraryTimestamp,
             ),
           ).toThrowError(
-            'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+            'recurrenceNumber must be 1 if originalRequestId and previousRequestId are equal and vice versa',
           );
         });
 
@@ -508,7 +508,7 @@ describe('extensions/payment-network/erc777/stream', () => {
           const badActionCreation = {
             ...DataERC777StreamCreate.actionCreationFullSubsequent,
             parameters: {
-              masterRequestId: 'abcd',
+              originalRequestId: 'abcd',
               previousRequestId: 'efgh',
               recurrenceNumber: 1,
             },
@@ -522,7 +522,7 @@ describe('extensions/payment-network/erc777/stream', () => {
               TestData.arbitraryTimestamp,
             ),
           ).toThrowError(
-            'recurrenceNumber must be 1 if masterRequestId and previousRequestId are equal and vice versa',
+            'recurrenceNumber must be 1 if originalRequestId and previousRequestId are equal and vice versa',
           );
         });
 

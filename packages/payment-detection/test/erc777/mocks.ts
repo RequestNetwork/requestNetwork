@@ -1,3 +1,5 @@
+import { PaymentTypes } from '@requestnetwork/types';
+
 const mockUntagged = [
   {
     transactionHash: '0x4e334bd4436ad812e30f74b358580cc3bed0407814133147edfb56ad6672bf75',
@@ -193,3 +195,31 @@ export const mockSuperfluidSubgraph = [
     flow: mockFlows[2],
   },
 ];
+
+export const genTransferEventsByMonth = (monthNumber: number, expectedAmount: number) => {
+  const monthMultipliers: Record<number, number> = {
+    1: 0.5,
+    2: 1.5,
+    3: 2.5,
+    4: 3.5,
+  };
+  const paymentEvent = {
+    amount: expectedAmount * monthMultipliers[monthNumber],
+    name: PaymentTypes.EVENTS_NAMES.PAYMENT,
+    parameters: {
+      block: 1,
+      feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
+      feeAmount: '5',
+      to: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
+      txHash: '0xABCD',
+    },
+    timestamp: 11,
+  };
+  // @ts-ignore
+  return (request: any) => {
+    return Promise.resolve({
+      paymentEvents: [paymentEvent],
+      escrowEvents: [],
+    });
+  };
+};
