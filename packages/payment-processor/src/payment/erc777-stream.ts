@@ -1,13 +1,9 @@
 import { ContractTransaction, Signer, Overrides, providers } from 'ethers';
 
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
-import {
-  getPaymentNetworkExtension,
-  getProvider,
-  getRequestPaymentValues,
-  validateRequest,
-} from './utils';
+import { getProvider, getRequestPaymentValues, validateRequest } from './utils';
 import { Framework } from '@superfluid-finance/sdk-core';
 import { IPreparedTransaction } from './prepared-transaction';
 

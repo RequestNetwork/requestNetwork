@@ -1,8 +1,9 @@
 import { ethers, BigNumberish } from 'ethers';
+import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 import { ClientTypes } from '@requestnetwork/types';
 
-import { getAmountToPay, getPaymentNetworkExtension } from './utils';
+import { getAmountToPay } from './utils';
 
 /**
  * Returns the BIP21 payment URL based on the Request's value

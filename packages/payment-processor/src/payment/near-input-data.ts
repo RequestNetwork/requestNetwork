@@ -31,6 +31,9 @@ export async function payNearInputDataRequest(
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount).toString();
   const version = getPaymentExtensionVersion(request);
+  if (!paymentReference) {
+    throw new Error('Cannot pay without a paymentReference');
+  }
 
   return processNearPayment(
     walletConnection,
