@@ -68,8 +68,8 @@ describe('contract: BatchConversionPayments', () => {
 
   // variables needed for chainlink and conversion payments
   let path: string[];
-  let conversionToPayBis: BigNumber;
-  let conversionFeesBis: BigNumber;
+  let conversionToPay: BigNumber;
+  let conversionFees: BigNumber;
 
   // type required by Erc20 conversion batch function inputs
   type ConversionDetail = {
@@ -108,16 +108,16 @@ describe('contract: BatchConversionPayments', () => {
     _chainlinkPath: ChainlinkConversionPath,
   ) => {
     const conversionToPayFull = await _chainlinkPath.getConversion(_requestAmount, _path);
-    conversionToPayBis = conversionToPayFull.result;
+    conversionToPay = conversionToPayFull.result;
     const conversionFeeFull = await _chainlinkPath.getConversion(_feeAmount, _path);
-    conversionFeesBis = conversionFeeFull.result;
+    conversionFees = conversionFeeFull.result;
     convDetail = {
       recipient: _recipient,
       requestAmount: _requestAmount,
       path: _path,
       paymentReference: referenceExample,
       feeAmount: _feeAmount,
-      maxToSpend: conversionToPayBis.add(conversionFeesBis).toString(),
+      maxToSpend: conversionToPay.add(conversionFees).toString(),
       maxRateTimespan: _maxRateTimespan,
     };
   };
@@ -222,8 +222,8 @@ describe('contract: BatchConversionPayments', () => {
   const emitOneTx = (
     result: Chai.Assertion,
     _convDetail: ConversionDetail,
-    _conversionToPay = conversionToPayBis,
-    _conversionFees = conversionFeesBis,
+    _conversionToPay = conversionToPay,
+    _conversionFees = conversionFees,
     _testErc20ConversionProxy = testErc20ConversionProxy,
   ) => {
     return result.to
@@ -260,11 +260,11 @@ describe('contract: BatchConversionPayments', () => {
       const receipt = await tx.wait();
       console.log(`gas consumption: `, receipt.gasUsed.toString());
     } else {
-      await emitOneTx(expect(result), convDetail, conversionToPayBis, conversionFeesBis);
+      await emitOneTx(expect(result), convDetail, conversionToPay, conversionFees);
     }
 
     [fromDiffBalanceExpected, toDiffBalanceExpected, feeDiffBalanceExpected] =
-      expectedERC20Balances([conversionToPayBis], [conversionFeesBis], batchConvFee);
+      expectedERC20Balances([conversionToPay], [conversionFees], batchConvFee);
   };
 
   /**
@@ -295,11 +295,11 @@ describe('contract: BatchConversionPayments', () => {
     for (let i = 0; i < nTimes; i++) {
       convDetails = convDetails.concat([convDetail, convDetail2]);
       conversionsToPay_results = conversionsToPay_results.concat([
-        conversionToPayBis,
+        conversionToPay,
         conversionToPayFull2.result,
       ]);
       conversionsFees_results = conversionsFees_results.concat([
-        conversionFeesBis,
+        conversionFees,
         conversionFeesFull2.result,
       ]);
     }
@@ -484,6 +484,12 @@ describe('contract: BatchConversionPayments', () => {
       );
     });
 
+    after(async () => {
+      // restore previous values for consistency
+      await testBatchConversionProxy.setBatchFee(30);
+      await testBatchConversionProxy.setBatchConversionFee(30);
+    });
+
     describe(useBatchRouter ? 'Through batchRouter' : 'Without batchRouter', () => {
       describe('batchERC20ConversionPaymentsMultiTokens with DAI', async () => {
         it('allows to transfer DAI tokens for USD payment', async () => {
@@ -521,7 +527,7 @@ describe('contract: BatchConversionPayments', () => {
       });
 
       it('cannot transfer if max to spend too low', async function () {
-        convDetail.maxToSpend = conversionToPayBis.add(conversionFeesBis).sub(1).toString();
+        convDetail.maxToSpend = conversionToPay.add(conversionFees).sub(1).toString();
         await expect(batchConvFunction(argTemplate([convDetail]), feeAddress)).to.be.revertedWith(
           'Amount to pay is over the user limit',
         );
