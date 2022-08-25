@@ -63,7 +63,6 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       nativeToken: [new NearNative()],
     };
   }
-
   /**
    * Applies the extension action to the request extensions state
    *

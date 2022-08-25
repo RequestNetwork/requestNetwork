@@ -31,6 +31,7 @@ export abstract class DeclarativePaymentDetectorBase<
     return this.extension.createCreationAction({
       paymentInfo: paymentNetworkCreationParameters.paymentInfo,
       refundInfo: paymentNetworkCreationParameters.refundInfo,
+      salt: paymentNetworkCreationParameters.salt,
     });
   }
 
