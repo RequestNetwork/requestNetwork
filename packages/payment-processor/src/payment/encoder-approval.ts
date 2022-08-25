@@ -12,7 +12,7 @@ import {
   hasErc20ApprovalForSwapWithConversion,
   prepareApprovalErc20ForSwapWithConversionToPay,
 } from './swap-conversion-erc20';
-import { getPaymentNetworkExtension } from './utils';
+import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 /**
  * For a given request and user, encode an approval transaction if it is needed.

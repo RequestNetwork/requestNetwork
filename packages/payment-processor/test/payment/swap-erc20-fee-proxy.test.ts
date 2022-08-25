@@ -13,6 +13,8 @@ import { getErc20Balance } from '../../src/payment/erc20';
 import { approveErc20ForSwapToPayIfNeeded } from '../../src/payment/swap-erc20';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { ISwapSettings, swapErc20FeeProxyRequest } from '../../src/payment/swap-erc20-fee-proxy';
+import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
+import { revokeErc20Approval } from '../../src/payment/utils';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -78,6 +80,14 @@ const validSwapSettings: ISwapSettings = {
 
 describe('swap-erc20-fee-proxy', () => {
   describe('encodeSwapErc20FeeRequest', () => {
+    beforeAll(async () => {
+      // revoke erc20SwapToPay approval
+      await revokeErc20Approval(
+        erc20SwapToPayArtifact.getAddress(validRequest.currencyInfo.network!),
+        alphaErc20Address,
+        wallet.provider,
+      );
+    });
     it('should throw an error if the request is not erc20', async () => {
       const request = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
       request.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;

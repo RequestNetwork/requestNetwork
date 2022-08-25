@@ -264,28 +264,21 @@ const testSuite = (
           const balanceErc20After2 = await getErc20Balance(request2, wallet.address, provider);
           const feeBalanceErc20After2 = await getErc20Balance(request2, feeAddress, provider);
           // compare request 2 balances
-          expect(
-            BigNumber.from(balanceErc20After2).eq(
-              BigNumber.from(balanceErc20Before2).sub(amount + (2 + 10)),
-            ),
+          expect(BigNumber.from(balanceErc20After2)).toEqual(
+            BigNumber.from(balanceErc20Before2).sub(amount + (2 + 10)),
           );
-          expect(
-            BigNumber.from(feeBalanceErc20After2).eq(
-              BigNumber.from(feeBalanceErc20Before2).add(2 + 10),
-            ),
+
+          expect(BigNumber.from(feeBalanceErc20After2)).toEqual(
+            BigNumber.from(feeBalanceErc20Before2).add(2 + 10),
           );
         }
 
         // compare request 1 balances
-        expect(
-          BigNumber.from(balanceErc20After).eq(
-            BigNumber.from(balanceErc20Before).sub(amount + feeAmount),
-          ),
+        expect(BigNumber.from(balanceErc20After)).toEqual(
+          BigNumber.from(balanceErc20Before).sub(amount + feeAmount),
         );
-        expect(
-          BigNumber.from(feeBalanceErc20After).eq(
-            BigNumber.from(feeBalanceErc20Before).add(feeAmount),
-          ),
+        expect(BigNumber.from(feeBalanceErc20After)).toEqual(
+          BigNumber.from(feeBalanceErc20Before).add(feeAmount),
         );
       });
     });

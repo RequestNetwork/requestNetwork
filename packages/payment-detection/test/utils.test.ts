@@ -1,6 +1,11 @@
 import { CurrencyManager } from '@requestnetwork/currency';
-import { PaymentTypes } from '@requestnetwork/types';
-import { padAmountForChainlink, unpadAmountFromChainlink, calculateEscrowState } from '../src';
+import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import {
+  padAmountForChainlink,
+  unpadAmountFromChainlink,
+  calculateEscrowState,
+  getPaymentReference,
+} from '../src';
 
 describe('conversion: padding amounts for Chainlink', () => {
   const currencyManager = CurrencyManager.getDefault();
@@ -158,5 +163,165 @@ describe('calculateEscrowState', () => {
       },
     ];
     expect(calculateEscrowState(escrowEvents)).toEqual(PaymentTypes.ESCROW_STATE.PAID_ISSUER);
+  });
+});
+
+describe('getPaymentReference', () => {
+  const salt = 'a1a2a3a4a5a6a7a8';
+  const paymentAddress = '0x0000000000000000000000000000000000000001';
+  const refundAddress = '0x0000000000000000000000000000000000000002';
+
+  const paymentInfo = { IBAN: 'FR123456789123456789', BIC: 'CE123456789' };
+  const refundInfo = { IBAN: 'FR987654321987654321', BIC: 'CE987654321' };
+
+  it('is undefined on missing salt', () => {
+    expect(
+      getPaymentReference({
+        requestId: '01abyz',
+        extensions: {
+          [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+            id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+            values: {
+              paymentAddress,
+              refundAddress,
+            },
+            version: '0.1.0',
+            events: [],
+          },
+        },
+      }),
+    ).toBe(undefined);
+  });
+
+  it('is undefined on missing info', () => {
+    expect(
+      getPaymentReference({
+        requestId: '01abyz',
+        extensions: {
+          [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+            id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+            values: {},
+            version: '0.1.0',
+            events: [],
+          },
+        },
+      }),
+    ).toBe(undefined);
+  });
+
+  it('crypto request payment', () => {
+    expect(
+      getPaymentReference({
+        requestId: '01abyz',
+        extensions: {
+          [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+            id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+            values: {
+              paymentAddress,
+              refundAddress,
+              salt,
+            },
+            version: '0.1.0',
+            events: [],
+          },
+        },
+      }),
+    ).toBe('6edd2877758e7e69');
+  });
+
+  it('crypto request refund', () => {
+    expect(
+      getPaymentReference(
+        {
+          requestId: '01abyz',
+          extensions: {
+            [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+              id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+              type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+              values: {
+                paymentAddress,
+                refundAddress,
+                salt,
+              },
+              version: '0.1.0',
+              events: [],
+            },
+          },
+        },
+        PaymentTypes.EVENTS_NAMES.REFUND,
+      ),
+    ).toBe('10f62d12e4d6be3f');
+  });
+
+  it('declarative request payment', () => {
+    expect(
+      getPaymentReference({
+        requestId: '01abyz',
+        extensions: {
+          [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: {
+            id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+            values: {
+              paymentInfo,
+              refundInfo,
+              salt,
+            },
+            version: '0.1.0',
+            events: [],
+          },
+        },
+      }),
+    ).toBe('87a333df2660c8a9');
+  });
+
+  it('declarative request refund', () => {
+    expect(
+      getPaymentReference(
+        {
+          requestId: '01abyz',
+          extensions: {
+            [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: {
+              id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+              type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+              values: {
+                paymentInfo,
+                refundInfo,
+                salt,
+              },
+              version: '0.1.0',
+              events: [],
+            },
+          },
+        },
+        PaymentTypes.EVENTS_NAMES.REFUND,
+      ),
+    ).toBe('c204ba7a643ddf31');
+  });
+
+  it('Escrow acts as a payment', () => {
+    expect(
+      getPaymentReference(
+        {
+          requestId: '01abyz',
+          extensions: {
+            [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+              id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+              type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+              values: {
+                paymentAddress,
+                refundAddress,
+                salt,
+              },
+              version: '0.1.0',
+              events: [],
+            },
+          },
+        },
+        PaymentTypes.EVENTS_NAMES.ESCROW,
+      ),
+    ).toBe('6edd2877758e7e69');
   });
 });

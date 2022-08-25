@@ -7,11 +7,11 @@ export {
 
 /** Parameters for the creation action */
 export type ICreationParameters =
-  | IMasterRequestCreationParameters
+  | IOriginalRequestCreationParameters
   | ISubsequentRequestCreationParameters;
 
 /** Parameters for the creation action of the first request of a series */
-export interface IMasterRequestCreationParameters extends PnReferenceBased.ICreationParameters {
+export interface IOriginalRequestCreationParameters extends PnReferenceBased.ICreationParameters {
   expectedFlowRate: string;
   expectedStartDate: string;
 }
@@ -22,7 +22,7 @@ export interface ISubsequentRequestCreationParameters
   /* requestId of the previous request in the series */
   previousRequestId: string;
   /* requestId of the first request of the series */
-  masterRequestId: string;
+  originalRequestId: string;
   /* rank of the request in the series */
   recurrenceNumber: number;
 }

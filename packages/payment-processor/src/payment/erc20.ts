@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
-import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
+import { Erc20PaymentNetwork, getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
@@ -11,7 +11,6 @@ import { _getErc20ProxyPaymentUrl, payErc20ProxyRequest } from './erc20-proxy';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getNetworkProvider,
-  getPaymentNetworkExtension,
   getProvider,
   getProxyAddress as genericGetProxyAddress,
   getSigner,

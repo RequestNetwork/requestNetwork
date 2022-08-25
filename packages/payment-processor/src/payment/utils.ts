@@ -1,6 +1,6 @@
 import { ethers, Signer, providers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 
-import { PaymentReferenceCalculator, getDefaultProvider } from '@requestnetwork/payment-detection';
+import { getDefaultProvider, getPaymentReference } from '@requestnetwork/payment-detection';
 import {
   ClientTypes,
   ExtensionTypes,
@@ -9,6 +9,7 @@ import {
 } from '@requestnetwork/types';
 import { getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
+import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 /**
  * Thrown when the library does not support a payment blockchain network.
@@ -64,19 +65,6 @@ export function getSigner(
 }
 
 /**
- * Utility to return the payment network extension of a Request.
- * @param request
- */
-export function getPaymentNetworkExtension(
-  request: ClientTypes.IRequestData,
-): ExtensionTypes.IState | undefined {
-  // eslint-disable-next-line
-  return Object.values(request.extensions).find(
-    (x) => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
-  );
-}
-
-/**
  * Utility to access the payment address, reference,
  * and optional feeAmount, feeAddress, expectedFlowRate, expectedStartDate
  * of a Request.
@@ -84,7 +72,7 @@ export function getPaymentNetworkExtension(
  */
 export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   paymentAddress: string;
-  paymentReference: string;
+  paymentReference?: string;
   feeAmount?: string;
   feeAddress?: string;
   expectedFlowRate?: string;
@@ -100,7 +88,6 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   }
   const {
     paymentAddress,
-    salt,
     feeAmount,
     feeAddress,
     expectedFlowRate,
@@ -109,11 +96,7 @@ export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
     maxRateTimespan,
     network,
   } = extension.values;
-  const paymentReference = PaymentReferenceCalculator.calculate(
-    request.requestId,
-    salt,
-    paymentAddress,
-  );
+  const paymentReference = getPaymentReference(request);
   return {
     paymentAddress,
     paymentReference,

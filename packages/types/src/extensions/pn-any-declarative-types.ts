@@ -31,6 +31,8 @@ export interface ICreationParameters {
   refundInfo?: any;
   payeeDelegate?: IIdentity;
   payerDelegate?: IIdentity;
+  /** Optional salt to compute a payment reference */
+  salt?: string;
 }
 
 /** Parameters of declareSentPayment and declareSentRefund action */

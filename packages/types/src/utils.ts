@@ -1,7 +1,7 @@
 import { PaymentTypes } from '.';
 import {
   ICreationParameters,
-  IMasterRequestCreationParameters,
+  IOriginalRequestCreationParameters,
   ISubsequentRequestCreationParameters,
 } from './extensions/pn-any-stream-reference-based-types';
 
@@ -20,12 +20,12 @@ export function isPaymentNetworkId(value: any): value is PaymentTypes.PAYMENT_NE
 }
 
 /**
- * Types the creation parameters as IMasterRequestCreationParameters if it satisfies the condition
+ * Types the creation parameters as IOriginalRequestCreationParameters if it satisfies the condition
  * @param parameters to test
  */
-export const isMasterRequestCreationParameters = (
+export const isOriginalRequestCreationParameters = (
   parameters: ICreationParameters,
-): parameters is IMasterRequestCreationParameters => {
+): parameters is IOriginalRequestCreationParameters => {
   return Object.keys(parameters).includes('expectedFlowRate');
 };
 
@@ -36,5 +36,5 @@ export const isMasterRequestCreationParameters = (
 export const isSubsequentRequestCreationParameters = (
   parameters: ICreationParameters,
 ): parameters is ISubsequentRequestCreationParameters => {
-  return Object.keys(parameters).includes('masterRequestId');
+  return Object.keys(parameters).includes('originalRequestId');
 };
