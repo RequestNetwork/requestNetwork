@@ -158,7 +158,10 @@ export function encodePayBatchRequest(requests: ClientTypes.IRequestData[]): str
  * @returns List with the args required by batch Eth and Erc20 functions,
  * @dev tokenAddresses returned is for batch Erc20 functions
  */
-export function getBatchArgs(requests: ClientTypes.IRequestData[]): {
+export function getBatchArgs(
+  requests: ClientTypes.IRequestData[],
+  forcedPaymentType?: 'ETH' | 'ERC20',
+): {
   tokenAddresses: Array<string>;
   paymentAddresses: Array<string>;
   amountsToPay: Array<BigNumber>;
@@ -173,7 +176,7 @@ export function getBatchArgs(requests: ClientTypes.IRequestData[]): {
   const feesToPay: Array<BigNumber> = [];
   let feeAddressUsed = constants.AddressZero;
 
-  const paymentType = requests[0].currencyInfo.type;
+  const paymentType = forcedPaymentType ?? requests[0].currencyInfo.type;
   for (let i = 0; i < requests.length; i++) {
     if (paymentType === 'ETH') {
       validateEthFeeProxyRequest(requests[i]);
@@ -213,7 +216,7 @@ export function getBatchArgs(requests: ClientTypes.IRequestData[]): {
  */
 export function getBatchProxyAddress(request: ClientTypes.IRequestData, version: string): string {
   const pn = getPaymentNetworkExtension(request);
-  const pnId = pn?.id as unknown as PaymentTypes.PAYMENT_NETWORK_ID;
+  const pnId = (pn?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
   if (!pnId) {
     throw new Error('No payment network Id');
   }

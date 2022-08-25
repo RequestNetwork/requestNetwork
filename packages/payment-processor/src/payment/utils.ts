@@ -293,7 +293,6 @@ export function validateConversionFeeProxyRequest(
     PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   );
   const { tokensAccepted } = getRequestPaymentValues(request);
-
   const requestCurrencyHash = path[0];
   if (requestCurrencyHash.toLowerCase() !== getCurrencyHash(request.currencyInfo).toLowerCase()) {
     throw new Error(`The first entry of the path does not match the request currency`);

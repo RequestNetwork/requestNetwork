@@ -1,5 +1,5 @@
 import { CurrencyManager, CurrencyDefinition } from '@requestnetwork/currency';
-import { RequestLogicTypes } from '@requestnetwork/types';
+import { RequestLogicTypes, ClientTypes } from '@requestnetwork/types';
 
 export const currencyManager = new CurrencyManager([
   ...CurrencyManager.getDefaultList(),
@@ -24,3 +24,10 @@ export const currencyManager = new CurrencyManager([
     type: RequestLogicTypes.CURRENCY.ERC20,
   })),
 ]);
+
+export const sameCurrencyValue = (
+  requestA: ClientTypes.IRequestData,
+  requestB: ClientTypes.IRequestData,
+): boolean => {
+  return requestA.currencyInfo.value === requestB.currencyInfo.value;
+};

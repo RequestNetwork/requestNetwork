@@ -74,7 +74,6 @@ export function encodePayAnyToErc20ProxyRequest(
     amountToPay,
     feeToPay,
   } = prepAnyToErc20ProxyRequest(request, paymentSettings, amount, feeAmountOverride);
-
   const proxyContract = Erc20ConversionProxy__factory.createInterface();
   return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
     paymentAddress,
@@ -154,8 +153,13 @@ export function prepAnyToErc20ProxyRequest(
     feeAmountOverride,
   );
 
-  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
-    getRequestPaymentValues(request);
+  const {
+    paymentReference,
+    paymentAddress,
+    feeAddress,
+    feeAmount,
+    maxRateTimespan,
+  } = getRequestPaymentValues(request);
 
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
