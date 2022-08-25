@@ -72,7 +72,7 @@ export function getSigner(
  */
 export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   paymentAddress: string;
-  paymentReference: string | undefined;
+  paymentReference?: string;
   feeAmount?: string;
   feeAddress?: string;
   expectedFlowRate?: string;
