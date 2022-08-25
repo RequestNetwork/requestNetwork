@@ -300,4 +300,28 @@ describe('getPaymentReference', () => {
       ),
     ).toBe('c204ba7a643ddf31');
   });
+
+  it('Escrow acts as a payment', () => {
+    expect(
+      getPaymentReference(
+        {
+          requestId: '01abyz',
+          extensions: {
+            [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+              id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+              type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+              values: {
+                paymentAddress,
+                refundAddress,
+                salt,
+              },
+              version: '0.1.0',
+              events: [],
+            },
+          },
+        },
+        PaymentTypes.EVENTS_NAMES.ESCROW,
+      ),
+    ).toBe('6edd2877758e7e69');
+  });
 });
