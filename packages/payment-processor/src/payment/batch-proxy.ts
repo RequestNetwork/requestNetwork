@@ -2,11 +2,11 @@ import { ContractTransaction, Signer, providers, constants, BigNumber } from 'et
 import { batchPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchPayments__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   comparePnTypeAndVersion,
   getAmountToPay,
-  getPaymentNetworkExtension,
   getProvider,
   getRequestPaymentValues,
   getSigner,

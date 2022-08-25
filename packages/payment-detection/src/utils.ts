@@ -1,9 +1,10 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
-import { RequestLogicTypes, PaymentTypes } from '@requestnetwork/types';
+import { RequestLogicTypes, PaymentTypes, ExtensionTypes } from '@requestnetwork/types';
 import { BigNumber, BigNumberish, Contract } from 'ethers';
 import { keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 import { NetworkNotSupported, VersionNotSupported } from './balance-error';
+import PaymentReferenceCalculator from './payment-reference-calculator';
 
 /**
  * Converts the Log's args from array to an object with keys being the name of the arguments
@@ -126,3 +127,47 @@ export const calculateEscrowState = (
   }
   return null;
 };
+
+/**
+ * Return the payment network extension of a Request.
+ */
+export function getPaymentNetworkExtension(
+  request: Pick<RequestLogicTypes.IRequest, 'extensions'>,
+): ExtensionTypes.IState | undefined {
+  return Object.values(request.extensions).find(
+    (x) => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
+  );
+}
+
+type PaymentParameters = PaymentTypes.IReferenceBasedCreationParameters &
+  PaymentTypes.IDeclarativePaymentEventParameters;
+
+/** Gets the payment info based on parameters, for payment reference calculation */
+const getInfo = (
+  { paymentAddress, paymentInfo, refundAddress, refundInfo }: PaymentParameters,
+  event: PaymentTypes.EVENTS_NAMES,
+) => {
+  if (event === PaymentTypes.EVENTS_NAMES.REFUND) {
+    return refundAddress || JSON.stringify(refundInfo);
+  }
+  return paymentAddress || JSON.stringify(paymentInfo);
+};
+
+/** Gets a payment (or refund) reference for any type of Request */
+export function getPaymentReference(
+  request: Pick<RequestLogicTypes.IRequest, 'extensions' | 'requestId'>,
+  event: PaymentTypes.EVENTS_NAMES = PaymentTypes.EVENTS_NAMES.PAYMENT,
+): string | undefined {
+  const extension = getPaymentNetworkExtension(request) as ExtensionTypes.IState<PaymentParameters>;
+  if (!extension) {
+    throw new Error('no payment network found');
+  }
+  const requestId = request.requestId;
+  const salt = extension.values.salt;
+  if (!salt) return;
+
+  const info = getInfo(extension.values, event);
+  if (!info) return;
+
+  return PaymentReferenceCalculator.calculate(requestId, salt, info);
+}

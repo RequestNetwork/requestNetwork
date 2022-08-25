@@ -17,7 +17,11 @@ import { Request, RequestNetwork } from '../src/index';
 import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
-import { PaymentReferenceCalculator } from '@requestnetwork/payment-detection';
+import {
+  PaymentReferenceCalculator,
+  getPaymentReference,
+  getPaymentNetworkExtension,
+} from '@requestnetwork/payment-detection';
 import { BigNumber } from 'ethers';
 import EtherscanProviderMock from './etherscan-mock';
 import httpConfigDefaults from '../src/http-config-defaults';
@@ -984,13 +988,16 @@ describe('index', () => {
 
       const data = request.getData();
 
+      const pn = getPaymentNetworkExtension(data)!;
+
       const paymentReference = PaymentReferenceCalculator.calculate(
         data.requestId,
-        data.extensionsData[0].parameters.salt,
-        JSON.stringify(data.extensionsData[0].parameters.paymentInfo),
+        pn.values.salt,
+        JSON.stringify(pn.values.paymentInfo),
       );
 
       expect(paymentReference).toHaveLength(16);
+      expect(paymentReference).toBe(getPaymentReference(data));
     });
 
     it('allows to declare a received refund from delegate', async () => {
