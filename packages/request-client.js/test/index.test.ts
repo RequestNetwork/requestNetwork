@@ -842,6 +842,41 @@ describe('index', () => {
       expect(mock.history.post).toHaveLength(1);
     });
 
+    it('allows to create a request with delegate', async () => {
+      const requestNetwork = new RequestNetwork({
+        useMockStorage: true,
+        signatureProvider: TestData.fakeSignatureProvider,
+      });
+
+      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        parameters: {},
+      };
+
+      const request = await requestNetwork.createRequest({
+        paymentNetwork,
+        requestInfo: {
+          ...TestData.parametersWithoutExtensionsData,
+          extensionsData: [
+            {
+              action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
+              id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+              parameters: {
+                delegate: TestData.delegate.identity,
+              },
+            },
+          ],
+        },
+        signer: TestData.payee.identity,
+      });
+      await request.waitForConfirmation();
+
+      const requestData = await waitForConfirmation(
+        request.declareReceivedPayment('10', 'received payment', TestData.delegate.identity),
+      );
+      expect(requestData.balance!.balance).toEqual('10');
+    });
+
     it('allows to declare a received payment from delegate', async () => {
       const requestNetwork = new RequestNetwork({
         useMockStorage: true,

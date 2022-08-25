@@ -67,7 +67,7 @@ export abstract class AbstractExtension<TCreationParameters> {
     }
 
     // if the action is not "create", the state must have been created before
-    if (!requestState.extensions[extensionAction.id]) {
+    if (!extensionsState[extensionAction.id]) {
       throw Error(`The extension should be created before receiving any other action`);
     }
 
