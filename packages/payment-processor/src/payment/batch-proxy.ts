@@ -216,7 +216,7 @@ export function getBatchArgs(
  */
 export function getBatchProxyAddress(request: ClientTypes.IRequestData, version: string): string {
   const pn = getPaymentNetworkExtension(request);
-  const pnId = (pn?.id as unknown) as PaymentTypes.PAYMENT_NETWORK_ID;
+  const pnId = pn?.id as unknown as PaymentTypes.PAYMENT_NETWORK_ID;
   if (!pnId) {
     throw new Error('No payment network Id');
   }

@@ -82,9 +82,7 @@ export function getPaymentNetworkExtension(
  * of a Request.
  * @param request
  */
-export function getRequestPaymentValues(
-  request: ClientTypes.IRequestData,
-): {
+export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   paymentAddress: string;
   paymentReference: string;
   feeAmount?: string;
@@ -194,9 +192,8 @@ export function validateRequest(
   request: ClientTypes.IRequestData,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
 ): void {
-  const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } = getRequestPaymentValues(
-    request,
-  );
+  const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } =
+    getRequestPaymentValues(request);
   let extension = request.extensions[paymentNetworkId];
 
   // FIXME: updating the extension: not needed anymore when "invoicing" will use only ethFeeProxy

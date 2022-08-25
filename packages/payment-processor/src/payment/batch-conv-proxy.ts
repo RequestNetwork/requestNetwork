@@ -173,13 +173,8 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
 
   // Get values and add cryptpoDetails to metaDetails
   if (pn2requests.length > 0) {
-    const {
-      tokenAddresses,
-      paymentAddresses,
-      amountsToPay,
-      paymentReferences,
-      feesToPay,
-    } = getBatchArgs(pn2requests, 'ERC20');
+    const { tokenAddresses, paymentAddresses, amountsToPay, paymentReferences, feesToPay } =
+      getBatchArgs(pn2requests, 'ERC20');
 
     metaDetails.push({
       paymentNetworkId: 2,
