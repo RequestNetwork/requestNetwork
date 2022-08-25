@@ -72,6 +72,7 @@ export const extensionStateWithPaymentAndRefund = {
       sentRefundAmount: '0',
       paymentAddress: paymentBTCAddress,
       refundAddress: refundBTCAddress,
+      salt: undefined,
     },
     version: '0.1.0',
   },

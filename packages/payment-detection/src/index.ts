@@ -13,6 +13,8 @@ import {
   padAmountForChainlink,
   unpadAmountFromChainlink,
   calculateEscrowState,
+  getPaymentNetworkExtension,
+  getPaymentReference,
 } from './utils';
 import { NearNativeTokenPaymentDetector } from './near-detector';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
@@ -34,6 +36,7 @@ export {
   FeeReferenceBasedDetector,
   SuperFluidPaymentDetector,
   NearNativeTokenPaymentDetector,
+  EscrowERC20InfoRetriever,
   setProviderFactory,
   initPaymentDetectionApiKeys,
   getDefaultProvider,
@@ -44,5 +47,6 @@ export {
   padAmountForChainlink,
   unpadAmountFromChainlink,
   calculateEscrowState,
-  EscrowERC20InfoRetriever,
+  getPaymentNetworkExtension,
+  getPaymentReference,
 };

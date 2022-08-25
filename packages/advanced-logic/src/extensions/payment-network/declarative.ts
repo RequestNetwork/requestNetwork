@@ -186,7 +186,7 @@ export default class DeclarativePaymentNetwork<
    * @returns state of the extension created
    */
   protected applyCreation(
-    extensionAction: ExtensionTypes.IAction,
+    extensionAction: ExtensionTypes.IAction<TCreationParameters>,
     timestamp: number,
   ): ExtensionTypes.IState {
     const genericCreationAction = super.applyCreation(extensionAction, timestamp);
@@ -197,23 +197,25 @@ export default class DeclarativePaymentNetwork<
         {
           name: 'create',
           parameters: {
-            paymentInfo: extensionAction.parameters.paymentInfo,
-            refundInfo: extensionAction.parameters.refundInfo,
-            payeeDelegate: extensionAction.parameters.payeeDelegate,
-            payerDelegate: extensionAction.parameters.payerDelegate,
+            paymentInfo: extensionAction.parameters?.paymentInfo,
+            refundInfo: extensionAction.parameters?.refundInfo,
+            salt: extensionAction.parameters?.salt,
+            payeeDelegate: extensionAction.parameters?.payeeDelegate,
+            payerDelegate: extensionAction.parameters?.payerDelegate,
           },
           timestamp,
         },
       ],
       values: {
-        paymentInfo: extensionAction.parameters.paymentInfo,
+        paymentInfo: extensionAction.parameters?.paymentInfo,
+        refundInfo: extensionAction.parameters?.refundInfo,
+        salt: extensionAction.parameters?.salt,
+        payeeDelegate: extensionAction.parameters?.payeeDelegate,
+        payerDelegate: extensionAction.parameters?.payerDelegate,
         receivedPaymentAmount: '0',
         receivedRefundAmount: '0',
-        refundInfo: extensionAction.parameters.refundInfo,
         sentPaymentAmount: '0',
         sentRefundAmount: '0',
-        payeeDelegate: extensionAction.parameters.payeeDelegate,
-        payerDelegate: extensionAction.parameters.payerDelegate,
       },
     };
   }

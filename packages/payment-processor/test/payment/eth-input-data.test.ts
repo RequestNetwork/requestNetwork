@@ -123,6 +123,11 @@ describe('payEthInputDataRequest', () => {
     const balanceAfter = await wallet.getBalance();
     expect(confirmedTx.status).toBe(1);
     // new_balance = old_balance + amount + fees
+    expect(balanceAfter).toEqual(
+      balanceBefore
+        .sub(validRequest.expectedAmount)
+        .sub(confirmedTx.gasUsed.mul(2 * 10 ** 10) || 0),
+    );
     expect(
       balanceAfter.eq(balanceBefore.sub(validRequest.expectedAmount).sub(confirmedTx.gasUsed || 0)),
     );
