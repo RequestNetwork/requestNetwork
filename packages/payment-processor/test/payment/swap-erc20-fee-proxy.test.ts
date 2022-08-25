@@ -14,7 +14,7 @@ import { approveErc20ForSwapToPayIfNeeded } from '../../src/payment/swap-erc20';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { ISwapSettings, swapErc20FeeProxyRequest } from '../../src/payment/swap-erc20-fee-proxy';
 import { erc20SwapToPayArtifact } from '@requestnetwork/smart-contracts';
-import { revokeErc20Approval } from '@requestnetwork/payment-processor/src/payment/utils';
+import { revokeErc20Approval } from '../../src/payment/utils';
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */

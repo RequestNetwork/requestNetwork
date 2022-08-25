@@ -14,10 +14,7 @@ import {
   hasErc20Approval,
   checkErc20Allowance,
 } from '../../src/payment/erc20';
-import {
-  getProxyAddress,
-  revokeErc20Approval,
-} from '@requestnetwork/payment-processor/src/payment/utils';
+import { getProxyAddress, revokeErc20Approval } from '../../src/payment/utils';
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
