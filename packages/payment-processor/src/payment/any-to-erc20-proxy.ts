@@ -155,7 +155,9 @@ export function prepAnyToErc20ProxyRequest(
 
   const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan } =
     getRequestPaymentValues(request);
-
+  if (!paymentReference) {
+    throw new Error('paymentReference is missing');
+  }
   const amountToPay = padAmountForChainlink(getAmountToPay(request, amount), requestCurrency);
   const feeToPay = padAmountForChainlink(feeAmountOverride || feeAmount || 0, requestCurrency);
   return {

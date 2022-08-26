@@ -3,14 +3,11 @@ import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts
 import { BatchConversionPayments__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
+import { comparePnTypeAndVersion, getProvider, getRequestPaymentValues, getSigner } from './utils';
 import {
-  comparePnTypeAndVersion,
+  padAmountForChainlink,
   getPaymentNetworkExtension,
-  getProvider,
-  getRequestPaymentValues,
-  getSigner,
-} from './utils';
-import { padAmountForChainlink } from '@requestnetwork/payment-detection';
+} from '@requestnetwork/payment-detection';
 import { IPreparedTransaction } from './prepared-transaction';
 import { EnrichedRequest, IConversionPaymentSettings } from './index';
 import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
