@@ -193,10 +193,6 @@ describe('erc20-escrow-payment tests:', () => {
         const escrowAfterBalance = await getErc20Balance(request, escrowAddress);
         const feeAfterBalance = await getErc20Balance(request, feeAddress);
 
-        const lala = (aa?: string): { aa?: string } => {
-          return { aa };
-        };
-        console.log('lala', lala);
         // Expect payer ERC20 balance should be lower.
         expect(BigNumber.from(payerAfterBalance)).toEqual(
           BigNumber.from(payerBeforeBalance).sub(102),
