@@ -151,6 +151,16 @@ export type ERC777PaymentNetworkEvent = IPaymentNetworkEvent<IERC777PaymentEvent
 /** ERC777 BalanceWithEvents */
 export type ERC777BalanceWithEvents = IBalanceWithEvents<IERC777PaymentEventParameters>;
 
+/** Parameters for ERC777 streaming events */
+export interface ERC777StreamEventParameters {
+  transactionHash: string;
+  blockNumber: number;
+  timestamp: number;
+  sender: string;
+  flowRate: number;
+  oldFlowRate: number;
+  type: number;
+}
 /**
  * ERC20 networks and events
  */

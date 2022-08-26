@@ -44,7 +44,7 @@ export class SuperFluidInfoRetriever {
     };
   }
 
-  public async getStreamingEvents(): Promise<Partial<FlowUpdatedEvent>[]> {
+  public async getStreamingEvents(): Promise<PaymentTypes.ERC777StreamEventParameters[]> {
     const variables = this.getGraphVariables();
     const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
     // Chronological sorting of events having payment reference and closing events without payment reference
@@ -70,7 +70,7 @@ export class SuperFluidInfoRetriever {
         oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
         flowRate: 0,
         timestamp: Utils.getCurrentTimestampInSecond(),
-        blockNumber: parseInt(streamEvents[streamEvents.length - 1].blockNumber),
+        blockNumber: parseInt(streamEvents[streamEvents.length - 1].blockNumber.toString()),
         transactionHash: streamEvents[streamEvents.length - 1].transactionHash,
       } as FlowUpdatedEvent);
     }
@@ -99,7 +99,7 @@ export class SuperFluidInfoRetriever {
         name: this.eventName,
         parameters: {
           to: this.toAddress,
-          block: parseInt(streamEvents[index].blockNumber),
+          block: parseInt(streamEvents[index].blockNumber.toString()),
           txHash: streamEvents[index].transactionHash,
         },
         timestamp: streamEvents[index].timestamp,
