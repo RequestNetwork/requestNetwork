@@ -6,7 +6,14 @@ import { BigNumber } from 'ethers';
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
 // Batch Fees: .3%
-export const BATCH_FEE = 3;
+/**
+ * BATCH_FEE_DEPRECATED is only used with batchProxy (NOT with batchConversionProxy)
+ */
+export const BATCH_FEE_DEPRECATED = 3;
+export const BATCH_FEE = 30;
+
+// Batch Fees: .3%
+export const BATCH_CONVERSION_FEE = 30;
 
 export const updateChainlinkConversionPath = async (
   contract: any,
@@ -50,16 +57,41 @@ export const updateRequestSwapFees = async (
   }
 };
 
+/**
+ * Updates batch and batchConversion batchFee dependant of the proxy selected
+ * @param batchConversionProxy batchConversionProxy must be specified because
+ *        it impact the calcul of the batch fees
+ */
 export const updateBatchPaymentFees = async (
   contract: any,
   nonce: number,
   gasPrice: BigNumber,
+  batchConversionProxy = true,
 ): Promise<void> => {
+  const batchFee = batchConversionProxy ? BATCH_FEE : BATCH_FEE_DEPRECATED;
   const currentFees = await contract.batchFee();
-  if (currentFees !== BATCH_FEE) {
+  if (currentFees !== batchFee) {
     // Log is useful to have a direct view on was is being updated
-    console.log(`currentFees: ${currentFees.toString()}, new fees: ${BATCH_FEE}`);
-    await contract.setBatchFee(BATCH_FEE, { nonce: nonce, gasPrice: gasPrice });
+    console.log(`BatchFees, currentFees: ${currentFees.toString()}, new fees: ${batchFee}`);
+    await contract.setBatchFee(batchFee, { nonce: nonce, gasPrice: gasPrice });
+  }
+};
+
+export const updateBatchConversionPaymentFees = async (
+  contract: any,
+  nonce: number,
+  gasPrice: BigNumber,
+): Promise<void> => {
+  const currentFees = await contract.batchConversionFee();
+  if (currentFees !== BATCH_CONVERSION_FEE) {
+    // Log is useful to have a direct view on was is being updated
+    console.log(
+      `BatchConversionFees, currentFees: ${currentFees.toString()}, new fees: ${BATCH_CONVERSION_FEE}`,
+    );
+    await contract.setBatchConversionFee(BATCH_CONVERSION_FEE, {
+      nonce: nonce,
+      gasPrice: gasPrice,
+    });
   }
 };
 
@@ -91,6 +123,46 @@ export const updatePaymentEthFeeProxy = async (
   const currentAddress = await contract.paymentEthFeeProxy();
   if (currentAddress !== ethereumFeeProxyAddress) {
     await contract.setPaymentEthFeeProxy(ethereumFeeProxyAddress, {
+      nonce: nonce,
+      gasPrice: gasPrice,
+    });
+  }
+};
+
+/**
+ * Update the address of a payment proxy used by batch conversion contract
+ */
+export const updateBatchConversionPaymentProxy = async (
+  contract: any,
+  network: string,
+  nonce: number,
+  gasPrice: BigNumber,
+  proxyName: 'eth' | 'ethConversion' | 'erc20' | 'erc20Conversion',
+): Promise<void> => {
+  let proxyAddress: string;
+  let batchSetProxy: any;
+  let currentAddress: string;
+  if (proxyName === 'eth') {
+    proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network);
+    batchSetProxy = contract.setPaymentEthProxy;
+    currentAddress = await contract.paymentEthProxy();
+  } else if (proxyName === 'ethConversion') {
+    proxyAddress = artifacts.ethConversionArtifact.getAddress(network);
+    batchSetProxy = contract.setPaymentEthConversionProxy;
+    currentAddress = await contract.paymentEthConversionProxy();
+  } else if (proxyName === 'erc20') {
+    proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network);
+    batchSetProxy = contract.setPaymentErc20Proxy;
+    currentAddress = await contract.paymentErc20Proxy();
+  } else {
+    // "erc20Conversion"
+    proxyAddress = artifacts.erc20ConversionProxy.getAddress(network);
+    batchSetProxy = contract.setPaymentErc20ConversionProxy;
+    currentAddress = await contract.paymentErc20ConversionProxy();
+  }
+
+  if (currentAddress !== proxyAddress) {
+    await batchSetProxy(proxyAddress, {
       nonce: nonce,
       gasPrice: gasPrice,
     });

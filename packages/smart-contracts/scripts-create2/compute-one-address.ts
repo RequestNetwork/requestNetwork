@@ -57,6 +57,7 @@ export const computeCreate2DeploymentAddressesFromList = async (
         case 'Erc20ConversionProxy':
         case 'ERC20EscrowToPay':
         case 'BatchPayments':
+        case 'BatchConversionPayments':
         case 'ERC20SwapToConversion': {
           try {
             const constructorArgs = getConstructorArgs(contract, hre.network.name);
