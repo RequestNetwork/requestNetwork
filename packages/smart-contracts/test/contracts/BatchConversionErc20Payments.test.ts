@@ -68,8 +68,8 @@ describe('contract: BatchConversionPayments', () => {
 
   // variables needed for chainlink and conversion payments
   let path: string[];
-  let conversionToPayBis: BigNumber;
-  let conversionFeesBis: BigNumber;
+  let conversionToPay: BigNumber;
+  let conversionFees: BigNumber;
 
   // type required by Erc20 conversion batch function inputs
   type ConversionDetail = {
@@ -93,9 +93,6 @@ describe('contract: BatchConversionPayments', () => {
     optional?: any,
   ) => Promise<ContractTransaction>;
 
-  /** Format arguments so they can be used by batchConvFunction */
-  let argTemplate: Function;
-
   /**
    * @notice it gets the conversions including fees to be paid, and it set the convDetail input
    */
@@ -108,16 +105,16 @@ describe('contract: BatchConversionPayments', () => {
     _chainlinkPath: ChainlinkConversionPath,
   ) => {
     const conversionToPayFull = await _chainlinkPath.getConversion(_requestAmount, _path);
-    conversionToPayBis = conversionToPayFull.result;
+    conversionToPay = conversionToPayFull.result;
     const conversionFeeFull = await _chainlinkPath.getConversion(_feeAmount, _path);
-    conversionFeesBis = conversionFeeFull.result;
+    conversionFees = conversionFeeFull.result;
     convDetail = {
       recipient: _recipient,
       requestAmount: _requestAmount,
       path: _path,
       paymentReference: referenceExample,
       feeAmount: _feeAmount,
-      maxToSpend: conversionToPayBis.add(conversionFeesBis).toString(),
+      maxToSpend: conversionToPay.add(conversionFees).toString(),
       maxRateTimespan: _maxRateTimespan,
     };
   };
@@ -189,30 +186,31 @@ describe('contract: BatchConversionPayments', () => {
    * @param _signer
    */
   const setBatchConvFunction = async (useBatchRouter: boolean, _signer: Signer) => {
-    if (useBatchRouter) {
-      batchConvFunction = testBatchConversionProxy.connect(_signer).batchRouter;
-      argTemplate = (convDetails: ConversionDetail[]) => {
-        return [
-          {
-            paymentNetworkId: '0',
-            conversionDetails: convDetails,
-            cryptoDetails: {
-              tokenAddresses: [],
-              recipients: [],
-              amounts: [],
-              paymentReferences: [],
-              feeAmounts: [],
-            },
-          },
-        ];
-      };
-    } else {
-      batchConvFunction =
-        testBatchConversionProxy.connect(_signer).batchERC20ConversionPaymentsMultiTokens;
-      argTemplate = (convDetails: ConversionDetail[]) => {
-        return convDetails;
-      };
-    }
+    batchConvFunction = (
+      convDetails: ConversionDetail[],
+      feeAddress: string,
+    ): Promise<ContractTransaction> => {
+      return useBatchRouter
+        ? testBatchConversionProxy.connect(_signer).batchRouter(
+            [
+              {
+                paymentNetworkId: '0',
+                conversionDetails: convDetails,
+                cryptoDetails: {
+                  tokenAddresses: [],
+                  recipients: [],
+                  amounts: [],
+                  paymentReferences: [],
+                  feeAmounts: [],
+                },
+              },
+            ],
+            feeAddress,
+          )
+        : testBatchConversionProxy
+            .connect(_signer)
+            .batchERC20ConversionPaymentsMultiTokens(convDetails, feeAddress);
+    };
   };
 
   /**
@@ -222,8 +220,8 @@ describe('contract: BatchConversionPayments', () => {
   const emitOneTx = (
     result: Chai.Assertion,
     _convDetail: ConversionDetail,
-    _conversionToPay = conversionToPayBis,
-    _conversionFees = conversionFeesBis,
+    _conversionToPay = conversionToPay,
+    _conversionFees = conversionFees,
     _testErc20ConversionProxy = testErc20ConversionProxy,
   ) => {
     return result.to
@@ -253,18 +251,17 @@ describe('contract: BatchConversionPayments', () => {
   const onePaymentBatchConv = async (path: string[]) => {
     await getConvToPayAndConvDetail(to, path, amountInFiat, feesAmountInFiat, 0, chainlinkPath);
 
-    const result = batchConvFunction(argTemplate([convDetail]), feeAddress);
+    const result = batchConvFunction([convDetail], feeAddress);
+    await emitOneTx(expect(result), convDetail, conversionToPay, conversionFees);
     if (logGas) {
       const tx = await result;
       await tx.wait(1);
       const receipt = await tx.wait();
       console.log(`gas consumption: `, receipt.gasUsed.toString());
-    } else {
-      await emitOneTx(expect(result), convDetail, conversionToPayBis, conversionFeesBis);
     }
 
     [fromDiffBalanceExpected, toDiffBalanceExpected, feeDiffBalanceExpected] =
-      expectedERC20Balances([conversionToPayBis], [conversionFeesBis], batchConvFee);
+      expectedERC20Balances([conversionToPay], [conversionFees], batchConvFee);
   };
 
   /**
@@ -295,11 +292,11 @@ describe('contract: BatchConversionPayments', () => {
     for (let i = 0; i < nTimes; i++) {
       convDetails = convDetails.concat([convDetail, convDetail2]);
       conversionsToPay_results = conversionsToPay_results.concat([
-        conversionToPayBis,
+        conversionToPay,
         conversionToPayFull2.result,
       ]);
       conversionsFees_results = conversionsFees_results.concat([
-        conversionFeesBis,
+        conversionFees,
         conversionFeesFull2.result,
       ]);
     }
@@ -309,7 +306,7 @@ describe('contract: BatchConversionPayments', () => {
     const toOldBalance2 = await testERC20b.balanceOf(to);
     const feeOldBalance2 = await testERC20b.balanceOf(feeAddress);
 
-    const tx = await batchConvFunction(argTemplate(convDetails), feeAddress);
+    const tx = await batchConvFunction(convDetails, feeAddress);
     if (logGas) {
       const receipt = await tx.wait();
       console.log(`${2 * nTimes} req, gas consumption: `, receipt.gasUsed.toString());
@@ -484,6 +481,12 @@ describe('contract: BatchConversionPayments', () => {
       );
     });
 
+    after(async () => {
+      // restore previous values for consistency
+      await testBatchConversionProxy.setBatchFee(30);
+      await testBatchConversionProxy.setBatchConversionFee(30);
+    });
+
     describe(useBatchRouter ? 'Through batchRouter' : 'Without batchRouter', () => {
       describe('batchERC20ConversionPaymentsMultiTokens with DAI', async () => {
         it('allows to transfer DAI tokens for USD payment', async () => {
@@ -515,14 +518,14 @@ describe('contract: BatchConversionPayments', () => {
       it('cannot transfer with invalid path', async function () {
         const wrongPath = [EUR_hash, ETH_hash, DAI_address];
         convDetail.path = wrongPath;
-        await expect(batchConvFunction(argTemplate([convDetail]), feeAddress)).to.be.revertedWith(
+        await expect(batchConvFunction([convDetail], feeAddress)).to.be.revertedWith(
           'revert No aggregator found',
         );
       });
 
       it('cannot transfer if max to spend too low', async function () {
-        convDetail.maxToSpend = conversionToPayBis.add(conversionFeesBis).sub(1).toString();
-        await expect(batchConvFunction(argTemplate([convDetail]), feeAddress)).to.be.revertedWith(
+        convDetail.maxToSpend = conversionToPay.add(conversionFees).sub(1).toString();
+        await expect(batchConvFunction([convDetail], feeAddress)).to.be.revertedWith(
           'Amount to pay is over the user limit',
         );
       });
@@ -530,7 +533,7 @@ describe('contract: BatchConversionPayments', () => {
       it('cannot transfer if rate is too old', async function () {
         convDetail.maxRateTimespan = 10;
 
-        await expect(batchConvFunction(argTemplate([convDetail]), feeAddress)).to.be.revertedWith(
+        await expect(batchConvFunction([convDetail], feeAddress)).to.be.revertedWith(
           'aggregator rate is outdated',
         );
       });
@@ -538,7 +541,7 @@ describe('contract: BatchConversionPayments', () => {
       it('Not enough allowance', async function () {
         // signer4 connect to the batch function
         setBatchConvFunction(useBatchRouter, signer4);
-        await expect(batchConvFunction(argTemplate([convDetail]), feeAddress)).to.be.revertedWith(
+        await expect(batchConvFunction([convDetail], feeAddress)).to.be.revertedWith(
           'Insufficient allowance for batch to pay',
         );
         // reset: signer1 connect to the batch function
@@ -553,7 +556,7 @@ describe('contract: BatchConversionPayments', () => {
         // signer4 connect to the batch function
         setBatchConvFunction(useBatchRouter, signer4);
 
-        await expect(batchConvFunction(argTemplate([convDetail]), feeAddress)).to.be.revertedWith(
+        await expect(batchConvFunction([convDetail], feeAddress)).to.be.revertedWith(
           'not enough funds, including fees',
         );
 

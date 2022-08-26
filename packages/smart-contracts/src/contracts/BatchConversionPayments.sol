@@ -103,7 +103,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    *      For single payment network payments, it is more efficient to use the suited batch function.
    */
   function batchRouter(MetaDetail[] calldata metaDetails, address _feeAddress) external payable {
-    require(metaDetails.length < 4, 'more than 4 conversionDetails');
+    require(metaDetails.length < 6, 'more than 5 conversionDetails');
     for (uint256 i = 0; i < metaDetails.length; i++) {
       MetaDetail calldata metaConversionDetail = metaDetails[i];
       if (metaConversionDetail.paymentNetworkId == 0) {
