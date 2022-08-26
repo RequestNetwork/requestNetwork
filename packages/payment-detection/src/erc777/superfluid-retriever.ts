@@ -44,6 +44,13 @@ export class SuperFluidInfoRetriever {
     };
   }
 
+  public async getStreamingEvents(): Promise<Partial<FlowUpdatedEvent>[]> {
+    const variables = this.getGraphVariables();
+    const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
+    // Chronological sorting of events having payment reference and closing events without payment reference
+    return flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
+  }
+
   /**
    * First MVP version which convert :
    * stream events queried from SuperFluid subgraph
@@ -51,10 +58,7 @@ export class SuperFluidInfoRetriever {
    * to compute balance from amounts in ERC20 style transactions
    */
   public async getTransferEvents(): Promise<PaymentTypes.ERC777PaymentNetworkEvent[]> {
-    const variables = this.getGraphVariables();
-    const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
-    // Chronological sorting of events having payment reference and closing events without payment reference
-    const streamEvents = flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
+    const streamEvents = await this.getStreamingEvents();
     const paymentEvents: PaymentTypes.ERC777PaymentNetworkEvent[] = [];
     if (streamEvents.length < 1) {
       return paymentEvents;

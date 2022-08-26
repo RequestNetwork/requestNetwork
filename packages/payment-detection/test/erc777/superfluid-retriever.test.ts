@@ -93,6 +93,37 @@ const testSuiteWithDaix = (network: string, fDAIxToken: string) => {
         expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);
       });
     });
+    it('should get streaming events', async () => {
+      const paymentData = {
+        reference: '64d8014e4f767c6b',
+        txHash: '0xe472ca1b52751b058fbdaeaffebd98c0cc43b45aa31794b3eb06834ede19f7be',
+        from: '0x9c040e2d6fd83a8b35069aa7154b69674961e0f7',
+        to: '0x186e7fE6c34Ea0ecA7F9C2Fd29651Fc0443e3F29',
+        network: network,
+        salt: '0ee84db293a752c6',
+        amount: '92592592592592000',
+        requestId: '0188791633ff0ec72a7dbdefb886d2db6cccfa98287320839c2f173c7a4e3ce7e1',
+        block: 9945543,
+        token: fDAIxTokenRinkeby,
+      };
+      graphql.request.mockResolvedValue(mockSuperfluidSubgraph[0]);
+      const graphRetriever = new SuperFluidInfoRetriever(
+        paymentData.reference,
+        paymentData.token,
+        paymentData.to,
+        PaymentTypes.EVENTS_NAMES.PAYMENT,
+        paymentData.network,
+      );
+      const streamEvents = await graphRetriever.getStreamingEvents();
+      expect(streamEvents).toHaveLength(16);
+      expect(streamEvents[0].transactionHash).toEqual(
+        '0x4e334bd4436ad812e30f74b358580cc3bed0407814133147edfb56ad6672bf75',
+      );
+      expect(streamEvents[3].type).toEqual(0);
+      expect(streamEvents[3].transactionHash).toEqual(
+        '0xc331a269515c27836051cc4618097f5f1a1c37f79dcb975361022fe3ecfb5cbf',
+      );
+    });
   });
 };
 
