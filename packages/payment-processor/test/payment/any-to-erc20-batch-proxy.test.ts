@@ -274,7 +274,7 @@ describe(`[Conversion]: erc20-batch-conversion-proxy`, () => {
       request2.currencyInfo.value = '';
       await expect(
         payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
-      ).rejects.toThrowError("The currency symbol '' is unknown or not supported");
+      ).rejects.toThrowError("The currency '' is unknown or not supported");
     });
     it('should throw an error if request has no extension', async () => {
       request2.extensions = [] as any;
