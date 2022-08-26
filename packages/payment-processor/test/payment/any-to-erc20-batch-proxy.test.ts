@@ -264,8 +264,7 @@ describe(`[Conversion]: erc20-batch-conversion-proxy`, () => {
         ),
       ).rejects.toThrowError('no payment network found');
     });
-    // Tests specific to batch conversion ERC20
-    it('should throw an error if the request is not erc20', async () => {
+    it('should throw an error if the request is ETH', async () => {
       request2.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
       await expect(
         payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
@@ -601,7 +600,6 @@ const testERC20Batch = (
         // first approve the contract
         const tmpRequest1 = Utils.deepCopy(request1);
         const isMultiToken = !sameCurrencyValue(request1, request2);
-        console.log('isMultiToken', isMultiToken);
         let amount = BigNumber.from(request1.expectedAmount);
         if (!isMultiToken) {
           amount = amount.add(BigNumber.from(request2.expectedAmount));
