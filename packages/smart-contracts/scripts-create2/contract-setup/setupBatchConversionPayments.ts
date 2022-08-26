@@ -36,7 +36,7 @@ export const setupBatchConversionPayments = async (
       const gasPrice = await provider.getGasPrice();
 
       // start from the adminNonce, increase gasPrice if needed
-      const gasCoef = 3;
+      const gasCoef = 2;
       await Promise.all([
         updateBatchPaymentFees(batchConversionPaymentConnected, adminNonce, gasPrice.mul(gasCoef)),
         updateBatchConversionPaymentFees(
