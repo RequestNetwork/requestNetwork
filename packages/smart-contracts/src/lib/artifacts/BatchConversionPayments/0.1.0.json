@@ -409,10 +409,36 @@
     },
     {
       "inputs": [],
+      "name": "paymentErc20ConversionProxy",
+      "outputs": [
+        {
+          "internalType": "contract IERC20ConversionProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "paymentErc20Proxy",
       "outputs": [
         {
           "internalType": "contract IERC20FeeProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paymentEthConversionProxy",
+      "outputs": [
+        {
+          "internalType": "contract IEthConversionProxy",
           "name": "",
           "type": "address"
         }

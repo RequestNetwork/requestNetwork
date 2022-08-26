@@ -22,8 +22,8 @@ import './BatchPaymentsPublic.sol';
 contract BatchConversionPayments is BatchPaymentsPublic {
   using SafeERC20 for IERC20;
 
-  IERC20ConversionProxy paymentErc20ConversionProxy;
-  IEthConversionProxy paymentEthConversionProxy;
+  IERC20ConversionProxy public paymentErc20ConversionProxy;
+  IEthConversionProxy public paymentEthConversionProxy;
 
   uint256 public batchConversionFee;
 
