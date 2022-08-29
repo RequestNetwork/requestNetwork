@@ -81,17 +81,14 @@ export class SuperFluidInfoRetriever {
     const TYPE_BEGIN = 0;
     // const TYPE_UPDATE = 1;
     const TYPE_END = 2;
-
+    const StreamEventMap: Record<number, PaymentTypes.STREAM_EVENT_NAMES> = {
+      0: PaymentTypes.STREAM_EVENT_NAMES.START_STREAM,
+      1: PaymentTypes.STREAM_EVENT_NAMES.UPDATE_STREAM,
+      2: PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
+    };
     const getEventName = (flowEvent: Partial<FlowUpdatedEvent>) => {
-      switch (flowEvent && flowEvent.type) {
-        case 0:
-          return PaymentTypes.STREAM_EVENT_NAMES.START_STREAM;
-        case 1:
-          return PaymentTypes.STREAM_EVENT_NAMES.UPDATE_STREAM;
-        case 2:
-          return PaymentTypes.STREAM_EVENT_NAMES.END_STREAM;
-        default:
-          return;
+      if (flowEvent.type) {
+        return StreamEventMap[flowEvent.type];
       }
     };
 
