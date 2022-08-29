@@ -48,7 +48,7 @@ export class SuperFluidInfoRetriever {
    * Chronological sorting of events having payment reference and closing events without payment reference
    * @returns List of streaming events
    */
-  public async getStreamingEvents(): Promise<PaymentTypes.ERC777StreamEventParameters[]> {
+  protected async getStreamingEvents(): Promise<Partial<FlowUpdatedEvent>[]> {
     const variables = this.getGraphVariables();
     const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
     return flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
@@ -81,6 +81,20 @@ export class SuperFluidInfoRetriever {
     const TYPE_BEGIN = 0;
     // const TYPE_UPDATE = 1;
     const TYPE_END = 2;
+
+    const getEventName = (flowEvent: Partial<FlowUpdatedEvent>) => {
+      switch (flowEvent && flowEvent.type) {
+        case 0:
+          return PaymentTypes.STREAM_EVENT_NAMES.START_STREAM;
+        case 1:
+          return PaymentTypes.STREAM_EVENT_NAMES.UPDATE_STREAM;
+        case 2:
+          return PaymentTypes.STREAM_EVENT_NAMES.END_STREAM;
+        default:
+          return;
+      }
+    };
+
     for (let index = 1; index < streamEvents.length; index++) {
       // we have to manage update of flowrate to pay different payment references with the same token
       // but we do not manage in the MVP updating flowrate of ongoing payment
@@ -104,6 +118,7 @@ export class SuperFluidInfoRetriever {
           to: this.toAddress,
           block: streamEvents[index].blockNumber,
           txHash: streamEvents[index].transactionHash,
+          streamEventName: getEventName(streamEvents[index]),
         },
         timestamp: streamEvents[index].timestamp,
       });
