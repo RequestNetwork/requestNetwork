@@ -45,16 +45,23 @@ export class SuperFluidInfoRetriever {
   }
 
   /**
+   * Chronological sorting of events having payment reference and closing events without payment reference
+   * @returns List of streaming events
+   */
+  protected async getStreamingEvents(): Promise<Partial<FlowUpdatedEvent>[]> {
+    const variables = this.getGraphVariables();
+    const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
+    return flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
+  }
+
+  /**
    * First MVP version which convert :
    * stream events queried from SuperFluid subgraph
    * into payment events with the parameters expected by extractEvents function
    * to compute balance from amounts in ERC20 style transactions
    */
   public async getTransferEvents(): Promise<PaymentTypes.ERC777PaymentNetworkEvent[]> {
-    const variables = this.getGraphVariables();
-    const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
-    // Chronological sorting of events having payment reference and closing events without payment reference
-    const streamEvents = flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
+    const streamEvents = await this.getStreamingEvents();
     const paymentEvents: PaymentTypes.ERC777PaymentNetworkEvent[] = [];
     if (streamEvents.length < 1) {
       return paymentEvents;
@@ -66,7 +73,7 @@ export class SuperFluidInfoRetriever {
         oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
         flowRate: 0,
         timestamp: Utils.getCurrentTimestampInSecond(),
-        blockNumber: parseInt(streamEvents[streamEvents.length - 1].blockNumber),
+        blockNumber: streamEvents[streamEvents.length - 1].blockNumber,
         transactionHash: streamEvents[streamEvents.length - 1].transactionHash,
       } as FlowUpdatedEvent);
     }
@@ -74,6 +81,17 @@ export class SuperFluidInfoRetriever {
     const TYPE_BEGIN = 0;
     // const TYPE_UPDATE = 1;
     const TYPE_END = 2;
+    const StreamEventMap: Record<number, PaymentTypes.STREAM_EVENT_NAMES> = {
+      0: PaymentTypes.STREAM_EVENT_NAMES.START_STREAM,
+      1: PaymentTypes.STREAM_EVENT_NAMES.UPDATE_STREAM,
+      2: PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
+    };
+    const getEventName = (flowEvent: Partial<FlowUpdatedEvent>) => {
+      if (flowEvent.type) {
+        return StreamEventMap[flowEvent.type];
+      }
+    };
+
     for (let index = 1; index < streamEvents.length; index++) {
       // we have to manage update of flowrate to pay different payment references with the same token
       // but we do not manage in the MVP updating flowrate of ongoing payment
@@ -95,8 +113,9 @@ export class SuperFluidInfoRetriever {
         name: this.eventName,
         parameters: {
           to: this.toAddress,
-          block: parseInt(streamEvents[index].blockNumber),
+          block: streamEvents[index].blockNumber,
           txHash: streamEvents[index].transactionHash,
+          streamEventName: getEventName(streamEvents[index]),
         },
         timestamp: streamEvents[index].timestamp,
       });

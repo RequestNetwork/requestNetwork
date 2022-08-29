@@ -54,6 +54,9 @@ const testSuiteWithDaix = (network: string, fDAIxToken: string) => {
         expect(transferEvents[2].amount).toEqual('40509259259259000');
         expect(transferEvents[0].parameters?.txHash).toEqual(paymentData.txHash);
         expect(transferEvents[0].parameters?.block).toEqual(paymentData.block);
+        expect(transferEvents[0].parameters?.streamEventName).toEqual(
+          PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
+        );
       });
     });
 
@@ -91,6 +94,9 @@ const testSuiteWithDaix = (network: string, fDAIxToken: string) => {
         expect(transferEvents[0].amount).toEqual(paymentData.amount);
         expect(transferEvents[0].name).toEqual('payment');
         expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);
+        expect(transferEvents[0].parameters?.streamEventName).toEqual(
+          PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
+        );
       });
     });
   });

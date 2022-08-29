@@ -20,6 +20,7 @@ import { NearNativeTokenPaymentDetector } from './near-detector';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
+import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever';
 
 export type { TheGraphClient } from './thegraph';
 
@@ -37,6 +38,7 @@ export {
   SuperFluidPaymentDetector,
   NearNativeTokenPaymentDetector,
   EscrowERC20InfoRetriever,
+  SuperFluidInfoRetriever,
   setProviderFactory,
   initPaymentDetectionApiKeys,
   getDefaultProvider,
