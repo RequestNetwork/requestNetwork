@@ -44,10 +44,13 @@ export class SuperFluidInfoRetriever {
     };
   }
 
+  /**
+   * Chronological sorting of events having payment reference and closing events without payment reference
+   * @returns List of streaming events
+   */
   public async getStreamingEvents(): Promise<PaymentTypes.ERC777StreamEventParameters[]> {
     const variables = this.getGraphVariables();
     const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
-    // Chronological sorting of events having payment reference and closing events without payment reference
     return flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
   }
 
