@@ -66,8 +66,8 @@ export class SuperFluidInfoRetriever {
     if (streamEvents.length < 1) {
       return paymentEvents;
     }
-
     // if last event is ongoing stream then create end of stream to help compute balance
+    let lastEventOngoing = false;
     if (streamEvents[streamEvents.length - 1].flowRate > 0) {
       streamEvents.push({
         oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
@@ -76,6 +76,7 @@ export class SuperFluidInfoRetriever {
         blockNumber: streamEvents[streamEvents.length - 1].blockNumber,
         transactionHash: streamEvents[streamEvents.length - 1].transactionHash,
       } as FlowUpdatedEvent);
+      lastEventOngoing = true;
     }
 
     const TYPE_BEGIN = 0;
@@ -119,6 +120,11 @@ export class SuperFluidInfoRetriever {
         },
         timestamp: streamEvents[index].timestamp,
       });
+    }
+    const newLastParameters = paymentEvents[paymentEvents.length - 1].parameters;
+    if (lastEventOngoing && newLastParameters) {
+      newLastParameters.streamEventName = PaymentTypes.STREAM_EVENT_NAMES.START_STREAM;
+      paymentEvents[paymentEvents.length - 1].parameters = newLastParameters;
     }
     return paymentEvents;
   }
