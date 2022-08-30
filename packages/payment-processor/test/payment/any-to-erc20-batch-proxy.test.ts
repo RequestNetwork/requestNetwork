@@ -17,7 +17,7 @@ import {
   getBatchConversionProxyAddress,
   payBatchConversionProxyRequest,
   prepareBatchConversionPaymentTransaction,
-} from '../../src/payment/batch-conv-proxy';
+} from '../../src/payment/batch-conversion-proxy';
 import { sameCurrencyValue } from './shared';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
