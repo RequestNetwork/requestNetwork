@@ -67,7 +67,7 @@ export class SuperFluidInfoRetriever {
       return paymentEvents;
     }
     // if last event is ongoing stream then create end of stream to help compute balance
-    let lastEventOngoing = streamEvents[streamEvents.length - 1].flowRate > 0;
+    const lastEventOngoing = streamEvents[streamEvents.length - 1].flowRate > 0;
     if (lastEventOngoing) {
       streamEvents.push({
         oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
