@@ -357,6 +357,7 @@ describe('contract: BatchConversionPayments', async () => {
     [fromDiffBalanceExpected, toDiffBalanceExpected, feeDiffBalanceExpected] =
       expectedERC20Balances([BigNumber.from(amount)], [BigNumber.from(feeAmount)], batchFee, false);
   };
+
   before(async () => {
     [, from, to, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     let adminSigner: Signer;
