@@ -11,13 +11,12 @@ import {
   Erc20ConversionProxy,
   EthConversionProxy,
   TestERC20__factory,
-  BatchConversionPayments__factory,
   BatchConversionPayments,
 } from '../../src/types';
 import { BigNumber, BigNumberish, BytesLike, ContractTransaction, Signer } from 'ethers';
 import { expect } from 'chai';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { chainlinkConversionPath } from '../../src/lib';
+import { chainlinkConversionPath, batchConversionPaymentsArtifact } from '../../src/lib';
 import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts';
 import Utils from '@requestnetwork/utils';
 
@@ -50,13 +49,13 @@ describe('contract: BatchConversionPayments', async () => {
   let DAI_address: string;
   let FAU_address: string;
 
-  let erc20ConversionProxy: Erc20ConversionProxy;
-  let ethConversionProxy: EthConversionProxy;
+  let testErc20ConversionProxy: Erc20ConversionProxy;
+  let testEthConversionProxy: EthConversionProxy;
   let testBatchConversionProxy: BatchConversionPayments;
   let testERC20: TestERC20;
   let testERC20b: TestERC20;
   let erc20FeeProxy: ERC20FeeProxy;
-  let ethFeeProxy: EthereumFeeProxy;
+  let ethereumFeeProxy: EthereumFeeProxy;
   let chainlinkPath: ChainlinkConversionPath;
 
   // variables used to check testERC20 balances
@@ -223,7 +222,7 @@ describe('contract: BatchConversionPayments', async () => {
 
     const result = batchConvFunction([convDetail], feeAddress);
     await expect(result)
-      .to.emit(erc20ConversionProxy, 'TransferWithConversionAndReference')
+      .to.emit(testErc20ConversionProxy, 'TransferWithConversionAndReference')
       .withArgs(
         convDetail.requestAmount,
         ethers.utils.getAddress(convDetail.path[0]),
@@ -231,7 +230,7 @@ describe('contract: BatchConversionPayments', async () => {
         convDetail.feeAmount,
         '0',
       )
-      .to.emit(erc20ConversionProxy, 'TransferWithReferenceAndFee')
+      .to.emit(testErc20ConversionProxy, 'TransferWithReferenceAndFee')
       .withArgs(
         ethers.utils.getAddress(DAI_address),
         ethers.utils.getAddress(convDetail.recipient),
@@ -395,25 +394,16 @@ describe('contract: BatchConversionPayments', async () => {
     chainlinkPath = chainlinkConversionPath.connect(network.name, signer1);
 
     erc20FeeProxy = await new ERC20FeeProxy__factory(adminSigner).deploy();
-    ethFeeProxy = await new EthereumFeeProxy__factory(adminSigner).deploy();
-    erc20ConversionProxy = await new Erc20ConversionProxy__factory(adminSigner).deploy(
+    ethereumFeeProxy = await new EthereumFeeProxy__factory(adminSigner).deploy();
+    testErc20ConversionProxy = await new Erc20ConversionProxy__factory(adminSigner).deploy(
       erc20FeeProxy.address,
       chainlinkPath.address,
       await adminSigner.getAddress(),
     );
-    ethConversionProxy = await new EthConversionProxy__factory(adminSigner).deploy(
-      ethFeeProxy.address,
+    testEthConversionProxy = await new EthConversionProxy__factory(adminSigner).deploy(
+      ethereumFeeProxy.address,
       chainlinkPath.address,
       ETH_hash,
-    );
-
-    // TODO deploy batch proxy -> then no need to revoke approvals
-    testBatchConversionProxy = await new BatchConversionPayments__factory(adminSigner).deploy(
-      erc20FeeProxy.address,
-      ethFeeProxy.address,
-      erc20ConversionProxy.address,
-      ethConversionProxy.address,
-      await adminSigner.getAddress(),
     );
   });
   /**
@@ -421,13 +411,17 @@ describe('contract: BatchConversionPayments', async () => {
    * @param useBatchRouter allows to use the function "batchERC20ConversionPaymentsMultiTokens"
    *                     through the batchRouter or directly
    */
-  for (const useBatchRouter of [true]) {
+  for (const useBatchRouter of [true, false]) {
     before(async () => {
+      // TODO deploy batch proxy -> then no need to revoke approvals
+      testBatchConversionProxy = batchConversionPaymentsArtifact.connect(network.name, adminSigner);
       // update batch payment proxies, and batch fees
       await testBatchConversionProxy.setPaymentErc20Proxy(erc20FeeProxy.address);
-      await testBatchConversionProxy.setPaymentEthProxy(ethFeeProxy.address);
-      await testBatchConversionProxy.setPaymentErc20ConversionProxy(erc20ConversionProxy.address);
-      await testBatchConversionProxy.setPaymentEthConversionProxy(ethConversionProxy.address);
+      await testBatchConversionProxy.setPaymentEthProxy(ethereumFeeProxy.address);
+      await testBatchConversionProxy.setPaymentErc20ConversionProxy(
+        testErc20ConversionProxy.address,
+      );
+      await testBatchConversionProxy.setPaymentEthConversionProxy(testEthConversionProxy.address);
       // set ERC20 tokens
       DAI_address = localERC20AlphaArtifact.getAddress(network.name);
       testERC20 = new TestERC20__factory(adminSigner).attach(DAI_address);
@@ -443,7 +437,7 @@ describe('contract: BatchConversionPayments', async () => {
       await testERC20b.transfer(from, BigNumber.from(thousandWith18Decimal));
       testERC20b = TestERC20__factory.connect(testERC20b.address, signer1);
 
-      testBatchConversionProxy = testBatchConversionProxy.connect(signer1);
+      testBatchConversionProxy = batchConversionPaymentsArtifact.connect(network.name, signer1);
       setBatchConvFunction(useBatchRouter, signer1);
     });
 
@@ -484,6 +478,12 @@ describe('contract: BatchConversionPayments', async () => {
         toDiffBalanceExpected,
         feeDiffBalanceExpected,
       );
+    });
+
+    after(async () => {
+      // restore previous values for consistency
+      await testBatchConversionProxy.connect(adminSigner).setBatchFee(30);
+      await testBatchConversionProxy.connect(adminSigner).setBatchConversionFee(30);
     });
 
     describe(useBatchRouter ? 'Through batchRouter' : 'Without batchRouter', () => {

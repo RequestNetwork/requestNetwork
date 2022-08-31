@@ -59,6 +59,7 @@ export default {
     private: {
       url: 'http://127.0.0.1:8545',
       accounts: undefined,
+      setTimeout: 60000,
     },
     mainnet: {
       url: process.env.WEB3_PROVIDER_URL || 'https://mainnet.infura.io/v3/YOUR_API_KEY',
