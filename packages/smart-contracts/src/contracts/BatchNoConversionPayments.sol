@@ -8,7 +8,7 @@ import './interfaces/ERC20FeeProxy.sol';
 import './interfaces/EthereumFeeProxy.sol';
 
 /**
- * @title BatchPaymentsPublic
+ * @title BatchNoConversionPayments
  * @notice  This contract makes multiple payments with references, in one transaction:
  *          - on: ERC20 Payment Proxy and ETH Payment Proxy of the Request Network protocol
  *          - to: multiple addresses
@@ -18,9 +18,9 @@ import './interfaces/EthereumFeeProxy.sol';
  * @dev It is a clone of BatchPayment.sol, with three main modifications:
  *         - function "receive" has one other condition: payerAuthorized
  *         - fees are now divided by 10_000 instead of 1_000 in previous version
- *         - batch payment functions are now public, instead of external
+ *         - batch payment functions have new names and are now public, instead of external
  */
-contract BatchPaymentsPublic is Ownable {
+contract BatchNoConversionPayments is Ownable {
   using SafeERC20 for IERC20;
 
   IERC20FeeProxy public paymentErc20Proxy;
@@ -32,6 +32,9 @@ contract BatchPaymentsPublic is Ownable {
 
   // payerAuthorized is set to true only when needed for batch Eth conversion
   bool internal payerAuthorized;
+
+  // transferBackRemainingEth is set to false only if the payer use batchRouter and call both batchEthPayments and batchConversionEthPaymentsWithReference
+  bool internal transferBackRemainingEth = true;
 
   struct Token {
     address tokenAddress;
@@ -74,7 +77,7 @@ contract BatchPaymentsPublic is Ownable {
    * @dev It uses EthereumFeeProxy to pay an invoice and fees with a payment reference.
    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
    */
-  function batchEthPaymentsWithReference(
+  function batchEthPayments(
     address[] calldata _recipients,
     uint256[] calldata _amounts,
     bytes[] calldata _paymentReferences,
@@ -112,7 +115,7 @@ contract BatchPaymentsPublic is Ownable {
     _feeAddress.transfer(amount);
 
     // Batch contract transfers the remaining ethers to the payer
-    if (address(this).balance > 0) {
+    if (transferBackRemainingEth && address(this).balance > 0) {
       (bool sendBackSuccess, ) = payable(msg.sender).call{value: address(this).balance}('');
       require(sendBackSuccess, 'Could not send remaining funds to the payer');
     }
@@ -130,7 +133,7 @@ contract BatchPaymentsPublic is Ownable {
    *      Make sure this contract has enough allowance to spend the payer's token.
    *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
    */
-  function batchERC20PaymentsWithReference(
+  function batchERC20Payments(
     address _tokenAddress,
     address[] calldata _recipients,
     uint256[] calldata _amounts,
@@ -206,7 +209,7 @@ contract BatchPaymentsPublic is Ownable {
    *      Make sure this contract has enough allowance to spend the payer's token.
    *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
    */
-  function batchERC20PaymentsMultiTokensWithReference(
+  function batchMultiERC20Payments(
     address[] calldata _tokenAddresses,
     address[] calldata _recipients,
     uint256[] calldata _amounts,

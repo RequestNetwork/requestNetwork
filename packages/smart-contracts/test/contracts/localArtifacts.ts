@@ -22,7 +22,7 @@ export const secondLocalERC20AlphaArtifact = new ContractArtifact<ERC20Alpha>(
       abi: [],
       deployment: {
         private: {
-          address: '0xe4e47451AAd6C89a6D9E4aD104A7b77FfE1D3b36',
+          address: '0x5034F49b27353CeDc562b49eA91C7438Ea351d36',
           creationBlockNumber: 0,
         },
       },
