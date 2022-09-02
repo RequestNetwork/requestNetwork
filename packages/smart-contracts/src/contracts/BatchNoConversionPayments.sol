@@ -33,7 +33,8 @@ contract BatchNoConversionPayments is Ownable {
   // payerAuthorized is set to true only when needed for batch Eth conversion
   bool internal payerAuthorized;
 
-  // transferBackRemainingEth is set to false only if the payer use batchRouter and call both batchEthPayments and batchConversionEthPaymentsWithReference
+  // transferBackRemainingEth is set to false only if the payer use batchRouter
+  // and call both batchEthPayments and batchConversionEthPaymentsWithReference
   bool internal transferBackRemainingEth = true;
 
   struct Token {

@@ -60,7 +60,7 @@ export async function deployBatchConversionPayment(
 
     // Check the addresses of our contracts, to avoid misleading bugs in the tests
     // ref to secondLocalERC20AlphaArtifact.getAddress('private'), that cannot be used in deployment
-    const fakeFAU_addressExpected = '0x5034F49b27353CeDc562b49eA91C7438Ea351d36';
+    const fakeFAU_addressExpected = '0xe4e47451AAd6C89a6D9E4aD104A7b77FfE1D3b36';
     deployAddressChecking('testERC20FakeFAU', testERC20FakeFAU.address, fakeFAU_addressExpected);
     deployAddressChecking(
       'batchConversionPayments',

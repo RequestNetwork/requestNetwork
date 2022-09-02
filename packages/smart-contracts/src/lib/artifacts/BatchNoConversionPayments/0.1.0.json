@@ -4,12 +4,12 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentErc20FeeProxy",
+          "name": "_paymentErc20Proxy",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "_paymentEthFeeProxy",
+          "name": "_paymentEthProxy",
           "type": "address"
         },
         {
@@ -39,57 +39,6 @@
       ],
       "name": "OwnershipTransferred",
       "type": "event"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_erc20Address",
-          "type": "address"
-        }
-      ],
-      "name": "approvePaymentProxyToSpend",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address[]",
-          "name": "_tokenAddresses",
-          "type": "address[]"
-        },
-        {
-          "internalType": "address[]",
-          "name": "_recipients",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "bytes[]",
-          "name": "_paymentReferences",
-          "type": "bytes[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_feeAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "address",
-          "name": "_feeAddress",
-          "type": "address"
-        }
-      ],
-      "name": "batchMultiERC20Payments",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
     },
     {
       "inputs": [
@@ -176,6 +125,44 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_tokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "_recipients",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "_paymentReferences",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_feeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchMultiERC20Payments",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "owner",
       "outputs": [
@@ -190,7 +177,7 @@
     },
     {
       "inputs": [],
-      "name": "paymentErc20FeeProxy",
+      "name": "paymentErc20Proxy",
       "outputs": [
         {
           "internalType": "contract IERC20FeeProxy",
@@ -203,7 +190,7 @@
     },
     {
       "inputs": [],
-      "name": "paymentEthFeeProxy",
+      "name": "paymentEthProxy",
       "outputs": [
         {
           "internalType": "contract IEthereumFeeProxy",
@@ -238,11 +225,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentErc20FeeProxy",
+          "name": "_paymentErc20Proxy",
           "type": "address"
         }
       ],
-      "name": "setPaymentErc20FeeProxy",
+      "name": "setPaymentErc20Proxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -251,11 +238,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentEthFeeProxy",
+          "name": "_paymentEthProxy",
           "type": "address"
         }
       ],
-      "name": "setPaymentEthFeeProxy",
+      "name": "setPaymentEthProxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
