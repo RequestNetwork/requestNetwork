@@ -6,8 +6,6 @@ import {
   EthereumFeeProxy__factory,
   ChainlinkConversionPath,
   TestERC20,
-  Erc20ConversionProxy,
-  EthConversionProxy,
   TestERC20__factory,
   BatchConversionPayments__factory,
   BatchConversionPayments,
@@ -56,8 +54,6 @@ describe('contract: BatchConversionPayments', async () => {
   let DAI_address: string;
   let FAU_address: string;
 
-  let erc20ConversionProxy: Erc20ConversionProxy;
-  let ethConversionProxy: EthConversionProxy;
   let batchConversionProxy: BatchConversionPayments;
   let daiERC20: TestERC20;
   let fauERC20: TestERC20;
@@ -306,12 +302,12 @@ describe('contract: BatchConversionPayments', async () => {
 
     const erc20FeeProxy = await new ERC20FeeProxy__factory(adminSigner).deploy();
     const ethFeeProxy = await new EthereumFeeProxy__factory(adminSigner).deploy();
-    erc20ConversionProxy = await new Erc20ConversionProxy__factory(adminSigner).deploy(
+    const erc20ConversionProxy = await new Erc20ConversionProxy__factory(adminSigner).deploy(
       erc20FeeProxy.address,
       chainlinkPath.address,
       await adminSigner.getAddress(),
     );
-    ethConversionProxy = await new EthConversionProxy__factory(adminSigner).deploy(
+    const ethConversionProxy = await new EthConversionProxy__factory(adminSigner).deploy(
       ethFeeProxy.address,
       chainlinkPath.address,
       ETH_hash,
