@@ -12,6 +12,9 @@ import {
 import { chainlinkConversionPath as chainlinkConvArtifact } from '../src/lib';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { deployAddressChecking } from './utils';
+import { BigNumber } from 'ethers';
+
+export const FAU_USD_RATE = 201; // 2.01
 
 // Deploys, set up the contracts
 export async function deployBatchConversionPayment(
@@ -47,7 +50,7 @@ export async function deployBatchConversionPayment(
     const erc20Factory = await hre.ethers.getContractFactory('TestERC20');
     const testERC20FakeFAU = await erc20Factory.deploy('1000000000000000000000000000000');
     const { address: AggFakeFAU_USD_address } = await deployOne(args, hre, 'AggregatorMock', {
-      constructorArguments: [201000000, 8, 60],
+      constructorArguments: [BigNumber.from(FAU_USD_RATE).mul(1000000), 8, 60],
     });
     const conversionPathInstance = chainlinkConvArtifact.connect('private', owner);
     const currencyManager = CurrencyManager.getDefault();
