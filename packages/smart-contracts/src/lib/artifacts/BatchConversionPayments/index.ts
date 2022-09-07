@@ -14,12 +14,16 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           creationBlockNumber: 0,
         },
         rinkeby: {
-          address: '0x3cc064751F99b27f20c6888A25A28E0edAA7e85a',
-          creationBlockNumber: 11269864,
+          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
+          creationBlockNumber: 11338182,
         },
         goerli: {
-          address: '0x3cc064751F99b27f20c6888A25A28E0edAA7e85a',
-          creationBlockNumber: 7475403,
+          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
+          creationBlockNumber: 7546738,
+        },
+        matic: {
+          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
+          creationBlockNumber: 32800551,
         },
       },
     },

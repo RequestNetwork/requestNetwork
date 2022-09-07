@@ -138,12 +138,18 @@ export interface IPaymentNetworkBaseInfoRetriever<
  * ERC777 networks and events
  */
 
+export enum STREAM_EVENT_NAMES {
+  START_STREAM = 'start_stream',
+  END_STREAM = 'end_stream',
+  UPDATE_STREAM = 'update_stream',
+}
 /** Parameters for events of ERC777 payments */
 export interface IERC777PaymentEventParameters {
   from?: string;
   to: string;
   block?: number;
   txHash?: string;
+  streamEventName?: STREAM_EVENT_NAMES;
 }
 
 /** ERC777 Payment Network Event */
