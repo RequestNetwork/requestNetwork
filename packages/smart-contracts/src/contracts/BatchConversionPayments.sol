@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import './interfaces/IERC20ConversionProxy.sol';
 import './interfaces/IEthConversionProxy.sol';
-import './BatchPaymentsPublic.sol';
+import './BatchNoConversionPayments.sol';
 
 /**
  * @title BatchConversionPayments
@@ -19,7 +19,7 @@ import './BatchPaymentsPublic.sol';
  *      batchRouter is the main function, but other batch payment functions are "public" in order to do
  *      gas optimization in some cases.
  */
-contract BatchConversionPayments is BatchPaymentsPublic {
+contract BatchConversionPayments is BatchNoConversionPayments {
   using SafeERC20 for IERC20;
 
   IERC20ConversionProxy public paymentErc20ConversionProxy;
@@ -49,7 +49,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @dev BatchPaymentsPublic contract input structure.
+   * @dev BatchNoConversionPayments contract input structure.
    */
   struct CryptoDetails {
     address[] tokenAddresses;
@@ -62,8 +62,8 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   /**
    * @dev Used by the batchRouter to handle information for heterogeneous batches, grouped by payment network.
    *  - paymentNetworkId: from 0 to 4, cf. `batchRouter()` method.
-   *  - conversionDetails all the data required for conversion requests to be paid, for paymentNetworkId = 0 or 3
-   *  - cryptoDetails all the data required to pay requests without conversion, for paymentNetworkId = 1, 2, or 4
+   *  - conversionDetails all the data required for conversion requests to be paid, for paymentNetworkId = 0 or 4
+   *  - cryptoDetails all the data required to pay requests without conversion, for paymentNetworkId = 1, 2, or 3
    */
   struct MetaDetail {
     uint256 paymentNetworkId;
@@ -84,7 +84,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
     address _paymentErc20ConversionProxy,
     address _paymentEthConversionFeeProxy,
     address _owner
-  ) BatchPaymentsPublic(_paymentErc20Proxy, _paymentEthProxy, _owner) {
+  ) BatchNoConversionPayments(_paymentErc20Proxy, _paymentEthProxy, _owner) {
     paymentErc20ConversionProxy = IERC20ConversionProxy(_paymentErc20ConversionProxy);
     paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionFeeProxy);
     batchConversionFee = 0;
@@ -93,26 +93,24 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   /**
    * @notice Batch payments on different payment networks at once.
    * @param metaDetails contains paymentNetworkId, conversionDetails, and cryptoDetails
-   * - batchERC20ConversionPaymentsMultiTokens, paymentNetworkId=0
-   * - batchERC20PaymentsWithReference, paymentNetworkId=1
-   * - batchERC20PaymentsMultiTokensWithReference, paymentNetworkId=2
-   * - batchEthConversionPaymentsWithReference, paymentNetworkId=3
-   * - batchEthPaymentsWithReference, paymentNetworkId=4
+   * - batchMultiERC20ConversionPayments, paymentNetworkId=0
+   * - batchERC20Payments, paymentNetworkId=1
+   * - batchMultiERC20Payments, paymentNetworkId=2
+   * - batchEthPayments, paymentNetworkId=3
+   * - batchEthConversionPayments, paymentNetworkId=4
+   * If metaDetails use paymentNetworkId = 4, it must be at the end of the list, or the transaction can be reverted
    * @param _feeAddress The address where fees should be paid
    * @dev batchRouter only reduces gas consumption when using more than a single payment network.
    *      For single payment network payments, it is more efficient to use the suited batch function.
    */
   function batchRouter(MetaDetail[] calldata metaDetails, address _feeAddress) external payable {
-    require(metaDetails.length < 6, 'more than 5 conversionDetails');
+    require(metaDetails.length < 6, 'more than 5 metaDetails');
     for (uint256 i = 0; i < metaDetails.length; i++) {
       MetaDetail calldata metaConversionDetail = metaDetails[i];
       if (metaConversionDetail.paymentNetworkId == 0) {
-        batchERC20ConversionPaymentsMultiTokens(
-          metaConversionDetail.conversionDetails,
-          _feeAddress
-        );
+        batchMultiERC20ConversionPayments(metaConversionDetail.conversionDetails, _feeAddress);
       } else if (metaConversionDetail.paymentNetworkId == 1) {
-        batchERC20PaymentsWithReference(
+        batchERC20Payments(
           metaConversionDetail.cryptoDetails.tokenAddresses[0],
           metaConversionDetail.cryptoDetails.recipients,
           metaConversionDetail.cryptoDetails.amounts,
@@ -121,7 +119,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
           _feeAddress
         );
       } else if (metaConversionDetail.paymentNetworkId == 2) {
-        batchERC20PaymentsMultiTokensWithReference(
+        batchMultiERC20Payments(
           metaConversionDetail.cryptoDetails.tokenAddresses,
           metaConversionDetail.cryptoDetails.recipients,
           metaConversionDetail.cryptoDetails.amounts,
@@ -130,18 +128,22 @@ contract BatchConversionPayments is BatchPaymentsPublic {
           _feeAddress
         );
       } else if (metaConversionDetail.paymentNetworkId == 3) {
-        batchEthConversionPaymentsWithReference(
-          metaConversionDetail.conversionDetails,
-          payable(_feeAddress)
-        );
-      } else if (metaConversionDetail.paymentNetworkId == 4) {
-        batchEthPaymentsWithReference(
+        if (metaDetails[metaDetails.length - 1].paymentNetworkId == 4) {
+          // Set to false only if batchEthConversionPayments is called after this function
+          transferBackRemainingEth = false;
+        }
+        batchEthPayments(
           metaConversionDetail.cryptoDetails.recipients,
           metaConversionDetail.cryptoDetails.amounts,
           metaConversionDetail.cryptoDetails.paymentReferences,
           metaConversionDetail.cryptoDetails.feeAmounts,
           payable(_feeAddress)
         );
+        if (metaDetails[metaDetails.length - 1].paymentNetworkId == 4) {
+          transferBackRemainingEth = true;
+        }
+      } else if (metaConversionDetail.paymentNetworkId == 4) {
+        batchEthConversionPayments(metaConversionDetail.conversionDetails, payable(_feeAddress));
       } else {
         revert('wrong paymentNetworkId');
       }
@@ -149,12 +151,12 @@ contract BatchConversionPayments is BatchPaymentsPublic {
   }
 
   /**
-   * @notice Makes a batch of transfers for multiple ERC20 tokens, with amounts based on a request
-   * currency (e.g. fiat) and with a reference per payment.
+   * @notice Send a batch of ERC20 payments with amounts based on a request
+   * currency (e.g. fiat), with fees and paymentReferences to multiple accounts, with multiple tokens.
    * @param conversionDetails list of requestInfo, each one containing all the information of a request
    * @param _feeAddress The fee recipient
    */
-  function batchERC20ConversionPaymentsMultiTokens(
+  function batchMultiERC20ConversionPayments(
     ConversionDetail[] calldata conversionDetails,
     address _feeAddress
   ) public {
@@ -259,7 +261,7 @@ contract BatchConversionPayments is BatchPaymentsPublic {
    *        the following error is thrown: "revert paymentProxy transferExactEthWithReferenceAndFee failed"
    *        This choice reduces the gas significantly, by delegating the whole conversion to the payment proxy.
    */
-  function batchEthConversionPaymentsWithReference(
+  function batchEthConversionPayments(
     ConversionDetail[] calldata conversionDetails,
     address payable _feeAddress
   ) public payable {
