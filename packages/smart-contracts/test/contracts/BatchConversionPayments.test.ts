@@ -10,6 +10,7 @@ import {
   BatchConversionPayments__factory,
   BatchConversionPayments,
 } from '../../src/types';
+import { PaymentTypes } from '@requestnetwork/types';
 import { BigNumber, ContractTransaction, Signer } from 'ethers';
 import { expect } from 'chai';
 import { CurrencyManager } from '@requestnetwork/currency';
@@ -59,7 +60,7 @@ describe('contract: BatchConversionPayments', async () => {
   let chainlinkPath: ChainlinkConversionPath;
 
   // constants inputs for batch functions, both conversion and no-conversion
-  const emptyCryptoDetails = {
+  const emptyCryptoDetails: PaymentTypes.CryptoDetails = {
     tokenAddresses: [],
     recipients: [],
     amounts: [],
@@ -67,7 +68,7 @@ describe('contract: BatchConversionPayments', async () => {
     feeAmounts: [],
   };
 
-  const fauConvDetail = {
+  const fauConvDetail: PaymentTypes.ConversionDetail = {
     recipient: '',
     requestAmount: '100000' + fiatDecimals,
     path: [USD_hash, FAU_address],
@@ -77,7 +78,7 @@ describe('contract: BatchConversionPayments', async () => {
     maxRateTimespan: '0',
   };
 
-  const daiConvDetail = {
+  const daiConvDetail: PaymentTypes.ConversionDetail = {
     recipient: '',
     requestAmount: '100000' + fiatDecimals,
     path: [EUR_hash, USD_hash, DAI_address],
@@ -87,14 +88,14 @@ describe('contract: BatchConversionPayments', async () => {
     maxRateTimespan: '0',
   };
 
-  const ethConvDetail = {
+  const ethConvDetail: PaymentTypes.ConversionDetail = {
     recipient: '',
     requestAmount: '1000',
     path: [USD_hash, ETH_hash],
     paymentReference: referenceExample,
     feeAmount: '1',
-    maxToSpend: BigNumber.from(0),
-    maxRateTimespan: BigNumber.from(0),
+    maxToSpend: '0',
+    maxRateTimespan: '0',
   };
 
   before(async () => {
@@ -437,14 +438,14 @@ describe('contract: BatchConversionPayments', async () => {
       const beforeETHBalanceFrom = await provider.getBalance(await fromSigner.getAddress());
 
       // set inputs: ERC20 cryptoDetails & ethCryptoDetails
-      const cryptoDetails = {
+      const cryptoDetails: PaymentTypes.CryptoDetails = {
         tokenAddresses: [FAU_address],
         recipients: [to],
         amounts: ['100000'],
         paymentReferences: [referenceExample],
         feeAmounts: ['100'],
       };
-      const ethCryptoDetails = {
+      const ethCryptoDetails: PaymentTypes.CryptoDetails = {
         tokenAddresses: [],
         recipients: [to],
         amounts: ['1000'],
@@ -777,7 +778,7 @@ describe('contract: BatchConversionPayments', async () => {
 
     it('cannot transfer if rate is too old', async function () {
       const wrongConvDetail = Utils.deepCopy(ethConvDetail);
-      wrongConvDetail.maxRateTimespan = BigNumber.from('1');
+      wrongConvDetail.maxRateTimespan = '1';
       await expect(
         batchConversionProxy.batchEthConversionPayments([wrongConvDetail], feeAddress, {
           value: 1000 + 1 + 42,
