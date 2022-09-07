@@ -73,7 +73,7 @@ export class SuperFluidInfoRetriever {
         oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
         flowRate: 0,
         timestamp: Utils.getCurrentTimestampInSecond(),
-        blockNumber: streamEvents[streamEvents.length - 1].blockNumber,
+        blockNumber: parseInt(streamEvents[streamEvents.length - 1].blockNumber.toString()),
         transactionHash: streamEvents[streamEvents.length - 1].transactionHash,
       } as FlowUpdatedEvent);
     }
@@ -113,7 +113,7 @@ export class SuperFluidInfoRetriever {
         name: this.eventName,
         parameters: {
           to: this.toAddress,
-          block: streamEvents[index].blockNumber,
+          block: parseInt(streamEvents[index].blockNumber.toString()),
           txHash: streamEvents[index].transactionHash,
           streamEventName: getEventName(streamEvents[index]),
         },
