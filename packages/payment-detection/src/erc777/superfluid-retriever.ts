@@ -120,10 +120,12 @@ export class SuperFluidInfoRetriever {
         timestamp: streamEvents[index].timestamp,
       });
     }
-    const newLastParameters = paymentEvents[paymentEvents.length - 1].parameters;
-    if (lastEventOngoing && newLastParameters) {
-      newLastParameters.streamEventName = PaymentTypes.STREAM_EVENT_NAMES.START_STREAM;
-      paymentEvents[paymentEvents.length - 1].parameters = newLastParameters;
+    if (paymentEvents.length > 0) {
+      const newLastParameters = paymentEvents[paymentEvents.length - 1].parameters;
+      if (lastEventOngoing && newLastParameters) {
+        newLastParameters.streamEventName = PaymentTypes.STREAM_EVENT_NAMES.START_STREAM;
+        paymentEvents[paymentEvents.length - 1].parameters = newLastParameters;
+      }
     }
     return paymentEvents;
   }
