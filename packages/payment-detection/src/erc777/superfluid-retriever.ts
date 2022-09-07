@@ -113,7 +113,7 @@ export class SuperFluidInfoRetriever {
         name: this.eventName,
         parameters: {
           to: this.toAddress,
-          block: streamEvents[index].blockNumber,
+          block: parseInt(streamEvents[index].blockNumber.toString()),
           txHash: streamEvents[index].transactionHash,
           streamEventName: getEventName(streamEvents[index]),
         },
