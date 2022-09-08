@@ -270,6 +270,29 @@ describe(`[Conversion]: erc20-batch-conversion-proxy`, () => {
         payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
       ).rejects.toThrowError(`wrong request currencyInfo type`);
     });
+    it('should throw an error if the request has a wrong payment network id', async () => {
+      request2.extensions = {
+        // ERC20_FEE_PROXY_CONTRACT instead of ANY_TO_ERC20_PROXY
+        [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+          events: [],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            feeAddress,
+            feeAmount: feeAmount,
+            paymentAddress: paymentAddress,
+            salt: 'salt',
+          },
+          version: '0.1.0',
+        },
+      };
+
+      await expect(
+        payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+      ).rejects.toThrowError(
+        'request cannot be processed, or is not an pn-any-to-erc20-proxy request',
+      );
+    });
     it("should throw an error if one request's currencyInfo has no value", async () => {
       request2.currencyInfo.value = '';
       await expect(

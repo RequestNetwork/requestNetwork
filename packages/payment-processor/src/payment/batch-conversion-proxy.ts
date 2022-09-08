@@ -1,7 +1,7 @@
-import { ContractTransaction, Signer, providers, BigNumber, BigNumberish } from 'ethers';
+import { ContractTransaction, Signer, providers, BigNumber } from 'ethers';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchConversionPayments__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes, RequestLogicTypes, PaymentTypes } from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import { comparePnTypeAndVersion, getProvider, getRequestPaymentValues, getSigner } from './utils';
 import {
@@ -13,31 +13,6 @@ import { EnrichedRequest, IConversionPaymentSettings } from './index';
 import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
 import { getBatchArgs } from './batch-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
-
-// Types used by batch conversion smart contract
-type ConversionDetail = {
-  recipient: string;
-  requestAmount: BigNumberish;
-  path: string[];
-  paymentReference: string;
-  feeAmount: BigNumberish;
-  maxToSpend: BigNumberish;
-  maxRateTimespan: BigNumberish;
-};
-
-type CryptoDetails = {
-  tokenAddresses: Array<string>;
-  recipients: Array<string>;
-  amounts: Array<BigNumberish>;
-  paymentReferences: Array<string>;
-  feeAmounts: Array<BigNumberish>;
-};
-
-type MetaDetail = {
-  paymentNetworkId: number;
-  conversionDetails: ConversionDetail[];
-  cryptoDetails: CryptoDetails;
-};
 
 /**
  * Processes a transaction to pay a batch of requests with an ERC20 currency
@@ -104,13 +79,13 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
 
   //**** Create and fill batchRouter function argument: metaDetails ****//
 
-  const metaDetails: MetaDetail[] = [];
+  const metaDetails: PaymentTypes.MetaDetail[] = [];
 
   // Variable and constants to get info about each payment network (pn)
-  let pn0FirstRequest: ClientTypes.IRequestData | undefined;
+  let firstPn0Request: ClientTypes.IRequestData | undefined;
   const pn2requests: ClientTypes.IRequestData[] = [];
   // Constant storing conversion info
-  const conversionDetails: ConversionDetail[] = [];
+  const conversionDetails: PaymentTypes.ConversionDetail[] = [];
 
   // Iterate throught each enrichedRequests to do checking and retrieve info
   for (let i = 0; i < enrichedRequests.length; i++) {
@@ -119,16 +94,12 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
       throw new Error('no payment network found');
     }
     if (enrichedRequests[i].paymentNetworkId === 0) {
-      // set pn0FirstRequest only if it is undefined
-      pn0FirstRequest = pn0FirstRequest ?? enrichedRequests[i].request;
-      if (!(iExtension.id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY))
-        throw new Error(
-          'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-        );
+      // set firstPn0Request only if it is undefined
+      firstPn0Request = firstPn0Request ?? enrichedRequests[i].request;
 
       if (
         !comparePnTypeAndVersion(
-          getPaymentNetworkExtension(pn0FirstRequest),
+          getPaymentNetworkExtension(firstPn0Request),
           enrichedRequests[i].request,
         )
       )
@@ -153,8 +124,8 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
     }
   }
 
-  // Add conversionDetails to metaDetails
-  if (pn0FirstRequest) {
+  // Add ERC20 conversion payments
+  if (conversionDetails.length > 0) {
     metaDetails.push({
       paymentNetworkId: 0,
       conversionDetails: conversionDetails,
@@ -173,15 +144,16 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
     const { tokenAddresses, paymentAddresses, amountsToPay, paymentReferences, feesToPay } =
       getBatchArgs(pn2requests, 'ERC20');
 
+    // add ERC20 no-conversion payments
     metaDetails.push({
       paymentNetworkId: 2,
       conversionDetails: [],
       cryptoDetails: {
         tokenAddresses: tokenAddresses,
         recipients: paymentAddresses,
-        amounts: amountsToPay,
+        amounts: amountsToPay.map((x) => x.toString()),
         paymentReferences: paymentReferences,
-        feeAmounts: feesToPay,
+        feeAmounts: feesToPay.map((x) => x.toString()),
       },
     });
   }
@@ -193,7 +165,7 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
  * Get the conversion detail values from one enriched request
  * @param enrichedRequest enrichedRequest to pay
  */
-function getInputConversionDetail(enrichedRequest: EnrichedRequest): ConversionDetail {
+function getInputConversionDetail(enrichedRequest: EnrichedRequest): PaymentTypes.ConversionDetail {
   const paymentSettings = enrichedRequest.paymentSettings;
   if (!paymentSettings) throw Error('the enrichedRequest has no paymentSettings');
 
@@ -214,12 +186,12 @@ function getInputConversionDetail(enrichedRequest: EnrichedRequest): ConversionD
   const padFeeAmount = padAmountForChainlink(feeAmount || 0, requestCurrency);
   return {
     recipient: paymentAddress,
-    requestAmount: padRequestAmount,
+    requestAmount: padRequestAmount.toString(),
     path: path,
     paymentReference: `0x${paymentReference}`,
-    feeAmount: BigNumber.from(padFeeAmount),
-    maxToSpend: BigNumber.from(paymentSettings.maxToSpend),
-    maxRateTimespan: BigNumber.from(maxRateTimespan || 0),
+    feeAmount: padFeeAmount.toString(),
+    maxToSpend: paymentSettings.maxToSpend.toString(),
+    maxRateTimespan: maxRateTimespan || '0',
   };
 }
 
