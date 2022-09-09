@@ -158,10 +158,7 @@ export function encodePayBatchRequest(requests: ClientTypes.IRequestData[]): str
  * @returns List with the args required by batch Eth and Erc20 functions,
  * @dev tokenAddresses returned is for batch Erc20 functions
  */
-export function getBatchArgs(
-  requests: ClientTypes.IRequestData[],
-  forcedPaymentType?: 'ETH' | 'ERC20',
-): {
+function getBatchArgs(requests: ClientTypes.IRequestData[]): {
   tokenAddresses: Array<string>;
   paymentAddresses: Array<string>;
   amountsToPay: Array<BigNumber>;
@@ -176,7 +173,7 @@ export function getBatchArgs(
   const feesToPay: Array<BigNumber> = [];
   let feeAddressUsed = constants.AddressZero;
 
-  const paymentType = forcedPaymentType ?? requests[0].currencyInfo.type;
+  const paymentType = requests[0].currencyInfo.type;
   for (let i = 0; i < requests.length; i++) {
     if (paymentType === 'ETH') {
       validateEthFeeProxyRequest(requests[i]);

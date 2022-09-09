@@ -336,18 +336,3 @@ const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
     throw new UnsupportedPaymentChain(request.currencyInfo.network);
   }
 };
-
-/**
- * Input of batch conversion payment processor
- * It contains requests, paymentSettings, amount and feeAmount.
- * Currently, these requests must have the same PN, version, and batchFee
- * Also used in Invoicing repository.
- * @dev next step: paymentNetworkId could get more values options, see the "ref"
- */
-export interface EnrichedRequest {
-  paymentNetworkId: 0 | 2; // ref in batchConversionPayment.sol
-  request: ClientTypes.IRequestData;
-  paymentSettings?: IConversionPaymentSettings;
-  amount?: BigNumberish;
-  feeAmount?: BigNumberish;
-}
