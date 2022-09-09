@@ -17,7 +17,7 @@ import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
 import { isNearNetwork, isNearAccountSolvent } from './utils-near';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import { encodeRequestErc20ApprovalIfNeeded } from './encoder-approval';
+import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from './settings';
@@ -130,28 +130,18 @@ export async function payRequest(
  * Encode the transactions associated to a request
  * @param request the request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param from The address which will send the transaction.
  * @param options encoding options
  * @returns
  */
 export async function encodeRequestApprovalAndPayment(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider,
-  from?: string,
   options?: IRequestPaymentOptions,
 ): Promise<IPreparedTransaction[]> {
   const preparedTransactions: IPreparedTransaction[] = [];
-
-  if (from) {
-    const approvalTx = await encodeRequestErc20ApprovalIfNeeded(
-      request,
-      signerOrProvider,
-      from,
-      options,
-    );
-    if (approvalTx) {
-      preparedTransactions.push(approvalTx);
-    }
+  const approvalTx = await encodeRequestErc20Approval(request, signerOrProvider, options);
+  if (approvalTx) {
+    preparedTransactions.push(approvalTx);
   }
   preparedTransactions.push(encodeRequestPayment(request, signerOrProvider, options));
   return preparedTransactions;
