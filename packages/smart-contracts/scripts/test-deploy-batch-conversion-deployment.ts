@@ -22,7 +22,7 @@ export async function deployBatchConversionPayment(
   hre: HardhatRuntimeEnvironment,
 ): Promise<any> {
   try {
-    console.log('start BatchConversionPayments');
+    console.log('Deploy BatchConversionPayments');
     const _ERC20FeeProxyAddress = erc20FeeProxyArtifact.getAddress('private');
     const _EthereumFeeProxyAddress = ethereumFeeProxyArtifact.getAddress('private');
     const _paymentErc20ConversionFeeProxy = erc20ConversionProxy.getAddress('private');
@@ -45,7 +45,6 @@ export async function deployBatchConversionPayment(
     );
 
     // Add a second ERC20 token and aggregator - useful for batch test
-    console.log('start adding a second conversion path instance');
     const [owner] = await hre.ethers.getSigners();
     const erc20Factory = await hre.ethers.getContractFactory('TestERC20');
     const testERC20FakeFAU = await erc20Factory.deploy('1000000000000000000000000000000');

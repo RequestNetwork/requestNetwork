@@ -342,10 +342,19 @@ export interface CryptoDetails {
   feeAmounts: Array<string>;
 }
 
+/** Each paymentNetworkId is linked with a batch function */
+export enum BatchPaymentNetworkId {
+  batchMultiERC20ConversionPayments,
+  batchERC20Payments,
+  batchMultiERC20Payments,
+  batchEthPayments,
+  batchEthConversionPayments,
+}
+
 /** Input type used by batch conversion proxy to make an ERC20 & ETH,
  * and conversion & no-conversion payment through batchRouter */
 export interface MetaDetail {
-  paymentNetworkId: number;
+  paymentNetworkId: BatchPaymentNetworkId;
   conversionDetails: ConversionDetail[];
   cryptoDetails: CryptoDetails;
 }
