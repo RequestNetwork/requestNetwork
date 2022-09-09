@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, providers, BigNumber } from 'ethers';
+import { ContractTransaction, Signer, providers, BigNumber, constants } from 'ethers';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchConversionPayments__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes, PaymentTypes } from '@requestnetwork/types';
@@ -23,12 +23,8 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
  * @param version Version of the batch conversion proxy
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides Optionally, override default transaction values, like gas.
- * @dev We only implement batchRouter using the ERC20 functions:
- * batchERC20ConversionPaymentsMultiTokens, and batchERC20PaymentsMultiTokensWithReference.
- * It implies that paymentNetworkId take only theses values: 0 or 2
- * Next steps:
- * - Enable ETH payment within batchRouter function: with/out conversion
- * - Enable gas optimizaton: implement the others batch functions
+ * @dev We only implement batchRouter using two ERC20 functions:
+ *      batchMultiERC20ConversionPayments, and batchMultiERC20Payments.
  */
 export async function payBatchConversionProxyRequest(
   enrichedRequests: EnrichedRequest[],
@@ -42,7 +38,7 @@ export async function payBatchConversionProxyRequest(
 }
 
 /**
- * Prepare the transaction to pay a batch of requests through the batch conversion proxy contract,
+ * Prepare the transaction to pay a batch of ERC20 requests through the batch conversion proxy contract,
  * it can be used with a Multisig contract.
  * @param enrichedRequests List of EnrichedRequest to pay
  * @param version Version of the batch conversion proxy
@@ -70,12 +66,7 @@ export function prepareBatchConversionPaymentTransaction(
  * @param enrichedRequests list of ECR20 requests to pay
  */
 export function encodePayBatchConversionRequest(enrichedRequests: EnrichedRequest[]): string {
-  // Get fee address
-  const extension = getPaymentNetworkExtension(enrichedRequests[0].request);
-  if (!extension) {
-    throw new Error('no payment network found');
-  }
-  const { feeAddress } = extension.values;
+  const { feeAddress } = getRequestPaymentValues(enrichedRequests[0].request);
 
   //**** Create and fill batchRouter function argument: metaDetails ****//
 
@@ -158,7 +149,10 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
     });
   }
   const proxyContract = BatchConversionPayments__factory.createInterface();
-  return proxyContract.encodeFunctionData('batchRouter', [metaDetails, feeAddress]);
+  return proxyContract.encodeFunctionData('batchRouter', [
+    metaDetails,
+    feeAddress || constants.AddressZero,
+  ]);
 }
 
 /**
