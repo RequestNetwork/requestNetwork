@@ -6,12 +6,11 @@ import { deploySwapConversion } from './erc20-swap-to-conversion';
 import { deployOne } from './deploy-one';
 import { BigNumber } from 'ethers';
 
-// 1_000_000: number of decimal 8, divided by 100
-export const EUR_USD_RATE = BigNumber.from(120).mul(1_000_000); // 1.2 * 10^8, n_decimals = 8
-export const ETH_USD_RATE = BigNumber.from(50000).mul(1_000_000); // 500 * 10^8
-export const DAI_USD_RATE = BigNumber.from(101).mul(1_000_000); // 1.01 * 10^8
-// 1_000_000_000_000_000: number of decimal 18, divided by 1000
-export const USDT_ETH_RATE = BigNumber.from(2).mul(1_000_000_000_000_000); // 0.002 * 10^18, n_decimals = 18
+export const PRECISION_RATE = 100_000_000;
+export const EUR_USD_RATE = BigNumber.from(1.2 * PRECISION_RATE);
+export const ETH_USD_RATE = BigNumber.from(500 * PRECISION_RATE);
+export const DAI_USD_RATE = BigNumber.from(1.01 * PRECISION_RATE);
+export const USDT_ETH_RATE = BigNumber.from(0.002 * 1_000_000_000_000_000_000);
 
 export default async function deploy(
   args: any,

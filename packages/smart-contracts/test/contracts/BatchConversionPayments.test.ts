@@ -19,7 +19,11 @@ import { FAU_USD_RATE } from '../../scripts/test-deploy-batch-conversion-deploym
 import { localERC20AlphaArtifact, secondLocalERC20AlphaArtifact } from './localArtifacts';
 import Utils from '@requestnetwork/utils';
 import { HttpNetworkConfig } from 'hardhat/types';
-import { DAI_USD_RATE, EUR_USD_RATE } from '../../scripts/test-deploy_chainlink_contract';
+import {
+  DAI_USD_RATE,
+  EUR_USD_RATE,
+  PRECISION_RATE,
+} from '../../scripts/test-deploy_chainlink_contract';
 
 const BATCH_PAYMENT_NETWORK_ID = PaymentTypes.BATCH_PAYMENT_NETWORK_ID;
 
@@ -33,7 +37,6 @@ describe('contract: BatchConversionPayments', async () => {
   let adminSigner: Signer;
   let fromSigner: Signer;
   let signer4: Signer;
-
   let tx: ContractTransaction;
 
   // constants used to set up batch conversion proxy, and also requests payment
@@ -162,24 +165,19 @@ describe('contract: BatchConversionPayments', async () => {
     return [fromDAIBalance, toDAIBalance, feeDAIBalance, batchDAIBalance];
   };
 
+  /** Returns BigNumber amounts with DAI decimals */
   const getExpectedConvERC20Balances = (
     amount: number,
     fee: number,
     nPayment: number,
     path: string,
   ) => {
-    // "amount" has to be transform in "daiAmount" => daiDecimals: 10^18,
-    // because the chainlink aggregator does it
-    // and to get the exact result, we need to multiply by "precision"
+    // Temporary decimal offset to have a precise conversion with floating rates
     const precision = 1_000_000;
-    const precisionRate = 1_000_000;
     const conversionRate =
       path === 'EUR_DAI'
         ? BigNumber.from(daiDecimals).mul(precision).mul(EUR_USD_RATE).div(DAI_USD_RATE)
-        : BigNumber.from(daiDecimals)
-            .mul(precision)
-            .mul(100 * precisionRate)
-            .div(FAU_USD_RATE);
+        : BigNumber.from(daiDecimals).mul(precision).mul(PRECISION_RATE).div(FAU_USD_RATE);
     const expectedToDAIBalanceDiff = BigNumber.from(amount).mul(conversionRate).mul(nPayment);
     const expectedFeeDAIBalanceDiff =
       // fee added by the batch
@@ -194,7 +192,7 @@ describe('contract: BatchConversionPayments', async () => {
       .add(expectedFeeDAIBalanceDiff)
       .mul(-1);
     return [
-      expectedFromDAIBalanceDiff.div(precision), // divide by 1 million because we multiplied by it before
+      expectedFromDAIBalanceDiff.div(precision),
       expectedToDAIBalanceDiff.div(precision),
       expectedFeeDAIBalanceDiff.div(precision),
     ];
@@ -544,7 +542,6 @@ describe('contract: BatchConversionPayments', async () => {
       expect(batchETHBalance).to.equals('0', 'batchETHBalance');
     });
   });
-
   describe('batchRouter errors', async () => {
     it(`too many elements within batchRouter metaDetails input`, async () => {
       await expect(
@@ -573,7 +570,7 @@ describe('contract: BatchConversionPayments', async () => {
       ).to.be.revertedWith('wrong paymentNetworkId');
     });
   });
-  describe('BATCH_MULTI_ERC20_CONVERSION_PAYMENTS', async () => {
+  describe('batchMultiERC20ConversionPayments', async () => {
     it('make 1 payment with 1-step conversion', async () => {
       const [initialFromFAUBalance, initialToFAUBalance, initialFeeFAUBalance] =
         await getERC20Balances(fauERC20);
@@ -628,7 +625,6 @@ describe('contract: BatchConversionPayments', async () => {
       await manyPaymentsBatchConv(batchPayment);
     });
   });
-
   describe('batchMultiERC20ConversionPayments errors', async () => {
     it('cannot transfer with invalid path', async () => {
       const convDetail = Utils.deepCopy(fauConvDetail);

@@ -13,8 +13,9 @@ import { chainlinkConversionPath as chainlinkConvArtifact } from '../src/lib';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { deployAddressChecking } from './utils';
 import { BigNumber } from 'ethers';
+import { PRECISION_RATE } from './test-deploy_chainlink_contract';
 
-export const FAU_USD_RATE = BigNumber.from(201).mul(1000000); // 2.01
+export const FAU_USD_RATE = BigNumber.from(201 * PRECISION_RATE).div(100);
 
 // Deploys, set up the contracts
 export async function deployBatchConversionPayment(
