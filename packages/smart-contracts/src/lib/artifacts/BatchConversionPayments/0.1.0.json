@@ -1,0 +1,565 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paymentErc20Proxy",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_paymentEthProxy",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_paymentErc20ConversionProxy",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_paymentEthConversionFeeProxy",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "batchConversionFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_tokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "_recipients",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "_paymentReferences",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_feeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchERC20Payments",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "path",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "paymentReference",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "feeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxToSpend",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRateTimespan",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BatchConversionPayments.ConversionDetail[]",
+          "name": "conversionDetails",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address payable",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchEthConversionPayments",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_recipients",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "_paymentReferences",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_feeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "address payable",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchEthPayments",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "batchFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "path",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "paymentReference",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "feeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxToSpend",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRateTimespan",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BatchConversionPayments.ConversionDetail[]",
+          "name": "conversionDetails",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchMultiERC20ConversionPayments",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_tokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "_recipients",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes[]",
+          "name": "_paymentReferences",
+          "type": "bytes[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_feeAmounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchMultiERC20Payments",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "paymentNetworkId",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "recipient",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "requestAmount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "path",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "bytes",
+                  "name": "paymentReference",
+                  "type": "bytes"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "feeAmount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "maxToSpend",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "maxRateTimespan",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct BatchConversionPayments.ConversionDetail[]",
+              "name": "conversionDetails",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "tokenAddresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "recipients",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "bytes[]",
+                  "name": "paymentReferences",
+                  "type": "bytes[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "feeAmounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct BatchConversionPayments.CryptoDetails",
+              "name": "cryptoDetails",
+              "type": "tuple"
+            }
+          ],
+          "internalType": "struct BatchConversionPayments.MetaDetail[]",
+          "name": "metaDetails",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address",
+          "name": "_feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchRouter",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paymentErc20ConversionProxy",
+      "outputs": [
+        {
+          "internalType": "contract IERC20ConversionProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paymentErc20Proxy",
+      "outputs": [
+        {
+          "internalType": "contract IERC20FeeProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paymentEthConversionProxy",
+      "outputs": [
+        {
+          "internalType": "contract IEthConversionProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paymentEthProxy",
+      "outputs": [
+        {
+          "internalType": "contract IEthereumFeeProxy",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_batchConversionFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setBatchConversionFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_batchFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setBatchFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paymentErc20ConversionProxy",
+          "type": "address"
+        }
+      ],
+      "name": "setPaymentErc20ConversionProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paymentErc20Proxy",
+          "type": "address"
+        }
+      ],
+      "name": "setPaymentErc20Proxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paymentEthConversionProxy",
+          "type": "address"
+        }
+      ],
+      "name": "setPaymentEthConversionProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paymentEthProxy",
+          "type": "address"
+        }
+      ],
+      "name": "setPaymentEthProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ]
+}

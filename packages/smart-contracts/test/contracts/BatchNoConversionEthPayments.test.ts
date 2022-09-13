@@ -1,15 +1,17 @@
 import { ethers, network } from 'hardhat';
 import { BigNumber, Signer } from 'ethers';
 import { expect } from 'chai';
-import { EthereumFeeProxy, BatchPayments } from '../../src/types';
-import { batchPaymentsArtifact } from '../../src/lib';
-
-import { ethereumFeeProxyArtifact } from '../../src/lib';
+import {
+  EthereumFeeProxy__factory,
+  BatchNoConversionPayments__factory,
+  ERC20FeeProxy__factory,
+} from '../../src/types';
+import { EthereumFeeProxy, BatchNoConversionPayments } from '../../src/types';
 import { HttpNetworkConfig } from 'hardhat/types';
 
 const logGasInfos = false;
 
-describe('contract: BatchPayments: Ethereum', () => {
+describe('contract: batchNoConversionPayments: Ethereum', () => {
   let payee1: string;
   let payee2: string;
   let feeAddress: string;
@@ -27,7 +29,7 @@ describe('contract: BatchPayments: Ethereum', () => {
   const referenceExample2 = '0xbbbb';
 
   let ethFeeProxy: EthereumFeeProxy;
-  let batch: BatchPayments;
+  let batch: BatchNoConversionPayments;
   const networkConfig = network.config as HttpNetworkConfig;
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
 
@@ -35,18 +37,19 @@ describe('contract: BatchPayments: Ethereum', () => {
     [, payee1, payee2, feeAddress] = (await ethers.getSigners()).map((s) => s.address);
     [owner, payee1Sig] = await ethers.getSigners();
 
-    ethFeeProxy = ethereumFeeProxyArtifact.connect(network.name, owner);
-    batch = batchPaymentsArtifact.connect(network.name, owner);
+    const erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
+    ethFeeProxy = await new EthereumFeeProxy__factory(owner).deploy();
+    batch = await new BatchNoConversionPayments__factory(owner).deploy(
+      erc20FeeProxy.address,
+      ethFeeProxy.address,
+      await owner.getAddress(),
+    );
     batchAddress = batch.address;
-    await batch.connect(owner).setBatchFee(10);
-  });
-
-  after(async () => {
-    await batch.connect(owner).setBatchFee(10);
+    await batch.connect(owner).setBatchFee(100);
   });
 
   describe('Batch Eth normal flow', () => {
-    it('Should pay 2 payments and contract do not keep funds of ethers', async function () {
+    it('Should pay 2 payments and contract do not keep funds of ethers', async () => {
       const beforeEthBalanceFee = await provider.getBalance(feeAddress);
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
@@ -54,7 +57,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPaymentsWithReference(
+          .batchEthPayments(
             [payee1, payee2],
             [2000, 3000],
             [referenceExample1, referenceExample2],
@@ -82,7 +85,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       expect(await provider.getBalance(batchAddress)).to.be.equal(0);
     });
 
-    it('Should pay 2 payments with the exact amount', async function () {
+    it('Should pay 2 payments with the exact amount', async () => {
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
 
@@ -90,7 +93,7 @@ describe('contract: BatchPayments: Ethereum', () => {
 
       const tx = await batch
         .connect(owner)
-        .batchEthPaymentsWithReference(
+        .batchEthPayments(
           [payee1, payee2],
           [200, 300],
           [referenceExample1, referenceExample2],
@@ -111,7 +114,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       expect(await provider.getBalance(batchAddress)).to.be.equal(0);
     });
 
-    it('Should pay 10 Ethereum payments', async function () {
+    it('Should pay 10 Ethereum payments', async () => {
       beforeEthBalance2 = await provider.getBalance(payee2);
 
       const amount = 2;
@@ -129,16 +132,9 @@ describe('contract: BatchPayments: Ethereum', () => {
 
       const tx = await batch
         .connect(owner)
-        .batchEthPaymentsWithReference(
-          recipients,
-          amounts,
-          paymentReferences,
-          feeAmounts,
-          feeAddress,
-          {
-            value: totalAmount,
-          },
-        );
+        .batchEthPayments(recipients, amounts, paymentReferences, feeAmounts, feeAddress, {
+          value: totalAmount,
+        });
 
       const receipt = await tx.wait();
       if (logGasInfos) {
@@ -153,7 +149,7 @@ describe('contract: BatchPayments: Ethereum', () => {
   });
 
   describe('Batch revert, issues with: args, or funds', () => {
-    it('Should revert batch if not enough funds', async function () {
+    it('Should revert batch if not enough funds', async () => {
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
 
@@ -162,7 +158,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPaymentsWithReference(
+          .batchEthPayments(
             [payee1, payee2],
             [200, 300],
             [referenceExample1, referenceExample2],
@@ -183,7 +179,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       expect(await provider.getBalance(batchAddress)).to.be.equal(0);
     });
 
-    it('Should revert batch if not enough funds for the batch fee', async function () {
+    it('Should revert batch if not enough funds for the batch fee', async () => {
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
 
@@ -192,7 +188,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPaymentsWithReference(
+          .batchEthPayments(
             [payee1, payee2],
             [200, 300],
             [referenceExample1, referenceExample2],
@@ -213,11 +209,11 @@ describe('contract: BatchPayments: Ethereum', () => {
       expect(await provider.getBalance(batchAddress)).to.be.equal(0);
     });
 
-    it('Should revert batch if input s arrays do not have same size', async function () {
+    it('Should revert batch if input s arrays do not have same size', async () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPaymentsWithReference(
+          .batchEthPayments(
             [payee1, payee2],
             [5, 30],
             [referenceExample1, referenceExample2],
@@ -229,7 +225,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPaymentsWithReference(
+          .batchEthPayments(
             [payee1],
             [5, 30],
             [referenceExample1, referenceExample2],
@@ -241,7 +237,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPaymentsWithReference(
+          .batchEthPayments(
             [payee1, payee2],
             [5],
             [referenceExample1, referenceExample2],
@@ -253,13 +249,7 @@ describe('contract: BatchPayments: Ethereum', () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPaymentsWithReference(
-            [payee1, payee2],
-            [5, 30],
-            [referenceExample1],
-            [1, 2],
-            feeAddress,
-          ),
+          .batchEthPayments([payee1, payee2], [5, 30], [referenceExample1], [1, 2], feeAddress),
       ).revertedWith('the input arrays must have the same length');
 
       expect(await provider.getBalance(batchAddress)).to.be.equal(0);
@@ -267,21 +257,21 @@ describe('contract: BatchPayments: Ethereum', () => {
   });
 
   describe('Function allowed only to the owner', () => {
-    it('Should allow the owner to update batchFee', async function () {
+    it('Should allow the owner to update batchFee', async () => {
       const beforeBatchFee = await batch.batchFee.call({ from: owner });
-      let tx = await batch.connect(owner).setBatchFee(beforeBatchFee.add(10));
+      let tx = await batch.connect(owner).setBatchFee(beforeBatchFee.add(100));
       await tx.wait();
       const afterBatchFee = await batch.batchFee.call({ from: owner });
-      expect(afterBatchFee).to.be.equal(beforeBatchFee.add(10));
+      expect(afterBatchFee).to.be.equal(beforeBatchFee.add(100));
     });
 
-    it('Should applied the new batchFee', async function () {
+    it('Should applied the new batchFee', async () => {
       // check if batch fee applied are the one updated
       const beforeFeeAddress = await provider.getBalance(feeAddress);
 
       const tx = await batch
         .connect(owner)
-        .batchEthPaymentsWithReference(
+        .batchEthPayments(
           [payee1, payee2],
           [200, 300],
           [referenceExample1, referenceExample2],
@@ -297,15 +287,15 @@ describe('contract: BatchPayments: Ethereum', () => {
       expect(afterFeeAddress).to.be.equal(beforeFeeAddress.add(10 + 20 + (4 + 6))); // fee: (10+20), batch fee: (4+6)
     });
 
-    it('Should revert if it is not the owner that try to update batchFee', async function () {
-      await expect(batch.connect(payee1Sig).setBatchFee(30)).revertedWith(
-        'revert Ownable: caller is not the owner',
+    it('Should revert if it is not the owner that try to update batchFee', async () => {
+      await expect(batch.connect(payee1Sig).setBatchFee(300)).revertedWith(
+        'Ownable: caller is not the owner',
       );
     });
   });
 });
 
-// Allow to create easly BatchPayments input, especially for gas optimization.
+// Allow to create easly batchNoConversionPayments input, especially for gas optimization.
 const getBatchPaymentsInputs = function (
   nbTxs: number,
   tokenAddress: string,
