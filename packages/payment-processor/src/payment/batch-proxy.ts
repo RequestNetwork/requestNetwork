@@ -116,9 +116,7 @@ export function encodePayBatchRequest(requests: ClientTypes.IRequestData[]): str
     const pn = getPaymentNetworkExtension(requests[0]);
     for (let i = 0; i < requests.length; i++) {
       validateErc20FeeProxyRequest(requests[i]);
-      if (!comparePnTypeAndVersion(pn, requests[i])) {
-        throw new Error(`Every payment network type and version must be identical`);
-      }
+      comparePnTypeAndVersion(pn, requests[i]);
     }
 
     if (isMultiTokens) {

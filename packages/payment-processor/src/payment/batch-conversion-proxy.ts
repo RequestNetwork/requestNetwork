@@ -38,7 +38,8 @@ export async function payBatchConversionProxyRequest(
 }
 
 /**
- * Prepare the transaction to pay a batch of ERC20 requests through the batch conversion proxy contract,
+ * Prepares a transaction to pay a batch of requests with an ERC20 currency
+ * that is different from the request currency (eg. fiat)
  * it can be used with a Multisig contract.
  * @param enrichedRequests List of EnrichedRequest to pay
  * @param version Version of the batch conversion proxy
@@ -61,7 +62,8 @@ export function prepareBatchConversionPaymentTransaction(
 }
 
 /**
- * Encodes the call to pay a batch conversion of requests through ERC20 or ERC20Conversion proxies
+ * Encodes a transaction to pay a batch of requests with an ERC20 currency
+ * that is different from the request currency (eg. fiat)
  * It can be used with a Multisig contract.
  * @param enrichedRequests list of ECR20 requests to pay
  */
@@ -69,8 +71,6 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
   const { feeAddress } = getRequestPaymentValues(enrichedRequests[0].request);
 
   //**** Create and fill batchRouter function argument: metaDetails ****//
-
-  const metaDetails: PaymentTypes.MetaDetail[] = [];
 
   // Variable and constants to get info about each payment network (pn)
   let firstPn0Request: ClientTypes.IRequestData | undefined;
@@ -88,14 +88,12 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
       // set firstPn0Request only if it is undefined
       firstPn0Request = firstPn0Request ?? enrichedRequests[i].request;
 
+      comparePnTypeAndVersion(
+        getPaymentNetworkExtension(firstPn0Request!),
+        enrichedRequests[i].request,
+      );
       if (
-        !comparePnTypeAndVersion(
-          getPaymentNetworkExtension(firstPn0Request),
-          enrichedRequests[i].request,
-        )
-      )
-        throw new Error(`Every payment network type and version must be identical`);
-      if (
+        // the type used must a fiat or an ERC20
         ![RequestLogicTypes.CURRENCY.ISO4217, RequestLogicTypes.CURRENCY.ERC20].includes(
           enrichedRequests[i].request.currencyInfo.type,
         )
@@ -104,17 +102,14 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
       conversionDetails.push(getInputConversionDetail(enrichedRequests[i]));
     } else if (enrichedRequests[i].paymentNetworkId === 2) {
       pn2requests.push(enrichedRequests[i].request);
-      if (
-        !comparePnTypeAndVersion(
-          getPaymentNetworkExtension(pn2requests[0]),
-          enrichedRequests[i].request,
-        )
-      ) {
-        throw new Error(`Every payment network type and version must be identical`);
-      }
+      comparePnTypeAndVersion(
+        getPaymentNetworkExtension(pn2requests[0]),
+        enrichedRequests[i].request,
+      );
     }
   }
 
+  const metaDetails: PaymentTypes.MetaDetail[] = [];
   // Add ERC20 conversion payments
   if (conversionDetails.length > 0) {
     metaDetails.push({

@@ -315,18 +315,22 @@ export function getAmountToPay(
 
 /**
  * Compare 2 payment networks type and version in request's extension
+ * and throw an exception if they are different
  * @param pn payment network
  * @param request
- * @returns true if type and version are identique else false
  */
 export function comparePnTypeAndVersion(
   pn: ExtensionTypes.IState | undefined,
   request: ClientTypes.IRequestData,
-): boolean {
-  return (
-    pn?.type === getPaymentNetworkExtension(request)?.type &&
-    pn?.version === getPaymentNetworkExtension(request)?.version
-  );
+): void {
+  if (
+    !(
+      pn?.type === getPaymentNetworkExtension(request)?.type &&
+      pn?.version === getPaymentNetworkExtension(request)?.version
+    )
+  ) {
+    throw new Error(`Every payment network type and version must be identical`);
+  }
 }
 
 /**
