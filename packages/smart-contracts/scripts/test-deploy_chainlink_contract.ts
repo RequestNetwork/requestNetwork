@@ -4,6 +4,14 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { deployERC20ConversionProxy, deployEthConversionProxy } from './conversion-proxy';
 import { deploySwapConversion } from './erc20-swap-to-conversion';
 import { deployOne } from './deploy-one';
+import { BigNumber } from 'ethers';
+
+// 1_000_000: number of decimal 8, divided by 100
+export const EUR_USD_RATE = BigNumber.from(120).mul(1_000_000); // 1.2 * 10^8, n_decimals = 8
+export const ETH_USD_RATE = BigNumber.from(50000).mul(1_000_000); // 500 * 10^8
+export const DAI_USD_RATE = BigNumber.from(101).mul(1_000_000); // 1.01 * 10^8
+// 1_000_000_000_000_000: number of decimal 18, divided by 1000
+export const USDT_ETH_RATE = BigNumber.from(2).mul(1_000_000_000_000_000); // 0.002 * 10^18, n_decimals = 18
 
 export default async function deploy(
   args: any,
@@ -12,16 +20,16 @@ export default async function deploy(
 ) {
   const [deployer] = await hre.ethers.getSigners();
   const { address: AggDAI_USD_address } = await deployOne(args, hre, 'AggregatorMock', {
-    constructorArguments: [101000000, 8, 60],
+    constructorArguments: [DAI_USD_RATE, 8, 60],
   });
   const { address: AggETH_USD_address } = await deployOne(args, hre, 'AggregatorMock', {
-    constructorArguments: [50000000000, 8, 60],
+    constructorArguments: [ETH_USD_RATE, 8, 60],
   });
   const { address: AggEUR_USD_address } = await deployOne(args, hre, 'AggregatorMock', {
-    constructorArguments: [120000000, 8, 60],
+    constructorArguments: [EUR_USD_RATE, 8, 60],
   });
   const { address: AggUSDT_ETH_address } = await deployOne(args, hre, 'AggregatorMock', {
-    constructorArguments: [2000000000000000, 18, 60],
+    constructorArguments: [USDT_ETH_RATE, 18, 60],
   });
   const { address: USDT_fake_address } = await deployOne(args, hre, 'UsdtFake');
 

@@ -343,18 +343,18 @@ export interface CryptoDetails {
 }
 
 /** Each paymentNetworkId is linked with a batch function */
-export enum BatchPaymentNetworkId {
-  batchMultiERC20ConversionPayments,
-  batchERC20Payments,
-  batchMultiERC20Payments,
-  batchEthPayments,
-  batchEthConversionPayments,
+export enum BATCH_PAYMENT_NETWORK_ID {
+  BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
+  BATCH_ERC20_PAYMENTS,
+  BATCH_MULTI_ERC20_PAYMENTS,
+  BATCH_ETH_PAYMENTS,
+  BATCH_ETH_CONVERSION_PAYMENTS,
 }
 
 /** Input type used by batch conversion proxy to make an ERC20 & ETH,
  * and conversion & no-conversion payment through batchRouter */
 export interface MetaDetail {
-  paymentNetworkId: BatchPaymentNetworkId;
+  paymentNetworkId: BATCH_PAYMENT_NETWORK_ID;
   conversionDetails: ConversionDetail[];
   cryptoDetails: CryptoDetails;
 }
