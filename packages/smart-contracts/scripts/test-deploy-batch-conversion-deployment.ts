@@ -13,8 +13,9 @@ import { chainlinkConversionPath as chainlinkConvArtifact } from '../src/lib';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { deployAddressChecking } from './utils';
 import { BigNumber } from 'ethers';
+import { PRECISION_RATE } from './test-deploy_chainlink_contract';
 
-export const FAU_USD_RATE = 201; // 2.01
+export const FAU_USD_RATE = BigNumber.from(201 * PRECISION_RATE).div(100);
 
 // Deploys, set up the contracts
 export async function deployBatchConversionPayment(
@@ -22,7 +23,7 @@ export async function deployBatchConversionPayment(
   hre: HardhatRuntimeEnvironment,
 ): Promise<any> {
   try {
-    console.log('start BatchConversionPayments');
+    console.log('Deploy BatchConversionPayments');
     const _ERC20FeeProxyAddress = erc20FeeProxyArtifact.getAddress('private');
     const _EthereumFeeProxyAddress = ethereumFeeProxyArtifact.getAddress('private');
     const _paymentErc20ConversionFeeProxy = erc20ConversionProxy.getAddress('private');
@@ -45,12 +46,11 @@ export async function deployBatchConversionPayment(
     );
 
     // Add a second ERC20 token and aggregator - useful for batch test
-    console.log('start adding a second conversion path instance');
     const [owner] = await hre.ethers.getSigners();
     const erc20Factory = await hre.ethers.getContractFactory('TestERC20');
     const testERC20FakeFAU = await erc20Factory.deploy('1000000000000000000000000000000');
     const { address: AggFakeFAU_USD_address } = await deployOne(args, hre, 'AggregatorMock', {
-      constructorArguments: [BigNumber.from(FAU_USD_RATE).mul(1000000), 8, 60],
+      constructorArguments: [FAU_USD_RATE, 8, 60],
     });
     const conversionPathInstance = chainlinkConvArtifact.connect('private', owner);
     const currencyManager = CurrencyManager.getDefault();

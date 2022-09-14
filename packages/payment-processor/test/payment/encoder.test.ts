@@ -225,11 +225,7 @@ beforeAll(async () => {
 
 describe('Encoder', () => {
   it('Should handle ERC20 Proxy request', async () => {
-    const encodedTransactions = await encodeRequestApprovalAndPayment(
-      baseValidRequest,
-      provider,
-      wallet.address,
-    );
+    const encodedTransactions = await encodeRequestApprovalAndPayment(baseValidRequest, provider);
 
     let tx = await wallet.sendTransaction(encodedTransactions[0]);
     let confirmedTx = await tx.wait(1);
@@ -246,7 +242,6 @@ describe('Encoder', () => {
     const encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestERC20FeeProxy,
       provider,
-      wallet.address,
     );
 
     let tx = await wallet.sendTransaction(encodedTransactions[0]);
@@ -264,7 +259,6 @@ describe('Encoder', () => {
     let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestERC20ConversionProxy,
       provider,
-      wallet.address,
       {
         conversion: alphaConversionSettings,
       },
@@ -285,7 +279,6 @@ describe('Encoder', () => {
     let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestERC20FeeProxy,
       provider,
-      wallet.address,
       {
         swap: alphaSwapSettings,
       },
@@ -306,7 +299,6 @@ describe('Encoder', () => {
     let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestERC20ConversionProxy,
       provider,
-      wallet.address,
       {
         swap: alphaSwapConversionSettings,
         conversion: alphaConversionSettings,
@@ -325,11 +317,7 @@ describe('Encoder', () => {
   });
 
   it('Should handle Eth Proxy request', async () => {
-    let encodedTransactions = await encodeRequestApprovalAndPayment(
-      validRequestEthProxy,
-      provider,
-      wallet.address,
-    );
+    let encodedTransactions = await encodeRequestApprovalAndPayment(validRequestEthProxy, provider);
 
     let tx = await wallet.sendTransaction(encodedTransactions[0]);
     let confirmedTx = await tx.wait(1);
@@ -341,7 +329,6 @@ describe('Encoder', () => {
     let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestEthFeeProxy,
       provider,
-      wallet.address,
     );
 
     let tx = await wallet.sendTransaction(encodedTransactions[0]);
@@ -354,7 +341,6 @@ describe('Encoder', () => {
     let encodedTransactions = await encodeRequestApprovalAndPayment(
       validRequestEthConversionProxy,
       provider,
-      wallet.address,
       {
         conversion: ethConversionSettings,
       },
