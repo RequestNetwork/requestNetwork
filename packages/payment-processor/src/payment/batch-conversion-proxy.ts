@@ -64,6 +64,7 @@ export function prepareBatchConversionPaymentTransaction(
     value: 0,
   };
 }
+
 /**
  * Encodes a transaction to pay a batch of requests with an ERC20 currency
  * that is different from the request currency (eg. fiat)
@@ -122,7 +123,7 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
     });
   }
 
-  // Get values and add cryptpoDetails to metaDetails
+  // Get values and add cryptoDetails to metaDetails
   if (pn2requests.length > 0) {
     const { tokenAddresses, paymentAddresses, amountsToPay, paymentReferences, feesToPay } =
       getBatchArgs(pn2requests, 'ERC20');

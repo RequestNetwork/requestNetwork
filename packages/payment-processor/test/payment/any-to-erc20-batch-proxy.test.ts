@@ -20,7 +20,6 @@ import {
 } from '../../src/payment/batch-conversion-proxy';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { BATCH_PAYMENT_NETWORK_ID } from '@requestnetwork/types/dist/payment-types';
 
 /* eslint-disable no-magic-numbers */
@@ -30,6 +29,7 @@ import { BATCH_PAYMENT_NETWORK_ID } from '@requestnetwork/types/dist/payment-typ
 const BATCH_DENOMINATOR = 10000;
 const BATCH_FEE = 30;
 const BATCH_CONV_FEE = 30;
+
 const batchConvVersion = '0.1.0';
 const DAITokenAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 const FAUTokenAddress = '0x9FBDa871d559710256a2502A2517b794B482Db40';
@@ -49,6 +49,8 @@ const alphaPaymentSettings: IConversionPaymentSettings = {
   maxToSpend: '10000000000000000000000000000',
   currencyManager,
 };
+
+// requests setting
 
 const EURExpectedAmount = 100;
 const EURFeeAmount = 2;
@@ -169,7 +171,7 @@ const expectedConversionAmount = (amount: number): BigNumber => {
 
 describe('erc20-batch-conversion-proxy', () => {
   beforeAll(async () => {
-    // revoke DAI and FAU approvals
+    // Revoke DAI and FAU approvals
     await revokeErc20Approval(
       getBatchConversionProxyAddress(validEURRequest, batchConvVersion),
       DAITokenAddress,
@@ -181,6 +183,7 @@ describe('erc20-batch-conversion-proxy', () => {
       wallet,
     );
   });
+
   describe(`Conversion:`, () => {
     beforeEach(() => {
       jest.restoreAllMocks();
@@ -353,10 +356,11 @@ describe('erc20-batch-conversion-proxy', () => {
 
         // Get the balances to compare after payment
         const initialETHFromBalance = await wallet.getBalance();
-        const initialDAIFromBalance = await ERC20__factory.connect(
-          DAITokenAddress,
+        const initialDAIFromBalance = await getErc20Balance(
+          DAIValidRequest,
+          wallet.address,
           provider,
-        ).balanceOf(wallet.address);
+        );
 
         // Convert and pay
         const tx = await payBatchConversionProxyRequest(
@@ -373,11 +377,11 @@ describe('erc20-batch-conversion-proxy', () => {
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toEqual(1);
         expect(tx.hash).toBeDefined();
+
         // Get the new balances
         const ETHFromBalance = await wallet.getBalance();
-        const DAIFromBalance = await ERC20__factory.connect(DAITokenAddress, provider).balanceOf(
-          wallet.address,
-        );
+        const DAIFromBalance = await getErc20Balance(DAIValidRequest, wallet.address, provider);
+
         // Check each balance
         const amountToPay = expectedConversionAmount(EURExpectedAmount);
         const feeToPay = expectedConversionAmount(EURFeeAmount);
@@ -401,12 +405,13 @@ describe('erc20-batch-conversion-proxy', () => {
         ).toEqual(expectedAmountToPay);
       });
       it('should convert and pay two requests in EUR with ERC20', async () => {
-        // Get the balances to compare after payment
+        // Get initial balances
         const initialETHFromBalance = await wallet.getBalance();
-        const initialDAIFromBalance = await ERC20__factory.connect(
-          DAITokenAddress,
+        const initialDAIFromBalance = await getErc20Balance(
+          DAIValidRequest,
+          wallet.address,
           provider,
-        ).balanceOf(wallet.address);
+        );
 
         // Convert and pay
         const tx = await payBatchConversionProxyRequest(
@@ -421,32 +426,35 @@ describe('erc20-batch-conversion-proxy', () => {
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toEqual(1);
         expect(tx.hash).toBeDefined();
-        // Get the new balances
+
+        // Get balances
         const ETHFromBalance = await wallet.getBalance();
-        const DAIFromBalance = await ERC20__factory.connect(DAITokenAddress, provider).balanceOf(
-          wallet.address,
-        );
-        // Check each balance
+        const DAIFromBalance = await getErc20Balance(DAIValidRequest, wallet.address, provider);
+
+        // Checks ETH balances
+        expect(
+          BigNumber.from(initialETHFromBalance).sub(ETHFromBalance).toNumber(),
+        ).toBeGreaterThan(0);
+
+        // Checks DAI balances
         const amountToPay = expectedConversionAmount(EURExpectedAmount).mul(2); // multiply by the number of requests: 2
         const feeToPay = expectedConversionAmount(EURFeeAmount).mul(2); // multiply by the number of requests: 2
         const expectedAmoutToPay = amountToPay
           .add(feeToPay)
           .mul(BATCH_DENOMINATOR + BATCH_CONV_FEE)
           .div(BATCH_DENOMINATOR);
-        expect(
-          BigNumber.from(initialETHFromBalance).sub(ETHFromBalance).toNumber(),
-        ).toBeGreaterThan(0);
         expect(BigNumber.from(initialDAIFromBalance).sub(BigNumber.from(DAIFromBalance))).toEqual(
           expectedAmoutToPay,
         );
       });
       it('should pay 3 heterogeneous ERC20 payments with and without conversion', async () => {
-        // Get the balances to compare after payment
+        // Get initial balances
         const initialETHFromBalance = await wallet.getBalance();
-        const initialDAIFromBalance = await ERC20__factory.connect(
-          DAITokenAddress,
+        const initialDAIFromBalance = await getErc20Balance(
+          DAIValidRequest,
+          wallet.address,
           provider,
-        ).balanceOf(wallet.address);
+        );
 
         // Convert the two first requests and pay the three requests
         const tx = await payBatchConversionProxyRequest(
@@ -472,13 +480,17 @@ describe('erc20-batch-conversion-proxy', () => {
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toEqual(1);
         expect(tx.hash).toBeDefined();
-        // Get the new balances
-        const ETHFromBalance = await wallet.getBalance();
-        const DAIFromBalance = await ERC20__factory.connect(DAITokenAddress, provider).balanceOf(
-          wallet.address,
-        );
 
-        // Check each balance
+        // Get balances
+        const ETHFromBalance = await wallet.getBalance();
+        const DAIFromBalance = await getErc20Balance(DAIValidRequest, wallet.address, provider);
+
+        // Checks ETH balances
+        expect(
+          BigNumber.from(initialETHFromBalance).sub(ETHFromBalance).toNumber(),
+        ).toBeGreaterThan(0);
+
+        // Checks DAI balances
         let expectedConvAmountToPay = expectedConversionAmount(EURExpectedAmount).mul(2); // multiply by the number of conversion requests: 2
         const feeToPay = expectedConversionAmount(EURFeeAmount).mul(2); // multiply by the number of conversion requests: 2
         // expectedConvAmountToPay with fees and batch fees
@@ -486,15 +498,11 @@ describe('erc20-batch-conversion-proxy', () => {
           .add(feeToPay)
           .mul(BATCH_DENOMINATOR + BATCH_CONV_FEE)
           .div(BATCH_DENOMINATOR);
-
         const expectedNoConvAmountToPay = BigNumber.from(DAIValidRequest.expectedAmount)
           .add(feeAmount)
           .mul(BATCH_DENOMINATOR + BATCH_FEE)
           .div(BATCH_DENOMINATOR);
 
-        expect(
-          BigNumber.from(initialETHFromBalance).sub(ETHFromBalance).toNumber(),
-        ).toBeGreaterThan(0);
         expect(BigNumber.from(initialDAIFromBalance).sub(BigNumber.from(DAIFromBalance))).toEqual(
           expectedConvAmountToPay.add(expectedNoConvAmountToPay),
         );
@@ -582,7 +590,7 @@ describe('erc20-batch-conversion-proxy', () => {
         wallet.sendTransaction = originalSendTransaction;
       });
       it(`should pay 2 differents ERC20 requests with fees`, async () => {
-        // approve the contract for DAI and FAU tokens
+        // Approve the contract for DAI and FAU tokens
         const FAUApprovalTx = await approveErc20BatchConversionIfNeeded(
           FAUValidRequest,
           wallet.address,
@@ -599,7 +607,7 @@ describe('erc20-batch-conversion-proxy', () => {
         );
         if (DAIApprovalTx) await DAIApprovalTx.wait(1);
 
-        // get the balance
+        // Get initial balances
         const initialETHFromBalance = await wallet.getBalance();
         const initialDAIFromBalance = await getErc20Balance(
           DAIValidRequest,
@@ -618,23 +626,23 @@ describe('erc20-batch-conversion-proxy', () => {
         // Batch payment
         const tx = await payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet);
         const confirmedTx = await tx.wait(1);
+        expect(confirmedTx.status).toBe(1);
+        expect(tx.hash).not.toBeUndefined();
 
+        // Get balances
         const ETHFromBalance = await wallet.getBalance();
         const DAIFromBalance = await getErc20Balance(DAIValidRequest, wallet.address, provider);
         const DAIFeeBalance = await getErc20Balance(DAIValidRequest, feeAddress, provider);
         const FAUFromBalance = await getErc20Balance(FAUValidRequest, wallet.address, provider);
         const FAUFeeBalance = await getErc20Balance(FAUValidRequest, feeAddress, provider);
 
-        expect(confirmedTx.status).toBe(1);
-        expect(tx.hash).not.toBeUndefined();
+        // Checks ETH balances
         expect(ETHFromBalance.lte(initialETHFromBalance)).toBeTruthy(); // 'ETH balance should be lower'
 
-        const expectedDAIFeeAmountToPay =
-          feeAmount + ((DAIValidRequest.expectedAmount as number) * BATCH_FEE) / BATCH_DENOMINATOR;
+        // Check FAU balances
         const expectedFAUFeeAmountToPay =
           feeAmount + ((FAUValidRequest.expectedAmount as number) * BATCH_FEE) / BATCH_DENOMINATOR;
 
-        // Compare FAUValidRequest balances
         expect(BigNumber.from(FAUFromBalance)).toEqual(
           BigNumber.from(initialFAUFromBalance).sub(
             (FAUValidRequest.expectedAmount as number) + expectedFAUFeeAmountToPay,
@@ -643,7 +651,10 @@ describe('erc20-batch-conversion-proxy', () => {
         expect(BigNumber.from(FAUFeeBalance)).toEqual(
           BigNumber.from(initialFAUFeeBalance).add(expectedFAUFeeAmountToPay),
         );
-        // compare DAIValidRequest balances
+        // Check DAI balances
+        const expectedDAIFeeAmountToPay =
+          feeAmount + ((DAIValidRequest.expectedAmount as number) * BATCH_FEE) / BATCH_DENOMINATOR;
+
         expect(BigNumber.from(DAIFromBalance)).toEqual(
           BigNumber.from(initialDAIFromBalance)
             .sub(DAIValidRequest.expectedAmount as number)
