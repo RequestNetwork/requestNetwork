@@ -1,7 +1,7 @@
 import { ContractTransaction, Signer, providers, BigNumber, constants } from 'ethers';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchConversionPayments__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, RequestLogicTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   comparePnTypeAndVersion,
@@ -21,6 +21,7 @@ import { getBatchArgs } from './batch-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { BATCH_PAYMENT_NETWORK_ID } from '@requestnetwork/types/dist/payment-types';
 import { IState } from 'types/dist/extension-types';
+import { CurrencyInput, isERC20Currency, isISO4217Currency } from '@requestnetwork/currency/dist';
 
 /**
  * Processes a transaction to pay a batch of requests with an ERC20 currency
@@ -88,12 +89,12 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
         firstConversionRequestExtension ?? getPaymentNetworkExtension(enrichedRequest.request);
 
       comparePnTypeAndVersion(firstConversionRequestExtension, enrichedRequest.request);
-      const isErc20Currency =
-        enrichedRequest.request.currencyInfo.type === RequestLogicTypes.CURRENCY.ERC20;
-      const isISO4217Currency =
-        enrichedRequest.request.currencyInfo.type === RequestLogicTypes.CURRENCY.ISO4217;
-      // the type used must a fiat or an ERC20
-      if (!(isErc20Currency || isISO4217Currency))
+      if (
+        !(
+          isERC20Currency(enrichedRequest.request.currencyInfo as unknown as CurrencyInput) ||
+          isISO4217Currency(enrichedRequest.request.currencyInfo as unknown as CurrencyInput)
+        )
+      )
         throw new Error(`wrong request currencyInfo type`);
       conversionDetails.push(getInputConversionDetail(enrichedRequest));
     } else if (
