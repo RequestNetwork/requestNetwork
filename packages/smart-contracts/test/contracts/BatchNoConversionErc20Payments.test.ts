@@ -99,7 +99,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
   });
 
   describe('Batch working well: right args, and approvals', () => {
-    it('Should pay 3 ERC20 payments with paymentRef and pay batch fee', async function () {
+    it('Should pay 3 ERC20 payments with paymentRef and pay batch fee', async () => {
       await token1.connect(owner).transfer(spender3Address, 1000);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
@@ -168,7 +168,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       );
     });
 
-    it('Should pay 3 ERC20 payments Multi tokens with paymentRef and pay batch fee', async function () {
+    it('Should pay 3 ERC20 payments Multi tokens with paymentRef and pay batch fee', async () => {
       await token1.connect(owner).transfer(spender3Address, 1000);
       await token2.connect(owner).transfer(spender3Address, 1000);
       await token3.connect(owner).transfer(spender3Address, 1000);
@@ -260,7 +260,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       );
     });
 
-    it('Should pay 3 ERC20 payments Multi tokens, with one payment of 0 token', async function () {
+    it('Should pay 3 ERC20 payments Multi tokens, with one payment of 0 token', async () => {
       await token1.connect(owner).transfer(spender3Address, 1000);
       await token2.connect(owner).transfer(spender3Address, 1000);
       await token3.connect(owner).transfer(spender3Address, 1000);
@@ -305,7 +305,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       );
     });
 
-    it('Should pay 4 ERC20 payments on 2 tokens', async function () {
+    it('Should pay 4 ERC20 payments on 2 tokens', async () => {
       await token1.connect(owner).transfer(spender3Address, 1000);
       await token2.connect(owner).transfer(spender3Address, 1000);
 
@@ -351,7 +351,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       expect(beforeERC20Balance3Token2).to.be.equal(afterERC20Balance3Token2.add((20 + 1 + 2) * 2));
     });
 
-    it('Should pay 10 ERC20 payments', async function () {
+    it('Should pay 10 ERC20 payments', async () => {
       await token1.connect(owner).transfer(spender3Address, 1000);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
@@ -390,7 +390,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       );
     });
 
-    it('Should pay 10 ERC20 payments on multiple tokens', async function () {
+    it('Should pay 10 ERC20 payments on multiple tokens', async () => {
       await token1.connect(owner).transfer(spender3Address, 1000);
       await token2.connect(owner).transfer(spender3Address, 1000);
 
@@ -435,7 +435,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
   });
 
   describe('Batch revert, issues with: args, or funds, or approval', () => {
-    it('Should revert batch if not enough funds to pay the request', async function () {
+    it('Should revert batch if not enough funds to pay the request', async () => {
       await token1.connect(owner).transfer(spender3Address, 100);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
@@ -453,7 +453,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       ).revertedWith('not enough funds');
     });
 
-    it('Should revert batch if not enough funds to pay the batch fee', async function () {
+    it('Should revert batch if not enough funds to pay the batch fee', async () => {
       await token1.connect(owner).transfer(spender3Address, 303);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
@@ -471,7 +471,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       ).revertedWith('not enough funds for the batch fee');
     });
 
-    it('Should revert batch without approval', async function () {
+    it('Should revert batch without approval', async () => {
       await token1.connect(owner).transfer(spender3Address, 303);
       await token1.connect(spender3).approve(batchAddress, 10);
       await expect(
@@ -488,7 +488,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       ).revertedWith('Insufficient allowance for batch to pay');
     });
 
-    it('Should revert batch multi tokens if not enough funds', async function () {
+    it('Should revert batch multi tokens if not enough funds', async () => {
       await token1.connect(owner).transfer(spender3Address, 400);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
@@ -506,7 +506,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       ).revertedWith('not enough funds');
     });
 
-    it('Should revert batch multi tokens if not enough funds to pay the batch fee', async function () {
+    it('Should revert batch multi tokens if not enough funds to pay the batch fee', async () => {
       await token1.connect(owner).transfer(spender3Address, 607);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
@@ -524,7 +524,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       ).revertedWith('not enough funds');
     });
 
-    it('Should revert batch multi tokens without approval', async function () {
+    it('Should revert batch multi tokens without approval', async () => {
       await token1.connect(owner).transfer(spender3Address, 1000);
       await token1.connect(spender3).approve(batchAddress, 10);
 
@@ -542,7 +542,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       ).revertedWith('Insufficient allowance for batch to pay');
     });
 
-    it('Should revert batch multi tokens if input s arrays do not have same size', async function () {
+    it('Should revert batch multi tokens if input s arrays do not have same size', async () => {
       await expect(
         batch
           .connect(spender3)
@@ -609,7 +609,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       ).revertedWith('the input arrays must have the same length');
     });
 
-    it('Should revert batch if input s arrays do not have same size', async function () {
+    it('Should revert batch if input s arrays do not have same size', async () => {
       await expect(
         batch
           .connect(spender3)
