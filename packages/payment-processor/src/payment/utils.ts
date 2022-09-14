@@ -119,7 +119,7 @@ export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): s
   return extension.version;
 }
 
-const getProxyNetwork = (
+export const getProxyNetwork = (
   pn: ExtensionTypes.IState,
   currency: RequestLogicTypes.ICurrency,
 ): string => {
@@ -132,18 +132,22 @@ const getProxyNetwork = (
   throw new Error('Payment currency must have a network');
 };
 
+/**
+ * @param version version has to be set to get batch conversion proxy
+ */
 export const getProxyAddress = (
   request: ClientTypes.IRequestData,
   getDeploymentInformation: (network: string, version: string) => { address: string } | null,
+  version?: string,
 ): string => {
   const pn = getPaymentNetworkExtension(request);
   if (!pn) {
     throw new Error('PaymentNetwork not found');
   }
   const network = getProxyNetwork(pn, request.currencyInfo);
-  const deploymentInfo = getDeploymentInformation(network, pn.version);
+  const deploymentInfo = getDeploymentInformation(network, version || pn.version);
   if (!deploymentInfo) {
-    throw new Error(`No deployment found for network ${network}, version ${pn.version}`);
+    throw new Error(`No deployment found for network ${network}, version ${version || pn.version}`);
   }
   return deploymentInfo.address;
 };
@@ -323,12 +327,11 @@ export function comparePnTypeAndVersion(
   pn: ExtensionTypes.IState | undefined,
   request: ClientTypes.IRequestData,
 ): void {
-  if (
-    !(
-      pn?.type === getPaymentNetworkExtension(request)?.type &&
-      pn?.version === getPaymentNetworkExtension(request)?.version
-    )
-  ) {
+  const extension = getPaymentNetworkExtension(request);
+  if (!extension) {
+    throw new Error('no payment network found');
+  }
+  if (!(pn?.type === extension.type && pn?.version === extension.version)) {
     throw new Error(`Every payment network type and version must be identical`);
   }
 }

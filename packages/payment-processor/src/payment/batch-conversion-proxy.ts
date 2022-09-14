@@ -3,7 +3,13 @@ import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts
 import { BatchConversionPayments__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, RequestLogicTypes, PaymentTypes } from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
-import { comparePnTypeAndVersion, getProvider, getRequestPaymentValues, getSigner } from './utils';
+import {
+  comparePnTypeAndVersion,
+  getProvider,
+  getProxyAddress,
+  getRequestPaymentValues,
+  getSigner,
+} from './utils';
 import {
   padAmountForChainlink,
   getPaymentNetworkExtension,
@@ -13,6 +19,8 @@ import { EnrichedRequest, IConversionPaymentSettings } from './index';
 import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
 import { getBatchArgs } from './batch-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
+import { BATCH_PAYMENT_NETWORK_ID } from '@requestnetwork/types/dist/payment-types';
+import { IState } from 'types/dist/extension-types';
 
 /**
  * Processes a transaction to pay a batch of requests with an ERC20 currency
@@ -49,18 +57,13 @@ export function prepareBatchConversionPaymentTransaction(
   version: string,
 ): IPreparedTransaction {
   const encodedTx = encodePayBatchConversionRequest(enrichedRequests);
-  const proxyAddress = getBatchConversionProxyAddress(
-    enrichedRequests[0].request,
-    version,
-    enrichedRequests[0].paymentSettings,
-  );
+  const proxyAddress = getBatchConversionProxyAddress(enrichedRequests[0].request, version);
   return {
     data: encodedTx,
     to: proxyAddress,
     value: 0,
   };
 }
-
 /**
  * Encodes a transaction to pay a batch of requests with an ERC20 currency
  * that is different from the request currency (eg. fiat)
@@ -72,26 +75,20 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
 
   //**** Create and fill batchRouter function argument: metaDetails ****//
 
-  // Variable and constants to get info about each payment network (pn)
-  let firstPn0Request: ClientTypes.IRequestData | undefined;
+  let firstPn0Extension: IState<any> | undefined;
   const pn2requests: ClientTypes.IRequestData[] = [];
-  // Constant storing conversion info
   const conversionDetails: PaymentTypes.ConversionDetail[] = [];
 
   // Iterate throught each enrichedRequests to do checking and retrieve info
   for (let i = 0; i < enrichedRequests.length; i++) {
-    const iExtension = getPaymentNetworkExtension(enrichedRequests[i].request);
-    if (!iExtension) {
-      throw new Error('no payment network found');
-    }
-    if (enrichedRequests[i].paymentNetworkId === 0) {
-      // set firstPn0Request only if it is undefined
-      firstPn0Request = firstPn0Request ?? enrichedRequests[i].request;
+    if (
+      enrichedRequests[i].paymentNetworkId ===
+      BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS
+    ) {
+      firstPn0Extension =
+        firstPn0Extension ?? getPaymentNetworkExtension(enrichedRequests[i].request);
 
-      comparePnTypeAndVersion(
-        getPaymentNetworkExtension(firstPn0Request!),
-        enrichedRequests[i].request,
-      );
+      comparePnTypeAndVersion(firstPn0Extension, enrichedRequests[i].request);
       if (
         // the type used must a fiat or an ERC20
         ![RequestLogicTypes.CURRENCY.ISO4217, RequestLogicTypes.CURRENCY.ERC20].includes(
@@ -100,7 +97,9 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
       )
         throw new Error(`wrong request currencyInfo type`);
       conversionDetails.push(getInputConversionDetail(enrichedRequests[i]));
-    } else if (enrichedRequests[i].paymentNetworkId === 2) {
+    } else if (
+      enrichedRequests[i].paymentNetworkId === BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
+    ) {
       pn2requests.push(enrichedRequests[i].request);
       comparePnTypeAndVersion(
         getPaymentNetworkExtension(pn2requests[0]),
@@ -113,7 +112,7 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
   // Add ERC20 conversion payments
   if (conversionDetails.length > 0) {
     metaDetails.push({
-      paymentNetworkId: 0,
+      paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
       conversionDetails: conversionDetails,
       cryptoDetails: {
         tokenAddresses: [],
@@ -132,7 +131,7 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
 
     // add ERC20 no-conversion payments
     metaDetails.push({
-      paymentNetworkId: 2,
+      paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
       conversionDetails: [],
       cryptoDetails: {
         tokenAddresses: tokenAddresses,
@@ -184,31 +183,23 @@ function getInputConversionDetail(enrichedRequest: EnrichedRequest): PaymentType
   };
 }
 
+function getBatchDeploymentInformation(
+  network: string,
+  version: string,
+): { address: string } | null {
+  return { address: batchConversionPaymentsArtifact.getAddress(network, version) };
+}
+
 /**
  * Gets batch conversion contract Address
  * @param request request for an ERC20 payment with/out conversion
  * @param version of the batch conversion proxy
- * @param paymentSettings paymentSettings is necessary for conversion payment
  */
 export function getBatchConversionProxyAddress(
   request: ClientTypes.IRequestData,
   version: string,
-  paymentSettings?: IConversionPaymentSettings,
 ): string {
-  // Get the network
-  let network = request.currencyInfo.network;
-  if (paymentSettings?.currency?.network) {
-    network = paymentSettings.currency.network;
-  }
-  if (!network) throw new Error('Cannot pay with a currency missing a network');
-
-  // Get the proxy address
-  const proxyAddress = batchConversionPaymentsArtifact.getAddress(network, version);
-  if (!proxyAddress)
-    throw new Error(
-      `No deployment found on the network ${network}, associated with the version ${version}`,
-    );
-  return proxyAddress;
+  return getProxyAddress(request, getBatchDeploymentInformation, version);
 }
 
 /**
@@ -269,7 +260,7 @@ export async function hasErc20BatchConversionApproval(
 ): Promise<boolean> {
   return checkErc20Allowance(
     account,
-    getBatchConversionProxyAddress(request, version, paymentSettings),
+    getBatchConversionProxyAddress(request, version),
     signerOrProvider,
     getTokenAddress(request, paymentSettings),
     request.expectedAmount,
@@ -348,7 +339,7 @@ export function encodeApproveErc20BatchConversion(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   paymentSettings?: IConversionPaymentSettings,
 ): string {
-  const proxyAddress = getBatchConversionProxyAddress(request, version, paymentSettings);
+  const proxyAddress = getBatchConversionProxyAddress(request, version);
   return encodeApproveAnyErc20(
     getTokenAddress(request, paymentSettings),
     proxyAddress,
