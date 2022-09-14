@@ -73,13 +73,11 @@ export function prepareBatchConversionPaymentTransaction(
 export function encodePayBatchConversionRequest(enrichedRequests: EnrichedRequest[]): string {
   const { feeAddress } = getRequestPaymentValues(enrichedRequests[0].request);
 
-  //**** Create and fill batchRouter function argument: metaDetails ****//
-
   let firstPn0Extension: IState<any> | undefined;
   const pn2requests: ClientTypes.IRequestData[] = [];
   const conversionDetails: PaymentTypes.ConversionDetail[] = [];
 
-  // Iterate throught each enrichedRequests to do checking and retrieve info
+  // fill conversionDetails and pn2requests
   for (let i = 0; i < enrichedRequests.length; i++) {
     if (
       enrichedRequests[i].paymentNetworkId ===
@@ -109,7 +107,7 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
   }
 
   const metaDetails: PaymentTypes.MetaDetail[] = [];
-  // Add ERC20 conversion payments
+  // Add conversionDetails to metaDetails
   if (conversionDetails.length > 0) {
     metaDetails.push({
       paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
@@ -142,6 +140,7 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
       },
     });
   }
+
   const proxyContract = BatchConversionPayments__factory.createInterface();
   return proxyContract.encodeFunctionData('batchRouter', [
     metaDetails,
