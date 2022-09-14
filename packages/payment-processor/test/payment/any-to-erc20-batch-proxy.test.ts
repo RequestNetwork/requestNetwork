@@ -229,23 +229,6 @@ describe('erc20-batch-conversion-proxy', () => {
           }),
         );
       });
-      it('should throw an error if request has no extension', async () => {
-        EURRequest.extensions = [] as any;
-
-        await expect(
-          payBatchConversionProxyRequest(
-            [
-              {
-                paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-                request: EURRequest,
-                paymentSettings: alphaPaymentSettings,
-              },
-            ],
-            batchConvVersion,
-            wallet,
-          ),
-        ).rejects.toThrowError('no payment network found');
-      });
       it('should throw an error if request has no paymentSettings', async () => {
         await expect(
           payBatchConversionProxyRequest(

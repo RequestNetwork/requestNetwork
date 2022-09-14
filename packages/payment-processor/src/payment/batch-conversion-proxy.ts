@@ -74,35 +74,35 @@ export function prepareBatchConversionPaymentTransaction(
 export function encodePayBatchConversionRequest(enrichedRequests: EnrichedRequest[]): string {
   const { feeAddress } = getRequestPaymentValues(enrichedRequests[0].request);
 
-  let firstPn0Extension: IState<any> | undefined;
-  const pn2requests: ClientTypes.IRequestData[] = [];
+  let firstConversionRequestExtension: IState<any> | undefined;
+  const requestsWithoutConversion: ClientTypes.IRequestData[] = [];
   const conversionDetails: PaymentTypes.ConversionDetail[] = [];
 
-  // fill conversionDetails and pn2requests
-  for (let i = 0; i < enrichedRequests.length; i++) {
+  // fill conversionDetails and requestsWithoutConversion lists
+  for (const enrichedRequest of enrichedRequests) {
     if (
-      enrichedRequests[i].paymentNetworkId ===
+      enrichedRequest.paymentNetworkId ===
       BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS
     ) {
-      firstPn0Extension =
-        firstPn0Extension ?? getPaymentNetworkExtension(enrichedRequests[i].request);
+      firstConversionRequestExtension =
+        firstConversionRequestExtension ?? getPaymentNetworkExtension(enrichedRequest.request);
 
-      comparePnTypeAndVersion(firstPn0Extension, enrichedRequests[i].request);
-      if (
-        // the type used must a fiat or an ERC20
-        ![RequestLogicTypes.CURRENCY.ISO4217, RequestLogicTypes.CURRENCY.ERC20].includes(
-          enrichedRequests[i].request.currencyInfo.type,
-        )
-      )
+      comparePnTypeAndVersion(firstConversionRequestExtension, enrichedRequest.request);
+      const isErc20Currency =
+        enrichedRequest.request.currencyInfo.type === RequestLogicTypes.CURRENCY.ERC20;
+      const isISO4217Currency =
+        enrichedRequest.request.currencyInfo.type === RequestLogicTypes.CURRENCY.ISO4217;
+      // the type used must a fiat or an ERC20
+      if (!(isErc20Currency || isISO4217Currency))
         throw new Error(`wrong request currencyInfo type`);
-      conversionDetails.push(getInputConversionDetail(enrichedRequests[i]));
+      conversionDetails.push(getInputConversionDetail(enrichedRequest));
     } else if (
-      enrichedRequests[i].paymentNetworkId === BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
+      enrichedRequest.paymentNetworkId === BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
     ) {
-      pn2requests.push(enrichedRequests[i].request);
+      requestsWithoutConversion.push(enrichedRequest.request);
       comparePnTypeAndVersion(
-        getPaymentNetworkExtension(pn2requests[0]),
-        enrichedRequests[i].request,
+        getPaymentNetworkExtension(requestsWithoutConversion[0]),
+        enrichedRequest.request,
       );
     }
   }
@@ -124,9 +124,9 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
   }
 
   // Get values and add cryptoDetails to metaDetails
-  if (pn2requests.length > 0) {
+  if (requestsWithoutConversion.length > 0) {
     const { tokenAddresses, paymentAddresses, amountsToPay, paymentReferences, feesToPay } =
-      getBatchArgs(pn2requests, 'ERC20');
+      getBatchArgs(requestsWithoutConversion, 'ERC20');
 
     // add ERC20 no-conversion payments
     metaDetails.push({
