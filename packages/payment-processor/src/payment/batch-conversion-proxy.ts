@@ -78,6 +78,7 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
 
   const firstNetwork = getPnAndNetwork(enrichedRequests[0].request)[1];
   let firstConversionRequestExtension: IState<any> | undefined;
+  let firstNoConversionRequestExtension: IState<any> | undefined;
   const requestsWithoutConversion: ClientTypes.IRequestData[] = [];
   const conversionDetails: PaymentTypes.ConversionDetail[] = [];
 
@@ -102,11 +103,12 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
     } else if (
       enrichedRequest.paymentNetworkId === BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
     ) {
+      firstNoConversionRequestExtension =
+        firstNoConversionRequestExtension ?? getPaymentNetworkExtension(enrichedRequest.request);
+
+      // isERC20Currency is checked within getBatchArgs function
+      comparePnTypeAndVersion(firstNoConversionRequestExtension, enrichedRequest.request);
       requestsWithoutConversion.push(enrichedRequest.request);
-      comparePnTypeAndVersion(
-        getPaymentNetworkExtension(requestsWithoutConversion[0]),
-        enrichedRequest.request,
-      );
     }
     if (firstNetwork !== getPnAndNetwork(enrichedRequest.request)[1])
       throw new Error('All the requests must have the same network');
