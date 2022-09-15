@@ -132,19 +132,27 @@ export const getProxyNetwork = (
   throw new Error('Payment currency must have a network');
 };
 
+export function getPnAndNetwork(
+  request: ClientTypes.IRequestData,
+): [ExtensionTypes.IState<any>, string] {
+  const pn = getPaymentNetworkExtension(request);
+  if (!pn) {
+    throw new Error('PaymentNetwork not found');
+  }
+  return [pn, getProxyNetwork(pn, request.currencyInfo)];
+}
+
 /**
- * @param version version has to be set to get batch conversion proxy
+ * @param request the request
+ * @param getDeploymentInformation the function to get the proxy address
+ * @param version the version has to be set to get batch conversion proxy
  */
 export const getProxyAddress = (
   request: ClientTypes.IRequestData,
   getDeploymentInformation: (network: string, version: string) => { address: string } | null,
   version?: string,
 ): string => {
-  const pn = getPaymentNetworkExtension(request);
-  if (!pn) {
-    throw new Error('PaymentNetwork not found');
-  }
-  const network = getProxyNetwork(pn, request.currencyInfo);
+  const [pn, network] = getPnAndNetwork(request);
   const deploymentInfo = getDeploymentInformation(network, version || pn.version);
   if (!deploymentInfo) {
     throw new Error(`No deployment found for network ${network}, version ${version || pn.version}`);

@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
-import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
@@ -333,9 +333,12 @@ const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
  * Currently, these requests must have the same PN, version, and batchFee
  * Also used in Invoicing repository.
  * @dev next step: paymentNetworkId could get more values options, see the "ref"
+ *      in batchConversionPayment.sol
  */
 export interface EnrichedRequest {
-  paymentNetworkId: 0 | 2; // ref in batchConversionPayment.sol
+  paymentNetworkId:
+    | PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS
+    | PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS;
   request: ClientTypes.IRequestData;
   paymentSettings?: IConversionPaymentSettings;
   amount?: BigNumberish;

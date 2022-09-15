@@ -73,7 +73,7 @@ export function encodePayAnyToErc20ProxyRequest(
     maxRateTimespan,
     amountToPay,
     feeToPay,
-  } = prepAnyToErc20ProxyRequest(request, paymentSettings, amount, feeAmountOverride);
+  } = prepareAnyToErc20Arguments(request, paymentSettings, amount, feeAmountOverride);
   const proxyContract = Erc20ConversionProxy__factory.createInterface();
   return proxyContract.encodeFunctionData('transferFromWithReferenceAndFee', [
     paymentAddress,
@@ -132,7 +132,11 @@ export function checkRequestAndGetPathAndCurrency(
   validateConversionFeeProxyRequest(request, path, amount, feeAmountOverride);
   return { path, requestCurrency };
 }
-export function prepAnyToErc20ProxyRequest(
+
+/**
+ * Prepares all necessaries arguments required to encode an any-to-erc20 request
+ */
+function prepareAnyToErc20Arguments(
   request: ClientTypes.IRequestData,
   paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,

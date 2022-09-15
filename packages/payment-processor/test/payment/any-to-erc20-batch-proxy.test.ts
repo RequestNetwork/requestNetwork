@@ -58,7 +58,7 @@ const EURFeeAmount = 2;
 const expectedAmount = 100000;
 const feeAmount = 100;
 
-const validEURRequest: ClientTypes.IRequestData = {
+const EURValidRequest: ClientTypes.IRequestData = {
   balance: {
     balance: '0',
     events: [],
@@ -173,13 +173,13 @@ describe('erc20-batch-conversion-proxy', () => {
   beforeAll(async () => {
     // Revoke DAI and FAU approvals
     await revokeErc20Approval(
-      getBatchConversionProxyAddress(validEURRequest, batchConvVersion),
+      getBatchConversionProxyAddress(DAIValidRequest, batchConvVersion),
       DAITokenAddress,
       wallet,
     );
     await revokeErc20Approval(
       getBatchConversionProxyAddress(FAUValidRequest, batchConvVersion),
-      DAITokenAddress,
+      FAUTokenAddress,
       wallet,
     );
   });
@@ -187,11 +187,11 @@ describe('erc20-batch-conversion-proxy', () => {
   describe(`Conversion:`, () => {
     beforeEach(() => {
       jest.restoreAllMocks();
-      EURRequest = Utils.deepCopy(validEURRequest);
+      EURRequest = Utils.deepCopy(EURValidRequest);
       enrichedRequests = [
         {
           paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-          request: validEURRequest,
+          request: EURValidRequest,
           paymentSettings: alphaPaymentSettings,
         },
         {
@@ -209,7 +209,7 @@ describe('erc20-batch-conversion-proxy', () => {
             [
               {
                 paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-                request: validEURRequest,
+                request: EURValidRequest,
                 paymentSettings: {
                   ...alphaPaymentSettings,
                   currency: {
@@ -249,6 +249,28 @@ describe('erc20-batch-conversion-proxy', () => {
         await expect(
           payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError(`wrong request currencyInfo type`);
+      });
+      it('should throw an error if the request has a wrong network', async () => {
+        EURRequest.extensions = {
+          // ERC20_FEE_PROXY_CONTRACT instead of ANY_TO_ERC20_PROXY
+          [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+            events: [],
+            id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+            type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+            values: {
+              feeAddress,
+              feeAmount: feeAmount,
+              paymentAddress: paymentAddress,
+              salt: 'salt',
+              network: 'fakePrivate',
+            },
+            version: '0.1.0',
+          },
+        };
+
+        await expect(
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+        ).rejects.toThrowError('All the requests must have the same network');
       });
       it('should throw an error if the request has a wrong payment network id', async () => {
         EURRequest.extensions = {
@@ -307,7 +329,7 @@ describe('erc20-batch-conversion-proxy', () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-              request: validEURRequest,
+              request: EURValidRequest,
               paymentSettings: alphaPaymentSettings,
             },
           ],
@@ -318,7 +340,7 @@ describe('erc20-batch-conversion-proxy', () => {
         expect(spy).toHaveBeenCalledWith({
           data: '0xf0fa379f0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000024000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000005f5e10000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000001e84800000000000000000000000000000000000000000204fce5e3e250261100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000000000000000017b4158805772ced11225e77339f90beb5aae968000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b00000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa35000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
           gasPrice: '20000000000',
-          to: getBatchConversionProxyAddress(validEURRequest, '0.1.0'),
+          to: getBatchConversionProxyAddress(EURValidRequest, '0.1.0'),
           value: 0,
         });
         wallet.sendTransaction = originalSendTransaction;
@@ -326,7 +348,7 @@ describe('erc20-batch-conversion-proxy', () => {
       it('should convert and pay a request in EUR with ERC20', async () => {
         // Approve the contract
         const approvalTx = await approveErc20BatchConversionIfNeeded(
-          validEURRequest,
+          EURValidRequest,
           wallet.address,
           batchConvVersion,
           wallet.provider,
@@ -350,7 +372,7 @@ describe('erc20-batch-conversion-proxy', () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-              request: validEURRequest,
+              request: EURValidRequest,
               paymentSettings: alphaPaymentSettings,
             },
           ],
@@ -400,7 +422,7 @@ describe('erc20-batch-conversion-proxy', () => {
         const tx = await payBatchConversionProxyRequest(
           Array(2).fill({
             paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-            request: validEURRequest,
+            request: EURValidRequest,
             paymentSettings: alphaPaymentSettings,
           }),
           batchConvVersion,
@@ -444,12 +466,12 @@ describe('erc20-batch-conversion-proxy', () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-              request: validEURRequest,
+              request: EURValidRequest,
               paymentSettings: alphaPaymentSettings,
             },
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-              request: validEURRequest,
+              request: EURValidRequest,
               paymentSettings: alphaPaymentSettings,
             },
             {
@@ -531,9 +553,7 @@ describe('erc20-batch-conversion-proxy', () => {
         FAURequest.currencyInfo.network = '';
         await expect(
           payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
-        ).rejects.toThrowError(
-          'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-        );
+        ).rejects.toThrowError('Payment currency must have a network');
       });
 
       it('should throw an error if request has no extension', async () => {
