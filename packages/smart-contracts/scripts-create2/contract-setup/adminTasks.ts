@@ -5,14 +5,15 @@ import { BigNumber } from 'ethers';
 
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
-// Batch Fees: .3%
+
 /**
  * BATCH_FEE_DEPRECATED is only used with batchProxy (NOT with batchConversionProxy)
+ * Batch Fees: .3%
  */
 export const BATCH_FEE_DEPRECATED = 3;
-export const BATCH_FEE = 30;
 
-// Batch Fees: .3%
+// Batch conversion and no conversion fees: .3%
+export const BATCH_FEE = 30;
 export const BATCH_CONVERSION_FEE = 30;
 
 export const updateChainlinkConversionPath = async (
@@ -58,9 +59,8 @@ export const updateRequestSwapFees = async (
 };
 
 /**
- * Updates batch and batchConversion batchFee dependant of the proxy selected
- * @param batchConversionProxy batchConversionProxy must be specified because
- *        it impact the calcul of the batch fees
+ * Updates batch or batchConversion batchFee depends of the proxy selected
+ * @param batchConversionProxy batchConversionProxy impacts the batch fees used
  */
 export const updateBatchPaymentFees = async (
   contract: any,
@@ -144,24 +144,27 @@ export const updateBatchConversionPaymentProxy = async (
   let currentAddress: string;
   if (proxyName === 'eth') {
     proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network);
-    batchSetProxy = contract.setPaymentEthProxy;
+    batchSetProxy = await contract.setPaymentEthProxy;
     currentAddress = await contract.paymentEthProxy();
   } else if (proxyName === 'ethConversion') {
     proxyAddress = artifacts.ethConversionArtifact.getAddress(network);
-    batchSetProxy = contract.setPaymentEthConversionProxy;
+    batchSetProxy = await contract.setPaymentEthConversionProxy;
     currentAddress = await contract.paymentEthConversionProxy();
   } else if (proxyName === 'erc20') {
     proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network);
-    batchSetProxy = contract.setPaymentErc20Proxy;
+    batchSetProxy = await contract.setPaymentErc20Proxy;
     currentAddress = await contract.paymentErc20Proxy();
   } else {
     // "erc20Conversion"
     proxyAddress = artifacts.erc20ConversionProxy.getAddress(network);
-    batchSetProxy = contract.setPaymentErc20ConversionProxy;
+    batchSetProxy = await contract.setPaymentErc20ConversionProxy;
     currentAddress = await contract.paymentErc20ConversionProxy();
   }
 
   if (currentAddress !== proxyAddress) {
+    console.log(
+      `${proxyName}: previous address ${currentAddress} has been replaced by: ${proxyAddress}`,
+    );
     await batchSetProxy(proxyAddress, {
       nonce: nonce,
       gasPrice: gasPrice,
