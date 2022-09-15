@@ -1,11 +1,7 @@
 import { batchConversionPaymentsArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import utils from '@requestnetwork/utils';
-import {
-  updateBatchPaymentFees,
-  updateBatchConversionPaymentFees,
-  updateBatchConversionPaymentProxy,
-} from './adminTasks';
+import { updateBatchPaymentFees, updateBatchConversionPaymentProxy } from './adminTasks';
 
 /**
  * Updates the values of the batch fees of the BatchConversionPayments contract, if needed
@@ -43,11 +39,13 @@ export const setupBatchConversionPayments = async (
           batchConversionPaymentConnected,
           adminNonce,
           gasPrice.mul(gasCoef),
+          'BatchFee',
         ),
-        await updateBatchConversionPaymentFees(
+        await updateBatchPaymentFees(
           batchConversionPaymentConnected,
           adminNonce + 1,
           gasPrice.mul(gasCoef),
+          'BatchConversionFee',
         ),
         await updateBatchConversionPaymentProxy(
           batchConversionPaymentConnected,
