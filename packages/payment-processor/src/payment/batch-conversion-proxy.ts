@@ -97,8 +97,9 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
           isERC20Currency(enrichedRequest.request.currencyInfo as unknown as CurrencyInput) ||
           isISO4217Currency(enrichedRequest.request.currencyInfo as unknown as CurrencyInput)
         )
-      )
+      ) {
         throw new Error(`wrong request currencyInfo type`);
+      }
       conversionDetails.push(getInputConversionDetail(enrichedRequest));
     } else if (
       enrichedRequest.paymentNetworkId === BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
