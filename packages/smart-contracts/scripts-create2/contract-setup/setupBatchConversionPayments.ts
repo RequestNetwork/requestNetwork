@@ -39,7 +39,7 @@ export const setupBatchConversionPayments = async (
           batchConversionPaymentConnected,
           adminNonce,
           gasPrice.mul(gasCoef),
-          'BatchFee',
+          'BatchNoConversionFee',
         ),
         await updateBatchPaymentFees(
           batchConversionPaymentConnected,

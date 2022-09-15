@@ -6,15 +6,9 @@ import { BigNumber } from 'ethers';
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
 
-/**
- * BATCH_FEE_DEPRECATED is only used with batchProxy (NOT with batchConversionProxy)
- * Batch Fees: .3%
- */
-export const BATCH_FEE_DEPRECATED = 3;
-
 // Batch conversion and no conversion fees: .3%
-export const BATCH_FEE = 30;
-export const BATCH_CONVERSION_FEE = 30;
+const BATCH_NO_CONVERSION_FEE = 30;
+const BATCH_CONVERSION_FEE = 30;
 
 export const updateChainlinkConversionPath = async (
   contract: any,
@@ -60,14 +54,17 @@ export const updateRequestSwapFees = async (
 
 /**
  * Updates batch fees with/out conversion
+ * BATCH_NO_CONVERSION_FEE e.g: payment DAI - DAI
+ * BATCH_CONVERSION_FEE e.g: payment EUR - DAI
  */
 export const updateBatchPaymentFees = async (
   contract: any,
   nonce: number,
   gasPrice: BigNumber,
-  feesName: 'BatchFee' | 'BatchConversionFee',
+  feesName: 'BatchNoConversionFee' | 'BatchConversionFee',
 ): Promise<void> => {
-  const feesApplied = feesName === 'BatchFee' ? BATCH_FEE : BATCH_CONVERSION_FEE;
+  const feesApplied =
+    feesName === 'BatchNoConversionFee' ? BATCH_NO_CONVERSION_FEE : BATCH_CONVERSION_FEE;
   const currentFees = await contract.batchFee();
   if (currentFees !== feesApplied) {
     // Log is useful to have a direct view on was is being updated
