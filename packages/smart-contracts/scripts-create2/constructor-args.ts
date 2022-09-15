@@ -37,18 +37,6 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
       const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
       return [erc20FeeProxyAddress, getAdminWalletAddress(contract)];
     }
-    case 'BatchPayments': {
-      if (!network) {
-        throw new Error(
-          'Batch contract requires network parameter to get correct address of erc20FeeProxy and ethereumFeeProxy',
-        );
-      }
-      return [
-        '0x0000000000000000000000000000000000000000',
-        '0x0000000000000000000000000000000000000000',
-        getAdminWalletAddress(contract),
-      ];
-    }
     case 'BatchConversionPayments': {
       if (!network) {
         throw new Error(

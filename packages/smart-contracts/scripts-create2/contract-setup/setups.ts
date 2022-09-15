@@ -4,7 +4,7 @@ import { setupBatchConversionPayments } from './setupBatchConversionPayments';
 import { setupERC20SwapToConversion } from './setupERC20SwapToConversion';
 
 /**
- * Updates the values of either BatchPayments, ETHConversionProxy, or ERC20SwapToConversion contract, if needed
+ * Updates the values of either BatchConversionPayments, ETHConversionProxy, or ERC20SwapToConversion contract, if needed
  * @param contractAddress address of the proxy
  * @param hre Hardhat runtime environment
  * @param contractName name of the contract

@@ -47,8 +47,6 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.erc20SwapConversionArtifact;
     case 'ERC20EscrowToPay':
       return artifacts.erc20EscrowToPayArtifact;
-    case 'BatchPayments':
-      return artifacts.batchPaymentsArtifact;
     case 'BatchConversionPayments':
       return artifacts.batchConversionPaymentsArtifact;
     default:
