@@ -72,7 +72,9 @@ export const updateBatchPaymentFees = async (
   const currentFees = await contract.batchFee();
   if (currentFees !== batchFee) {
     // Log is useful to have a direct view on was is being updated
-    console.log(`BatchFees, currentFees: ${currentFees.toString()}, new fees: ${batchFee}`);
+    console.log(
+      `BatchFees: the current fees: ${currentFees.toString()}, have been replaced by: ${batchFee}`,
+    );
     await contract.setBatchFee(batchFee, { nonce: nonce, gasPrice: gasPrice });
   }
 };
@@ -86,7 +88,7 @@ export const updateBatchConversionPaymentFees = async (
   if (currentFees !== BATCH_CONVERSION_FEE) {
     // Log is useful to have a direct view on was is being updated
     console.log(
-      `BatchConversionFees, currentFees: ${currentFees.toString()}, new fees: ${BATCH_CONVERSION_FEE}`,
+      `BatchConversionFees: the current fees: ${currentFees.toString()}, have been replaced by: ${BATCH_CONVERSION_FEE}`,
     );
     await contract.setBatchConversionFee(BATCH_CONVERSION_FEE, {
       nonce: nonce,
@@ -163,7 +165,7 @@ export const updateBatchConversionPaymentProxy = async (
 
   if (currentAddress !== proxyAddress) {
     console.log(
-      `${proxyName}: previous address ${currentAddress} has been replaced by: ${proxyAddress}`,
+      `${proxyName}: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
     );
     await batchSetProxy(proxyAddress, {
       nonce: nonce,

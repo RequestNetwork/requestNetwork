@@ -21,6 +21,10 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
           creationBlockNumber: 7546738,
         },
+        mainnet: {
+          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
+          creationBlockNumber: 15537996,
+        },
         matic: {
           address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
           creationBlockNumber: 32800551,
@@ -32,14 +36,6 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
         celo: {
           address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
           creationBlockNumber: 15112387,
-        },
-        xdai: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 24192455,
-        },
-        fuse: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 19146859,
         },
         'arbitrum-one': {
           address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
@@ -53,6 +49,15 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
           creationBlockNumber: 19892946,
         },
+        // KO because there are missing proxy: ERC20Conversion
+        // xdai: {
+        //   address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
+        //   creationBlockNumber: 24192455,
+        // },
+        // fuse: {
+        //   address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
+        //   creationBlockNumber: 19146859,
+        // },
       },
     },
   },
