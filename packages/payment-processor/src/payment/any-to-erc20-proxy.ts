@@ -25,12 +25,12 @@ import { IConversionPaymentSettings } from './index';
 /**
  * Processes a transaction to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
  * The payment is made by the ERC20 Conversion fee proxy contract.
- * @param request the request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param paymentSettings payment settings
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
- * @param overrides optionally, override default transaction values, like gas.
+ * @param request The request to pay
+ * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
+ * @param paymentSettings The payment settings
+ * @param amount Optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmount Optionally, the fee amount to pay. Defaults to the fee amount.
+ * @param overrides Optionally, override default transaction values, like gas.
  */
 export async function payAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
@@ -53,11 +53,10 @@ export async function payAnyToErc20ProxyRequest(
 /**
  * Encodes the call to pay a request with an ERC20 currency that is different from the request currency (eg. fiat).
  * The payment is made by the ERC20 Conversion fee proxy contract.
- * @param request request to pay
- * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param paymentSettings payment settings
- * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
- * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
+ * @param request The request to pay
+ * @param paymentSettings The payment settings
+ * @param amount Optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmountOverride Optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
 export function encodePayAnyToErc20ProxyRequest(
   request: ClientTypes.IRequestData,
@@ -89,6 +88,10 @@ export function encodePayAnyToErc20ProxyRequest(
 
 /**
  * It checks paymentSettings values, it get request's path and requestCurrency
+ * @param request The request to pay
+ * @param paymentSettings The payment settings
+ * @param amount Optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmountOverride Optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
 export function checkRequestAndGetPathAndCurrency(
   request: ClientTypes.IRequestData,
@@ -135,6 +138,10 @@ export function checkRequestAndGetPathAndCurrency(
 
 /**
  * Prepares all necessaries arguments required to encode an any-to-erc20 request
+ * @param request The request to pay
+ * @param paymentSettings The payment settings
+ * @param amount Optionally, the amount to pay. Defaults to remaining amount of the request.
+ * @param feeAmountOverride Optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */
 function prepareAnyToErc20Arguments(
   request: ClientTypes.IRequestData,

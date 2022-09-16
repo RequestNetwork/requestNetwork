@@ -34,7 +34,7 @@ import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
  * Processes a transaction to pay a batch of ETH Requests with fees.
  * Requests paymentType must be "ETH" or "ERC20"
  * @param requests List of requests
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param version The version version of the batch proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param batchFee Only for batch ETH: additional fee applied to a batch, between 0 and 1000, default value = 10
  * @param overrides optionally, override default transaction values, like gas.
@@ -55,7 +55,7 @@ export async function payBatchProxyRequest(
  * Prepate the transaction to pay a batch of requests through the batch proxy contract, can be used with a Multisig contract.
  * Requests paymentType must be "ETH" or "ERC20"
  * @param requests list of ETH requests to pay
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param version The version version of the batch proxy, which can be different from request pn version
  * @param batchFee additional fee applied to a batch
  */
 export function prepareBatchPaymentTransaction(
@@ -153,6 +153,7 @@ export function encodePayBatchRequest(requests: ClientTypes.IRequestData[]): str
 /**
  * Get batch arguments
  * @param requests List of requests
+ * @param forcedPaymentType It force to considere the request as an ETH or an ERC20 payment
  * @returns List with the args required by batch Eth and Erc20 functions,
  * @dev tokenAddresses returned is for batch Erc20 functions
  */
@@ -209,8 +210,8 @@ export function getBatchArgs(
 
 /**
  * Get Batch contract Address
- * @param request
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param request The request to pay
+ * @param version The version version of the batch proxy, which can be different from request pn version
  */
 export function getBatchProxyAddress(request: ClientTypes.IRequestData, version: string): string {
   const pn = getPaymentNetworkExtension(request);
@@ -233,9 +234,9 @@ export function getBatchProxyAddress(request: ClientTypes.IRequestData, version:
 
 /**
  * Processes the approval transaction of the targeted ERC20 with batch proxy.
- * @param request request to pay
- * @param account account that will be used to pay the request
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param request The request to pay
+ * @param account The account that will be used to pay the request
+ * @param version The version version of the batch proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
@@ -254,9 +255,9 @@ export async function approveErc20BatchIfNeeded(
 /**
  * Checks if the batch proxy has the necessary allowance from a given account
  * to pay a given request with ERC20 batch
- * @param request request to pay
- * @param account account that will be used to pay the request
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param request The request to pay
+ * @param account The account that will be used to pay the request
+ * @param version The version version of the batch proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  */
 export async function hasErc20BatchApproval(
@@ -277,8 +278,8 @@ export async function hasErc20BatchApproval(
 /**
  * Processes the transaction to approve the batch proxy to spend signer's tokens to pay
  * the request in its payment currency. Can be used with a Multisig contract.
- * @param request request to pay
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param request The request to pay
+ * @param version The version version of the batch proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
@@ -297,8 +298,8 @@ export async function approveErc20Batch(
 /**
  * Prepare the transaction to approve the proxy to spend signer's tokens to pay
  * the request in its payment currency. Can be used with a Multisig contract.
- * @param request request to pay
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param request The request to pay
+ * @param version The version version of the batch proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides optionally, override default transaction values, like gas.
  */
@@ -321,8 +322,8 @@ export function prepareApproveErc20Batch(
 /**
  * Encodes the transaction to approve the batch proxy to spend signer's tokens to pay
  * the request in its payment currency. Can be used with a Multisig contract.
- * @param request request to pay
- * @param version version of the batch proxy, which can be different from request pn version
+ * @param request The request to pay
+ * @param version The version version of the batch proxy, which can be different from request pn version
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  */
 export function encodeApproveErc20Batch(

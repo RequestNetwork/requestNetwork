@@ -119,6 +119,10 @@ export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): s
   return extension.version;
 }
 
+/**
+ * @param pn It contains the payment network extension
+ * @param currency It contains the currency information
+ */
 export const getProxyNetwork = (
   pn: ExtensionTypes.IState,
   currency: RequestLogicTypes.ICurrency,
@@ -132,6 +136,10 @@ export const getProxyNetwork = (
   throw new Error('Payment currency must have a network');
 };
 
+/**
+ * @param request The request to pay
+ * @return A list that contains the payment network extension and the currency information
+ */
 export function getPnAndNetwork(
   request: ClientTypes.IRequestData,
 ): [ExtensionTypes.IState<any>, string] {
@@ -143,9 +151,9 @@ export function getPnAndNetwork(
 }
 
 /**
- * @param request the request
- * @param getDeploymentInformation the function to get the proxy address
- * @param version the version has to be set to get batch conversion proxy
+ * @param request The request to pay
+ * @param getDeploymentInformation The function to get the proxy address
+ * @param version The version has to be set to get batch conversion proxy
  */
 export const getProxyAddress = (
   request: ClientTypes.IRequestData,
@@ -328,8 +336,8 @@ export function getAmountToPay(
 /**
  * Compare 2 payment networks type and version in request's extension
  * and throw an exception if they are different
- * @param pn payment network
- * @param request
+ * @param pn The payment network extension
+ * @param request The request to pay
  */
 export function comparePnTypeAndVersion(
   pn: ExtensionTypes.IState | undefined,

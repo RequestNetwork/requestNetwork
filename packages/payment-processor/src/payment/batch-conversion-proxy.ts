@@ -29,7 +29,7 @@ import { CurrencyInput, isERC20Currency, isISO4217Currency } from '@requestnetwo
  * that is different from the request currency (eg. fiat)
  * The payment is made through ERC20 or ERC20Conversion proxies
  * It can be used with a Multisig contract
- * @param enrichedRequests List of EnrichedRequest to pay
+ * @param enrichedRequests List of EnrichedRequests to pay
  * @param version The version of the batch conversion proxy
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides Optionally, override default transaction values, like gas.
@@ -51,7 +51,7 @@ export async function payBatchConversionProxyRequest(
  * Prepares a transaction to pay a batch of requests with an ERC20 currency
  * that is different from the request currency (eg. fiat)
  * it can be used with a Multisig contract.
- * @param enrichedRequests List of EnrichedRequest to pay
+ * @param enrichedRequests List of EnrichedRequests to pay
  * @param version The version of the batch conversion proxy
  */
 export function prepareBatchConversionPaymentTransaction(
@@ -71,7 +71,7 @@ export function prepareBatchConversionPaymentTransaction(
  * Encodes a transaction to pay a batch of requests with an ERC20 currency
  * that is different from the request currency (eg. fiat)
  * It can be used with a Multisig contract.
- * @param enrichedRequests list of ECR20 requests to pay
+ * @param enrichedRequests List of EnrichedRequests to pay
  */
 export function encodePayBatchConversionRequest(enrichedRequests: EnrichedRequest[]): string {
   const { feeAddress } = getRequestPaymentValues(enrichedRequests[0].request);
@@ -191,6 +191,12 @@ function getInputConversionDetail(enrichedRequest: EnrichedRequest): PaymentType
   };
 }
 
+/**
+ *
+ * @param network The network targeted
+ * @param version The version of the batch conversion proxy
+ * @returns
+ */
 function getBatchDeploymentInformation(
   network: string,
   version: string,
@@ -221,7 +227,7 @@ export function getBatchConversionProxyAddress(
  * @param version The version of the batch conversion proxy, which can be different from request pn version
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings The payment settings are necessary for conversion payment approval
- * @param overrides optionally, override default transaction values, like gas.
+ * @param overrides Optionally, override default transaction values, like gas.
  */
 export async function approveErc20BatchConversionIfNeeded(
   request: ClientTypes.IRequestData,
@@ -282,7 +288,7 @@ export async function hasErc20BatchConversionApproval(
  * @param version The version of the batch conversion proxy, which can be different from request pn version
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings The payment settings are necessary for conversion payment approval
- * @param overrides optionally, override default transaction values, like gas.
+ * @param overrides Optionally, override default transaction values, like gas.
  */
 export async function approveErc20BatchConversion(
   request: ClientTypes.IRequestData,
@@ -310,7 +316,7 @@ export async function approveErc20BatchConversion(
  * @param version The version of the batch conversion proxy
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings The payment settings are necessary for conversion payment approval
- * @param overrides optionally, override default transaction values, like gas.
+ * @param overrides Optionally, override default transaction values, like gas.
  */
 export function prepareApproveErc20BatchConversion(
   request: ClientTypes.IRequestData,
