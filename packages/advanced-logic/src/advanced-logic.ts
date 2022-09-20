@@ -67,7 +67,6 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       anyToNativeToken: [new AnyToNear(currencyManager)],
     };
   }
-
   /**
    * Applies the extension action to the request extensions state
    *

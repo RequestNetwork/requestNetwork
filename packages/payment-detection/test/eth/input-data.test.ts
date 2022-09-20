@@ -23,7 +23,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
-      supportedNetworks: ['mainnet', 'rinkeby'],
+      supportedNetworks: ['mainnet', 'rinkeby', 'goerli'],
       // inherited from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
@@ -160,7 +160,7 @@ describe('api/eth/input-data', () => {
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
         message:
-          /Payment network wrong not supported by ETH payment detection\. Supported networks: mainnet, rinkeby, private.*/,
+          /Payment network wrong not supported by ETH payment detection\. Supported networks: mainnet, rinkeby, goerli, private.*/,
       },
       events: [],
     });

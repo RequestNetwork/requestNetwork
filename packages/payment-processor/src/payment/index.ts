@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
-import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
@@ -17,7 +17,7 @@ import { payAnyToEthProxyRequest } from './any-to-eth-proxy';
 import { WalletConnection } from 'near-api-js';
 import { isNearNetwork, isNearAccountSolvent } from './utils-near';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import { encodeRequestErc20ApprovalIfNeeded } from './encoder-approval';
+import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from './settings';
@@ -130,28 +130,18 @@ export async function payRequest(
  * Encode the transactions associated to a request
  * @param request the request to pay.
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
- * @param from The address which will send the transaction.
  * @param options encoding options
  * @returns
  */
 export async function encodeRequestApprovalAndPayment(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider,
-  from?: string,
   options?: IRequestPaymentOptions,
 ): Promise<IPreparedTransaction[]> {
   const preparedTransactions: IPreparedTransaction[] = [];
-
-  if (from) {
-    const approvalTx = await encodeRequestErc20ApprovalIfNeeded(
-      request,
-      signerOrProvider,
-      from,
-      options,
-    );
-    if (approvalTx) {
-      preparedTransactions.push(approvalTx);
-    }
+  const approvalTx = await encodeRequestErc20Approval(request, signerOrProvider, options);
+  if (approvalTx) {
+    preparedTransactions.push(approvalTx);
   }
   preparedTransactions.push(encodeRequestPayment(request, signerOrProvider, options));
   return preparedTransactions;
@@ -336,3 +326,21 @@ const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
     throw new UnsupportedPaymentChain(request.currencyInfo.network);
   }
 };
+
+/**
+ * Input of batch conversion payment processor
+ * It contains requests, paymentSettings, amount and feeAmount.
+ * Currently, these requests must have the same PN, version, and batchFee
+ * Also used in Invoicing repository.
+ * @dev next step: paymentNetworkId could get more values options, see the "ref"
+ *      in batchConversionPayment.sol
+ */
+export interface EnrichedRequest {
+  paymentNetworkId:
+    | PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS
+    | PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS;
+  request: ClientTypes.IRequestData;
+  paymentSettings?: IConversionPaymentSettings;
+  amount?: BigNumberish;
+  feeAmount?: BigNumberish;
+}

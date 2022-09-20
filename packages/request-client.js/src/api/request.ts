@@ -382,7 +382,10 @@ export default class Request {
     }
 
     extensionsData.push(
-      declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment({ amount, note }),
+      declarativePaymentNetwork.createExtensionsDataForDeclareSentPayment({
+        amount,
+        note,
+      }),
     );
 
     const parameters: RequestLogicTypes.IAddExtensionsDataParameters = {

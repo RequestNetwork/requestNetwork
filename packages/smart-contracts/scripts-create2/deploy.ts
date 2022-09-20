@@ -4,6 +4,7 @@ import { HardhatRuntimeEnvironmentExtended } from './types';
 import { xdeploy } from './xdeployer';
 import { getConstructorArgs } from './constructor-args';
 import { setupERC20SwapToConversion } from './contract-setup';
+import { setupBatchPayments } from './contract-setup/setupBatchPayments';
 
 // Deploys, set up the contracts and returns the address
 export const deployOneWithCreate2 = async (
@@ -17,7 +18,7 @@ export const deployOneWithCreate2 = async (
   const deploymentResult = await xdeploy(deploymentParams, hre);
   for (let i = 0; i < hre.config.xdeploy.networks.length; i++) {
     if (deploymentResult[i].deployed) {
-      console.log(`${deploymentParams.contract} succesffuly deployed:`);
+      console.log(`${deploymentParams.contract} successfully deployed:`);
       console.log(`         On network:        ${hre.config.xdeploy.networks[i]}`);
       console.log(`         At address:        ${deploymentResult[i].address}`);
       console.log(`         At block:          ${deploymentResult[i].receipt.blockNumber}`);
@@ -52,6 +53,8 @@ export const deployWithCreate2FromList = async (
     switch (contract) {
       case 'EthereumProxy':
       case 'EthereumFeeProxy':
+      case 'EthConversionProxy':
+      case 'ERC20FeeProxy':
       case 'Erc20ConversionProxy': {
         const constructorArgs = getConstructorArgs(contract);
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
@@ -69,9 +72,16 @@ export const deployWithCreate2FromList = async (
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
         break;
       }
+      case 'BatchPayments': {
+        const network = hre.config.xdeploy.networks[0];
+        const constructorArgs = getConstructorArgs(contract, network);
+        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+        await setupBatchPayments(address, hre);
+        break;
+      }
       // Other cases to add when necessary
       default:
-        throw new Error(`The contrat ${contract} is not to be deployed using the CREATE2 scheme`);
+        throw new Error(`The contract ${contract} is not to be deployed using the CREATE2 scheme`);
     }
   }
 };

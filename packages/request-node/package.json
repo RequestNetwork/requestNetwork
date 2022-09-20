@@ -19,7 +19,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "main": "dist/server",
   "bin": {
@@ -52,7 +52,7 @@
     "cors": "2.8.5",
     "dotenv": "8.2.0",
     "eip1559-fee-suggestions-ethers": "1.3.3",
-    "ethers": "5.5.2",
+    "ethers": "5.5.1",
     "express": "4.17.1",
     "graphql": "15.5.0",
     "graphql-request": "3.4.0",

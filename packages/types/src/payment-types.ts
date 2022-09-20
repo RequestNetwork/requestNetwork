@@ -32,9 +32,9 @@ export interface IPaymentNetwork<TEventParameters = any> {
  */
 
 /** Interface to create a payment network  */
-export interface IPaymentNetworkCreateParameters {
+export interface IPaymentNetworkCreateParameters<T = any> {
   id: PAYMENT_NETWORK_ID;
-  parameters: any;
+  parameters: T;
 }
 
 /** Parameters to create a request with reference based payment network */
@@ -138,12 +138,18 @@ export interface IPaymentNetworkBaseInfoRetriever<
  * ERC777 networks and events
  */
 
+export enum STREAM_EVENT_NAMES {
+  START_STREAM = 'start_stream',
+  END_STREAM = 'end_stream',
+  UPDATE_STREAM = 'update_stream',
+}
 /** Parameters for events of ERC777 payments */
 export interface IERC777PaymentEventParameters {
   from?: string;
   to: string;
   block?: number;
   txHash?: string;
+  streamEventName?: STREAM_EVENT_NAMES;
 }
 
 /** ERC777 Payment Network Event */
@@ -314,3 +320,41 @@ export type AllNetworkRetrieverEvents<TPaymentNetworkEventType> = {
   paymentEvents: TPaymentNetworkEventType[];
   escrowEvents?: EscrowNetworkEvent[];
 };
+
+// Types used by batch conversion smart contract
+/** Input type used by batch conversion proxy to make an ERC20/ETH conversion payment */
+export interface ConversionDetail {
+  recipient: string;
+  requestAmount: string;
+  path: string[];
+  paymentReference: string;
+  feeAmount: string;
+  maxToSpend: string;
+  maxRateTimespan: string;
+}
+
+/** Input type used by batch conversion proxy to make an ERC20/ETH no-conversion payment */
+export interface CryptoDetails {
+  tokenAddresses: Array<string>;
+  recipients: Array<string>;
+  amounts: Array<string>;
+  paymentReferences: Array<string>;
+  feeAmounts: Array<string>;
+}
+
+/** Each paymentNetworkId is linked with a batch function */
+export enum BATCH_PAYMENT_NETWORK_ID {
+  BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
+  BATCH_ERC20_PAYMENTS,
+  BATCH_MULTI_ERC20_PAYMENTS,
+  BATCH_ETH_PAYMENTS,
+  BATCH_ETH_CONVERSION_PAYMENTS,
+}
+
+/** Input type used by batch conversion proxy to make an ERC20 & ETH,
+ * and conversion & no-conversion payment through batchRouter */
+export interface MetaDetail {
+  paymentNetworkId: BATCH_PAYMENT_NETWORK_ID;
+  conversionDetails: ConversionDetail[];
+  cryptoDetails: CryptoDetails;
+}

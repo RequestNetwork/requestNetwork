@@ -1,4 +1,9 @@
 import { PaymentTypes } from '.';
+import {
+  ICreationParameters,
+  IOriginalRequestCreationParameters,
+  ISubsequentRequestCreationParameters,
+} from './extensions/pn-any-stream-reference-based-types';
 
 /**
  * Types a value like ExtensionType into a paymentNetworkID enum element if possible
@@ -13,3 +18,23 @@ export function isPaymentNetworkId(value: any): value is PaymentTypes.PAYMENT_NE
 
   return false;
 }
+
+/**
+ * Types the creation parameters as IOriginalRequestCreationParameters if it satisfies the condition
+ * @param parameters to test
+ */
+export const isOriginalRequestCreationParameters = (
+  parameters: ICreationParameters,
+): parameters is IOriginalRequestCreationParameters => {
+  return Object.keys(parameters).includes('expectedFlowRate');
+};
+
+/**
+ * Types the creation parameters as ISubsequentRequestCreationParameters if it satisfies the condition
+ * @param parameters to test
+ */
+export const isSubsequentRequestCreationParameters = (
+  parameters: ICreationParameters,
+): parameters is ISubsequentRequestCreationParameters => {
+  return Object.keys(parameters).includes('originalRequestId');
+};

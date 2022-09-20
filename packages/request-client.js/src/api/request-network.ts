@@ -405,10 +405,6 @@ export default class RequestNetwork {
     const contentData = parameters.contentData;
     const topics = parameters.topics?.slice() || [];
 
-    if (requestParameters.extensionsData) {
-      throw new Error('extensionsData in request parameters must be empty');
-    }
-
     // If ERC20, validate that the value is a checksum address
     if (requestParameters.currency.type === RequestLogicTypes.CURRENCY.ERC20) {
       if (!this.validERC20Address(requestParameters.currency.value)) {
@@ -453,6 +449,10 @@ export default class RequestNetwork {
     }
     if (copiedRequestParameters.payer) {
       topics.push(copiedRequestParameters.payer);
+    }
+
+    if (requestParameters.extensionsData) {
+      copiedRequestParameters.extensionsData.push(...requestParameters.extensionsData);
     }
 
     return { requestParameters: copiedRequestParameters, topics, paymentNetwork };

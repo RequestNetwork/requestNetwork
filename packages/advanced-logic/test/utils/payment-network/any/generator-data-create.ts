@@ -16,8 +16,25 @@ export const payeeDelegate = TestData.payeeDelegateRaw.identity;
 export const payerDelegate = TestData.payerDelegateRaw.identity;
 export const delegateToAdd = TestData.otherIdRaw.identity;
 
+const zeroAmounts = {
+  receivedPaymentAmount: '0',
+  receivedRefundAmount: '0',
+  sentPaymentAmount: '0',
+  sentRefundAmount: '0',
+};
+
+const createEvent: ExtensionTypes.IEvent = {
+  name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+  parameters: {},
+  timestamp: arbitraryTimestamp,
+};
+
+const createEventWithPayeeDelegate: ExtensionTypes.IEvent = {
+  ...createEvent,
+  parameters: { payeeDelegate },
+};
+
 // ---------------------------------------------------------------------
-const salt = arbitrarySalt;
 
 // actions
 export const actionCreationWithPaymentAndRefund = {
@@ -66,6 +83,7 @@ export const actionCreationPayeeDelegate = {
   parameters: { payeeDelegate },
   version: '0.1.0',
 };
+
 export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> =
   {
     action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
@@ -73,7 +91,7 @@ export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<Extens
     parameters: {
       paymentAddress: 'pay.near',
       refundAddress: 'refund.near',
-      salt,
+      salt: arbitrarySalt,
     },
     version: '0.2.0',
   };
@@ -86,7 +104,7 @@ export const actionCreationWithAnyToNativeTokenPayment: ExtensionTypes.IAction<E
       refundAddress: 'refund.near',
       feeAddress: 'fee.near',
       feeAmount: '100',
-      salt,
+      salt: arbitrarySalt,
       network: 'aurora',
       maxRateTimespan: 1000000,
     },
@@ -158,51 +176,37 @@ export const actionDeclareReceivedRefund = {
 };
 // ---------------------------------------------------------------------
 // extensions states
-export const extensionStateWithPaymentAndRefund = {
+export const extensionStateWithPaymentAndRefund: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
       {
-        name: 'create',
+        ...createEvent,
         parameters: {
           paymentInfo,
           refundInfo,
           payeeDelegate,
         },
-        timestamp: arbitraryTimestamp,
       },
     ],
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentInfo,
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
+      ...zeroAmounts,
       refundInfo,
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
       payeeDelegate,
     },
     version: '0.1.0',
   },
 };
-export const extensionStateCreatedEmpty = {
+const extensionStateWithPayeeDelegate: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
-    events: [
-      {
-        name: 'create',
-        parameters: { payeeDelegate },
-        timestamp: arbitraryTimestamp,
-      },
-    ],
+    events: [createEventWithPayeeDelegate],
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
+      ...zeroAmounts,
       payeeDelegate,
-      payerDelegate,
     },
     version: '0.1.0',
   },
@@ -215,7 +219,7 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
         parameters: {
           paymentAddress: 'pay.near',
           refundAddress: 'refund.near',
-          salt,
+          salt: arbitrarySalt,
         },
         timestamp: arbitraryTimestamp,
       },
@@ -225,7 +229,7 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
     values: {
       paymentAddress: 'pay.near',
       refundAddress: 'refund.near',
-      salt,
+      salt: arbitrarySalt,
       payeeDelegate: undefined,
       payerDelegate: undefined,
       paymentInfo: undefined,
@@ -247,7 +251,7 @@ export const extensionStateWithAnyToNativeTokenPaymentAndRefund: RequestLogicTyp
           parameters: {
             paymentAddress: 'pay.near',
             refundAddress: 'refund.near',
-            salt,
+            salt: arbitrarySalt,
             feeAddress: 'fee.near',
             feeAmount: '100',
             maxRateTimespan: 1000000,
@@ -262,7 +266,7 @@ export const extensionStateWithAnyToNativeTokenPaymentAndRefund: RequestLogicTyp
         paymentAddress: 'pay.near',
         refundAddress: 'refund.near',
         feeAddress: 'fee.near',
-        salt,
+        salt: arbitrarySalt,
         payeeDelegate: undefined,
         payerDelegate: undefined,
         paymentInfo: undefined,
@@ -286,7 +290,7 @@ export const extensionStateAnyToNativeWithPaymentAddressAdded: RequestLogicTypes
           name: 'create',
           parameters: {
             refundAddress: 'refund.near',
-            salt,
+            salt: arbitrarySalt,
             feeAddress: 'fee.near',
             feeAmount: '100',
             maxRateTimespan: 1000000,
@@ -308,7 +312,7 @@ export const extensionStateAnyToNativeWithPaymentAddressAdded: RequestLogicTypes
         paymentAddress: 'pay.near',
         refundAddress: 'refund.near',
         feeAddress: 'fee.near',
-        salt,
+        salt: arbitrarySalt,
         payeeDelegate: undefined,
         payerDelegate: undefined,
         paymentInfo: undefined,
@@ -333,7 +337,7 @@ export const extensionStateAnyToNativeWithFeeAdded: RequestLogicTypes.IExtension
         parameters: {
           paymentAddress: 'pay.near',
           refundAddress: 'refund.near',
-          salt,
+          salt: arbitrarySalt,
           maxRateTimespan: 1000000,
           network: 'aurora',
         },
@@ -354,7 +358,7 @@ export const extensionStateAnyToNativeWithFeeAdded: RequestLogicTypes.IExtension
       paymentAddress: 'pay.near',
       refundAddress: 'refund.near',
       feeAddress: 'fee.near',
-      salt,
+      salt: arbitrarySalt,
       payeeDelegate: undefined,
       payerDelegate: undefined,
       paymentInfo: undefined,
@@ -377,7 +381,7 @@ export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtension
       {
         name: 'create',
         parameters: {
-          salt,
+          salt: arbitrarySalt,
         },
         timestamp: arbitraryTimestamp,
       },
@@ -392,49 +396,39 @@ export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtension
     id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      paymentAddress: 'pay.near',
-      salt,
-      payeeDelegate: undefined,
-      payerDelegate: undefined,
-      paymentInfo: undefined,
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
-      refundInfo: undefined,
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
-    },
-    version: '0.2.0',
-  },
-};
-
-export const extensionStateCreatedEmptyNoDelegate = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
-    events: [
-      {
-        name: 'create',
-        parameters: {},
-        timestamp: arbitraryTimestamp,
-      },
-    ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
-    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
-    values: {
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
+      ...zeroAmounts,
+      payerDelegate,
     },
     version: '0.1.0',
   },
 };
-export const extensionStateCreatedEmptyPaymentInstructionAdded = {
+
+const extensionStateWithPayerDelegate: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
+    events: [createEvent],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      ...zeroAmounts,
+      payerDelegate,
+    },
+    version: '0.1.0',
+  },
+};
+
+export const extensionStateNoDelegate: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
+    events: [createEvent],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: zeroAmounts,
+    version: '0.1.0',
+  },
+};
+export const extensionStatePaymentInstructionAdded: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: { payeeDelegate },
-        timestamp: arbitraryTimestamp,
-      },
+      createEventWithPayeeDelegate,
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_PAYMENT_INSTRUCTION,
         parameters: {
@@ -448,24 +442,16 @@ export const extensionStateCreatedEmptyPaymentInstructionAdded = {
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentInfo,
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
+      ...zeroAmounts,
       payeeDelegate,
-      payerDelegate,
     },
     version: '0.1.0',
   },
 };
-export const extensionStateCreatedEmptyRefundInstructionAdded = {
+export const extensionStateRefundInstructionAdded: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: { payeeDelegate },
-        timestamp: arbitraryTimestamp,
-      },
+      createEvent,
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_REFUND_INSTRUCTION,
         parameters: {
@@ -478,26 +464,17 @@ export const extensionStateCreatedEmptyRefundInstructionAdded = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
+      ...zeroAmounts,
       refundInfo,
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
-      payeeDelegate,
-      payerDelegate,
-    },
+    } as any,
     version: '0.1.0',
   },
 };
 
-export const extensionStateCreatedEmptySentPayment = {
+export const extensionStateDeclaredSent: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: { payeeDelegate },
-        timestamp: arbitraryTimestamp,
-      },
+      createEvent,
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,
         parameters: {
@@ -513,24 +490,16 @@ export const extensionStateCreatedEmptySentPayment = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
+      ...zeroAmounts,
       sentPaymentAmount: amount,
-      sentRefundAmount: '0',
-      payeeDelegate,
-      payerDelegate,
     },
     version: '0.1.0',
   },
 };
-export const extensionStateCreatedEmptyReceivedRefund = {
+export const declarativeExtStateRefundDeclared: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: { payeeDelegate },
-        timestamp: arbitraryTimestamp,
-      },
+      createEvent,
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_REFUND,
         parameters: {
@@ -546,24 +515,16 @@ export const extensionStateCreatedEmptyReceivedRefund = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      receivedPaymentAmount: '0',
+      ...zeroAmounts,
       receivedRefundAmount: amount,
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
-      payeeDelegate,
-      payerDelegate,
     },
     version: '0.1.0',
   },
 };
-export const extensionStateCreatedEmptySentRefund = {
+export const extensionStateSentRefund: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
-      {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: { payeeDelegate },
-        timestamp: arbitraryTimestamp,
-      },
+      createEventWithPayeeDelegate,
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_REFUND,
         parameters: {
@@ -579,23 +540,19 @@ export const extensionStateCreatedEmptySentRefund = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
-      sentPaymentAmount: '0',
+      ...zeroAmounts,
       sentRefundAmount: amount,
       payeeDelegate,
-      payerDelegate,
     },
     version: '0.1.0',
   },
 };
-export const extensionStateCreatedEmptyAddPayeeDelegate = {
+export const extensionStateAddPayeeDelegate: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+        ...createEventWithPayeeDelegate,
         parameters: {},
-        timestamp: arbitraryTimestamp,
       },
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
@@ -609,22 +566,18 @@ export const extensionStateCreatedEmptyAddPayeeDelegate = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
+      ...zeroAmounts,
       payeeDelegate: delegateToAdd,
     },
     version: '0.1.0',
   },
 };
-export const extensionStateCreatedEmptyAddPayerDelegate = {
+export const extensionStateAddPayerDelegate: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
       {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
+        ...createEventWithPayeeDelegate,
         parameters: {},
-        timestamp: arbitraryTimestamp,
       },
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
@@ -638,23 +591,39 @@ export const extensionStateCreatedEmptyAddPayerDelegate = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
-      receivedPaymentAmount: '0',
-      receivedRefundAmount: '0',
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
+      ...zeroAmounts,
       payerDelegate: delegateToAdd,
     },
     version: '0.1.0',
   },
 };
-export const extensionStateCreatedEmptyReceivedPayment = {
+export const extensionStateWithTwoDelegates: RequestLogicTypes.IExtensionStates = {
   [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
     events: [
+      createEventWithPayeeDelegate,
       {
-        name: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-        parameters: { payeeDelegate },
+        name: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
+        parameters: {
+          delegate: delegateToAdd,
+        },
         timestamp: arbitraryTimestamp,
+        from: TestData.payerRaw.identity,
       },
+    ],
+    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+    type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+    values: {
+      ...zeroAmounts,
+      payeeDelegate,
+      payerDelegate: delegateToAdd,
+    },
+    version: '0.1.0',
+  },
+};
+export const extensionStateReceivedPayment: RequestLogicTypes.IExtensionStates = {
+  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE as string]: {
+    events: [
+      createEventWithPayeeDelegate,
       {
         name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_RECEIVED_PAYMENT,
         parameters: {
@@ -670,12 +639,9 @@ export const extensionStateCreatedEmptyReceivedPayment = {
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
+      ...zeroAmounts,
       receivedPaymentAmount: amount,
-      receivedRefundAmount: '0',
-      sentPaymentAmount: '0',
-      sentRefundAmount: '0',
       payeeDelegate,
-      payerDelegate,
     },
     version: '0.1.0',
   },
@@ -724,7 +690,7 @@ export const requestStateNoExtensions: RequestLogicTypes.IRequest = {
   version: '0.1.0',
 };
 
-export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest = {
+export const requestStateWithPaymentAndRefund: RequestLogicTypes.IRequest = {
   creator: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
@@ -765,7 +731,7 @@ export const requestStateCreatedWithPaymentAndRefund: RequestLogicTypes.IRequest
   version: '0.1.0',
 };
 
-export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
+export const emptyRequestWithNoDelegate: RequestLogicTypes.IRequest = {
   creator: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
     value: TestData.payeeRaw.address,
@@ -790,7 +756,7 @@ export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
     },
   ],
   expectedAmount: TestData.arbitraryExpectedAmount,
-  extensions: extensionStateCreatedEmpty,
+  extensions: extensionStateNoDelegate,
   extensionsData: [actionCreationEmpty],
   payee: {
     type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
@@ -806,43 +772,12 @@ export const requestStateCreatedEmpty: RequestLogicTypes.IRequest = {
   version: '0.1.0',
 };
 
-export const requestStateCreatedEmptyNoDelegate: RequestLogicTypes.IRequest = {
-  creator: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: TestData.payeeRaw.address,
-  },
-  currency: {
-    type: RequestLogicTypes.CURRENCY.ISO4217,
-    value: 'EUR',
-  },
-  events: [
-    {
-      actionSigner: {
-        type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-        value: TestData.payeeRaw.address,
-      },
-      name: RequestLogicTypes.ACTION_NAME.CREATE,
-      parameters: {
-        expectedAmount: '123400000000000000',
-        extensionsDataLength: 1,
-        isSignedRequest: false,
-      },
-      timestamp: arbitraryTimestamp,
-    },
-  ],
-  expectedAmount: TestData.arbitraryExpectedAmount,
-  extensions: extensionStateCreatedEmptyNoDelegate,
-  extensionsData: [actionCreationEmpty],
-  payee: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: TestData.payeeRaw.address,
-  },
-  payer: {
-    type: IdentityTypes.TYPE.ETHEREUM_ADDRESS,
-    value: TestData.payerRaw.address,
-  },
-  requestId: TestData.requestIdMock,
-  state: RequestLogicTypes.STATE.CREATED,
-  timestamp: TestData.arbitraryTimestamp,
-  version: '0.1.0',
+export const emptyRequestWithPayeeDelegate: RequestLogicTypes.IRequest = {
+  ...emptyRequestWithNoDelegate,
+  extensions: extensionStateWithPayeeDelegate,
+};
+
+export const emptyRequestWithPayerDelegate: RequestLogicTypes.IRequest = {
+  ...emptyRequestWithNoDelegate,
+  extensions: extensionStateWithPayerDelegate,
 };

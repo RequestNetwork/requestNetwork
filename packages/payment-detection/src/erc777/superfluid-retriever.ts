@@ -1,5 +1,4 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { utils as ethersUtils } from 'ethers';
 import Utils from '@requestnetwork/utils';
 import { FlowUpdatedEvent } from '../thegraph/generated/graphql-superfluid';
 import {
@@ -39,10 +38,20 @@ export class SuperFluidInfoRetriever {
 
   private getGraphVariables(): GraphPaymentQueryParams {
     return {
-      reference: ethersUtils.keccak256(`0x${this.paymentReference}`),
+      reference: `0xbeefac${this.paymentReference}`,
       to: this.toAddress,
       tokenAddress: this.tokenContractAddress,
     };
+  }
+
+  /**
+   * Chronological sorting of events having payment reference and closing events without payment reference
+   * @returns List of streaming events
+   */
+  protected async getStreamingEvents(): Promise<Partial<FlowUpdatedEvent>[]> {
+    const variables = this.getGraphVariables();
+    const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
+    return flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
   }
 
   /**
@@ -52,29 +61,37 @@ export class SuperFluidInfoRetriever {
    * to compute balance from amounts in ERC20 style transactions
    */
   public async getTransferEvents(): Promise<PaymentTypes.ERC777PaymentNetworkEvent[]> {
-    const variables = this.getGraphVariables();
-    const { flow, untagged } = await this.client.GetSuperFluidEvents(variables);
-    // Chronological sorting of events having payment reference and closing events without payment reference
-    const streamEvents = flow.concat(untagged).sort((a, b) => a.timestamp - b.timestamp);
+    const streamEvents = await this.getStreamingEvents();
     const paymentEvents: PaymentTypes.ERC777PaymentNetworkEvent[] = [];
     if (streamEvents.length < 1) {
       return paymentEvents;
     }
-
     // if last event is ongoing stream then create end of stream to help compute balance
-    if (streamEvents[streamEvents.length - 1].flowRate > 0) {
+    const lastEventOngoing = streamEvents[streamEvents.length - 1].flowRate > 0;
+    if (lastEventOngoing) {
       streamEvents.push({
         oldFlowRate: streamEvents[streamEvents.length - 1].flowRate,
         flowRate: 0,
         timestamp: Utils.getCurrentTimestampInSecond(),
-        blockNumber: null,
-        transactionHash: null,
+        blockNumber: parseInt(streamEvents[streamEvents.length - 1].blockNumber.toString()),
+        transactionHash: streamEvents[streamEvents.length - 1].transactionHash,
       } as FlowUpdatedEvent);
     }
 
     const TYPE_BEGIN = 0;
     // const TYPE_UPDATE = 1;
     const TYPE_END = 2;
+    const StreamEventMap: Record<number, PaymentTypes.STREAM_EVENT_NAMES> = {
+      0: PaymentTypes.STREAM_EVENT_NAMES.START_STREAM,
+      1: PaymentTypes.STREAM_EVENT_NAMES.UPDATE_STREAM,
+      2: PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
+    };
+    const getEventName = (flowEvent: Partial<FlowUpdatedEvent>) => {
+      if (flowEvent.type) {
+        return StreamEventMap[flowEvent.type];
+      }
+    };
+
     for (let index = 1; index < streamEvents.length; index++) {
       // we have to manage update of flowrate to pay different payment references with the same token
       // but we do not manage in the MVP updating flowrate of ongoing payment
@@ -96,11 +113,19 @@ export class SuperFluidInfoRetriever {
         name: this.eventName,
         parameters: {
           to: this.toAddress,
-          block: streamEvents[index].blockNumber,
+          block: parseInt(streamEvents[index].blockNumber.toString()),
           txHash: streamEvents[index].transactionHash,
+          streamEventName: getEventName(streamEvents[index]),
         },
         timestamp: streamEvents[index].timestamp,
       });
+    }
+    if (paymentEvents.length > 0) {
+      const newLastParameters = paymentEvents[paymentEvents.length - 1].parameters;
+      if (lastEventOngoing && newLastParameters) {
+        newLastParameters.streamEventName = PaymentTypes.STREAM_EVENT_NAMES.START_STREAM;
+        paymentEvents[paymentEvents.length - 1].parameters = newLastParameters;
+      }
     }
     return paymentEvents;
   }

@@ -17,7 +17,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=16.0.0"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -49,7 +49,7 @@
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "axios": "0.21.1",
+    "axios": "0.27.2",
     "bluebird": "3.7.2",
     "ethers": "5.5.1",
     "inquirer": "8.2.0",

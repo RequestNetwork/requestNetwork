@@ -2,14 +2,19 @@ import { Contract } from 'ethers';
 import * as artifacts from '../src/lib';
 
 /**
- * List of smart contract that we deploy using the CREATE2 scheme thourhg the Request Deployer contract
+ * List of smart contract that we deploy using the CREATE2 scheme through the Request Deployer contract
+ * By default all smart contracts from bellow will get deployed.
+ * If you want to skip deploying one or more, then comment them out in the list bellow.
  */
 export const create2ContractDeploymentList = [
   'EthereumProxy',
   'EthereumFeeProxy',
+  'EthConversionProxy',
+  'ERC20FeeProxy',
   'Erc20ConversionProxy',
   'ERC20SwapToConversion',
   'ERC20EscrowToPay',
+  'BatchPayments',
 ];
 
 /**
@@ -34,7 +39,7 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.chainlinkConversionPath;
     case 'Erc20ConversionProxy':
       return artifacts.erc20ConversionProxy;
-    case 'EthConversionProxy':
+    case 'ETHConversionProxy':
       return artifacts.ethConversionArtifact;
     case 'ERC20SwapToPay':
       return artifacts.erc20SwapToPayArtifact;
@@ -42,6 +47,8 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.erc20SwapConversionArtifact;
     case 'ERC20EscrowToPay':
       return artifacts.erc20EscrowToPayArtifact;
+    case 'BatchPayments':
+      return artifacts.batchPaymentsArtifact;
     default:
       throw new Error('Contract unknown');
   }

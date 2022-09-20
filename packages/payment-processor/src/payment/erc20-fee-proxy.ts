@@ -3,11 +3,11 @@ import { constants, ContractTransaction, Signer, BigNumberish, providers, BigNum
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20FeeProxy__factory } from '@requestnetwork/smart-contracts/types';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   getAmountToPay,
-  getPaymentNetworkExtension,
   getProvider,
   getRequestPaymentValues,
   getSigner,

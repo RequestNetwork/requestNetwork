@@ -53,8 +53,10 @@ export class TheGraphConversionRetriever
       to: this.toAddress,
       maxRateTimespan: this.maxRateTimespan,
     };
+
     // Parses, filters and creates the events from the logs with the payment reference
     const events = await this.client.GetConversionPayments(variables);
+
     // Creates the balance events
     return events.payments
       .filter((payment) => {
@@ -82,6 +84,9 @@ export class TheGraphConversionRetriever
             to: this.toAddress,
             txHash: payment.txHash,
             maxRateTimespan: payment.maxRateTimespan?.toString(),
+            from: payment.from,
+            gasUsed: payment.gasUsed,
+            gasPrice: payment.gasPrice,
           },
           timestamp: payment.timestamp,
         };

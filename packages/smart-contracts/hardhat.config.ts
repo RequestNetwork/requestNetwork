@@ -11,8 +11,10 @@ import { checkCreate2Deployer } from './scripts-create2/check-deployer';
 import { deployDeployer } from './scripts-create2/deploy-request-deployer';
 import { HardhatRuntimeEnvironmentExtended } from './scripts-create2/types';
 import { computeCreate2DeploymentAddressesFromList } from './scripts-create2/compute-one-address';
-import { VerifyCreate2FromList } from './scripts-create2/verify-one';
-import { deployWithCreate2FromList } from './scripts-create2/deploy-one';
+import { VerifyCreate2FromList } from './scripts-create2/verify';
+import { deployWithCreate2FromList } from './scripts-create2/deploy';
+import utils from '@requestnetwork/utils';
+import { NUMBER_ERRORS } from './scripts/utils';
 
 config();
 
@@ -43,6 +45,9 @@ const requestDeployer = process.env.REQUEST_DEPLOYER_LIVE
   ? LIVE_DEPLOYER_ADDRESS
   : LOCAL_DEPLOYER_ADDRESS;
 
+const url = (network: string): string =>
+  process.env.WEB3_PROVIDER_URL || utils.networkRpcs[network];
+
 export default {
   solidity: '0.8.9',
   paths: {
@@ -65,53 +70,58 @@ export default {
       chainId: 4,
       accounts,
     },
+    goerli: {
+      url: process.env.WEB3_PROVIDER_URL || 'https://goerli.infura.io/v3/YOUR_API_KEY',
+      chainId: 5,
+      accounts,
+    },
     matic: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://polygon-rpc.com',
+      url: url('matic'),
       chainId: 137,
       accounts,
     },
     celo: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://forno.celo.org',
+      url: url('celo'),
       chainId: 42220,
       accounts,
     },
     bsctest: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://data-seed-prebsc-1-s1.binance.org:8545',
+      url: url('bsctest'),
       chainId: 97,
       accounts,
     },
     bsc: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://bsc-dataseed1.binance.org',
+      url: url('bsc'),
       chainId: 56,
       accounts,
     },
     xdai: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://rpc.xdaichain.com/',
+      url: url('xdai'),
       chainId: 100,
       accounts,
     },
     fuse: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://rpc.fuse.io',
+      url: url('fuse'),
       chainId: 122,
       accounts,
     },
     fantom: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://rpcapi.fantom.network',
+      url: url('fantom'),
       chainId: 250,
       accounts,
     },
     'arbitrum-one': {
-      url: process.env.WEB3_PROVIDER_URL || 'https://arb1.arbitrum.io/rpc',
+      url: url('arbitrum-one'),
       chainId: 42161,
       accounts,
     },
     'arbitrum-rinkeby': {
-      url: process.env.WEB3_PROVIDER_URL || 'https://rinkeby.arbitrum.io/rpc',
+      url: url('arbitrum-rinkeby'),
       chainId: 421611,
       accounts,
     },
     avalanche: {
-      url: process.env.WEB3_PROVIDER_URL || 'https://api.avax.network/ext/bc/C/rpc',
+      url: url('avalanche'),
       chainId: 43114,
       accounts,
     },
@@ -120,6 +130,7 @@ export default {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY,
       rinkeby: process.env.ETHERSCAN_API_KEY,
+      goerli: process.env.ETHERSCAN_API_KEY,
       // binance smart chain
       bsc: process.env.BSCSCAN_API_KEY,
       bscTestnet: process.env.BSCSCAN_API_KEY,
@@ -163,7 +174,11 @@ export default {
 task('deploy-local-env', 'Deploy a local environment').setAction(async (args, hre) => {
   args.force = true;
   await deployAllContracts(args, hre);
-  console.log('All contracts (re)deployed locally');
+  if (NUMBER_ERRORS > 0) {
+    console.log(`Deployment failed, please check the ${NUMBER_ERRORS} errors`);
+  } else {
+    console.log('All contracts (re)deployed locally');
+  }
 });
 
 task(
