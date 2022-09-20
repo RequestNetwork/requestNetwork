@@ -6,7 +6,7 @@ const CURRENT_VERSION = '0.2.0';
 const supportedNetworks = ['aurora', 'aurora-testnet'];
 
 /**
- * Implementation of the payment network to pay in ETH based on input data.
+ * Implementation of the payment network to pay in Near based on input data.
  */
 export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork {
   public constructor(

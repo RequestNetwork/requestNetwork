@@ -135,7 +135,7 @@ describe('extensions/payment-network/native-token', () => {
           ...partialCreationParams,
           paymentNetworkName: 'another-chain',
         });
-      }).toThrowError(`Payment network 'another-chain' is not supported by this extension (only`);
+      }).toThrowError(`Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet)`);
     });
     it('createCreationAction() throws without payment network', () => {
       expect(() => {

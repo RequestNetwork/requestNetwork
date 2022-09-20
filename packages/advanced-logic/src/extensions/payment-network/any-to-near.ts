@@ -190,7 +190,7 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
 
     if (!network) {
       throw new Error(
-        `The network must be provided from the creation action or from the extension state`,
+        `The network must be provided by the creation action or by the extension state`,
       );
     }
 

@@ -124,16 +124,13 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     }[id];
 
     if (!extension) {
-      if (id === ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN) {
+      if (id === ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN || id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN) {
+        const network = this.getNetwork(extensionAction, requestState) || requestState.currency.network;
         throw Error(
-          `extension with id: ${id} not found for network: ${requestState.currency.network}`,
+          `extension with id: ${id} not found for network: ${network}`,
         );
       }
 
-      if (id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN) {
-        const network = this.getNetwork(extensionAction, requestState);
-        throw Error(`extension with id: ${id} not found for network: ${network}`);
-      }
       throw Error(`extension not recognized, id: ${id}`);
     }
     return extension;

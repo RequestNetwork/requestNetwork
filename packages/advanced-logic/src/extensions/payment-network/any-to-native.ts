@@ -14,12 +14,7 @@ export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenc
   public createCreationAction(
     creationParameters: ExtensionTypes.PnAnyToAnyConversion.ICreationParameters,
   ): ExtensionTypes.IAction<ExtensionTypes.PnAnyToAnyConversion.ICreationParameters> {
-    const network = creationParameters.network;
-    if (!network) {
-      throw Error('network is required');
-    }
-
-    this.throwIfInvalidNetwork(network, this.supportedNetworks);
+    const network = this.throwIfInvalidNetwork(creationParameters.network);
 
     if (
       creationParameters.paymentAddress &&
@@ -46,11 +41,7 @@ export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenc
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected isValidAddress(_address: string, _networkName?: string): boolean {
-    throw new Error(
-      `Default implementation of isValidAddress() does not support native tokens. Please override this method.`,
-    );
-  }
+  protected abstract isValidAddress(_address: string, _networkName?: string): boolean;
 }
 
 export class InvalidMaxRateTimespanError extends Error {

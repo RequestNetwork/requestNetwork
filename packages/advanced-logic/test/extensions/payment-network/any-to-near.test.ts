@@ -171,6 +171,28 @@ describe('extensions/payment-network/any-to-native-token', () => {
             });
           }).toThrowError(`-2000 is not a valid maxRateTimespan`);
         });
+        describe('edge cases', () => {
+          const partialCreationParams: ExtensionTypes.PnAnyToAnyConversion.ICreationParameters = {
+            salt,
+            refundAddress: 'refund.near',
+            feeAddress: 'fee.near',
+            feeAmount: '100',
+            maxRateTimespan: 1000000,
+          };
+          it('throws when payment network is not supported', () => {
+            expect(() => {
+              new AnyToNearPaymentNetwork(currencyManager).createCreationAction({
+                ...partialCreationParams,
+                network: 'another-chain',
+              });
+            }).toThrowError(`Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet)`);
+          });
+          it('throws when payment network is missing', () => {
+            expect(() => {
+              new AnyToNearPaymentNetwork(currencyManager).createCreationAction(partialCreationParams);
+            }).toThrowError(`network is required`);
+          });
+        });
       });
       describe('createAddPaymentAddressAction', () => {
         it('works with valid payment address', () => {
@@ -229,29 +251,6 @@ describe('extensions/payment-network/any-to-native-token', () => {
           }).toThrowError('feeAmount is not a valid amount');
         });
       });
-    });
-  });
-
-  describe('action creations, edge cases', () => {
-    const partialCreationParams: ExtensionTypes.PnAnyToAnyConversion.ICreationParameters = {
-      salt,
-      refundAddress: 'refund.near',
-      feeAddress: 'fee.near',
-      feeAmount: '100',
-      maxRateTimespan: 1000000,
-    };
-    it('throws when payment network is not supported', () => {
-      expect(() => {
-        new AnyToNearPaymentNetwork(currencyManager).createCreationAction({
-          ...partialCreationParams,
-          network: 'another-chain',
-        });
-      }).toThrowError(`Payment network 'another-chain' is not supported by this extension (only`);
-    });
-    it('throws when payment network is missing', () => {
-      expect(() => {
-        new AnyToNearPaymentNetwork(currencyManager).createCreationAction(partialCreationParams);
-      }).toThrowError(`network is required`);
     });
   });
 
@@ -652,23 +651,5 @@ describe('extensions/payment-network/any-to-native-token', () => {
       );
       expect(newState[mainnetTestCase.paymentNetwork.extensionId].version).toBe('ABCD');
     });
-  });
-
-  it('should throw when isValidAddress is not overridden', () => {
-    class TestNativePaymentNetwork extends AnyToNativeTokenPaymentNetwork {
-      public testIsValidAddress() {
-        this.isValidAddress('test', 'test');
-      }
-    }
-    expect(() => {
-      const testNativePaymentNetwork = new TestNativePaymentNetwork(
-        ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
-        'test',
-        [],
-      );
-      testNativePaymentNetwork.testIsValidAddress();
-    }).toThrowError(
-      'Default implementation of isValidAddress() does not support native tokens. Please override this method.',
-    );
   });
 });
