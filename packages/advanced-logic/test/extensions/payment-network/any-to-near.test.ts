@@ -185,11 +185,15 @@ describe('extensions/payment-network/any-to-native-token', () => {
                 ...partialCreationParams,
                 network: 'another-chain',
               });
-            }).toThrowError(`Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet)`);
+            }).toThrowError(
+              `Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet)`,
+            );
           });
           it('throws when payment network is missing', () => {
             expect(() => {
-              new AnyToNearPaymentNetwork(currencyManager).createCreationAction(partialCreationParams);
+              new AnyToNearPaymentNetwork(currencyManager).createCreationAction(
+                partialCreationParams,
+              );
             }).toThrowError(`network is required`);
           });
         });
