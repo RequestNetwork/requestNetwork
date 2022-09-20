@@ -1,19 +1,12 @@
 name: Deploy docs to prod
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       AWS_S3_BUCKET:
         type: string
         required: true
         default: docs.request.network
-    secrets:
-      AWS_ACCESS_KEY_ID:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
-      AWS_REGION:
-        required: true
 
 jobs:
   build-deploy-staging:
