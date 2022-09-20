@@ -1,9 +1,19 @@
-name: Deploy docs to staging
+name: Deploy docs to prod
 
 on:
-  push:
-    branches:
-      - master
+  workflow_call:
+    inputs:
+      AWS_S3_BUCKET:
+        type: string
+        required: true
+        default: docs.request.network
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_REGION:
+        required: true
 
 jobs:
   build-deploy-staging:
@@ -24,4 +34,4 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET_DOCS_STAGING }}
+          AWS_S3_BUCKET: ${{ inputs.AWS_S3_BUCKET }}
