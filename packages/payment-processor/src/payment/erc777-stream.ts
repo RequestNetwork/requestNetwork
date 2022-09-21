@@ -168,7 +168,7 @@ export async function prepareErc777StreamPaymentTransaction(
  * @param timestamp the time to calculate the balance at
  * @param provider the web3 provider. Defaults to Etherscan
  */
- export async function getErc777BalanceAt(
+export async function getErc777BalanceAt(
   request: ClientTypes.IRequestData,
   address: string,
   timestamp: number,
@@ -185,6 +185,6 @@ export async function prepareErc777StreamPaymentTransaction(
     providerOrSigner: provider,
     account: address,
     timestamp,
-  })
-  return realtimeBalance.availableBalance
+  });
+  return realtimeBalance.availableBalance;
 }
