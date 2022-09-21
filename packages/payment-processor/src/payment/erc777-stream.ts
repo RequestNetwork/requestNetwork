@@ -1,9 +1,9 @@
-import { ContractTransaction, Signer, Overrides, providers } from 'ethers';
+import { ContractTransaction, Signer, Overrides, providers, BigNumberish } from 'ethers';
 
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
-import { getProvider, getRequestPaymentValues, validateRequest } from './utils';
+import { getNetworkProvider, getProvider, getRequestPaymentValues, validateRequest } from './utils';
 import { Framework } from '@superfluid-finance/sdk-core';
 import { IPreparedTransaction } from './prepared-transaction';
 
@@ -159,4 +159,32 @@ export async function prepareErc777StreamPaymentTransaction(
     to: sf.host.hostContract.address,
     value: 0,
   };
+}
+
+/**
+ * Gets the future ERC777 balance of an address, based on the request currency information
+ * @param request the request that contains currency information
+ * @param address the address to check
+ * @param timestamp the time to calculate the balance at
+ * @param provider the web3 provider. Defaults to Etherscan
+ */
+ export async function getErc777BalanceAt(
+  request: ClientTypes.IRequestData,
+  address: string,
+  timestamp: number,
+  provider: providers.Provider = getNetworkProvider(request),
+): Promise<BigNumberish> {
+  const id = getPaymentNetworkExtension(request)?.id;
+  if (id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM) {
+    throw new Error('Not a supported ERC777 payment network request');
+  }
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  const sf = await getSuperFluidFramework(request, provider);
+  const superToken = await sf.loadSuperToken(request.currencyInfo.value);
+  const realtimeBalance = await superToken.realtimeBalanceOf({
+    providerOrSigner: provider,
+    account: address,
+    timestamp,
+  })
+  return realtimeBalance.availableBalance
 }
