@@ -119,7 +119,11 @@ export function getPaymentExtensionVersion(request: ClientTypes.IRequestData): s
   return extension.version;
 }
 
-const getProxyNetwork = (
+/**
+ * @param pn It contains the payment network extension
+ * @param currency It contains the currency information
+ */
+export const getProxyNetwork = (
   pn: ExtensionTypes.IState,
   currency: RequestLogicTypes.ICurrency,
 ): string => {
@@ -132,18 +136,34 @@ const getProxyNetwork = (
   throw new Error('Payment currency must have a network');
 };
 
-export const getProxyAddress = (
+/**
+ * @param request The request to pay
+ * @return A list that contains the payment network extension and the currency information
+ */
+export function getPnAndNetwork(
   request: ClientTypes.IRequestData,
-  getDeploymentInformation: (network: string, version: string) => { address: string } | null,
-): string => {
+): [ExtensionTypes.IState<any>, string] {
   const pn = getPaymentNetworkExtension(request);
   if (!pn) {
     throw new Error('PaymentNetwork not found');
   }
-  const network = getProxyNetwork(pn, request.currencyInfo);
-  const deploymentInfo = getDeploymentInformation(network, pn.version);
+  return [pn, getProxyNetwork(pn, request.currencyInfo)];
+}
+
+/**
+ * @param request The request to pay
+ * @param getDeploymentInformation The function to get the proxy address
+ * @param version The version has to be set to get batch conversion proxy
+ */
+export const getProxyAddress = (
+  request: ClientTypes.IRequestData,
+  getDeploymentInformation: (network: string, version: string) => { address: string } | null,
+  version?: string,
+): string => {
+  const [pn, network] = getPnAndNetwork(request);
+  const deploymentInfo = getDeploymentInformation(network, version || pn.version);
   if (!deploymentInfo) {
-    throw new Error(`No deployment found for network ${network}, version ${pn.version}`);
+    throw new Error(`No deployment found for network ${network}, version ${version || pn.version}`);
   }
   return deploymentInfo.address;
 };
@@ -273,7 +293,6 @@ export function validateConversionFeeProxyRequest(
     PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   );
   const { tokensAccepted } = getRequestPaymentValues(request);
-
   const requestCurrencyHash = path[0];
   if (requestCurrencyHash.toLowerCase() !== getCurrencyHash(request.currencyInfo).toLowerCase()) {
     throw new Error(`The first entry of the path does not match the request currency`);
@@ -316,18 +335,21 @@ export function getAmountToPay(
 
 /**
  * Compare 2 payment networks type and version in request's extension
- * @param pn payment network
- * @param request
- * @returns true if type and version are identique else false
+ * and throw an exception if they are different
+ * @param pn The payment network extension
+ * @param request The request to pay
  */
 export function comparePnTypeAndVersion(
   pn: ExtensionTypes.IState | undefined,
   request: ClientTypes.IRequestData,
-): boolean {
-  return (
-    pn?.type === getPaymentNetworkExtension(request)?.type &&
-    pn?.version === getPaymentNetworkExtension(request)?.version
-  );
+): void {
+  const extension = getPaymentNetworkExtension(request);
+  if (!extension) {
+    throw new Error('no payment network found');
+  }
+  if (!(pn?.type === extension.type && pn?.version === extension.version)) {
+    throw new Error(`Every payment network type and version must be identical`);
+  }
 }
 
 /**

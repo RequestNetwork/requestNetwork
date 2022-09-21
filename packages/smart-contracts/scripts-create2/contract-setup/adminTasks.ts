@@ -6,9 +6,9 @@ import { BigNumber } from 'ethers';
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
 
-// Batch conversion and no conversion fees: .3%
-const BATCH_NO_CONVERSION_FEE = 30;
-const BATCH_CONVERSION_FEE = 30;
+// Batch conversion and no conversion fees: temporarily at 0%
+const BATCH_NO_CONVERSION_FEE = 0;
+const BATCH_CONVERSION_FEE = 0;
 
 export const updateChainlinkConversionPath = async (
   contract: any,

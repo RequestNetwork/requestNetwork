@@ -79,6 +79,14 @@ const validSwapSettings: ISwapSettings = {
 };
 
 describe('swap-erc20-fee-proxy', () => {
+  beforeAll(async () => {
+    // revoke erc20SwapToPay approval
+    await revokeErc20Approval(
+      erc20SwapToPayArtifact.getAddress(validRequest.currencyInfo.network!),
+      alphaErc20Address,
+      wallet.provider,
+    );
+  });
   describe('encodeSwapErc20FeeRequest', () => {
     beforeAll(async () => {
       // revoke erc20SwapToPay approval
