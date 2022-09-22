@@ -20,6 +20,8 @@ import NearNative from './extensions/payment-network/near-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
 import NativeTokenPaymentNetwork from './extensions/payment-network/native-token';
+import AnyToNear from './extensions/payment-network/any-to-near';
+import AnyToNativeTokenPaymentNetwork from './extensions/payment-network/any-to-native';
 
 /**
  * Module to manage Advanced logic extensions
@@ -41,6 +43,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     erc777Stream: Erc777Stream;
     feeProxyContractEth: FeeProxyContractEth;
     anyToEthProxy: AnyToEthProxy;
+    anyToNativeToken: AnyToNativeTokenPaymentNetwork[];
   };
 
   constructor(currencyManager?: ICurrencyManager) {
@@ -61,6 +64,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       feeProxyContractEth: new FeeProxyContractEth(),
       anyToEthProxy: new AnyToEthProxy(currencyManager),
       nativeToken: [new NearNative()],
+      anyToNativeToken: [new AnyToNear(currencyManager)],
     };
   }
   /**
@@ -115,14 +119,20 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       [ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT]:
         this.extensions.feeProxyContractEth,
       [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY]: this.extensions.anyToEthProxy,
+      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN]:
+        this.getAnyToNativeTokenExtensionForActionAndState(extensionAction, requestState),
     }[id];
 
     if (!extension) {
-      if (id === ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN) {
-        throw Error(
-          `extension with id: ${id} not found for network: ${requestState.currency.network}`,
-        );
+      if (
+        id === ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN ||
+        id === ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN
+      ) {
+        const network =
+          this.getNetwork(extensionAction, requestState) || requestState.currency.network;
+        throw Error(`extension with id: ${id} not found for network: ${network}`);
       }
+
       throw Error(`extension not recognized, id: ${id}`);
     }
     return extension;
@@ -147,5 +157,30 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
           nativeTokenExtension.supportedNetworks.includes(network),
         )
       : undefined;
+  }
+
+  protected getAnyToNativeTokenExtensionForActionAndState(
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+  ): ExtensionTypes.IExtension<ExtensionTypes.PnAnyToEth.ICreationParameters> | undefined {
+    const network = this.getNetwork(extensionAction, requestState);
+
+    return network
+      ? this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
+          anyToNativeTokenExtension.supportedNetworks.includes(network),
+        )
+      : undefined;
+  }
+
+  protected getNetwork(
+    extensionAction: ExtensionTypes.IAction,
+    requestState: RequestLogicTypes.IRequest,
+  ): string | undefined {
+    const network =
+      extensionAction.action === 'create'
+        ? extensionAction.parameters.network
+        : requestState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN]?.values
+            ?.network;
+    return network;
   }
 }
