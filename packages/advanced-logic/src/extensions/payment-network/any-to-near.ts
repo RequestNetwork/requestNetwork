@@ -174,10 +174,8 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
   }
 
   /**
-   * Validate the extension action regarding the currency and network
-   * It must throw in case of error
-   *
-   * @param request
+   * Validate that the network and currency coming from the extension and/or action are valid and supported.
+   * It must throw in case of error.
    */
   protected validate(
     request: RequestLogicTypes.IRequest,
