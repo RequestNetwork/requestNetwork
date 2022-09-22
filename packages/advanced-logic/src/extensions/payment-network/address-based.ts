@@ -286,14 +286,13 @@ export default abstract class AddressBasedPaymentNetwork<
     this.throwIfInvalidNetwork(request.currency.network);
   }
 
-  protected throwIfInvalidNetwork(network?: string): string {
+  protected throwIfInvalidNetwork(network?: string): asserts network is string {
     if (!network) {
       throw Error('network is required');
     }
     if (network && this.supportedNetworks && !this.supportedNetworks.includes(network)) {
       throw new UnsupportedNetworkError(network, this.supportedNetworks);
     }
-    return network;
   }
 }
 

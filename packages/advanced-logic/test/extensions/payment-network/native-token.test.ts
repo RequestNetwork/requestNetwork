@@ -176,32 +176,6 @@ describe('extensions/payment-network/native-token', () => {
 
       expect(newExtensionState).toEqual(extensionStateWithNativeTokenPaymentAndRefund);
     });
-    it('works on a state with no currency network', () => {
-      const advancedLogic = new AdvancedLogic();
-
-      const requestState: typeof requestStateNoExtensions = {
-        ...requestStateNoExtensions,
-        currency: { ...mainnetTestCase.currency, network: undefined },
-      };
-
-      const creationAction = {
-        ...actionCreationWithNativeTokenPayment,
-        parameters: {
-          ...actionCreationWithNativeTokenPayment.parameters,
-          paymentNetworkName: mainnetTestCase.currency.network,
-        },
-      };
-
-      const newExtensionState = advancedLogic.applyActionToExtensions(
-        requestState.extensions,
-        creationAction,
-        requestState,
-        payeeRaw.identity,
-        arbitraryTimestamp,
-      );
-
-      expect(newExtensionState).toEqual(extensionStateWithNativeTokenPaymentAndRefund);
-    });
     it('works with an action without payment network', () => {
       const advancedLogic = new AdvancedLogic();
 

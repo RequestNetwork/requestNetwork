@@ -14,7 +14,8 @@ export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenc
   public createCreationAction(
     creationParameters: ExtensionTypes.PnAnyToAnyConversion.ICreationParameters,
   ): ExtensionTypes.IAction<ExtensionTypes.PnAnyToAnyConversion.ICreationParameters> {
-    const network = this.throwIfInvalidNetwork(creationParameters.network);
+    const network = creationParameters.network;
+    this.throwIfInvalidNetwork(network);
 
     if (
       creationParameters.paymentAddress &&
