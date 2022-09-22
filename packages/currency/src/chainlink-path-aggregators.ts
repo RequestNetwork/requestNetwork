@@ -6,6 +6,8 @@ import mainnetAggregator from './aggregators/mainnet.json';
 import rinkebyAggregator from './aggregators/rinkeby.json';
 import maticAggregator from './aggregators/matic.json';
 import fantomAggregator from './aggregators/fantom.json';
+import nearAggregator from './aggregators/near.json';
+import nearTestnetAggregator from './aggregators/near-testnet.json';
 
 export type CurrencyPairs = Record<string, Record<string, number>>;
 // List of currencies supported by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
@@ -25,6 +27,8 @@ export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   xdai: {},
   avalanche: {},
   bsc: {},
+  aurora: nearAggregator,
+  'aurora-testnet': nearTestnetAggregator
 };
 
 export const chainlinkSupportedNetworks = Object.keys(chainlinkCurrencyPairs);
