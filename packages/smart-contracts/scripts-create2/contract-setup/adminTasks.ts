@@ -52,33 +52,36 @@ export const updateRequestSwapFees = async (
   }
 };
 
-/**
- * Updates batch fees with/out conversion
- * BATCH_NO_CONVERSION_FEE e.g: payment DAI - DAI
- * BATCH_CONVERSION_FEE e.g: payment EUR - DAI
- */
-export const updateBatchPaymentFees = async (
-  contract: any,
-  nonce: number,
-  gasPrice: BigNumber,
-  feesName: 'BatchNoConversionFee' | 'BatchConversionFee',
-): Promise<void> => {
-  const feesApplied =
-    feesName === 'BatchNoConversionFee' ? BATCH_NO_CONVERSION_FEE : BATCH_CONVERSION_FEE;
+export const updateBatchPaymentFees = async (contract: any, gasPrice: BigNumber): Promise<void> => {
   const currentFees = await contract.batchFee();
-  if (currentFees !== feesApplied) {
+  if (currentFees.toNumber() !== BATCH_NO_CONVERSION_FEE) {
     // Log is useful to have a direct view on was is being updated
     console.log(
-      `${feesName}: the current fees: ${currentFees.toString()}, have been replaced by: ${feesApplied}`,
+      `Batch: the current fees: ${currentFees.toString()}, have been replaced by: ${BATCH_NO_CONVERSION_FEE}`,
     );
-    await contract.setBatchFee(feesApplied, { nonce: nonce, gasPrice: gasPrice });
+    await contract.setBatchFee(BATCH_NO_CONVERSION_FEE, { gasPrice: gasPrice });
+  }
+};
+
+export const updateBatchConversionPaymentFees = async (
+  contract: any,
+  gasPrice: BigNumber,
+): Promise<void> => {
+  const currentFees = await contract.batchConversionFee();
+  if (currentFees.toNumber() !== BATCH_CONVERSION_FEE) {
+    // Log is useful to have a direct view on was is being updated
+    console.log(
+      `$Batch conversion: the current fees: ${currentFees.toString()}, have been replaced by: ${BATCH_CONVERSION_FEE}`,
+    );
+    await contract.setBatchConversionFee(BATCH_CONVERSION_FEE, {
+      gasPrice: gasPrice,
+    });
   }
 };
 
 export const updatePaymentErc20FeeProxy = async (
   contract: any,
   network: string,
-  nonce: number,
   gasPrice: BigNumber,
 ): Promise<void> => {
   const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
@@ -86,7 +89,6 @@ export const updatePaymentErc20FeeProxy = async (
   const currentAddress = await contract.paymentErc20FeeProxy();
   if (currentAddress !== erc20FeeProxyAddress) {
     await contract.setPaymentErc20FeeProxy(erc20FeeProxyAddress, {
-      nonce: nonce,
       gasPrice: gasPrice,
     });
   }
@@ -98,39 +100,42 @@ export const updatePaymentErc20FeeProxy = async (
 export const updateBatchConversionPaymentProxy = async (
   contract: any,
   network: string,
-  nonce: number,
   gasPrice: BigNumber,
   proxyName: 'eth' | 'ethConversion' | 'erc20' | 'erc20Conversion',
 ): Promise<void> => {
-  let proxyAddress: string;
-  let batchSetProxy: any;
-  let currentAddress: string;
-  if (proxyName === 'eth') {
-    proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network);
-    batchSetProxy = await contract.setPaymentEthProxy;
-    currentAddress = await contract.paymentEthProxy();
-  } else if (proxyName === 'ethConversion') {
-    proxyAddress = artifacts.ethConversionArtifact.getAddress(network);
-    batchSetProxy = await contract.setPaymentEthConversionProxy;
-    currentAddress = await contract.paymentEthConversionProxy();
-  } else if (proxyName === 'erc20') {
-    proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network);
-    batchSetProxy = await contract.setPaymentErc20Proxy;
-    currentAddress = await contract.paymentErc20Proxy();
-  } else {
-    // proxyName === "erc20Conversion"
-    proxyAddress = artifacts.erc20ConversionProxy.getAddress(network);
-    batchSetProxy = await contract.setPaymentErc20ConversionProxy;
-    currentAddress = await contract.paymentErc20ConversionProxy();
-  }
+  try {
+    let proxyAddress: string;
+    let batchSetProxy: any;
+    let currentAddress: string;
+    if (proxyName === 'eth') {
+      proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network);
+      batchSetProxy = await contract.setPaymentEthProxy;
+      currentAddress = await contract.paymentEthProxy();
+    } else if (proxyName === 'ethConversion') {
+      proxyAddress = artifacts.ethConversionArtifact.getAddress(network);
+      batchSetProxy = await contract.setPaymentEthConversionProxy;
+      currentAddress = await contract.paymentEthConversionProxy();
+    } else if (proxyName === 'erc20') {
+      proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network);
+      batchSetProxy = await contract.setPaymentErc20Proxy;
+      currentAddress = await contract.paymentErc20Proxy();
+    } else {
+      // proxyName === "erc20Conversion"
+      proxyAddress = artifacts.erc20ConversionProxy.getAddress(network);
+      batchSetProxy = await contract.setPaymentErc20ConversionProxy;
+      currentAddress = await contract.paymentErc20ConversionProxy();
+    }
 
-  if (currentAddress !== proxyAddress) {
-    console.log(
-      `${proxyName}: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
-    );
-    await batchSetProxy(proxyAddress, {
-      nonce: nonce,
-      gasPrice: gasPrice,
-    });
+    if (currentAddress !== proxyAddress) {
+      console.log(
+        `${proxyName}: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
+      );
+      await batchSetProxy(proxyAddress, {
+        gasPrice: gasPrice,
+      });
+    }
+  } catch (e) {
+    console.log(`Cannot update ${proxyName} proxy, it might not exist on this network`);
+    console.log(e);
   }
 };
