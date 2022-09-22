@@ -6,7 +6,7 @@ const CURRENT_VERSION = '0.2.0';
 const supportedNetworks = ['aurora', 'aurora-testnet'];
 
 /**
- * Implementation of the payment network to pay in ETH based on input data.
+ * Implementation of the payment network to pay in Near based on input data.
  */
 export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork {
   public constructor(
@@ -17,7 +17,7 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
   }
 
   /**
-   * Check if an ethereum address is valid
+   * Check if a near address is valid
    *
    * @param {string} address address to check
    * @returns {boolean} true if address is valid

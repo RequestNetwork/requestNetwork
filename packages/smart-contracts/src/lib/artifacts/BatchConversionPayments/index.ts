@@ -49,6 +49,16 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
           creationBlockNumber: 19892946,
         },
+        // Caution: no ETHConversion proxy on xDai
+        xdai: {
+          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
+          creationBlockNumber: 24192455,
+        },
+        // Caution: no ERC20Conversion proxy on fuse
+        fuse: {
+          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
+          creationBlockNumber: 19146859,
+        },
       },
     },
   },

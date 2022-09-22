@@ -283,8 +283,15 @@ export default abstract class AddressBasedPaymentNetwork<
     if (request.currency.type !== this.supportedCurrencyType) {
       throw Error(`This extension can be used only on ${this.supportedCurrencyType} requests`);
     }
-    if (request.currency.network && !this.supportedNetworks.includes(request.currency.network)) {
-      throw new UnsupportedNetworkError(request.currency.network, this.supportedNetworks);
+    this.throwIfInvalidNetwork(request.currency.network);
+  }
+
+  protected throwIfInvalidNetwork(network?: string): asserts network is string {
+    if (!network) {
+      throw Error('network is required');
+    }
+    if (network && this.supportedNetworks && !this.supportedNetworks.includes(network)) {
+      throw new UnsupportedNetworkError(network, this.supportedNetworks);
     }
   }
 }

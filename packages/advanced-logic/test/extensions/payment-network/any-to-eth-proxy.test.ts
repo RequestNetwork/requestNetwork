@@ -1,6 +1,10 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import {
+  conversionSupportedNetworks,
+  CurrencyManager,
+  UnsupportedCurrencyError,
+} from '@requestnetwork/currency';
 
 import AnyToEthProxy from '../../../src/extensions/payment-network/any-to-eth-proxy';
 import * as DataConversionETHFeeAddData from '../../utils/payment-network/ethereum/any-to-eth-proxy-add-data-generator';
@@ -119,7 +123,11 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
           salt: 'ea3bc7caf64110ca',
           network: 'kovan',
         });
-      }).toThrowError('network kovan not supported');
+      }).toThrowError(
+        `Payment network 'kovan' is not supported by this extension (only ${conversionSupportedNetworks.join(
+          ', ',
+        )})`,
+      );
     });
 
     it('cannot applyActionToExtensions of creation with an invalid network', () => {
