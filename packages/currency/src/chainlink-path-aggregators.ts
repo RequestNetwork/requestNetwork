@@ -28,7 +28,7 @@ export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
   avalanche: {},
   bsc: {},
   aurora: nearAggregator,
-  'aurora-testnet': nearTestnetAggregator
+  'aurora-testnet': nearTestnetAggregator,
 };
 
 export const chainlinkSupportedNetworks = Object.keys(chainlinkCurrencyPairs);
