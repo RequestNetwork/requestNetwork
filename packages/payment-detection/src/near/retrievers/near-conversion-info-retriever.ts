@@ -26,7 +26,7 @@ export class NearConversionInfoRetriever extends NearInfoRetriever {
     protected network: string,
     protected maxRateTimespan: number = 0,
   ) {
-    super(paymentReference, toAddress, proxyContractName, eventName, network);    
+    super(paymentReference, toAddress, proxyContractName, eventName, network);
   }
 
   public async getTransferEvents(): Promise<
@@ -54,7 +54,7 @@ export class NearConversionInfoRetriever extends NearInfoRetriever {
         gasUsed: p.gasUsed,
         gasPrice: p.gasPrice,
         receiptId: p.receiptId,
-        currency: p.currency
+        currency: p.currency,
       },
       timestamp: Number(p.timestamp),
     }));

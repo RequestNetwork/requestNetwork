@@ -22,19 +22,30 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment with conversion
  */
-export class NearConversionNativeTokenPaymentDetector extends AnyToAnyDetector <
+export class NearConversionNativeTokenPaymentDetector extends AnyToAnyDetector<
   ExtensionTypes.PnAnyToEth.IAnyToEth,
   PaymentTypes.IETHPaymentEventParameters
 > {
   /**
    * @param extension The advanced logic payment network extension
    */
-  public constructor({ advancedLogic, currencyManager }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic, currencyManager: ICurrencyManager }) {
-    super(PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE, advancedLogic.extensions.anyToNativeToken[0], currencyManager);
+  public constructor({
+    advancedLogic,
+    currencyManager,
+  }: {
+    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
+    currencyManager: ICurrencyManager;
+  }) {
+    super(
+      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE,
+      advancedLogic.extensions.anyToNativeToken[0],
+      currencyManager,
+    );
   }
 
   public static getContractName = (chainName: string, paymentNetworkVersion = '0.1.0'): string => {
-    const version = NearConversionNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
+    const version =
+      NearConversionNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     const versionMap: Record<string, Record<string, string>> = {
       aurora: { '0.1.0': 'requestnetwork.conversion.near' },
       'aurora-testnet': {
@@ -80,7 +91,10 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToAnyDetector <
       currency,
       paymentReference,
       address,
-      NearConversionNativeTokenPaymentDetector.getContractName(paymentChain, paymentNetwork.version),
+      NearConversionNativeTokenPaymentDetector.getContractName(
+        paymentChain,
+        paymentNetwork.version,
+      ),
       eventName,
       paymentChain,
       paymentNetwork.values.maxRateTimespan,

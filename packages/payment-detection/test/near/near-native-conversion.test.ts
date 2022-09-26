@@ -7,7 +7,10 @@ import {
 import { CurrencyDefinition, CurrencyManager } from '@requestnetwork/currency';
 import PaymentNetworkFactory from '../../src/payment-network-factory';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
-import { NearConversionNativeTokenPaymentDetector, NearConversionInfoRetriever } from '../../src/near';
+import {
+  NearConversionNativeTokenPaymentDetector,
+  NearConversionInfoRetriever,
+} from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
 import { GraphQLClient } from 'graphql-request';
 import { mocked } from 'ts-jest/utils';
@@ -28,9 +31,9 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 const salt = 'a6475e4c3d45feb6';
 const paymentAddress = 'gus.near';
 const feeAddress = 'fee.near';
-const network = "aurora";
-const feeAmount = "5";
-const receiptId = "FYVnCvJFoNtK7LE2uAdTFfReFMGiCUHMczLsvEni1Cpf"
+const network = 'aurora';
+const feeAmount = '5';
+const receiptId = 'FYVnCvJFoNtK7LE2uAdTFfReFMGiCUHMczLsvEni1Cpf';
 const requestCurrency = currencyManager.from('USD') as CurrencyDefinition;
 const request: any = {
   requestId: '01c9190b6d015b3a0b2bbd0e492b9474b0734ca19a16f2fda8f7adec10d0fa3e7a',
@@ -67,10 +70,10 @@ const graphPaymentEvent = {
   receiptId,
   gasUsed: '144262',
   gasPrice: '2425000017',
-}
+};
 const expectedRetrieverEvent = {
   amount: graphPaymentEvent.amount,
-  name: "payment",
+  name: 'payment',
   parameters: {
     ...graphPaymentEvent,
     amount: undefined,
@@ -79,16 +82,14 @@ const expectedRetrieverEvent = {
     maxRateTimespan: graphPaymentEvent.maxRateTimespan.toString(),
   },
   timestamp: graphPaymentEvent.timestamp,
-}
+};
 
 describe('Near payments detection', () => {
   beforeAll(() => {
     graphql.request.mockResolvedValue({
-      payments: [
-        graphPaymentEvent
-      ],
+      payments: [graphPaymentEvent],
     });
-  })
+  });
 
   it('NearConversionInfoRetriever can retrieve a NEAR payment', async () => {
     const paymentReference = PaymentReferenceCalculator.calculate(
@@ -148,7 +149,9 @@ describe('Near payments detection', () => {
         ...requestWithWrongVersion,
         extensions: {
           [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN]: {
-            ...requestWithWrongVersion.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN],
+            ...requestWithWrongVersion.extensions[
+              ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN
+            ],
             version: '3.14',
           },
         },
@@ -170,17 +173,21 @@ describe('Near payments detection', () => {
         ...requestWithWrongNetwork,
         extensions: {
           [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN as string]: {
-            ...requestWithWrongNetwork.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN],
+            ...requestWithWrongNetwork.extensions[
+              ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN
+            ],
             values: {
-              ...requestWithWrongNetwork.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN].values,
-              network: "unknown-network"
+              ...requestWithWrongNetwork.extensions[
+                ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN
+              ].values,
+              network: 'unknown-network',
             },
           },
         },
       };
       const paymentDetector = new NearConversionNativeTokenPaymentDetector({
         advancedLogic: mockAdvancedLogic,
-        currencyManager
+        currencyManager,
       });
       expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({
         balance: null,

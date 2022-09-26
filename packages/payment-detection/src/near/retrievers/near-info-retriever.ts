@@ -16,7 +16,7 @@ export class NearInfoRetriever {
    * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
-   * 
+   *
    */
   constructor(
     protected paymentReference: string,

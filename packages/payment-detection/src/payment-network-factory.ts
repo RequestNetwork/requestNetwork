@@ -59,7 +59,7 @@ const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
   [PN_ID.ANY_TO_ERC20_PROXY]: AnyToERC20PaymentDetector,
   [PN_ID.DECLARATIVE]: DeclarativePaymentDetector,
   [PN_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
-  [PN_ID.ANY_TO_NATIVE]: NearConversionNativeTokenPaymentDetector
+  [PN_ID.ANY_TO_NATIVE]: NearConversionNativeTokenPaymentDetector,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */
