@@ -16,7 +16,7 @@ import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EthInputDataPaymentDetector } from './eth/input-data';
 import { EthFeeProxyPaymentDetector } from './eth/fee-proxy-detector';
 import { AnyToERC20PaymentDetector } from './any/any-to-erc20-proxy';
-import { NearNativeTokenPaymentDetector } from './near-detector';
+import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
 import { AnyToEthFeeProxyPaymentDetector } from './any/any-to-eth-proxy';
 
 const PN_ID = PaymentTypes.PAYMENT_NETWORK_ID;
@@ -59,6 +59,7 @@ const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
   [PN_ID.ANY_TO_ERC20_PROXY]: AnyToERC20PaymentDetector,
   [PN_ID.DECLARATIVE]: DeclarativePaymentDetector,
   [PN_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
+  [PN_ID.ANY_TO_NATIVE]: NearConversionNativeTokenPaymentDetector
 };
 
 /** Factory to create the payment network according to the currency and payment network type */

@@ -5,8 +5,9 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { ReferenceBasedDetector } from './reference-based-detector';
-import { NearInfoRetriever } from './near-info-retriever';
+import { AnyToAnyDetector } from '../any-to-any-detector';
+import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -16,30 +17,28 @@ interface IProxyContractVersion {
 // the versions 0.1.0 and 0.2.0 have the same contracts
 const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
   ['0.1.0']: '0.1.0',
-  ['0.2.0']: '0.2.0',
 };
 
 /**
- * Handle payment detection for NEAR native token payment
+ * Handle payment detection for NEAR native token payment with conversion
  */
-export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
-  ExtensionTypes.PnReferenceBased.IReferenceBased,
+export class NearConversionNativeTokenPaymentDetector extends AnyToAnyDetector <
+  ExtensionTypes.PnAnyToEth.IAnyToEth,
   PaymentTypes.IETHPaymentEventParameters
 > {
   /**
    * @param extension The advanced logic payment network extension
    */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN, advancedLogic.extensions.nativeToken[0]);
+  public constructor({ advancedLogic, currencyManager }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic, currencyManager: ICurrencyManager }) {
+    super(PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE, advancedLogic.extensions.anyToNativeToken[0], currencyManager);
   }
 
-  public static getContractName = (chainName: string, paymentNetworkVersion = '0.2.0'): string => {
-    const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
+  public static getContractName = (chainName: string, paymentNetworkVersion = '0.1.0'): string => {
+    const version = NearConversionNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     const versionMap: Record<string, Record<string, string>> = {
-      aurora: { '0.1.0': 'requestnetwork.near', '0.2.0': 'requestnetwork.near' },
+      aurora: { '0.1.0': 'requestnetwork.conversion.near' },
       'aurora-testnet': {
-        '0.1.0': 'dev-1626339335241-5544297',
-        '0.2.0': 'dev-1631521265288-35171138540673',
+        '0.1.0': 'dev-xxxxxxx',
       },
     };
     if (versionMap[chainName]?.[version]) {
@@ -62,26 +61,42 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     eventName: PaymentTypes.EVENTS_NAMES,
     address: string | undefined,
     paymentReference: string,
-    _requestCurrency: RequestLogicTypes.ICurrency,
+    requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
-    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnReferenceBased.ICreationParameters>,
+    paymentNetwork: ExtensionTypes.IState<ExtensionTypes.PnAnyToEth.ICreationParameters>,
   ): Promise<PaymentTypes.AllNetworkRetrieverEvents<PaymentTypes.ETHPaymentNetworkEvent>> {
     if (!address) {
       return {
         paymentEvents: [],
       };
     }
-    const infoRetriever = new NearInfoRetriever(
+
+    const currency = this.currencyManager.fromStorageCurrency(requestCurrency);
+    if (!currency) {
+      throw new UnsupportedCurrencyError(requestCurrency.value);
+    }
+
+    const infoRetriever = new NearConversionInfoRetriever(
+      currency,
       paymentReference,
       address,
-      NearNativeTokenPaymentDetector.getContractName(paymentChain, paymentNetwork.version),
+      NearConversionNativeTokenPaymentDetector.getContractName(paymentChain, paymentNetwork.version),
       eventName,
       paymentChain,
+      paymentNetwork.values.maxRateTimespan,
     );
     const paymentEvents = await infoRetriever.getTransferEvents();
     return {
       paymentEvents,
     };
+  }
+
+  protected getPaymentChain(request: RequestLogicTypes.IRequest): string {
+    const network = this.getPaymentExtension(request).values.network;
+    if (!network) {
+      throw Error(`request.extensions[${this.paymentNetworkId}].values.network must be defined`);
+    }
+    return network;
   }
 
   protected static getVersionOrThrow = (paymentNetworkVersion: string): string => {
