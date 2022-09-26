@@ -1,7 +1,10 @@
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 import { Contract } from 'near-api-js';
 import { Near, WalletConnection } from 'near-api-js';
-import { NearNativeTokenPaymentDetector } from '@requestnetwork/payment-detection';
+import {
+  NearNativeTokenPaymentDetector,
+  NearConversionNativeTokenPaymentDetector,
+} from '@requestnetwork/payment-detection';
 
 export const isValidNearAddress = async (nearNetwork: Near, address: string): Promise<boolean> => {
   try {
@@ -68,6 +71,60 @@ export const processNearPayment = async (
       {
         to,
         payment_reference,
+      },
+      GAS_LIMIT.toString(),
+      amount.toString(),
+    );
+    return;
+  } catch (e) {
+    throw new Error(`Could not pay Near request. Got ${e.message}`);
+  }
+};
+
+/**
+ * Export used for mocking only.
+ */
+export const processNearPaymentWithConversion = async (
+  walletConnection: WalletConnection,
+  network: string,
+  amount: BigNumberish,
+  to: string,
+  payment_reference: string,
+  currency: string,
+  feeAddress: string,
+  feeAmount: BigNumberish,
+  maxRateTimespan: string,
+  version = '0.1.0',
+): Promise<void> => {
+  if (version !== '0.1.0') {
+    throw new Error('Native Token with conversion payments on Near only support v0.1.0 extensions');
+  }
+
+  if (!(await isValidNearAddress(walletConnection._near, to))) {
+    throw new Error(`Invalid NEAR payment address: ${to}`);
+  }
+
+  if (!(await isValidNearAddress(walletConnection._near, feeAddress))) {
+    throw new Error(`Invalid NEAR payment address: ${feeAddress}`);
+  }
+  try {
+    const contract = new Contract(
+      walletConnection.account(),
+      NearConversionNativeTokenPaymentDetector.getContractName(network, version),
+      {
+        changeMethods: ['transfer_with_reference'],
+        viewMethods: [],
+      },
+    ) as any;
+    await contract.transfer_with_reference(
+      {
+        payment_reference,
+        to,
+        amount,
+        currency,
+        feeAddress,
+        feeAmount,
+        maxRateTimespan,
       },
       GAS_LIMIT.toString(),
       amount.toString(),
