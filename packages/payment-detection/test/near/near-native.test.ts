@@ -5,10 +5,9 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import PaymentNetworkFactory from '../src/payment-network-factory';
-import PaymentReferenceCalculator from '../src/payment-reference-calculator';
-import { NearNativeTokenPaymentDetector } from '../src/near-detector';
-import { NearInfoRetriever } from '../src/near-info-retriever';
+import PaymentNetworkFactory from '../../src/payment-network-factory';
+import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import { NearNativeTokenPaymentDetector, NearInfoRetriever } from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
 
 const mockNearPaymentNetwork = {

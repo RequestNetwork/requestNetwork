@@ -5,8 +5,8 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 
-import { ReferenceBasedDetector } from './reference-based-detector';
-import { NearInfoRetriever } from './near-info-retriever';
+import { ReferenceBasedDetector } from '../reference-based-detector';
+import { NearInfoRetriever } from './retrievers/near-info-retriever';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {

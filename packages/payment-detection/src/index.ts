@@ -16,7 +16,7 @@ import {
   getPaymentNetworkExtension,
   getPaymentReference,
 } from './utils';
-import { NearNativeTokenPaymentDetector } from './near-detector';
+import { NearNativeTokenPaymentDetector, NearConversionNativeTokenPaymentDetector } from './near';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
@@ -37,6 +37,7 @@ export {
   FeeReferenceBasedDetector,
   SuperFluidPaymentDetector,
   NearNativeTokenPaymentDetector,
+  NearConversionNativeTokenPaymentDetector,
   EscrowERC20InfoRetriever,
   SuperFluidInfoRetriever,
   setProviderFactory,

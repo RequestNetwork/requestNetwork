@@ -200,8 +200,6 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
     if (!currency) {
       throw new UnsupportedCurrencyError(request.currency);
     }
-    console.log(network);
-    console.log(currency);
     if (!this.currencyManager.supportsConversion(currency, network)) {
       throw new Error(
         `The currency (${request.currency.value}) of the request is not supported for this payment network.`,
