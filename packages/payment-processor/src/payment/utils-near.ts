@@ -94,7 +94,7 @@ export const processNearPaymentWithConversion = async (
   currency: string,
   feeAddress: string,
   feeAmount: BigNumberish,
-  maxRateTimespan: string = '0',
+  maxRateTimespan = '0',
   version = '0.1.0',
 ): Promise<void> => {
   if (version !== '0.1.0') {
