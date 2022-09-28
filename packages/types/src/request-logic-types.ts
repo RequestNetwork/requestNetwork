@@ -182,6 +182,10 @@ export interface IVersionSupportConfig {
 /** Parameters to create a request */
 export interface ICreateParameters {
   currency: ICurrency;
+  /**
+   * `expectedAmount` in `currency`, given with the most precise decimal know for this currency.
+   * By convention, fiat amounts have a precision of 2, so '1000' for 'EUR' means '10.00 EUR'.
+   */
   expectedAmount: Amount;
   payee?: Identity.IIdentity;
   payer?: Identity.IIdentity;

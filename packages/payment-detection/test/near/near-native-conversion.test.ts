@@ -57,13 +57,15 @@ const request: any = {
   },
 };
 const graphPaymentEvent = {
-  amount: '5000000000',
-  amountInCrypto: '10000000000',
+  // 500 USD
+  amount: '50000',
+  amountInCrypto: null,
   block: 10088347,
   currency: 'USD',
   feeAddress,
-  feeAmount: '5000000',
-  feeAmountInCrypto: '10000000',
+  // .05 USD
+  feeAmount: '5',
+  feeAmountInCrypto: null,
   from: 'payer.near',
   maxRateTimespan: 0,
   timestamp: 1643647285,

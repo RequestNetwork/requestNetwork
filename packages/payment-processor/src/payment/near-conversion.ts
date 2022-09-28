@@ -29,8 +29,14 @@ export async function payNearConversionRequest(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE);
 
   const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
-  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan, network } =
-    getRequestPaymentValues(request);
+  const {
+    paymentReference,
+    paymentAddress,
+    feeAddress,
+    feeAmount,
+    maxRateTimespan,
+    network,
+  } = getRequestPaymentValues(request);
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {
@@ -64,12 +70,12 @@ export async function payNearConversionRequest(
 
 const getTicker = (currency: ICurrency): string => {
   switch (currency.type) {
-    case CURRENCY.BTC:
-    case CURRENCY.ETH:
     case CURRENCY.ISO4217:
       return currency.value;
-    // FIXME: Flux oracles are compatible with ERC20 identified by tickers. Ex: USDT, DAI.
     default:
-      throw new Error('Near payment with conversion not implemented for ERC20.');
+      // FIXME: Flux oracles are compatible with ERC20 identified by tickers. Ex: USDT, DAI.
+      // Warning: although Flux oracles are compatible with ETH and BTC, the request contract
+      // for native payments and conversions only handles 2 decimals, not suited for cryptos.
+      throw new Error('Near payment with conversion only implemented for fiat denominations.');
   }
 };
