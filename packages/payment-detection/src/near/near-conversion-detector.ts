@@ -44,12 +44,13 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToAnyDetector<
   }
 
   public static getContractName = (chainName: string, paymentNetworkVersion = '0.1.0'): string => {
-    const version =
-      NearConversionNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
+    const version = NearConversionNativeTokenPaymentDetector.getVersionOrThrow(
+      paymentNetworkVersion,
+    );
     const versionMap: Record<string, Record<string, string>> = {
-      aurora: { '0.1.0': 'requestnetwork.conversion.near' },
+      aurora: { '0.1.0': 'native.conversion.reqnetwork.near' },
       'aurora-testnet': {
-        '0.1.0': 'dev-xxxxxxx',
+        '0.1.0': 'native.conversion.reqnetwork.testnet',
       },
     };
     if (versionMap[chainName]?.[version]) {
