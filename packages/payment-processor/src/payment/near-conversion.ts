@@ -28,14 +28,8 @@ export async function payNearConversionRequest(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE);
 
   const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
-  const {
-    paymentReference,
-    paymentAddress,
-    feeAddress,
-    feeAmount,
-    maxRateTimespan,
-    network,
-  } = getRequestPaymentValues(request);
+  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan, network } =
+    getRequestPaymentValues(request);
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {
