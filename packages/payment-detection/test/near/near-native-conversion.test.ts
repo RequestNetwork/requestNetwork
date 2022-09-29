@@ -104,7 +104,7 @@ describe('Near payments detection', () => {
       requestCurrency,
       paymentReference,
       paymentAddress,
-      'requestnetwork.conversion.near',
+      'native.conversion.mock',
       PaymentTypes.EVENTS_NAMES.PAYMENT,
       'aurora',
     );
