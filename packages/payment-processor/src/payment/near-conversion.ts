@@ -1,7 +1,7 @@
 import { BigNumberish } from 'ethers';
 import { WalletConnection } from 'near-api-js';
 
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import {
   getRequestPaymentValues,
@@ -12,7 +12,6 @@ import {
 import { isNearNetwork, processNearPaymentWithConversion } from './utils-near';
 import { IConversionPaymentSettings } from '.';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
-import { CURRENCY, ICurrency } from 'types/dist/request-logic-types';
 
 /**
  * Processes the transaction to pay a request in NEAR with on-chain conversion.
@@ -29,8 +28,14 @@ export async function payNearConversionRequest(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE);
 
   const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
-  const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan, network } =
-    getRequestPaymentValues(request);
+  const {
+    paymentReference,
+    paymentAddress,
+    feeAddress,
+    feeAmount,
+    maxRateTimespan,
+    network,
+  } = getRequestPaymentValues(request);
 
   const requestCurrency = currencyManager.fromStorageCurrency(request.currencyInfo);
   if (!requestCurrency) {
@@ -62,9 +67,9 @@ export async function payNearConversionRequest(
   );
 }
 
-const getTicker = (currency: ICurrency): string => {
+const getTicker = (currency: RequestLogicTypes.ICurrency): string => {
   switch (currency.type) {
-    case CURRENCY.ISO4217:
+    case RequestLogicTypes.CURRENCY.ISO4217:
       return currency.value;
     default:
       // FIXME: Flux oracles are compatible with ERC20 identified by tickers. Ex: USDT, DAI.
