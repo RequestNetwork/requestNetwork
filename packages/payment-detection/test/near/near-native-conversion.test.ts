@@ -29,7 +29,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   extensions: { anyToNativeToken: [mockNearPaymentNetwork] },
 };
 const salt = 'a6475e4c3d45feb6';
-const paymentAddress = 'gus.near';
+const paymentAddress = 'issuer.near';
 const feeAddress = 'fee.near';
 const network = 'aurora';
 const feeAmount = '5';
@@ -67,23 +67,12 @@ const graphPaymentEvent = {
   feeAmount: '5',
   feeAmountInCrypto: null,
   from: 'payer.near',
+  to: paymentAddress,
   maxRateTimespan: 0,
   timestamp: 1643647285,
   receiptId,
   gasUsed: '144262',
   gasPrice: '2425000017',
-};
-const expectedRetrieverEvent = {
-  amount: graphPaymentEvent.amount,
-  name: 'payment',
-  parameters: {
-    ...graphPaymentEvent,
-    amount: undefined,
-    timestamp: undefined,
-    to: paymentAddress,
-    maxRateTimespan: graphPaymentEvent.maxRateTimespan.toString(),
-  },
-  timestamp: graphPaymentEvent.timestamp,
 };
 
 describe('Near payments detection', () => {
@@ -110,7 +99,25 @@ describe('Near payments detection', () => {
     );
     const events = await infoRetriever.getTransferEvents();
     expect(events).toHaveLength(1);
-    expect(events[0]).toEqual(expectedRetrieverEvent);
+    expect(events[0]).toEqual({
+      amount: graphPaymentEvent.amount,
+      name: 'payment',
+      parameters: {
+        amountInCrypto: null,
+        block: 10088347,
+        currency: 'USD',
+        feeAddress,
+        feeAmount: '5',
+        feeAmountInCrypto: undefined,
+        from: 'payer.near',
+        to: paymentAddress,
+        maxRateTimespan: '0',
+        receiptId,
+        gasUsed: '144262',
+        gasPrice: '2425000017',
+      },
+      timestamp: graphPaymentEvent.timestamp,
+    });
   });
 
   it('PaymentNetworkFactory can get the detector (testnet)', async () => {
