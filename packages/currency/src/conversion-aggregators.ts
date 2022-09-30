@@ -9,29 +9,55 @@ import fantomAggregator from './aggregators/fantom.json';
 import nearAggregator from './aggregators/near.json';
 import nearTestnetAggregator from './aggregators/near-testnet.json';
 
+/**
+ * currencyFrom => currencyTo => cost
+ */
 export type CurrencyPairs = Record<string, Record<string, number>>;
-// List of currencies supported by network (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
-// Network => currencyFrom => currencyTo => cost
-// Must be updated every time an aggregator is added
-export const chainlinkCurrencyPairs: Record<string, CurrencyPairs> = {
+
+/**
+ * Aggregators maps define pairs of currencies for which an onchain oracle exists, by network.
+ *
+ * Network => currencyFrom => currencyTo => cost
+ */
+export type AggregatorsMap = Record<string, CurrencyPairs>;
+
+// Pairs supported by Chainlink (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
+const chainlinkCurrencyPairs: AggregatorsMap = {
   private: privateAggregator,
   rinkeby: rinkebyAggregator,
-  goerli: {},
   mainnet: mainnetAggregator,
   matic: maticAggregator,
   fantom: fantomAggregator,
-  // FIX ME: This fix enables to get these networks registered in chainlinkSupportedNetworks.
-  // Could be improved by removing the supported network check from the protocol
+};
+
+// Pairs supported by Flux Protocol
+const fluxCurrencyPairs: AggregatorsMap = {
+  aurora: nearAggregator,
+  'aurora-testnet': nearTestnetAggregator,
+};
+
+// FIX ME: This fix enables to get these networks registered in conversionSupportedNetworks.
+// Could be improved by removing the supported network check from the protocol
+const noConversionNetworks: AggregatorsMap = {
+  goerli: {},
   'arbitrum-rinkeby': {},
   'arbitrum-one': {},
   xdai: {},
   avalanche: {},
   bsc: {},
-  aurora: nearAggregator,
-  'aurora-testnet': nearTestnetAggregator,
 };
 
-export const chainlinkSupportedNetworks = Object.keys(chainlinkCurrencyPairs);
+/**
+ * Conversion paths per network used by default if no other path given to the Currency Manager.
+ * Must be updated every time an aggregator is added to one network.
+ */
+export const defaultConversionPairs: AggregatorsMap = {
+  ...chainlinkCurrencyPairs,
+  ...fluxCurrencyPairs,
+  ...noConversionNetworks,
+};
+
+export const conversionSupportedNetworks = Object.keys(defaultConversionPairs);
 
 /**
  * Gets the on-chain conversion path between two currencies.
@@ -47,7 +73,7 @@ export function getPath(
   currencyFrom: Pick<CurrencyDefinition, 'hash'>,
   currencyTo: Pick<CurrencyDefinition, 'hash'>,
   network = 'mainnet',
-  pairs = chainlinkCurrencyPairs,
+  pairs = defaultConversionPairs,
 ): string[] | null {
   if (!pairs[network]) {
     throw Error(`network ${network} not supported`);
