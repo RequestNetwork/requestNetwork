@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { CurrencyPairs, getPath } from '../src/chainlink-path-aggregators';
+import { CurrencyPairs, getPath } from '../src/conversion-aggregators';
 import { CurrencyManager } from '../src';
 const currencyManager = CurrencyManager.getDefault();
 const USD = currencyManager.from('USD')!;
