@@ -14,11 +14,6 @@ const usdCurrency = {
   value: 'USD',
 };
 
-const eurCurrency = {
-  type: RequestLogicTypes.CURRENCY.ISO4217,
-  value: 'EUR',
-};
-
 const salt = 'a6475e4c3d45feb6';
 const paymentAddress = 'gus.near';
 const feeAddress = 'fee.near';
@@ -46,7 +41,7 @@ const request: any = {
 };
 
 // Use the default currency manager
-const conversionSettings = {} as unknown as IConversionPaymentSettings;
+const conversionSettings = ({} as unknown) as IConversionPaymentSettings;
 
 describe('payNearWithConversionRequest', () => {
   afterEach(() => {
@@ -126,12 +121,15 @@ describe('payNearWithConversionRequest', () => {
     let invalidRequest = Utils.default.deepCopy(request);
     invalidRequest = {
       ...invalidRequest,
-      currencyInfo: eurCurrency,
+      currencyInfo: {
+        type: RequestLogicTypes.CURRENCY.BTC,
+        value: 'BTC',
+      },
     };
 
     await expect(
       payNearConversionRequest(invalidRequest, mockedNearWalletConnection, conversionSettings),
-    ).rejects.toThrowError('request.currencyInfo should be USD');
+    ).rejects.toThrowError('Near payment with conversion only implemented for fiat denominations.');
     expect(paymentSpy).toHaveBeenCalledTimes(0);
   });
   it('throws when the netwrok is not near', async () => {
