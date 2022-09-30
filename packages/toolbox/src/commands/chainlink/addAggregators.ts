@@ -75,8 +75,8 @@ export const handler = async (args: Options): Promise<void> => {
 
   if (!conversionSupportedNetworks.includes(network)) {
     console.warn(
-      `WARNING: ${network} is missing in chainlinkSupportedNetworks from the Currency package.`,
-      `Add '${network}: {}' to chainlinkCurrencyPairs, in currency/src/chainlink-path-aggregators.ts.`,
+      `WARNING: ${network} is missing in conversionSupportedNetworks from the Currency package.`,
+      `Add '${network}: {}' to chainlinkCurrencyPairs, in currency/src/conversion-aggregators.ts.`,
     );
   }
 

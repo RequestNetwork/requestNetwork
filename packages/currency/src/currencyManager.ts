@@ -15,7 +15,7 @@ import {
   LegacyTokenMap,
   NativeCurrencyType,
 } from './types';
-import { chainlinkCurrencyPairs, CurrencyPairs, getPath } from './chainlink-path-aggregators';
+import { defaultConversionPairs, AggregatorsMap, getPath } from './conversion-aggregators';
 import { isValidNearAddress } from './currency-utils';
 
 const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
@@ -26,17 +26,18 @@ const { BTC, ERC20, ERC777, ETH, ISO4217 } = RequestLogicTypes.CURRENCY;
 export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta> {
   private readonly knownCurrencies: CurrencyDefinition<TMeta>[];
   private readonly legacyTokens: LegacyTokenMap;
-  private readonly conversionPairs: Record<string, CurrencyPairs>;
+  private readonly conversionPairs: AggregatorsMap;
 
   /**
    *
    * @param inputCurrencies The list of currencies known by the Manager.
    * @param legacyTokens A mapping of legacy currency name or network name, in the format { "chainName": {"TOKEN": ["NEW_TOKEN","NEW_CHAIN"]}}
+   * @param conversionPairs A mapping of possible conversions by network (network => currencyFrom => currencyTo => cost)
    */
   constructor(
     inputCurrencies: (CurrencyInput & { id?: string; meta?: TMeta })[],
     legacyTokens?: LegacyTokenMap,
-    conversionPairs?: Record<string, CurrencyPairs>,
+    conversionPairs?: AggregatorsMap,
   ) {
     this.knownCurrencies = [];
     for (const input of inputCurrencies) {
@@ -294,8 +295,8 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     };
   }
 
-  static getDefaultConversionPairs(): Record<string, CurrencyPairs> {
-    return chainlinkCurrencyPairs;
+  static getDefaultConversionPairs(): AggregatorsMap {
+    return defaultConversionPairs;
   }
 
   /**

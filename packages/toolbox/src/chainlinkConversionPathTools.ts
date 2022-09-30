@@ -178,7 +178,7 @@ export const listAggregators = async (options?: IOptions): Promise<void> => {
   // enables this usage:  yarn -s chainlinkPath mainnet  | clip
   console.error('#####################################################################');
   console.error('All aggregators nodes (currency) :');
-  console.error('../currency/src/chainlink-path-aggregators.ts');
+  console.error('../currency/src/conversion-aggregators.ts');
   console.log(JSON.stringify(aggregatorsNodesForDijkstra, null, 2));
 };
 
