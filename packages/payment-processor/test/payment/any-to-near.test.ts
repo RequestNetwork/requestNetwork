@@ -41,7 +41,7 @@ const request: any = {
 };
 
 // Use the default currency manager
-const conversionSettings = ({} as unknown) as IConversionPaymentSettings;
+const conversionSettings = {} as unknown as IConversionPaymentSettings;
 
 describe('payNearWithConversionRequest', () => {
   afterEach(() => {
