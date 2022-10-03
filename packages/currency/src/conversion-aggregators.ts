@@ -3,6 +3,7 @@ import { CurrencyDefinition } from './types';
 
 import privateAggregator from './aggregators/private.json';
 import mainnetAggregator from './aggregators/mainnet.json';
+import goerliAggregator from './aggregators/goerli.json';
 import rinkebyAggregator from './aggregators/rinkeby.json';
 import maticAggregator from './aggregators/matic.json';
 import fantomAggregator from './aggregators/fantom.json';
@@ -24,6 +25,7 @@ export type AggregatorsMap = Record<string, CurrencyPairs>;
 // Pairs supported by Chainlink (can be generated from requestNetwork/toolbox/src/chainlinkConversionPathTools.ts)
 const chainlinkCurrencyPairs: AggregatorsMap = {
   private: privateAggregator,
+  goerli: goerliAggregator,
   rinkeby: rinkebyAggregator,
   mainnet: mainnetAggregator,
   matic: maticAggregator,
@@ -39,7 +41,6 @@ const fluxCurrencyPairs: AggregatorsMap = {
 // FIX ME: This fix enables to get these networks registered in conversionSupportedNetworks.
 // Could be improved by removing the supported network check from the protocol
 const noConversionNetworks: AggregatorsMap = {
-  goerli: {},
   'arbitrum-rinkeby': {},
   'arbitrum-one': {},
   xdai: {},
