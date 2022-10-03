@@ -64,11 +64,6 @@ export const getAvailableAggregators = async (
     if (pairs && !pairs.includes(`${from}-${to}`.toLowerCase())) {
       continue;
     }
-    console.debug(
-      fromCurrency && toCurrency
-        ? cm.getConversionPath(fromCurrency, toCurrency, network)
-        : toCurrency,
-    );
     if (
       fromCurrency?.hash &&
       toCurrency?.hash &&
