@@ -5,10 +5,6 @@ description: Learn how to integrate Request network and its features.
 
 # Ecosystem
 
-## Request Portal API
-
-Request Portal is an API built on top of the Request Protocol that allows third party software to easily integrate Request. It also provides extra features, not available through direct usage of the Request Protocol, like private key management, OAuth authentication, and better performance.
-
 ## Request Client
 
 The Request Client is a Javascript library made to interact directly with the Request Protocol. The Request Client connects to a Request Node.

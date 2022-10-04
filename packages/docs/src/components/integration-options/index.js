@@ -6,41 +6,7 @@ import styles from './styles.module.css';
 
 const options = [
   {
-    title: 'Option A: Portal API',
-    imageUrl: 'img/ReQ-01.png',
-    description: <>Fully managed solution, over REST API</>,
-    details: (
-      <>
-        <p>
-          Easiest way to integrate Request without having to manage cryptographic keys or
-          infrastructure, and with a fast data access.
-        </p>
-        <p>
-          Go to{' '}
-          <Link to="https://app.request.finance/account/api-keys">
-            your Request Finance account
-          </Link>{' '}
-          in order to get your API keys, and your are good to go. This is the fastest option to
-          integrate, and also the most performant to fetch requests because the Portal caches them
-          for you. More details in the <Link to="/portal">Portal API Documentation</Link> or{' '}
-          <Link to="/docs/guides/3-Portal-API/0-portal-intro">follow the guide</Link>.
-        </p>
-
-        <p>
-          Keep in mind that when using the Portal API, Request handles your identity's private key.
-          Request empowers all economical actors to control their finance, and fully decentralized
-          organizations may look for a more distributed option.
-        </p>
-        <p>
-          The Portal is safe to be used in small and medium sized production environments. Request
-          Portal does not move any fund, but it's better to{' '}
-          <Link to="/docs/guides/3-Portal-API/5-api-conclusion">understand the risks</Link>
-        </p>
-      </>
-    ),
-  },
-  {
-    title: 'Option B: Network Client',
+    title: 'Option A: Network Client',
     imageUrl: 'img/REQ-07-hands-02.png',
     description: <>Decentralized network usage, with managed hosting</>,
     details: (
@@ -67,7 +33,7 @@ const options = [
     ),
   },
   {
-    title: 'Option C: Network Node',
+    title: 'Option B: Network Node',
     imageUrl: 'img/REQ-05-patterns-02.png',
     description: <>Fully decentralized with self-hosting</>,
     details: (
@@ -93,7 +59,7 @@ const options = [
         </p>
       </>
     ),
-  },
+  }
 ];
 
 function IntegrationOption({ showDetails, imageUrl, title, description, details }) {
