@@ -18,5 +18,5 @@ Different integration schemas are possible with Request. This tutorial aims to d
 Within this guide, we naturally guide you through all options in order of complexity. For a detailed overview, [head to the integration options](/integration-options)
 
 :::info
-If you are already familiar with basic concepts of Request, you can jump to the [API](./3-Portal-API/0-portal-intro.md), the [Request Client](./5-request-client/0-intro.md) or the [Node setup guide](./6-hosting-a-node/0-intro.md).
+If you are already familiar with basic concepts of Request, you can jump to the [Request Client](./2-request-client/0-intro.md) or the [Node setup guide](./4-hosting-a-node/0-intro.md).
 :::

@@ -52,7 +52,7 @@ const options = [
         <p>
           You can see the documentation on the{' '}
           <Link to="/docs/client">Request JavaScript Client documentation</Link> or{' '}
-          <Link to="/docs/guides/5-request-client/0-intro">follow the guide</Link>.
+          <Link to="/docs/guides/2-request-client/0-intro">follow the guide</Link>.
         </p>
 
         <p>
@@ -78,7 +78,7 @@ const options = [
           and access details (encrypted or not).
         </p>
         <p>
-          <Link to="/docs/guides/6-hosting-a-node/0-intro">
+          <Link to="/docs/guides/4-hosting-a-node/0-intro">
             Follow the guide to setup your node
           </Link>
           .
