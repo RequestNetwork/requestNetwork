@@ -7,7 +7,8 @@ import { RequestNodeBase } from './requestNodeBase';
 import * as config from './config';
 import { getIpfsStorage } from './storageUtils';
 import Utils from '@requestnetwork/utils';
-import { TheGraphDataAccess, TheGraphStorage } from '@requestnetwork/thegraph-storage';
+import { TheGraphDataAccess } from '@requestnetwork/thegraph-storage';
+import { EthereumStorageEthers } from '@requestnetwork/ethereum-storage';
 
 export class TheGraphRequestNode extends RequestNodeBase {
   constructor(url: string, logger?: LogTypes.ILogger) {
@@ -27,7 +28,7 @@ export class TheGraphRequestNode extends RequestNodeBase {
     );
     const signer = new NonceManager(wallet);
     const ipfsStorage = getIpfsStorage(logger);
-    const storage = new TheGraphStorage({
+    const storage = new EthereumStorageEthers({
       ipfsStorage,
       signer,
       network,

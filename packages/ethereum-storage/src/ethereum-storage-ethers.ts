@@ -7,19 +7,19 @@ import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { suggestFees } from 'eip1559-fee-suggestions-ethers';
 
-type TheGraphStorageProps = {
+type StorageProps = {
   network: string;
   signer: Signer;
   ipfsStorage: StorageTypes.IIpfsStorage;
   logger?: LogTypes.ILogger;
 };
 
-export type TheGraphStorageEventEmitter = TypedEmitter<{
+export type StorageEventEmitter = TypedEmitter<{
   confirmed: (receipt: ContractReceipt) => void;
   error: (error: unknown) => void;
 }>;
 
-export class TheGraphStorage implements StorageTypes.IStorageWrite {
+export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
   private readonly logger: LogTypes.ILogger;
   private readonly ipfsStorage: StorageTypes.IIpfsStorage;
   private readonly hashSubmitter: RequestOpenHashSubmitter;
@@ -27,7 +27,7 @@ export class TheGraphStorage implements StorageTypes.IStorageWrite {
   private readonly provider: providers.JsonRpcProvider;
   private enableEip1559 = true;
 
-  constructor({ network, signer, ipfsStorage, logger }: TheGraphStorageProps) {
+  constructor({ network, signer, ipfsStorage, logger }: StorageProps) {
     this.logger = logger || new Utils.SimpleLogger();
     this.ipfsStorage = ipfsStorage;
     this.network = network;
@@ -48,7 +48,7 @@ export class TheGraphStorage implements StorageTypes.IStorageWrite {
       );
       this.enableEip1559 = false;
     }
-    this.logger.debug('TheGraph storage initialized');
+    this.logger.debug(`${EthereumStorageEthers.name} storage initialized`);
   }
 
   async append(content: string): Promise<StorageTypes.IAppendResult> {
@@ -71,7 +71,7 @@ export class TheGraphStorage implements StorageTypes.IStorageWrite {
       overrides,
     );
 
-    const eventEmitter = new EventEmitter() as TheGraphStorageEventEmitter;
+    const eventEmitter = new EventEmitter() as StorageEventEmitter;
     const result: StorageTypes.IEntry = {
       id: ipfsHash,
       content,
