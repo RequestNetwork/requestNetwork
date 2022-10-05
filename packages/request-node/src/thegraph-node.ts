@@ -3,14 +3,16 @@ import { providers, Wallet } from 'ethers';
 import { NonceManager } from '@ethersproject/experimental';
 import { LogTypes } from '@requestnetwork/types';
 
-import { TheGraphDataAccess } from './TheGraphDataAccess';
-import { RequestNodeBase } from '../requestNodeBase';
-import * as config from '../config';
-import { getIpfsStorage } from '../storageUtils';
+import { RequestNodeBase } from './requestNodeBase';
+import * as config from './config';
+import { getIpfsStorage } from './storageUtils';
+import Utils from '@requestnetwork/utils';
+import { TheGraphDataAccess } from '@requestnetwork/thegraph-storage';
 
 export class TheGraphRequestNode extends RequestNodeBase {
   constructor(url: string, logger?: LogTypes.ILogger) {
     const initializationStoragePath = config.getInitializationStorageFilePath();
+    logger = logger || new Utils.SimpleLogger();
 
     const store = initializationStoragePath
       ? new KeyvFile({

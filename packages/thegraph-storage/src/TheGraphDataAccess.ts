@@ -4,13 +4,13 @@ import TypedEmitter from 'typed-emitter';
 import { BigNumber, Signer } from 'ethers';
 
 import Utils from '@requestnetwork/utils';
-import { Block } from '@requestnetwork/data-access';
+import { Block, ReadonlyDataAccess } from '@requestnetwork/data-access';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { Transaction } from './queries';
 import { SubgraphClient } from './subgraphClient';
 import { TheGraphStorage } from './TheGraphStorage';
-import { CombinedDataAccess } from './CombinedDataAccess';
+import { CombinedDataAccess } from '@requestnetwork/data-access';
 import { PendingStore } from './PendingStore';
 
 export type TheGraphDataAccessOptions = {
@@ -333,6 +333,28 @@ export class TheGraphDataAccess extends CombinedDataAccess {
       lastBlock: await this.graphql.getBlockNumber(),
       endpoint: this.graphql.endpoint,
       storage: await this.storage._getStatus(),
+    };
+  }
+}
+
+export class TheGraphReadonlyDataAccess extends ReadonlyDataAccess {
+  private readonly graphql: SubgraphClient;
+  constructor({
+    graphql,
+    ...options
+  }: Pick<TheGraphDataAccessOptions, 'graphql' | 'network' | 'pendingStore'>) {
+    const { url, ...rest } = graphql;
+    const graphqlClient = new SubgraphClient(url, rest);
+    const reader = new TheGraphDataRead(graphqlClient, options);
+    super(reader);
+    this.graphql = graphqlClient;
+  }
+
+  async _getStatus(): Promise<any> {
+    return {
+      lastBlock: await this.graphql.getBlockNumber(),
+      endpoint: this.graphql.endpoint,
+      storage: null,
     };
   }
 }

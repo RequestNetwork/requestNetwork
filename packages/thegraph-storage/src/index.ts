@@ -1,10 +1,9 @@
-export { TheGraphRequestNode } from './TheGraphRequestNode';
-export { CombinedDataAccess } from './CombinedDataAccess';
 export {
   TheGraphDataAccess,
   TheGraphDataRead,
   TheGraphDataWrite,
   TheGraphDataAccessOptions,
+  TheGraphReadonlyDataAccess,
 } from './TheGraphDataAccess';
 export { PendingStore } from './PendingStore';
 export { TheGraphStorage } from './TheGraphStorage';

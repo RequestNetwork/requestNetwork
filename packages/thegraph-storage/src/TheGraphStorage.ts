@@ -6,7 +6,6 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { suggestFees } from 'eip1559-fee-suggestions-ethers';
-import { GasPriceDefiner } from '@requestnetwork/ethereum-storage';
 
 type TheGraphStorageProps = {
   network: string;
@@ -65,13 +64,6 @@ export class TheGraphStorage {
       const maxFeePerGas = maxPriorityFeePerGas.add(suggestedFee.baseFeeSuggestion);
       overrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
       overrides.maxFeePerGas = maxFeePerGas;
-    } else {
-      // retro-compatibility for networks where the eth_feeHistory RPC method is not available (pre EIP-1559)
-      const gasPriceDefiner = new GasPriceDefiner();
-      overrides.gasPrice = await gasPriceDefiner.getGasPrice(
-        StorageTypes.GasPriceType.FAST,
-        this.network,
-      );
     }
     const tx = await this.hashSubmitter.submitHash(
       ipfsHash,
