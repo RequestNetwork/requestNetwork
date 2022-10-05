@@ -5,8 +5,10 @@ import Utils from '@requestnetwork/utils';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
-import { suggestFees } from 'eip1559-fee-suggestions-ethers';
 import { GasPriceDefiner } from '@requestnetwork/ethereum-storage';
+
+// should be @rainbow-me/fee-suggestions. See https://github.com/RequestNetwork/requestNetwork/pull/765
+import { suggestFees } from 'eip1559-fee-suggestions';
 
 type TheGraphStorageProps = {
   network: string;
