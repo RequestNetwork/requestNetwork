@@ -4,22 +4,28 @@ import TypedEmitter from 'typed-emitter';
 import { BigNumber, Signer } from 'ethers';
 
 import Utils from '@requestnetwork/utils';
-import { Block, ReadonlyDataAccess } from '@requestnetwork/data-access';
+import { Block } from '@requestnetwork/data-access';
 import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { Transaction } from './queries';
-import { SubgraphClient } from './subgraphClient';
-import { TheGraphStorage } from './TheGraphStorage';
+import { SubgraphClient } from './subgraph-client';
+import { TheGraphStorage } from './storage';
 import { CombinedDataAccess } from '@requestnetwork/data-access';
-import { PendingStore } from './PendingStore';
+import { PendingStore } from './pending-store';
 
-export type TheGraphDataAccessOptions = {
-  ipfsStorage: StorageTypes.IIpfsStorage;
-  graphql: { url: string } & RequestInit;
-  signer: Signer;
+type TheGraphDataAccessBaseOptions = {
   network: string;
   logger?: LogTypes.ILogger;
   pendingStore?: PendingStore;
+};
+
+export type TheGraphDataAccessOptions = TheGraphDataAccessBaseOptions & {
+  graphql: { url: string } & RequestInit;
+};
+
+export type TheGraphDataWriteOptions = TheGraphDataAccessBaseOptions & {
+  ipfsStorage: StorageTypes.IIpfsStorage;
+  signer: Signer;
 };
 
 type DataAccessEventEmitter = TypedEmitter<{
@@ -57,7 +63,7 @@ export class TheGraphDataRead implements DataAccessTypes.IDataRead {
 
   constructor(
     private readonly graphql: SubgraphClient,
-    { network, pendingStore }: Pick<TheGraphDataAccessOptions, 'network' | 'pendingStore'>,
+    { network, pendingStore }: TheGraphDataAccessBaseOptions,
   ) {
     this.network = network;
     this.pendingStore = pendingStore;
@@ -214,16 +220,9 @@ export class TheGraphDataWrite implements DataAccessTypes.IDataWrite {
   private pendingStore?: PendingStore;
 
   constructor(
-    protected storage: TheGraphStorage,
+    protected readonly storage: TheGraphStorage,
     private readonly graphql: SubgraphClient,
-    {
-      network,
-      logger,
-      pendingStore,
-    }: Pick<
-      TheGraphDataAccessOptions,
-      'ipfsStorage' | 'network' | 'signer' | 'logger' | 'pendingStore'
-    >,
+    { network, logger, pendingStore }: TheGraphDataAccessBaseOptions,
   ) {
     this.logger = logger || new Utils.SimpleLogger();
     this.network = network;
@@ -310,19 +309,43 @@ export class TheGraphDataWrite implements DataAccessTypes.IDataWrite {
   }
 }
 
+class NoopDataWrite implements DataAccessTypes.IDataWrite {
+  async initialize(): Promise<void> {
+    // no-op
+  }
+
+  async close(): Promise<void> {
+    // no-op
+  }
+
+  persistTransaction(): Promise<DataAccessTypes.IReturnPersistTransaction> {
+    throw new Error(
+      `cannot call persistTranscation without storage. Specify storage on ${TheGraphDataAccess.name}`,
+    );
+  }
+}
+
 export class TheGraphDataAccess extends CombinedDataAccess {
   private readonly graphql: SubgraphClient;
-  private readonly storage: TheGraphStorage;
+  private readonly storage: TheGraphStorage | undefined;
 
-  constructor({ graphql, ...options }: TheGraphDataAccessOptions) {
+  constructor({
+    graphql,
+    storage,
+    ...options
+  }: TheGraphDataAccessOptions & { storage?: TheGraphStorage }) {
     const { url, ...rest } = graphql;
     if (!options.pendingStore) {
       options.pendingStore = new PendingStore();
     }
     const graphqlClient = new SubgraphClient(url, rest);
-    const storage = new TheGraphStorage(options);
+
     const reader = new TheGraphDataRead(graphqlClient, options);
-    const writer = new TheGraphDataWrite(storage, graphqlClient, options);
+
+    const writer = storage
+      ? new TheGraphDataWrite(storage, graphqlClient, options)
+      : new NoopDataWrite();
+
     super(reader, writer);
     this.graphql = graphqlClient;
     this.storage = storage;
@@ -332,29 +355,7 @@ export class TheGraphDataAccess extends CombinedDataAccess {
     return {
       lastBlock: await this.graphql.getBlockNumber(),
       endpoint: this.graphql.endpoint,
-      storage: await this.storage._getStatus(),
-    };
-  }
-}
-
-export class TheGraphReadonlyDataAccess extends ReadonlyDataAccess {
-  private readonly graphql: SubgraphClient;
-  constructor({
-    graphql,
-    ...options
-  }: Pick<TheGraphDataAccessOptions, 'graphql' | 'network' | 'pendingStore'>) {
-    const { url, ...rest } = graphql;
-    const graphqlClient = new SubgraphClient(url, rest);
-    const reader = new TheGraphDataRead(graphqlClient, options);
-    super(reader);
-    this.graphql = graphqlClient;
-  }
-
-  async _getStatus(): Promise<any> {
-    return {
-      lastBlock: await this.graphql.getBlockNumber(),
-      endpoint: this.graphql.endpoint,
-      storage: null,
+      storage: this.storage ? await this.storage._getStatus() : null,
     };
   }
 }
