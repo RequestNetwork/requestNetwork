@@ -16,8 +16,6 @@ import MockStorage from './mock-storage';
  * Exposes RequestNetwork module configured to use http-data-access.
  */
 export default class HttpRequestNetwork extends RequestNetwork {
-  public _mockStorage: MockStorage | undefined;
-
   /**
    * Creates an instance of HttpRequestNetwork.
    *
