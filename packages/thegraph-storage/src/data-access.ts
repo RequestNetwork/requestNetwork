@@ -9,7 +9,6 @@ import { DataAccessTypes, LogTypes, StorageTypes } from '@requestnetwork/types';
 
 import { Transaction } from './queries';
 import { SubgraphClient } from './subgraph-client';
-import { TheGraphStorage } from './storage';
 import { CombinedDataAccess } from '@requestnetwork/data-access';
 import { PendingStore } from './pending-store';
 
@@ -220,7 +219,7 @@ export class TheGraphDataWrite implements DataAccessTypes.IDataWrite {
   private pendingStore?: PendingStore;
 
   constructor(
-    protected readonly storage: TheGraphStorage,
+    protected readonly storage: StorageTypes.IStorageWrite,
     private readonly graphql: SubgraphClient,
     { network, logger, pendingStore }: TheGraphDataAccessBaseOptions,
   ) {
@@ -327,13 +326,13 @@ class NoopDataWrite implements DataAccessTypes.IDataWrite {
 
 export class TheGraphDataAccess extends CombinedDataAccess {
   private readonly graphql: SubgraphClient;
-  private readonly storage: TheGraphStorage | undefined;
+  private readonly storage: StorageTypes.IStorageWrite | undefined;
 
   constructor({
     graphql,
     storage,
     ...options
-  }: TheGraphDataAccessOptions & { storage?: TheGraphStorage }) {
+  }: TheGraphDataAccessOptions & { storage?: StorageTypes.IStorageWrite }) {
     const { url, ...rest } = graphql;
     if (!options.pendingStore) {
       options.pendingStore = new PendingStore();
@@ -352,10 +351,14 @@ export class TheGraphDataAccess extends CombinedDataAccess {
   }
 
   async _getStatus(): Promise<any> {
+    let storage: any = null;
+    if (this.storage && '_getStatus' in this.storage) {
+      storage = await (this.storage as StorageTypes.IStorage)._getStatus();
+    }
     return {
       lastBlock: await this.graphql.getBlockNumber(),
       endpoint: this.graphql.endpoint,
-      storage: this.storage ? await this.storage._getStatus() : null,
+      storage,
     };
   }
 }

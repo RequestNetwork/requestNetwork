@@ -19,7 +19,7 @@ export type TheGraphStorageEventEmitter = TypedEmitter<{
   error: (error: unknown) => void;
 }>;
 
-export class TheGraphStorage {
+export class TheGraphStorage implements StorageTypes.IStorageWrite {
   private readonly logger: LogTypes.ILogger;
   private readonly ipfsStorage: StorageTypes.IIpfsStorage;
   private readonly hashSubmitter: RequestOpenHashSubmitter;
