@@ -16,7 +16,6 @@ import {
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import {
-  CurrencyInput,
   CurrencyManager,
   ICurrencyManager,
   UnsupportedCurrencyError,
@@ -56,7 +55,6 @@ export default class RequestNetwork {
     dataAccess: DataAccessTypes.IDataAccess;
     signatureProvider?: SignatureProviderTypes.ISignatureProvider;
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
-    currencies?: CurrencyInput[];
     currencyManager?: ICurrencyManager;
     paymentOptions?: PaymentNetworkOptions;
   }) {
