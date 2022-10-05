@@ -1,5 +1,5 @@
 {
-  "name": "@requestnetwork/thegraph-storage",
+  "name": "@requestnetwork/thegraph-data-access",
   "version": "0.35.0",
   "publishConfig": {
     "access": "public"

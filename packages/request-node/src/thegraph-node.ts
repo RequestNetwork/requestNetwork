@@ -7,7 +7,7 @@ import { RequestNodeBase } from './requestNodeBase';
 import * as config from './config';
 import { getIpfsStorage } from './storageUtils';
 import Utils from '@requestnetwork/utils';
-import { TheGraphDataAccess } from '@requestnetwork/thegraph-storage';
+import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
 import { EthereumStorageEthers } from '@requestnetwork/ethereum-storage';
 
 export class TheGraphRequestNode extends RequestNodeBase {
