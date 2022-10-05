@@ -42,7 +42,9 @@ The smart contract forwards a currency transfer and stores a reference.
 
 If you need the proxy smart contract addresses, we list the most relevant ones below.
 
-[Proxy smart contracts for ERC20](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/artifacts/ERC20Proxy/artifacts.json):
+[Proxy smart contracts for ERC20](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/lib/artifacts/ERC20Proxy/index.ts):
+
+[comment] # (Shouldn't this be ERC20FeeProxy? ERC20Proxy not deployed on goerli)
 
 ```json
 "mainnet": {
@@ -53,14 +55,14 @@ If you need the proxy smart contract addresses, we list the most relevant ones b
 }
 ```
 
-[Proxy smart contracts for ETH when input data cannot be used](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/artifacts/EthereumProxy/artifacts.json):
+[Proxy smart contracts for ETH when input data cannot be used](https://github.com/RequestNetwork/requestNetwork/blob/master/packages/smart-contracts/src/lib/artifacts/EthereumProxy/index.ts):
 
 ```json
 "mainnet": {
 	"address": "0x37a8f5f64f2a84f2377481537f04d2a59c9f59b6",
 },
-"rinkeby": {
-	"address": "0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff",
+"goerli": {
+	"address": "0x171Ee0881407d4c0C11eA1a2FB7D5b4cdED71e6e",
 }
 ```
 
