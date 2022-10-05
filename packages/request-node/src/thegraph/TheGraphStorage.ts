@@ -60,9 +60,7 @@ export class TheGraphStorage {
     const fee = await this.hashSubmitter.getFeesAmount(ipfsSize);
     const overrides: PayableOverrides = { value: fee };
     if (this.enableEip1559) {
-      const suggestedFee = await suggestFees(
-        this.hashSubmitter.provider as providers.JsonRpcProvider,
-      );
+      const suggestedFee = await suggestFees(this.provider);
       const maxPriorityFeePerGas = BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.urgent);
       const maxFeePerGas = maxPriorityFeePerGas.add(suggestedFee.baseFeeSuggestion);
       overrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
