@@ -57,8 +57,7 @@ const emptyChannelsWithTopics: DataAccessTypes.IReturnGetChannelsByTopic = {
  */
 export default class DataAccess implements DataAccessTypes.IDataAccess {
   // Transaction index, that allows storing and retrieving transactions by channel or topic, with time boundaries.
-  // public for test purpose
-  public transactionIndex: DataAccessTypes.ITransactionIndex;
+  private transactionIndex: DataAccessTypes.ITransactionIndex;
 
   // boolean to store the initialization state
   protected isInitialized = false;
