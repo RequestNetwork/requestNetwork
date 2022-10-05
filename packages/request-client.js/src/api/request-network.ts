@@ -44,7 +44,6 @@ export default class RequestNetwork {
    * @param dataAccess instance of data-access layer
    * @param signatureProvider module in charge of the signatures
    * @param decryptionProvider module in charge of the decryption
-   * @param bitcoinDetectionProvider bitcoin detection provider
    * @param currencyManager
    */
   public constructor({

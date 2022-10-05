@@ -36,6 +36,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       useMockStorage,
       currencies,
       currencyManager,
+      paymentOptions,
     }: {
       decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
       httpConfig?: Partial<ClientTypes.IHttpDataAccessConfig>;
@@ -61,6 +62,6 @@ export default class HttpRequestNetwork extends RequestNetwork {
       currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());
     }
 
-    super({ dataAccess, signatureProvider, decryptionProvider, currencyManager });
+    super({ dataAccess, signatureProvider, decryptionProvider, currencyManager, paymentOptions });
   }
 }
