@@ -6,9 +6,9 @@ import {
   SignatureProviderTypes,
 } from '@requestnetwork/types';
 import { AxiosRequestConfig } from 'axios';
+import { PaymentNetworkOptions } from '@requestnetwork/payment-detection';
 import RequestNetwork from './api/request-network';
 import HttpDataAccess from './http-data-access';
-import HttpMetaMaskDataAccess from './http-metamask-data-access';
 import MockDataAccess from './mock-data-access';
 import MockStorage from './mock-storage';
 
@@ -27,7 +27,6 @@ export default class HttpRequestNetwork extends RequestNetwork {
    * @param options.useMockStorage When true, will use a mock storage in memory. Meant to simplify local development and should never be used in production.
    * @param options.signatureProvider Module to handle the signature. If not given it will be impossible to create new transaction (it requires to sign).
    * @param options.useLocalEthereumBroadcast When true, persisting use the node only for IPFS but persisting on ethereum through local provider (given in ethereumProviderUrl).
-   * @param options.ethereumProviderUrl Url of the Ethereum provider use to persist transactions if useLocalEthereumBroadcast is true.
    * @param options.currencies custom currency list
    * @param options.currencyManager custom currency manager (will override `currencies`)
    */
@@ -36,11 +35,8 @@ export default class HttpRequestNetwork extends RequestNetwork {
       decryptionProvider,
       httpConfig,
       nodeConnectionConfig,
-      useLocalEthereumBroadcast,
       signatureProvider,
       useMockStorage,
-      web3,
-      ethereumProviderUrl,
       currencies,
       currencyManager,
     }: {
@@ -50,10 +46,9 @@ export default class HttpRequestNetwork extends RequestNetwork {
       signatureProvider?: SignatureProviderTypes.ISignatureProvider;
       useMockStorage?: boolean;
       useLocalEthereumBroadcast?: boolean;
-      web3?: any;
-      ethereumProviderUrl?: string;
       currencies?: CurrencyInput[];
       currencyManager?: ICurrencyManager;
+      paymentOptions?: PaymentNetworkOptions;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},
@@ -65,15 +60,9 @@ export default class HttpRequestNetwork extends RequestNetwork {
     if (useMockStorage) {
       _mockStorage = new MockStorage();
     }
-    const dataAccess: DataAccessTypes.IDataAccess = useMockStorage
-      ? // useMockStorage === true => use mock data-access
-        new MockDataAccess(_mockStorage!)
-      : // useMockStorage === false
-      useLocalEthereumBroadcast
-      ? // useLocalEthereumBroadcast === true => use http-metamask-data-access
-        new HttpMetaMaskDataAccess({ httpConfig, nodeConnectionConfig, web3, ethereumProviderUrl })
-      : // useLocalEthereumBroadcast === false => use http-data-access
-        new HttpDataAccess({ httpConfig, nodeConnectionConfig });
+    const dataAccess: DataAccessTypes.IDataAccess = _mockStorage
+      ? new MockDataAccess(_mockStorage)
+      : new HttpDataAccess({ httpConfig, nodeConnectionConfig });
 
     if (!currencyManager) {
       currencyManager = new CurrencyManager(currencies || CurrencyManager.getDefaultList());
