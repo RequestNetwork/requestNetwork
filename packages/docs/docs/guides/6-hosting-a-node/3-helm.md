@@ -23,9 +23,9 @@ helm repo update
 To install our chart with the release name `my-release`, you can run:
 
 ```bash
-helm install --name my-release request/request-node --set nodeEnv.mnemonic=<your wallet mnemonic>,nodeEnv.web3ProviderUrl=<your web3 provider url>,nodeEnv.networkId=<ethereum network (1 mainnet or 4 rinkeby)>
+helm install --name my-release request/request-node --set nodeEnv.mnemonic=<your wallet mnemonic>,nodeEnv.web3ProviderUrl=<your web3 provider url>,nodeEnv.networkId=<ethereum network (1 mainnet or 5 goerli)>
 ```
 
-You will need to set up some required values, like mnemonic, web3ProviderUrl (you can use [infura](https://www.infura.io) API) and networkId (either `1` for mainnet or `4` for Rinkeby).
+You will need to set up some required values, like mnemonic, web3ProviderUrl (you can use [infura](https://www.infura.io) API) and networkId (either `1` for mainnet or `5` for Goerli).
 
 You can check out all our chart configuration options [here](https://github.com/RequestNetwork/request-helm-charts/tree/master/request-node#configuration).

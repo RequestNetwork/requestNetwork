@@ -88,8 +88,8 @@ const options = [
           <Link to="https://www.npmjs.com/package/@requestnetwork/request-network.js">
             Network Client
           </Link>
-          . For your test environment, you can setup a Rinkeby node or a connection with our hosted
-          Rinkeby node (cf. Option B).
+          . For your test environment, you can setup a Goerli node or a connection with our hosted
+          Goerli node (cf. Option B).
         </p>
       </>
     ),

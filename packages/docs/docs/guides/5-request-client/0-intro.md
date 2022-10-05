@@ -35,15 +35,15 @@ const RequestNetwork = require('@requestnetwork/request-client.js');
 
 ```jsx
 const requestNetwork = new RequestNetwork({
-  // The Rinkeby Gateway is the node hosted by Request
-  // You can use it on the Rinkeby network without limit, for testing and discovery of the library
-  nodeConnectionConfig: { baseURL: 'https://gateway-rinkeby.request.network/' },
+  // The Goerli Gateway is the node hosted by Request
+  // You can use it on the Goerli network without limit, for testing and discovery of the library
+  nodeConnectionConfig: { baseURL: 'https://gateway-goerli.request.network/' },
 });
 ```
 
 4. What node should you use?
 
-In order to follow this guide or test your integration, you should use `https://gateway-rinkeby.request.network`.
+In order to follow this guide or test your integration, you should use `https://gateway-goerli.request.network`.
 
 For production, you have two options, [compared in the integrations section](/integration-options):
 

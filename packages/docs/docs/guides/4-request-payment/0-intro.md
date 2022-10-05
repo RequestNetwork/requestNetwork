@@ -53,8 +53,8 @@ const tx = await payRequest(requestData);
 await tx.wait(1);
 ```
 
-:::info For Rinkeby testing
-The request currency should be `ETH-rinkeby`.
+:::info For Goerli testing
+The request currency should be `ETH-goerli`.
 :::
 
 #### ERC20 request

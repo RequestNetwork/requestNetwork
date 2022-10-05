@@ -45,7 +45,7 @@ yarn init-ipfs
 
 ## Running an Ethereum node
 
-If you want to test using Ethereum mainnet and rinkeby, you can launch your Ethereum node or connect to a service like infura.
+If you want to test using Ethereum mainnet and goerli, you can launch your Ethereum node or connect to a service like infura.
 
 If you want to debug and test, you may be interested in using a local Ethereum network.
 
