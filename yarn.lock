@@ -5220,6 +5220,16 @@
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
+"@rainbow-me/fee-suggestions@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@rainbow-me/fee-suggestions/-/fee-suggestions-2.0.0.tgz#6556697ce560d6963dca0c81cc719999c3ca2c36"
+  integrity sha512-1fD/nlq4e1Rgih2Vt/yxTMOjrN46ofYlwHrKQpEunwvzW9KrZB44p6XuoMyxVn2MX0QWcxA5uQKMtz4Psh4yrw==
+  dependencies:
+    "@ethersproject/providers" "^5.5.0"
+    bignumber.js "^9.0.1"
+    ethers "^5.4.2"
+    moving-averages "^4.0.6"
+
 "@redocly/react-dropdown-aria@^2.0.11":
   version "2.0.11"
   resolved "https://registry.yarnpkg.com/@redocly/react-dropdown-aria/-/react-dropdown-aria-2.0.11.tgz#532b864b329237e646abe45d0f8edc923e77370a"
@@ -11758,16 +11768,6 @@ ee-first@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ee-first/-/ee-first-1.1.1.tgz#590c61156b0ae2f4f0255732a158b266bc56b21d"
   integrity sha1-WQxhFWsK4vTwJVcyoViyZrxWsh0=
-
-eip1559-fee-suggestions-ethers@1.3.3:
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/eip1559-fee-suggestions-ethers/-/eip1559-fee-suggestions-ethers-1.3.3.tgz#cf21b6ae4734b697c8f79e556d91aeda3e464d60"
-  integrity sha512-W/5SQICRpDL0XvOdcX5oVWfaE2sow2u9il8I6Qyd9fkL9XY1knypywTcoBTdU9ULrPoP3phn/RnEKGq7Y8qkLw==
-  dependencies:
-    "@ethersproject/providers" "^5.5.0"
-    bignumber.js "^9.0.1"
-    ethers "^5.4.2"
-    moving-averages "^4.0.6"
 
 electron-to-chromium@^1.3.47:
   version "1.3.778"

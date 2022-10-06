@@ -5,7 +5,7 @@ import Utils from '@requestnetwork/utils';
 import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
-import { suggestFees } from 'eip1559-fee-suggestions-ethers';
+import { suggestFees } from '@rainbow-me/fee-suggestions';
 
 type StorageProps = {
   network: string;
