@@ -125,6 +125,11 @@ export default {
       chainId: 43114,
       accounts,
     },
+    ronin: {
+      url: process.env.WEB3_PROVIDER_URL,
+      chainId: 2022,
+      accounts,
+    },
   },
   etherscan: {
     apiKey: {
