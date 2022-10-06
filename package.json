@@ -16,7 +16,7 @@
   "scripts": {
     "build": "lerna run build",
     "clean": "lerna run clean",
-    "build:tsc": "tsc -b packages/advanced-logic/tsconfig.build.json packages/currency/tsconfig.build.json packages/data-access/tsconfig.build.json packages/data-format/tsconfig.build.json packages/epk-decryption/tsconfig.build.json packages/epk-signature/tsconfig.build.json packages/ethereum-storage/tsconfig.build.json packages/integration-test/tsconfig.build.json packages/multi-format/tsconfig.build.json packages/payment-detection/tsconfig.build.json packages/prototype-estimator/tsconfig.build.json packages/request-client.js/tsconfig.build.json packages/request-logic/tsconfig.build.json packages/request-node/tsconfig.build.json packages/smart-contracts/tsconfig.build.json packages/toolbox/tsconfig.build.json packages/transaction-manager/tsconfig.build.json packages/types/tsconfig.build.json packages/usage-examples/tsconfig.build.json packages/utils/tsconfig.build.json packages/web3-signature/tsconfig.build.json",
+    "build:tsc": "tsc -b packages/**/tsconfig.build.json",
     "lint": "eslint . --fix --quiet",
     "lint:check": "eslint . --quiet",
     "lint-staged": "lint-staged",
