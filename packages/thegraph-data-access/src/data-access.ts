@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import TypedEmitter from 'typed-emitter';
 
-import { BigNumber, Signer } from 'ethers';
+import { BigNumber } from 'ethers';
 
 import Utils from '@requestnetwork/utils';
 import { Block } from '@requestnetwork/data-access';
@@ -20,11 +20,7 @@ type TheGraphDataAccessBaseOptions = {
 
 export type TheGraphDataAccessOptions = TheGraphDataAccessBaseOptions & {
   graphql: { url: string } & RequestInit;
-};
-
-export type TheGraphDataWriteOptions = TheGraphDataAccessBaseOptions & {
-  ipfsStorage: StorageTypes.IIpfsStorage;
-  signer: Signer;
+  storage?: StorageTypes.IStorageWrite;
 };
 
 type DataAccessEventEmitter = TypedEmitter<{
@@ -328,11 +324,7 @@ export class TheGraphDataAccess extends CombinedDataAccess {
   private readonly graphql: SubgraphClient;
   private readonly storage: StorageTypes.IStorageWrite | undefined;
 
-  constructor({
-    graphql,
-    storage,
-    ...options
-  }: TheGraphDataAccessOptions & { storage?: StorageTypes.IStorageWrite }) {
+  constructor({ graphql, storage, ...options }: TheGraphDataAccessOptions) {
     const { url, ...rest } = graphql;
     if (!options.pendingStore) {
       options.pendingStore = new PendingStore();
