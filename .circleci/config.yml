@@ -684,9 +684,3 @@ workflows:
             branches:
               only:
                 - master
-
-    jobs:
-      - build
-      - lint-package-json:
-          requires:
-            - build
