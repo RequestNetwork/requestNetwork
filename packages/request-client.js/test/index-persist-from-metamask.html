@@ -81,11 +81,10 @@
         const signatureProvider = new Web3SignatureProvider.Web3SignatureProvider(web3);
 
         // Initialize the library in local test mode
-        const requestNetwork = new RequestNetwork.RequestNetwork({
+        const dataAccess = new HttpMetaMaskDataAccess({ web3: window.web3 })
+        const requestNetwork = new RequestNetwork.RequestNetworkBase({
+          dataAccess,
           signatureProvider,
-          // this is a test using the mock storage instead of a real request node
-          useLocalEthereumBroadcast: true,
-          web3: window.web3,
         });
 
         // Create a request
