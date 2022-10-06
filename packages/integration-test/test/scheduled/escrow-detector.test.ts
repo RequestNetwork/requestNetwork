@@ -1,4 +1,4 @@
-import { Erc20PaymentNetwork } from '../../../payment-detection/dist';
+import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { createMockErc20FeeRequest } from '../utils';
 import { mockAdvancedLogic } from './mocks';

@@ -5,7 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyDefinition, CurrencyManager } from '@requestnetwork/currency';
-import PaymentNetworkFactory from '../../src/payment-network-factory';
+import { PaymentNetworkFactory } from '../../src/payment-network-factory';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import {
   NearConversionNativeTokenPaymentDetector,
@@ -75,6 +75,7 @@ const graphPaymentEvent = {
   gasPrice: '2425000017',
 };
 
+const paymentNetworkFactory = new PaymentNetworkFactory(mockAdvancedLogic, currencyManager);
 describe('Near payments detection', () => {
   beforeAll(() => {
     graphql.request.mockResolvedValue({
@@ -121,21 +122,16 @@ describe('Near payments detection', () => {
   });
 
   it('PaymentNetworkFactory can get the detector (testnet)', async () => {
-    expect(
-      PaymentNetworkFactory.getPaymentNetworkFromRequest({
-        advancedLogic: mockAdvancedLogic,
-        request,
-        currencyManager,
-      }),
-    ).toBeInstanceOf(NearConversionNativeTokenPaymentDetector);
+    expect(paymentNetworkFactory.getPaymentNetworkFromRequest(request)).toBeInstanceOf(
+      NearConversionNativeTokenPaymentDetector,
+    );
   });
 
   it('PaymentNetworkFactory can get the detector (mainnet)', async () => {
     expect(
-      PaymentNetworkFactory.getPaymentNetworkFromRequest({
-        advancedLogic: mockAdvancedLogic,
-        request: { ...request, currency: { ...request.currency, network: 'aurora' } },
-        currencyManager,
+      paymentNetworkFactory.getPaymentNetworkFromRequest({
+        ...request,
+        currency: { ...request.currency, network: 'aurora' },
       }),
     ).toBeInstanceOf(NearConversionNativeTokenPaymentDetector);
   });
