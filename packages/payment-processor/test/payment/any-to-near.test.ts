@@ -159,7 +159,7 @@ describe('payNearWithConversionRequest', () => {
 
     await expect(
       payNearConversionRequest(invalidRequest, mockedNearWalletConnection, conversionSettings),
-    ).rejects.toThrowError('Should be a near network');
+    ).rejects.toThrowError('Should be a Near network');
     expect(paymentSpy).toHaveBeenCalledTimes(0);
   });
 });
