@@ -171,6 +171,24 @@ A more generic way to verify any contract by setting constructor argments manual
 yarn hardhat verify --network NETWORK_NAME DEPLOYED_CONTRACT_ADDRESS "Constructor argument 1"
 ```
 
+### Minimal ERC20 payment deployment script
+
+The goal of this script is to let only our ERC20 payment contract be deployed by any permissioned chain without needing admin privileges.
+
+Environment variables needed: `WEB3_PROVIDER_URL`, `DEPLOYMENT_PRIVATE_KEY`
+
+```bash
+# First check what will be done
+yarn hardhat deploy-erc20-payment --network ronin --dry-run
+
+# Run
+yarn hardhat deploy-erc20-payment --network ronin
+
+# To test locally
+yarn hardhat deploy-erc20-payment --network private --force
+yarn hardhat deploy-erc20-payment --network private --force --dry-run
+```
+
 ### Deprecated payment deployment scripts (legacy)
 
 The goal of this script is to let all our payment contracts be deployed with the same sequence on every chain.

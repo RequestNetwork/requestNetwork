@@ -5,6 +5,7 @@ import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import { subtask, task } from 'hardhat/config';
 import { config } from 'dotenv';
+import { deployOne } from '../scripts/deploy-one';
 import deployAllContracts from './scripts/test-deploy-all';
 import { deployAllPaymentContracts } from './scripts/deploy-payments';
 import { checkCreate2Deployer } from './scripts-create2/check-deployer';
@@ -200,6 +201,20 @@ task(
     await deployAllPaymentContracts(args, hre as HardhatRuntimeEnvironmentExtended);
   });
 
+task(
+  'deploy-erc20-payment',
+  'Deploy ERC20 payment contract on a permissioned network.',
+)
+  .addFlag('dryRun', 'to prevent any deployment')
+  .addFlag('force', 'to force re-deployment')
+  .setAction(async (args, hre) => {
+    args.force = args.force ?? false;
+    args.dryRun = args.dryRun ?? false;
+    args.simulate = args.dryRun;
+    const { address: ERC20FeeProxyAddress } = await deployOne(args, hre, 'ERC20FeeProxy');
+    console.log('ERC20FeeProxy Contract deployed: ' + ERC20FeeProxyAddress);
+  });
+  
 // Tasks inherent to the CREATE2 deployment scheme
 task(
   'deploy-deployer-contract',
