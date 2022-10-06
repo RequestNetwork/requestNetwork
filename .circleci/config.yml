@@ -685,12 +685,8 @@ workflows:
               only:
                 - master
 
-
     jobs:
       - build
       - lint-package-json:
-          requires:
-            - build
-      - test-nightly:
           requires:
             - build
