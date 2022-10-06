@@ -68,7 +68,6 @@
     "axios-mock-adapter": "1.19.0",
     "jest": "26.4.2",
     "nyc": "15.1.0",
-    "prettier": "2.2.1",
     "shx": "0.3.2",
     "solium": "1.2.5",
     "source-map-support": "0.5.19",

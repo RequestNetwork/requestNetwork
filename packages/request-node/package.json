@@ -74,7 +74,6 @@
     "@types/supertest": "2.0.10",
     "@types/yargs": "15.0.5",
     "jest": "26.4.2",
-    "prettier": "2.2.1",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",
     "supertest": "5.0.0",
