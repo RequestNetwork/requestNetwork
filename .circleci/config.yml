@@ -523,7 +523,7 @@ jobs:
       - run:
           name: 'Build prototype-estimator'
           command: 'yarn workspace @requestnetwork/prototype-estimator run build'
- 
+
   # Release a next version package everytime we merge to master
   next-release:
     docker:
