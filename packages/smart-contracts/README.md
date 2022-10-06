@@ -178,6 +178,15 @@ The goal of this script is to let only our ERC20 payment contract be deployed by
 Environment variables needed: `WEB3_PROVIDER_URL`, `DEPLOYMENT_PRIVATE_KEY`
 
 ```bash
+git clone https://github.com/RequestNetwork/requestNetwork.git
+cd requestNetwork/packages/smart-contracts
+
+# Install packages
+yarn install
+
+# Compile smart contracts, generate types and build the library
+yarn build
+
 # First check what will be done
 yarn hardhat deploy-erc20-payment --network ronin --dry-run
 
@@ -185,8 +194,12 @@ yarn hardhat deploy-erc20-payment --network ronin --dry-run
 yarn hardhat deploy-erc20-payment --network ronin
 
 # To test locally
-yarn hardhat deploy-erc20-payment --network private --force
+# Run an instance of Ganache, ready for testing
+yarn ganache
+# First check what will be done
 yarn hardhat deploy-erc20-payment --network private --force --dry-run
+# Run
+yarn hardhat deploy-erc20-payment --network private --force
 ```
 
 ### Deprecated payment deployment scripts (legacy)
