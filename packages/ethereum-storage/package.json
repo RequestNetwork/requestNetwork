@@ -40,12 +40,12 @@
     "init-ipfs": "node scripts/init-ipfs.js"
   },
   "dependencies": {
+    "@rainbow-me/fee-suggestions": "2.0.0",
     "@requestnetwork/smart-contracts": "0.28.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
     "axios": "0.27.2",
     "bluebird": "3.7.2",
-    "@rainbow-me/fee-suggestions": "2.0.0",
     "ethers": "5.5.1",
     "form-data": "3.0.0",
     "ipfs-unixfs": "6.0.7",
