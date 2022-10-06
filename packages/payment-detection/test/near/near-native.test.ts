@@ -5,7 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import PaymentNetworkFactory from '../../src/payment-network-factory';
+import { PaymentNetworkFactory } from '../../src/payment-network-factory';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { NearNativeTokenPaymentDetector, NearInfoRetriever } from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
@@ -43,6 +43,8 @@ const request: any = {
   },
 };
 
+const paymentNetworkFactory = new PaymentNetworkFactory(mockAdvancedLogic, currencyManager);
+
 describe('Near payments detection', () => {
   it('NearInfoRetriever can retrieve a NEAR payment', async () => {
     const paymentReference = PaymentReferenceCalculator.calculate(
@@ -69,21 +71,16 @@ describe('Near payments detection', () => {
   });
 
   it('PaymentNetworkFactory can get the detector (testnet)', async () => {
-    expect(
-      PaymentNetworkFactory.getPaymentNetworkFromRequest({
-        advancedLogic: mockAdvancedLogic,
-        request,
-        currencyManager,
-      }),
-    ).toBeInstanceOf(NearNativeTokenPaymentDetector);
+    expect(paymentNetworkFactory.getPaymentNetworkFromRequest(request)).toBeInstanceOf(
+      NearNativeTokenPaymentDetector,
+    );
   });
 
   it('PaymentNetworkFactory can get the detector (mainnet)', async () => {
     expect(
-      PaymentNetworkFactory.getPaymentNetworkFromRequest({
-        advancedLogic: mockAdvancedLogic,
-        request: { ...request, currency: { ...request.currency, network: 'aurora' } },
-        currencyManager,
+      paymentNetworkFactory.getPaymentNetworkFromRequest({
+        ...request,
+        currency: { ...request.currency, network: 'aurora' },
       }),
     ).toBeInstanceOf(NearNativeTokenPaymentDetector);
   });

@@ -1,4 +1,4 @@
-import PaymentNetworkFactory from './payment-network-factory';
+import { PaymentNetworkFactory, PaymentNetworkOptions } from './payment-network-factory';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import * as BtcPaymentNetwork from './btc';
@@ -26,6 +26,7 @@ export type { TheGraphClient } from './thegraph';
 
 export {
   PaymentNetworkFactory,
+  PaymentNetworkOptions,
   PaymentReferenceCalculator,
   BtcPaymentNetwork,
   DeclarativePaymentDetector,
