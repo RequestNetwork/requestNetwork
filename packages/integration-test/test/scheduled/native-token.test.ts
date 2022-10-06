@@ -3,6 +3,7 @@ import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { PnReferenceBased } from '@requestnetwork/types/dist/extension-types';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { CurrencyManager } from '@requestnetwork/currency';
+import { omit } from 'lodash';
 
 const advancedLogic = new AdvancedLogic();
 
@@ -34,7 +35,9 @@ describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
       'aurora-testnet',
     );
     await expect(async () => {
-      await paymentNetwork.createExtensionsDataForCreation(createCreationActionParams);
+      await paymentNetwork.createExtensionsDataForCreation(
+        omit(createCreationActionParams, 'paymentNetworkName'),
+      );
     }).rejects.toThrowError(
       'The network name is mandatory for the creation of the extension pn-native-token.',
     );
