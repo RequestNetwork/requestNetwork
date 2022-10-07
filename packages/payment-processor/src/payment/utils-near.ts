@@ -34,6 +34,8 @@ export const isNearAccountSolvent = (
 
 const GAS_LIMIT_IN_TGAS = 50;
 const GAS_LIMIT = ethers.utils.parseUnits(GAS_LIMIT_IN_TGAS.toString(), 12);
+const GAS_LIMIT_NATIVE = GAS_LIMIT.toString();
+const GAS_LIMIT_CONVERSION_TO_NATIVE = GAS_LIMIT.mul(2).toString();
 
 export const processNearPayment = async (
   walletConnection: WalletConnection,
@@ -69,7 +71,7 @@ export const processNearPayment = async (
         to,
         payment_reference: paymentReference,
       },
-      GAS_LIMIT.toString(),
+      GAS_LIMIT_NATIVE,
       amount.toString(),
     );
     return;
@@ -94,6 +96,7 @@ export const processNearPaymentWithConversion = async (
   currency: string,
   feeAddress: string,
   feeAmount: BigNumberish,
+  maxToSpend: BigNumberish,
   maxRateTimespan = '0',
   version = '0.1.0',
 ): Promise<void> => {
@@ -127,8 +130,8 @@ export const processNearPaymentWithConversion = async (
         fee_amount: feeAmount,
         max_rate_timespan: maxRateTimespan,
       },
-      GAS_LIMIT.toString(),
-      amount.toString(),
+      GAS_LIMIT_CONVERSION_TO_NATIVE,
+      maxToSpend.toString(),
     );
     return;
   } catch (e) {

@@ -41,7 +41,7 @@ export async function payNearConversionRequest(
   }
 
   if (!network || !isNearNetwork(network)) {
-    throw new Error('Should be a near network');
+    throw new Error('Should be a Near network');
   }
 
   const amountToPay = getAmountToPay(request, amount).toString();
@@ -56,6 +56,7 @@ export async function payNearConversionRequest(
     getTicker(request.currencyInfo),
     feeAddress || '0x',
     feeAmount || 0,
+    paymentSettings.maxToSpend,
     maxRateTimespan || '0',
     version,
   );
