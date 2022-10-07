@@ -3,7 +3,7 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 import { UnsupportedNetworkError } from './address-based';
 import AnyToNativeTokenPaymentNetwork from './any-to-native';
 
-const CURRENT_VERSION = '0.2.0';
+const CURRENT_VERSION = '0.1.0';
 const supportedNetworks = ['aurora', 'aurora-testnet'];
 
 export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetwork {
