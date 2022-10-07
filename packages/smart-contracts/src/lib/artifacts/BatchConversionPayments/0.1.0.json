@@ -24,6 +24,11 @@
         },
         {
           "internalType": "address",
+          "name": "_chainlinkConversionPathAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
           "name": "_owner",
           "type": "address"
         }
@@ -49,6 +54,19 @@
       ],
       "name": "OwnershipTransferred",
       "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "USDAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [],
@@ -203,6 +221,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "batchFeeAmountUSDLimit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "components": [
@@ -245,6 +276,11 @@
           "internalType": "struct BatchConversionPayments.ConversionDetail[]",
           "name": "conversionDetails",
           "type": "tuple[]"
+        },
+        {
+          "internalType": "address[][]",
+          "name": "pathsToUSD",
+          "type": "address[][]"
         },
         {
           "internalType": "address",
@@ -384,6 +420,11 @@
           "type": "tuple[]"
         },
         {
+          "internalType": "address[][]",
+          "name": "pathsToUSD",
+          "type": "address[][]"
+        },
+        {
           "internalType": "address",
           "name": "_feeAddress",
           "type": "address"
@@ -392,6 +433,19 @@
       "name": "batchRouter",
       "outputs": [],
       "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "chainlinkConversionPath",
+      "outputs": [
+        {
+          "internalType": "contract ChainlinkConversionPath",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -495,6 +549,32 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "_batchFeeAmountUSDLimit",
+          "type": "uint256"
+        }
+      ],
+      "name": "setBatchFeeAmountUSDLimit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_chainlinkConversionPathAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setConversionPathAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "_paymentErc20ConversionProxy",
           "type": "address"
@@ -540,6 +620,19 @@
         }
       ],
       "name": "setPaymentEthProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_USDAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setUSDAddress",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
