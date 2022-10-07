@@ -44,8 +44,8 @@
     "@requestnetwork/utils": "0.35.0",
     "@types/node": "14.14.16",
     "lodash": "4.17.21",
-    "tslib": "2.3.1",
-    "semver": "5.6.0"
+    "semver": "5.6.0",
+    "tslib": "2.3.1"
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
