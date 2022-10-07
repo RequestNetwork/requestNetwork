@@ -4,7 +4,7 @@ import NativeTokenPaymentNetwork from './native-token';
 import * as Semver from 'semver';
 
 const CURRENT_VERSION = '0.3.0';
-const supportedNetworks_0_2_0 = ['aurora', 'aurora-testnet'];
+const supportedNetworksLegacy = ['aurora', 'aurora-testnet'];
 const supportedNetworks = ['near', 'near-testnet'];
 
 /**
@@ -16,7 +16,7 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
     currentVersion: string = CURRENT_VERSION,
   ) {
     const supportedNetworksForVersion = Semver.lt(currentVersion, '0.3.0')
-      ? supportedNetworks_0_2_0
+      ? supportedNetworksLegacy
       : supportedNetworks;
     super(extensionId, currentVersion, supportedNetworksForVersion);
   }

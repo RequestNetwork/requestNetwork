@@ -5,6 +5,7 @@ import {
   NearNativeTokenPaymentDetector,
   NearConversionNativeTokenPaymentDetector,
 } from '@requestnetwork/payment-detection';
+import * as Semver from 'semver';
 
 export const isValidNearAddress = async (nearNetwork: Near, address: string): Promise<boolean> => {
   try {
@@ -47,14 +48,9 @@ export const processNearPayment = async (
   amount: BigNumberish,
   to: string,
   paymentReference: string,
-  version = '0.2.0',
+  version = '0.3.0',
 ): Promise<void> => {
-  if (version !== '0.2.0') {
-    if (version === '0.1.0') {
-      throw new Error(
-        'Native Token payments on Near with extension v0.1.0 are not supported anymore',
-      );
-    }
+  if (Semver.lt(version, '0.2.0')) {
     throw new Error('Native Token payments on Near only support extensions starting at 0.2.0');
   }
   if (!(await isValidNearAddress(walletConnection._near, to))) {
