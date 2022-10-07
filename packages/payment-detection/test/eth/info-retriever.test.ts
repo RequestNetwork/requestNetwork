@@ -33,7 +33,7 @@ describe('api/eth/info-retriever', () => {
     );
     expect(typeof events[0].parameters!.block).toBe('number');
     expect(typeof events[0].parameters!.confirmations).toBe('number');
-  });
+  }, 10000);
 
   it('throws when trying to use it in local', async () => {
     const infoRetreiver = new EthInputDataInfoRetriever(
