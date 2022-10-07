@@ -41,7 +41,11 @@ export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
   async initialize(): Promise<void> {
     await this.ipfsStorage.initialize();
     try {
-      await this.provider.send('eth_feeHistory', [1, 'latest', []]);
+      await this.provider.send('eth_feeHistory', [
+        utils.hexStripZeros(utils.hexlify(1)),
+        'latest',
+        [],
+      ]);
     } catch (e) {
       this.logger.warn(
         'This RPC provider does not support the "eth_feeHistory" method: switching to legacy gas price',
