@@ -29,7 +29,7 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
     switch (this.network.name) {
       case 'sokol':
       case 'xdai':
-        return `https://blockscout.com/poa/${this.network.name}`;
+        return 'https://api.gnosisscan.io';
       case 'fuse':
         return 'https://explorer.fuse.io';
       case 'celo':
