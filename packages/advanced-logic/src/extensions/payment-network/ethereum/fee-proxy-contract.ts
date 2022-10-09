@@ -12,7 +12,20 @@ export default class EthereumFeeProxyPaymentNetwork<
   public constructor(
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
     currentVersion: string = CURRENT_VERSION,
-    public supportedNetworks: string[] = ['mainnet', 'rinkeby', 'goerli', 'private'],
+    public supportedNetworks: string[] = [
+      'private',
+      'rinkeby',
+      'goerli',
+      'fantom',
+      'avalanche',
+      'fuse',
+      'matic',
+      'xdai',
+      'arbitrum-one',
+      'bsc',
+      'mainnet',
+      'celo',
+    ],
   ) {
     super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
   }
