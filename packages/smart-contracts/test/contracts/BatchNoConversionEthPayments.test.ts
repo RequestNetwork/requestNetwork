@@ -5,8 +5,10 @@ import {
   EthereumFeeProxy__factory,
   BatchNoConversionPayments__factory,
   ERC20FeeProxy__factory,
+  ChainlinkConversionPath,
 } from '../../src/types';
 import { EthereumFeeProxy, BatchNoConversionPayments } from '../../src/types';
+import { chainlinkConversionPath } from '../../src/lib';
 import { HttpNetworkConfig } from 'hardhat/types';
 
 const logGasInfos = false;
@@ -29,6 +31,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
   const referenceExample2 = '0xbbbb';
 
   let ethFeeProxy: EthereumFeeProxy;
+  let chainlinkPath: ChainlinkConversionPath;
   let batch: BatchNoConversionPayments;
   const networkConfig = network.config as HttpNetworkConfig;
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
@@ -39,9 +42,11 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
 
     const erc20FeeProxy = await new ERC20FeeProxy__factory(owner).deploy();
     ethFeeProxy = await new EthereumFeeProxy__factory(owner).deploy();
+    chainlinkPath = chainlinkConversionPath.connect(network.name, owner);
     batch = await new BatchNoConversionPayments__factory(owner).deploy(
       erc20FeeProxy.address,
       ethFeeProxy.address,
+      chainlinkPath.address,
       await owner.getAddress(),
     );
     batchAddress = batch.address;

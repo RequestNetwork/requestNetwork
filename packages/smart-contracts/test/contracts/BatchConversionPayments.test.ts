@@ -243,9 +243,13 @@ describe('contract: BatchConversionPayments', async () => {
     const toBalanceDiff = BigNumber.from(toBalance).sub(initialToBalance);
     const feeBalanceDiff = BigNumber.from(feeBalance).sub(initialFeeBalance);
 
+    console.log('check balance to');
     expect(toBalanceDiff).to.equals(expectedToBalanceDiff, `toBalanceDiff in ${token}`);
+    console.log('check balance fee');
     expect(feeBalanceDiff).to.equals(expectedFeeBalanceDiff, `feeBalanceDiff in ${token}`);
+    console.log('check balance from');
     expect(fromBalanceDiff).to.equals(expectedFromBalanceDiff, `fromBalanceDiff in ${token}`);
+    console.log('here 1');
     expect(batchBalance).to.equals('0', `batchBalance in ${token}`);
   };
 
@@ -335,14 +339,18 @@ describe('contract: BatchConversionPayments', async () => {
         [
           {
             paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-            conversionDetails: [],
-            cryptoDetails: {
-              tokenAddresses: [FAU_address],
-              recipients: [to],
-              amounts: ['100000'],
-              paymentReferences: [referenceExample],
-              feeAmounts: ['100'],
-            },
+            conversionDetails: [
+              {
+                recipient: to,
+                requestAmount: '100000',
+                path: [FAU_address],
+                paymentReference: referenceExample,
+                feeAmount: '100',
+                maxToSpend: '0',
+                maxRateTimespan: '0',
+              },
+            ],
+            cryptoDetails: emptyCryptoDetails,
           },
         ],
         [[FAU_address, USD_hash]],
@@ -457,13 +465,6 @@ describe('contract: BatchConversionPayments', async () => {
       const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
 
       // set inputs: ERC20 cryptoDetails & ethCryptoDetails
-      const cryptoDetails: PaymentTypes.CryptoDetails = {
-        tokenAddresses: [FAU_address],
-        recipients: [to],
-        amounts: ['100000'],
-        paymentReferences: [referenceExample],
-        feeAmounts: ['100'],
-      };
       const ethCryptoDetails: PaymentTypes.CryptoDetails = {
         tokenAddresses: [],
         recipients: [to],
@@ -481,8 +482,18 @@ describe('contract: BatchConversionPayments', async () => {
           },
           {
             paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-            conversionDetails: [],
-            cryptoDetails: cryptoDetails,
+            conversionDetails: [
+              {
+                recipient: to,
+                requestAmount: '100000',
+                path: [FAU_address],
+                paymentReference: referenceExample,
+                feeAmount: '100',
+                maxToSpend: '0',
+                maxRateTimespan: '0',
+              },
+            ],
+            cryptoDetails: emptyCryptoDetails,
           },
           {
             paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_PAYMENTS,
@@ -830,11 +841,19 @@ describe('contract: BatchConversionPayments', async () => {
       const [initialFromFAUBalance, initialToFAUBalance, initialFeeFAUBalance] =
         await getERC20Balances(fauERC20);
       await batchConversionProxy.batchERC20Payments(
-        FAU_address,
-        [to],
-        ['100000'],
-        [referenceExample],
-        ['100'],
+        [
+          {
+            recipient: to,
+            requestAmount: '100000',
+            path: [FAU_address],
+            paymentReference: referenceExample,
+            feeAmount: '100',
+            maxToSpend: '0',
+            maxRateTimespan: '0',
+          },
+        ],
+        [[FAU_address, USD_hash]],
+        0,
         feeAddress,
       );
 
@@ -856,11 +875,19 @@ describe('contract: BatchConversionPayments', async () => {
       const [initialFromFAUBalance, initialToFAUBalance, initialFeeFAUBalance] =
         await getERC20Balances(fauERC20);
       await batchConversionProxy.batchMultiERC20Payments(
-        [FAU_address],
-        [to],
-        ['100000'],
-        [referenceExample],
-        ['100'],
+        [
+          {
+            recipient: to,
+            requestAmount: '100000',
+            path: [FAU_address],
+            paymentReference: referenceExample,
+            feeAmount: '100',
+            maxToSpend: '0',
+            maxRateTimespan: '0',
+          },
+        ],
+        [[FAU_address, USD_hash]],
+        0,
         feeAddress,
       );
 

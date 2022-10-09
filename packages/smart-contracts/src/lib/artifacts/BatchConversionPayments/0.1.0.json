@@ -159,7 +159,7 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct BatchConversionPayments.ConversionDetail[]",
+          "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
           "name": "conversionDetails",
           "type": "tuple[]"
         },
@@ -273,9 +273,14 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct BatchConversionPayments.ConversionDetail[]",
+          "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
           "name": "conversionDetails",
           "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "batchFeeAmountUSD",
+          "type": "uint256"
         },
         {
           "internalType": "address[][]",
@@ -289,36 +294,69 @@
         }
       ],
       "name": "batchMultiERC20ConversionPayments",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [
         {
-          "internalType": "address[]",
-          "name": "_tokenAddresses",
-          "type": "address[]"
+          "components": [
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "path",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "paymentReference",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "feeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxToSpend",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRateTimespan",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
+          "name": "conversionDetails",
+          "type": "tuple[]"
         },
         {
-          "internalType": "address[]",
-          "name": "_recipients",
-          "type": "address[]"
+          "internalType": "address[][]",
+          "name": "pathsToUSD",
+          "type": "address[][]"
         },
         {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "bytes[]",
-          "name": "_paymentReferences",
-          "type": "bytes[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_feeAmounts",
-          "type": "uint256[]"
+          "internalType": "uint256",
+          "name": "batchFeeAmountUSD",
+          "type": "uint256"
         },
         {
           "internalType": "address",
@@ -327,7 +365,13 @@
         }
       ],
       "name": "batchMultiERC20Payments",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -378,7 +422,7 @@
                   "type": "uint256"
                 }
               ],
-              "internalType": "struct BatchConversionPayments.ConversionDetail[]",
+              "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
               "name": "conversionDetails",
               "type": "tuple[]"
             },
@@ -410,7 +454,7 @@
                   "type": "uint256[]"
                 }
               ],
-              "internalType": "struct BatchConversionPayments.CryptoDetails",
+              "internalType": "struct BatchNoConversionPayments.CryptoDetails",
               "name": "cryptoDetails",
               "type": "tuple"
             }

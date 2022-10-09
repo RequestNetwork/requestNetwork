@@ -3,7 +3,6 @@ pragma solidity ^0.8.4;
 
 import './interfaces/IERC20ConversionProxy.sol';
 import './interfaces/IEthConversionProxy.sol';
-import './ChainlinkConversionPath.sol';
 import './BatchNoConversionPayments.sol';
 
 /**
@@ -25,45 +24,8 @@ contract BatchConversionPayments is BatchNoConversionPayments {
 
   IERC20ConversionProxy public paymentErc20ConversionProxy;
   IEthConversionProxy public paymentEthConversionProxy;
-  ChainlinkConversionPath public chainlinkConversionPath;
 
   uint256 public batchConversionFee;
-
-  uint256 public batchFeeAmountUSDLimit; // maybe not necessary
-  address public USDAddress;
-
-  /**
-   * @dev All the information of a request, except the feeAddress
-   *   _recipient Recipient address of the payment
-   *   _requestAmount Request amount in fiat
-   *   _path Conversion path
-   *   _paymentReference Unique reference of the payment
-   *   _feeAmount The fee amount denominated in the first currency of `_path`
-   *   _maxToSpend Maximum amount the payer wants to spend, denominated in the last currency of `_path`:
-   *               it includes fee proxy but NOT the batchConversionFee
-   *   _maxRateTimespan Max acceptable times span for conversion rates, ignored if zero
-   */
-  struct ConversionDetail {
-    address recipient;
-    uint256 requestAmount;
-    address[] path;
-    bytes paymentReference;
-    uint256 feeAmount;
-    uint256 maxToSpend;
-    uint256 maxRateTimespan;
-  }
-
-  /**
-   * @dev BatchNoConversionPayments contract input structure.
-   */
-  struct CryptoDetails {
-    address[] tokenAddresses;
-    address[] recipients;
-    uint256[] amounts;
-    bytes[] paymentReferences;
-    uint256[] feeAmounts;
-    //address[][] pathsToUSD; // TODO is there another solution ?
-  }
 
   /**
    * @dev Used by the batchRouter to handle information for heterogeneous batches, grouped by payment network.
@@ -92,10 +54,16 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     address _paymentEthConversionFeeProxy,
     address _chainlinkConversionPathAddress,
     address _owner
-  ) BatchNoConversionPayments(_paymentErc20Proxy, _paymentEthProxy, _owner) {
+  )
+    BatchNoConversionPayments(
+      _paymentErc20Proxy,
+      _paymentEthProxy,
+      _chainlinkConversionPathAddress,
+      _owner
+    )
+  {
     paymentErc20ConversionProxy = IERC20ConversionProxy(_paymentErc20ConversionProxy);
     paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionFeeProxy);
-    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
     batchConversionFee = 0;
   }
 
@@ -125,7 +93,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     for (uint256 i = 0; i < metaDetails.length; i++) {
       MetaDetail calldata metaConversionDetail = metaDetails[i];
       if (metaConversionDetail.paymentNetworkId == 0) {
-        batchFeeAmountUSD = batchMultiERC20ConversionPayments(
+        batchFeeAmountUSD += batchMultiERC20ConversionPayments(
           metaConversionDetail.conversionDetails,
           batchFeeAmountUSD,
           pathsToUSD,
@@ -133,20 +101,16 @@ contract BatchConversionPayments is BatchNoConversionPayments {
         );
       } else if (metaConversionDetail.paymentNetworkId == 1) {
         batchERC20Payments(
-          metaConversionDetail.cryptoDetails.tokenAddresses[0],
-          metaConversionDetail.cryptoDetails.recipients,
-          metaConversionDetail.cryptoDetails.amounts,
-          metaConversionDetail.cryptoDetails.paymentReferences,
-          metaConversionDetail.cryptoDetails.feeAmounts,
+          metaConversionDetail.conversionDetails,
+          pathsToUSD,
+          batchFeeAmountUSD,
           _feeAddress
         );
       } else if (metaConversionDetail.paymentNetworkId == 2) {
-        batchMultiERC20Payments(
-          metaConversionDetail.cryptoDetails.tokenAddresses,
-          metaConversionDetail.cryptoDetails.recipients,
-          metaConversionDetail.cryptoDetails.amounts,
-          metaConversionDetail.cryptoDetails.paymentReferences,
-          metaConversionDetail.cryptoDetails.feeAmounts,
+        batchFeeAmountUSD += batchMultiERC20Payments(
+          metaConversionDetail.conversionDetails,
+          pathsToUSD,
+          batchFeeAmountUSD,
           _feeAddress
         );
       } else if (metaConversionDetail.paymentNetworkId == 3) {
@@ -176,6 +140,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @notice Send a batch of ERC20 payments with amounts based on a request
    * currency (e.g. fiat), with fees and paymentReferences to multiple accounts, with multiple tokens.
    * @param conversionDetails list of requestInfo, each one containing all the information of a request
+   * @param batchFeeAmountUSD The batchFeeAmountUSD already paid
    * @param pathsToUSD The list of paths into USD for every token
    * @param _feeAddress The fee recipient
    */
@@ -185,26 +150,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     address[][] calldata pathsToUSD,
     address _feeAddress
   ) public returns (uint256) {
-    // a list of unique tokens, with the sum of maxToSpend by token
-    Token[] memory uTokens = new Token[](conversionDetails.length);
-    for (uint256 i = 0; i < conversionDetails.length; i++) {
-      for (uint256 k = 0; k < conversionDetails.length; k++) {
-        // If the token is already in the existing uTokens list
-        if (
-          uTokens[k].tokenAddress == conversionDetails[i].path[conversionDetails[i].path.length - 1]
-        ) {
-          uTokens[k].amountAndFee += conversionDetails[i].maxToSpend;
-          break;
-        }
-        // If the token is not in the list (amountAndFee = 0)
-        else if (uTokens[k].amountAndFee == 0 && (conversionDetails[i].maxToSpend) > 0) {
-          uTokens[k].tokenAddress = conversionDetails[i].path[conversionDetails[i].path.length - 1];
-          // amountAndFee is used to store _maxToSpend, useful to send enough tokens to this contract
-          uTokens[k].amountAndFee = conversionDetails[i].maxToSpend;
-          break;
-        }
-      }
-    }
+    Token[] memory uTokens = getUTokens(conversionDetails);
 
     IERC20 requestedToken;
     // For each token: check allowance, transfer funds on the contract and approve the paymentProxy to spend if needed
@@ -327,34 +273,6 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     payerAuthorized = false;
   }
 
-  function calculateBatchFeeToPay(
-    uint256 batchFeeToPay,
-    address tokenAddress,
-    uint256 batchFeeAmountUSD,
-    address[][] calldata pathsToUSD
-  ) internal view returns (uint256, uint256) {
-    if (pathsToUSD.length > 0) {
-      for (uint256 i = 0; i < pathsToUSD.length; i++) {
-        if (
-          pathsToUSD[i][0] == tokenAddress && pathsToUSD[i][pathsToUSD[i].length - 1] == USDAddress
-        ) {
-          uint256 conversionUSD = 0;
-          (conversionUSD, ) = chainlinkConversionPath.getConversion(batchFeeToPay, pathsToUSD[i]);
-          // calculate the batch fee to pay, taking care of the batchFeeAmountUSDLimit
-          uint256 conversionToPayUSD = conversionUSD;
-          if (batchFeeAmountUSD + conversionToPayUSD > batchFeeAmountUSDLimit) {
-            conversionToPayUSD = batchFeeAmountUSDLimit - batchFeeAmountUSD;
-            batchFeeToPay = (batchFeeToPay * conversionToPayUSD) / conversionUSD;
-          }
-          batchFeeAmountUSD += conversionToPayUSD;
-          // add only once the fees
-          break;
-        }
-      }
-    }
-    return (batchFeeToPay, batchFeeAmountUSD);
-  }
-
   /*
    * Admin functions to edit the conversion proxies address and fees
    */
@@ -389,13 +307,5 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    */
   function setConversionPathAddress(address _chainlinkConversionPathAddress) external onlyOwner {
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
-  }
-
-  function setUSDAddress(address _USDAddress) external onlyOwner {
-    USDAddress = _USDAddress;
-  }
-
-  function setBatchFeeAmountUSDLimit(uint256 _batchFeeAmountUSDLimit) external onlyOwner {
-    batchFeeAmountUSDLimit = _batchFeeAmountUSDLimit;
   }
 }
