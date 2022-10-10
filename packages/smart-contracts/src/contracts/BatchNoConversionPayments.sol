@@ -222,10 +222,9 @@ contract BatchNoConversionPayments is Ownable {
     require(requestedToken.balanceOf(msg.sender) >= amount, 'not enough funds for the batch fee');
 
     // Payer pays batch fee amount
-    uint256 batchFeeToPay = amount;
-
-    (batchFeeToPay, batchFeeAmountUSD) = calculateBatchFeeToPay(
-      batchFeeToPay,
+    // amount that represents batchFeeToPay updated if needed
+    (amount, batchFeeAmountUSD) = calculateBatchFeeToPay(
+      amount,
       conversionDetails[0].path[0],
       batchFeeAmountUSD,
       pathsToUSD

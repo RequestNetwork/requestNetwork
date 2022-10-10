@@ -88,6 +88,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
     batchAddress = batch.address;
 
     await batch.connect(owner).setBatchFee(1000);
+    // batch fee amount USD limited to 1$
     await batch.connect(owner).setBatchFeeAmountUSDLimit(BigNumber.from(1e8).div(1000));
   });
 
@@ -392,83 +393,6 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       );
     });
 
-    it.only('Should pay 3 ERC20 payments Multi tokens, with one payment of 0 token', async () => {
-      await token1.connect(owner).transfer(spender3Address, 1000_000_000_000_000);
-      await token2.connect(owner).transfer(spender3Address, 1000_000_000_000_000);
-      await token3.connect(owner).transfer(spender3Address, 1000_000_000_000_000);
-
-      await token1.connect(spender3).approve(batchAddress, 1000_000_000_000_000);
-      await token2.connect(spender3).approve(batchAddress, 1000_000_000_000_000);
-      await token3.connect(spender3).approve(batchAddress, 1000_000_000_000_000);
-
-      beforeERC20Balance1 = await token1.balanceOf(payee1);
-      const beforeERC20Balance2_token2 = await token2.balanceOf(payee2);
-      const beforeERC20Balance2_token3 = await token3.balanceOf(payee2);
-      beforeERC20Balance3 = await token1.balanceOf(spender3Address);
-
-      const beforeFeeAddress_token1 = await token1.balanceOf(feeAddress);
-      const beforeFeeAddress_token2 = await token2.balanceOf(feeAddress);
-      const beforeFeeAddress_token3 = await token3.balanceOf(feeAddress);
-
-      const tx = await batch.connect(spender3).batchMultiERC20Payments(
-        [
-          {
-            recipient: payee1,
-            requestAmount: 500_000_000_000_000,
-            path: [token1Address],
-            paymentReference: referenceExample1,
-            feeAmount: 60,
-            maxToSpend: '0',
-            maxRateTimespan: '0',
-          },
-          {
-            recipient: payee2,
-            requestAmount: 0,
-            path: [token2Address],
-            paymentReference: referenceExample2,
-            feeAmount: 0,
-            maxToSpend: '0',
-            maxRateTimespan: '0',
-          },
-          {
-            recipient: payee2,
-            requestAmount: 400_000_000_000_000,
-            path: [token3Address],
-            paymentReference: referenceExample3,
-            feeAmount: 30,
-            maxToSpend: '0',
-            maxRateTimespan: '0',
-          },
-        ],
-        [
-          [token1Address, USD_hash],
-          [token2Address, USD_hash],
-          [token3Address, USD_hash],
-        ],
-        0,
-        feeAddress,
-      );
-
-      await tx.wait();
-
-      expect(await token1.balanceOf(payee1)).to.be.equal(
-        beforeERC20Balance1.add(500_000_000_000_000),
-      );
-      expect(await token2.balanceOf(payee2)).to.be.equal(beforeERC20Balance2_token2.add(0));
-      expect(await token3.balanceOf(payee2)).to.be.equal(
-        beforeERC20Balance2_token3.add(400_000_000_000_000),
-      );
-      expect(beforeERC20Balance3).to.be.equal(
-        (await token1.balanceOf(spender3Address)).add(500_000_000_000_000 + 60 + 50),
-      );
-
-      expect(await token1.balanceOf(feeAddress)).to.be.equal(beforeFeeAddress_token1.add(50 + 60));
-      expect(await token2.balanceOf(feeAddress)).to.be.equal(beforeFeeAddress_token2.add(0));
-      expect(await token3.balanceOf(feeAddress)).to.be.equal(
-        beforeFeeAddress_token3.add((30 + 40) * 1),
-      );
-    });
-
     it('Should pay 4 ERC20 payments on 2 tokens', async () => {
       await token1.connect(owner).transfer(spender3Address, 1000);
       await token2.connect(owner).transfer(spender3Address, 1000);
@@ -527,8 +451,8 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       expect(beforeERC20Balance3Token2).to.be.equal(afterERC20Balance3Token2.add((20 + 1 + 2) * 2));
     });
 
-    it.only('Should pay 10 ERC20 payments', async () => {
-      await token1.connect(owner).transfer(spender3Address, 100);
+    it('Should pay 10 ERC20 payments', async () => {
+      await token1.connect(owner).transfer(spender3Address, 1000);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
       beforeERC20Balance1 = await token1.balanceOf(payee1);
