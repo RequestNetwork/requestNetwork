@@ -29,7 +29,6 @@ const mnemonic = 'candy maple cake sugar pudding cream honey rich smooth crumble
 const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const initialUnderlyingAmount = '1000000000000000000000';
 const arbitraryWrappedAmount = '100000000';
-const nextUnderlyingAmount = '999999999999900000000';
 const expectedFlowRate = '100000';
 const expectedStartDate = '1643041225';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
@@ -175,6 +174,13 @@ describe('erc777-utils', () => {
       );
       await allowanceTx.wait(1);
 
+      const superTokenBalanceBefore = await getErc20Balance(validRequest, wallet.address, provider);
+      const underlyingBalanceBefore = await getUnderlyingTokenBalanceOf(
+        validRequest,
+        wallet.address,
+        provider,
+      );
+
       // Wrap tx
       const tx = await wrapUnderlyingToken(
         validRequest,
@@ -183,17 +189,28 @@ describe('erc777-utils', () => {
       );
       await tx.wait(1);
 
-      const superTokenBalance = await getErc20Balance(validRequest, wallet.address, provider);
-      const underlyingBalance = await getUnderlyingTokenBalanceOf(
+      const superTokenBalanceAfter = await getErc20Balance(validRequest, wallet.address, provider);
+      const underlyingBalanceAfter = await getUnderlyingTokenBalanceOf(
         validRequest,
         wallet.address,
         provider,
       );
-      expect(superTokenBalance.toString()).toEqual(arbitraryWrappedAmount);
-      expect(underlyingBalance.toString()).toEqual(nextUnderlyingAmount);
+      expect(superTokenBalanceAfter.toString()).toEqual(
+        BigNumber.from(superTokenBalanceBefore).add(arbitraryWrappedAmount).toString(),
+      );
+      expect(underlyingBalanceAfter.toString()).toEqual(
+        BigNumber.from(underlyingBalanceBefore).sub(arbitraryWrappedAmount).toString(),
+      );
     });
 
     it('should unwrap supertoken into underlying tokens', async () => {
+      const superTokenBalanceBefore = await getErc20Balance(validRequest, wallet.address, provider);
+      const underlyingBalanceBefore = await getUnderlyingTokenBalanceOf(
+        validRequest,
+        wallet.address,
+        provider,
+      );
+
       const tx = await unwrapSuperToken(
         validRequest,
         wallet,
@@ -201,20 +218,18 @@ describe('erc777-utils', () => {
       );
       await tx.wait(1);
 
-      const superTokenBalance = await getErc20Balance(validRequest, wallet.address, provider);
-      const underlyingBalance = await getUnderlyingTokenBalanceOf(
+      const superTokenBalanceAfter = await getErc20Balance(validRequest, wallet.address, provider);
+      const underlyingBalanceAfter = await getUnderlyingTokenBalanceOf(
         validRequest,
         wallet.address,
         provider,
       );
-      expect(superTokenBalance.toString()).toEqual('0');
-      expect(underlyingBalance.toString()).toEqual(initialUnderlyingAmount);
-    });
-
-    it('should fail to unwrap supertoken into underlying tokens due to low balance', async () => {
-      await expect(
-        unwrapSuperToken(validRequest, wallet, BigNumber.from(arbitraryWrappedAmount)),
-      ).rejects.toThrowError('Sender does not have enough supertoken');
+      expect(superTokenBalanceAfter.toString()).toEqual(
+        BigNumber.from(superTokenBalanceBefore).sub(arbitraryWrappedAmount).toString(),
+      );
+      expect(underlyingBalanceAfter.toString()).toEqual(
+        BigNumber.from(underlyingBalanceBefore).add(arbitraryWrappedAmount).toString(),
+      );
     });
   });
 });

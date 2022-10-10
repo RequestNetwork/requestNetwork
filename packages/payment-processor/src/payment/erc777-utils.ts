@@ -212,14 +212,11 @@ export async function unwrapSuperToken(
   }
 
   const userAddress = await signer.getAddress();
-  if (
-    amount.gt(
-      await superToken.balanceOf({
-        account: userAddress,
-        providerOrSigner: signer.provider ?? getProvider(),
-      }),
-    )
-  ) {
+  const userBalance = await superToken.balanceOf({
+    account: userAddress,
+    providerOrSigner: signer.provider ?? getProvider(),
+  });
+  if (amount.gt(userBalance)) {
     throw new Error('Sender does not have enough supertoken');
   }
   const downgradeOp = superToken.downgrade({
