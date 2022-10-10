@@ -9,6 +9,7 @@ import {
 import { encodeRequestApprovalAndPayment } from '../../src';
 import { currencyManager } from './shared';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
+import { MAX_ALLOWANCE } from 'payment-processor/src/payment/utils';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
@@ -24,7 +25,7 @@ const alphaConversionSettings = {
     value: alphaContractAddress,
     network: 'private',
   },
-  maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  maxToSpend: MAX_ALLOWANCE,
   currencyManager,
 };
 const ethConversionSettings = {
