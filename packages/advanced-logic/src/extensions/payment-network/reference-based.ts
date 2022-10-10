@@ -12,9 +12,9 @@ export default abstract class ReferenceBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters,
 > extends AddressBasedPaymentNetwork<TCreationParameters> {
   public constructor(
-    public extensionId: ExtensionTypes.ID,
-    public currentVersion: string,
-    public supportedNetworks: string[],
+    public readonly extensionId: ExtensionTypes.ID,
+    public readonly currentVersion: string,
+    public readonly supportedNetworks: string[],
     public supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);

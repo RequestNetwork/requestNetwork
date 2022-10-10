@@ -1,9 +1,8 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import AddressBasedPaymentNetwork from '../address-based';
+import EvmBasedPaymentNetwork from '../evm-based';
 
 const CURRENT_VERSION = '0.1.0';
-
-const supportedNetworks = ['mainnet', 'rinkeby', 'private', 'goerli'];
 
 /**
  * Implementation of the payment network to pay in ERC20 tokens based on an Ethereum address
@@ -11,12 +10,15 @@ const supportedNetworks = ['mainnet', 'rinkeby', 'private', 'goerli'];
  * Every ERC20 ethereum transaction, using the request currency ERC20, that reaches these addresses will be interpreted as payment or refund.
  * Important: the addresses must be exclusive to the request
  */
-export default class Erc20AddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
+export default class Erc20AddressBasedPaymentNetwork
+  extends AddressBasedPaymentNetwork
+  implements EvmBasedPaymentNetwork
+{
   public constructor() {
     super(
       ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
       CURRENT_VERSION,
-      supportedNetworks,
+      EvmBasedPaymentNetwork.EVM_NETWORKS,
       RequestLogicTypes.CURRENCY.ERC20,
     );
   }

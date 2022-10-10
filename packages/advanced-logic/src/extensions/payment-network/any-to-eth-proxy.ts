@@ -11,8 +11,9 @@ const CURRENT_VERSION = '0.2.0';
 export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPaymentNetwork {
   public constructor(
     private currencyManager: ICurrencyManager,
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
-    currentVersion: string = CURRENT_VERSION,
+    public readonly extensionId: ExtensionTypes.ID = ExtensionTypes.ID
+      .PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+    public readonly currentVersion: string = CURRENT_VERSION,
   ) {
     super(extensionId, currentVersion, conversionSupportedNetworks);
   }

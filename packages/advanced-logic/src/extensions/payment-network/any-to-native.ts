@@ -4,9 +4,9 @@ import { InvalidPaymentAddressError } from './address-based';
 
 export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenceBasedPaymentNetwork {
   public constructor(
-    extensionId: ExtensionTypes.ID,
-    currentVersion: string,
-    supportedNetworks: string[],
+    public readonly extensionId: ExtensionTypes.ID,
+    public readonly currentVersion: string,
+    public readonly supportedNetworks: string[],
   ) {
     super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
   }

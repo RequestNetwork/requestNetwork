@@ -10,10 +10,10 @@ export abstract class FeeReferenceBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
   public constructor(
-    public extensionId: ExtensionTypes.ID,
-    public currentVersion: string,
-    public supportedNetworks: string[],
-    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
+    public readonly extensionId: ExtensionTypes.ID,
+    public readonly currentVersion: string,
+    public readonly supportedNetworks: string[],
+    public readonly supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);
     this.actions = {

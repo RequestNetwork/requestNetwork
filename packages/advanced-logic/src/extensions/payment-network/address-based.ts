@@ -11,10 +11,10 @@ export default abstract class AddressBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
   public constructor(
-    public extensionId: ExtensionTypes.ID,
-    public currentVersion: string,
-    public supportedNetworks: string[],
-    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
+    public readonly extensionId: ExtensionTypes.ID,
+    public readonly currentVersion: string,
+    public readonly supportedNetworks: string[],
+    public readonly supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(extensionId, currentVersion);
     this.actions = {

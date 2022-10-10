@@ -8,9 +8,9 @@ import ReferenceBasedPaymentNetwork from './reference-based';
  */
 export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPaymentNetwork {
   public constructor(
-    extensionId: ExtensionTypes.ID,
-    currentVersion: string,
-    supportedNetworks: string[],
+    public readonly extensionId: ExtensionTypes.ID,
+    public readonly currentVersion: string,
+    public readonly supportedNetworks: string[],
   ) {
     super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
   }

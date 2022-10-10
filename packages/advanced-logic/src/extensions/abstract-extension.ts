@@ -9,8 +9,8 @@ export abstract class AbstractExtension<TCreationParameters> {
 
   public constructor(
     public extensionType: ExtensionTypes.TYPE,
-    public extensionId: ExtensionTypes.ID,
-    public currentVersion: string,
+    public readonly extensionId: ExtensionTypes.ID,
+    public readonly currentVersion: string,
   ) {
     this.actions = {};
   }

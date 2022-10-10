@@ -9,8 +9,9 @@ const supportedNetworks = ['aurora', 'aurora-testnet'];
 export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetwork {
   public constructor(
     private currencyManager: ICurrencyManager,
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
-    currentVersion: string = CURRENT_VERSION,
+    public readonly extensionId: ExtensionTypes.ID = ExtensionTypes.ID
+      .PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+    public readonly currentVersion: string = CURRENT_VERSION,
   ) {
     super(extensionId, currentVersion, supportedNetworks);
   }

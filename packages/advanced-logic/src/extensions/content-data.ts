@@ -10,8 +10,8 @@ export default class ContentDataExtension<
   TCreationParameters extends ExtensionTypes.ContentData.ICreationParameters = ExtensionTypes.ContentData.ICreationParameters,
 > extends AbstractExtension<TCreationParameters> {
   public constructor(
-    public extensionId: ExtensionTypes.ID = ExtensionTypes.ID.CONTENT_DATA,
-    public currentVersion: string = CURRENT_VERSION,
+    public readonly extensionId: ExtensionTypes.ID = ExtensionTypes.ID.CONTENT_DATA,
+    public readonly currentVersion: string = CURRENT_VERSION,
   ) {
     super(ExtensionTypes.TYPE.CONTENT_DATA, extensionId, currentVersion);
   }
