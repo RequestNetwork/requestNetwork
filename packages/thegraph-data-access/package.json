@@ -52,7 +52,6 @@
   "devDependencies": {
     "@types/jest": "26.0.13",
     "jest": "26.4.2",
-    "prettier": "2.2.1",
     "shx": "0.3.2",
     "source-map-support": "0.5.19",
     "ts-jest": "26.3.0",
