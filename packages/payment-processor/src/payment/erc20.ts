@@ -196,13 +196,10 @@ export function encodeApproveAnyErc20(
   amount: BigNumber = MAX_ALLOWANCE,
 ): string {
   if (amount.gt(MAX_ALLOWANCE)) {
-    throw new Error("Invalid amount");
+    throw new Error('Invalid amount');
   }
   const erc20interface = ERC20__factory.connect(tokenAddress, signerOrProvider).interface;
-  return erc20interface.encodeFunctionData('approve', [
-    spenderAddress,
-    amount,
-  ]);
+  return erc20interface.encodeFunctionData('approve', [spenderAddress, amount]);
 }
 
 /**

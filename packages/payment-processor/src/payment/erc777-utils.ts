@@ -8,13 +8,12 @@ import Token from '@superfluid-finance/sdk-core/dist/module/Token';
 import { getSuperFluidFramework } from './erc777-stream';
 import Operation from '@superfluid-finance/sdk-core/dist/module/Operation';
 
-
 /**
  * Gets the underlying token address of an ERC777 currency based request
  * @param request the request that contains currency information
  * @param provider the web3 provider. Defaults to Etherscan
  */
- export async function getRequestUnderlyingToken(
+export async function getRequestUnderlyingToken(
   request: ClientTypes.IRequestData,
   provider: providers.Provider = getNetworkProvider(request),
 ): Promise<Token> {
@@ -25,7 +24,7 @@ import Operation from '@superfluid-finance/sdk-core/dist/module/Operation';
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const sf = await getSuperFluidFramework(request, provider);
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
-  return superToken.underlyingToken
+  return superToken.underlyingToken;
 }
 
 /**
@@ -46,12 +45,12 @@ export async function getUnderlyingTokenBalanceOf(
 }
 
 /**
- * Gets the underlying token allowance for the supertoken 
+ * Gets the underlying token allowance for the supertoken
  * @param request the request that contains currency information
  * @param address token owner
  * @param provider the web3 provider. Defaults to Etherscan
  */
- export async function getUnderlyingTokenAllowance(
+export async function getUnderlyingTokenAllowance(
   request: ClientTypes.IRequestData,
   address: string,
   provider: providers.Provider = getNetworkProvider(request),
@@ -71,31 +70,31 @@ export async function getUnderlyingTokenBalanceOf(
  * @param provider the web3 provider. Defaults to Etherscan
  * @param amount the required amount
  */
- export async function hasEnoughUnderlyingToken(
+export async function hasEnoughUnderlyingToken(
   request: ClientTypes.IRequestData,
   address: string,
   provider: providers.Provider = getNetworkProvider(request),
   amount: BigNumber,
 ): Promise<boolean> {
-  const balance = await getUnderlyingTokenBalanceOf(request, address, provider)
+  const balance = await getUnderlyingTokenBalanceOf(request, address, provider);
   return amount.lte(balance);
 }
 
 /**
- * Determine whether or not the supertoken has enough allowance 
+ * Determine whether or not the supertoken has enough allowance
  * @param request the request that contains currency information
  * @param address token owner
  * @param provider the web3 provider. Defaults to Etherscan
  * @param amount of token required
  */
- export async function hasSuperTokenEnougAllowance(
+export async function hasSuperTokenEnougAllowance(
   request: ClientTypes.IRequestData,
   address: string,
   provider: providers.Provider = getNetworkProvider(request),
   amount: BigNumber = MAX_ALLOWANCE,
 ): Promise<boolean> {
-  const allowance = await getUnderlyingTokenAllowance(request, address, provider)
-  console.log(allowance)
+  const allowance = await getUnderlyingTokenAllowance(request, address, provider);
+  console.log(allowance);
   return BigNumber.from(allowance).gte(amount);
 }
 
@@ -105,7 +104,7 @@ export async function getUnderlyingTokenBalanceOf(
  * @param provider the web3 provider. Defaults to Etherscan
  * @param amount to allow, defalts to max allowance
  */
- export async function getApproveUnderlyingTokenOp(
+export async function getApproveUnderlyingTokenOp(
   request: ClientTypes.IRequestData,
   provider: providers.Provider = getNetworkProvider(request),
   amount: BigNumber = MAX_ALLOWANCE,
@@ -124,7 +123,7 @@ export async function getUnderlyingTokenBalanceOf(
  * @param provider the web3 provider
  * @param amount to allow, defalts to max allowance
  */
- export async function getWrapUnderlyingTokenOp(
+export async function getWrapUnderlyingTokenOp(
   request: ClientTypes.IRequestData,
   provider: providers.Provider = getNetworkProvider(request),
   amount: BigNumber,
@@ -133,7 +132,7 @@ export async function getUnderlyingTokenBalanceOf(
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
   return superToken.upgrade({
     amount: amount.toString(),
-  })
+  });
 }
 
 /**
@@ -141,13 +140,28 @@ export async function getUnderlyingTokenBalanceOf(
  * @param request the request that contains currency information
  * @param signer the web3 signer
  * @param amount to allow, defaults to max allowance
- * @returns 
+ * @returns
  */
-export async function approveUnderlyingToken(request: ClientTypes.IRequestData, signer: Signer, amount: BigNumber = MAX_ALLOWANCE): Promise<ContractTransaction> {
-  if (!(await hasEnoughUnderlyingToken(request, await signer.getAddress(), signer.provider ?? getProvider(), amount))) {
-    throw new Error("Sender does not have enough underlying token");
+export async function approveUnderlyingToken(
+  request: ClientTypes.IRequestData,
+  signer: Signer,
+  amount: BigNumber = MAX_ALLOWANCE,
+): Promise<ContractTransaction> {
+  if (
+    !(await hasEnoughUnderlyingToken(
+      request,
+      await signer.getAddress(),
+      signer.provider ?? getProvider(),
+      amount,
+    ))
+  ) {
+    throw new Error('Sender does not have enough underlying token');
   }
-  const approveOp = await getApproveUnderlyingTokenOp(request, signer.provider ?? getProvider(), amount)
+  const approveOp = await getApproveUnderlyingTokenOp(
+    request,
+    signer.provider ?? getProvider(),
+    amount,
+  );
   return approveOp.exec(signer);
 }
 
@@ -156,18 +170,22 @@ export async function approveUnderlyingToken(request: ClientTypes.IRequestData, 
  * @param request the request that contains currency information
  * @param signer the web3 signer
  * @param amount to allow, defaults to max allowance
- * @returns 
+ * @returns
  */
- export async function wrapUnderlyingToken(request: ClientTypes.IRequestData, signer: Signer, amount: BigNumber = MAX_ALLOWANCE): Promise<ContractTransaction> {
+export async function wrapUnderlyingToken(
+  request: ClientTypes.IRequestData,
+  signer: Signer,
+  amount: BigNumber = MAX_ALLOWANCE,
+): Promise<ContractTransaction> {
   const senderAddress = await signer.getAddress();
-  const provider = signer.provider ?? getProvider()
+  const provider = signer.provider ?? getProvider();
   if (!(await hasSuperTokenEnougAllowance(request, senderAddress, provider, amount))) {
-    throw new Error("Supertoken not allowed to wrap this amount of underlying");
+    throw new Error('Supertoken not allowed to wrap this amount of underlying');
   }
   if (!(await hasEnoughUnderlyingToken(request, senderAddress, provider, amount))) {
-    throw new Error("Sender does not have enough underlying token");
+    throw new Error('Sender does not have enough underlying token');
   }
-  const wrapOp = await getWrapUnderlyingTokenOp(request, signer.provider ?? getProvider(), amount)
+  const wrapOp = await getWrapUnderlyingTokenOp(request, signer.provider ?? getProvider(), amount);
   return wrapOp.exec(signer);
 }
 
@@ -182,23 +200,30 @@ export async function unwrapSuperToken(
   signer: Signer,
   amount: BigNumber,
 ): Promise<ContractTransaction> {
-  const sf = await getSuperFluidFramework(request, signer.provider ?? getProvider())
+  const sf = await getSuperFluidFramework(request, signer.provider ?? getProvider());
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
-  const underlyingToken = await getRequestUnderlyingToken(request, signer.provider ?? getProvider());
+  const underlyingToken = await getRequestUnderlyingToken(
+    request,
+    signer.provider ?? getProvider(),
+  );
 
   if (underlyingToken.address === superToken.address) {
-    throw new Error("This is a native super token")
+    throw new Error('This is a native super token');
   }
 
   const userAddress = await signer.getAddress();
-  if (amount.gt(await superToken.balanceOf({
-    account: userAddress,
-    providerOrSigner: signer.provider ?? getProvider(),
-  }))) {
-    throw new Error("Sender does not have enough supertoken")
+  if (
+    amount.gt(
+      await superToken.balanceOf({
+        account: userAddress,
+        providerOrSigner: signer.provider ?? getProvider(),
+      }),
+    )
+  ) {
+    throw new Error('Sender does not have enough supertoken');
   }
   const downgradeOp = superToken.downgrade({
     amount: amount.toString(),
-  })
+  });
   return downgradeOp.exec(signer);
 }
