@@ -11,7 +11,7 @@ const eightHexRegex = /[0-9a-f]{16,}/;
 export default abstract class ReferenceBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters,
 > extends AddressBasedPaymentNetwork<TCreationParameters> {
-  public constructor(
+  protected constructor(
     public readonly extensionId: ExtensionTypes.ID,
     public readonly currentVersion: string,
     public readonly supportedNetworks: string[],

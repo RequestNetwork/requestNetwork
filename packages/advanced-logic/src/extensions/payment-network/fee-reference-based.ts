@@ -9,7 +9,7 @@ import Utils from '@requestnetwork/utils';
 export abstract class FeeReferenceBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnFeeReferenceBased.ICreationParameters = ExtensionTypes.PnFeeReferenceBased.ICreationParameters,
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
-  public constructor(
+  protected constructor(
     public readonly extensionId: ExtensionTypes.ID,
     public readonly currentVersion: string,
     public readonly supportedNetworks: string[],

@@ -10,7 +10,7 @@ const CURRENT_VERSION = '0.1.0';
 
 export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentNetwork {
   public constructor(
-    private currencyManager: ICurrencyManager,
+    private readonly currencyManager: ICurrencyManager,
     public readonly extensionId: ExtensionTypes.ID = ExtensionTypes.ID
       .PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     public readonly currentVersion: string = CURRENT_VERSION,

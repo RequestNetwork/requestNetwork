@@ -3,7 +3,7 @@ import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { InvalidPaymentAddressError } from './address-based';
 
 export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenceBasedPaymentNetwork {
-  public constructor(
+  protected constructor(
     public readonly extensionId: ExtensionTypes.ID,
     public readonly currentVersion: string,
     public readonly supportedNetworks: string[],

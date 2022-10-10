@@ -10,7 +10,7 @@ import DeclarativePaymentNetwork from './declarative';
 export default abstract class AddressBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
-  public constructor(
+  protected constructor(
     public readonly extensionId: ExtensionTypes.ID,
     public readonly currentVersion: string,
     public readonly supportedNetworks: string[],
@@ -29,7 +29,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData for address based payment networks
    *
-   * @param extensions extensions parameters to create
+   * @param creationParameters extensions parameters to create
    *
    * @returns IExtensionCreationAction the extensionsData to be stored in the request
    */
@@ -58,7 +58,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData to add a payment address
    *
-   * @param extensions extensions parameters to create
+   * @param addPaymentAddressParameters extensions parameters to create
    *
    * @returns IAction the extensionsData to be stored in the request
    */
@@ -82,7 +82,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData to add a refund address
    *
-   * @param extensions extensions parameters to create
+   * @param addRefundAddressParameters extensions parameters to create
    *
    * @returns IAction the extensionsData to be stored in the request
    */

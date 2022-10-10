@@ -7,8 +7,8 @@ import Utils from '@requestnetwork/utils';
 export abstract class AbstractExtension<TCreationParameters> {
   protected actions: ExtensionTypes.SupportedActions;
 
-  public constructor(
-    public extensionType: ExtensionTypes.TYPE,
+  protected constructor(
+    public readonly extensionType: ExtensionTypes.TYPE,
     public readonly extensionId: ExtensionTypes.ID,
     public readonly currentVersion: string,
   ) {
