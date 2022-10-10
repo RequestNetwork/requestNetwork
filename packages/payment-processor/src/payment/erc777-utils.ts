@@ -94,7 +94,6 @@ export async function hasSuperTokenEnougAllowance(
   amount: BigNumber = MAX_ALLOWANCE,
 ): Promise<boolean> {
   const allowance = await getUnderlyingTokenAllowance(request, address, provider);
-  console.log(allowance);
   return BigNumber.from(allowance).gte(amount);
 }
 
