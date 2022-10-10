@@ -11,6 +11,8 @@ import { getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
+export const MAX_ALLOWANCE = BigNumber.from(2).pow(256).sub(1);
+
 /**
  * Thrown when the library does not support a payment blockchain network.
  */
