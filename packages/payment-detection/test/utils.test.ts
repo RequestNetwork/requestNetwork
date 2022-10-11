@@ -1,6 +1,5 @@
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
-import { errors } from 'ethers';
 import {
   padAmountForChainlink,
   unpadAmountFromChainlink,

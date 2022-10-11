@@ -1,12 +1,13 @@
+import { mocked } from 'ts-jest/utils';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
-import { TheGraphClient } from '../../src/thegraph';
 import { CurrencyManager } from '@requestnetwork/currency';
+import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
+import { getTheGraphClient } from '../../src/thegraph';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
@@ -15,12 +16,9 @@ const createAddRefundAddressAction = jest.fn();
 const createCreationAction = jest.fn();
 const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
-const subgraphClientMock: jest.Mocked<TheGraphClient> = {
-  GetLastSyncedBlock: jest.fn(),
-  GetPaymentsAndEscrowState: jest.fn(),
-  GetSyncedBlock: jest.fn(),
-};
-const getSubgraphClient = () => subgraphClientMock;
+
+jest.mock('../../src/thegraph/client');
+const theGraphClientMock = mocked(getTheGraphClient(''));
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
@@ -44,7 +42,7 @@ describe('api/erc20/proxy-contract', () => {
     erc20ProxyContract = new ERC20ProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager: CurrencyManager.getDefault(),
-      getSubgraphClient,
+      getSubgraphClient: () => theGraphClientMock,
     });
   });
 
@@ -203,7 +201,7 @@ describe('api/erc20/proxy-contract', () => {
       },
     };
 
-    subgraphClientMock.GetPaymentsAndEscrowState.mockResolvedValueOnce({
+    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValueOnce({
       payments: [
         {
           amount: '1000000000000000000',

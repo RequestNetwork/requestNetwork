@@ -3,14 +3,13 @@ import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
 import { AnyToEthFeeProxyPaymentDetector } from '../../src/any';
-import { TheGraphClient } from '../../src/thegraph';
+import { getTheGraphClient } from '../../src/thegraph';
+import { mocked } from 'ts-jest/utils';
 
 const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');
-const subgraphClientMock: jest.Mocked<TheGraphClient> = {
-  GetLastSyncedBlock: jest.fn(),
-  GetPaymentsAndEscrowState: jest.fn(),
-  GetSyncedBlock: jest.fn(),
-};
+
+jest.mock('../../src/thegraph/client');
+const theGraphClientMock = mocked(getTheGraphClient(''));
 describe('Any to ETH payment detection', () => {
   const mockRequest: RequestLogicTypes.IRequest = {
     creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
@@ -118,7 +117,7 @@ describe('Any to ETH payment detection', () => {
   });
 
   it('TheGraph Payment detection', async () => {
-    subgraphClientMock.GetPaymentsAndEscrowState.mockResolvedValue({
+    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValue({
       payments: [
         {
           amount: '5000000000',
@@ -146,7 +145,7 @@ describe('Any to ETH payment detection', () => {
     const detector = new AnyToEthFeeProxyPaymentDetector({
       advancedLogic: new AdvancedLogic(currencyManager),
       currencyManager,
-      getSubgraphClient: () => subgraphClientMock,
+      getSubgraphClient: () => theGraphClientMock,
     });
     const balance = await detector.getBalance(mockRequest);
     expect(balance.error).not.toBeDefined();

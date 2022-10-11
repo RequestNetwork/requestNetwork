@@ -1,3 +1,4 @@
+import { mocked } from 'ts-jest/utils';
 import { CurrencyManager } from '@requestnetwork/currency';
 import {
   AdvancedLogicTypes,
@@ -5,7 +6,11 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { getTheGraphClient } from '../../src/thegraph';
 import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
+
+jest.mock('../../src/thegraph/client');
+const theGraphClientMock = mocked(getTheGraphClient(''));
 
 let ethInputData: EthInputDataPaymentDetector;
 
@@ -40,7 +45,7 @@ describe('api/eth/input-data', () => {
       advancedLogic: mockAdvancedLogic,
       currencyManager: CurrencyManager.getDefault(),
       explorerApiKeys: {},
-      getSubgraphClient: jest.fn(),
+      getSubgraphClient: () => theGraphClientMock,
     });
   });
 
@@ -244,7 +249,33 @@ describe('api/eth/input-data', () => {
         value: '0x1D274D164937465B7A7259347AD3f1aaEEEaC8e1',
       },
     };
+
+    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValue({
+      payments: [
+        {
+          amount: '80000000000000000',
+          block: 8538429,
+          txHash: '0x837793a46b6be3986a362a67e9d34b345c95799bce14b7e95d6ac74f4662f484',
+          feeAmount: null,
+          feeAddress: null,
+          from: '0x61076da38517be36d433e3ff8d6875b87880ba56',
+          gasUsed: '74480',
+          gasPrice: '2000000000',
+          timestamp: 1620311313,
+          contractAddress: '0x9c6c7817e3679c4b3f9ef9486001eae5aaed25ff',
+          to: '0x8400b234e7b113686bd584af9b1041e5a233e754',
+          tokenAddress: null,
+          currency: null,
+          amountInCrypto: null,
+          feeAmountInCrypto: null,
+          maxRateTimespan: null,
+        },
+      ],
+      escrowEvents: [],
+    });
+
     const balance = await ethInputData.getBalance(rinkebyRequest as RequestLogicTypes.IRequest);
+    expect(balance.error).toBeUndefined();
     expect(balance.balance).toBe('80000000000000000');
     expect(balance.events).toHaveLength(1);
     expect(balance.events[0].name).toBe(PaymentTypes.EVENTS_NAMES.PAYMENT);
