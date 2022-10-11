@@ -17,10 +17,12 @@ import Erc777Stream from './extensions/payment-network/erc777/stream';
 import FeeProxyContractEth from './extensions/payment-network/ethereum/fee-proxy-contract';
 import EthereumInputData from './extensions/payment-network/ethereum/input-data';
 import NearNative from './extensions/payment-network/near-native';
+import NearTestnetNative from './extensions/payment-network/near-testnet-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
 import NativeTokenPaymentNetwork from './extensions/payment-network/native-token';
 import AnyToNear from './extensions/payment-network/any-to-near';
+import AnyToNearTestnet from './extensions/payment-network/any-to-near-testnet';
 import AnyToNativeTokenPaymentNetwork from './extensions/payment-network/any-to-native';
 
 /**
@@ -63,8 +65,8 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       erc777Stream: new Erc777Stream(),
       feeProxyContractEth: new FeeProxyContractEth(),
       anyToEthProxy: new AnyToEthProxy(currencyManager),
-      nativeToken: [new NearNative()],
-      anyToNativeToken: [new AnyToNear(currencyManager)],
+      nativeToken: [new NearNative(), new NearTestnetNative()],
+      anyToNativeToken: [new AnyToNear(currencyManager), new AnyToNearTestnet(currencyManager)],
     };
   }
 

@@ -64,7 +64,7 @@ const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
 export type PaymentNetworkOptions = {
   /** override default bitcoin detection provider */
   bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
-  /** the explorer API (eg Etherscan) api keys, for PNs that rely on it. Record by network name  */
+  /** the explorer API (e.g. Etherscan) api keys, for PNs that rely on it. Record by network name  */
   explorerApiKeys?: Record<string, string>;
 };
 
@@ -115,6 +115,7 @@ export class PaymentNetworkFactory {
     }
 
     const detector = new detectorClass({
+      network,
       advancedLogic: this.advancedLogic,
       currencyManager: this.currencyManager,
       ...this.options,

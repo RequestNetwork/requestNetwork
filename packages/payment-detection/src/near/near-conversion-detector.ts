@@ -1,13 +1,7 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
-
-import { AnyToAnyDetector } from '../any-to-any-detector';
-import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever';
+import { AnyToNativeDetector } from '../any-to-native-detector';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -22,27 +16,7 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment with conversion
  */
-export class NearConversionNativeTokenPaymentDetector extends AnyToAnyDetector<
-  ExtensionTypes.PnAnyToEth.IAnyToEth,
-  PaymentTypes.IETHPaymentEventParameters
-> {
-  /**
-   * @param extension The advanced logic payment network extension
-   */
-  public constructor({
-    advancedLogic,
-    currencyManager,
-  }: {
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    currencyManager: ICurrencyManager;
-  }) {
-    super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE,
-      advancedLogic.extensions.anyToNativeToken[0],
-      currencyManager,
-    );
-  }
-
+export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetector {
   public static getContractName = (chainName: string, paymentNetworkVersion = '0.1.0'): string => {
     const version =
       NearConversionNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);

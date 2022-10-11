@@ -1,8 +1,8 @@
 import NativeTokenPaymentNetwork from '../../../src/extensions/payment-network/native-token';
 import NearNativePaymentNetwork from '../../../src/extensions/payment-network/near-native';
 import {
-  requestStateNoExtensions,
   arbitrarySalt,
+  requestStateNoExtensions,
 } from '../../utils/payment-network/any/generator-data-create';
 import {
   actionCreationWithNativeTokenPayment,
@@ -265,7 +265,7 @@ describe('extensions/payment-network/native-token', () => {
         currency: mainnetTestCase.currency,
       };
 
-      const intermediateExtensionState = advancedLogic.applyActionToExtensions(
+      requestState.extensions = advancedLogic.applyActionToExtensions(
         requestState.extensions,
         nearPn.createCreationAction({ salt, paymentNetworkName: 'aurora' }),
         requestState,
@@ -273,20 +273,10 @@ describe('extensions/payment-network/native-token', () => {
         arbitraryTimestamp,
       );
 
-      requestState.extensions = intermediateExtensionState;
-
-      const addPaymentAddressAction = nearPn.createAddPaymentAddressAction({
-        paymentAddress: 'pay.testnet',
-      });
-
       expect(() => {
-        advancedLogic.applyActionToExtensions(
-          intermediateExtensionState,
-          addPaymentAddressAction,
-          requestState,
-          payeeRaw.identity,
-          arbitraryTimestamp,
-        );
+        nearPn.createAddPaymentAddressAction({
+          paymentAddress: 'pay.testnet',
+        });
       }).toThrowError("paymentAddress 'pay.testnet' is not a valid address");
     });
     it('throws with no state or action payment network', () => {
