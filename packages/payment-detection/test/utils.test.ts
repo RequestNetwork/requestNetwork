@@ -1,10 +1,12 @@
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { errors } from 'ethers';
 import {
   padAmountForChainlink,
   unpadAmountFromChainlink,
   calculateEscrowState,
   getPaymentReference,
+  formatAddress,
 } from '../src';
 
 describe('conversion: padding amounts for Chainlink', () => {
@@ -323,5 +325,51 @@ describe('getPaymentReference', () => {
         PaymentTypes.EVENTS_NAMES.ESCROW,
       ),
     ).toBe('6edd2877758e7e69');
+  });
+});
+
+describe('formatAddress', () => {
+  it('returns the checksumed address when checksum is valid', () => {
+    expect(formatAddress('0xFab46E002BbF0b4509813474841E0716E6730136', 'abcd')).toBe(
+      '0xFab46E002BbF0b4509813474841E0716E6730136',
+    );
+  });
+
+  it('returns a checksumed address when checksum is missing', () => {
+    expect(formatAddress('0xfab46e002bbf0b4509813474841e0716e6730136', 'abcd')).toBe(
+      '0xFab46E002BbF0b4509813474841E0716E6730136',
+    );
+  });
+
+  it('throws the key name along with the value', () => {
+    expect(() => formatAddress('wrong', 'abcd')).toThrow(
+      /invalid address \(argument=\"address\", value=\"wrong\", key=\"abcd\", code=INVALID_ARGUMENT, version=ethers\/5.5.1\)/,
+    );
+  });
+
+  it('fails on invalid checksum', () => {
+    expect(() => formatAddress('0XFAB46E002BBF0B4509813474841E0716e6730136', 'abcd')).toThrow(
+      /invalid address \(argument=\"address\", value=\"0XFAB46E002BBF0B4509813474841E0716e6730136\", key=\"abcd\", code=INVALID_ARGUMENT, version=ethers\/5.5.1\)/,
+    );
+  });
+
+  it('throws if undefined', () => {
+    expect(() => formatAddress('', 'abcd')).toThrowError();
+    expect(() => formatAddress(null, 'abcd')).toThrowError();
+    expect(() => formatAddress(undefined, 'abcd')).toThrowError();
+
+    // type assertion
+    const val: string = formatAddress('0xFab46E002BbF0b4509813474841E0716E6730136');
+    expect(val).toBe('0xFab46E002BbF0b4509813474841E0716E6730136');
+  });
+
+  it('returns undefined when allowed', () => {
+    expect(formatAddress('', 'abcd', true)).toBeUndefined();
+    expect(formatAddress(null, 'abcd', true)).toBeUndefined();
+    expect(formatAddress(undefined, 'abcd', true)).toBeUndefined();
+
+    // type assertion
+    const val: string | undefined = formatAddress('', '', true);
+    expect(val).toBeUndefined();
   });
 });

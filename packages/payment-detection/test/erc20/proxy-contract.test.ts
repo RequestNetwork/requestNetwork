@@ -216,14 +216,13 @@ describe('api/erc20/proxy-contract', () => {
           gasPrice: '1000000000',
           timestamp: 1579705909,
           contractAddress: '0x162edb802fae75b9ee4288345735008ba51a4ec9',
-          to: '',
+          to: '0x0e8d9cb9e11278ad6e2ba1ca90385c7295dc6532',
         },
       ],
       escrowEvents: [],
     });
 
     const balance = await erc20ProxyContract.getBalance(mockRequest);
-
     const parameters = balance.events[0].parameters as any;
     expect(parameters.gasUsed).toBe('41013');
     expect(parameters.gasPrice).toBe('1000000000');

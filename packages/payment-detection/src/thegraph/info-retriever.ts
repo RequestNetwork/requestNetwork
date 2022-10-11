@@ -4,7 +4,7 @@ import { utils } from 'ethers';
 import { pick, mapValues } from 'lodash';
 import type { TheGraphClient } from '.';
 import type { EscrowEventResultFragment, PaymentEventResultFragment } from './generated/graphql';
-import { unpadAmountFromChainlink } from '../utils';
+import { formatAddress, unpadAmountFromChainlink } from '../utils';
 
 type TransferEventsParams = {
   /** The reference to identify the payment*/
@@ -37,8 +37,9 @@ export class TheGraphInfoRetriever {
       to: params.toAddress,
     });
 
-    params.contractAddress = utils.getAddress(params.contractAddress);
-    params.acceptedTokens = params.acceptedTokens?.map(utils.getAddress) || [];
+    params.contractAddress = formatAddress(params.contractAddress, 'contractAddress');
+    params.acceptedTokens =
+      params.acceptedTokens?.map((tok) => formatAddress(tok, 'acceptedTokens')) || [];
     return {
       paymentEvents: payments
         .filter((payment) => this.filterPaymentEvents(payment, params))
@@ -49,13 +50,13 @@ export class TheGraphInfoRetriever {
 
   private filterPaymentEvents(payment: PaymentEventResultFragment, params: TransferEventsParams) {
     // Check contract address matches expected
-    if (utils.getAddress(payment.contractAddress) !== params.contractAddress) {
+    if (formatAddress(payment.contractAddress) !== params.contractAddress) {
       return false;
     }
     // Check paid token tokens matches expected (conversion only)
     if (
       payment.tokenAddress &&
-      !params.acceptedTokens?.includes(utils.getAddress(payment.tokenAddress))
+      !params.acceptedTokens?.includes(formatAddress(payment.tokenAddress, 'tokenAddress'))
     ) {
       return false;
     }
@@ -94,7 +95,7 @@ export class TheGraphInfoRetriever {
       parameters: {
         feeAmount,
         block: payment.block,
-        to: utils.getAddress(payment.to),
+        to: formatAddress(payment.to, 'to'),
         ...mapValues(
           pick(
             payment,
@@ -108,8 +109,8 @@ export class TheGraphInfoRetriever {
           String,
         ),
         // Make sure the checksum is right for addresses.
-        ...mapValues(pick(payment, 'from', 'feeAddress', 'tokenAddress'), (str) =>
-          str ? utils.getAddress(str) : undefined,
+        ...mapValues(pick(payment, 'from', 'feeAddress', 'tokenAddress'), (str, key) =>
+          str ? formatAddress(str, key) : undefined,
         ),
       },
     };

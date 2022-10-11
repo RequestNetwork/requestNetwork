@@ -15,6 +15,7 @@ import {
   calculateEscrowState,
   getPaymentNetworkExtension,
   getPaymentReference,
+  formatAddress,
 } from './utils';
 import { NearNativeTokenPaymentDetector, NearConversionNativeTokenPaymentDetector } from './near';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
@@ -53,4 +54,5 @@ export {
   calculateEscrowState,
   getPaymentNetworkExtension,
   getPaymentReference,
+  formatAddress,
 };
