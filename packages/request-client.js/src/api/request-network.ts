@@ -57,7 +57,7 @@ export default class RequestNetwork {
     signatureProvider?: SignatureProviderTypes.ISignatureProvider;
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
     currencyManager?: ICurrencyManager;
-    paymentOptions?: PaymentNetworkOptions;
+    paymentOptions?: Partial<PaymentNetworkOptions>;
   }) {
     this.currencyManager = currencyManager || CurrencyManager.getDefault();
     this.advancedLogic = new AdvancedLogic(this.currencyManager);

@@ -11,9 +11,12 @@ import {
   privateErc20Address,
   requestNetwork,
 } from './fixtures';
+import { CurrencyManager } from 'currency/dist';
 
 const erc20ProxyAddressedBased = new Erc20PaymentNetwork.ERC20ProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,
+  currencyManager: CurrencyManager.getDefault(),
+  getSubgraphClient: jest.fn(),
 });
 
 describe('ERC20 Proxy detection test-suite', () => {
