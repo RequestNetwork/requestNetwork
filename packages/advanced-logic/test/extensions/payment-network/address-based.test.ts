@@ -13,7 +13,7 @@ describe('extensions/payment-network/address-based', () => {
         super(extensionId, currentVersion, supportedCurrencyType);
       }
       public testIsValidAddress() {
-        this.isValidAddress('test', 'test');
+        this.isValidAddress('test');
       }
     }
     expect(() => {
