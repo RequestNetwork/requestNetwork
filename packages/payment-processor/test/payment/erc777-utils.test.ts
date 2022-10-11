@@ -10,10 +10,9 @@ import {
 
 import {
   approveUnderlyingToken,
+  checkSuperTokenUnderlyingAllowance,
   getRequestUnderlyingToken,
-  getUnderlyingTokenAllowance,
   getUnderlyingTokenBalanceOf,
-  hasSuperTokenEnougAllowance,
   unwrapSuperToken,
   wrapUnderlyingToken,
 } from '../../src/payment/erc777-utils';
@@ -93,7 +92,7 @@ describe('erc777-utils', () => {
         wallet.address,
         provider,
       );
-      expect(underlyingBalance).toEqual('0');
+      expect(underlyingBalance.toString()).toEqual('0');
 
       // Mint some fake DAI
       const underlyingToken = await getRequestUnderlyingToken(validRequest, provider);
@@ -107,20 +106,13 @@ describe('erc777-utils', () => {
         validRequest,
         wallet.address,
       );
-      expect(underlyingBalanceAfter).toEqual(initialUnderlyingAmount);
+      expect(underlyingBalanceAfter.toString()).toEqual(initialUnderlyingAmount);
     });
   });
 
   describe('underlying allowance', () => {
     it('should return the allowance granted to a supertoken by a user', async () => {
-      const underlyingAllowance = await getUnderlyingTokenAllowance(
-        validRequest,
-        wallet.address,
-        provider,
-      );
-      expect(underlyingAllowance).toEqual('0');
-
-      const hasAllowance = await hasSuperTokenEnougAllowance(
+      const hasAllowance = await checkSuperTokenUnderlyingAllowance(
         validRequest,
         wallet.address,
         provider,
@@ -137,14 +129,7 @@ describe('erc777-utils', () => {
       );
       await tx.wait(1);
 
-      const underlyingAllowance = await getUnderlyingTokenAllowance(
-        validRequest,
-        wallet.address,
-        provider,
-      );
-      expect(underlyingAllowance).toEqual(arbitraryWrappedAmount);
-
-      const hasAllowance = await hasSuperTokenEnougAllowance(
+      const hasAllowance = await checkSuperTokenUnderlyingAllowance(
         validRequest,
         wallet.address,
         provider,
