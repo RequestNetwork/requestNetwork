@@ -15,6 +15,7 @@ export abstract class PaymentDetectorBase<
     public readonly paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
     public readonly extension: TExtension,
   ) {}
+
   abstract createExtensionsDataForCreation(paymentNetworkCreationParameters: any): Promise<any>;
   abstract createExtensionsDataForAddRefundInformation(parameters: any): any;
   abstract createExtensionsDataForAddPaymentInformation(parameters: any): any;
