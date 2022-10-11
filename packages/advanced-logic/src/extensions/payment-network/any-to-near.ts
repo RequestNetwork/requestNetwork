@@ -2,9 +2,11 @@ import { ICurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/curr
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { UnsupportedNetworkError } from './address-based';
 import AnyToNativeTokenPaymentNetwork from './any-to-native';
+import * as Semver from 'semver';
 
-const CURRENT_VERSION = '0.1.0';
-const supportedNetworks = ['aurora', 'aurora-testnet'];
+const CURRENT_VERSION = '0.2.0';
+const supportedNetworksLegacy = ['aurora', 'aurora-testnet'];
+const supportedNetworks = ['near', 'near-testnet'];
 
 export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetwork {
   public constructor(
@@ -12,7 +14,10 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(extensionId, currentVersion, supportedNetworks);
+    const supportedNetworksForVersion = Semver.lt(currentVersion, CURRENT_VERSION)
+      ? supportedNetworksLegacy
+      : supportedNetworks;
+    super(extensionId, currentVersion, supportedNetworksForVersion);
   }
 
   /**
@@ -24,8 +29,10 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
   protected isValidAddress(address: string, networkName?: string): boolean {
     switch (networkName) {
       case 'aurora':
+      case 'near':
         return this.isValidMainnetAddress(address);
       case 'aurora-testnet':
+      case 'near-testnet':
         return this.isValidTestnetAddress(address);
       case undefined:
         return this.isValidMainnetAddress(address) || this.isValidTestnetAddress(address);
@@ -35,11 +42,11 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
   }
 
   private isValidMainnetAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'aurora');
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'near');
   }
 
   private isValidTestnetAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'aurora-testnet');
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'near-testnet');
   }
 
   /**
