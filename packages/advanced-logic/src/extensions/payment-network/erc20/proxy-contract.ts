@@ -9,12 +9,11 @@ const CURRENT_VERSION = '0.1.0';
 export default class Erc20ProxyPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnReferenceBased.ICreationParameters = ExtensionTypes.PnReferenceBased.ICreationParameters,
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
-  public constructor(
-    public extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
-    public currentVersion: string = CURRENT_VERSION,
-    public supportedNetworks: string[] = ['mainnet', 'rinkeby', 'goerli', 'private'],
-    public supportedCurrencyType: RequestLogicTypes.CURRENCY = RequestLogicTypes.CURRENCY.ERC20,
-  ) {
-    super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);
+  public constructor() {
+    super(
+      ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+      CURRENT_VERSION,
+      RequestLogicTypes.CURRENCY.ERC20,
+    );
   }
 }

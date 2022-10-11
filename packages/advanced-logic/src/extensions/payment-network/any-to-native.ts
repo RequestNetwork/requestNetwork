@@ -1,14 +1,14 @@
 import { FeeReferenceBasedPaymentNetwork } from './fee-reference-based';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { InvalidPaymentAddressError } from './address-based';
+import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based';
 
 export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenceBasedPaymentNetwork {
-  public constructor(
+  protected constructor(
     extensionId: ExtensionTypes.ID,
     currentVersion: string,
-    supportedNetworks: string[],
+    public readonly supportedNetworks: string[],
   ) {
-    super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
+    super(extensionId, currentVersion, RequestLogicTypes.CURRENCY.ETH);
   }
 
   public createCreationAction(
@@ -43,6 +43,13 @@ export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenc
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected abstract isValidAddress(_address: string, _networkName?: string): boolean;
+
+  protected throwIfInvalidNetwork(network?: string): asserts network is string {
+    super.throwIfInvalidNetwork(network);
+    if (this.supportedNetworks && !this.supportedNetworks.includes(network)) {
+      throw new UnsupportedNetworkError(network, this.supportedNetworks);
+    }
+  }
 }
 
 export class InvalidMaxRateTimespanError extends Error {

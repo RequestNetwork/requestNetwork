@@ -24,6 +24,9 @@ export {
 
 /** Extension interface is extended by the extensions implementation */
 export interface IExtension<T = any> {
+  extensionType: TYPE;
+  extensionId: ID;
+  currentVersion: string;
   applyActionToExtension: (
     extensionsState: RequestLogic.IExtensionStates,
     extensionAction: IAction<T>,

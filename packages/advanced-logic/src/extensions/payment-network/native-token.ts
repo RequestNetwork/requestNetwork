@@ -1,5 +1,5 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { InvalidPaymentAddressError } from './address-based';
+import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-based';
 
 import ReferenceBasedPaymentNetwork from './reference-based';
 
@@ -10,9 +10,9 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
   public constructor(
     extensionId: ExtensionTypes.ID,
     currentVersion: string,
-    supportedNetworks: string[],
+    public readonly supportedNetworks: string[],
   ) {
-    super(extensionId, currentVersion, supportedNetworks, RequestLogicTypes.CURRENCY.ETH);
+    super(extensionId, currentVersion, RequestLogicTypes.CURRENCY.ETH);
   }
 
   public createCreationAction(
@@ -44,5 +44,12 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
     throw new Error(
       `Default implementation of isValidAddress() does not support native tokens. Please override this method.`,
     );
+  }
+
+  protected throwIfInvalidNetwork(network?: string): asserts network is string {
+    super.throwIfInvalidNetwork(network);
+    if (this.supportedNetworks && !this.supportedNetworks.includes(network)) {
+      throw new UnsupportedNetworkError(network, this.supportedNetworks);
+    }
   }
 }

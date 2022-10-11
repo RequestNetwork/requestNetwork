@@ -1,18 +1,21 @@
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import { IPaymentNetworkModuleByType, ISupportedPaymentNetworkByCurrency } from './types';
-import { BtcMainnetAddressBasedDetector } from './btc/mainnet-address-based';
-import { BtcTestnetAddressBasedDetector } from './btc/testnet-address-based';
+import {
+  ContractBasedDetector,
+  IPaymentNetworkModuleByType,
+  ISupportedPaymentNetworkByCurrency,
+} from './types';
+import { BtcMainnetAddressBasedDetector, BtcTestnetAddressBasedDetector } from './btc';
 import { DeclarativePaymentDetector } from './declarative';
-import { ERC20AddressBasedPaymentDetector } from './erc20/address-based';
-import { ERC20FeeProxyPaymentDetector } from './erc20/fee-proxy-contract';
-import { ERC20ProxyPaymentDetector } from './erc20/proxy-contract';
+import {
+  ERC20AddressBasedPaymentDetector,
+  ERC20FeeProxyPaymentDetector,
+  ERC20ProxyPaymentDetector,
+} from './erc20';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
-import { EthInputDataPaymentDetector } from './eth/input-data';
-import { EthFeeProxyPaymentDetector } from './eth/fee-proxy-detector';
-import { AnyToERC20PaymentDetector } from './any/any-to-erc20-proxy';
+import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
+import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
-import { AnyToEthFeeProxyPaymentDetector } from './any/any-to-eth-proxy';
 import { getPaymentNetworkExtension } from './utils';
 
 const PN_ID = PaymentTypes.PAYMENT_NETWORK_ID;
@@ -83,8 +86,9 @@ export class PaymentNetworkFactory {
    * Creates a payment network according to payment network creation parameters
    * It throws if the payment network given is not supported by this library
    *
-   * @param currency the currency of the request
-   * @param paymentNetworkCreationParameters creation parameters of payment network
+   * @param paymentNetworkId the ID of the payment network to instantiate
+   * @param currencyType the currency type of the request
+   * @param currencyNetwork the network of the currency of the payment to detect
    * @returns the module to handle the payment network
    */
   public createPaymentNetwork(
@@ -92,8 +96,9 @@ export class PaymentNetworkFactory {
     currencyType: RequestLogicTypes.CURRENCY,
     currencyNetwork?: string,
   ): PaymentTypes.IPaymentNetwork {
+    const network = currencyNetwork || 'mainnet';
     const currencyPaymentMap =
-      supportedPaymentNetwork[currencyType]?.[currencyNetwork || 'mainnet'] ||
+      supportedPaymentNetwork[currencyType]?.[network] ||
       supportedPaymentNetwork[currencyType]?.['*'] ||
       {};
     const paymentNetworkMap = {
@@ -101,18 +106,29 @@ export class PaymentNetworkFactory {
       ...anyCurrencyPaymentNetwork,
     };
 
-    if (!paymentNetworkMap[paymentNetworkId]) {
+    const detectorClass = paymentNetworkMap[paymentNetworkId];
+
+    if (!detectorClass) {
       throw new Error(
-        `the payment network id: ${paymentNetworkId} is not supported for the currency: ${currencyType} on network ${
-          currencyNetwork || 'mainnet'
-        }`,
+        `the payment network id: ${paymentNetworkId} is not supported for the currency: ${currencyType} on network ${network}`,
       );
     }
-    return new paymentNetworkMap[paymentNetworkId]({
+
+    const detector = new detectorClass({
       advancedLogic: this.advancedLogic,
       currencyManager: this.currencyManager,
       ...this.options,
     });
+
+    if ('getDeploymentInformation' in detectorClass) {
+      // this throws if the contract isn't deployed but is mandatory for payment detection
+      (detectorClass as ContractBasedDetector).getDeploymentInformation(
+        network,
+        detector.extension.currentVersion,
+      );
+    }
+
+    return detector;
   }
 
   /**

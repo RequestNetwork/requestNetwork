@@ -22,6 +22,7 @@ export enum PAYMENT_NETWORK_ID {
 /** Interface for payment network extensions state and interpretation */
 export interface IPaymentNetwork<TEventParameters = any> {
   paymentNetworkId: PAYMENT_NETWORK_ID;
+  extension: Extension.IExtension;
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;

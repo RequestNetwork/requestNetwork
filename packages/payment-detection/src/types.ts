@@ -1,4 +1,10 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { PaymentDetectorBase } from './payment-detector-base';
+import { GetDeploymentInformation } from './utils';
+
+export interface ContractBasedDetector {
+  getDeploymentInformation: GetDeploymentInformation<false>;
+}
 
 /** Generic info retriever interface */
 export interface IPaymentRetriever<
@@ -24,9 +30,12 @@ export interface IEventRetriever<
 }
 
 /** Object interface to list the payment network module by id */
-export interface IPaymentNetworkModuleByType {
-  [type: string]: any;
-}
+export type IPaymentNetworkModuleByType = Partial<
+  Record<
+    PaymentTypes.PAYMENT_NETWORK_ID,
+    new (...pnParams: any) => PaymentDetectorBase<ExtensionTypes.IExtension, any>
+  >
+>;
 
 /** Object interface to list the payment network module by network */
 export interface ISupportedPaymentNetworkByNetwork {

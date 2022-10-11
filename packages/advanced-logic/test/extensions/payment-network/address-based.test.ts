@@ -5,6 +5,13 @@ import AddressBasedPaymentNetwork from '../../../src/extensions/payment-network/
 describe('extensions/payment-network/address-based', () => {
   it('address validation should throw when using unsupported currency type', () => {
     class TestAddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
+      public constructor(
+        extensionId: ExtensionTypes.ID,
+        currentVersion: string,
+        supportedCurrencyType: RequestLogicTypes.CURRENCY,
+      ) {
+        super(extensionId, currentVersion, supportedCurrencyType);
+      }
       public testIsValidAddress() {
         this.isValidAddress('test', 'test');
       }
@@ -13,7 +20,6 @@ describe('extensions/payment-network/address-based', () => {
       const testAddressBasedPaymentNetwork = new TestAddressBasedPaymentNetwork(
         ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
         'test',
-        [],
         RequestLogicTypes.CURRENCY.ISO4217,
       );
       testAddressBasedPaymentNetwork.testIsValidAddress();
@@ -23,6 +29,13 @@ describe('extensions/payment-network/address-based', () => {
   });
   it('address validation should throw when using unsupported currency', () => {
     class TestAddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
+      public constructor(
+        extensionId: ExtensionTypes.ID,
+        currentVersion: string,
+        supportedCurrencyType: RequestLogicTypes.CURRENCY,
+      ) {
+        super(extensionId, currentVersion, supportedCurrencyType);
+      }
       public testIsValidAddress() {
         this.isValidAddressForSymbolAndNetwork('test', 'test', 'test');
       }
@@ -31,7 +44,6 @@ describe('extensions/payment-network/address-based', () => {
       const testAddressBasedPaymentNetwork = new TestAddressBasedPaymentNetwork(
         ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
         'test',
-        [],
         RequestLogicTypes.CURRENCY.ERC20,
       );
       testAddressBasedPaymentNetwork.testIsValidAddress();

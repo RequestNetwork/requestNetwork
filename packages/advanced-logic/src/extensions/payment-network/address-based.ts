@@ -10,11 +10,10 @@ import DeclarativePaymentNetwork from './declarative';
 export default abstract class AddressBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
-  public constructor(
-    public extensionId: ExtensionTypes.ID,
-    public currentVersion: string,
-    public supportedNetworks: string[],
-    public supportedCurrencyType: RequestLogicTypes.CURRENCY,
+  protected constructor(
+    extensionId: ExtensionTypes.ID,
+    currentVersion: string,
+    public readonly supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {
     super(extensionId, currentVersion);
     this.actions = {
@@ -29,7 +28,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData for address based payment networks
    *
-   * @param extensions extensions parameters to create
+   * @param creationParameters extensions parameters to create
    *
    * @returns IExtensionCreationAction the extensionsData to be stored in the request
    */
@@ -58,7 +57,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData to add a payment address
    *
-   * @param extensions extensions parameters to create
+   * @param addPaymentAddressParameters extensions parameters to create
    *
    * @returns IAction the extensionsData to be stored in the request
    */
@@ -82,7 +81,7 @@ export default abstract class AddressBasedPaymentNetwork<
   /**
    * Creates the extensionsData to add a refund address
    *
-   * @param extensions extensions parameters to create
+   * @param addRefundAddressParameters extensions parameters to create
    *
    * @returns IAction the extensionsData to be stored in the request
    */
@@ -140,23 +139,8 @@ export default abstract class AddressBasedPaymentNetwork<
     };
   }
 
-  protected isValidAddress(address: string, networkName?: string): boolean {
-    if (networkName) {
-      return this.isValidAddressForNetwork(address, networkName);
-    }
-    return this.supportedNetworks.some((network) =>
-      this.isValidAddressForNetwork(address, network),
-    );
-  }
-
-  protected isValidAddressForNetwork(address: string, network: string): boolean {
+  protected isValidAddress(address: string): boolean {
     switch (this.supportedCurrencyType) {
-      case RequestLogicTypes.CURRENCY.BTC:
-        return this.isValidAddressForSymbolAndNetwork(
-          address,
-          network === 'testnet' ? 'BTC-testnet' : 'BTC',
-          network,
-        );
       case RequestLogicTypes.CURRENCY.ETH:
       case RequestLogicTypes.CURRENCY.ERC20:
       case RequestLogicTypes.CURRENCY.ERC777:
@@ -182,12 +166,13 @@ export default abstract class AddressBasedPaymentNetwork<
   }
 
   /**
-   * Applies add payment address
+   * Applies the add payment address action
    *
    * @param extensionState previous state of the extension
    * @param extensionAction action to apply
    * @param requestState request state read-only
    * @param actionSigner identity of the signer
+   * @param timestamp
    *
    * @returns state of the extension updated
    */
@@ -200,7 +185,7 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.paymentAddress &&
-      !this.isValidAddress(extensionAction.parameters.paymentAddress, requestState.currency.network)
+      !this.isValidAddress(extensionAction.parameters.paymentAddress)
     ) {
       throw new InvalidPaymentAddressError(extensionAction.parameters.paymentAddress);
     }
@@ -247,7 +232,7 @@ export default abstract class AddressBasedPaymentNetwork<
   ): ExtensionTypes.IState {
     if (
       extensionAction.parameters.refundAddress &&
-      !this.isValidAddress(extensionAction.parameters.refundAddress, requestState.currency.network)
+      !this.isValidAddress(extensionAction.parameters.refundAddress)
     ) {
       throw Error('refundAddress is not a valid address');
     }
@@ -289,9 +274,6 @@ export default abstract class AddressBasedPaymentNetwork<
   protected throwIfInvalidNetwork(network?: string): asserts network is string {
     if (!network) {
       throw Error('network is required');
-    }
-    if (network && this.supportedNetworks && !this.supportedNetworks.includes(network)) {
-      throw new UnsupportedNetworkError(network, this.supportedNetworks);
     }
   }
 }
