@@ -9,7 +9,7 @@ import {
 import { encodeRequestApprovalAndPayment } from '../../src';
 import { currencyManager } from './shared';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
-import { MAX_ALLOWANCE } from 'payment-processor/src/payment/utils';
+import { MAX_ALLOWANCE } from '../../src/payment/utils';
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/await-thenable */
