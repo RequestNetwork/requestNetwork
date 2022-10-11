@@ -7,7 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestErc20ApprovalIfNeeded } from '../../src';
-import { getProxyAddress, revokeErc20Approval } from '../../src/payment/utils';
+import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils';
 import { AnyToERC20PaymentDetector, Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { currencyManager } from './shared';
 import { IPreparedTransaction } from 'payment-processor/dist/payment/prepared-transaction';
@@ -30,7 +30,7 @@ const alphaConversionSettings = {
     value: alphaContractAddress,
     network: 'private',
   },
-  maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  maxToSpend: MAX_ALLOWANCE,
   currencyManager,
 };
 const alphaSwapSettings = {
