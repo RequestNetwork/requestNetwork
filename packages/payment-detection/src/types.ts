@@ -43,10 +43,12 @@ export interface ISupportedPaymentNetworkByCurrency {
 
 export type PaymentNetworkOptions = {
   /** override default bitcoin detection provider */
-  bitcoinDetectionProvider: PaymentTypes.IBitcoinDetectionProvider;
+  bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
   /** the explorer API (eg Etherscan) api keys, for PNs that rely on it. Record by network name  */
   explorerApiKeys: Record<string, string>;
+  /** override the default Subgraph for payment detection (EVM, Near) */
   getSubgraphClient: (network: string) => TheGraphClient | undefined;
+  /** override the default RPC provider (EVM) */
   getRpcProvider: (network: string) => providers.Provider;
 };
 
