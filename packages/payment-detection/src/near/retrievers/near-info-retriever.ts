@@ -1,5 +1,4 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { GraphQLClient } from 'graphql-request';
 import { getTheGraphNearClient, TheGraphClient } from '../../thegraph';
 
 // FIXME#1: when Near subgraphes can retrieve a txHash, replace the custom IPaymentNetworkEvent with PaymentTypes.ETHPaymentNetworkEvent
