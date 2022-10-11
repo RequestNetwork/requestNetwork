@@ -590,7 +590,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
         batch
           .connect(spender3)
           .batchERC20Payments(conversionDetails, [[token1Address, USD_hash]], 0, feeAddress),
-      ).revertedWith('not enough funds');
+      ).revertedWith('Not enough funds');
     });
 
     it('Should revert batch if not enough funds to pay the batch fee', async () => {
@@ -608,7 +608,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
             0,
             feeAddress,
           ),
-      ).revertedWith('not enough funds for the batch fee');
+      ).revertedWith('Not enough funds for the batch fee');
     });
 
     it('Should revert batch without approval', async () => {
@@ -631,7 +631,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
         batch
           .connect(spender3)
           .batchMultiERC20Payments(conversionDetails, [[token1Address, USD_hash]], 0, feeAddress),
-      ).revertedWith('not enough funds');
+      ).revertedWith('Not enough funds');
     });
 
     it('Should revert batch multi tokens if not enough funds to pay the batch fee', async () => {
@@ -646,7 +646,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
         batch
           .connect(spender3)
           .batchMultiERC20Payments(conversionDetails, [[token1Address, USD_hash]], 0, feeAddress),
-      ).revertedWith('not enough funds');
+      ).revertedWith('Not enough funds');
     });
 
     it('Should revert batch multi tokens without approval', async () => {

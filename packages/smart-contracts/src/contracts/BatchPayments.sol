@@ -97,7 +97,7 @@ contract BatchPayments is Ownable, ReentrancyGuard {
     // amount is updated into batch fee amount
     amount = (amount * batchFee) / 1000;
     // Check that batch contract has enough funds to pay batch fee
-    require(address(this).balance >= amount, 'not enough funds for batch fee');
+    require(address(this).balance >= amount, 'Not enough funds for batch fee');
     // Batch pays batch fee
     _feeAddress.transfer(amount);
 
@@ -147,7 +147,7 @@ contract BatchPayments is Ownable, ReentrancyGuard {
       requestedToken.allowance(msg.sender, address(this)) >= amount,
       'Not sufficient allowance for batch to pay'
     );
-    require(requestedToken.balanceOf(msg.sender) >= amount, 'not enough funds');
+    require(requestedToken.balanceOf(msg.sender) >= amount, 'Not enough funds');
     require(
       safeTransferFrom(_tokenAddress, address(this), amount),
       'payment transferFrom() failed'

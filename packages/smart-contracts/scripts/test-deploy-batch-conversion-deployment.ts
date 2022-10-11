@@ -76,8 +76,12 @@ export async function deployBatchConversionPayment(
     // Initialize batch conversion fee, useful to others packages.
     const batchConversion = batchConversionPaymentsArtifact.connect(hre.network.name, owner);
     await batchConversion.connect(owner).setBatchFee(30);
-    await batchConversion.connect(owner).setBatchConversionFee(30);
-    await batchConversion.connect(owner).setUSDAddress(currencyManager.fromSymbol('USD')!.hash);
+    await batchConversion
+      .connect(owner)
+      .setETHAndUSDAddress(
+        currencyManager.fromSymbol('ETH')!.hash,
+        currencyManager.fromSymbol('USD')!.hash,
+      );
     await batchConversion.connect(owner).setBatchFeeAmountUSDLimit(300); // * 1_000_000_000_000_000_000);
 
     // ----------------------------------
