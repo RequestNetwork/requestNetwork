@@ -43,6 +43,7 @@ export default class RequestNetwork {
    * @param dataAccess instance of data-access layer
    * @param signatureProvider module in charge of the signatures
    * @param decryptionProvider module in charge of the decryption
+   * @param paymentOptions options for payment detection
    * @param currencyManager
    */
   public constructor({

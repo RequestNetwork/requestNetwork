@@ -1,6 +1,10 @@
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
-import { IPaymentNetworkModuleByType, ISupportedPaymentNetworkByCurrency } from './types';
+import {
+  IPaymentNetworkModuleByType,
+  ISupportedPaymentNetworkByCurrency,
+  PaymentNetworkOptions,
+} from './types';
 import { BtcMainnetAddressBasedDetector } from './btc/mainnet-address-based';
 import { BtcTestnetAddressBasedDetector } from './btc/testnet-address-based';
 import { DeclarativePaymentDetector } from './declarative';
@@ -58,13 +62,6 @@ const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
   [PN_ID.ANY_TO_NATIVE]: NearConversionNativeTokenPaymentDetector,
 };
 
-export type PaymentNetworkOptions = {
-  /** override default bitcoin detection provider */
-  bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
-  /** the explorer API (eg Etherscan) api keys, for PNs that rely on it. Record by network name  */
-  explorerApiKeys?: Record<string, string>;
-};
-
 /** Factory to create the payment network according to the currency and payment network type */
 export class PaymentNetworkFactory {
   /**
@@ -76,7 +73,7 @@ export class PaymentNetworkFactory {
   constructor(
     private readonly advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
     private readonly currencyManager: ICurrencyManager,
-    private readonly options?: PaymentNetworkOptions,
+    private readonly options?: Partial<PaymentNetworkOptions>,
   ) {}
 
   /**

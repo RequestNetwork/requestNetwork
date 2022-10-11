@@ -5,11 +5,8 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
-import { GraphQLClient } from 'graphql-request';
-import { mocked } from 'ts-jest/utils';
-
-jest.mock('graphql-request');
-const graphql = mocked(GraphQLClient.prototype);
+import { TheGraphClient } from '../../src/thegraph';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
@@ -18,7 +15,12 @@ const createAddRefundAddressAction = jest.fn();
 const createCreationAction = jest.fn();
 const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
-
+const subgraphClientMock: jest.Mocked<TheGraphClient> = {
+  GetLastSyncedBlock: jest.fn(),
+  GetPaymentsAndEscrowState: jest.fn(),
+  GetSyncedBlock: jest.fn(),
+};
+const getSubgraphClient = () => subgraphClientMock;
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
@@ -39,7 +41,11 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
-    erc20ProxyContract = new ERC20ProxyPaymentDetector({ advancedLogic: mockAdvancedLogic });
+    erc20ProxyContract = new ERC20ProxyPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
+      getSubgraphClient,
+    });
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -197,7 +203,7 @@ describe('api/erc20/proxy-contract', () => {
       },
     };
 
-    graphql.request.mockResolvedValue({
+    subgraphClientMock.GetPaymentsAndEscrowState.mockResolvedValueOnce({
       payments: [
         {
           amount: '1000000000000000000',
@@ -209,6 +215,8 @@ describe('api/erc20/proxy-contract', () => {
           gasUsed: '41013',
           gasPrice: '1000000000',
           timestamp: 1579705909,
+          contractAddress: '0x162edb802fae75b9ee4288345735008ba51a4ec9',
+          to: '',
         },
       ],
       escrowEvents: [],

@@ -2,14 +2,16 @@ import { GraphQLClient } from 'graphql-request';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwork/types';
-import { mocked } from 'ts-jest/utils';
 import { StaticJsonRpcProvider } from '@ethersproject/providers';
 import { AnyToEthFeeProxyPaymentDetector } from '../../src/any';
+import { TheGraphClient } from '../../src/thegraph';
 
-jest.mock('graphql-request');
-const graphql = mocked(GraphQLClient.prototype);
 const getLogs = jest.spyOn(StaticJsonRpcProvider.prototype, 'getLogs');
-
+const subgraphClientMock: jest.Mocked<TheGraphClient> = {
+  GetLastSyncedBlock: jest.fn(),
+  GetPaymentsAndEscrowState: jest.fn(),
+  GetSyncedBlock: jest.fn(),
+};
 describe('Any to ETH payment detection', () => {
   const mockRequest: RequestLogicTypes.IRequest = {
     creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
@@ -64,7 +66,7 @@ describe('Any to ETH payment detection', () => {
       ...expectedBalance.parameters,
       gasUsed: '144262',
       gasPrice: '2425000017',
-      from: '0x0e8d9cb9e11278ad6e2ba1ca90385c7295dc6532',
+      from: '0x0E8d9cb9e11278AD6E2bA1Ca90385C7295dC6532',
     },
   };
 
@@ -108,7 +110,7 @@ describe('Any to ETH payment detection', () => {
     const detector = new AnyToEthFeeProxyPaymentDetector({
       advancedLogic: new AdvancedLogic(currencyManager),
       currencyManager,
-      useTheGraph: () => false,
+      getSubgraphClient: () => undefined,
     });
     const balance = await detector.getBalance(mockRequest);
     expect(balance.error).not.toBeDefined();
@@ -117,7 +119,7 @@ describe('Any to ETH payment detection', () => {
   });
 
   it('TheGraph Payment detection', async () => {
-    graphql.request.mockResolvedValue({
+    subgraphClientMock.GetPaymentsAndEscrowState.mockResolvedValue({
       payments: [
         {
           amount: '5000000000',
@@ -134,15 +136,18 @@ describe('Any to ETH payment detection', () => {
           txHash: '0x7733a0fad7d7bdd0222ff1b63902aa26f1904e0fe14e03e95de73195e22a8ae6',
           gasUsed: '144262',
           gasPrice: '2425000017',
+          contractAddress: '0x7ebf48a26253810629c191b56c3212fd0d211c26',
+          to: '0x0E8d9cb9e11278AD6E2bA1Ca90385C7295dC6532',
         },
       ],
+      escrowEvents: [],
     });
 
     const currencyManager = CurrencyManager.getDefault();
     const detector = new AnyToEthFeeProxyPaymentDetector({
       advancedLogic: new AdvancedLogic(currencyManager),
       currencyManager,
-      useTheGraph: () => true,
+      getSubgraphClient: () => subgraphClientMock,
     });
     const balance = await detector.getBalance(mockRequest);
     expect(balance.error).not.toBeDefined();

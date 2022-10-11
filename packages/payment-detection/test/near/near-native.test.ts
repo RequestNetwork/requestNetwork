@@ -88,6 +88,7 @@ describe('Near payments detection', () => {
   it('NearNativeTokenPaymentDetector can detect a payment on Near', async () => {
     const paymentDetector = new NearNativeTokenPaymentDetector({
       advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
     });
     const balance = await paymentDetector.getBalance(request);
 
@@ -109,6 +110,7 @@ describe('Near payments detection', () => {
       };
       const paymentDetector = new NearNativeTokenPaymentDetector({
         advancedLogic: mockAdvancedLogic,
+        currencyManager: CurrencyManager.getDefault(),
       });
       expect(await paymentDetector.getBalance(requestWithWrongVersion)).toMatchObject({
         balance: null,
@@ -125,6 +127,7 @@ describe('Near payments detection', () => {
       };
       const paymentDetector = new NearNativeTokenPaymentDetector({
         advancedLogic: mockAdvancedLogic,
+        currencyManager: CurrencyManager.getDefault(),
       });
       expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({
         balance: null,

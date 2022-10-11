@@ -1,4 +1,4 @@
-import { PaymentNetworkFactory, PaymentNetworkOptions } from './payment-network-factory';
+import { PaymentNetworkFactory } from './payment-network-factory';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import * as BtcPaymentNetwork from './btc';
@@ -7,7 +7,7 @@ import * as Erc20PaymentNetwork from './erc20';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
 import { initPaymentDetectionApiKeys, setProviderFactory, getDefaultProvider } from './provider';
-import { getTheGraphClient, getTheGraphNearClient, networkSupportsTheGraph } from './thegraph';
+import { getTheGraphClient, getTheGraphNearClient } from './thegraph';
 import {
   parseLogArgs,
   padAmountForChainlink,
@@ -21,6 +21,7 @@ import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 import { SuperFluidPaymentDetector } from './erc777/superfluid-detector';
 import { EscrowERC20InfoRetriever } from './erc20/escrow-info-retriever';
 import { SuperFluidInfoRetriever } from './erc777/superfluid-retriever';
+import { PaymentNetworkOptions } from './types';
 
 export type { TheGraphClient } from './thegraph';
 
@@ -46,7 +47,6 @@ export {
   getDefaultProvider,
   getTheGraphClient,
   getTheGraphNearClient,
-  networkSupportsTheGraph,
   parseLogArgs,
   padAmountForChainlink,
   unpadAmountFromChainlink,

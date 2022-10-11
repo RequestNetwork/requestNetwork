@@ -1,3 +1,4 @@
+import { CurrencyManager } from '@requestnetwork/currency';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
@@ -35,7 +36,12 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/eth/input-data', () => {
   beforeEach(() => {
-    ethInputData = new EthInputDataPaymentDetector({ advancedLogic: mockAdvancedLogic });
+    ethInputData = new EthInputDataPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
+      explorerApiKeys: {},
+      getSubgraphClient: jest.fn(),
+    });
   });
 
   it('can createExtensionsDataForCreation', async () => {
