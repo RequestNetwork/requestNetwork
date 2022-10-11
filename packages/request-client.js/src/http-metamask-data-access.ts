@@ -52,7 +52,7 @@ export default class HttpMetaMaskDataAccess extends HttpDataAccess {
 
     // Creates a local or default provider
     this.provider = web3
-      ? new ethers.providers.Web3Provider(web3.currentProvider)
+      ? new ethers.providers.Web3Provider(web3)
       : new ethers.providers.JsonRpcProvider({ url: ethereumProviderUrl });
   }
 
