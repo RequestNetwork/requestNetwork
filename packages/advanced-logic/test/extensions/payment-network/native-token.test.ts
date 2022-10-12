@@ -137,7 +137,7 @@ describe('extensions/payment-network/native-token', () => {
           paymentNetworkName: 'another-chain',
         });
       }).toThrowError(
-        `Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet)`,
+        `Payment network 'another-chain' is not supported by this extension (only aurora)`,
       );
     });
     it('createCreationAction() throws without payment network', () => {
@@ -238,7 +238,7 @@ describe('extensions/payment-network/native-token', () => {
     });
     it('throws when creating the extension on a different network from the request network', () => {
       const advancedLogic = new AdvancedLogic();
-      const nearPn = new NearNativePaymentNetwork();
+      const nearPn = new NearTestnetNativeNativePaymentNetwork();
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
@@ -405,7 +405,7 @@ describe('extensions/payment-network/native-token', () => {
   it('should throw when isValidAddress is not overridden', () => {
     class TestNativePaymentNetwork extends NativeTokenPaymentNetwork {
       public testIsValidAddress() {
-        this.isValidAddress('test', 'test');
+        this.isValidAddress('test');
       }
     }
     expect(() => {

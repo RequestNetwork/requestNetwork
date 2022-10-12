@@ -18,8 +18,16 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
   public createCreationAction(
     creationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
   ): ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> {
-    const network = creationParameters.paymentNetworkName;
-    this.throwIfInvalidNetwork(network);
+    const networkName = creationParameters.paymentNetworkName;
+    if (creationParameters.paymentAddress || creationParameters.refundAddress) {
+      if (networkName) {
+        this.throwIfInvalidNetwork(networkName);
+      } else {
+        throw new Error(
+          `The network name is mandatory for the creation of the extension ${this.extensionId}.`,
+        );
+      }
+    }
     if (
       creationParameters.paymentAddress &&
       !this.isValidAddress(creationParameters.paymentAddress)
