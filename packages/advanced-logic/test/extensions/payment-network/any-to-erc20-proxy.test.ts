@@ -1,10 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import {
-  conversionSupportedNetworks,
-  CurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import AnyToErc20Proxy from '../../../src/extensions/payment-network/any-to-erc20-proxy';
 import * as DataConversionERC20FeeAddData from '../../utils/payment-network/erc20/any-to-erc20-proxy-add-data-generator';
@@ -153,9 +149,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
           acceptedTokens: ['0x0000000000000000000000000000000000000003'],
         });
       }).toThrowError(
-        `Payment network 'kovan' is not supported by this extension (only ${conversionSupportedNetworks.join(
-          ', ',
-        )})`,
+        "The currency '0x0000000000000000000000000000000000000003' on kovan is unknown or not supported.",
       );
     });
 

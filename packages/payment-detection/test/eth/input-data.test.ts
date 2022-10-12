@@ -5,6 +5,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
+import { mockAdvancedLogicBase } from '../utils';
 
 let ethInputData: EthInputDataPaymentDetector;
 
@@ -15,20 +16,17 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     ethereumInputData: {
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
-      supportedNetworks: ['mainnet', 'rinkeby', 'goerli'],
       // inherited from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts

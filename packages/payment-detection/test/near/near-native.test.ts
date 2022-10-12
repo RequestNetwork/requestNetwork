@@ -9,17 +9,18 @@ import { PaymentNetworkFactory } from '../../src/payment-network-factory';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
 import { NearNativeTokenPaymentDetector, NearInfoRetriever } from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
+import { mockAdvancedLogicBase } from '../utils';
 
 const mockNearPaymentNetwork = {
-  supportedNetworks: ['aurora', 'aurora-testnet'],
+  supportedNetworks: ['aurora'],
 };
 const currencyManager = CurrencyManager.getDefault();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
-  extensions: { nativeToken: [mockNearPaymentNetwork] },
+  ...mockAdvancedLogicBase,
+  extensions: {
+    nativeToken: [mockNearPaymentNetwork],
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 const salt = 'a6475e4c3d45feb6';
 const paymentAddress = 'gus.near';
