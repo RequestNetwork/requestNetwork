@@ -1,4 +1,4 @@
-import { ContractTransaction, providers, Signer, BigNumberish } from 'ethers';
+import { ContractTransaction, providers, Signer, BigNumberish, BigNumber } from 'ethers';
 
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
 import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
@@ -116,6 +116,7 @@ export function prepareApprovalErc20ForSwapWithConversionToPay(
   paymentTokenAddress: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
+  amount?: BigNumber,
 ): IPreparedTransaction {
   const network =
     request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
@@ -127,6 +128,7 @@ export function prepareApprovalErc20ForSwapWithConversionToPay(
     paymentTokenAddress,
     erc20SwapConversionArtifact.getAddress(network),
     signerOrProvider,
+    amount,
   );
   return {
     data: encodedTx,
