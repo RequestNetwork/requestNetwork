@@ -16,13 +16,13 @@ import ProxyContractErc20 from './extensions/payment-network/erc20/proxy-contrac
 import Erc777Stream from './extensions/payment-network/erc777/stream';
 import FeeProxyContractEth from './extensions/payment-network/ethereum/fee-proxy-contract';
 import EthereumInputData from './extensions/payment-network/ethereum/input-data';
-import NearNative from './extensions/payment-network/near-native';
-import NearTestnetNative from './extensions/payment-network/near-testnet-native';
+import NearNative from './extensions/payment-network/near/near-native';
+import NearTestnetNative from './extensions/payment-network/near/near-testnet-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
 import NativeTokenPaymentNetwork from './extensions/payment-network/native-token';
-import AnyToNear from './extensions/payment-network/any-to-near';
-import AnyToNearTestnet from './extensions/payment-network/any-to-near-testnet';
+import AnyToNear from './extensions/payment-network/near/any-to-near';
+import AnyToNearTestnet from './extensions/payment-network/near/any-to-near-testnet';
 import AnyToNativeTokenPaymentNetwork from './extensions/payment-network/any-to-native';
 
 /**

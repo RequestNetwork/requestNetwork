@@ -1,5 +1,5 @@
 import NativeTokenPaymentNetwork from '../../../src/extensions/payment-network/native-token';
-import NearNativePaymentNetwork from '../../../src/extensions/payment-network/near-native';
+import NearNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-native';
 import {
   arbitrarySalt,
   requestStateNoExtensions,
