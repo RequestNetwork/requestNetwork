@@ -1,6 +1,5 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import { BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
@@ -88,15 +87,6 @@ export abstract class ReferenceBasedDetector<
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
 
-    const supportedNetworks = this.extension.supportedNetworks;
-    if (!supportedNetworks.includes(paymentChain)) {
-      throw new BalanceError(
-        `Payment network ${paymentChain} not supported by ${
-          this.paymentNetworkId
-        } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
-        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-      );
-    }
     this.checkRequiredParameter(paymentExtension.values.salt, 'salt');
     this.checkRequiredParameter(paymentExtension.values.paymentAddress, 'paymentAddress');
 

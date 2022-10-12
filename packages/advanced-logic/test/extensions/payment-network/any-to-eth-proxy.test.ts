@@ -1,10 +1,6 @@
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
-import {
-  conversionSupportedNetworks,
-  CurrencyManager,
-  UnsupportedCurrencyError,
-} from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
 import AnyToEthProxy from '../../../src/extensions/payment-network/any-to-eth-proxy';
 import * as DataConversionETHFeeAddData from '../../utils/payment-network/ethereum/any-to-eth-proxy-add-data-generator';
@@ -115,21 +111,6 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       }).toThrowError('feeAmount is not a valid amount');
     });
 
-    it('cannot createCreationAction with network not supported', () => {
-      // 'must throw'
-      expect(() => {
-        anyToEthProxy.createCreationAction({
-          paymentAddress: '0x0000000000000000000000000000000000000001',
-          salt: 'ea3bc7caf64110ca',
-          network: 'kovan',
-        });
-      }).toThrowError(
-        `Payment network 'kovan' is not supported by this extension (only ${conversionSupportedNetworks.join(
-          ', ',
-        )})`,
-      );
-    });
-
     it('cannot applyActionToExtensions of creation with an invalid network', () => {
       const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
         TestData.requestCreatedNoExtension,
@@ -153,7 +134,9 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
           TestData.otherIdRaw.identity,
           TestData.arbitraryTimestamp,
         );
-      }).toThrowError(`The network (invalid network) is not supported for this payment network.`);
+      }).toThrowError(
+        `The currency (ETH) of the request is not supported for this payment network.`,
+      );
     });
 
     it('cannot applyActionToExtensions of creation on a non supported currency', () => {

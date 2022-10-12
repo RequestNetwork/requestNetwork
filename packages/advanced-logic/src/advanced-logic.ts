@@ -20,10 +20,10 @@ import NearNative from './extensions/payment-network/near/near-native';
 import NearTestnetNative from './extensions/payment-network/near/near-testnet-native';
 import AnyToErc20Proxy from './extensions/payment-network/any-to-erc20-proxy';
 import AnyToEthProxy from './extensions/payment-network/any-to-eth-proxy';
-import NativeTokenPaymentNetwork from './extensions/payment-network/native-token';
 import AnyToNear from './extensions/payment-network/near/any-to-near';
 import AnyToNearTestnet from './extensions/payment-network/near/any-to-near-testnet';
-import AnyToNativeTokenPaymentNetwork from './extensions/payment-network/any-to-native';
+import NativeToken from './extensions/payment-network/native-token';
+import AnyToNative from './extensions/payment-network/any-to-native';
 
 /**
  * Module to manage Advanced logic extensions
@@ -39,13 +39,13 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     anyToErc20Proxy: AnyToErc20Proxy;
     declarative: Declarative;
     ethereumInputData: EthereumInputData;
-    nativeToken: NativeTokenPaymentNetwork[];
+    nativeToken: NativeToken[];
     feeProxyContractErc20: FeeProxyContractErc20;
     proxyContractErc20: ProxyContractErc20;
     erc777Stream: Erc777Stream;
     feeProxyContractEth: FeeProxyContractEth;
     anyToEthProxy: AnyToEthProxy;
-    anyToNativeToken: AnyToNativeTokenPaymentNetwork[];
+    anyToNativeToken: AnyToNative[];
   };
 
   constructor(currencyManager?: ICurrencyManager) {
@@ -141,6 +141,14 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     return extension;
   }
 
+  public getNativeTokenExtensionForNetwork(
+    network: string,
+  ): ExtensionTypes.IExtension<ExtensionTypes.PnReferenceBased.ICreationParameters> | undefined {
+    return this.extensions.nativeToken.find((nativeTokenExtension) =>
+      nativeTokenExtension.supportedNetworks.includes(network),
+    );
+  }
+
   protected getNativeTokenExtensionForActionAndState(
     extensionAction: ExtensionTypes.IAction,
     requestState: RequestLogicTypes.IRequest,
@@ -155,11 +163,15 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
       );
     }
     const network = requestState.currency.network ?? extensionAction.parameters.paymentNetworkName;
-    return network
-      ? this.extensions.nativeToken.find((nativeTokenExtension) =>
-          nativeTokenExtension.supportedNetworks.includes(network),
-        )
-      : undefined;
+    return network ? this.getNativeTokenExtensionForNetwork(network) : undefined;
+  }
+
+  public getAnyToNativeTokenExtensionForNetwork(
+    network: string,
+  ): ExtensionTypes.IExtension<ExtensionTypes.PnAnyToEth.ICreationParameters> | undefined {
+    return this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
+      anyToNativeTokenExtension.supportedNetworks.includes(network),
+    );
   }
 
   protected getAnyToNativeTokenExtensionForActionAndState(
@@ -167,12 +179,7 @@ export default class AdvancedLogic implements AdvancedLogicTypes.IAdvancedLogic 
     requestState: RequestLogicTypes.IRequest,
   ): ExtensionTypes.IExtension<ExtensionTypes.PnAnyToEth.ICreationParameters> | undefined {
     const network = this.getNetwork(extensionAction, requestState);
-
-    return network
-      ? this.extensions.anyToNativeToken.find((anyToNativeTokenExtension) =>
-          anyToNativeTokenExtension.supportedNetworks.includes(network),
-        )
-      : undefined;
+    return network ? this.getAnyToNativeTokenExtensionForNetwork(network) : undefined;
   }
 
   protected getNetwork(

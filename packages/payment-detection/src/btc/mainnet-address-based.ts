@@ -12,6 +12,7 @@ const MAINNET_BITCOIN_NETWORK_ID = 0;
 export class BtcMainnetAddressBasedDetector extends BtcAddressBasedDetector {
   /**
    * @param advancedLogic Instance of Advanced Logic layer, to get the extension
+   * @param bitcoinDetectionProvider
    */
   public constructor({
     advancedLogic,
