@@ -25,8 +25,8 @@ contract BatchConversionPayments is BatchNoConversionPayments {
   IEthConversionProxy public paymentEthConversionProxy;
 
   /**
-   * @dev Used by the batchPayment to handle information for heterogeneous batches, grouped by payment network.
-   *  - paymentNetworkId: from 0 to 4, cf. `batchPayment()` method.
+   * @dev Used by the batchPayment to handle information for heterogeneous batches, grouped by payment network:
+   *  - paymentNetworkId: from 0 to 4, cf. `batchPayment()` method
    *  - requestDetails all the data required for conversion and no conversion requests to be paid
    */
   struct MetaDetail {
@@ -39,7 +39,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @param _paymentEthProxy The ETH payment proxy address to use.
    * @param _paymentErc20ConversionProxy The ERC20 Conversion payment proxy address to use.
    * @param _paymentEthConversionFeeProxy The ETH Conversion payment proxy address to use.
-   * @param _chainlinkConversionPathAddress The address of the conversion path contract
+   * @param _chainlinkConversionPathAddress The address of the conversion path contract.
    * @param _owner Owner of the contract.
    */
   constructor(
@@ -85,7 +85,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
 
     // Check that there are paths to USD, and more than one paymentNetworkId
     if (pathsToUSD.length > 0 && metaDetails.length > 1) {
-      // Set to true to limit the batch fee to pay
+      // Set to true to avoid batchFeeAmountUSD to be reset by each batch function
       batchPaymentOrigin = true;
     }
 
@@ -137,6 +137,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
       }
     }
     if (pathsToUSD.length > 0 && metaDetails.length > 1) {
+      // Set back to false, its default value
       batchPaymentOrigin = false;
     }
   }
@@ -148,7 +149,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
    *                   Without paths, there is not limitation.
-   * @param feeAddress The fee recipient
+   * @param feeAddress The fee recipient.
    */
   function batchMultiERC20ConversionPayments(
     RequestDetail[] calldata requestDetails,
@@ -298,13 +299,5 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    */
   function setPaymentEthConversionProxy(address _paymentEthConversionProxy) external onlyOwner {
     paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionProxy);
-  }
-
-  /**
-   * @notice Update the conversion path contract used to fetch conversions.
-   * @param _chainlinkConversionPathAddress The address of the conversion path contract.
-   */
-  function setConversionPathAddress(address _chainlinkConversionPathAddress) external onlyOwner {
-    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
   }
 }

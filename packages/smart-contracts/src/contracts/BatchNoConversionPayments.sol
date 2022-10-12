@@ -28,26 +28,26 @@ contract BatchNoConversionPayments is Ownable {
   IEthereumFeeProxy public paymentEthProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
+  /** Used to calculate batch fees: batchFee = 30 represent 0.30% of fee */
   uint256 public batchFee;
-  /** Used to to calculate batch fees */
+  /** Used to calculate batch fees: divide batchFee by feeDenominator */
   uint256 internal feeDenominator = 10000;
+  /** The amount of the batch fee cannot exceed a predefined amount in USD */
+  uint256 public batchFeeAmountUSDLimit;
 
   /** payerAuthorized is set to true only when needed for batch Eth conversion */
   bool internal payerAuthorized = false;
   /** batchPayment function is the caller */
   bool internal batchPaymentOrigin = false;
-
   /** transferBackRemainingEth is set to false only if the payer use batchPayment
   and call both batchEthPayments and batchConversionEthPaymentsWithReference */
   bool internal transferBackRemainingEth = true;
 
-  /** The amount of the batch fee cannot exceed a predefined amount in USD */
-  uint256 public batchFeeAmountUSDLimit;
   address public USDAddress;
   address public ETHAddress;
   address[][] public pathsEthToUSD;
 
-  /** Contain the address of a token, the sum of the amount and fees paid with it, and the batch fee amount */
+  /** Contains the address of a token, the sum of the amount and fees paid with it, and the batch fee amount */
   struct Token {
     address tokenAddress;
     uint256 amountAndFee;
@@ -80,7 +80,7 @@ contract BatchNoConversionPayments is Ownable {
   /**
    * @param _paymentErc20Proxy The address to the ERC20 fee payment proxy to use.
    * @param _paymentEthProxy The address to the Ethereum fee payment proxy to use.
-   * @param _chainlinkConversionPathAddress The address of the conversion path contract
+   * @param _chainlinkConversionPathAddress The address of the conversion path contract.
    * @param _owner Owner of the contract.
    */
   constructor(
@@ -499,9 +499,11 @@ contract BatchNoConversionPayments is Ownable {
 
   /**
    * @notice Fees added when using Erc20/Eth batch functions
-   * @param _batchFee Between 0 and 10000, i.e: batchFee = 50 represent 0.50% of fee
+   * @param _batchFee Between 0 and 200, i.e: batchFee = 30 represent 0.30% of fee
    */
   function setBatchFee(uint256 _batchFee) external onlyOwner {
+    // safety to avoid wrong setting
+    require(_batchFee <= 200, 'The batch fee value is too high: > 2%');
     batchFee = _batchFee;
   }
 
@@ -520,8 +522,16 @@ contract BatchNoConversionPayments is Ownable {
   }
 
   /**
+   * @notice Update the conversion path contract used to fetch conversions.
+   * @param _chainlinkConversionPathAddress The address of the conversion path contract.
+   */
+  function setConversionPathAddress(address _chainlinkConversionPathAddress) external onlyOwner {
+    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+  }
+
+  /**
    * This function define variables allowing to limit the fees:
-   * ETHAddress, USDAddress, and pathsEthToUSD
+   * ETHAddress, USDAddress, and pathsEthToUSD.
    * @param _ETHAddress The address representing the Ethereum currency.
    * @param _USDAddress The address representing the USD currency.
    */
