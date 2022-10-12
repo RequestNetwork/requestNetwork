@@ -108,6 +108,7 @@ contract BatchNoConversionPayments is Ownable {
    * @notice Send a batch of ETH (or EVM native token) payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch reverts.
    * @param requestDetails List of ETH requests to pay.
+   * @param applyFeeLimitUSD It set to true to apply the USD fee limit.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param feeAddress The fee recipient.
    * @dev It uses EthereumFeeProxy to pay an invoice and fees with a payment reference.
@@ -115,11 +116,12 @@ contract BatchNoConversionPayments is Ownable {
    */
   function batchEthPayments(
     RequestDetail[] calldata requestDetails,
+    bool applyFeeLimitUSD,
     uint256 batchFeeAmountUSD,
     address payable feeAddress
   ) public payable returns (uint256) {
     // Avoid the possibility to manually put high value to batchFeeAmountUSD
-    if (batchPaymentOrigin != true) {
+    if (batchPaymentOrigin != true && applyFeeLimitUSD == true) {
       batchFeeAmountUSD = 0;
     }
     // amount is used to get the total amount and then used as batch fee amount
@@ -141,12 +143,14 @@ contract BatchNoConversionPayments is Ownable {
 
     // amount is updated into batch fee amount
     amount = (amount * batchFee) / feeDenominator;
-    (amount, batchFeeAmountUSD) = calculateBatchFeeToPay(
-      amount,
-      pathsEthToUSD[0][0],
-      batchFeeAmountUSD,
-      pathsEthToUSD
-    );
+    if (applyFeeLimitUSD == true) {
+      (amount, batchFeeAmountUSD) = calculateBatchFeeToPay(
+        amount,
+        pathsEthToUSD[0][0],
+        batchFeeAmountUSD,
+        pathsEthToUSD
+      );
+    }
     // Check that batch contract has enough funds to pay batch fee
     require(address(this).balance >= amount, 'Not enough funds for batch fee');
     // Batch pays batch fee

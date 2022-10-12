@@ -71,9 +71,12 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * - batchEthConversionPayments, paymentNetworkId=4
    * If metaDetails use paymentNetworkId = 4, it must be at the end of the list, or the transaction can be reverted.
    * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
-   *                   Without paths, there is not limitation.
-   * @param feeAddress The address where fees should be paid
-   * @dev batchPayment only reduces gas consumption when using more than a single payment network.
+   *                   For batchEth, mock an array of array to apply the limit, e.g: [[]]
+   *                   Without paths, there is not limitation, neither for the batchEth functions.
+   * @param feeAddress The address where fees should be paid.
+   * @dev Use pathsToUSD only if you are pretty sure the batch fees will higher than the
+   *      USD limit batchFeeAmountUSDLimit, because it increase gas consumption.
+   *      batchPayment only reduces gas consumption when using more than a single payment network.
    *      For single payment network payments, it is more efficient to use the suited batch function.
    */
   function batchPayment(
@@ -120,6 +123,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
         }
         batchFeeAmountUSD += batchEthPayments(
           metaDetail.requestDetails,
+          pathsToUSD.length > 0,
           batchFeeAmountUSD,
           payable(feeAddress)
         );
@@ -129,6 +133,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
       } else if (metaDetail.paymentNetworkId == 4) {
         batchFeeAmountUSD += batchEthConversionPayments(
           metaDetail.requestDetails,
+          pathsToUSD.length > 0,
           batchFeeAmountUSD,
           payable(feeAddress)
         );
@@ -226,6 +231,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @notice Send a batch of ETH conversion payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch is reverted.
    * @param requestDetails List of ETH requests denominated in fiat to pay.
+   * @param applyFeeLimitUSD It set to true to apply the USD fee limit.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param feeAddress The fee recipient.
    * @dev It uses EthereumConversionProxy to pay an invoice and fees.
@@ -236,11 +242,12 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    */
   function batchEthConversionPayments(
     RequestDetail[] calldata requestDetails,
+    bool applyFeeLimitUSD,
     uint256 batchFeeAmountUSD,
     address payable feeAddress
   ) public payable returns (uint256) {
     // Avoid the possibility to manually put high value to batchFeeAmountUSD
-    if (batchPaymentOrigin != true) {
+    if (batchPaymentOrigin != true && applyFeeLimitUSD) {
       batchFeeAmountUSD = 0;
     }
     uint256 contractBalance = address(this).balance;
@@ -264,12 +271,15 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     uint256 batchFeeToPay = (((contractBalance - address(this).balance)) * batchFee) /
       feeDenominator;
 
-    (batchFeeToPay, batchFeeAmountUSD) = calculateBatchFeeToPay(
-      batchFeeToPay,
-      pathsEthToUSD[0][0],
-      batchFeeAmountUSD,
-      pathsEthToUSD
-    );
+    if (applyFeeLimitUSD == true) {
+      (batchFeeToPay, batchFeeAmountUSD) = calculateBatchFeeToPay(
+        batchFeeToPay,
+        pathsEthToUSD[0][0],
+        batchFeeAmountUSD,
+        pathsEthToUSD
+      );
+    }
+
     require(address(this).balance >= batchFeeToPay, 'Not enough funds for batch conversion fees');
     feeAddress.transfer(batchFeeToPay);
 

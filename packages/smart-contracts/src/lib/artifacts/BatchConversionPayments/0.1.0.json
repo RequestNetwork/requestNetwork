@@ -197,6 +197,11 @@
           "type": "tuple[]"
         },
         {
+          "internalType": "bool",
+          "name": "applyFeeLimitUSD",
+          "type": "bool"
+        },
+        {
           "internalType": "uint256",
           "name": "batchFeeAmountUSD",
           "type": "uint256"
@@ -261,6 +266,11 @@
           "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
           "name": "requestDetails",
           "type": "tuple[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "applyFeeLimitUSD",
+          "type": "bool"
         },
         {
           "internalType": "uint256",
