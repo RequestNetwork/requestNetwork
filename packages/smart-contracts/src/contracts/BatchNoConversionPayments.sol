@@ -33,9 +33,9 @@ contract BatchNoConversionPayments is Ownable {
   uint256 internal feeDenominator = 10000;
 
   /** payerAuthorized is set to true only when needed for batch Eth conversion */
-  bool internal payerAuthorized;
+  bool internal payerAuthorized = false;
   /** batchPayment function is the caller */
-  bool internal batchPaymentOrigin;
+  bool internal batchPaymentOrigin = false;
 
   /** transferBackRemainingEth is set to false only if the payer use batchRouter
   and call both batchEthPayments and batchConversionEthPaymentsWithReference */
@@ -63,7 +63,7 @@ contract BatchNoConversionPayments is Ownable {
    *   feeAmount: The fee amount, denominated in the first currency of `path` for conversion payment
    *   maxToSpend: Only for conversion payment:
    *               Maximum amount the payer wants to spend, denominated in the last currency of `path`:
-   *                it includes fee proxy but NOT the batchFee
+   *                it includes fee proxy but NOT the batch fees to pay
    *   maxRateTimespan: Only for conversion payment:
    *                    Max acceptable times span for conversion rates, ignored if zero
    */
@@ -181,30 +181,36 @@ contract BatchNoConversionPayments is Ownable {
     if (batchPaymentOrigin != true) {
       batchFeeAmountUSD = 0;
     }
-    // amount is used to get the total amount, and then used as batch fee amount
-    uint256 amount = 0;
     uint256 amountAndFee = 0;
+    uint256 batchFeeAmount = 0;
     for (uint256 i = 0; i < conversionDetails.length; i++) {
-      amount += conversionDetails[i].requestAmount;
       amountAndFee += conversionDetails[i].requestAmount + conversionDetails[i].feeAmount;
+      batchFeeAmount += conversionDetails[i].requestAmount;
     }
+    batchFeeAmount = (batchFeeAmount * batchFee) / feeDenominator;
 
-    // Transfer the amount and fee from the payer to the batch contract
+    // batchFeeToPay and batchFeeAmountUSD are updated if needed
+    (batchFeeAmount, batchFeeAmountUSD) = calculateBatchFeeToPay(
+      batchFeeAmount,
+      conversionDetails[0].path[0],
+      batchFeeAmountUSD,
+      pathsToUSD
+    );
+
     IERC20 requestedToken = IERC20(conversionDetails[0].path[0]);
-    require(
-      requestedToken.allowance(msg.sender, address(this)) >= amountAndFee,
-      'Insufficient allowance for batch to pay'
-    );
-    require(requestedToken.balanceOf(msg.sender) >= amountAndFee, 'Not enough funds');
-    require(
-      safeTransferFrom(conversionDetails[0].path[0], address(this), amountAndFee),
-      'payment transferFrom() failed'
+
+    contractAllowanceApprovalTransfer(
+      requestedToken,
+      amountAndFee,
+      batchFeeAmount,
+      address(paymentErc20Proxy)
     );
 
-    // Batch contract approve Erc20FeeProxy to spend the token
-    if (requestedToken.allowance(address(this), address(paymentErc20Proxy)) < amountAndFee) {
-      approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20Proxy));
-    }
+    // Payer pays batch fee amount
+    require(
+      safeTransferFrom(conversionDetails[0].path[0], feeAddress, batchFeeAmount),
+      'Batch fee transferFrom() failed'
+    );
 
     // Batch contract pays the requests using Erc20FeeProxy
     for (uint256 i = 0; i < conversionDetails.length; i++) {
@@ -218,24 +224,6 @@ contract BatchNoConversionPayments is Ownable {
         feeAddress
       );
     }
-
-    // amount is updated into batch fee amount
-    amount = (amount * batchFee) / feeDenominator;
-    // Check if the payer has enough funds to pay batch fee
-    require(requestedToken.balanceOf(msg.sender) >= amount, 'Not enough funds for the batch fee');
-
-    // Payer pays batch fee amount
-    // amount that represents batchFeeToPay updated if needed
-    (amount, batchFeeAmountUSD) = calculateBatchFeeToPay(
-      amount,
-      conversionDetails[0].path[0],
-      batchFeeAmountUSD,
-      pathsToUSD
-    );
-    require(
-      safeTransferFrom(conversionDetails[0].path[0], feeAddress, amount),
-      'Batch fee transferFrom() failed'
-    );
 
     return batchFeeAmountUSD;
   }
@@ -265,33 +253,14 @@ contract BatchNoConversionPayments is Ownable {
 
     // The payer transfers tokens to the batch contract and pays batch fee
     for (uint256 i = 0; i < uTokens.length && uTokens[i].amountAndFee > 0; i++) {
-      IERC20 requestedToken = IERC20(uTokens[i].tokenAddress);
       uTokens[i].batchFeeAmount = (uTokens[i].batchFeeAmount * batchFee) / feeDenominator;
-
-      require(
-        requestedToken.allowance(msg.sender, address(this)) >=
-          uTokens[i].amountAndFee + uTokens[i].batchFeeAmount,
-        'Insufficient allowance for batch to pay'
+      IERC20 requestedToken = IERC20(uTokens[i].tokenAddress);
+      contractAllowanceApprovalTransfer(
+        requestedToken,
+        uTokens[i].amountAndFee,
+        uTokens[i].batchFeeAmount,
+        address(paymentErc20Proxy)
       );
-      // Check if the payer can pay the amount, the fee, and the batchFee
-      require(
-        requestedToken.balanceOf(msg.sender) >= uTokens[i].amountAndFee + uTokens[i].batchFeeAmount,
-        'Not enough funds'
-      );
-
-      // Transfer only the amount and fee required for the token on the batch contract
-      require(
-        safeTransferFrom(uTokens[i].tokenAddress, address(this), uTokens[i].amountAndFee),
-        'payment transferFrom() failed'
-      );
-
-      // Batch contract approves Erc20FeeProxy to spend the token
-      if (
-        requestedToken.allowance(address(this), address(paymentErc20Proxy)) <
-        uTokens[i].amountAndFee
-      ) {
-        approvePaymentProxyToSpend(address(requestedToken), address(paymentErc20Proxy));
-      }
 
       // Payer pays batch fee amount
 
@@ -328,6 +297,46 @@ contract BatchNoConversionPayments is Ownable {
   /*
    * Helper functions
    */
+
+  /**
+   * It:
+   * - checks that the batch contract has enough allowance from the payer
+   * - checks that the payer has enough fund, including batch fees
+   * - does the transfer of token from the payer to the batch contract
+   * - increases the allowance of the contract to use the payment proxy if needed
+   * @param requestedToken The token to pay
+   * @param amountAndFee The amount and the fee for a token to pay
+   * @param batchFeeAmount The batch fee amount for a token to pay
+   * @param paymentProxyAddress The payment proxy address used to pay
+   */
+  function contractAllowanceApprovalTransfer(
+    IERC20 requestedToken,
+    uint256 amountAndFee,
+    uint256 batchFeeAmount,
+    address paymentProxyAddress
+  ) internal {
+    // Check proxy's allowance from user
+    require(
+      requestedToken.allowance(msg.sender, address(this)) >= amountAndFee,
+      'Insufficient allowance for batch to pay'
+    );
+    // Check user's funds to pay amounts, it is an approximation for conversion payment
+    require(
+      requestedToken.balanceOf(msg.sender) >= amountAndFee + batchFeeAmount,
+      'Not enough funds, including fees'
+    );
+
+    // Transfer the amount and fee required for the token on the batch contract
+    require(
+      safeTransferFrom(address(requestedToken), address(this), amountAndFee),
+      'payment transferFrom() failed'
+    );
+
+    // Batch contract approves Erc20ConversionProxy to spend the token
+    if (requestedToken.allowance(address(this), paymentProxyAddress) < amountAndFee) {
+      approvePaymentProxyToSpend(address(requestedToken), paymentProxyAddress);
+    }
+  }
 
   /**
    * It create a list of unique tokens used and the amounts associated.

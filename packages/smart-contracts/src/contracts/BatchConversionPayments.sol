@@ -82,10 +82,13 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     address feeAddress
   ) external payable {
     require(metaDetails.length < 6, 'more than 5 metaDetails');
-    if (pathsToUSD.length > 0) {
+
+    // Check that there are paths to USD, and more than one paymentNetworkId
+    if (pathsToUSD.length > 0 && metaDetails.length > 1) {
       // Set to true to limit the batch fee to pay
       batchPaymentOrigin = true;
     }
+
     uint256 batchFeeAmountUSD = 0;
     for (uint256 i = 0; i < metaDetails.length; i++) {
       MetaDetail calldata metaConversionDetail = metaDetails[i];
@@ -133,7 +136,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
         revert('Wrong paymentNetworkId');
       }
     }
-    if (pathsToUSD.length > 0) {
+    if (pathsToUSD.length > 0 && metaDetails.length > 1) {
       batchPaymentOrigin = false;
     }
   }
@@ -162,31 +165,14 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     IERC20 requestedToken;
     // For each token: check allowance, transfer funds on the contract and approve the paymentProxy to spend if needed
     for (uint256 k = 0; k < uTokens.length && uTokens[k].amountAndFee > 0; k++) {
-      requestedToken = IERC20(uTokens[k].tokenAddress);
       uTokens[k].batchFeeAmount = (uTokens[k].amountAndFee * batchFee) / feeDenominator;
-      // Check proxy's allowance from user, and user's funds to pay approximated amounts.
-      require(
-        requestedToken.allowance(msg.sender, address(this)) >= uTokens[k].amountAndFee,
-        'Insufficient allowance for batch to pay'
+      requestedToken = IERC20(uTokens[k].tokenAddress);
+      contractAllowanceApprovalTransfer(
+        requestedToken,
+        uTokens[k].amountAndFee,
+        uTokens[k].batchFeeAmount,
+        address(paymentErc20ConversionProxy)
       );
-      require(
-        requestedToken.balanceOf(msg.sender) >= uTokens[k].amountAndFee + uTokens[k].batchFeeAmount,
-        'Not enough funds, including fees'
-      );
-
-      // Transfer the amount and fee required for the token on the batch conversion contract
-      require(
-        safeTransferFrom(uTokens[k].tokenAddress, address(this), uTokens[k].amountAndFee),
-        'payment transferFrom() failed'
-      );
-
-      // Batch contract approves Erc20ConversionProxy to spend the token
-      if (
-        requestedToken.allowance(address(this), address(paymentErc20ConversionProxy)) <
-        uTokens[k].amountAndFee
-      ) {
-        approvePaymentProxyToSpend(uTokens[k].tokenAddress, address(paymentErc20ConversionProxy));
-      }
     }
 
     // Batch pays the requests using Erc20ConversionFeeProxy
