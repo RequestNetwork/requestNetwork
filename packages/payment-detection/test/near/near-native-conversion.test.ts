@@ -138,6 +138,7 @@ describe('Near payments detection', () => {
 
   it('NearConversionNativeTokenPaymentDetector can detect a payment on Near', async () => {
     const paymentDetector = new NearConversionNativeTokenPaymentDetector({
+      network: 'aurora',
       advancedLogic: mockAdvancedLogic,
       currencyManager,
     });
@@ -162,6 +163,7 @@ describe('Near payments detection', () => {
         },
       };
       const paymentDetector = new NearConversionNativeTokenPaymentDetector({
+        network: 'aurora',
         advancedLogic: mockAdvancedLogic,
         currencyManager,
       });
@@ -191,6 +193,7 @@ describe('Near payments detection', () => {
         },
       };
       const paymentDetector = new NearConversionNativeTokenPaymentDetector({
+        network: 'aurora',
         advancedLogic: mockAdvancedLogic,
         currencyManager,
       });

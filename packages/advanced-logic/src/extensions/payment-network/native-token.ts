@@ -18,21 +18,17 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
   public createCreationAction(
     creationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
   ): ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> {
-    const networkName = creationParameters.paymentNetworkName;
-    if (!networkName && (creationParameters.paymentAddress || creationParameters.refundAddress)) {
-      throw new Error(
-        `The network name is mandatory for the creation of the extension ${this.extensionId}.`,
-      );
-    }
+    const network = creationParameters.paymentNetworkName;
+    this.throwIfInvalidNetwork(network);
     if (
       creationParameters.paymentAddress &&
-      !this.isValidAddress(creationParameters.paymentAddress, networkName)
+      !this.isValidAddress(creationParameters.paymentAddress)
     ) {
       throw new InvalidPaymentAddressError(creationParameters.paymentAddress);
     }
     if (
       creationParameters.refundAddress &&
-      !this.isValidAddress(creationParameters.refundAddress, networkName)
+      !this.isValidAddress(creationParameters.refundAddress)
     ) {
       throw new InvalidPaymentAddressError(creationParameters.refundAddress, 'refundAddress');
     }
@@ -40,7 +36,7 @@ export default abstract class NativeTokenPaymentNetwork extends ReferenceBasedPa
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected isValidAddress(_address: string, _networkName?: string): boolean {
+  protected isValidAddress(_address: string): boolean {
     throw new Error(
       `Default implementation of isValidAddress() does not support native tokens. Please override this method.`,
     );

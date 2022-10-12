@@ -4,6 +4,7 @@ import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/
 import { EventEmitter } from 'events';
 
 import Request from '../../src/api/request';
+import { mockAdvancedLogic } from '@requestnetwork/integration-test/test/scheduled/mocks';
 
 const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
   async createRequest(): Promise<any> {
@@ -52,6 +53,7 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
 };
 
 const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
+  extension: mockAdvancedLogic.extensions.declarative,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
 
   async createExtensionsDataForCreation(): Promise<any> {
@@ -69,6 +71,7 @@ const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
 };
 
 const mockDeclarativePaymentNetwork: PaymentTypes.IPaymentNetwork = {
+  extension: mockAdvancedLogic.extensions.declarative,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
   async createExtensionsDataForCreation(): Promise<any> {
     return;

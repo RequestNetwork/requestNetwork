@@ -4,7 +4,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ICurrencyManager, CurrencyManager } from '@requestnetwork/currency';
+import { CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
 
 import ContentData from './extensions/content-data';
 import AddressBasedBtc from './extensions/payment-network/bitcoin/mainnet-address-based';

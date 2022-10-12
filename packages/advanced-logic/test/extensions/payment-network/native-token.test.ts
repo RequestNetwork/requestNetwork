@@ -12,6 +12,7 @@ import {
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-testnet-native';
 
 const salt = arbitrarySalt;
 
@@ -38,7 +39,7 @@ describe('extensions/payment-network/native-token', () => {
     },
     {
       name: 'Near testnet',
-      paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
+      paymentNetwork: new NearTestnetNativeNativePaymentNetwork() as NativeTokenPaymentNetwork,
       networkName: 'aurora-testnet',
       suffix: 'testnet',
       wrongSuffix: 'near',
