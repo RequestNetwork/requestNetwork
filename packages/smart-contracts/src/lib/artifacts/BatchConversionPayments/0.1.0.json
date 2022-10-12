@@ -121,8 +121,8 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
-          "name": "conversionDetails",
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
           "type": "tuple[]"
         },
         {
@@ -192,8 +192,8 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
-          "name": "conversionDetails",
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
           "type": "tuple[]"
         },
         {
@@ -258,8 +258,8 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
-          "name": "conversionDetails",
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
           "type": "tuple[]"
         },
         {
@@ -350,8 +350,8 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
-          "name": "conversionDetails",
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
           "type": "tuple[]"
         },
         {
@@ -421,8 +421,8 @@
               "type": "uint256"
             }
           ],
-          "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
-          "name": "conversionDetails",
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
           "type": "tuple[]"
         },
         {
@@ -499,8 +499,8 @@
                   "type": "uint256"
                 }
               ],
-              "internalType": "struct BatchNoConversionPayments.ConversionDetail[]",
-              "name": "conversionDetails",
+              "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+              "name": "requestDetails",
               "type": "tuple[]"
             }
           ],

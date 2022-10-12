@@ -65,7 +65,7 @@ describe('contract: BatchConversionPayments', async () => {
   let chainlinkPath: ChainlinkConversionPath;
 
   // constants inputs for batch conversion functions
-  const fauConvDetail: PaymentTypes.ConversionDetail = {
+  const fauConvRequest: PaymentTypes.RequestDetail = {
     recipient: '',
     requestAmount: '100000' + fiatDecimals,
     path: [USD_hash, FAU_address],
@@ -75,7 +75,7 @@ describe('contract: BatchConversionPayments', async () => {
     maxRateTimespan: '0',
   };
 
-  const daiConvDetail: PaymentTypes.ConversionDetail = {
+  const daiConvRequest: PaymentTypes.RequestDetail = {
     recipient: '',
     requestAmount: '100000' + fiatDecimals,
     path: [EUR_hash, USD_hash, DAI_address],
@@ -85,7 +85,7 @@ describe('contract: BatchConversionPayments', async () => {
     maxRateTimespan: '0',
   };
 
-  const ethConvDetail: PaymentTypes.ConversionDetail = {
+  const ethConvRequest: PaymentTypes.RequestDetail = {
     recipient: '',
     requestAmount: '1000',
     path: [USD_hash, ETH_hash],
@@ -123,9 +123,9 @@ describe('contract: BatchConversionPayments', async () => {
       await adminSigner.getAddress(),
     );
 
-    fauConvDetail.recipient = to;
-    daiConvDetail.recipient = to;
-    ethConvDetail.recipient = to;
+    fauConvRequest.recipient = to;
+    daiConvRequest.recipient = to;
+    ethConvRequest.recipient = to;
 
     // set batch proxy fees and connect fromSigner
     await batchConversionProxy.setBatchFee(BATCH_FEE);
@@ -328,7 +328,7 @@ describe('contract: BatchConversionPayments', async () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-              conversionDetails: [
+              requestDetails: [
                 {
                   recipient: to,
                   requestAmount: '100000',
@@ -365,7 +365,7 @@ describe('contract: BatchConversionPayments', async () => {
             [
               {
                 paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-                conversionDetails: [fauConvDetail, daiConvDetail, daiConvDetail],
+                requestDetails: [fauConvRequest, daiConvRequest, daiConvRequest],
               },
             ],
             [
@@ -388,7 +388,7 @@ describe('contract: BatchConversionPayments', async () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_PAYMENTS,
-              conversionDetails: [
+              requestDetails: [
                 {
                   recipient: to,
                   requestAmount: '1000',
@@ -425,7 +425,7 @@ describe('contract: BatchConversionPayments', async () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_CONVERSION_PAYMENTS,
-              conversionDetails: [ethConvDetail],
+              requestDetails: [ethConvRequest],
             },
           ],
           [],
@@ -452,26 +452,15 @@ describe('contract: BatchConversionPayments', async () => {
         const initialFeeETHBalance = await provider.getBalance(feeAddress);
         const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
 
-        // set inputs: ERC20 cryptoDetails & ethCryptoDetails
-        const ethCryptoDetail: PaymentTypes.ConversionDetail = {
-          recipient: to,
-          requestAmount: '1000',
-          path: [],
-          paymentReference: referenceExample,
-          feeAmount: '1',
-          maxToSpend: '0',
-          maxRateTimespan: '0',
-        };
-
         tx = await batchConversionProxy.batchRouter(
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-              conversionDetails: [fauConvDetail],
+              requestDetails: [fauConvRequest],
             },
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-              conversionDetails: [
+              requestDetails: [
                 {
                   recipient: to,
                   requestAmount: '100000',
@@ -485,11 +474,21 @@ describe('contract: BatchConversionPayments', async () => {
             },
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_PAYMENTS,
-              conversionDetails: [ethCryptoDetail],
+              requestDetails: [
+                {
+                  recipient: to,
+                  requestAmount: '1000',
+                  path: [],
+                  paymentReference: referenceExample,
+                  feeAmount: '1',
+                  maxToSpend: '0',
+                  maxRateTimespan: '0',
+                },
+              ],
             },
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_CONVERSION_PAYMENTS,
-              conversionDetails: [ethConvDetail],
+              requestDetails: [ethConvRequest],
             },
           ],
           [[FAU_address, USD_hash]],
@@ -575,7 +574,7 @@ describe('contract: BatchConversionPayments', async () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ERC20_PAYMENTS,
-              conversionDetails: [
+              requestDetails: [
                 {
                   recipient: to,
                   requestAmount: '20100' + daiDecimals,
@@ -619,7 +618,7 @@ describe('contract: BatchConversionPayments', async () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-              conversionDetails: [
+              requestDetails: [
                 {
                   recipient: to,
                   requestAmount: '10100' + daiDecimals,
@@ -663,7 +662,7 @@ describe('contract: BatchConversionPayments', async () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-              conversionDetails: [
+              requestDetails: [
                 {
                   recipient: to,
                   requestAmount: '10100' + daiDecimals,
@@ -710,7 +709,7 @@ describe('contract: BatchConversionPayments', async () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-              conversionDetails: [fauConvDetail, daiConvDetail],
+              requestDetails: [fauConvRequest, daiConvRequest],
             },
           ],
           [
@@ -776,7 +775,7 @@ describe('contract: BatchConversionPayments', async () => {
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_PAYMENTS,
-              conversionDetails: [
+              requestDetails: [
                 {
                   recipient: to,
                   requestAmount: reqAmount,
@@ -816,13 +815,13 @@ describe('contract: BatchConversionPayments', async () => {
         const initialFeeETHBalance = await provider.getBalance(feeAddress);
         const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
         const reqAmount = 200000000000;
-        const increasedEthConvDetail = Utils.deepCopy(ethConvDetail);
-        increasedEthConvDetail.requestAmount = reqAmount.toString();
+        const copyEthConvRequest = Utils.deepCopy(ethConvRequest);
+        copyEthConvRequest.requestAmount = reqAmount.toString();
         tx = await batchConversionProxy.batchRouter(
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_CONVERSION_PAYMENTS,
-              conversionDetails: [increasedEthConvDetail],
+              requestDetails: [copyEthConvRequest],
             },
           ],
           [],
@@ -854,26 +853,15 @@ describe('contract: BatchConversionPayments', async () => {
         const initialFeeETHBalance = await provider.getBalance(feeAddress);
         const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
 
-        // set inputs: ERC20 cryptoDetails & ethCryptoDetails
-        const ethCryptoDetail: PaymentTypes.ConversionDetail = {
-          recipient: to,
-          requestAmount: '1000',
-          path: [],
-          paymentReference: referenceExample,
-          feeAmount: '1',
-          maxToSpend: '0',
-          maxRateTimespan: '0',
-        };
-
         tx = await batchConversionProxy.batchRouter(
           [
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-              conversionDetails: [fauConvDetail],
+              requestDetails: [fauConvRequest],
             },
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-              conversionDetails: [
+              requestDetails: [
                 {
                   recipient: to,
                   requestAmount: '100000',
@@ -887,19 +875,27 @@ describe('contract: BatchConversionPayments', async () => {
             },
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_PAYMENTS,
-              conversionDetails: [ethCryptoDetail],
+              requestDetails: [
+                {
+                  recipient: to,
+                  requestAmount: '1000',
+                  path: [],
+                  paymentReference: referenceExample,
+                  feeAmount: '1',
+                  maxToSpend: '0',
+                  maxRateTimespan: '0',
+                },
+              ],
             },
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_CONVERSION_PAYMENTS,
-              conversionDetails: [ethConvDetail],
+              requestDetails: [ethConvRequest],
             },
           ],
           [[FAU_address, USD_hash]],
           feeAddress,
           { value: (1000 + 1 + 11) * USD_ETH_RATE + (1000 + 1 + 11) }, // + 11 to pay batch fees
         );
-        ethCryptoDetail;
-        ethConvDetail;
         // Chech FAU Balances //
         let [expectedFromFAUBalanceDiff, expectedToFAUBalanceDiff, expectedFeeFAUBalanceDiff] =
           getExpectedConvERC20Balances(100000, 100, 1, 'USD_FAU');
@@ -968,7 +964,7 @@ describe('contract: BatchConversionPayments', async () => {
         batchConversionProxy.batchRouter(
           Array(6).fill({
             paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-            conversionDetails: [],
+            requestDetails: [],
           }),
           [[FAU_address, USD_hash]],
           feeAddress,
@@ -981,7 +977,7 @@ describe('contract: BatchConversionPayments', async () => {
           [
             {
               paymentNetworkId: 6,
-              conversionDetails: [],
+              requestDetails: [],
             },
           ],
           [[FAU_address, USD_hash]],
@@ -998,7 +994,7 @@ describe('contract: BatchConversionPayments', async () => {
       await batchConversionProxy
         .connect(fromSigner)
         .batchMultiERC20ConversionPayments(
-          [fauConvDetail],
+          [fauConvRequest],
           0,
           [[FAU_address, USD_hash]],
           feeAddress,
@@ -1024,7 +1020,7 @@ describe('contract: BatchConversionPayments', async () => {
       await batchConversionProxy
         .connect(fromSigner)
         .batchMultiERC20ConversionPayments(
-          [daiConvDetail],
+          [daiConvRequest],
           0,
           [[DAI_address, USD_hash]],
           feeAddress,
@@ -1046,7 +1042,7 @@ describe('contract: BatchConversionPayments', async () => {
     it('make 3 payments with different tokens and conversion length', async () => {
       const batchPayment = async () => {
         return await batchConversionProxy.connect(fromSigner).batchMultiERC20ConversionPayments(
-          [fauConvDetail, daiConvDetail, daiConvDetail],
+          [fauConvRequest, daiConvRequest, daiConvRequest],
           0,
           [
             [FAU_address, USD_hash],
@@ -1060,11 +1056,11 @@ describe('contract: BatchConversionPayments', async () => {
   });
   describe('batchMultiERC20ConversionPayments errors', async () => {
     it('cannot transfer with invalid path', async () => {
-      const convDetail = Utils.deepCopy(fauConvDetail);
-      convDetail.path = [EUR_hash, ETH_hash, DAI_address];
+      const convRequest = Utils.deepCopy(fauConvRequest);
+      convRequest.path = [EUR_hash, ETH_hash, DAI_address];
       await expect(
         batchConversionProxy.batchMultiERC20ConversionPayments(
-          [convDetail],
+          [convRequest],
           0,
           [[FAU_address, USD_hash]],
           feeAddress,
@@ -1073,11 +1069,11 @@ describe('contract: BatchConversionPayments', async () => {
     });
 
     it('cannot transfer if max to spend too low', async () => {
-      const convDetail = Utils.deepCopy(fauConvDetail);
-      convDetail.maxToSpend = '1000000'; // not enough
+      const convRequest = Utils.deepCopy(fauConvRequest);
+      convRequest.maxToSpend = '1000000'; // not enough
       await expect(
         batchConversionProxy.batchMultiERC20ConversionPayments(
-          [convDetail],
+          [convRequest],
           0,
           [[FAU_address, USD_hash]],
           feeAddress,
@@ -1086,11 +1082,11 @@ describe('contract: BatchConversionPayments', async () => {
     });
 
     it('cannot transfer if rate is too old', async () => {
-      const convDetail = Utils.deepCopy(fauConvDetail);
-      convDetail.maxRateTimespan = '10';
+      const convRequest = Utils.deepCopy(fauConvRequest);
+      convRequest.maxRateTimespan = '10';
       await expect(
         batchConversionProxy.batchMultiERC20ConversionPayments(
-          [convDetail],
+          [convRequest],
           0,
           [[FAU_address, USD_hash]],
           feeAddress,
@@ -1099,18 +1095,18 @@ describe('contract: BatchConversionPayments', async () => {
     });
 
     it('Not enough allowance', async () => {
-      const convDetail = Utils.deepCopy(fauConvDetail);
+      const convRequest = Utils.deepCopy(fauConvRequest);
       // reduce fromSigner± allowance
       await fauERC20.approve(
         batchConversionProxy.address,
-        BigNumber.from(convDetail.maxToSpend).sub(2),
+        BigNumber.from(convRequest.maxToSpend).sub(2),
         {
           from,
         },
       );
       await expect(
         batchConversionProxy.batchMultiERC20ConversionPayments(
-          [convDetail],
+          [convRequest],
           0,
           [[FAU_address, USD_hash]],
           feeAddress,
@@ -1119,11 +1115,11 @@ describe('contract: BatchConversionPayments', async () => {
     });
 
     it('Not enough funds even if partially enough funds', async () => {
-      const convDetail = Utils.deepCopy(fauConvDetail);
+      const convRequest = Utils.deepCopy(fauConvRequest);
       // fromSigner transfer enough token to pay just 1 invoice to signer4
       await fauERC20
         .connect(fromSigner)
-        .transfer(await signer4.getAddress(), BigNumber.from(convDetail.maxToSpend));
+        .transfer(await signer4.getAddress(), BigNumber.from(convRequest.maxToSpend));
       // increase signer4 allowance
       await fauERC20
         .connect(signer4)
@@ -1134,7 +1130,7 @@ describe('contract: BatchConversionPayments', async () => {
         batchConversionProxy
           .connect(signer4)
           .batchMultiERC20ConversionPayments(
-            [convDetail, convDetail, convDetail],
+            [convRequest, convRequest, convRequest],
             0,
             [[FAU_address, USD_hash]],
             feeAddress,
@@ -1153,7 +1149,7 @@ describe('contract: BatchConversionPayments', async () => {
       const initialToETHBalance = await provider.getBalance(to);
       const initialFeeETHBalance = await provider.getBalance(feeAddress);
       const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
-      tx = await batchConversionProxy.batchEthConversionPayments([ethConvDetail], 0, feeAddress, {
+      tx = await batchConversionProxy.batchEthConversionPayments([ethConvRequest], 0, feeAddress, {
         value: (1000 + 1 + 11) * USD_ETH_RATE, // + 11 to pay batch fees
       });
       await expectETHBalanceDiffs(
@@ -1170,11 +1166,11 @@ describe('contract: BatchConversionPayments', async () => {
       const initialToETHBalance = await provider.getBalance(to);
       const initialFeeETHBalance = await provider.getBalance(feeAddress);
       const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
-      const EurConvDetail = Utils.deepCopy(ethConvDetail);
-      EurConvDetail.path = [EUR_hash, USD_hash, ETH_hash];
+      const EurConvRequest = Utils.deepCopy(ethConvRequest);
+      EurConvRequest.path = [EUR_hash, USD_hash, ETH_hash];
 
       tx = await batchConversionProxy.batchEthConversionPayments(
-        [ethConvDetail, EurConvDetail, ethConvDetail],
+        [ethConvRequest, EurConvRequest, ethConvRequest],
         0,
         feeAddress,
         {
@@ -1194,10 +1190,10 @@ describe('contract: BatchConversionPayments', async () => {
   });
   describe('batchEthConversionPayments errors', () => {
     it('cannot transfer with invalid path', async () => {
-      const wrongConvDetail = Utils.deepCopy(ethConvDetail);
-      wrongConvDetail.path = [USD_hash, EUR_hash, ETH_hash];
+      const wrongConvRequest = Utils.deepCopy(ethConvRequest);
+      wrongConvRequest.path = [USD_hash, EUR_hash, ETH_hash];
       await expect(
-        batchConversionProxy.batchEthConversionPayments([wrongConvDetail], 0, feeAddress, {
+        batchConversionProxy.batchEthConversionPayments([wrongConvRequest], 0, feeAddress, {
           value: (1000 + 1 + 11) * USD_ETH_RATE, // + 11 to pay batch fees
         }),
       ).to.be.revertedWith('No aggregator found');
@@ -1205,7 +1201,7 @@ describe('contract: BatchConversionPayments', async () => {
     it('not enough funds even if partially enough funds', async () => {
       await expect(
         batchConversionProxy.batchEthConversionPayments(
-          [ethConvDetail, ethConvDetail],
+          [ethConvRequest, ethConvRequest],
           0,
           feeAddress,
           {
@@ -1216,10 +1212,10 @@ describe('contract: BatchConversionPayments', async () => {
     });
 
     it('cannot transfer if rate is too old', async () => {
-      const wrongConvDetail = Utils.deepCopy(ethConvDetail);
-      wrongConvDetail.maxRateTimespan = '1';
+      const wrongConvRequest = Utils.deepCopy(ethConvRequest);
+      wrongConvRequest.maxRateTimespan = '1';
       await expect(
-        batchConversionProxy.batchEthConversionPayments([wrongConvDetail], 0, feeAddress, {
+        batchConversionProxy.batchEthConversionPayments([wrongConvRequest], 0, feeAddress, {
           value: 1000 + 1 + 11, // + 11 to pay batch fees
         }),
       ).to.be.revertedWith('aggregator rate is outdated');

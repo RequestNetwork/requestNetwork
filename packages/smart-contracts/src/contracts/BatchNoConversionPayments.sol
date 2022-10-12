@@ -67,7 +67,7 @@ contract BatchNoConversionPayments is Ownable {
    *   maxRateTimespan: Only for conversion payment:
    *                    Max acceptable times span for conversion rates, ignored if zero
    */
-  struct ConversionDetail {
+  struct RequestDetail {
     address recipient;
     uint256 requestAmount;
     address[] path;
@@ -107,14 +107,14 @@ contract BatchNoConversionPayments is Ownable {
   /**
    * @notice Send a batch of ETH (or EVM native token) payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch reverts.
-   * @param conversionDetails List of ETH requests to pay.
+   * @param requestDetails List of ETH requests to pay.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param feeAddress The fee recipient.
    * @dev It uses EthereumFeeProxy to pay an invoice and fees with a payment reference.
    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
    */
   function batchEthPayments(
-    ConversionDetail[] calldata conversionDetails,
+    RequestDetail[] calldata requestDetails,
     uint256 batchFeeAmountUSD,
     address payable feeAddress
   ) public payable returns (uint256) {
@@ -126,15 +126,15 @@ contract BatchNoConversionPayments is Ownable {
     uint256 amount = 0;
 
     // Batch contract pays the requests thourgh EthFeeProxy
-    for (uint256 i = 0; i < conversionDetails.length; i++) {
-      ConversionDetail memory cD = conversionDetails[i];
-      require(address(this).balance >= cD.requestAmount + cD.feeAmount, 'Not enough funds');
-      amount += cD.requestAmount;
+    for (uint256 i = 0; i < requestDetails.length; i++) {
+      RequestDetail memory rD = requestDetails[i];
+      require(address(this).balance >= rD.requestAmount + rD.feeAmount, 'Not enough funds');
+      amount += rD.requestAmount;
 
-      paymentEthProxy.transferWithReferenceAndFee{value: cD.requestAmount + cD.feeAmount}(
-        payable(cD.recipient),
-        cD.paymentReference,
-        cD.feeAmount,
+      paymentEthProxy.transferWithReferenceAndFee{value: rD.requestAmount + rD.feeAmount}(
+        payable(rD.recipient),
+        rD.paymentReference,
+        rD.feeAmount,
         payable(feeAddress)
       );
     }
@@ -162,7 +162,7 @@ contract BatchNoConversionPayments is Ownable {
 
   /**
    * @notice Send a batch of ERC20 payments with fees and paymentReferences to multiple accounts.
-   * @param conversionDetails List of ERC20 requests to pay, with only one ERC20 token.
+   * @param requestDetails List of ERC20 requests to pay, with only one ERC20 token.
    * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
    *                   Without paths, there is not limitation.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
@@ -172,7 +172,7 @@ contract BatchNoConversionPayments is Ownable {
    *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
    */
   function batchERC20Payments(
-    ConversionDetail[] calldata conversionDetails,
+    RequestDetail[] calldata requestDetails,
     address[][] calldata pathsToUSD,
     uint256 batchFeeAmountUSD,
     address feeAddress
@@ -183,21 +183,21 @@ contract BatchNoConversionPayments is Ownable {
     }
     uint256 amountAndFee = 0;
     uint256 batchFeeAmount = 0;
-    for (uint256 i = 0; i < conversionDetails.length; i++) {
-      amountAndFee += conversionDetails[i].requestAmount + conversionDetails[i].feeAmount;
-      batchFeeAmount += conversionDetails[i].requestAmount;
+    for (uint256 i = 0; i < requestDetails.length; i++) {
+      amountAndFee += requestDetails[i].requestAmount + requestDetails[i].feeAmount;
+      batchFeeAmount += requestDetails[i].requestAmount;
     }
     batchFeeAmount = (batchFeeAmount * batchFee) / feeDenominator;
 
     // batchFeeToPay and batchFeeAmountUSD are updated if needed
     (batchFeeAmount, batchFeeAmountUSD) = calculateBatchFeeToPay(
       batchFeeAmount,
-      conversionDetails[0].path[0],
+      requestDetails[0].path[0],
       batchFeeAmountUSD,
       pathsToUSD
     );
 
-    IERC20 requestedToken = IERC20(conversionDetails[0].path[0]);
+    IERC20 requestedToken = IERC20(requestDetails[0].path[0]);
 
     contractAllowanceApprovalTransfer(
       requestedToken,
@@ -208,19 +208,19 @@ contract BatchNoConversionPayments is Ownable {
 
     // Payer pays batch fee amount
     require(
-      safeTransferFrom(conversionDetails[0].path[0], feeAddress, batchFeeAmount),
+      safeTransferFrom(requestDetails[0].path[0], feeAddress, batchFeeAmount),
       'Batch fee transferFrom() failed'
     );
 
     // Batch contract pays the requests using Erc20FeeProxy
-    for (uint256 i = 0; i < conversionDetails.length; i++) {
-      ConversionDetail memory cD = conversionDetails[i];
+    for (uint256 i = 0; i < requestDetails.length; i++) {
+      RequestDetail memory rD = requestDetails[i];
       paymentErc20Proxy.transferFromWithReferenceAndFee(
-        cD.path[0],
-        cD.recipient,
-        cD.requestAmount,
-        cD.paymentReference,
-        cD.feeAmount,
+        rD.path[0],
+        rD.recipient,
+        rD.requestAmount,
+        rD.paymentReference,
+        rD.feeAmount,
         feeAddress
       );
     }
@@ -230,7 +230,7 @@ contract BatchNoConversionPayments is Ownable {
 
   /**
    * @notice Send a batch of ERC20 payments with fees and paymentReferences to multiple accounts, with multiple tokens.
-   * @param conversionDetails List of ERC20 requests to pay.
+   * @param requestDetails List of ERC20 requests to pay.
    * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
    *                   Without paths, there is not limitation.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
@@ -240,7 +240,7 @@ contract BatchNoConversionPayments is Ownable {
    *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
    */
   function batchMultiERC20Payments(
-    ConversionDetail[] calldata conversionDetails,
+    RequestDetail[] calldata requestDetails,
     address[][] calldata pathsToUSD,
     uint256 batchFeeAmountUSD,
     address feeAddress
@@ -249,7 +249,7 @@ contract BatchNoConversionPayments is Ownable {
     if (batchPaymentOrigin != true) {
       batchFeeAmountUSD = 0;
     }
-    Token[] memory uTokens = getUTokens(conversionDetails);
+    Token[] memory uTokens = getUTokens(requestDetails);
 
     // The payer transfers tokens to the batch contract and pays batch fee
     for (uint256 i = 0; i < uTokens.length && uTokens[i].amountAndFee > 0; i++) {
@@ -280,14 +280,14 @@ contract BatchNoConversionPayments is Ownable {
     }
 
     // Batch contract pays the requests using Erc20FeeProxy
-    for (uint256 i = 0; i < conversionDetails.length; i++) {
-      ConversionDetail memory cD = conversionDetails[i];
+    for (uint256 i = 0; i < requestDetails.length; i++) {
+      RequestDetail memory rD = requestDetails[i];
       paymentErc20Proxy.transferFromWithReferenceAndFee(
-        cD.path[0],
-        cD.recipient,
-        cD.requestAmount,
-        cD.paymentReference,
-        cD.feeAmount,
+        rD.path[0],
+        rD.recipient,
+        rD.requestAmount,
+        rD.paymentReference,
+        rD.feeAmount,
         feeAddress
       );
     }
@@ -326,7 +326,7 @@ contract BatchNoConversionPayments is Ownable {
       'Not enough funds, including fees'
     );
 
-    // Transfer the amount and fee required for the token on the batch contract
+    // Transfer the amount and fees (no batch fees) required for the token on the batch contract
     require(
       safeTransferFrom(address(requestedToken), address(this), amountAndFee),
       'payment transferFrom() failed'
@@ -344,42 +344,42 @@ contract BatchNoConversionPayments is Ownable {
    * Regarding ERC20 no conversion payments:
    *   batchFeeAmount is the sum of requestAmount and feeAmount.
    *   Out of the function, batch fee rate is applied
-   * @param conversionDetails List of requests to pay.
+   * @param requestDetails List of requests to pay.
    */
-  function getUTokens(ConversionDetail[] calldata conversionDetails)
+  function getUTokens(RequestDetail[] calldata requestDetails)
     internal
     pure
     returns (Token[] memory uTokens)
   {
     // A list of unique tokens, with the sum of maxToSpend by token
-    uTokens = new Token[](conversionDetails.length);
-    for (uint256 i = 0; i < conversionDetails.length; i++) {
-      for (uint256 k = 0; k < conversionDetails.length; k++) {
-        ConversionDetail memory cD = conversionDetails[i];
+    uTokens = new Token[](requestDetails.length);
+    for (uint256 i = 0; i < requestDetails.length; i++) {
+      for (uint256 k = 0; k < requestDetails.length; k++) {
+        RequestDetail memory rD = requestDetails[i];
         // If the token is already in the existing uTokens list
-        if (uTokens[k].tokenAddress == cD.path[cD.path.length - 1]) {
-          if (cD.path.length > 1) {
-            uTokens[k].amountAndFee += cD.maxToSpend;
+        if (uTokens[k].tokenAddress == rD.path[rD.path.length - 1]) {
+          if (rD.path.length > 1) {
+            uTokens[k].amountAndFee += rD.maxToSpend;
           } else {
             // It is not a conversion payment
-            uTokens[k].amountAndFee += cD.requestAmount + cD.feeAmount;
-            uTokens[k].batchFeeAmount += cD.requestAmount;
+            uTokens[k].amountAndFee += rD.requestAmount + rD.feeAmount;
+            uTokens[k].batchFeeAmount += rD.requestAmount;
           }
           break;
         }
         // If the token is not in the list (amountAndFee = 0)
         else if (
-          uTokens[k].amountAndFee == 0 && (cD.maxToSpend > 0 || cD.requestAmount + cD.feeAmount > 0)
+          uTokens[k].amountAndFee == 0 && (rD.maxToSpend > 0 || rD.requestAmount + rD.feeAmount > 0)
         ) {
-          uTokens[k].tokenAddress = cD.path[cD.path.length - 1];
+          uTokens[k].tokenAddress = rD.path[rD.path.length - 1];
 
-          if (cD.path.length > 1) {
+          if (rD.path.length > 1) {
             // amountAndFee is used to store _maxToSpend, useful to send enough tokens to this contract
-            uTokens[k].amountAndFee = cD.maxToSpend;
+            uTokens[k].amountAndFee = rD.maxToSpend;
           } else {
             // It is not a conversion payment
-            uTokens[k].amountAndFee = cD.requestAmount + cD.feeAmount;
-            uTokens[k].batchFeeAmount = cD.requestAmount;
+            uTokens[k].amountAndFee = rD.requestAmount + rD.feeAmount;
+            uTokens[k].batchFeeAmount = rD.requestAmount;
           }
           break;
         }
@@ -419,14 +419,14 @@ contract BatchNoConversionPayments is Ownable {
             batchFeeToPay,
             pathsToUSD[i]
           );
-          // calculate the batch fee to pay, taking care of the batchFeeAmountUSDLimit
+          // Calculate the batch fee to pay, taking care of the batchFeeAmountUSDLimit
           uint256 conversionToPayUSD = conversionUSD;
           if (batchFeeAmountUSD + conversionToPayUSD > batchFeeAmountUSDLimit) {
             conversionToPayUSD = batchFeeAmountUSDLimit - batchFeeAmountUSD;
             batchFeeToPay = (batchFeeToPay * conversionToPayUSD) / conversionUSD;
           }
           batchFeeAmountUSD += conversionToPayUSD;
-          // add only once the fees
+          // Add only once the fees
           break;
         }
       }
@@ -498,8 +498,8 @@ contract BatchNoConversionPayments is Ownable {
    */
 
   /**
-   * @notice fees added when using Erc20/Eth batch functions
-   * @param _batchFee between 0 and 10000, i.e: batchFee = 50 represent 0.50% of fee
+   * @notice Fees added when using Erc20/Eth batch functions
+   * @param _batchFee Between 0 and 10000, i.e: batchFee = 50 represent 0.50% of fee
    */
   function setBatchFee(uint256 _batchFee) external onlyOwner {
     batchFee = _batchFee;

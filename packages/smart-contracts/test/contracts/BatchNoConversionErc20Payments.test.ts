@@ -13,7 +13,7 @@ import {
 } from '../../src/types';
 import { chainlinkConversionPath } from '../../src/lib';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { ConversionDetail } from 'types/dist/payment-types';
+import { RequestDetail } from 'types/dist/payment-types';
 
 const logGasInfos = false;
 
@@ -548,9 +548,9 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
   });
 
   describe('Batch revert, issues with: args, or funds, or approval', () => {
-    let conversionDetails: ConversionDetail[] = [];
+    let requestDetails: RequestDetail[] = [];
     beforeEach(async () => {
-      conversionDetails = [
+      requestDetails = [
         {
           recipient: payee1,
           requestAmount: '5',
@@ -585,11 +585,11 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await token1.connect(owner).transfer(spender3Address, 100);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
-      conversionDetails[2].requestAmount = '400';
+      requestDetails[2].requestAmount = '400';
       await expect(
         batch
           .connect(spender3)
-          .batchERC20Payments(conversionDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
       ).revertedWith('Not enough funds, including fees');
     });
 
@@ -597,13 +597,13 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await token1.connect(owner).transfer(spender3Address, 303);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
-      conversionDetails[0].requestAmount = '100';
-      conversionDetails[1].requestAmount = '200';
+      requestDetails[0].requestAmount = '100';
+      requestDetails[1].requestAmount = '200';
       await expect(
         batch
           .connect(spender3)
           .batchERC20Payments(
-            conversionDetails.slice(0, 2),
+            requestDetails.slice(0, 2),
             [[token1Address, USD_hash]],
             0,
             feeAddress,
@@ -614,11 +614,11 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
     it('Should revert batch without approval', async () => {
       await token1.connect(owner).transfer(spender3Address, 303);
       await token1.connect(spender3).approve(batchAddress, 10);
-      conversionDetails[0].requestAmount = '20';
+      requestDetails[0].requestAmount = '20';
       await expect(
         batch
           .connect(spender3)
-          .batchERC20Payments(conversionDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
       ).revertedWith('Insufficient allowance for batch to pay');
     });
 
@@ -626,11 +626,11 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await token1.connect(owner).transfer(spender3Address, 400);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
-      conversionDetails[2].requestAmount = '400';
+      requestDetails[2].requestAmount = '400';
       await expect(
         batch
           .connect(spender3)
-          .batchMultiERC20Payments(conversionDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchMultiERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
       ).revertedWith('Not enough funds');
     });
 
@@ -638,14 +638,14 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await token1.connect(owner).transfer(spender3Address, 607);
       await token1.connect(spender3).approve(batchAddress, 1000);
 
-      conversionDetails[0].requestAmount = '100';
-      conversionDetails[1].requestAmount = '200';
-      conversionDetails[2].requestAmount = '300';
-      conversionDetails[2].recipient = payee2;
+      requestDetails[0].requestAmount = '100';
+      requestDetails[1].requestAmount = '200';
+      requestDetails[2].requestAmount = '300';
+      requestDetails[2].recipient = payee2;
       await expect(
         batch
           .connect(spender3)
-          .batchMultiERC20Payments(conversionDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchMultiERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
       ).revertedWith('Not enough funds');
     });
 
@@ -653,13 +653,13 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await token1.connect(owner).transfer(spender3Address, 1000);
       await token1.connect(spender3).approve(batchAddress, 10);
 
-      conversionDetails[0].requestAmount = '100';
-      conversionDetails[1].requestAmount = '200';
-      conversionDetails[2].requestAmount = '300';
+      requestDetails[0].requestAmount = '100';
+      requestDetails[1].requestAmount = '200';
+      requestDetails[2].requestAmount = '300';
       await expect(
         batch
           .connect(spender3)
-          .batchMultiERC20Payments(conversionDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchMultiERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
       ).revertedWith('Insufficient allowance for batch to pay');
     });
   });

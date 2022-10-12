@@ -40,7 +40,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
   const provider = new ethers.providers.JsonRpcProvider(networkConfig.url);
   const currencyManager = CurrencyManager.getDefault();
 
-  const ethConvDetail1: PaymentTypes.ConversionDetail = {
+  const ethRequestDetail1: PaymentTypes.RequestDetail = {
     recipient: '',
     requestAmount: '200',
     path: [],
@@ -49,7 +49,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
     maxToSpend: '0',
     maxRateTimespan: '0',
   };
-  const ethConvDetail2: PaymentTypes.ConversionDetail = {
+  const ethRequestDetail2: PaymentTypes.RequestDetail = {
     recipient: '',
     requestAmount: '300',
     path: [],
@@ -79,8 +79,8 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       currencyManager.fromSymbol('ETH')!.hash,
       currencyManager.fromSymbol('USD')!.hash,
     );
-    ethConvDetail1.recipient = payee1;
-    ethConvDetail2.recipient = payee2;
+    ethRequestDetail1.recipient = payee1;
+    ethRequestDetail2.recipient = payee2;
   });
 
   describe('Batch Eth normal flow', () => {
@@ -89,17 +89,17 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       beforeEthBalance1 = await provider.getBalance(payee1);
       beforeEthBalance2 = await provider.getBalance(payee2);
 
-      const copyEthConvDetail1 = Utils.deepCopy(ethConvDetail1);
-      copyEthConvDetail1.requestAmount = '2000';
-      copyEthConvDetail1.feeAmount = '100';
+      const copyEthRequestDetail1 = Utils.deepCopy(ethRequestDetail1);
+      copyEthRequestDetail1.requestAmount = '2000';
+      copyEthRequestDetail1.feeAmount = '100';
 
-      const copyEthConvDetail2 = Utils.deepCopy(ethConvDetail2);
-      copyEthConvDetail2.requestAmount = '3000';
-      copyEthConvDetail2.feeAmount = '200';
+      const copyEthRequestDetail2 = Utils.deepCopy(ethRequestDetail2);
+      copyEthRequestDetail2.requestAmount = '3000';
+      copyEthRequestDetail2.feeAmount = '200';
       await expect(
         batch
           .connect(owner)
-          .batchEthPayments([copyEthConvDetail1, copyEthConvDetail2], 0, feeAddress, {
+          .batchEthPayments([copyEthRequestDetail1, copyEthRequestDetail2], 0, feeAddress, {
             value: BigNumber.from('6000'),
           }),
       )
@@ -128,7 +128,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
 
       const tx = await batch
         .connect(owner)
-        .batchEthPayments([ethConvDetail1, ethConvDetail2], 0, feeAddress, {
+        .batchEthPayments([ethRequestDetail1, ethRequestDetail2], 0, feeAddress, {
           value: totalAmount,
         });
       await tx.wait();
@@ -149,14 +149,14 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       const feeAmount = 1;
       const nbTxs = 10; // to compare gas optim, go to 100.
 
-      const copyEthConvDetail = Utils.deepCopy(ethConvDetail2);
-      copyEthConvDetail.requestAmount = amount.toString();
-      copyEthConvDetail.feeAmount = feeAmount.toString();
+      const copyEthRequestDetail = Utils.deepCopy(ethRequestDetail2);
+      copyEthRequestDetail.requestAmount = amount.toString();
+      copyEthRequestDetail.feeAmount = feeAmount.toString();
       const totalAmount = BigNumber.from(((amount + feeAmount) * nbTxs).toString());
 
       const tx = await batch
         .connect(owner)
-        .batchEthPayments(Array(nbTxs).fill(copyEthConvDetail), 0, feeAddress, {
+        .batchEthPayments(Array(nbTxs).fill(copyEthRequestDetail), 0, feeAddress, {
           value: totalAmount,
         });
 
@@ -180,9 +180,11 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       const totalAmount = BigNumber.from('400');
 
       await expect(
-        batch.connect(owner).batchEthPayments([ethConvDetail1, ethConvDetail2], 0, feeAddress, {
-          value: totalAmount,
-        }),
+        batch
+          .connect(owner)
+          .batchEthPayments([ethRequestDetail1, ethRequestDetail2], 0, feeAddress, {
+            value: totalAmount,
+          }),
       ).revertedWith('Not enough funds');
 
       afterEthBalance1 = await provider.getBalance(payee1);
@@ -201,9 +203,11 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       const totalAmount = BigNumber.from('530'); // missing 5 (= (200+300) * 1%)
 
       await expect(
-        batch.connect(owner).batchEthPayments([ethConvDetail1, ethConvDetail2], 0, feeAddress, {
-          value: totalAmount,
-        }),
+        batch
+          .connect(owner)
+          .batchEthPayments([ethRequestDetail1, ethRequestDetail2], 0, feeAddress, {
+            value: totalAmount,
+          }),
       ).revertedWith('Not enough funds for batch fee');
 
       afterEthBalance1 = await provider.getBalance(payee1);
@@ -231,7 +235,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
 
       const tx = await batch
         .connect(owner)
-        .batchEthPayments([ethConvDetail1, ethConvDetail2], 0, feeAddress, {
+        .batchEthPayments([ethRequestDetail1, ethRequestDetail2], 0, feeAddress, {
           value: BigNumber.from('1000'),
         });
       await tx.wait();
