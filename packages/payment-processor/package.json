@@ -46,7 +46,7 @@
     "@requestnetwork/utils": "0.35.0",
     "@superfluid-finance/sdk-core": "0.3.2",
     "ethers": "5.5.1",
-    "near-api-js": "0.42.0",
+    "near-api-js": "1.1.0",
     "tslib": "2.3.1"
   },
   "devDependencies": {

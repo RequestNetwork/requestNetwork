@@ -21,6 +21,7 @@ import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from './settings';
+export { INearTransactionCallback } from './utils-near';
 
 export const noConversionNetworks = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,

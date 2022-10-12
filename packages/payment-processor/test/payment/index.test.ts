@@ -180,7 +180,10 @@ describe('payNearInputDataRequest', () => {
       },
     };
 
-    await payNearInputDataRequest(request, mockedNearWalletConnection, '1');
+    await payNearInputDataRequest(request, mockedNearWalletConnection, '1', {
+      callbackUrl: 'https://some.callback.url',
+      meta: 'param',
+    });
     expect(paymentSpy).toHaveBeenCalledWith(
       expect.anything(),
       'aurora',
@@ -188,6 +191,7 @@ describe('payNearInputDataRequest', () => {
       '0x789',
       '700912030bd973e3',
       '0.2.0',
+      { callbackUrl: 'https://some.callback.url', meta: 'param' },
     );
   });
   it('throws when tyring to pay another payment extension', async () => {
