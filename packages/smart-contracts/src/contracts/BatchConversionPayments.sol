@@ -13,9 +13,9 @@ import './BatchNoConversionPayments.sol';
  *              - Native tokens: (e.g. ETH) using EthConversionProxy and EthereumFeeProxy
  *          - to: multiple addresses
  *          - fees: conversion proxy fees and additional batch conversion fees are paid to the same address.
- *         batchRouter is the main function to batch all kinds of payments at once.
+ *         batchPayment is the main function to batch all kinds of payments at once.
  *         If one transaction of the batch fails, all transactions are reverted.
- * @dev batchRouter is the main function, but other batch payment functions are "public" in order to do
+ * @dev batchPayment is the main function, but other batch payment functions are "public" in order to do
  *      gas optimization in some cases.
  */
 contract BatchConversionPayments is BatchNoConversionPayments {
@@ -25,8 +25,8 @@ contract BatchConversionPayments is BatchNoConversionPayments {
   IEthConversionProxy public paymentEthConversionProxy;
 
   /**
-   * @dev Used by the batchRouter to handle information for heterogeneous batches, grouped by payment network.
-   *  - paymentNetworkId: from 0 to 4, cf. `batchRouter()` method.
+   * @dev Used by the batchPayment to handle information for heterogeneous batches, grouped by payment network.
+   *  - paymentNetworkId: from 0 to 4, cf. `batchPayment()` method.
    *  - requestDetails all the data required for conversion and no conversion requests to be paid
    */
   struct MetaDetail {
@@ -73,7 +73,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
    *                   Without paths, there is not limitation.
    * @param feeAddress The address where fees should be paid
-   * @dev batchRouter only reduces gas consumption when using more than a single payment network.
+   * @dev batchPayment only reduces gas consumption when using more than a single payment network.
    *      For single payment network payments, it is more efficient to use the suited batch function.
    */
   function batchPayment(

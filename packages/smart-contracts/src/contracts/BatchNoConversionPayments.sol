@@ -37,7 +37,7 @@ contract BatchNoConversionPayments is Ownable {
   /** batchPayment function is the caller */
   bool internal batchPaymentOrigin = false;
 
-  /** transferBackRemainingEth is set to false only if the payer use batchRouter
+  /** transferBackRemainingEth is set to false only if the payer use batchPayment
   and call both batchEthPayments and batchConversionEthPaymentsWithReference */
   bool internal transferBackRemainingEth = true;
 

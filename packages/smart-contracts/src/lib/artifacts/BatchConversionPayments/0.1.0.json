@@ -519,7 +519,7 @@
           "type": "address"
         }
       ],
-      "name": "batchRouter",
+      "name": "batchPayment",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
