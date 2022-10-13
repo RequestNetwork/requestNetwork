@@ -148,138 +148,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "recipient",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "requestAmount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address[]",
-              "name": "path",
-              "type": "address[]"
-            },
-            {
-              "internalType": "bytes",
-              "name": "paymentReference",
-              "type": "bytes"
-            },
-            {
-              "internalType": "uint256",
-              "name": "feeAmount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxToSpend",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxRateTimespan",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
-          "name": "requestDetails",
-          "type": "tuple[]"
-        },
-        {
-          "internalType": "bool",
-          "name": "skipFeeUSDLimit",
-          "type": "bool"
-        },
-        {
-          "internalType": "address payable",
-          "name": "feeAddress",
-          "type": "address"
-        }
-      ],
-      "name": "batchNativeConversionPayments",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "recipient",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "requestAmount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "address[]",
-              "name": "path",
-              "type": "address[]"
-            },
-            {
-              "internalType": "bytes",
-              "name": "paymentReference",
-              "type": "bytes"
-            },
-            {
-              "internalType": "uint256",
-              "name": "feeAmount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxToSpend",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "maxRateTimespan",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
-          "name": "requestDetails",
-          "type": "tuple[]"
-        },
-        {
-          "internalType": "bool",
-          "name": "skipFeeUSDLimit",
-          "type": "bool"
-        },
-        {
-          "internalType": "address payable",
-          "name": "feeAddress",
-          "type": "address"
-        }
-      ],
-      "name": "batchNativePayments",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "batchFee",
       "outputs": [
@@ -435,6 +303,138 @@
         }
       ],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "path",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "paymentReference",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "feeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxToSpend",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRateTimespan",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "skipFeeUSDLimit",
+          "type": "bool"
+        },
+        {
+          "internalType": "address payable",
+          "name": "feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchNativeConversionPayments",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "path",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "paymentReference",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "feeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxToSpend",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRateTimespan",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "skipFeeUSDLimit",
+          "type": "bool"
+        },
+        {
+          "internalType": "address payable",
+          "name": "feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchNativePayments",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
       "type": "function"
     },
     {
