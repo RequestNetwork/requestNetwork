@@ -41,7 +41,7 @@ const request: any = {
 };
 
 // Use the default currency manager
-const conversionSettings = {} as unknown as IConversionPaymentSettings;
+const conversionSettings: IConversionPaymentSettings = { maxToSpend: '30' };
 
 describe('payNearWithConversionRequest', () => {
   afterEach(() => {
@@ -65,7 +65,13 @@ describe('payNearWithConversionRequest', () => {
       paymentAddress,
     );
 
-    await payNearConversionRequest(request, mockedNearWalletConnection, conversionSettings);
+    await payNearConversionRequest(
+      request,
+      mockedNearWalletConnection,
+      conversionSettings,
+      undefined,
+      { callbackUrl: 'https://some.callback.url', meta: 'param' },
+    );
     expect(paymentSpy).toHaveBeenCalledWith(
       expect.anything(),
       'aurora',
@@ -75,8 +81,13 @@ describe('payNearWithConversionRequest', () => {
       'USD',
       feeAddress,
       feeAmount,
+      conversionSettings.maxToSpend,
       '0',
       '0.1.0',
+      {
+        callbackUrl: 'https://some.callback.url',
+        meta: 'param',
+      },
     );
   });
   it('throws when tyring to pay another payment extension', async () => {
@@ -159,7 +170,7 @@ describe('payNearWithConversionRequest', () => {
 
     await expect(
       payNearConversionRequest(invalidRequest, mockedNearWalletConnection, conversionSettings),
-    ).rejects.toThrowError('Should be a near network');
+    ).rejects.toThrowError('Should be a Near network');
     expect(paymentSpy).toHaveBeenCalledTimes(0);
   });
 });

@@ -9,7 +9,11 @@ import {
   getAmountToPay,
   getPaymentExtensionVersion,
 } from './utils';
-import { isNearNetwork, processNearPaymentWithConversion } from './utils-near';
+import {
+  INearTransactionCallback,
+  isNearNetwork,
+  processNearPaymentWithConversion,
+} from './utils-near';
 import { IConversionPaymentSettings } from '.';
 import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 
@@ -24,6 +28,7 @@ export async function payNearConversionRequest(
   walletConnection: WalletConnection,
   paymentSettings: IConversionPaymentSettings,
   amount?: BigNumberish,
+  callback?: INearTransactionCallback,
 ): Promise<void> {
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE);
 
@@ -41,7 +46,7 @@ export async function payNearConversionRequest(
   }
 
   if (!network || !isNearNetwork(network)) {
-    throw new Error('Should be a near network');
+    throw new Error('Should be a Near network');
   }
 
   const amountToPay = getAmountToPay(request, amount).toString();
@@ -56,8 +61,10 @@ export async function payNearConversionRequest(
     getTicker(request.currencyInfo),
     feeAddress || '0x',
     feeAmount || 0,
+    paymentSettings.maxToSpend,
     maxRateTimespan || '0',
     version,
+    callback,
   );
 }
 

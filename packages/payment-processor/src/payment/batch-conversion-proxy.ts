@@ -22,7 +22,7 @@ import { getBatchArgs } from './batch-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { BATCH_PAYMENT_NETWORK_ID } from '@requestnetwork/types/dist/payment-types';
 import { IState } from 'types/dist/extension-types';
-import { CurrencyInput, isERC20Currency, isISO4217Currency } from '@requestnetwork/currency/dist';
+import { CurrencyInput, isERC20Currency, isISO4217Currency } from '@requestnetwork/currency';
 
 /**
  * Processes a transaction to pay a batch of requests with an ERC20 currency

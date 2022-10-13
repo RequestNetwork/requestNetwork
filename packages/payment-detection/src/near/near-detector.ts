@@ -1,11 +1,7 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { ReferenceBasedDetector } from '../reference-based-detector';
+import { ReferenceBasedDetectorOptions } from '../types';
 import { NearInfoRetriever } from './retrievers/near-info-retriever';
 
 // interface of the object indexing the proxy contract version
@@ -29,8 +25,12 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
   /**
    * @param extension The advanced logic payment network extension
    */
-  public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN, advancedLogic.extensions.nativeToken[0]);
+  public constructor({ advancedLogic, currencyManager }: ReferenceBasedDetectorOptions) {
+    super(
+      PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
+      advancedLogic.extensions.nativeToken[0],
+      currencyManager,
+    );
   }
 
   public static getContractName = (chainName: string, paymentNetworkVersion = '0.2.0'): string => {

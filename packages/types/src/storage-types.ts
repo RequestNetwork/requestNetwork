@@ -2,14 +2,21 @@ import { EventEmitter } from 'events';
 
 import { BigNumber } from 'ethers';
 
-/** Interface of the storage */
-export interface IStorage {
+export interface IStorageWrite {
   initialize: () => Promise<void>;
   append: (data: string) => Promise<IAppendResult>;
+}
+
+export interface IStorageRead {
+  initialize: () => Promise<void>;
   read: (dataId: string) => Promise<IEntry>;
   readMany: (dataIds: string[]) => Promise<IEntry[]>;
   getData: (options?: ITimestampBoundaries) => Promise<IEntriesWithLastTimestamp>;
   getIgnoredData: () => Promise<IEntry[]>;
+}
+
+/** Interface of the storage */
+export interface IStorage extends IStorageRead, IStorageWrite {
   _getStatus: (detailed?: boolean) => Promise<any>;
 }
 

@@ -9,7 +9,7 @@ import {
   getAmountToPay,
   getPaymentExtensionVersion,
 } from './utils';
-import { isNearNetwork, processNearPayment } from './utils-near';
+import { INearTransactionCallback, isNearNetwork, processNearPayment } from './utils-near';
 
 /**
  * processes the transaction to pay a Near request.
@@ -21,6 +21,7 @@ export async function payNearInputDataRequest(
   request: ClientTypes.IRequestData,
   walletConnection: WalletConnection,
   amount?: BigNumberish,
+  callback?: INearTransactionCallback,
 ): Promise<void> {
   if (!request.currencyInfo.network || !isNearNetwork(request.currencyInfo.network)) {
     throw new Error('request.currencyInfo should be a Near network');
@@ -42,5 +43,6 @@ export async function payNearInputDataRequest(
     paymentAddress,
     paymentReference,
     version,
+    callback,
   );
 }

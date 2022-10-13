@@ -5,7 +5,7 @@ import * as config from './config';
 import { Logger } from './logger';
 import { RequestNode } from './requestNode';
 import withShutdown from 'http-shutdown';
-import { TheGraphRequestNode } from './thegraph';
+import { TheGraphRequestNode } from './thegraph-node';
 
 // Initialize the node logger
 const { logLevel, logMode } = config.getLogConfig();
