@@ -34,8 +34,8 @@ describe('extensions/payment-network/any-to-native-token', () => {
       ) as AnyToNativeTokenPaymentNetwork,
       suffix: 'near',
       wrongSuffix: 'testnet',
-      network: 'aurora',
-      wrongNetwork: 'aurora-testnet',
+      network: 'near',
+      wrongNetwork: 'near-testnet',
       maxRateTimespan: 100000,
       feeAmount: '100',
     },
@@ -46,8 +46,8 @@ describe('extensions/payment-network/any-to-native-token', () => {
       ) as AnyToNativeTokenPaymentNetwork,
       suffix: 'testnet',
       wrongSuffix: 'near',
-      network: 'aurora-testnet',
-      wrongNetwork: 'aurora',
+      network: 'near-testnet',
+      wrongNetwork: 'near',
       maxRateTimespan: 100000,
       feeAmount: '100',
     },
@@ -186,7 +186,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
                 network: 'another-chain',
               });
             }).toThrowError(
-              `Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet)`,
+              `Payment network 'another-chain' is not supported by this extension (only near, near-testnet)`,
             );
           });
           it('throws when payment network is missing', () => {
@@ -406,7 +406,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
-            network: 'aurora',
+            network: 'near',
             refundAddress: 'refund.near',
             feeAddress: 'fee.near',
             feeAmount: '100',
@@ -440,7 +440,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
-            network: 'aurora',
+            network: 'near',
             refundAddress: 'refund.near',
             feeAddress: 'fee.near',
             feeAmount: '100',
@@ -475,7 +475,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           anyToNearPn.createCreationAction({
             salt,
             paymentAddress: 'pay.near',
-            network: 'aurora',
+            network: 'near',
             refundAddress: 'refund.near',
             maxRateTimespan: 1000000,
           }),
@@ -506,7 +506,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
-            network: 'aurora',
+            network: 'near',
             refundAddress: 'refund.near',
             maxRateTimespan: 1000000,
           }),
@@ -541,7 +541,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
-            network: 'aurora',
+            network: 'near',
             refundAddress: 'refund.near',
             maxRateTimespan: 1000000,
           }),
@@ -576,7 +576,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
-            network: 'aurora',
+            network: 'near',
             refundAddress: 'refund.near',
             feeAddress: 'fee.near',
             feeAmount: '100',
@@ -613,7 +613,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
           validRequestState.extensions,
           anyToNearPn.createCreationAction({
             salt,
-            network: 'aurora',
+            network: 'near',
             refundAddress: 'refund.near',
             maxRateTimespan: 1000000,
           }),

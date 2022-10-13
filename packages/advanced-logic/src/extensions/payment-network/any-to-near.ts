@@ -4,7 +4,7 @@ import { UnsupportedNetworkError } from './address-based';
 import AnyToNativeTokenPaymentNetwork from './any-to-native';
 import * as Semver from 'semver';
 
-const CURRENT_VERSION = '0.2.0';
+const CURRENT_VERSION = '0.1.0';
 const supportedNetworksLegacy = ['aurora', 'aurora-testnet'];
 const supportedNetworks = ['near', 'near-testnet'];
 
@@ -14,10 +14,11 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    const supportedNetworksForVersion = Semver.lt(currentVersion, CURRENT_VERSION)
-      ? supportedNetworksLegacy
-      : supportedNetworks;
-    super(extensionId, currentVersion, supportedNetworksForVersion);
+    super(
+      extensionId,
+      currentVersion,
+      Semver.lt(currentVersion, '0.2.0') ? supportedNetworksLegacy : supportedNetworks,
+    );
   }
 
   /**
