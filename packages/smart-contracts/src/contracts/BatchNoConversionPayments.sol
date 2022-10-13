@@ -36,7 +36,7 @@ contract BatchNoConversionPayments is Ownable {
       batchFeeAmountUSDLimit = 150 * 1e8 represents $150 */
   uint64 public batchFeeAmountUSDLimit;
 
-  /** transferBackRemainingNativeTokens is set to false only if the payer use batchPayment
+  /** transferBackRemainingNativeTokens is set to false only if the payer use batchPayments
   and call both batchNativePayments and batchNativeConversionPayments */
   bool internal transferBackRemainingNativeTokens = true;
 

@@ -504,7 +504,7 @@
           "type": "address"
         }
       ],
-      "name": "batchPayment",
+      "name": "batchPayments",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
