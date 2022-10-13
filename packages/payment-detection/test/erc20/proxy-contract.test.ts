@@ -1,15 +1,13 @@
+import { mocked } from 'ts-jest/utils';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
-import { GraphQLClient } from 'graphql-request';
-import { mocked } from 'ts-jest/utils';
-
-jest.mock('graphql-request');
-const graphql = mocked(GraphQLClient.prototype);
+import { getTheGraphClient } from '../../src/thegraph';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
@@ -19,6 +17,8 @@ const createCreationAction = jest.fn();
 const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
+jest.mock('../../src/thegraph/client');
+const theGraphClientMock = mocked(getTheGraphClient(''));
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   applyActionToExtensions(): any {
     return;
@@ -39,7 +39,11 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
-    erc20ProxyContract = new ERC20ProxyPaymentDetector({ advancedLogic: mockAdvancedLogic });
+    erc20ProxyContract = new ERC20ProxyPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
+      getSubgraphClient: () => theGraphClientMock,
+    });
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -197,7 +201,7 @@ describe('api/erc20/proxy-contract', () => {
       },
     };
 
-    graphql.request.mockResolvedValue({
+    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValueOnce({
       payments: [
         {
           amount: '1000000000000000000',
@@ -209,13 +213,14 @@ describe('api/erc20/proxy-contract', () => {
           gasUsed: '41013',
           gasPrice: '1000000000',
           timestamp: 1579705909,
+          contractAddress: '0x162edb802fae75b9ee4288345735008ba51a4ec9',
+          to: '0x0e8d9cb9e11278ad6e2ba1ca90385c7295dc6532',
         },
       ],
       escrowEvents: [],
     });
 
     const balance = await erc20ProxyContract.getBalance(mockRequest);
-
     const parameters = balance.events[0].parameters as any;
     expect(parameters.gasUsed).toBe('41013');
     expect(parameters.gasPrice).toBe('1000000000');
