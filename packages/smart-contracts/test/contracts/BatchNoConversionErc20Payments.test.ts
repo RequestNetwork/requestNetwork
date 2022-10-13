@@ -151,7 +151,6 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
             },
           ],
           [[token1Address, USD_hash]],
-          0,
           feeAddress,
         ),
       )
@@ -254,7 +253,6 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
             },
           ],
           [],
-          0,
           feeAddress,
         ),
       )
@@ -373,7 +371,6 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
           [token2Address, USD_hash],
           [token3Address, USD_hash],
         ],
-        0,
         feeAddress,
       );
 
@@ -432,7 +429,6 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
           [token1Address, USD_hash],
           [token2Address, USD_hash],
         ],
-        0,
         feeAddress,
       );
       await tx.wait();
@@ -476,7 +472,6 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
           }),
         ],
         [[token1Address, USD_hash]],
-        0,
         feeAddress,
       );
       await tx.wait();
@@ -532,7 +527,6 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
           [token1Address, USD_hash],
           [token2Address, USD_hash],
         ],
-        0,
         feeAddress,
       );
 
@@ -590,7 +584,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await expect(
         batch
           .connect(spender3)
-          .batchERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchERC20Payments(requestDetails, [[token1Address, USD_hash]], feeAddress),
       ).revertedWith('Not enough funds, including fees');
     });
 
@@ -603,12 +597,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await expect(
         batch
           .connect(spender3)
-          .batchERC20Payments(
-            requestDetails.slice(0, 2),
-            [[token1Address, USD_hash]],
-            0,
-            feeAddress,
-          ),
+          .batchERC20Payments(requestDetails.slice(0, 2), [[token1Address, USD_hash]], feeAddress),
       ).revertedWith('Not enough funds, including fees');
     });
 
@@ -619,7 +608,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await expect(
         batch
           .connect(spender3)
-          .batchERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchERC20Payments(requestDetails, [[token1Address, USD_hash]], feeAddress),
       ).revertedWith('Insufficient allowance for batch to pay');
     });
 
@@ -631,7 +620,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await expect(
         batch
           .connect(spender3)
-          .batchMultiERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchMultiERC20Payments(requestDetails, [[token1Address, USD_hash]], feeAddress),
       ).revertedWith('Not enough funds');
     });
 
@@ -646,7 +635,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await expect(
         batch
           .connect(spender3)
-          .batchMultiERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchMultiERC20Payments(requestDetails, [[token1Address, USD_hash]], feeAddress),
       ).revertedWith('Not enough funds');
     });
 
@@ -660,7 +649,7 @@ describe('contract: batchNoConversionPayments: ERC20', () => {
       await expect(
         batch
           .connect(spender3)
-          .batchMultiERC20Payments(requestDetails, [[token1Address, USD_hash]], 0, feeAddress),
+          .batchMultiERC20Payments(requestDetails, [[token1Address, USD_hash]], feeAddress),
       ).revertedWith('Insufficient allowance for batch to pay');
     });
   });

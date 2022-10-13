@@ -131,11 +131,6 @@
           "type": "address[][]"
         },
         {
-          "internalType": "uint256",
-          "name": "batchFeeAmountUSD",
-          "type": "uint256"
-        },
-        {
           "internalType": "address",
           "name": "feeAddress",
           "type": "address"
@@ -198,13 +193,8 @@
         },
         {
           "internalType": "bool",
-          "name": "applyFeeLimitUSD",
+          "name": "skipFeeUSDLimit",
           "type": "bool"
-        },
-        {
-          "internalType": "uint256",
-          "name": "batchFeeAmountUSD",
-          "type": "uint256"
         },
         {
           "internalType": "address payable",
@@ -269,13 +259,8 @@
         },
         {
           "internalType": "bool",
-          "name": "applyFeeLimitUSD",
+          "name": "skipFeeUSDLimit",
           "type": "bool"
-        },
-        {
-          "internalType": "uint256",
-          "name": "batchFeeAmountUSD",
-          "type": "uint256"
         },
         {
           "internalType": "address payable",
@@ -299,9 +284,9 @@
       "name": "batchFee",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint16",
           "name": "",
-          "type": "uint256"
+          "type": "uint16"
         }
       ],
       "stateMutability": "view",
@@ -312,9 +297,9 @@
       "name": "batchFeeAmountUSDLimit",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "stateMutability": "view",
@@ -363,11 +348,6 @@
           "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
           "name": "requestDetails",
           "type": "tuple[]"
-        },
-        {
-          "internalType": "uint256",
-          "name": "batchFeeAmountUSD",
-          "type": "uint256"
         },
         {
           "internalType": "address[][]",
@@ -439,11 +419,6 @@
           "internalType": "address[][]",
           "name": "pathsToUSD",
           "type": "address[][]"
-        },
-        {
-          "internalType": "uint256",
-          "name": "batchFeeAmountUSD",
-          "type": "uint256"
         },
         {
           "internalType": "address",
@@ -646,9 +621,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint16",
           "name": "_batchFee",
-          "type": "uint256"
+          "type": "uint16"
         }
       ],
       "name": "setBatchFee",
@@ -659,9 +634,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint64",
           "name": "_batchFeeAmountUSDLimit",
-          "type": "uint256"
+          "type": "uint64"
         }
       ],
       "name": "setBatchFeeAmountUSDLimit",

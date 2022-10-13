@@ -702,7 +702,7 @@ describe('contract: BatchConversionPayments', async () => {
 
       await batchConversionProxy
         .connect(fromSigner)
-        .batchMultiERC20ConversionPayments([fauConvRequest], 0, [], feeAddress);
+        .batchMultiERC20ConversionPayments([fauConvRequest], [], feeAddress);
 
       const [expectedFromFAUBalanceDiff, expectedToFAUBalanceDiff, expectedFeeFAUBalanceDiff] =
         getExpectedConvERC20Balances(100000, 100, 1, 'USD_FAU');
@@ -723,7 +723,7 @@ describe('contract: BatchConversionPayments', async () => {
 
       await batchConversionProxy
         .connect(fromSigner)
-        .batchMultiERC20ConversionPayments([daiConvRequest], 0, [], feeAddress);
+        .batchMultiERC20ConversionPayments([daiConvRequest], [], feeAddress);
 
       const [expectedFromDAIBalanceDiff, expectedToDAIBalanceDiff, expectedFeeDAIBalanceDiff] =
         getExpectedConvERC20Balances(100000, 100, 1, 'EUR_DAI');
@@ -744,7 +744,6 @@ describe('contract: BatchConversionPayments', async () => {
           .connect(fromSigner)
           .batchMultiERC20ConversionPayments(
             [fauConvRequest, daiConvRequest, daiConvRequest],
-            0,
             [],
             feeAddress,
           );
@@ -758,21 +757,21 @@ describe('contract: BatchConversionPayments', async () => {
       const convRequest = Utils.deepCopy(fauConvRequest);
       convRequest.path = [EUR_hash, ETH_hash, DAI_address];
       await expect(
-        batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], 0, [], feeAddress),
+        batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], [], feeAddress),
       ).to.be.revertedWith('revert No aggregator found');
     });
     it('cannot transfer if max to spend too low', async () => {
       const convRequest = Utils.deepCopy(fauConvRequest);
       convRequest.maxToSpend = '1000000'; // not enough
       await expect(
-        batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], 0, [], feeAddress),
+        batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], [], feeAddress),
       ).to.be.revertedWith('Amount to pay is over the user limit');
     });
     it('cannot transfer if rate is too old', async () => {
       const convRequest = Utils.deepCopy(fauConvRequest);
       convRequest.maxRateTimespan = '10';
       await expect(
-        batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], 0, [], feeAddress),
+        batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], [], feeAddress),
       ).to.be.revertedWith('aggregator rate is outdated');
     });
     it('Not enough allowance', async () => {
@@ -786,7 +785,7 @@ describe('contract: BatchConversionPayments', async () => {
         },
       );
       await expect(
-        batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], 0, [], feeAddress),
+        batchConversionProxy.batchMultiERC20ConversionPayments([convRequest], [], feeAddress),
       ).to.be.revertedWith('Insufficient allowance for batch to pay');
     });
     it('Not enough funds even if partially enough funds', async () => {
@@ -806,7 +805,6 @@ describe('contract: BatchConversionPayments', async () => {
           .connect(signer4)
           .batchMultiERC20ConversionPayments(
             [convRequest, convRequest, convRequest],
-            0,
             [],
             feeAddress,
           ),
@@ -827,8 +825,7 @@ describe('contract: BatchConversionPayments', async () => {
       const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
       tx = await batchConversionProxy.batchEthConversionPayments(
         [ethConvRequest],
-        false,
-        0,
+        true,
         feeAddress,
         {
           value: BigNumber.from('1000' + fiatDecimals)
@@ -854,8 +851,7 @@ describe('contract: BatchConversionPayments', async () => {
 
       tx = await batchConversionProxy.batchEthConversionPayments(
         [ethConvRequest, EurEthConvRequest, ethConvRequest],
-        false,
-        0,
+        true,
         feeAddress,
         {
           value: BigNumber.from('1000' + fiatDecimals)
@@ -882,7 +878,7 @@ describe('contract: BatchConversionPayments', async () => {
       const wrongConvRequest = Utils.deepCopy(ethConvRequest);
       wrongConvRequest.path = [USD_hash, EUR_hash, ETH_hash];
       await expect(
-        batchConversionProxy.batchEthConversionPayments([wrongConvRequest], false, 0, feeAddress, {
+        batchConversionProxy.batchEthConversionPayments([wrongConvRequest], false, feeAddress, {
           value: (1000 + 1 + 11) * USD_ETH_RATE, // + 11 to pay batch fees
         }),
       ).to.be.revertedWith('No aggregator found');
@@ -892,7 +888,6 @@ describe('contract: BatchConversionPayments', async () => {
         batchConversionProxy.batchEthConversionPayments(
           [ethConvRequest, ethConvRequest],
           false,
-          0,
           feeAddress,
           {
             value: (2000 + 1) * USD_ETH_RATE, // no enough to pay the amount AND the fees
@@ -904,7 +899,7 @@ describe('contract: BatchConversionPayments', async () => {
       const wrongConvRequest = Utils.deepCopy(ethConvRequest);
       wrongConvRequest.maxRateTimespan = '1';
       await expect(
-        batchConversionProxy.batchEthConversionPayments([wrongConvRequest], false, 0, feeAddress, {
+        batchConversionProxy.batchEthConversionPayments([wrongConvRequest], false, feeAddress, {
           value: 1000 + 1 + 11, // + 11 to pay batch fees
         }),
       ).to.be.revertedWith('aggregator rate is outdated');
@@ -928,7 +923,6 @@ describe('contract: BatchConversionPayments', async () => {
           },
         ],
         [],
-        0,
         feeAddress,
       );
 
@@ -961,7 +955,6 @@ describe('contract: BatchConversionPayments', async () => {
           },
         ],
         [],
-        0,
         feeAddress,
       );
 
@@ -995,7 +988,6 @@ describe('contract: BatchConversionPayments', async () => {
           },
         ],
         false,
-        0,
         feeAddress,
         { value: 1000 + 1 + 11 }, // + 11 to pay batch fees
       );

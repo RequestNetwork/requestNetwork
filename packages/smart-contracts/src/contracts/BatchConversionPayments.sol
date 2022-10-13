@@ -86,31 +86,25 @@ contract BatchConversionPayments is BatchNoConversionPayments {
   ) external payable {
     require(metaDetails.length < 6, 'more than 5 metaDetails');
 
-    // Check that there are paths to USD, and more than one paymentNetworkId
-    if (pathsToUSD.length > 0 && metaDetails.length > 1) {
-      // Set to true to avoid batchFeeAmountUSD to be reset by each batch function
-      batchPaymentOrigin = true;
-    }
-
     uint256 batchFeeAmountUSD = 0;
     for (uint256 i = 0; i < metaDetails.length; i++) {
       MetaDetail calldata metaDetail = metaDetails[i];
       if (metaDetail.paymentNetworkId == 0) {
-        batchFeeAmountUSD += batchMultiERC20ConversionPayments(
+        batchFeeAmountUSD += _batchMultiERC20ConversionPayments(
           metaDetail.requestDetails,
           batchFeeAmountUSD,
           pathsToUSD,
           feeAddress
         );
       } else if (metaDetail.paymentNetworkId == 1) {
-        batchFeeAmountUSD += batchERC20Payments(
+        batchFeeAmountUSD += _batchERC20Payments(
           metaDetail.requestDetails,
           pathsToUSD,
           batchFeeAmountUSD,
-          feeAddress
+          payable(feeAddress)
         );
       } else if (metaDetail.paymentNetworkId == 2) {
-        batchFeeAmountUSD += batchMultiERC20Payments(
+        batchFeeAmountUSD += _batchMultiERC20Payments(
           metaDetail.requestDetails,
           pathsToUSD,
           batchFeeAmountUSD,
@@ -121,9 +115,9 @@ contract BatchConversionPayments is BatchNoConversionPayments {
           // Set to false only if batchEthConversionPayments is called after this function
           transferBackRemainingEth = false;
         }
-        batchFeeAmountUSD += batchEthPayments(
+        batchFeeAmountUSD += _batchEthPayments(
           metaDetail.requestDetails,
-          pathsToUSD.length > 0,
+          pathsToUSD.length == 0,
           batchFeeAmountUSD,
           payable(feeAddress)
         );
@@ -131,9 +125,9 @@ contract BatchConversionPayments is BatchNoConversionPayments {
           transferBackRemainingEth = true;
         }
       } else if (metaDetail.paymentNetworkId == 4) {
-        batchFeeAmountUSD += batchEthConversionPayments(
+        batchFeeAmountUSD += _batchEthConversionPayments(
           metaDetail.requestDetails,
-          pathsToUSD.length > 0,
+          pathsToUSD.length == 0,
           batchFeeAmountUSD,
           payable(feeAddress)
         );
@@ -141,10 +135,42 @@ contract BatchConversionPayments is BatchNoConversionPayments {
         revert('Wrong paymentNetworkId');
       }
     }
-    if (pathsToUSD.length > 0 && metaDetails.length > 1) {
-      // Set back to false, its default value
-      batchPaymentOrigin = false;
-    }
+  }
+
+  /**
+   * @notice Send a batch of ERC20 payments with amounts based on a request
+   * currency (e.g. fiat), with fees and paymentReferences to multiple accounts, with multiple tokens.
+   * @param requestDetails List of ERC20 requests denominated in fiat to pay.
+   * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
+   *                   Without paths, there is not a fee limitation, and it consumes less gas.
+   * @param feeAddress The fee recipient.
+   */
+  function batchMultiERC20ConversionPayments(
+    RequestDetail[] calldata requestDetails,
+    address[][] calldata pathsToUSD,
+    address feeAddress
+  ) public returns (uint256) {
+    return _batchMultiERC20ConversionPayments(requestDetails, 0, pathsToUSD, feeAddress);
+  }
+
+  /**
+   * @notice Send a batch of ETH conversion payments with fees and paymentReferences to multiple accounts.
+   *         If one payment fails, the whole batch is reverted.
+   * @param requestDetails List of ETH requests denominated in fiat to pay.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
+   * @param feeAddress The fee recipient.
+   * @dev It uses EthereumConversionProxy to pay an invoice and fees.
+   *      Please:
+   *        Note that if there is not enough ether attached to the function call,
+   *        the following error is thrown: "revert paymentProxy transferExactEthWithReferenceAndFee failed"
+   *        This choice reduces the gas significantly, by delegating the whole conversion to the payment proxy.
+   */
+  function batchEthConversionPayments(
+    RequestDetail[] calldata requestDetails,
+    bool skipFeeUSDLimit,
+    address payable feeAddress
+  ) public payable returns (uint256) {
+    return _batchEthConversionPayments(requestDetails, skipFeeUSDLimit, 0, feeAddress);
   }
 
   /**
@@ -153,19 +179,15 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @param requestDetails List of ERC20 requests denominated in fiat to pay.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
-   *                   Without paths, there is not limitation.
+   *                   Without paths, there is not a fee limitation, and it consumes less gas.
    * @param feeAddress The fee recipient.
    */
-  function batchMultiERC20ConversionPayments(
+  function _batchMultiERC20ConversionPayments(
     RequestDetail[] calldata requestDetails,
     uint256 batchFeeAmountUSD,
     address[][] calldata pathsToUSD,
     address feeAddress
-  ) public returns (uint256) {
-    // Avoid the possibility to manually put high value to batchFeeAmountUSD
-    if (batchPaymentOrigin != true) {
-      batchFeeAmountUSD = 0;
-    }
+  ) private returns (uint256) {
     Token[] memory uTokens = getUTokens(requestDetails);
 
     IERC20 requestedToken;
@@ -231,7 +253,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @notice Send a batch of ETH conversion payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch is reverted.
    * @param requestDetails List of ETH requests denominated in fiat to pay.
-   * @param applyFeeLimitUSD It set to true to apply the USD fee limit.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param feeAddress The fee recipient.
    * @dev It uses EthereumConversionProxy to pay an invoice and fees.
@@ -240,16 +262,12 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    *        the following error is thrown: "revert paymentProxy transferExactEthWithReferenceAndFee failed"
    *        This choice reduces the gas significantly, by delegating the whole conversion to the payment proxy.
    */
-  function batchEthConversionPayments(
+  function _batchEthConversionPayments(
     RequestDetail[] calldata requestDetails,
-    bool applyFeeLimitUSD,
+    bool skipFeeUSDLimit,
     uint256 batchFeeAmountUSD,
     address payable feeAddress
-  ) public payable returns (uint256) {
-    // Avoid the possibility to manually put high value to batchFeeAmountUSD
-    if (batchPaymentOrigin != true && applyFeeLimitUSD) {
-      batchFeeAmountUSD = 0;
-    }
+  ) private returns (uint256) {
     uint256 contractBalance = address(this).balance;
     payerAuthorized = true;
 
@@ -271,7 +289,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     uint256 batchFeeToPay = (((contractBalance - address(this).balance)) * batchFee) /
       feeDenominator;
 
-    if (applyFeeLimitUSD == true) {
+    if (skipFeeUSDLimit == false) {
       (batchFeeToPay, batchFeeAmountUSD) = calculateBatchFeeToPay(
         batchFeeToPay,
         pathsEthToUSD[0][0],

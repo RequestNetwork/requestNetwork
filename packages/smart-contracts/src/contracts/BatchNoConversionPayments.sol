@@ -29,16 +29,14 @@ contract BatchNoConversionPayments is Ownable {
   ChainlinkConversionPath public chainlinkConversionPath;
 
   /** Used to calculate batch fees: batchFee = 30 represent 0.30% of fee */
-  uint256 public batchFee;
+  uint16 public batchFee;
   /** Used to calculate batch fees: divide batchFee by feeDenominator */
-  uint256 internal feeDenominator = 10000;
+  uint16 internal feeDenominator = 10000;
   /** The amount of the batch fee cannot exceed a predefined amount in USD */
-  uint256 public batchFeeAmountUSDLimit;
+  uint64 public batchFeeAmountUSDLimit;
 
   /** payerAuthorized is set to true only when needed for batch Eth conversion */
   bool internal payerAuthorized = false;
-  /** batchPayment function is the caller */
-  bool internal batchPaymentOrigin = false;
   /** transferBackRemainingEth is set to false only if the payer use batchPayment
   and call both batchEthPayments and batchConversionEthPaymentsWithReference */
   bool internal transferBackRemainingEth = true;
@@ -108,22 +106,71 @@ contract BatchNoConversionPayments is Ownable {
    * @notice Send a batch of ETH (or EVM native token) payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch reverts.
    * @param requestDetails List of ETH requests to pay.
-   * @param applyFeeLimitUSD It set to true to apply the USD fee limit.
-   * @param batchFeeAmountUSD The batch fee amount in USD already paid.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
    * @param feeAddress The fee recipient.
    * @dev It uses EthereumFeeProxy to pay an invoice and fees with a payment reference.
    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
    */
   function batchEthPayments(
     RequestDetail[] calldata requestDetails,
-    bool applyFeeLimitUSD,
-    uint256 batchFeeAmountUSD,
+    bool skipFeeUSDLimit,
     address payable feeAddress
   ) public payable returns (uint256) {
-    // Avoid the possibility to manually put high value to batchFeeAmountUSD
-    if (batchPaymentOrigin != true && applyFeeLimitUSD == true) {
-      batchFeeAmountUSD = 0;
-    }
+    return _batchEthPayments(requestDetails, skipFeeUSDLimit, 0, payable(feeAddress));
+  }
+
+  /**
+   * @notice Send a batch of ERC20 payments with fees and paymentReferences to multiple accounts.
+   * @param requestDetails List of ERC20 requests to pay, with only one ERC20 token.
+   * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
+   *                   Without paths, there is not a fee limitation, and it consumes less gas.
+   * @param feeAddress The fee recipient.
+   * @dev Uses ERC20FeeProxy to pay an invoice and fees, with a payment reference.
+   *      Make sure this contract has enough allowance to spend the payer's token.
+   *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
+   */
+  function batchERC20Payments(
+    RequestDetail[] calldata requestDetails,
+    address[][] calldata pathsToUSD,
+    address feeAddress
+  ) public returns (uint256) {
+    return _batchERC20Payments(requestDetails, pathsToUSD, 0, feeAddress);
+  }
+
+  /**
+   * @notice Send a batch of ERC20 payments with fees and paymentReferences to multiple accounts, with multiple tokens.
+   * @param requestDetails List of ERC20 requests to pay.
+   * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
+   *                   Without paths, there is not a fee limitation, and it consumes less gas.
+   * @param feeAddress The fee recipient.
+   * @dev It uses ERC20FeeProxy to pay an invoice and fees, with a payment reference.
+   *      Make sure this contract has enough allowance to spend the payer's token.
+   *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
+   */
+  function batchMultiERC20Payments(
+    RequestDetail[] calldata requestDetails,
+    address[][] calldata pathsToUSD,
+    address feeAddress
+  ) public returns (uint256) {
+    return _batchMultiERC20Payments(requestDetails, pathsToUSD, 0, feeAddress);
+  }
+
+  /**
+   * @notice Send a batch of ETH (or EVM native token) payments with fees and paymentReferences to multiple accounts.
+   *         If one payment fails, the whole batch reverts.
+   * @param requestDetails List of ETH requests to pay.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
+   * @param batchFeeAmountUSD The batch fee amount in USD already paid.
+   * @param feeAddress The fee recipient.
+   * @dev It uses EthereumFeeProxy to pay an invoice and fees with a payment reference.
+   *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
+   */
+  function _batchEthPayments(
+    RequestDetail[] calldata requestDetails,
+    bool skipFeeUSDLimit,
+    uint256 batchFeeAmountUSD,
+    address payable feeAddress
+  ) internal returns (uint256) {
     // amount is used to get the total amount and then used as batch fee amount
     uint256 amount = 0;
 
@@ -143,7 +190,7 @@ contract BatchNoConversionPayments is Ownable {
 
     // amount is updated into batch fee amount
     amount = (amount * batchFee) / feeDenominator;
-    if (applyFeeLimitUSD == true) {
+    if (skipFeeUSDLimit == false) {
       (amount, batchFeeAmountUSD) = calculateBatchFeeToPay(
         amount,
         pathsEthToUSD[0][0],
@@ -168,23 +215,19 @@ contract BatchNoConversionPayments is Ownable {
    * @notice Send a batch of ERC20 payments with fees and paymentReferences to multiple accounts.
    * @param requestDetails List of ERC20 requests to pay, with only one ERC20 token.
    * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
-   *                   Without paths, there is not limitation.
+   *                   Without paths, there is not a fee limitation, and it consumes less gas.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param feeAddress The fee recipient.
    * @dev Uses ERC20FeeProxy to pay an invoice and fees, with a payment reference.
    *      Make sure this contract has enough allowance to spend the payer's token.
    *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
    */
-  function batchERC20Payments(
+  function _batchERC20Payments(
     RequestDetail[] calldata requestDetails,
     address[][] calldata pathsToUSD,
     uint256 batchFeeAmountUSD,
     address feeAddress
-  ) public returns (uint256) {
-    // Avoid the possibility to manually put high value to batchFeeAmountUSD
-    if (batchPaymentOrigin != true) {
-      batchFeeAmountUSD = 0;
-    }
+  ) internal returns (uint256) {
     uint256 amountAndFee = 0;
     uint256 batchFeeAmount = 0;
     for (uint256 i = 0; i < requestDetails.length; i++) {
@@ -236,23 +279,19 @@ contract BatchNoConversionPayments is Ownable {
    * @notice Send a batch of ERC20 payments with fees and paymentReferences to multiple accounts, with multiple tokens.
    * @param requestDetails List of ERC20 requests to pay.
    * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
-   *                   Without paths, there is not limitation.
+   *                   Without paths, there is not a fee limitation, and it consumes less gas.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param feeAddress The fee recipient.
    * @dev It uses ERC20FeeProxy to pay an invoice and fees, with a payment reference.
    *      Make sure this contract has enough allowance to spend the payer's token.
    *      Make sure the payer has enough tokens to pay the amount, the fee, and the batch fee.
    */
-  function batchMultiERC20Payments(
+  function _batchMultiERC20Payments(
     RequestDetail[] calldata requestDetails,
     address[][] calldata pathsToUSD,
     uint256 batchFeeAmountUSD,
     address feeAddress
-  ) public returns (uint256) {
-    // Avoid the possibility to manually put high value to batchFeeAmountUSD
-    if (batchPaymentOrigin != true) {
-      batchFeeAmountUSD = 0;
-    }
+  ) internal returns (uint256) {
     Token[] memory uTokens = getUTokens(requestDetails);
 
     // The payer transfers tokens to the batch contract and pays batch fee
@@ -398,7 +437,7 @@ contract BatchNoConversionPayments is Ownable {
    * @param tokenAddress The address of the token
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
-   *                   Without paths, there is not limitation.
+   *                   Without paths, there is not a fee limitation, and it consumes less gas.
    */
   function calculateBatchFeeToPay(
     uint256 batchFeeToPay,
@@ -505,7 +544,7 @@ contract BatchNoConversionPayments is Ownable {
    * @notice Fees added when using Erc20/Eth batch functions
    * @param _batchFee Between 0 and 200, i.e: batchFee = 30 represent 0.30% of fee
    */
-  function setBatchFee(uint256 _batchFee) external onlyOwner {
+  function setBatchFee(uint16 _batchFee) external onlyOwner {
     // safety to avoid wrong setting
     require(_batchFee <= 200, 'The batch fee value is too high: > 2%');
     batchFee = _batchFee;
@@ -548,7 +587,7 @@ contract BatchNoConversionPayments is Ownable {
   /**
    * @param _batchFeeAmountUSDLimit The limitation of the batch fee amount in USD.
    */
-  function setBatchFeeAmountUSDLimit(uint256 _batchFeeAmountUSDLimit) external onlyOwner {
+  function setBatchFeeAmountUSDLimit(uint64 _batchFeeAmountUSDLimit) external onlyOwner {
     batchFeeAmountUSDLimit = _batchFeeAmountUSDLimit;
   }
 }
