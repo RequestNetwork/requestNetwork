@@ -36,8 +36,6 @@ contract BatchNoConversionPayments is Ownable {
       batchFeeAmountUSDLimit = 150 * 1e8 represents $150 */
   uint64 public batchFeeAmountUSDLimit;
 
-  /** payerAuthorized is set to true only when needed for batch native conversion */
-  bool internal payerAuthorized = false;
   /** transferBackRemainingNativeTokens is set to false only if the payer use batchPayment
   and call both batchNativePayments and batchNativeConversionPayments */
   bool internal transferBackRemainingNativeTokens = true;
@@ -97,11 +95,10 @@ contract BatchNoConversionPayments is Ownable {
 
   /**
    * This contract is non-payable.
-   * Making a Native payment with conversion requires the contract to accept incoming Native tokens.
-   * @dev See the end of `paymentNativeConversionProxy.transferWithReferenceAndFee` where the leftover is given back.
+   * @dev See the end of `paymentNativeProxy.transferWithReferenceAndFee` where the leftover is given back.
    */
-  receive() external payable {
-    require(payerAuthorized || msg.value == 0, 'Non-payable');
+  receive() external payable virtual {
+    require(msg.value == 0, 'Non-payable');
   }
 
   /**
@@ -178,7 +175,7 @@ contract BatchNoConversionPayments is Ownable {
 
     // Batch contract pays the requests thourgh NativeFeeProxy (EthFeeProxy)
     for (uint256 i = 0; i < requestDetails.length; i++) {
-      RequestDetail memory rD = requestDetails[i];
+      RequestDetail calldata rD = requestDetails[i];
       require(address(this).balance >= rD.requestAmount + rD.feeAmount, 'Not enough funds');
       amount += rD.requestAmount;
 
@@ -248,12 +245,7 @@ contract BatchNoConversionPayments is Ownable {
 
     IERC20 requestedToken = IERC20(requestDetails[0].path[0]);
 
-    contractAllowanceApprovalTransfer(
-      requestedToken,
-      amountAndFee,
-      batchFeeAmount,
-      address(paymentErc20Proxy)
-    );
+    transferToContract(requestedToken, amountAndFee, batchFeeAmount, address(paymentErc20Proxy));
 
     // Payer pays batch fee amount
     require(
@@ -263,7 +255,7 @@ contract BatchNoConversionPayments is Ownable {
 
     // Batch contract pays the requests using Erc20FeeProxy
     for (uint256 i = 0; i < requestDetails.length; i++) {
-      RequestDetail memory rD = requestDetails[i];
+      RequestDetail calldata rD = requestDetails[i];
       paymentErc20Proxy.transferFromWithReferenceAndFee(
         rD.path[0],
         rD.recipient,
@@ -300,7 +292,7 @@ contract BatchNoConversionPayments is Ownable {
     for (uint256 i = 0; i < uTokens.length && uTokens[i].amountAndFee > 0; i++) {
       uTokens[i].batchFeeAmount = (uTokens[i].batchFeeAmount * batchFee) / feeDenominator;
       IERC20 requestedToken = IERC20(uTokens[i].tokenAddress);
-      contractAllowanceApprovalTransfer(
+      transferToContract(
         requestedToken,
         uTokens[i].amountAndFee,
         uTokens[i].batchFeeAmount,
@@ -326,7 +318,7 @@ contract BatchNoConversionPayments is Ownable {
 
     // Batch contract pays the requests using Erc20FeeProxy
     for (uint256 i = 0; i < requestDetails.length; i++) {
-      RequestDetail memory rD = requestDetails[i];
+      RequestDetail calldata rD = requestDetails[i];
       paymentErc20Proxy.transferFromWithReferenceAndFee(
         rD.path[0],
         rD.recipient,
@@ -344,17 +336,19 @@ contract BatchNoConversionPayments is Ownable {
    */
 
   /**
-   * It:
+   * Top up the contract with enough `requestedToken` to pay `amountAndFee`.
+   *
+   * It also performs a few checks:
    * - checks that the batch contract has enough allowance from the payer
-   * - checks that the payer has enough fund, including batch fees
-   * - does the transfer of token from the payer to the batch contract
+   * - checks that the payer has enough funds, including batch fees
    * - increases the allowance of the contract to use the payment proxy if needed
+   *
    * @param requestedToken The token to pay
    * @param amountAndFee The amount and the fee for a token to pay
    * @param batchFeeAmount The batch fee amount for a token to pay
    * @param paymentProxyAddress The payment proxy address used to pay
    */
-  function contractAllowanceApprovalTransfer(
+  function transferToContract(
     IERC20 requestedToken,
     uint256 amountAndFee,
     uint256 batchFeeAmount,
@@ -400,7 +394,7 @@ contract BatchNoConversionPayments is Ownable {
     uTokens = new Token[](requestDetails.length);
     for (uint256 i = 0; i < requestDetails.length; i++) {
       for (uint256 k = 0; k < requestDetails.length; k++) {
-        RequestDetail memory rD = requestDetails[i];
+        RequestDetail calldata rD = requestDetails[i];
         // If the token is already in the existing uTokens list
         if (uTokens[k].tokenAddress == rD.path[rD.path.length - 1]) {
           if (rD.path.length > 1) {

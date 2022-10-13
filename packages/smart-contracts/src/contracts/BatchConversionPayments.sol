@@ -24,6 +24,9 @@ contract BatchConversionPayments is BatchNoConversionPayments {
   IERC20ConversionProxy public paymentErc20ConversionProxy;
   IEthConversionProxy public paymentNativeConversionProxy;
 
+  /** payerAuthorized is set to true to workaround the non-payable aspect in batch native conversion */
+  bool private payerAuthorized = false;
+
   /**
    * @dev Used by the batchPayment to handle information for heterogeneous batches, grouped by payment network:
    *  - paymentNetworkId: from 0 to 4, cf. `batchPayment()` method
@@ -59,6 +62,15 @@ contract BatchConversionPayments is BatchNoConversionPayments {
   {
     paymentErc20ConversionProxy = IERC20ConversionProxy(_paymentErc20ConversionProxy);
     paymentNativeConversionProxy = IEthConversionProxy(_paymentNativeConversionFeeProxy);
+  }
+
+  /**
+   * This contract is non-payable.
+   * Making a Native payment with conversion requires the contract to accept incoming Native tokens.
+   * @dev See the end of `paymentNativeConversionProxy.transferWithReferenceAndFee` where the leftover is given back.
+   */
+  receive() external payable override {
+    require(payerAuthorized || msg.value == 0, 'Non-payable');
   }
 
   /**
@@ -194,7 +206,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     for (uint256 k = 0; k < uTokens.length && uTokens[k].amountAndFee > 0; k++) {
       uTokens[k].batchFeeAmount = (uTokens[k].amountAndFee * batchFee) / feeDenominator;
       requestedToken = IERC20(uTokens[k].tokenAddress);
-      contractAllowanceApprovalTransfer(
+      transferToContract(
         requestedToken,
         uTokens[k].amountAndFee,
         uTokens[k].batchFeeAmount,
@@ -204,16 +216,16 @@ contract BatchConversionPayments is BatchNoConversionPayments {
 
     // Batch pays the requests using Erc20ConversionFeeProxy
     for (uint256 i = 0; i < requestDetails.length; i++) {
-      RequestDetail memory rI = requestDetails[i];
+      RequestDetail calldata rD = requestDetails[i];
       paymentErc20ConversionProxy.transferFromWithReferenceAndFee(
-        rI.recipient,
-        rI.requestAmount,
-        rI.path,
-        rI.paymentReference,
-        rI.feeAmount,
+        rD.recipient,
+        rD.requestAmount,
+        rD.path,
+        rD.paymentReference,
+        rD.feeAmount,
         feeAddress,
-        rI.maxToSpend,
-        rI.maxRateTimespan
+        rD.maxToSpend,
+        rD.maxRateTimespan
       );
     }
 
@@ -271,7 +283,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
 
     // Batch contract pays the requests through nativeConversionProxy
     for (uint256 i = 0; i < requestDetails.length; i++) {
-      RequestDetail memory rD = requestDetails[i];
+      RequestDetail calldata rD = requestDetails[i];
       paymentNativeConversionProxy.transferWithReferenceAndFee{value: address(this).balance}(
         payable(rD.recipient),
         rD.requestAmount,
