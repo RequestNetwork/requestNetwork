@@ -64,7 +64,7 @@ contract BatchPayments is Ownable, ReentrancyGuard {
    * @dev It uses EthereumFeeProxy to pay an invoice and fees, with a payment reference.
    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
    */
-  function batchNativePaymentsWithReference(
+  function batchEthPaymentsWithReference(
     address[] calldata _recipients,
     uint256[] calldata _amounts,
     bytes[] calldata _paymentReferences,
