@@ -1,7 +1,7 @@
-import { AdvancedLogicTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 
 import { AnyToAnyDetector } from './any-to-any-detector';
-import { ICurrencyManager } from '@requestnetwork/currency';
+import { ReferenceBasedDetectorOptions } from './types';
 
 /**
  * Handle payment detection for native token payment with conversion
@@ -14,10 +14,8 @@ export abstract class AnyToNativeDetector extends AnyToAnyDetector<
     network,
     advancedLogic,
     currencyManager,
-  }: {
+  }: ReferenceBasedDetectorOptions & {
     network: string;
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    currencyManager: ICurrencyManager;
   }) {
     const extensionId = PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE;
     const extension = advancedLogic.getAnyToNativeTokenExtensionForNetwork(

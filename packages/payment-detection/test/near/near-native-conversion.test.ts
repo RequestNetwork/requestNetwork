@@ -14,6 +14,7 @@ import {
 import { deepCopy } from 'ethers/lib/utils';
 import { GraphQLClient } from 'graphql-request';
 import { mocked } from 'ts-jest/utils';
+import { mockAdvancedLogicBase } from '../utils';
 
 jest.mock('graphql-request');
 const graphql = mocked(GraphQLClient.prototype);
@@ -23,10 +24,10 @@ const mockNearPaymentNetwork = {
 const currencyManager = CurrencyManager.getDefault();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
-  extensions: { anyToNativeToken: [mockNearPaymentNetwork] },
+  ...mockAdvancedLogicBase,
+  extensions: {
+    anyToNativeToken: [mockNearPaymentNetwork],
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 const salt = 'a6475e4c3d45feb6';
 const paymentAddress = 'issuer.near';

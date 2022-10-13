@@ -6,8 +6,9 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
-import { getTheGraphClient } from '../../src/thegraph';
+import { ERC20ProxyPaymentDetector } from '../../src/erc20';
+import { getTheGraphClient } from '../../src';
+import { mockAdvancedLogicBase } from '../utils';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
@@ -20,20 +21,17 @@ const createAddRefundInstructionAction = jest.fn();
 jest.mock('../../src/thegraph/client');
 const theGraphClientMock = mocked(getTheGraphClient(''));
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     proxyContractErc20: {
-      supportedNetworks: ['mainnet', 'rinkeby', 'goerli'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
       // inheritance from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
-    },
-  },
+    } as any,
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

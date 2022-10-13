@@ -5,28 +5,21 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { ERC20AddressBasedPaymentDetector } from '../../src/erc20/address-based';
+import { mockAdvancedLogicBase } from '../utils';
 
 jest.setTimeout(10000);
 
 let erc20AddressedBased: ERC20AddressBasedPaymentDetector;
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     addressBasedErc20: {
-      createAddPaymentAddressAction(): any {
-        return;
-      },
-      createAddRefundAddressAction(): any {
-        return;
-      },
-      createCreationAction(): any {
-        return;
-      },
-    },
-  },
+      createAddPaymentAddressAction: jest.fn(),
+      createAddRefundAddressAction: jest.fn(),
+      createCreationAction: jest.fn(),
+    } as any,
+  } as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
