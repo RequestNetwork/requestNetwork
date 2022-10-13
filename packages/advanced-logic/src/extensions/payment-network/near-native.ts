@@ -3,7 +3,7 @@ import { UnsupportedNetworkError } from './address-based';
 import NativeTokenPaymentNetwork from './native-token';
 
 const CURRENT_VERSION = '0.2.0';
-const supportedNetworks = ['aurora', 'aurora-testnet', 'near-testnet'];
+const supportedNetworks = ['aurora', 'aurora-testnet'];
 
 /**
  * Implementation of the payment network to pay in Near based on input data.
@@ -27,7 +27,6 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
       case 'aurora':
         return this.isValidMainnetAddress(address);
       case 'aurora-testnet':
-      case 'near-testnet':
         return this.isValidTestnetAddress(address);
       case undefined:
         return this.isValidMainnetAddress(address) || this.isValidTestnetAddress(address);
@@ -42,5 +41,18 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
 
   private isValidTestnetAddress(address: string): boolean {
     return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'aurora-testnet');
+  }
+
+  // // FIXME: Remove when the mistaken network name 'aurora' is gone
+  public createCreationAction(
+    creationParameters: ExtensionTypes.PnReferenceBased.ICreationParameters,
+  ): ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> {
+    if (creationParameters.paymentNetworkName) {
+      creationParameters.paymentNetworkName = creationParameters.paymentNetworkName.replace(
+        'near',
+        'aurora',
+      );
+    }
+    return super.createCreationAction(creationParameters);
   }
 }
