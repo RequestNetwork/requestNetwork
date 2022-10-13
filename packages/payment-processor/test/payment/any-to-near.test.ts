@@ -65,7 +65,13 @@ describe('payNearWithConversionRequest', () => {
       paymentAddress,
     );
 
-    await payNearConversionRequest(request, mockedNearWalletConnection, conversionSettings);
+    await payNearConversionRequest(
+      request,
+      mockedNearWalletConnection,
+      conversionSettings,
+      undefined,
+      { callbackUrl: 'https://some.callback.url', meta: 'param' },
+    );
     expect(paymentSpy).toHaveBeenCalledWith(
       expect.anything(),
       'aurora',
@@ -78,6 +84,10 @@ describe('payNearWithConversionRequest', () => {
       conversionSettings.maxToSpend,
       '0',
       '0.1.0',
+      {
+        callbackUrl: 'https://some.callback.url',
+        meta: 'param',
+      },
     );
   });
   it('throws when tyring to pay another payment extension', async () => {
