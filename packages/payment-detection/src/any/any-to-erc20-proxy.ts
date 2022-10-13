@@ -111,6 +111,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
         maxRateTimespan,
       });
     }
+
     const infoRetriever = new AnyToErc20InfoRetriever(
       currency,
       paymentReference,
@@ -123,7 +124,6 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
       acceptedTokens,
       maxRateTimespan,
     );
-
     const paymentEvents =
       (await infoRetriever.getTransferEvents()) as PaymentTypes.IPaymentNetworkEvent<PaymentTypes.IERC20FeePaymentEventParameters>[];
     return {
