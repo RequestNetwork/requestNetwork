@@ -5,11 +5,13 @@ import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   comparePnTypeAndVersion,
+  getAmountToPay,
   getPnAndNetwork,
   getProvider,
   getProxyAddress,
   getRequestPaymentValues,
   getSigner,
+  validateErc20FeeProxyRequest,
 } from './utils';
 import {
   padAmountForChainlink,
@@ -18,7 +20,6 @@ import {
 import { IPreparedTransaction } from './prepared-transaction';
 import { EnrichedRequest, IConversionPaymentSettings } from './index';
 import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
-import { getBatchArgs } from './batch-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { BATCH_PAYMENT_NETWORK_ID } from '@requestnetwork/types/dist/payment-types';
 import { IState } from 'types/dist/extension-types';
@@ -33,7 +34,7 @@ import { CurrencyInput, isERC20Currency, isISO4217Currency } from '@requestnetwo
  * @param version The version of the batch conversion proxy
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
  * @param overrides Optionally, override default transaction values, like gas.
- * @dev We only implement batchRouter using two ERC20 functions:
+ * @dev We only implement batchPayments using two ERC20 functions:
  *      batchMultiERC20ConversionPayments, and batchMultiERC20Payments.
  */
 export async function payBatchConversionProxyRequest(
@@ -79,10 +80,10 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
   const firstNetwork = getPnAndNetwork(enrichedRequests[0].request)[1];
   let firstConversionRequestExtension: IState<any> | undefined;
   let firstNoConversionRequestExtension: IState<any> | undefined;
-  const requestsWithoutConversion: ClientTypes.IRequestData[] = [];
-  const conversionDetails: PaymentTypes.ConversionDetail[] = [];
+  const requestDetailsERC20NoConversion: PaymentTypes.RequestDetail[] = [];
+  const requestDetailsERC20Conversion: PaymentTypes.RequestDetail[] = [];
 
-  // fill conversionDetails and requestsWithoutConversion lists
+  // fill requestDetailsERC20Conversion and requestDetailsERC20NoConversion lists
   for (const enrichedRequest of enrichedRequests) {
     if (
       enrichedRequest.paymentNetworkId ===
@@ -100,7 +101,7 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
       ) {
         throw new Error(`wrong request currencyInfo type`);
       }
-      conversionDetails.push(getInputConversionDetail(enrichedRequest));
+      requestDetailsERC20Conversion.push(getInputConversionDetail(enrichedRequest));
     } else if (
       enrichedRequest.paymentNetworkId === BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
     ) {
@@ -109,59 +110,63 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
 
       // isERC20Currency is checked within getBatchArgs function
       comparePnTypeAndVersion(firstNoConversionRequestExtension, enrichedRequest.request);
-      requestsWithoutConversion.push(enrichedRequest.request);
+      requestDetailsERC20NoConversion.push(
+        getInputRequestDetailERC20NoConversion(enrichedRequest.request),
+      );
     }
     if (firstNetwork !== getPnAndNetwork(enrichedRequest.request)[1])
       throw new Error('All the requests must have the same network');
   }
 
   const metaDetails: PaymentTypes.MetaDetail[] = [];
-  // Add conversionDetails to metaDetails
-  if (conversionDetails.length > 0) {
+  // Add requestDetailsERC20Conversion to metaDetails
+  if (requestDetailsERC20Conversion.length > 0) {
     metaDetails.push({
       paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-      conversionDetails: conversionDetails,
-      cryptoDetails: {
-        tokenAddresses: [],
-        recipients: [],
-        amounts: [],
-        paymentReferences: [],
-        feeAmounts: [],
-      }, // cryptoDetails is not used with paymentNetworkId 0
+      requestDetails: requestDetailsERC20Conversion,
     });
   }
 
-  // Get values and add cryptoDetails to metaDetails
-  if (requestsWithoutConversion.length > 0) {
-    const { tokenAddresses, paymentAddresses, amountsToPay, paymentReferences, feesToPay } =
-      getBatchArgs(requestsWithoutConversion, 'ERC20');
-
+  // Add cryptoDetails to metaDetails
+  if (requestDetailsERC20NoConversion.length > 0) {
     // add ERC20 no-conversion payments
     metaDetails.push({
       paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-      conversionDetails: [],
-      cryptoDetails: {
-        tokenAddresses: tokenAddresses,
-        recipients: paymentAddresses,
-        amounts: amountsToPay.map((x) => x.toString()),
-        paymentReferences: paymentReferences,
-        feeAmounts: feesToPay.map((x) => x.toString()),
-      },
+      requestDetails: requestDetailsERC20NoConversion,
     });
   }
 
   const proxyContract = BatchConversionPayments__factory.createInterface();
-  return proxyContract.encodeFunctionData('batchRouter', [
+  return proxyContract.encodeFunctionData('batchPayments', [
     metaDetails,
     feeAddress || constants.AddressZero,
   ]);
+}
+
+function getInputRequestDetailERC20NoConversion(
+  request: ClientTypes.IRequestData,
+): PaymentTypes.RequestDetail {
+  validateErc20FeeProxyRequest(request);
+
+  const tokenAddress = request.currencyInfo.value;
+  const { paymentReference, paymentAddress, feeAmount } = getRequestPaymentValues(request);
+
+  return {
+    recipient: paymentAddress,
+    requestAmount: getAmountToPay(request).toString(),
+    path: [tokenAddress],
+    paymentReference: `0x${paymentReference}`,
+    feeAmount: feeAmount || '0',
+    maxToSpend: '',
+    maxRateTimespan: '',
+  };
 }
 
 /**
  * Get the conversion detail values from one enriched request
  * @param enrichedRequest The enrichedRequest to pay
  */
-function getInputConversionDetail(enrichedRequest: EnrichedRequest): PaymentTypes.ConversionDetail {
+function getInputConversionDetail(enrichedRequest: EnrichedRequest): PaymentTypes.RequestDetail {
   const paymentSettings = enrichedRequest.paymentSettings;
   if (!paymentSettings) throw Error('the enrichedRequest has no paymentSettings');
 
