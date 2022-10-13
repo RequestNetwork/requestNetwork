@@ -10,6 +10,13 @@ import Utils from '@requestnetwork/utils';
 import { TheGraphDataAccess } from '@requestnetwork/thegraph-data-access';
 import { EthereumStorageEthers } from '@requestnetwork/ethereum-storage';
 
+const getNetworkFromId = (networkId: number) => {
+  const customNames: Record<number, string> = {
+    0: 'private',
+    1: 'mainnet',
+  };
+  return customNames[networkId] || providers.getNetwork(networkId).name;
+};
 export class TheGraphRequestNode extends RequestNodeBase {
   constructor(url: string, logger?: LogTypes.ILogger) {
     const initializationStoragePath = config.getInitializationStorageFilePath();
@@ -21,8 +28,7 @@ export class TheGraphRequestNode extends RequestNodeBase {
         })
       : undefined;
 
-    const networkId = config.getStorageNetworkId();
-    const network = networkId === 0 ? 'private' : providers.getNetwork(networkId).name;
+    const network = getNetworkFromId(config.getStorageNetworkId());
     const wallet = Wallet.fromMnemonic(config.getMnemonic()).connect(
       new providers.StaticJsonRpcProvider(config.getStorageWeb3ProviderUrl()),
     );
