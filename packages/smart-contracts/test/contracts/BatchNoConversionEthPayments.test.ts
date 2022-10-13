@@ -75,7 +75,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
     batchAddress = batch.address;
     await batch.connect(owner).setBatchFee(100);
     await batch.setBatchFeeAmountUSDLimit(BigNumber.from(1e8).div(1000)); // 1$
-    await batch.setETHAndUSDAddress(
+    await batch.setNativeAndUSDAddress(
       currencyManager.fromSymbol('ETH')!.hash,
       currencyManager.fromSymbol('USD')!.hash,
     );
@@ -99,7 +99,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPayments([copyEthRequestDetail1, copyEthRequestDetail2], true, feeAddress, {
+          .batchNativePayments([copyEthRequestDetail1, copyEthRequestDetail2], true, feeAddress, {
             value: BigNumber.from('6000'),
           }),
       )
@@ -128,7 +128,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
 
       const tx = await batch
         .connect(owner)
-        .batchEthPayments([ethRequestDetail1, ethRequestDetail2], true, feeAddress, {
+        .batchNativePayments([ethRequestDetail1, ethRequestDetail2], true, feeAddress, {
           value: totalAmount,
         });
       await tx.wait();
@@ -156,7 +156,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
 
       const tx = await batch
         .connect(owner)
-        .batchEthPayments(Array(nbTxs).fill(copyEthRequestDetail), true, feeAddress, {
+        .batchNativePayments(Array(nbTxs).fill(copyEthRequestDetail), true, feeAddress, {
           value: totalAmount,
         });
 
@@ -182,7 +182,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPayments([ethRequestDetail1, ethRequestDetail2], true, feeAddress, {
+          .batchNativePayments([ethRequestDetail1, ethRequestDetail2], true, feeAddress, {
             value: totalAmount,
           }),
       ).revertedWith('Not enough funds');
@@ -205,7 +205,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
       await expect(
         batch
           .connect(owner)
-          .batchEthPayments([ethRequestDetail1, ethRequestDetail2], true, feeAddress, {
+          .batchNativePayments([ethRequestDetail1, ethRequestDetail2], true, feeAddress, {
             value: totalAmount,
           }),
       ).revertedWith('Not enough funds for batch fee');
@@ -235,7 +235,7 @@ describe('contract: batchNoConversionPayments: Ethereum', () => {
 
       const tx = await batch
         .connect(owner)
-        .batchEthPayments([ethRequestDetail1, ethRequestDetail2], true, feeAddress, {
+        .batchNativePayments([ethRequestDetail1, ethRequestDetail2], true, feeAddress, {
           value: BigNumber.from('1000'),
         });
       await tx.wait();

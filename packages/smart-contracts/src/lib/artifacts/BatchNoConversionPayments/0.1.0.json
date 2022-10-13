@@ -9,7 +9,7 @@
         },
         {
           "internalType": "address",
-          "name": "_paymentEthProxy",
+          "name": "_paymentNativeProxy",
           "type": "address"
         },
         {
@@ -106,7 +106,7 @@
           "type": "address"
         }
       ],
-      "name": "batchEthPayments",
+      "name": "batchNativePayments",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
@@ -190,7 +190,7 @@
     },
     {
       "inputs": [],
-      "name": "paymentEthProxy",
+      "name": "paymentNativeProxy",
       "outputs": [
         {
           "internalType": "contract IEthereumFeeProxy",
@@ -238,11 +238,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentEthProxy",
+          "name": "_paymentNativeProxy",
           "type": "address"
         }
       ],
-      "name": "setPaymentEthProxy",
+      "name": "setPaymentNativeProxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

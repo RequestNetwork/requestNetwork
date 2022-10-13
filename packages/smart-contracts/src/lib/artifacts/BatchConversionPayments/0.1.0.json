@@ -9,7 +9,7 @@
         },
         {
           "internalType": "address",
-          "name": "_paymentEthProxy",
+          "name": "_paymentNativeProxy",
           "type": "address"
         },
         {
@@ -19,7 +19,7 @@
         },
         {
           "internalType": "address",
-          "name": "_paymentEthConversionFeeProxy",
+          "name": "_paymentNativeConversionFeeProxy",
           "type": "address"
         },
         {
@@ -57,7 +57,7 @@
     },
     {
       "inputs": [],
-      "name": "ETHAddress",
+      "name": "NativeAddress",
       "outputs": [
         {
           "internalType": "address",
@@ -202,7 +202,7 @@
           "type": "address"
         }
       ],
-      "name": "batchEthConversionPayments",
+      "name": "batchNativeConversionPayments",
       "outputs": [
         {
           "internalType": "uint256",
@@ -268,7 +268,7 @@
           "type": "address"
         }
       ],
-      "name": "batchEthPayments",
+      "name": "batchNativePayments",
       "outputs": [
         {
           "internalType": "uint256",
@@ -548,7 +548,7 @@
           "type": "uint256"
         }
       ],
-      "name": "pathsEthToUSD",
+      "name": "pathsNativeToUSD",
       "outputs": [
         {
           "internalType": "address",
@@ -587,7 +587,7 @@
     },
     {
       "inputs": [],
-      "name": "paymentEthConversionProxy",
+      "name": "paymentNativeConversionProxy",
       "outputs": [
         {
           "internalType": "contract IEthConversionProxy",
@@ -600,7 +600,7 @@
     },
     {
       "inputs": [],
-      "name": "paymentEthProxy",
+      "name": "paymentNativeProxy",
       "outputs": [
         {
           "internalType": "contract IEthereumFeeProxy",
@@ -661,7 +661,7 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_ETHAddress",
+          "name": "_NativeAddress",
           "type": "address"
         },
         {
@@ -670,7 +670,7 @@
           "type": "address"
         }
       ],
-      "name": "setETHAndUSDAddress",
+      "name": "setNativeAndUSDAddress",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -705,11 +705,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentEthConversionProxy",
+          "name": "_paymentNativeConversionProxy",
           "type": "address"
         }
       ],
-      "name": "setPaymentEthConversionProxy",
+      "name": "setPaymentNativeConversionProxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -718,11 +718,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentEthProxy",
+          "name": "_paymentNativeProxy",
           "type": "address"
         }
       ],
-      "name": "setPaymentEthProxy",
+      "name": "setPaymentNativeProxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

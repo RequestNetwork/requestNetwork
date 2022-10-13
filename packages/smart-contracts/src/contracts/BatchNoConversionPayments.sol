@@ -11,9 +11,9 @@ import './ChainlinkConversionPath.sol';
 /**
  * @title BatchNoConversionPayments
  * @notice  This contract makes multiple payments with references, in one transaction:
- *          - on: ERC20 Payment Proxy and ETH Payment Proxy of the Request Network protocol
+ *          - on: ERC20 Payment Proxy and Native (ETH) Payment Proxy of the Request Network protocol
  *          - to: multiple addresses
- *          - fees: ERC20 and ETH proxies fees are paid to the same address
+ *          - fees: ERC20 and Native (ETH) proxies fees are paid to the same address
  *                  An additional batch fee is paid to the same address
  *         If one transaction of the batch fail, every transactions are reverted.
  * @dev It is a clone of BatchPayment.sol, with three main modifications:
@@ -25,25 +25,26 @@ contract BatchNoConversionPayments is Ownable {
   using SafeERC20 for IERC20;
 
   IERC20FeeProxy public paymentErc20Proxy;
-  IEthereumFeeProxy public paymentEthProxy;
+  IEthereumFeeProxy public paymentNativeProxy;
   ChainlinkConversionPath public chainlinkConversionPath;
 
   /** Used to calculate batch fees: batchFee = 30 represent 0.30% of fee */
   uint16 public batchFee;
   /** Used to calculate batch fees: divide batchFee by feeDenominator */
   uint16 internal feeDenominator = 10000;
-  /** The amount of the batch fee cannot exceed a predefined amount in USD */
+  /** The amount of the batch fee cannot exceed a predefined amount in USD, e.g:
+      batchFeeAmountUSDLimit = 150 * 1e8 represents $150 */
   uint64 public batchFeeAmountUSDLimit;
 
-  /** payerAuthorized is set to true only when needed for batch Eth conversion */
+  /** payerAuthorized is set to true only when needed for batch native conversion */
   bool internal payerAuthorized = false;
-  /** transferBackRemainingEth is set to false only if the payer use batchPayment
-  and call both batchEthPayments and batchConversionEthPaymentsWithReference */
-  bool internal transferBackRemainingEth = true;
+  /** transferBackRemainingNativeTokens is set to false only if the payer use batchPayment
+  and call both batchNativePayments and batchNativeConversionPayments */
+  bool internal transferBackRemainingNativeTokens = true;
 
   address public USDAddress;
-  address public ETHAddress;
-  address[][] public pathsEthToUSD;
+  address public NativeAddress;
+  address[][] public pathsNativeToUSD;
 
   /** Contains the address of a token, the sum of the amount and fees paid with it, and the batch fee amount */
   struct Token {
@@ -77,46 +78,46 @@ contract BatchNoConversionPayments is Ownable {
 
   /**
    * @param _paymentErc20Proxy The address to the ERC20 fee payment proxy to use.
-   * @param _paymentEthProxy The address to the Ethereum fee payment proxy to use.
+   * @param _paymentNativeProxy The address to the Native fee payment proxy to use.
    * @param _chainlinkConversionPathAddress The address of the conversion path contract.
    * @param _owner Owner of the contract.
    */
   constructor(
     address _paymentErc20Proxy,
-    address _paymentEthProxy,
+    address _paymentNativeProxy,
     address _chainlinkConversionPathAddress,
     address _owner
   ) {
     paymentErc20Proxy = IERC20FeeProxy(_paymentErc20Proxy);
-    paymentEthProxy = IEthereumFeeProxy(_paymentEthProxy);
+    paymentNativeProxy = IEthereumFeeProxy(_paymentNativeProxy);
     chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
     transferOwnership(_owner);
     batchFee = 0;
   }
 
   /**
-   * This contract is non-payable. Making an ETH payment with conversion requires the contract to accept incoming ETH.
-   * @dev See the end of `paymentEthConversionProxy.transferWithReferenceAndFee` where the leftover is given back.
+   * This contract is non-payable. Making a Native payment with conversion requires the contract to accept incoming Native tokens.
+   * @dev See the end of `paymentNativeConversionProxy.transferWithReferenceAndFee` where the leftover is given back.
    */
   receive() external payable {
     require(payerAuthorized || msg.value == 0, 'Non-payable');
   }
 
   /**
-   * @notice Send a batch of ETH (or EVM native token) payments with fees and paymentReferences to multiple accounts.
+   * @notice Send a batch of Native (or EVM native token) payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch reverts.
-   * @param requestDetails List of ETH requests to pay.
+   * @param requestDetails List of Native tokens requests to pay.
    * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
    * @param feeAddress The fee recipient.
-   * @dev It uses EthereumFeeProxy to pay an invoice and fees with a payment reference.
+   * @dev It uses NativeFeeProxy (EthereumFeeProxy) to pay an invoice and fees with a payment reference.
    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
    */
-  function batchEthPayments(
+  function batchNativePayments(
     RequestDetail[] calldata requestDetails,
     bool skipFeeUSDLimit,
     address payable feeAddress
   ) public payable returns (uint256) {
-    return _batchEthPayments(requestDetails, skipFeeUSDLimit, 0, payable(feeAddress));
+    return _batchNativePayments(requestDetails, skipFeeUSDLimit, 0, payable(feeAddress));
   }
 
   /**
@@ -156,16 +157,16 @@ contract BatchNoConversionPayments is Ownable {
   }
 
   /**
-   * @notice Send a batch of ETH (or EVM native token) payments with fees and paymentReferences to multiple accounts.
+   * @notice Send a batch of Native (or EVM native token) payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch reverts.
-   * @param requestDetails List of ETH requests to pay.
+   * @param requestDetails List of Native tokens requests to pay.
    * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param feeAddress The fee recipient.
-   * @dev It uses EthereumFeeProxy to pay an invoice and fees with a payment reference.
+   * @dev It uses NativeFeeProxy (EthereumFeeProxy) to pay an invoice and fees with a payment reference.
    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
    */
-  function _batchEthPayments(
+  function _batchNativePayments(
     RequestDetail[] calldata requestDetails,
     bool skipFeeUSDLimit,
     uint256 batchFeeAmountUSD,
@@ -174,13 +175,13 @@ contract BatchNoConversionPayments is Ownable {
     // amount is used to get the total amount and then used as batch fee amount
     uint256 amount = 0;
 
-    // Batch contract pays the requests thourgh EthFeeProxy
+    // Batch contract pays the requests thourgh NativeFeeProxy (EthFeeProxy)
     for (uint256 i = 0; i < requestDetails.length; i++) {
       RequestDetail memory rD = requestDetails[i];
       require(address(this).balance >= rD.requestAmount + rD.feeAmount, 'Not enough funds');
       amount += rD.requestAmount;
 
-      paymentEthProxy.transferWithReferenceAndFee{value: rD.requestAmount + rD.feeAmount}(
+      paymentNativeProxy.transferWithReferenceAndFee{value: rD.requestAmount + rD.feeAmount}(
         payable(rD.recipient),
         rD.paymentReference,
         rD.feeAmount,
@@ -193,9 +194,9 @@ contract BatchNoConversionPayments is Ownable {
     if (skipFeeUSDLimit == false) {
       (amount, batchFeeAmountUSD) = calculateBatchFeeToPay(
         amount,
-        pathsEthToUSD[0][0],
+        pathsNativeToUSD[0][0],
         batchFeeAmountUSD,
-        pathsEthToUSD
+        pathsNativeToUSD
       );
     }
     // Check that batch contract has enough funds to pay batch fee
@@ -203,8 +204,8 @@ contract BatchNoConversionPayments is Ownable {
     // Batch pays batch fee
     feeAddress.transfer(amount);
 
-    // Batch contract transfers the remaining ethers to the payer
-    if (transferBackRemainingEth && address(this).balance > 0) {
+    // Batch contract transfers the remaining Native tokens to the payer
+    if (transferBackRemainingNativeTokens && address(this).balance > 0) {
       (bool sendBackSuccess, ) = payable(msg.sender).call{value: address(this).balance}('');
       require(sendBackSuccess, 'Could not send remaining funds to the payer');
     }
@@ -541,7 +542,7 @@ contract BatchNoConversionPayments is Ownable {
    */
 
   /**
-   * @notice Fees added when using Erc20/Eth batch functions
+   * @notice Fees added when using Erc20/Native batch functions
    * @param _batchFee Between 0 and 200, i.e: batchFee = 30 represent 0.30% of fee
    */
   function setBatchFee(uint16 _batchFee) external onlyOwner {
@@ -558,10 +559,10 @@ contract BatchNoConversionPayments is Ownable {
   }
 
   /**
-   * @param _paymentEthProxy The address to the Ethereum fee payment proxy to use.
+   * @param _paymentNativeProxy The address to the Native fee payment proxy to use.
    */
-  function setPaymentEthProxy(address _paymentEthProxy) external onlyOwner {
-    paymentEthProxy = IEthereumFeeProxy(_paymentEthProxy);
+  function setPaymentNativeProxy(address _paymentNativeProxy) external onlyOwner {
+    paymentNativeProxy = IEthereumFeeProxy(_paymentNativeProxy);
   }
 
   /**
@@ -574,18 +575,19 @@ contract BatchNoConversionPayments is Ownable {
 
   /**
    * This function define variables allowing to limit the fees:
-   * ETHAddress, USDAddress, and pathsEthToUSD.
-   * @param _ETHAddress The address representing the Ethereum currency.
+   * NativeAddress, USDAddress, and pathsNativeToUSD.
+   * @param _NativeAddress The address representing the Native currency.
    * @param _USDAddress The address representing the USD currency.
    */
-  function setETHAndUSDAddress(address _ETHAddress, address _USDAddress) external onlyOwner {
-    ETHAddress = _ETHAddress;
+  function setNativeAndUSDAddress(address _NativeAddress, address _USDAddress) external onlyOwner {
+    NativeAddress = _NativeAddress;
     USDAddress = _USDAddress;
-    pathsEthToUSD = [[ETHAddress, USDAddress]];
+    pathsNativeToUSD = [[NativeAddress, USDAddress]];
   }
 
   /**
-   * @param _batchFeeAmountUSDLimit The limitation of the batch fee amount in USD.
+   * @param _batchFeeAmountUSDLimit The limitation of the batch fee amount in USD, e.g:
+   *                                batchFeeAmountUSDLimit = 150 * 1e8 represents $150
    */
   function setBatchFeeAmountUSDLimit(uint64 _batchFeeAmountUSDLimit) external onlyOwner {
     batchFeeAmountUSDLimit = _batchFeeAmountUSDLimit;

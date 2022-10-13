@@ -155,7 +155,7 @@ describe('contract: BatchConversionPayments', async () => {
 
     // set batch proxy fees and connect fromSigner
     await batchConversionProxy.setBatchFee(BATCH_FEE);
-    await batchConversionProxy.setETHAndUSDAddress(ETH_hash, USD_hash);
+    await batchConversionProxy.setNativeAndUSDAddress(ETH_hash, USD_hash);
 
     await batchConversionProxy.setBatchFeeAmountUSDLimit(BigNumber.from(10).mul(1e8)); // 10$
 
@@ -817,13 +817,13 @@ describe('contract: BatchConversionPayments', async () => {
     });
   });
 
-  describe(`batchEthConversionPayments`, () => {
+  describe(`batchNativeConversionPayments`, () => {
     it('make 1 payment with 1-step conversion', async function () {
       // get Eth balances
       const initialToETHBalance = await provider.getBalance(to);
       const initialFeeETHBalance = await provider.getBalance(feeAddress);
       const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
-      tx = await batchConversionProxy.batchEthConversionPayments(
+      tx = await batchConversionProxy.batchNativeConversionPayments(
         [ethConvRequest],
         true,
         feeAddress,
@@ -849,7 +849,7 @@ describe('contract: BatchConversionPayments', async () => {
       const EurEthConvRequest = Utils.deepCopy(ethConvRequest);
       EurEthConvRequest.path = [EUR_hash, USD_hash, ETH_hash];
 
-      tx = await batchConversionProxy.batchEthConversionPayments(
+      tx = await batchConversionProxy.batchNativeConversionPayments(
         [ethConvRequest, EurEthConvRequest, ethConvRequest],
         true,
         feeAddress,
@@ -873,19 +873,19 @@ describe('contract: BatchConversionPayments', async () => {
     });
   });
 
-  describe('batchEthConversionPayments errors', () => {
+  describe('batchNativeConversionPayments errors', () => {
     it('cannot transfer with invalid path', async () => {
       const wrongConvRequest = Utils.deepCopy(ethConvRequest);
       wrongConvRequest.path = [USD_hash, EUR_hash, ETH_hash];
       await expect(
-        batchConversionProxy.batchEthConversionPayments([wrongConvRequest], false, feeAddress, {
+        batchConversionProxy.batchNativeConversionPayments([wrongConvRequest], false, feeAddress, {
           value: (1000 + 1 + 11) * USD_ETH_RATE, // + 11 to pay batch fees
         }),
       ).to.be.revertedWith('No aggregator found');
     });
     it('not enough funds even if partially enough funds', async () => {
       await expect(
-        batchConversionProxy.batchEthConversionPayments(
+        batchConversionProxy.batchNativeConversionPayments(
           [ethConvRequest, ethConvRequest],
           false,
           feeAddress,
@@ -899,7 +899,7 @@ describe('contract: BatchConversionPayments', async () => {
       const wrongConvRequest = Utils.deepCopy(ethConvRequest);
       wrongConvRequest.maxRateTimespan = '1';
       await expect(
-        batchConversionProxy.batchEthConversionPayments([wrongConvRequest], false, feeAddress, {
+        batchConversionProxy.batchNativeConversionPayments([wrongConvRequest], false, feeAddress, {
           value: 1000 + 1 + 11, // + 11 to pay batch fees
         }),
       ).to.be.revertedWith('aggregator rate is outdated');
@@ -975,7 +975,7 @@ describe('contract: BatchConversionPayments', async () => {
       const initialToETHBalance = await provider.getBalance(to);
       const initialFeeETHBalance = await provider.getBalance(feeAddress);
       const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
-      tx = await batchConversionProxy.batchEthPayments(
+      tx = await batchConversionProxy.batchNativePayments(
         [
           {
             recipient: to,

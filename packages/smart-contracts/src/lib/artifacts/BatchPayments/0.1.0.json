@@ -157,7 +157,7 @@
           "type": "address"
         }
       ],
-      "name": "batchEthPaymentsWithReference",
+      "name": "batchNativePaymentsWithReference",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"
