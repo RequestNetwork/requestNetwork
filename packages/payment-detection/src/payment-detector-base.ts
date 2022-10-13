@@ -47,7 +47,7 @@ export abstract class PaymentDetectorBase<
   }
 
   /**
-   * Gets all paymnent events for a given Request
+   * Gets all payment events for a given Request
    */
   protected abstract getEvents(
     request: RequestLogicTypes.IRequest,

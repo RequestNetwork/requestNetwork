@@ -1,6 +1,7 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { NearInfoRetriever } from './retrievers/near-info-retriever';
 import { NativeTokenPaymentDetector } from '../native-token-detector';
+import { NetworkNotSupported } from '../balance-error';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -29,7 +30,9 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
     if (versionMap[chainName]?.[version]) {
       return versionMap[chainName][version];
     }
-    throw Error(`Unconfigured chain '${chainName}' and version '${version}'.`);
+    throw new NetworkNotSupported(
+      `Unconfigured near-detector chain '${chainName}' and version '${version}'`,
+    );
   };
 
   /**

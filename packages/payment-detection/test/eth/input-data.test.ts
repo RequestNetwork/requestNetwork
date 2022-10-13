@@ -167,9 +167,8 @@ describe('api/eth/input-data', () => {
     expect(await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest)).toMatchObject({
       balance: null,
       error: {
-        code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        message:
-          /Payment network wrong not supported by ETH payment detection\. Supported networks: mainnet, rinkeby, goerli, private.*/,
+        code: PaymentTypes.BALANCE_ERROR_CODE.UNKNOWN,
+        message: /invalid network/,
       },
       events: [],
     });

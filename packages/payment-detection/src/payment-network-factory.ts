@@ -135,7 +135,7 @@ export class PaymentNetworkFactory {
       ...this.options,
     });
 
-    if ('getDeploymentInformation' in detectorClass) {
+    if (detector.extension && 'getDeploymentInformation' in detectorClass) {
       // this throws when the contract isn't deployed and was mandatory for payment detection
       (detectorClass as ContractBasedDetector).getDeploymentInformation(
         network,

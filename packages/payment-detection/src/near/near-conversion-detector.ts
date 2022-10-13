@@ -2,6 +2,7 @@ import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { NearConversionInfoRetriever } from './retrievers/near-conversion-info-retriever';
 import { AnyToNativeDetector } from '../any-to-native-detector';
+import { NetworkNotSupported } from '../balance-error';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -29,7 +30,9 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
     if (versionMap[chainName]?.[version]) {
       return versionMap[chainName][version];
     }
-    throw Error(`Unconfigured chain '${chainName}' and version '${version}'.`);
+    throw new NetworkNotSupported(
+      `Unconfigured near-conversion-detector chain '${chainName}' and version '${version}'`,
+    );
   };
 
   /**
