@@ -5,6 +5,7 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks';
 
@@ -47,6 +48,7 @@ const createMockRequest = ({
 
 const detector = new SuperFluidPaymentDetector({
   advancedLogic: mockAdvancedLogic,
+  currencyManager: CurrencyManager.getDefault(),
 });
 
 describe('ERC777 SuperFluid detection test-suite', () => {

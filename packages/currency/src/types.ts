@@ -99,6 +99,7 @@ export interface ICurrencyManager<TMeta = unknown> {
   from(symbolOrAddress: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromAddress(address: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromSymbol(symbol: string, network?: string): CurrencyDefinition<TMeta> | undefined;
+  fromHash(hash: string, network?: string): CurrencyDefinition<TMeta> | undefined;
   fromStorageCurrency(currency: StorageCurrency): CurrencyDefinition<TMeta> | undefined;
   getNativeCurrency(
     type: NativeCurrencyType,

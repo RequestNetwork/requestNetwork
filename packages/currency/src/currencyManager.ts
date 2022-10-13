@@ -129,6 +129,13 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
     );
   }
 
+  fromHash(hash: string, network?: string): CurrencyDefinition<TMeta> | undefined {
+    return this.knownCurrencies.find(
+      (x) =>
+        x.hash.toLowerCase() === hash.toLowerCase() &&
+        ((x.type === ISO4217 && !network) || ('network' in x && x.network === network) || !network),
+    );
+  }
   /**
    * Retrieves a currency given its storage format (ICurrency)
    */

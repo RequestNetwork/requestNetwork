@@ -4,6 +4,7 @@ import {
   ContractBasedDetector,
   IPaymentNetworkModuleByType,
   ISupportedPaymentNetworkByCurrency,
+  PaymentNetworkOptions,
 } from './types';
 import { BtcMainnetAddressBasedDetector, BtcTestnetAddressBasedDetector } from './btc';
 import { DeclarativePaymentDetector } from './declarative';
@@ -17,6 +18,8 @@ import { EthFeeProxyPaymentDetector, EthInputDataPaymentDetector } from './eth';
 import { AnyToERC20PaymentDetector, AnyToEthFeeProxyPaymentDetector } from './any';
 import { NearConversionNativeTokenPaymentDetector, NearNativeTokenPaymentDetector } from './near';
 import { getPaymentNetworkExtension } from './utils';
+import { getTheGraphClient } from './thegraph';
+import { getDefaultProvider } from './provider';
 
 const PN_ID = PaymentTypes.PAYMENT_NETWORK_ID;
 
@@ -61,15 +64,9 @@ const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
   [PN_ID.ANY_TO_NATIVE]: NearConversionNativeTokenPaymentDetector,
 };
 
-export type PaymentNetworkOptions = {
-  /** override default bitcoin detection provider */
-  bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
-  /** the explorer API (e.g. Etherscan) api keys, for PNs that rely on it. Record by network name  */
-  explorerApiKeys?: Record<string, string>;
-};
-
 /** Factory to create the payment network according to the currency and payment network type */
 export class PaymentNetworkFactory {
+  private readonly options: Readonly<PaymentNetworkOptions>;
   /**
    *
    * @param advancedLogic the advanced-logic layer in charge of the extensions
@@ -79,8 +76,25 @@ export class PaymentNetworkFactory {
   constructor(
     private readonly advancedLogic: AdvancedLogicTypes.IAdvancedLogic,
     private readonly currencyManager: ICurrencyManager,
-    private readonly options?: PaymentNetworkOptions,
-  ) {}
+    options?: Partial<PaymentNetworkOptions>,
+  ) {
+    this.options = this.buildOptions(options || {});
+  }
+
+  private buildOptions(options: Partial<PaymentNetworkOptions>): PaymentNetworkOptions {
+    const defaultOptions: PaymentNetworkOptions = {
+      getSubgraphClient: (network) => {
+        return network === 'private'
+          ? undefined
+          : getTheGraphClient(
+              `https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-${network}`,
+            );
+      },
+      explorerApiKeys: {},
+      getRpcProvider: getDefaultProvider,
+    };
+    return { ...defaultOptions, ...options };
+  }
 
   /**
    * Creates a payment network according to payment network creation parameters

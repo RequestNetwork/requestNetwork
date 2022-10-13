@@ -4,6 +4,7 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { SuperFluidPaymentDetector } from '../../src/erc777/superfluid-detector';
 import { genTransferEventsByMonth } from './mocks';
 import { mockAdvancedLogicBase } from '../utils';
@@ -129,7 +130,10 @@ const mockTransferEventsForMonth = (monthNumber: number) => {
 
 describe('superfluid balance computation', () => {
   beforeEach(() => {
-    superfluidPaymentDetector = new SuperFluidPaymentDetector({ advancedLogic: mockAdvancedLogic });
+    superfluidPaymentDetector = new SuperFluidPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
+    });
   });
   afterEach(() => {
     jest.clearAllMocks();

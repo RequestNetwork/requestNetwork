@@ -1,4 +1,5 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
@@ -17,9 +18,13 @@ export abstract class ReferenceBasedDetector<
   /**
    * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
+   * @param currencyManager The currency manager
    */
-
-  public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+  protected constructor(
+    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
+    protected readonly currencyManager: ICurrencyManager,
+  ) {
     super(paymentNetworkId, extension);
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {
       throw new Error(

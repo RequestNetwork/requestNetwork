@@ -19,9 +19,9 @@ export abstract class AnyToAnyDetector<
   protected constructor(
     paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    protected currencyManager: ICurrencyManager,
+    currencyManager: ICurrencyManager,
   ) {
-    super(paymentNetworkId, extension);
+    super(paymentNetworkId, extension, currencyManager);
   }
 
   /**

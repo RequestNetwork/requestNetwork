@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers';
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
 import { ReferenceBasedDetector } from './reference-based-detector';
 
@@ -13,10 +14,14 @@ export abstract class FeeReferenceBasedDetector<
   /**
    * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
+   * @param currencyManager
    */
-
-  public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
-    super(paymentNetworkId, extension);
+  protected constructor(
+    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
+    currencyManager: ICurrencyManager,
+  ) {
+    super(paymentNetworkId, extension, currencyManager);
   }
 
   /**

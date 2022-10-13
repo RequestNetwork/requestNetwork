@@ -41,6 +41,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
+      getSubgraphClient: jest.fn(),
     });
   });
 
@@ -262,6 +263,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
+      getSubgraphClient: jest.fn(),
     });
 
     jest
@@ -326,6 +328,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
+      getSubgraphClient: jest.fn(),
     });
 
     const mockExtractEvents = (eventName: any) => {
