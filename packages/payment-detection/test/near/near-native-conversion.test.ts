@@ -109,9 +109,12 @@ describe('Near payments detection', () => {
   });
 
   it('PaymentNetworkFactory can get the detector (testnet)', async () => {
-    expect(paymentNetworkFactory.getPaymentNetworkFromRequest(request)).toBeInstanceOf(
-      NearConversionNativeTokenPaymentDetector,
-    );
+    expect(
+      paymentNetworkFactory.getPaymentNetworkFromRequest({
+        ...request,
+        currency: { ...request.currency, network: 'aurora-testnet' },
+      }),
+    ).toBeInstanceOf(NearConversionNativeTokenPaymentDetector);
   });
 
   it('PaymentNetworkFactory can get the detector (mainnet)', async () => {

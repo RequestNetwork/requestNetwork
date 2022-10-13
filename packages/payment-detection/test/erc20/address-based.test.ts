@@ -4,8 +4,10 @@ import {
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ERC20AddressBasedPaymentDetector } from '../../src/erc20/address-based';
+import { ERC20AddressBasedPaymentDetector } from '../../src/erc20';
 import { mockAdvancedLogicBase } from '../utils';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 jest.setTimeout(10000);
 
@@ -110,18 +112,13 @@ describe('api/erc20/address-based', () => {
   });
 
   it('should not throw when getBalance fail', async () => {
-    expect(
-      await erc20AddressedBased.getBalance({
+    erc20AddressedBased = new ERC20AddressBasedPaymentDetector({
+      advancedLogic: new AdvancedLogic(CurrencyManager.getDefault()),
+    });
+    await expect(
+      erc20AddressedBased.getBalance({
         currency: { network: 'wrong' },
       } as RequestLogicTypes.IRequest),
-    ).toMatchObject({
-      balance: null,
-      error: {
-        code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        message:
-          'Payment network wrong not supported by ERC20 payment detection. Supported networks: mainnet, rinkeby, goerli, private',
-      },
-      events: [],
-    });
+    ).resolves.not.toThrowError();
   });
 });

@@ -161,8 +161,7 @@ describe('api/erc20/proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        message:
-          'Payment network WRONG not supported by pn-erc20-proxy-contract payment detection. Supported networks: mainnet, rinkeby, goerli',
+        message: 'Network not supported for this payment network: WRONG',
       },
       events: [],
     });

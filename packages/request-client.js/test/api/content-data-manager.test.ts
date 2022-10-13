@@ -10,7 +10,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
   getNativeTokenExtensionForNetwork: jest.fn(),
   getAnyToNativeTokenExtensionForNetwork: jest.fn(),
   extensions: {
-    contentData: jest.fn(),
+    contentData: { createCreationAction: jest.fn() },
   } as any as IAdvancedLogicExtensions,
 };
 
