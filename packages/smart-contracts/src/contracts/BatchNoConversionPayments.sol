@@ -96,7 +96,8 @@ contract BatchNoConversionPayments is Ownable {
   }
 
   /**
-   * This contract is non-payable. Making a Native payment with conversion requires the contract to accept incoming Native tokens.
+   * This contract is non-payable.
+   * Making a Native payment with conversion requires the contract to accept incoming Native tokens.
    * @dev See the end of `paymentNativeConversionProxy.transferWithReferenceAndFee` where the leftover is given back.
    */
   receive() external payable {
