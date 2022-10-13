@@ -4,7 +4,7 @@ import { UnsupportedNetworkError } from './address-based';
 import AnyToNativeTokenPaymentNetwork from './any-to-native';
 
 const CURRENT_VERSION = '0.1.0';
-const supportedNetworks = ['aurora', 'aurora-testnet'];
+const supportedNetworks = ['aurora', 'aurora-testnet', 'near-testnet'];
 
 export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetwork {
   public constructor(
@@ -26,6 +26,7 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
       case 'aurora':
         return this.isValidMainnetAddress(address);
       case 'aurora-testnet':
+      case 'near-testnet':
         return this.isValidTestnetAddress(address);
       case undefined:
         return this.isValidMainnetAddress(address) || this.isValidTestnetAddress(address);
@@ -57,6 +58,11 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
     if (!extensionAction.parameters.network || extensionAction.parameters.network.length === 0) {
       throw Error('network is required');
     }
+    // FIXME: Needed during naming migration from aurora to near
+    extensionAction.parameters.network = extensionAction.parameters.network.replace(
+      'near',
+      'aurora',
+    );
 
     if (
       extensionAction.parameters.paymentAddress &&
@@ -136,6 +142,9 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
+    // FIXME: Needed during naming migration from aurora to near
+    extensionState.values.network = extensionState.values.network.replace('near', 'aurora');
+
     const paymentAddress = extensionAction.parameters.paymentAddress;
     if (!this.isValidAddress(paymentAddress, extensionState.values.network)) {
       throw new Error(`paymentAddress '${paymentAddress}' is not a valid address`);
@@ -156,11 +165,19 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
     actionSigner: IdentityTypes.IIdentity,
     timestamp: number,
   ): ExtensionTypes.IState {
-    const network =
-      requestState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN].values.network;
+    // FIXME: Needed during naming migration from aurora to near
+    requestState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN].values.network =
+      requestState.extensions[
+        ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN
+      ].values.network.replace('near', 'aurora');
+
     if (
       extensionAction.parameters.feeAddress &&
-      !this.isValidAddress(extensionAction.parameters.feeAddress, network)
+      !this.isValidAddress(
+        extensionAction.parameters.feeAddress,
+        requestState.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN].values
+          .network,
+      )
     ) {
       throw Error('feeAddress is not a valid address');
     }
@@ -181,7 +198,7 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
     request: RequestLogicTypes.IRequest,
     extensionAction: ExtensionTypes.IAction,
   ): void {
-    const network =
+    let network =
       extensionAction.action === ExtensionTypes.PnFeeReferenceBased.ACTION.CREATE
         ? extensionAction.parameters.network
         : request.extensions[this.extensionId]?.values.network;
@@ -191,6 +208,8 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
         `The network must be provided by the creation action or by the extension state`,
       );
     }
+    // FIXME: Needed during naming migration from aurora to near
+    network = network.replace('near', 'aurora');
 
     if (!supportedNetworks.includes(network)) {
       throw new Error(`The network (${network}) is not supported for this payment network.`);
