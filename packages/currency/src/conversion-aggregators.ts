@@ -35,7 +35,7 @@ const chainlinkCurrencyPairs: AggregatorsMap = {
 // Pairs supported by Flux Protocol
 const fluxCurrencyPairs: AggregatorsMap = {
   aurora: nearAggregator,
-  'aurora-testnet': nearTestnetAggregator,
+  'near-testnet': nearTestnetAggregator,
 };
 
 // FIX ME: This fix enables to get these networks registered in conversionSupportedNetworks.

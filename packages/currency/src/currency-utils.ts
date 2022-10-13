@@ -13,7 +13,7 @@ import { RequestLogicTypes } from '@requestnetwork/types';
  */
 export const isValidNearAddress = (address: string, network?: string): boolean => {
   if (!network) {
-    return isValidNearAddress(address, 'aurora') || isValidNearAddress(address, 'aurora-testnet');
+    return isValidNearAddress(address, 'aurora') || isValidNearAddress(address, 'near-testnet');
   }
   // see link bellow for NEAR address specification
   // https://nomicon.io/DataStructures/Account.html
@@ -34,7 +34,7 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
   switch (network) {
     case 'aurora':
       return !!address.match(/\.near$/);
-    case 'aurora-testnet':
+    case 'near-testnet':
       return !!address.match(/\.testnet$/);
     default:
       throw new Error(`Cannot validate NEAR address for network ${network}`);
