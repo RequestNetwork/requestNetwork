@@ -359,7 +359,7 @@ describe('contract: BatchConversionPayments', async () => {
     );
   };
 
-  describe('batchPayment', async () => {
+  describe('batchPayments', async () => {
     const testBatchPayment = async (applyLimit: boolean) => {
       // Limit is applied if there are paths to USD
       const pathsToUSD = applyLimit
@@ -376,7 +376,7 @@ describe('contract: BatchConversionPayments', async () => {
           const [initialFromFAUBalance, initialToFAUBalance, initialFeeFAUBalance] =
             await getERC20Balances(fauERC20);
 
-          await batchConversionProxy.batchPayment(
+          await batchConversionProxy.batchPayments(
             [
               {
                 paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ERC20_PAYMENTS,
@@ -412,7 +412,7 @@ describe('contract: BatchConversionPayments', async () => {
         it(`make 1 ERC20 payment with no conversion`, async () => {
           const [initialFromFAUBalance, initialToFAUBalance, initialFeeFAUBalance] =
             await getERC20Balances(fauERC20);
-          await batchConversionProxy.batchPayment(
+          await batchConversionProxy.batchPayments(
             [
               {
                 paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
@@ -446,8 +446,8 @@ describe('contract: BatchConversionPayments', async () => {
           );
         });
         it('make 3 ERC20 payments with different tokens and conversion lengths', async () => {
-          const batchPayment = async () => {
-            return await batchConversionProxy.batchPayment(
+          const batchPayments = async () => {
+            return await batchConversionProxy.batchPayments(
               [
                 {
                   paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
@@ -468,12 +468,12 @@ describe('contract: BatchConversionPayments', async () => {
             const expectedFeeDAIBalanceDiff = BigNumber.from('237623762376237623762');
 
             await manyPaymentsBatchConv(
-              batchPayment,
+              batchPayments,
               expectedFeeFAUBalanceDiff,
               expectedFeeDAIBalanceDiff,
             );
           } else {
-            await manyPaymentsBatchConv(batchPayment);
+            await manyPaymentsBatchConv(batchPayments);
           }
         });
         it('make 1 ETH payment without conversion', async () => {
@@ -482,7 +482,7 @@ describe('contract: BatchConversionPayments', async () => {
           const initialFeeETHBalance = await provider.getBalance(feeAddress);
           const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
 
-          tx = await batchConversionProxy.batchPayment(
+          tx = await batchConversionProxy.batchPayments(
             [
               {
                 paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_PAYMENTS,
@@ -513,7 +513,7 @@ describe('contract: BatchConversionPayments', async () => {
           const initialToETHBalance = await provider.getBalance(to);
           const initialFeeETHBalance = await provider.getBalance(feeAddress);
           const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
-          tx = await batchConversionProxy.batchPayment(
+          tx = await batchConversionProxy.batchPayments(
             [
               {
                 paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_ETH_CONVERSION_PAYMENTS,
@@ -547,7 +547,7 @@ describe('contract: BatchConversionPayments', async () => {
           const initialFeeETHBalance = await provider.getBalance(feeAddress);
           const initialFromETHBalance = await provider.getBalance(await fromSigner.getAddress());
 
-          tx = await batchConversionProxy.batchPayment(
+          tx = await batchConversionProxy.batchPayments(
             [
               {
                 paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
@@ -666,10 +666,10 @@ describe('contract: BatchConversionPayments', async () => {
     await testBatchPayment(false);
   });
 
-  describe('batchPayment errors', async () => {
-    it(`too many elements within batchPayment metaDetails input`, async () => {
+  describe('batchPayments errors', async () => {
+    it(`too many elements within batchPayments metaDetails input`, async () => {
       await expect(
-        batchConversionProxy.batchPayment(
+        batchConversionProxy.batchPayments(
           Array(6).fill({
             paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
             requestDetails: [],
@@ -681,7 +681,7 @@ describe('contract: BatchConversionPayments', async () => {
     });
     it(`wrong paymentNetworkId set in metaDetails input`, async () => {
       await expect(
-        batchConversionProxy.batchPayment(
+        batchConversionProxy.batchPayments(
           [
             {
               paymentNetworkId: 6,
@@ -739,7 +739,7 @@ describe('contract: BatchConversionPayments', async () => {
       );
     });
     it('make 3 payments with different tokens and conversion length', async () => {
-      const batchPayment = async () => {
+      const batchPayments = async () => {
         return await batchConversionProxy
           .connect(fromSigner)
           .batchMultiERC20ConversionPayments(
@@ -748,7 +748,7 @@ describe('contract: BatchConversionPayments', async () => {
             feeAddress,
           );
       };
-      await manyPaymentsBatchConv(batchPayment);
+      await manyPaymentsBatchConv(batchPayments);
     });
   });
 

@@ -346,7 +346,7 @@ export enum BATCH_PAYMENT_NETWORK_ID {
 }
 
 /** Input type used by batch conversion proxy to make an ERC20 & ETH,
- * and conversion & no-conversion payment through batchPayment */
+ * and conversion & no-conversion payment through batchPayments */
 export interface MetaDetail {
   paymentNetworkId: BATCH_PAYMENT_NETWORK_ID;
   requestDetails: RequestDetail[];
