@@ -3,12 +3,11 @@ import { ExtensionTypes, IdentityTypes, RequestLogicTypes } from '@requestnetwor
 import AnyToNativeTokenPaymentNetwork from '../any-to-native';
 
 const CURRENT_VERSION = '0.1.0';
-const NETWORK = 'aurora';
 
 export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetwork {
   public constructor(
     private currencyManager: ICurrencyManager,
-    supportedNetworks: string[] = [NETWORK],
+    supportedNetworks: string[] = ['aurora', 'near'],
     currentVersion: string = CURRENT_VERSION,
   ) {
     super(ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN, currentVersion, supportedNetworks);

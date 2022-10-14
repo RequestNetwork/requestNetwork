@@ -26,6 +26,9 @@ export class NearConversionNativeTokenPaymentDetector extends AnyToNativeDetecto
       'aurora-testnet': {
         '0.1.0': 'native.conversion.reqnetwork.testnet',
       },
+      'near-testnet': {
+        '0.1.0': 'native.conversion.reqnetwork.testnet',
+      },
     };
     if (versionMap[chainName]?.[version]) {
       return versionMap[chainName][version];

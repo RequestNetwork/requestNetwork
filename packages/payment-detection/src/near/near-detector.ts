@@ -26,6 +26,10 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
         '0.1.0': 'dev-1626339335241-5544297',
         '0.2.0': 'dev-1631521265288-35171138540673',
       },
+      'near-testnet': {
+        '0.1.0': 'dev-1626339335241-5544297',
+        '0.2.0': 'dev-1631521265288-35171138540673',
+      },
     };
     if (versionMap[chainName]?.[version]) {
       return versionMap[chainName][version];

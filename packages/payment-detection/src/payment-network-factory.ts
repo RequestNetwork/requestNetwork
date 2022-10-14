@@ -50,6 +50,9 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
     'aurora-testnet': {
       [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
     },
+    'near-testnet': {
+      [PN_ID.NATIVE_TOKEN]: NearNativeTokenPaymentDetector,
+    },
     '*': {
       [PN_ID.ETH_INPUT_DATA]: EthInputDataPaymentDetector,
       [PN_ID.ETH_FEE_PROXY_CONTRACT]: EthFeeProxyPaymentDetector,
