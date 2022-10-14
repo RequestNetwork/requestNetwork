@@ -63,10 +63,10 @@ export async function completeErc777StreamRequest(
  * @param request the request to pay
  * @param provider the Web3 provider. Defaults to window.ethereum.
  */
-async function getSuperFluidFramework(
+export async function getSuperFluidFramework(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
-) {
+): Promise<Framework> {
   const isNetworkPrivate = request.currencyInfo.network === 'private';
   const networkName = isNetworkPrivate ? 'custom' : request.currencyInfo.network;
   return await Framework.create({

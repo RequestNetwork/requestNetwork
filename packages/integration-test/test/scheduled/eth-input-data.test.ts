@@ -1,5 +1,6 @@
 import { EthInputDataPaymentDetector } from '@requestnetwork/payment-detection';
 import { RequestLogicTypes } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 
 import { mockAdvancedLogic } from './mocks';
 import { Types, Utils } from '@requestnetwork/request-client.js';
@@ -14,6 +15,9 @@ import {
 
 const ethInputContract = new EthInputDataPaymentDetector({
   advancedLogic: mockAdvancedLogic,
+  currencyManager: CurrencyManager.getDefault(),
+  explorerApiKeys: {},
+  getSubgraphClient: jest.fn(),
 });
 
 describe('ETH Fee proxy detection test-suite', () => {

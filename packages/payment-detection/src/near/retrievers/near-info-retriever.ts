@@ -23,13 +23,16 @@ export class NearInfoRetriever {
     protected toAddress: string,
     protected proxyContractName: string,
     protected eventName: PaymentTypes.EVENTS_NAMES,
-    protected network: string,
+    network: string,
   ) {
-    if (this.network !== 'aurora' && this.network !== 'aurora-testnet') {
+    if (network !== 'aurora' && network !== 'aurora-testnet' && network !== 'near-testnet') {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
-    this.network = this.network.replace('aurora', 'near');
-    this.client = getTheGraphNearClient(this.network as 'near' | 'near-testnet');
+
+    network = network.replace('aurora', 'near');
+    this.client = getTheGraphNearClient(
+      `https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-${network}`,
+    );
   }
 
   public async getTransferEvents(): Promise<

@@ -50,6 +50,7 @@
     "graphql": "15.5.1",
     "graphql-request": "3.4.0",
     "graphql-tag": "2.12.4",
+    "lodash": "4.17.21",
     "satoshi-bitcoin": "1.0.4",
     "tslib": "2.3.1"
   },
@@ -62,6 +63,7 @@
     "@graphql-codegen/typescript-resolvers": "1.19.2",
     "@requestnetwork/advanced-logic": "0.34.0",
     "@types/jest": "26.0.13",
+    "@types/lodash": "4.14.161",
     "jest": "26.4.2",
     "nyc": "15.1.0",
     "shx": "0.3.2",

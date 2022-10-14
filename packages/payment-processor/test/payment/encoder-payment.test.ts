@@ -7,7 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestPayment, encodeRequestPaymentWithStream } from '../../src';
-import { getProxyAddress } from '../../src/payment/utils';
+import { getProxyAddress, MAX_ALLOWANCE } from '../../src/payment/utils';
 import {
   AnyToERC20PaymentDetector,
   AnyToEthFeeProxyPaymentDetector,
@@ -36,7 +36,7 @@ const alphaConversionSettings = {
     value: alphaContractAddress,
     network: 'private',
   },
-  maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  maxToSpend: MAX_ALLOWANCE,
   currencyManager,
 };
 const ethConversionSettings = {
