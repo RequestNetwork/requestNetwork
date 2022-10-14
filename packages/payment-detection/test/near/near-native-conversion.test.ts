@@ -199,7 +199,7 @@ describe('Near payments detection', () => {
         error: {
           code: 2,
           message:
-            'Payment network unknown-network not supported by pn-any-to-native-token payment detection. Supported networks: aurora, near-testnet',
+            'Payment network unknown-network not supported by pn-any-to-native-token payment detection. Supported networks: aurora, aurora-testnet, near-testnet',
         },
         events: [],
       });
