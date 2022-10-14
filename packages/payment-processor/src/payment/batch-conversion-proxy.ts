@@ -139,6 +139,7 @@ export function encodePayBatchConversionRequest(enrichedRequests: EnrichedReques
   const proxyContract = BatchConversionPayments__factory.createInterface();
   return proxyContract.encodeFunctionData('batchPayments', [
     metaDetails,
+    [],
     feeAddress || constants.AddressZero,
   ]);
 }
