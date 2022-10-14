@@ -139,7 +139,7 @@ describe('extensions/payment-network/erc20/any-to-erc20-fee-proxy-contract', () 
       }).toThrowError('acceptedTokens must contains only valid ethereum addresses');
     });
 
-    it('cannot createCreationAction with network not supported', () => {
+    it('cannot createCreationAction with currency not supported', () => {
       // 'must throw'
       expect(() => {
         anyToErc20Proxy.createCreationAction({

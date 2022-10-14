@@ -5,6 +5,7 @@ const NETWORK = 'aurora-testnet';
 
 export default class AnyToNearTestnetPaymentNetwork extends AnyToNearPaymentNetwork {
   public constructor(currencyManager: ICurrencyManager) {
+    // testnet PN version is the same as mainnet, can be overridden here if needed
     super(currencyManager, [NETWORK]);
   }
 

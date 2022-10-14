@@ -8,8 +8,11 @@ const NETWORK = 'aurora';
  * Implementation of the payment network to pay in Near based on input data.
  */
 export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork {
-  public constructor(supportedNetworks: string[] = [NETWORK]) {
-    super(ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN, CURRENT_VERSION, supportedNetworks);
+  public constructor(
+    supportedNetworks: string[] = [NETWORK],
+    currentVersion: string = CURRENT_VERSION,
+  ) {
+    super(ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN, currentVersion, supportedNetworks);
   }
 
   /**

@@ -7,6 +7,7 @@ const NETWORK = 'aurora-testnet';
  */
 export default class NearTestnetNativeNativePaymentNetwork extends NearNativePaymentNetwork {
   public constructor() {
+    // testnet PN version is the same as mainnet, can be overridden here if needed
     super([NETWORK]);
   }
 

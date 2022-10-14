@@ -111,7 +111,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
       }).toThrowError('feeAmount is not a valid amount');
     });
 
-    it('cannot applyActionToExtensions of creation with an invalid network', () => {
+    it('cannot applyActionToExtensions of creation with an invalid network/currency pair', () => {
       const requestCreatedNoExtension: RequestLogicTypes.IRequest = Utils.deepCopy(
         TestData.requestCreatedNoExtension,
       );

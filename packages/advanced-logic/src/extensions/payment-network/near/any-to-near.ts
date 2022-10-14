@@ -9,12 +9,9 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
   public constructor(
     private currencyManager: ICurrencyManager,
     supportedNetworks: string[] = [NETWORK],
+    currentVersion: string = CURRENT_VERSION,
   ) {
-    super(
-      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
-      CURRENT_VERSION,
-      supportedNetworks,
-    );
+    super(ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN, currentVersion, supportedNetworks);
   }
 
   /**
