@@ -7,6 +7,7 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { encodeRequestApprovalAndPayment } from '../../src';
+import { IRequestPaymentOptions } from '../../src/payment/settings';
 import { currencyManager } from './shared';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { MAX_ALLOWANCE } from '../../src/payment/utils';
@@ -210,6 +211,61 @@ const validRequestEthConversionProxy: ClientTypes.IRequestData = {
   },
 };
 
+type Option = 'erc20' | 'erc20Fee' | 'erc20Conv' | 'erc20Swap' | 'erc20SwapConv';
+const getOption = (withApproval: boolean, type: Option): IRequestPaymentOptions | undefined => {
+  switch (type) {
+    case 'erc20': {
+      return withApproval
+        ? {
+            approval: {
+              amount: BigNumber.from(baseValidRequest.expectedAmount),
+            },
+          }
+        : undefined;
+    }
+    case 'erc20Fee': {
+      return withApproval
+        ? {
+            approval: {
+              amount: BigNumber.from(102),
+            },
+          }
+        : undefined;
+    }
+    case 'erc20Conv': {
+      return {
+        conversion: alphaConversionSettings,
+        approval: withApproval
+          ? {
+              amount: alphaConversionSettings.maxToSpend,
+            }
+          : undefined,
+      };
+    }
+    case 'erc20Swap': {
+      return {
+        swap: alphaSwapSettings,
+        approval: withApproval
+          ? {
+              amount: BigNumber.from(alphaSwapSettings.maxInputAmount + 1),
+            }
+          : undefined,
+      };
+    }
+    case 'erc20SwapConv': {
+      return {
+        swap: alphaSwapConversionSettings,
+        conversion: alphaConversionSettings,
+        approval: withApproval
+          ? {
+              amount: BigNumber.from(alphaSwapConversionSettings.maxInputAmount),
+            }
+          : undefined,
+      };
+    }
+  }
+};
+
 beforeAll(async () => {
   const mainAddress = wallet.address;
   wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
@@ -224,138 +280,52 @@ beforeAll(async () => {
   wallet = Wallet.fromMnemonic(mnemonic, mnemonicPath).connect(provider);
 });
 
-const cases = ['without specific approval', 'with specific approval'];
-cases.forEach((value, index) => {
-  describe(`Encoder for ERC20 request ${value}`, () => {
-    it('Should handle ERC20 Proxy request', async () => {
-      const options =
-        index === 0
-          ? undefined
-          : {
-              approval: {
-                amount: BigNumber.from(baseValidRequest.expectedAmount),
-              },
-            };
-      const encodedTransactions = await encodeRequestApprovalAndPayment(
-        baseValidRequest,
-        provider,
-        options,
-      );
+describe.each([
+  { name: 'Without specific approval', withApproval: false },
+  { name: ' With specific approval', withApproval: true },
+])('Encoder for ERC20 requests', ({ name, withApproval }) => {
+  describe(`${name}`, () => {
+    [
+      { task: 'Should handle ERC20 Proxy request', type: 'erc20', request: baseValidRequest },
+      {
+        task: 'Should handle ERC20 Fee Proxy request',
+        type: 'erc20Fee',
+        request: validRequestERC20FeeProxy,
+      },
+      {
+        task: 'Should handle ERC20 Conversion Proxy request',
+        type: 'erc20Conv',
+        request: validRequestERC20ConversionProxy,
+      },
+      {
+        task: 'Should handle ERC20 Swap Proxy request',
+        type: 'erc20Swap',
+        request: validRequestERC20FeeProxy,
+      },
+      {
+        task: 'Should handle ERC20 Swap and Conversion Proxy request',
+        type: 'erc20SwapConv',
+        request: validRequestERC20ConversionProxy,
+      },
+    ].forEach(({ task, type, request }) => {
+      it(`${task}`, async () => {
+        const options = getOption(withApproval, type as Option);
+        const encodedTransactions = await encodeRequestApprovalAndPayment(
+          request,
+          provider,
+          options,
+        );
 
-      let tx = await wallet.sendTransaction(encodedTransactions[0]);
-      let confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
+        let tx = await wallet.sendTransaction(encodedTransactions[0]);
+        let confirmedTx = await tx.wait(1);
+        expect(confirmedTx.status).toBe(1);
+        expect(tx.hash).not.toBeUndefined();
 
-      tx = await wallet.sendTransaction(encodedTransactions[1]);
-      confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
-    });
-
-    it('Should handle ERC20 Fee Proxy request', async () => {
-      const options =
-        index === 0
-          ? undefined
-          : {
-              approval: {
-                amount: BigNumber.from('102'),
-              },
-            };
-      const encodedTransactions = await encodeRequestApprovalAndPayment(
-        validRequestERC20FeeProxy,
-        provider,
-        options,
-      );
-
-      let tx = await wallet.sendTransaction(encodedTransactions[0]);
-      let confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
-
-      tx = await wallet.sendTransaction(encodedTransactions[1]);
-      confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
-    });
-
-    it('Should handle ERC20 Conversion Proxy request', async () => {
-      let encodedTransactions = await encodeRequestApprovalAndPayment(
-        validRequestERC20ConversionProxy,
-        provider,
-        {
-          conversion: alphaConversionSettings,
-          approval:
-            index === 0
-              ? undefined
-              : {
-                  amount: alphaConversionSettings.maxToSpend,
-                },
-        },
-      );
-
-      let tx = await wallet.sendTransaction(encodedTransactions[0]);
-      let confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
-
-      tx = await wallet.sendTransaction(encodedTransactions[1]);
-      confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
-    });
-
-    it('Should handle ERC20 Swap Proxy request', async () => {
-      let encodedTransactions = await encodeRequestApprovalAndPayment(
-        validRequestERC20FeeProxy,
-        provider,
-        {
-          swap: alphaSwapSettings,
-          approval:
-            index === 0
-              ? undefined
-              : {
-                  amount: BigNumber.from(alphaSwapSettings.maxInputAmount + 1),
-                },
-        },
-      );
-
-      let tx = await wallet.sendTransaction(encodedTransactions[0]);
-      let confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
-
-      tx = await wallet.sendTransaction(encodedTransactions[1]);
-      confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
-    });
-
-    it('Should handle ERC20 Swap and Conversion Proxy request', async () => {
-      let encodedTransactions = await encodeRequestApprovalAndPayment(
-        validRequestERC20ConversionProxy,
-        provider,
-        {
-          swap: alphaSwapConversionSettings,
-          conversion: alphaConversionSettings,
-          approval:
-            index === 0
-              ? undefined
-              : {
-                  amount: BigNumber.from(alphaSwapConversionSettings.maxInputAmount),
-                },
-        },
-      );
-
-      let tx = await wallet.sendTransaction(encodedTransactions[0]);
-      let confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
-
-      tx = await wallet.sendTransaction(encodedTransactions[1]);
-      confirmedTx = await tx.wait(1);
-      expect(confirmedTx.status).toBe(1);
-      expect(tx.hash).not.toBeUndefined();
+        tx = await wallet.sendTransaction(encodedTransactions[1]);
+        confirmedTx = await tx.wait(1);
+        expect(confirmedTx.status).toBe(1);
+        expect(tx.hash).not.toBeUndefined();
+      });
     });
   });
 });
