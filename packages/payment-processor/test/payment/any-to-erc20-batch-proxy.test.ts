@@ -221,6 +221,7 @@ describe('erc20-batch-conversion-proxy', () => {
             ],
             batchConvVersion,
             wallet,
+            true,
           ),
         ).rejects.toThrowError(
           new UnsupportedCurrencyError({
@@ -241,13 +242,14 @@ describe('erc20-batch-conversion-proxy', () => {
             ],
             batchConvVersion,
             wallet,
+            true,
           ),
         ).rejects.toThrowError('the enrichedRequest has no paymentSettings');
       });
       it('should throw an error if the request is ETH', async () => {
         EURRequest.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError(`wrong request currencyInfo type`);
       });
       it('should throw an error if the request has a wrong network', async () => {
@@ -269,7 +271,7 @@ describe('erc20-batch-conversion-proxy', () => {
         };
 
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError('All the requests must have the same network');
       });
       it('should throw an error if the request has a wrong payment network id', async () => {
@@ -290,7 +292,7 @@ describe('erc20-batch-conversion-proxy', () => {
         };
 
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError(
           'request cannot be processed, or is not an pn-any-to-erc20-proxy request',
         );
@@ -298,13 +300,13 @@ describe('erc20-batch-conversion-proxy', () => {
       it("should throw an error if one request's currencyInfo has no value", async () => {
         EURRequest.currencyInfo.value = '';
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError("The currency '' is unknown or not supported");
       });
       it('should throw an error if request has no extension', async () => {
         EURRequest.extensions = [] as any;
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError('no payment network found');
       });
       it('should throw an error if there is a wrong version mapping', async () => {
@@ -315,7 +317,7 @@ describe('erc20-batch-conversion-proxy', () => {
           },
         };
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError('Every payment network type and version must be identical');
       });
     });
@@ -335,6 +337,7 @@ describe('erc20-batch-conversion-proxy', () => {
           ],
           batchConvVersion,
           wallet,
+          true,
           { gasPrice: '20000000000' },
         );
         expect(spy).toHaveBeenCalledWith({
@@ -378,6 +381,7 @@ describe('erc20-batch-conversion-proxy', () => {
           ],
           batchConvVersion,
           wallet,
+          true,
         );
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toEqual(1);
@@ -409,7 +413,7 @@ describe('erc20-batch-conversion-proxy', () => {
           //   (exact result)    =  1.215516831683168316 (over 18 decimals for this ERC20)
         ).toEqual(expectedAmountToPay);
       });
-      it.only('should convert and pay two requests in EUR with ERC20', async () => {
+      it('should convert and pay two requests in EUR with ERC20', async () => {
         // Get initial balances
         const initialETHFromBalance = await wallet.getBalance();
         const initialDAIFromBalance = await getErc20Balance(
@@ -427,6 +431,7 @@ describe('erc20-batch-conversion-proxy', () => {
           }),
           batchConvVersion,
           wallet,
+          true,
         );
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toEqual(1);
@@ -477,10 +482,12 @@ describe('erc20-batch-conversion-proxy', () => {
             {
               paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
               request: DAIValidRequest,
+              paymentSettings: undefined,
             },
           ],
           batchConvVersion,
           wallet,
+          true,
         );
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toEqual(1);
@@ -534,7 +541,7 @@ describe('erc20-batch-conversion-proxy', () => {
       it('should throw an error if the request is not erc20', async () => {
         FAURequest.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError(
           'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
         );
@@ -543,7 +550,7 @@ describe('erc20-batch-conversion-proxy', () => {
       it("should throw an error if one request's currencyInfo has no value", async () => {
         FAURequest.currencyInfo.value = '';
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError(
           'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
         );
@@ -552,14 +559,16 @@ describe('erc20-batch-conversion-proxy', () => {
       it("should throw an error if one request's currencyInfo has no network", async () => {
         FAURequest.currencyInfo.network = '';
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
-        ).rejects.toThrowError('Payment currency must have a network');
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+        ).rejects.toThrowError(
+          'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
+        );
       });
 
       it('should throw an error if request has no extension', async () => {
         FAURequest.extensions = [] as any;
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError('no payment network found');
       });
 
@@ -571,7 +580,7 @@ describe('erc20-batch-conversion-proxy', () => {
           },
         };
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
         ).rejects.toThrowError('Every payment network type and version must be identical');
       });
     });
@@ -581,11 +590,11 @@ describe('erc20-batch-conversion-proxy', () => {
         const spy = jest.fn();
         const originalSendTransaction = wallet.sendTransaction.bind(wallet);
         wallet.sendTransaction = spy;
-        await payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, {
+        await payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true, {
           gasPrice: '20000000000',
         });
         expect(spy).toHaveBeenCalledWith({
-          data: '0xf0fa379f0000000000000000000000000000000000000000000000000000000000000040000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000001c000000000000000000000000000000000000000000000000000000000000002a0000000000000000000000000000000000000000000000000000000000000000200000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa350000000000000000000000009fbda871d559710256a2502a2517b794b482db400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000186a000000000000000000000000000000000000000000000000000000000000186a0000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000064',
+          data: '0x92cddb9100000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000400000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001a0000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b73200000000000000000000000000000000000000000000000000000000000186a000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa35000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a000000000000000000000000000000000000000000000000000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b73200000000000000000000000000000000000000000000000000000000000186a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
           gasPrice: '20000000000',
           to: getBatchConversionProxyAddress(DAIValidRequest, '0.1.0'),
           value: 0,
@@ -627,7 +636,12 @@ describe('erc20-batch-conversion-proxy', () => {
         const initialFAUFeeBalance = await getErc20Balance(FAUValidRequest, feeAddress, provider);
 
         // Batch payment
-        const tx = await payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet);
+        const tx = await payBatchConversionProxyRequest(
+          enrichedRequests,
+          batchConvVersion,
+          wallet,
+          true,
+        );
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toBe(1);
         expect(tx.hash).not.toBeUndefined();
