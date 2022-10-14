@@ -2,12 +2,13 @@ import { ExtensionTypes } from '@requestnetwork/types';
 import NativeTokenPaymentNetwork from '../native-token';
 
 const CURRENT_VERSION = '0.2.0';
+const NETWORK = 'aurora';
 
 /**
  * Implementation of the payment network to pay in Near based on input data.
  */
 export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork {
-  public constructor(supportedNetworks: string[] = ['aurora']) {
+  public constructor(supportedNetworks: string[] = [NETWORK]) {
     super(ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN, CURRENT_VERSION, supportedNetworks);
   }
 
@@ -18,6 +19,6 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
    * @returns {boolean} true if address is valid
    */
   protected isValidAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'aurora');
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', NETWORK);
   }
 }

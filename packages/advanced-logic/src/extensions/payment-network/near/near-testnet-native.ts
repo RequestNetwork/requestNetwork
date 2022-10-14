@@ -1,11 +1,13 @@
 import NearNativePaymentNetwork from './near-native';
 
+const NETWORK = 'aurora-testnet';
+
 /**
  * Implementation of the payment network to pay in Near on testnet based on input data.
  */
 export default class NearTestnetNativeNativePaymentNetwork extends NearNativePaymentNetwork {
   public constructor() {
-    super(['aurora-testnet']);
+    super([NETWORK]);
   }
 
   /**
@@ -15,6 +17,6 @@ export default class NearTestnetNativeNativePaymentNetwork extends NearNativePay
    * @returns {boolean} true if address is valid
    */
   protected isValidAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', 'aurora-testnet');
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR-testnet', NETWORK);
   }
 }
