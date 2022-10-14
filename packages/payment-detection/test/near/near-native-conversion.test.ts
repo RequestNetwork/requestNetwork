@@ -18,7 +18,7 @@ import { mocked } from 'ts-jest/utils';
 jest.mock('graphql-request');
 const graphql = mocked(GraphQLClient.prototype);
 const mockNearPaymentNetwork = {
-  supportedNetworks: ['aurora', 'aurora-testnet'],
+  supportedNetworks: ['aurora', 'aurora-testnet', 'near-testnet'],
 };
 const currencyManager = CurrencyManager.getDefault();
 
@@ -199,7 +199,7 @@ describe('Near payments detection', () => {
         error: {
           code: 2,
           message:
-            'Payment network unknown-network not supported by pn-any-to-native-token payment detection. Supported networks: aurora, aurora-testnet',
+            'Payment network unknown-network not supported by pn-any-to-native-token payment detection. Supported networks: aurora, near-testnet',
         },
         events: [],
       });

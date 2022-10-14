@@ -26,7 +26,10 @@ export const isValidNearAddress = async (nearNetwork: Near, address: string): Pr
 };
 
 export const isNearNetwork = (network?: string): boolean => {
-  return !!network && (network === 'aurora-testnet' || network === 'aurora');
+  return (
+    !!network &&
+    (network === 'near-testnet' || network === 'aurora-testnet' || network === 'aurora')
+  );
 };
 
 export const isNearAccountSolvent = (
