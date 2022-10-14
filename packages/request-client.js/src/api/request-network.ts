@@ -43,6 +43,7 @@ export default class RequestNetwork {
    * @param dataAccess instance of data-access layer
    * @param signatureProvider module in charge of the signatures
    * @param decryptionProvider module in charge of the decryption
+   * @param paymentOptions options for payment detection
    * @param currencyManager
    */
   public constructor({
@@ -56,7 +57,7 @@ export default class RequestNetwork {
     signatureProvider?: SignatureProviderTypes.ISignatureProvider;
     decryptionProvider?: DecryptionProviderTypes.IDecryptionProvider;
     currencyManager?: ICurrencyManager;
-    paymentOptions?: PaymentNetworkOptions;
+    paymentOptions?: Partial<PaymentNetworkOptions>;
   }) {
     this.currencyManager = currencyManager || CurrencyManager.getDefault();
     this.advancedLogic = new AdvancedLogic(this.currencyManager);

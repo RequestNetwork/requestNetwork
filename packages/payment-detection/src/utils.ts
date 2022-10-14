@@ -1,7 +1,7 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
 import { RequestLogicTypes, PaymentTypes, ExtensionTypes } from '@requestnetwork/types';
-import { BigNumber, BigNumberish, Contract } from 'ethers';
-import { keccak256, LogDescription } from 'ethers/lib/utils';
+import { BigNumber, BigNumberish, Contract, errors, logger } from 'ethers';
+import { keccak256, LogDescription, getAddress } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 import { NetworkNotSupported, VersionNotSupported } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
@@ -171,3 +171,21 @@ export function getPaymentReference(
 
   return PaymentReferenceCalculator.calculate(requestId, salt, info);
 }
+
+/** Alias to ethers.utils.getAddress that adds the key to error message, and supports nullish values */
+export const formatAddress: {
+  (address: string | null | undefined, key?: string, allowsUndefined?: false): string;
+  (address: string | null | undefined, key?: string, allowsUndefined?: true): string | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} = (address: string | null | undefined, key?: string, allowsUndefined = false): any => {
+  if (!address && allowsUndefined) return undefined;
+  try {
+    return getAddress(address || '');
+  } catch (e) {
+    logger.throwError('invalid address', errors.INVALID_ARGUMENT, {
+      argument: 'address',
+      value: address,
+      key,
+    });
+  }
+};

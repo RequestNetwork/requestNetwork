@@ -1,3 +1,4 @@
+import { CurrencyManager } from '@requestnetwork/currency';
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { EthFeeProxyPaymentDetector } from '../../src';
 
@@ -33,6 +34,8 @@ describe('api/eth/fee-proxy-contract', () => {
   beforeEach(() => {
     ethFeeProxyDetector = new EthFeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
+      getSubgraphClient: jest.fn(),
     });
   });
 

@@ -44,7 +44,7 @@ export default class HttpRequestNetwork extends RequestNetwork {
       useMockStorage?: boolean;
       currencies?: CurrencyInput[];
       currencyManager?: ICurrencyManager;
-      paymentOptions?: PaymentNetworkOptions;
+      paymentOptions?: Partial<PaymentNetworkOptions>;
     } = {
       httpConfig: {},
       nodeConnectionConfig: {},

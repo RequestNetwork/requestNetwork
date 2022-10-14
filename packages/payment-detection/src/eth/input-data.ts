@@ -1,17 +1,11 @@
 import * as SmartContracts from '@requestnetwork/smart-contracts';
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
-
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { EthInputDataInfoRetriever } from './info-retriever';
 import { EthProxyInfoRetriever } from './proxy-info-retriever';
 import { ReferenceBasedDetector } from '../reference-based-detector';
 import { makeGetDeploymentInformation } from '../utils';
-import { networkSupportsTheGraph } from '../thegraph';
-import { TheGraphInfoRetriever } from '../erc20/thegraph-info-retriever';
+import { TheGraphInfoRetriever } from '../thegraph';
+import { PaymentNetworkOptions, ReferenceBasedDetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -33,28 +27,31 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   PaymentTypes.IETHPaymentEventParameters
 > {
   private explorerApiKeys: Record<string, string>;
+  private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];
 
   /**
    * @param extension The advanced logic payment network extensions
    */
   public constructor({
     advancedLogic,
+    currencyManager,
     explorerApiKeys,
-  }: {
-    advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
-    explorerApiKeys?: Record<string, string>;
-  }) {
+    getSubgraphClient,
+  }: ReferenceBasedDetectorOptions &
+    Pick<PaymentNetworkOptions, 'explorerApiKeys' | 'getSubgraphClient'>) {
     super(
       PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
+      currencyManager,
     );
     this.explorerApiKeys = explorerApiKeys || {};
+    this.getSubgraphClient = getSubgraphClient;
   }
 
   /**
    * Extracts payment events of an address matching an address and a payment reference
    *
-   * @param address Address to check
+   * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
@@ -63,7 +60,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
    */
   protected async extractEvents(
     eventName: PaymentTypes.EVENTS_NAMES,
-    address: string | undefined,
+    toAddress: string | undefined,
     paymentReference: string,
     _requestCurrency: RequestLogicTypes.ICurrency,
     paymentChain: string,
@@ -73,13 +70,13 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
       PaymentTypes.IETHPaymentEventParameters | PaymentTypes.IETHFeePaymentEventParameters
     >
   > {
-    if (!address) {
+    if (!toAddress) {
       return {
         paymentEvents: [],
       };
     }
     const infoRetriever = new EthInputDataInfoRetriever(
-      address,
+      toAddress,
       eventName,
       paymentChain,
       paymentReference,
@@ -95,22 +92,22 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
     >;
     let escrowEvents: PaymentTypes.EscrowNetworkEvent[] | undefined = [];
     if (proxyContractArtifact) {
-      if (networkSupportsTheGraph(paymentChain)) {
-        const graphInfoRetriever = new TheGraphInfoRetriever(
+      const subgraphClient = this.getSubgraphClient(paymentChain);
+      if (subgraphClient) {
+        const graphInfoRetriever = new TheGraphInfoRetriever(subgraphClient, this.currencyManager);
+        allEvents = await graphInfoRetriever.getTransferEvents({
           paymentReference,
-          proxyContractArtifact.address,
-          null,
-          address,
+          contractAddress: proxyContractArtifact.address,
+          toAddress,
           eventName,
           paymentChain,
-        );
-        allEvents = await graphInfoRetriever.getTransferEvents();
+        });
       } else {
         const ethInfoRetriever = new EthProxyInfoRetriever(
           paymentReference,
           proxyContractArtifact.address,
           proxyContractArtifact.creationBlockNumber,
-          address,
+          toAddress,
           eventName,
           paymentChain,
         );
