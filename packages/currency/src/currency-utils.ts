@@ -39,6 +39,7 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
     case 'aurora':
       return !!address.match(/\.near$/);
     case 'aurora-testnet':
+    case 'near-testnet':
       return !!address.match(/\.testnet$/);
     default:
       throw new Error(`Cannot validate NEAR address for network ${network}`);
