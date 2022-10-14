@@ -46,6 +46,7 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
       case 'aurora':
         return 'https://explorer.mainnet.near.org';
       case 'aurora-testnet':
+      case 'near-testnet':
         return 'https://explorer.testnet.near.org';
       case 'arbitrum-rinkeby':
         return 'https://testnet.arbiscan.io/';
