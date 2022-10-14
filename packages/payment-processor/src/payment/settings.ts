@@ -7,7 +7,7 @@ import { ITransactionOverrides } from './transaction-overrides';
  * Approval settings
  */
 export interface IApprovalSettings {
-  /** The specifiec amount to approve. Defaults to maximum when left empty */
+  /** The specific amount to approve. Defaults to maximum when left empty */
   amount: BigNumber;
 }
 
