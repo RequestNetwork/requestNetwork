@@ -20,7 +20,7 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
    * @returns {boolean} true if address is valid
    */
   protected isValidAddress(address: string): boolean {
-    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', NETWORK);
+    return this.isValidAddressForSymbolAndNetwork(address, 'NEAR', 'aurora');
   }
 
   /**
