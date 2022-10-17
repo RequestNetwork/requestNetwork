@@ -4,7 +4,7 @@ import { UnsupportedNetworkError } from './address-based';
 import AnyToNativeTokenPaymentNetwork from './any-to-native';
 
 const CURRENT_VERSION = '0.1.0';
-const supportedNetworks = ['aurora', 'aurora-testnet'];
+const supportedNetworks = ['aurora', 'aurora-testnet', 'near-testnet'];
 
 export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetwork {
   public constructor(
@@ -26,6 +26,7 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
       case 'aurora':
         return this.isValidMainnetAddress(address);
       case 'aurora-testnet':
+      case 'near-testnet':
         return this.isValidTestnetAddress(address);
       case undefined:
         return this.isValidMainnetAddress(address) || this.isValidTestnetAddress(address);

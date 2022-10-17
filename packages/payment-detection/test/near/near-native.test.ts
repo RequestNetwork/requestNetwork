@@ -11,7 +11,7 @@ import { NearNativeTokenPaymentDetector, NearInfoRetriever } from '../../src/nea
 import { deepCopy } from 'ethers/lib/utils';
 
 const mockNearPaymentNetwork = {
-  supportedNetworks: ['aurora', 'aurora-testnet'],
+  supportedNetworks: ['aurora', 'aurora-testnet', 'near-testnet'],
 };
 const currencyManager = CurrencyManager.getDefault();
 
@@ -134,7 +134,7 @@ describe('Near payments detection', () => {
         error: {
           code: 2,
           message:
-            'Payment network unknown-network not supported by pn-native-token payment detection. Supported networks: aurora, aurora-testnet',
+            'Payment network unknown-network not supported by pn-native-token payment detection. Supported networks: aurora, aurora-testnet, near-testnet',
         },
         events: [],
       });

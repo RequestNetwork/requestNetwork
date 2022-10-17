@@ -21,10 +21,15 @@ describe('extensions/payment-network/native-token', () => {
     value: 'NEAR',
     network: 'aurora',
   };
-  const nearTestnetCurrency = {
+  const auroraTestnetCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR-testnet',
     network: 'aurora-testnet',
+  };
+  const nearTestnetCurrency = {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'tNEAR',
+    network: 'near-testnet',
   };
   const nativeTokenTestCases = [
     {
@@ -34,12 +39,21 @@ describe('extensions/payment-network/native-token', () => {
       suffix: 'near',
       wrongSuffix: 'testnet',
       currency: nearCurrency,
-      wrongCurrency: nearTestnetCurrency,
+      wrongCurrency: auroraTestnetCurrency,
+    },
+    {
+      name: 'Aurora testnet',
+      paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
+      networkName: 'aurora-testnet',
+      suffix: 'testnet',
+      wrongSuffix: 'near',
+      currency: auroraTestnetCurrency,
+      wrongCurrency: nearCurrency,
     },
     {
       name: 'Near testnet',
       paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
-      networkName: 'aurora-testnet',
+      networkName: 'near-testnet',
       suffix: 'testnet',
       wrongSuffix: 'near',
       currency: nearTestnetCurrency,
@@ -136,7 +150,7 @@ describe('extensions/payment-network/native-token', () => {
           paymentNetworkName: 'another-chain',
         });
       }).toThrowError(
-        `Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet)`,
+        `Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet, near-testnet)`,
       );
     });
     it('createCreationAction() throws without payment network', () => {

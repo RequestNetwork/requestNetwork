@@ -3,7 +3,7 @@ import { UnsupportedNetworkError } from './address-based';
 import NativeTokenPaymentNetwork from './native-token';
 
 const CURRENT_VERSION = '0.2.0';
-const supportedNetworks = ['aurora', 'aurora-testnet'];
+const supportedNetworks = ['aurora', 'aurora-testnet', 'near-testnet'];
 
 /**
  * Implementation of the payment network to pay in Near based on input data.
@@ -27,6 +27,7 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
       case 'aurora':
         return this.isValidMainnetAddress(address);
       case 'aurora-testnet':
+      case 'near-testnet':
         return this.isValidTestnetAddress(address);
       case undefined:
         return this.isValidMainnetAddress(address) || this.isValidTestnetAddress(address);
