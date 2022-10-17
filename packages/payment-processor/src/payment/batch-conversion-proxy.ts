@@ -34,7 +34,7 @@ const currencyManager = CurrencyManager.getDefault();
 
 /**
  * Processes a transaction to pay a batch of requests with an ERC20 currency
- * that is different from the request currency (eg. fiat)
+ * that can be different from the request currency (eg. fiat)
  * The payment is made through ERC20 or ERC20Conversion proxies
  * It can be used with a Multisig contract
  * @param enrichedRequests List of EnrichedRequests to pay
@@ -102,13 +102,14 @@ export function encodePayBatchConversionRequest(
 ): string {
   const { feeAddress } = getRequestPaymentValues(enrichedRequests[0].request);
 
-  const firstNetwork = getPnAndNetwork(enrichedRequests[0].request)[1];
+  const network = getPnAndNetwork(enrichedRequests[0].request)[1];
   let firstConversionRequestExtension: IState<any> | undefined;
   let firstNoConversionRequestExtension: IState<any> | undefined;
-  const requestDetailsERC20NoConversion: PaymentTypes.RequestDetail[] = [];
-  const requestDetailsERC20Conversion: PaymentTypes.RequestDetail[] = [];
 
-  // fill requestDetailsERC20Conversion and requestDetailsERC20NoConversion lists
+  const ERC20NoConversionRequestDetails: PaymentTypes.RequestDetail[] = [];
+  const ERC20ConversionRequestDetails: PaymentTypes.RequestDetail[] = [];
+
+  // fill ERC20ConversionRequestDetails and ERC20NoConversionRequestDetails lists
   for (const enrichedRequest of enrichedRequests) {
     if (
       enrichedRequest.paymentNetworkId ===
@@ -126,7 +127,7 @@ export function encodePayBatchConversionRequest(
       ) {
         throw new Error(`wrong request currencyInfo type`);
       }
-      requestDetailsERC20Conversion.push(getInputRequestDetailERC20Conversion(enrichedRequest));
+      ERC20ConversionRequestDetails.push(getInputERC20ConversionRequestDetail(enrichedRequest));
     } else if (
       enrichedRequest.paymentNetworkId === BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
     ) {
@@ -135,42 +136,44 @@ export function encodePayBatchConversionRequest(
 
       // isERC20Currency is checked within getBatchArgs function
       comparePnTypeAndVersion(firstNoConversionRequestExtension, enrichedRequest.request);
-      requestDetailsERC20NoConversion.push(
-        getInputRequestDetailERC20NoConversion(enrichedRequest.request),
+      if (!isERC20Currency(enrichedRequest.request.currencyInfo as unknown as CurrencyInput)) {
+        throw new Error(`wrong request currencyInfo type`);
+      }
+      ERC20NoConversionRequestDetails.push(
+        getInputERC20NoConversionRequestDetail(enrichedRequest.request),
       );
     }
-    if (firstNetwork !== getPnAndNetwork(enrichedRequest.request)[1])
+    if (network !== getPnAndNetwork(enrichedRequest.request)[1])
       throw new Error('All the requests must have the same network');
   }
 
   const metaDetails: PaymentTypes.MetaDetail[] = [];
-  // Add requestDetailsERC20Conversion to metaDetails
-  if (requestDetailsERC20Conversion.length > 0) {
+  if (ERC20ConversionRequestDetails.length > 0) {
+    // Add ERC20 conversion payments
     metaDetails.push({
       paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-      requestDetails: requestDetailsERC20Conversion,
+      requestDetails: ERC20ConversionRequestDetails,
     });
   }
 
-  // Add cryptoDetails to metaDetails
-  if (requestDetailsERC20NoConversion.length > 0) {
-    // add ERC20 no-conversion payments
+  if (ERC20NoConversionRequestDetails.length > 0) {
+    // Add multi ERC20 no-conversion payments
     metaDetails.push({
       paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
-      requestDetails: requestDetailsERC20NoConversion,
+      requestDetails: ERC20NoConversionRequestDetails,
     });
   }
 
   const pathsToUSD = getPathsToUSD(
-    [...requestDetailsERC20Conversion, ...requestDetailsERC20NoConversion],
-    firstNetwork,
+    [...ERC20ConversionRequestDetails, ...ERC20NoConversionRequestDetails],
+    network,
     skipFeeUSDLimit,
   );
 
   const proxyContract = BatchConversionPayments__factory.createInterface();
   return proxyContract.encodeFunctionData('batchPayments', [
     metaDetails,
-    skipFeeUSDLimit ? [] : pathsToUSD,
+    pathsToUSD,
     feeAddress || constants.AddressZero,
   ]);
 }
@@ -179,7 +182,7 @@ export function encodePayBatchConversionRequest(
  * Get the ERC20 no conversion input requestDetail from a request, that can be used by the batch contract.
  * @param request The request to pay.
  */
-function getInputRequestDetailERC20NoConversion(
+function getInputERC20NoConversionRequestDetail(
   request: ClientTypes.IRequestData,
 ): PaymentTypes.RequestDetail {
   validateErc20FeeProxyRequest(request);
@@ -202,7 +205,7 @@ function getInputRequestDetailERC20NoConversion(
  * Get the ERC20 conversion input requestDetail from an enriched request, that can be used by the batch contract.
  * @param enrichedRequest The enrichedRequest to pay.
  */
-function getInputRequestDetailERC20Conversion(
+function getInputERC20ConversionRequestDetail(
   enrichedRequest: EnrichedRequest,
 ): PaymentTypes.RequestDetail {
   const paymentSettings = enrichedRequest.paymentSettings;
@@ -247,18 +250,19 @@ function getPathsToUSD(
   network: string,
   skipFeeUSDLimit: boolean,
 ): string[][] {
-  const pathsToUSD: Array<string>[] = [];
+  const pathsToUSD: Array<Array<string>> = [];
   if (!skipFeeUSDLimit) {
     const USDCurrency = currencyManager.fromSymbol('USD');
+
     // token's addresses paid with the batch
     const tokenAddresses: Array<string> = [];
     for (const requestDetail of requestDetails) {
       const tokenAddress = requestDetail.path[requestDetail.path.length - 1];
-      // Check token to only unique paths token to USD.
-      if (!tokenAddresses.includes(tokenAddress)) {
+      // Create a list of unique paths: token to USD.
+      if (USDCurrency && !tokenAddresses.includes(tokenAddress)) {
         tokenAddresses.push(tokenAddress);
-        const tokenCurrency = currencyManager.fromAddress(tokenAddress);
-        const pathToUSD = currencyManager.getConversionPath(tokenCurrency!, USDCurrency!, network);
+        const tokenCurrency = currencyManager.fromAddress(tokenAddress, network);
+        const pathToUSD = currencyManager.getConversionPath(tokenCurrency!, USDCurrency, network);
         if (pathToUSD) {
           pathsToUSD.push(pathToUSD);
         }

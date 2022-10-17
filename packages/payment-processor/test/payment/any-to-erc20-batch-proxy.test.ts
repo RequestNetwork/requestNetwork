@@ -11,7 +11,7 @@ import { getErc20Balance } from '../../src/payment/erc20';
 import Utils from '@requestnetwork/utils';
 import { revokeErc20Approval } from '@requestnetwork/payment-processor/src/payment/utils';
 import { EnrichedRequest, IConversionPaymentSettings } from '../../src/index';
-import { currencyManager } from './shared';
+// import { currencyManager } from './shared';
 import {
   approveErc20BatchConversionIfNeeded,
   getBatchConversionProxyAddress,
@@ -19,8 +19,19 @@ import {
   prepareBatchConversionPaymentTransaction,
 } from '../../src/payment/batch-conversion-proxy';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
-import { UnsupportedCurrencyError } from '@requestnetwork/currency';
+import { CurrencyManager, UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { BATCH_PAYMENT_NETWORK_ID } from '@requestnetwork/types/dist/payment-types';
+
+const currencyManager = new CurrencyManager([
+  ...CurrencyManager.getDefaultList(),
+  {
+    address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa35',
+    decimals: 18,
+    network: 'private',
+    symbol: 'DAI',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+  },
+]);
 
 /* eslint-disable no-magic-numbers */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -52,7 +63,7 @@ const alphaPaymentSettings: IConversionPaymentSettings = {
 
 // requests setting
 
-const EURExpectedAmount = 100;
+const EURExpectedAmount = 55000; // 55 000 €
 const EURFeeAmount = 2;
 // amounts used for DAI and FAU requests
 const expectedAmount = 100000;
@@ -182,6 +193,19 @@ describe('erc20-batch-conversion-proxy', () => {
       FAUTokenAddress,
       wallet,
     );
+
+    // Approve the contract to spent DAI with a conversion request
+    const approvalTx = await approveErc20BatchConversionIfNeeded(
+      EURValidRequest,
+      wallet.address,
+      batchConvVersion,
+      wallet.provider,
+      alphaPaymentSettings,
+    );
+    expect(approvalTx).toBeDefined();
+    if (approvalTx) {
+      await approvalTx.wait(1);
+    }
   });
 
   describe(`Conversion:`, () => {
@@ -341,78 +365,70 @@ describe('erc20-batch-conversion-proxy', () => {
           { gasPrice: '20000000000' },
         );
         expect(spy).toHaveBeenCalledWith({
-          data: '0x92cddb91000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000005f5e10000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000001e84800000000000000000000000000000000000000000204fce5e3e250261100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000000000000000017b4158805772ced11225e77339f90beb5aae968000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b00000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa35000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+          data: '0x92cddb91000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000002c0000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b7320000000000000000000000000000000000000000000000000000000cce41660000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000001e84800000000000000000000000000000000000000000204fce5e3e250261100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000300000000000000000000000017b4158805772ced11225e77339f90beb5aae968000000000000000000000000775eb53d00dd0acd3ec1696472105d579b9b386b00000000000000000000000038cf23c52bb4b13f051aec09580a2de845a7fa35000000000000000000000000000000000000000000000000000000000000000886dfbccad783599a0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
           gasPrice: '20000000000',
           to: getBatchConversionProxyAddress(EURValidRequest, '0.1.0'),
           value: 0,
         });
         wallet.sendTransaction = originalSendTransaction;
       });
-      it('should convert and pay a request in EUR with ERC20', async () => {
-        // Approve the contract
-        const approvalTx = await approveErc20BatchConversionIfNeeded(
-          EURValidRequest,
-          wallet.address,
-          batchConvVersion,
-          wallet.provider,
-          alphaPaymentSettings,
-        );
-        expect(approvalTx).toBeDefined();
-        if (approvalTx) {
-          await approvalTx.wait(1);
-        }
+      for (const skipFeeUSDLimit in ['true', 'false']) {
+        it(`should convert and pay a request in EUR with ERC20, ${
+          skipFeeUSDLimit === 'true' ? 'skipFeeUSDLimit' : 'no skipFeeUSDLimit'
+        } `, async () => {
+          // Get the balances to compare after payment
+          const initialETHFromBalance = await wallet.getBalance();
+          const initialDAIFromBalance = await getErc20Balance(
+            DAIValidRequest,
+            wallet.address,
+            provider,
+          );
 
-        // Get the balances to compare after payment
-        const initialETHFromBalance = await wallet.getBalance();
-        const initialDAIFromBalance = await getErc20Balance(
-          DAIValidRequest,
-          wallet.address,
-          provider,
-        );
+          // Convert and pay
+          const tx = await payBatchConversionProxyRequest(
+            [
+              {
+                paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
+                request: EURValidRequest,
+                paymentSettings: alphaPaymentSettings,
+              },
+            ],
+            batchConvVersion,
+            wallet,
+            skipFeeUSDLimit === 'true',
+          );
+          const confirmedTx = await tx.wait(1);
+          expect(confirmedTx.status).toEqual(1);
+          expect(tx.hash).toBeDefined();
 
-        // Convert and pay
-        const tx = await payBatchConversionProxyRequest(
-          [
-            {
-              paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
-              request: EURValidRequest,
-              paymentSettings: alphaPaymentSettings,
-            },
-          ],
-          batchConvVersion,
-          wallet,
-          true,
-        );
-        const confirmedTx = await tx.wait(1);
-        expect(confirmedTx.status).toEqual(1);
-        expect(tx.hash).toBeDefined();
+          // Get the new balances
+          const ETHFromBalance = await wallet.getBalance();
+          const DAIFromBalance = await getErc20Balance(DAIValidRequest, wallet.address, provider);
 
-        // Get the new balances
-        const ETHFromBalance = await wallet.getBalance();
-        const DAIFromBalance = await getErc20Balance(DAIValidRequest, wallet.address, provider);
-
-        // Check each balance
-        const amountToPay = expectedConversionAmount(EURExpectedAmount);
-        const feeToPay = expectedConversionAmount(EURFeeAmount);
-        const expectedAmountToPay = amountToPay
-          .add(feeToPay)
-          .mul(BATCH_DENOMINATOR + BATCH_CONV_FEE)
-          .div(BATCH_DENOMINATOR);
-        expect(
-          BigNumber.from(initialETHFromBalance).sub(ETHFromBalance).toNumber(),
-        ).toBeGreaterThan(0);
-        expect(
-          BigNumber.from(initialDAIFromBalance).sub(BigNumber.from(DAIFromBalance)),
-          // Calculation of expectedAmountToPay
-          //   expectedAmount:      1.00
-          //   feeAmount:        +   .02
-          //                     =  1.02
-          //   AggEurUsd.sol     x  1.20
-          //   AggDaiUsd.sol     /  1.01
-          //   BATCH_CONV_FEE      x  1.003
-          //   (exact result)    =  1.215516831683168316 (over 18 decimals for this ERC20)
-        ).toEqual(expectedAmountToPay);
-      });
+          // Check each balance
+          const amountToPay = expectedConversionAmount(EURExpectedAmount);
+          const feeToPay = expectedConversionAmount(EURFeeAmount);
+          const totalFeeToPay =
+            skipFeeUSDLimit === 'true'
+              ? amountToPay.add(feeToPay).mul(BATCH_CONV_FEE).div(BATCH_DENOMINATOR)
+              : BigNumber.from('1984229702970297029'); // eq to 150$ batch fee (USD limit) + 2$
+          const expectedAmountToPay = amountToPay.add(totalFeeToPay);
+          expect(
+            BigNumber.from(initialETHFromBalance).sub(ETHFromBalance).toNumber(),
+          ).toBeGreaterThan(0);
+          expect(
+            BigNumber.from(initialDAIFromBalance).sub(BigNumber.from(DAIFromBalance)),
+            // Calculation of expectedAmountToPay
+            //   expectedAmount:      1.00
+            //   feeAmount:        +   .02
+            //                     =  1.02
+            //   AggEurUsd.sol     x  1.20
+            //   AggDaiUsd.sol     /  1.01
+            //   BATCH_CONV_FEE      x  1.003
+            //   (exact result)    =  1.215516831683168316 (over 18 decimals for this ERC20)
+          ).toEqual(expectedAmountToPay);
+        });
+      }
       it('should convert and pay two requests in EUR with ERC20', async () => {
         // Get initial balances
         const initialETHFromBalance = await wallet.getBalance();
@@ -542,9 +558,7 @@ describe('erc20-batch-conversion-proxy', () => {
         FAURequest.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
         await expect(
           payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
-        ).rejects.toThrowError(
-          'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
-        );
+        ).rejects.toThrowError('wrong request currencyInfo type');
       });
 
       it("should throw an error if one request's currencyInfo has no value", async () => {
