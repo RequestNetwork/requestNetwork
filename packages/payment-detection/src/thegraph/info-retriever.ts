@@ -50,12 +50,14 @@ export class TheGraphInfoRetriever {
 
   private filterPaymentEvents(payment: PaymentEventResultFragment, params: TransferEventsParams) {
     // Check contract address matches expected
-    if (formatAddress(payment.contractAddress) !== params.contractAddress) {
+    if (formatAddress(payment.contractAddress) !== formatAddress(params.contractAddress)) {
       return false;
     }
     // Check paid token tokens matches expected (conversion only)
     if (
       payment.tokenAddress &&
+      params.acceptedTokens &&
+      params.acceptedTokens.length > 0 &&
       !params.acceptedTokens?.includes(formatAddress(payment.tokenAddress, 'tokenAddress'))
     ) {
       return false;
