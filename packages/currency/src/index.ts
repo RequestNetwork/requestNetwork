@@ -1,9 +1,10 @@
 export { getSupportedERC20Tokens } from './erc20';
 export { getSupportedERC777Tokens } from './erc777';
 export {
-  chainlinkSupportedNetworks as conversionSupportedNetworks,
+  conversionSupportedNetworks,
   CurrencyPairs,
-} from './chainlink-path-aggregators';
+  AggregatorsMap,
+} from './conversion-aggregators';
 export { getHash as getCurrencyHash } from './getHash';
 export { CurrencyManager } from './currencyManager';
 export * from './types';

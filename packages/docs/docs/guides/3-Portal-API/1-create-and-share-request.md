@@ -64,7 +64,7 @@ function CreateDAIRequest() {
     // Once the query returns, we know the request ID
     // The payment page can only query and show the request once it is broadcasted over Ethereum.
     if (result.data.requestId) {
-      setPaymentLink(`https://pay.request.network/${result.data.requestId}`);
+      setPaymentLink(`https://app.request.finance/${result.data.requestId}`);
     } else {
       console.warn('Something went wrong, could not create the request or retrieve requestId.');
     }
@@ -94,7 +94,7 @@ The payment page throws a "Your request was not found" error, because the Portal
 
 Once a user has created a request, you need to support him alerting the payer.
 
-The first way is to let the user share a payment URL with the payer. From a UX point of view, it forces him to switch context, but mobile apps often propose this solution. Keep in mind that for the recipient, it looks more secure to click on a link directly sent by a known contact. The best payment page so far is the one we have made, check it out! You can find the link in front of each request on your dashboard. The URL is `https://pay.request.network/{requestId}`
+The first way is to let the user share a payment URL with the payer. From a UX point of view, it forces him to switch context, but mobile apps often propose this solution. Keep in mind that for the recipient, it looks more secure to click on a link directly sent by a known contact. The best payment page so far is the one we have made, check it out! You can find the link in front of each request on your dashboard. The URL is `https://app.request.finance/{requestId}`
 
 Another way is to handle the notification in your backend, either within your app (if the payer also uses it) or with an e-mail for example. For app-embedded payment requests, it is **strongly advised** to provide the payer with a white-list feature, and to prevent him from clicking on requests sent by strangers.
 

@@ -1,5 +1,5 @@
 import { PaymentTypes } from '@requestnetwork/types';
-import { getTheGraphNearClient, TheGraphClient } from '.';
+import { getTheGraphNearClient, TheGraphClient } from '../../thegraph';
 
 // FIXME#1: when Near subgraphes can retrieve a txHash, replace the custom IPaymentNetworkEvent with PaymentTypes.ETHPaymentNetworkEvent
 interface NearSubGraphPaymentEvent extends PaymentTypes.IETHPaymentEventParameters {
@@ -10,34 +10,29 @@ interface NearSubGraphPaymentEvent extends PaymentTypes.IETHPaymentEventParamete
  * Gets a list of transfer events for a set of Near payment details
  */
 export class NearInfoRetriever {
-  private client: TheGraphClient<'near'>;
+  protected client: TheGraphClient<'near'>;
   /**
    * @param paymentReference The reference to identify the payment
    * @param toAddress Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The id of network we want to check
+   *
    */
   constructor(
-    private paymentReference: string,
-    private toAddress: string,
-    private proxyContractName: string,
-    private eventName: PaymentTypes.EVENTS_NAMES,
-    private network: string,
+    protected paymentReference: string,
+    protected toAddress: string,
+    protected proxyContractName: string,
+    protected eventName: PaymentTypes.EVENTS_NAMES,
+    network: string,
   ) {
-    if (this.network !== 'aurora' && this.network !== 'aurora-testnet') {
+    if (network !== 'aurora' && network !== 'aurora-testnet' && network !== 'near-testnet') {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
-    if (this.network !== 'aurora') {
-      // FIXME: remove this check and implement testnet detection once aurora-testnet subgraphes are available
-      throw new Error('FIXME: getTransactionsFromNearSubGraph() only implemented for Near mainnet');
-    }
-    this.network = this.network.replace('aurora', 'near');
-    if (this.proxyContractName !== 'requestnetwork.near') {
-      throw new Error(
-        `Proxy contract "${proxyContractName}" not supported by Near subgraph retriever`,
-      );
-    }
-    this.client = getTheGraphNearClient(this.network as 'near' | 'near-testnet');
+
+    network = network.replace('aurora', 'near');
+    this.client = getTheGraphNearClient(
+      `https://api.thegraph.com/subgraphs/name/requestnetwork/request-payments-${network}`,
+    );
   }
 
   public async getTransferEvents(): Promise<
@@ -46,6 +41,7 @@ export class NearInfoRetriever {
     const payments = await this.client.GetNearPayments({
       reference: this.paymentReference,
       to: this.toAddress,
+      contractAddress: this.proxyContractName,
     });
     return payments.payments.map((p) => ({
       amount: p.amount,

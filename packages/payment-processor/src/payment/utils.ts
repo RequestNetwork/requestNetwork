@@ -11,6 +11,9 @@ import { getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
+/** @constant MAX_ALLOWANCE set to the max uint256 value */
+export const MAX_ALLOWANCE = BigNumber.from(2).pow(256).sub(1);
+
 /**
  * Thrown when the library does not support a payment blockchain network.
  */
@@ -206,13 +209,16 @@ export function validateRequest(
 
   // Compatibility of the request currency type with the payment network
   const expectedCurrencyType = currenciesMap[paymentNetworkId];
-  const validCurrencyType =
-    paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
-      ? // Any currency type is valid with Any to ERC20 conversion
-        true
-      : expectedCurrencyType &&
-        request.currencyInfo.type === expectedCurrencyType &&
-        request.currencyInfo.network;
+  const validCurrencyType = [
+    PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+    PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE,
+    PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+  ].includes(paymentNetworkId)
+    ? // Any currency type is valid with Any to ERC20 / ETH / Native conversion
+      true
+    : expectedCurrencyType &&
+      request.currencyInfo.type === expectedCurrencyType &&
+      request.currencyInfo.network;
 
   // ERC20 based payment networks are only valid if the request currency has a value
   const validCurrencyValue =

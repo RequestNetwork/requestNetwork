@@ -45,7 +45,7 @@ try {
 
   if (request.data?.requestId) {
     console.log(request.data);
-    console.log(`https://pay.request.network/${request.data.requestId}`);
+    console.log(`https://app.request.finance/${request.data.requestId}`);
   } else {
     console.log(`Error, something went wrong fetching the requestId.`);
   }

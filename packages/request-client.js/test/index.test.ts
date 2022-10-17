@@ -13,7 +13,7 @@ import Utils from '@requestnetwork/utils';
 import { ethers } from 'ethers';
 
 import AxiosMockAdapter from 'axios-mock-adapter';
-import { Request, RequestNetwork } from '../src/index';
+import { Request, RequestNetwork, RequestNetworkBase } from '../src/index';
 import * as TestData from './data-test';
 import * as TestDataRealBTC from './data-test-real-btc';
 
@@ -27,6 +27,9 @@ import EtherscanProviderMock from './etherscan-mock';
 import httpConfigDefaults from '../src/http-config-defaults';
 import { IRequestDataWithEvents } from '../src/types';
 import { CurrencyManager } from '@requestnetwork/currency';
+import HttpMetaMaskDataAccess from '../src/http-metamask-data-access';
+import MockDataAccess from '../src/mock-data-access';
+import MockStorage from '../src/mock-storage';
 
 const packageJson = require('../package.json');
 
@@ -137,9 +140,10 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({
       httpConfig,
       signatureProvider: TestData.fakeSignatureProvider,
+      paymentOptions: {
+        bitcoinDetectionProvider: mockBTCProvider,
+      },
     });
-
-    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
       id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
@@ -172,9 +176,10 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({
       httpConfig,
       signatureProvider: TestData.fakeSignatureProvider,
+      paymentOptions: {
+        bitcoinDetectionProvider: mockBTCProvider,
+      },
     });
-
-    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
       id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
@@ -205,14 +210,16 @@ describe('index', () => {
       result: { transactions: [] },
     });
 
-    const requestNetwork = new RequestNetwork({
-      httpConfig,
-      ethereumProviderUrl: 'http://localhost:8545',
+    const requestNetwork = new RequestNetworkBase({
+      dataAccess: new HttpMetaMaskDataAccess({
+        httpConfig,
+        ethereumProviderUrl: 'http://localhost:8545',
+      }),
       signatureProvider: TestData.fakeSignatureProvider,
-      useLocalEthereumBroadcast: true,
+      paymentOptions: {
+        bitcoinDetectionProvider: mockBTCProvider,
+      },
     });
-
-    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
       id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
@@ -248,9 +255,10 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({
       httpConfig,
       signatureProvider: TestData.fakeSignatureProvider,
+      paymentOptions: {
+        bitcoinDetectionProvider: mockBTCProvider,
+      },
     });
-
-    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
       id: PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
@@ -480,9 +488,11 @@ describe('index', () => {
   });
 
   it('works with mocked storage', async () => {
-    const requestNetwork = new RequestNetwork({
+    const mockStorage = new MockStorage();
+    const mockDataAccess = new MockDataAccess(mockStorage);
+    const requestNetwork = new RequestNetworkBase({
+      dataAccess: mockDataAccess,
       signatureProvider: TestData.fakeSignatureProvider,
-      useMockStorage: true,
     });
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
@@ -503,13 +513,15 @@ describe('index', () => {
   });
 
   it('works with mocked storage emitting error when append', async () => {
-    const requestNetwork = new RequestNetwork({
+    const mockStorage = new MockStorage();
+    const mockDataAccess = new MockDataAccess(mockStorage);
+    const requestNetwork = new RequestNetworkBase({
       signatureProvider: TestData.fakeSignatureProvider,
-      useMockStorage: true,
+      dataAccess: mockDataAccess,
     });
 
     // ask mock up storage to emit error next append call()
-    requestNetwork._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
+    mockStorage._makeNextAppendFailInsteadOfConfirmed();
 
     const request = await requestNetwork.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
@@ -532,13 +544,15 @@ describe('index', () => {
   });
 
   it('works with mocked storage emitting error when append waitForConfirmation will throw', async () => {
-    const requestNetworkInside = new RequestNetwork({
+    const mockStorage = new MockStorage();
+    const mockDataAccess = new MockDataAccess(mockStorage);
+    const requestNetworkInside = new RequestNetworkBase({
       signatureProvider: TestData.fakeSignatureProvider,
-      useMockStorage: true,
+      dataAccess: mockDataAccess,
     });
 
     // ask mock up storage to emit error next append call()
-    requestNetworkInside._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
+    mockStorage._makeNextAppendFailInsteadOfConfirmed();
 
     const request = await requestNetworkInside.createRequest({
       requestInfo: TestData.parametersWithoutExtensionsData,
@@ -589,9 +603,10 @@ describe('index', () => {
     const requestNetwork = new RequestNetwork({
       signatureProvider: TestData.fakeSignatureProvider,
       useMockStorage: true,
+      paymentOptions: {
+        bitcoinDetectionProvider: mockBTCProvider,
+      },
     });
-
-    requestNetwork.bitcoinDetectionProvider = mockBTCProvider;
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
       id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
@@ -668,9 +683,11 @@ describe('index', () => {
   });
 
   it('works with mocked storage emitting error when append an accept', async () => {
-    const requestNetwork = new RequestNetwork({
+    const mockStorage = new MockStorage();
+    const mockDataAccess = new MockDataAccess(mockStorage);
+    const requestNetwork = new RequestNetworkBase({
       signatureProvider: TestData.fakeSignatureProvider,
-      useMockStorage: true,
+      dataAccess: mockDataAccess,
     });
 
     const request = await requestNetwork.createRequest({
@@ -680,7 +697,7 @@ describe('index', () => {
     await request.waitForConfirmation();
 
     // ask mock up storage to emit error next append call()
-    requestNetwork._mockStorage!._makeNextAppendFailInsteadOfConfirmed();
+    mockStorage._makeNextAppendFailInsteadOfConfirmed();
     await request.accept(TestData.payer.identity);
 
     let data = request.getData();

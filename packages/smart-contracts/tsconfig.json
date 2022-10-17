@@ -2,5 +2,13 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "resolveJsonModule": true
-  }
+  },
+  "include": [
+    "src/",
+    "src/lib/artifacts/**/*.json",
+    "test/",
+    "scripts/",
+    "scripts-create2/",
+    "hardhat.config.ts"
+  ]
 }

@@ -27,13 +27,7 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
   public createCreationAction(
     creationParameters: ExtensionTypes.PnAnyToEth.ICreationParameters,
   ): ExtensionTypes.IAction {
-    const network = creationParameters.network;
-    if (!network) {
-      throw Error('network is required');
-    }
-    if (!conversionSupportedNetworks.includes(network)) {
-      throw Error(`network ${network} not supported`);
-    }
+    this.throwIfInvalidNetwork(creationParameters.network);
     return super.createCreationAction(creationParameters);
   }
 

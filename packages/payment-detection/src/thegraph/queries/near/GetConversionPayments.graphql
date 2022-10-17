@@ -1,33 +1,31 @@
-query GetConversionPayments(
-  $contractAddress: Bytes!
-  $reference: Bytes!
-  $to: Bytes!
+query GetNearConversionPayments(
+  $reference: String!
+  $to: String!
+  $currency: String!
   $maxRateTimespan: Int!
+  $contractAddress: String!
 ) {
   payments(
     where: {
-      contractAddress: $contractAddress
       reference: $reference
       to: $to
+      currency: $currency
       maxRateTimespan_gte: $maxRateTimespan
+      contractAddress: $contractAddress
     }
     orderBy: timestamp
     orderDirection: asc
   ) {
     amount
     block
-    txHash
+    receiptId
     feeAmount
     feeAddress
     from
     timestamp
-    tokenAddress
-
     currency
+    maxRateTimespan
     amountInCrypto
     feeAmountInCrypto
-    maxRateTimespan
-    gasUsed
-    gasPrice
   }
 }

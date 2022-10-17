@@ -5,14 +5,13 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import PaymentNetworkFactory from '../src/payment-network-factory';
-import PaymentReferenceCalculator from '../src/payment-reference-calculator';
-import { NearNativeTokenPaymentDetector } from '../src/near-detector';
-import { NearInfoRetriever } from '../src/near-info-retriever';
+import { PaymentNetworkFactory } from '../../src/payment-network-factory';
+import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
+import { NearNativeTokenPaymentDetector, NearInfoRetriever } from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
 
 const mockNearPaymentNetwork = {
-  supportedNetworks: ['aurora', 'aurora-testnet'],
+  supportedNetworks: ['aurora', 'aurora-testnet', 'near-testnet'],
 };
 const currencyManager = CurrencyManager.getDefault();
 
@@ -44,6 +43,8 @@ const request: any = {
   },
 };
 
+const paymentNetworkFactory = new PaymentNetworkFactory(mockAdvancedLogic, currencyManager);
+
 describe('Near payments detection', () => {
   it('NearInfoRetriever can retrieve a NEAR payment', async () => {
     const paymentReference = PaymentReferenceCalculator.calculate(
@@ -70,21 +71,16 @@ describe('Near payments detection', () => {
   });
 
   it('PaymentNetworkFactory can get the detector (testnet)', async () => {
-    expect(
-      PaymentNetworkFactory.getPaymentNetworkFromRequest({
-        advancedLogic: mockAdvancedLogic,
-        request,
-        currencyManager,
-      }),
-    ).toBeInstanceOf(NearNativeTokenPaymentDetector);
+    expect(paymentNetworkFactory.getPaymentNetworkFromRequest(request)).toBeInstanceOf(
+      NearNativeTokenPaymentDetector,
+    );
   });
 
   it('PaymentNetworkFactory can get the detector (mainnet)', async () => {
     expect(
-      PaymentNetworkFactory.getPaymentNetworkFromRequest({
-        advancedLogic: mockAdvancedLogic,
-        request: { ...request, currency: { ...request.currency, network: 'aurora' } },
-        currencyManager,
+      paymentNetworkFactory.getPaymentNetworkFromRequest({
+        ...request,
+        currency: { ...request.currency, network: 'aurora' },
       }),
     ).toBeInstanceOf(NearNativeTokenPaymentDetector);
   });
@@ -92,6 +88,7 @@ describe('Near payments detection', () => {
   it('NearNativeTokenPaymentDetector can detect a payment on Near', async () => {
     const paymentDetector = new NearNativeTokenPaymentDetector({
       advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
     });
     const balance = await paymentDetector.getBalance(request);
 
@@ -113,6 +110,7 @@ describe('Near payments detection', () => {
       };
       const paymentDetector = new NearNativeTokenPaymentDetector({
         advancedLogic: mockAdvancedLogic,
+        currencyManager: CurrencyManager.getDefault(),
       });
       expect(await paymentDetector.getBalance(requestWithWrongVersion)).toMatchObject({
         balance: null,
@@ -129,13 +127,14 @@ describe('Near payments detection', () => {
       };
       const paymentDetector = new NearNativeTokenPaymentDetector({
         advancedLogic: mockAdvancedLogic,
+        currencyManager: CurrencyManager.getDefault(),
       });
       expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({
         balance: null,
         error: {
           code: 2,
           message:
-            'Payment network unknown-network not supported by pn-native-token payment detection. Supported networks: aurora, aurora-testnet',
+            'Payment network unknown-network not supported by pn-native-token payment detection. Supported networks: aurora, aurora-testnet, near-testnet',
         },
         events: [],
       });

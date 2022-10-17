@@ -14,6 +14,7 @@ export enum PAYMENT_NETWORK_ID {
   ETH_INPUT_DATA = Extension.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   ETH_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
   NATIVE_TOKEN = Extension.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+  ANY_TO_NATIVE = Extension.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
   DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
   ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
   ANY_TO_ETH_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
@@ -187,10 +188,11 @@ export interface IERC20FeePaymentEventParameters extends IERC20PaymentEventParam
   tokenAddress?: string;
 }
 
+export type ERC20PaymentNetworkEventParameters =
+  | IERC20PaymentEventParameters
+  | IERC20FeePaymentEventParameters;
 /** ERC20 Payment Network Event */
-export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<
-  IERC20PaymentEventParameters | IERC20FeePaymentEventParameters
->;
+export type ERC20PaymentNetworkEvent = IPaymentNetworkEvent<ERC20PaymentNetworkEventParameters>;
 
 /** ERC20 BalanceWithEvents */
 export type ERC20BalanceWithEvents = IBalanceWithEvents<IERC20PaymentEventParameters>;
@@ -216,6 +218,7 @@ export interface IETHPaymentEventParameters {
   block?: number;
   confirmations?: number;
   txHash?: string;
+  to?: string;
 }
 /** Parameters for events of ETH payments with fees */
 export interface IETHFeePaymentEventParameters extends IETHPaymentEventParameters {
@@ -225,14 +228,13 @@ export interface IETHFeePaymentEventParameters extends IETHPaymentEventParameter
   amountInCrypto?: string;
 }
 
+export type ETHPaymentNetworkEventParameters =
+  | IETHPaymentEventParameters
+  | IETHFeePaymentEventParameters;
 /** ETH Payment Network Event */
-export type ETHPaymentNetworkEvent = IPaymentNetworkEvent<
-  IETHPaymentEventParameters | IETHFeePaymentEventParameters
->;
+export type ETHPaymentNetworkEvent = IPaymentNetworkEvent<ETHPaymentNetworkEventParameters>;
 /** ETH BalanceWithEvents */
-export type ETHBalanceWithEvents = IBalanceWithEvents<
-  IETHPaymentEventParameters | IETHFeePaymentEventParameters
->;
+export type ETHBalanceWithEvents = IBalanceWithEvents<ETHPaymentNetworkEventParameters>;
 
 /**
  * Bitcoin provider and events

@@ -1,4 +1,5 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
+import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
 import { BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
@@ -15,18 +16,24 @@ export abstract class ReferenceBasedDetector<
   TExtension,
   TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
 > {
+  protected readonly currencyManager: ICurrencyManager;
   /**
    * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
+   * @param currencyManager The currency manager
    */
-
-  public constructor(paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+  public constructor(
+    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
+    currencyManager: ICurrencyManager,
+  ) {
     super(paymentNetworkId, extension);
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {
       throw new Error(
         `Cannot detect payment for extension type '${paymentNetworkId}', it is not a payment network ID.`,
       );
     }
+    this.currencyManager = currencyManager;
   }
 
   /**

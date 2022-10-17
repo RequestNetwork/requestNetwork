@@ -43,6 +43,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
     erc20FeeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
+      getSubgraphClient: jest.fn(),
     });
   });
 
@@ -264,6 +265,7 @@ describe('api/erc20/escrow-proxy-contract', () => {
     erc20FeeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
       advancedLogic: mockAdvancedLogic,
       currencyManager,
+      getSubgraphClient: jest.fn(),
     });
 
     jest

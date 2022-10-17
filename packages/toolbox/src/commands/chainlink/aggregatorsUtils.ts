@@ -1,4 +1,4 @@
-import { CurrencyManager, CurrencyInput, CurrencyPairs } from '@requestnetwork/currency';
+import { CurrencyManager, CurrencyInput, AggregatorsMap } from '@requestnetwork/currency';
 import axios from 'axios';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
@@ -27,12 +27,13 @@ export type Aggregator = {
 };
 
 const feedMap: Record<string, [chainKey: string, networkName: string]> = {
-  mainnet: ['ethereum-addresses', 'Ethereum Mainnet'],
-  rinkeby: ['ethereum-addresses', 'Rinkeby Testnet'],
-  fantom: ['fantom-price-feeds', 'Fantom Mainnet'],
-  matic: ['matic-addresses', 'Polygon Mainnet'],
-  xdai: ['data-feeds-gnosis-chain', 'Gnosis Chain Mainnet'],
-  bsc: ['bnb-chain-addresses-price', 'BNB Chain Mainnet'],
+  mainnet: ['ethereum', 'Ethereum Mainnet'],
+  goerli: ['ethereum', 'Goerli Testnet'],
+  rinkeby: ['ethereum', 'Rinkeby Testnet'],
+  fantom: ['fantom', 'Fantom Mainnet'],
+  matic: ['polygon', 'Polygon Mainnet'],
+  xdai: ['gnosis-chain', 'Gnosis Chain Mainnet'],
+  bsc: ['bnb-chain', 'BNB Chain Mainnet'],
 };
 
 export const getAvailableAggregators = async (
@@ -92,7 +93,7 @@ const loadCurrencyApi = async <T>(path: string): Promise<T> => {
 };
 
 export const getCurrencyManager = async (list?: string): Promise<CurrencyManager> => {
-  const aggregators = await loadCurrencyApi<Record<string, CurrencyPairs>>('/aggregators');
+  const aggregators = await loadCurrencyApi<AggregatorsMap>('/aggregators');
   const currencyList = list
     ? await loadCurrencyApi<CurrencyInput[]>(`/list/${list}`)
     : CurrencyManager.getDefaultList();

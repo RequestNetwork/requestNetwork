@@ -108,9 +108,9 @@ export function encodeRequestErc20ApprovalWithoutSwap(
 
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT:
-      return prepareApproveErc20(request, provider, overrides);
+      return prepareApproveErc20(request, provider, overrides, options?.approval?.amount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
-      return prepareApproveErc20(request, provider, overrides);
+      return prepareApproveErc20(request, provider, overrides, options?.approval?.amount);
     case ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY: {
       if (
         !options ||
@@ -125,6 +125,7 @@ export function encodeRequestErc20ApprovalWithoutSwap(
         options.conversion.currency.value,
         provider,
         overrides,
+        options?.approval?.amount,
       );
     }
   }
@@ -147,7 +148,13 @@ export function encodeRequestErc20ApprovalWithSwap(
   switch (paymentNetwork) {
     case ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT:
       if (options && options.swap) {
-        return prepareApprovalErc20ForSwapToPay(request, options.swap.path[0], provider, overrides);
+        return prepareApprovalErc20ForSwapToPay(
+          request,
+          options.swap.path[0],
+          provider,
+          overrides,
+          options.approval?.amount,
+        );
       } else {
         throw new Error('No swap options');
       }
@@ -167,6 +174,7 @@ export function encodeRequestErc20ApprovalWithSwap(
           options.swap.path[0],
           provider,
           overrides,
+          options.approval?.amount,
         );
       } else {
         throw new Error('No swap options');

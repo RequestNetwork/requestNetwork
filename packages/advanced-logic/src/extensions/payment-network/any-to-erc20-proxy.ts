@@ -38,14 +38,8 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     if (creationParameters.acceptedTokens.some((address) => !this.isValidAddress(address))) {
       throw Error('acceptedTokens must contains only valid ethereum addresses');
     }
-
     const network = creationParameters.network;
-    if (!network) {
-      throw Error('network is required');
-    }
-    if (!conversionSupportedNetworks.includes(network)) {
-      throw Error(`network ${network} not supported`);
-    }
+    this.throwIfInvalidNetwork(network);
 
     for (const address of creationParameters.acceptedTokens) {
       const acceptedCurrency = this.currencyManager.fromAddress(address, network);

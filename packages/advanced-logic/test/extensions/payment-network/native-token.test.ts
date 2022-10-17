@@ -21,10 +21,15 @@ describe('extensions/payment-network/native-token', () => {
     value: 'NEAR',
     network: 'aurora',
   };
-  const nearTestnetCurrency = {
+  const auroraTestnetCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR-testnet',
     network: 'aurora-testnet',
+  };
+  const nearTestnetCurrency = {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'tNEAR',
+    network: 'near-testnet',
   };
   const nativeTokenTestCases = [
     {
@@ -34,12 +39,21 @@ describe('extensions/payment-network/native-token', () => {
       suffix: 'near',
       wrongSuffix: 'testnet',
       currency: nearCurrency,
-      wrongCurrency: nearTestnetCurrency,
+      wrongCurrency: auroraTestnetCurrency,
+    },
+    {
+      name: 'Aurora testnet',
+      paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
+      networkName: 'aurora-testnet',
+      suffix: 'testnet',
+      wrongSuffix: 'near',
+      currency: auroraTestnetCurrency,
+      wrongCurrency: nearCurrency,
     },
     {
       name: 'Near testnet',
       paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
-      networkName: 'aurora-testnet',
+      networkName: 'near-testnet',
       suffix: 'testnet',
       wrongSuffix: 'near',
       currency: nearTestnetCurrency,
@@ -135,7 +149,9 @@ describe('extensions/payment-network/native-token', () => {
           ...partialCreationParams,
           paymentNetworkName: 'another-chain',
         });
-      }).toThrowError(`Payment network 'another-chain' is not supported by this extension (only`);
+      }).toThrowError(
+        `Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet, near-testnet)`,
+      );
     });
     it('createCreationAction() throws without payment network', () => {
       expect(() => {
@@ -154,32 +170,6 @@ describe('extensions/payment-network/native-token', () => {
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
         currency: mainnetTestCase.currency,
-      };
-
-      const creationAction = {
-        ...actionCreationWithNativeTokenPayment,
-        parameters: {
-          ...actionCreationWithNativeTokenPayment.parameters,
-          paymentNetworkName: mainnetTestCase.currency.network,
-        },
-      };
-
-      const newExtensionState = advancedLogic.applyActionToExtensions(
-        requestState.extensions,
-        creationAction,
-        requestState,
-        payeeRaw.identity,
-        arbitraryTimestamp,
-      );
-
-      expect(newExtensionState).toEqual(extensionStateWithNativeTokenPaymentAndRefund);
-    });
-    it('works on a state with no currency network', () => {
-      const advancedLogic = new AdvancedLogic();
-
-      const requestState: typeof requestStateNoExtensions = {
-        ...requestStateNoExtensions,
-        currency: { ...mainnetTestCase.currency, network: undefined },
       };
 
       const creationAction = {
