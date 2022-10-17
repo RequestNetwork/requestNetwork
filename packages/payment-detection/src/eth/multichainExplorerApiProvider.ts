@@ -33,7 +33,7 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
       case 'fuse':
         return 'https://explorer.fuse.io';
       case 'celo':
-        return 'https://explorer.celo.org/mainnet';
+        return 'https://api.celoscan.io';
       case 'matic':
         return 'https://api.polygonscan.com';
       case 'fantom':
@@ -46,6 +46,7 @@ export class MultichainExplorerApiProvider extends ethers.providers.EtherscanPro
       case 'aurora':
         return 'https://explorer.mainnet.near.org';
       case 'aurora-testnet':
+      case 'near-testnet':
         return 'https://explorer.testnet.near.org';
       case 'arbitrum-rinkeby':
         return 'https://testnet.arbiscan.io/';

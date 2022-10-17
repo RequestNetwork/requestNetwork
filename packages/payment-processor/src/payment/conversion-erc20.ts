@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
+import { ContractTransaction, Signer, BigNumberish, providers, BigNumber } from 'ethers';
 
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { ClientTypes } from '@requestnetwork/types';
@@ -107,9 +107,15 @@ export function prepareApproveErc20ForProxyConversion(
   paymentTokenAddress: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
+  amount?: BigNumber,
 ): IPreparedTransaction {
   const proxyAddress = getProxyAddress(request, AnyToERC20PaymentDetector.getDeploymentInformation);
-  const encodedTx = encodeApproveAnyErc20(paymentTokenAddress, proxyAddress, signerOrProvider);
+  const encodedTx = encodeApproveAnyErc20(
+    paymentTokenAddress,
+    proxyAddress,
+    signerOrProvider,
+    amount,
+  );
   return {
     data: encodedTx,
     to: paymentTokenAddress,

@@ -456,6 +456,7 @@ describe('CurrencyManager', () => {
     const nearAddresses: Record<string, string> = {
       aurora: 'requestnetwork.near',
       'aurora-testnet': 'requestnetwork.testnet',
+      'near-testnet': 'requestnetwork.testnet',
     };
 
     const eip55Addresses: string[] = [
@@ -489,6 +490,13 @@ describe('CurrencyManager', () => {
           network: 'aurora-testnet',
         },
       },
+      near: {
+        tNEAR: {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          symbol: 'tNEAR',
+          network: 'near-testnet',
+        },
+      },
     };
 
     const testValidateAddressForCurrency = (
@@ -520,6 +528,7 @@ describe('CurrencyManager', () => {
                   switch (currency.symbol) {
                     case 'NEAR':
                     case 'NEAR-testnet':
+                    case 'tNEAR':
                       testValidateAddressForCurrency(nearAddresses[currency.network], currency);
                       break;
                     default:

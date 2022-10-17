@@ -25,7 +25,7 @@ export class NearInfoRetriever {
     protected eventName: PaymentTypes.EVENTS_NAMES,
     network: string,
   ) {
-    if (network !== 'aurora' && network !== 'aurora-testnet') {
+    if (network !== 'aurora' && network !== 'aurora-testnet' && network !== 'near-testnet') {
       throw new Error('Near input data info-retriever only works with Near mainnet and testnet');
     }
 
