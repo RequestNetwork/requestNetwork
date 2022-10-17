@@ -48,7 +48,7 @@
     "@requestnetwork/thegraph-data-access": "0.35.0",
     "@requestnetwork/types": "0.35.0",
     "@requestnetwork/utils": "0.35.0",
-    "@truffle/hdwallet-provider": "1.2.3",
+    "@truffle/hdwallet-provider": "2.1.0",
     "chalk": "4.1.0",
     "cors": "2.8.5",
     "dotenv": "8.2.0",
