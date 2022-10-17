@@ -237,6 +237,7 @@ export class CurrencyManager<TMeta = unknown> implements ICurrencyManager<TMeta>
         switch (currency.symbol) {
           case 'NEAR':
           case 'NEAR-testnet':
+          case 'tNEAR':
             return isValidNearAddress(address, currency.network);
           default:
             // we don't pass a third argument to the validate method here
