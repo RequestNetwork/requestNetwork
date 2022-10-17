@@ -425,6 +425,11 @@ describe('api/erc20/fee-proxy-contract', () => {
               txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
               gasUsed: '73152',
               gasPrice: '12709127644',
+              timestamp: 1666002347,
+              amountInCrypto: null,
+              feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+              feeAmountInCrypto: null,
+              maxRateTimespan: null,
             },
           ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
           escrowEvents: [],
@@ -434,8 +439,29 @@ describe('api/erc20/fee-proxy-contract', () => {
       }),
     });
 
-    const { balance, error } = await erc20FeeProxyContract.getBalance(mockRequest);
+    const { balance, error, events } = await erc20FeeProxyContract.getBalance(mockRequest);
     expect(error).toBeUndefined();
     expect(balance).toBe('168040800000000000000000');
+    expect(events).toMatchObject([
+      {
+        amount: '168040800000000000000000',
+        name: 'payment',
+        parameters: {
+          amountInCrypto: undefined,
+          block: 15767215,
+          feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+          feeAmount: '13386000000000000000',
+          feeAmountInCrypto: undefined,
+          from: '0x15339d48Fbe31E349A507FD6d48Eb01c45Fdc79A',
+          gasPrice: '12709127644',
+          gasUsed: '73152',
+          maxRateTimespan: undefined,
+          to: '0x6c9E04997000d6A8a353951231923d776d4Cdff2',
+          tokenAddress: '0x967da4048cD07aB37855c090aAF366e4ce1b9F48',
+          txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+        },
+        timestamp: 1666002347,
+      },
+    ]);
   });
 });
