@@ -108,7 +108,7 @@ export class TheGraphInfoRetriever {
             'feeAmountInCrypto',
             'maxRateTimespan',
           ),
-          (val) => (val ? String(val) : undefined),
+          (val) => (val !== null ? String(val) : undefined),
         ),
         // Make sure the checksum is right for addresses.
         ...mapValues(pick(payment, 'from', 'feeAddress', 'tokenAddress'), (str, key) =>
