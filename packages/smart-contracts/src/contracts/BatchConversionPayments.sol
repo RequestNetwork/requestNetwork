@@ -13,139 +13,138 @@ import './BatchNoConversionPayments.sol';
  *              - Native tokens: (e.g. ETH) using EthConversionProxy and EthereumFeeProxy
  *          - to: multiple addresses
  *          - fees: conversion proxy fees and additional batch conversion fees are paid to the same address.
- *         batchRouter is the main function to batch all kinds of payments at once.
+ *         batchPayments is the main function to batch all kinds of payments at once.
  *         If one transaction of the batch fails, all transactions are reverted.
- * @dev Note that fees have 4 decimals (instead of 3 in a previous version)
- *      batchRouter is the main function, but other batch payment functions are "public" in order to do
+ * @dev batchPayments is the main function, but other batch payment functions are "public" in order to do
  *      gas optimization in some cases.
  */
 contract BatchConversionPayments is BatchNoConversionPayments {
   using SafeERC20 for IERC20;
 
   IERC20ConversionProxy public paymentErc20ConversionProxy;
-  IEthConversionProxy public paymentEthConversionProxy;
+  IEthConversionProxy public paymentNativeConversionProxy;
 
-  uint256 public batchConversionFee;
-
-  /**
-   * @dev All the information of a request, except the feeAddress
-   *   _recipient Recipient address of the payment
-   *   _requestAmount Request amount in fiat
-   *   _path Conversion path
-   *   _paymentReference Unique reference of the payment
-   *   _feeAmount The fee amount denominated in the first currency of `_path`
-   *   _maxToSpend Maximum amount the payer wants to spend, denominated in the last currency of `_path`:
-   *               it includes fee proxy but NOT the batchConversionFee
-   *   _maxRateTimespan Max acceptable times span for conversion rates, ignored if zero
-   */
-  struct ConversionDetail {
-    address recipient;
-    uint256 requestAmount;
-    address[] path;
-    bytes paymentReference;
-    uint256 feeAmount;
-    uint256 maxToSpend;
-    uint256 maxRateTimespan;
-  }
+  /** payerAuthorized is set to true to workaround the non-payable aspect in batch native conversion */
+  bool private payerAuthorized = false;
 
   /**
-   * @dev BatchNoConversionPayments contract input structure.
-   */
-  struct CryptoDetails {
-    address[] tokenAddresses;
-    address[] recipients;
-    uint256[] amounts;
-    bytes[] paymentReferences;
-    uint256[] feeAmounts;
-  }
-
-  /**
-   * @dev Used by the batchRouter to handle information for heterogeneous batches, grouped by payment network.
-   *  - paymentNetworkId: from 0 to 4, cf. `batchRouter()` method.
-   *  - conversionDetails all the data required for conversion requests to be paid, for paymentNetworkId = 0 or 4
-   *  - cryptoDetails all the data required to pay requests without conversion, for paymentNetworkId = 1, 2, or 3
+   * @dev Used by the batchPayments to handle information for heterogeneous batches, grouped by payment network:
+   *  - paymentNetworkId: from 0 to 4, cf. `batchPayments()` method
+   *  - requestDetails all the data required for conversion and no conversion requests to be paid
    */
   struct MetaDetail {
     uint256 paymentNetworkId;
-    ConversionDetail[] conversionDetails;
-    CryptoDetails cryptoDetails;
+    RequestDetail[] requestDetails;
   }
 
   /**
    * @param _paymentErc20Proxy The ERC20 payment proxy address to use.
-   * @param _paymentEthProxy The ETH payment proxy address to use.
+   * @param _paymentNativeProxy The native payment proxy address to use.
    * @param _paymentErc20ConversionProxy The ERC20 Conversion payment proxy address to use.
-   * @param _paymentEthConversionFeeProxy The ETH Conversion payment proxy address to use.
+   * @param _paymentNativeConversionFeeProxy The native Conversion payment proxy address to use.
+   * @param _chainlinkConversionPathAddress The address of the conversion path contract.
    * @param _owner Owner of the contract.
    */
   constructor(
     address _paymentErc20Proxy,
-    address _paymentEthProxy,
+    address _paymentNativeProxy,
     address _paymentErc20ConversionProxy,
-    address _paymentEthConversionFeeProxy,
+    address _paymentNativeConversionFeeProxy,
+    address _chainlinkConversionPathAddress,
     address _owner
-  ) BatchNoConversionPayments(_paymentErc20Proxy, _paymentEthProxy, _owner) {
+  )
+    BatchNoConversionPayments(
+      _paymentErc20Proxy,
+      _paymentNativeProxy,
+      _chainlinkConversionPathAddress,
+      _owner
+    )
+  {
     paymentErc20ConversionProxy = IERC20ConversionProxy(_paymentErc20ConversionProxy);
-    paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionFeeProxy);
-    batchConversionFee = 0;
+    paymentNativeConversionProxy = IEthConversionProxy(_paymentNativeConversionFeeProxy);
+  }
+
+  /**
+   * This contract is non-payable.
+   * Making a Native payment with conversion requires the contract to accept incoming Native tokens.
+   * @dev See the end of `paymentNativeConversionProxy.transferWithReferenceAndFee` where the leftover is given back.
+   */
+  receive() external payable override {
+    require(payerAuthorized || msg.value == 0, 'Non-payable');
   }
 
   /**
    * @notice Batch payments on different payment networks at once.
-   * @param metaDetails contains paymentNetworkId, conversionDetails, and cryptoDetails
+   * @param metaDetails contains paymentNetworkId and requestDetails
    * - batchMultiERC20ConversionPayments, paymentNetworkId=0
    * - batchERC20Payments, paymentNetworkId=1
    * - batchMultiERC20Payments, paymentNetworkId=2
-   * - batchEthPayments, paymentNetworkId=3
-   * - batchEthConversionPayments, paymentNetworkId=4
-   * If metaDetails use paymentNetworkId = 4, it must be at the end of the list, or the transaction can be reverted
-   * @param _feeAddress The address where fees should be paid
-   * @dev batchRouter only reduces gas consumption when using more than a single payment network.
+   * - batchNativePayments, paymentNetworkId=3
+   * - batchNativeConversionPayments, paymentNetworkId=4
+   * If metaDetails use paymentNetworkId = 4, it must be at the end of the list, or the transaction can be reverted.
+   * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
+   *                   For batch native, mock an array of array to apply the limit, e.g: [[]]
+   *                   Without paths, there is not limitation, neither for the batch native functions.
+   * @param feeAddress The address where fees should be paid.
+   * @dev Use pathsToUSD only if you are pretty sure the batch fees will higher than the
+   *      USD limit batchFeeAmountUSDLimit, because it increase gas consumption.
+   *      batchPayments only reduces gas consumption when using more than a single payment network.
    *      For single payment network payments, it is more efficient to use the suited batch function.
    */
-  function batchRouter(MetaDetail[] calldata metaDetails, address _feeAddress) external payable {
+  function batchPayments(
+    MetaDetail[] calldata metaDetails,
+    address[][] calldata pathsToUSD,
+    address feeAddress
+  ) external payable {
     require(metaDetails.length < 6, 'more than 5 metaDetails');
+
+    uint256 batchFeeAmountUSD = 0;
     for (uint256 i = 0; i < metaDetails.length; i++) {
-      MetaDetail calldata metaConversionDetail = metaDetails[i];
-      if (metaConversionDetail.paymentNetworkId == 0) {
-        batchMultiERC20ConversionPayments(metaConversionDetail.conversionDetails, _feeAddress);
-      } else if (metaConversionDetail.paymentNetworkId == 1) {
-        batchERC20Payments(
-          metaConversionDetail.cryptoDetails.tokenAddresses[0],
-          metaConversionDetail.cryptoDetails.recipients,
-          metaConversionDetail.cryptoDetails.amounts,
-          metaConversionDetail.cryptoDetails.paymentReferences,
-          metaConversionDetail.cryptoDetails.feeAmounts,
-          _feeAddress
+      MetaDetail calldata metaDetail = metaDetails[i];
+      if (metaDetail.paymentNetworkId == 0) {
+        batchFeeAmountUSD += _batchMultiERC20ConversionPayments(
+          metaDetail.requestDetails,
+          batchFeeAmountUSD,
+          pathsToUSD,
+          feeAddress
         );
-      } else if (metaConversionDetail.paymentNetworkId == 2) {
-        batchMultiERC20Payments(
-          metaConversionDetail.cryptoDetails.tokenAddresses,
-          metaConversionDetail.cryptoDetails.recipients,
-          metaConversionDetail.cryptoDetails.amounts,
-          metaConversionDetail.cryptoDetails.paymentReferences,
-          metaConversionDetail.cryptoDetails.feeAmounts,
-          _feeAddress
+      } else if (metaDetail.paymentNetworkId == 1) {
+        batchFeeAmountUSD += _batchERC20Payments(
+          metaDetail.requestDetails,
+          pathsToUSD,
+          batchFeeAmountUSD,
+          payable(feeAddress)
         );
-      } else if (metaConversionDetail.paymentNetworkId == 3) {
+      } else if (metaDetail.paymentNetworkId == 2) {
+        batchFeeAmountUSD += _batchMultiERC20Payments(
+          metaDetail.requestDetails,
+          pathsToUSD,
+          batchFeeAmountUSD,
+          feeAddress
+        );
+      } else if (metaDetail.paymentNetworkId == 3) {
         if (metaDetails[metaDetails.length - 1].paymentNetworkId == 4) {
-          // Set to false only if batchEthConversionPayments is called after this function
-          transferBackRemainingEth = false;
+          // Set to false only if batchNativeConversionPayments is called after this function
+          transferBackRemainingNativeTokens = false;
         }
-        batchEthPayments(
-          metaConversionDetail.cryptoDetails.recipients,
-          metaConversionDetail.cryptoDetails.amounts,
-          metaConversionDetail.cryptoDetails.paymentReferences,
-          metaConversionDetail.cryptoDetails.feeAmounts,
-          payable(_feeAddress)
+        batchFeeAmountUSD += _batchNativePayments(
+          metaDetail.requestDetails,
+          pathsToUSD.length == 0,
+          batchFeeAmountUSD,
+          payable(feeAddress)
         );
         if (metaDetails[metaDetails.length - 1].paymentNetworkId == 4) {
-          transferBackRemainingEth = true;
+          transferBackRemainingNativeTokens = true;
         }
-      } else if (metaConversionDetail.paymentNetworkId == 4) {
-        batchEthConversionPayments(metaConversionDetail.conversionDetails, payable(_feeAddress));
+      } else if (metaDetail.paymentNetworkId == 4) {
+        batchFeeAmountUSD += _batchNativeConversionPayments(
+          metaDetail.requestDetails,
+          pathsToUSD.length == 0,
+          batchFeeAmountUSD,
+          payable(feeAddress)
+        );
       } else {
-        revert('wrong paymentNetworkId');
+        revert('Wrong paymentNetworkId');
       }
     }
   }
@@ -153,76 +152,80 @@ contract BatchConversionPayments is BatchNoConversionPayments {
   /**
    * @notice Send a batch of ERC20 payments with amounts based on a request
    * currency (e.g. fiat), with fees and paymentReferences to multiple accounts, with multiple tokens.
-   * @param conversionDetails list of requestInfo, each one containing all the information of a request
-   * @param _feeAddress The fee recipient
+   * @param requestDetails List of ERC20 requests denominated in fiat to pay.
+   * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
+   *                   Without paths, there is not a fee limitation, and it consumes less gas.
+   * @param feeAddress The fee recipient.
    */
   function batchMultiERC20ConversionPayments(
-    ConversionDetail[] calldata conversionDetails,
-    address _feeAddress
-  ) public {
-    // a list of unique tokens, with the sum of maxToSpend by token
-    Token[] memory uTokens = new Token[](conversionDetails.length);
-    for (uint256 i = 0; i < conversionDetails.length; i++) {
-      for (uint256 k = 0; k < conversionDetails.length; k++) {
-        // If the token is already in the existing uTokens list
-        if (
-          uTokens[k].tokenAddress == conversionDetails[i].path[conversionDetails[i].path.length - 1]
-        ) {
-          uTokens[k].amountAndFee += conversionDetails[i].maxToSpend;
-          break;
-        }
-        // If the token is not in the list (amountAndFee = 0)
-        else if (uTokens[k].amountAndFee == 0 && (conversionDetails[i].maxToSpend) > 0) {
-          uTokens[k].tokenAddress = conversionDetails[i].path[conversionDetails[i].path.length - 1];
-          // amountAndFee is used to store _maxToSpend, useful to send enough tokens to this contract
-          uTokens[k].amountAndFee = conversionDetails[i].maxToSpend;
-          break;
-        }
-      }
-    }
+    RequestDetail[] calldata requestDetails,
+    address[][] calldata pathsToUSD,
+    address feeAddress
+  ) public returns (uint256) {
+    return _batchMultiERC20ConversionPayments(requestDetails, 0, pathsToUSD, feeAddress);
+  }
+
+  /**
+   * @notice Send a batch of Native conversion payments with fees and paymentReferences to multiple accounts.
+   *         If one payment fails, the whole batch is reverted.
+   * @param requestDetails List of native requests denominated in fiat to pay.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
+   * @param feeAddress The fee recipient.
+   * @dev It uses NativeConversionProxy (EthereumConversionProxy) to pay an invoice and fees.
+   *      Please:
+   *        Note that if there is not enough Native token attached to the function call,
+   *        the following error is thrown: "revert paymentProxy transferExactEthWithReferenceAndFee failed"
+   */
+  function batchNativeConversionPayments(
+    RequestDetail[] calldata requestDetails,
+    bool skipFeeUSDLimit,
+    address payable feeAddress
+  ) public payable returns (uint256) {
+    return _batchNativeConversionPayments(requestDetails, skipFeeUSDLimit, 0, feeAddress);
+  }
+
+  /**
+   * @notice Send a batch of ERC20 payments with amounts based on a request
+   * currency (e.g. fiat), with fees and paymentReferences to multiple accounts, with multiple tokens.
+   * @param requestDetails List of ERC20 requests denominated in fiat to pay.
+   * @param batchFeeAmountUSD The batch fee amount in USD already paid.
+   * @param pathsToUSD The list of paths into USD for every token, used to limit the batch fees.
+   *                   Without paths, there is not a fee limitation, and it consumes less gas.
+   * @param feeAddress The fee recipient.
+   */
+  function _batchMultiERC20ConversionPayments(
+    RequestDetail[] calldata requestDetails,
+    uint256 batchFeeAmountUSD,
+    address[][] calldata pathsToUSD,
+    address feeAddress
+  ) private returns (uint256) {
+    Token[] memory uTokens = getUTokens(requestDetails);
 
     IERC20 requestedToken;
     // For each token: check allowance, transfer funds on the contract and approve the paymentProxy to spend if needed
     for (uint256 k = 0; k < uTokens.length && uTokens[k].amountAndFee > 0; k++) {
+      uTokens[k].batchFeeAmount = (uTokens[k].amountAndFee * batchFee) / feeDenominator;
       requestedToken = IERC20(uTokens[k].tokenAddress);
-      uTokens[k].batchFeeAmount = (uTokens[k].amountAndFee * batchConversionFee) / tenThousand;
-      // Check proxy's allowance from user, and user's funds to pay approximated amounts.
-      require(
-        requestedToken.allowance(msg.sender, address(this)) >= uTokens[k].amountAndFee,
-        'Insufficient allowance for batch to pay'
+      transferToContract(
+        requestedToken,
+        uTokens[k].amountAndFee,
+        uTokens[k].batchFeeAmount,
+        address(paymentErc20ConversionProxy)
       );
-      require(
-        requestedToken.balanceOf(msg.sender) >= uTokens[k].amountAndFee + uTokens[k].batchFeeAmount,
-        'not enough funds, including fees'
-      );
-
-      // Transfer the amount and fee required for the token on the batch conversion contract
-      require(
-        safeTransferFrom(uTokens[k].tokenAddress, address(this), uTokens[k].amountAndFee),
-        'payment transferFrom() failed'
-      );
-
-      // Batch contract approves Erc20ConversionProxy to spend the token
-      if (
-        requestedToken.allowance(address(this), address(paymentErc20ConversionProxy)) <
-        uTokens[k].amountAndFee
-      ) {
-        approvePaymentProxyToSpend(uTokens[k].tokenAddress, address(paymentErc20ConversionProxy));
-      }
     }
 
     // Batch pays the requests using Erc20ConversionFeeProxy
-    for (uint256 i = 0; i < conversionDetails.length; i++) {
-      ConversionDetail memory rI = conversionDetails[i];
+    for (uint256 i = 0; i < requestDetails.length; i++) {
+      RequestDetail calldata rD = requestDetails[i];
       paymentErc20ConversionProxy.transferFromWithReferenceAndFee(
-        rI.recipient,
-        rI.requestAmount,
-        rI.path,
-        rI.paymentReference,
-        rI.feeAmount,
-        _feeAddress,
-        rI.maxToSpend,
-        rI.maxRateTimespan
+        rD.recipient,
+        rD.requestAmount,
+        rD.path,
+        rD.paymentReference,
+        rD.feeAmount,
+        feeAddress,
+        rD.maxToSpend,
+        rD.maxRateTimespan
       );
     }
 
@@ -237,75 +240,88 @@ contract BatchConversionPayments is BatchNoConversionPayments {
         requestedToken.safeTransfer(msg.sender, excessAmount);
       }
 
+      // Calculate batch fee to pay
+      uint256 batchFeeToPay = ((uTokens[k].amountAndFee - excessAmount) * batchFee) /
+        feeDenominator;
+
+      (batchFeeToPay, batchFeeAmountUSD) = calculateBatchFeeToPay(
+        batchFeeToPay,
+        uTokens[k].tokenAddress,
+        batchFeeAmountUSD,
+        pathsToUSD
+      );
+
       // Payer pays the exact batch fees amount
       require(
-        safeTransferFrom(
-          uTokens[k].tokenAddress,
-          _feeAddress,
-          ((uTokens[k].amountAndFee - excessAmount) * batchConversionFee) / tenThousand
-        ),
-        'batch fee transferFrom() failed'
+        safeTransferFrom(uTokens[k].tokenAddress, feeAddress, batchFeeToPay),
+        'Batch fee transferFrom() failed'
       );
     }
+    return batchFeeAmountUSD;
   }
 
   /**
-   * @notice Send a batch of ETH conversion payments with fees and paymentReferences to multiple accounts.
+   * @notice Send a batch of Native conversion payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch is reverted.
-   * @param conversionDetails List of requestInfos, each one containing all the information of a request.
-   *                     _maxToSpend is not used in this function.
-   * @param _feeAddress The fee recipient.
-   * @dev It uses EthereumConversionProxy to pay an invoice and fees.
+   * @param requestDetails List of native requests denominated in fiat to pay.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
+   * @param batchFeeAmountUSD The batch fee amount in USD already paid.
+   * @param feeAddress The fee recipient.
+   * @dev It uses NativeConversionProxy (EthereumConversionProxy) to pay an invoice and fees.
    *      Please:
-   *        Note that if there is not enough ether attached to the function call,
+   *        Note that if there is not enough Native token attached to the function call,
    *        the following error is thrown: "revert paymentProxy transferExactEthWithReferenceAndFee failed"
-   *        This choice reduces the gas significantly, by delegating the whole conversion to the payment proxy.
    */
-  function batchEthConversionPayments(
-    ConversionDetail[] calldata conversionDetails,
-    address payable _feeAddress
-  ) public payable {
+  function _batchNativeConversionPayments(
+    RequestDetail[] calldata requestDetails,
+    bool skipFeeUSDLimit,
+    uint256 batchFeeAmountUSD,
+    address payable feeAddress
+  ) private returns (uint256) {
     uint256 contractBalance = address(this).balance;
     payerAuthorized = true;
 
-    // Batch contract pays the requests through EthConversionProxy
-    for (uint256 i = 0; i < conversionDetails.length; i++) {
-      paymentEthConversionProxy.transferWithReferenceAndFee{value: address(this).balance}(
-        payable(conversionDetails[i].recipient),
-        conversionDetails[i].requestAmount,
-        conversionDetails[i].path,
-        conversionDetails[i].paymentReference,
-        conversionDetails[i].feeAmount,
-        _feeAddress,
-        conversionDetails[i].maxRateTimespan
+    // Batch contract pays the requests through nativeConversionProxy
+    for (uint256 i = 0; i < requestDetails.length; i++) {
+      RequestDetail calldata rD = requestDetails[i];
+      paymentNativeConversionProxy.transferWithReferenceAndFee{value: address(this).balance}(
+        payable(rD.recipient),
+        rD.requestAmount,
+        rD.path,
+        rD.paymentReference,
+        rD.feeAmount,
+        feeAddress,
+        rD.maxRateTimespan
       );
     }
 
-    // Check that batch contract has enough funds to pay batch conversion fees
-    uint256 amountBatchFees = (((contractBalance - address(this).balance)) * batchConversionFee) /
-      tenThousand;
-    require(address(this).balance >= amountBatchFees, 'not enough funds for batch conversion fees');
-
     // Batch contract pays batch fee
-    _feeAddress.transfer(amountBatchFees);
+    uint256 batchFeeToPay = (((contractBalance - address(this).balance)) * batchFee) /
+      feeDenominator;
 
-    // Batch contract transfers the remaining ethers to the payer
+    if (skipFeeUSDLimit == false) {
+      (batchFeeToPay, batchFeeAmountUSD) = calculateBatchFeeToPay(
+        batchFeeToPay,
+        pathsNativeToUSD[0][0],
+        batchFeeAmountUSD,
+        pathsNativeToUSD
+      );
+    }
+
+    require(address(this).balance >= batchFeeToPay, 'Not enough funds for batch conversion fees');
+    feeAddress.transfer(batchFeeToPay);
+
+    // Batch contract transfers the remaining native tokens to the payer
     (bool sendBackSuccess, ) = payable(msg.sender).call{value: address(this).balance}('');
     require(sendBackSuccess, 'Could not send remaining funds to the payer');
     payerAuthorized = false;
+
+    return batchFeeAmountUSD;
   }
 
   /*
-   * Admin functions to edit the conversion proxies address and fees
+   * Admin functions to edit the conversion proxies address and fees.
    */
-
-  /**
-   * @notice fees added when using Erc20/Eth conversion batch functions
-   * @param _batchConversionFee between 0 and 10000, i.e: batchFee = 50 represent 0.50% of fees
-   */
-  function setBatchConversionFee(uint256 _batchConversionFee) external onlyOwner {
-    batchConversionFee = _batchConversionFee;
-  }
 
   /**
    * @param _paymentErc20ConversionProxy The address of the ERC20 Conversion payment proxy to use.
@@ -316,10 +332,13 @@ contract BatchConversionPayments is BatchNoConversionPayments {
   }
 
   /**
-   * @param _paymentEthConversionProxy The address of the Ethereum Conversion payment proxy to use.
+   * @param _paymentNativeConversionProxy The address of the native Conversion payment proxy to use.
    *        Update cautiously, the proxy has to match the invoice proxy.
    */
-  function setPaymentEthConversionProxy(address _paymentEthConversionProxy) external onlyOwner {
-    paymentEthConversionProxy = IEthConversionProxy(_paymentEthConversionProxy);
+  function setPaymentNativeConversionProxy(address _paymentNativeConversionProxy)
+    external
+    onlyOwner
+  {
+    paymentNativeConversionProxy = IEthConversionProxy(_paymentNativeConversionProxy);
   }
 }

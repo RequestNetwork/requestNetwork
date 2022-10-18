@@ -324,8 +324,9 @@ export type AllNetworkRetrieverEvents<TPaymentNetworkEventType> = {
 };
 
 // Types used by batch conversion smart contract
-/** Input type used by batch conversion proxy to make an ERC20/ETH conversion payment */
-export interface ConversionDetail {
+/** Input type used by batch conversion proxy to make
+ *  an ERC20/ETH conversion or no-conversion payment */
+export interface RequestDetail {
   recipient: string;
   requestAmount: string;
   path: string[];
@@ -333,15 +334,6 @@ export interface ConversionDetail {
   feeAmount: string;
   maxToSpend: string;
   maxRateTimespan: string;
-}
-
-/** Input type used by batch conversion proxy to make an ERC20/ETH no-conversion payment */
-export interface CryptoDetails {
-  tokenAddresses: Array<string>;
-  recipients: Array<string>;
-  amounts: Array<string>;
-  paymentReferences: Array<string>;
-  feeAmounts: Array<string>;
 }
 
 /** Each paymentNetworkId is linked with a batch function */
@@ -354,9 +346,8 @@ export enum BATCH_PAYMENT_NETWORK_ID {
 }
 
 /** Input type used by batch conversion proxy to make an ERC20 & ETH,
- * and conversion & no-conversion payment through batchRouter */
+ * and conversion & no-conversion payment through batchPayments */
 export interface MetaDetail {
   paymentNetworkId: BATCH_PAYMENT_NETWORK_ID;
-  conversionDetails: ConversionDetail[];
-  cryptoDetails: CryptoDetails;
+  requestDetails: RequestDetail[];
 }
