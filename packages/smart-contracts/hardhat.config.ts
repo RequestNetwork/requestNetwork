@@ -162,7 +162,7 @@ export default {
   xdeploy: {
     salt: REQUEST_SALT,
     signer: process.env.ADMIN_PRIVATE_KEY,
-    networks: process.env.NETWORK ? [process.env.NETWORK] : ['xdai'],
+    networks: process.env.NETWORK ? [process.env.NETWORK] : ['goerli'],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
   },

@@ -3,10 +3,12 @@ import { HardhatRuntimeEnvironmentExtended } from '../types';
 import utils from '@requestnetwork/utils';
 import {
   updateBatchPaymentFees,
-  updateBatchConversionPaymentProxy,
-  updateBatchConversionPaymentFees,
+  updateBatchConversionProxy,
+  updateBatchPaymentFeeAmountUSDLimit,
+  updateNativeAndUSDAddress,
 } from './adminTasks';
-
+import { CurrencyManager } from '@requestnetwork/currency';
+import { RequestLogicTypes } from '@requestnetwork/types';
 /**
  * Updates the values of the batch fees of the BatchConversionPayments contract, if needed
  * @param contractAddress address of the BatchConversionPayments Proxy
@@ -21,8 +23,15 @@ export const setupBatchConversionPayments = async (
     contractAddress,
     batchConversionPaymentsArtifact.getContractAbi(),
   );
+  // constants related to chainlink and conversion rate
+  const currencyManager = CurrencyManager.getDefault();
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
+      const NativeAddress = currencyManager.getNativeCurrency(
+        RequestLogicTypes.CURRENCY.ETH,
+        network,
+      )!.hash;
+      const USDAddress = currencyManager.fromSymbol('USD')!.hash;
       console.log(`Setup BatchConversionPayments on ${network}`);
       let provider;
       if (network === 'celo') {
@@ -37,35 +46,47 @@ export const setupBatchConversionPayments = async (
 
       // start from the adminNonce, increase gasPrice if needed
       const gasCoef = 2;
-      await updateBatchPaymentFees(batchConversionPaymentConnected, gasPrice.mul(gasCoef)),
-        await updateBatchConversionPaymentFees(
-          batchConversionPaymentConnected,
-          gasPrice.mul(gasCoef),
-        ),
-        await updateBatchConversionPaymentProxy(
-          batchConversionPaymentConnected,
-          network,
-          gasPrice.mul(gasCoef),
-          'erc20',
-        ),
-        await updateBatchConversionPaymentProxy(
-          batchConversionPaymentConnected,
-          network,
-          gasPrice.mul(gasCoef),
-          'eth',
-        ),
-        await updateBatchConversionPaymentProxy(
-          batchConversionPaymentConnected,
-          network,
-          gasPrice.mul(gasCoef),
-          'erc20Conversion',
-        ),
-        await updateBatchConversionPaymentProxy(
-          batchConversionPaymentConnected,
-          network,
-          gasPrice.mul(gasCoef),
-          'ethConversion',
-        );
+      await updateBatchPaymentFees(batchConversionPaymentConnected, gasPrice.mul(gasCoef));
+      await updateBatchPaymentFeeAmountUSDLimit(
+        batchConversionPaymentConnected,
+        gasPrice.mul(gasCoef),
+      );
+      await updateBatchConversionProxy(
+        batchConversionPaymentConnected,
+        network,
+        gasPrice.mul(gasCoef),
+        'erc20',
+      );
+      await updateBatchConversionProxy(
+        batchConversionPaymentConnected,
+        network,
+        gasPrice.mul(gasCoef),
+        'eth',
+      );
+      await updateBatchConversionProxy(
+        batchConversionPaymentConnected,
+        network,
+        gasPrice.mul(gasCoef),
+        'erc20Conversion',
+      );
+      await updateBatchConversionProxy(
+        batchConversionPaymentConnected,
+        network,
+        gasPrice.mul(gasCoef),
+        'ethConversion',
+      );
+      await updateBatchConversionProxy(
+        batchConversionPaymentConnected,
+        network,
+        gasPrice.mul(gasCoef),
+        'chainlinkConversionPath',
+      );
+      await updateNativeAndUSDAddress(
+        batchConversionPaymentConnected,
+        NativeAddress,
+        USDAddress,
+        gasPrice.mul(gasCoef),
+      );
     }),
   );
   console.log('Setup for setupBatchConversionPayment successfull');
