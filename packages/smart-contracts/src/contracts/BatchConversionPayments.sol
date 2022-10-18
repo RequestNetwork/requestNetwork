@@ -42,7 +42,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @param _paymentNativeProxy The native payment proxy address to use.
    * @param _paymentErc20ConversionProxy The ERC20 Conversion payment proxy address to use.
    * @param _paymentNativeConversionFeeProxy The native Conversion payment proxy address to use.
-   * @param _chainlinkConversionPathAddress The address of the conversion path contract.
+   * @param _chainlinkConversionPath The address of the conversion path contract.
    * @param _owner Owner of the contract.
    */
   constructor(
@@ -50,13 +50,13 @@ contract BatchConversionPayments is BatchNoConversionPayments {
     address _paymentNativeProxy,
     address _paymentErc20ConversionProxy,
     address _paymentNativeConversionFeeProxy,
-    address _chainlinkConversionPathAddress,
+    address _chainlinkConversionPath,
     address _owner
   )
     BatchNoConversionPayments(
       _paymentErc20Proxy,
       _paymentNativeProxy,
-      _chainlinkConversionPathAddress,
+      _chainlinkConversionPath,
       _owner
     )
   {
