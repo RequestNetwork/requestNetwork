@@ -61,7 +61,7 @@ export const setupBatchConversionPayments = async (
         batchConversionPaymentConnected,
         network,
         gasPrice.mul(gasCoef),
-        'eth',
+        'native',
       );
       await updateBatchConversionProxy(
         batchConversionPaymentConnected,
@@ -73,7 +73,7 @@ export const setupBatchConversionPayments = async (
         batchConversionPaymentConnected,
         network,
         gasPrice.mul(gasCoef),
-        'ethConversion',
+        'nativeConversion',
       );
       await updateBatchConversionProxy(
         batchConversionPaymentConnected,

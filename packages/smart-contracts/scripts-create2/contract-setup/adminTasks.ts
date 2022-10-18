@@ -21,10 +21,11 @@ export const updateChainlinkConversionPath = async (
   const currentChainlinkAddress = await contract.chainlinkConversionPath();
   const chainlinkConversionPathAddress = chainlinkConversionPath.getAddress(network, '0.1.0');
   if (currentChainlinkAddress !== chainlinkConversionPathAddress) {
-    await contract.updateConversionPathAddress(chainlinkConversionPathAddress, {
+    const tx = await contract.updateConversionPathAddress(chainlinkConversionPathAddress, {
       nonce: nonce,
       gasPrice: gasPrice,
     });
+    await tx.wait();
   }
 };
 
@@ -55,13 +56,14 @@ export const updateRequestSwapFees = async (
 };
 
 export const updateBatchPaymentFees = async (contract: any, gasPrice: BigNumber): Promise<void> => {
-  const currentFees = await contract.batchFee();
-  if (currentFees.toNumber() !== BATCH_FEE) {
+  const currentFees = (await contract.batchFee()) as number;
+  if (currentFees - BATCH_FEE !== 0) {
     // Log is useful to have a direct view on was is being updated
     console.log(
       `Batch: the current fees: ${currentFees.toString()}, have been replaced by: ${BATCH_FEE}`,
     );
-    await contract.setBatchFee(BATCH_FEE, { gasPrice: gasPrice });
+    const tx = await contract.setBatchFee(BATCH_FEE, { gasPrice: gasPrice });
+    await tx.wait();
   }
 };
 
@@ -69,13 +71,16 @@ export const updateBatchPaymentFeeAmountUSDLimit = async (
   contract: any,
   gasPrice: BigNumber,
 ): Promise<void> => {
-  const currentFees = await contract.batchFeeAmountUSDLimit();
-  if (currentFees.toNumber() !== BATCH_FEE_AMOUNT_USD_LIMIT) {
+  const currentFeeAmountUSDLimit = (await contract.batchFeeAmountUSDLimit()) as number;
+  if (currentFeeAmountUSDLimit - BATCH_FEE_AMOUNT_USD_LIMIT !== 0) {
     // Log is useful to have a direct view on was is being updated
     console.log(
-      `Batch: the current fee amount in USD limit: ${currentFees.toString()}, have been replaced by: ${BATCH_FEE_AMOUNT_USD_LIMIT}. ($1 = 1e8)`,
+      `Batch: the current fee amount in USD limit: ${currentFeeAmountUSDLimit.toString()}, have been replaced by: ${BATCH_FEE_AMOUNT_USD_LIMIT}. ($1 = 1e8)`,
     );
-    await contract.setBatchFeeAmountUSDLimit(BATCH_FEE_AMOUNT_USD_LIMIT, { gasPrice: gasPrice });
+    const tx = await contract.setBatchFeeAmountUSDLimit(BATCH_FEE_AMOUNT_USD_LIMIT, {
+      gasPrice: gasPrice,
+    });
+    await tx.wait();
   }
 };
 
@@ -87,8 +92,8 @@ export const updatePaymentErc20FeeProxy = async (
 ): Promise<void> => {
   const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
   const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
-  const currentAddress = await contract.paymentErc20FeeProxy();
-  if (currentAddress !== erc20FeeProxyAddress) {
+  const currentAddress = (await contract.paymentErc20FeeProxy()) as string;
+  if (currentAddress.toLocaleLowerCase() !== erc20FeeProxyAddress.toLocaleLowerCase()) {
     await contract.setPaymentErc20FeeProxy(erc20FeeProxyAddress, {
       nonce: nonce,
       gasPrice: gasPrice,
@@ -103,20 +108,25 @@ export const updateBatchConversionProxy = async (
   contract: any,
   network: string,
   gasPrice: BigNumber,
-  proxyName: 'eth' | 'ethConversion' | 'erc20' | 'erc20Conversion' | 'chainlinkConversionPath',
+  proxyName:
+    | 'native'
+    | 'nativeConversion'
+    | 'erc20'
+    | 'erc20Conversion'
+    | 'chainlinkConversionPath',
 ): Promise<void> => {
   try {
     let proxyAddress: string;
     let batchSetProxy: any;
     let currentAddress: string;
-    if (proxyName === 'eth') {
+    if (proxyName === 'native') {
       proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network);
-      batchSetProxy = await contract.setPaymentEthProxy;
-      currentAddress = await contract.paymentEthProxy();
-    } else if (proxyName === 'ethConversion') {
+      batchSetProxy = await contract.setPaymentNativeProxy;
+      currentAddress = await contract.paymentNativeProxy();
+    } else if (proxyName === 'nativeConversion') {
       proxyAddress = artifacts.ethConversionArtifact.getAddress(network);
-      batchSetProxy = await contract.setPaymentEthConversionProxy;
-      currentAddress = await contract.paymentEthConversionProxy();
+      batchSetProxy = await contract.setPaymentNativeConversionProxy;
+      currentAddress = await contract.paymentNativeConversionProxy();
     } else if (proxyName === 'erc20') {
       proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network);
       batchSetProxy = await contract.setPaymentErc20Proxy;
@@ -132,13 +142,14 @@ export const updateBatchConversionProxy = async (
       currentAddress = await contract.chainlinkConversionPath();
     }
 
-    if (currentAddress !== proxyAddress) {
+    if (currentAddress.toLocaleLowerCase() !== proxyAddress.toLocaleLowerCase()) {
       console.log(
         `${proxyName}: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
       );
-      await batchSetProxy(proxyAddress, {
+      const tx = await batchSetProxy(proxyAddress, {
         gasPrice: gasPrice,
       });
+      await tx.wait();
     }
   } catch (e) {
     console.log(`Cannot update ${proxyName} proxy, it might not exist on this network`);
@@ -152,17 +163,21 @@ export const updateNativeAndUSDAddress = async (
   USDAddress: string,
   gasPrice: BigNumber,
 ): Promise<void> => {
-  const currentUSDAddress = await contract.USDAddress();
-  const currentNativeAddress = await contract.NativeAddress();
-  if (currentNativeAddress !== NativeAddress || currentUSDAddress !== USDAddress) {
+  const currentUSDAddress = (await contract.USDAddress()).toLocaleLowerCase();
+  const currentNativeAddress = (await contract.NativeAddress()).toLocaleLowerCase();
+  if (
+    currentNativeAddress !== NativeAddress.toLocaleLowerCase() ||
+    currentUSDAddress !== USDAddress.toLocaleLowerCase()
+  ) {
     console.log(
       `Batch: the current NativeAddress: ${currentNativeAddress}, have been replaced by: ${NativeAddress}`,
     );
     console.log(
       `Batch: the current USDAddress: ${currentUSDAddress}, have been replaced by: ${USDAddress}`,
     );
-    await contract.setNativeAndUSDAddress(NativeAddress, USDAddress, {
+    const tx = await contract.setNativeAndUSDAddress(NativeAddress, USDAddress, {
       gasPrice: gasPrice,
     });
+    await tx.wait();
   }
 };
