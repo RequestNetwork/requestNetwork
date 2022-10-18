@@ -24,7 +24,7 @@
         },
         {
           "internalType": "address",
-          "name": "_chainlinkConversionPathAddress",
+          "name": "_chainlinkConversionPath",
           "type": "address"
         },
         {
@@ -648,11 +648,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_chainlinkConversionPathAddress",
+          "name": "_chainlinkConversionPath",
           "type": "address"
         }
       ],
-      "name": "setConversionPathAddress",
+      "name": "setChainlinkConversionPath",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
