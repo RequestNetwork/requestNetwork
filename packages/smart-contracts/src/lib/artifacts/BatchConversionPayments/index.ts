@@ -13,52 +13,48 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x2e335F247E91caa168c64b63104C4475b2af3942',
           creationBlockNumber: 0,
         },
-        rinkeby: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 11338182,
-        },
         goerli: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 7546738,
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 7791166,
         },
-        mainnet: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 15537996,
-        },
+        // mainnet: {
+        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+        //   creationBlockNumber: 15537996,
+        // },
         matic: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 32800551,
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 34493278,
         },
         bsc: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 21349159,
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 22280538,
         },
         celo: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 15112387,
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 15686247,
         },
-        'arbitrum-one': {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 24718550,
-        },
-        fantom: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 46977185,
-        },
-        avalanche: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 19892946,
-        },
-        // Caution: no ETHConversion proxy on xDai
-        xdai: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 24192455,
-        },
-        // Caution: no ERC20Conversion proxy on fuse
-        fuse: {
-          address: '0x42c466ccF141A8EBE0Aa2ECEF06A4f4BE9a9B526',
-          creationBlockNumber: 19146859,
-        },
+        // 'arbitrum-one': {
+        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+        //   creationBlockNumber: 24718550,
+        // },
+        // fantom: {
+        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+        //   creationBlockNumber: 46977185,
+        // },
+        // avalanche: {
+        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+        //   creationBlockNumber: 19892946,
+        // },
+        // // Caution: no ETHConversion proxy on xDai
+        // xdai: {
+        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+        //   creationBlockNumber: 24192455,
+        // },
+        // // Caution: no ERC20Conversion proxy on fuse
+        // fuse: {
+        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+        //   creationBlockNumber: 19146859,
+        // },
       },
     },
   },
