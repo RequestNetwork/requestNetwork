@@ -10,10 +10,13 @@ export const verifyOne = async (
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<void> => {
   try {
+    console.log('here verifyOne start');
+    console.log('contractAddress', contractAddress);
     await hre.run('verify:verify', {
       address: contractAddress,
       constructorArguments: deploymentParams.constructorArgs,
     });
+    console.log('here verifyOne end');
   } catch (err) {
     console.log(err);
   }
@@ -46,6 +49,9 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
           case 'BatchConversionPayments': {
             const network = hre.config.xdeploy.networks[0];
             const constructorArgs = getConstructorArgs(contract, network);
+            console.log('network', network);
+            console.log('hre', hre.config.xdeploy);
+            console.log('hre', hre.config);
             address = await computeCreate2DeploymentAddress({ contract, constructorArgs }, hre);
             await verifyOne(address, { contract, constructorArgs }, hre);
             break;

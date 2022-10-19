@@ -58,12 +58,12 @@ export const updateRequestSwapFees = async (
 export const updateBatchPaymentFees = async (contract: any, gasPrice: BigNumber): Promise<void> => {
   const currentFees = (await contract.batchFee()) as number;
   if (currentFees - BATCH_FEE !== 0) {
+    const tx = await contract.setBatchFee(BATCH_FEE, { gasPrice: gasPrice });
+    await tx.wait();
     // Log is useful to have a direct view on was is being updated
     console.log(
       `Batch: the current fees: ${currentFees.toString()}, have been replaced by: ${BATCH_FEE}`,
     );
-    const tx = await contract.setBatchFee(BATCH_FEE, { gasPrice: gasPrice });
-    await tx.wait();
   }
 };
 
@@ -73,14 +73,14 @@ export const updateBatchPaymentFeeAmountUSDLimit = async (
 ): Promise<void> => {
   const currentFeeAmountUSDLimit = (await contract.batchFeeAmountUSDLimit()) as number;
   if (currentFeeAmountUSDLimit - BATCH_FEE_AMOUNT_USD_LIMIT !== 0) {
-    // Log is useful to have a direct view on was is being updated
-    console.log(
-      `Batch: the current fee amount in USD limit: ${currentFeeAmountUSDLimit.toString()}, have been replaced by: ${BATCH_FEE_AMOUNT_USD_LIMIT}. ($1 = 1e8)`,
-    );
     const tx = await contract.setBatchFeeAmountUSDLimit(BATCH_FEE_AMOUNT_USD_LIMIT, {
       gasPrice: gasPrice,
     });
     await tx.wait();
+    // Log is useful to have a direct view on was is being updated
+    console.log(
+      `Batch: the current fee amount in USD limit: ${currentFeeAmountUSDLimit.toString()}, have been replaced by: ${BATCH_FEE_AMOUNT_USD_LIMIT}. ($1 = 1e8)`,
+    );
   }
 };
 
@@ -143,13 +143,13 @@ export const updateBatchConversionProxy = async (
     }
 
     if (currentAddress.toLocaleLowerCase() !== proxyAddress.toLocaleLowerCase()) {
-      console.log(
-        `${proxyName}: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
-      );
       const tx = await batchSetProxy(proxyAddress, {
         gasPrice: gasPrice,
       });
       await tx.wait();
+      console.log(
+        `${proxyName}: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
+      );
     }
   } catch (e) {
     console.log(`Cannot update ${proxyName} proxy, it might not exist on this network`);
