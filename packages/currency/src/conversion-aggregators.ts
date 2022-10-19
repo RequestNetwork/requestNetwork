@@ -9,6 +9,7 @@ import maticAggregator from './aggregators/matic.json';
 import fantomAggregator from './aggregators/fantom.json';
 import nearAggregator from './aggregators/near.json';
 import nearTestnetAggregator from './aggregators/near-testnet.json';
+import auroraTestnetAggregator from './aggregators/aurora-testnet.json';
 
 /**
  * currencyFrom => currencyTo => cost
@@ -35,7 +36,7 @@ const chainlinkCurrencyPairs: AggregatorsMap = {
 // Pairs supported by Flux Protocol
 const fluxCurrencyPairs: AggregatorsMap = {
   aurora: nearAggregator,
-  'aurora-testnet': nearTestnetAggregator,
+  'aurora-testnet': auroraTestnetAggregator,
   'near-testnet': nearTestnetAggregator,
 };
 

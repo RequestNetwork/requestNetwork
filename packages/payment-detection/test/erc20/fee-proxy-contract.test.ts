@@ -365,4 +365,103 @@ describe('api/erc20/fee-proxy-contract', () => {
     expect(parameters.gasUsed).toBe('79220');
     expect(parameters.gasPrice).toBe('1500000011');
   });
+
+  it('can retrieve payment using thegraph info retriever', async () => {
+    const mockRequest: RequestLogicTypes.IRequest = {
+      creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
+      currency: {
+        network: 'mainnet',
+        type: RequestLogicTypes.CURRENCY.ERC20,
+        value: '0x967da4048cd07ab37855c090aaf366e4ce1b9f48',
+      },
+      events: [],
+      expectedAmount: '168040800000000000000000',
+      extensions: {
+        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: {
+          events: [
+            {
+              name: 'create',
+              parameters: {
+                feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+                feeAmount: '13386000000000000000',
+                paymentAddress: '0x6c9E04997000d6A8a353951231923d776d4Cdff2',
+                salt: 'c75c317e05c52f12',
+              },
+              timestamp: 1665989825,
+            },
+          ],
+          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+          type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
+          values: {
+            salt: 'c75c317e05c52f12',
+            paymentAddress: '0x6c9E04997000d6A8a353951231923d776d4Cdff2',
+            feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+            feeAmount: '13386000000000000000',
+          },
+          version: '0.2.0',
+        },
+      },
+      extensionsData: [],
+      requestId: '01169f05b855a57396552cc0052b161f70590bdf9c5371649cd89a70c65fb586db',
+      state: RequestLogicTypes.STATE.CREATED,
+      timestamp: 0,
+      version: '0.2',
+    };
+    erc20FeeProxyContract = new ERC20FeeProxyPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager,
+      getSubgraphClient: () => ({
+        GetPaymentsAndEscrowState: jest.fn().mockImplementation(({ reference }) => ({
+          payments: [
+            {
+              contractAddress: '0x370de27fdb7d1ff1e1baa7d11c5820a324cf623c',
+              tokenAddress: '0x967da4048cd07ab37855c090aaf366e4ce1b9f48',
+              to: '0x6c9e04997000d6a8a353951231923d776d4cdff2',
+              from: '0x15339d48fbe31e349a507fd6d48eb01c45fdc79a',
+              amount: '168040800000000000000000',
+              feeAmount: '13386000000000000000',
+              reference: '0x5ac7241d9e6f419409e439c8429eea2f8f089d76528fd1d5df7496a3e58b5ce1',
+              block: 15767215,
+              txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+              gasUsed: '73152',
+              gasPrice: '12709127644',
+              timestamp: 1666002347,
+              amountInCrypto: null,
+              feeAddress: '0x35d0e078755cd84d3e0656caab417dee1d7939c7',
+              feeAmountInCrypto: null,
+              maxRateTimespan: null,
+            },
+          ].filter((x) => x.reference.toLowerCase() === reference.toLowerCase()),
+          escrowEvents: [],
+        })),
+        GetLastSyncedBlock: jest.fn(),
+        GetSyncedBlock: jest.fn(),
+      }),
+    });
+
+    const { balance, error, events } = await erc20FeeProxyContract.getBalance(mockRequest);
+    expect(error).toBeUndefined();
+    expect(balance).toBe('168040800000000000000000');
+    expect(events).toMatchObject([
+      {
+        amount: '168040800000000000000000',
+        name: 'payment',
+        parameters: {
+          amountInCrypto: undefined,
+          block: 15767215,
+          feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
+          feeAmount: '13386000000000000000',
+          feeAmountInCrypto: undefined,
+          from: '0x15339d48Fbe31E349A507FD6d48Eb01c45Fdc79A',
+          gasPrice: '12709127644',
+          gasUsed: '73152',
+          maxRateTimespan: undefined,
+          to: '0x6c9E04997000d6A8a353951231923d776d4Cdff2',
+          tokenAddress: '0x967da4048cD07aB37855c090aAF366e4ce1b9F48',
+          txHash: '0x456d67cba236778e91a901e97c71684e82317dc2679d1b5c6bfa6d420d636b7d',
+        },
+        timestamp: 1666002347,
+      },
+    ]);
+  });
 });

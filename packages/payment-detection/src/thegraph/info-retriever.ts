@@ -50,12 +50,14 @@ export class TheGraphInfoRetriever {
 
   private filterPaymentEvents(payment: PaymentEventResultFragment, params: TransferEventsParams) {
     // Check contract address matches expected
-    if (formatAddress(payment.contractAddress) !== params.contractAddress) {
+    if (formatAddress(payment.contractAddress) !== formatAddress(params.contractAddress)) {
       return false;
     }
     // Check paid token tokens matches expected (conversion only)
     if (
       payment.tokenAddress &&
+      params.acceptedTokens &&
+      params.acceptedTokens.length > 0 &&
       !params.acceptedTokens?.includes(formatAddress(payment.tokenAddress, 'tokenAddress'))
     ) {
       return false;
@@ -106,7 +108,7 @@ export class TheGraphInfoRetriever {
             'feeAmountInCrypto',
             'maxRateTimespan',
           ),
-          String,
+          (val) => (val !== null ? String(val) : undefined),
         ),
         // Make sure the checksum is right for addresses.
         ...mapValues(pick(payment, 'from', 'feeAddress', 'tokenAddress'), (str, key) =>
