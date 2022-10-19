@@ -65,3 +65,7 @@ export type ReferenceBasedDetectorOptions = {
   advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
   currencyManager: ICurrencyManager;
 };
+
+export type NativeDetectorOptions = ReferenceBasedDetectorOptions & {
+  network: string;
+};

@@ -2,6 +2,7 @@ import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork
 import { NearInfoRetriever } from './retrievers/near-info-retriever';
 import { NativeTokenPaymentDetector } from '../native-token-detector';
 import { NetworkNotSupported } from '../balance-error';
+import { NativeDetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -18,6 +19,10 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
  * Handle payment detection for NEAR native token payment
  */
 export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
+  constructor(args: NativeDetectorOptions) {
+    super(args);
+  }
+
   public static getContractName = (chainName: string, paymentNetworkVersion = '0.2.0'): string => {
     const version = NearNativeTokenPaymentDetector.getVersionOrThrow(paymentNetworkVersion);
     const versionMap: Record<string, Record<string, string>> = {
