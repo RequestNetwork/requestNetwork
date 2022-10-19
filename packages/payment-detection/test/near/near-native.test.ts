@@ -51,7 +51,7 @@ describe('Near payments detection', () => {
     expect(events).toHaveLength(1);
 
     expect(events[0].amount).toBe('1000000000000000000000000');
-    expect(events[0].timestamp).toBe(1631788427230);
+    expect(events[0].timestamp).toBe(1631788427);
     expect(events[0].parameters?.receiptId).toBe('FYVnCvJFoNtK7LE2uAdTFfReFMGiCUHMczLsvEni1Cpf');
     expect(events[0].parameters?.txHash).toBeUndefined();
     expect(events[0].parameters?.block).toBe(47891257);
