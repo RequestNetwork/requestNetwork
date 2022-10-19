@@ -333,7 +333,6 @@ const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
  * Input of batch conversion payment processor
  * It contains requests, paymentSettings, amount and feeAmount.
  * Currently, these requests must have the same PN, version, and batchFee
- * Also used in Invoicing repository.
  * @dev next step: paymentNetworkId could get more values options, see the "ref"
  *      in batchConversionPayment.sol
  */
