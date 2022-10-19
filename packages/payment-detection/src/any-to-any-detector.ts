@@ -12,9 +12,7 @@ export abstract class AnyToAnyDetector<
   TPaymentEventParameters,
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
-   * @param paymentNetworkId
    * @param extension The advanced logic payment network extension, with conversion
-   * @param currencyManager
    */
   protected constructor(
     paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,

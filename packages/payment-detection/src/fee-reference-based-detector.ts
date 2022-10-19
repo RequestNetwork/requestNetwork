@@ -14,7 +14,6 @@ export abstract class FeeReferenceBasedDetector<
   /**
    * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
-   * @param currencyManager
    */
   protected constructor(
     paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,

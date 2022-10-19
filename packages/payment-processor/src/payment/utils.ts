@@ -36,8 +36,6 @@ export function getProvider(): providers.Web3Provider {
 /**
  * Utility to get a network provider, depending on the request's currency network.
  * Will throw an error if the network isn't mainnet, rinkeby, or goerli
- *
- * @param request
  */
 export function getNetworkProvider(request: ClientTypes.IRequestData): providers.Provider {
   return getDefaultProvider(request.currencyInfo.network);
@@ -71,7 +69,6 @@ export function getSigner(
  * Utility to access the payment address, reference,
  * and optional feeAmount, feeAddress, expectedFlowRate, expectedStartDate
  * of a Request.
- * @param request
  */
 export function getRequestPaymentValues(request: ClientTypes.IRequestData): {
   paymentAddress: string;
@@ -191,8 +188,6 @@ const currenciesMap: any = {
 
 /**
  * Utility to validate a request currency and payment details against a paymentNetwork.
- * @param request
- * @param paymentNetworkId
  */
 export function validateRequest(
   request: ClientTypes.IRequestData,

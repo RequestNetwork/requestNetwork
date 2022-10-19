@@ -10,10 +10,7 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
   PaymentTypes.IBTCPaymentEventParameters
 > {
   /**
-   * @param networkId
-   * @param paymentNetworkId
    * @param extension The advanced logic payment network extensions
-   * @param bitcoinDetectionProvider
    */
   protected constructor(
     private networkId: number,

@@ -23,9 +23,7 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
   TPaymentEventParameters extends PaymentTypes.IERC20FeePaymentEventParameters,
 > extends FeeReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
-   * @param paymentNetworkId
    * @param extension The advanced logic payment network extensions
-   * @param _currencyManager
    */
   protected constructor(
     paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,

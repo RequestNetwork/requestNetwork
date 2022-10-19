@@ -69,8 +69,6 @@ export default class AnyToEthProxyPaymentNetwork extends EthereumFeeProxyPayment
   /**
    * Validate the extension action regarding the currency and network
    * It must throw in case of error
-   *
-   * @param request
    */
   protected validate(
     request: RequestLogicTypes.IRequest,

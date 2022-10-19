@@ -50,8 +50,6 @@ export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param paymentReference The reference to identify the payment
-   * @param _requestCurrency
-   * @param paymentChain
    * @param paymentNetwork the payment network state
    * @returns The balance with events
    */

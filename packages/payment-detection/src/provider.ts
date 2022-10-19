@@ -46,7 +46,6 @@ const networkRpcs: Record<string, string> = {
 
 /**
  * @see getDefaultProvider
- * @param network
  */
 const defaultProviderFactory: ProviderFactory = (network: string | undefined) => {
   if (!network) {

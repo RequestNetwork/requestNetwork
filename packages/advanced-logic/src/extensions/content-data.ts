@@ -37,7 +37,6 @@ export default class ContentDataExtension<
    * Applies a creation
    *
    * @param extensionAction action to apply
-   * @param timestamp
    *
    * @returns state of the extension created
    */

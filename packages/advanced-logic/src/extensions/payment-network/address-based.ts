@@ -172,7 +172,6 @@ export default abstract class AddressBasedPaymentNetwork<
    * @param extensionAction action to apply
    * @param requestState request state read-only
    * @param actionSigner identity of the signer
-   * @param timestamp
    *
    * @returns state of the extension updated
    */

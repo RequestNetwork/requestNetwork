@@ -21,7 +21,6 @@ export { ISwapSettings } from './swap-erc20-fee-proxy';
 
 /**
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param options to override amount, feeAmount and transaction parameters
  */
@@ -38,7 +37,6 @@ export async function swapToPayAnyToErc20Request(
 
 /**
  * Processes a transaction to swap tokens and pay an ERC20 Request through a proxy with fees.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param options to override amount, feeAmount and transaction parameters
  */

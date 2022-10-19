@@ -119,7 +119,6 @@ export abstract class AbstractExtension<TCreationParameters> implements Extensio
    * It is called at the beginning of every applyActionToExtension()
    * It must throw in case of error
    *
-   * @param request
    * @param extensionAction action to apply
    */
   protected validate(

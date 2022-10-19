@@ -44,7 +44,6 @@ export default class RequestNetwork {
    * @param signatureProvider module in charge of the signatures
    * @param decryptionProvider module in charge of the decryption
    * @param paymentOptions options for payment detection
-   * @param currencyManager
    */
   public constructor({
     dataAccess,
@@ -208,7 +207,6 @@ export default class RequestNetwork {
   /**
    * Create an array of request instances from an identity
    *
-   * @param identity
    * @param updatedBetween filter the requests with time boundaries
    * @param options options
    * @returns the Requests
@@ -227,7 +225,6 @@ export default class RequestNetwork {
   /**
    * Create an array of request instances from multiple identities
    *
-   * @param identities
    * @param updatedBetween filter the requests with time boundaries
    * @param disablePaymentDetection if true, skip the payment detection
    * @returns the requests
@@ -251,7 +248,6 @@ export default class RequestNetwork {
   /**
    * Create an array of request instances from a topic
    *
-   * @param topic
    * @param updatedBetween filter the requests with time boundaries
    * @param options options
    * @returns the Requests
@@ -304,7 +300,6 @@ export default class RequestNetwork {
   /**
    * Create an array of request instances from a multiple topics
    *
-   * @param topics
    * @param updatedBetween filter the requests with time boundaries
    * @param options options
    * @returns the Requests
