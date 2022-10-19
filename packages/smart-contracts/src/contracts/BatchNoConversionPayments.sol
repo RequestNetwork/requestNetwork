@@ -77,18 +77,18 @@ contract BatchNoConversionPayments is Ownable {
   /**
    * @param _paymentErc20Proxy The address to the ERC20 fee payment proxy to use.
    * @param _paymentNativeProxy The address to the Native fee payment proxy to use.
-   * @param _chainlinkConversionPathAddress The address of the conversion path contract.
+   * @param _chainlinkConversionPath The address of the conversion path contract.
    * @param _owner Owner of the contract.
    */
   constructor(
     address _paymentErc20Proxy,
     address _paymentNativeProxy,
-    address _chainlinkConversionPathAddress,
+    address _chainlinkConversionPath,
     address _owner
   ) {
     paymentErc20Proxy = IERC20FeeProxy(_paymentErc20Proxy);
     paymentNativeProxy = IEthereumFeeProxy(_paymentNativeProxy);
-    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPath);
     transferOwnership(_owner);
     batchFee = 0;
   }
@@ -562,10 +562,10 @@ contract BatchNoConversionPayments is Ownable {
 
   /**
    * @notice Update the conversion path contract used to fetch conversions.
-   * @param _chainlinkConversionPathAddress The address of the conversion path contract.
+   * @param _chainlinkConversionPath The address of the conversion path contract.
    */
-  function setConversionPathAddress(address _chainlinkConversionPathAddress) external onlyOwner {
-    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPathAddress);
+  function setChainlinkConversionPath(address _chainlinkConversionPath) external onlyOwner {
+    chainlinkConversionPath = ChainlinkConversionPath(_chainlinkConversionPath);
   }
 
   /**
