@@ -28,7 +28,7 @@ describe('extensions/payment-network/native-token', () => {
   };
   const nearTestnetCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
-    value: 'NEAR-testnet',
+    value: 'tNEAR',
     network: 'near-testnet',
   };
   const nativeTokenTestCases = [

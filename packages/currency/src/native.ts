@@ -76,7 +76,7 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       network: 'aurora-testnet',
     },
     {
-      symbol: 'NEAR-testnet',
+      symbol: 'tNEAR',
       decimals: 24,
       name: 'Test Near',
       network: 'near-testnet',

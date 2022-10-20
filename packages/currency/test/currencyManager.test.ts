@@ -491,9 +491,9 @@ describe('CurrencyManager', () => {
         },
       },
       near: {
-        'NEAR-testnet': {
+        tNEAR: {
           type: RequestLogicTypes.CURRENCY.ETH,
-          symbol: 'NEAR-testnet',
+          symbol: 'tNEAR',
           network: 'near-testnet',
         },
       },
@@ -528,6 +528,7 @@ describe('CurrencyManager', () => {
                   switch (currency.symbol) {
                     case 'NEAR':
                     case 'NEAR-testnet':
+                    case 'tNEAR':
                       testValidateAddressForCurrency(nearAddresses[currency.network], currency);
                       break;
                     default:
