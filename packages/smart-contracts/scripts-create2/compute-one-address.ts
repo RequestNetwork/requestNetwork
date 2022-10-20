@@ -9,7 +9,6 @@ export async function computeCreate2DeploymentAddress(
   hre: HardhatRuntimeEnvironmentExtended,
 ): Promise<string> {
   try {
-    console.log('HERE');
     if (!hre.config.xdeploy.salt) {
       throw new Error('Missing salt');
     }
@@ -21,19 +20,15 @@ export async function computeCreate2DeploymentAddress(
     const provider = new hre.ethers.providers.JsonRpcProvider(
       'https://api.avax.network/ext/bc/C/rpc',
     );
-    console.log('HERE');
     const RequestDeployer = requestDeployer.connect('avalanche', provider);
-    console.log('HERE deploymentParams', deploymentParams);
-    console.log('HERE deploymentParams.contract', deploymentParams.contract);
     const ContractToDeploy = await hre.ethers.getContractFactory(deploymentParams.contract);
-    console.log('HERE');
     let initcode;
     if (deploymentParams.constructorArgs) {
       initcode = await ContractToDeploy.getDeployTransaction(...deploymentParams.constructorArgs);
     } else {
       initcode = await ContractToDeploy.getDeployTransaction();
     }
-    console.log('HERE f-1');
+
     if (!initcode || !initcode.data) {
       throw new Error('Invalid initcode - check your contract and arguments');
     }
@@ -42,7 +37,6 @@ export async function computeCreate2DeploymentAddress(
       hre.ethers.utils.keccak256(initcode.data),
       hre.config.xdeploy.deployerAddress,
     );
-    console.log('HERE F');
     return computedAddress;
   } catch (e) {
     throw new Error(e.toString());
