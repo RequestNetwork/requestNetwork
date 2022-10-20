@@ -1,8 +1,8 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
-
-import { ReferenceBasedDetector } from '../reference-based-detector';
-import { ReferenceBasedDetectorOptions } from '../types';
 import { NearInfoRetriever } from './retrievers/near-info-retriever';
+import { NativeTokenPaymentDetector } from '../native-token-detector';
+import { NetworkNotSupported } from '../balance-error';
+import { NativeDetectorOptions } from '../types';
 
 // interface of the object indexing the proxy contract version
 interface IProxyContractVersion {
@@ -18,19 +18,9 @@ const CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
 /**
  * Handle payment detection for NEAR native token payment
  */
-export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
-  ExtensionTypes.PnReferenceBased.IReferenceBased,
-  PaymentTypes.IETHPaymentEventParameters
-> {
-  /**
-   * @param extension The advanced logic payment network extension
-   */
-  public constructor({ advancedLogic, currencyManager }: ReferenceBasedDetectorOptions) {
-    super(
-      PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
-      advancedLogic.extensions.nativeToken[0],
-      currencyManager,
-    );
+export class NearNativeTokenPaymentDetector extends NativeTokenPaymentDetector {
+  constructor(args: NativeDetectorOptions) {
+    super(args);
   }
 
   public static getContractName = (chainName: string, paymentNetworkVersion = '0.2.0'): string => {
@@ -49,7 +39,9 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
     if (versionMap[chainName]?.[version]) {
       return versionMap[chainName][version];
     }
-    throw Error(`Unconfigured chain '${chainName}' and version '${version}'.`);
+    throw new NetworkNotSupported(
+      `Unconfigured near-detector chain '${chainName}' and version '${version}'`,
+    );
   };
 
   /**
@@ -57,7 +49,6 @@ export class NearNativeTokenPaymentDetector extends ReferenceBasedDetector<
    *
    * @param address Address to check
    * @param eventName Indicate if it is an address for payment or refund
-   * @param requestCurrency The request currency
    * @param paymentReference The reference to identify the payment
    * @param paymentNetwork the payment network state
    * @returns The balance with events

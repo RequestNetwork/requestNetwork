@@ -5,17 +5,17 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { BtcMainnetAddressBasedDetector } from '../src/btc/mainnet-address-based';
-import { DeclarativePaymentDetector } from '../src/declarative';
-import { EthInputDataPaymentDetector } from '../src/eth/input-data';
-
-import { PaymentNetworkFactory } from '../src/payment-network-factory';
+import { BtcMainnetAddressBasedDetector } from '../src/btc';
+import {
+  DeclarativePaymentDetector,
+  EthInputDataPaymentDetector,
+  PaymentNetworkFactory,
+} from '../src';
+import { mockAdvancedLogicBase } from './utils';
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
-  extensions: {},
+  ...mockAdvancedLogicBase,
+  extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 const currencyManager = CurrencyManager.getDefault();

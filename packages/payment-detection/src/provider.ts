@@ -46,7 +46,6 @@ const networkRpcs: Record<string, string> = {
 
 /**
  * @see getDefaultProvider
- * @param network
  */
 const defaultProviderFactory: ProviderFactory = (network: string | undefined) => {
   if (!network) {
@@ -100,7 +99,7 @@ const defaultProviderFactory: ProviderFactory = (network: string | undefined) =>
 
 /**
  * Defines the behaviour to obtain a Provider for a given Network.
- * May be overriden using setProviderFactory
+ * May be overridden using setProviderFactory
  */
 let currentProviderFactory: CurrentProviderFactory = defaultProviderFactory;
 

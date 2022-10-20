@@ -7,6 +7,8 @@ import {
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { ERC20FeeProxyPaymentDetector } from '../../src/erc20/fee-proxy-contract';
+import { mockAdvancedLogicBase } from '../utils';
+
 let erc20FeeProxyContract: ERC20FeeProxyPaymentDetector;
 
 const createAddPaymentAddressAction = jest.fn();
@@ -17,12 +19,9 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     feeProxyContractErc20: {
-      supportedNetworks: ['mainnet', 'private', 'rinkeby', 'goerli'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -31,7 +30,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 const currencyManager = CurrencyManager.getDefault();
