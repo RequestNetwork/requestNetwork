@@ -112,6 +112,7 @@ export class PaymentNetworkFactory {
     paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
     currencyType: RequestLogicTypes.CURRENCY,
     currencyNetwork?: string,
+    paymentNetworkVersion?: string,
   ): PaymentTypes.IPaymentNetwork {
     const network = currencyNetwork || 'mainnet';
     const currencyPaymentMap =
@@ -142,7 +143,7 @@ export class PaymentNetworkFactory {
       // this throws when the contract isn't deployed and was mandatory for payment detection
       (detectorClass as ContractBasedDetector).getDeploymentInformation(
         network,
-        detector.extension.currentVersion,
+        paymentNetworkVersion || detector.extension.currentVersion,
       );
     }
 
@@ -160,16 +161,16 @@ export class PaymentNetworkFactory {
     request: RequestLogicTypes.IRequest,
   ): PaymentTypes.IPaymentNetwork | null {
     const pn = getPaymentNetworkExtension(request);
-
     if (!pn) {
       return null;
     }
 
-    const paymentNetworkId = pn.id as unknown as PaymentTypes.PAYMENT_NETWORK_ID;
+    const { id, version } = pn;
     return this.createPaymentNetwork(
-      paymentNetworkId,
+      id as unknown as PaymentTypes.PAYMENT_NETWORK_ID,
       request.currency.type,
       request.currency.network,
+      version,
     );
   }
 }

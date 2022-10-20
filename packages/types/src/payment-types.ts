@@ -19,6 +19,7 @@ export enum PAYMENT_NETWORK_ID {
   ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
   ANY_TO_ETH_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
 }
+
 /** Interface for payment network extensions state and interpretation */
 export interface IPaymentNetwork<TEventParameters = any> {
   paymentNetworkId: PAYMENT_NETWORK_ID;

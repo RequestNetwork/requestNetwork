@@ -53,6 +53,11 @@ export interface IState<T = any> {
   values: T;
 }
 
+/** Extensions state in advanced logic */
+export interface IPaymentNetworkState<T = any> extends IState<T> {
+  id: Exclude<ID, 'content-data'>;
+}
+
 /** Creation action object */
 export interface IAction<T = any> {
   action: string;
