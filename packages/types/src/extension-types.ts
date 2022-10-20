@@ -53,9 +53,10 @@ export interface IState<T = any> {
   values: T;
 }
 
-/** Extensions state in advanced logic */
+/** State for payment networks extensions only */
 export interface IPaymentNetworkState<T = any> extends IState<T> {
-  id: Exclude<ID, 'content-data'>;
+  id: Exclude<ID, ID.CONTENT_DATA>;
+  type: TYPE.PAYMENT_NETWORK;
 }
 
 /** Creation action object */
