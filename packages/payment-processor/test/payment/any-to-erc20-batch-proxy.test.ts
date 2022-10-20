@@ -245,7 +245,6 @@ describe('erc20-batch-conversion-proxy', () => {
             ],
             batchConvVersion,
             wallet,
-            true,
           ),
         ).rejects.toThrowError(
           new UnsupportedCurrencyError({
@@ -266,14 +265,13 @@ describe('erc20-batch-conversion-proxy', () => {
             ],
             batchConvVersion,
             wallet,
-            true,
           ),
         ).rejects.toThrowError('the enrichedRequest has no paymentSettings');
       });
       it('should throw an error if the request is ETH', async () => {
         EURRequest.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError(`wrong request currencyInfo type`);
       });
       it('should throw an error if the request has a wrong network', async () => {
@@ -295,7 +293,7 @@ describe('erc20-batch-conversion-proxy', () => {
         };
 
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError('All the requests must have the same network');
       });
       it('should throw an error if the request has a wrong payment network id', async () => {
@@ -316,7 +314,7 @@ describe('erc20-batch-conversion-proxy', () => {
         };
 
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError(
           'request cannot be processed, or is not an pn-any-to-erc20-proxy request',
         );
@@ -324,13 +322,13 @@ describe('erc20-batch-conversion-proxy', () => {
       it("should throw an error if one request's currencyInfo has no value", async () => {
         EURRequest.currencyInfo.value = '';
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError("The currency '' is unknown or not supported");
       });
       it('should throw an error if request has no extension', async () => {
         EURRequest.extensions = [] as any;
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError('no payment network found');
       });
       it('should throw an error if there is a wrong version mapping', async () => {
@@ -341,7 +339,7 @@ describe('erc20-batch-conversion-proxy', () => {
           },
         };
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError('Every payment network type and version must be identical');
       });
     });
@@ -447,7 +445,6 @@ describe('erc20-batch-conversion-proxy', () => {
           }),
           batchConvVersion,
           wallet,
-          true,
         );
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toEqual(1);
@@ -503,7 +500,6 @@ describe('erc20-batch-conversion-proxy', () => {
           ],
           batchConvVersion,
           wallet,
-          true,
         );
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toEqual(1);
@@ -557,14 +553,14 @@ describe('erc20-batch-conversion-proxy', () => {
       it('should throw an error if the request is not erc20', async () => {
         FAURequest.currencyInfo.type = RequestLogicTypes.CURRENCY.ETH;
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError('wrong request currencyInfo type');
       });
 
       it("should throw an error if one request's currencyInfo has no value", async () => {
         FAURequest.currencyInfo.value = '';
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError(
           'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
         );
@@ -573,7 +569,7 @@ describe('erc20-batch-conversion-proxy', () => {
       it("should throw an error if one request's currencyInfo has no network", async () => {
         FAURequest.currencyInfo.network = '';
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError(
           'request cannot be processed, or is not an pn-erc20-fee-proxy-contract request',
         );
@@ -582,7 +578,7 @@ describe('erc20-batch-conversion-proxy', () => {
       it('should throw an error if request has no extension', async () => {
         FAURequest.extensions = [] as any;
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError('no payment network found');
       });
 
@@ -594,7 +590,7 @@ describe('erc20-batch-conversion-proxy', () => {
           },
         };
         await expect(
-          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet, true),
+          payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet),
         ).rejects.toThrowError('Every payment network type and version must be identical');
       });
     });
@@ -650,12 +646,7 @@ describe('erc20-batch-conversion-proxy', () => {
         const initialFAUFeeBalance = await getErc20Balance(FAUValidRequest, feeAddress, provider);
 
         // Batch payment
-        const tx = await payBatchConversionProxyRequest(
-          enrichedRequests,
-          batchConvVersion,
-          wallet,
-          true,
-        );
+        const tx = await payBatchConversionProxyRequest(enrichedRequests, batchConvVersion, wallet);
         const confirmedTx = await tx.wait(1);
         expect(confirmedTx.status).toBe(1);
         expect(tx.hash).not.toBeUndefined();

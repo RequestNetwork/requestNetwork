@@ -17,10 +17,10 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
           creationBlockNumber: 7791166,
         },
-        // mainnet: {
-        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
-        //   creationBlockNumber: 15537996,
-        // },
+        mainnet: {
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 15789288,
+        },
         matic: {
           address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
           creationBlockNumber: 34493278,
@@ -33,28 +33,28 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
           creationBlockNumber: 15686247,
         },
-        // 'arbitrum-one': {
-        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
-        //   creationBlockNumber: 24718550,
-        // },
-        // fantom: {
-        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
-        //   creationBlockNumber: 46977185,
-        // },
-        // avalanche: {
-        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
-        //   creationBlockNumber: 19892946,
-        // },
-        // // Caution: no ETHConversion proxy on xDai
-        // xdai: {
-        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
-        //   creationBlockNumber: 24192455,
-        // },
+        'arbitrum-one': {
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 30957509,
+        },
+        fantom: {
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 49522660,
+        },
+        avalanche: {
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 21258879,
+        },
+        // Caution: no ETHConversion proxy on xDai
+        xdai: {
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 24654730,
+        },
         // // Caution: no ERC20Conversion proxy on fuse
-        // fuse: {
-        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
-        //   creationBlockNumber: 19146859,
-        // },
+        fuse: {
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 19732873,
+        },
       },
     },
   },
