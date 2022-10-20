@@ -361,7 +361,7 @@ describe('contract: BatchConversionPayments', async () => {
 
   describe('batchPayments', async () => {
     const testBatchPayment = async (applyLimit: boolean) => {
-      // Limit is applied if there are paths to USD
+      // Limit is applied if there are paths to USD: skipFeeUSDLimit
       const pathsToUSD = applyLimit
         ? [
             [FAU_address, USD_hash],
@@ -371,7 +371,7 @@ describe('contract: BatchConversionPayments', async () => {
 
       describe(`payment with${
         applyLimit ? '' : 'out'
-      } application of the batch fee limit USD`, async () => {
+      } application of the batch fee limit USD: skipFeeUSDLimit`, async () => {
         it(`make 1 ERC20 payment with no conversion, BATCH_ERC20_PAYMENTS`, async () => {
           const [initialFromFAUBalance, initialToFAUBalance, initialFeeFAUBalance] =
             await getERC20Balances(fauERC20);
