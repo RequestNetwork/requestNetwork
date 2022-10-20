@@ -102,7 +102,7 @@ contract BatchNoConversionPayments is Ownable {
   }
 
   /**
-   * @notice Send a batch of Native (or EVM native token) payments with fees and paymentReferences to multiple accounts.
+   * @notice Send a batch of Native token payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch reverts.
    * @param requestDetails List of Native tokens requests to pay.
    * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
@@ -155,7 +155,7 @@ contract BatchNoConversionPayments is Ownable {
   }
 
   /**
-   * @notice Send a batch of Native (or EVM native token) payments with fees and paymentReferences to multiple accounts.
+   * @notice Send a batch of Native token payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch reverts.
    * @param requestDetails List of Native tokens requests to pay.
    * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
@@ -337,6 +337,7 @@ contract BatchNoConversionPayments is Ownable {
 
   /**
    * Top up the contract with enough `requestedToken` to pay `amountAndFee`.
+   * The contract is NOT topped-up for `batchFeeAmount`.
    *
    * It also performs a few checks:
    * - checks that the batch contract has enough allowance from the payer
