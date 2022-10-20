@@ -17,10 +17,10 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
           creationBlockNumber: 7791166,
         },
-        // mainnet: {
-        //   address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
-        //   creationBlockNumber: 15537996,
-        // },
+        mainnet: {
+          address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
+          creationBlockNumber: 15789288,
+        },
         matic: {
           address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
           creationBlockNumber: 34493278,

@@ -162,7 +162,7 @@ export default {
   xdeploy: {
     salt: REQUEST_SALT,
     signer: process.env.ADMIN_PRIVATE_KEY,
-    networks: process.env.NETWORK ? [process.env.NETWORK] : ['matic'], //['mainnet', 'matic', 'bsc', 'celo', 'xdai', 'fuse', 'arbitrum-one', 'fantom', 'avalanche'],
+    networks: process.env.NETWORK ? [process.env.NETWORK] : ['mainnet'], //['mainnet', 'matic', 'bsc', 'celo', 'xdai', 'fuse', 'arbitrum-one', 'fantom', 'avalanche'],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
   },
