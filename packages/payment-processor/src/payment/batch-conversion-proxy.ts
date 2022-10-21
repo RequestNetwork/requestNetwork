@@ -1,7 +1,7 @@
 import { ContractTransaction, Signer, providers, BigNumber, constants } from 'ethers';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchConversionPayments__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   comparePnTypeAndVersion,
@@ -30,7 +30,16 @@ import {
   CurrencyManager,
 } from '@requestnetwork/currency';
 
-const currencyManager = CurrencyManager.getDefault();
+const currencyManager = new CurrencyManager([
+  ...CurrencyManager.getDefaultList(),
+  {
+    address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa35',
+    decimals: 18,
+    network: 'private',
+    symbol: 'DAI',
+    type: RequestLogicTypes.CURRENCY.ERC20,
+  },
+]);
 
 /**
  * Processes a transaction to pay a batch of requests with an ERC20 currency
@@ -51,7 +60,7 @@ export async function payBatchConversionProxyRequest(
   enrichedRequests: EnrichedRequest[],
   version: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
-  skipFeeUSDLimit = true,
+  skipFeeUSDLimit = false,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const { data, to, value } = prepareBatchConversionPaymentTransaction(
@@ -76,7 +85,7 @@ export async function payBatchConversionProxyRequest(
 export function prepareBatchConversionPaymentTransaction(
   enrichedRequests: EnrichedRequest[],
   version: string,
-  skipFeeUSDLimit = true,
+  skipFeeUSDLimit = false,
 ): IPreparedTransaction {
   const encodedTx = encodePayBatchConversionRequest(enrichedRequests, skipFeeUSDLimit);
   const proxyAddress = getBatchConversionProxyAddress(enrichedRequests[0].request, version);
@@ -98,7 +107,7 @@ export function prepareBatchConversionPaymentTransaction(
  */
 export function encodePayBatchConversionRequest(
   enrichedRequests: EnrichedRequest[],
-  skipFeeUSDLimit = true,
+  skipFeeUSDLimit = false,
 ): string {
   const { feeAddress } = getRequestPaymentValues(enrichedRequests[0].request);
 
