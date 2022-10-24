@@ -1,4 +1,4 @@
-import { ContractTransaction, Signer, Overrides, providers, BigNumberish } from 'ethers';
+import { ContractTransaction, Signer, Overrides, providers, BigNumberish, BigNumber, ethers } from 'ethers';
 
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
@@ -6,6 +6,8 @@ import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { getNetworkProvider, getProvider, getRequestPaymentValues, validateRequest } from './utils';
 import { Framework } from '@superfluid-finance/sdk-core';
 import { IPreparedTransaction } from './prepared-transaction';
+import { ITransactionOverrides } from './transaction-overrides';
+import * as erc777Artefact from '@openzeppelin/contracts/build/contracts/IERC777.json';
 
 export const RESOLVER_ADDRESS = '0x913bbCFea2f347a24cfCA441d483E7CBAc8De3Db';
 // Superfluid payments of requests use the generic field `userData` to index payments.
@@ -187,4 +189,63 @@ export async function getErc777BalanceAt(
     timestamp,
   });
   return realtimeBalance.availableBalance;
+}
+
+
+/**
+ * Encode the transaction data for a one off payment of ERC777 Tokens
+ * @param request to encode the payment for
+ * @param amount the amount to be sent
+ * @returns the encoded transaction data
+ */
+ export const encodeErc777OneOffPayment = (
+  request: ClientTypes.IRequestData,
+  amount: BigNumber,
+): string => {
+  const id = getPaymentNetworkExtension(request)?.id;
+  if (id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM) {
+    throw new Error('Not a supported ERC777 payment network request');
+  }
+  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
+  const erc777 = ethers.ContractFactory.getInterface(erc777Artefact.abi);
+  return erc777.encodeFunctionData("send", [
+    paymentAddress,
+    amount,
+    `0x${paymentReference}`
+  ]);
+}
+
+/**
+ * Prepare the transaction for a one payment for the user to sign
+ * @param request to prepare the transaction for
+ * @param amount the amount to be sent
+ * @returns the prepared transaction
+ */
+export const prepareErc777OneOffPayment = (
+  request: ClientTypes.IRequestData,
+  amount: BigNumber,
+): IPreparedTransaction => {
+  return {
+    data: encodeErc777OneOffPayment(request, amount),
+    to: request.currencyInfo.value,
+    value: 0,
+  };
+}
+
+/**
+ * Make an ERC777 payment
+ * @param request associated to the payment
+ * @param amount the amount to be sent
+ * @param signer the transaction signer
+ * @returns the transaction result
+ */
+export const makeErc777OneOffPayment = async (
+  request: ClientTypes.IRequestData,
+  amount: BigNumber,
+  signer: Signer,
+  overrides?: ITransactionOverrides,
+): Promise<ContractTransaction> => {
+  const preparedTx = prepareErc777OneOffPayment(request, amount);
+  return signer.sendTransaction({...preparedTx, ...overrides});
 }
