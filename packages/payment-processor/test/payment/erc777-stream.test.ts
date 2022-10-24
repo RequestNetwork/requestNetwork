@@ -12,6 +12,7 @@ import Utils from '@requestnetwork/utils';
 
 import {
   completeErc777StreamRequest,
+  makeErc777OneOffPayment,
   payErc777StreamRequest,
   RESOLVER_ADDRESS,
 } from '../../src/payment/erc777-stream';
@@ -29,6 +30,7 @@ const expectedFlowRate = '100000';
 const expectedStartDate = '1643041225';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
+const oneOffPaymentAmount = '1000000000';
 
 const validRequest: ClientTypes.IRequestData = {
   balance: {
@@ -237,6 +239,47 @@ describe('erc777-stream', () => {
         providerOrSigner: provider,
       });
       expect(paymentFlowRate).toBe('0');
+    });
+  });
+
+  describe('makeErc777OneOffPayment', () => {
+    it('Should perform a payment', async () => {
+      // initialize the superfluid framework...put custom and web3 only bc we are using ganache locally
+      const sf = await Framework.create({
+        networkName: 'custom',
+        provider,
+        dataMode: 'WEB3_ONLY',
+        resolverAddress: RESOLVER_ADDRESS,
+        protocolReleaseVersion: 'test',
+      });
+
+      // use the framework to get the SuperToken
+      const daix = await sf.loadSuperToken('fDAIx');
+
+      const senderBalanceBefore = await daix.balanceOf({
+        account: wallet.address,
+        providerOrSigner: provider,
+      })
+      const recipientBalanceBefore = await daix.balanceOf({
+        account: paymentAddress,
+        providerOrSigner: provider,
+      })
+
+      // Perform the payment
+      const tx = await makeErc777OneOffPayment(validRequest, BigNumber.from(oneOffPaymentAmount), wallet)
+      await tx.wait(1)
+
+      const senderBalanceAfter = await daix.balanceOf({
+        account: wallet.address,
+        providerOrSigner: provider,
+      })
+      const recipientBalanceAfter = await daix.balanceOf({
+        account: paymentAddress,
+        providerOrSigner: provider,
+      })
+
+      expect(BigNumber.from(senderBalanceBefore)).toEqual(BigNumber.from(senderBalanceAfter).add(oneOffPaymentAmount));
+      expect(BigNumber.from(recipientBalanceAfter)).toEqual(BigNumber.from(recipientBalanceBefore).add(oneOffPaymentAmount));
     });
   });
 });
