@@ -8,7 +8,6 @@ import { supportedBSCTestERC20 } from './bsctest';
 import { supportedBSCERC20 } from './bsc';
 import { supportedXDAIERC20 } from './xdai';
 import { supportedGoerliERC20 } from './goerli';
-import { supportedPrivateERC20 } from './private';
 
 export const supportedNetworks: Record<string, TokenMap> = {
   celo: supportedCeloERC20,
@@ -21,7 +20,6 @@ export const supportedNetworks: Record<string, TokenMap> = {
   bsctest: supportedBSCTestERC20,
   bsc: supportedBSCERC20,
   xdai: supportedXDAIERC20,
-  private: supportedPrivateERC20,
 };
 
 export type { TokenMap };

@@ -53,41 +53,19 @@ export const isValidNearAddress = (address: string, network?: string): boolean =
 
 export const isNativeCurrency = (currency: CurrencyInput): currency is NativeCurrencyInput => {
   return (
-    isAgreedCurrencyType(currency, RequestLogicTypes.CURRENCY.BTC) ||
-    isAgreedCurrencyType(currency, RequestLogicTypes.CURRENCY.ETH)
+    currency.type === RequestLogicTypes.CURRENCY.BTC ||
+    currency.type === RequestLogicTypes.CURRENCY.ETH
   );
 };
 
 export const isISO4217Currency = (currency: CurrencyInput): currency is ISO4217CurrencyInput => {
-  return isAgreedCurrencyType(currency, RequestLogicTypes.CURRENCY.ISO4217);
+  return currency.type === RequestLogicTypes.CURRENCY.ISO4217;
 };
 
 export const isERC20Currency = (currency: CurrencyInput): currency is ERC20CurrencyInput => {
-  return isAgreedCurrencyType(currency, RequestLogicTypes.CURRENCY.ERC20);
+  return currency.type === RequestLogicTypes.CURRENCY.ERC20;
 };
 
 export const isERC777Currency = (currency: CurrencyInput): currency is ERC777CurrencyInput => {
-  return isAgreedCurrencyType(currency, RequestLogicTypes.CURRENCY.ERC777);
+  return currency.type === RequestLogicTypes.CURRENCY.ERC777;
 };
-
-export const isAgreedCurrencyType = (
-  currency: Pick<CurrencyInput, 'type'>,
-  currencyAgreed: RequestLogicTypes.CURRENCY,
-): boolean => currency.type === currencyAgreed;
-
-// export const isISO4217CurrencyType = (currency: Pick<CurrencyInput, 'type'>): boolean =>
-//   currency.type === RequestLogicTypes.CURRENCY.ISO4217;
-
-// export const isAgreedCurrencyType = (currency: Pick<CurrencyInput, 'type'>, currencyAgreed: RequestLogicTypes.CURRENCY): boolean =>
-//   currency.type === currencyAgreed;
-
-// export const isERC20Currency = (currency: CurrencyInput): currency is ERC20CurrencyInput => {
-//   return isERC20CurrencyType(currency);
-// };
-
-// export const isERC20CurrencyType = (currency: Pick<CurrencyInput, 'type'>): boolean =>
-//   currency.type === RequestLogicTypes.CURRENCY.ERC20;
-
-// export const isERC777Currency = (currency: CurrencyInput): currency is ERC777CurrencyInput => {
-//   return currency.type === RequestLogicTypes.CURRENCY.ERC777;
-// };
