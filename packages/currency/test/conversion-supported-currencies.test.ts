@@ -4,7 +4,7 @@ import { RequestLogicTypes } from '@requestnetwork/types';
 const currencyManager = new CurrencyManager([
   ...CurrencyManager.getDefaultList(),
   {
-    address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa35',
+    address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa36',
     decimals: 18,
     network: 'private',
     symbol: 'FAKE',
@@ -71,7 +71,7 @@ describe('supported currencies with oracles from chainlink', () => {
         '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063',
         '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
       ],
-      private: ['0x38cf23c52bb4b13f051aec09580a2de845a7fa35'],
+      private: ['0x38cf23c52bb4b13f051aec09580a2de845a7fa36'],
     }).forEach(([network, addresses]) => {
       describe(network, () => {
         addresses.forEach((address) => {

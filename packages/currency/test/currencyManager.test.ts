@@ -115,21 +115,21 @@ describe('CurrencyManager', () => {
         {
           type: RequestLogicTypes.CURRENCY.ERC20,
           symbol: 'FAKE',
-          address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa35',
+          address: '0x38cf23c52bb4b13f051aec09580a2de845a7fa36',
           decimals: 18,
           network: 'private',
         },
       ]);
       const fake = currencyManager.from('FAKE') as ERC20Currency;
       // right case
-      expect(fake.address).toBe('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35');
+      expect(fake.address).toBe('0x38cf23C52bb4B13F051aEc09580A2de845A7Fa36');
 
       // it can match it from right case or wrong
 
-      expect(currencyManager.fromAddress('0x38cf23c52bb4b13f051aec09580a2de845a7fa35')?.id).toBe(
+      expect(currencyManager.fromAddress('0x38cf23c52bb4b13f051aec09580a2de845a7fa36')?.id).toBe(
         'FAKE-private',
       );
-      expect(currencyManager.fromAddress('0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35')?.id).toBe(
+      expect(currencyManager.fromAddress('0x38cf23C52bb4B13F051aEc09580A2de845A7Fa36')?.id).toBe(
         'FAKE-private',
       );
     });
