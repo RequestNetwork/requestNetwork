@@ -259,27 +259,35 @@ describe('erc777-stream', () => {
       const senderBalanceBefore = await daix.balanceOf({
         account: wallet.address,
         providerOrSigner: provider,
-      })
+      });
       const recipientBalanceBefore = await daix.balanceOf({
         account: paymentAddress,
         providerOrSigner: provider,
-      })
+      });
 
       // Perform the payment
-      const tx = await makeErc777OneOffPayment(validRequest, BigNumber.from(oneOffPaymentAmount), wallet)
-      await tx.wait(1)
+      const tx = await makeErc777OneOffPayment(
+        validRequest,
+        BigNumber.from(oneOffPaymentAmount),
+        wallet,
+      );
+      await tx.wait(1);
 
       const senderBalanceAfter = await daix.balanceOf({
         account: wallet.address,
         providerOrSigner: provider,
-      })
+      });
       const recipientBalanceAfter = await daix.balanceOf({
         account: paymentAddress,
         providerOrSigner: provider,
-      })
+      });
 
-      expect(BigNumber.from(senderBalanceBefore)).toEqual(BigNumber.from(senderBalanceAfter).add(oneOffPaymentAmount));
-      expect(BigNumber.from(recipientBalanceAfter)).toEqual(BigNumber.from(recipientBalanceBefore).add(oneOffPaymentAmount));
+      expect(BigNumber.from(senderBalanceBefore)).toEqual(
+        BigNumber.from(senderBalanceAfter).add(oneOffPaymentAmount),
+      );
+      expect(BigNumber.from(recipientBalanceAfter)).toEqual(
+        BigNumber.from(recipientBalanceBefore).add(oneOffPaymentAmount),
+      );
     });
   });
 });

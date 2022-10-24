@@ -163,13 +163,13 @@ export async function approveUnderlyingToken(
  * @param amount to allow, defaults to max allowance
  * @returns
  */
- export async function prepareWrapUnderlyingToken(
+export async function prepareWrapUnderlyingToken(
   request: ClientTypes.IRequestData,
   provider: providers.Provider = getNetworkProvider(request),
   amount: BigNumber = MAX_ALLOWANCE,
 ): Promise<IPreparedTransaction> {
   const wrapOp = await getWrapUnderlyingTokenOp(request, provider, amount);
-  return (await wrapOp.populateTransactionPromise) as IPreparedTransaction
+  return (await wrapOp.populateTransactionPromise) as IPreparedTransaction;
 }
 
 /**
@@ -192,7 +192,11 @@ export async function wrapUnderlyingToken(
   if (!(await hasEnoughUnderlyingToken(request, senderAddress, provider, amount))) {
     throw new Error('Sender does not have enough underlying token');
   }
-  const preparedTx = await prepareWrapUnderlyingToken(request, signer.provider ?? getProvider(), amount);
+  const preparedTx = await prepareWrapUnderlyingToken(
+    request,
+    signer.provider ?? getProvider(),
+    amount,
+  );
   return signer.sendTransaction(preparedTx);
 }
 
@@ -202,17 +206,14 @@ export async function wrapUnderlyingToken(
  * @param provider the web3 provider
  * @param amount to unwrap
  */
- export async function prepareUnwrapSuperToken(
+export async function prepareUnwrapSuperToken(
   request: ClientTypes.IRequestData,
   provider: providers.Provider = getNetworkProvider(request),
   amount: BigNumber,
 ): Promise<IPreparedTransaction> {
   const sf = await getSuperFluidFramework(request, provider);
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
-  const underlyingToken = await getRequestUnderlyingToken(
-    request,
-    provider,
-  );
+  const underlyingToken = await getRequestUnderlyingToken(request, provider);
 
   if (underlyingToken.address === superToken.address) {
     throw new Error('This is a native super token');
@@ -223,7 +224,6 @@ export async function wrapUnderlyingToken(
   });
   return (await downgradeOp.populateTransactionPromise) as IPreparedTransaction;
 }
-
 
 /**
  * Unwrap the supertoken (ERC777) into underlying asset (ERC20)
@@ -246,6 +246,10 @@ export async function unwrapSuperToken(
   if (amount.gt(userBalance)) {
     throw new Error('Sender does not have enough supertoken');
   }
-  const preparedTx = await prepareUnwrapSuperToken(request, signer.provider ?? getProvider(), amount)
+  const preparedTx = await prepareUnwrapSuperToken(
+    request,
+    signer.provider ?? getProvider(),
+    amount,
+  );
   return signer.sendTransaction(preparedTx);
 }

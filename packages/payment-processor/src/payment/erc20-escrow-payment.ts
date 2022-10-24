@@ -20,7 +20,7 @@ import { IPreparedTransaction } from './prepared-transaction';
  * @param paymentTokenAddress currency to approve
  * @param signerOrProvider the web3 provider
  * @param overrides optionally overrides default transaction values, like gas
- * @returns the prepared transaction 
+ * @returns the prepared transaction
  */
 export function prepareErc20EscrowApproval(
   request: ClientTypes.IRequestData,
@@ -52,7 +52,12 @@ export async function approveErc20ForEscrow(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const preparedTx = prepareErc20EscrowApproval(request, paymentTokenAddress, signerOrProvider, overrides);
+  const preparedTx = prepareErc20EscrowApproval(
+    request,
+    paymentTokenAddress,
+    signerOrProvider,
+    overrides,
+  );
   const signer = getSigner(signerOrProvider);
   return await signer.sendTransaction(preparedTx);
 }
@@ -262,7 +267,7 @@ export function encodePayEscrow(
  * @param feeAmount optional, if you want to override the feeAmount in the request.
  * @param overrides optionally, override default transaction values, like gas.
  */
- export function preparePayEscrow(
+export function preparePayEscrow(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmount?: BigNumberish,
@@ -275,7 +280,7 @@ export function encodePayEscrow(
     to: contractAddress,
     value: 0,
     ...overrides,
-  }
+  };
 }
 
 /**

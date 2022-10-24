@@ -1,4 +1,12 @@
-import { ContractTransaction, Signer, Overrides, providers, BigNumberish, BigNumber, ethers } from 'ethers';
+import {
+  ContractTransaction,
+  Signer,
+  Overrides,
+  providers,
+  BigNumberish,
+  BigNumber,
+  ethers,
+} from 'ethers';
 
 import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
@@ -191,14 +199,13 @@ export async function getErc777BalanceAt(
   return realtimeBalance.availableBalance;
 }
 
-
 /**
  * Encode the transaction data for a one off payment of ERC777 Tokens
  * @param request to encode the payment for
  * @param amount the amount to be sent
  * @returns the encoded transaction data
  */
- export const encodeErc777OneOffPayment = (
+export const encodeErc777OneOffPayment = (
   request: ClientTypes.IRequestData,
   amount: BigNumber,
 ): string => {
@@ -209,12 +216,8 @@ export async function getErc777BalanceAt(
   validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const erc777 = ethers.ContractFactory.getInterface(erc777Artefact.abi);
-  return erc777.encodeFunctionData("send", [
-    paymentAddress,
-    amount,
-    `0x${paymentReference}`
-  ]);
-}
+  return erc777.encodeFunctionData('send', [paymentAddress, amount, `0x${paymentReference}`]);
+};
 
 /**
  * Prepare the transaction for a one payment for the user to sign
@@ -231,7 +234,7 @@ export const prepareErc777OneOffPayment = (
     to: request.currencyInfo.value,
     value: 0,
   };
-}
+};
 
 /**
  * Make an ERC777 payment
@@ -247,5 +250,5 @@ export const makeErc777OneOffPayment = async (
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> => {
   const preparedTx = prepareErc777OneOffPayment(request, amount);
-  return signer.sendTransaction({...preparedTx, ...overrides});
-}
+  return signer.sendTransaction({ ...preparedTx, ...overrides });
+};
