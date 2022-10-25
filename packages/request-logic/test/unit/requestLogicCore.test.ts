@@ -16,10 +16,12 @@ import * as TestData from './utils/test-data-generator';
 import RequestLogicCore from '../../src/requestLogicCore';
 
 const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+  getAnyToNativeTokenExtensionForNetwork: jest.fn(),
+  getNativeTokenExtensionForNetwork: jest.fn(),
   applyActionToExtensions: (
     extensionStates: RequestLogicTypes.IExtensionStates,
   ): RequestLogicTypes.IExtensionStates => extensionStates,
-  extensions: {},
+  extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

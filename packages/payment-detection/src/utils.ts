@@ -1,7 +1,7 @@
 import { CurrencyDefinition } from '@requestnetwork/currency';
-import { RequestLogicTypes, PaymentTypes, ExtensionTypes } from '@requestnetwork/types';
-import { BigNumber, BigNumberish, Contract } from 'ethers';
-import { keccak256, LogDescription } from 'ethers/lib/utils';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { BigNumber, BigNumberish, Contract, errors, logger } from 'ethers';
+import { getAddress, keccak256, LogDescription } from 'ethers/lib/utils';
 import { ContractArtifact, DeploymentInformation } from '@requestnetwork/smart-contracts';
 import { NetworkNotSupported, VersionNotSupported } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
@@ -131,12 +131,12 @@ export const calculateEscrowState = (
 /**
  * Return the payment network extension of a Request.
  */
-export function getPaymentNetworkExtension(
+export function getPaymentNetworkExtension<T = any>(
   request: Pick<RequestLogicTypes.IRequest, 'extensions'>,
-): ExtensionTypes.IState | undefined {
+): ExtensionTypes.IPaymentNetworkState<T> | undefined {
   return Object.values(request.extensions).find(
     (x) => x.type === ExtensionTypes.TYPE.PAYMENT_NETWORK,
-  );
+  ) as ExtensionTypes.IPaymentNetworkState<T>;
 }
 
 type PaymentParameters = PaymentTypes.IReferenceBasedCreationParameters &
@@ -158,7 +158,7 @@ export function getPaymentReference(
   request: Pick<RequestLogicTypes.IRequest, 'extensions' | 'requestId'>,
   event: PaymentTypes.EVENTS_NAMES = PaymentTypes.EVENTS_NAMES.PAYMENT,
 ): string | undefined {
-  const extension = getPaymentNetworkExtension(request) as ExtensionTypes.IState<PaymentParameters>;
+  const extension = getPaymentNetworkExtension<PaymentParameters>(request);
   if (!extension) {
     throw new Error('no payment network found');
   }
@@ -171,3 +171,21 @@ export function getPaymentReference(
 
   return PaymentReferenceCalculator.calculate(requestId, salt, info);
 }
+
+/** Alias to ethers.utils.getAddress that adds the key to error message, and supports nullish values */
+export const formatAddress: {
+  (address: string | null | undefined, key?: string, allowsUndefined?: false): string;
+  (address: string | null | undefined, key?: string, allowsUndefined?: true): string | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} = (address: string | null | undefined, key?: string, allowsUndefined = false): any => {
+  if (!address && allowsUndefined) return undefined;
+  try {
+    return getAddress(address || '');
+  } catch (e) {
+    logger.throwError('invalid address', errors.INVALID_ARGUMENT, {
+      argument: 'address',
+      value: address,
+      key,
+    });
+  }
+};

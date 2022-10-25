@@ -2,5 +2,6 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "esModuleInterop": true
-  }
+  },
+  "include": ["src/", "src/aggregators/*.json", "scripts/", "test/"]
 }

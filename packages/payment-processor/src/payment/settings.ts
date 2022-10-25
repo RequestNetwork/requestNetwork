@@ -1,7 +1,15 @@
 import { ICurrencyManager } from '@requestnetwork/currency';
 import { RequestLogicTypes } from '@requestnetwork/types';
-import { BigNumberish } from 'ethers';
+import { BigNumber, BigNumberish } from 'ethers';
 import { ITransactionOverrides } from './transaction-overrides';
+
+/**
+ * Approval settings
+ */
+export interface IApprovalSettings {
+  /** The specific amount to approve. Defaults to maximum when left empty */
+  amount: BigNumber;
+}
 
 /**
  * Details required for a token swap
@@ -42,4 +50,6 @@ export interface IRequestPaymentOptions {
   swap?: ISwapSettings;
   /** Used, and required, only for on chain conversion */
   conversion?: IConversionSettings;
+  /** Optional, enable to approve only specific amount of token. Defaults to MAX_ALLOWANCE if not set */
+  approval?: IApprovalSettings;
 }

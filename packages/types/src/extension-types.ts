@@ -24,6 +24,9 @@ export {
 
 /** Extension interface is extended by the extensions implementation */
 export interface IExtension<T = any> {
+  extensionType: TYPE;
+  extensionId: ID;
+  currentVersion: string;
   applyActionToExtension: (
     extensionsState: RequestLogic.IExtensionStates,
     extensionAction: IAction<T>,
@@ -48,6 +51,12 @@ export interface IState<T = any> {
   version: string;
   events: IEvent[];
   values: T;
+}
+
+/** State for payment networks extensions only */
+export interface IPaymentNetworkState<T = any> extends IState<T> {
+  id: Exclude<ID, ID.CONTENT_DATA>;
+  type: TYPE.PAYMENT_NETWORK;
 }
 
 /** Creation action object */

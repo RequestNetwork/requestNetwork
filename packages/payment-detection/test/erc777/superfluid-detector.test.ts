@@ -4,8 +4,10 @@ import {
   IdentityTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
+import { CurrencyManager } from '@requestnetwork/currency';
 import { SuperFluidPaymentDetector } from '../../src/erc777/superfluid-detector';
 import { genTransferEventsByMonth } from './mocks';
+import { mockAdvancedLogicBase } from '../utils';
 
 let superfluidPaymentDetector: SuperFluidPaymentDetector;
 
@@ -17,12 +19,9 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     feeProxyContractErc20: {
-      supportedNetworks: ['mainnet', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -31,7 +30,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 const baseRequestData = {
   creator: { type: IdentityTypes.TYPE.ETHEREUM_ADDRESS, value: '0x2' },
@@ -131,7 +130,10 @@ const mockTransferEventsForMonth = (monthNumber: number) => {
 
 describe('superfluid balance computation', () => {
   beforeEach(() => {
-    superfluidPaymentDetector = new SuperFluidPaymentDetector({ advancedLogic: mockAdvancedLogic });
+    superfluidPaymentDetector = new SuperFluidPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
+    });
   });
   afterEach(() => {
     jest.clearAllMocks();

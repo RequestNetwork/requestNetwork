@@ -11,10 +11,11 @@ export abstract class PaymentDetectorBase<
   TPaymentEventParameters,
 > implements PaymentTypes.IPaymentNetwork<TPaymentEventParameters>
 {
-  public constructor(
-    readonly paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
-    protected readonly extension: TExtension,
+  protected constructor(
+    public readonly paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    public readonly extension: TExtension,
   ) {}
+
   abstract createExtensionsDataForCreation(paymentNetworkCreationParameters: any): Promise<any>;
   abstract createExtensionsDataForAddRefundInformation(parameters: any): any;
   abstract createExtensionsDataForAddPaymentInformation(parameters: any): any;
@@ -46,7 +47,7 @@ export abstract class PaymentDetectorBase<
   }
 
   /**
-   * Gets all paymnent events for a given Request
+   * Gets all payment events for a given Request
    */
   protected abstract getEvents(
     request: RequestLogicTypes.IRequest,

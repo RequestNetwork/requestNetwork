@@ -9,20 +9,12 @@ const CURRENT_VERSION = '0.1.0';
 export default class Erc777StreamPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnStreamReferenceBased.ICreationParameters = ExtensionTypes.PnStreamReferenceBased.ICreationParameters,
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
-  public constructor(
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
-    currentVersion: string = CURRENT_VERSION,
-    public supportedNetworks: string[] = [
-      'matic',
-      'xdai',
-      'mumbai',
-      'rinkeby',
-      'goerli',
-      'arbitrum-rinkeby',
-    ],
-    public supportedCurrencyType: RequestLogicTypes.CURRENCY = RequestLogicTypes.CURRENCY.ERC777,
-  ) {
-    super(extensionId, currentVersion, supportedNetworks, supportedCurrencyType);
+  public constructor() {
+    super(
+      ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+      CURRENT_VERSION,
+      RequestLogicTypes.CURRENCY.ERC777,
+    );
   }
 
   /**

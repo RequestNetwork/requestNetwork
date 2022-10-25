@@ -40,6 +40,7 @@ export const requestData = {
   currency: {
     type: RequestLogicTypes.CURRENCY.BTC,
     value: 'BTC',
+    network: 'mainnet',
   },
   expectedAmount: '100000000000',
   payee: payee.identity,

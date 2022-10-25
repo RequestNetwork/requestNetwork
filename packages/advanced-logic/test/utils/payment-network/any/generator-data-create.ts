@@ -93,7 +93,7 @@ export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<Extens
       refundAddress: 'refund.near',
       salt: arbitrarySalt,
     },
-    version: '0.2.0',
+    version: '0.1.0',
   };
 export const actionCreationWithAnyToNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnAnyToAnyConversion.ICreationParameters> =
   {
@@ -108,7 +108,7 @@ export const actionCreationWithAnyToNativeTokenPayment: ExtensionTypes.IAction<E
       network: 'aurora',
       maxRateTimespan: 1000000,
     },
-    version: '0.2.0',
+    version: '0.1.0',
   };
 
 export const actionAddDelegate = {
@@ -239,7 +239,7 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
       sentPaymentAmount: '0',
       sentRefundAmount: '0',
     },
-    version: '0.2.0',
+    version: '0.1.0',
   },
 };
 export const extensionStateWithAnyToNativeTokenPaymentAndRefund: RequestLogicTypes.IExtensionStates =
@@ -279,7 +279,7 @@ export const extensionStateWithAnyToNativeTokenPaymentAndRefund: RequestLogicTyp
         maxRateTimespan: 1000000,
         feeAmount: '100',
       },
-      version: '0.2.0',
+      version: '0.1.0',
     },
   };
 export const extensionStateAnyToNativeWithPaymentAddressAdded: RequestLogicTypes.IExtensionStates =
@@ -325,7 +325,7 @@ export const extensionStateAnyToNativeWithPaymentAddressAdded: RequestLogicTypes
         maxRateTimespan: 1000000,
         feeAmount: '100',
       },
-      version: '0.2.0',
+      version: '0.1.0',
     },
   };
 
@@ -371,7 +371,7 @@ export const extensionStateAnyToNativeWithFeeAdded: RequestLogicTypes.IExtension
       maxRateTimespan: 1000000,
       feeAmount: '100',
     },
-    version: '0.2.0',
+    version: '0.1.0',
   },
 };
 

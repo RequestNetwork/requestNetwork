@@ -1,4 +1,4 @@
-import { CurrencyManager, CurrencyInput, CurrencyPairs } from '@requestnetwork/currency';
+import { CurrencyManager, CurrencyInput, AggregatorsMap } from '@requestnetwork/currency';
 import axios from 'axios';
 import { RequestLogicTypes } from '@requestnetwork/types';
 
@@ -34,6 +34,7 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   matic: ['polygon', 'Polygon Mainnet'],
   xdai: ['gnosis-chain', 'Gnosis Chain Mainnet'],
   bsc: ['bnb-chain', 'BNB Chain Mainnet'],
+  avalanche: ['avalanche', 'Avalanche Mainnet'],
 };
 
 export const getAvailableAggregators = async (
@@ -93,7 +94,7 @@ const loadCurrencyApi = async <T>(path: string): Promise<T> => {
 };
 
 export const getCurrencyManager = async (list?: string): Promise<CurrencyManager> => {
-  const aggregators = await loadCurrencyApi<Record<string, CurrencyPairs>>('/aggregators');
+  const aggregators = await loadCurrencyApi<AggregatorsMap>('/aggregators');
   const currencyList = list
     ? await loadCurrencyApi<CurrencyInput[]>(`/list/${list}`)
     : CurrencyManager.getDefaultList();

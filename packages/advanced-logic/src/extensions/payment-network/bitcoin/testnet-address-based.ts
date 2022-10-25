@@ -1,7 +1,6 @@
-import { ExtensionTypes } from '@requestnetwork/types';
 import BitcoinAddressBasedPaymentNetwork from './mainnet-address-based';
+import { ExtensionTypes } from '@requestnetwork/types';
 
-const CURRENT_VERSION = '0.1.0';
 const BITCOIN_NETWORK = 'testnet';
 
 /**
@@ -13,8 +12,10 @@ const BITCOIN_NETWORK = 'testnet';
  */
 export default class BitcoinTestnetAddressBasedPaymentNetwork extends BitcoinAddressBasedPaymentNetwork {
   public constructor() {
-    super(ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED, CURRENT_VERSION, [
-      BITCOIN_NETWORK,
-    ]);
+    super(ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED);
+  }
+
+  protected isValidAddress(address: string): boolean {
+    return this.isValidAddressForSymbolAndNetwork(address, 'BTC-testnet', BITCOIN_NETWORK);
   }
 }
