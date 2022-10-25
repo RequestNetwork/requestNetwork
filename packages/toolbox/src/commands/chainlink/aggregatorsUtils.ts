@@ -34,6 +34,7 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   matic: ['polygon', 'Polygon Mainnet'],
   xdai: ['gnosis-chain', 'Gnosis Chain Mainnet'],
   bsc: ['bnb-chain', 'BNB Chain Mainnet'],
+  avalanche: ['avalanche', 'Avalanche Mainnet'],
 };
 
 export const getAvailableAggregators = async (
