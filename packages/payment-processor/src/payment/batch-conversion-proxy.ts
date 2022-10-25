@@ -21,7 +21,6 @@ import { IPreparedTransaction } from './prepared-transaction';
 import { EnrichedRequest, IConversionPaymentSettings } from './index';
 import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
-import { BATCH_PAYMENT_NETWORK_ID, RequestDetail } from '@requestnetwork/types/dist/payment-types';
 import { IState } from 'types/dist/extension-types';
 import { CurrencyDefinition, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
 
@@ -109,7 +108,7 @@ function encodePayBatchConversionRequest(
     const request = enrichedRequest.request;
     if (
       enrichedRequest.paymentNetworkId ===
-      BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS
+      PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS
     ) {
       firstConversionRequestExtension =
         firstConversionRequestExtension ?? getPaymentNetworkExtension(request);
@@ -120,7 +119,8 @@ function encodePayBatchConversionRequest(
       }
       ERC20ConversionRequestDetails.push(getInputERC20ConversionRequestDetail(enrichedRequest));
     } else if (
-      enrichedRequest.paymentNetworkId === BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
+      enrichedRequest.paymentNetworkId ===
+      PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
     ) {
       firstNoConversionRequestExtension =
         firstNoConversionRequestExtension ?? getPaymentNetworkExtension(request);
@@ -140,7 +140,7 @@ function encodePayBatchConversionRequest(
   if (ERC20ConversionRequestDetails.length > 0) {
     // Add ERC20 conversion payments
     metaDetails.push({
-      paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
+      paymentNetworkId: PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS,
       requestDetails: ERC20ConversionRequestDetails,
     });
   }
@@ -148,7 +148,7 @@ function encodePayBatchConversionRequest(
   if (ERC20NoConversionRequestDetails.length > 0) {
     // Add multi ERC20 no-conversion payments
     metaDetails.push({
-      paymentNetworkId: BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
+      paymentNetworkId: PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS,
       requestDetails: ERC20NoConversionRequestDetails,
     });
   }
@@ -235,7 +235,7 @@ function getInputERC20ConversionRequestDetail(
  * @param currencyManager The currencyManager used to get token conversion paths to USD.
  */
 function getUSDPathsForFeeLimit(
-  requestDetails: RequestDetail[],
+  requestDetails: PaymentTypes.RequestDetail[],
   network: string,
   skipFeeUSDLimit: boolean,
   currencyManager: ICurrencyManager<unknown>,
