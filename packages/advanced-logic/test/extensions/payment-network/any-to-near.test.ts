@@ -9,10 +9,11 @@ import {
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw, payerRaw } from '../../utils/test-data-generator';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
-import AnyToNearPaymentNetwork from '../../../src/extensions/payment-network/any-to-near';
+import AnyToNearPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near';
 import AnyToNativeTokenPaymentNetwork from '../../../src/extensions/payment-network/any-to-native';
 import { CurrencyManager } from '@requestnetwork/currency';
 import utils from '@requestnetwork/utils';
+import AnyToNearTestnetPaymentNetwork from '../../../src/extensions/payment-network/near/any-to-near-testnet';
 
 const salt = arbitrarySalt;
 const currencyManager = CurrencyManager.getDefault();
@@ -41,7 +42,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
     },
     {
       name: 'Near testnet',
-      paymentNetwork: new AnyToNearPaymentNetwork(
+      paymentNetwork: new AnyToNearTestnetPaymentNetwork(
         currencyManager,
       ) as AnyToNativeTokenPaymentNetwork,
       suffix: 'testnet',
@@ -186,7 +187,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
                 network: 'another-chain',
               });
             }).toThrowError(
-              `Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet)`,
+              `Payment network 'another-chain' is not supported by this extension (only aurora)`,
             );
           });
           it('throws when payment network is missing', () => {
@@ -453,18 +454,10 @@ describe('extensions/payment-network/any-to-native-token', () => {
 
         validRequestState.extensions = intermediateExtensionState;
 
-        const addPaymentAddressAction = anyToNearPn.createAddPaymentAddressAction({
-          paymentAddress: invalidAddress,
-        });
-
         expect(() => {
-          advancedLogic.applyActionToExtensions(
-            intermediateExtensionState,
-            addPaymentAddressAction,
-            validRequestState,
-            payeeRaw.identity,
-            arbitraryTimestamp,
-          );
+          anyToNearPn.createAddPaymentAddressAction({
+            paymentAddress: invalidAddress,
+          });
         }).toThrowError(`paymentAddress '${invalidAddress}' is not a valid address`);
       });
     });

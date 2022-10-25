@@ -456,6 +456,7 @@ describe('CurrencyManager', () => {
     const nearAddresses: Record<string, string> = {
       aurora: 'requestnetwork.near',
       'aurora-testnet': 'requestnetwork.testnet',
+      'near-testnet': 'requestnetwork.testnet',
     };
 
     const eip55Addresses: string[] = [
@@ -487,6 +488,13 @@ describe('CurrencyManager', () => {
           type: RequestLogicTypes.CURRENCY.ETH,
           symbol: 'NEAR-testnet',
           network: 'aurora-testnet',
+        },
+      },
+      near: {
+        'NEAR-testnet': {
+          type: RequestLogicTypes.CURRENCY.ETH,
+          symbol: 'NEAR-testnet',
+          network: 'near-testnet',
         },
       },
     };

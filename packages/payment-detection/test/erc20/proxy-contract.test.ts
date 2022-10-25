@@ -1,15 +1,14 @@
+import { mocked } from 'ts-jest/utils';
 import {
   AdvancedLogicTypes,
   ExtensionTypes,
   PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
-import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
-import { GraphQLClient } from 'graphql-request';
-import { mocked } from 'ts-jest/utils';
-
-jest.mock('graphql-request');
-const graphql = mocked(GraphQLClient.prototype);
+import { CurrencyManager } from '@requestnetwork/currency';
+import { ERC20ProxyPaymentDetector } from '../../src/erc20';
+import { getTheGraphClient } from '../../src';
+import { mockAdvancedLogicBase } from '../utils';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
@@ -19,13 +18,12 @@ const createCreationAction = jest.fn();
 const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
+jest.mock('../../src/thegraph/client');
+const theGraphClientMock = mocked(getTheGraphClient(''));
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     proxyContractErc20: {
-      supportedNetworks: ['mainnet', 'rinkeby', 'goerli'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -33,13 +31,17 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('api/erc20/proxy-contract', () => {
   beforeEach(() => {
-    erc20ProxyContract = new ERC20ProxyPaymentDetector({ advancedLogic: mockAdvancedLogic });
+    erc20ProxyContract = new ERC20ProxyPaymentDetector({
+      advancedLogic: mockAdvancedLogic,
+      currencyManager: CurrencyManager.getDefault(),
+      getSubgraphClient: () => theGraphClientMock,
+    });
   });
 
   it('can createExtensionsDataForCreation', async () => {
@@ -159,8 +161,7 @@ describe('api/erc20/proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        message:
-          'Payment network WRONG not supported by pn-erc20-proxy-contract payment detection. Supported networks: mainnet, rinkeby, goerli',
+        message: 'Network not supported for this payment network: WRONG',
       },
       events: [],
     });
@@ -197,7 +198,7 @@ describe('api/erc20/proxy-contract', () => {
       },
     };
 
-    graphql.request.mockResolvedValue({
+    theGraphClientMock.GetPaymentsAndEscrowState.mockResolvedValueOnce({
       payments: [
         {
           amount: '1000000000000000000',
@@ -209,13 +210,14 @@ describe('api/erc20/proxy-contract', () => {
           gasUsed: '41013',
           gasPrice: '1000000000',
           timestamp: 1579705909,
+          contractAddress: '0x162edb802fae75b9ee4288345735008ba51a4ec9',
+          to: '0x0e8d9cb9e11278ad6e2ba1ca90385c7295dc6532',
         },
       ],
       escrowEvents: [],
     });
 
     const balance = await erc20ProxyContract.getBalance(mockRequest);
-
     const parameters = balance.events[0].parameters as any;
     expect(parameters.gasUsed).toBe('41013');
     expect(parameters.gasPrice).toBe('1000000000');

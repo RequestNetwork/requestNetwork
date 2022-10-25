@@ -95,6 +95,10 @@ jobs:
           name: Generate Payment Detection queries
           command: yarn workspace @requestnetwork/payment-detection run codegen
 
+      - run:
+          name: Build all packages (tsc)
+          command: yarn build:tsc
+
       - persist_to_workspace:
           root: *working_directory
           paths: .

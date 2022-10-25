@@ -6,21 +6,20 @@ import { LogTypes, StorageTypes } from '@requestnetwork/types';
 import { requestHashSubmitterArtifact } from '@requestnetwork/smart-contracts';
 import { RequestOpenHashSubmitter } from '@requestnetwork/smart-contracts/types';
 import { suggestFees } from 'eip1559-fee-suggestions-ethers';
-import { GasPriceDefiner } from '@requestnetwork/ethereum-storage';
 
-type TheGraphStorageProps = {
+type StorageProps = {
   network: string;
   signer: Signer;
   ipfsStorage: StorageTypes.IIpfsStorage;
   logger?: LogTypes.ILogger;
 };
 
-export type TheGraphStorageEventEmitter = TypedEmitter<{
+export type StorageEventEmitter = TypedEmitter<{
   confirmed: (receipt: ContractReceipt) => void;
   error: (error: unknown) => void;
 }>;
 
-export class TheGraphStorage {
+export class EthereumStorageEthers implements StorageTypes.IStorageWrite {
   private readonly logger: LogTypes.ILogger;
   private readonly ipfsStorage: StorageTypes.IIpfsStorage;
   private readonly hashSubmitter: RequestOpenHashSubmitter;
@@ -28,7 +27,7 @@ export class TheGraphStorage {
   private readonly provider: providers.JsonRpcProvider;
   private enableEip1559 = true;
 
-  constructor({ network, signer, ipfsStorage, logger }: TheGraphStorageProps) {
+  constructor({ network, signer, ipfsStorage, logger }: StorageProps) {
     this.logger = logger || new Utils.SimpleLogger();
     this.ipfsStorage = ipfsStorage;
     this.network = network;
@@ -49,7 +48,7 @@ export class TheGraphStorage {
       );
       this.enableEip1559 = false;
     }
-    this.logger.debug('TheGraph storage initialized');
+    this.logger.debug(`${EthereumStorageEthers.name} storage initialized`);
   }
 
   async append(content: string): Promise<StorageTypes.IAppendResult> {
@@ -63,15 +62,12 @@ export class TheGraphStorage {
       );
       const maxPriorityFeePerGas = BigNumber.from(suggestedFee.maxPriorityFeeSuggestions.urgent);
       const maxFeePerGas = maxPriorityFeePerGas.add(suggestedFee.baseFeeSuggestion);
-      overrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
-      overrides.maxFeePerGas = maxFeePerGas;
-    } else {
-      // retro-compatibility for networks where the eth_feeHistory RPC method is not available (pre EIP-1559)
-      const gasPriceDefiner = new GasPriceDefiner();
-      overrides.gasPrice = await gasPriceDefiner.getGasPrice(
-        StorageTypes.GasPriceType.FAST,
-        this.network,
-      );
+      if (maxPriorityFeePerGas.gt(0)) {
+        overrides.maxPriorityFeePerGas = maxPriorityFeePerGas;
+      }
+      if (maxFeePerGas.gt(0)) {
+        overrides.maxFeePerGas = maxFeePerGas;
+      }
     }
     const tx = await this.hashSubmitter.submitHash(
       ipfsHash,
@@ -79,7 +75,7 @@ export class TheGraphStorage {
       overrides,
     );
 
-    const eventEmitter = new EventEmitter() as TheGraphStorageEventEmitter;
+    const eventEmitter = new EventEmitter() as StorageEventEmitter;
     const result: StorageTypes.IEntry = {
       id: ipfsHash,
       content,

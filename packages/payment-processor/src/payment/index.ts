@@ -21,8 +21,9 @@ import { encodeRequestErc20Approval } from './encoder-approval';
 import { encodeRequestPayment } from './encoder-payment';
 import { IPreparedTransaction } from './prepared-transaction';
 import { IRequestPaymentOptions } from './settings';
+export { INearTransactionCallback } from './utils-near';
 
-export const supportedNetworks = [
+export const noConversionNetworks = [
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
   ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
@@ -177,7 +178,7 @@ export async function swapToPayRequest(
 
 /**
  * Verifies the address has enough funds to pay the request in its currency.
- * Supported networks: ERC20_PROXY_CONTRACT, ETH_INPUT_DATA
+ * Only supports networks with no (on-chain) conversion.
  *
  * @throws UnsupportedNetworkError if network isn't supported
  * @param request the request to verify.
@@ -194,7 +195,7 @@ export async function hasSufficientFunds(
   },
 ): Promise<boolean> {
   const paymentNetwork = getPaymentNetwork(request);
-  if (!paymentNetwork || !supportedNetworks.includes(paymentNetwork)) {
+  if (!paymentNetwork || !noConversionNetworks.includes(paymentNetwork)) {
     throw new UnsupportedNetworkError(paymentNetwork);
   }
 
@@ -216,10 +217,9 @@ export async function hasSufficientFunds(
 
 /**
  * Verifies the address has enough funds to pay an amount in a given currency.
+ * Supported chains: EVMs and Near.
  *
  * @param fromAddress the address willing to pay
- * @param amount
- * @param currency
  * @param providerOptions.provider the Web3 provider. Defaults to getDefaultProvider.
  * @param providerOptions.nearWalletConnection the Near WalletConnection
  * @throws UnsupportedNetworkError if network isn't supported

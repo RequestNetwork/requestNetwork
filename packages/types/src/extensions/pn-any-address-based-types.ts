@@ -6,7 +6,6 @@ export interface IAddressBased<ICreationParameters>
   extends PnAnyDeclarative.IAnyDeclarative<ICreationParameters> {
   createAddPaymentAddressAction: (creationParameters: IAddPaymentAddressParameters) => IAction;
   createAddRefundAddressAction: (creationParameters: IAddRefundAddressParameters) => IAction;
-  supportedNetworks: string[];
 }
 
 /** Extension values of the extension */

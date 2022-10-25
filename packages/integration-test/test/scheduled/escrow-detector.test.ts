@@ -1,4 +1,4 @@
-import { Erc20PaymentNetwork } from '../../../payment-detection/dist';
+import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { CurrencyManager } from '@requestnetwork/currency';
 import { createMockErc20FeeRequest } from '../utils';
 import { mockAdvancedLogic } from './mocks';
@@ -6,6 +6,7 @@ import { mockAdvancedLogic } from './mocks';
 const feeProxyDetector = new Erc20PaymentNetwork.ERC20FeeProxyPaymentDetector({
   advancedLogic: mockAdvancedLogic,
   currencyManager: CurrencyManager.getDefault(),
+  getSubgraphClient: jest.fn(),
 });
 
 describe('ERC20 with Escrow detection test-suite', () => {

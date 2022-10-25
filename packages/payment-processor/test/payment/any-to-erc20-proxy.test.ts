@@ -17,7 +17,7 @@ import { currencyManager } from './shared';
 import { IConversionPaymentSettings } from '../../src/index';
 import { UnsupportedCurrencyError } from '@requestnetwork/currency';
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
-import { getProxyAddress, revokeErc20Approval } from '../../src/payment/utils';
+import { getProxyAddress, MAX_ALLOWANCE, revokeErc20Approval } from '../../src/payment/utils';
 
 // Cf. ERC20Alpha in TestERC20.sol
 const erc20ContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
@@ -27,7 +27,7 @@ const alphaPaymentSettings: IConversionPaymentSettings = {
     value: erc20ContractAddress,
     network: 'private',
   },
-  maxToSpend: BigNumber.from(2).pow(256).sub(1),
+  maxToSpend: MAX_ALLOWANCE,
   currencyManager,
 };
 

@@ -53,7 +53,7 @@ export default class ERC20InfoRetriever
 {
   /**
    * @param tokenContractAddress The address of the ERC20 contract
-   * @param address Address of the balance we want to check
+   * @param toAddress Address of the balance we want to check
    * @param eventName Indicate if it is an address for payment or refund
    * @param network The Ethereum network to use
    */
@@ -71,7 +71,7 @@ export default class ERC20InfoRetriever
     // Creates a local or default provider
     const provider = getDefaultProvider(this.network);
 
-    // Setup the ERC20 contract interface
+    // Set up the ERC20 contract interface
     const contract = new ethers.Contract(
       this.tokenContractAddress,
       erc20BalanceOfAbiFragment,
@@ -79,6 +79,11 @@ export default class ERC20InfoRetriever
     );
 
     // Create a filter to find all the Transfer logs for the toAddress
+    console.warn(
+      'It is not recommended to use the ERC20InfoRetriever to retrieve ' +
+        'all Transfer events from block "0" to block "latest", ' +
+        'as this operation is not supported by most RPC providers',
+    );
     const filter = contract.filters.Transfer(null, this.toAddress) as ethers.providers.Filter;
     filter.fromBlock = 0;
     filter.toBlock = 'latest';

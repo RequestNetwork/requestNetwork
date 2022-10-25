@@ -1,8 +1,8 @@
 import NativeTokenPaymentNetwork from '../../../src/extensions/payment-network/native-token';
-import NearNativePaymentNetwork from '../../../src/extensions/payment-network/near-native';
+import NearNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-native';
 import {
-  requestStateNoExtensions,
   arbitrarySalt,
+  requestStateNoExtensions,
 } from '../../utils/payment-network/any/generator-data-create';
 import {
   actionCreationWithNativeTokenPayment,
@@ -12,6 +12,7 @@ import {
 import { AdvancedLogic } from '../../../src';
 import { arbitraryTimestamp, payeeRaw } from '../../utils/test-data-generator';
 import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
+import NearTestnetNativeNativePaymentNetwork from '../../../src/extensions/payment-network/near/near-testnet-native';
 
 const salt = arbitrarySalt;
 
@@ -21,10 +22,15 @@ describe('extensions/payment-network/native-token', () => {
     value: 'NEAR',
     network: 'aurora',
   };
-  const nearTestnetCurrency = {
+  const auroraTestnetCurrency = {
     type: RequestLogicTypes.CURRENCY.ETH,
     value: 'NEAR-testnet',
     network: 'aurora-testnet',
+  };
+  const nearTestnetCurrency = {
+    type: RequestLogicTypes.CURRENCY.ETH,
+    value: 'NEAR-testnet',
+    network: 'near-testnet',
   };
   const nativeTokenTestCases = [
     {
@@ -34,12 +40,21 @@ describe('extensions/payment-network/native-token', () => {
       suffix: 'near',
       wrongSuffix: 'testnet',
       currency: nearCurrency,
-      wrongCurrency: nearTestnetCurrency,
+      wrongCurrency: auroraTestnetCurrency,
+    },
+    {
+      name: 'Aurora testnet',
+      paymentNetwork: new NearTestnetNativeNativePaymentNetwork() as NativeTokenPaymentNetwork,
+      networkName: 'aurora-testnet',
+      suffix: 'testnet',
+      wrongSuffix: 'near',
+      currency: auroraTestnetCurrency,
+      wrongCurrency: nearCurrency,
     },
     {
       name: 'Near testnet',
-      paymentNetwork: new NearNativePaymentNetwork() as NativeTokenPaymentNetwork,
-      networkName: 'aurora-testnet',
+      paymentNetwork: new NearTestnetNativeNativePaymentNetwork() as NativeTokenPaymentNetwork,
+      networkName: 'near-testnet',
       suffix: 'testnet',
       wrongSuffix: 'near',
       currency: nearTestnetCurrency,
@@ -136,7 +151,7 @@ describe('extensions/payment-network/native-token', () => {
           paymentNetworkName: 'another-chain',
         });
       }).toThrowError(
-        `Payment network 'another-chain' is not supported by this extension (only aurora, aurora-testnet)`,
+        `Payment network 'another-chain' is not supported by this extension (only aurora)`,
       );
     });
     it('createCreationAction() throws without payment network', () => {
@@ -237,7 +252,7 @@ describe('extensions/payment-network/native-token', () => {
     });
     it('throws when creating the extension on a different network from the request network', () => {
       const advancedLogic = new AdvancedLogic();
-      const nearPn = new NearNativePaymentNetwork();
+      const nearPn = new NearTestnetNativeNativePaymentNetwork();
 
       const requestState: typeof requestStateNoExtensions = {
         ...requestStateNoExtensions,
@@ -265,7 +280,7 @@ describe('extensions/payment-network/native-token', () => {
         currency: mainnetTestCase.currency,
       };
 
-      const intermediateExtensionState = advancedLogic.applyActionToExtensions(
+      requestState.extensions = advancedLogic.applyActionToExtensions(
         requestState.extensions,
         nearPn.createCreationAction({ salt, paymentNetworkName: 'aurora' }),
         requestState,
@@ -273,20 +288,10 @@ describe('extensions/payment-network/native-token', () => {
         arbitraryTimestamp,
       );
 
-      requestState.extensions = intermediateExtensionState;
-
-      const addPaymentAddressAction = nearPn.createAddPaymentAddressAction({
-        paymentAddress: 'pay.testnet',
-      });
-
       expect(() => {
-        advancedLogic.applyActionToExtensions(
-          intermediateExtensionState,
-          addPaymentAddressAction,
-          requestState,
-          payeeRaw.identity,
-          arbitraryTimestamp,
-        );
+        nearPn.createAddPaymentAddressAction({
+          paymentAddress: 'pay.testnet',
+        });
       }).toThrowError("paymentAddress 'pay.testnet' is not a valid address");
     });
     it('throws with no state or action payment network', () => {
@@ -414,7 +419,7 @@ describe('extensions/payment-network/native-token', () => {
   it('should throw when isValidAddress is not overridden', () => {
     class TestNativePaymentNetwork extends NativeTokenPaymentNetwork {
       public testIsValidAddress() {
-        this.isValidAddress('test', 'test');
+        this.isValidAddress('test');
       }
     }
     expect(() => {

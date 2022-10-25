@@ -14,13 +14,13 @@ import {
   getProvider,
   getProxyAddress as genericGetProxyAddress,
   getSigner,
+  MAX_ALLOWANCE,
   validateRequest,
 } from './utils';
 import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ERC20 Request.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Only applicable to ERC20 Fee Payment network. Defaults to the fee amount.
@@ -82,7 +82,6 @@ export async function hasErc20Approval(
  * @param spenderAddress address of the spender
  * @param provider the web3 provider. Defaults to Etherscan.
  * @param paymentCurrency ERC20 currency
- * @param amount
  */
 export async function checkErc20Allowance(
   ownerAddress: string,
@@ -107,9 +106,10 @@ export async function approveErc20IfNeeded(
   account: string,
   signerOrProvider: providers.Provider | Signer = getNetworkProvider(request),
   overrides?: ITransactionOverrides,
+  amount: BigNumber = MAX_ALLOWANCE,
 ): Promise<ContractTransaction | void> {
   if (!(await hasErc20Approval(request, account, signerOrProvider))) {
-    return approveErc20(request, getSigner(signerOrProvider), overrides);
+    return approveErc20(request, getSigner(signerOrProvider), overrides, amount);
   }
 }
 
@@ -124,8 +124,9 @@ export async function approveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
+  amount: BigNumber = MAX_ALLOWANCE,
 ): Promise<ContractTransaction> {
-  const preparedTx = prepareApproveErc20(request, signerOrProvider, overrides);
+  const preparedTx = prepareApproveErc20(request, signerOrProvider, overrides, amount);
   const signer = getSigner(signerOrProvider);
   const tx = await signer.sendTransaction(preparedTx);
   return tx;
@@ -142,8 +143,9 @@ export function prepareApproveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider | Signer = getProvider(),
   overrides?: ITransactionOverrides,
+  amount: BigNumber = MAX_ALLOWANCE,
 ): IPreparedTransaction {
-  const encodedTx = encodeApproveErc20(request, signerOrProvider);
+  const encodedTx = encodeApproveErc20(request, signerOrProvider, amount);
   const tokenAddress = request.currencyInfo.value;
   return {
     data: encodedTx,
@@ -162,6 +164,7 @@ export function prepareApproveErc20(
 export function encodeApproveErc20(
   request: ClientTypes.IRequestData,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount: BigNumber = MAX_ALLOWANCE,
 ): string {
   const paymentNetworkId = getPaymentNetworkExtension(request)
     ?.id as unknown as PaymentTypes.PAYMENT_NETWORK_ID;
@@ -173,6 +176,7 @@ export function encodeApproveErc20(
     request.currencyInfo.value,
     getProxyAddress(request),
     getSigner(signerOrProvider),
+    amount,
   );
 }
 
@@ -181,20 +185,19 @@ export function encodeApproveErc20(
  * @param tokenAddress the ERC20 token address to approve
  * @param spenderAddress the address granted the approval
  * @param signerOrProvider the signer who owns ERC20 tokens
+ * @param amount default to max allowance
  */
 export function encodeApproveAnyErc20(
   tokenAddress: string,
   spenderAddress: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount: BigNumber = MAX_ALLOWANCE,
 ): string {
+  if (amount.gt(MAX_ALLOWANCE)) {
+    throw new Error('Invalid amount');
+  }
   const erc20interface = ERC20__factory.connect(tokenAddress, signerOrProvider).interface;
-  return erc20interface.encodeFunctionData('approve', [
-    spenderAddress,
-    BigNumber.from(2)
-      // eslint-disable-next-line no-magic-numbers
-      .pow(256)
-      .sub(1),
-  ]);
+  return erc20interface.encodeFunctionData('approve', [spenderAddress, amount]);
 }
 
 /**
@@ -230,7 +233,6 @@ export async function getAnyErc20Balance(
  * Return the EIP-681 format URL with the transaction to pay an ERC20
  * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
  *
- * @param request
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function _getErc20PaymentUrl(
@@ -249,7 +251,6 @@ export function _getErc20PaymentUrl(
 
 /**
  * Get the request payment network proxy address
- * @param request
  * @returns the payment network proxy address
  */
 function getProxyAddress(request: ClientTypes.IRequestData): string {

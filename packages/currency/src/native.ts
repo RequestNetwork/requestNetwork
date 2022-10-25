@@ -61,12 +61,6 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       symbol: 'BNB',
       decimals: 18,
       name: 'BNB',
-      network: 'bsctest',
-    },
-    {
-      symbol: 'BNB',
-      decimals: 18,
-      name: 'BNB',
       network: 'bsc',
     },
     {
@@ -80,6 +74,12 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       decimals: 24,
       name: 'Near Testnet',
       network: 'aurora-testnet',
+    },
+    {
+      symbol: 'NEAR-testnet',
+      decimals: 24,
+      name: 'Test Near',
+      network: 'near-testnet',
     },
     {
       symbol: 'ARETH',
