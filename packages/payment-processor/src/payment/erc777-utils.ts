@@ -157,7 +157,7 @@ export async function approveUnderlyingToken(
 }
 
 /**
- * Prepare the wrap transaction of the speicified amount of underlying token into supertokens
+ * Prepare the wrap transaction of the specified amount of underlying token into supertoken
  * @param request the request that contains currency information
  * @param provider the web3 provider
  * @param amount to allow, defaults to max allowance
