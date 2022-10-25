@@ -119,6 +119,10 @@ export const erc20FeeProxyArtifact = new ContractArtifact<ERC20FeeProxy>(
           address: '0x0DfbEe143b42B41eFC5A6F87bFD1fFC78c2f0aC9',
           creationBlockNumber: 11671431,
         },
+        ronin: {
+          address: '0xae23992483feda6e718a808ce824f6864f13b64b',
+          creationBlockNumber: 17901276,
+        },
       },
     },
     // Additional deployments of same versions, not worth upgrading the version number but worth using within next versions
