@@ -329,6 +329,10 @@ const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
   }
 };
 
+// interface mIConversionPaymentSettings extends IConversionPaymentSettings {
+//   currencyManager: ICurrencyManager;
+// }
+
 /**
  * Input of batch conversion payment processor
  * It contains requests, paymentSettings, amount and feeAmount.
@@ -341,7 +345,7 @@ export interface EnrichedRequest {
     | PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS
     | PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS;
   request: ClientTypes.IRequestData;
-  paymentSettings?: IConversionPaymentSettings;
+  paymentSettings: IConversionPaymentSettings & { currencyManager: ICurrencyManager };
   amount?: BigNumberish;
   feeAmount?: BigNumberish;
 }
