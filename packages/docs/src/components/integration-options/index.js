@@ -59,7 +59,17 @@ const options = [
         </p>
       </>
     ),
-  }
+  },
+  {
+    title: 'Option C: Portal API',
+    imageUrl: 'img/ReQ-01.png',
+    description: <>Fully managed solution, over REST API using Request Finance</>,
+    details: (
+      <>
+        <p>Reach out to us if you want to integrate Request Finance APIs.</p>
+      </>
+    ),
+  },
 ];
 
 function IntegrationOption({ showDetails, imageUrl, title, description, details }) {
