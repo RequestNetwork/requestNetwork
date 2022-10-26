@@ -22,6 +22,7 @@ const paymentAddress = '0xf17f52151EbEF6C7334FAD080c5704D77216b732';
 const feeAddress = '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef';
 const provider = new providers.JsonRpcProvider('http://localhost:8545');
 const wallet = Wallet.fromMnemonic(mnemonic).connect(provider);
+const specificAmount = BigNumber.from('100000000');
 
 const validRequest: ClientTypes.IRequestData = {
   balance: {
@@ -137,6 +138,28 @@ describe('erc20-escrow-payment tests:', () => {
   describe('Test encoded function data:', () => {
     const values = getRequestPaymentValues(validRequest);
 
+    it('Should encode data to execute erc20 approval for escrow', () => {
+      expect(
+        Escrow.prepareErc20EscrowApproval(validRequest, erc20TokenContractAddress, wallet.provider)
+          .data,
+      ).toBe(
+        `0x095ea7b30000000000000000000000008e4c131b37383e431b9cd0635d3cf9f3f628edaeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff`,
+      );
+    });
+    it('Should encode data to execute erc20 approval for escrow with specififc amount', () => {
+      expect(
+        Escrow.prepareErc20EscrowApproval(
+          validRequest,
+          erc20TokenContractAddress,
+          wallet.provider,
+          specificAmount,
+        ).data,
+      ).toBe(
+        `0x095ea7b30000000000000000000000008e4c131b37383e431b9cd0635d3cf9f3f628edae00000000000000000000000000000000000000000000000000000000${specificAmount._hex.slice(
+          2,
+        )}`,
+      );
+    });
     it('Should encode data to execute payEscrow().', () => {
       expect(Escrow.encodePayEscrow(validRequest)).toBe(
         `0x325a00f00000000000000000000000009fbda871d559710256a2502a2517b794b482db40000000000000000000000000f17f52151ebef6c7334fad080c5704d77216b732000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000c5fdf4076b8f3a5357c5e395ab970b5b54098fef0000000000000000000000000000000000000000000000000000000000000008${values.paymentReference}000000000000000000000000000000000000000000000000`,
