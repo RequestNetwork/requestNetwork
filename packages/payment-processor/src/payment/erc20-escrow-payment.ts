@@ -26,10 +26,16 @@ export function prepareErc20EscrowApproval(
   request: ClientTypes.IRequestData,
   paymentTokenAddress: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount?: BigNumber,
   overrides?: ITransactionOverrides,
 ): IPreparedTransaction {
   const contractAddress = erc20EscrowToPayArtifact.getAddress(request.currencyInfo.network!);
-  const encodedTx = encodeApproveAnyErc20(paymentTokenAddress, contractAddress, signerOrProvider);
+  const encodedTx = encodeApproveAnyErc20(
+    paymentTokenAddress,
+    contractAddress,
+    signerOrProvider,
+    amount,
+  );
   return {
     data: encodedTx,
     to: paymentTokenAddress,
@@ -50,12 +56,14 @@ export async function approveErc20ForEscrow(
   request: ClientTypes.IRequestData,
   paymentTokenAddress: string,
   signerOrProvider: providers.Provider | Signer = getProvider(),
+  amount?: BigNumber,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const preparedTx = prepareErc20EscrowApproval(
     request,
     paymentTokenAddress,
     signerOrProvider,
+    amount,
     overrides,
   );
   const signer = getSigner(signerOrProvider);
