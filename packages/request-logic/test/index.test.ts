@@ -37,6 +37,13 @@ const fakeMetaTransactionManager = {
 };
 let fakeTransactionManager: TransactionTypes.ITransactionManager;
 
+const fakeAdvancedLogicBase: AdvancedLogicTypes.IAdvancedLogic = {
+  getAnyToNativeTokenExtensionForNetwork: jest.fn(),
+  getNativeTokenExtensionForNetwork: jest.fn(),
+  applyActionToExtensions: jest.fn(),
+  extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
+};
+
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 describe('index', () => {
   beforeEach(() => {
@@ -79,10 +86,12 @@ describe('index', () => {
 
     it('cannot createRequest if apply fails in the advanced request logic', async () => {
       const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        getAnyToNativeTokenExtensionForNetwork: jest.fn(),
+        getNativeTokenExtensionForNetwork: jest.fn(),
         applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
           throw new Error('Expected throw');
         },
-        extensions: {},
+        extensions: {} as AdvancedLogicTypes.IAdvancedLogicExtensions,
       };
 
       const requestLogic = new RequestLogic(
@@ -226,10 +235,10 @@ describe('index', () => {
 
     it('cannot create an encrypted request if apply fails in the advanced request logic', async () => {
       const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        ...fakeAdvancedLogicBase,
         applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
           throw new Error('Expected throw');
         },
-        extensions: {},
       };
 
       const requestLogic = new RequestLogic(
@@ -396,10 +405,10 @@ describe('index', () => {
 
     it('cannot compute request id if apply fails in the advanced request logic', async () => {
       const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        ...fakeAdvancedLogicBase,
         applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
           throw new Error('Expected throw');
         },
-        extensions: {},
       };
 
       const requestLogic = new RequestLogic(
@@ -893,10 +902,10 @@ describe('index', () => {
     });
     it('cannot addExtension if apply fail in the advanced request logic', async () => {
       const fakeAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
+        ...fakeAdvancedLogicBase,
         applyActionToExtensions: (): RequestLogicTypes.IExtensionStates => {
           throw new Error('Expected throw');
         },
-        extensions: {},
       };
 
       const actionCreate = Utils.signature.sign(

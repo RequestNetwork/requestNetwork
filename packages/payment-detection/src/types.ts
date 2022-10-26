@@ -1,7 +1,13 @@
-import type { AdvancedLogicTypes, PaymentTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { PaymentDetectorBase } from './payment-detector-base';
+import { GetDeploymentInformation } from './utils';
 import type { ICurrencyManager } from '@requestnetwork/currency';
 import type { providers } from 'ethers';
 import type { TheGraphClient } from './thegraph';
+
+export interface ContractBasedDetector {
+  getDeploymentInformation: GetDeploymentInformation<false>;
+}
 
 /** Generic info retriever interface */
 export interface IPaymentRetriever<
@@ -27,9 +33,12 @@ export interface IEventRetriever<
 }
 
 /** Object interface to list the payment network module by id */
-export interface IPaymentNetworkModuleByType {
-  [type: string]: any;
-}
+export type IPaymentNetworkModuleByType = Partial<
+  Record<
+    PaymentTypes.PAYMENT_NETWORK_ID,
+    new (...pnParams: any) => PaymentDetectorBase<ExtensionTypes.IExtension, any>
+  >
+>;
 
 /** Object interface to list the payment network module by network */
 export interface ISupportedPaymentNetworkByNetwork {
@@ -44,7 +53,7 @@ export interface ISupportedPaymentNetworkByCurrency {
 export type PaymentNetworkOptions = {
   /** override default bitcoin detection provider */
   bitcoinDetectionProvider?: PaymentTypes.IBitcoinDetectionProvider;
-  /** the explorer API (eg Etherscan) api keys, for PNs that rely on it. Record by network name  */
+  /** the explorer API (e.g. Etherscan) api keys, for PNs that rely on it. Record by network name  */
   explorerApiKeys: Record<string, string>;
   /** override the default Subgraph for payment detection (EVM, Near) */
   getSubgraphClient: (network: string) => TheGraphClient | undefined;
@@ -55,4 +64,8 @@ export type PaymentNetworkOptions = {
 export type ReferenceBasedDetectorOptions = {
   advancedLogic: AdvancedLogicTypes.IAdvancedLogic;
   currencyManager: ICurrencyManager;
+};
+
+export type NativeDetectorOptions = ReferenceBasedDetectorOptions & {
+  network: string;
 };

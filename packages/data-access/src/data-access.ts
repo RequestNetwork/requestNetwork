@@ -92,7 +92,6 @@ export default class DataAccess implements DataAccessTypes.IDataAccess {
    * Constructor DataAccess interface
    *
    * @param IStorage storage storage object
-   * @param options
    */
   public constructor(storage: StorageTypes.IStorage, options?: Partial<IDataAccessOptions>) {
     const defaultOptions: IDataAccessOptions = {

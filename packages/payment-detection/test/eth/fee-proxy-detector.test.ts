@@ -1,6 +1,7 @@
 import { CurrencyManager } from '@requestnetwork/currency';
 import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { EthFeeProxyPaymentDetector } from '../../src';
+import { mockAdvancedLogicBase } from '../utils';
 
 let ethFeeProxyDetector: EthFeeProxyPaymentDetector;
 
@@ -12,9 +13,7 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     feeProxyContractEth: {
       createAddPaymentAddressAction,
@@ -26,7 +25,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

@@ -21,7 +21,6 @@ import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ERC20 Request.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Only applicable to ERC20 Fee Payment network. Defaults to the fee amount.
@@ -83,7 +82,6 @@ export async function hasErc20Approval(
  * @param spenderAddress address of the spender
  * @param provider the web3 provider. Defaults to Etherscan.
  * @param paymentCurrency ERC20 currency
- * @param amount
  */
 export async function checkErc20Allowance(
   ownerAddress: string,
@@ -235,7 +233,6 @@ export async function getAnyErc20Balance(
  * Return the EIP-681 format URL with the transaction to pay an ERC20
  * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
  *
- * @param request
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  */
 export function _getErc20PaymentUrl(
@@ -254,7 +251,6 @@ export function _getErc20PaymentUrl(
 
 /**
  * Get the request payment network proxy address
- * @param request
  * @returns the payment network proxy address
  */
 function getProxyAddress(request: ClientTypes.IRequestData): string {

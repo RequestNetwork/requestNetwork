@@ -1,7 +1,6 @@
 import { ExtensionTypes, PaymentTypes, RequestLogicTypes, TypesUtils } from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import Utils from '@requestnetwork/utils';
-import { BalanceError } from './balance-error';
 import PaymentReferenceCalculator from './payment-reference-calculator';
 
 import { DeclarativePaymentDetectorBase } from './declarative';
@@ -16,16 +15,15 @@ export abstract class ReferenceBasedDetector<
   TExtension,
   TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
 > {
-  protected readonly currencyManager: ICurrencyManager;
   /**
    * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
    * @param currencyManager The currency manager
    */
-  public constructor(
+  protected constructor(
     paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
-    currencyManager: ICurrencyManager,
+    protected readonly currencyManager: ICurrencyManager,
   ) {
     super(paymentNetworkId, extension);
     if (!TypesUtils.isPaymentNetworkId(paymentNetworkId)) {
@@ -33,7 +31,6 @@ export abstract class ReferenceBasedDetector<
         `Cannot detect payment for extension type '${paymentNetworkId}', it is not a payment network ID.`,
       );
     }
-    this.currencyManager = currencyManager;
   }
 
   /**
@@ -95,15 +92,6 @@ export abstract class ReferenceBasedDetector<
     const paymentExtension = this.getPaymentExtension(request);
     const paymentChain = this.getPaymentChain(request);
 
-    const supportedNetworks = this.extension.supportedNetworks;
-    if (!supportedNetworks.includes(paymentChain)) {
-      throw new BalanceError(
-        `Payment network ${paymentChain} not supported by ${
-          this.paymentNetworkId
-        } payment detection. Supported networks: ${supportedNetworks.join(', ')}`,
-        PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-      );
-    }
     this.checkRequiredParameter(paymentExtension.values.salt, 'salt');
     this.checkRequiredParameter(paymentExtension.values.paymentAddress, 'paymentAddress');
 

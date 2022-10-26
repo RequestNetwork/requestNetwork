@@ -14,7 +14,7 @@ export abstract class DeclarativePaymentDetectorBase<
   TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative,
   TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters,
 > extends PaymentDetectorBase<TExtension, TPaymentEventParameters> {
-  public constructor(_paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+  protected constructor(_paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
     super(_paymentNetworkId, extension);
   }
 

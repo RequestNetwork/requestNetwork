@@ -14,12 +14,7 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
     extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(
-      extensionId,
-      currentVersion,
-      conversionSupportedNetworks,
-      RequestLogicTypes.CURRENCY.ERC20,
-    );
+    super(extensionId, currentVersion);
   }
 
   /**
@@ -121,8 +116,6 @@ export default class AnyToErc20ProxyPaymentNetwork extends Erc20FeeProxyPaymentN
   /**
    * Validate the extension action regarding the currency and network
    * It must throw in case of error
-   *
-   * @param request
    */
   protected validate(
     request: RequestLogicTypes.IRequest,
