@@ -22,7 +22,8 @@ import { EnrichedRequest, IConversionPaymentSettings } from './index';
 import { checkRequestAndGetPathAndCurrency } from './any-to-erc20-proxy';
 import { checkErc20Allowance, encodeApproveAnyErc20 } from './erc20';
 import { IState } from 'types/dist/extension-types';
-import { CurrencyDefinition, CurrencyManager, ICurrencyManager } from '@requestnetwork/currency';
+import { CurrencyDefinition, ICurrencyManager } from '@requestnetwork/currency';
+import { IConversionSettings, IRequestPaymentOptions } from './settings';
 
 const CURRENCY = RequestLogicTypes.CURRENCY;
 
@@ -33,10 +34,11 @@ const CURRENCY = RequestLogicTypes.CURRENCY;
  * It can be used with a Multisig contract
  * @param enrichedRequests List of EnrichedRequests to pay.
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
- * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
- *                        It can be useful to set it to false if the total amount of the batch is important.
- *                        Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
- * @param version The version of the batch conversion proxy.
+ * @param options It contains 3 paramters required to do a batch payments:
+ *  - conversion: It must contains the currencyManager.
+ *  - skipFeeUSDLimit: Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
+ * Setting the value to true skips the USD fee limit, and reduces gas consumption.
+ *  - version: The version of the batch conversion proxy.
  * @param overrides Optionally, override default transaction values, like gas.
  * @dev We only implement batchPayments using two ERC20 functions:
  *      batchMultiERC20ConversionPayments, and batchMultiERC20Payments.
@@ -44,15 +46,10 @@ const CURRENCY = RequestLogicTypes.CURRENCY;
 export async function payBatchConversionProxyRequest(
   enrichedRequests: EnrichedRequest[],
   signerOrProvider: providers.Provider | Signer = getProvider(),
-  skipFeeUSDLimit = false,
-  version?: string,
+  options: IRequestPaymentOptions,
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
-  const { data, to, value } = prepareBatchConversionPaymentTransaction(
-    enrichedRequests,
-    skipFeeUSDLimit,
-    version,
-  );
+  const { data, to, value } = prepareBatchConversionPaymentTransaction(enrichedRequests, options);
   const signer = getSigner(signerOrProvider);
   return signer.sendTransaction({ data, to, value, ...overrides });
 }
@@ -62,18 +59,22 @@ export async function payBatchConversionProxyRequest(
  * that can be different from the request currency (eg. fiat).
  * It can be used with a Multisig contract.
  * @param enrichedRequests List of EnrichedRequests to pay.
- * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
- *                        It can be useful to set it to false if the total amount of the batch is important.
- *                        Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
- * @param version The version of the batch conversion proxy.
+ * @param options It contains 3 paramters required to prepare a batch payments:
+ *  - conversion: It must contains the currencyManager.
+ *  - skipFeeUSDLimit: Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
+ * Setting the value to true skips the USD fee limit, and reduces gas consumption.
+ *  - version: The version of the batch conversion proxy.
  */
 export function prepareBatchConversionPaymentTransaction(
   enrichedRequests: EnrichedRequest[],
-  skipFeeUSDLimit = false,
-  version?: string,
+  options: IRequestPaymentOptions,
 ): IPreparedTransaction {
-  const encodedTx = encodePayBatchConversionRequest(enrichedRequests, skipFeeUSDLimit);
-  const proxyAddress = getBatchConversionProxyAddress(enrichedRequests[0].request, version);
+  const encodedTx = encodePayBatchConversionRequest(
+    enrichedRequests,
+    options.skipFeeUSDLimit,
+    options.conversion,
+  );
+  const proxyAddress = getBatchConversionProxyAddress(enrichedRequests[0].request, options.version);
   return {
     data: encodedTx,
     to: proxyAddress,
@@ -86,14 +87,17 @@ export function prepareBatchConversionPaymentTransaction(
  * that can be different from the request currency (eg. fiat).
  * It can be used with a Multisig contract.
  * @param enrichedRequests List of EnrichedRequests to pay.
- * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
- *                        It can be useful to set it to false if the total amount of the batch is important.
- *                        Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
+ * @param skipFeeUSDLimit Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
+ * Setting the value to true skips the USD fee limit, and reduces gas consumption.
  */
 function encodePayBatchConversionRequest(
   enrichedRequests: EnrichedRequest[],
   skipFeeUSDLimit = false,
+  conversion: IConversionSettings | undefined,
 ): string {
+  if (!(conversion && conversion.currencyManager)) {
+    throw 'the conversion object or the currencyManager is undefined';
+  }
   const { feeAddress } = getRequestPaymentValues(enrichedRequests[0].request);
 
   const { network } = getPnAndNetwork(enrichedRequests[0].request);
@@ -106,10 +110,8 @@ function encodePayBatchConversionRequest(
   // fill ERC20ConversionRequestDetails and ERC20NoConversionRequestDetails lists
   for (const enrichedRequest of enrichedRequests) {
     const request = enrichedRequest.request;
-    if (
-      enrichedRequest.paymentNetworkId ===
-      PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS
-    ) {
+    if (enrichedRequest.paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY) {
+      enrichedRequest.paymentSettings.currencyManager = conversion.currencyManager;
       firstConversionRequestExtension =
         firstConversionRequestExtension ?? getPaymentNetworkExtension(request);
 
@@ -119,8 +121,7 @@ function encodePayBatchConversionRequest(
       }
       ERC20ConversionRequestDetails.push(getInputERC20ConversionRequestDetail(enrichedRequest));
     } else if (
-      enrichedRequest.paymentNetworkId ===
-      PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS
+      enrichedRequest.paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
     ) {
       firstNoConversionRequestExtension =
         firstNoConversionRequestExtension ?? getPaymentNetworkExtension(request);
@@ -153,13 +154,11 @@ function encodePayBatchConversionRequest(
     });
   }
 
-  const currencyManager =
-    enrichedRequests[0].paymentSettings.currencyManager ?? CurrencyManager.getDefault();
   const pathsToUSD = getUSDPathsForFeeLimit(
     [...ERC20ConversionRequestDetails, ...ERC20NoConversionRequestDetails],
     network,
     skipFeeUSDLimit,
-    currencyManager,
+    conversion.currencyManager,
   );
 
   const proxyContract = BatchConversionPayments__factory.createInterface();
