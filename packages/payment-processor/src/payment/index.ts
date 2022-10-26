@@ -333,15 +333,14 @@ const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
  * Input of batch conversion payment processor
  * It contains requests, paymentSettings, amount and feeAmount.
  * Currently, these requests must have the same PN, version, and batchFee
- * @dev next step: paymentNetworkId could get more values options, see the "ref"
- *      in batchConversionPayment.sol
+ * @dev next step: paymentNetworkId could get more values options to pay Native tokens.
  */
 export interface EnrichedRequest {
   paymentNetworkId:
-    | PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_CONVERSION_PAYMENTS
-    | PaymentTypes.BATCH_PAYMENT_NETWORK_ID.BATCH_MULTI_ERC20_PAYMENTS;
+    | PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
+    | PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT;
   request: ClientTypes.IRequestData;
-  paymentSettings?: IConversionPaymentSettings;
+  paymentSettings: IConversionPaymentSettings;
   amount?: BigNumberish;
   feeAmount?: BigNumberish;
 }

@@ -50,7 +50,7 @@ export const batchConversionPaymentsArtifact = new ContractArtifact<BatchConvers
           address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
           creationBlockNumber: 24654730,
         },
-        // // Caution: no ERC20Conversion proxy on fuse
+        // Caution: no ERC20Conversion proxy on fuse
         fuse: {
           address: '0x0fD49d410fB50Dc1f308975E5D19B5c4551B0041',
           creationBlockNumber: 19732873,
