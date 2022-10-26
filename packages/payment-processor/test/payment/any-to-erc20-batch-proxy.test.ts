@@ -74,7 +74,7 @@ const options: IRequestPaymentOptions = {
 // requests setting
 
 const EURExpectedAmount = 55000_00; // 55 000 €
-const EURFeeAmount = 2_00; // 2€
+const EURFeeAmount = 2_00; // 2 €
 // amounts used for DAI and FAU requests
 const expectedAmount = 100000;
 const feeAmount = 100;

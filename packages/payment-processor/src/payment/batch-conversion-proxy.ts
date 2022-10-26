@@ -34,9 +34,9 @@ const CURRENCY = RequestLogicTypes.CURRENCY;
  * It can be used with a Multisig contract
  * @param enrichedRequests List of EnrichedRequests to pay.
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
- * @param options It contains 3 paramters required to do a batch payments:
+ * @param options It contains 3 paramaters required to do a batch payments:
  *  - conversion: It must contains the currencyManager.
- *  - skipFeeUSDLimit: Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
+ *  - skipFeeUSDLimit: It checks the value of batchFeeAmountUSDLimit of the batch proxy deployed.
  * Setting the value to true skips the USD fee limit, and reduces gas consumption.
  *  - version: The version of the batch conversion proxy.
  * @param overrides Optionally, override default transaction values, like gas.
@@ -59,9 +59,9 @@ export async function payBatchConversionProxyRequest(
  * that can be different from the request currency (eg. fiat).
  * It can be used with a Multisig contract.
  * @param enrichedRequests List of EnrichedRequests to pay.
- * @param options It contains 3 paramters required to prepare a batch payments:
+ * @param options It contains 3 paramaters required to prepare a batch payments:
  *  - conversion: It must contains the currencyManager.
- *  - skipFeeUSDLimit: Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
+ *  - skipFeeUSDLimit: It checks the value of batchFeeAmountUSDLimit of the batch proxy deployed.
  * Setting the value to true skips the USD fee limit, and reduces gas consumption.
  *  - version: The version of the batch conversion proxy.
  */
@@ -87,7 +87,7 @@ export function prepareBatchConversionPaymentTransaction(
  * that can be different from the request currency (eg. fiat).
  * It can be used with a Multisig contract.
  * @param enrichedRequests List of EnrichedRequests to pay.
- * @param skipFeeUSDLimit Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
+ * @param skipFeeUSDLimit It checks the value of batchFeeAmountUSDLimit of the batch proxy deployed.
  * Setting the value to true skips the USD fee limit, and reduces gas consumption.
  */
 function encodePayBatchConversionRequest(
