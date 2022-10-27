@@ -87,24 +87,12 @@ export default class RequestNetwork {
       topics,
     );
 
-    // create the request object
-    const request = new Request(
-      requestLogicCreateResult.result.requestId,
-      this.requestLogic,
-      this.currencyManager,
-      {
-        contentDataExtension: this.contentData,
-        paymentNetwork,
-        requestLogicCreateResult,
-        skipPaymentDetection: parameters.disablePaymentDetection,
-        disableEvents: parameters.disableEvents,
-      },
+    return await this._createRequest(
+      requestLogicCreateResult,
+      paymentNetwork,
+      parameters,
+      requestParameters,
     );
-
-    // refresh the local request data
-    await request.refresh();
-
-    return request;
   }
 
   /**
@@ -129,7 +117,20 @@ export default class RequestNetwork {
       topics,
     );
 
-    // create the request object
+    return await this._createRequest(
+      requestLogicCreateResult,
+      paymentNetwork,
+      parameters,
+      requestParameters,
+    );
+  }
+
+  private async _createRequest(
+    requestLogicCreateResult: RequestLogicTypes.IReturnCreateRequest,
+    paymentNetwork: PaymentTypes.IPaymentNetwork | null,
+    parameters: Types.ICreateRequestParameters,
+    requestParameters: RequestLogicTypes.ICreateParameters,
+  ) {
     const request = new Request(
       requestLogicCreateResult.result.requestId,
       this.requestLogic,
@@ -144,7 +145,16 @@ export default class RequestNetwork {
     );
 
     // refresh the local request data
-    await request.refresh();
+    await request.refresh({
+      result: {
+        request: null,
+        pending: {
+          ...requestParameters,
+          state: Types.RequestLogic.STATE.CREATED,
+        },
+      },
+      meta: requestLogicCreateResult.meta,
+    });
 
     return request;
   }

@@ -4,18 +4,26 @@ import * as TestData from './data-test';
 
 let mockAxios: MockAdapter;
 
-beforeAll(() => {
+beforeEach(() => {
   mockAxios = TestData.mockAxiosRequestNode();
 });
 
-afterAll(() => {
+afterEach(() => {
   mockAxios.restore();
   jest.restoreAllMocks();
 });
 
 describe('HttpDataAccess', () => {
   describe('persistTransaction()', () => {
-    it('should emmit error', (done) => {
+    it('should throw error for persistTransaction failure', (done) => {
+      mockAxios.onPost('/persistTransaction').reply(500, { result: {} });
+      const httpDataAccess = new HttpDataAccess();
+      void httpDataAccess.persistTransaction({}, '', []).catch((e) => {
+        expect(e.message).toBe('Request failed with status code 500');
+        done();
+      });
+    });
+    it('should emmit error for getConfirmedTransaction failure', (done) => {
       mockAxios.onGet('/getConfirmedTransaction').reply(404, { result: {} });
       const httpDataAccess = new HttpDataAccess({
         httpConfig: {

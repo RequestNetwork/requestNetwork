@@ -347,7 +347,7 @@ describe('index', () => {
 
     expect(request).toBeInstanceOf(Request);
     expect(request.requestId).toBeDefined();
-    expect(mock.history.get).toHaveLength(3);
+    expect(mock.history.get).toHaveLength(2);
     expect(mock.history.post).toHaveLength(1);
 
     // Assert on the length to avoid unnecessary maintenance of the test. 66 = 64 char + '0x'
@@ -401,7 +401,7 @@ describe('index', () => {
 
     expect(request).toBeInstanceOf(Request);
     expect(request.requestId).toBe(requestId);
-    expect(mock.history.get).toHaveLength(3);
+    expect(mock.history.get).toHaveLength(2);
     expect(mock.history.post).toHaveLength(1);
   });
 
@@ -1268,12 +1268,11 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const requestFromId = await requestNetwork.fromRequestId(request.requestId);
-
-      expect(requestFromId).toMatchObject(request);
-
       const requestData = requestFromId.getData();
+      expect(requestData).toMatchObject(request.getData());
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
     });
@@ -1313,12 +1312,13 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const requestsFromTopic = await requestNetwork.fromTopic('my amazing test topic');
       expect(requestsFromTopic).not.toHaveLength(0);
-      expect(requestsFromTopic[0]).toMatchObject(request);
 
       const requestData = requestsFromTopic[0].getData();
+      expect(requestData).toMatchObject(request.getData());
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
     });
@@ -1351,13 +1351,15 @@ describe('index', () => {
         [encryptionData.encryptionParams],
       );
 
+      await Promise.all([request.waitForConfirmation(), request2.waitForConfirmation()]);
+
       const requestsFromTopic = await requestNetwork.fromMultipleTopics([
         'my amazing test topic',
         'my second best test topic',
       ]);
       expect(requestsFromTopic).toHaveLength(2);
-      expect(requestsFromTopic[0]).toMatchObject(request);
-      expect(requestsFromTopic[1]).toMatchObject(request2);
+      expect(requestsFromTopic[0].getData()).toMatchObject(request.getData());
+      expect(requestsFromTopic[1].getData()).toMatchObject(request2.getData());
 
       requestsFromTopic.forEach((req) => {
         const requestData = req.getData();
@@ -1381,12 +1383,13 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const requestFromIdentity = await requestNetwork.fromIdentity(TestData.payee.identity);
       expect(requestFromIdentity).not.toBe('');
-      expect(requestFromIdentity[0]).toMatchObject(request);
 
       const requestData = requestFromIdentity[0].getData();
+      expect(requestData).toMatchObject(request.getData());
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
     });
@@ -1424,7 +1427,6 @@ describe('index', () => {
     });
 
     it('creates an encrypted request and cancel it', async () => {
-      jest.useFakeTimers('modern');
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1438,24 +1440,22 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
 
-      expect(fetchedRequest).toMatchObject(request);
-
       const requestData = fetchedRequest.getData();
+      expect(requestData).toMatchObject(request.getData());
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-      jest.advanceTimersByTime(150);
-      await fetchedRequest.cancel(TestData.payee.identity);
-      jest.advanceTimersByTime(150);
-      expect((await fetchedRequest.refresh()).state).toBe(RequestLogicTypes.STATE.CANCELED);
-      jest.useRealTimers();
+      const canceledRequestData = await waitForConfirmation(
+        fetchedRequest.cancel(TestData.payee.identity),
+      );
+      expect(canceledRequestData.state).toBe(RequestLogicTypes.STATE.CANCELED);
     });
 
     it('creates an encrypted request, increase and decrease the amount', async () => {
-      jest.useFakeTimers('modern');
       const requestNetwork = new RequestNetwork({
         decryptionProvider: fakeDecryptionProvider,
         signatureProvider: TestData.fakeSignatureProvider,
@@ -1469,33 +1469,31 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
-      expect(fetchedRequest).toMatchObject(request);
-
       const requestData = fetchedRequest.getData();
+      expect(requestData).toMatchObject(request.getData());
       expect(requestData.meta).not.toBeNull();
       expect(requestData.meta!.transactionManagerMeta.encryptionMethod).toBe('ecies-aes256-gcm');
 
-      jest.advanceTimersByTime(150);
-      await fetchedRequest.increaseExpectedAmountRequest(
-        TestData.parametersWithoutExtensionsData.expectedAmount,
-        TestData.payer.identity,
+      const increaseAmountRequestData = await waitForConfirmation(
+        fetchedRequest.increaseExpectedAmountRequest(
+          TestData.parametersWithoutExtensionsData.expectedAmount,
+          TestData.payer.identity,
+        ),
       );
-
-      jest.advanceTimersByTime(150);
-      expect((await fetchedRequest.refresh()).expectedAmount).toBe(
+      expect(increaseAmountRequestData.expectedAmount).toBe(
         String(BigNumber.from(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2)),
       );
 
-      await fetchedRequest.reduceExpectedAmountRequest(
-        BigNumber.from(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2).toString(),
-        TestData.payee.identity,
+      const reduceAmountRequestData = await waitForConfirmation(
+        fetchedRequest.reduceExpectedAmountRequest(
+          BigNumber.from(TestData.parametersWithoutExtensionsData.expectedAmount).mul(2).toString(),
+          TestData.payee.identity,
+        ),
       );
-
-      jest.advanceTimersByTime(150);
-      expect((await fetchedRequest.refresh()).expectedAmount).toBe('0');
-      jest.useRealTimers();
+      expect(reduceAmountRequestData.expectedAmount).toBe('0');
     });
 
     it('creates an encrypted declarative request, accepts it and declares a payment on it', async () => {
@@ -1513,6 +1511,7 @@ describe('index', () => {
         },
         [encryptionData.encryptionParams],
       );
+      await request.waitForConfirmation();
 
       const fetchedRequest = await requestNetwork.fromRequestId(request.requestId);
       const requestData = fetchedRequest.getData();
@@ -1547,7 +1546,7 @@ describe('index', () => {
       expect(declareReceivedPaymentResult.balance!.balance).toBe(
         TestData.parametersWithoutExtensionsData.expectedAmount,
       );
-    });
+    }, 10000);
   });
 
   describe('ETH requests', () => {
