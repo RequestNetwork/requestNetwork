@@ -138,16 +138,17 @@ export const getProxyNetwork = (
 
 /**
  * @param request The request to pay
- * @return A list that contains the payment network extension and the currency information
+ * @return An object that contains the payment network extension and the currency information
  */
-export function getPnAndNetwork(
-  request: ClientTypes.IRequestData,
-): [ExtensionTypes.IState<any>, string] {
+export function getPnAndNetwork(request: ClientTypes.IRequestData): {
+  paymentNetwork: ExtensionTypes.IState<any>;
+  network: string;
+} {
   const pn = getPaymentNetworkExtension(request);
   if (!pn) {
     throw new Error('PaymentNetwork not found');
   }
-  return [pn, getProxyNetwork(pn, request.currencyInfo)];
+  return { paymentNetwork: pn, network: getProxyNetwork(pn, request.currencyInfo) };
 }
 
 /**
@@ -160,10 +161,12 @@ export const getProxyAddress = (
   getDeploymentInformation: (network: string, version: string) => { address: string } | null,
   version?: string,
 ): string => {
-  const [pn, network] = getPnAndNetwork(request);
-  const deploymentInfo = getDeploymentInformation(network, version || pn.version);
+  const { paymentNetwork, network } = getPnAndNetwork(request);
+  const deploymentInfo = getDeploymentInformation(network, version || paymentNetwork.version);
   if (!deploymentInfo) {
-    throw new Error(`No deployment found for network ${network}, version ${version || pn.version}`);
+    throw new Error(
+      `No deployment found for network ${network}, version ${version || paymentNetwork.version}`,
+    );
   }
   return deploymentInfo.address;
 };
