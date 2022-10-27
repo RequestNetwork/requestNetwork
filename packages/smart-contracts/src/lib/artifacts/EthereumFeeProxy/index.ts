@@ -107,7 +107,7 @@ export const ethereumFeeProxyArtifact = new ContractArtifact<EthereumFeeProxy>(
           creationBlockNumber: 11988955,
         },
         ronin: {
-          address: '0xe9cbd1aa5496628f4302426693ad63006c56959f',
+          address: '0xe9cbD1Aa5496628F4302426693Ad63006C56959F',
           creationBlockNumber: 18379590,
         },
       },
