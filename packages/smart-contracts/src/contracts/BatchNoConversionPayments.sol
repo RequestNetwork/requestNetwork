@@ -105,7 +105,7 @@ contract BatchNoConversionPayments is Ownable {
    * @notice Send a batch of Native token payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch reverts.
    * @param requestDetails List of Native tokens requests to pay.
-   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduces gas consumption.
    * @param feeAddress The fee recipient.
    * @dev It uses NativeFeeProxy (EthereumFeeProxy) to pay an invoice and fees with a payment reference.
    *      Make sure: msg.value >= sum(_amouts)+sum(_feeAmounts)+sumBatchFeeAmount
@@ -158,7 +158,7 @@ contract BatchNoConversionPayments is Ownable {
    * @notice Send a batch of Native token payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch reverts.
    * @param requestDetails List of Native tokens requests to pay.
-   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduces gas consumption.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param feeAddress The fee recipient.
    * @dev It uses NativeFeeProxy (EthereumFeeProxy) to pay an invoice and fees with a payment reference.

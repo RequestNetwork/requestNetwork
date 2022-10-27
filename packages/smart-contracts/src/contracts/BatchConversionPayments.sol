@@ -169,7 +169,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @notice Send a batch of Native conversion payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch is reverted.
    * @param requestDetails List of native requests denominated in fiat to pay.
-   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduces gas consumption.
    * @param feeAddress The fee recipient.
    * @dev It uses NativeConversionProxy (EthereumConversionProxy) to pay an invoice and fees.
    *      Please:
@@ -264,7 +264,7 @@ contract BatchConversionPayments is BatchNoConversionPayments {
    * @notice Send a batch of Native conversion payments with fees and paymentReferences to multiple accounts.
    *         If one payment fails, the whole batch is reverted.
    * @param requestDetails List of native requests denominated in fiat to pay.
-   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduce gas consumption.
+   * @param skipFeeUSDLimit Setting the value to true skips the USD fee limit, and reduces gas consumption.
    * @param batchFeeAmountUSD The batch fee amount in USD already paid.
    * @param feeAddress The fee recipient.
    * @dev It uses NativeConversionProxy (EthereumConversionProxy) to pay an invoice and fees.

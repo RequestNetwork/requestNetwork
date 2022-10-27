@@ -262,7 +262,7 @@ function getUSDPathsForFeeLimit(
 
 /**
  * @param network The network targeted.
- * @param version The version of the batch conversion proxy., the last one by default.
+ * @param version The version of the batch conversion proxy, the last one by default.
  * @returns
  */
 function getBatchDeploymentInformation(
@@ -274,7 +274,7 @@ function getBatchDeploymentInformation(
 
 /**
  * Gets batch conversion contract Address.
- * @param request The request for an ERC20 payment with/out conversion..
+ * @param request The request for an ERC20 payment with/out conversion.
  * @param version The version of the batch conversion proxy.
  */
 export function getBatchConversionProxyAddress(
@@ -294,7 +294,7 @@ export function getBatchConversionProxyAddress(
  * @param account The account that will be used to pay the request
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings The payment settings are necessary for conversion payment approval.
- * @param version The version of the batch conversion proxy., which can be different from request pn version.
+ * @param version The version of the batch conversion proxy, which can be different from request pn version.
  * @param overrides Optionally, override default transaction values, like gas.
  */
 export async function approveErc20BatchConversionIfNeeded(
@@ -355,7 +355,7 @@ export async function hasErc20BatchConversionApproval(
  * @param request The request for an ERC20 payment with/out conversion.
  * @param signerOrProvider The Web3 provider, or signer. Defaults to window.ethereum.
  * @param paymentSettings The payment settings are necessary for conversion payment approval.
- * @param version The version of the batch conversion proxy., which can be different from request pn version.
+ * @param version The version of the batch conversion proxy, which can be different from request pn version.
  * @param overrides Optionally, override default transaction values, like gas.
  */
 export async function approveErc20BatchConversion(
