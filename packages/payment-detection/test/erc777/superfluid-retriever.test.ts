@@ -155,7 +155,7 @@ const testSuiteWithDaix = (network: string, fDAIxToken: string) => {
         );
       });
 
-      it(`should get payment events from SuperFluid via subgraph with one-off request payments on ${network} - 1/2`, async () => {
+      it(`should get payment events from SuperFluid via subgraph with one-off request payments on ${network}`, async () => {
         const paymentData = {
           reference: '0xbeefaccc470c7dbd54de69',
           txHash: '0xc331a269515c27836051cc4618097f5f1a1c37f79dcb975361022fe3ecfb5c00',
@@ -188,33 +188,29 @@ const testSuiteWithDaix = (network: string, fDAIxToken: string) => {
         const transferEvents = await graphRetriever.getTransferEvents();
         expect(transferEvents).toHaveLength(9);
 
+        // All events should be end stream events
+        expect(
+          transferEvents.filter(
+            (event) =>
+              event.parameters?.streamEventName === PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
+          ).length,
+        ).toEqual(9);
+
         // Expectations for first one-off payment event (first event)
         expect(transferEvents[0].amount).toEqual('5');
         expect(transferEvents[0].name).toEqual('payment');
         expect(transferEvents[0].parameters?.to).toEqual(paymentData.to);
         expect(transferEvents[0].parameters?.txHash).toEqual(paymentData.txHash);
         expect(transferEvents[0].parameters?.block).toEqual(paymentData.block);
-        expect(transferEvents[0].parameters?.streamEventName).toEqual(
-          PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
-        );
 
         // Expectations for second one-off payment event (between end stream and start stream)
         expect(transferEvents[2].amount).toEqual('10');
-        expect(transferEvents[2].parameters?.streamEventName).toEqual(
-          PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
-        );
 
-        // Expectations for second one-off payment event (between start stream and end stream)
+        // Expectations for third one-off payment event (between start stream and end stream)
         expect(transferEvents[3].amount).toEqual('15');
-        expect(transferEvents[3].parameters?.streamEventName).toEqual(
-          PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
-        );
 
-        // Expectations for second one-off payment event (last event)
+        // Expectations for last one-off payment event (last event)
         expect(transferEvents[8].amount).toEqual('20');
-        expect(transferEvents[8].parameters?.streamEventName).toEqual(
-          PaymentTypes.STREAM_EVENT_NAMES.END_STREAM,
-        );
       });
     });
   });
