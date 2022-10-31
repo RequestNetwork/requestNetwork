@@ -93,6 +93,17 @@ export const parametersWithoutExtensionsData: RequestLogicTypes.ICreateParameter
   payer: payer.identity,
   timestamp: arbitraryTimestamp,
 };
+export const parametersUSDWithoutExtensionsData: RequestLogicTypes.ICreateParameters = {
+  currency: {
+    type: RequestLogicTypes.CURRENCY.ISO4217,
+    value: 'USD',
+  },
+  // 345.67 USD
+  expectedAmount: '34567',
+  payee: payee.identity,
+  payer: payer.identity,
+  timestamp: arbitraryTimestamp,
+};
 export const parametersWithoutExtensionsDataForSigning: RequestLogicTypes.ICreateParameters = {
   currency: {
     network: 'testnet',

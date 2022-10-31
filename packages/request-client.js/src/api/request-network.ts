@@ -394,11 +394,16 @@ export default class RequestNetwork {
     const copiedRequestParameters = Utils.deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
 
+    const detectionChain =
+      parameters?.paymentNetwork?.parameters && 'network' in parameters.paymentNetwork.parameters
+        ? parameters.paymentNetwork.parameters.network ?? requestParameters.currency.network
+        : requestParameters.currency.network;
+
     const paymentNetwork = parameters.paymentNetwork
       ? this.paymentNetworkFactory.createPaymentNetwork(
           parameters.paymentNetwork.id,
           requestParameters.currency.type,
-          requestParameters.currency.network,
+          detectionChain,
         )
       : null;
 
