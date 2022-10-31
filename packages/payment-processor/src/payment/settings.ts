@@ -52,4 +52,15 @@ export interface IRequestPaymentOptions {
   conversion?: IConversionSettings;
   /** Optional, enable to approve only specific amount of token. Defaults to MAX_ALLOWANCE if not set */
   approval?: IApprovalSettings;
+
+  /** Optional, specifies if escrow is being used */
+  isEscrow?: boolean;
+
+  /** Used, and required, only for batch payment.
+   * Check the value of batchFeeAmountUSDLimit of the batch proxy deployed.
+   * Setting the value to true skips the USD fee limit, and reduces gas consumption.
+   */
+  skipFeeUSDLimit?: boolean;
+  /** Optional, only for batch payment to define the proxy to use. */
+  version?: string;
 }

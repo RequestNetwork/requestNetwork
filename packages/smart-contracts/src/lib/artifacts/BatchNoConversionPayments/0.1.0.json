@@ -9,7 +9,12 @@
         },
         {
           "internalType": "address",
-          "name": "_paymentEthProxy",
+          "name": "_paymentNativeProxy",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_chainlinkConversionPath",
           "type": "address"
         },
         {
@@ -41,84 +46,26 @@
       "type": "event"
     },
     {
-      "inputs": [
+      "inputs": [],
+      "name": "NativeAddress",
+      "outputs": [
         {
           "internalType": "address",
-          "name": "_tokenAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address[]",
-          "name": "_recipients",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "bytes[]",
-          "name": "_paymentReferences",
-          "type": "bytes[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_feeAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "address",
-          "name": "_feeAddress",
+          "name": "",
           "type": "address"
         }
       ],
-      "name": "batchERC20Payments",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address[]",
-          "name": "_recipients",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "bytes[]",
-          "name": "_paymentReferences",
-          "type": "bytes[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_feeAmounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "address payable",
-          "name": "_feeAddress",
-          "type": "address"
-        }
-      ],
-      "name": "batchEthPayments",
-      "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "view",
       "type": "function"
     },
     {
       "inputs": [],
-      "name": "batchFee",
+      "name": "USDAddress",
       "outputs": [
         {
-          "internalType": "uint256",
+          "internalType": "address",
           "name": "",
-          "type": "uint256"
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -127,44 +74,267 @@
     {
       "inputs": [
         {
-          "internalType": "address[]",
-          "name": "_tokenAddresses",
-          "type": "address[]"
+          "components": [
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "path",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "paymentReference",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "feeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxToSpend",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRateTimespan",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
+          "type": "tuple[]"
         },
         {
-          "internalType": "address[]",
-          "name": "_recipients",
-          "type": "address[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_amounts",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "bytes[]",
-          "name": "_paymentReferences",
-          "type": "bytes[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "_feeAmounts",
-          "type": "uint256[]"
+          "internalType": "address[][]",
+          "name": "pathsToUSD",
+          "type": "address[][]"
         },
         {
           "internalType": "address",
-          "name": "_feeAddress",
+          "name": "feeAddress",
           "type": "address"
         }
       ],
-      "name": "batchMultiERC20Payments",
-      "outputs": [],
+      "name": "batchERC20Payments",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [],
+      "name": "batchFee",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "batchFeeAmountUSDLimit",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "path",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "paymentReference",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "feeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxToSpend",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRateTimespan",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "address[][]",
+          "name": "pathsToUSD",
+          "type": "address[][]"
+        },
+        {
+          "internalType": "address",
+          "name": "feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchMultiERC20Payments",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "requestAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "path",
+              "type": "address[]"
+            },
+            {
+              "internalType": "bytes",
+              "name": "paymentReference",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "feeAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxToSpend",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxRateTimespan",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct BatchNoConversionPayments.RequestDetail[]",
+          "name": "requestDetails",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "bool",
+          "name": "skipFeeUSDLimit",
+          "type": "bool"
+        },
+        {
+          "internalType": "address payable",
+          "name": "feeAddress",
+          "type": "address"
+        }
+      ],
+      "name": "batchNativePayments",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "chainlinkConversionPath",
+      "outputs": [
+        {
+          "internalType": "contract ChainlinkConversionPath",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "pathsNativeToUSD",
       "outputs": [
         {
           "internalType": "address",
@@ -190,7 +360,7 @@
     },
     {
       "inputs": [],
-      "name": "paymentEthProxy",
+      "name": "paymentNativeProxy",
       "outputs": [
         {
           "internalType": "contract IEthereumFeeProxy",
@@ -211,12 +381,56 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
+          "internalType": "uint16",
           "name": "_batchFee",
-          "type": "uint256"
+          "type": "uint16"
         }
       ],
       "name": "setBatchFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint64",
+          "name": "_batchFeeAmountUSDLimit",
+          "type": "uint64"
+        }
+      ],
+      "name": "setBatchFeeAmountUSDLimit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_chainlinkConversionPath",
+          "type": "address"
+        }
+      ],
+      "name": "setChainlinkConversionPath",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_NativeAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_USDAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setNativeAndUSDAddress",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -238,11 +452,11 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "_paymentEthProxy",
+          "name": "_paymentNativeProxy",
           "type": "address"
         }
       ],
-      "name": "setPaymentEthProxy",
+      "name": "setPaymentNativeProxy",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
