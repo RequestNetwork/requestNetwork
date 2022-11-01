@@ -165,11 +165,13 @@ export class PaymentNetworkFactory {
       return null;
     }
 
+    const detectionChain = pn.values?.network ?? request.currency.network;
+
     const { id, version } = pn;
     return this.createPaymentNetwork(
       id as unknown as PaymentTypes.PAYMENT_NETWORK_ID,
       request.currency.type,
-      request.currency.network,
+      detectionChain,
       version,
     );
   }
