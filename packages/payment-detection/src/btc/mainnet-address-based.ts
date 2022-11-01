@@ -1,4 +1,4 @@
-import { AdvancedLogicTypes, PaymentTypes } from '@requestnetwork/types';
+import { AdvancedLogicTypes, PaymentTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { BtcAddressBasedDetector } from './address-based';
 
@@ -22,7 +22,7 @@ export class BtcMainnetAddressBasedDetector extends BtcAddressBasedDetector {
   }) {
     super(
       MAINNET_BITCOIN_NETWORK_ID,
-      PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
       advancedLogic.extensions.addressBasedBtc,
       bitcoinDetectionProvider,
     );

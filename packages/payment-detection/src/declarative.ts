@@ -193,7 +193,7 @@ export class DeclarativePaymentDetector extends DeclarativePaymentDetectorBase<
   PaymentTypes.IDeclarativePaymentEventParameters
 > {
   constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE, advancedLogic.extensions.declarative);
+    super(ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE, advancedLogic.extensions.declarative);
   }
 
   protected async getEvents(

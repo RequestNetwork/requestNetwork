@@ -20,7 +20,7 @@ export class ERC20AddressBasedPaymentDetector extends PaymentDetectorBase<
    */
   public constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+      ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
       advancedLogic.extensions.addressBasedErc20,
     );
   }

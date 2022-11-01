@@ -34,7 +34,7 @@ export class EthFeeProxyPaymentDetector extends FeeReferenceBasedDetector<
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions & Pick<PaymentNetworkOptions, 'getSubgraphClient'>) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
+      ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
       advancedLogic.extensions.feeProxyContractEth,
       currencyManager,
     );

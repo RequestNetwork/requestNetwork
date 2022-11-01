@@ -30,7 +30,7 @@ export class AnyToERC20PaymentDetector extends ERC20FeeProxyPaymentDetectorBase<
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions & Pick<PaymentNetworkOptions, 'getSubgraphClient'>) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
       advancedLogic.extensions.anyToErc20Proxy,
       currencyManager,
     );

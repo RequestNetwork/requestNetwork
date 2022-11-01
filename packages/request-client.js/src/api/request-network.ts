@@ -13,6 +13,7 @@ import {
   RequestLogicTypes,
   SignatureProviderTypes,
   TransactionTypes,
+  TypesUtils,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import {
@@ -394,13 +395,14 @@ export default class RequestNetwork {
     const copiedRequestParameters = Utils.deepCopy(requestParameters);
     copiedRequestParameters.extensionsData = [];
 
-    const paymentNetwork = parameters.paymentNetwork
-      ? this.paymentNetworkFactory.createPaymentNetwork(
-          parameters.paymentNetwork.id,
-          requestParameters.currency.type,
-          requestParameters.currency.network,
-        )
-      : null;
+    const paymentNetwork =
+      parameters?.paymentNetwork && TypesUtils.isPaymentNetworkId(parameters?.paymentNetwork?.id)
+        ? this.paymentNetworkFactory.createPaymentNetwork(
+            parameters.paymentNetwork.id,
+            requestParameters.currency.type,
+            requestParameters.currency.network,
+          )
+        : null;
 
     if (paymentNetwork) {
       // create the extensions data for the payment network

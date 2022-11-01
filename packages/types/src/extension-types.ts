@@ -75,7 +75,10 @@ export interface IEvent {
   from?: Identity.IIdentity;
 }
 
-/** Identification of extensions handled by this implementation */
+/**
+ * Identification of extensions handled by this implementation.
+ * See also `TypesUtils.isPaymentNetworkId()` to match values to ExtensionTypes.ID.PAYMENT_NETWORK_
+ * */
 export enum ID {
   CONTENT_DATA = 'content-data',
   PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
