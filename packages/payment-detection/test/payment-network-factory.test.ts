@@ -30,7 +30,7 @@ describe('api/payment-network/payment-network-factory', () => {
     it('can createPaymentNetwork', async () => {
       expect(
         paymentNetworkFactory.createPaymentNetwork(
-          PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+          PaymentTypes.PNShortcuts.BITCOIN_ADDRESS_BASED,
           RequestLogicTypes.CURRENCY.BTC,
         ),
       ).toBeInstanceOf(BtcMainnetAddressBasedDetector);
@@ -39,7 +39,7 @@ describe('api/payment-network/payment-network-factory', () => {
     it('can createPaymentNetwork with any currency', async () => {
       expect(
         paymentNetworkFactory.createPaymentNetwork(
-          PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+          PaymentTypes.PNShortcuts.DECLARATIVE,
           RequestLogicTypes.CURRENCY.BTC,
         ),
       ).toBeInstanceOf(DeclarativePaymentDetector);

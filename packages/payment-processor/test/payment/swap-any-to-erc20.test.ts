@@ -50,7 +50,7 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+    [PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY]: {
       events: [],
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -113,7 +113,7 @@ describe('swap-any-to-erc20', () => {
 
     it('should throw an error if the payment network is wrong', async () => {
       const request = Utils.deepCopy(validRequest);
-      delete request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY];
+      delete request.extensions[PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY];
 
       await expect(
         swapToPayAnyToErc20Request(request, wallet, {

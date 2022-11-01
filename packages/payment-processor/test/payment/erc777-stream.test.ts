@@ -52,7 +52,7 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
+    [PaymentTypes.PNShortcuts.ERC777_STREAM]: {
       events: [],
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,

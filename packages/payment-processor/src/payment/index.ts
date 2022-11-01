@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, BigNumber, BigNumberish, providers } from 'ethers';
 
-import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { getBtcPaymentUrl } from './btc-address-based';
 import { _getErc20PaymentUrl, getAnyErc20Balance } from './erc20';
@@ -335,8 +335,8 @@ const throwIfNotWeb3 = (request: ClientTypes.IRequestData) => {
  */
 export interface EnrichedRequest {
   paymentNetworkId:
-    | PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
-    | PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT;
+    | ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY
+    | ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT;
   request: ClientTypes.IRequestData;
   paymentSettings: IConversionPaymentSettings;
   amount?: BigNumberish;

@@ -44,7 +44,7 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '1000',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+    [PaymentTypes.PNShortcuts.ETH_FEE_PROXY_CONTRACT]: {
       events: [],
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -70,7 +70,7 @@ const validRequest: ClientTypes.IRequestData = {
 
 const validRequest2 = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
 validRequest2.extensions = {
-  [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+  [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
     events: [],
     id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,

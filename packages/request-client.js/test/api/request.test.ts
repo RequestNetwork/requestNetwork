@@ -59,7 +59,7 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
 const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
   extension:
     {} as ExtensionTypes.PnAnyDeclarative.IAnyDeclarative<ExtensionTypes.PnAnyDeclarative.ICreationParameters>,
-  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+  paymentNetworkId: PaymentTypes.PNShortcuts.DECLARATIVE,
 
   async createExtensionsDataForCreation(): Promise<any> {
     return;
@@ -78,7 +78,7 @@ const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
 const mockDeclarativePaymentNetwork: PaymentTypes.IPaymentNetwork = {
   extension:
     {} as ExtensionTypes.PnAnyDeclarative.IAnyDeclarative<ExtensionTypes.PnAnyDeclarative.ICreationParameters>,
-  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+  paymentNetworkId: PaymentTypes.PNShortcuts.DECLARATIVE,
   async createExtensionsDataForCreation(): Promise<any> {
     return;
   },

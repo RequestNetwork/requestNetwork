@@ -2,7 +2,7 @@ import { constants, ContractTransaction, Signer, BigNumberish, providers, BigNum
 
 import { erc20FeeProxyArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20FeeProxy__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 import { ITransactionOverrides } from './transaction-overrides';
@@ -78,7 +78,7 @@ export function _getErc20FeeProxyPaymentUrl(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT);
   const { paymentReference, paymentAddress, feeAddress, feeAmount, version } =
     getRequestPaymentValues(request);
   const contractAddress = erc20FeeProxyArtifact.getAddress(request.currencyInfo.network!, version);

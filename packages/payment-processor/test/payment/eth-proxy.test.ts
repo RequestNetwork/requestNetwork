@@ -45,7 +45,7 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
       events: [],
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -154,8 +154,8 @@ describe('prepareEthProxyPaymentTransaction', () => {
     const valid010Request = {
       ...validRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
-          ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
+        [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
+          ...validRequest.extensions[PaymentTypes.PNShortcuts.ETH_INPUT_DATA],
           version: '0.1.0',
         },
       },
@@ -163,8 +163,8 @@ describe('prepareEthProxyPaymentTransaction', () => {
     const valid020Request = {
       ...validRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
-          ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA],
+        [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
+          ...validRequest.extensions[PaymentTypes.PNShortcuts.ETH_INPUT_DATA],
           version: '0.2.0',
         },
       },

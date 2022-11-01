@@ -41,7 +41,7 @@ describe('payRequest', () => {
   it('cannot pay a declarative request', async () => {
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE]: {
+        [PaymentTypes.PNShortcuts.DECLARATIVE]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -58,7 +58,7 @@ describe('payRequest', () => {
   it('cannot pay a BTC request', async () => {
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: {
+        [PaymentTypes.PNShortcuts.BITCOIN_ADDRESS_BASED]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -77,7 +77,7 @@ describe('payRequest', () => {
     (ethModule as any).payEthInputDataRequest = mock;
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+        [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -95,7 +95,7 @@ describe('payRequest', () => {
     (erc20Module as any).payErc20Request = spy;
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+        [PaymentTypes.PNShortcuts.ERC20_PROXY_CONTRACT]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -113,7 +113,7 @@ describe('payRequest', () => {
     (erc777Module as any).payErc777StreamRequest = spy;
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
+        [PaymentTypes.PNShortcuts.ERC777_STREAM]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -132,7 +132,7 @@ describe('payRequest', () => {
         network: 'aurora',
       },
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+        [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -167,7 +167,7 @@ describe('payNearInputDataRequest', () => {
       requestId: '0x123',
       currencyInfo: nearCurrency,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]: {
+        [PaymentTypes.PNShortcuts.NATIVE_TOKEN]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -209,7 +209,7 @@ describe('payNearInputDataRequest', () => {
       requestId: '0x123',
       currencyInfo: nearCurrency,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+        [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -241,7 +241,7 @@ describe('swapToPayRequest', () => {
   it('cannot pay a declarative request', async () => {
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE]: {
+        [PaymentTypes.PNShortcuts.DECLARATIVE]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -258,7 +258,7 @@ describe('swapToPayRequest', () => {
   it('cannot pay a BTC request', async () => {
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: {
+        [PaymentTypes.PNShortcuts.BITCOIN_ADDRESS_BASED]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -275,7 +275,7 @@ describe('swapToPayRequest', () => {
   it('cannot swap to pay an ETH request', async () => {
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+        [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -295,7 +295,7 @@ describe('swapToPayRequest', () => {
         network: 'aurora',
       },
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+        [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -314,7 +314,7 @@ describe('swapToPayRequest', () => {
     (erc20Module as any).payErc20Request = spy;
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+        [PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -339,7 +339,7 @@ describe('hasSufficientFunds', () => {
         network: 'testnet',
       },
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: {
+        [PaymentTypes.PNShortcuts.BITCOIN_ADDRESS_BASED]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -367,7 +367,7 @@ describe('hasSufficientFunds', () => {
       },
       expectedAmount: '100',
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+        [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -399,7 +399,7 @@ describe('hasSufficientFunds', () => {
       },
       expectedAmount: '100',
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+        [PaymentTypes.PNShortcuts.ERC20_PROXY_CONTRACT]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -431,7 +431,7 @@ describe('hasSufficientFunds', () => {
       },
       expectedAmount: '100',
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
+        [PaymentTypes.PNShortcuts.ERC777_STREAM]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -523,7 +523,7 @@ describe('_getPaymentUrl', () => {
   it('should throw an error on unsupported network', () => {
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE]: {
+        [PaymentTypes.PNShortcuts.DECLARATIVE]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -542,7 +542,7 @@ describe('_getPaymentUrl', () => {
     (btcModule as any).getBtcPaymentUrl = mock;
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED]: {
+        [PaymentTypes.PNShortcuts.BITCOIN_ADDRESS_BASED]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -560,7 +560,7 @@ describe('_getPaymentUrl', () => {
     (ethModule as any)._getEthPaymentUrl = spy;
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+        [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -578,7 +578,7 @@ describe('_getPaymentUrl', () => {
     (erc20Module as any)._getErc20PaymentUrl = spy;
     const request: any = {
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+        [PaymentTypes.PNShortcuts.ERC20_PROXY_CONTRACT]: {
           events: [],
           id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,

@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
 
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -42,7 +42,7 @@ export function prepareEthInputDataRequest(
   amount?: BigNumberish,
   overrides?: ITransactionOverrides,
 ): IPreparedTransaction {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA);
+  validateRequest(request, ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA);
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
 
   const amountToPay = getAmountToPay(request, amount);

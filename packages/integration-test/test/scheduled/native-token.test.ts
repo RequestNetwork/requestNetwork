@@ -1,5 +1,5 @@
 import { PaymentNetworkFactory } from '@requestnetwork/payment-detection';
-import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { PnReferenceBased } from '@requestnetwork/types/dist/extension-types';
 import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 import { CurrencyManager } from '@requestnetwork/currency';
@@ -20,7 +20,7 @@ describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
   );
   it('PaymentNetworkFactory can createPaymentNetwork (mainnet)', async () => {
     const paymentNetwork = paymentNetworkFactory.createPaymentNetwork(
-      PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
+      ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
       RequestLogicTypes.CURRENCY.ETH,
       'aurora-testnet',
     );
@@ -30,7 +30,7 @@ describe('PaymentNetworkFactory and createExtensionsDataForCreation', () => {
   });
   it('throws without a payment network name', async () => {
     const paymentNetwork = paymentNetworkFactory.createPaymentNetwork(
-      PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
+      ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
       RequestLogicTypes.CURRENCY.ETH,
       'aurora-testnet',
     );

@@ -21,7 +21,7 @@ import { getPaymentNetworkExtension } from './utils';
 import { getTheGraphClient } from './thegraph';
 import { getDefaultProvider } from './provider';
 
-const PN_ID = PaymentTypes.PAYMENT_NETWORK_ID;
+const PN_ID = PaymentTypes.PNShortcuts;
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {

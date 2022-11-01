@@ -152,7 +152,7 @@ describe('api/declarative', () => {
   });
 
   it('getBalance get the correct balance', async () => {
-    requestMock.extensions[PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE] = {
+    requestMock.extensions[PaymentTypes.PNShortcuts.DECLARATIVE] = {
       events: [
         {
           name: ExtensionTypes.PnAnyDeclarative.ACTION.DECLARE_SENT_PAYMENT,

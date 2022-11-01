@@ -1,6 +1,6 @@
 import { constants, ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, PaymentTypes, ExtensionTypes } from '@requestnetwork/types';
 import { EthFeeProxyPaymentDetector } from '@requestnetwork/payment-detection';
 import { EthereumFeeProxy__factory } from '@requestnetwork/smart-contracts/types';
 
@@ -100,8 +100,8 @@ export function validateEthFeeProxyRequest(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-  paymentNetwork: PaymentTypes.PAYMENT_NETWORK_ID = PaymentTypes.PAYMENT_NETWORK_ID
-    .ETH_FEE_PROXY_CONTRACT,
+  paymentNetwork: PaymentTypes.PAYMENT_NETWORK_ID = ExtensionTypes.ID
+    .PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
 ): void {
   validateRequest(request, paymentNetwork);
 

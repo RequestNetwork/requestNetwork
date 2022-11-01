@@ -45,12 +45,11 @@ export function prepareSwapToPayAnyToErc20Request(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   options: IRequestPaymentOptions,
 ): IPreparedTransaction {
-  if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
+  if (!request.extensions[PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY]) {
     throw new Error(`The request must have the payment network any-to-erc20-proxy`);
   }
 
-  const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
+  const network = request.extensions[PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY].values.network;
   if (!network) {
     throw new Error(`Payment network currency must have a network`);
   }
@@ -105,9 +104,9 @@ export function encodeSwapToPayAnyToErc20Request(
 
   // check if conversion currency is accepted
   if (
-    !request.extensions[
-      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
-    ].values.acceptedTokens.includes(conversionSettings.currency.value)
+    !request.extensions[PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY].values.acceptedTokens.includes(
+      conversionSettings.currency.value,
+    )
   ) {
     throw new Error(`The conversion currency is not an accepted token`);
   }

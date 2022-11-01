@@ -56,7 +56,7 @@ const validEuroRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+    [PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY]: {
       events: [],
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -214,9 +214,8 @@ describe('conversion-erc20-fee-proxy', () => {
         network: 'mainnet',
       };
       validEthRequest.expectedAmount = '1000000000000000000'; // 1 ETH
-      validEthRequest.extensions[
-        PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
-      ].values.feeAmount = '1000000000000000'; // 0.001 ETH
+      validEthRequest.extensions[PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY].values.feeAmount =
+        '1000000000000000'; // 0.001 ETH
       // first approve the contract
       const approvalTx = await approveErc20ForProxyConversionIfNeeded(
         validEthRequest,

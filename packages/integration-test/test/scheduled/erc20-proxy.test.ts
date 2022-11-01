@@ -1,5 +1,5 @@
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
-import { PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import { mockAdvancedLogic } from './mocks';
 import { Types, Utils } from '@requestnetwork/request-client.js';
@@ -24,7 +24,7 @@ describe('ERC20 Proxy detection test-suite', () => {
     const request = await requestNetwork.createRequest({
       paymentNetwork: {
         ...localErc20PaymentNetworkParams,
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
       },
       requestInfo: erc20requestCreationHash,
       signer: payeeIdentity,
@@ -55,7 +55,7 @@ describe('ERC20 Proxy detection test-suite', () => {
     const request = await requestNetwork.createRequest({
       paymentNetwork: {
         ...localErc20PaymentNetworkParams,
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
       },
       requestInfo: erc20requestCreationHash,
       signer: payeeIdentity,

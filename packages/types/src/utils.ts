@@ -10,8 +10,8 @@ import {
  * @param value Example: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT
  */
 export function isPaymentNetworkId(value: any): value is PaymentTypes.PAYMENT_NETWORK_ID {
-  for (const pn in PaymentTypes.PAYMENT_NETWORK_ID) {
-    if (PaymentTypes.PAYMENT_NETWORK_ID[pn] === value) {
+  for (const pn in PaymentTypes.PNShortcuts) {
+    if (pn === value) {
       return true;
     }
   }

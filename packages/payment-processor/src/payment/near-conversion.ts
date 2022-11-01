@@ -1,7 +1,7 @@
 import { BigNumberish } from 'ethers';
 import { WalletConnection } from 'near-api-js';
 
-import { ClientTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 
 import {
   getRequestPaymentValues,
@@ -30,7 +30,7 @@ export async function payNearConversionRequest(
   amount?: BigNumberish,
   callback?: INearTransactionCallback,
 ): Promise<void> {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE);
+  validateRequest(request, ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN);
 
   const currencyManager = paymentSettings.currencyManager || CurrencyManager.getDefault();
   const { paymentReference, paymentAddress, feeAddress, feeAmount, maxRateTimespan, network } =

@@ -2,7 +2,7 @@
 import { BigNumber, BigNumberish, constants, ContractTransaction, providers, Signer } from 'ethers';
 import { erc20EscrowToPayArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20EscrowToPay__factory } from '@requestnetwork/smart-contracts/types/';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import {
   getAmountToPay,
   getProvider,
@@ -245,7 +245,7 @@ export function encodePayEscrow(
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT);
   const tokenAddress = request.currencyInfo.value;
 
   // collects the parameters to be used, from the request
@@ -298,7 +298,7 @@ export function preparePayEscrow(
  * @returns {erc20EscrowToPayContract, paymentReference}
  */
 function prepareForEncoding(request: ClientTypes.IRequestData) {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT);
 
   // collects the parameters to be used from the request
   const { paymentReference } = getRequestPaymentValues(request);

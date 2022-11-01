@@ -1,7 +1,7 @@
 import { BigNumberish } from 'ethers';
 import { WalletConnection } from 'near-api-js';
 
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import {
   getRequestPaymentValues,
@@ -27,7 +27,7 @@ export async function payNearInputDataRequest(
     throw new Error('request.currencyInfo should be a Near network');
   }
 
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN);
+  validateRequest(request, ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN);
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const amountToPay = getAmountToPay(request, amount).toString();

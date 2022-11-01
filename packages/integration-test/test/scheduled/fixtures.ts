@@ -1,4 +1,4 @@
-import { IdentityTypes, PaymentTypes } from '@requestnetwork/types';
+import { ExtensionTypes, IdentityTypes, PaymentTypes } from '@requestnetwork/types';
 import { RequestNetwork, Types } from '@requestnetwork/request-client.js';
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 
@@ -53,7 +53,7 @@ export const ethInputDataCreationHash: Types.IRequestInfo = {
 };
 
 export const localErc20PaymentNetworkParams: PaymentTypes.IPaymentNetworkCreateParameters = {
-  id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
   parameters: {
     paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
     feeAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -62,7 +62,7 @@ export const localErc20PaymentNetworkParams: PaymentTypes.IPaymentNetworkCreateP
 };
 
 export const localEthInputDataPaymentNetworkParams: PaymentTypes.IPaymentNetworkCreateParameters = {
-  id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+  id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
   parameters: {
     paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
   },

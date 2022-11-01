@@ -41,7 +41,7 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '1',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+    [PaymentTypes.PNShortcuts.ETH_INPUT_DATA]: {
       events: [],
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,

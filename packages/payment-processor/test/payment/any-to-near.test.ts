@@ -24,7 +24,7 @@ const request: any = {
   expectedAmount: '100',
   currencyInfo: usdCurrency,
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE]: {
+    [PaymentTypes.PNShortcuts.ANY_TO_NATIVE]: {
       events: [],
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -105,8 +105,8 @@ describe('payNearWithConversionRequest', () => {
     invalidRequest = {
       ...invalidRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
-          ...invalidRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE],
+        [PaymentTypes.PNShortcuts.ANY_TO_ETH_PROXY]: {
+          ...invalidRequest.extensions[PaymentTypes.PNShortcuts.ANY_TO_NATIVE],
         },
       },
     };
@@ -158,10 +158,10 @@ describe('payNearWithConversionRequest', () => {
     invalidRequest = {
       ...invalidRequest,
       extensions: {
-        [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE]: {
-          ...invalidRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE],
+        [PaymentTypes.PNShortcuts.ANY_TO_NATIVE]: {
+          ...invalidRequest.extensions[PaymentTypes.PNShortcuts.ANY_TO_NATIVE],
           values: {
-            ...invalidRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE].values,
+            ...invalidRequest.extensions[PaymentTypes.PNShortcuts.ANY_TO_NATIVE].values,
             network: 'unknown-network',
           },
         },

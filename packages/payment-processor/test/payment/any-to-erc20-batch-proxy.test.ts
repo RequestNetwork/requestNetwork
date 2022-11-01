@@ -97,7 +97,7 @@ const EURValidRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: EURExpectedAmount,
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+    [PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY]: {
       events: [],
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -142,7 +142,7 @@ const DAIValidRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: expectedAmount,
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+    [PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT]: {
       events: [],
       id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -223,12 +223,12 @@ describe('erc20-batch-conversion-proxy', () => {
       EURRequest = Utils.deepCopy(EURValidRequest);
       enrichedRequests = [
         {
-          paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+          paymentNetworkId: PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY,
           request: EURValidRequest,
           paymentSettings: conversionPaymentSettings,
         },
         {
-          paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+          paymentNetworkId: PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY,
           request: EURRequest,
           paymentSettings: conversionPaymentSettings,
         },
@@ -241,7 +241,7 @@ describe('erc20-batch-conversion-proxy', () => {
           payBatchConversionProxyRequest(
             [
               {
-                paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+                paymentNetworkId: PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY,
                 request: EURValidRequest,
                 paymentSettings: {
                   ...conversionPaymentSettings,
@@ -269,7 +269,7 @@ describe('erc20-batch-conversion-proxy', () => {
           payBatchConversionProxyRequest(
             [
               {
-                paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+                paymentNetworkId: PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY,
                 request: EURRequest,
                 paymentSettings: wrongPaymentSettings,
               },
@@ -288,7 +288,7 @@ describe('erc20-batch-conversion-proxy', () => {
       it('should throw an error if the request has a wrong network', async () => {
         EURRequest.extensions = {
           // ERC20_FEE_PROXY_CONTRACT instead of ANY_TO_ERC20_PROXY
-          [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
+          [PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY]: {
             events: [],
             id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
             type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -310,7 +310,7 @@ describe('erc20-batch-conversion-proxy', () => {
       it('should throw an error if the request has a wrong payment network id', async () => {
         EURRequest.extensions = {
           // ERC20_FEE_PROXY_CONTRACT instead of ANY_TO_ERC20_PROXY
-          [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+          [PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT]: {
             events: [],
             id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
             type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
@@ -344,8 +344,8 @@ describe('erc20-batch-conversion-proxy', () => {
       });
       it('should throw an error if there is a wrong version mapping', async () => {
         EURRequest.extensions = {
-          [PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
-            ...EURRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY],
+          [PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY]: {
+            ...EURRequest.extensions[PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY],
             version: '0.3.0',
           },
         };
@@ -363,7 +363,7 @@ describe('erc20-batch-conversion-proxy', () => {
         await payBatchConversionProxyRequest(
           [
             {
-              paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+              paymentNetworkId: PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY,
               request: EURValidRequest,
               paymentSettings: conversionPaymentSettings,
             },
@@ -397,7 +397,7 @@ describe('erc20-batch-conversion-proxy', () => {
           const tx = await payBatchConversionProxyRequest(
             [
               {
-                paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+                paymentNetworkId: PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY,
                 request: EURValidRequest,
                 paymentSettings: conversionPaymentSettings,
               },
@@ -449,7 +449,7 @@ describe('erc20-batch-conversion-proxy', () => {
         // Convert and pay
         const tx = await payBatchConversionProxyRequest(
           Array(2).fill({
-            paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+            paymentNetworkId: PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY,
             request: EURValidRequest,
             paymentSettings: conversionPaymentSettings,
           }),
@@ -493,17 +493,17 @@ describe('erc20-batch-conversion-proxy', () => {
         const tx = await payBatchConversionProxyRequest(
           [
             {
-              paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+              paymentNetworkId: PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY,
               request: EURValidRequest,
               paymentSettings: conversionPaymentSettings,
             },
             {
-              paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+              paymentNetworkId: PaymentTypes.PNShortcuts.ANY_TO_ERC20_PROXY,
               request: EURValidRequest,
               paymentSettings: conversionPaymentSettings,
             },
             {
-              paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+              paymentNetworkId: PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT,
               request: DAIValidRequest,
               paymentSettings: { maxToSpend: '0' },
             },
@@ -549,12 +549,12 @@ describe('erc20-batch-conversion-proxy', () => {
       FAURequest = Utils.deepCopy(FAUValidRequest);
       enrichedRequests = [
         {
-          paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+          paymentNetworkId: PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT,
           request: DAIValidRequest,
           paymentSettings: { maxToSpend: '0' },
         },
         {
-          paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+          paymentNetworkId: PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT,
           request: FAURequest,
           paymentSettings: { maxToSpend: '0' },
         },
@@ -596,8 +596,8 @@ describe('erc20-batch-conversion-proxy', () => {
 
       it('should throw an error if there is a wrong version mapping', async () => {
         FAURequest.extensions = {
-          [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
-            ...DAIValidRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT],
+          [PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT]: {
+            ...DAIValidRequest.extensions[PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT],
             version: '0.3.0',
           },
         };
@@ -704,13 +704,13 @@ describe('erc20-batch-conversion-proxy', () => {
           prepareBatchConversionPaymentTransaction(
             [
               {
-                paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
+                paymentNetworkId: PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT,
                 request: {
                   ...DAIValidRequest,
                   extensions: {
-                    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+                    [PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT]: {
                       ...DAIValidRequest.extensions[
-                        PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
+                        PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT
                       ],
                       version: '0.1.0',
                     },
@@ -721,9 +721,9 @@ describe('erc20-batch-conversion-proxy', () => {
                 request: {
                   ...FAUValidRequest,
                   extensions: {
-                    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+                    [PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT]: {
                       ...FAUValidRequest.extensions[
-                        PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
+                        PaymentTypes.PNShortcuts.ERC20_FEE_PROXY_CONTRACT
                       ],
                       version: '0.1.0',
                     },
