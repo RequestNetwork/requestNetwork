@@ -23,7 +23,7 @@ describe('extensions/payment-network/erc777/stream', () => {
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
         parameters: {
           expectedFlowRate: '0x0000000000000000000000000000000000000001',
           expectedStartDate: '0',
@@ -43,7 +43,7 @@ describe('extensions/payment-network/erc777/stream', () => {
           }),
         ).toEqual({
           action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
           parameters: {
             paymentAddress: '0x0000000000000000000000000000000000000001',
           },
@@ -68,7 +68,7 @@ describe('extensions/payment-network/erc777/stream', () => {
           }),
         ).toEqual({
           action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
           parameters: {
             refundAddress: '0x0000000000000000000000000000000000000002',
           },
@@ -412,7 +412,7 @@ describe('extensions/payment-network/erc777/stream', () => {
             }),
           ).toEqual({
             action: 'create',
-            id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
             parameters: {
               originalRequestId: 'abcd',
               previousRequestId: 'efgh',

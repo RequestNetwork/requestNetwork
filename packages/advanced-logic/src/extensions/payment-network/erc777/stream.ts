@@ -11,7 +11,7 @@ export default class Erc777StreamPaymentNetwork<
 > extends ReferenceBasedPaymentNetwork<TCreationParameters> {
   public constructor() {
     super(
-      ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
       CURRENT_VERSION,
       RequestLogicTypes.CURRENCY.ERC777,
     );

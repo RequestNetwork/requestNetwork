@@ -28,7 +28,7 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 };
 
 const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+  id: RequestNetwork.Types.Extension.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
   parameters: {
     paymentAddress: '0x627306090abaB3A6e1400e9345bC60c78a8BEf57',
   },

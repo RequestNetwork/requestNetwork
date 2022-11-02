@@ -20,9 +20,9 @@ describe('Any to ETH payment detection', () => {
     events: [],
     expectedAmount: '1000',
     extensions: {
-      [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY]: {
+      [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY]: {
         events: [],
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
         values: {
           feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',

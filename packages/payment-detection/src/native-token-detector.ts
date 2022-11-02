@@ -11,7 +11,7 @@ export abstract class NativeTokenPaymentDetector extends ReferenceBasedDetector<
   PaymentTypes.IETHPaymentEventParameters
 > {
   protected constructor({ network, advancedLogic, currencyManager }: NativeDetectorOptions) {
-    const extensionId = ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN;
+    const extensionId = ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN;
     const extension = advancedLogic.getNativeTokenExtensionForNetwork(
       network,
     ) as ExtensionTypes.PnReferenceBased.IReferenceBased;

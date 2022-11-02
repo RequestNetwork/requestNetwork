@@ -1,4 +1,4 @@
-import { ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ExtensionTypes } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
 import { FeeReferenceBasedDetector } from './fee-reference-based-detector';
 
@@ -15,7 +15,7 @@ export abstract class AnyToAnyDetector<
    * @param extension The advanced logic payment network extension, with conversion
    */
   protected constructor(
-    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     currencyManager: ICurrencyManager,
   ) {

@@ -26,7 +26,7 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
    * @param extension The advanced logic payment network extensions
    */
   protected constructor(
-    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     currencyManager: ICurrencyManager,
   ) {
@@ -69,7 +69,7 @@ export class ERC20FeeProxyPaymentDetector extends ERC20FeeProxyPaymentDetectorBa
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions & Pick<PaymentNetworkOptions, 'getSubgraphClient'>) {
     super(
-      ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
       advancedLogic.extensions.feeProxyContractErc20,
       currencyManager,
     );

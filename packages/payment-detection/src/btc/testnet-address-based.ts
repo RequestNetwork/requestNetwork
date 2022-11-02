@@ -22,7 +22,7 @@ export class BtcTestnetAddressBasedDetector extends BtcAddressBasedDetector {
   }) {
     super(
       TESTNET_BITCOIN_NETWORK_ID,
-      ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
+      ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       advancedLogic.extensions.addressBasedTestnetBtc,
       bitcoinDetectionProvider,
     );

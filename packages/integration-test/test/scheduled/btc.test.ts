@@ -1,6 +1,6 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestNetwork } from '@requestnetwork/request-client.js';
-import { PaymentTypes, SignatureTypes } from '@requestnetwork/types';
+import { PaymentTypes, SignatureTypes, ExtensionTypes } from '@requestnetwork/types';
 import { payee, requestData, testnetRequestData } from './btc-test-data';
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
@@ -17,7 +17,7 @@ describe('BTC detection test-suite', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
@@ -38,7 +38,7 @@ describe('BTC detection test-suite', () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
       },

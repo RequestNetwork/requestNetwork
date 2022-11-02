@@ -12,7 +12,7 @@ const BITCOIN_NETWORK = 'testnet';
  */
 export default class BitcoinTestnetAddressBasedPaymentNetwork extends BitcoinAddressBasedPaymentNetwork {
   public constructor() {
-    super(ExtensionTypes.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED);
+    super(ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED);
   }
 
   protected isValidAddress(address: string): boolean {

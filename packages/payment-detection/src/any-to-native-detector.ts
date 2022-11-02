@@ -11,7 +11,7 @@ export abstract class AnyToNativeDetector extends AnyToAnyDetector<
   PaymentTypes.IETHFeePaymentEventParameters
 > {
   protected constructor({ network, advancedLogic, currencyManager }: NativeDetectorOptions) {
-    const extensionId = ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN;
+    const extensionId = ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN;
     const extension = advancedLogic.getAnyToNativeTokenExtensionForNetwork(
       network,
     ) as ExtensionTypes.PnAnyToEth.IAnyToEth;

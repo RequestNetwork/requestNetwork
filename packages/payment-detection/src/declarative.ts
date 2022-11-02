@@ -12,9 +12,12 @@ import { PaymentDetectorBase } from './payment-detector-base';
  */
 export abstract class DeclarativePaymentDetectorBase<
   TExtension extends ExtensionTypes.PnAnyDeclarative.IAnyDeclarative,
-  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters,
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<unknown>,
 > extends PaymentDetectorBase<TExtension, TPaymentEventParameters> {
-  protected constructor(_paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID, extension: TExtension) {
+  protected constructor(
+    _paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
+    extension: TExtension,
+  ) {
     super(_paymentNetworkId, extension);
   }
 
@@ -193,7 +196,7 @@ export class DeclarativePaymentDetector extends DeclarativePaymentDetectorBase<
   PaymentTypes.IDeclarativePaymentEventParameters
 > {
   constructor({ advancedLogic }: { advancedLogic: AdvancedLogicTypes.IAdvancedLogic }) {
-    super(ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE, advancedLogic.extensions.declarative);
+    super(ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE, advancedLogic.extensions.declarative);
   }
 
   protected async getEvents(

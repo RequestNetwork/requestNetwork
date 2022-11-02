@@ -11,7 +11,7 @@ export default abstract class AddressBasedPaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnAddressBased.ICreationParameters = ExtensionTypes.PnAddressBased.ICreationParameters,
 > extends DeclarativePaymentNetwork<TCreationParameters> {
   protected constructor(
-    extensionId: ExtensionTypes.ID,
+    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
     public readonly supportedCurrencyType: RequestLogicTypes.CURRENCY,
   ) {

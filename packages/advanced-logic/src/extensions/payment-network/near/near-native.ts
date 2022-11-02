@@ -15,7 +15,7 @@ export default class NearNativePaymentNetwork extends NativeTokenPaymentNetwork 
     ],
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN, currentVersion, supportedNetworks);
+    super(ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN, currentVersion, supportedNetworks);
   }
 
   /**

@@ -85,7 +85,7 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
  */
 
 const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+  id: RequestNetwork.Types.Extension.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     paymentAddress: '0x92FC764853A9A0287b7587E59aDa47165b3B2675',
   },

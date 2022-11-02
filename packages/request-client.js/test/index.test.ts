@@ -146,7 +146,7 @@ describe('index', () => {
     });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
     const request = await requestNetwork.createRequest({
@@ -182,7 +182,7 @@ describe('index', () => {
     });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
     const request = await requestNetwork.createRequest({
@@ -222,7 +222,7 @@ describe('index', () => {
     });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
@@ -261,7 +261,7 @@ describe('index', () => {
     });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
       },
@@ -430,7 +430,7 @@ describe('index', () => {
     });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -609,7 +609,7 @@ describe('index', () => {
     });
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
@@ -810,7 +810,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -838,7 +838,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -866,7 +866,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -877,7 +877,7 @@ describe('index', () => {
           extensionsData: [
             {
               action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
-              id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+              id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
               parameters: {
                 delegate: TestData.delegate.identity,
               },
@@ -901,7 +901,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -929,7 +929,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -963,7 +963,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -991,7 +991,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -1021,7 +1021,7 @@ describe('index', () => {
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters<ExtensionTypes.PnAnyDeclarative.ICreationParameters> =
         {
-          id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
           parameters: {
             paymentInfo: {
               IBAN: 'FR123456789123456789',
@@ -1059,7 +1059,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -1087,7 +1087,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -1129,7 +1129,7 @@ describe('index', () => {
         useMockStorage: true,
       });
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -1198,7 +1198,7 @@ describe('index', () => {
     const salt = 'ea3bc7caf64110ca';
 
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
@@ -1567,7 +1567,7 @@ describe('index', () => {
       const salt = 'ea3bc7caf64110ca';
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -1611,7 +1611,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -1649,7 +1649,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         },
@@ -1694,7 +1694,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -1759,7 +1759,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -1843,7 +1843,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -1921,7 +1921,7 @@ describe('index', () => {
         '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
         parameters: {
           paymentAddress,
           refundAddress,
@@ -1952,10 +1952,11 @@ describe('index', () => {
       expect(data.currency).toBe('unknown');
 
       expect(
-        data.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.paymentAddress,
+        data.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values
+          .paymentAddress,
       ).toBe(paymentAddress);
       expect(
-        data.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.refundAddress,
+        data.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.refundAddress,
       ).toBe(refundAddress);
       expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
 
@@ -2016,7 +2017,7 @@ describe('index', () => {
       const salt = 'ea3bc7caf64110ca';
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
           refundAddress: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
@@ -2056,7 +2057,7 @@ describe('index', () => {
       });
 
       const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -2102,7 +2103,7 @@ describe('index', () => {
       },
     };
     const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',

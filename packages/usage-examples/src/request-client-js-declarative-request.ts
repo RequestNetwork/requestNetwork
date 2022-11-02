@@ -33,7 +33,7 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
 };
 
 const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.DECLARATIVE,
+  id: RequestNetwork.Types.Extension.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
   parameters: {
     paymentInformation: { IBAN: 'FR89370400440532013000', BIC: 'SABAIE2D' },
   },

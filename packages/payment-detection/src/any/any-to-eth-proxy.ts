@@ -36,7 +36,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions & Pick<PaymentNetworkOptions, 'getSubgraphClient'>) {
     super(
-      ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
       currencyManager,
     );

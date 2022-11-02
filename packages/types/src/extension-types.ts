@@ -55,7 +55,7 @@ export interface IState<T = any> {
 
 /** State for payment networks extensions only */
 export interface IPaymentNetworkState<T = any> extends IState<T> {
-  id: Exclude<ID, ID.CONTENT_DATA>;
+  id: PAYMENT_NETWORK_ID;
   type: TYPE.PAYMENT_NETWORK;
 }
 
@@ -77,24 +77,34 @@ export interface IEvent {
 
 /**
  * Identification of extensions handled by this implementation.
- * See also `TypesUtils.isPaymentNetworkId()` to match values to ExtensionTypes.ID.PAYMENT_NETWORK_
  * */
-export enum ID {
+export enum OTHER_ID {
   CONTENT_DATA = 'content-data',
-  PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
-  PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
-  PAYMENT_NETWORK_ERC20_ADDRESS_BASED = 'pn-erc20-address-based',
-  PAYMENT_NETWORK_ERC20_PROXY_CONTRACT = 'pn-erc20-proxy-contract',
-  PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT = 'pn-erc20-fee-proxy-contract',
-  PAYMENT_NETWORK_ERC777_STREAM = 'pn-erc777-stream',
-  PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT = 'pn-eth-fee-proxy-contract',
-  PAYMENT_NETWORK_ETH_INPUT_DATA = 'pn-eth-input-data',
-  PAYMENT_NETWORK_NATIVE_TOKEN = 'pn-native-token',
-  PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN = 'pn-any-to-native-token',
-  PAYMENT_NETWORK_ANY_DECLARATIVE = 'pn-any-declarative',
-  PAYMENT_NETWORK_ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
-  PAYMENT_NETWORK_ANY_TO_ETH_PROXY = 'pn-any-to-eth-proxy',
 }
+
+export enum PAYMENT_NETWORK_ID {
+  BITCOIN_ADDRESS_BASED = 'pn-bitcoin-address-based',
+  TESTNET_BITCOIN_ADDRESS_BASED = 'pn-testnet-bitcoin-address-based',
+  ERC20_ADDRESS_BASED = 'pn-erc20-address-based',
+  ERC20_PROXY_CONTRACT = 'pn-erc20-proxy-contract',
+  ERC20_FEE_PROXY_CONTRACT = 'pn-erc20-fee-proxy-contract',
+  ERC777_STREAM = 'pn-erc777-stream',
+  ETH_FEE_PROXY_CONTRACT = 'pn-eth-fee-proxy-contract',
+  ETH_INPUT_DATA = 'pn-eth-input-data',
+  NATIVE_TOKEN = 'pn-native-token',
+  ANY_TO_NATIVE_TOKEN = 'pn-any-to-native-token',
+  ANY_DECLARATIVE = 'pn-any-declarative',
+  ANY_TO_ERC20_PROXY = 'pn-any-to-erc20-proxy',
+  ANY_TO_ETH_PROXY = 'pn-any-to-eth-proxy',
+}
+
+export const ID = {
+  ...OTHER_ID,
+  ...PAYMENT_NETWORK_ID,
+};
+
+type EnumToType<T> = T[keyof T];
+export type ID = EnumToType<typeof ID>;
 
 /** Type of extensions */
 export enum TYPE {

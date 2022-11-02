@@ -1,4 +1,4 @@
-import { PaymentTypes } from '@requestnetwork/types';
+import { PaymentTypes, ExtensionTypes } from '@requestnetwork/types';
 
 export class BalanceError extends Error {
   constructor(message: string, public readonly code: PaymentTypes.BALANCE_ERROR_CODE) {
@@ -21,7 +21,7 @@ export class VersionNotSupported extends BalanceError {
 }
 
 export class ExtensionMissingRequiredValue extends BalanceError {
-  constructor(extension: PaymentTypes.PAYMENT_NETWORK_ID, name: string) {
+  constructor(extension: ExtensionTypes.PAYMENT_NETWORK_ID, name: string) {
     super(`${extension} misses required value ${name}`, PaymentTypes.BALANCE_ERROR_CODE.UNKNOWN);
   }
 }

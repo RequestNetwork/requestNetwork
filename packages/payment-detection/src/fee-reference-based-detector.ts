@@ -9,14 +9,17 @@ import { ReferenceBasedDetector } from './reference-based-detector';
  */
 export abstract class FeeReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnFeeReferenceBased.IFeeReferenceBased,
-  TPaymentEventParameters extends Partial<ExtensionTypes.PnFeeReferenceBased.IAddFeeParameters>,
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<string> & {
+    feeAddress?: string;
+    feeAmount?: string;
+  },
 > extends ReferenceBasedDetector<TExtension, TPaymentEventParameters> {
   /**
-   * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
+   * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
    */
   protected constructor(
-    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     currencyManager: ICurrencyManager,
   ) {

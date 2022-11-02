@@ -22,7 +22,7 @@ export class BtcMainnetAddressBasedDetector extends BtcAddressBasedDetector {
   }) {
     super(
       MAINNET_BITCOIN_NETWORK_ID,
-      ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+      ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
       advancedLogic.extensions.addressBasedBtc,
       bitcoinDetectionProvider,
     );

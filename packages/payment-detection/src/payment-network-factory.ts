@@ -1,4 +1,9 @@
-import { AdvancedLogicTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  AdvancedLogicTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { ICurrencyManager } from '@requestnetwork/currency';
 import {
   ContractBasedDetector,
@@ -21,7 +26,7 @@ import { getPaymentNetworkExtension } from './utils';
 import { getTheGraphClient } from './thegraph';
 import { getDefaultProvider } from './provider';
 
-const PN_ID = PaymentTypes.PAYMENT_NETWORK_ID;
+const PN_ID = ExtensionTypes.PAYMENT_NETWORK_ID;
 
 /** Register the payment network by currency and type */
 const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
@@ -62,9 +67,9 @@ const supportedPaymentNetwork: ISupportedPaymentNetworkByCurrency = {
 
 const anyCurrencyPaymentNetwork: IPaymentNetworkModuleByType = {
   [PN_ID.ANY_TO_ERC20_PROXY]: AnyToERC20PaymentDetector,
-  [PN_ID.DECLARATIVE]: DeclarativePaymentDetector,
+  [PN_ID.ANY_DECLARATIVE]: DeclarativePaymentDetector,
   [PN_ID.ANY_TO_ETH_PROXY]: AnyToEthFeeProxyPaymentDetector,
-  [PN_ID.ANY_TO_NATIVE]: NearConversionNativeTokenPaymentDetector,
+  [PN_ID.ANY_TO_NATIVE_TOKEN]: NearConversionNativeTokenPaymentDetector,
 };
 
 /** Factory to create the payment network according to the currency and payment network type */
@@ -109,7 +114,7 @@ export class PaymentNetworkFactory {
    * @returns the module to handle the payment network
    */
   public createPaymentNetwork(
-    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currencyType: RequestLogicTypes.CURRENCY,
     currencyNetwork?: string,
     paymentNetworkVersion?: string,
@@ -167,7 +172,7 @@ export class PaymentNetworkFactory {
 
     const { id, version } = pn;
     return this.createPaymentNetwork(
-      id as unknown as PaymentTypes.PAYMENT_NETWORK_ID,
+      id as unknown as ExtensionTypes.PAYMENT_NETWORK_ID,
       request.currency.type,
       request.currency.network,
       version,
