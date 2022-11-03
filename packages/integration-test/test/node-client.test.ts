@@ -647,8 +647,6 @@ describe('ETH localhost request creation and detection test', () => {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         feeAddress: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
         feeAmount: '200',
-        network: 'private',
-        maxRateTimespan: 1000000,
       },
     };
 
