@@ -63,7 +63,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
   payer: payer.identity,
   timestamp: arbitraryTimestamp,
 };
-const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
+export const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
   currency: {
     network: 'testnet',
     type: RequestLogicTypes.CURRENCY.BTC,

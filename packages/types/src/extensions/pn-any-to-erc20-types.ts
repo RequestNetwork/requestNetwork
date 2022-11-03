@@ -5,5 +5,5 @@ export type IAnyToERC20 = PnAnyToAnyConversion.IConversionReferenceBased<ICreati
 
 /** Parameters for the creation action */
 export interface ICreationParameters extends PnAnyToAnyConversion.ICreationParameters {
-  acceptedTokens?: string[];
+  acceptedTokens: string[];
 }
