@@ -63,7 +63,7 @@ export const parameters: RequestLogicTypes.ICreateParameters = {
   payer: payer.identity,
   timestamp: arbitraryTimestamp,
 };
-export const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
+const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
   currency: {
     network: 'testnet',
     type: RequestLogicTypes.CURRENCY.BTC,
@@ -74,13 +74,29 @@ export const parametersWithDeclarative: RequestLogicTypes.ICreateParameters = {
     {
       action: 'create',
       id: 'pn-any-declarative',
-      parameters: {},
+      parameters: {
+        paymentInfo: {
+          BIC: 'SABAIE2D',
+          IBAN: 'FR89370400440532013000',
+        },
+      },
       version: '0.1.0',
     },
   ],
   payee: payee.identity,
   payer: payer.identity,
   timestamp: arbitraryTimestamp,
+};
+const parametersWithDeclarativeNoPaymentInfo: RequestLogicTypes.ICreateParameters = {
+  ...parametersWithDeclarative,
+  extensionsData: [
+    {
+      action: 'create',
+      id: 'pn-any-declarative',
+      parameters: {},
+      version: '0.1.0',
+    },
+  ],
 };
 
 export const parametersWithoutExtensionsData: RequestLogicTypes.ICreateParameters = {
@@ -123,14 +139,19 @@ export const data = {
   parameters,
   version: '2.0.3',
 };
-export const dataWithoutExtensionsData = {
+const dataWithoutExtensionsData = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: parametersWithoutExtensionsDataForSigning,
   version: '2.0.3',
 };
-export const dataWithDeclarative = {
+const dataWithDeclarative = {
   name: RequestLogicTypes.ACTION_NAME.CREATE,
   parameters: parametersWithDeclarative,
+  version: '2.0.3',
+};
+const dataWithDeclarativeNoPaymentInfo = {
+  name: RequestLogicTypes.ACTION_NAME.CREATE,
+  parameters: parametersWithDeclarativeNoPaymentInfo,
   version: '2.0.3',
 };
 
@@ -138,8 +159,12 @@ export const action: RequestLogicTypes.IAction = Utils.signature.sign(
   dataWithDeclarative,
   payee.signatureParams,
 );
-export const actionWithoutExtensionsData: RequestLogicTypes.IAction = Utils.signature.sign(
+const actionWithoutExtensionsData: RequestLogicTypes.IAction = Utils.signature.sign(
   dataWithoutExtensionsData,
+  payee.signatureParams,
+);
+const actionWithoutPaymentInfo: RequestLogicTypes.IAction = Utils.signature.sign(
+  dataWithDeclarativeNoPaymentInfo,
   payee.signatureParams,
 );
 
@@ -160,10 +185,10 @@ export const timestampedTransactionWithoutExtensionsDataConfirmed: TransactionTy
     timestamp: arbitraryTimestamp,
     transaction: { data: JSON.stringify(actionWithoutExtensionsData) },
   };
-export const timestampedTransactionWithDeclarative: TransactionTypes.ITimestampedTransaction = {
+export const timestampedTransactionWithoutPaymentInfo: TransactionTypes.ITimestampedTransaction = {
   state: TransactionTypes.TransactionState.CONFIRMED,
   timestamp: arbitraryTimestamp,
-  transaction: { data: JSON.stringify(action) },
+  transaction: { data: JSON.stringify(actionWithoutPaymentInfo) },
 };
 
 export const actionRequestId = MultiFormat.serialize(Utils.crypto.normalizeKeccak256Hash(action));
@@ -218,6 +243,10 @@ export const declarativePaymentNetwork: PaymentTypes.PaymentNetworkCreateParamet
       IBAN: 'FR89370400440532013000',
     },
   },
+};
+export const declarativePaymentNetworkNoPaymentInfo: PaymentTypes.PaymentNetworkCreateParameters = {
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
+  parameters: {},
 };
 
 export const signatureParametersPayee: SignatureTypes.ISignatureParameters = {

@@ -105,7 +105,7 @@ export default class Request {
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
 
-    if (options && options.requestLogicCreateResult && !this.disableEvents) {
+    if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;
       originalEmitter
         .on('confirmed', async () => {
@@ -683,6 +683,7 @@ export default class Request {
     if (!requestAndMeta) {
       requestAndMeta = await this.requestLogic.getRequestFromId(this.requestId);
     }
+    console.debug(`requestAndMeta`, requestAndMeta);
 
     if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
       throw new Error(

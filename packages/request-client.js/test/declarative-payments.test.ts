@@ -52,7 +52,7 @@ describe('request-client.js: declarative payments', () => {
     const spy = jest.fn(callback);
     mock.onPost('/persistTransaction').reply(spy);
     mock.onGet('/getTransactionsByChannelId').reply(200, {
-      result: { transactions: [TestData.timestampedTransactionWithDeclarative] },
+      result: { transactions: [TestData.timestampedTransaction] },
     });
     mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
   });
