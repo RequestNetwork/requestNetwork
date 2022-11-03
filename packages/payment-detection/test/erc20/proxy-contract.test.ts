@@ -6,8 +6,9 @@ import {
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { ERC20ProxyPaymentDetector } from '../../src/erc20/proxy-contract';
-import { getTheGraphClient } from '../../src/thegraph';
+import { ERC20ProxyPaymentDetector } from '../../src/erc20';
+import { getTheGraphClient } from '../../src';
+import { mockAdvancedLogicBase } from '../utils';
 
 let erc20ProxyContract: ERC20ProxyPaymentDetector;
 
@@ -20,12 +21,9 @@ const createAddRefundInstructionAction = jest.fn();
 jest.mock('../../src/thegraph/client');
 const theGraphClientMock = mocked(getTheGraphClient(''));
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     proxyContractErc20: {
-      supportedNetworks: ['mainnet', 'rinkeby', 'goerli'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -33,7 +31,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */
@@ -163,8 +161,7 @@ describe('api/erc20/proxy-contract', () => {
       balance: null,
       error: {
         code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        message:
-          'Payment network WRONG not supported by pn-erc20-proxy-contract payment detection. Supported networks: mainnet, rinkeby, goerli',
+        message: 'Network not supported for this payment network: WRONG',
       },
       events: [],
     });

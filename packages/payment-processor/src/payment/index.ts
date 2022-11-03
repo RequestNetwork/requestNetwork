@@ -220,8 +220,6 @@ export async function hasSufficientFunds(
  * Supported chains: EVMs and Near.
  *
  * @param fromAddress the address willing to pay
- * @param amount
- * @param currency
  * @param providerOptions.provider the Web3 provider. Defaults to getDefaultProvider.
  * @param providerOptions.nearWalletConnection the Near WalletConnection
  * @throws UnsupportedNetworkError if network isn't supported

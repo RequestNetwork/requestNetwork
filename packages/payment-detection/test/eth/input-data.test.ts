@@ -8,6 +8,7 @@ import {
 } from '@requestnetwork/types';
 import { getTheGraphClient } from '../../src/thegraph';
 import { EthInputDataPaymentDetector } from '../../src/eth/input-data';
+import { mockAdvancedLogicBase } from '../utils';
 
 jest.mock('../../src/thegraph/client');
 const theGraphClientMock = mocked(getTheGraphClient(''));
@@ -21,20 +22,17 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     ethereumInputData: {
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
-      supportedNetworks: ['mainnet', 'rinkeby', 'goerli'],
       // inherited from declarative
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 // Most of the tests are done as integration tests in ../index.test.ts
@@ -169,9 +167,8 @@ describe('api/eth/input-data', () => {
     expect(await ethInputData.getBalance(mockRequest as RequestLogicTypes.IRequest)).toMatchObject({
       balance: null,
       error: {
-        code: PaymentTypes.BALANCE_ERROR_CODE.NETWORK_NOT_SUPPORTED,
-        message:
-          /Payment network wrong not supported by ETH payment detection\. Supported networks: mainnet, rinkeby, goerli, private.*/,
+        code: PaymentTypes.BALANCE_ERROR_CODE.UNKNOWN,
+        message: /invalid network/,
       },
       events: [],
     });

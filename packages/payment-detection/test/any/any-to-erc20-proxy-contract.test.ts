@@ -11,6 +11,7 @@ import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { AnyToERC20PaymentDetector } from '../../src/any/any-to-erc20-proxy';
 import { getTheGraphClient } from '../../src/thegraph';
 import { mocked } from 'ts-jest/utils';
+import { mockAdvancedLogicBase } from '../utils';
 
 jest.mock('../../src/thegraph/client');
 const theGraphClientMock = mocked(getTheGraphClient(''));
@@ -26,12 +27,9 @@ const createAddPaymentInstructionAction = jest.fn();
 const createAddRefundInstructionAction = jest.fn();
 
 const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
+  ...mockAdvancedLogicBase,
   extensions: {
     anyToErc20Proxy: {
-      supportedNetworks: ['mainnet', 'rinkeby', 'goerli', 'private'],
       createAddPaymentAddressAction,
       createAddRefundAddressAction,
       createCreationAction,
@@ -40,7 +38,7 @@ const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
       createAddPaymentInstructionAction,
       createAddRefundInstructionAction,
     },
-  },
+  } as any as AdvancedLogicTypes.IAdvancedLogicExtensions,
 };
 
 /* eslint-disable @typescript-eslint/no-unused-expressions */

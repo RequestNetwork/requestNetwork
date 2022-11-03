@@ -25,7 +25,7 @@ export abstract class ERC20FeeProxyPaymentDetectorBase<
   /**
    * @param extension The advanced logic payment network extensions
    */
-  public constructor(
+  protected constructor(
     paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     currencyManager: ICurrencyManager,

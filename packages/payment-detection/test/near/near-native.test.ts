@@ -1,26 +1,13 @@
-import {
-  AdvancedLogicTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ExtensionTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { CurrencyManager } from '@requestnetwork/currency';
-import { PaymentNetworkFactory } from '../../src/payment-network-factory';
+import { PaymentNetworkFactory } from '../../src';
 import PaymentReferenceCalculator from '../../src/payment-reference-calculator';
-import { NearNativeTokenPaymentDetector, NearInfoRetriever } from '../../src/near';
+import { NearInfoRetriever, NearNativeTokenPaymentDetector } from '../../src/near';
 import { deepCopy } from 'ethers/lib/utils';
+import { AdvancedLogic } from '@requestnetwork/advanced-logic';
 
-const mockNearPaymentNetwork = {
-  supportedNetworks: ['aurora', 'aurora-testnet', 'near-testnet'],
-};
 const currencyManager = CurrencyManager.getDefault();
-
-const mockAdvancedLogic: AdvancedLogicTypes.IAdvancedLogic = {
-  applyActionToExtensions(): any {
-    return;
-  },
-  extensions: { nativeToken: [mockNearPaymentNetwork] },
-};
+const advancedLogic = new AdvancedLogic(currencyManager);
 const salt = 'a6475e4c3d45feb6';
 const paymentAddress = 'gus.near';
 const request: any = {
@@ -43,7 +30,7 @@ const request: any = {
   },
 };
 
-const paymentNetworkFactory = new PaymentNetworkFactory(mockAdvancedLogic, currencyManager);
+const paymentNetworkFactory = new PaymentNetworkFactory(advancedLogic, currencyManager);
 
 describe('Near payments detection', () => {
   it('NearInfoRetriever can retrieve a NEAR payment', async () => {
@@ -87,7 +74,8 @@ describe('Near payments detection', () => {
 
   it('NearNativeTokenPaymentDetector can detect a payment on Near', async () => {
     const paymentDetector = new NearNativeTokenPaymentDetector({
-      advancedLogic: mockAdvancedLogic,
+      network: 'aurora',
+      advancedLogic: advancedLogic,
       currencyManager: CurrencyManager.getDefault(),
     });
     const balance = await paymentDetector.getBalance(request);
@@ -109,7 +97,8 @@ describe('Near payments detection', () => {
         },
       };
       const paymentDetector = new NearNativeTokenPaymentDetector({
-        advancedLogic: mockAdvancedLogic,
+        network: 'aurora',
+        advancedLogic: advancedLogic,
         currencyManager: CurrencyManager.getDefault(),
       });
       expect(await paymentDetector.getBalance(requestWithWrongVersion)).toMatchObject({
@@ -126,15 +115,15 @@ describe('Near payments detection', () => {
         currency: { ...requestWithWrongNetwork.currency, network: 'unknown-network' },
       };
       const paymentDetector = new NearNativeTokenPaymentDetector({
-        advancedLogic: mockAdvancedLogic,
+        network: 'aurora',
+        advancedLogic: advancedLogic,
         currencyManager: CurrencyManager.getDefault(),
       });
       expect(await paymentDetector.getBalance(requestWithWrongNetwork)).toMatchObject({
         balance: null,
         error: {
           code: 2,
-          message:
-            'Payment network unknown-network not supported by pn-native-token payment detection. Supported networks: aurora, aurora-testnet, near-testnet',
+          message: "Unconfigured near-detector chain 'unknown-network' and version '0.2.0'",
         },
         events: [],
       });

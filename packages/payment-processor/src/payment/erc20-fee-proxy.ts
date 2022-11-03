@@ -18,7 +18,6 @@ import { IPreparedTransaction } from './prepared-transaction';
 
 /**
  * Processes a transaction to pay an ERC20 Request with fees.
- * @param request
  * @param signerOrProvider the Web3 provider, or signer. Defaults to window.ethereum.
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmount optionally, the fee amount to pay. Defaults to the fee amount.
@@ -71,7 +70,6 @@ export function encodePayErc20FeeRequest(
  * Return the EIP-681 format URL with the transaction to pay an ERC20
  * Warning: this EIP isn't widely used, be sure to test compatibility yourself.
  *
- * @param request
  * @param amount optionally, the amount to pay. Defaults to remaining amount of the request.
  * @param feeAmountOverride optionally, the fee amount to pay. Defaults to the fee amount of the request.
  */

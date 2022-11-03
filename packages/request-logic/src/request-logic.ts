@@ -450,7 +450,6 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Gets the requests indexed by a topic from the transactions of transaction-manager layer
    *
-   * @param topic
    * @returns all the requests indexed by topic
    */
   public async getRequestsByTopic(
@@ -470,7 +469,6 @@ export default class RequestLogic implements RequestLogicTypes.IRequestLogic {
   /**
    * Gets the requests indexed by multiple topics from the transactions of transaction-manager layer
    *
-   * @param topics
    * @returns all the requests indexed by topics
    */
   public async getRequestsByMultipleTopics(

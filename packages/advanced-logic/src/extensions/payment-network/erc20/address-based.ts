@@ -3,8 +3,6 @@ import AddressBasedPaymentNetwork from '../address-based';
 
 const CURRENT_VERSION = '0.1.0';
 
-const supportedNetworks = ['mainnet', 'rinkeby', 'private', 'goerli'];
-
 /**
  * Implementation of the payment network to pay in ERC20 tokens based on an Ethereum address
  * With this extension one request can have two dedicated Ethereum addresses (one for payment and one for refund)
@@ -16,7 +14,6 @@ export default class Erc20AddressBasedPaymentNetwork extends AddressBasedPayment
     super(
       ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
       CURRENT_VERSION,
-      supportedNetworks,
       RequestLogicTypes.CURRENCY.ERC20,
     );
   }

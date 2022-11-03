@@ -1,5 +1,10 @@
 import { CurrencyManager } from '@requestnetwork/currency';
-import { IdentityTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  ExtensionTypes,
+  IdentityTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 
 import { EventEmitter } from 'events';
 
@@ -52,6 +57,8 @@ const mockRequestLogic: RequestLogicTypes.IRequestLogic = {
 };
 
 const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
+  extension:
+    {} as ExtensionTypes.PnAnyDeclarative.IAnyDeclarative<ExtensionTypes.PnAnyDeclarative.ICreationParameters>,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
 
   async createExtensionsDataForCreation(): Promise<any> {
@@ -69,6 +76,8 @@ const mockPaymentNetwork: PaymentTypes.IPaymentNetwork = {
 };
 
 const mockDeclarativePaymentNetwork: PaymentTypes.IPaymentNetwork = {
+  extension:
+    {} as ExtensionTypes.PnAnyDeclarative.IAnyDeclarative<ExtensionTypes.PnAnyDeclarative.ICreationParameters>,
   paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
   async createExtensionsDataForCreation(): Promise<any> {
     return;
