@@ -110,16 +110,16 @@ export class PaymentNetworkFactory {
    *
    * @param paymentNetworkId the ID of the payment network to instantiate
    * @param currencyType the currency type of the request
-   * @param currencyNetwork the network of the currency of the payment to detect
+   * @param paymentChain Different from request.currency.network for on-chain conversion payment networks (any-to-something)
    * @returns the module to handle the payment network
    */
   public createPaymentNetwork(
     paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currencyType: RequestLogicTypes.CURRENCY,
-    currencyNetwork?: string,
+    paymentChain?: string,
     paymentNetworkVersion?: string,
   ): PaymentTypes.IPaymentNetwork {
-    const network = currencyNetwork || 'mainnet';
+    const network = paymentChain ?? 'mainnet';
     const currencyPaymentMap =
       supportedPaymentNetwork[currencyType]?.[network] ||
       supportedPaymentNetwork[currencyType]?.['*'] ||
@@ -170,11 +170,13 @@ export class PaymentNetworkFactory {
       return null;
     }
 
+    const detectionChain = pn.values?.network ?? request.currency.network;
+
     const { id, version } = pn;
     return this.createPaymentNetwork(
       id as unknown as ExtensionTypes.PAYMENT_NETWORK_ID,
       request.currency.type,
-      request.currency.network,
+      detectionChain,
       version,
     );
   }
