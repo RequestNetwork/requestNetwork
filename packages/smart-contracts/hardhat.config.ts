@@ -164,7 +164,7 @@ export default {
     signer: process.env.ADMIN_PRIVATE_KEY,
     networks: process.env.NETWORK
       ? [process.env.NETWORK]
-      : ['mainnet', 'matic', 'bsc', 'celo', 'xdai', 'fuse', 'arbitrum-one', 'fantom', 'avalanche'],
+      : ['matic', 'bsc', 'celo', 'xdai', 'fuse', 'arbitrum-one', 'fantom', 'avalanche', 'mainnet'],
     gasLimit: undefined,
     deployerAddress: requestDeployer,
   },
