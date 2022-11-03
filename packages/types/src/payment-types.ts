@@ -83,7 +83,7 @@ export type PaymentNetworkCreateParameters =
       parameters: ExtensionTypes.PnAddressBased.ICreationParameters;
     };
 
-/** List of payment networks available (abstract the extensions type) */
+/** Payment network IDs with known Create Parameters */
 export type PAYMENT_NETWORK_ID = PaymentNetworkCreateParameters['id'];
 
 /**
