@@ -37,12 +37,7 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   avalanche: ['avalanche', 'Avalanche Mainnet'],
 };
 
-export const getAvailableAggregators = async (
-  network: string,
-  cm: CurrencyManager,
-  pairs?: string[],
-  listAll?: boolean,
-): Promise<Aggregator[]> => {
+export const getAllAggregators = async (network: string): Promise<Proxy[]> => {
   const [feedName, networkName] = feedMap[network] || [];
   if (!feedName || !networkName) {
     throw new Error(
@@ -57,11 +52,22 @@ export const getAvailableAggregators = async (
   if (!proxies) {
     throw new Error(`not proxies for feed ${feedName} > ${networkName}`);
   }
+  return proxies;
+};
+
+export const getAvailableAggregators = async (
+  network: string,
+  cm: CurrencyManager,
+  pairs?: string[],
+  listAll?: boolean,
+): Promise<Aggregator[]> => {
+  const proxies = await getAllAggregators(network);
+
   const missingAggregators: Aggregator[] = [];
   for (const proxy of proxies) {
     const [from, to] = proxy.pair.split(' / ');
-    const fromCurrency = cm.from(from, network);
-    const toCurrency = cm.from(to, network);
+    const fromCurrency = cm.from(from, network) || cm.from(from);
+    const toCurrency = cm.from(to, network) || cm.from(to);
     if (pairs && !pairs.includes(`${from}-${to}`.toLowerCase())) {
       continue;
     }
