@@ -5,5 +5,6 @@ export type IAnyToERC20 = PnAnyToAnyConversion.IConversionReferenceBased<ICreati
 
 /** Parameters for the creation action */
 export interface ICreationParameters extends PnAnyToAnyConversion.ICreationParameters {
-  acceptedTokens: string[];
+  // FIXME: should be mandatory according to AnyToErc20ProxyPaymentNetwork createCreationAction() logic
+  acceptedTokens?: string[];
 }

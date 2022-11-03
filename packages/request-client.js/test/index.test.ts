@@ -119,6 +119,14 @@ describe('request-client.js', () => {
   });
 
   describe('API', () => {
+    const requestCreationParams: ClientTypes.ICreateRequestParameters = {
+      paymentNetwork: TestData.declarativePaymentNetworkNoPaymentInfo,
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: TestData.payee.identity,
+    };
+    const mockedTransactions = {
+      transactions: [TestData.timestampedTransactionWithoutPaymentInfo],
+    };
     it('specify the Request Client version in the header', async () => {
       const mock = new AxiosMockAdapter(axios);
 
@@ -130,9 +138,9 @@ describe('request-client.js', () => {
       };
       const spy = jest.fn(callback);
       mock.onPost('/persistTransaction').reply(spy);
-      mock
-        .onGet('/getTransactionsByChannelId')
-        .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
+      mock.onGet('/getTransactionsByChannelId').reply(200, {
+        result: mockedTransactions,
+      });
       mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
       const requestNetwork = new RequestNetwork({
@@ -143,15 +151,7 @@ describe('request-client.js', () => {
         },
       });
 
-      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
-        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
-        parameters: {},
-      };
-      const request = await requestNetwork.createRequest({
-        paymentNetwork,
-        requestInfo: TestData.parametersWithoutExtensionsData,
-        signer: TestData.payee.identity,
-      });
+      const request = await requestNetwork.createRequest(requestCreationParams);
       expect(spy).toHaveBeenCalledTimes(1);
 
       await request.waitForConfirmation();
@@ -166,9 +166,7 @@ describe('request-client.js', () => {
       };
       const spy = jest.fn(callback);
       mock.onPost('/persistTransaction').reply(spy);
-      mock
-        .onGet('/getTransactionsByChannelId')
-        .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
+      mock.onGet('/getTransactionsByChannelId').reply(200, { result: mockedTransactions });
       mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
       const requestNetwork = new RequestNetwork({
@@ -179,15 +177,7 @@ describe('request-client.js', () => {
         },
       });
 
-      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
-        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
-        parameters: {},
-      };
-      const request = await requestNetwork.createRequest({
-        paymentNetwork,
-        requestInfo: TestData.parametersWithoutExtensionsData,
-        signer: TestData.payee.identity,
-      });
+      const request = await requestNetwork.createRequest(requestCreationParams);
       expect(spy).toHaveBeenCalledTimes(1);
 
       await request.waitForConfirmation();
