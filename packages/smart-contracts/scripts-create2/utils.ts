@@ -14,7 +14,7 @@ export const create2ContractDeploymentList = [
   'Erc20ConversionProxy',
   'ERC20SwapToConversion',
   'ERC20EscrowToPay',
-  'BatchPayments',
+  'BatchConversionPayments',
 ];
 
 /**
@@ -47,8 +47,8 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.erc20SwapConversionArtifact;
     case 'ERC20EscrowToPay':
       return artifacts.erc20EscrowToPayArtifact;
-    case 'BatchPayments':
-      return artifacts.batchPaymentsArtifact;
+    case 'BatchConversionPayments':
+      return artifacts.batchConversionPaymentsArtifact;
     default:
       throw new Error('Contract unknown');
   }
