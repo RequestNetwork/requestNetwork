@@ -1,7 +1,7 @@
 import { ContractTransaction, Signer, providers, constants, BigNumber } from 'ethers';
 import { batchPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchPayments__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
+import { ClientTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -215,12 +215,15 @@ export function getBatchArgs(
  */
 export function getBatchProxyAddress(request: ClientTypes.IRequestData, version: string): string {
   const pn = getPaymentNetworkExtension(request);
-  const pnId = pn?.id as unknown as ExtensionTypes.PAYMENT_NETWORK_ID;
+  const pnId = pn?.id;
   if (!pnId) {
     throw new Error('No payment network Id');
   }
+  if (!request.currencyInfo.network) {
+    throw new Error('No currency network');
+  }
 
-  const proxyAddress = batchPaymentsArtifact.getAddress(request.currencyInfo.network!, version);
+  const proxyAddress = batchPaymentsArtifact.getAddress(request.currencyInfo.network, version);
 
   if (!proxyAddress) {
     throw new Error(`No deployment found for network ${pn}, version ${pn?.version}`);

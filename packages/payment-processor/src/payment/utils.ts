@@ -1,12 +1,7 @@
 import { ethers, Signer, providers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 
 import { getDefaultProvider, getPaymentReference } from '@requestnetwork/payment-detection';
-import {
-  ClientTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
@@ -263,7 +258,7 @@ export function validateErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-  paymentNetwork: PaymentTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
+  paymentNetwork: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
     .ERC20_FEE_PROXY_CONTRACT,
 ): void {
   validateRequest(request, paymentNetwork);

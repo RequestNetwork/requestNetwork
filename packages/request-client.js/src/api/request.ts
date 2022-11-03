@@ -683,7 +683,6 @@ export default class Request {
     if (!requestAndMeta) {
       requestAndMeta = await this.requestLogic.getRequestFromId(this.requestId);
     }
-    console.debug(`requestAndMeta`, requestAndMeta);
 
     if (!requestAndMeta.result.request && !requestAndMeta.result.pending) {
       throw new Error(

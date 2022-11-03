@@ -1,12 +1,12 @@
 import { IIdentity } from './identity-types';
 import * as RequestLogic from './request-logic-types';
+import * as ExtensionTypes from './extension-types';
 import { ICreationParameters } from './extensions/pn-any-declarative-types';
-import { ExtensionTypes } from '.';
 import { ICreationParameters as ICreationParametersAnyToAny } from './extensions/pn-any-to-any-conversion-types';
 
 /** Interface for payment network extensions state and interpretation */
 export interface IPaymentNetwork<TEventParameters = any> {
-  paymentNetworkId: PAYMENT_NETWORK_ID;
+  paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID;
   extension: ExtensionTypes.IExtension;
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
@@ -41,7 +41,7 @@ export interface IAnyToErc20CreationParameters extends ICreationParametersAnyToA
  * @deprecated Use `PaymentNetworkCreateParameters` type instead
  * */
 export interface IPaymentNetworkCreateParameters<T = any> {
-  id: PAYMENT_NETWORK_ID;
+  id: ExtensionTypes.PAYMENT_NETWORK_ID;
   parameters: T;
 }
 
@@ -49,9 +49,14 @@ export type PaymentNetworkCreateParameters =
   | {
       id:
         | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
+        | ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN;
+      parameters: ExtensionTypes.PnReferenceBased.ICreationParameters;
+    }
+  | {
+      id:
         | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT
-        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA;
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
       parameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters;
     }
   | {
@@ -71,10 +76,6 @@ export type PaymentNetworkCreateParameters =
       parameters: ExtensionTypes.PnAnyToAnyConversion.ICreationParameters;
     }
   | {
-      id: ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN;
-      parameters: ExtensionTypes.PnReferenceBased.ICreationParameters;
-    }
-  | {
       id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM;
       parameters: ExtensionTypes.PnStreamReferenceBased.ICreationParameters;
     }
@@ -85,9 +86,6 @@ export type PaymentNetworkCreateParameters =
         | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED;
       parameters: ExtensionTypes.PnAddressBased.ICreationParameters;
     };
-
-/** Payment network IDs with known Create Parameters */
-export type PAYMENT_NETWORK_ID = PaymentNetworkCreateParameters['id'];
 
 /**
  * Interfaces for balance and events
