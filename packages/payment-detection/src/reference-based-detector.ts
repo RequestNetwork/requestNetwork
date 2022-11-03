@@ -10,18 +10,18 @@ import { DeclarativePaymentDetectorBase } from './declarative';
  */
 export abstract class ReferenceBasedDetector<
   TExtension extends ExtensionTypes.PnReferenceBased.IReferenceBased,
-  TPaymentEventParameters,
+  TPaymentEventParameters extends PaymentTypes.IDeclarativePaymentEventParameters<string>,
 > extends DeclarativePaymentDetectorBase<
   TExtension,
   TPaymentEventParameters | PaymentTypes.IDeclarativePaymentEventParameters
 > {
   /**
-   * @param paymentNetworkId Example : PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
+   * @param paymentNetworkId Example : ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
    * @param extension The advanced logic payment network extension, reference based
    * @param currencyManager The currency manager
    */
   protected constructor(
-    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: TExtension,
     protected readonly currencyManager: ICurrencyManager,
   ) {

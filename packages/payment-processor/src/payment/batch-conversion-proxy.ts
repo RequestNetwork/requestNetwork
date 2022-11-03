@@ -1,7 +1,12 @@
 import { ContractTransaction, Signer, providers, BigNumber, constants } from 'ethers';
 import { batchConversionPaymentsArtifact } from '@requestnetwork/smart-contracts';
 import { BatchConversionPayments__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, PaymentTypes, RequestLogicTypes } from '@requestnetwork/types';
+import {
+  ClientTypes,
+  ExtensionTypes,
+  PaymentTypes,
+  RequestLogicTypes,
+} from '@requestnetwork/types';
 import { ITransactionOverrides } from './transaction-overrides';
 import {
   comparePnTypeAndVersion,
@@ -110,7 +115,7 @@ function encodePayBatchConversionRequest(
   // fill ERC20ConversionRequestDetails and ERC20NoConversionRequestDetails lists
   for (const enrichedRequest of enrichedRequests) {
     const request = enrichedRequest.request;
-    if (enrichedRequest.paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY) {
+    if (enrichedRequest.paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY) {
       enrichedRequest.paymentSettings.currencyManager = conversion.currencyManager;
       firstConversionRequestExtension =
         firstConversionRequestExtension ?? getPaymentNetworkExtension(request);
@@ -121,7 +126,8 @@ function encodePayBatchConversionRequest(
       }
       ERC20ConversionRequestDetails.push(getInputERC20ConversionRequestDetail(enrichedRequest));
     } else if (
-      enrichedRequest.paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
+      enrichedRequest.paymentNetworkId ===
+      ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
     ) {
       firstNoConversionRequestExtension =
         firstNoConversionRequestExtension ?? getPaymentNetworkExtension(request);

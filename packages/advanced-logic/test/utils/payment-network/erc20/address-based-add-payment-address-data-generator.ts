@@ -15,14 +15,14 @@ export const invalidAddress = '0xnotandaddress';
 // actions
 export const actionAddPaymentAddress = {
   action: ExtensionTypes.PnAddressBased.ACTION.ADD_PAYMENT_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
   parameters: {
     paymentAddress,
   },
 };
 export const actionAddRefundAddress = {
   action: ExtensionTypes.PnAddressBased.ACTION.ADD_REFUND_ADDRESS,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
   parameters: {
     refundAddress,
   },
@@ -31,7 +31,7 @@ export const actionAddRefundAddress = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionStateWithPaymentAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED as string]: {
     events: [
       {
         name: ExtensionTypes.PnAddressBased.ACTION.CREATE,
@@ -46,7 +46,7 @@ export const extensionStateWithPaymentAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress,
@@ -56,7 +56,7 @@ export const extensionStateWithPaymentAfterCreation = {
 };
 
 export const extensionStateWithRefundAfterCreation = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED as string]: {
     events: [
       {
         name: ExtensionTypes.PnAddressBased.ACTION.CREATE,
@@ -71,7 +71,7 @@ export const extensionStateWithRefundAfterCreation = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       refundAddress,

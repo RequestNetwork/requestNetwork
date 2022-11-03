@@ -84,8 +84,8 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
  * Proxy contract payment network parameters are the same as the address-based payment network: the payment and eventually the refund address.
  */
 
-const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+const paymentNetwork: RequestNetwork.Types.Payment.PaymentNetworkCreateParameters = {
+  id: RequestNetwork.Types.Extension.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
   parameters: {
     paymentAddress: '0x92FC764853A9A0287b7587E59aDa47165b3B2675',
   },
@@ -110,8 +110,8 @@ const proxyContractCreateParams = {
  * To create a request using the erc20 address-based payment network, we need to provide the payment network parameters to the request creation parameters.
  */
 
-const addressBasedPaymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+const addressBasedPaymentNetwork: RequestNetwork.Types.Payment.PaymentNetworkCreateParameters = {
+  id: RequestNetwork.Types.Extension.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
   parameters: {
     paymentAddress: '0x92FC764853A9A0287b7587E59aDa47165b3B2675',
   },

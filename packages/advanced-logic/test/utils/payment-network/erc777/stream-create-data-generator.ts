@@ -24,7 +24,7 @@ export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionCreationFull = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
   parameters: {
     expectedFlowRate,
     expectedStartDate,
@@ -36,7 +36,7 @@ export const actionCreationFull = {
 };
 export const actionCreationFullSubsequent = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
   parameters: {
     originalRequestId,
     previousRequestId,
@@ -46,7 +46,7 @@ export const actionCreationFullSubsequent = {
 };
 export const actionCreationOnlyPayment = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
   parameters: {
     paymentAddress,
   },
@@ -54,13 +54,13 @@ export const actionCreationOnlyPayment = {
 };
 export const actionCreationEmpty = {
   action: RequestLogicTypes.ACTION_NAME.CREATE,
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
   parameters: {},
   version,
 };
 
 export const extensionFullStateSubsequent: RequestLogicTypes.IExtensionStates = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM as string]: {
     events: [
       {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
@@ -72,7 +72,7 @@ export const extensionFullStateSubsequent: RequestLogicTypes.IExtensionStates = 
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       originalRequestId,
@@ -85,7 +85,7 @@ export const extensionFullStateSubsequent: RequestLogicTypes.IExtensionStates = 
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionFullState: RequestLogicTypes.IExtensionStates = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM as string]: {
     events: [
       {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
@@ -99,7 +99,7 @@ export const extensionFullState: RequestLogicTypes.IExtensionStates = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       expectedFlowRate,
@@ -120,7 +120,7 @@ export const extensionFullState: RequestLogicTypes.IExtensionStates = {
   },
 };
 export const extensionStateCreatedEmpty = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM as string]: {
     events: [
       {
         name: RequestLogicTypes.ACTION_NAME.CREATE,
@@ -128,7 +128,7 @@ export const extensionStateCreatedEmpty = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {},
     version,

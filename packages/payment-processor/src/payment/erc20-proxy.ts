@@ -2,7 +2,7 @@ import { ContractTransaction, Signer, BigNumberish, providers } from 'ethers';
 
 import { Erc20PaymentNetwork } from '@requestnetwork/payment-detection';
 import { ERC20Proxy__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import {
@@ -42,7 +42,7 @@ export function encodePayErc20Request(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const tokenAddress = request.currencyInfo.value;
 
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
@@ -67,7 +67,7 @@ export function _getErc20ProxyPaymentUrl(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): string {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
   const { paymentAddress, paymentReference } = getRequestPaymentValues(request);
   const contractAddress = getProxyAddress(
     request,
@@ -88,7 +88,7 @@ export function prepareErc20ProxyPaymentTransaction(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
 ): IPreparedTransaction {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT);
 
   return {
     data: encodePayErc20Request(request, amount),

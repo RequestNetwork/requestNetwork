@@ -4,7 +4,6 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -49,9 +48,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '100',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -188,8 +187,10 @@ describe('erc20-fee-proxy', () => {
         prepareErc20FeeProxyPaymentTransaction({
           ...validRequest,
           extensions: {
-            [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
-              ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT],
+            [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+              ...validRequest.extensions[
+                ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
+              ],
               version: '0.1.0',
             },
           },
@@ -200,8 +201,10 @@ describe('erc20-fee-proxy', () => {
         prepareErc20FeeProxyPaymentTransaction({
           ...validRequest,
           extensions: {
-            [PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
-              ...validRequest.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT],
+            [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
+              ...validRequest.extensions[
+                ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
+              ],
               version: '0.2.0',
             },
           },

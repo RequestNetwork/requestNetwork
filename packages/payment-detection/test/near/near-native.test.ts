@@ -18,8 +18,8 @@ const request: any = {
     value: 'NEAR',
   },
   extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    [ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN as string]: {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -90,8 +90,8 @@ describe('Near payments detection', () => {
       requestWithWrongVersion = {
         ...requestWithWrongVersion,
         extensions: {
-          [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN]: {
-            ...requestWithWrongVersion.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN],
+          [ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN]: {
+            ...requestWithWrongVersion.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN],
             version: '3.14',
           },
         },

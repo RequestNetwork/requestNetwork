@@ -180,8 +180,8 @@ describe('getPaymentReference', () => {
       getPaymentReference({
         requestId: '01abyz',
         extensions: {
-          [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
-            id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
             type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
             values: {
               paymentAddress,
@@ -200,8 +200,8 @@ describe('getPaymentReference', () => {
       getPaymentReference({
         requestId: '01abyz',
         extensions: {
-          [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
-            id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
             type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
             values: {},
             version: '0.1.0',
@@ -217,8 +217,8 @@ describe('getPaymentReference', () => {
       getPaymentReference({
         requestId: '01abyz',
         extensions: {
-          [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
-            id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
             type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
             values: {
               paymentAddress,
@@ -239,8 +239,8 @@ describe('getPaymentReference', () => {
         {
           requestId: '01abyz',
           extensions: {
-            [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
-              id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+            [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+              id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
               type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
               values: {
                 paymentAddress,
@@ -262,8 +262,8 @@ describe('getPaymentReference', () => {
       getPaymentReference({
         requestId: '01abyz',
         extensions: {
-          [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: {
-            id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE]: {
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
             type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
             values: {
               paymentInfo,
@@ -284,8 +284,8 @@ describe('getPaymentReference', () => {
         {
           requestId: '01abyz',
           extensions: {
-            [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE]: {
-              id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+            [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE]: {
+              id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
               type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
               values: {
                 paymentInfo,
@@ -308,8 +308,8 @@ describe('getPaymentReference', () => {
         {
           requestId: '01abyz',
           extensions: {
-            [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
-              id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+            [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
+              id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
               type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
               values: {
                 paymentAddress,

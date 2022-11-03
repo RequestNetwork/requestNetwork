@@ -14,7 +14,7 @@ export default class AnyToNearPaymentNetwork extends AnyToNativeTokenPaymentNetw
     ],
     currentVersion: string = CURRENT_VERSION,
   ) {
-    super(ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN, currentVersion, supportedNetworks);
+    super(ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN, currentVersion, supportedNetworks);
   }
 
   /**

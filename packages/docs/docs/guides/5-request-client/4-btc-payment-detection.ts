@@ -85,9 +85,9 @@ const requestInfo: RequestNetwork.Types.IRequestInfo = {
  */
 
 // If you want to create a request with testnet bitcoin you must use the payment network:
-// RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED
-const paymentNetwork: RequestNetwork.Types.Payment.IPaymentNetworkCreateParameters = {
-  id: RequestNetwork.Types.Payment.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+// RequestNetwork.Types.Extension.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED
+const paymentNetwork: RequestNetwork.Types.Payment.PaymentNetworkCreateParameters = {
+  id: RequestNetwork.Types.Extension.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
   parameters: {
     paymentAddress: '16uyvigo8mMAfE3Ctr5Rwgab1aWNDPDMZD',
   },
