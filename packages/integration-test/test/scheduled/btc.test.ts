@@ -16,7 +16,7 @@ describe('BTC detection test-suite', () => {
   it.skip('Can create a BTC testnet payment provider request and detect the payment', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
       id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
@@ -37,7 +37,7 @@ describe('BTC detection test-suite', () => {
   it('Can create a BTC mainnet payment provider request and detect the payment', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
       id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',

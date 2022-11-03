@@ -107,7 +107,7 @@ describe('Request client using a request node', () => {
   });
 
   it('can create a request with declarative payment network and content data', async () => {
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
       id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {
         paymentInfo: {
@@ -507,7 +507,7 @@ describe('Request client using a request node', () => {
 });
 
 describe('ERC20 localhost request creation and detection test', () => {
-  const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+  const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
     id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
     parameters: {
       paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
@@ -538,7 +538,7 @@ describe('ERC20 localhost request creation and detection test', () => {
     expect(requestData.pending).toBeNull();
   });
 
-  it('can create ERC20 requests with any to erc20 proxy', async () => {
+  it.only('can create ERC20 requests with any to erc20 proxy', async () => {
     const tokenContractAddress = '0x38cF23C52Bb4B13F051Aec09580a2dE845a7FA35';
 
     const currencies = [
@@ -557,7 +557,7 @@ describe('ERC20 localhost request creation and detection test', () => {
       currencies,
     });
 
-    const paymentNetworkAnyToERC20: PaymentTypes.IPaymentNetworkCreateParameters = {
+    const paymentNetworkAnyToERC20: PaymentTypes.PaymentNetworkCreateParameters = {
       id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -641,7 +641,7 @@ describe('ETH localhost request creation and detection test', () => {
       currencies,
     });
 
-    const paymentNetworkETHFeeProxy: PaymentTypes.IPaymentNetworkCreateParameters = {
+    const paymentNetworkETHFeeProxy: PaymentTypes.PaymentNetworkCreateParameters = {
       id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -694,7 +694,7 @@ describe('ETH localhost request creation and detection test', () => {
       currencies,
     });
 
-    const paymentNetworkAnyToETH: PaymentTypes.IPaymentNetworkCreateParameters = {
+    const paymentNetworkAnyToETH: PaymentTypes.PaymentNetworkCreateParameters = {
       id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',

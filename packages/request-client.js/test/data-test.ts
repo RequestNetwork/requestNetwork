@@ -1,5 +1,6 @@
 import MultiFormat from '@requestnetwork/multi-format';
 import {
+  ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -209,10 +210,10 @@ export const actionRequestIdSecondRequest = MultiFormat.serialize(
   Utils.crypto.normalizeKeccak256Hash(actionCreationSecondRequest),
 );
 
-export const declarativePaymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
+export const declarativePaymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
   id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
   parameters: {
-    paymentInformation: {
+    paymentInfo: {
       BIC: 'SABAIE2D',
       IBAN: 'FR89370400440532013000',
     },

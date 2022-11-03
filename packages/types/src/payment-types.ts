@@ -36,7 +36,10 @@ export interface IAnyToErc20CreationParameters extends ICreationParametersAnyToA
   acceptedTokens?: string[];
 }
 
-/** Interface to create a payment network  */
+/**
+ * Interface to create a payment network
+ * @deprecated Use `PaymentNetworkCreateParameters` type instead
+ * */
 export interface IPaymentNetworkCreateParameters<T = any> {
   id: PAYMENT_NETWORK_ID;
   parameters: T;

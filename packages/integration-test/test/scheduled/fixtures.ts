@@ -52,7 +52,7 @@ export const ethInputDataCreationHash: Types.IRequestInfo = {
   payer: payerIdentity,
 };
 
-export const localErc20PaymentNetworkParams: PaymentTypes.IPaymentNetworkCreateParameters = {
+export const localErc20PaymentNetworkParams: PaymentTypes.PaymentNetworkCreateParameters = {
   id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
   parameters: {
     paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',
@@ -61,7 +61,7 @@ export const localErc20PaymentNetworkParams: PaymentTypes.IPaymentNetworkCreateP
   },
 };
 
-export const localEthInputDataPaymentNetworkParams: PaymentTypes.IPaymentNetworkCreateParameters = {
+export const localEthInputDataPaymentNetworkParams: PaymentTypes.PaymentNetworkCreateParameters = {
   id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
   parameters: {
     paymentAddress: '0xf17f52151EbEF6C7334FAD080c5704D77216b732',

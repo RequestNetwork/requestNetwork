@@ -63,8 +63,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -91,8 +91,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -119,8 +119,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -131,7 +131,7 @@ describe('request-client.js: declarative payments', () => {
         extensionsData: [
           {
             action: ExtensionTypes.PnAnyDeclarative.ACTION.ADD_DELEGATE,
-            id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
             parameters: {
               delegate: TestData.delegate.identity,
             },
@@ -154,8 +154,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -182,8 +182,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -216,8 +216,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -244,8 +244,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -273,17 +273,16 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters<ExtensionTypes.PnAnyDeclarative.ICreationParameters> =
-      {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
-        parameters: {
-          paymentInfo: {
-            IBAN: 'FR123456789123456789',
-            BIC: 'CE123456789',
-          },
-          salt: 'a1a2a3a4a5a6a7a8',
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
+      parameters: {
+        paymentInfo: {
+          IBAN: 'FR123456789123456789',
+          BIC: 'CE123456789',
         },
-      };
+        salt: 'a1a2a3a4a5a6a7a8',
+      },
+    };
 
     const request = await requestNetwork.createRequest({
       paymentNetwork,
@@ -312,8 +311,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -340,8 +339,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
     });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -382,8 +381,8 @@ describe('request-client.js: declarative payments', () => {
       signatureProvider: TestData.fakeSignatureProvider,
       useMockStorage: true,
     });
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
       parameters: {},
     };
 
@@ -450,8 +449,8 @@ describe('request-client.js: declarative payments', () => {
 
     const salt = 'ea3bc7caf64110ca';
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         refundAddress: '0x821aEa9a577a9b44299B9c15c88cf3087F3b5544',
