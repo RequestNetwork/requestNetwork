@@ -5,7 +5,7 @@ import { BigNumber } from 'ethers';
 
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
-// Batch fee: temporarily at 0%
+// Batch fee: 0.3%
 const BATCH_FEE = 30;
 // Batch fee amount in USD Limit: 150 * 1e8 ($150)
 const BATCH_FEE_AMOUNT_USD_LIMIT = 150 * 1e8;
