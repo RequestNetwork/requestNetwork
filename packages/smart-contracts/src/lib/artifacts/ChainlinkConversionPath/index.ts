@@ -31,7 +31,6 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 17427745,
         },
-        // Only v0.1.0 for xDai - v0.2.0 needed if/when we support EthConversionProxy on this chain
         xdai: {
           address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
           creationBlockNumber: 18326897,
@@ -74,6 +73,11 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
           address: '0x70bE16E6B7F465bED2237Cf609341A29C019B3bf',
           creationBlockNumber: 7108894,
         },
+        // v0.1.0 contract - v0.2.0 is not required for mainnet
+        mainnet: {
+          address: '0xC5519f3fcECC8EC85caaF8836563dEe9a00080f9',
+          creationBlockNumber: 12225729,
+        },
         // v0.2.0 used by Batch / EthConversion
         matic: {
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
@@ -83,6 +87,11 @@ export const chainlinkConversionPath = new ContractArtifact<ChainlinkConversionP
         fantom: {
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
           creationBlockNumber: 28548259,
+        },
+        // v0.1.0 contract - v0.2.0 required if/when we support EthConversionProxy on this chain
+        xdai: {
+          address: '0xEEc4790306C43DC00cebbE4D0c36Fadf8634B533',
+          creationBlockNumber: 18326897,
         },
         'arbitrum-one': {
           address: '0x0818Ad7016138f0A40DFAe30F64a923c2A8F61bA',
