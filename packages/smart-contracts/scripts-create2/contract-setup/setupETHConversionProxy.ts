@@ -17,30 +17,24 @@ export const setupETHConversionProxy = async (
     contractAddress,
     ethConversionArtifact.getContractAbi(),
   );
-  for (const network of hre.config.xdeploy.networks) {
-    await Promise.all(
-      [network].map(async (network) => {
-        let provider;
-        if (network === 'celo') {
-          provider = utils.getCeloProvider();
-        } else {
-          provider = utils.getDefaultProvider(network);
-        }
-        const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
-        const signer = wallet.connect(provider);
-        const EthConversionProxyConnected = EthConversionProxyContract.connect(signer);
-        const gasPrice = await provider.getGasPrice();
+  const setUpActions = async (network: string) => {
+    let provider;
+    if (network === 'celo') {
+      provider = utils.getCeloProvider();
+    } else {
+      provider = utils.getDefaultProvider(network);
+    }
+    const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
+    const signer = wallet.connect(provider);
+    const EthConversionProxyConnected = EthConversionProxyContract.connect(signer);
+    const gasPrice = await provider.getGasPrice();
 
-        // increase gasPrice if needed
-        await updateConversionProxyAddress(
-          EthConversionProxyConnected,
-          network,
-          gasPrice,
-          'native',
-        );
-        await updateChainlinkConversionPath(EthConversionProxyConnected, network, gasPrice);
-      }),
-    );
+    // increase gasPrice if needed
+    await updateConversionProxyAddress(EthConversionProxyConnected, network, gasPrice, 'native');
+    await updateChainlinkConversionPath(EthConversionProxyConnected, network, gasPrice);
+  };
+  for (const network of hre.config.xdeploy.networks) {
+    await Promise.resolve(setUpActions(network));
   }
   console.log('Setup for EthConversionProxy successful');
 };

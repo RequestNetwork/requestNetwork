@@ -21,25 +21,25 @@ export const setupERC20SwapToConversion = async (
     contractAddress,
     erc20SwapConversionArtifact.getContractAbi(),
   );
-  for (const network of hre.config.xdeploy.networks) {
-    await Promise.all(
-      [network].map(async (network) => {
-        let provider;
-        if (network === 'celo') {
-          provider = utils.getCeloProvider();
-        } else {
-          provider = utils.getDefaultProvider(network);
-        }
-        const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
-        const signer = wallet.connect(provider);
-        const ERC20SwapToConversionConnected = ERC20SwapToConversionContract.connect(signer);
-        const gasPrice = await provider.getGasPrice();
 
-        await updateChainlinkConversionPath(ERC20SwapToConversionConnected, network, gasPrice);
-        await updateSwapRouter(ERC20SwapToConversionConnected, network, gasPrice);
-        await updateRequestSwapFees(ERC20SwapToConversionConnected, gasPrice);
-      }),
-    );
+  const setUpActions = async (network: string) => {
+    let provider;
+    if (network === 'celo') {
+      provider = utils.getCeloProvider();
+    } else {
+      provider = utils.getDefaultProvider(network);
+    }
+    const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
+    const signer = wallet.connect(provider);
+    const ERC20SwapToConversionConnected = ERC20SwapToConversionContract.connect(signer);
+    const gasPrice = await provider.getGasPrice();
+
+    await updateChainlinkConversionPath(ERC20SwapToConversionConnected, network, gasPrice);
+    await updateSwapRouter(ERC20SwapToConversionConnected, network, gasPrice);
+    await updateRequestSwapFees(ERC20SwapToConversionConnected, gasPrice);
+  };
+  for (const network of hre.config.xdeploy.networks) {
+    await Promise.resolve(setUpActions(network));
   }
   console.log('Setup for ERC20SwapToConversion successfull');
 };
