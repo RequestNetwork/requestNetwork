@@ -1,29 +1,13 @@
 import { IIdentity } from './identity-types';
-import * as Extension from './extension-types';
 import * as RequestLogic from './request-logic-types';
+import * as ExtensionTypes from './extension-types';
 import { ICreationParameters } from './extensions/pn-any-declarative-types';
-
-/** List of payment networks available (abstract the extensions type) */
-export enum PAYMENT_NETWORK_ID {
-  BITCOIN_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
-  TESTNET_BITCOIN_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_TESTNET_BITCOIN_ADDRESS_BASED,
-  ERC20_ADDRESS_BASED = Extension.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
-  ERC20_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
-  ERC20_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
-  ERC777_STREAM = Extension.ID.PAYMENT_NETWORK_ERC777_STREAM,
-  ETH_INPUT_DATA = Extension.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
-  ETH_FEE_PROXY_CONTRACT = Extension.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
-  NATIVE_TOKEN = Extension.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
-  ANY_TO_NATIVE = Extension.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
-  DECLARATIVE = Extension.ID.PAYMENT_NETWORK_ANY_DECLARATIVE,
-  ANY_TO_ERC20_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
-  ANY_TO_ETH_PROXY = Extension.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
-}
+import { ICreationParameters as ICreationParametersAnyToAny } from './extensions/pn-any-to-any-conversion-types';
 
 /** Interface for payment network extensions state and interpretation */
 export interface IPaymentNetwork<TEventParameters = any> {
-  paymentNetworkId: PAYMENT_NETWORK_ID;
-  extension: Extension.IExtension;
+  paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID;
+  extension: ExtensionTypes.IExtension;
   createExtensionsDataForCreation: (paymentNetworkCreationParameters: any) => Promise<any>;
   createExtensionsDataForAddRefundInformation: (parameters: any) => any;
   createExtensionsDataForAddPaymentInformation: (parameters: any) => any;
@@ -33,12 +17,6 @@ export interface IPaymentNetwork<TEventParameters = any> {
 /**
  * Interfaces for parameters to create payment extensions
  */
-
-/** Interface to create a payment network  */
-export interface IPaymentNetworkCreateParameters<T = any> {
-  id: PAYMENT_NETWORK_ID;
-  parameters: T;
-}
 
 /** Parameters to create a request with reference based payment network */
 export interface IReferenceBasedCreationParameters extends ICreationParameters {
@@ -54,11 +32,60 @@ export interface IFeeReferenceBasedCreationParameters extends IReferenceBasedCre
 }
 
 /** Parameters to create a request with "any to erc20" payment network */
-export interface IAnyToErc20CreationParameters extends IFeeReferenceBasedCreationParameters {
-  network?: string;
+export interface IAnyToErc20CreationParameters extends ICreationParametersAnyToAny {
   acceptedTokens?: string[];
-  maxRateTimespan?: number;
 }
+
+/**
+ * Interface to create a payment network
+ * @deprecated Use `PaymentNetworkCreateParameters` type instead
+ * */
+export interface IPaymentNetworkCreateParameters<T = any> {
+  id: ExtensionTypes.PAYMENT_NETWORK_ID;
+  parameters: T;
+}
+
+export type PaymentNetworkCreateParameters =
+  | {
+      id:
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA
+        | ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN;
+      parameters: ExtensionTypes.PnReferenceBased.ICreationParameters;
+    }
+  | {
+      id:
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT;
+      parameters: ExtensionTypes.PnFeeReferenceBased.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE;
+      parameters: ExtensionTypes.PnAnyDeclarative.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY;
+      parameters: ExtensionTypes.PnAnyToErc20.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY;
+      parameters: ExtensionTypes.PnAnyToEth.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN;
+      parameters: ExtensionTypes.PnAnyToAnyConversion.ICreationParameters;
+    }
+  | {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM;
+      parameters: ExtensionTypes.PnStreamReferenceBased.ICreationParameters;
+    }
+  | {
+      id:
+        | ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED
+        | ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED
+        | ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED;
+      parameters: ExtensionTypes.PnAddressBased.ICreationParameters;
+    };
 
 /**
  * Interfaces for balance and events
@@ -118,11 +145,11 @@ export interface IPaymentNetworkEvent<TEventParameters, TEventNames = EVENTS_NAM
  */
 
 /** Parameters for events of Declarative payments */
-export interface IDeclarativePaymentEventParameters {
+export interface IDeclarativePaymentEventParameters<TFrom = IIdentity> {
   txHash?: string;
   network?: string;
   note?: string;
-  from?: IIdentity;
+  from?: TFrom;
 }
 /** Declarative Payment Network Event */
 export type DeclarativePaymentNetworkEvent =
@@ -147,11 +174,9 @@ export enum STREAM_EVENT_NAMES {
   UPDATE_STREAM = 'update_stream',
 }
 /** Parameters for events of ERC777 payments */
-export interface IERC777PaymentEventParameters {
+export interface IERC777PaymentEventParameters extends GenericEventParameters {
   from?: string;
   to: string;
-  block?: number;
-  txHash?: string;
   streamEventName?: STREAM_EVENT_NAMES;
 }
 
@@ -216,10 +241,8 @@ export type ConversionPaymentNetworkEvent =
  */
 
 /** Parameters for events of ETH payments */
-export interface IETHPaymentEventParameters {
-  block?: number;
+export interface IETHPaymentEventParameters extends GenericEventParameters {
   confirmations?: number;
-  txHash?: string;
   to?: string;
 }
 /** Parameters for events of ETH payments with fees */
@@ -262,9 +285,7 @@ export type BTCPaymentNetworkEvent = IPaymentNetworkEvent<IBTCPaymentEventParame
 export type BTCBalanceWithEvents = IBalanceWithEvents<IBTCPaymentEventParameters>;
 
 /** Parameters for escrow events from EscrowERC20 contract state changes */
-export interface IEscrowEventParameters {
-  block: number;
-  txHash: string;
+export interface IEscrowEventParameters extends Required<GenericEventParameters> {
   from?: string;
   to?: string;
   eventName: string;

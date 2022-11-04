@@ -4,7 +4,7 @@ import { InvalidPaymentAddressError, UnsupportedNetworkError } from './address-b
 
 export default abstract class AnyToNativeTokenPaymentNetwork extends FeeReferenceBasedPaymentNetwork {
   protected constructor(
-    extensionId: ExtensionTypes.ID,
+    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
     currentVersion: string,
     public readonly supportedNetworks: string[],
   ) {

@@ -1,6 +1,6 @@
 import { ContractTransaction, Signer, providers, BigNumberish, BigNumber } from 'ethers';
 
-import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 import { getNetworkProvider, getProvider, validateRequest, MAX_ALLOWANCE } from './utils';
@@ -20,10 +20,10 @@ export async function getRequestUnderlyingToken(
   provider: providers.Provider = getNetworkProvider(request),
 ): Promise<Token> {
   const id = getPaymentNetworkExtension(request)?.id;
-  if (id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM) {
+  if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
     throw new Error('Not a supported ERC777 payment network request');
   }
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const sf = await getSuperFluidFramework(request, provider);
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
   return superToken.underlyingToken;

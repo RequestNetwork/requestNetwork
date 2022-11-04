@@ -20,7 +20,7 @@ const salt = arbitrarySalt;
 export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<ExtensionTypes.PnReferenceBased.ICreationParameters> =
   {
     action: ExtensionTypes.PnAnyDeclarative.ACTION.CREATE,
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
     parameters: {
       paymentAddress: 'pay.near',
       refundAddress: 'refund.near',
@@ -30,7 +30,7 @@ export const actionCreationWithNativeTokenPayment: ExtensionTypes.IAction<Extens
   };
 
 export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IExtensionStates = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN as string]: {
     events: [
       {
         ...createEvent,
@@ -41,7 +41,7 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
         },
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress: 'pay.near',
@@ -57,7 +57,7 @@ export const extensionStateWithNativeTokenPaymentAndRefund: RequestLogicTypes.IE
   },
 };
 export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtensionStates = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN as string]: {
     events: [
       {
         ...createEvent,
@@ -73,7 +73,7 @@ export const extensionStateWithPaymentAddressAdded: RequestLogicTypes.IExtension
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       paymentAddress: 'pay.near',

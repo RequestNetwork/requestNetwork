@@ -1,12 +1,7 @@
 import { ethers, Signer, providers, BigNumber, BigNumberish, ContractTransaction } from 'ethers';
 
 import { getDefaultProvider, getPaymentReference } from '@requestnetwork/payment-detection';
-import {
-  ClientTypes,
-  ExtensionTypes,
-  PaymentTypes,
-  RequestLogicTypes,
-} from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes, RequestLogicTypes } from '@requestnetwork/types';
 import { getCurrencyHash } from '@requestnetwork/currency';
 import { ERC20__factory } from '@requestnetwork/smart-contracts/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
@@ -179,7 +174,7 @@ const {
   ERC20_FEE_PROXY_CONTRACT,
   ANY_TO_ERC20_PROXY,
   NATIVE_TOKEN,
-} = PaymentTypes.PAYMENT_NETWORK_ID;
+} = ExtensionTypes.PAYMENT_NETWORK_ID;
 const currenciesMap: any = {
   [ERC777_STREAM]: RequestLogicTypes.CURRENCY.ERC777,
   [ERC20_PROXY_CONTRACT]: RequestLogicTypes.CURRENCY.ERC20,
@@ -194,23 +189,23 @@ const currenciesMap: any = {
  */
 export function validateRequest(
   request: ClientTypes.IRequestData,
-  paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+  paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
 ): void {
   const { feeAmount, feeAddress, expectedFlowRate, expectedStartDate } =
     getRequestPaymentValues(request);
   let extension = request.extensions[paymentNetworkId];
 
   // FIXME: updating the extension: not needed anymore when "invoicing" will use only ethFeeProxy
-  if (paymentNetworkId === PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT && !extension) {
-    extension = request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
+  if (paymentNetworkId === ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT && !extension) {
+    extension = request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA];
   }
 
   // Compatibility of the request currency type with the payment network
   const expectedCurrencyType = currenciesMap[paymentNetworkId];
   const validCurrencyType = [
-    PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
-    PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE,
-    PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
   ].includes(paymentNetworkId)
     ? // Any currency type is valid with Any to ERC20 / ETH / Native conversion
       true
@@ -263,7 +258,7 @@ export function validateErc20FeeProxyRequest(
   request: ClientTypes.IRequestData,
   amount?: BigNumberish,
   feeAmountOverride?: BigNumberish,
-  paymentNetwork: PaymentTypes.PAYMENT_NETWORK_ID = PaymentTypes.PAYMENT_NETWORK_ID
+  paymentNetwork: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
     .ERC20_FEE_PROXY_CONTRACT,
 ): void {
   validateRequest(request, paymentNetwork);
@@ -294,7 +289,7 @@ export function validateConversionFeeProxyRequest(
     request,
     amount,
     feeAmountOverride,
-    PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+    ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
   );
   const { tokensAccepted } = getRequestPaymentValues(request);
   const requestCurrencyHash = path[0];

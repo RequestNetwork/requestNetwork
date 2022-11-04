@@ -11,8 +11,8 @@ export default class DeclarativePaymentNetwork<
   TCreationParameters extends ExtensionTypes.PnAnyDeclarative.ICreationParameters = ExtensionTypes.PnAnyDeclarative.ICreationParameters,
 > extends AbstractExtension<TCreationParameters> {
   public constructor(
-    public readonly extensionId: ExtensionTypes.ID = ExtensionTypes.ID
-      .PAYMENT_NETWORK_ANY_DECLARATIVE,
+    public readonly extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes
+      .PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
     public readonly currentVersion: string = CURRENT_VERSION,
   ) {
     super(ExtensionTypes.TYPE.PAYMENT_NETWORK, extensionId, currentVersion);

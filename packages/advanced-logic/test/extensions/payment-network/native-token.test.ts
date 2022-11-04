@@ -424,7 +424,7 @@ describe('extensions/payment-network/native-token', () => {
     }
     expect(() => {
       const testNativePaymentNetwork = new TestNativePaymentNetwork(
-        ExtensionTypes.ID.PAYMENT_NETWORK_NATIVE_TOKEN,
+        ExtensionTypes.PAYMENT_NETWORK_ID.NATIVE_TOKEN,
         'test',
         [],
       );

@@ -3,7 +3,7 @@ import { constants, ContractTransaction, Signer, BigNumber, providers } from 'et
 import { AnyToERC20PaymentDetector } from '@requestnetwork/payment-detection';
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
 import { ERC20SwapToConversion__factory } from '@requestnetwork/smart-contracts/types';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import {
   getAmountToPay,
@@ -45,12 +45,12 @@ export function prepareSwapToPayAnyToErc20Request(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   options: IRequestPaymentOptions,
 ): IPreparedTransaction {
-  if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
+  if (!request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
     throw new Error(`The request must have the payment network any-to-erc20-proxy`);
   }
 
   const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
+    request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
   if (!network) {
     throw new Error(`Payment network currency must have a network`);
   }
@@ -106,7 +106,7 @@ export function encodeSwapToPayAnyToErc20Request(
   // check if conversion currency is accepted
   if (
     !request.extensions[
-      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
+      ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY
     ].values.acceptedTokens.includes(conversionSettings.currency.value)
   ) {
     throw new Error(`The conversion currency is not an accepted token`);

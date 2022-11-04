@@ -12,7 +12,8 @@ const BITCOIN_NETWORK = 'mainnet';
  */
 export default class BitcoinAddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
   public constructor(
-    extensionId: ExtensionTypes.ID = ExtensionTypes.ID.PAYMENT_NETWORK_BITCOIN_ADDRESS_BASED,
+    extensionId: ExtensionTypes.PAYMENT_NETWORK_ID = ExtensionTypes.PAYMENT_NETWORK_ID
+      .BITCOIN_ADDRESS_BASED,
   ) {
     super(extensionId, CURRENT_VERSION, RequestLogicTypes.CURRENCY.BTC);
   }

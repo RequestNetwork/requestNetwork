@@ -28,9 +28,9 @@ const createMockRequest = ({
   events: [],
   expectedAmount: '320833333333331260',
   extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,

@@ -24,7 +24,7 @@ const PROXY_CONTRACT_ADDRESS_MAP: IProxyContractVersion = {
  */
 export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
   ExtensionTypes.PnAnyToEth.IAnyToEth,
-  PaymentTypes.IETHPaymentEventParameters
+  PaymentTypes.IETHFeePaymentEventParameters
 > {
   private readonly getSubgraphClient: PaymentNetworkOptions['getSubgraphClient'];
   /**
@@ -36,7 +36,7 @@ export class AnyToEthFeeProxyPaymentDetector extends AnyToAnyDetector<
     getSubgraphClient,
   }: ReferenceBasedDetectorOptions & Pick<PaymentNetworkOptions, 'getSubgraphClient'>) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
       advancedLogic.extensions.anyToEthProxy,
       currencyManager,
     );

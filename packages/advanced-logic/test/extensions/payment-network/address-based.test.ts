@@ -6,7 +6,7 @@ describe('extensions/payment-network/address-based', () => {
   it('address validation should throw when using unsupported currency type', () => {
     class TestAddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
       public constructor(
-        extensionId: ExtensionTypes.ID,
+        extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
         currentVersion: string,
         supportedCurrencyType: RequestLogicTypes.CURRENCY,
       ) {
@@ -18,7 +18,7 @@ describe('extensions/payment-network/address-based', () => {
     }
     expect(() => {
       const testAddressBasedPaymentNetwork = new TestAddressBasedPaymentNetwork(
-        ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+        ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
         'test',
         RequestLogicTypes.CURRENCY.ISO4217,
       );
@@ -30,7 +30,7 @@ describe('extensions/payment-network/address-based', () => {
   it('address validation should throw when using unsupported currency', () => {
     class TestAddressBasedPaymentNetwork extends AddressBasedPaymentNetwork {
       public constructor(
-        extensionId: ExtensionTypes.ID,
+        extensionId: ExtensionTypes.PAYMENT_NETWORK_ID,
         currentVersion: string,
         supportedCurrencyType: RequestLogicTypes.CURRENCY,
       ) {
@@ -42,7 +42,7 @@ describe('extensions/payment-network/address-based', () => {
     }
     expect(() => {
       const testAddressBasedPaymentNetwork = new TestAddressBasedPaymentNetwork(
-        ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_ADDRESS_BASED,
+        ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
         'test',
         RequestLogicTypes.CURRENCY.ERC20,
       );

@@ -14,7 +14,7 @@ export abstract class BtcAddressBasedDetector extends PaymentDetectorBase<
    */
   protected constructor(
     private networkId: number,
-    paymentNetworkId: PaymentTypes.PAYMENT_NETWORK_ID,
+    paymentNetworkId: ExtensionTypes.PAYMENT_NETWORK_ID,
     extension: ExtensionTypes.PnAddressBased.IAddressBased<ExtensionTypes.PnAddressBased.ICreationParameters>,
     private bitcoinDetectionProvider: PaymentTypes.IBitcoinDetectionProvider = new DefaultBitcoinDetectionProvider(),
   ) {

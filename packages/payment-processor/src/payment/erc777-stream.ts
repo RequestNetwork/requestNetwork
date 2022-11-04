@@ -8,7 +8,7 @@ import {
   ethers,
 } from 'ethers';
 
-import { ClientTypes, ExtensionTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 import { getPaymentNetworkExtension } from '@requestnetwork/payment-detection';
 
 import { getNetworkProvider, getProvider, getRequestPaymentValues, validateRequest } from './utils';
@@ -53,10 +53,10 @@ export async function completeErc777StreamRequest(
   overrides?: Overrides,
 ): Promise<ContractTransaction> {
   const id = getPaymentNetworkExtension(request)?.id;
-  if (id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM) {
+  if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
     throw new Error('Not a supported ERC777 payment network request');
   }
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const sf = await getSuperFluidFramework(request, signer.provider ?? getProvider());
   // FIXME: according to specs PR https://github.com/RequestNetwork/requestNetwork/pull/688
   // in file packages/advanced-logic/specs/payment-network-erc777-stream-0.1.0.md
@@ -159,7 +159,7 @@ export async function prepareErc777StreamPaymentTransaction(
   request: ClientTypes.IRequestData,
   provider: providers.Provider,
 ): Promise<IPreparedTransaction> {
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const sf = await getSuperFluidFramework(request, provider);
 
   const encodedTx = await encodePayErc777StreamRequest(request, sf);
@@ -185,10 +185,10 @@ export async function getErc777BalanceAt(
   provider: providers.Provider = getNetworkProvider(request),
 ): Promise<BigNumberish> {
   const id = getPaymentNetworkExtension(request)?.id;
-  if (id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM) {
+  if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
     throw new Error('Not a supported ERC777 payment network request');
   }
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const sf = await getSuperFluidFramework(request, provider);
   const superToken = await sf.loadSuperToken(request.currencyInfo.value);
   const realtimeBalance = await superToken.realtimeBalanceOf({
@@ -210,10 +210,10 @@ export const encodeErc777OneOffPayment = (
   amount: BigNumber,
 ): string => {
   const id = getPaymentNetworkExtension(request)?.id;
-  if (id !== ExtensionTypes.ID.PAYMENT_NETWORK_ERC777_STREAM) {
+  if (id !== ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM) {
     throw new Error('Not a supported ERC777 payment network request');
   }
-  validateRequest(request, PaymentTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
+  validateRequest(request, ExtensionTypes.PAYMENT_NETWORK_ID.ERC777_STREAM);
   const { paymentReference, paymentAddress } = getRequestPaymentValues(request);
   const erc777 = ethers.ContractFactory.getInterface(erc777Artefact.abi);
   return erc777.encodeFunctionData('send', [paymentAddress, amount, `0x${paymentReference}`]);

@@ -40,7 +40,7 @@ export class EthInputDataPaymentDetector extends ReferenceBasedDetector<
   }: ReferenceBasedDetectorOptions &
     Pick<PaymentNetworkOptions, 'explorerApiKeys' | 'getSubgraphClient'>) {
     super(
-      PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
       advancedLogic.extensions.ethereumInputData,
       currencyManager,
     );

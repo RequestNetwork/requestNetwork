@@ -1,6 +1,6 @@
 import { EthereumPrivateKeySignatureProvider } from '@requestnetwork/epk-signature';
 import { RequestNetwork } from '@requestnetwork/request-client.js';
-import { PaymentTypes, SignatureTypes } from '@requestnetwork/types';
+import { PaymentTypes, SignatureTypes, ExtensionTypes } from '@requestnetwork/types';
 import { payee, requestData, testnetRequestData } from './btc-test-data';
 
 const signatureProvider = new EthereumPrivateKeySignatureProvider({
@@ -16,8 +16,8 @@ describe('BTC detection test-suite', () => {
   it.skip('Can create a BTC testnet payment provider request and detect the payment', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
       },
@@ -37,8 +37,8 @@ describe('BTC detection test-suite', () => {
   it('Can create a BTC mainnet payment provider request and detect the payment', async () => {
     const requestNetwork = new RequestNetwork({ signatureProvider });
 
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
       parameters: {
         paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
       },
