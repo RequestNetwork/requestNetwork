@@ -125,6 +125,11 @@ export default {
       chainId: 43114,
       accounts,
     },
+    optimism: {
+      url: url('optimism'),
+      chainId: 10,
+      accounts,
+    },
   },
   etherscan: {
     apiKey: {
