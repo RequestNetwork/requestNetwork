@@ -8,19 +8,30 @@ export const REQUEST_SWAP_FEES = 5;
 // Batch Fees: .3%
 export const BATCH_FEE = 3;
 
+/**
+ * It update the chainlink address used by the "contract.
+ * @param contract A contract using chainlink:
+ *                 Erc20ConversionProxy | EthConversionProxy | ERC20SwapToConversion.
+ * @param network The network used.
+ * @param gasPrice The gas price used.Increase its value if needed.
+ * @param version The version of the chainlink proxy to use, the last one by default.
+ */
 export const updateChainlinkConversionPath = async (
   contract: any,
   network: string,
-  nonce: number,
   gasPrice: BigNumber,
+  version = undefined,
 ): Promise<void> => {
   const currentChainlinkAddress = await contract.chainlinkConversionPath();
-  const chainlinkConversionPathAddress = chainlinkConversionPath.getAddress(network, '0.1.0');
+  const chainlinkConversionPathAddress = chainlinkConversionPath.getAddress(network, version);
   if (currentChainlinkAddress !== chainlinkConversionPathAddress) {
-    await contract.updateConversionPathAddress(chainlinkConversionPathAddress, {
-      nonce: nonce,
+    const tx = await contract.updateConversionPathAddress(chainlinkConversionPathAddress, {
       gasPrice: gasPrice,
     });
+    await tx.wait();
+    console.log(
+      `chainlink: the current address ${currentChainlinkAddress} has been replaced by: ${chainlinkConversionPathAddress}`,
+    );
   }
 };
 
@@ -60,6 +71,47 @@ export const updateBatchPaymentFees = async (
     // Log is useful to have a direct view on was is being updated
     console.log(`currentFees: ${currentFees.toString()}, new fees: ${BATCH_FEE}`);
     await contract.setBatchFee(BATCH_FEE, { nonce: nonce, gasPrice: gasPrice });
+  }
+};
+
+/**
+ * Update the address of a Native or ERC20 fee proxy stored within a Native or ERC20 fee conversion contract
+ * @param contract A contract using chainlink: EthConversionProxy | Erc20ConversionProxy.
+ * @param network The network used.
+ * @param gasPrice The gas price used.Increase its value if needed.
+ * @param proxyType The type of the proxy fee.
+ * @param version The version of the fee proxy to use, the last one by default.
+ * */
+export const updateConversionProxyAddress = async (
+  contract: any,
+  network: string,
+  gasPrice: BigNumber,
+  proxyType: 'native' | 'erc20',
+  version = undefined,
+): Promise<void> => {
+  try {
+    let proxyAddress: string;
+    let currentAddress: string;
+    if (proxyType === 'native') {
+      proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network, version);
+      currentAddress = await contract.paymentProxy();
+    } else {
+      proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network, version);
+      currentAddress = await contract.paymentProxy();
+    }
+
+    if (currentAddress.toLocaleLowerCase() !== proxyAddress.toLocaleLowerCase()) {
+      const tx = await contract.updateConversionProxyAddress(proxyAddress, {
+        gasPrice: gasPrice,
+      });
+      await tx.wait();
+      console.log(
+        `${proxyType} conversion proxy: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
+      );
+    }
+  } catch (e) {
+    console.log(`Cannot update ${proxyType} conversion proxy, it might not exist on this network`);
+    console.log(e);
   }
 };
 
