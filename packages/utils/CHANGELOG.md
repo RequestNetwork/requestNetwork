@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.36.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.36.0) (2022-11-04)
+
+### Bug Fixes
+
+- **smart-contracts:** deploy and verify batch contract ([#868](https://github.com/RequestNetwork/requestNetwork/issues/868)) ([a71eb58](https://github.com/RequestNetwork/requestNetwork/commit/a71eb581de2199892ee44fcb8b162a9ae0c44a10))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- private key without trailing 0x ([#479](https://github.com/RequestNetwork/requestNetwork/issues/479)) ([4d71cae](https://github.com/RequestNetwork/requestNetwork/commit/4d71caec912e3adbab99cf029b07ee007d7c39bb))
+- swap to conversion ([#826](https://github.com/RequestNetwork/requestNetwork/issues/826)) ([cdb4b99](https://github.com/RequestNetwork/requestNetwork/commit/cdb4b999a059c86e5b9ff59d144fb7236060460a))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+
+### Features
+
+- create2 deployer ([#806](https://github.com/RequestNetwork/requestNetwork/issues/806)) ([453f5b5](https://github.com/RequestNetwork/requestNetwork/commit/453f5b5ec74cdd216fd6b872e3cf105113447dde))
+- implementation of delegation in declarative pn ([#535](https://github.com/RequestNetwork/requestNetwork/issues/535)) ([cf4eac7](https://github.com/RequestNetwork/requestNetwork/commit/cf4eac7665f5d797e2768c888fc87f470fe4f8cf))
+- payment network any to erc20 smartcontracts ([#408](https://github.com/RequestNetwork/requestNetwork/issues/408)) ([a2f30a8](https://github.com/RequestNetwork/requestNetwork/commit/a2f30a84689eaea0994e72944c417718c7aad20e))
+
 # [0.35.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/utils@0.28.0...@requestnetwork/utils@0.35.0) (2021-06-22)
 
 ### Bug Fixes
