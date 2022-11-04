@@ -166,9 +166,9 @@ describe('api/erc20/fee-proxy-contract', () => {
       events: [],
       expectedAmount: '1000',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
           events: [],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
             feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
@@ -278,7 +278,7 @@ describe('api/erc20/fee-proxy-contract', () => {
     // Payments: 5 (correct fee address)
     // Refunds: 2 (correct fee address)
     expect(
-      mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT].values
+      mockRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT].values
         .feeBalance.balance,
     ).toBe('7');
   });
@@ -294,7 +294,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       events: [],
       expectedAmount: '1000000000000000000',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
           events: [
             {
               name: 'create',
@@ -307,7 +307,7 @@ describe('api/erc20/fee-proxy-contract', () => {
               timestamp: 1655883560,
             },
           ],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
             feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',
@@ -376,7 +376,7 @@ describe('api/erc20/fee-proxy-contract', () => {
       events: [],
       expectedAmount: '168040800000000000000000',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT]: {
           events: [
             {
               name: 'create',
@@ -389,7 +389,7 @@ describe('api/erc20/fee-proxy-contract', () => {
               timestamp: 1665989825,
             },
           ],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
             salt: 'c75c317e05c52f12',

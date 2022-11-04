@@ -4,7 +4,6 @@ import {
   ClientTypes,
   ExtensionTypes,
   IdentityTypes,
-  PaymentTypes,
   RequestLogicTypes,
 } from '@requestnetwork/types';
 import Utils from '@requestnetwork/utils';
@@ -44,9 +43,9 @@ const validRequest: ClientTypes.IRequestData = {
   events: [],
   expectedAmount: '1000',
   extensions: {
-    [PaymentTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT]: {
       events: [],
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_FEE_PROXY_CONTRACT,
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_FEE_PROXY_CONTRACT,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         feeAddress,
@@ -70,9 +69,9 @@ const validRequest: ClientTypes.IRequestData = {
 
 const validRequest2 = Utils.deepCopy(validRequest) as ClientTypes.IRequestData;
 validRequest2.extensions = {
-  [PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA]: {
     events: [],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ETH_INPUT_DATA,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       feeAddress,

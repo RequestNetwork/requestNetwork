@@ -124,7 +124,7 @@ describe('api/erc20/proxy-contract', () => {
       requestId: 'abcd',
       currency: { network: 'mainnet' },
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
           values: {
             paymentAddress: '0xabcd',
             salt: 'ea3bc7caf64110ca',
@@ -148,7 +148,7 @@ describe('api/erc20/proxy-contract', () => {
       requestId: 'abcd',
       currency: { network: 'WRONG' },
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
           values: {
             paymentAddress: '0xabcd',
             salt: 'ea3bc7caf64110ca',
@@ -176,7 +176,7 @@ describe('api/erc20/proxy-contract', () => {
         value: '0xFab46E002BbF0b4509813474841E0716E6730136',
       },
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT]: {
           events: [
             {
               name: 'create',
@@ -187,7 +187,7 @@ describe('api/erc20/proxy-contract', () => {
               timestamp: 1579705864,
             },
           ],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_PROXY_CONTRACT,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
           type: 'payment-network',
           values: {
             paymentAddress: '0x0e8d9cb9e11278ad6e2ba1ca90385c7295dc6532',

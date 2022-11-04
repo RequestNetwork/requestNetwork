@@ -24,7 +24,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
@@ -48,7 +48,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -173,7 +173,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
         },
@@ -198,7 +198,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           refundAddress: '0x0000000000000000000000000000000000000002',
         },
@@ -224,7 +224,7 @@ describe('extensions/payment-network/ethereum/any-to-eth-fee-proxy-contract', ()
         }),
       ).toEqual({
         action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '2000',

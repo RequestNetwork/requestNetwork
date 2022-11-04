@@ -4,6 +4,7 @@ import {
   ClientTypes,
   DecryptionProviderTypes,
   EncryptionTypes,
+  ExtensionTypes,
   IdentityTypes,
   PaymentTypes,
   RequestLogicTypes,
@@ -118,6 +119,14 @@ describe('request-client.js', () => {
   });
 
   describe('API', () => {
+    const requestCreationParams: ClientTypes.ICreateRequestParameters = {
+      paymentNetwork: TestData.declarativePaymentNetworkNoPaymentInfo,
+      requestInfo: TestData.parametersWithoutExtensionsData,
+      signer: TestData.payee.identity,
+    };
+    const mockedTransactions = {
+      transactions: [TestData.timestampedTransactionWithoutPaymentInfo],
+    };
     it('specify the Request Client version in the header', async () => {
       const mock = new AxiosMockAdapter(axios);
 
@@ -129,9 +138,9 @@ describe('request-client.js', () => {
       };
       const spy = jest.fn(callback);
       mock.onPost('/persistTransaction').reply(spy);
-      mock
-        .onGet('/getTransactionsByChannelId')
-        .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
+      mock.onGet('/getTransactionsByChannelId').reply(200, {
+        result: mockedTransactions,
+      });
       mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
       const requestNetwork = new RequestNetwork({
@@ -142,15 +151,7 @@ describe('request-client.js', () => {
         },
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
-        parameters: {},
-      };
-      const request = await requestNetwork.createRequest({
-        paymentNetwork,
-        requestInfo: TestData.parametersWithoutExtensionsData,
-        signer: TestData.payee.identity,
-      });
+      const request = await requestNetwork.createRequest(requestCreationParams);
       expect(spy).toHaveBeenCalledTimes(1);
 
       await request.waitForConfirmation();
@@ -165,9 +166,7 @@ describe('request-client.js', () => {
       };
       const spy = jest.fn(callback);
       mock.onPost('/persistTransaction').reply(spy);
-      mock
-        .onGet('/getTransactionsByChannelId')
-        .reply(200, { result: { transactions: [TestData.timestampedTransaction] } });
+      mock.onGet('/getTransactionsByChannelId').reply(200, { result: mockedTransactions });
       mock.onGet('/getConfirmedTransaction').reply(200, { result: {} });
 
       const requestNetwork = new RequestNetwork({
@@ -178,15 +177,7 @@ describe('request-client.js', () => {
         },
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
-        parameters: {},
-      };
-      const request = await requestNetwork.createRequest({
-        paymentNetwork,
-        requestInfo: TestData.parametersWithoutExtensionsData,
-        signer: TestData.payee.identity,
-      });
+      const request = await requestNetwork.createRequest(requestCreationParams);
       expect(spy).toHaveBeenCalledTimes(1);
 
       await request.waitForConfirmation();
@@ -218,8 +209,8 @@ describe('request-client.js', () => {
         },
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
         parameters: {
           paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
         },
@@ -257,8 +248,8 @@ describe('request-client.js', () => {
         },
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.BITCOIN_ADDRESS_BASED,
         parameters: {
           paymentAddress: '1FersucwSqufU26w9GrGz9M3KcwuNmy6a9',
         },
@@ -428,8 +419,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.DECLARATIVE,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_DECLARATIVE,
         parameters: {},
       };
 
@@ -609,8 +600,8 @@ describe('request-client.js', () => {
         },
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.TESTNET_BITCOIN_ADDRESS_BASED,
         parameters: {
           paymentAddress: 'mgPKDuVmuS9oeE2D9VPiCQriyU14wxWS1v',
         },
@@ -1099,8 +1090,8 @@ describe('request-client.js', () => {
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
       });
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -1143,8 +1134,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -1181,8 +1172,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         },
@@ -1226,8 +1217,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -1291,8 +1282,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -1375,8 +1366,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ETH_INPUT_DATA,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -1453,8 +1444,8 @@ describe('request-client.js', () => {
       const refundAddress =
         '0x' + (await Utils.crypto.CryptoWrapper.random32Bytes()).slice(12).toString('hex');
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED,
         parameters: {
           paymentAddress,
           refundAddress,
@@ -1485,10 +1476,11 @@ describe('request-client.js', () => {
       expect(data.currency).toBe('unknown');
 
       expect(
-        data.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.paymentAddress,
+        data.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values
+          .paymentAddress,
       ).toBe(paymentAddress);
       expect(
-        data.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.refundAddress,
+        data.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_ADDRESS_BASED].values.refundAddress,
       ).toBe(refundAddress);
       expect(data.expectedAmount).toBe(requestParameters.expectedAmount);
 
@@ -1546,8 +1538,8 @@ describe('request-client.js', () => {
         signatureProvider: TestData.fakeSignatureProvider,
         useMockStorage: true,
       });
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
           refundAddress: '0x5AEDA56215b167893e80B4fE645BA6d5Bab767DE',
@@ -1586,8 +1578,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
           refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
@@ -1622,8 +1614,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
         parameters: {
           network: 'goerli',
           paymentAddress: '0x6330A553Fc93768F612722BB8c2eC78aC90B3bbc',
@@ -1658,8 +1650,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
         parameters: {
           network: 'aurora',
           paymentAddress: 'paymentaddress.near',
@@ -1693,8 +1685,8 @@ describe('request-client.js', () => {
         useMockStorage: true,
       });
 
-      const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-        id: PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE,
+      const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
         parameters: {
           network: 'mainnet', // This network is not supported for any-to-native
           paymentAddress: 'paymentaddress.near',
@@ -1734,8 +1726,8 @@ describe('request-client.js', () => {
         value: '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
       },
     };
-    const paymentNetwork: PaymentTypes.IPaymentNetworkCreateParameters = {
-      id: PaymentTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
+    const paymentNetwork: PaymentTypes.PaymentNetworkCreateParameters = {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_PROXY_CONTRACT,
       parameters: {
         paymentAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',
         refundAddress: '0xc12F17Da12cd01a9CDBB216949BA0b41A6Ffc4EB',

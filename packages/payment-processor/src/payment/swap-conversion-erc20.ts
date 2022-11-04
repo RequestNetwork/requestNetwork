@@ -1,7 +1,7 @@
 import { ContractTransaction, providers, Signer, BigNumberish, BigNumber } from 'ethers';
 
 import { erc20SwapConversionArtifact } from '@requestnetwork/smart-contracts';
-import { ClientTypes, PaymentTypes } from '@requestnetwork/types';
+import { ClientTypes, ExtensionTypes } from '@requestnetwork/types';
 
 import { ITransactionOverrides } from './transaction-overrides';
 import { getProvider, getSigner } from './utils';
@@ -60,11 +60,11 @@ export async function hasErc20ApprovalForSwapWithConversion(
   signerOrProvider: providers.Provider | Signer = getProvider(),
   minAmount: BigNumberish,
 ): Promise<boolean> {
-  if (!request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
+  if (!request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]) {
     throw new Error(`The request must have the payment network any-to-erc20-proxy`);
   }
   const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
+    request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
   return await checkErc20Allowance(
     ownerAddress,
     erc20SwapConversionArtifact.getAddress(network),
@@ -88,7 +88,7 @@ export async function approveErc20ForSwapWithConversionToPay(
   overrides?: ITransactionOverrides,
 ): Promise<ContractTransaction> {
   const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
+    request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
   if (!network) {
     throw new Error(`Payment network currency must have a network`);
   }
@@ -119,7 +119,7 @@ export function prepareApprovalErc20ForSwapWithConversionToPay(
   amount?: BigNumber,
 ): IPreparedTransaction {
   const network =
-    request.extensions[PaymentTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
+    request.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.network;
   if (!network) {
     throw new Error(`Payment network currency must have a network`);
   }

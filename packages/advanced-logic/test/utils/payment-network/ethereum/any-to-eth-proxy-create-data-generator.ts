@@ -17,7 +17,7 @@ export const salt = 'ea3bc7caf64110ca';
 // actions
 export const actionCreationFull = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
   parameters: {
     feeAddress,
     feeAmount,
@@ -30,7 +30,7 @@ export const actionCreationFull = {
 };
 export const actionCreationOnlyPayment = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
   parameters: {
     paymentAddress,
     network,
@@ -39,7 +39,7 @@ export const actionCreationOnlyPayment = {
 };
 export const actionCreationOnlyRefund = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
   parameters: {
     refundAddress,
     network,
@@ -48,7 +48,7 @@ export const actionCreationOnlyRefund = {
 };
 export const actionCreationOnlyFee = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
   parameters: {
     feeAddress,
     feeAmount,
@@ -58,7 +58,7 @@ export const actionCreationOnlyFee = {
 };
 export const actionCreationEmpty = {
   action: 'create',
-  id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+  id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
   parameters: {},
   version: '0.1.0',
 };
@@ -66,7 +66,7 @@ export const actionCreationEmpty = {
 // ---------------------------------------------------------------------
 // extensions states
 export const extensionFullState = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY as string]: {
     events: [
       {
         name: 'create',
@@ -82,7 +82,7 @@ export const extensionFullState = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       feeAddress,
@@ -105,7 +105,7 @@ export const extensionFullState = {
   },
 };
 export const extensionStateCreatedEmpty = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY as string]: {
     events: [
       {
         name: 'create',
@@ -115,7 +115,7 @@ export const extensionStateCreatedEmpty = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       network: 'mainnet',
@@ -125,7 +125,7 @@ export const extensionStateCreatedEmpty = {
   },
 };
 export const extensionStateDeclareReceivedPayment = {
-  [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY as string]: {
+  [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY as string]: {
     events: [
       {
         name: 'create',
@@ -149,7 +149,7 @@ export const extensionStateDeclareReceivedPayment = {
         timestamp: arbitraryTimestamp,
       },
     ],
-    id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ETH_PROXY,
+    id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ETH_PROXY,
     type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
     values: {
       network: 'mainnet',

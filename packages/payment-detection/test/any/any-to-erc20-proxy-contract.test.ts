@@ -186,9 +186,9 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       events: [],
       expectedAmount: '1000',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
           events: [],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
             feeAddress: '0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef',
@@ -311,7 +311,7 @@ describe('api/any/conversion-fee-proxy-contract', () => {
     // Payments: 5 (correct fee address)
     // Refunds: 5 (correct fee address)
     expect(
-      mockRequest.extensions[ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY].values.feeBalance
+      mockRequest.extensions[ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY].values.feeBalance
         .balance,
     ).toBe('10');
   });
@@ -348,9 +348,9 @@ describe('api/any/conversion-fee-proxy-contract', () => {
       events: [],
       expectedAmount: '100',
       extensions: {
-        [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY]: {
+        [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY]: {
           events: [],
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_ERC20_PROXY,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_ERC20_PROXY,
           type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
           values: {
             feeAddress: '0x35d0e078755Cd84D3E0656cAaB417Dee1d7939c7',

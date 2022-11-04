@@ -23,7 +23,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000001',
           feeAmount: '0',
@@ -44,7 +44,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
           refundAddress: '0x0000000000000000000000000000000000000002',
@@ -61,7 +61,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: 'create',
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
         parameters: {
           salt: 'ea3bc7caf64110ca',
         },
@@ -122,7 +122,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_PAYMENT_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
         parameters: {
           paymentAddress: '0x0000000000000000000000000000000000000001',
         },
@@ -147,7 +147,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: ExtensionTypes.PnReferenceBased.ACTION.ADD_REFUND_ADDRESS,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
         parameters: {
           refundAddress: '0x0000000000000000000000000000000000000002',
         },
@@ -173,7 +173,7 @@ describe('extensions/payment-network/erc20/fee-proxy-contract', () => {
         }),
       ).toEqual({
         action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-        id: ExtensionTypes.ID.PAYMENT_NETWORK_ERC20_FEE_PROXY_CONTRACT,
+        id: ExtensionTypes.PAYMENT_NETWORK_ID.ERC20_FEE_PROXY_CONTRACT,
         parameters: {
           feeAddress: '0x0000000000000000000000000000000000000002',
           feeAmount: '2000',

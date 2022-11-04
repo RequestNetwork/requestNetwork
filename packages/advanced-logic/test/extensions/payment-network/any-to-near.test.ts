@@ -240,7 +240,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
             }),
           ).toEqual({
             action: ExtensionTypes.PnFeeReferenceBased.ACTION.ADD_FEE,
-            id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+            id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
             parameters: {
               feeAddress: `fee.${testCase.suffix}`,
               feeAmount: '2000',
@@ -512,7 +512,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
 
         const addFeeAction = {
           action: 'addFee',
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
           parameters: {
             feeAddress: 'fee.near',
             feeAmount: '-200',
@@ -547,7 +547,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
 
         const addFeeAction = {
           action: 'addFee',
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
           parameters: {
             feeAddress: 'fee.testnet',
             feeAmount: '100',
@@ -584,7 +584,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
 
         const addFeeAction = {
           action: 'addFee',
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
           parameters: {
             feeAddress: 'newfee.near',
             feeAmount: '100',
@@ -619,7 +619,7 @@ describe('extensions/payment-network/any-to-native-token', () => {
 
         const addFeeAction = {
           action: 'addFee',
-          id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+          id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
           parameters: {
             feeAddress: 'fee.near',
             feeAmount: '100',

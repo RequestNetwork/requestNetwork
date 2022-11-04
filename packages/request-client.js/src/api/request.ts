@@ -105,7 +105,7 @@ export default class Request {
     this.disableEvents = options?.disableEvents || false;
     this.currencyManager = currencyManager;
 
-    if (options && options.requestLogicCreateResult && !this.disableEvents) {
+    if (options?.requestLogicCreateResult && !this.disableEvents) {
       const originalEmitter = options.requestLogicCreateResult;
       originalEmitter
         .on('confirmed', async () => {

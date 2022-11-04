@@ -29,8 +29,8 @@ const request: any = {
     value: 'USD',
   },
   extensions: {
-    [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN as string]: {
-      id: ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN,
+    [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN as string]: {
+      id: ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN,
       type: ExtensionTypes.TYPE.PAYMENT_NETWORK,
       values: {
         paymentAddress,
@@ -144,9 +144,9 @@ describe('Near payments detection', () => {
       requestWithWrongVersion = {
         ...requestWithWrongVersion,
         extensions: {
-          [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN]: {
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN]: {
             ...requestWithWrongVersion.extensions[
-              ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN
+              ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN
             ],
             version: '3.14',
           },
@@ -169,13 +169,13 @@ describe('Near payments detection', () => {
       requestWithWrongNetwork = {
         ...requestWithWrongNetwork,
         extensions: {
-          [ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN as string]: {
+          [ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN as string]: {
             ...requestWithWrongNetwork.extensions[
-              ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN
+              ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN
             ],
             values: {
               ...requestWithWrongNetwork.extensions[
-                ExtensionTypes.ID.PAYMENT_NETWORK_ANY_TO_NATIVE_TOKEN
+                ExtensionTypes.PAYMENT_NETWORK_ID.ANY_TO_NATIVE_TOKEN
               ].values,
               network: 'unknown-network',
             },
