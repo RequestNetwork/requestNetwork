@@ -38,26 +38,20 @@ export const updateChainlinkConversionPath = async (
 export const updateSwapRouter = async (
   contract: any,
   network: string,
-  nonce: number,
   gasPrice: BigNumber,
 ): Promise<void> => {
   const currentSwapRouter = await contract.swapRouter();
   if (currentSwapRouter !== uniswapV2RouterAddresses[network]) {
     await contract.setRouter(uniswapV2RouterAddresses[network], {
-      nonce: nonce,
       gasPrice: gasPrice,
     });
   }
 };
 
-export const updateRequestSwapFees = async (
-  contract: any,
-  nonce: number,
-  gasPrice: BigNumber,
-): Promise<void> => {
+export const updateRequestSwapFees = async (contract: any, gasPrice: BigNumber): Promise<void> => {
   const currentFees = await contract.requestSwapFees();
   if (currentFees !== REQUEST_SWAP_FEES) {
-    await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, { nonce: nonce, gasPrice: gasPrice });
+    await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, { gasPrice: gasPrice });
   }
 };
 
