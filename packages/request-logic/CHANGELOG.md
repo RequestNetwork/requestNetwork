@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.26.10](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.26.10) (2022-11-04)
+
+### Bug Fixes
+
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+
 ## [0.26.9](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/request-logic@0.26.0...@requestnetwork/request-logic@0.26.9) (2021-06-22)
 
 **Note:** Version bump only for package @requestnetwork/request-logic

@@ -1,6 +1,6 @@
 {
   "name": "@requestnetwork/toolbox",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Toolbox for Request Network.",
   "keywords": [
@@ -42,13 +42,13 @@
     "referenceCalculator": "yarn cli referenceCalculator"
   },
   "dependencies": {
-    "@requestnetwork/currency": "0.8.0",
-    "@requestnetwork/epk-signature": "0.5.34",
-    "@requestnetwork/payment-detection": "0.35.0",
-    "@requestnetwork/request-client.js": "0.39.0",
-    "@requestnetwork/smart-contracts": "0.28.0",
-    "@requestnetwork/types": "0.35.0",
-    "@requestnetwork/utils": "0.35.0",
+    "@requestnetwork/currency": "0.9.0",
+    "@requestnetwork/epk-signature": "0.5.35",
+    "@requestnetwork/payment-detection": "0.36.0",
+    "@requestnetwork/request-client.js": "0.40.0",
+    "@requestnetwork/smart-contracts": "0.29.0",
+    "@requestnetwork/types": "0.36.0",
+    "@requestnetwork/utils": "0.36.0",
     "axios": "0.27.2",
     "bluebird": "3.7.2",
     "ethers": "5.5.1",
