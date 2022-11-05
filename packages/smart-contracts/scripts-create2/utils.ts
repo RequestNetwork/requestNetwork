@@ -7,14 +7,14 @@ import * as artifacts from '../src/lib';
  * If you want to skip deploying one or more, then comment them out in the list bellow.
  */
 export const create2ContractDeploymentList = [
-  'EthereumProxy',
-  'EthereumFeeProxy',
-  'EthConversionProxy',
-  'ERC20FeeProxy',
-  'Erc20ConversionProxy',
-  'ERC20SwapToConversion',
-  'ERC20EscrowToPay',
-  'BatchPayments',
+  // 'EthereumProxy',
+  // 'EthereumFeeProxy',
+  // 'EthConversionProxy',
+  // 'ERC20FeeProxy',
+  // 'Erc20ConversionProxy',
+  // 'ERC20SwapToConversion',
+  // 'ERC20EscrowToPay',
+  'BatchConversionPayments',
 ];
 
 /**
@@ -47,8 +47,8 @@ export const getArtifact = (contract: string): artifacts.ContractArtifact<Contra
       return artifacts.erc20SwapConversionArtifact;
     case 'ERC20EscrowToPay':
       return artifacts.erc20EscrowToPayArtifact;
-    case 'BatchPayments':
-      return artifacts.batchPaymentsArtifact;
+    case 'BatchConversionPayments':
+      return artifacts.batchConversionPaymentsArtifact;
     default:
       throw new Error('Contract unknown');
   }
