@@ -11,14 +11,13 @@ export const BATCH_FEE = 3;
 export const updateChainlinkConversionPath = async (
   contract: any,
   network: string,
-  nonce: number,
   gasPrice: BigNumber,
+  version = undefined,
 ): Promise<void> => {
   const currentChainlinkAddress = await contract.chainlinkConversionPath();
-  const chainlinkConversionPathAddress = chainlinkConversionPath.getAddress(network, '0.1.0');
+  const chainlinkConversionPathAddress = chainlinkConversionPath.getAddress(network, version);
   if (currentChainlinkAddress !== chainlinkConversionPathAddress) {
     await contract.updateConversionPathAddress(chainlinkConversionPathAddress, {
-      nonce: nonce,
       gasPrice: gasPrice,
     });
   }
@@ -27,46 +26,35 @@ export const updateChainlinkConversionPath = async (
 export const updateSwapRouter = async (
   contract: any,
   network: string,
-  nonce: number,
   gasPrice: BigNumber,
 ): Promise<void> => {
   const currentSwapRouter = await contract.swapRouter();
   if (currentSwapRouter !== uniswapV2RouterAddresses[network]) {
     await contract.setRouter(uniswapV2RouterAddresses[network], {
-      nonce: nonce,
       gasPrice: gasPrice,
     });
   }
 };
 
-export const updateRequestSwapFees = async (
-  contract: any,
-  nonce: number,
-  gasPrice: BigNumber,
-): Promise<void> => {
+export const updateRequestSwapFees = async (contract: any, gasPrice: BigNumber): Promise<void> => {
   const currentFees = await contract.requestSwapFees();
   if (currentFees !== REQUEST_SWAP_FEES) {
-    await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, { nonce: nonce, gasPrice: gasPrice });
+    await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, { gasPrice: gasPrice });
   }
 };
 
-export const updateBatchPaymentFees = async (
-  contract: any,
-  nonce: number,
-  gasPrice: BigNumber,
-): Promise<void> => {
+export const updateBatchPaymentFees = async (contract: any, gasPrice: BigNumber): Promise<void> => {
   const currentFees = await contract.batchFee();
   if (currentFees !== BATCH_FEE) {
-    // Log is useful to have a direct view on was is being updated
+    // Log is useful to have a direct view on what is being updated
     console.log(`currentFees: ${currentFees.toString()}, new fees: ${BATCH_FEE}`);
-    await contract.setBatchFee(BATCH_FEE, { nonce: nonce, gasPrice: gasPrice });
+    await contract.setBatchFee(BATCH_FEE, { gasPrice: gasPrice });
   }
 };
 
 export const updatePaymentErc20FeeProxy = async (
   contract: any,
   network: string,
-  nonce: number,
   gasPrice: BigNumber,
 ): Promise<void> => {
   const erc20FeeProxy = artifacts.erc20FeeProxyArtifact;
@@ -74,7 +62,6 @@ export const updatePaymentErc20FeeProxy = async (
   const currentAddress = await contract.paymentErc20FeeProxy();
   if (currentAddress !== erc20FeeProxyAddress) {
     await contract.setPaymentErc20FeeProxy(erc20FeeProxyAddress, {
-      nonce: nonce,
       gasPrice: gasPrice,
     });
   }
@@ -83,7 +70,6 @@ export const updatePaymentErc20FeeProxy = async (
 export const updatePaymentEthFeeProxy = async (
   contract: any,
   network: string,
-  nonce: number,
   gasPrice: BigNumber,
 ): Promise<void> => {
   const ethereumFeeProxy = artifacts.ethereumFeeProxyArtifact;
@@ -91,7 +77,6 @@ export const updatePaymentEthFeeProxy = async (
   const currentAddress = await contract.paymentEthFeeProxy();
   if (currentAddress !== ethereumFeeProxyAddress) {
     await contract.setPaymentEthFeeProxy(ethereumFeeProxyAddress, {
-      nonce: nonce,
       gasPrice: gasPrice,
     });
   }

@@ -1,7 +1,7 @@
-import { batchPaymentsArtifact } from '../../src/lib';
+import { ethConversionArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
 import utils from '@requestnetwork/utils';
-import { updateChainlinkConversionPath, updatePaymentErc20FeeProxy } from './adminTasks';
+import { updateChainlinkConversionPath, updatePaymentEthFeeProxy } from './adminTasks';
 
 /**
  * Updates the values of the batch fees of the BatchPayments contract, if needed
@@ -15,33 +15,29 @@ export const setupETHConversionProxy = async (
   // Setup contract parameters
   const EthConversionProxyContract = new hre.ethers.Contract(
     contractAddress,
-    batchPaymentsArtifact.getContractAbi(),
+    ethConversionArtifact.getContractAbi(),
   );
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
-      let provider;
-      if (network === 'celo') {
-        provider = utils.getCeloProvider();
-      } else {
-        provider = utils.getDefaultProvider(network);
-      }
-      const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
-      const signer = wallet.connect(provider);
-      const EthConversionProxyConnected = await EthConversionProxyContract.connect(signer);
-      const adminNonce = await signer.getTransactionCount();
-      const gasPrice = await provider.getGasPrice();
+      try {
+        let provider;
+        if (network === 'celo') {
+          provider = utils.getCeloProvider();
+        } else {
+          provider = utils.getDefaultProvider(network);
+        }
+        const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
+        const signer = wallet.connect(provider);
+        const EthConversionProxyConnected = await EthConversionProxyContract.connect(signer);
+        const gasPrice = await provider.getGasPrice();
 
-      // start from the adminNonce, increase gasPrice if needed
-      await Promise.all([
-        updatePaymentErc20FeeProxy(EthConversionProxyConnected, network, adminNonce, gasPrice),
-        updateChainlinkConversionPath(
-          EthConversionProxyConnected,
-          network,
-          adminNonce + 1,
-          gasPrice,
-        ),
-      ]);
+        await updatePaymentEthFeeProxy(EthConversionProxyConnected, network, gasPrice);
+        await updateChainlinkConversionPath(EthConversionProxyConnected, network, gasPrice);
+        console.log(`Setup of EthConversionProxy successful on ${network}`);
+      } catch (err) {
+        console.warn(`An error occurred during the setup of EthConversionProxy on ${network}`);
+        console.warn(err);
+      }
     }),
   );
-  console.log('Setup for EthConversionProxy successful');
 };
