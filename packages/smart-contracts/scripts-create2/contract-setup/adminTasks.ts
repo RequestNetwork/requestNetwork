@@ -17,9 +17,10 @@ export const updateChainlinkConversionPath = async (
   const currentChainlinkAddress = await contract.chainlinkConversionPath();
   const chainlinkConversionPathAddress = chainlinkConversionPath.getAddress(network, version);
   if (currentChainlinkAddress !== chainlinkConversionPathAddress) {
-    await contract.updateConversionPathAddress(chainlinkConversionPathAddress, {
+    const tx = await contract.updateConversionPathAddress(chainlinkConversionPathAddress, {
       gasPrice: gasPrice,
     });
+    await tx.wait(1);
   }
 };
 
@@ -30,9 +31,10 @@ export const updateSwapRouter = async (
 ): Promise<void> => {
   const currentSwapRouter = await contract.swapRouter();
   if (currentSwapRouter !== uniswapV2RouterAddresses[network]) {
-    await contract.setRouter(uniswapV2RouterAddresses[network], {
+    const tx = await contract.setRouter(uniswapV2RouterAddresses[network], {
       gasPrice: gasPrice,
     });
+    await tx.wait(1);
   }
 };
 
@@ -40,7 +42,8 @@ export const updateRequestSwapFees = async (contract: any, gasPrice: BigNumber):
   const currentFees: BigNumber = await contract.requestSwapFees();
   if (!currentFees.eq(REQUEST_SWAP_FEES)) {
     console.log(`currentFees: ${currentFees.toString()}, new fees: ${REQUEST_SWAP_FEES}`);
-    await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, { gasPrice: gasPrice });
+    const tx = await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, { gasPrice: gasPrice });
+    await tx.wait(1);
   }
 };
 
@@ -49,7 +52,8 @@ export const updateBatchPaymentFees = async (contract: any, gasPrice: BigNumber)
   if (!currentFees.eq(BATCH_FEE)) {
     // Log is useful to have a direct view on what is being updated
     console.log(`currentFees: ${currentFees.toString()}, new fees: ${BATCH_FEE}`);
-    await contract.setBatchFee(BATCH_FEE, { gasPrice: gasPrice });
+    const tx = await contract.setBatchFee(BATCH_FEE, { gasPrice: gasPrice });
+    await tx.wait(1);
   }
 };
 
@@ -62,9 +66,10 @@ export const updatePaymentErc20FeeProxy = async (
   const erc20FeeProxyAddress = erc20FeeProxy.getAddress(network);
   const currentAddress = await contract.paymentErc20FeeProxy();
   if (currentAddress !== erc20FeeProxyAddress) {
-    await contract.setPaymentErc20FeeProxy(erc20FeeProxyAddress, {
+    const tx = await contract.setPaymentErc20FeeProxy(erc20FeeProxyAddress, {
       gasPrice: gasPrice,
     });
+    await tx.wait(1);
   }
 };
 
@@ -77,8 +82,9 @@ export const updatePaymentEthFeeProxy = async (
   const ethereumFeeProxyAddress = ethereumFeeProxy.getAddress(network);
   const currentAddress = await contract.paymentEthFeeProxy();
   if (currentAddress !== ethereumFeeProxyAddress) {
-    await contract.setPaymentEthFeeProxy(ethereumFeeProxyAddress, {
+    const tx = await contract.setPaymentEthFeeProxy(ethereumFeeProxyAddress, {
       gasPrice: gasPrice,
     });
+    await tx.wait(1);
   }
 };
