@@ -57,6 +57,10 @@ export const batchPaymentsArtifact = new ContractArtifact<BatchPayments>(
           address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
           creationBlockNumber: 16157128,
         },
+        optimism: {
+          address: '0x0DD57FFe83a53bCbd657e234B16A3e74fEDb8fBA',
+          creationBlockNumber: 35498688,
+        },
       },
     },
   },

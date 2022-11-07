@@ -33,6 +33,11 @@ export const erc20EscrowToPayArtifact = new ContractArtifact<ERC20EscrowToPay>(
           address: '0x4BA012eae4d64da79Bd6bcdBa366803fCe701A4C',
           creationBlockNumber: 18086337,
         },
+        // FIXME: Address changed due to contract metadata change since last deployment
+        optimism: {
+          address: '0x26d4912fA5aC84F185843E19eeEdcc47f4Cc9F1a',
+          creationBlockNumber: 35498500,
+        },
       },
     },
   },
