@@ -151,11 +151,22 @@ export default {
       // xdai
       xdai: process.env.GNOSISSCAN_API_KEY,
       // other networks don't need an API key, but you still need
+      optimism: process.env.OPTIMISM_API_KEY,
       // to specify one; any string placeholder will work
       sokol: 'api-key',
       aurora: 'api-key',
       auroraTestnet: 'api-key',
     },
+    customChains: [
+      {
+        network: 'optimism',
+        chainId: 10,
+        urls: {
+          apiURL: 'https://api-optimistic.etherscan.io/api',
+          browserURL: 'https://optimistic.etherscan.io/',
+        },
+      },
+    ],
   },
   typechain: {
     outDir: 'src/types',
