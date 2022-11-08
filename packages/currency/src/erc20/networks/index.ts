@@ -9,6 +9,7 @@ import { supportedBSCERC20 } from './bsc';
 import { supportedXDAIERC20 } from './xdai';
 import { supportedGoerliERC20 } from './goerli';
 import { supportedAvalancheERC20 } from './avalanche';
+import { supportedOptimismERC20 } from './optimism';
 
 export const supportedNetworks: Record<string, TokenMap> = {
   celo: supportedCeloERC20,
@@ -22,6 +23,7 @@ export const supportedNetworks: Record<string, TokenMap> = {
   bsc: supportedBSCERC20,
   xdai: supportedXDAIERC20,
   avalanche: supportedAvalancheERC20,
+  optimism: supportedOptimismERC20,
 };
 
 export type { TokenMap };

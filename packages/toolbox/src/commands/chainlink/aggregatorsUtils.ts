@@ -35,6 +35,7 @@ const feedMap: Record<string, [chainKey: string, networkName: string]> = {
   xdai: ['gnosis-chain', 'Gnosis Chain Mainnet'],
   bsc: ['bnb-chain', 'BNB Chain Mainnet'],
   avalanche: ['avalanche', 'Avalanche Mainnet'],
+  optimism: ['optimism', 'Optimism Mainnet'],
 };
 
 export const getAllAggregators = async (network: string): Promise<Proxy[]> => {
