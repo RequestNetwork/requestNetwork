@@ -1,7 +1,9 @@
 import { chainlinkConversionPath } from '../../src/lib';
 import { uniswapV2RouterAddresses } from '../../scripts/utils';
 import * as artifacts from '../../src/lib';
-import { BigNumber } from 'ethers';
+import { BigNumber, Wallet } from 'ethers';
+import utils from '@requestnetwork/utils';
+import { HardhatRuntimeEnvironmentExtended } from '../types';
 
 // Fees: 0.5%
 export const REQUEST_SWAP_FEES = 5;
@@ -87,4 +89,23 @@ export const updatePaymentEthFeeProxy = async (
     });
     await tx.wait(1);
   }
+};
+
+export const getSignerAndGasPrice = async (
+  network: string,
+  hre: HardhatRuntimeEnvironmentExtended,
+): Promise<{ signer: Wallet; gasPrice: BigNumber }> => {
+  let provider;
+  if (network === 'celo') {
+    provider = utils.getCeloProvider();
+  } else {
+    provider = utils.getDefaultProvider(network);
+  }
+  const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
+  const gasPrice = await provider.getGasPrice();
+
+  return {
+    signer,
+    gasPrice,
+  };
 };

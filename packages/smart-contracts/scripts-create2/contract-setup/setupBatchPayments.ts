@@ -1,7 +1,7 @@
 import { batchPaymentsArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
-import utils from '@requestnetwork/utils';
 import {
+  getSignerAndGasPrice,
   updateBatchPaymentFees,
   updatePaymentErc20FeeProxy,
   updatePaymentEthFeeProxy,
@@ -24,15 +24,8 @@ export const setupBatchPayments = async (
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
       try {
-        let provider;
-        if (network === 'celo') {
-          provider = utils.getCeloProvider();
-        } else {
-          provider = utils.getDefaultProvider(network);
-        }
-        const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
+        const { signer, gasPrice } = await getSignerAndGasPrice(network, hre);
         const batchPaymentConnected = await batchPaymentContract.connect(signer);
-        const gasPrice = await provider.getGasPrice();
 
         await updateBatchPaymentFees(batchPaymentConnected, gasPrice.mul(2));
         await updatePaymentErc20FeeProxy(batchPaymentConnected, network, gasPrice.mul(2));
