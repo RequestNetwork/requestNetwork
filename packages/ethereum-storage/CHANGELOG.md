@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.27.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.22.0...@requestnetwork/ethereum-storage@0.27.0) (2022-11-04)
+
+### Bug Fixes
+
+- getDataIdMeta heavy load ([#613](https://github.com/RequestNetwork/requestNetwork/issues/613)) ([fa8bf9e](https://github.com/RequestNetwork/requestNetwork/commit/fa8bf9e77a98d27ad6e21a8118995e6930a99407))
+- invoice total types + upgrade ethers ([#514](https://github.com/RequestNetwork/requestNetwork/issues/514)) ([c2b98b2](https://github.com/RequestNetwork/requestNetwork/commit/c2b98b2bd3c93f063f340d58c6b95ad026fd9519))
+- min gas ([#940](https://github.com/RequestNetwork/requestNetwork/issues/940)) ([ce9990f](https://github.com/RequestNetwork/requestNetwork/commit/ce9990f704cd374218769ff4cd9f4d2e8e041bbd))
+- typescript lint for test files ([#778](https://github.com/RequestNetwork/requestNetwork/issues/778)) ([048e876](https://github.com/RequestNetwork/requestNetwork/commit/048e876a905516be0de8a31d446e4572eb74eccb))
+- **smart-contract-manager:** save the real confirmationNumber ([#659](https://github.com/RequestNetwork/requestNetwork/issues/659)) ([c6f4b85](https://github.com/RequestNetwork/requestNetwork/commit/c6f4b85ac6998c0d6172ee036dd353ba175b6f0b))
+- upgrade ethers to 5.2.0 ([#532](https://github.com/RequestNetwork/requestNetwork/issues/532)) ([6c7cf35](https://github.com/RequestNetwork/requestNetwork/commit/6c7cf350a04e280b77ce6fd758b6f065f28fd1cc))
+
+### Features
+
+- goerli storage ([#890](https://github.com/RequestNetwork/requestNetwork/issues/890)) ([6aa9849](https://github.com/RequestNetwork/requestNetwork/commit/6aa9849e7c5795de6ec3cbd2a1607af15416a833))
+- **ipfs-manager:** adapt RPC usage with POST methods ([#871](https://github.com/RequestNetwork/requestNetwork/issues/871)) ([9b99d72](https://github.com/RequestNetwork/requestNetwork/commit/9b99d726512320999b94d8635772ceadc773f6ca))
+- increase XDaiFixedProvider prices ([#523](https://github.com/RequestNetwork/requestNetwork/issues/523)) ([eeca1e7](https://github.com/RequestNetwork/requestNetwork/commit/eeca1e7657e74579da66112045855a5d7dea8078))
+- xdai gas price ([#457](https://github.com/RequestNetwork/requestNetwork/issues/457)) ([8f0822d](https://github.com/RequestNetwork/requestNetwork/commit/8f0822de91cb2d9f617fa94c4d11dcd9adf806b2))
+
 # [0.26.0](https://github.com/RequestNetwork/requestNetwork/compare/@requestnetwork/ethereum-storage@0.22.0...@requestnetwork/ethereum-storage@0.26.0) (2021-06-22)
 
 ### Bug Fixes
