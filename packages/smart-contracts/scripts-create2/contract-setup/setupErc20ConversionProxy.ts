@@ -7,7 +7,7 @@ import {
 } from './adminTasks';
 
 /**
- * Updates the values of the batch fees of the BatchPayments contract, if needed
+ * Updates the values of the chainlinkConversionPath and ERC20FeeProxy addresses if needed
  * @param contractAddress address of the BatchPayments Proxy
  * @param hre Hardhat runtime environment
  */

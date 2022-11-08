@@ -43,19 +43,19 @@ export const updateSwapRouter = async (
 export const updateRequestSwapFees = async (contract: any, gasPrice: BigNumber): Promise<void> => {
   const currentFees: BigNumber = await contract.requestSwapFees();
   if (!currentFees.eq(REQUEST_SWAP_FEES)) {
-    console.log(`currentFees: ${currentFees.toString()}, new fees: ${REQUEST_SWAP_FEES}`);
     const tx = await contract.updateRequestSwapFees(REQUEST_SWAP_FEES, { gasPrice: gasPrice });
     await tx.wait(1);
+    console.log(`currentFees: ${currentFees.toString()}, new fees: ${REQUEST_SWAP_FEES}`);
   }
 };
 
 export const updateBatchPaymentFees = async (contract: any, gasPrice: BigNumber): Promise<void> => {
   const currentFees: BigNumber = await contract.batchFee();
   if (!currentFees.eq(BATCH_FEE)) {
-    // Log is useful to have a direct view on what is being updated
-    console.log(`currentFees: ${currentFees.toString()}, new fees: ${BATCH_FEE}`);
     const tx = await contract.setBatchFee(BATCH_FEE, { gasPrice: gasPrice });
     await tx.wait(1);
+    // Log is useful to have a direct view on what is being updated
+    console.log(`currentFees: ${currentFees.toString()}, new fees: ${BATCH_FEE}`);
   }
 };
 
