@@ -62,6 +62,7 @@ export const deployWithCreate2FromList = async (
       }
       case 'EthConversionProxy': {
         // FIXME: not deployable through xdeployer yet. Check FIXME in getConstrucotrArgs function
+        throw new Error('EthConversionProxy not deployable through xdeployer yet');
         const constructorArgs = getConstructorArgs(contract);
         const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
         await setupETHConversionProxy(address, hre);
