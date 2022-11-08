@@ -150,8 +150,9 @@ export default {
       avalanche: process.env.SNOWTRACE_API_KEY,
       // xdai
       xdai: process.env.GNOSISSCAN_API_KEY,
-      // other networks don't need an API key, but you still need
+      // optimism
       optimism: process.env.OPTIMISM_API_KEY,
+      // other networks don't need an API key, but you still need
       // to specify one; any string placeholder will work
       sokol: 'api-key',
       aurora: 'api-key',
