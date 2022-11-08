@@ -30,8 +30,7 @@ export const setupERC20SwapToConversion = async (
         } else {
           provider = utils.getDefaultProvider(network);
         }
-        const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
-        const signer = wallet.connect(provider);
+        const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
         const ERC20SwapToConversionConnected = await ERC20SwapToConversionContract.connect(signer);
         const gasPrice = await provider.getGasPrice();
 

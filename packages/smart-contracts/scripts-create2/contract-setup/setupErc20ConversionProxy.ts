@@ -26,8 +26,7 @@ export const setupErc20ConversionProxy = async (
         } else {
           provider = utils.getDefaultProvider(network);
         }
-        const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
-        const signer = wallet.connect(provider);
+        const signer = new hre.ethers.Wallet(hre.config.xdeploy.signer).connect(provider);
         const Erc20ConversionProxyConnected = await Erc20ConversionProxyContract.connect(signer);
         const gasPrice = await provider.getGasPrice();
 
