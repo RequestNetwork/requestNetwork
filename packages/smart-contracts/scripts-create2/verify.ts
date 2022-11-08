@@ -21,9 +21,20 @@ export const verifyOne = async (
 
 export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtended): Promise<void> {
   try {
+    /**
+     * Introduces a delay between each verification
+     * Prevents reaching the API call limit
+     */
+    const delay = () => {
+      return new Promise((resolve) => {
+        setTimeout(resolve, 250);
+      });
+    };
+
     let address: string;
-    await Promise.all(
-      create2ContractDeploymentList.map(async (contract) => {
+    for (const contract of create2ContractDeploymentList) {
+      try {
+        await delay();
         switch (contract) {
           case 'EthereumProxy':
           case 'EthereumFeeProxy':
@@ -56,8 +67,10 @@ export async function VerifyCreate2FromList(hre: HardhatRuntimeEnvironmentExtend
               `The contrat ${contract} is not to be deployed using the CREATE2 scheme`,
             );
         }
-      }),
-    );
+      } catch (err) {
+        console.warn(err);
+      }
+    }
   } catch (e) {
     console.error(e);
   }

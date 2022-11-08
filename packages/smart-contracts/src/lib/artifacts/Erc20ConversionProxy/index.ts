@@ -70,6 +70,10 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
           address: '0xbbd9c5D112343A4Aa2bc194245760CaeeaF118Be',
           creationBlockNumber: 16361281,
         },
+        optimism: {
+          address: '0x1550A8C4F4E5afC67Ea07e8ac590fdcAdB4bBfb1',
+          creationBlockNumber: 35490589,
+        },
       },
     },
     '0.1.1': {
@@ -103,6 +107,10 @@ export const erc20ConversionProxy = new ContractArtifact<Erc20ConversionProxy>(
         bsc: {
           address: '0xbbd9c5D112343A4Aa2bc194245760CaeeaF118Be',
           creationBlockNumber: 16361281,
+        },
+        optimism: {
+          address: '0x1550A8C4F4E5afC67Ea07e8ac590fdcAdB4bBfb1',
+          creationBlockNumber: 35490589,
         },
       },
     },

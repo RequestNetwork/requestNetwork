@@ -20,9 +20,11 @@ export const getConstructorArgs = (contract: string, network?: string): string[]
       return [
         '0x0000000000000000000000000000000000000000',
         '0x0000000000000000000000000000000000000000',
+        // FIXME: This is not right the NativeTokenHash is not the same accross all networks
+        //        It should be set to 0x0, and then updated through setup functions
+        //        These functions needs to be implemented in the contract before it can deployed using xdeployer
         '0x39e19aa5b69466dfdc313c7cda37cb2a599015cd',
       ];
-      // TODO setupETHConversionProxy
     }
     case 'ERC20SwapToConversion': {
       return [getAdminWalletAddress(contract)];
