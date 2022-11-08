@@ -1,7 +1,7 @@
 import { erc20SwapConversionArtifact } from '../../src/lib';
 import { HardhatRuntimeEnvironmentExtended } from '../types';
-import utils from '@requestnetwork/utils';
 import {
+  getSignerAndGasPrice,
   updateChainlinkConversionPath,
   updateRequestSwapFees,
   updateSwapRouter,
@@ -23,29 +23,18 @@ export const setupERC20SwapToConversion = async (
   );
   await Promise.all(
     hre.config.xdeploy.networks.map(async (network) => {
-      let provider;
-      if (network === 'celo') {
-        provider = utils.getCeloProvider();
-      } else {
-        provider = utils.getDefaultProvider(network);
-      }
-      const wallet = new hre.ethers.Wallet(hre.config.xdeploy.signer, provider);
-      const signer = wallet.connect(provider);
-      const ERC20SwapToConversionConnected = await ERC20SwapToConversionContract.connect(signer);
-      const adminNonce = await signer.getTransactionCount();
-      const gasPrice = await provider.getGasPrice();
+      try {
+        const { signer, gasPrice } = await getSignerAndGasPrice(network, hre);
+        const ERC20SwapToConversionConnected = await ERC20SwapToConversionContract.connect(signer);
 
-      await Promise.all([
-        updateChainlinkConversionPath(
-          ERC20SwapToConversionConnected,
-          network,
-          adminNonce,
-          gasPrice,
-        ),
-        updateSwapRouter(ERC20SwapToConversionConnected, network, adminNonce + 1, gasPrice),
-        updateRequestSwapFees(ERC20SwapToConversionConnected, adminNonce + 2, gasPrice),
-      ]);
+        await updateChainlinkConversionPath(ERC20SwapToConversionConnected, network, gasPrice);
+        await updateSwapRouter(ERC20SwapToConversionConnected, network, gasPrice);
+        await updateRequestSwapFees(ERC20SwapToConversionConnected, gasPrice);
+        console.log(`Setup of Erc20SwapToConversion successful on ${network}`);
+      } catch (err) {
+        console.warn(`An error occurred during the setup of Erc20SwapToConversion on ${network}`);
+        console.warn(err);
+      }
     }),
   );
-  console.log('Setup for ERC20SwapToConversion successfull');
 };

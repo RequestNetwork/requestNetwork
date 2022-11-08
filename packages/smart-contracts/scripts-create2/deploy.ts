@@ -5,6 +5,8 @@ import { xdeploy } from './xdeployer';
 import { getConstructorArgs } from './constructor-args';
 import { setupERC20SwapToConversion } from './contract-setup';
 import { setupBatchPayments } from './contract-setup/setupBatchPayments';
+import { setupETHConversionProxy } from './contract-setup/setupETHConversionProxy';
+import { setupErc20ConversionProxy } from './contract-setup/setupErc20ConversionProxy';
 
 // Deploys, set up the contracts and returns the address
 export const deployOneWithCreate2 = async (
@@ -52,12 +54,24 @@ export const deployWithCreate2FromList = async (
   for (const contract of create2ContractDeploymentList) {
     switch (contract) {
       case 'EthereumProxy':
-      case 'EthereumFeeProxy':
-      case 'EthConversionProxy':
       case 'ERC20FeeProxy':
-      case 'Erc20ConversionProxy': {
+      case 'EthereumFeeProxy': {
         const constructorArgs = getConstructorArgs(contract);
         await deployOneWithCreate2({ contract, constructorArgs }, hre);
+        break;
+      }
+      case 'EthConversionProxy': {
+        // FIXME: not deployable through xdeployer yet. Check FIXME in getConstrucotrArgs function
+        throw new Error('EthConversionProxy not deployable through xdeployer yet');
+        const constructorArgs = getConstructorArgs(contract);
+        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+        await setupETHConversionProxy(address, hre);
+        break;
+      }
+      case 'Erc20ConversionProxy': {
+        const constructorArgs = getConstructorArgs(contract);
+        const address = await deployOneWithCreate2({ contract, constructorArgs }, hre);
+        await setupErc20ConversionProxy(address, hre);
         break;
       }
       case 'ERC20SwapToConversion': {
