@@ -8,7 +8,7 @@ import {
 
 /**
  * Updates the values of the chainlinkConversionPath and ERC20FeeProxy addresses if needed
- * @param contractAddress address of the BatchPayments Proxy
+ * @param contractAddress address of the ERC20Conversion Proxy
  * @param hre Hardhat runtime environment
  */
 export const setupErc20ConversionProxy = async (

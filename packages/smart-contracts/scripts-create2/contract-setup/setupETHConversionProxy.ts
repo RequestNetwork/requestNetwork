@@ -7,8 +7,8 @@ import {
 } from './adminTasks';
 
 /**
- * Updates the values of the ethConversion contract, if needed
- * @param contractAddress address of the BatchPayments Proxy
+ * Updates the values of the chainlinkConversionPath and EthFeeProxy addresses if needed
+ * @param contractAddress address of the ETHConversion Proxy
  * @param hre Hardhat runtime environment
  */
 export const setupETHConversionProxy = async (

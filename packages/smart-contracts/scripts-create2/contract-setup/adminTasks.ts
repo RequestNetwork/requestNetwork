@@ -84,29 +84,24 @@ export const updatePaymentFeeProxyAddress = async (
   proxyType: 'native' | 'erc20',
   version = undefined,
 ): Promise<void> => {
-  try {
-    let proxyAddress: string;
-    let currentAddress: string;
-    if (proxyType === 'native') {
-      proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network, version);
-      currentAddress = await contract.paymentProxy();
-    } else {
-      proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network, version);
-      currentAddress = await contract.paymentProxy();
-    }
+  let proxyAddress: string;
+  let currentAddress: string;
+  if (proxyType === 'native') {
+    proxyAddress = artifacts.ethereumFeeProxyArtifact.getAddress(network, version);
+    currentAddress = await contract.paymentProxy();
+  } else {
+    proxyAddress = artifacts.erc20FeeProxyArtifact.getAddress(network, version);
+    currentAddress = await contract.paymentProxy();
+  }
 
-    if (currentAddress.toLocaleLowerCase() !== proxyAddress.toLocaleLowerCase()) {
-      const tx = await contract.updateConversionProxyAddress(proxyAddress, {
-        gasPrice: gasPrice,
-      });
-      await tx.wait();
-      console.log(
-        `${proxyType} conversion proxy: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
-      );
-    }
-  } catch (e) {
-    console.log(`Cannot update ${proxyType} conversion proxy, it might not exist on this network`);
-    console.log(e);
+  if (currentAddress.toLocaleLowerCase() !== proxyAddress.toLocaleLowerCase()) {
+    const tx = await contract.updateConversionProxyAddress(proxyAddress, {
+      gasPrice: gasPrice,
+    });
+    await tx.wait();
+    console.log(
+      `${proxyType} conversion proxy: the current address ${currentAddress} has been replaced by: ${proxyAddress}`,
+    );
   }
 };
 
