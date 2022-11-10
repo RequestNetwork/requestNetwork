@@ -9,12 +9,14 @@ import * as artifacts from '../src/lib';
 export const create2ContractDeploymentList = [
   'EthereumProxy',
   'EthereumFeeProxy',
-  'EthConversionProxy',
   'ERC20FeeProxy',
   'Erc20ConversionProxy',
   'ERC20SwapToConversion',
   'ERC20EscrowToPay',
   'BatchPayments',
+  // FIXME: EthConversionProxy cannot be deployed using xDeployer yet
+  //        We need to be able to administrate the nativeTokenHash first.
+  // 'EthConversionProxy',
 ];
 
 /**

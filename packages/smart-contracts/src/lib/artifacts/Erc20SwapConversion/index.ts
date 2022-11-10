@@ -79,6 +79,11 @@ export const erc20SwapConversionArtifact = new ContractArtifact<ERC20SwapToConve
           address: '0x3b4837C9F4A606b71e61FD56Db6241781194df92',
           creationBlockNumber: 21837165,
         },
+        // Deployment address changed due to an update of the contract metadata
+        optimism: {
+          address: '0x80D1EE67ffAf7047d3E6EbF7317cF0eAd63FFc78',
+          creationBlockNumber: 35496076,
+        },
       },
     },
   },

@@ -38,10 +38,11 @@ const networkRpcs: Record<string, string> = {
   fuse: 'https://rpc.fuse.io',
   bsctest: 'https://data-seed-prebsc-1-s1.binance.org:8545',
   bsc: 'https://bsc-dataseed1.binance.org/',
-  xdai: 'https://rpc.xdaichain.com/',
+  xdai: 'https://rpc.gnosischain.com/',
   'arbitrum-rinkeby': 'https://rinkeby.arbitrum.io/rpc',
   'arbitrum-one': 'https://arb1.arbitrum.io/rpc',
   avalanche: 'https://api.avax.network/ext/bc/C/rpc',
+  optimism: 'https://mainnet.optimism.io',
 };
 
 /**

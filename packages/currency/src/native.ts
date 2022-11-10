@@ -99,6 +99,12 @@ export const nativeCurrencies: Record<NativeCurrencyType, (NativeCurrency & { na
       name: 'AVAX',
       network: 'avalanche',
     },
+    {
+      symbol: 'ETH-optimism',
+      decimals: 18,
+      name: 'Optimism Ether',
+      network: 'optimism',
+    },
   ],
   [RequestLogicTypes.CURRENCY.BTC]: [
     {
