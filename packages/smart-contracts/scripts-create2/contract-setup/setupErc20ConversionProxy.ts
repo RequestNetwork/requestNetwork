@@ -3,12 +3,12 @@ import { HardhatRuntimeEnvironmentExtended } from '../types';
 import {
   getSignerAndGasPrice,
   updateChainlinkConversionPath,
-  updatePaymentErc20FeeProxy,
+  updatePaymentFeeProxyAddress,
 } from './adminTasks';
 
 /**
  * Updates the values of the chainlinkConversionPath and ERC20FeeProxy addresses if needed
- * @param contractAddress address of the BatchPayments Proxy
+ * @param contractAddress address of the ERC20Conversion Proxy
  * @param hre Hardhat runtime environment
  */
 export const setupErc20ConversionProxy = async (
@@ -26,7 +26,12 @@ export const setupErc20ConversionProxy = async (
         const { signer, gasPrice } = await getSignerAndGasPrice(network, hre);
         const Erc20ConversionProxyConnected = await Erc20ConversionProxyContract.connect(signer);
 
-        await updatePaymentErc20FeeProxy(Erc20ConversionProxyConnected, network, gasPrice);
+        await updatePaymentFeeProxyAddress(
+          Erc20ConversionProxyConnected,
+          network,
+          gasPrice,
+          'erc20',
+        );
         await updateChainlinkConversionPath(Erc20ConversionProxyConnected, network, gasPrice);
         console.log(`Setup of Erc20ConversionProxy successful on ${network}`);
       } catch (err) {
