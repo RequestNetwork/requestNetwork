@@ -11,7 +11,7 @@ export const REQUEST_SWAP_FEES = 5;
 export const BATCH_FEE = 3;
 
 /**
- * It update the chainlink address used by the contract.
+ * Updates the chainlink address used by the contract.
  * @param contract A contract using chainlink:
  *                 Erc20ConversionProxy | EthConversionProxy | ERC20SwapToConversion.
  * @param network The network used.
