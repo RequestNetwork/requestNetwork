@@ -70,7 +70,7 @@ export const updateBatchPaymentFees = async (contract: any, gasPrice: BigNumber)
 };
 
 /**
- * Update the address of a Native or ERC20 fee proxy stored within a Native or ERC20 fee conversion contract
+ * Updates the address of a Native or ERC20 fee proxy stored within a Native or ERC20 fee conversion contract
  * @param contract A contract using chainlink: EthConversionProxy | Erc20ConversionProxy.
  * @param network The network used.
  * @param gasPrice The gas price used.Increase its value if needed.
