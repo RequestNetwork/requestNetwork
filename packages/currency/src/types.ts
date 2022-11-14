@@ -7,6 +7,7 @@ export type NativeCurrency = {
   symbol: string;
   decimals: number;
   network: string;
+  address: never;
 };
 
 /** Native Currency types */
@@ -18,6 +19,8 @@ export type NativeCurrencyType = RequestLogicTypes.CURRENCY.BTC | RequestLogicTy
 export type ISO4217Currency = {
   symbol: string;
   decimals: number;
+  network: never;
+  address: never;
 };
 
 /**
